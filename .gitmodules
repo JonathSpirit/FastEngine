@@ -1,0 +1,33 @@
+[submodule "libs/bzip2"]
+    path = libs/bzip2
+    url = https://gitlab.com/bzip2/bzip2.git
+    ignore = dirty
+[submodule "libs/fmt"]
+    path = libs/fmt
+    url = https://github.com/fmtlib/fmt.git
+    ignore = dirty
+    branch = 8.0.1
+[submodule "libs/lz4"]
+    path = libs/lz4
+    url = https://github.com/lz4/lz4.git
+    ignore = dirty
+    branch = v1.9.3
+[submodule "libs/pcg-cpp"]
+    path = libs/pcg-cpp
+    url = https://github.com/imneme/pcg-cpp.git
+    ignore = dirty
+    branch = v0.98.1
+[submodule "libs/re2"]
+    path = libs/re2
+    url = https://github.com/google/re2.git
+    ignore = dirty
+    branch = 2021-11-01
+[submodule "libs/SFML"]
+    path = libs/SFML
+    url = https://github.com/SFML/SFML.git
+    ignore = dirty
+    branch = 2.5.1
+[submodule "libs/strtk"]
+    path = libs/strtk
+    url = https://github.com/ArashPartow/strtk.git
+    ignore = dirty
