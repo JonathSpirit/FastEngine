@@ -149,6 +149,7 @@ public:
 
     void monTestClass(bool test)
     {
+        this->you = this->you + " bonsouir";
         std::cout << you << std::endl;
     }
     void printValeur() const
@@ -509,7 +510,7 @@ public:
 
         fge::CallbackHandler<bool>* callbacktest = new fge::CallbackHandler<bool>();
         callbacktest->add( new fge::CallbackFunctor<bool>(monTest) );
-        callbacktest->add( new fge::CallbackFunctorObject<SuperTest, bool>(SuperTest::monTestClass, bonsoir), bonsoir );
+        callbacktest->add( new fge::CallbackFunctorObject<SuperTest, bool>(&SuperTest::monTestClass, bonsoir), bonsoir );
 
         callbacktest->call(false);
 

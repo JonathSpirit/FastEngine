@@ -16,29 +16,36 @@ else()
     set(FGE_DEBUG OFF)
 endif()
 
+if(NOT WIN32)
+    set(FGE_SFML_MAIN "")
+else()
+    set(FGE_SFML_MAIN "sfml-main")
+endif()
+
 set(FGE_EXE_NAME ${PROJECT_NAME}_test)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #Dependency
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC_LIBS OFF)
 
-set(SFML_BUILD_NETWORK OFF)
+set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/SFML")
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)
 
-set(LZ4_BUILD_CLI OFF)
+set(LZ4_BUILD_CLI OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/lz4/build/cmake")
-set(FMT_TEST OFF)
+set(FMT_TEST OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/fmt")
-set(RE2_BUILD_TESTING OFF)
-set(BUILD_TESTING OFF)
+set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/re2")
-set(RE2_BUILD_TESTING OFF)
-set(ENABLE_LIB_ONLY ON)
-set(ENABLE_APP OFF)
-set(ENABLE_STATIC_LIB ON)
+set(ENABLE_LIB_ONLY ON CACHE BOOL "" FORCE)
+set(ENABLE_APP OFF CACHE BOOL "" FORCE)
+set(ENABLE_STATIC_LIB ON CACHE BOOL "" FORCE)
 add_subdirectory("libs/bzip2")
 
 #Create the library
@@ -53,8 +60,8 @@ add_executable(${FGE_EXE_NAME})
 add_dependencies(${FGE_EXE_NAME} ${FGE_TARGET_NAME})
 
 #Dependencies
-add_dependencies(${FGE_TARGET_NAME} sfml-audio sfml-graphics sfml-main sfml-system sfml-window)
-add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics sfml-main sfml-system sfml-window)
+add_dependencies(${FGE_TARGET_NAME} sfml-audio sfml-graphics sfml-system sfml-window)
+add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
 target_include_directories(${FGE_TARGET_NAME} PUBLIC "libs/SFML/include")
 
 add_dependencies(${FGE_TARGET_NAME} lz4_static)
@@ -147,7 +154,7 @@ endif()
 target_link_libraries(${FGE_TARGET_NAME} bz2_static)
 target_link_libraries(${FGE_TARGET_NAME} lz4_static)
 target_link_libraries(${FGE_TARGET_NAME} fmt)
-target_link_libraries(${FGE_TARGET_NAME} sfml-audio sfml-graphics sfml-main sfml-system sfml-window)
+target_link_libraries(${FGE_TARGET_NAME} sfml-audio sfml-graphics sfml-system sfml-window)
 target_link_libraries(${FGE_TARGET_NAME} re2)
 
-target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics sfml-main sfml-system sfml-window ${FGE_TARGET_NAME})
+target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_TARGET_NAME})

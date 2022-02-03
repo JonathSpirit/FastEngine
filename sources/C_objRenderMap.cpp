@@ -26,7 +26,7 @@ void FGE_API ObjRenderMap::first(fge::Scene* scene_ptr)
 {
     if (scene_ptr)
     {
-        scene_ptr->_onRenderTargetClear.add( new CallbackFunctorObject(fge::ObjRenderMap::onClear, this), this );
+        scene_ptr->_onRenderTargetClear.add( new CallbackFunctorObject(&fge::ObjRenderMap::onClear, this), this );
     }
 }
 void FGE_API ObjRenderMap::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
