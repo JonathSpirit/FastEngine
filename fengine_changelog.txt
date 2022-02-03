@@ -1,0 +1,183 @@
+/*********************************CHANGELOG*********************************\
+
+Version 0.1 :
+-----------------------
+
+[NEW] Creation du moteur ...
+
+Version 0.2 :
+-----------------------
+
+[NEW] Creation du reach_manager ainsi que la class ReachType permettant de faire varier
+	  des nombres a une certaine valeur (position, angle etc...).
+
+[NEW] Ajout du log_manager.
+	  
+[NEW] Creation d'un *.h contenant 2-3 includes de base du moteur.
+
+[NEW] Ajout de la lib Gtxt V0.06
+	
+[NEW] Ajout d'une function permettant de savoir si le moteur est compiler en DEBUG ou en RELEASE.
+	
+[NEW] Creation rapide d'une class permettant de faire de l'animation.
+	
+[NEW] Creation de la class EventBank.
+	
+[FIX] isMouseOn, isPressed et getCharEntry doivent marcher uniquement si l'ecran est en focus.
+
+Version 0.3 :
+-----------------------
+
+[NEW] Ajout de la class "Colorable" permettant d'ajouter des proprieter de couleur a vos objets
+
+[NEW] Ajout de la possibiliter de modifier le générateur de seed pour extra_random.
+
+[NEW] Creation d'une class Object, comportant le nessesaire pour creer un objet.
+
+[NEW] Creation d'une petite class permettant de gerer un system de clock avec les timers.
+
+
+[MOD] Mettre en protected les functions draw().
+
+[MOD] Changement globale sur tous les objets prefaits.
+
+[MOD] Changement sur les class Reach.
+
+[MOD] texture_manager, font_manager, audio_manager ... renvoie desormais une reference au lieu d'un pointeur.
+
+
+[FIX] Optimisation globale sur divers arguments et returns.
+
+[FIX] Amélioration et changement sur la class Netc_tcp
+
+[FIX] Amélioration et changement sur la class Nets_tcp
+
+[FIX] Amélioration et changement sur la class Netc_udp
+
+
+[DEL] Suppression du reach_manager.
+
+Version 0.4.302.1631 :
+-----------------------
+
+[NEW] Ajout de l'utilisation des tickets pour les textures, fonts etc....
+
+[NEW] Creer un build speciale server.
+
+[NEW] L'objet textinputbox a desormais la possibiliter de cacher le text.
+
+[NEW] L'objet textinputbox peut desormais utiliser un curseur pour modifier le text.
+
+[NEW] Passage de gtxt-V0.06 a gtxt-V0.7
+
+[NEW] Changement complet sur les objets et de la facon que le moteur marche.
+
+[NEW] Creer un network_manager
+
+[NEW] Creer un screen_manager
+
+[NEW] Creer une class scene
+
+
+[MOD] Changement sur les tickets.
+
+[MOD] Transformer les class reach en simple function.
+
+[MOD] Transformer la class ClkPulse en simple function.
+
+
+[FIX] Crash durant l'update d'une animation.
+
+Version 0.5.47.321 :
+-----------------------
+
+[MOD] Amélioration du moteur.
+
+Version 0.6.0.4501 :
+-----------------------
+
+[NEW] Il est possible desormais d'obtenir un objet(did) via un pointer.
+
+[NEW] Ajout de la possibiliter de sauvegarder/charger un objet.
+
+[NEW] Ajout de la possibiliter de sauvegarder/charger une scene.
+
+[NEW] Ajout de la fonction "duplicate" dans la class Scene.
+
+[NEW] Ajout de fonction "find" dans la class DataList.
+
+[NEW] Ajout de la possibiliter de creer un server UDP (Nets_udp).
+
+[NEW] Ajout de FGE_SCENE_PLAN_DEFAULT.
+
+[NEW] Ajout de la possibiliter de changer le sid lors de la creation de l'objet.
+
+[NEW] Ajout dans DataList la fonction "valueCanBeCreatedByObtaining" qui va permettre de creer une valeur a n'importe quelle moment (ex. obtention).
+
+[NEW] Dans la class DataList, ajouter une function permettant de checker si une vid existe.
+
+[NEW] ajout de l'argument clear_target et clear_color dans la class Scene.
+
+[NEW] Ajout d'une fonction processEvent sur la scene/entity.
+
+[NEW] Creation de la class Event.
+
+[NEW] Creation de l'objet ObjSelectBox permettant de selectioner une valeur depuis une liste.
+
+[NEW] Ajout d'un crash_manager.
+
+[NEW] Ajout d'un system de protocole.
+
+[NEW] Ajout d'un system d'authentification (pseudo, password).
+
+
+[MOD] Renommer de ObjectData en DataList.
+
+[MOD] Renommer de TagCatalog en TagList.
+
+[MOD] Les clients(Nets) possede desormais un DataList au lieu de simple Tag.
+
+[MOD] Changement au network_manager.
+
+[MOD] Ajout de namespace pour plus de lisibiliter.
+
+[MOD] log_manager n'utilise plus windows.h.
+
+[MOD] Desormais les "vnames" (string) sont remplacer par des "vid" (uchar_8bit).
+
+[MOD] Renommer de FGE_OBJ_CREATE en FGE_DATA_CREATE et deplacement dans la class DataList.
+
+[MOD] Renommer de FGE_OBJ_DATA en FGE_OBJ_THIS.
+
+[MOD] Dans la class Nets, renommer de getDataList par getClientData
+
+[MOD] DataList utilise desormais un std::map au lieu de 2 std::vector.
+
+[MOD] renommer de GetCharEntry en GetCharUnicode.
+
+[MOD] Grande amelioration de extra_random.
+
+[MOD] Changement globale dans les class network TCP.
+
+[MOD] Remplacer tous les FGE_BUILD_DLL par FGE_API.
+
+
+[FIX] Fix d'un ptit souci dans getInfo().
+
+[FIX] Regler 2-3 probleme concernant les class Nets.
+
+
+[DEL] Supression de la fonction pushData dans la class DataList.
+
+[DEL] Il est désormais plus possible de changer le seed dans extra_random.
+
+Version 0.7.0.0 :
+-----------------------
+
+[NEW] Refonte complet.
+
+
+[MOD] Utilisation du compilateur MinGW-W64-builds-4.3.3 - (i686-7.2.0-posix-dwarf-rt_v5-rev1)
+
+
+\***************************************************************************/

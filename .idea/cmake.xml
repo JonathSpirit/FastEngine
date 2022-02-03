@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug32" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MSYS2_MinGW_32" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot;" />
+      <configuration PROFILE_NAME="Release32" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="MSYS2_MinGW_32" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot;" />
+      <configuration PROFILE_NAME="Debug64" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MSYS2_MinGW_64" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot;" />
+      <configuration PROFILE_NAME="Release64" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="MSYS2_MinGW_64" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot;" />
+    </configurations>
+  </component>
+</project>

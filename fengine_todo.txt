@@ -1,0 +1,94 @@
+--------------------------
+Version 0.9  FAST ENGINE |
+----------------------------------------------------------------------
+[V]: implémenter                                                     |
+[X]: refuser                                                         |
+[-]: en cour ...                                                     |
+[?]: intense reflexion :/                                            |
+[!]: très important !                                                |
+[/]: implémenter mais modifier                                       |
+[T]: ok mais doit etre tester !                                      |
+[C]: doit etre corriger !                                            |
+[>]: ne sera pas dans cette MAJ mais surement dans une prochaine ... |
+----------------------------------------------------------------------
+
+
+[-] ajout d'une protection pour les inits
+[-] COLLISIONNNNNNNNNNNNN
+[-] GRAVITEEEEEEEEEEEEEEER
+[/] creation de la class Linkable et de tout un system
+[-] creer une multitude de nouvelle objet
+[-] creer un language_manager
+[-] creer une class config
+[V] utiliser un system protocol-skey etc... pour tous ce qui est net et les rendre plus simple et moin chiant UDP
+[V] changement globale dans les class network UDP
+[-] creer un : sf::packet << std::vector<std::string>
+[C] bug avec l'enregistrement d'un vector string dans gtxt ?
+[-] optimisation des fonctions reach
+[-] Gtxt : creer un system de sous-catégorie
+[V] Ajout d'un operator << pour les vectors
+[-] Ajout d'une class matrix
+[-] Checker si les deconstructeur sont bien virtuel
+[V] Dans fge::texture ajouter un get
+[X] Dans fge::object pourquoi __size est en sf::vector2f au lieu de sf::vector2u;
+[V] Appliquer directement une taille juste avec une texture en référence
+[V] dans fge::object pas sur que la __netList soit supprimer correctement
+[V] passage de SFML-2.5.0 a SFML-2.5.1
+[V] isPressed/IsTouched etc... n'utilise pas les events
+
+[V] Optimiser le rendu (draw) des objects en generale ou juste des lumières
+[V] Optimiser les renderTexture qui bouffe pour rien la mémoire du GPU
+[V] Optimiser l'update de fge::light qui ne sert a rien hors cadre
+[!] truc auth ne fonctionne absolument pas -.-
+
+[V] JSon save et load
+[-] GUI boutton plus simple
+[-] ObjectData est stupide
+[-] ajout de FGE dans les define pour les headers
+[V] corriger les sf::packet << sf::vector2... sa ne doit pas etre dans le namespace fge
+[V] fge::ToRect pour uint
+[V] fge::Tileset
+[-] truc chrono mesure temps
+[-] une liste de variable comme datalist mais plus "simple"
+[V] ajout d'une function permettant d'obtenir un rectangle couvrant la totalité de la zone visuel (l'écran quoi)
+[-] creer un nouveau serveur (thread) udp mais cette fois si pour les clients
+[V] regler le draw hors ecran (faut appliquer la rotation au rectangle de la fenetre)
+[-] ajout de fonction debug, permettant de dessiner rapidement quelque chose
+[-] ajout d'un refresh sur fge::texture
+[-] sur fge::texture lorsque le meme nom est demander, alors ne rien faire
+[-] passer LZ4-1.9.1 à LZ4-1.9.2
+[V] faire une function dans la scene qui permet de transferer des objets dans une autre scene
+[V] ajouter le delete sur les textbox
+[-] refaire le bonhomme pas content pour le crash
+[V] view personnaliser sur les scenes
+[V] getViewSizePercentage
+[V] getGlobalBounds
+[-] ajout d'un copy sur une scene
+[?] faire en sorte que les gate peuvent se connecter a d'autre gate
+[-] ajout d'un replace sur fge::scene
+[V] Ajout d'un system devent sur une scene 
+[V] permettre de linker des scenes entre elles pour le partage de données
+[V] avoir un getClassName mais lisible par l'utilisateur
+[V] faire un getAllSid_ByZone mais avec un seul objet
+[V] Creer une fonction qui prend 2 position en entrée et resort un rectangle
+[C] Corriger conversion floatToStr et doubleToStr
+[V] Révision du code de chaque objets
+[V] Modifier fge::value
+[-] Corriger isMousOn et lautre connerie CEST DE LA MERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRDE
+[V] ajout d'une simple class flag
+[V] fge::Scene ajout d'un flag : always_drawed
+[V] Enlever les mutex sur les fge::tunnel
+[V] fge::Value : ajout des vecteurs
+[V] fge::Value : ajout des constructeur différent
+[V] fge::Scene : la méthode draw n'est pas constante
+[V] ajout d'une méthode destroy() au objet
+[V] ajout d'une méthode first() au objet
+[V] fge::reg::LoadScene permettre de charger une scene dans une class deja creer
+[V] ajouter un setdata dans datalist
+[V] Lumière
+[V] passage de sfml-2.4.2 à sfml-2.5.0
+[V] passage : i686-7.2.0-posix-dwarf-rt_v5-rev1 à i686-8.1.0-posix-dwarf-rt_v6-rev0
+
+[?] Faire des type de variable basique fge
+[?] creer une version 32bit et 64bit du moteur
+[X] fge::event : ne marche pas comme prévu !!!

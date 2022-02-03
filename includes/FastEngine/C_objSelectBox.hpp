@@ -1,0 +1,87 @@
+#ifndef _FGE_C_OBJSELECTBOX_HPP_INCLUDED
+#define _FGE_C_OBJSELECTBOX_HPP_INCLUDED
+
+#include <FastEngine/fastengine_extern.hpp>
+
+#include <FastEngine/C_object.hpp>
+#include <FastEngine/C_flag.hpp>
+#include <FastEngine/C_font.hpp>
+#include <FastEngine/C_objText.hpp>
+
+#define FGE_OBJSELECTBOX_CLASSNAME "FGE:OBJ:SELECTBOX"
+
+namespace fge
+{
+
+class FGE_API ObjSelectBox : public fge::Object
+{
+public:
+    ObjSelectBox();
+    ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos = sf::Vector2f());
+
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSelectBox)
+
+    std::vector<sf::String>& getTextList();
+    const std::vector<sf::String>& getTextList() const;
+
+    void setSelectedText(const sf::String& string);
+    const sf::String& getSelectedText() const;
+
+    void setCharacterSize(unsigned int size);
+
+    void setActiveStat(bool active);
+
+    void setBoxSize(const sf::Vector2f& size);
+    void setBoxSize(float w, float h);
+
+    void setBoxColor(const sf::Color& color);
+    void setBoxOutlineColor(const sf::Color& color);
+    void setTextColor(const sf::Color& color);
+
+    unsigned int getCharacterSize() const;
+
+    bool getActiveStat() const;
+
+    const sf::Vector2f& getBoxSize() const;
+
+    const sf::Color& getBoxColor() const;
+    const sf::Color& getBoxOutlineColor() const;
+    const sf::Color& getTextColor() const;
+
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void pack(fge::net::Packet& pck) override;
+    void unpack(fge::net::Packet& pck) override;
+
+    std::string getClassName() const override;
+    std::string getReadableClassName() const override;
+
+    sf::FloatRect getGlobalBounds() const override;
+    sf::FloatRect getLocalBounds() const override;
+
+private:
+    sf::Color g_colorBox = sf::Color::White;
+    sf::Color g_colorBoxOutline = sf::Color::Black;
+    sf::Color g_colorText = sf::Color::Black;
+
+    std::vector<sf::String> g_textList;
+    sf::String g_textSelected;
+    sf::String* g_textCursor;
+
+    mutable fge::ObjText g_text;
+    mutable sf::RectangleShape g_box;
+
+    sf::Vector2f g_boxSize = sf::Vector2f(120, 18);
+
+    bool g_statMouseOn = false;
+    bool g_statActive = false;
+
+    fge::Flag g_flag;
+};
+
+}//end fge
+
+#endif // _FGE_C_OBJSELECTBOX_HPP_INCLUDED

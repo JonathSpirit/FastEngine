@@ -1,0 +1,10 @@
+suprimer l'objet a l'index i tout en enlevant le vide
+VECTOR.erase( VECTOR.begin()+i );
+
+inserer l'objet a l'index i tout en poussant
+VECTOR.insert(VECTOR.begin()+i, VALEUR);
+
+trouver l'index grace a l'objet
+find(VECTOR.begin(), VECTOR.end(), VALEUR) - VECTOR.begin();
+
+typedef int (*Func_tick) (unsigned int obj_id);

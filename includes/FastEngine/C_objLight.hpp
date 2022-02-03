@@ -1,0 +1,77 @@
+#ifndef _FGE_C_OBJLIGHT_HPP_INCLUDED
+#define _FGE_C_OBJLIGHT_HPP_INCLUDED
+
+#include <FastEngine/fastengine_extern.hpp>
+#include <FastEngine/C_object.hpp>
+#include <FastEngine/C_scene.hpp>
+#include <FastEngine/C_lightObstacle.hpp>
+#include <FastEngine/C_texture.hpp>
+#include <FastEngine/C_lightSystem.hpp>
+#include <FastEngine/C_objRenderMap.hpp>
+
+#define FGE_OBJLIGHT_CLASSNAME "FGE:OBJ:LIGHT"
+
+namespace fge
+{
+
+class FGE_API ObjLight : public fge::Object
+{
+public:
+    ObjLight();
+    ObjLight(const fge::Texture& texture, const sf::Vector2f& position=sf::Vector2f());
+    ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position=sf::Vector2f());
+
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjLight)
+
+    void setBlendMode(const sf::BlendMode& blendMode);
+    const sf::BlendMode& getBlendMode() const;
+
+    void setTexture(const fge::Texture& texture, bool resetRect = false);
+    void setTextureRect(const sf::IntRect& rectangle);
+
+    void setLightSystem(fge::LightSystem& ls);
+
+    void setRenderObject(const fge::ObjectDataShared& obj);
+    const fge::ObjectDataShared& getRenderObject() const;
+
+    void setColor(const sf::Color& color);
+
+    const fge::Texture& getTexture() const;
+    const sf::IntRect& getTextureRect() const;
+
+    const sf::Color& getColor() const;
+
+    void first(fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void pack(fge::net::Packet& pck) override;
+    void unpack(fge::net::Packet& pck) override;
+
+    std::string getClassName() const override;
+    std::string getReadableClassName() const override;
+
+    sf::FloatRect getGlobalBounds() const override;
+    sf::FloatRect getLocalBounds() const override;
+
+private:
+    void updatePositions();
+    void updateTexCoords();
+
+    sf::Vertex g_vertices[4];
+    fge::Texture g_texture;
+    sf::IntRect g_textureRect;
+
+    fge::ObjectDataShared g_renderObject;
+
+    fge::ObjRenderMap g_renderMap;
+    sf::BlendMode g_blendMode;
+
+    fge::LightSystemGate g_lightSystemGate;
+};
+
+}//end fge
+
+#endif // _FGE_C_OBJLIGHT_HPP_INCLUDED

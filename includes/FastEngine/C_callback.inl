@@ -1,0 +1,138 @@
+namespace fge
+{
+
+///CallbackFunctor
+
+template <class ... Types>
+CallbackFunctor<Types ...>::CallbackFunctor(fge::CallbackFunctor<Types ...>::CallbackFunction func)
+{
+    this->g_function = func;
+}
+
+template <class ... Types>
+void CallbackFunctor<Types ...>::call(Types ... args)
+{
+    this->g_function(args ...);
+}
+template <class ... Types>
+bool CallbackFunctor<Types ...>::check(void* ptr)
+{
+    return this->g_function == reinterpret_cast<fge::CallbackFunctor<Types ...>::CallbackFunction>(ptr);
+}
+
+///CallbackFunctorObject
+
+template <class TObject, class ... Types>
+CallbackFunctorObject<TObject, Types ...>::CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject func, TObject* object)
+{
+    this->g_functionObj = func;
+    this->g_object = object;
+}
+
+template <class TObject, class ... Types>
+void CallbackFunctorObject<TObject, Types ...>::call(Types ... args)
+{
+    ((this->g_object)->*(this->g_functionObj))(args ...);
+}
+
+template <class TObject, class ... Types>
+bool CallbackFunctorObject<TObject, Types ...>::check(void* ptr)
+{
+    return this->g_object == reinterpret_cast<TObject*>(ptr);
+}
+
+///CallbackHandler
+
+template <class ... Types>
+void CallbackHandler<Types ...>::clear()
+{
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    this->detachAll();
+    this->g_callees.clear();
+}
+
+template <class ... Types>
+void CallbackHandler<Types ...>::add(fge::CallbackFunctorBase<Types ...>* callback, fge::Subscriber* subscriber)
+{
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    this->attach(subscriber);
+    this->g_callees.push_front({typename fge::CallbackHandler<Types ...>::CalleePtr(callback), subscriber});
+}
+template <class ... Types>
+void CallbackHandler<Types ...>::delPtr(void* ptr)
+{
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    typename fge::CallbackHandler<Types ...>::CalleeList::iterator prev = this->g_callees.before_begin();
+    for (typename fge::CallbackHandler<Types ...>::CalleeList::iterator it=this->g_callees.begin(); it!=this->g_callees.end(); ++it)
+    {
+        if ( (*it)._f->check(ptr) )
+        {
+            if ( this->detachOnce( (*it)._subscriber ) == 0 )
+            {
+                this->g_callees.erase_after(prev);
+                break;
+            }
+            this->g_callees.erase_after(prev);
+            it = prev;
+        }
+        else
+        {
+            prev = it;
+        }
+    }
+}
+template <class ... Types>
+void CallbackHandler<Types ...>::del(fge::Subscriber* subscriber)
+{
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    typename fge::CallbackHandler<Types ...>::CalleeList::iterator prev = this->g_callees.before_begin();
+    for (typename fge::CallbackHandler<Types ...>::CalleeList::iterator it=this->g_callees.begin(); it!=this->g_callees.end(); ++it)
+    {
+        if ( (*it)._subscriber == subscriber )
+        {
+            if ( this->detachOnce( (*it)._subscriber ) == 0 )
+            {
+                this->g_callees.erase_after(prev);
+                break;
+            }
+            this->g_callees.erase_after(prev);
+            it = prev;
+        }
+        else
+        {
+            prev = it;
+        }
+    }
+}
+
+template <class ... Types>
+void CallbackHandler<Types ...>::call(Types ... args)
+{
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    for (auto& callee : this->g_callees)
+    {
+        callee._f->call(args ...);
+    }
+}
+
+template <class ... Types>
+void CallbackHandler<Types ...>::onDetach(fge::Subscriber* subscriber)
+{
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    typename fge::CallbackHandler<Types ...>::CalleeList::iterator prev = this->g_callees.before_begin();
+    for (typename fge::CallbackHandler<Types ...>::CalleeList::iterator it=this->g_callees.begin(); it!=this->g_callees.end(); ++it)
+    {
+        if ( (*it)._subscriber == subscriber )
+        {
+            this->g_callees.erase_after(prev);
+            it = prev;
+        }
+        else
+        {
+            prev = it;
+        }
+    }
+}
+
+}//end fge
+

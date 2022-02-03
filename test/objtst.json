@@ -1,0 +1,28 @@
+{
+    "FGE:OBJ:SELECTBOX": {
+        "_color_in": 4294967295,
+        "_color_out": 255,
+        "_color_txt": 255,
+        "_font_txt": "base",
+        "_stat_active": false,
+        "_stat_mouseOn": false,
+        "_text_charSize": 14,
+        "_text_list": [
+            "Cool",
+            "Pas cool",
+            "Nul a chier",
+            "Vraiment merdique"
+        ],
+        "_text_selected": "Pas cool",
+        "angle": 0.0,
+        "origin_x": 0.0,
+        "origin_y": 0.0,
+        "pos_x": 20.0,
+        "pos_y": 360.0,
+        "scale_x": 1.0,
+        "scale_y": 1.0,
+        "size_x": 220.0,
+        "size_y": 18.0,
+        "tags": []
+    }
+}
