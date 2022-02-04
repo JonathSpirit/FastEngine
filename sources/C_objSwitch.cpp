@@ -1,4 +1,4 @@
-#include "FastEngine/C_ObjSwitch.hpp"
+#include "FastEngine/C_objSwitch.hpp"
 #include "FastEngine/extra_function.hpp"
 
 namespace fge
