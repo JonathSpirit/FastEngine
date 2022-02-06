@@ -9,12 +9,14 @@ namespace net
 
 FGE_API Client::Client() :
     g_latency_ms(FGE_NET_DEFAULT_LATENCY),
-    g_lastPacketTimePoint( std::chrono::steady_clock::now() )
+    g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
+    g_skey(FGE_NET_BAD_SKEY)
 {
 }
 FGE_API Client::Client(fge::net::Client::Latency_ms latency) :
     g_latency_ms(latency),
-    g_lastPacketTimePoint( std::chrono::steady_clock::now() )
+    g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
+    g_skey(FGE_NET_BAD_SKEY)
 {
 }
 

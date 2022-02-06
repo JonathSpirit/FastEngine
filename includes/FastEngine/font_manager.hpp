@@ -33,7 +33,7 @@ void FGE_API Uninit();
 
 std::size_t FGE_API GetFontSize();
 
-std::mutex& GetMutex();
+std::mutex& FGE_API GetMutex();
 fge::font::FontDataType::const_iterator FGE_API GetCBegin();
 fge::font::FontDataType::const_iterator FGE_API GetCEnd();
 

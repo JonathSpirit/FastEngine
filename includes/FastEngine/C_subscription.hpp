@@ -13,7 +13,7 @@ class FGE_API Subscriber;
 
 ///Subscription
 
-class Subscription
+class FGE_API Subscription
 {
 public:
     using SubscriberCount = unsigned int;

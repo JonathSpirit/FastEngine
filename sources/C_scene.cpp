@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <iomanip>
+#include <memory>
 
 namespace fge
 {
@@ -82,13 +83,13 @@ void FGE_API Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::
         target.setView( *this->g_customView );
     }
 
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if (!(*it)->g_object->_alwaysDrawed)
+        if (!data->g_object->_alwaysDrawed)
         {
-            sf::FloatRect objectBounds = (*it)->g_object->getGlobalBounds();
-            if (!objectBounds.width) ++objectBounds.width;
-            if (!objectBounds.height) ++objectBounds.height;
+            sf::FloatRect objectBounds = data->g_object->getGlobalBounds();
+            if (objectBounds.width == 0.0f) ++objectBounds.width;
+            if (objectBounds.height == 0.0f) ++objectBounds.height;
 
             if ( !objectBounds.intersects(screenBounds) )
             {
@@ -96,7 +97,7 @@ void FGE_API Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::
             }
         }
 
-        target.draw( *(*it)->g_object );
+        target.draw( *data->g_object );
     }
 
     target.setView( backupView );
@@ -121,11 +122,11 @@ fge::ObjectDataShared FGE_API Scene::newObject(fge::Object* newObject, const fge
         this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, thesid});
     }
 
-    for ( fge::ObjectContainer::iterator it=this->g_data.begin(); it!=this->g_data.end(); ++it )
+    for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
     {
         if ( plan <= (*it)->g_plan )
         {
-            it = this->g_data.insert( it, fge::ObjectDataShared(new fge::ObjectData(this, newObject, thesid, plan, type)) );
+            it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, newObject, thesid, plan, type) );
             this->g_dataMap[thesid] = it;
             newObject->_myObjectData = *it;
             newObject->first(this);
@@ -133,7 +134,7 @@ fge::ObjectDataShared FGE_API Scene::newObject(fge::Object* newObject, const fge
             return *it;
         }
     }
-    fge::ObjectContainer::iterator it = this->g_data.insert( this->g_data.end(), fge::ObjectDataShared(new fge::ObjectData(this, newObject, thesid, plan, type)) );
+    auto it = this->g_data.insert( this->g_data.end(), std::make_shared<fge::ObjectData>(this, newObject, thesid, plan, type) );
     this->g_dataMap[thesid] = it;
     newObject->_myObjectData = *it;
     newObject->first(this);
@@ -152,7 +153,7 @@ fge::ObjectDataShared FGE_API Scene::newObject(const fge::ObjectDataShared& obje
         this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, thesid});
     }
 
-    for ( fge::ObjectContainer::iterator it=this->g_data.begin(); it!=this->g_data.end(); ++it )
+    for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
     {
         if ( objectData->g_plan <= objectData->g_plan )
         {
@@ -165,7 +166,7 @@ fge::ObjectDataShared FGE_API Scene::newObject(const fge::ObjectDataShared& obje
             return objectData;
         }
     }
-    fge::ObjectContainer::iterator it = this->g_data.insert(this->g_data.end(), objectData);
+    auto it = this->g_data.insert(this->g_data.end(), objectData);
     this->g_dataMap[thesid] = it;
     objectData->g_linkedScene = this;
     objectData->g_object->_myObjectData = objectData;
@@ -176,7 +177,7 @@ fge::ObjectDataShared FGE_API Scene::newObject(const fge::ObjectDataShared& obje
 
 fge::ObjectDataShared FGE_API Scene::duplicateObject(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
 {
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
     {
@@ -188,7 +189,7 @@ fge::ObjectDataShared FGE_API Scene::duplicateObject(const fge::ObjectSid& sid, 
 
 fge::ObjectDataShared FGE_API Scene::transferObject(const fge::ObjectSid& sid, fge::Scene& newScene)
 {
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
     {
@@ -217,7 +218,7 @@ void FGE_API Scene::delUpdatedObject()
 }
 bool FGE_API Scene::delObject(const fge::ObjectSid& sid)
 {
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
     {
@@ -246,7 +247,7 @@ std::size_t FGE_API Scene::delAllObject(bool ignoreGuiObject)
     }
 
     std::size_t buffSize = this->g_data.size();
-    for ( fge::ObjectContainer::iterator it=this->g_data.begin(); it!=this->g_data.end(); ++it )
+    for (auto it=this->g_data.begin(); it != this->g_data.end(); ++it )
     {
         if (ignoreGuiObject)
         {
@@ -274,7 +275,7 @@ bool FGE_API Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid
         return false;
     }
 
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(newSid);
+    auto it = this->g_dataMap.find(newSid);
 
     if ( it == this->g_dataMap.end() )
     {
@@ -298,7 +299,7 @@ bool FGE_API Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid
 }
 bool FGE_API Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
 {
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
     {
@@ -311,7 +312,7 @@ bool FGE_API Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
         (*it->second)->g_linkedScene = nullptr;
         (*it->second)->g_object->_myObjectData = nullptr;
 
-        (*it->second) = fge::ObjectDataShared( new fge::ObjectData(this, newObject, (*it->second)->g_sid, (*it->second)->g_plan, (*it->second)->g_type) );
+        (*it->second) = std::make_shared<fge::ObjectData>( this, newObject, (*it->second)->g_sid, (*it->second)->g_plan, (*it->second)->g_type );
         (*it->second)->g_object->_myObjectData = *it->second;
         (*it->second)->g_object->first(this);
         return true;
@@ -320,13 +321,13 @@ bool FGE_API Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
 }
 bool FGE_API Scene::setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPlan& newPlan)
 {
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
     {
         (*it->second)->g_plan = newPlan;
 
-        for ( fge::ObjectContainer::iterator newPosIt=this->g_data.begin(); newPosIt!=this->g_data.end(); ++newPosIt )
+        for ( auto newPosIt=this->g_data.begin(); newPosIt!=this->g_data.end(); ++newPosIt )
         {
             if ( newPlan <= (*newPosIt)->g_plan )
             {
@@ -342,7 +343,7 @@ bool FGE_API Scene::setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPl
 }
 fge::ObjectDataShared FGE_API Scene::getObject(const fge::ObjectSid& sid) const
 {
-    fge::ObjectDataMap::const_iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
     if ( it != this->g_dataMap.cend() )
     {
         return *it->second;
@@ -351,7 +352,7 @@ fge::ObjectDataShared FGE_API Scene::getObject(const fge::ObjectSid& sid) const
 }
 fge::ObjectDataShared FGE_API Scene::getObject(const fge::Object* ptr) const
 {
-    fge::ObjectContainer::const_iterator it = this->find(ptr);
+    auto it = this->find(ptr);
     if ( it != this->g_data.cend() )
     {
         return (*it);
@@ -360,7 +361,7 @@ fge::ObjectDataShared FGE_API Scene::getObject(const fge::Object* ptr) const
 }
 fge::Object* FGE_API Scene::getObjectPtr(const fge::ObjectSid& sid) const
 {
-    fge::ObjectDataMap::const_iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
     if ( it != this->g_dataMap.cend() )
     {
         return (*it->second)->g_object.get();
@@ -378,14 +379,13 @@ fge::ObjectDataShared FGE_API Scene::getUpdatedObject() const
 std::size_t FGE_API Scene::getAllObj_ByPosition(const sf::Vector2f& pos, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
-        sf::FloatRect objBounds = buffObj->getGlobalBounds();
+        sf::FloatRect objBounds = data->g_object->getGlobalBounds();
         if ( objBounds.contains(pos) )
         {
             ++objCount;
-            buff.push_back(*it);
+            buff.push_back(data);
         }
     }
     return objCount;
@@ -393,14 +393,13 @@ std::size_t FGE_API Scene::getAllObj_ByPosition(const sf::Vector2f& pos, fge::Ob
 std::size_t FGE_API Scene::getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
-        sf::FloatRect objBounds = buffObj->getGlobalBounds();
+        sf::FloatRect objBounds = data->g_object->getGlobalBounds();
         if ( objBounds.intersects(zone) )
         {
             ++objCount;
-            buff.push_back(*it);
+            buff.push_back(data);
         }
     }
     return objCount;
@@ -416,14 +415,13 @@ std::size_t FGE_API Scene::getAllObj_ByLocalZone(const sf::Rect<int>& zone, cons
 std::size_t FGE_API Scene::getAllObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
-        sf::IntRect objBounds = fge::CoordToPixelRect( buffObj->getGlobalBounds(), target, this->g_customView ? *this->g_customView : target.getView() );
+        sf::IntRect objBounds = fge::CoordToPixelRect( data->g_object->getGlobalBounds(), target, this->g_customView ? *this->g_customView : target.getView() );
         if ( objBounds.contains(pos) )
         {
             ++objCount;
-            buff.push_back(*it);
+            buff.push_back(data);
         }
     }
     return objCount;
@@ -431,14 +429,13 @@ std::size_t FGE_API Scene::getAllObj_FromLocalPosition(const sf::Vector2i& pos, 
 std::size_t FGE_API Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
-        sf::IntRect objBounds = fge::CoordToPixelRect( buffObj->getGlobalBounds(), target, this->g_customView ? *this->g_customView : target.getView() );
+        sf::IntRect objBounds = fge::CoordToPixelRect( data->g_object->getGlobalBounds(), target, this->g_customView ? *this->g_customView : target.getView() );
         if ( objBounds.intersects(zone) )
         {
             ++objCount;
-            buff.push_back(*it);
+            buff.push_back(data);
         }
     }
     return objCount;
@@ -446,12 +443,12 @@ std::size_t FGE_API Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, co
 std::size_t FGE_API Scene::getAllObj_ByClass(const std::string& class_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if ( (*it)->g_object->getClassName() == class_name )
+        if ( data->g_object->getClassName() == class_name )
         {
             ++objCount;
-            buff.push_back(*it);
+            buff.push_back(data);
         }
     }
     return objCount;
@@ -459,12 +456,12 @@ std::size_t FGE_API Scene::getAllObj_ByClass(const std::string& class_name, fge:
 std::size_t FGE_API Scene::getAllObj_ByTag(const std::string& tag_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if ( (*it)->g_object->_tags.check(tag_name) )
+        if ( data->g_object->_tags.check(tag_name) )
         {
             ++objCount;
-            buff.push_back(*it);
+            buff.push_back(data);
         }
     }
     return objCount;
@@ -472,26 +469,26 @@ std::size_t FGE_API Scene::getAllObj_ByTag(const std::string& tag_name, fge::Obj
 
 fge::ObjectDataShared FGE_API Scene::getFirstObj_ByPosition(const sf::Vector2f& pos) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
+        const fge::ObjectPtr& buffObj = data->g_object;
         sf::FloatRect objBounds = buffObj->getGlobalBounds();
         if ( objBounds.contains(pos) )
         {
-            return (*it);
+            return data;
         }
     }
     return nullptr;
 }
 fge::ObjectDataShared FGE_API Scene::getFirstObj_ByZone(const sf::Rect<float>& zone) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
+        const fge::ObjectPtr& buffObj = data->g_object;
         sf::FloatRect objBounds = buffObj->getGlobalBounds();
         if ( objBounds.intersects(zone) )
         {
-            return (*it);
+            return data;
         }
     }
     return nullptr;
@@ -506,48 +503,48 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_ByLocalZone(const sf::Rect<int>
 }
 fge::ObjectDataShared FGE_API Scene::getFirstObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
+        const fge::ObjectPtr& buffObj = data->g_object;
         sf::IntRect objBounds = fge::CoordToPixelRect( buffObj->getGlobalBounds(), target, this->g_customView ? *this->g_customView : target.getView() );
         if ( objBounds.contains(pos) )
         {
-            return (*it);
+            return data;
         }
     }
     return nullptr;
 }
 fge::ObjectDataShared FGE_API Scene::getFirstObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        const fge::ObjectPtr& buffObj = (*it)->g_object;
+        const fge::ObjectPtr& buffObj = data->g_object;
         sf::IntRect objBounds = fge::CoordToPixelRect( buffObj->getGlobalBounds(), target, this->g_customView ? *this->g_customView : target.getView() );
         if ( objBounds.intersects(zone) )
         {
-            return (*it);
+            return data;
         }
     }
     return nullptr;
 }
 fge::ObjectDataShared FGE_API Scene::getFirstObj_ByClass(const std::string& class_name) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if ( (*it)->g_object->getClassName() == class_name )
+        if ( data->g_object->getClassName() == class_name )
         {
-            return (*it);
+            return data;
         }
     }
     return nullptr;
 }
 fge::ObjectDataShared FGE_API Scene::getFirstObj_ByTag(const std::string& tag_name) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if ( (*it)->g_object->_tags.check(tag_name) )
+        if ( data->g_object->_tags.check(tag_name) )
         {
-            return (*it);
+            return data;
         }
     }
     return nullptr;
@@ -556,11 +553,11 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_ByTag(const std::string& tag_na
 /** Static id **/
 fge::ObjectSid FGE_API Scene::getSid(const fge::Object* ptr) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if ( *(*it) == ptr )
+        if ( *data == ptr )
         {
-            return (*it)->g_sid;
+            return data->g_sid;
         }
     }
     return FGE_SCENE_BAD_SID;
@@ -606,30 +603,30 @@ void FGE_API Scene::pack(fge::net::Packet& pck)
 
     //OBJECT SIZE
     pck << static_cast<uint32_t>(this->g_data.size());
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
-        if ( (*it)->g_type == fge::ObjectType::TYPE_GUI )
+        if ( data->g_type == fge::ObjectType::TYPE_GUI )
         {//Ignore GUI
             pck << FGE_SCENE_BAD_SID;
             continue;
         }
 
         //SID
-        pck << (*it)->g_sid;
+        pck << data->g_sid;
         //CLASS
-        pck << fge::reg::GetClassId( (*it)->g_object.get()->getClassName() );
+        pck << fge::reg::GetClassId( data->g_object.get()->getClassName() );
         //PLAN
-        pck << (*it)->g_plan;
+        pck << data->g_plan;
         //TYPE
-        pck << (*it)->g_type;
+        pck << data->g_type;
 
-        (*it)->g_object.get()->pack(pck);
+        data->g_object.get()->pack(pck);
     }
 }
 void FGE_API Scene::unpack(fge::net::Packet& pck)
 {
     fge::reg::ClassId buff_class;
-    fge::ObjectPlan buff_plan(FGE_SCENE_PLAN_DEFAULT);
+    fge::ObjectPlan buff_plan{FGE_SCENE_PLAN_DEFAULT};
     fge::ObjectSid buff_sid;
     fge::ObjectType buff_type;
 
@@ -698,15 +695,15 @@ void FGE_API Scene::packModification(fge::net::Packet& pck, fge::net::ClientList
     std::size_t countObjectPos = pck.getDataSize() - 1;
     pck.pack(&countObject, sizeof(uint32_t)); //Will be rewrited
 
-    for ( fge::ObjectContainer::const_iterator it=this->cbegin(); it!=this->cend(); ++it )
+    for (const auto & data : *this)
     {
         fge::net::Packet pckModifiedData;
 
         //MODIF COUNT/OBJECT DATA
         uint32_t countModification = 0;
-        for ( std::size_t i=0; i<(*it)->getObject()->_netList.size(); ++i )
+        for ( std::size_t i=0; i<data->getObject()->_netList.size(); ++i )
         {
-            fge::net::NetworkTypeBase* netType = (*it)->getObject()->_netList[i];
+            fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
 
             netType->clientsCheckup(clients);
 
@@ -721,11 +718,11 @@ void FGE_API Scene::packModification(fge::net::Packet& pck, fge::net::ClientList
         {
             ++countObject;
             //SID
-            pck << (*it)->getSid();
+            pck << data->getSid();
             //CLASS
-            pck << fge::reg::GetClassId( (*it)->getObject()->getClassName() );
+            pck << fge::reg::GetClassId( data->getObject()->getClassName() );
             //PLAN
-            pck << (*it)->getPlan();
+            pck << data->getPlan();
 
             pck << countModification;
             pck.append(pckModifiedData.getData(), pckModifiedData.getDataSize());
@@ -763,15 +760,15 @@ void FGE_API Scene::packModification(fge::net::Packet& pck, const fge::net::Iden
     std::size_t countObjectPos = pck.getDataSize() - 1;
     pck.pack(&countObject, sizeof(uint32_t)); //Will be rewrited
 
-    for ( fge::ObjectContainer::const_iterator it=this->cbegin(); it!=this->cend(); ++it )
+    for (const auto & data : *this)
     {
         fge::net::Packet pckModifiedData;
 
         //MODIF COUNT/OBJECT DATA
         uint32_t countModification = 0;
-        for ( std::size_t i=0; i<(*it)->getObject()->_netList.size(); ++i )
+        for ( std::size_t i=0; i<data->getObject()->_netList.size(); ++i )
         {
-            fge::net::NetworkTypeBase* netType = (*it)->getObject()->_netList[i];
+            fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
 
             if ( netType->checkClient(id) )
             {
@@ -784,11 +781,11 @@ void FGE_API Scene::packModification(fge::net::Packet& pck, const fge::net::Iden
         {
             ++countObject;
             //SID
-            pck << (*it)->getSid();
+            pck << data->getSid();
             //CLASS
-            pck << fge::reg::GetClassId( (*it)->getObject()->getClassName() );
+            pck << fge::reg::GetClassId( data->getObject()->getClassName() );
             //PLAN
-            pck << (*it)->getPlan();
+            pck << data->getPlan();
 
             pck << countModification;
             pck.append(pckModifiedData.getData(), pckModifiedData.getDataSize());
@@ -820,7 +817,7 @@ void FGE_API Scene::unpackModification(fge::net::Packet& pck)
     for ( uint32_t i=0; i<buff_size; ++i )
     {
         fge::reg::ClassId buff_class;
-        fge::ObjectPlan buff_plan = FGE_SCENE_PLAN_DEFAULT;
+        fge::ObjectPlan buff_plan{FGE_SCENE_PLAN_DEFAULT};
         fge::ObjectSid buff_sid;
 
         //SID
@@ -855,9 +852,9 @@ void FGE_API Scene::clientsCheckup(const fge::net::ClientList& clients)
 {
     this->_netList.clientsCheckup(clients);
 
-    for ( fge::ObjectContainer::iterator it=this->begin(); it!=this->end(); ++it )
+    for (auto & data : *this)
     {
-        (*it)->getObject()->_netList.clientsCheckup(clients);
+        data->getObject()->_netList.clientsCheckup(clients);
     }
 }
 
@@ -865,18 +862,18 @@ void FGE_API Scene::forceCheckClient(const fge::net::Identity& id)
 {
     this->_netList.forceCheckClient(id);
 
-    for ( fge::ObjectContainer::iterator it=this->begin(); it!=this->end(); ++it )
+    for (auto & data : *this)
     {
-        (*it)->getObject()->_netList.forceCheckClient(id);
+        data->getObject()->_netList.forceCheckClient(id);
     }
 }
 void FGE_API Scene::forceUncheckClient(const fge::net::Identity& id)
 {
     this->_netList.forceUncheckClient(id);
 
-    for ( fge::ObjectContainer::iterator it=this->begin(); it!=this->end(); ++it )
+    for (auto & data : *this)
     {
-        (*it)->getObject()->_netList.forceUncheckClient(id);
+        data->getObject()->_netList.forceUncheckClient(id);
     }
 }
 
@@ -899,14 +896,14 @@ void FGE_API Scene::clientsCheckupEvent(const fge::net::ClientList& clients)
 }
 void FGE_API Scene::pushEvent(const fge::SceneNetEvent& netEvent)
 {
-    for (fge::Scene::NetworkEventQueuePerClient::iterator it = this->g_networkEvents.begin(); it != this->g_networkEvents.end(); ++it)
+    for (auto & networkEvent : this->g_networkEvents)
     {
-        it->second.push(netEvent);
+        networkEvent.second.push(netEvent);
     }
 }
 bool FGE_API Scene::pushEvent(const fge::SceneNetEvent& netEvent, const fge::net::Identity& id)
 {
-    fge::Scene::NetworkEventQueuePerClient::iterator it = this->g_networkEvents.find(id);
+    auto it = this->g_networkEvents.find(id);
     if (it != this->g_networkEvents.end())
     {
         it->second.push(netEvent);
@@ -929,7 +926,7 @@ bool FGE_API Scene::isWatchingEvent() const
 
 void FGE_API Scene::deleteEvents(const fge::net::Identity& id)
 {
-    fge::Scene::NetworkEventQueuePerClient::iterator it = this->g_networkEvents.find(id);
+    auto it = this->g_networkEvents.find(id);
     if (it != this->g_networkEvents.end())
     {
         std::queue<fge::SceneNetEvent>().swap(it->second);
@@ -937,9 +934,9 @@ void FGE_API Scene::deleteEvents(const fge::net::Identity& id)
 }
 void FGE_API Scene::deleteEvents()
 {
-    for (fge::Scene::NetworkEventQueuePerClient::iterator it = this->g_networkEvents.begin(); it != this->g_networkEvents.end(); ++it)
+    for (auto & networkEvent : this->g_networkEvents)
     {
-        std::queue<fge::SceneNetEvent>().swap(it->second);
+        std::queue<fge::SceneNetEvent>().swap(networkEvent.second);
     }
 }
 void FGE_API Scene::clearEvents()
@@ -952,7 +949,7 @@ void FGE_API Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Iden
     uint32_t counter=0;
     pck.pack(&counter, sizeof(uint32_t));
 
-    fge::Scene::NetworkEventQueuePerClient::iterator it = this->g_networkEvents.find(id);
+    auto it = this->g_networkEvents.find(id);
     if (it == this->g_networkEvents.end())
     {
         return;
@@ -1077,18 +1074,18 @@ bool FGE_API Scene::saveInFile(const std::string& path)
     this->saveCustomData( outputJson["SceneData"] );
 
     outputJson["Objects"] = nlohmann::json::array();
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for (const auto & data : this->g_data)
     {
         nlohmann::json objNewJson = nlohmann::json::object();
-        nlohmann::json& objJson = objNewJson[(*it)->getObject()->getClassName()];
+        nlohmann::json& objJson = objNewJson[data->getObject()->getClassName()];
 
         objJson = nlohmann::json::object();
 
-        objJson["_sid"] = (*it)->getSid();
-        objJson["_plan"] = (*it)->getPlan();
-        objJson["_type"] = (*it)->getType();
+        objJson["_sid"] = data->getSid();
+        objJson["_plan"] = data->getPlan();
+        objJson["_type"] = data->getType();
 
-        (*it)->getObject()->save( objJson, this );
+        data->getObject()->save( objJson, this );
         outputJson["Objects"] += objNewJson;
     }
 
@@ -1121,13 +1118,13 @@ bool FGE_API Scene::loadFromFile(const std::string& path)
     this->loadCustomData( inputJson["SceneData"] );
 
     nlohmann::json& jsonObjArray = inputJson["Objects"];
-    for (nlohmann::json::iterator it = jsonObjArray.begin(); it != jsonObjArray.end(); ++it)
+    for (auto & it : jsonObjArray)
     {
-        fge::Object* buffObj = fge::reg::GetNewClassOf( (*it).begin().key() );
+        fge::Object* buffObj = fge::reg::GetNewClassOf( it.begin().key() );
 
         if ( buffObj )
         {
-            nlohmann::json& objJson = (*it).begin().value();
+            nlohmann::json& objJson = it.begin().value();
 
             this->newObject(buffObj, objJson["_plan"].get<fge::ObjectPlan>(),
                                      objJson["_sid"].get<fge::ObjectSid>(),
@@ -1145,17 +1142,17 @@ bool FGE_API Scene::loadFromFile(const std::string& path)
 /** Iterator **/
 fge::ObjectContainer::const_iterator FGE_API Scene::find(const fge::ObjectSid& sid) const
 {
-    fge::ObjectDataMap::const_iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
     return (it != this->g_dataMap.cend()) ? it->second : this->g_data.cend();
 }
 fge::ObjectContainer::iterator FGE_API Scene::find(const fge::ObjectSid& sid)
 {
-    fge::ObjectDataMap::iterator it = this->g_dataMap.find(sid);
+    auto it = this->g_dataMap.find(sid);
     return (it != this->g_dataMap.end()) ? it->second : this->g_data.end();
 }
 fge::ObjectContainer::const_iterator FGE_API Scene::find(const fge::Object* ptr) const
 {
-    for ( fge::ObjectContainer::const_iterator it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
+    for ( auto it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
     {
         if ( *(*it) == ptr )
         {
@@ -1166,7 +1163,7 @@ fge::ObjectContainer::const_iterator FGE_API Scene::find(const fge::Object* ptr)
 }
 fge::ObjectContainer::iterator FGE_API Scene::find(const fge::Object* ptr)
 {
-    for ( fge::ObjectContainer::iterator it=this->g_data.begin(); it!=this->g_data.end(); ++it )
+    for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
     {
         if ( *(*it) == ptr )
         {

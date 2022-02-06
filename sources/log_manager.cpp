@@ -6,37 +6,39 @@
 #include <cstdio>
 #include <ctime>
 
-namespace
-{
-    std::string l_default_folder;
-}
-
 namespace fge
 {
 namespace log
 {
 
+namespace
+{
+
+std::string _defaultFolder;
+
+}//end
+
 const std::string& FGE_API SetDefaultFolder (const std::string& default_folder)
 {
-    l_default_folder = default_folder;
+    _defaultFolder = default_folder;
 
-    if (l_default_folder.back() == '\\')
+    if (_defaultFolder.back() == '\\')
     {
-        l_default_folder.pop_back();
+        _defaultFolder.pop_back();
     }
-    if ((l_default_folder.length() != 0) && (l_default_folder.back() != '/'))
+    if ((_defaultFolder.length() != 0) && (_defaultFolder.back() != '/'))
     {
-        l_default_folder.push_back('/');
+        _defaultFolder.push_back('/');
     }
 
-    return l_default_folder;
+    return _defaultFolder;
 }
 
 bool FGE_API Remove (const std::string& name)
 {
     int return_value;
 
-    return_value = remove( (l_default_folder + name).c_str() );
+    return_value = remove( (_defaultFolder + name).c_str() );
     if ( !return_value )
     {
         return true;
@@ -46,7 +48,7 @@ bool FGE_API Remove (const std::string& name)
 bool FGE_API Clean (const std::string& name)
 {
     std::ofstream file_log;
-    file_log.open( (l_default_folder + name).c_str() );
+    file_log.open( (_defaultFolder + name).c_str() );
 
     if ( file_log )
     {
@@ -59,7 +61,7 @@ bool FGE_API Rename (const std::string& name, const std::string& new_name)
 {
     int return_value;
 
-    return_value = rename( (l_default_folder + name).c_str(), (l_default_folder + new_name).c_str() );
+    return_value = rename((_defaultFolder + name).c_str(), (_defaultFolder + new_name).c_str() );
     if ( !return_value )
     {
         return true;
@@ -68,11 +70,11 @@ bool FGE_API Rename (const std::string& name, const std::string& new_name)
 }
 bool FGE_API Write (const std::string& name, const std::string& text, const std::string& desc)
 {
-    time_t t = time(0);   // get time now
+    time_t t = time(nullptr);   // get time now
     struct tm * now = localtime( & t );
 
     std::ofstream file_log;
-    file_log.open( l_default_folder + name, std::ios::app );
+    file_log.open(_defaultFolder + name, std::ios::app );
 
     if (!file_log)
     {

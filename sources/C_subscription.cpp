@@ -6,9 +6,9 @@ namespace fge
 ///Subscription
 void FGE_API Subscription::detachAll()
 {
-    for (fge::Subscription::SubscriptionDataType::iterator it = this->g_subData.begin(); it != this->g_subData.end(); ++it)
+    for (auto& data : this->g_subData)
     {
-        it->first->detachSilent(this);
+        data.first->detachSilent(this);
     }
     this->g_subData.clear();
 }
@@ -20,7 +20,7 @@ void FGE_API Subscription::detachSilent(fge::Subscriber* subscriber)
         return;
     }
 
-    fge::Subscription::SubscriptionDataType::iterator it = this->g_subData.find(subscriber);
+    auto it = this->g_subData.find(subscriber);
     if ( it != this->g_subData.end() )
     {
         this->g_subData.erase(it);
@@ -35,7 +35,7 @@ bool FGE_API Subscription::detach(fge::Subscriber* subscriber)
         return true;
     }
 
-    fge::Subscription::SubscriptionDataType::iterator it = this->g_subData.find(subscriber);
+    auto it = this->g_subData.find(subscriber);
     if ( it != this->g_subData.end() )
     {
         subscriber->detachSilent(this);
@@ -51,7 +51,7 @@ fge::Subscription::SubscriberCount FGE_API Subscription::detachOnce(fge::Subscri
         return 1;
     }
 
-    fge::Subscription::SubscriptionDataType::iterator it = this->g_subData.find(subscriber);
+    auto it = this->g_subData.find(subscriber);
     if ( it != this->g_subData.end() )
     {
         if ( --it->second == 0)
@@ -73,7 +73,7 @@ fge::Subscription::SubscriberCount FGE_API Subscription::attach(fge::Subscriber*
         return 1;
     }
 
-    fge::Subscription::SubscriptionDataType::iterator it = this->g_subData.find(subscriber);
+    auto it = this->g_subData.find(subscriber);
     if ( it != this->g_subData.end() )
     {
         return ++it->second;
@@ -93,7 +93,7 @@ fge::Subscription::SubscriberCount FGE_API Subscription::getCount(fge::Subscribe
         return 0;
     }
 
-    fge::Subscription::SubscriptionDataType::const_iterator it = this->g_subData.find(subscriber);
+    auto it = this->g_subData.find(subscriber);
     if ( it != this->g_subData.cend() )
     {
         return it->second;
@@ -105,9 +105,9 @@ fge::Subscription::SubscriberCount FGE_API Subscription::getCount(fge::Subscribe
 
 void FGE_API Subscriber::detachAll()
 {
-    for (fge::Subscriber::SubscriberDataType::iterator it = this->g_subData.begin(); it != this->g_subData.end(); ++it)
+    for (auto data : this->g_subData)
     {
-        (*it)->detachSilent(this);
+        data->detachSilent(this);
     }
     this->g_subData.clear();
 }

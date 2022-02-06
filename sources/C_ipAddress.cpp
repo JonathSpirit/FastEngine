@@ -101,9 +101,9 @@ bool FGE_API IpAddress::set(const std::string& address)
         {//Maybe host name
             addrinfo hints{};
             hints.ai_family = AF_INET;
-            addrinfo* result = NULL;
+            addrinfo* result = nullptr;
 
-            if ( getaddrinfo(address.c_str(), NULL, &hints, &result) == 0 )
+            if ( getaddrinfo(address.c_str(), nullptr, &hints, &result) == 0 )
             {
                 if (result)
                 {
@@ -152,10 +152,10 @@ bool FGE_API IpAddress::operator==(const fge::net::IpAddress& r) const
 
 std::string FGE_API IpAddress::toString() const
 {
-    in_addr address;
+    in_addr address{};
     address.s_addr = this->g_address;
 
-    return std::string(inet_ntoa(address));
+    return {inet_ntoa(address)};
 }
 
 uint32_t FGE_API IpAddress::getNetworkByteOrder() const
@@ -172,9 +172,9 @@ std::string FGE_API IpAddress::getHostName()
     char name[80];
     if ( gethostname(name, sizeof(name)) == _FGE_SOCKET_ERROR )
     {
-        return std::string();
+        return {};
     }
-    return std::string(name);
+    return {name};
 }
 
 void FGE_API IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
@@ -183,9 +183,9 @@ void FGE_API IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff
 
     addrinfo hints{};
     hints.ai_family = AF_INET;
-    addrinfo* result = NULL;
+    addrinfo* result = nullptr;
 
-    if ( getaddrinfo("", NULL, &hints, &result) == 0 )
+    if ( getaddrinfo("", nullptr, &hints, &result) == 0 )
     {
         if (result)
         {
@@ -201,7 +201,7 @@ void FGE_API IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff
 
                 ptr=ptr->ai_next;
             }
-            while (ptr != NULL);
+            while (ptr != nullptr);
 
             freeaddrinfo(result);
         }

@@ -123,18 +123,18 @@ fge::ValueList::ValueListType::iterator FGE_API ValueList::find(const std::strin
 
 void FGE_API ValueList::clearAllModificationFlags()
 {
-    for ( fge::ValueList::ValueListType::iterator it = this->g_data.begin(); it != this->g_data.end(); ++it )
+    for (auto& data : this->g_data)
     {
-        it->second.setModifiedFlag(false);
+        data.second.setModifiedFlag(false);
     }
 }
 std::size_t FGE_API ValueList::countAllModificationFlags() const
 {
     std::size_t counter = 0;
 
-    for ( fge::ValueList::ValueListType::const_iterator it = this->g_data.cbegin(); it != this->g_data.cend(); ++it )
+    for (const auto& data : this->g_data)
     {
-        if ( it->second.isModified() )
+        if ( data.second.isModified() )
         {
             ++counter;
         }

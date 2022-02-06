@@ -1,6 +1,7 @@
 #include "FastEngine/timer_manager.hpp"
 
 #include <list>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <condition_variable>
@@ -17,25 +18,25 @@ namespace
 
 using DataTimersType = std::list<fge::timer::TimerDataShared>;
 
-DataTimersType __dataTimers;
-std::mutex __dataMutex;
-std::condition_variable __dataCv;
+DataTimersType _dataTimers;
+std::mutex _dataMutex;
+std::condition_variable _dataCv;
 
-std::unique_ptr<std::thread> __timerThread;
-bool __timerThreadRunning = false;
+std::unique_ptr<std::thread> _timerThread;
+bool _timerThreadRunning = false;
 
 void TimerThread()
 {
     std::chrono::milliseconds waitTime = std::chrono::milliseconds(1000);
-    std::unique_lock<std::mutex> lckData(__dataMutex);
+    std::unique_lock<std::mutex> lckData(_dataMutex);
 
     fge::Clock clock;
 
-    while (__timerThreadRunning)
+    while (_timerThreadRunning)
     {
-        __dataCv.wait_for(lckData, waitTime);
+        _dataCv.wait_for(lckData, waitTime);
 
-        if (!__timerThreadRunning)
+        if (!_timerThreadRunning)
         {
             break;
         }
@@ -44,7 +45,7 @@ void TimerThread()
 
         std::chrono::milliseconds interval = std::chrono::duration_cast<std::chrono::milliseconds>( clock.restart() );
 
-        for (DataTimersType::iterator it=__dataTimers.begin(); it!=__dataTimers.end(); ++it)
+        for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
         {
             fge::timer::TimerData* timerData = (*it).get();
 
@@ -57,8 +58,7 @@ void TimerThread()
                 timeLeft = timerData->_timer.getTimeLeft();
                 if ( timeLeft.count() <= 0 )
                 {//We recheck if the goal is reached after the call to the callback (if the user restarted the timer, we will not destroy it (loop))
-                    it = __dataTimers.erase(it);
-                    --it;
+                    it = --_dataTimers.erase(it);
                 }
                 else
                 {//New goal
@@ -83,54 +83,54 @@ void TimerThread()
 
 void FGE_API Init()
 {
-    if ( __timerThread == nullptr )
+    if (_timerThread == nullptr )
     {
-        __timerThreadRunning = true;
-        __timerThread.reset( new std::thread(TimerThread) );
+        _timerThreadRunning = true;
+        _timerThread = std::make_unique<std::thread>(TimerThread);
     }
 }
 bool FGE_API IsInit()
 {
-    return __timerThreadRunning;
+    return _timerThreadRunning;
 }
 void FGE_API Uninit()
 {
-    if ( __timerThread != nullptr )
+    if (_timerThread != nullptr )
     {
-        __timerThreadRunning = false;
-        __dataCv.notify_all();
+        _timerThreadRunning = false;
+        _dataCv.notify_all();
 
-        __timerThread->join();
-        __timerThread.reset(nullptr);
+        _timerThread->join();
+        _timerThread.reset(nullptr);
 
-        __dataMutex.lock();
-        __dataTimers.clear();
-        __dataMutex.unlock();
+        _dataMutex.lock();
+        _dataTimers.clear();
+        _dataMutex.unlock();
     }
 }
 
 void FGE_API Notify()
 {
-    __dataCv.notify_all();
+    _dataCv.notify_all();
 }
 
 fge::timer::TimerDataShared FGE_API Create(const fge::Timer& timer)
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    __dataTimers.push_back( std::move(std::make_shared<fge::timer::TimerData>(timer)) );
-    __dataCv.notify_all();
-    return __dataTimers.back();
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    _dataTimers.push_back(std::move(std::make_shared<fge::timer::TimerData>(timer)) );
+    _dataCv.notify_all();
+    return _dataTimers.back();
 }
 
 bool FGE_API Destroy(const fge::timer::TimerDataShared& timer)
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    for (DataTimersType::iterator it=__dataTimers.begin(); it!=__dataTimers.end(); ++it)
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ( (*it).get() == timer.get() )
         {
-            __dataTimers.erase(it);
-            __dataCv.notify_all();
+            _dataTimers.erase(it);
+            _dataCv.notify_all();
             return true;
         }
     }
@@ -138,13 +138,13 @@ bool FGE_API Destroy(const fge::timer::TimerDataShared& timer)
 }
 bool FGE_API Destroy(const std::string& timerName)
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    for (DataTimersType::iterator it=__dataTimers.begin(); it!=__dataTimers.end(); ++it)
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ( (*it)->_timer.getName() == timerName )
         {
-            __dataTimers.erase(it);
-            __dataCv.notify_all();
+            _dataTimers.erase(it);
+            _dataCv.notify_all();
             return true;
         }
     }
@@ -153,15 +153,15 @@ bool FGE_API Destroy(const std::string& timerName)
 
 void FGE_API DestroyAll()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    __dataTimers.clear();
-    __dataCv.notify_all();
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    _dataTimers.clear();
+    _dataCv.notify_all();
 }
 
 bool FGE_API Check(const fge::timer::TimerDataShared& timer)
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    for (DataTimersType::iterator it=__dataTimers.begin(); it!=__dataTimers.end(); ++it)
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ( (*it).get() == timer.get() )
         {
@@ -172,8 +172,8 @@ bool FGE_API Check(const fge::timer::TimerDataShared& timer)
 }
 bool FGE_API Check(const std::string& timerName)
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    for (DataTimersType::iterator it=__dataTimers.begin(); it!=__dataTimers.end(); ++it)
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ( (*it)->_timer.getName() == timerName )
         {
@@ -185,14 +185,14 @@ bool FGE_API Check(const std::string& timerName)
 
 std::size_t FGE_API GetTimerSize()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    return __dataTimers.size();
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    return _dataTimers.size();
 }
 
 fge::timer::TimerDataShared FGE_API Get(const std::string& timerName)
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    for (DataTimersType::iterator it=__dataTimers.begin(); it!=__dataTimers.end(); ++it)
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ( (*it)->_timer.getName() == timerName )
         {

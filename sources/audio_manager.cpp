@@ -8,70 +8,70 @@ namespace audio
 namespace
 {
 
-fge::audio::AudioDataPtr __dataAudioBad;
-fge::audio::AudioDataType __dataAudio;
-std::mutex __dataMutex;
+fge::audio::AudioDataPtr _dataAudioBad;
+fge::audio::AudioDataType _dataAudio;
+std::mutex _dataMutex;
 
 }//end
 
 void FGE_API Init()
 {
-    if ( __dataAudioBad == nullptr )
+    if ( _dataAudioBad == nullptr )
     {
-        __dataAudioBad = std::make_shared<fge::audio::AudioData>();
-        __dataAudioBad->_audio = std::make_shared<sf::SoundBuffer>();
-        __dataAudioBad->_valid = false;
+        _dataAudioBad = std::make_shared<fge::audio::AudioData>();
+        _dataAudioBad->_audio = std::make_shared<sf::SoundBuffer>();
+        _dataAudioBad->_valid = false;
     }
 }
 bool FGE_API IsInit()
 {
-    return __dataAudioBad != nullptr;
+    return _dataAudioBad != nullptr;
 }
 void FGE_API Uninit()
 {
-    __dataAudio.clear();
-    __dataAudioBad = nullptr;
+    _dataAudio.clear();
+    _dataAudioBad = nullptr;
 }
 
 std::size_t FGE_API GetAudioSize()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    return __dataAudio.size();
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    return _dataAudio.size();
 }
 
 std::mutex& FGE_API GetMutex()
 {
-    return __dataMutex;
+    return _dataMutex;
 }
 
 fge::audio::AudioDataType::const_iterator FGE_API GetCBegin()
 {
-    return __dataAudio.cbegin();
+    return _dataAudio.cbegin();
 }
 fge::audio::AudioDataType::const_iterator FGE_API GetCEnd()
 {
-    return __dataAudio.cend();
+    return _dataAudio.cend();
 }
 
 const fge::audio::AudioDataPtr& FGE_API GetBadAudio()
 {
-    return __dataAudioBad;
+    return _dataAudioBad;
 }
 fge::audio::AudioDataPtr FGE_API GetAudio(const std::string& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
-        return __dataAudioBad;
+        return _dataAudioBad;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::audio::AudioDataType::iterator it = __dataAudio.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAudio.find(name);
 
-    if (it != __dataAudio.end())
+    if (it != _dataAudio.end())
     {
         return it->second;
     }
-    return __dataAudioBad;
+    return _dataAudioBad;
 }
 
 bool FGE_API Check(const std::string& name)
@@ -81,10 +81,10 @@ bool FGE_API Check(const std::string& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::audio::AudioDataType::iterator it = __dataAudio.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAudio.find(name);
 
-    if (it != __dataAudio.end())
+    if (it != _dataAudio.end())
     {
         return true;
     }
@@ -98,10 +98,10 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::audio::AudioDataType::iterator it = __dataAudio.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAudio.find(name);
 
-    if (it != __dataAudio.end())
+    if (it != _dataAudio.end())
     {
         return false;
     }
@@ -119,7 +119,7 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
     buff->_valid = true;
     buff->_path = path;
 
-    __dataAudio[name] = std::move(buff);
+    _dataAudio[name] = std::move(buff);
     return true;
 }
 
@@ -130,28 +130,28 @@ bool FGE_API Unload(const std::string& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::audio::AudioDataType::iterator it = __dataAudio.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAudio.find(name);
 
-    if (it != __dataAudio.end())
+    if (it != _dataAudio.end())
     {
         it->second->_valid = false;
-        it->second->_audio = __dataAudioBad->_audio;
-        __dataAudio.erase(it);
+        it->second->_audio = _dataAudioBad->_audio;
+        _dataAudio.erase(it);
         return true;
     }
     return false;
 }
 void FGE_API UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (fge::audio::AudioDataType::iterator it=__dataAudio.begin(); it!=__dataAudio.end(); ++it)
+    for (auto & data : _dataAudio)
     {
-        it->second->_valid = false;
-        it->second->_audio = __dataAudioBad->_audio;
+        data.second->_valid = false;
+        data.second->_audio = _dataAudioBad->_audio;
     }
-    __dataAudio.clear();
+    _dataAudio.clear();
 }
 
 bool FGE_API Push(const std::string& name, const fge::audio::AudioDataPtr& data)
@@ -161,13 +161,13 @@ bool FGE_API Push(const std::string& name, const fge::audio::AudioDataPtr& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
     if ( fge::audio::Check(name) )
     {
         return false;
     }
 
-    __dataAudio.emplace(name, data);
+    _dataAudio.emplace(name, data);
     return true;
 }
 

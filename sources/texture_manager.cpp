@@ -8,15 +8,15 @@ namespace texture
 namespace
 {
 
-fge::texture::TextureDataPtr __dataTextureBad;
-fge::texture::TextureDataType __dataTexture;
-std::mutex __dataMutex;
+fge::texture::TextureDataPtr _dataTextureBad;
+fge::texture::TextureDataType _dataTexture;
+std::mutex _dataMutex;
 
 }//end
 
-void FGE_API Init()
+FGE_API void Init()
 {
-    if ( __dataTextureBad == nullptr )
+    if ( _dataTextureBad == nullptr )
     {
         sf::Image tmpImage;
 
@@ -36,91 +36,91 @@ void FGE_API Init()
             }
         }
 
-        __dataTextureBad = std::make_shared<fge::texture::TextureData>();
-        __dataTextureBad->_texture = std::make_shared<sf::Texture>();
-        __dataTextureBad->_texture->loadFromImage(tmpImage);
-        __dataTextureBad->_valid = false;
+        _dataTextureBad = std::make_shared<fge::texture::TextureData>();
+        _dataTextureBad->_texture = std::make_shared<sf::Texture>();
+        _dataTextureBad->_texture->loadFromImage(tmpImage);
+        _dataTextureBad->_valid = false;
     }
 }
-bool FGE_API IsInit()
+FGE_API bool IsInit()
 {
-    return __dataTextureBad != nullptr;
+    return _dataTextureBad != nullptr;
 }
-void FGE_API Uninit()
+FGE_API void Uninit()
 {
-    __dataTexture.clear();
-    __dataTextureBad = nullptr;
-}
-
-std::size_t FGE_API GetTextureSize()
-{
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    return __dataTexture.size();
+    _dataTexture.clear();
+    _dataTextureBad = nullptr;
 }
 
-std::mutex& FGE_API GetMutex()
+FGE_API std::size_t GetTextureSize()
 {
-    return __dataMutex;
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    return _dataTexture.size();
 }
 
-fge::texture::TextureDataType::const_iterator FGE_API GetCBegin()
+FGE_API std::mutex& GetMutex()
 {
-    return __dataTexture.cbegin();
-}
-fge::texture::TextureDataType::const_iterator FGE_API GetCEnd()
-{
-    return __dataTexture.cend();
+    return _dataMutex;
 }
 
-const fge::texture::TextureDataPtr& FGE_API GetBadTexture()
+FGE_API fge::texture::TextureDataType::const_iterator GetCBegin()
 {
-    return __dataTextureBad;
+    return _dataTexture.cbegin();
 }
-fge::texture::TextureDataPtr FGE_API GetTexture(const std::string& name)
+FGE_API fge::texture::TextureDataType::const_iterator GetCEnd()
+{
+    return _dataTexture.cend();
+}
+
+FGE_API const fge::texture::TextureDataPtr& GetBadTexture()
+{
+    return _dataTextureBad;
+}
+FGE_API fge::texture::TextureDataPtr GetTexture(const std::string& name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
-        return __dataTextureBad;
+        return _dataTextureBad;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::texture::TextureDataType::iterator it = __dataTexture.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataTexture.find(name);
 
-    if (it != __dataTexture.end())
+    if (it != _dataTexture.end())
     {
         return it->second;
     }
-    return __dataTextureBad;
+    return _dataTextureBad;
 }
 
-bool FGE_API Check(const std::string& name)
+FGE_API bool Check(const std::string& name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::texture::TextureDataType::iterator it = __dataTexture.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataTexture.find(name);
 
-    if (it != __dataTexture.end())
+    if (it != _dataTexture.end())
     {
         return true;
     }
     return false;
 }
 
-bool FGE_API LoadFromImage(const std::string& name, const sf::Image& image)
+FGE_API bool LoadFromImage(const std::string& name, const sf::Image& image)
 {
     if (name == FGE_TEXTURE_BAD)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::texture::TextureDataType::iterator it = __dataTexture.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataTexture.find(name);
 
-    if (it != __dataTexture.end())
+    if (it != _dataTexture.end())
     {
         return false;
     }
@@ -137,20 +137,20 @@ bool FGE_API LoadFromImage(const std::string& name, const sf::Image& image)
     buff->_texture = std::move( std::shared_ptr<sf::Texture>(tmpTexture) );
     buff->_valid = true;
 
-    __dataTexture[name] = std::move(buff);
+    _dataTexture[name] = std::move(buff);
     return true;
 }
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
+FGE_API bool LoadFromFile(const std::string& name, const std::string& path)
 {
     if (name == FGE_TEXTURE_BAD)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::texture::TextureDataType::iterator it = __dataTexture.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataTexture.find(name);
 
-    if (it != __dataTexture.end())
+    if (it != _dataTexture.end())
     {
         return false;
     }
@@ -168,55 +168,55 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
     buff->_valid = true;
     buff->_path = path;
 
-    __dataTexture[name] = std::move(buff);
+    _dataTexture[name] = std::move(buff);
     return true;
 }
 
-bool FGE_API Unload(const std::string& name)
+FGE_API bool Unload(const std::string& name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::texture::TextureDataType::iterator it = __dataTexture.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataTexture.find(name);
 
-    if (it != __dataTexture.end())
+    if (it != _dataTexture.end())
     {
         it->second->_valid = false;
-        it->second->_texture = __dataTextureBad->_texture;
-        __dataTexture.erase(it);
+        it->second->_texture = _dataTextureBad->_texture;
+        _dataTexture.erase(it);
         return true;
     }
     return false;
 }
-void FGE_API UnloadAll()
+FGE_API void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (fge::texture::TextureDataType::iterator it=__dataTexture.begin(); it!=__dataTexture.end(); ++it)
+    for (auto& data : _dataTexture)
     {
-        it->second->_valid = false;
-        it->second->_texture = __dataTextureBad->_texture;
+        data.second->_valid = false;
+        data.second->_texture = _dataTextureBad->_texture;
     }
-    __dataTexture.clear();
+    _dataTexture.clear();
 }
 
-bool FGE_API Push(const std::string& name, const fge::texture::TextureDataPtr& data)
+FGE_API bool Push(const std::string& name, const fge::texture::TextureDataPtr& data)
 {
     if (name == FGE_TEXTURE_BAD)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
     if ( fge::texture::Check(name) )
     {
         return false;
     }
 
-    __dataTexture.emplace(name, data);
+    _dataTexture.emplace(name, data);
     return true;
 }
 

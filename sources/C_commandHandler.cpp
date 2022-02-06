@@ -13,7 +13,7 @@ void FGE_API CommandHandler::delCmd(const std::string& name)
 }
 bool FGE_API CommandHandler::replaceCmd(const std::string& name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc)
 {
-    fge::CommandHandler::CommandDataType::iterator it = this->g_cmdData.find(name);
+    auto it = this->g_cmdData.find(name);
 
     if (it != this->g_cmdData.end())
     {
@@ -31,18 +31,18 @@ void FGE_API CommandHandler::clearCmd()
 
 fge::Value FGE_API CommandHandler::callCmd(const std::string& name, fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene)
 {
-    fge::CommandHandler::CommandDataType::iterator it = this->g_cmdData.find(name);
+    auto it = this->g_cmdData.find(name);
 
     if (it != this->g_cmdData.end())
     {
         return (it->second._handle->*it->second._func)(caller, arg, caller_scene);
     }
-    return fge::Value();
+    return {};
 }
 
 const fge::CommandHandler::CommandData* FGE_API CommandHandler::getCmd(const std::string& name) const
 {
-    fge::CommandHandler::CommandDataType::const_iterator it = this->g_cmdData.find(name);
+    auto it = this->g_cmdData.find(name);
 
     if (it != this->g_cmdData.cend())
     {

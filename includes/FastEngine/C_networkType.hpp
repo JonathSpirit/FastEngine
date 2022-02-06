@@ -61,7 +61,7 @@ class NetworkType : public NetworkTypeBase
 {
 public:
     NetworkType(T* source);
-    ~NetworkType() = default;
+    ~NetworkType() override = default;
 
     void* getSource() const override;
 
@@ -83,7 +83,7 @@ class FGE_API NetworkTypeScene : public NetworkTypeBase
 {
 public:
     NetworkTypeScene(fge::Scene* source);
-    ~NetworkTypeScene() = default;
+    ~NetworkTypeScene() override = default;
 
     void* getSource() const override;
 
@@ -105,11 +105,11 @@ private:
     fge::Scene* g_typeSource;
 };
 
-class NetworkTypeTag : public NetworkTypeBase
+class FGE_API NetworkTypeTag : public NetworkTypeBase
 {
 public:
     NetworkTypeTag(fge::TagList* source, const std::string& tag);
-    ~NetworkTypeTag() = default;
+    ~NetworkTypeTag() override = default;
 
     void* getSource() const override;
 
@@ -126,11 +126,11 @@ private:
     std::string g_tag;
 };
 
-class NetworkTypeSmoothVec2Float : public NetworkTypeBase
+class FGE_API NetworkTypeSmoothVec2Float : public NetworkTypeBase
 {
 public:
     NetworkTypeSmoothVec2Float(fge::net::SmoothVec2Float* source);
-    ~NetworkTypeSmoothVec2Float() = default;
+    ~NetworkTypeSmoothVec2Float() override = default;
 
     void* getSource() const override;
 
@@ -148,11 +148,11 @@ private:
     bool g_force;
 };
 
-class NetworkTypeSmoothFloat : public NetworkTypeBase
+class FGE_API NetworkTypeSmoothFloat : public NetworkTypeBase
 {
 public:
     NetworkTypeSmoothFloat(fge::net::SmoothFloat* source);
-    ~NetworkTypeSmoothFloat() = default;
+    ~NetworkTypeSmoothFloat() override = default;
 
     void* getSource() const override;
 
@@ -175,7 +175,7 @@ class NetworkTypeValue : public NetworkTypeBase
 {
 public:
     NetworkTypeValue(fge::Value* source);
-    ~NetworkTypeValue() = default;
+    ~NetworkTypeValue() override = default;
 
     void* getSource() const override;
 
@@ -196,7 +196,7 @@ class NetworkTypeDataList : public NetworkTypeBase
 {
 public:
     NetworkTypeDataList(fge::ValueList* source, const std::string& vname);
-    ~NetworkTypeDataList() = default;
+    ~NetworkTypeDataList() override = default;
 
     void* getSource() const override;
 
@@ -220,7 +220,7 @@ class NetworkTypeManual : public NetworkTypeBase
 {
 public:
     NetworkTypeManual(T* source);
-    ~NetworkTypeManual() = default;
+    ~NetworkTypeManual() override = default;
 
     void* getSource() const override;
 

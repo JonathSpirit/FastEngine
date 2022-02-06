@@ -3,7 +3,6 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
-#include <algorithm>
 #include <filesystem>
 #include <SFML/System/Vector2.hpp>
 #include <re2/re2.h>
@@ -233,11 +232,11 @@ float FGE_API ReachRotation(float rotation, float target, float speed, float del
 ///2D Math
 float FGE_API ConvertRadToDeg(float rad)
 {
-    return static_cast<float>(std::fmod( (rad * 180.0f / M_PI) + 360.0f, 360.0f ));
+    return static_cast<float>(std::fmod( (rad * 180.0f / static_cast<float>(M_PI)) + 360.0f, 360.0f ));
 }
 float FGE_API ConvertDegToRad(float deg)
 {
-    return deg * M_PI / 180.0f;
+    return deg * static_cast<float>(M_PI) / 180.0f;
 }
 
 float FGE_API GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2)
@@ -268,7 +267,7 @@ float FGE_API GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& p
 sf::Vector2f FGE_API GetForwardVector(float rotation)
 {
     rotation *= M_PI / 180.0f;
-    return sf::Vector2f( std::cos(rotation), std::sin(rotation) );
+    return { std::cos(rotation), std::sin(rotation) };
 }
 sf::Vector2f FGE_API GetBackwardVector(float rotation)
 {
@@ -277,13 +276,13 @@ sf::Vector2f FGE_API GetBackwardVector(float rotation)
 }
 sf::Vector2f FGE_API GetLeftVector(float rotation)
 {
-    rotation = (rotation-90.0f) * M_PI / 180.0f;
-    return sf::Vector2f( std::cos(rotation), std::sin(rotation) );
+    rotation = (rotation-90.0f) * static_cast<float>(M_PI) / 180.0f;
+    return { std::cos(rotation), std::sin(rotation) };
 }
 sf::Vector2f FGE_API GetRightVector(float rotation)
 {
-    rotation = (rotation+90.0f) * M_PI / 180.0f;
-    return sf::Vector2f( std::cos(rotation), std::sin(rotation) );
+    rotation = (rotation+90.0f) * static_cast<float>(M_PI) / 180.0f;
+    return { std::cos(rotation), std::sin(rotation) };
 }
 
 void FGE_API GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output)
@@ -328,15 +327,15 @@ void FGE_API GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<s
 ///View
 sf::Vector2f FGE_API GetViewSizePercentage(const sf::View& view, const sf::View& defaultView)
 {
-    return sf::Vector2f( (view.getSize().x*100.0f) / defaultView.getSize().x, (view.getSize().y*100.0f) / defaultView.getSize().y );
+    return { (view.getSize().x*100.0f) / defaultView.getSize().x, (view.getSize().y*100.0f) / defaultView.getSize().y };
 }
 sf::Vector2f FGE_API SetViewSizePercentage(float percentage, const sf::View& defaultView)
 {
-    return sf::Vector2f( (percentage*defaultView.getSize().x)/100.0f, (percentage*defaultView.getSize().y)/100.0f );
+    return { (percentage*defaultView.getSize().x)/100.0f, (percentage*defaultView.getSize().y)/100.0f };
 }
 sf::Vector2f FGE_API SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView)
 {
-    return sf::Vector2f( (percentage.x*defaultView.getSize().x)/100.0f, (percentage.y*defaultView.getSize().y)/100.0f );
+    return { (percentage.x*defaultView.getSize().x)/100.0f, (percentage.y*defaultView.getSize().y)/100.0f };
 }
 
 ///Render

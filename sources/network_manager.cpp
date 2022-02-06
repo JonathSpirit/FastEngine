@@ -12,9 +12,9 @@ namespace net
 uint32_t FGE_API GetSceneChecksum(fge::Scene& scene)
 {
     uint32_t result = 0;
-    for ( fge::ObjectContainer::const_iterator it=scene.cbegin(); it!=scene.cend(); ++it )
+    for (const auto& object : scene)
     {
-        result += (*it)->getSid();
+        result += object->getSid();
     }
     return result;
 }

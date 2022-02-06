@@ -8,70 +8,70 @@ namespace font
 namespace
 {
 
-fge::font::FontDataPtr __dataFontBad;
-fge::font::FontDataType __dataFont;
-std::mutex __dataMutex;
+fge::font::FontDataPtr _dataFontBad;
+fge::font::FontDataType _dataFont;
+std::mutex _dataMutex;
 
 }//end
 
 void FGE_API Init()
 {
-    if ( __dataFontBad == nullptr )
+    if ( _dataFontBad == nullptr )
     {
-        __dataFontBad = std::make_shared<fge::font::FontData>();
-        __dataFontBad->_font = std::make_shared<sf::Font>();
-        __dataFontBad->_valid = false;
+        _dataFontBad = std::make_shared<fge::font::FontData>();
+        _dataFontBad->_font = std::make_shared<sf::Font>();
+        _dataFontBad->_valid = false;
     }
 }
 bool FGE_API IsInit()
 {
-    return __dataFontBad != nullptr;
+    return _dataFontBad != nullptr;
 }
 void FGE_API Uninit()
 {
-    __dataFont.clear();
-    __dataFontBad = nullptr;
+    _dataFont.clear();
+    _dataFontBad = nullptr;
 }
 
 std::size_t FGE_API GetFontSize()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    return __dataFont.size();
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    return _dataFont.size();
 }
 
 std::mutex& FGE_API GetMutex()
 {
-    return __dataMutex;
+    return _dataMutex;
 }
 
 fge::font::FontDataType::const_iterator FGE_API GetCBegin()
 {
-    return __dataFont.cbegin();
+    return _dataFont.cbegin();
 }
 fge::font::FontDataType::const_iterator FGE_API GetCEnd()
 {
-    return __dataFont.cend();
+    return _dataFont.cend();
 }
 
 const fge::font::FontDataPtr& FGE_API GetBadFont()
 {
-    return __dataFontBad;
+    return _dataFontBad;
 }
 fge::font::FontDataPtr FGE_API GetFont(const std::string& name)
 {
     if (name == FGE_FONT_BAD)
     {
-        return __dataFontBad;
+        return _dataFontBad;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::font::FontDataType::iterator it = __dataFont.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataFont.find(name);
 
-    if (it != __dataFont.end())
+    if (it != _dataFont.end())
     {
         return it->second;
     }
-    return __dataFontBad;
+    return _dataFontBad;
 }
 
 bool FGE_API Check(const std::string& name)
@@ -81,10 +81,10 @@ bool FGE_API Check(const std::string& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::font::FontDataType::iterator it = __dataFont.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataFont.find(name);
 
-    if (it != __dataFont.end())
+    if (it != _dataFont.end())
     {
         return true;
     }
@@ -98,10 +98,10 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::font::FontDataType::iterator it = __dataFont.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataFont.find(name);
 
-    if (it != __dataFont.end())
+    if (it != _dataFont.end())
     {
         return false;
     }
@@ -119,7 +119,7 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
     buff->_valid = true;
     buff->_path = path;
 
-    __dataFont[name] = std::move(buff);
+    _dataFont[name] = std::move(buff);
     return true;
 }
 
@@ -130,28 +130,28 @@ bool FGE_API Unload(const std::string& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::font::FontDataType::iterator it = __dataFont.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataFont.find(name);
 
-    if (it != __dataFont.end())
+    if (it != _dataFont.end())
     {
         it->second->_valid = false;
-        it->second->_font = __dataFontBad->_font;
-        __dataFont.erase(it);
+        it->second->_font = _dataFontBad->_font;
+        _dataFont.erase(it);
         return true;
     }
     return false;
 }
 void FGE_API UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (fge::font::FontDataType::iterator it=__dataFont.begin(); it!=__dataFont.end(); ++it)
+    for (auto & data : _dataFont)
     {
-        it->second->_valid = false;
-        it->second->_font = __dataFontBad->_font;
+        data.second->_valid = false;
+        data.second->_font = _dataFontBad->_font;
     }
-    __dataFont.clear();
+    _dataFont.clear();
 }
 
 bool FGE_API Push(const std::string& name, const fge::font::FontDataPtr& data)
@@ -161,13 +161,13 @@ bool FGE_API Push(const std::string& name, const fge::font::FontDataPtr& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
     if ( fge::font::Check(name) )
     {
         return false;
     }
 
-    __dataFont.emplace(name, data);
+    _dataFont.emplace(name, data);
     return true;
 }
 

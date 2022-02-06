@@ -101,8 +101,8 @@ sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target);
 sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target, const sf::View& view);
 
 ///Json
-bool LoadJsonFromFile(const std::string& path, nlohmann::json& j);
-bool SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth=2);
+bool FGE_API LoadJsonFromFile(const std::string& path, nlohmann::json& j);
+bool FGE_API SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth=2);
 
 }//end fge
 

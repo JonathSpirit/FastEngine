@@ -103,7 +103,7 @@ class FGE_API SocketUdp : public fge::net::Socket
 public:
     SocketUdp();
     SocketUdp(bool blocking, bool broadcast);
-    ~SocketUdp();
+    ~SocketUdp() override;
 
     fge::net::Socket::Error create() override;
 
@@ -131,7 +131,7 @@ class FGE_API SocketTcp : public fge::net::Socket
 public:
     SocketTcp();
     SocketTcp(bool blocking);
-    ~SocketTcp();
+    ~SocketTcp() override;
 
     void flush();
 
@@ -163,7 +163,7 @@ class FGE_API SocketListenerTcp : public fge::net::Socket
 public:
     SocketListenerTcp();
     SocketListenerTcp(bool blocking);
-    ~SocketListenerTcp();
+    ~SocketListenerTcp() override;
 
     fge::net::Socket::Error create() override;
 

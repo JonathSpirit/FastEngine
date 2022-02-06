@@ -132,7 +132,7 @@ void FGE_API Event::process( const sf::Event& sfevt )
 }
 void FGE_API Event::process( sf::Window& sfscreen )
 {
-    sf::Event evt;
+    sf::Event evt{};
     this->start();
     while ( sfscreen.pollEvent(evt) )
     {

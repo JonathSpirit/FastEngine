@@ -267,7 +267,7 @@ fge::net::Port FGE_API Socket::getLocalPort() const
 {
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
-        sockaddr_in address;
+        sockaddr_in address{};
         fge::net::SocketLength addressSize = sizeof(address);
         if (getsockname(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
         {
@@ -280,11 +280,11 @@ fge::net::IpAddress FGE_API Socket::getLocalAddress() const
 {
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
-        sockaddr_in address;
+        sockaddr_in address{};
         fge::net::SocketLength addressSize = sizeof(address);
         if (getsockname(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
         {
-            return fge::net::IpAddress( fge::SwapHostNetEndian_32(address.sin_addr.s_addr) );
+            return { fge::SwapHostNetEndian_32(address.sin_addr.s_addr) };
         }
     }
     return fge::net::IpAddress::None;
@@ -293,7 +293,7 @@ fge::net::Port FGE_API Socket::getRemotePort() const
 {
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
-        sockaddr_in address;
+        sockaddr_in address{};
         fge::net::SocketLength addressSize = sizeof(address);
         if (getpeername(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
         {
@@ -306,11 +306,11 @@ fge::net::IpAddress FGE_API Socket::getRemoteAddress() const
 {
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
-        sockaddr_in address;
+        sockaddr_in address{};
         fge::net::SocketLength addressSize = sizeof(address);
         if (getpeername(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
         {
-            return fge::net::IpAddress( fge::SwapHostNetEndian_32(address.sin_addr.s_addr) );
+            return { fge::SwapHostNetEndian_32(address.sin_addr.s_addr) };
         }
     }
     return fge::net::IpAddress::None;
@@ -383,12 +383,12 @@ fge::net::Socket::Error FGE_API Socket::select(bool read, uint32_t timeoutms)
     #endif // _win32
 
     // Setup the timeout
-    timeval time;
+    timeval time{};
     time.tv_sec  = static_cast<long>(timeoutms / 1000);
     time.tv_usec = static_cast<long>((timeoutms%1000) * 1000);
 
     // Wait for something
-    if (::select(static_cast<int>(this->g_socket + 1), (read ? &selector : NULL), (!read ? &selector : NULL), NULL, &time) == 1)
+    if (::select(static_cast<int>(this->g_socket + 1), (read ? &selector : nullptr), (!read ? &selector : nullptr), nullptr, &time) == 1)
     {
         // Socket selected for write, Check for errors
         int32_t optval = 0;
@@ -415,7 +415,7 @@ fge::net::Socket::Error FGE_API Socket::select(bool read, uint32_t timeoutms)
 bool FGE_API Socket::initSocket()
 {
     #ifdef _WIN32
-    WSAData wsaData;
+    WSAData wsaData{};
     return WSAStartup(MAKEWORD(2, 2), &wsaData) == 0;
     #else
     return true;
@@ -914,12 +914,12 @@ fge::net::Socket::Error FGE_API SocketTcp::connect(const fge::net::IpAddress& re
             #endif // _win32
 
             // Setup the timeout
-            timeval time;
+            timeval time{};
             time.tv_sec  = static_cast<long>(timeoutms / 1000);
             time.tv_usec = static_cast<long>((timeoutms%1000) * 1000);
 
             // Wait for something to write on our socket (which means that the connection request has returned)
-            if (::select(static_cast<int>(this->g_socket + 1), NULL, &selector, NULL, &time) == 1)
+            if (::select(static_cast<int>(this->g_socket + 1), nullptr, &selector, nullptr, &time) == 1)
             {
                 // Socket selected for write, Check for errors
                 int32_t optval;
@@ -1263,7 +1263,7 @@ fge::net::Socket::Error FGE_API SocketListenerTcp::accept(fge::net::SocketTcp& s
     }
 
     // Accept a new connection
-    sockaddr_in address;
+    sockaddr_in address{};
     fge::net::SocketLength length = sizeof(address);
     fge::net::Socket::SocketDescriptor remote = ::accept(this->g_socket, reinterpret_cast<sockaddr*>(&address), &length);
 

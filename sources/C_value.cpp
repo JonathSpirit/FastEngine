@@ -1,4 +1,7 @@
 #include "FastEngine/C_value.hpp"
+
+#include <memory>
+#include <utility>
 #include "FastEngine/extra_string.hpp"
 
 namespace fge
@@ -14,12 +17,12 @@ FGE_API Value::Value() :
 
 //Copy/Move constructor
 FGE_API Value::Value(fge::Value& val) :
-    g_valueObj(val.g_valueObj.get()->copy()),
+    g_valueObj(val.g_valueObj->copy()),
     g_isModified(true)
 {
 }
 FGE_API Value::Value(const fge::Value& val) :
-    g_valueObj(val.g_valueObj.get()->copy()),
+    g_valueObj(val.g_valueObj->copy()),
     g_isModified(true)
 {
 }
@@ -30,7 +33,7 @@ FGE_API Value::Value(fge::Value&& val) :
     val.clear();
 }
 FGE_API Value::Value(const fge::Value&& val) :
-    g_valueObj(val.g_valueObj.get()->copy()),
+    g_valueObj(val.g_valueObj->copy()),
     g_isModified(true)
 {
 }
@@ -54,7 +57,7 @@ fge::Value& FGE_API Value::operator= (const char* val)
     }
     else
     {
-        this->g_valueObj.reset( new fge::ValueObj<std::string>( std::move(std::string(val)) ) );
+        this->g_valueObj = std::make_unique<fge::ValueObj<std::string>>( std::move(std::string(val)) );
         this->g_isModified = true;
     }
     return *this;
@@ -95,7 +98,7 @@ fge::Value& FGE_API Value::operator= (const fge::Value& val)
 }
 fge::Value& FGE_API Value::operator= (fge::Value&& val)
 {
-    this->g_valueObj.reset( val.g_valueObj.release() );
+    this->g_valueObj = std::move(val.g_valueObj);
     this->g_isModified = true;
     return *this;
 }
@@ -103,14 +106,14 @@ fge::Value& FGE_API Value::operator= (const fge::Value&& val)
 {
     if ( this->g_valueObj != nullptr )
     {
-        if ( !this->g_valueObj.get()->tryToSet( val.g_valueObj.get() ) )
+        if ( !this->g_valueObj->tryToSet( val.g_valueObj.get() ) )
         {
-            this->g_valueObj.reset( val.g_valueObj.get()->copy() );
+            this->g_valueObj.reset( val.g_valueObj->copy() );
         }
     }
     else
     {
-        this->g_valueObj.reset( val.g_valueObj.get()->copy() );
+        this->g_valueObj.reset( val.g_valueObj->copy() );
     }
     this->g_isModified = true;
     return *this;
@@ -125,7 +128,7 @@ bool FGE_API Value::operator== (const fge::Value& value) const
 {
     if ( (this->g_valueObj != nullptr) && (value.g_valueObj != nullptr) )
     {
-        return (*this->g_valueObj.get()) == (*value.g_valueObj.get());
+        return (*this->g_valueObj) == (*value.g_valueObj);
     }
     return (this->g_valueObj==nullptr) && (this->g_valueObj==nullptr);
 }
@@ -143,7 +146,7 @@ bool FGE_API Value::set(const char* val)
     }
     else
     {
-        this->g_valueObj.reset( new fge::ValueObj<std::string>( std::move(std::string(val)) ) );
+        this->g_valueObj = std::make_unique<fge::ValueObj<std::string>>( std::move(std::string(val)) );
         this->g_isModified = true;
         return true;
     }
@@ -154,7 +157,7 @@ bool FGE_API Value::set(fge::Value& val)
 {
     if ( this->g_valueObj != nullptr )
     {
-        if ( this->g_valueObj.get()->tryToSet( val.g_valueObj.get() ) )
+        if ( this->g_valueObj->tryToSet( val.g_valueObj.get() ) )
         {
             this->g_isModified = true;
             return true;
@@ -162,7 +165,7 @@ bool FGE_API Value::set(fge::Value& val)
     }
     else
     {
-        this->g_valueObj.reset( val.g_valueObj.get()->copy() );
+        this->g_valueObj.reset( val.g_valueObj->copy() );
         this->g_isModified = true;
         return true;
     }
@@ -172,7 +175,7 @@ bool FGE_API Value::set(const fge::Value& val)
 {
     if ( this->g_valueObj != nullptr )
     {
-        if ( this->g_valueObj.get()->tryToSet( val.g_valueObj.get() ) )
+        if ( this->g_valueObj->tryToSet( val.g_valueObj.get() ) )
         {
             this->g_isModified = true;
             return true;
@@ -192,14 +195,14 @@ bool FGE_API Value::set(fge::Value&& val)
     {
         if ( this->getType() == val.getType() )
         {
-            this->g_valueObj.reset( val.g_valueObj.release() );
+            this->g_valueObj = std::move(val.g_valueObj);
             this->g_isModified = true;
             return true;
         }
     }
     else
     {
-        this->g_valueObj.reset( val.g_valueObj.release() );
+        this->g_valueObj = std::move(val.g_valueObj);
         this->g_isModified = true;
         return true;
     }
@@ -209,7 +212,7 @@ bool FGE_API Value::set(const fge::Value&& val)
 {
     if ( this->g_valueObj != nullptr )
     {
-        if ( this->g_valueObj.get()->tryToSet( val.g_valueObj.get() ) )
+        if ( this->g_valueObj->tryToSet( val.g_valueObj.get() ) )
         {
             this->g_isModified = true;
             return true;
@@ -217,7 +220,7 @@ bool FGE_API Value::set(const fge::Value&& val)
     }
     else
     {
-        this->g_valueObj.reset( val.g_valueObj.get()->copy() );
+        this->g_valueObj.reset( val.g_valueObj->copy() );
         this->g_isModified = true;
         return true;
     }
@@ -229,7 +232,7 @@ fge::ValueArray& FGE_API Value::setArrayType()
 {
     if ( this->getType() != typeid(fge::ValueArray) )
     {
-        this->g_valueObj.reset( new fge::ValueObj<fge::ValueArray>() );
+        this->g_valueObj = std::make_unique<fge::ValueObj<fge::ValueArray>>( );
         this->g_isModified = true;
     }
     return fge::ValueObj<fge::ValueArray>::CastPtr( this->g_valueObj.get() )->_data;
@@ -265,7 +268,7 @@ bool FGE_API Value::addData(const fge::Value& value)
     {//Is not an array
         if (this->g_valueObj == nullptr)
         {//Is null
-            fge::ValueObj<fge::ValueArray>* buffObj = new fge::ValueObj<fge::ValueArray>();
+            auto* buffObj = new fge::ValueObj<fge::ValueArray>();
             this->g_valueObj.reset( buffObj );
             buffObj->_data.push_back(value);
             return true;
@@ -284,7 +287,7 @@ bool FGE_API Value::addData(fge::Value&& value)
     {//Is not an array
         if (this->g_valueObj == nullptr)
         {//Is null
-            fge::ValueObj<fge::ValueArray>* buffObj = new fge::ValueObj<fge::ValueArray>();
+            auto* buffObj = new fge::ValueObj<fge::ValueArray>();
             this->g_valueObj.reset( buffObj );
             buffObj->_data.push_back( std::move(value) );
             return true;

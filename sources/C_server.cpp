@@ -1,4 +1,6 @@
 #include "FastEngine/C_server.hpp"
+
+#include <memory>
 #include "FastEngine/C_clientList.hpp"
 
 namespace fge
@@ -46,7 +48,7 @@ void FGE_API ServerFluxUdp::forcePushPacket(const FluxPacketSharedPtr& fluxPck)
 FluxPacketSharedPtr FGE_API ServerFluxUdp::popNextPacket()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
-    if ( this->g_packets.size() )
+    if ( !this->g_packets.empty() )
     {
         FluxPacketSharedPtr tmpPck = this->g_packets.front();
         this->g_packets.pop();
@@ -107,7 +109,7 @@ fge::net::ServerFluxUdp* FGE_API ServerUdp::newFlux()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
-    this->g_flux.push_back( std::unique_ptr<fge::net::ServerFluxUdp>(new fge::net::ServerFluxUdp()) );
+    this->g_flux.push_back( std::make_unique<fge::net::ServerFluxUdp>() );
     return this->g_flux.back().get();
 }
 fge::net::ServerFluxUdp* FGE_API ServerUdp::getFlux(std::size_t index)
@@ -206,18 +208,17 @@ void FGE_API ServerUdp::serverThreadTransmission()
         for (std::size_t i=0; i<this->g_flux.size(); ++i)
         {
             std::lock_guard<std::mutex> lck(this->g_flux[i]->_clients.getMutex());
-            for (fge::net::ClientList::ClientListData::iterator it = this->g_flux[i]->_clients.begin(); it != this->g_flux[i]->_clients.end(); ++it)
+            for (auto& client : this->g_flux[i]->_clients)
             {
-                fge::net::Client* client = it->second.get();
-                if ( !client->isPendingPacketsEmpty() )
+                if ( !client.second->isPendingPacketsEmpty() )
                 {
-                    if ( client->getLastPacketElapsedTime() >= client->getLatency_ms() )
+                    if ( client.second->getLastPacketElapsedTime() >= client.second->getLatency_ms() )
                     {//Ready to send !
-                        std::shared_ptr<fge::net::Packet> buffPck = client->popPacket();
+                        std::shared_ptr<fge::net::Packet> buffPck = client.second->popPacket();
                         if (buffPck)
                         {//Last verification of the packet
-                            this->sendTo(*buffPck, it->first);
-                            client->resetLastPacketTimePoint();
+                            this->sendTo(*buffPck, client.first);
+                            client.second->resetLastPacketTimePoint();
                         }
                     }
                 }
@@ -225,18 +226,17 @@ void FGE_API ServerUdp::serverThreadTransmission()
         }
         //Default flux
         std::lock_guard<std::mutex> lck(this->g_defaultFlux._clients.getMutex());
-        for (fge::net::ClientList::ClientListData::iterator it = this->g_defaultFlux._clients.begin(); it != this->g_defaultFlux._clients.end(); ++it)
+        for (auto& client : this->g_defaultFlux._clients)
         {
-            fge::net::Client* client = it->second.get();
-            if ( !client->isPendingPacketsEmpty() )
+            if ( !client.second->isPendingPacketsEmpty() )
             {
-                if ( client->getLastPacketElapsedTime() >= client->getLatency_ms() )
+                if ( client.second->getLastPacketElapsedTime() >= client.second->getLatency_ms() )
                 {//Ready to send !
-                    std::shared_ptr<fge::net::Packet> buffPck = client->popPacket();
+                    std::shared_ptr<fge::net::Packet> buffPck = client.second->popPacket();
                     if (buffPck)
                     {//Last verification of the packet
-                        this->sendTo(*buffPck, it->first);
-                        client->resetLastPacketTimePoint();
+                        this->sendTo(*buffPck, client.first);
+                        client.second->resetLastPacketTimePoint();
                     }
                 }
             }

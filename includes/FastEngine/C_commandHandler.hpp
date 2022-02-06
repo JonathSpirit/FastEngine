@@ -16,7 +16,7 @@ class Object;
 
 using CommandFunction = fge::Value (CommandHandler::*) (fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene);
 
-class CommandHandler
+class FGE_API CommandHandler
 {
 public:
     struct CommandData

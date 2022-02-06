@@ -33,7 +33,7 @@ void FGE_API Uninit();
 
 std::size_t FGE_API GetAudioSize();
 
-std::mutex& GetMutex();
+std::mutex& FGE_API GetMutex();
 fge::audio::AudioDataType::const_iterator FGE_API GetCBegin();
 fge::audio::AudioDataType::const_iterator FGE_API GetCEnd();
 

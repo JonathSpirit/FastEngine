@@ -30,9 +30,9 @@ bool FGE_API NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients
     bool buff = this->check();
     if ( buff )
     {
-        for (fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.begin(); it != this->_g_tableId.end(); ++it)
+        for (auto & it : this->_g_tableId)
         {
-            it->second = true;
+            it.second = true;
         }
         this->forceUncheck();
     }
@@ -40,7 +40,7 @@ bool FGE_API NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients
 }
 bool FGE_API NetworkTypeBase::checkClient(const fge::net::Identity& id) const
 {
-    fge::net::NetworkPerClientModificationTable::const_iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.cend())
     {
         return it->second;
@@ -49,7 +49,7 @@ bool FGE_API NetworkTypeBase::checkClient(const fge::net::Identity& id) const
 }
 void FGE_API NetworkTypeBase::forceCheckClient(const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
         it->second = true;
@@ -57,7 +57,7 @@ void FGE_API NetworkTypeBase::forceCheckClient(const fge::net::Identity& id)
 }
 void FGE_API NetworkTypeBase::forceUncheckClient(const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
         it->second = false;
@@ -160,7 +160,7 @@ bool FGE_API NetworkTypeSmoothVec2Float::applyData(fge::net::Packet& pck)
 }
 void FGE_API NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource->_real;
@@ -221,7 +221,7 @@ bool FGE_API NetworkTypeSmoothFloat::applyData(fge::net::Packet& pck)
 }
 void FGE_API NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource->_real;

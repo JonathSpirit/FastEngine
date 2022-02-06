@@ -1,8 +1,6 @@
 #include "FastEngine/extra_string.hpp"
 
 #include "FastEngine/C_value.hpp"
-#include <algorithm>
-#include <sstream>
 
 #define strtk_no_tr1_or_boost
 #include <strtk.hpp>
@@ -174,27 +172,27 @@ sf::Vector2f FGE_API ToVec2f(const std::string& str)
     size_t tagpos = str.find(' ');
     if ( tagpos == std::string::npos )
     {
-        return sf::Vector2f(0.0f,0.0f);
+        return {0.0f,0.0f};
     }
-    return sf::Vector2f( fge::string::ToFloat(str.substr(0, tagpos)) , fge::string::ToFloat(str.substr(tagpos+1, std::string::npos)) );
+    return { fge::string::ToFloat(str.substr(0, tagpos)) , fge::string::ToFloat(str.substr(tagpos+1, std::string::npos)) };
 }
 sf::Vector2u FGE_API ToVec2u(const std::string& str)
 {
     size_t tagpos = str.find(' ');
     if ( tagpos == std::string::npos )
     {
-        return sf::Vector2u(0,0);
+        return {0,0};
     }
-    return sf::Vector2u( fge::string::ToUint(str.substr(0, tagpos)) , fge::string::ToUint(str.substr(tagpos+1, std::string::npos)) );
+    return { fge::string::ToUint(str.substr(0, tagpos)) , fge::string::ToUint(str.substr(tagpos+1, std::string::npos)) };
 }
 sf::Vector2i FGE_API ToVec2i(const std::string& str)
 {
     size_t tagpos = str.find(' ');
     if ( tagpos == std::string::npos )
     {
-        return sf::Vector2i(0.0f,0.0f);
+        return {0,0};
     }
-    return sf::Vector2i( fge::string::ToInt(str.substr(0, tagpos)) , fge::string::ToInt(str.substr(tagpos+1, std::string::npos)) );
+    return { fge::string::ToInt(str.substr(0, tagpos)) , fge::string::ToInt(str.substr(tagpos+1, std::string::npos)) };
 }
 
 //Arithmetic type

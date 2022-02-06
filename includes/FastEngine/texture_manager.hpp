@@ -27,27 +27,27 @@ struct TextureData
 using TextureDataPtr = std::shared_ptr<fge::texture::TextureData>;
 using TextureDataType = std::unordered_map<std::string, fge::texture::TextureDataPtr>;
 
-void FGE_API Init();
-bool FGE_API IsInit();
-void FGE_API Uninit();
+FGE_API void Init();
+FGE_API bool IsInit();
+FGE_API void Uninit();
 
-std::size_t FGE_API GetTextureSize();
+FGE_API std::size_t GetTextureSize();
 
-std::mutex& GetMutex();
-fge::texture::TextureDataType::const_iterator FGE_API GetCBegin();
-fge::texture::TextureDataType::const_iterator FGE_API GetCEnd();
+FGE_API std::mutex& GetMutex();
+FGE_API fge::texture::TextureDataType::const_iterator  GetCBegin();
+FGE_API fge::texture::TextureDataType::const_iterator GetCEnd();
 
-const fge::texture::TextureDataPtr& FGE_API GetBadTexture();
-fge::texture::TextureDataPtr FGE_API GetTexture(const std::string& name);
+FGE_API const fge::texture::TextureDataPtr& GetBadTexture();
+FGE_API fge::texture::TextureDataPtr GetTexture(const std::string& name);
 
-bool FGE_API Check(const std::string& name);
+FGE_API bool Check(const std::string& name);
 
-bool FGE_API LoadFromImage(const std::string& name, const sf::Image& image);
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path);
-bool FGE_API Unload(const std::string& name);
-void FGE_API UnloadAll();
+FGE_API bool LoadFromImage(const std::string& name, const sf::Image& image);
+FGE_API bool LoadFromFile(const std::string& name, const std::string& path);
+FGE_API bool Unload(const std::string& name);
+FGE_API void UnloadAll();
 
-bool FGE_API Push(const std::string& name, const fge::texture::TextureDataPtr& data);
+FGE_API bool Push(const std::string& name, const fge::texture::TextureDataPtr& data);
 
 }//end texture
 }//end fge
