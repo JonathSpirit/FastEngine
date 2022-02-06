@@ -16,7 +16,7 @@
 #include <SFML/System/Vector3.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-#define FGE_DEFAULTRESERVESIZE 2048
+#define FGE_PACKET_DEFAULT_RESERVESIZE 2048
 
 namespace fge
 {
@@ -30,7 +30,9 @@ class FGE_API Packet
 {
 public:
     Packet();
-    Packet(std::size_t reserveSize);
+    Packet(fge::net::Packet&& pck) noexcept;
+    Packet(fge::net::Packet& pck) = default;
+    explicit Packet(std::size_t reserveSize);
     virtual ~Packet() = default;
 
     void clear();
@@ -50,21 +52,21 @@ public:
     bool unpack(std::size_t pos, void* buff, std::size_t bsize) const; //Will read and auto convert to host byte order
 
     void setReadPos(std::size_t pos);
-    std::size_t getReadPos() const;
+    [[nodiscard]] std::size_t getReadPos() const;
 
-    const uint8_t* getData(std::size_t pos) const; //Get data pointer to pos
-    uint8_t* getData(std::size_t pos);
-    const uint8_t* getData() const; //Get data pointer to pos 0
-    uint8_t* getData();
+    [[nodiscard]] const uint8_t* getData(std::size_t pos) const; //Get data pointer to pos
+    [[nodiscard]] uint8_t* getData(std::size_t pos);
+    [[nodiscard]] const uint8_t* getData() const; //Get data pointer to pos 0
+    [[nodiscard]] uint8_t* getData();
 
-    std::size_t getDataSize() const;
-    uint32_t getLength() const; //Get length of a string or others at the read position
+    [[nodiscard]] std::size_t getDataSize() const;
+    [[nodiscard]] uint32_t getLength() const; //Get length of a string or others at the read position
                                 //can be useful to allocate a char buffer before reading
 
     void setValidity(bool validity);
-    bool isValid() const;
-    operator bool() const;
-    bool endReached() const;
+    [[nodiscard]] bool isValid() const;
+    [[nodiscard]] operator bool() const;
+    [[nodiscard]] bool endReached() const;
 
     inline fge::net::Packet& operator <<(bool data);
 
@@ -151,7 +153,7 @@ public:
     bool operator ==(const Packet& right) const = delete;
     bool operator !=(const Packet& right) const = delete;
 
-    static std::size_t _DefaultReserveSize;
+    static std::size_t _defaultReserveSize;
 
     virtual void onSend(std::vector<uint8_t>& buffer, std::size_t offset);
     virtual void onReceive(void* data, std::size_t dsize);

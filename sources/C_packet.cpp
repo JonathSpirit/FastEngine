@@ -27,8 +27,23 @@ FGE_API Packet::Packet() :
     _g_readPos(0),
     _g_valid(true)
 {
-    this->_g_data.reserve(fge::net::Packet::_DefaultReserveSize);
+    this->_g_data.reserve(fge::net::Packet::_defaultReserveSize);
 }
+
+FGE_API Packet::Packet(fge::net::Packet&& pck) noexcept :
+    _g_sendPos(pck._g_sendPos),
+    _g_lastData(std::move(pck._g_lastData)),
+    _g_lastDataValidity(pck._g_lastDataValidity),
+    _g_data(std::move(pck._g_data)),
+    _g_readPos(pck._g_readPos),
+    _g_valid(pck._g_valid)
+{
+    pck._g_lastDataValidity = false;
+    pck._g_valid = true;
+    pck._g_readPos = 0;
+    pck._g_sendPos = 0;
+}
+
 FGE_API Packet::Packet(std::size_t reserveSize) :
     _g_sendPos(0),
     _g_lastData(),
@@ -483,7 +498,7 @@ void FGE_API Packet::onReceive(void* data, std::size_t dsize)
     this->append(data, dsize);
 }
 
-std::size_t FGE_API Packet::_DefaultReserveSize = FGE_DEFAULTRESERVESIZE;
+std::size_t FGE_API Packet::_defaultReserveSize = FGE_PACKET_DEFAULT_RESERVESIZE;
 
 }//end net
 }//end fge

@@ -20,6 +20,7 @@
 #include "FastEngine/C_matrix.hpp"
 #include "FastEngine/C_objLight.hpp"
 #include <chrono>
+#include <memory>
 #include <random>
 #include <fstream>
 #include <system_error>
