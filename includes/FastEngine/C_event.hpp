@@ -4,7 +4,7 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_callback.hpp>
 #include <FastEngine/C_packet.hpp>
-#include <SFML/window.hpp>
+#include <SFML/Window.hpp>
 
 namespace fge
 {
