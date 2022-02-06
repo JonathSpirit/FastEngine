@@ -47,22 +47,22 @@ set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC_LIBS OFF)
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE)
-add_subdirectory("libs/SFML")
+add_subdirectory("libs/SFML" EXCLUDE_FROM_ALL)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)
 
 set(LZ4_BUILD_CLI OFF CACHE BOOL "" FORCE)
-add_subdirectory("libs/lz4/build/cmake")
+add_subdirectory("libs/lz4/build/cmake" EXCLUDE_FROM_ALL)
 set(FMT_TEST OFF CACHE BOOL "" FORCE)
-add_subdirectory("libs/fmt")
+add_subdirectory("libs/fmt" EXCLUDE_FROM_ALL)
 set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-add_subdirectory("libs/re2")
+add_subdirectory("libs/re2" EXCLUDE_FROM_ALL)
 set(ENABLE_LIB_ONLY ON CACHE BOOL "" FORCE)
 set(ENABLE_APP OFF CACHE BOOL "" FORCE)
 set(ENABLE_STATIC_LIB ON CACHE BOOL "" FORCE)
-add_subdirectory("libs/bzip2")
+add_subdirectory("libs/bzip2" EXCLUDE_FROM_ALL)
 
 #Create the library
 set(CMAKE_CXX_STANDARD 20)
