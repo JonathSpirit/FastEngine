@@ -163,13 +163,21 @@ int main()
 
     installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug32/libFastEngine32_d.dll", FARCH_32, FBUILD_DEBUG);
     installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug64/libFastEngine64_d.dll", FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug32/libFastEngineServer32_d.dll", FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug64/libFastEngineServer64_d.dll", FARCH_64, FBUILD_DEBUG);
     installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release32/libFastEngine32.dll", FARCH_32, FBUILD_RELEASE);
     installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release64/libFastEngine64.dll", FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release32/libFastEngineServer32.dll", FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release64/libFastEngineServer64.dll", FARCH_64, FBUILD_RELEASE);
 
     installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug32/libFastEngine32_d.dll.a", FARCH_32, FBUILD_DEBUG);
     installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug64/libFastEngine64_d.dll.a", FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug32/libFastEngineServer32_d.dll.a", FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug64/libFastEngineServer64_d.dll.a", FARCH_64, FBUILD_DEBUG);
     installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release32/libFastEngine32.dll.a", FARCH_32, FBUILD_RELEASE);
     installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release64/libFastEngine64.dll.a", FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release32/libFastEngineServer32.dll.a", FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release64/libFastEngineServer64.dll.a", FARCH_64, FBUILD_RELEASE);
 
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/FastEngine", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/json.hpp", FARCH_ALL, FBUILD_ALL);
