@@ -11,10 +11,16 @@ namespace net
 
 ///Class PacketLZ4
 
-uint32_t FGE_API PacketLZ4::_MaxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
+uint32_t FGE_API PacketLZ4::_maxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
 FGE_API PacketLZ4::PacketLZ4() : fge::net::Packet(),
     g_lastCompressionSize(0)
+{
+}
+FGE_API PacketLZ4::PacketLZ4(fge::net::PacketLZ4&& pck) noexcept :
+    fge::net::Packet(std::move(pck)),
+    g_lastCompressionSize(pck.g_lastCompressionSize),
+    g_buffer(std::move(pck.g_buffer))
 {
 }
 
@@ -61,7 +67,7 @@ void FGE_API PacketLZ4::onReceive(void* data, std::size_t dsize)
 
     dataUncompressedSize = fge::SwapHostNetEndian_32( *reinterpret_cast<const uint32_t*>(&dataBuff[0]) );
 
-    if ( (dataUncompressedSize > LZ4_MAX_INPUT_SIZE) || (dataUncompressedSize > fge::net::PacketLZ4::_MaxUncompressedReceivedSize) )
+    if ( (dataUncompressedSize > LZ4_MAX_INPUT_SIZE) || (dataUncompressedSize > fge::net::PacketLZ4::_maxUncompressedReceivedSize) )
     {
         throw std::range_error("received packet is too big !");
     }
@@ -80,11 +86,18 @@ void FGE_API PacketLZ4::onReceive(void* data, std::size_t dsize)
 
 ///Class PacketLZ4HC
 
-uint32_t FGE_API PacketLZ4HC::_MaxUncompressedReceivedSize = FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
+uint32_t FGE_API PacketLZ4HC::_maxUncompressedReceivedSize = FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
 FGE_API PacketLZ4HC::PacketLZ4HC() : fge::net::Packet(),
     g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
     g_lastCompressionSize(0)
+{
+}
+FGE_API PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
+        fge::net::Packet(std::move(pck)),
+        g_lastCompressionSize(pck.g_lastCompressionSize),
+        g_compressionLevel(pck.g_compressionLevel),
+        g_buffer(std::move(pck.g_buffer))
 {
 }
 
@@ -131,7 +144,7 @@ void FGE_API PacketLZ4HC::onReceive(void* data, std::size_t dsize)
 
     dataUncompressedSize = fge::SwapHostNetEndian_32( *reinterpret_cast<const uint32_t*>(&dataBuff[0]) );
 
-    if ( (dataUncompressedSize > LZ4_MAX_INPUT_SIZE) || (dataUncompressedSize > fge::net::PacketLZ4HC::_MaxUncompressedReceivedSize) )
+    if ( (dataUncompressedSize > LZ4_MAX_INPUT_SIZE) || (dataUncompressedSize > fge::net::PacketLZ4HC::_maxUncompressedReceivedSize) )
     {
         throw std::range_error("received packet is too big !");
     }

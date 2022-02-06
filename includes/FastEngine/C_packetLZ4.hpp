@@ -25,11 +25,14 @@ class FGE_API PacketLZ4 : public fge::net::Packet
 {
 public:
     PacketLZ4();
-    ~PacketLZ4() = default;
+    PacketLZ4(fge::net::PacketLZ4&& pck) noexcept;
+    PacketLZ4(fge::net::PacketLZ4& pck) = default;
+    PacketLZ4(const fge::net::PacketLZ4& pck) = default;
+    ~PacketLZ4() override = default;
 
-    static uint32_t _MaxUncompressedReceivedSize;
+    static uint32_t _maxUncompressedReceivedSize;
 
-    std::size_t getLastCompressionSize() const;
+    [[nodiscard]] std::size_t getLastCompressionSize() const;
 
 protected:
     void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
@@ -44,14 +47,17 @@ class FGE_API PacketLZ4HC : public fge::net::Packet
 {
 public:
     PacketLZ4HC();
-    ~PacketLZ4HC() = default;
+    PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept;
+    PacketLZ4HC(fge::net::PacketLZ4HC& pck) = default;
+    PacketLZ4HC(const fge::net::PacketLZ4HC& pck) = default;
+    ~PacketLZ4HC() override = default;
 
-    static uint32_t _MaxUncompressedReceivedSize;
+    static uint32_t _maxUncompressedReceivedSize;
 
     void setCompressionLevel(int value);
-    int getCompressionLevel() const;
+    [[nodiscard]] int getCompressionLevel() const;
 
-    std::size_t getLastCompressionSize() const;
+    [[nodiscard]] std::size_t getLastCompressionSize() const;
 
 protected:
     void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;

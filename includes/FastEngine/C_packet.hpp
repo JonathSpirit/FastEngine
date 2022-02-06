@@ -32,6 +32,7 @@ public:
     Packet();
     Packet(fge::net::Packet&& pck) noexcept;
     Packet(fge::net::Packet& pck) = default;
+    Packet(const fge::net::Packet& pck) = default;
     explicit Packet(std::size_t reserveSize);
     virtual ~Packet() = default;
 

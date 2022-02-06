@@ -27,16 +27,19 @@ class FGE_API PacketBZ2 : public fge::net::Packet
 {
 public:
     PacketBZ2();
-    ~PacketBZ2() = default;
+    PacketBZ2(fge::net::PacketBZ2&& pck) noexcept;
+    PacketBZ2(fge::net::PacketBZ2& pck) = default;
+    PacketBZ2(const fge::net::PacketBZ2& pck) = default;
+    ~PacketBZ2() override = default;
 
-    static uint32_t _MaxUncompressedReceivedSize;
+    static uint32_t _maxUncompressedReceivedSize;
 
     void setBlockSize(int blockSize);
-    int getBlockSize() const;
+    [[nodiscard]] int getBlockSize() const;
     void setWorkFactor(int factor);
-    int getWorkFactor() const;
+    [[nodiscard]] int getWorkFactor() const;
 
-    std::size_t getLastCompressionSize() const;
+    [[nodiscard]] std::size_t getLastCompressionSize() const;
 
 protected:
     void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
