@@ -200,6 +200,7 @@ int main()
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-graphics-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-system-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-window-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-main-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug64/libs/SFML/lib/sfml-audio-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug64/libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
@@ -209,6 +210,7 @@ int main()
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-graphics-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-system-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-window-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-main-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release32/libs/SFML/lib/sfml-audio-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release32/libs/SFML/lib/sfml-graphics-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
@@ -218,6 +220,7 @@ int main()
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-graphics.a", FARCH_32, FBUILD_RELEASE, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-system.a", FARCH_32, FBUILD_RELEASE, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-window.a", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-main.a", FARCH_32, FBUILD_RELEASE, "libsfml");
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release64/libs/SFML/lib/sfml-audio-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release64/libs/SFML/lib/sfml-graphics-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
@@ -227,6 +230,7 @@ int main()
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-graphics.a", FARCH_64, FBUILD_RELEASE, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-system.a", FARCH_64, FBUILD_RELEASE, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-window.a", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-main.a", FARCH_64, FBUILD_RELEASE, "libsfml");
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/extlibs/bin/x64/openal32.dll", FARCH_64, FBUILD_ALL, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/extlibs/bin/x86/openal32.dll", FARCH_32, FBUILD_ALL, "libsfml");
