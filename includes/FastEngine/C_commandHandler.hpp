@@ -3,6 +3,8 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_value.hpp>
+#include <string>
+#include <vector>
 #include <unordered_map>
 
 #define FGE_CMD_FUNC(x) static_cast<fge::CommandFunction>(x)
@@ -23,11 +25,12 @@ public:
     {
         fge::CommandHandler* _handle;
         fge::CommandFunction _func;
+        std::string _name;
     };
 
-    using CommandDataType = std::unordered_map<std::string, fge::CommandHandler::CommandData>;
+    using CommandDataType = std::vector<fge::CommandHandler::CommandData>;
 
-    CommandHandler() = default;
+    CommandHandler();
 
     bool addCmd(const std::string& name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
     void delCmd(const std::string& name);
@@ -36,16 +39,21 @@ public:
     void clearCmd();
 
     fge::Value callCmd(const std::string& name, fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene);
+    fge::Value callCmd(std::size_t index, fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene);
 
-    const fge::CommandHandler::CommandData* getCmd(const std::string& name) const;
+    [[nodiscard]] std::size_t getCmdIndex(const std::string& name) const;
+    [[nodiscard]] std::string getCmdName(std::size_t index) const;
 
-    std::size_t getCmdSize() const;
+    [[nodiscard]] const fge::CommandHandler::CommandData* getCmd(const std::string& name) const;
 
-    fge::CommandHandler::CommandDataType::const_iterator cbegin() const;
-    fge::CommandHandler::CommandDataType::const_iterator cend() const;
+    [[nodiscard]] std::size_t getCmdSize() const;
+
+    [[nodiscard]] fge::CommandHandler::CommandDataType::const_iterator cbegin() const;
+    [[nodiscard]] fge::CommandHandler::CommandDataType::const_iterator cend() const;
 
 private:
     fge::CommandHandler::CommandDataType g_cmdData;
+    std::unordered_map<std::string, std::size_t> g_cmdDataMap;
 };
 
 }//end fge
