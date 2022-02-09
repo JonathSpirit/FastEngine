@@ -45,18 +45,22 @@ fge::net::Packet& Packet::operator <<(uint64_t data)
 
 fge::net::Packet& Packet::operator <<(float data)
 {
-    return this->append(&data, sizeof(float));
+    return this->pack(&data, sizeof(float));
 }
 fge::net::Packet& Packet::operator <<(double data)
 {
-    return this->append(&data, sizeof(double));
+    return this->pack(&data, sizeof(double));
+}
+fge::net::Packet& Packet::operator <<(long double data)
+{
+    return this->pack(&data, sizeof(long double));
 }
 
 template <typename T>
 fge::net::Packet& Packet::operator <<(const std::forward_list<T>& data)
 {
     *this << static_cast<uint32_t>(data.size());
-    for (typename std::forward_list<T>::const_iterator it=data.cbegin(); it!=data.cend(); ++it)
+    for (auto it=data.cbegin(); it!=data.cend(); ++it)
     {
         *this << (*it);
     }
@@ -66,7 +70,7 @@ template <typename T>
 fge::net::Packet& Packet::operator <<(const std::list<T>& data)
 {
     *this << static_cast<uint32_t>(data.size());
-    for (typename std::list<T>::const_iterator it=data.cbegin(); it!=data.cend(); ++it)
+    for (auto it=data.cbegin(); it!=data.cend(); ++it)
     {
         *this << (*it);
     }
@@ -110,7 +114,7 @@ fge::net::Packet& Packet::operator <<(const fge::Matrix<T>& data)
 
 fge::net::Packet& Packet::operator <<(const sf::Color& data)
 {
-    return *this << data.toInteger();
+    return *this << static_cast<uint32_t>(data.toInteger());
 }
 
 fge::net::Packet& Packet::operator <<(const fge::net::IpAddress& data)
@@ -125,7 +129,7 @@ fge::net::Packet& Packet::operator >>(bool& data)
 {
     uint8_t a;
     this->read(&a, sizeof(uint8_t));
-    data = (a>0) ? true : false;
+    data = (a > 0);
     return *this;
 }
 
@@ -165,11 +169,15 @@ fge::net::Packet& Packet::operator >>(uint64_t& data)
 
 fge::net::Packet& Packet::operator >>(float& data)
 {
-    return this->read(&data, sizeof(float));
+    return this->unpack(&data, sizeof(float));
 }
 fge::net::Packet& Packet::operator >>(double& data)
 {
-    return this->read(&data, sizeof(double));
+    return this->unpack(&data, sizeof(double));
+}
+fge::net::Packet& Packet::operator >>(long double& data)
+{
+    return this->unpack(&data, sizeof(long double));
 }
 
 template <typename T>
@@ -179,7 +187,7 @@ fge::net::Packet& Packet::operator >>(std::forward_list<T>& data)
     *this >> length;
 
     data.resize(length);
-    typename std::forward_list<T>::iterator it = data.begin();
+    auto it = data.begin();
 
     for (uint32_t i=0; i<length; ++i)
     {
@@ -195,7 +203,7 @@ fge::net::Packet& Packet::operator >>(std::list<T>& data)
     *this >> length;
 
     data.resize(length);
-    typename std::list<T>::iterator it = data.begin();
+    auto it = data.begin();
 
     for (uint32_t i=0; i<length; ++i)
     {

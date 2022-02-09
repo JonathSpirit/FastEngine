@@ -16,17 +16,12 @@ FGE_API ServerFluxUdp::~ServerFluxUdp()
 
 void FGE_API ServerFluxUdp::clear()
 {
-    this->g_mutexLocal.lock();
-    for (std::size_t i=0; i<this->g_packets.size(); ++i)
+    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::size_t qsize = this->g_packets.size();
+    for (std::size_t i=0; i<qsize; ++i)
     {
         this->g_packets.pop();
     }
-    this->g_mutexLocal.unlock();
-}
-
-std::mutex& FGE_API ServerFluxUdp::getMutex()
-{
-    return this->g_mutexLocal;
 }
 
 bool FGE_API ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
@@ -58,19 +53,23 @@ FluxPacketSharedPtr FGE_API ServerFluxUdp::popNextPacket()
 }
 std::size_t FGE_API ServerFluxUdp::getPacketsSize() const
 {
+    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     return this->g_packets.size();
 }
 bool FGE_API ServerFluxUdp::isEmpty() const
 {
+    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     return this->g_packets.empty();
 }
 
 void FGE_API ServerFluxUdp::setMaxPackets(std::size_t n)
 {
+    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     this->g_maxPackets = n;
 }
 std::size_t FGE_API ServerFluxUdp::getMaxPackets() const
 {
+    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     return this->g_maxPackets;
 }
 
@@ -180,15 +179,13 @@ std::mutex& FGE_API ServerUdp::getSendMutex()
 
 void FGE_API ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port)
 {
-    this->g_mutexSend.lock();
+    std::lock_guard<std::mutex> lock(this->g_mutexSend);
     this->g_socket.sendTo(pck, ip, port);
-    this->g_mutexSend.unlock();
 }
 void FGE_API ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    this->g_mutexSend.lock();
+    std::lock_guard<std::mutex> lock(this->g_mutexSend);
     this->g_socket.sendTo(pck, id._ip, id._port);
-    this->g_mutexSend.unlock();
 }
 
 bool FGE_API ServerUdp::isRunning() const

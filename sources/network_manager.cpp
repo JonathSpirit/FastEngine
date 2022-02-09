@@ -27,6 +27,19 @@ bool FGE_API WritePacketDataToFile(fge::net::Packet& pck, const std::string& fil
         return false;
     }
 
+    theFile.write(reinterpret_cast<char*>(pck.getData()), pck.getDataSize());
+    theFile.close();
+    return true;
+}
+
+bool FGE_API WriteOnSendPacketDataToFile(fge::net::Packet& pck, const std::string& file)
+{
+    std::ofstream theFile(file, std::ios::binary);
+    if (!theFile)
+    {
+        return false;
+    }
+
     std::vector<uint8_t> buffer;
     pck.onSend(buffer, 0);
 

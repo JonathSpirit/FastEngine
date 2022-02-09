@@ -13,20 +13,18 @@ namespace reg
 namespace
 {
 
-const std::string __badClassName = FGE_OBJ_BADCLASSNAME;
-
 using ClassNameMapType = std::unordered_map<std::string, fge::reg::ClassId>;
 using ClassIdMapType = std::vector<std::unique_ptr<fge::reg::BaseStamp> >;
 
-ClassNameMapType __dataClassNameMap;
-ClassIdMapType __dataClassIdMap;
+ClassNameMapType _dataClassNameMap;
+ClassIdMapType _dataClassIdMap;
 
 }//end
 
 void FGE_API ClearAll()
 {
-    __dataClassIdMap.clear();
-    __dataClassNameMap.clear();
+    _dataClassIdMap.clear();
+    _dataClassNameMap.clear();
 }
 
 bool FGE_API RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
@@ -36,48 +34,48 @@ bool FGE_API RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
         return false;
     }
 
-    __dataClassNameMap[newStamp->getClassName()] = static_cast<fge::reg::ClassId>(__dataClassIdMap.size());
-    __dataClassIdMap.push_back(std::move(newStamp));
+    _dataClassNameMap[newStamp->getClassName()] = static_cast<fge::reg::ClassId>(_dataClassIdMap.size());
+    _dataClassIdMap.push_back(std::move(newStamp));
 
     return true;
 }
 
 bool FGE_API Check(const std::string& className)
 {
-    return __dataClassNameMap.find(className) != __dataClassNameMap.cend();
+    return _dataClassNameMap.find(className) != _dataClassNameMap.cend();
 }
 bool FGE_API Check(fge::reg::ClassId classId)
 {
-    return classId < __dataClassIdMap.size();
+    return classId < _dataClassIdMap.size();
 }
 
 fge::Object* FGE_API Duplicate(const fge::Object* obj)
 {
-    fge::reg::ClassNameMapType::const_iterator it = __dataClassNameMap.find(obj->getClassName());
+    auto it = _dataClassNameMap.find(obj->getClassName());
 
-    if (it != __dataClassNameMap.cend())
+    if (it != _dataClassNameMap.cend())
     {
-        return __dataClassIdMap[it->second]->duplicate(obj);
+        return _dataClassIdMap[it->second]->duplicate(obj);
     }
     return new fge::Object();
 }
 
 bool FGE_API Replace(const std::string& className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
 {
-    fge::reg::ClassNameMapType::const_iterator it = __dataClassNameMap.find(className);
+    auto it = _dataClassNameMap.find(className);
 
-    if (it != __dataClassNameMap.cend())
+    if (it != _dataClassNameMap.cend())
     {
-        __dataClassIdMap[it->second] = std::move(newStamp);
+        _dataClassIdMap[it->second] = std::move(newStamp);
         return true;
     }
     return false;
 }
 bool FGE_API Replace(fge::reg::ClassId classId, std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
 {
-    if (classId < __dataClassIdMap.size())
+    if (classId < _dataClassIdMap.size())
     {
-        __dataClassIdMap[classId] = std::move(newStamp);
+        _dataClassIdMap[classId] = std::move(newStamp);
         return true;
     }
     return false;
@@ -85,62 +83,62 @@ bool FGE_API Replace(fge::reg::ClassId classId, std::unique_ptr<fge::reg::BaseSt
 
 std::size_t FGE_API GetRegisterSize()
 {
-    return __dataClassIdMap.size();
+    return _dataClassIdMap.size();
 }
 
 fge::Object* FGE_API GetNewClassOf(const std::string& className)
 {
-    fge::reg::ClassNameMapType::const_iterator it = __dataClassNameMap.find(className);
+    auto it = _dataClassNameMap.find(className);
 
-    if (it != __dataClassNameMap.cend())
+    if (it != _dataClassNameMap.cend())
     {
-        return __dataClassIdMap[it->second]->createNew();
+        return _dataClassIdMap[it->second]->createNew();
     }
     return new fge::Object();
 }
 fge::Object* FGE_API GetNewClassOf(fge::reg::ClassId classId)
 {
-    if (classId < __dataClassIdMap.size())
+    if (classId < _dataClassIdMap.size())
     {
-        return __dataClassIdMap[classId]->createNew();
+        return _dataClassIdMap[classId]->createNew();
     }
     return new fge::Object();
 }
 
 fge::reg::ClassId FGE_API GetClassId(const std::string& className)
 {
-    fge::reg::ClassNameMapType::const_iterator it = __dataClassNameMap.find(className);
+    auto it = _dataClassNameMap.find(className);
 
-    if (it != __dataClassNameMap.cend())
+    if (it != _dataClassNameMap.cend())
     {
         return it->second;
     }
     return FGE_REG_BADCLASSID;
 }
-const std::string& FGE_API GetClassName(fge::reg::ClassId classId)
+std::string FGE_API GetClassName(fge::reg::ClassId classId)
 {
-    if (classId < __dataClassIdMap.size())
+    if (classId < _dataClassIdMap.size())
     {
-        return __dataClassIdMap[classId]->getClassName();
+        return _dataClassIdMap[classId]->getClassName();
     }
-    return __badClassName;
+    return FGE_OBJ_BADCLASSNAME;
 }
 
 fge::reg::BaseStamp* FGE_API GetStampOf(const std::string& className)
 {
-    fge::reg::ClassNameMapType::const_iterator it = __dataClassNameMap.find(className);
+    auto it = _dataClassNameMap.find(className);
 
-    if (it != __dataClassNameMap.cend())
+    if (it != _dataClassNameMap.cend())
     {
-        return __dataClassIdMap[it->second].get();
+        return _dataClassIdMap[it->second].get();
     }
     return nullptr;
 }
 fge::reg::BaseStamp* FGE_API GetStampOf(fge::reg::ClassId classId)
 {
-    if (classId < __dataClassIdMap.size())
+    if (classId < _dataClassIdMap.size())
     {
-        return __dataClassIdMap[classId].get();
+        return _dataClassIdMap[classId].get();
     }
     return nullptr;
 }

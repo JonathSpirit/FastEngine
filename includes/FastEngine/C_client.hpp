@@ -57,7 +57,7 @@ private:
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
     std::queue<std::shared_ptr<fge::net::Packet> > g_pendingTransmitPackets;
-    std::mutex g_mutex;
+    std::recursive_mutex g_mutex;
 
     fge::net::Skey g_skey;
 };

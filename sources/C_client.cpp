@@ -44,12 +44,12 @@ fge::net::Client::Latency_ms FGE_API Client::getLatency_ms() const
 
 void FGE_API Client::resetLastPacketTimePoint()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
 fge::net::Client::Latency_ms FGE_API Client::getLastPacketElapsedTime()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
     uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - this->g_lastPacketTimePoint).count();
@@ -63,9 +63,9 @@ fge::net::Client::Timestamp FGE_API Client::getTimestamp_ms()
 fge::net::Client::Latency_ms FGE_API Client::computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
                                                       const fge::net::Client::Timestamp& returnedTime )
 {
-    if (startedTime < returnedTime)
+    if (returnedTime <= startedTime)
     {
-        return 0;
+        return 1;
     }
     fge::net::Client::Timestamp t = returnedTime - startedTime;
     return (t >= std::numeric_limits<fge::net::Client::Latency_ms>::max()) ? std::numeric_limits<fge::net::Client::Latency_ms>::max() : static_cast<fge::net::Client::Latency_ms>(t);
@@ -73,21 +73,17 @@ fge::net::Client::Latency_ms FGE_API Client::computeLatency_ms(const fge::net::C
 fge::net::Client::Latency_ms FGE_API Client::computePing_ms(const fge::net::Client::Timestamp& startedTime)
 {
     fge::net::Client::Timestamp now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    if (startedTime < now)
+    if (now <= startedTime)
     {
-        return 0;
+        return 1;
     }
-    fge::net::Client::Timestamp buff = now - startedTime;
-    if (buff > std::numeric_limits<fge::net::Client::Latency_ms>::max())
-    {
-        return std::numeric_limits<fge::net::Client::Latency_ms>::max();
-    }
-    return static_cast<fge::net::Client::Latency_ms>(buff);
+    fge::net::Client::Timestamp t = now - startedTime;
+    return (t >= std::numeric_limits<fge::net::Client::Latency_ms>::max()) ? std::numeric_limits<fge::net::Client::Latency_ms>::max() : static_cast<fge::net::Client::Latency_ms>(t);
 }
 
 void FGE_API Client::clearPackets()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     for (std::size_t i=0; i<this->g_pendingTransmitPackets.size(); ++i)
     {
@@ -96,13 +92,13 @@ void FGE_API Client::clearPackets()
 }
 void FGE_API Client::pushPacket(const std::shared_ptr<fge::net::Packet>& pck)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     this->g_pendingTransmitPackets.push(pck);
 }
 std::shared_ptr<fge::net::Packet> FGE_API Client::popPacket()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     if (this->g_pendingTransmitPackets.empty())
     {
@@ -114,7 +110,7 @@ std::shared_ptr<fge::net::Packet> FGE_API Client::popPacket()
 }
 bool FGE_API Client::isPendingPacketsEmpty()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
 }
 

@@ -22,10 +22,10 @@ public:
     BaseStamp() = default;
     virtual ~BaseStamp() = default;
 
-    virtual fge::Object* createNew() const = 0;
-    virtual fge::Object* duplicate(const fge::Object* obj) const = 0;
+    [[nodiscard]] virtual fge::Object* createNew() const = 0;
+    [[nodiscard]] virtual fge::Object* duplicate(const fge::Object* obj) const = 0;
 
-    const std::string& getClassName() const
+    [[nodiscard]] const std::string& getClassName() const
     {
         return this->g_className;
     }
@@ -43,8 +43,8 @@ public:
         this->g_className = obj.getClassName();
     }
 
-    fge::Object* createNew() const final { return new T(); }
-    fge::Object* duplicate(const fge::Object* obj) const final { return new T(*reinterpret_cast<const T*>(obj)); }
+    [[nodiscard]] fge::Object* createNew() const final { return new T(); }
+    [[nodiscard]] fge::Object* duplicate(const fge::Object* obj) const final { return new T(*reinterpret_cast<const T*>(obj)); }
 };
 
 void FGE_API ClearAll();
@@ -65,7 +65,7 @@ fge::Object* FGE_API GetNewClassOf(const std::string& className);
 fge::Object* FGE_API GetNewClassOf(fge::reg::ClassId classId);
 
 fge::reg::ClassId FGE_API GetClassId(const std::string& className);
-const std::string& FGE_API GetClassName(fge::reg::ClassId classId);
+std::string FGE_API GetClassName(fge::reg::ClassId classId);
 
 fge::reg::BaseStamp* FGE_API GetStampOf(const std::string& className);
 fge::reg::BaseStamp* FGE_API GetStampOf(fge::reg::ClassId classId);

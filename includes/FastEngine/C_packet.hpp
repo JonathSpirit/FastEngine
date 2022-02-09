@@ -66,7 +66,7 @@ public:
 
     void setValidity(bool validity);
     [[nodiscard]] bool isValid() const;
-    [[nodiscard]] operator bool() const;
+    [[nodiscard]] explicit operator bool() const;
     [[nodiscard]] bool endReached() const;
 
     inline fge::net::Packet& operator <<(bool data);
@@ -83,6 +83,7 @@ public:
 
     inline fge::net::Packet& operator <<(float data);
     inline fge::net::Packet& operator <<(double data);
+    inline fge::net::Packet& operator <<(long double data);
 
     fge::net::Packet& operator <<(const char* data);
     fge::net::Packet& operator <<(const std::string& data);
@@ -125,6 +126,7 @@ public:
 
     inline fge::net::Packet& operator >>(float& data);
     inline fge::net::Packet& operator >>(double& data);
+    inline fge::net::Packet& operator >>(long double& data);
 
     fge::net::Packet& operator >>(char* data);
     fge::net::Packet& operator >>(std::string& data);

@@ -47,8 +47,6 @@ public:
 
     void clear();
 
-    std::mutex& getMutex();
-
     FluxPacketSharedPtr popNextPacket();
 
     std::size_t getPacketsSize() const;
@@ -63,7 +61,7 @@ private:
     bool pushPacket(const FluxPacketSharedPtr& fluxPck);
     void forcePushPacket(const FluxPacketSharedPtr& fluxPck);
 
-    std::mutex g_mutexLocal;
+    mutable std::mutex g_mutexLocal;
 
     std::queue<FluxPacketSharedPtr> g_packets;
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
@@ -114,8 +112,8 @@ private:
 
     std::condition_variable g_cv;
 
-    std::mutex g_mutexSend;
-    std::mutex g_mutexServer;
+    mutable std::mutex g_mutexSend;
+    mutable std::mutex g_mutexServer;
 
     std::vector<std::unique_ptr<fge::net::ServerFluxUdp> > g_flux;
     fge::net::ServerFluxUdp g_defaultFlux;

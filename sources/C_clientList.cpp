@@ -16,17 +16,17 @@ void FGE_API ClientList::clear()
 void FGE_API ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    for ( fge::net::ClientList::ClientListData::iterator it = this->g_data.begin(); it!=this->g_data.end(); ++it )
+    for (auto & it : this->g_data)
     {
-        socket.sendTo(pck, it->first._ip, it->first._port);
+        socket.sendTo(pck, it.first._ip, it.first._port);
     }
 }
 void FGE_API ClientList::sendToAll(const std::shared_ptr<fge::net::Packet>& pck)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    for ( fge::net::ClientList::ClientListData::iterator it = this->g_data.begin(); it!=this->g_data.end(); ++it )
+    for (auto & it : this->g_data)
     {
-        it->second->pushPacket(pck);
+        it.second->pushPacket(pck);
     }
 }
 
@@ -52,7 +52,7 @@ void FGE_API ClientList::remove(const fge::net::Identity& id)
 fge::net::ClientSharedPtr FGE_API ClientList::get(const fge::net::Identity& id)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    fge::net::ClientList::ClientListData::iterator it = this->g_data.find(id);
+    auto it = this->g_data.find(id);
     if (it != this->g_data.end())
     {
         return it->second;

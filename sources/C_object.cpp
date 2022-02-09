@@ -72,17 +72,11 @@ void FGE_API Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 void FGE_API Object::pack(fge::net::Packet& pck)
 {
     pck << this->getPosition() << this->getRotation() << this->getScale() << this->getOrigin();
-
-    pck << static_cast<uint32_t>(this->_tags.getSize());
-    for ( fge::TagList::TagListType::const_iterator it=this->_tags.cbegin(); it!=this->_tags.cend(); ++it )
-    {
-        pck << *it;
-    }
 }
 void FGE_API Object::unpack(fge::net::Packet& pck)
 {
     sf::Vector2f buffVec2f;
-    float buffFloat = 0;
+    float buffFloat{0.0f};
 
     pck >> buffVec2f;
     this->setPosition(buffVec2f);
@@ -92,16 +86,6 @@ void FGE_API Object::unpack(fge::net::Packet& pck)
     this->setScale(buffVec2f);
     pck >> buffVec2f;
     this->setOrigin(buffVec2f);
-
-    uint32_t tagSize=0;
-    pck >> tagSize;
-    this->_tags.clear();
-    for ( uint32_t i=0; i<tagSize; ++i )
-    {
-        std::string str;
-        pck >> str;
-        this->_tags.add(str);
-    }
 }
 
 std::string FGE_API Object::getClassName() const
@@ -119,7 +103,7 @@ sf::FloatRect FGE_API Object::getGlobalBounds() const
 }
 sf::FloatRect FGE_API Object::getLocalBounds() const
 {
-    return sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f);
+    return {0.0f, 0.0f, 1.0f, 1.0f};
 }
 
 bool FGE_API Object::saveInFile(const std::string& path)
