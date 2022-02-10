@@ -40,7 +40,7 @@ public:
     void clear();
 
     void sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck);
-    void sendToAll(const std::shared_ptr<fge::net::Packet>& pck);
+    void sendToAll(const fge::net::ClientSendQueuePacket& pck);
 
     void add(const fge::net::Identity& id, const fge::net::ClientSharedPtr& newClient);
     void remove(const fge::net::Identity& id);

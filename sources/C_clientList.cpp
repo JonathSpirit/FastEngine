@@ -21,7 +21,7 @@ void FGE_API ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
 }
-void FGE_API ClientList::sendToAll(const std::shared_ptr<fge::net::Packet>& pck)
+void FGE_API ClientList::sendToAll(const fge::net::ClientSendQueuePacket& pck)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     for (auto & it : this->g_data)

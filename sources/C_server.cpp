@@ -211,10 +211,15 @@ void FGE_API ServerUdp::serverThreadTransmission()
                 {
                     if ( client.second->getLastPacketElapsedTime() >= client.second->getLatency_ms() )
                     {//Ready to send !
-                        std::shared_ptr<fge::net::Packet> buffPck = client.second->popPacket();
-                        if (buffPck)
+                        fge::net::ClientSendQueuePacket buffPck = client.second->popPacket();
+                        if (buffPck._pck)
                         {//Last verification of the packet
-                            this->sendTo(*buffPck, client.first);
+                            if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+                            {
+                                fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
+                                buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                            }
+                            this->sendTo(*buffPck._pck, client.first);
                             client.second->resetLastPacketTimePoint();
                         }
                     }
@@ -229,10 +234,15 @@ void FGE_API ServerUdp::serverThreadTransmission()
             {
                 if ( client.second->getLastPacketElapsedTime() >= client.second->getLatency_ms() )
                 {//Ready to send !
-                    std::shared_ptr<fge::net::Packet> buffPck = client.second->popPacket();
-                    if (buffPck)
+                    fge::net::ClientSendQueuePacket buffPck = client.second->popPacket();
+                    if (buffPck._pck)
                     {//Last verification of the packet
-                        this->sendTo(*buffPck, client.first);
+                        if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+                        {
+                            fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
+                            buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                        }
+                        this->sendTo(*buffPck._pck, client.first);
                         client.second->resetLastPacketTimePoint();
                     }
                 }
@@ -379,10 +389,15 @@ void FGE_API ServerClientSideUdp::serverThreadTransmission()
         {
             if ( this->_client.getLastPacketElapsedTime() >= this->_client.getLatency_ms() )
             {//Ready to send !
-                std::shared_ptr<fge::net::Packet> buffPck = this->_client.popPacket();
-                if (buffPck)
+                fge::net::ClientSendQueuePacket buffPck = this->_client.popPacket();
+                if (buffPck._pck)
                 {//Last verification of the packet
-                    this->send(*buffPck);
+                    if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+                    {
+                        fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
+                        buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                    }
+                    this->send(*buffPck._pck);
                     this->_client.resetLastPacketTimePoint();
                 }
             }

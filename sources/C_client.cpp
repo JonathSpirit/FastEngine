@@ -90,21 +90,21 @@ void FGE_API Client::clearPackets()
         this->g_pendingTransmitPackets.pop();
     }
 }
-void FGE_API Client::pushPacket(const std::shared_ptr<fge::net::Packet>& pck)
+void FGE_API Client::pushPacket(const fge::net::ClientSendQueuePacket& pck)
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     this->g_pendingTransmitPackets.push(pck);
 }
-std::shared_ptr<fge::net::Packet> FGE_API Client::popPacket()
+fge::net::ClientSendQueuePacket FGE_API Client::popPacket()
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     if (this->g_pendingTransmitPackets.empty())
     {
-        return nullptr;
+        return {nullptr};
     }
-    std::shared_ptr<fge::net::Packet> tmp = this->g_pendingTransmitPackets.front();
+    fge::net::ClientSendQueuePacket tmp = this->g_pendingTransmitPackets.front();
     this->g_pendingTransmitPackets.pop();
     return tmp;
 }

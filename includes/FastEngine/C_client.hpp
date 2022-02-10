@@ -20,6 +20,19 @@ namespace net
 
 using Skey = uint32_t;
 
+enum ClientSendQueuePacketOptions : uint8_t
+{
+    QUEUE_PACKET_OPTION_NONE = 0,
+    QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP
+};
+
+struct ClientSendQueuePacket
+{
+    std::shared_ptr<fge::net::Packet> _pck;
+    fge::net::ClientSendQueuePacketOptions _option{fge::net::QUEUE_PACKET_OPTION_NONE};
+    std::size_t _optionArg{0};
+};
+
 class FGE_API Client
 {
 public:
@@ -45,8 +58,8 @@ public:
     static fge::net::Client::Latency_ms computePing_ms(const fge::net::Client::Timestamp& startedTime);
 
     void clearPackets();
-    void pushPacket(const std::shared_ptr<fge::net::Packet>& pck);
-    std::shared_ptr<fge::net::Packet> popPacket();
+    void pushPacket(const fge::net::ClientSendQueuePacket& pck);
+    fge::net::ClientSendQueuePacket popPacket();
     bool isPendingPacketsEmpty();
 
     fge::Event _event;
@@ -56,7 +69,7 @@ private:
     fge::net::Client::Latency_ms g_latency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
-    std::queue<std::shared_ptr<fge::net::Packet> > g_pendingTransmitPackets;
+    std::queue<fge::net::ClientSendQueuePacket> g_pendingTransmitPackets;
     std::recursive_mutex g_mutex;
 
     fge::net::Skey g_skey;
