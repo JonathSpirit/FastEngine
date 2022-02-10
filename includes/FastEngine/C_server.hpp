@@ -77,6 +77,8 @@ public:
 
     template<typename Tpacket=fge::net::Packet>
     bool start(fge::net::Port port, const fge::net::IpAddress& ip=fge::net::IpAddress::Any);
+    template<typename Tpacket=fge::net::Packet>
+    bool start();
     void stop();
 
     fge::net::ServerFluxUdp* newFlux();
@@ -131,6 +133,8 @@ public:
     template<typename Tpacket=fge::net::Packet>
     bool start(fge::net::Port port, const fge::net::IpAddress& ip,
                const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort);
+    template<typename Tpacket=fge::net::Packet>
+    bool start();
     void stop();
 
     const fge::net::SocketUdp& getSocket() const;

@@ -213,10 +213,6 @@ public:
 
     void main()
     {
-
-
-
-
         /*fge::net::ServerUdp test;
         #if CLIENT == 0
         test.start(42320);

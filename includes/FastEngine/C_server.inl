@@ -23,6 +23,24 @@ bool ServerUdp::start(fge::net::Port port, const fge::net::IpAddress& ip)
     }
     return false;
 }
+template<typename Tpacket>
+bool ServerUdp::start()
+{
+    if ( this->g_running )
+    {
+        return false;
+    }
+    if ( this->g_socket.isValid() )
+    {
+        this->g_running = true;
+
+        this->g_threadReception = new std::thread(&ServerUdp::serverThreadReception<Tpacket>, this);
+        this->g_threadTransmission = new std::thread(&ServerUdp::serverThreadTransmission, this);
+
+        return true;
+    }
+    return false;
+}
 
 template<typename Tpacket>
 void ServerUdp::serverThreadReception()
@@ -89,6 +107,27 @@ bool ServerClientSideUdp::start(fge::net::Port port, const fge::net::IpAddress& 
     this->g_socket.close();
     return false;
 }
+template<typename Tpacket>
+bool ServerClientSideUdp::start()
+{
+    if ( this->g_running )
+    {
+        return false;
+    }
+    if ( this->g_socket.isValid() )
+    {
+        this->g_clientIdentity._ip = this->g_socket.getRemoteAddress();
+        this->g_clientIdentity._port = this->g_socket.getRemotePort();
+
+        this->g_running = true;
+
+        this->g_threadReception = new std::thread(&ServerClientSideUdp::serverThreadReception<Tpacket>, this);
+        this->g_threadTransmission = new std::thread(&ServerClientSideUdp::serverThreadTransmission, this);
+
+        return true;
+    }
+    return false;
+}
 
 template<typename Tpacket>
 void ServerClientSideUdp::serverThreadReception()
@@ -101,7 +140,6 @@ void ServerClientSideUdp::serverThreadReception()
         {
             if ( this->g_socket.receive(pckReceive) == fge::net::Socket::ERR_NOERROR )
             {
-                std::lock_guard<std::mutex> lck(this->g_mutexServer);
                 this->pushPacket( std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), this->g_clientIdentity) );
                 this->g_cvReceiveNotifier.notify_all();
             }

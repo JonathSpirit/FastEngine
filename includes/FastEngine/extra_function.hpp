@@ -101,7 +101,8 @@ sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target);
 sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target, const sf::View& view);
 
 ///Time
-inline float DurationToSecondFloat(auto duration);
+template<class T>
+inline float DurationToSecondFloat(T duration);
 
 ///Json
 bool FGE_API LoadJsonFromFile(const std::string& path, nlohmann::json& j);

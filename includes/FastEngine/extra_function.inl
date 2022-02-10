@@ -171,7 +171,8 @@ sf::Color&& SetBlue(sf::Color&& color, uint8_t blue)
 }
 
 ///Time
-float DurationToSecondFloat(auto duration)
+template<class T>
+float DurationToSecondFloat(T duration)
 {
     return std::chrono::duration<float, std::ratio<1,1>>(duration).count();
 }
