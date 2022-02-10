@@ -170,4 +170,10 @@ sf::Color&& SetBlue(sf::Color&& color, uint8_t blue)
     return std::move(color);
 }
 
+///Time
+float DurationToSecondFloat(auto duration)
+{
+    return std::chrono::duration<float, std::ratio<1,1>>(duration).count();
+}
+
 }//end fge

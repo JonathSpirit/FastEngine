@@ -214,21 +214,6 @@ public:
     void main()
     {
 
-        fge::net::Client::Timestamp tstart = fge::net::Client::getTimestamp_ms();
-        std::cout << tstart << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-
-        fge::net::Client::Timestamp tstop = fge::net::Client::getTimestamp_ms();
-        std::cout << tstop << std::endl;
-
-        auto t = fge::net::Client::computeLatency_ms(tstart, tstop);
-        std::cout << t << std::endl;
-        std::cout << fge::net::Client::computePing_ms(tstart) << std::endl;
-
-
-        return;
-
         /*fge::net::ServerUdp test;
         #if CLIENT == 0
         test.start(42320);

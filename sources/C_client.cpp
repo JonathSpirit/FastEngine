@@ -2,6 +2,8 @@
 #include "FastEngine/C_random.hpp"
 #include <limits>
 
+#define _FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
+
 namespace fge
 {
 namespace net
@@ -58,27 +60,25 @@ fge::net::Client::Latency_ms FGE_API Client::getLastPacketElapsedTime()
 
 fge::net::Client::Timestamp FGE_API Client::getTimestamp_ms()
 {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % _FGE_NET_CLIENT_TIMESTAMP_MODULO;
 }
 fge::net::Client::Latency_ms FGE_API Client::computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
-                                                      const fge::net::Client::Timestamp& returnedTime )
+                                                                const fge::net::Client::Timestamp& returnedTime )
 {
-    if (returnedTime <= startedTime)
-    {
-        return 1;
-    }
-    fge::net::Client::Timestamp t = returnedTime - startedTime;
-    return (t >= std::numeric_limits<fge::net::Client::Latency_ms>::max()) ? std::numeric_limits<fge::net::Client::Latency_ms>::max() : static_cast<fge::net::Client::Latency_ms>(t);
+    int32_t t = static_cast<int32_t>(returnedTime) - static_cast<int32_t>(startedTime);
+    if (t<0)
+        t += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+
+    return static_cast<fge::net::Client::Latency_ms>(t);
 }
 fge::net::Client::Latency_ms FGE_API Client::computePing_ms(const fge::net::Client::Timestamp& startedTime)
 {
-    fge::net::Client::Timestamp now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    if (now <= startedTime)
-    {
-        return 1;
-    }
-    fge::net::Client::Timestamp t = now - startedTime;
-    return (t >= std::numeric_limits<fge::net::Client::Latency_ms>::max()) ? std::numeric_limits<fge::net::Client::Latency_ms>::max() : static_cast<fge::net::Client::Latency_ms>(t);
+    fge::net::Client::Timestamp now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+    int32_t t = static_cast<int32_t>(now) - static_cast<int32_t>(startedTime);
+    if (t<0)
+        t += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+
+    return static_cast<fge::net::Client::Latency_ms>(t);
 }
 
 void FGE_API Client::clearPackets()

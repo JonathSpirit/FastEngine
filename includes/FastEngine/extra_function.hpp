@@ -100,6 +100,9 @@ sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::Render
 sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target);
 sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target, const sf::View& view);
 
+///Time
+inline float DurationToSecondFloat(auto duration);
+
 ///Json
 bool FGE_API LoadJsonFromFile(const std::string& path, nlohmann::json& j);
 bool FGE_API SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth=2);

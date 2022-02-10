@@ -23,7 +23,7 @@ using Skey = uint32_t;
 class FGE_API Client
 {
 public:
-    using Timestamp = uint64_t;
+    using Timestamp = uint16_t;
     using Latency_ms = uint16_t;
 
     Client();
