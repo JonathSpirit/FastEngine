@@ -2,3 +2,4 @@
 *.exe
 /cmake-build*/
 /installdir/
+/includes/FastEngine/fastengine_version.hpp

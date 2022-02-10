@@ -45,6 +45,14 @@ set(FGE_EXE_NAME ${PROJECT_NAME}_test)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #Dependency
+find_package(Git)
+add_custom_target(version
+        ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in
+        -D DST=${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp
+        -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+        -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
+        )
+#CMAKE_BINARY_DIR
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC_LIBS OFF)
 
@@ -80,7 +88,9 @@ add_dependencies(${FGE_EXE_NAME} ${FGE_LIB_NAME})
 
 #Dependencies
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window)
+add_dependencies(${FGE_LIB_NAME} version)
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-graphics sfml-system sfml-window)
+add_dependencies(${FGE_SERVER_LIB_NAME} version)
 add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
 
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")

@@ -77,26 +77,17 @@ bool GetFGEversionName(string& name)
         string line;
         while ( getline(versionFile, line) )
         {
-            auto pos = line.find("VERSION_FULLVERSION_STRING");
+            auto pos = line.find("FGE_VERSION_FULL_WITHTAG_STRING");
             if ( pos != string::npos )
             {
                 auto posQuote = line.find('\"');
                 auto posEndQuote = line.rfind('\"');
                 if ( posQuote != string::npos && posEndQuote != string::npos )
                 {
-                    if (posEndQuote-posQuote-1 >= 7)
+                    if (posEndQuote-posQuote-1 >= 5)
                     {
-                        auto dotCount = count(line.begin()+posQuote, line.begin()+posEndQuote, '.');
-                        if (dotCount == 3)
-                        {
-                            name.clear();
-                            auto posDotEnd = line.rfind('.');
-                            if (posDotEnd != string::npos && posDotEnd > posQuote)
-                            {
-                                name = "FastEngine_" + line.substr(posQuote+1, posDotEnd-posQuote-1);
-                                return true;
-                            }
-                        }
+                        name = "FastEngine_" + line.substr(posQuote+1, posEndQuote-posQuote-1);
+                        return true;
                     }
                 }
             }
@@ -157,6 +148,16 @@ int main()
             cout << "Can't create directory : " << installPath << endl;
             return -1;
         }
+    }
+
+    cout << "Proceeding with installation ?" << endl;
+    cout << "[y/n] (default to n)>";
+    string response;
+    getline(cin, response);
+    if (response != "y")
+    {
+        cout << "Aborting ..." << endl;
+        return 0;
     }
 
     list<InstallFile> installFiles;

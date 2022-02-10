@@ -214,6 +214,9 @@ public:
     void main()
     {
 
+
+
+
         /*fge::net::ServerUdp test;
         #if CLIENT == 0
         test.start(42320);
@@ -481,7 +484,7 @@ public:
 
 
         fge::Event main_event(sf::Vector2u(800,600));
-        sf::RenderWindow window(sf::VideoMode(800, 600), "FastEngine "+(std::string)fge::VERSION_FULLVERSION_STRING);
+        sf::RenderWindow window(sf::VideoMode(800, 600), "FastEngine "+(std::string)FGE_VERSION_FULL_WITHTAG_STRING);
         sf::View canard = window.getView();canard.zoom(2.0f);
         window.setFramerateLimit(144);
         window.setKeyRepeatEnabled(true);
