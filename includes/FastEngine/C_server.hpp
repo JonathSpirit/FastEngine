@@ -97,8 +97,8 @@ public:
     void notify();
     std::mutex& getSendMutex();
 
-    void sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port);
-    void sendTo(fge::net::Packet& pck, const fge::net::Identity& id);
+    fge::net::Socket::Error sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port);
+    fge::net::Socket::Error sendTo(fge::net::Packet& pck, const fge::net::Identity& id);
 
     bool isRunning() const;
 
@@ -120,6 +120,66 @@ private:
 
     fge::net::SocketUdp g_socket;
     bool g_running;
+};
+
+class FGE_API ServerClientSideUdp
+{
+public:
+    ServerClientSideUdp();
+    ~ServerClientSideUdp();
+
+    template<typename Tpacket=fge::net::Packet>
+    bool start(fge::net::Port port, const fge::net::IpAddress& ip,
+               const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort);
+    void stop();
+
+    const fge::net::SocketUdp& getSocket() const;
+    fge::net::SocketUdp& getSocket();
+
+    void notify();
+    std::mutex& getSendMutex();
+
+    fge::net::Socket::Error send(fge::net::Packet& pck);
+
+    bool isRunning() const;
+
+    FluxPacketSharedPtr popNextPacket();
+
+    std::size_t getPacketsSize() const;
+    bool isEmpty() const;
+
+    void setMaxPackets(std::size_t n);
+    std::size_t getMaxPackets() const;
+
+    bool waitForPackets(const std::chrono::milliseconds& ms);
+
+    const fge::net::Identity& getClientIdentity() const;
+
+    fge::net::Client _client; //But it is the server :O
+
+private:
+    template<typename Tpacket>
+    void serverThreadReception();
+    void serverThreadTransmission();
+
+    bool pushPacket(const FluxPacketSharedPtr& fluxPck);
+
+    std::thread* g_threadReception;
+    std::thread* g_threadTransmission;
+
+    std::condition_variable g_cv;
+    std::condition_variable g_cvReceiveNotifier;
+
+    mutable std::mutex g_mutexSend;
+    mutable std::mutex g_mutexServer;
+
+    fge::net::SocketUdp g_socket;
+    bool g_running;
+
+    std::queue<FluxPacketSharedPtr> g_packets;
+    std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
+
+    fge::net::Identity g_clientIdentity;
 };
 
 }//end net
