@@ -76,6 +76,17 @@ void FGE_API Packet::reserve(std::size_t reserveSize)
     this->_g_data.reserve(reserveSize);
 }
 
+fge::net::Packet& FGE_API Packet::append(std::size_t dsize)
+{
+    if (dsize > 0)
+    {
+        std::size_t startPos = this->_g_data.size();
+        this->_g_data.resize(startPos + dsize);
+
+        this->_g_lastDataValidity = false;
+    }
+    return *this;
+}
 fge::net::Packet& FGE_API Packet::append(const void* data, std::size_t dsize)
 {
     if (data && (dsize > 0))

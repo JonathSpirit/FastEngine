@@ -40,6 +40,7 @@ public:
     void flush();
     void reserve(std::size_t reserveSize);
 
+    fge::net::Packet& append(std::size_t dsize); //Will push to host byte order without data (increasing size)
     fge::net::Packet& append(const void* data, std::size_t dsize); //Will push to host byte order
     fge::net::Packet& pack(const void* data, std::size_t dsize); //Will push and auto convert to network byte order
 
