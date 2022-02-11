@@ -23,14 +23,15 @@ namespace net
 struct FGE_API FluxPacket
 {
     FluxPacket(const fge::net::Packet& pck, const fge::net::Identity& id, std::size_t fluxIndex=0, std::size_t fluxCount=0) :
-        _pck(pck), _id(id), _fluxIndex(fluxIndex), _fluxCount(fluxCount)
+        _pck(pck), _id(id), _timestamp(fge::net::Client::getTimestamp_ms()), _fluxIndex(fluxIndex), _fluxCount(fluxCount)
     {}
     FluxPacket(fge::net::Packet&& pck, const fge::net::Identity& id, std::size_t fluxIndex=0, std::size_t fluxCount=0) :
-        _pck(std::move(pck)), _id(id), _fluxIndex(fluxIndex), _fluxCount(fluxCount)
+        _pck(std::move(pck)), _id(id), _timestamp(fge::net::Client::getTimestamp_ms()), _fluxIndex(fluxIndex), _fluxCount(fluxCount)
     {}
 
     fge::net::Packet _pck;
     fge::net::Identity _id;
+    fge::net::Client::Timestamp _timestamp;
 
     std::size_t _fluxIndex;
     std::size_t _fluxCount;
