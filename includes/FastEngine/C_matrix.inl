@@ -14,9 +14,10 @@ Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> data)
 }
 
 template<class T>
-Matrix<T>::Matrix(const sf::Vector2<std::size_t>& msize)
+template<class Tvec>
+Matrix<T>::Matrix(const sf::Vector2<Tvec>& msize)
 {
-    this->setSize(msize);
+    this->setSize( static_cast<sf::Vector2<std::size_t>>(msize) );
 }
 template<class T>
 Matrix<T>::Matrix(std::size_t sizex, std::size_t sizey)
@@ -25,9 +26,10 @@ Matrix<T>::Matrix(std::size_t sizex, std::size_t sizey)
 }
 
 template<class T>
-Matrix<T>::Matrix(const sf::Vector2<std::size_t>& msize, const T& defaultValue)
+template<class Tvec>
+Matrix<T>::Matrix(const sf::Vector2<Tvec>& msize, const T& defaultValue)
 {
-    this->setSize(msize);
+    this->setSize( static_cast<sf::Vector2<std::size_t>>(msize) );
     this->fill(defaultValue);
 }
 template<class T>
@@ -38,12 +40,12 @@ Matrix<T>::Matrix(std::size_t sizex, std::size_t sizey, const T& defaultValue)
 }
 
 template<class T>
-Matrix<T>::Matrix(fge::Matrix<T>&& m)
+Matrix<T>::Matrix(fge::Matrix<T>&& m) noexcept :
+    g_msize(m.g_msize),
+    g_matrix( std::move(m.g_matrix) )
 {
-    this->g_msize = m.g_msize;
     m.g_msize.y = 0;
     m.g_msize.x = 0;
-    this->g_matrix = std::move(m.g_matrix);
 }
 
 template<class T>
@@ -66,7 +68,7 @@ Matrix<T>::operator const std::vector<std::vector<T> >&() const
 }
 
 template<class T>
-fge::Matrix<T>& Matrix<T>::operator =(fge::Matrix<T>&& m)
+fge::Matrix<T>& Matrix<T>::operator =(fge::Matrix<T>&& m) noexcept
 {
     this->g_msize = m.g_msize;
     m.g_msize.y = 0;
@@ -92,9 +94,10 @@ typename std::vector<T>::const_reference Matrix<T>::get(std::size_t x, std::size
     return this->g_matrix.at(x).at(y);
 }
 template<class T>
-typename std::vector<T>::const_reference Matrix<T>::get(const sf::Vector2<std::size_t>& coord) const
+template<class Tvec>
+typename std::vector<T>::const_reference Matrix<T>::get(const sf::Vector2<Tvec>& coord) const
 {
-    return this->g_matrix.at(coord.x).at(coord.y);
+    return this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y));
 }
 template<class T>
 typename std::vector<T>::reference Matrix<T>::get(std::size_t x, std::size_t y)
@@ -102,9 +105,10 @@ typename std::vector<T>::reference Matrix<T>::get(std::size_t x, std::size_t y)
     return this->g_matrix.at(x).at(y);
 }
 template<class T>
-typename std::vector<T>::reference Matrix<T>::get(const sf::Vector2<std::size_t>& coord)
+template<class Tvec>
+typename std::vector<T>::reference Matrix<T>::get(const sf::Vector2<Tvec>& coord)
 {
-    return this->g_matrix.at(coord.x).at(coord.y);
+    return this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y));
 }
 
 template<class T>
@@ -118,11 +122,12 @@ bool Matrix<T>::get(std::size_t x, std::size_t y, T& buff) const
     return false;
 }
 template<class T>
-bool Matrix<T>::get(const sf::Vector2<std::size_t>& coord, T& buff) const
+template<class Tvec>
+bool Matrix<T>::get(const sf::Vector2<Tvec>& coord, T& buff) const
 {
-    if ( (coord.x < this->g_msize.x) && (coord.y < this->g_msize.y) )
+    if ( (static_cast<std::size_t>(coord.x) < this->g_msize.x) && (static_cast<std::size_t>(coord.y) < this->g_msize.y) )
     {
-        buff = this->g_matrix[coord.x][coord.y];
+        buff = this->g_matrix[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
         return true;
     }
     return false;
@@ -138,11 +143,12 @@ T* Matrix<T>::getPtr(std::size_t x, std::size_t y)
     return nullptr;
 }
 template<class T>
-T* Matrix<T>::getPtr(const sf::Vector2<std::size_t>& coord)
+template<class Tvec>
+T* Matrix<T>::getPtr(const sf::Vector2<Tvec>& coord)
 {
-    if ( (coord.x < this->g_msize.x) && (coord.y < this->g_msize.y) )
+    if ( (static_cast<std::size_t>(coord.x) < this->g_msize.x) && (static_cast<std::size_t>(coord.y) < this->g_msize.y) )
     {
-        return &this->g_matrix[coord.x][coord.y];
+        return &this->g_matrix[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
     }
     return nullptr;
 }
@@ -156,11 +162,12 @@ const T* Matrix<T>::getPtr(std::size_t x, std::size_t y) const
     return nullptr;
 }
 template<class T>
-const T* Matrix<T>::getPtr(const sf::Vector2<std::size_t>& coord) const
+template<class Tvec>
+const T* Matrix<T>::getPtr(const sf::Vector2<Tvec>& coord) const
 {
-    if ( (coord.x < this->g_msize.x) && (coord.y < this->g_msize.y) )
+    if ( (static_cast<std::size_t>(coord.x) < this->g_msize.x) && (static_cast<std::size_t>(coord.y) < this->g_msize.y) )
     {
-        return &this->g_matrix[coord.x][coord.y];
+        return &this->g_matrix[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
     }
     return nullptr;
 }
@@ -182,9 +189,10 @@ void Matrix<T>::set(std::size_t x, std::size_t y, const T&& value)
     this->g_matrix.at(x).at(y) = std::move(value);
 }
 template<class T>
-void Matrix<T>::set(const sf::Vector2<std::size_t>& coord, const T&& value)
+template<class Tvec>
+void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T&& value)
 {
-    this->g_matrix.at(coord.x).at(coord.y) = std::move(value);
+    this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = std::move(value);
 }
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, T&& value)
@@ -192,9 +200,10 @@ void Matrix<T>::set(std::size_t x, std::size_t y, T&& value)
     this->g_matrix.at(x).at(y) = std::move(value);
 }
 template<class T>
-void Matrix<T>::set(const sf::Vector2<std::size_t>& coord, T&& value)
+template<class Tvec>
+void Matrix<T>::set(const sf::Vector2<Tvec>& coord, T&& value)
 {
-    this->g_matrix.at(coord.x).at(coord.y) = std::move(value);
+    this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = std::move(value);
 }
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, const T& value)
@@ -202,9 +211,10 @@ void Matrix<T>::set(std::size_t x, std::size_t y, const T& value)
     this->g_matrix.at(x).at(y) = value;
 }
 template<class T>
-void Matrix<T>::set(const sf::Vector2<std::size_t>& coord, const T& value)
+template<class Tvec>
+void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T& value)
 {
-    this->g_matrix.at(coord.x).at(coord.y) = value;
+    this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = value;
 }
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, T& value)
@@ -212,9 +222,10 @@ void Matrix<T>::set(std::size_t x, std::size_t y, T& value)
     this->g_matrix.at(x).at(y) = value;
 }
 template<class T>
-void Matrix<T>::set(const sf::Vector2<std::size_t>& coord, T& value)
+template<class Tvec>
+void Matrix<T>::set(const sf::Vector2<Tvec>& coord, T& value)
 {
-    this->g_matrix.at(coord.x).at(coord.y) = value;
+    this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = value;
 }
 
 template<class T>
@@ -276,15 +287,16 @@ std::size_t Matrix<T>::getSizeY() const
 }
 
 template<class T>
-void Matrix<T>::setSize(const sf::Vector2<std::size_t>& msize)
+template<class Tvec>
+void Matrix<T>::setSize(const sf::Vector2<Tvec>& msize)
 {
-    this->g_matrix.resize(msize.x);
-    for (std::size_t x=0; x<msize.x; ++x)
+    this->g_matrix.resize(static_cast<std::size_t>(msize.x));
+    for (std::size_t x=0; x<static_cast<std::size_t>(msize.x); ++x)
     {
-        this->g_matrix[x].resize(msize.y);
+        this->g_matrix[x].resize(static_cast<std::size_t>(msize.y));
     }
-    this->g_msize.x = msize.x;
-    this->g_msize.y = msize.y;
+    this->g_msize.x = static_cast<std::size_t>(msize.x);
+    this->g_msize.y = static_cast<std::size_t>(msize.y);
 }
 template<class T>
 void Matrix<T>::setSize(std::size_t sizex, std::size_t sizey)

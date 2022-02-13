@@ -17,61 +17,73 @@ public:
 
     Matrix(std::initializer_list<std::initializer_list<T>> data);
 
-    Matrix(const sf::Vector2<std::size_t>& msize);
+    template<class Tvec>
+    explicit Matrix(const sf::Vector2<Tvec>& msize);
     Matrix(std::size_t sizex, std::size_t sizey);
 
-    Matrix(const sf::Vector2<std::size_t>& msize, const T& defaultValue);
+    template<class Tvec>
+    Matrix(const sf::Vector2<Tvec>& msize, const T& defaultValue);
     Matrix(std::size_t sizex, std::size_t sizey, const T& defaultValue);
 
     Matrix(const fge::Matrix<T>& m) = default;
-    Matrix(fge::Matrix<T>&& m);
+    Matrix(fge::Matrix<T>&& m) noexcept;
 
     ~Matrix() = default;
 
     void clear();
 
-    inline operator std::vector<std::vector<T> >&();
-    inline operator const std::vector<std::vector<T> >&() const;
+    inline explicit operator std::vector<std::vector<T> >&();
+    inline explicit operator const std::vector<std::vector<T> >&() const;
 
     fge::Matrix<T>& operator =(const fge::Matrix<T>& m) = default;
-    fge::Matrix<T>& operator =(fge::Matrix<T>&& m);
+    fge::Matrix<T>& operator =(fge::Matrix<T>&& m) noexcept;
 
     inline std::vector<T>& operator[](std::size_t x);
     inline const std::vector<T>& operator[](std::size_t x) const;
 
     inline typename std::vector<T>::const_reference get(std::size_t x, std::size_t y) const;
-    inline typename std::vector<T>::const_reference get(const sf::Vector2<std::size_t>& coord) const;
+    template<class Tvec>
+    inline typename std::vector<T>::const_reference get(const sf::Vector2<Tvec>& coord) const;
     inline typename std::vector<T>::reference get(std::size_t x, std::size_t y);
-    inline typename std::vector<T>::reference get(const sf::Vector2<std::size_t>& coord);
+    template<class Tvec>
+    inline typename std::vector<T>::reference get(const sf::Vector2<Tvec>& coord);
 
     bool get(std::size_t x, std::size_t y, T& buff) const;
-    bool get(const sf::Vector2<std::size_t>& coord, T& buff) const;
+    template<class Tvec>
+    bool get(const sf::Vector2<Tvec>& coord, T& buff) const;
 
     T* getPtr(std::size_t x, std::size_t y);
-    T* getPtr(const sf::Vector2<std::size_t>& coord);
+    template<class Tvec>
+    T* getPtr(const sf::Vector2<Tvec>& coord);
     const T* getPtr(std::size_t x, std::size_t y) const;
-    const T* getPtr(const sf::Vector2<std::size_t>& coord) const;
+    template<class Tvec>
+    const T* getPtr(const sf::Vector2<Tvec>& coord) const;
 
     inline std::vector<std::vector<T> >& get();
     inline const std::vector<std::vector<T> >& get() const;
 
     void set(std::size_t x, std::size_t y, const T&& value);
-    void set(const sf::Vector2<std::size_t>& coord, const T&& value);
+    template<class Tvec>
+    void set(const sf::Vector2<Tvec>& coord, const T&& value);
     void set(std::size_t x, std::size_t y, T&& value);
-    void set(const sf::Vector2<std::size_t>& coord, T&& value);
+    template<class Tvec>
+    void set(const sf::Vector2<Tvec>& coord, T&& value);
     void set(std::size_t x, std::size_t y, const T& value);
-    void set(const sf::Vector2<std::size_t>& coord, const T& value);
+    template<class Tvec>
+    void set(const sf::Vector2<Tvec>& coord, const T& value);
     void set(std::size_t x, std::size_t y, T& value);
-    void set(const sf::Vector2<std::size_t>& coord, T& value);
+    template<class Tvec>
+    void set(const sf::Vector2<Tvec>& coord, T& value);
 
     void set(std::initializer_list<std::initializer_list<T>> data);
 
-    inline std::size_t getTotalSize() const;
-    inline const sf::Vector2<std::size_t>& getSize() const;
-    inline std::size_t getSizeX() const;
-    inline std::size_t getSizeY() const;
+    [[nodiscard]] inline std::size_t getTotalSize() const;
+    [[nodiscard]] inline const sf::Vector2<std::size_t>& getSize() const;
+    [[nodiscard]] inline std::size_t getSizeX() const;
+    [[nodiscard]] inline std::size_t getSizeY() const;
 
-    void setSize(const sf::Vector2<std::size_t>& msize);
+    template<class Tvec>
+    void setSize(const sf::Vector2<Tvec>& msize);
     void setSize(std::size_t sizex, std::size_t sizey);
 
     void fill(const T& value);
