@@ -207,15 +207,15 @@ std::string ToStr(char val)
 }
 std::string ToStr(char16_t val)
 {
-    return fmt::format(FMT_COMPILE("{}"), val);
+    return fmt::format(FMT_COMPILE("{}"), static_cast<int16_t>(val));
 }
 std::string ToStr(char32_t val)
 {
-    return fmt::format(FMT_COMPILE("{}"), val);
+    return fmt::format(FMT_COMPILE("{}"), static_cast<int32_t>(val));
 }
 std::string ToStr(wchar_t val)
 {
-    return fmt::format(FMT_COMPILE("{}"), val);
+    return fmt::format(FMT_COMPILE("{}"), static_cast<int32_t>(val));
 }
 
 std::string ToStr(signed char val)
