@@ -8,15 +8,15 @@ namespace fge
 namespace net
 {
 
-uint32_t FGE_API PacketBZ2::_maxUncompressedReceivedSize = FGE_PACKETBZ2_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
+uint32_t PacketBZ2::_maxUncompressedReceivedSize = FGE_PACKETBZ2_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
-FGE_API PacketBZ2::PacketBZ2() : fge::net::Packet(),
+PacketBZ2::PacketBZ2() : fge::net::Packet(),
     g_blockSize(FGE_PACKETBZ2_DEFAULT_BLOCKSIZE),
     g_workfactor(FGE_PACKETBZ2_DEFAULT_WORKFACTOR),
     g_lastCompressionSize(0)
 {
 }
-FGE_API PacketBZ2::PacketBZ2(fge::net::PacketBZ2&& pck) noexcept :
+PacketBZ2::PacketBZ2(fge::net::PacketBZ2&& pck) noexcept :
     fge::net::Packet(std::move(pck)),
     g_blockSize(pck.g_blockSize),
     g_workfactor(pck.g_workfactor),
@@ -25,7 +25,7 @@ FGE_API PacketBZ2::PacketBZ2(fge::net::PacketBZ2&& pck) noexcept :
 {
 }
 
-void FGE_API PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+void PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     uint32_t dataSrcSize = this->getDataSize();
     uint32_t dataDstSize = ((dataSrcSize + (dataSrcSize/100)) + 608);
@@ -63,7 +63,7 @@ void FGE_API PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     this->_g_lastDataValidity = true;
 }
 
-void FGE_API PacketBZ2::onReceive(void* data, std::size_t dsize)
+void PacketBZ2::onReceive(void* data, std::size_t dsize)
 {
     if ( dsize < 4 )
     {
@@ -110,24 +110,24 @@ void FGE_API PacketBZ2::onReceive(void* data, std::size_t dsize)
     this->append(this->g_buffer.data(), dataUncompressedSize);
 }
 
-void FGE_API PacketBZ2::setBlockSize(int blockSize)
+void PacketBZ2::setBlockSize(int blockSize)
 {
     this->g_blockSize = (blockSize < 1) ? 1 : ((blockSize > 9) ? 9 : blockSize);
 }
-int FGE_API PacketBZ2::getBlockSize() const
+int PacketBZ2::getBlockSize() const
 {
     return this->g_blockSize;
 }
-void FGE_API PacketBZ2::setWorkFactor(int factor)
+void PacketBZ2::setWorkFactor(int factor)
 {
     this->g_workfactor = (factor < 0) ? 0 : ((factor > 250) ? 250 : factor);
 }
-int FGE_API PacketBZ2::getWorkFactor() const
+int PacketBZ2::getWorkFactor() const
 {
     return this->g_workfactor;
 }
 
-std::size_t FGE_API PacketBZ2::getLastCompressionSize() const
+std::size_t PacketBZ2::getLastCompressionSize() const
 {
     return this->g_lastCompressionSize;
 }

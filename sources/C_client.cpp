@@ -9,47 +9,47 @@ namespace fge
 namespace net
 {
 
-FGE_API Client::Client() :
+Client::Client() :
     g_latency_ms(FGE_NET_DEFAULT_LATENCY),
     g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
     g_skey(FGE_NET_BAD_SKEY)
 {
 }
-FGE_API Client::Client(fge::net::Client::Latency_ms latency) :
+Client::Client(fge::net::Client::Latency_ms latency) :
     g_latency_ms(latency),
     g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
     g_skey(FGE_NET_BAD_SKEY)
 {
 }
 
-fge::net::Skey FGE_API Client::GenerateSkey()
+fge::net::Skey Client::GenerateSkey()
 {
     return fge::__random.range<fge::net::Skey>(1, std::numeric_limits<fge::net::Skey>::max());
 }
-void FGE_API Client::setSkey(fge::net::Skey key)
+void Client::setSkey(fge::net::Skey key)
 {
     this->g_skey = key;
 }
-fge::net::Skey FGE_API Client::getSkey() const
+fge::net::Skey Client::getSkey() const
 {
     return this->g_skey;
 }
 
-void FGE_API Client::setLatency_ms(fge::net::Client::Latency_ms t)
+void Client::setLatency_ms(fge::net::Client::Latency_ms t)
 {
     this->g_latency_ms = t;
 }
-fge::net::Client::Latency_ms FGE_API Client::getLatency_ms() const
+fge::net::Client::Latency_ms Client::getLatency_ms() const
 {
     return this->g_latency_ms;
 }
 
-void FGE_API Client::resetLastPacketTimePoint()
+void Client::resetLastPacketTimePoint()
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
-fge::net::Client::Latency_ms FGE_API Client::getLastPacketElapsedTime()
+fge::net::Client::Latency_ms Client::getLastPacketElapsedTime()
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
@@ -58,11 +58,11 @@ fge::net::Client::Latency_ms FGE_API Client::getLastPacketElapsedTime()
     return (t >= std::numeric_limits<fge::net::Client::Latency_ms>::max()) ? std::numeric_limits<fge::net::Client::Latency_ms>::max() : static_cast<fge::net::Client::Latency_ms>(t);
 }
 
-fge::net::Client::Timestamp FGE_API Client::getTimestamp_ms()
+fge::net::Client::Timestamp Client::getTimestamp_ms()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % _FGE_NET_CLIENT_TIMESTAMP_MODULO;
 }
-fge::net::Client::Latency_ms FGE_API Client::computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
+fge::net::Client::Latency_ms Client::computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
                                                                 const fge::net::Client::Timestamp& returnedTime )
 {
     int32_t t = static_cast<int32_t>(returnedTime) - static_cast<int32_t>(startedTime);
@@ -71,7 +71,7 @@ fge::net::Client::Latency_ms FGE_API Client::computeLatency_ms(const fge::net::C
 
     return static_cast<fge::net::Client::Latency_ms>(t);
 }
-fge::net::Client::Latency_ms FGE_API Client::computePing_ms(const fge::net::Client::Timestamp& startedTime)
+fge::net::Client::Latency_ms Client::computePing_ms(const fge::net::Client::Timestamp& startedTime)
 {
     fge::net::Client::Timestamp now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % _FGE_NET_CLIENT_TIMESTAMP_MODULO;
     int32_t t = static_cast<int32_t>(now) - static_cast<int32_t>(startedTime);
@@ -81,7 +81,7 @@ fge::net::Client::Latency_ms FGE_API Client::computePing_ms(const fge::net::Clie
     return static_cast<fge::net::Client::Latency_ms>(t);
 }
 
-void FGE_API Client::clearPackets()
+void Client::clearPackets()
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
@@ -90,13 +90,13 @@ void FGE_API Client::clearPackets()
         this->g_pendingTransmitPackets.pop();
     }
 }
-void FGE_API Client::pushPacket(const fge::net::ClientSendQueuePacket& pck)
+void Client::pushPacket(const fge::net::ClientSendQueuePacket& pck)
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
     this->g_pendingTransmitPackets.push(pck);
 }
-fge::net::ClientSendQueuePacket FGE_API Client::popPacket()
+fge::net::ClientSendQueuePacket Client::popPacket()
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
 
@@ -108,7 +108,7 @@ fge::net::ClientSendQueuePacket FGE_API Client::popPacket()
     this->g_pendingTransmitPackets.pop();
     return tmp;
 }
-bool FGE_API Client::isPendingPacketsEmpty()
+bool Client::isPendingPacketsEmpty()
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();

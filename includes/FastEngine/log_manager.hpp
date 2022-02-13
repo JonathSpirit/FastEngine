@@ -10,12 +10,12 @@ namespace fge
 namespace log
 {
 
-const std::string& FGE_API SetDefaultFolder (const std::string& default_folder);
+FGE_API const std::string& SetDefaultFolder (const std::string& default_folder);
 
-bool FGE_API Remove (const std::string& name);
-bool FGE_API Clean (const std::string& name);
-bool FGE_API Rename (const std::string& name, const std::string& new_name);
-bool FGE_API Write (const std::string& name, const std::string& text, const std::string& desc=std::string());
+FGE_API bool Remove (const std::string& name);
+FGE_API bool Clean (const std::string& name);
+FGE_API bool Rename (const std::string& name, const std::string& new_name);
+FGE_API bool Write (const std::string& name, const std::string& text, const std::string& desc=std::string());
 
 }//end log
 }//end fge

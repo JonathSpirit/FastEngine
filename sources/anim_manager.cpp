@@ -20,7 +20,7 @@ std::mutex __dataMutex;
 
 }//end
 
-void FGE_API Init()
+void Init()
 {
     if ( __dataAnimBad == nullptr )
     {
@@ -28,17 +28,17 @@ void FGE_API Init()
         __dataAnimBad->_valid = false;
     }
 }
-bool FGE_API IsInit()
+bool IsInit()
 {
     return __dataAnimBad != nullptr;
 }
-void FGE_API Uninit()
+void Uninit()
 {
     __dataAnim.clear();
     __dataAnimBad = nullptr;
 }
 
-std::size_t FGE_API GetAnimationSize()
+std::size_t GetAnimationSize()
 {
     std::lock_guard<std::mutex> lck(__dataMutex);
     return __dataAnim.size();
@@ -48,20 +48,20 @@ std::mutex& GetMutex()
 {
     return __dataMutex;
 }
-fge::anim::AnimationDataType::const_iterator FGE_API GetCBegin()
+fge::anim::AnimationDataType::const_iterator GetCBegin()
 {
     return __dataAnim.cbegin();
 }
-fge::anim::AnimationDataType::const_iterator FGE_API GetCEnd()
+fge::anim::AnimationDataType::const_iterator GetCEnd()
 {
     return __dataAnim.cend();
 }
 
-const fge::anim::AnimationDataPtr& FGE_API GetBadAnimation()
+const fge::anim::AnimationDataPtr& GetBadAnimation()
 {
     return __dataAnimBad;
 }
-fge::anim::AnimationDataPtr FGE_API GetAnimation(const std::string& name)
+fge::anim::AnimationDataPtr GetAnimation(const std::string& name)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -78,7 +78,7 @@ fge::anim::AnimationDataPtr FGE_API GetAnimation(const std::string& name)
     return __dataAnimBad;
 }
 
-bool FGE_API Check(const std::string& name)
+bool Check(const std::string& name)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -95,7 +95,7 @@ bool FGE_API Check(const std::string& name)
     return false;
 }
 
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(const std::string& name, const std::string& path)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -182,7 +182,7 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
         return false;
     }
 }
-bool FGE_API Unload(const std::string& name)
+bool Unload(const std::string& name)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -201,7 +201,7 @@ bool FGE_API Unload(const std::string& name)
     }
     return false;
 }
-void FGE_API UnloadAll()
+void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(__dataMutex);
 
@@ -213,7 +213,7 @@ void FGE_API UnloadAll()
     __dataAnim.clear();
 }
 
-bool FGE_API Push(const std::string& name, const fge::anim::AnimationDataPtr& data)
+bool Push(const std::string& name, const fge::anim::AnimationDataPtr& data)
 {
     if (name == FGE_ANIM_BAD)
     {

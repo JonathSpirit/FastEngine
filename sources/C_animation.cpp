@@ -4,7 +4,7 @@
 namespace fge
 {
 
-FGE_API Animation::Animation() :
+Animation::Animation() :
     g_data( fge::anim::GetBadAnimation() ),
     g_name( FGE_ANIM_BAD ),
 
@@ -14,7 +14,7 @@ FGE_API Animation::Animation() :
     g_loop(false)
 {
 }
-FGE_API Animation::Animation(const std::string& name, std::size_t frame) :
+Animation::Animation(const std::string& name, std::size_t frame) :
     g_data( fge::anim::GetAnimation(name) ),
     g_name( name ),
 
@@ -24,7 +24,7 @@ FGE_API Animation::Animation(const std::string& name, std::size_t frame) :
     g_loop(false)
 {
 }
-FGE_API Animation::Animation(const std::string& name, const std::string& group, std::size_t frame) :
+Animation::Animation(const std::string& name, const std::string& group, std::size_t frame) :
     g_data( fge::anim::GetAnimation(name) ),
     g_name( name ),
 
@@ -35,7 +35,7 @@ FGE_API Animation::Animation(const std::string& name, const std::string& group, 
 {
     this->setGroup(group);
 }
-FGE_API Animation::Animation(const char* name, std::size_t frame) :
+Animation::Animation(const char* name, std::size_t frame) :
     g_data( fge::anim::GetAnimation(std::string(name)) ),
     g_name( name ),
 
@@ -46,7 +46,7 @@ FGE_API Animation::Animation(const char* name, std::size_t frame) :
 {
 
 }
-FGE_API Animation::Animation(const char* name, const char* group, std::size_t frame) :
+Animation::Animation(const char* name, const char* group, std::size_t frame) :
     g_data( fge::anim::GetAnimation(std::string(name)) ),
     g_name( name ),
 
@@ -57,7 +57,7 @@ FGE_API Animation::Animation(const char* name, const char* group, std::size_t fr
 {
     this->setGroup(std::string(group));
 }
-FGE_API Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame) :
+Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame) :
     g_data(data),
     g_name(FGE_ANIM_BAD),
 
@@ -68,7 +68,7 @@ FGE_API Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_
 {
 
 }
-FGE_API Animation::Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame) :
+Animation::Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame) :
     g_data(data),
     g_name(FGE_ANIM_BAD),
 
@@ -79,7 +79,7 @@ FGE_API Animation::Animation(const fge::anim::AnimationDataPtr& data, const std:
 {
     this->setGroup(group);
 }
-FGE_API Animation::Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame) :
+Animation::Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame) :
     g_data(data),
     g_name(FGE_ANIM_BAD),
 
@@ -91,7 +91,7 @@ FGE_API Animation::Animation(const fge::anim::AnimationDataPtr& data, const char
     this->setGroup(std::string(group));
 }
 
-void FGE_API Animation::clear()
+void Animation::clear()
 {
     this->g_data = fge::anim::GetBadAnimation();
     this->g_name = FGE_ANIM_BAD;
@@ -102,17 +102,17 @@ void FGE_API Animation::clear()
     this->g_loop = false;
 }
 
-bool FGE_API Animation::valid() const
+bool Animation::valid() const
 {
     return this->g_data->_valid;
 }
 
-const std::string& FGE_API Animation::getName() const
+const std::string& Animation::getName() const
 {
     return this->g_name;
 }
 
-bool FGE_API Animation::setGroup(const std::string& groupName)
+bool Animation::setGroup(const std::string& groupName)
 {
     for (std::size_t i=0; i<this->g_data->_groups.size(); ++i)
     {
@@ -124,7 +124,7 @@ bool FGE_API Animation::setGroup(const std::string& groupName)
     }
     return false;
 }
-bool FGE_API Animation::setGroup(std::size_t groupIndex)
+bool Animation::setGroup(std::size_t groupIndex)
 {
     if ( groupIndex < this->g_data->_groups.size() )
     {
@@ -134,7 +134,7 @@ bool FGE_API Animation::setGroup(std::size_t groupIndex)
     return false;
 }
 
-const fge::anim::AnimationGroup* FGE_API Animation::getGroup() const
+const fge::anim::AnimationGroup* Animation::getGroup() const
 {
     if ( this->g_groupIndex < this->g_data->_groups.size() )
     {
@@ -142,7 +142,7 @@ const fge::anim::AnimationGroup* FGE_API Animation::getGroup() const
     }
     return nullptr;
 }
-fge::anim::AnimationGroup* FGE_API Animation::getGroup()
+fge::anim::AnimationGroup* Animation::getGroup()
 {
     if ( this->g_groupIndex < this->g_data->_groups.size() )
     {
@@ -150,7 +150,7 @@ fge::anim::AnimationGroup* FGE_API Animation::getGroup()
     }
     return nullptr;
 }
-const fge::anim::AnimationGroup* FGE_API Animation::getGroup(const std::string& groupName) const
+const fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName) const
 {
     for (std::size_t i=0; i<this->g_data->_groups.size(); ++i)
     {
@@ -161,7 +161,7 @@ const fge::anim::AnimationGroup* FGE_API Animation::getGroup(const std::string& 
     }
     return nullptr;
 }
-fge::anim::AnimationGroup* FGE_API Animation::getGroup(const std::string& groupName)
+fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName)
 {
     for (std::size_t i=0; i<this->g_data->_groups.size(); ++i)
     {
@@ -172,7 +172,7 @@ fge::anim::AnimationGroup* FGE_API Animation::getGroup(const std::string& groupN
     }
     return nullptr;
 }
-const fge::anim::AnimationGroup* FGE_API Animation::getGroup(std::size_t groupIndex) const
+const fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex) const
 {
     if ( groupIndex < this->g_data->_groups.size() )
     {
@@ -180,7 +180,7 @@ const fge::anim::AnimationGroup* FGE_API Animation::getGroup(std::size_t groupIn
     }
     return nullptr;
 }
-fge::anim::AnimationGroup* FGE_API Animation::getGroup(std::size_t groupIndex)
+fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex)
 {
     if ( groupIndex < this->g_data->_groups.size() )
     {
@@ -189,7 +189,7 @@ fge::anim::AnimationGroup* FGE_API Animation::getGroup(std::size_t groupIndex)
     return nullptr;
 }
 
-bool FGE_API Animation::isGroupValid() const
+bool Animation::isGroupValid() const
 {
     if ( this->g_groupIndex < this->g_data->_groups.size() )
     {
@@ -198,7 +198,7 @@ bool FGE_API Animation::isGroupValid() const
     return false;
 }
 
-std::size_t FGE_API Animation::nextFrame()
+std::size_t Animation::nextFrame()
 {
     if ( this->isGroupValid() )
     {
@@ -216,21 +216,21 @@ std::size_t FGE_API Animation::nextFrame()
     }
     return this->g_frameIndex;
 }
-void FGE_API Animation::setFrame(std::size_t frame)
+void Animation::setFrame(std::size_t frame)
 {
     this->g_frameIndex = frame;
 }
 
-std::size_t FGE_API Animation::getFrameIndex() const
+std::size_t Animation::getFrameIndex() const
 {
     return this->g_frameIndex;
 }
-std::size_t FGE_API Animation::getGroupIndex() const
+std::size_t Animation::getGroupIndex() const
 {
     return this->g_groupIndex;
 }
 
-const fge::anim::AnimationFrame* FGE_API Animation::getFrame() const
+const fge::anim::AnimationFrame* Animation::getFrame() const
 {
     if ( this->isFrameValid() )
     {
@@ -238,7 +238,7 @@ const fge::anim::AnimationFrame* FGE_API Animation::getFrame() const
     }
     return nullptr;
 }
-fge::anim::AnimationFrame* FGE_API Animation::getFrame()
+fge::anim::AnimationFrame* Animation::getFrame()
 {
     if ( this->isFrameValid() )
     {
@@ -246,7 +246,7 @@ fge::anim::AnimationFrame* FGE_API Animation::getFrame()
     }
     return nullptr;
 }
-const fge::anim::AnimationFrame* FGE_API Animation::getFrame(std::size_t frameIndex) const
+const fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex) const
 {
     if ( this->isGroupValid() )
     {
@@ -257,7 +257,7 @@ const fge::anim::AnimationFrame* FGE_API Animation::getFrame(std::size_t frameIn
     }
     return nullptr;
 }
-fge::anim::AnimationFrame* FGE_API Animation::getFrame(std::size_t frameIndex)
+fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex)
 {
     if ( this->isGroupValid() )
     {
@@ -269,7 +269,7 @@ fge::anim::AnimationFrame* FGE_API Animation::getFrame(std::size_t frameIndex)
     return nullptr;
 }
 
-bool FGE_API Animation::isFrameValid() const
+bool Animation::isFrameValid() const
 {
     if ( this->isGroupValid() )
     {
@@ -281,37 +281,37 @@ bool FGE_API Animation::isFrameValid() const
     return false;
 }
 
-void FGE_API Animation::setLoop(bool active)
+void Animation::setLoop(bool active)
 {
     this->g_loop = active;
 }
-bool FGE_API Animation::isLoop() const
+bool Animation::isLoop() const
 {
     return this->g_loop;
 }
 
-const fge::anim::AnimationDataPtr& FGE_API Animation::getData() const
+const fge::anim::AnimationDataPtr& Animation::getData() const
 {
     return this->g_data;
 }
 
-void FGE_API Animation::operator =( const std::string& name )
+void Animation::operator =( const std::string& name )
 {
     this->g_name = name;
     this->g_data = fge::anim::GetAnimation(name);
 }
-void FGE_API Animation::operator =( const char* name )
+void Animation::operator =( const char* name )
 {
     this->g_name = std::string(name);
     this->g_data = fge::anim::GetAnimation(this->g_name);
 }
-void FGE_API Animation::operator =( const fge::anim::AnimationDataPtr& data )
+void Animation::operator =( const fge::anim::AnimationDataPtr& data )
 {
     this->g_name = FGE_ANIM_BAD;
     this->g_data = data;
 }
 
-FGE_API Animation::operator sf::Texture*()
+Animation::operator sf::Texture*()
 {
     if ( this->isFrameValid() )
     {
@@ -319,7 +319,7 @@ FGE_API Animation::operator sf::Texture*()
     }
     return fge::texture::GetBadTexture()->_texture.get();
 }
-FGE_API Animation::operator const sf::Texture*() const
+Animation::operator const sf::Texture*() const
 {
     if ( this->isFrameValid() )
     {
@@ -328,7 +328,7 @@ FGE_API Animation::operator const sf::Texture*() const
     return fge::texture::GetBadTexture()->_texture.get();
 }
 
-FGE_API Animation::operator sf::Texture&()
+Animation::operator sf::Texture&()
 {
     if ( this->isFrameValid() )
     {
@@ -336,7 +336,7 @@ FGE_API Animation::operator sf::Texture&()
     }
     return *fge::texture::GetBadTexture()->_texture.get();
 }
-FGE_API Animation::operator const sf::Texture&() const
+Animation::operator const sf::Texture&() const
 {
     if ( this->isFrameValid() )
     {
@@ -345,11 +345,11 @@ FGE_API Animation::operator const sf::Texture&() const
     return *fge::texture::GetBadTexture()->_texture.get();
 }
 
-FGE_API Animation::operator std::string&()
+Animation::operator std::string&()
 {
     return this->g_name;
 }
-FGE_API Animation::operator const std::string&() const
+Animation::operator const std::string&() const
 {
     return this->g_name;
 }

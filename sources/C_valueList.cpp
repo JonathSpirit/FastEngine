@@ -3,132 +3,132 @@
 namespace fge
 {
 
-FGE_API ValueList::ValueList(const fge::ValueList& vl) :
+ValueList::ValueList(const fge::ValueList& vl) :
     g_data(vl.g_data)
 {
 }
-FGE_API ValueList::ValueList(fge::ValueList& vl) :
+ValueList::ValueList(fge::ValueList& vl) :
     g_data(vl.g_data)
 {
 }
-FGE_API ValueList::ValueList(const fge::ValueList&& vl) :
+ValueList::ValueList(const fge::ValueList&& vl) :
     g_data(std::move(vl.g_data))
 {
 }
-FGE_API ValueList::ValueList(fge::ValueList&& vl) :
+ValueList::ValueList(fge::ValueList&& vl) :
     g_data(std::move(vl.g_data))
 {
 }
 
-fge::ValueList& FGE_API ValueList::operator=(const fge::ValueList& vl)
+fge::ValueList& ValueList::operator=(const fge::ValueList& vl)
 {
     this->g_data = vl.g_data;
     return *this;
 }
-fge::ValueList& FGE_API ValueList::operator=(fge::ValueList& vl)
+fge::ValueList& ValueList::operator=(fge::ValueList& vl)
 {
     this->g_data = vl.g_data;
     return *this;
 }
-fge::ValueList& FGE_API ValueList::operator=(const fge::ValueList&& vl)
+fge::ValueList& ValueList::operator=(const fge::ValueList&& vl)
 {
     this->g_data = std::move(vl.g_data);
     return *this;
 }
-fge::ValueList& FGE_API ValueList::operator=(fge::ValueList&& vl)
+fge::ValueList& ValueList::operator=(fge::ValueList&& vl)
 {
     this->g_data = std::move(vl.g_data);
     return *this;
 }
 
-void FGE_API ValueList::delAllValues()
+void ValueList::delAllValues()
 {
     this->g_data.clear();
 }
-void FGE_API ValueList::delValue(const std::string& vname)
+void ValueList::delValue(const std::string& vname)
 {
     this->g_data.erase(vname);
 }
 
-bool FGE_API ValueList::checkValue(const std::string& vname) const
+bool ValueList::checkValue(const std::string& vname) const
 {
     return this->g_data.count(vname) > 0;
 }
 
-void FGE_API ValueList::setValue(const std::string& vname, fge::Value& value)
+void ValueList::setValue(const std::string& vname, fge::Value& value)
 {
     this->g_data[vname] = value;
 }
-void FGE_API ValueList::setValue(const std::string& vname, const fge::Value& value)
+void ValueList::setValue(const std::string& vname, const fge::Value& value)
 {
     this->g_data[vname] = value;
 }
-void FGE_API ValueList::setValue(const std::string& vname, fge::Value&& value)
+void ValueList::setValue(const std::string& vname, fge::Value&& value)
 {
     this->g_data[vname] = std::move(value);
 }
-void FGE_API ValueList::setValue(const std::string& vname, const fge::Value&& value)
+void ValueList::setValue(const std::string& vname, const fge::Value&& value)
 {
     this->g_data[vname] = std::move(value);
 }
 
-fge::Value& FGE_API ValueList::getValue(const std::string& vname)
+fge::Value& ValueList::getValue(const std::string& vname)
 {
     return this->g_data[vname];
 }
-const fge::Value& FGE_API ValueList::getValue(const std::string& vname) const
+const fge::Value& ValueList::getValue(const std::string& vname) const
 {
     return this->g_data.at(vname);
 }
 
-fge::Value& FGE_API ValueList::operator[] (const std::string& vname)
+fge::Value& ValueList::operator[] (const std::string& vname)
 {
     return this->g_data[vname];
 }
-const fge::Value& FGE_API ValueList::operator[] (const std::string& vname) const
+const fge::Value& ValueList::operator[] (const std::string& vname) const
 {
     return this->g_data.at(vname);
 }
 
-std::size_t FGE_API ValueList::getValueSize() const
+std::size_t ValueList::getValueSize() const
 {
     return this->g_data.size();
 }
 
-fge::ValueList::ValueListType::iterator FGE_API ValueList::begin()
+fge::ValueList::ValueListType::iterator ValueList::begin()
 {
     return this->g_data.begin();
 }
-fge::ValueList::ValueListType::iterator FGE_API ValueList::end()
+fge::ValueList::ValueListType::iterator ValueList::end()
 {
     return this->g_data.end();
 }
-fge::ValueList::ValueListType::const_iterator FGE_API ValueList::cbegin()
+fge::ValueList::ValueListType::const_iterator ValueList::cbegin()
 {
     return this->g_data.cbegin();
 }
-fge::ValueList::ValueListType::const_iterator FGE_API ValueList::cend()
+fge::ValueList::ValueListType::const_iterator ValueList::cend()
 {
     return this->g_data.cend();
 }
 
-fge::ValueList::ValueListType::const_iterator FGE_API ValueList::find(const std::string& vname) const
+fge::ValueList::ValueListType::const_iterator ValueList::find(const std::string& vname) const
 {
     return this->g_data.find(vname);
 }
-fge::ValueList::ValueListType::iterator FGE_API ValueList::find(const std::string& vname)
+fge::ValueList::ValueListType::iterator ValueList::find(const std::string& vname)
 {
     return this->g_data.find(vname);
 }
 
-void FGE_API ValueList::clearAllModificationFlags()
+void ValueList::clearAllModificationFlags()
 {
     for (auto& data : this->g_data)
     {
         data.second.setModifiedFlag(false);
     }
 }
-std::size_t FGE_API ValueList::countAllModificationFlags() const
+std::size_t ValueList::countAllModificationFlags() const
 {
     std::size_t counter = 0;
 

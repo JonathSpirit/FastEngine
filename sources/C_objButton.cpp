@@ -4,11 +4,11 @@
 namespace fge
 {
 
-FGE_API ObjButton::ObjButton() :
+ObjButton::ObjButton() :
     g_color(sf::Color::White)
 {
 }
-FGE_API ObjButton::ObjButton(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos) :
+ObjButton::ObjButton(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos) :
     g_textureOn(t_on),
     g_textureOff(t_off),
     g_color(sf::Color::White)
@@ -17,39 +17,39 @@ FGE_API ObjButton::ObjButton(const fge::Texture& t_on, const fge::Texture& t_off
     this->g_sprite.setTexture(t_off);
 }
 
-const fge::Texture& FGE_API ObjButton::getTextureOn() const
+const fge::Texture& ObjButton::getTextureOn() const
 {
     return this->g_textureOn;
 }
-const fge::Texture& FGE_API ObjButton::getTextureOff() const
+const fge::Texture& ObjButton::getTextureOff() const
 {
     return this->g_textureOff;
 }
-void FGE_API ObjButton::setTextureOn(const fge::Texture& t_on)
+void ObjButton::setTextureOn(const fge::Texture& t_on)
 {
     this->g_textureOn = t_on;
 }
-void FGE_API ObjButton::setTextureOff(const fge::Texture& t_off)
+void ObjButton::setTextureOff(const fge::Texture& t_off)
 {
     this->g_textureOff = t_off;
 }
 
-void FGE_API ObjButton::setColor(const sf::Color& color)
+void ObjButton::setColor(const sf::Color& color)
 {
     this->g_color = color;
 }
 
-void FGE_API ObjButton::setActiveStat(bool active)
+void ObjButton::setActiveStat(bool active)
 {
     this->g_statActive = active;
     this->g_sprite.setTexture(this->g_statActive ? this->g_textureOn : this->g_textureOff);
 }
-bool FGE_API ObjButton::getActiveStat() const
+bool ObjButton::getActiveStat() const
 {
     return this->g_statActive;
 }
 
-void FGE_API ObjButton::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+void ObjButton::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
     this->g_statMouseOn = fge::IsMouseOn( screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds() );
 
@@ -74,14 +74,14 @@ void FGE_API ObjButton::update(sf::RenderWindow& screen, fge::Event& event, cons
         this->g_statActive = false;
     }
 }
-void FGE_API ObjButton::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ObjButton::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= this->getTransform();
     this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - sf::Color(50,50,50,0)) : this->g_color);
     target.draw(this->g_sprite, states);
 }
 
-void FGE_API ObjButton::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjButton::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::save(jsonObject, scene_ptr);
 
@@ -93,7 +93,7 @@ void FGE_API ObjButton::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["statMouseOn"] = this->g_statMouseOn;
     jsonObject["statActive"] = this->g_statActive;
 }
-void FGE_API ObjButton::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjButton::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::load(jsonObject, scene_ptr);
 
@@ -108,33 +108,33 @@ void FGE_API ObjButton::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     this->g_sprite.setTexture(this->g_statActive ? this->g_textureOn : this->g_textureOff);
 }
 
-void FGE_API ObjButton::pack(fge::net::Packet& pck)
+void ObjButton::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
     pck << this->g_color << this->g_textureOn << this->g_textureOff << this->g_statMouseOn << this->g_statActive;
 }
-void FGE_API ObjButton::unpack(fge::net::Packet& pck)
+void ObjButton::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
     pck >> this->g_color >> this->g_textureOn >> this->g_textureOff >> this->g_statMouseOn >> this->g_statActive;
 }
 
-std::string FGE_API ObjButton::getClassName() const
+std::string ObjButton::getClassName() const
 {
     return FGE_OBJBUTTON_CLASSNAME;
 }
-std::string FGE_API ObjButton::getReadableClassName() const
+std::string ObjButton::getReadableClassName() const
 {
     return "button";
 }
 
-sf::FloatRect FGE_API ObjButton::getGlobalBounds() const
+sf::FloatRect ObjButton::getGlobalBounds() const
 {
     return this->getTransform().transformRect( this->g_sprite.getLocalBounds() );
 }
-sf::FloatRect FGE_API ObjButton::getLocalBounds() const
+sf::FloatRect ObjButton::getLocalBounds() const
 {
     return this->g_sprite.getLocalBounds();
 }

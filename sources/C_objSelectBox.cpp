@@ -4,7 +4,7 @@
 namespace fge
 {
 
-FGE_API ObjSelectBox::ObjSelectBox()
+ObjSelectBox::ObjSelectBox()
 {
     this->g_text.setFillColor(this->g_colorText);
     this->g_box.setFillColor(this->g_colorBox);
@@ -14,7 +14,7 @@ FGE_API ObjSelectBox::ObjSelectBox()
 
     this->g_text.setCharacterSize(12);
 }
-FGE_API ObjSelectBox::ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos) :
+ObjSelectBox::ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos) :
     g_text(font)
 {
     this->g_text.setFillColor(this->g_colorText);
@@ -28,91 +28,91 @@ FGE_API ObjSelectBox::ObjSelectBox(const fge::Font& font, const sf::Vector2f& po
     this->setPosition(pos);
 }
 
-std::vector<sf::String>& FGE_API ObjSelectBox::getTextList()
+std::vector<sf::String>& ObjSelectBox::getTextList()
 {
     return this->g_textList;
 }
-const std::vector<sf::String>& FGE_API ObjSelectBox::getTextList() const
+const std::vector<sf::String>& ObjSelectBox::getTextList() const
 {
     return this->g_textList;
 }
 
-void FGE_API ObjSelectBox::setSelectedText(const sf::String& string)
+void ObjSelectBox::setSelectedText(const sf::String& string)
 {
     this->g_textSelected = string;
 }
-const sf::String& FGE_API ObjSelectBox::getSelectedText() const
+const sf::String& ObjSelectBox::getSelectedText() const
 {
     return this->g_textSelected;
 }
 
-void FGE_API ObjSelectBox::setCharacterSize(unsigned int size)
+void ObjSelectBox::setCharacterSize(unsigned int size)
 {
     this->g_text.setCharacterSize(size);
 }
 
-void FGE_API ObjSelectBox::setActiveStat(bool active)
+void ObjSelectBox::setActiveStat(bool active)
 {
     this->g_statActive = active;
 }
 
-void FGE_API ObjSelectBox::setBoxSize(const sf::Vector2f& size)
+void ObjSelectBox::setBoxSize(const sf::Vector2f& size)
 {
     this->g_boxSize = size;
     this->g_box.setSize(this->g_boxSize);
 }
-void FGE_API ObjSelectBox::setBoxSize(float w, float h)
+void ObjSelectBox::setBoxSize(float w, float h)
 {
     this->g_boxSize.x = w;
     this->g_boxSize.y = h;
     this->g_box.setSize(this->g_boxSize);
 }
 
-void FGE_API ObjSelectBox::setBoxColor(const sf::Color& color)
+void ObjSelectBox::setBoxColor(const sf::Color& color)
 {
     this->g_colorBox = color;
     this->g_box.setFillColor(color);
 }
-void FGE_API ObjSelectBox::setBoxOutlineColor(const sf::Color& color)
+void ObjSelectBox::setBoxOutlineColor(const sf::Color& color)
 {
     this->g_colorBoxOutline = color;
     this->g_box.setOutlineColor(color);
 }
-void FGE_API ObjSelectBox::setTextColor(const sf::Color& color)
+void ObjSelectBox::setTextColor(const sf::Color& color)
 {
     this->g_colorText = color;
     this->g_text.setFillColor(color);
 }
 
-unsigned int FGE_API ObjSelectBox::getCharacterSize() const
+unsigned int ObjSelectBox::getCharacterSize() const
 {
     return this->g_text.getCharacterSize();
 }
 
-bool FGE_API ObjSelectBox::getActiveStat() const
+bool ObjSelectBox::getActiveStat() const
 {
     return this->g_statActive;
 }
 
-const sf::Vector2f& FGE_API ObjSelectBox::getBoxSize() const
+const sf::Vector2f& ObjSelectBox::getBoxSize() const
 {
     return this->g_boxSize;
 }
 
-const sf::Color& FGE_API ObjSelectBox::getBoxColor() const
+const sf::Color& ObjSelectBox::getBoxColor() const
 {
     return this->g_colorBox;
 }
-const sf::Color& FGE_API ObjSelectBox::getBoxOutlineColor() const
+const sf::Color& ObjSelectBox::getBoxOutlineColor() const
 {
     return this->g_colorBoxOutline;
 }
-const sf::Color& FGE_API ObjSelectBox::getTextColor() const
+const sf::Color& ObjSelectBox::getTextColor() const
 {
     return this->g_colorText;
 }
 
-void FGE_API ObjSelectBox::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+void ObjSelectBox::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
     sf::Vector2f mousePosition = screen.mapPixelToCoords(event.getMousePixelPos());
     sf::FloatRect bounds = this->getGlobalBounds();
@@ -152,7 +152,7 @@ void FGE_API ObjSelectBox::update(sf::RenderWindow& screen, fge::Event& event, c
         }
     }
 }
-void FGE_API ObjSelectBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ObjSelectBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     this->g_text.setString( this->g_textSelected );
 
@@ -177,7 +177,7 @@ void FGE_API ObjSelectBox::draw(sf::RenderTarget& target, sf::RenderStates state
     }
 }
 
-void FGE_API ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::save(jsonObject, scene_ptr);
 
@@ -198,7 +198,7 @@ void FGE_API ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene_pt
     jsonObject["statActive"] = this->g_statActive;
     jsonObject["statMouseOn"] = this->g_statMouseOn;
 }
-void FGE_API ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::load(jsonObject, scene_ptr);
 
@@ -230,7 +230,7 @@ void FGE_API ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene_pt
     this->g_statMouseOn = jsonObject.value<bool>("statMouseOn", false);
 }
 
-void FGE_API ObjSelectBox::pack(fge::net::Packet& pck)
+void ObjSelectBox::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
@@ -245,7 +245,7 @@ void FGE_API ObjSelectBox::pack(fge::net::Packet& pck)
 
     pck << this->g_statActive << this->g_statMouseOn;
 }
-void FGE_API ObjSelectBox::unpack(fge::net::Packet& pck)
+void ObjSelectBox::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
@@ -270,20 +270,20 @@ void FGE_API ObjSelectBox::unpack(fge::net::Packet& pck)
     pck >> this->g_statActive >> this->g_statMouseOn;
 }
 
-std::string FGE_API ObjSelectBox::getClassName() const
+std::string ObjSelectBox::getClassName() const
 {
     return FGE_OBJSELECTBOX_CLASSNAME;
 }
-std::string FGE_API ObjSelectBox::getReadableClassName() const
+std::string ObjSelectBox::getReadableClassName() const
 {
     return "selection box";
 }
 
-sf::FloatRect FGE_API ObjSelectBox::getGlobalBounds() const
+sf::FloatRect ObjSelectBox::getGlobalBounds() const
 {
     return this->getTransform().transformRect( this->g_box.getLocalBounds() );
 }
-sf::FloatRect FGE_API ObjSelectBox::getLocalBounds() const
+sf::FloatRect ObjSelectBox::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
 }

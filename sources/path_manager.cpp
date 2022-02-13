@@ -14,28 +14,28 @@ const std::string _dataPathBad;
 
 }//end
 
-const std::string& FGE_API Get(const std::string& name)
+const std::string& Get(const std::string& name)
 {
     auto it = _dataPath.find(name);
     return (it != _dataPath.cend()) ? it->second : _dataPathBad;
 }
 
-std::size_t FGE_API GetPathSize()
+std::size_t GetPathSize()
 {
     return _dataPath.size();
 }
 
-void FGE_API Remove(const std::string& name)
+void Remove(const std::string& name)
 {
     _dataPath.erase(name);
 }
 
-bool FGE_API Check(const std::string& name)
+bool Check(const std::string& name)
 {
     return _dataPath.find(name) != _dataPath.cend();
 }
 
-bool FGE_API New(const std::string& name, const std::string& path)
+bool New(const std::string& name, const std::string& path)
 {
     if ( fge::path::Check(name) )
     {
@@ -46,7 +46,7 @@ bool FGE_API New(const std::string& name, const std::string& path)
     return true;
 }
 
-bool FGE_API Replace(const std::string& name, const std::string& path)
+bool Replace(const std::string& name, const std::string& path)
 {
     auto it = _dataPath.find(name);
 

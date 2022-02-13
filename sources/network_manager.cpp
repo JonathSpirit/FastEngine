@@ -9,7 +9,7 @@ namespace fge
 namespace net
 {
 
-uint32_t FGE_API GetSceneChecksum(fge::Scene& scene)
+uint32_t GetSceneChecksum(fge::Scene& scene)
 {
     uint32_t result = 0;
     for (const auto& object : scene)
@@ -19,7 +19,7 @@ uint32_t FGE_API GetSceneChecksum(fge::Scene& scene)
     return result;
 }
 
-bool FGE_API WritePacketDataToFile(fge::net::Packet& pck, const std::string& file)
+bool WritePacketDataToFile(fge::net::Packet& pck, const std::string& file)
 {
     std::ofstream theFile(file, std::ios::binary);
     if (!theFile)
@@ -32,7 +32,7 @@ bool FGE_API WritePacketDataToFile(fge::net::Packet& pck, const std::string& fil
     return true;
 }
 
-bool FGE_API WriteOnSendPacketDataToFile(fge::net::Packet& pck, const std::string& file)
+bool WriteOnSendPacketDataToFile(fge::net::Packet& pck, const std::string& file)
 {
     std::ofstream theFile(file, std::ios::binary);
     if (!theFile)

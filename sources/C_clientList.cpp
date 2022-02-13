@@ -6,14 +6,14 @@ namespace net
 {
 
 ///ClientList
-void FGE_API ClientList::clear()
+void ClientList::clear()
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_data.clear();
     this->clearClientEvent();
 }
 
-void FGE_API ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
+void ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     for (auto & it : this->g_data)
@@ -21,7 +21,7 @@ void FGE_API ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
 }
-void FGE_API ClientList::sendToAll(const fge::net::ClientSendQueuePacket& pck)
+void ClientList::sendToAll(const fge::net::ClientSendQueuePacket& pck)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     for (auto & it : this->g_data)
@@ -30,7 +30,7 @@ void FGE_API ClientList::sendToAll(const fge::net::ClientSendQueuePacket& pck)
     }
 }
 
-void FGE_API ClientList::add(const fge::net::Identity& id, const fge::net::ClientSharedPtr& newClient)
+void ClientList::add(const fge::net::Identity& id, const fge::net::ClientSharedPtr& newClient)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_data[id] = newClient;
@@ -39,7 +39,7 @@ void FGE_API ClientList::add(const fge::net::Identity& id, const fge::net::Clien
         this->g_events.push_back({fge::net::ClientListEvent::CLEVT_NEWCLIENT, id});
     }
 }
-void FGE_API ClientList::remove(const fge::net::Identity& id)
+void ClientList::remove(const fge::net::Identity& id)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_data.erase(id);
@@ -49,7 +49,7 @@ void FGE_API ClientList::remove(const fge::net::Identity& id)
     }
 }
 
-fge::net::ClientSharedPtr FGE_API ClientList::get(const fge::net::Identity& id)
+fge::net::ClientSharedPtr ClientList::get(const fge::net::Identity& id)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     auto it = this->g_data.find(id);
@@ -60,29 +60,29 @@ fge::net::ClientSharedPtr FGE_API ClientList::get(const fge::net::Identity& id)
     return nullptr;
 }
 
-fge::net::ClientList::ClientListData::iterator FGE_API ClientList::begin()
+fge::net::ClientList::ClientListData::iterator ClientList::begin()
 {
     return this->g_data.begin();
 }
-fge::net::ClientList::ClientListData::const_iterator FGE_API ClientList::cbegin() const
+fge::net::ClientList::ClientListData::const_iterator ClientList::cbegin() const
 {
     return this->g_data.cbegin();
 }
-fge::net::ClientList::ClientListData::iterator FGE_API ClientList::end()
+fge::net::ClientList::ClientListData::iterator ClientList::end()
 {
     return this->g_data.end();
 }
-fge::net::ClientList::ClientListData::const_iterator FGE_API ClientList::cend() const
+fge::net::ClientList::ClientListData::const_iterator ClientList::cend() const
 {
     return this->g_data.cend();
 }
 
-std::size_t FGE_API ClientList::getSize()
+std::size_t ClientList::getSize()
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_data.size();
 }
-std::mutex& FGE_API ClientList::getMutex()
+std::mutex& ClientList::getMutex()
 {
     return this->g_mutex;
 }

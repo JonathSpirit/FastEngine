@@ -4,23 +4,23 @@
 namespace fge
 {
 
-FGE_API ObjText::ObjText()
+ObjText::ObjText()
 {
 }
-FGE_API ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position) :
+ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position) :
     g_font(font)
 {
     this->g_text.setFont(this->g_font);
     this->setPosition(position);
 }
-FGE_API ObjText::ObjText(const fge::Font& font, const std::string& txt, const sf::Vector2f& position) :
+ObjText::ObjText(const fge::Font& font, const std::string& txt, const sf::Vector2f& position) :
     g_font(font)
 {
     this->g_text.setFont(this->g_font);
     this->g_text.setString(txt);
     this->setPosition(position);
 }
-FGE_API ObjText::ObjText(const fge::Font& font, const char* txt, const sf::Vector2f& position) :
+ObjText::ObjText(const fge::Font& font, const char* txt, const sf::Vector2f& position) :
     g_font(font)
 {
     this->g_text.setFont(this->g_font);
@@ -28,24 +28,24 @@ FGE_API ObjText::ObjText(const fge::Font& font, const char* txt, const sf::Vecto
     this->setPosition(position);
 }
 
-void FGE_API ObjText::setFont(const fge::Font& font)
+void ObjText::setFont(const fge::Font& font)
 {
     this->g_font = font;
     this->g_text.setFont(this->g_font);
 }
-const fge::Font& FGE_API ObjText::getFont() const
+const fge::Font& ObjText::getFont() const
 {
     return this->g_font;
 }
 
-void FGE_API ObjText::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ObjText::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= this->getTransform();
     this->g_text.setFont( this->g_font );
     target.draw(this->g_text, states);
 }
 
-void FGE_API ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::save(jsonObject, scene_ptr);
 
@@ -62,7 +62,7 @@ void FGE_API ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["outlineColor"] = static_cast<uint32_t>(this->g_text.getOutlineColor().toInteger());
     jsonObject["outlineThickness"] = this->g_text.getOutlineThickness();
 }
-void FGE_API ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::load(jsonObject, scene_ptr);
 
@@ -80,7 +80,7 @@ void FGE_API ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     this->g_text.setOutlineThickness( jsonObject.value<float>("outlineThickness", 0.0f) );
 }
 
-void FGE_API ObjText::pack(fge::net::Packet& pck)
+void ObjText::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
@@ -95,7 +95,7 @@ void FGE_API ObjText::pack(fge::net::Packet& pck)
     pck << this->g_text.getOutlineColor();
     pck << this->g_text.getOutlineThickness();
 }
-void FGE_API ObjText::unpack(fge::net::Packet& pck)
+void ObjText::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
@@ -125,20 +125,20 @@ void FGE_API ObjText::unpack(fge::net::Packet& pck)
     this->g_text.setOutlineThickness(tmpFloat);
 }
 
-std::string FGE_API ObjText::getClassName() const
+std::string ObjText::getClassName() const
 {
     return FGE_OBJTEXT_CLASSNAME;
 }
-std::string FGE_API ObjText::getReadableClassName() const
+std::string ObjText::getReadableClassName() const
 {
     return "text";
 }
 
-sf::FloatRect FGE_API ObjText::getGlobalBounds() const
+sf::FloatRect ObjText::getGlobalBounds() const
 {
     return this->getTransform().transformRect( this->g_text.getLocalBounds() );
 }
-sf::FloatRect FGE_API ObjText::getLocalBounds() const
+sf::FloatRect ObjText::getLocalBounds() const
 {
     return this->g_text.getLocalBounds();
 }

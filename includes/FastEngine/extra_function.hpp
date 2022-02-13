@@ -20,16 +20,16 @@ enum TurnMode
 ///Utility
 inline char UnicodeToChar(uint32_t unicode);
 
-bool FGE_API IsEngineBuiltInDebugMode();
+FGE_API bool IsEngineBuiltInDebugMode();
 
-std::size_t FGE_API GetFilesInFolder(std::list<std::string>& buffer, const std::string& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
+FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::string& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
 
 ///Detection
-bool FGE_API IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
-bool FGE_API IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone);
+FGE_API bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
+FGE_API bool IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone);
 
-bool FGE_API IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
-bool FGE_API IsPressed(const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
+FGE_API bool IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
+FGE_API bool IsPressed(const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
 
 ///Position/Rectangle
 template<typename T>
@@ -51,22 +51,22 @@ inline sf::Color&& SetGreen(sf::Color&& color, uint8_t green);
 inline sf::Color&& SetBlue(sf::Color&& color, uint8_t blue);
 
 ///Reach
-sf::Vector2f FGE_API ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime);
-float FGE_API ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
+FGE_API sf::Vector2f ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime);
+FGE_API float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
 
 template<typename T>
 T ReachValue( T value, T target, T speed, float deltaTime );
 
 ///2D Math
-float FGE_API ConvertRadToDeg(float rad);
-float FGE_API ConvertDegToRad(float deg);
+FGE_API float ConvertRadToDeg(float rad);
+FGE_API float ConvertDegToRad(float deg);
 
-float FGE_API GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2);
-float FGE_API GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2);
-float FGE_API GetMagnitude(const sf::Vector2f& vec);
-float FGE_API GetRotation(const sf::Vector2f& vec);
-float FGE_API GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2);
-float FGE_API GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2);
+FGE_API float GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2);
+FGE_API float GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2);
+FGE_API float GetMagnitude(const sf::Vector2f& vec);
+FGE_API float GetRotation(const sf::Vector2f& vec);
+FGE_API float GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2);
+FGE_API float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2);
 
 template<typename T>
 sf::Vector2f NormalizeVector2(const sf::Vector2<T>& vec);
@@ -74,39 +74,39 @@ sf::Vector2f NormalizeVector2(const sf::Vector2<T>& vec);
 template<typename TIterator>
 TIterator GetNearestVector(const sf::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd);
 
-sf::Vector2f FGE_API GetForwardVector(float rotation);
-sf::Vector2f FGE_API GetBackwardVector(float rotation);
-sf::Vector2f FGE_API GetLeftVector(float rotation);
-sf::Vector2f FGE_API GetRightVector(float rotation);
+FGE_API sf::Vector2f GetForwardVector(float rotation);
+FGE_API sf::Vector2f GetBackwardVector(float rotation);
+FGE_API sf::Vector2f GetLeftVector(float rotation);
+FGE_API sf::Vector2f GetRightVector(float rotation);
 
 /*
 Implementation of Andrew's monotone chain 2D convex hull algorithm.
 Asymptotic complexity: O(n log n).
 Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 */
-void FGE_API GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output);
+FGE_API void GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output);
 
 ///View
-sf::Vector2f FGE_API GetViewSizePercentage(const sf::View& view, const sf::View& defaultView);
-sf::Vector2f FGE_API SetViewSizePercentage(float percentage, const sf::View& defaultView);
-sf::Vector2f FGE_API SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView);
+FGE_API sf::Vector2f GetViewSizePercentage(const sf::View& view, const sf::View& defaultView);
+FGE_API sf::Vector2f SetViewSizePercentage(float percentage, const sf::View& defaultView);
+FGE_API sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView);
 
 ///Render
-sf::IntRect FGE_API CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target);
-sf::IntRect FGE_API CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view);
-sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target);
-sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target, const sf::View& view);
+FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target);
+FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view);
+FGE_API sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target);
+FGE_API sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target, const sf::View& view);
 
-sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target);
-sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target, const sf::View& view);
+FGE_API sf::FloatRect GetScreenRect(const sf::RenderTarget& target);
+FGE_API sf::FloatRect GetScreenRect(const sf::RenderTarget& target, const sf::View& view);
 
 ///Time
 template<class T>
 inline float DurationToSecondFloat(T duration);
 
 ///Json
-bool FGE_API LoadJsonFromFile(const std::string& path, nlohmann::json& j);
-bool FGE_API SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth=2);
+FGE_API bool LoadJsonFromFile(const std::string& path, nlohmann::json& j);
+FGE_API bool SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth=2);
 
 }//end fge
 

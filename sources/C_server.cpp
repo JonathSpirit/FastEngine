@@ -9,12 +9,12 @@ namespace net
 {
 
 ///ServerFluxUdp
-FGE_API ServerFluxUdp::~ServerFluxUdp()
+ServerFluxUdp::~ServerFluxUdp()
 {
     this->clear();
 }
 
-void FGE_API ServerFluxUdp::clear()
+void ServerFluxUdp::clear()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     std::size_t qsize = this->g_packets.size();
@@ -24,7 +24,7 @@ void FGE_API ServerFluxUdp::clear()
     }
 }
 
-bool FGE_API ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
+bool ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     if ( this->g_packets.size() >= this->g_maxPackets )
@@ -34,13 +34,13 @@ bool FGE_API ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
     this->g_packets.push(fluxPck);
     return true;
 }
-void FGE_API ServerFluxUdp::forcePushPacket(const FluxPacketSharedPtr& fluxPck)
+void ServerFluxUdp::forcePushPacket(const FluxPacketSharedPtr& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     this->g_packets.push(fluxPck);
 }
 
-FluxPacketSharedPtr FGE_API ServerFluxUdp::popNextPacket()
+FluxPacketSharedPtr ServerFluxUdp::popNextPacket()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     if ( !this->g_packets.empty() )
@@ -51,41 +51,41 @@ FluxPacketSharedPtr FGE_API ServerFluxUdp::popNextPacket()
     }
     return nullptr;
 }
-std::size_t FGE_API ServerFluxUdp::getPacketsSize() const
+std::size_t ServerFluxUdp::getPacketsSize() const
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     return this->g_packets.size();
 }
-bool FGE_API ServerFluxUdp::isEmpty() const
+bool ServerFluxUdp::isEmpty() const
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     return this->g_packets.empty();
 }
 
-void FGE_API ServerFluxUdp::setMaxPackets(std::size_t n)
+void ServerFluxUdp::setMaxPackets(std::size_t n)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     this->g_maxPackets = n;
 }
-std::size_t FGE_API ServerFluxUdp::getMaxPackets() const
+std::size_t ServerFluxUdp::getMaxPackets() const
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     return this->g_maxPackets;
 }
 
 ///ServerUdp
-FGE_API ServerUdp::ServerUdp() :
+ServerUdp::ServerUdp() :
     g_threadReception(nullptr),
     g_threadTransmission(nullptr),
     g_running(false)
 {
 }
-FGE_API ServerUdp::~ServerUdp()
+ServerUdp::~ServerUdp()
 {
     this->stop();
 }
 
-void FGE_API ServerUdp::stop()
+void ServerUdp::stop()
 {
     if ( this->g_running )
     {
@@ -104,14 +104,14 @@ void FGE_API ServerUdp::stop()
     }
 }
 
-fge::net::ServerFluxUdp* FGE_API ServerUdp::newFlux()
+fge::net::ServerFluxUdp* ServerUdp::newFlux()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
     this->g_flux.push_back( std::make_unique<fge::net::ServerFluxUdp>() );
     return this->g_flux.back().get();
 }
-fge::net::ServerFluxUdp* FGE_API ServerUdp::getFlux(std::size_t index)
+fge::net::ServerFluxUdp* ServerUdp::getFlux(std::size_t index)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
@@ -121,15 +121,15 @@ fge::net::ServerFluxUdp* FGE_API ServerUdp::getFlux(std::size_t index)
     }
     return this->g_flux[index].get();
 }
-fge::net::ServerFluxUdp* FGE_API ServerUdp::getDefaultFlux()
+fge::net::ServerFluxUdp* ServerUdp::getDefaultFlux()
 {
     return &this->g_defaultFlux;
 }
-std::size_t FGE_API ServerUdp::getFluxSize() const
+std::size_t ServerUdp::getFluxSize() const
 {
     return this->g_flux.size();
 }
-void FGE_API ServerUdp::delFlux(fge::net::ServerFluxUdp* flux)
+void ServerUdp::delFlux(fge::net::ServerFluxUdp* flux)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
@@ -142,13 +142,13 @@ void FGE_API ServerUdp::delFlux(fge::net::ServerFluxUdp* flux)
         }
     }
 }
-void FGE_API ServerUdp::delAllFlux()
+void ServerUdp::delAllFlux()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     this->g_flux.clear();
 }
 
-void FGE_API ServerUdp::repushPacket(const FluxPacketSharedPtr& fluxPck)
+void ServerUdp::repushPacket(const FluxPacketSharedPtr& fluxPck)
 {
     if ( (++fluxPck->_fluxCount) >= this->g_flux.size() )
     {
@@ -159,41 +159,41 @@ void FGE_API ServerUdp::repushPacket(const FluxPacketSharedPtr& fluxPck)
     this->g_flux[fluxPck->_fluxIndex]->forcePushPacket(fluxPck);
 }
 
-const fge::net::SocketUdp& FGE_API ServerUdp::getSocket() const
+const fge::net::SocketUdp& ServerUdp::getSocket() const
 {
     return this->g_socket;
 }
-fge::net::SocketUdp& FGE_API ServerUdp::getSocket()
+fge::net::SocketUdp& ServerUdp::getSocket()
 {
     return this->g_socket;
 }
 
-void FGE_API ServerUdp::notify()
+void ServerUdp::notify()
 {
     this->g_cv.notify_one();
 }
-std::mutex& FGE_API ServerUdp::getSendMutex()
+std::mutex& ServerUdp::getSendMutex()
 {
     return this->g_mutexSend;
 }
 
-fge::net::Socket::Error FGE_API ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port)
+fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexSend);
     return this->g_socket.sendTo(pck, ip, port);
 }
-fge::net::Socket::Error FGE_API ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::Identity& id)
+fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::Identity& id)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexSend);
     return this->g_socket.sendTo(pck, id._ip, id._port);
 }
 
-bool FGE_API ServerUdp::isRunning() const
+bool ServerUdp::isRunning() const
 {
     return this->g_running;
 }
 
-void FGE_API ServerUdp::serverThreadTransmission()
+void ServerUdp::serverThreadTransmission()
 {
     std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
 
@@ -252,18 +252,18 @@ void FGE_API ServerUdp::serverThreadTransmission()
 }
 
 ///ServerClientSideUdp
-FGE_API ServerClientSideUdp::ServerClientSideUdp() :
+ServerClientSideUdp::ServerClientSideUdp() :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
         g_running(false)
 {
 }
-FGE_API ServerClientSideUdp::~ServerClientSideUdp()
+ServerClientSideUdp::~ServerClientSideUdp()
 {
     this->stop();
 }
 
-void FGE_API ServerClientSideUdp::stop()
+void ServerClientSideUdp::stop()
 {
     if ( this->g_running )
     {
@@ -282,36 +282,36 @@ void FGE_API ServerClientSideUdp::stop()
     }
 }
 
-const fge::net::SocketUdp& FGE_API ServerClientSideUdp::getSocket() const
+const fge::net::SocketUdp& ServerClientSideUdp::getSocket() const
 {
     return this->g_socket;
 }
-fge::net::SocketUdp& FGE_API ServerClientSideUdp::getSocket()
+fge::net::SocketUdp& ServerClientSideUdp::getSocket()
 {
     return this->g_socket;
 }
 
-void FGE_API ServerClientSideUdp::notify()
+void ServerClientSideUdp::notify()
 {
     this->g_cv.notify_one();
 }
-std::mutex& FGE_API ServerClientSideUdp::getSendMutex()
+std::mutex& ServerClientSideUdp::getSendMutex()
 {
     return this->g_mutexSend;
 }
 
-fge::net::Socket::Error FGE_API ServerClientSideUdp::send(fge::net::Packet& pck)
+fge::net::Socket::Error ServerClientSideUdp::send(fge::net::Packet& pck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexSend);
     return this->g_socket.send(pck);
 }
 
-bool FGE_API ServerClientSideUdp::isRunning() const
+bool ServerClientSideUdp::isRunning() const
 {
     return this->g_running;
 }
 
-FluxPacketSharedPtr FGE_API ServerClientSideUdp::popNextPacket()
+FluxPacketSharedPtr ServerClientSideUdp::popNextPacket()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     if ( !this->g_packets.empty() )
@@ -323,34 +323,34 @@ FluxPacketSharedPtr FGE_API ServerClientSideUdp::popNextPacket()
     return nullptr;
 }
 
-std::size_t FGE_API ServerClientSideUdp::getPacketsSize() const
+std::size_t ServerClientSideUdp::getPacketsSize() const
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     return this->g_packets.size();
 }
-bool FGE_API ServerClientSideUdp::isEmpty() const
+bool ServerClientSideUdp::isEmpty() const
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     return this->g_packets.empty();
 }
 
-void FGE_API ServerClientSideUdp::setMaxPackets(std::size_t n)
+void ServerClientSideUdp::setMaxPackets(std::size_t n)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     this->g_maxPackets = n;
 }
-std::size_t FGE_API ServerClientSideUdp::getMaxPackets() const
+std::size_t ServerClientSideUdp::getMaxPackets() const
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     return this->g_maxPackets;
 }
 
-const fge::net::Identity& FGE_API ServerClientSideUdp::getClientIdentity() const
+const fge::net::Identity& ServerClientSideUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
 }
 
-bool FGE_API ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds& ms)
+bool ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds& ms)
 {
     if (this->getPacketsSize() > 0)
     {
@@ -365,7 +365,7 @@ bool FGE_API ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds
     return false;
 }
 
-bool FGE_API ServerClientSideUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
+bool ServerClientSideUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     if ( this->g_packets.size() >= this->g_maxPackets )
@@ -376,7 +376,7 @@ bool FGE_API ServerClientSideUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
     return true;
 }
 
-void FGE_API ServerClientSideUdp::serverThreadTransmission()
+void ServerClientSideUdp::serverThreadTransmission()
 {
     std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
 

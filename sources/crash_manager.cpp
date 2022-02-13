@@ -157,7 +157,7 @@ void CrashFunction()
 
 }//end
 
-void FGE_API Init(sf::RenderWindow& screen, sf::Font& font)
+void Init(sf::RenderWindow& screen, sf::Font& font)
 {
     _crashScreen = &screen;
     _crashFont = &font;
@@ -165,7 +165,7 @@ void FGE_API Init(sf::RenderWindow& screen, sf::Font& font)
     std::set_terminate(CrashFunction);
 }
 
-void FGE_API SetInfoText(const std::string& txt)
+void SetInfoText(const std::string& txt)
 {
     for (std::size_t i=0; i<txt.size(); ++i)
     {

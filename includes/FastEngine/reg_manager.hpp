@@ -47,28 +47,28 @@ public:
     [[nodiscard]] fge::Object* duplicate(const fge::Object* obj) const final { return new T(*reinterpret_cast<const T*>(obj)); }
 };
 
-void FGE_API ClearAll();
+FGE_API void ClearAll();
 
-bool FGE_API RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
+FGE_API bool RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 
-bool FGE_API Check(const std::string& className);
-bool FGE_API Check(fge::reg::ClassId classId);
+FGE_API bool Check(const std::string& className);
+FGE_API bool Check(fge::reg::ClassId classId);
 
-fge::Object* FGE_API Duplicate(const fge::Object* obj);
+FGE_API fge::Object* Duplicate(const fge::Object* obj);
 
-bool FGE_API Replace(const std::string& className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
-bool FGE_API Replace(fge::reg::ClassId classId, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
+FGE_API bool Replace(const std::string& className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
+FGE_API bool Replace(fge::reg::ClassId classId, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 
-std::size_t FGE_API GetRegisterSize();
+FGE_API std::size_t GetRegisterSize();
 
-fge::Object* FGE_API GetNewClassOf(const std::string& className);
-fge::Object* FGE_API GetNewClassOf(fge::reg::ClassId classId);
+FGE_API fge::Object* GetNewClassOf(const std::string& className);
+FGE_API fge::Object* GetNewClassOf(fge::reg::ClassId classId);
 
-fge::reg::ClassId FGE_API GetClassId(const std::string& className);
-std::string FGE_API GetClassName(fge::reg::ClassId classId);
+FGE_API fge::reg::ClassId GetClassId(const std::string& className);
+FGE_API std::string GetClassName(fge::reg::ClassId classId);
 
-fge::reg::BaseStamp* FGE_API GetStampOf(const std::string& className);
-fge::reg::BaseStamp* FGE_API GetStampOf(fge::reg::ClassId classId);
+FGE_API fge::reg::BaseStamp* GetStampOf(const std::string& className);
+FGE_API fge::reg::BaseStamp* GetStampOf(fge::reg::ClassId classId);
 
 }//end reg
 }//end fge

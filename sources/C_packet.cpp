@@ -19,7 +19,7 @@ namespace net
 
 ///Packet
 
-FGE_API Packet::Packet() :
+Packet::Packet() :
     _g_sendPos(0),
     _g_lastData(),
     _g_lastDataValidity(false),
@@ -30,7 +30,7 @@ FGE_API Packet::Packet() :
     this->_g_data.reserve(fge::net::Packet::_defaultReserveSize);
 }
 
-FGE_API Packet::Packet(fge::net::Packet&& pck) noexcept :
+Packet::Packet(fge::net::Packet&& pck) noexcept :
     _g_sendPos(pck._g_sendPos),
     _g_lastData(std::move(pck._g_lastData)),
     _g_lastDataValidity(pck._g_lastDataValidity),
@@ -44,7 +44,7 @@ FGE_API Packet::Packet(fge::net::Packet&& pck) noexcept :
     pck._g_sendPos = 0;
 }
 
-FGE_API Packet::Packet(std::size_t reserveSize) :
+Packet::Packet(std::size_t reserveSize) :
     _g_sendPos(0),
     _g_lastData(),
     _g_lastDataValidity(false),
@@ -55,7 +55,7 @@ FGE_API Packet::Packet(std::size_t reserveSize) :
     this->_g_data.reserve(reserveSize);
 }
 
-void FGE_API Packet::clear()
+void Packet::clear()
 {
     this->_g_sendPos = 0;
     this->_g_lastData.clear();
@@ -65,18 +65,18 @@ void FGE_API Packet::clear()
     this->_g_readPos = 0;
     this->_g_valid = true;
 }
-void FGE_API Packet::flush()
+void Packet::flush()
 {
     this->_g_sendPos = 0;
     this->_g_lastData.clear();
     this->_g_lastDataValidity = false;
 }
-void FGE_API Packet::reserve(std::size_t reserveSize)
+void Packet::reserve(std::size_t reserveSize)
 {
     this->_g_data.reserve(reserveSize);
 }
 
-fge::net::Packet& FGE_API Packet::append(std::size_t dsize)
+fge::net::Packet& Packet::append(std::size_t dsize)
 {
     if (dsize > 0)
     {
@@ -87,7 +87,7 @@ fge::net::Packet& FGE_API Packet::append(std::size_t dsize)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::append(const void* data, std::size_t dsize)
+fge::net::Packet& Packet::append(const void* data, std::size_t dsize)
 {
     if (data && (dsize > 0))
     {
@@ -103,7 +103,7 @@ fge::net::Packet& FGE_API Packet::append(const void* data, std::size_t dsize)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::pack(const void* data, std::size_t dsize)
+fge::net::Packet& Packet::pack(const void* data, std::size_t dsize)
 {
     if (data && (dsize > 0))
     {
@@ -131,7 +131,7 @@ fge::net::Packet& FGE_API Packet::pack(const void* data, std::size_t dsize)
     return *this;
 }
 
-bool FGE_API Packet::write(std::size_t pos, const void* data, std::size_t dsize)
+bool Packet::write(std::size_t pos, const void* data, std::size_t dsize)
 {
     if (data && (dsize > 0) && (pos < this->_g_data.size()))
     {
@@ -145,7 +145,7 @@ bool FGE_API Packet::write(std::size_t pos, const void* data, std::size_t dsize)
     }
     return false;
 }
-bool FGE_API Packet::pack(std::size_t pos, const void* data, std::size_t dsize)
+bool Packet::pack(std::size_t pos, const void* data, std::size_t dsize)
 {
     if (data && (dsize > 0) && (pos < this->_g_data.size()))
     {
@@ -171,7 +171,7 @@ bool FGE_API Packet::pack(std::size_t pos, const void* data, std::size_t dsize)
     return false;
 }
 
-fge::net::Packet& FGE_API Packet::read(void* buff, std::size_t bsize)
+fge::net::Packet& Packet::read(void* buff, std::size_t bsize)
 {
     if (buff && (bsize > 0) && (this->_g_readPos+bsize <= this->_g_data.size()))
     {
@@ -187,7 +187,7 @@ fge::net::Packet& FGE_API Packet::read(void* buff, std::size_t bsize)
     this->_g_valid = false;
     return *this;
 }
-fge::net::Packet& FGE_API Packet::unpack(void* buff, std::size_t bsize)
+fge::net::Packet& Packet::unpack(void* buff, std::size_t bsize)
 {
     if (buff && (bsize > 0) && (this->_g_readPos+bsize <= this->_g_data.size()))
     {
@@ -215,7 +215,7 @@ fge::net::Packet& FGE_API Packet::unpack(void* buff, std::size_t bsize)
     return *this;
 }
 
-bool FGE_API Packet::read(std::size_t pos, void* buff, std::size_t bsize) const
+bool Packet::read(std::size_t pos, void* buff, std::size_t bsize) const
 {
     if (buff && (bsize > 0) && (pos+bsize <= this->_g_data.size()))
     {
@@ -228,7 +228,7 @@ bool FGE_API Packet::read(std::size_t pos, void* buff, std::size_t bsize) const
     }
     return false;
 }
-bool FGE_API Packet::unpack(std::size_t pos, void* buff, std::size_t bsize) const
+bool Packet::unpack(std::size_t pos, void* buff, std::size_t bsize) const
 {
     if (buff && (bsize > 0) && (pos+bsize <= this->_g_data.size()))
     {
@@ -253,77 +253,77 @@ bool FGE_API Packet::unpack(std::size_t pos, void* buff, std::size_t bsize) cons
     return false;
 }
 
-void FGE_API Packet::setReadPos(std::size_t pos)
+void Packet::setReadPos(std::size_t pos)
 {
     this->_g_readPos = (pos>this->_g_data.size()) ? this->_g_data.size() : pos;
 }
-std::size_t FGE_API Packet::getReadPos() const
+std::size_t Packet::getReadPos() const
 {
     return this->_g_readPos;
 }
 
-const uint8_t* FGE_API Packet::getData(std::size_t pos) const
+const uint8_t* Packet::getData(std::size_t pos) const
 {
     return (pos < this->_g_data.size()) ? &this->_g_data[pos] : nullptr;
 }
-uint8_t* FGE_API Packet::getData(std::size_t pos)
+uint8_t* Packet::getData(std::size_t pos)
 {
     return (pos < this->_g_data.size()) ? &this->_g_data[pos] : nullptr;
 }
-const uint8_t* FGE_API Packet::getData() const
+const uint8_t* Packet::getData() const
 {
     return this->_g_data.data();
 }
-uint8_t* FGE_API Packet::getData()
+uint8_t* Packet::getData()
 {
     return this->_g_data.data();
 }
 
-std::size_t FGE_API Packet::getDataSize() const
+std::size_t Packet::getDataSize() const
 {
     return this->_g_data.size();
 }
-uint32_t FGE_API Packet::getLength() const
+uint32_t Packet::getLength() const
 {
     uint32_t result = 0;
     this->unpack(this->_g_readPos, &result, sizeof(uint32_t));
     return result;
 }
 
-void FGE_API Packet::setValidity(bool validity)
+void Packet::setValidity(bool validity)
 {
     this->_g_valid = validity;
 }
-bool FGE_API Packet::isValid() const
+bool Packet::isValid() const
 {
     return this->_g_valid;
 }
-FGE_API Packet::operator bool() const
+Packet::operator bool() const
 {
     return this->_g_valid;
 }
-bool FGE_API Packet::endReached() const
+bool Packet::endReached() const
 {
     return this->_g_readPos >= this->_g_data.size();
 }
 
 ///
 
-fge::net::Packet& FGE_API Packet::operator <<(const char* data)
+fge::net::Packet& Packet::operator <<(const char* data)
 {
     uint32_t length = static_cast<uint32_t>( std::strlen(data) );
 
     this->pack(&length, sizeof(uint32_t));
     return this->append(data, sizeof(char) * length);
 }
-fge::net::Packet& FGE_API Packet::operator <<(const std::string& data)
+fge::net::Packet& Packet::operator <<(const std::string& data)
 {
     uint32_t length = static_cast<uint32_t>( data.size() );
 
     this->pack(&length, sizeof(uint32_t));
     return this->append(data.data(), sizeof(std::string::value_type) * length);
 }
-fge::net::Packet& FGE_API Packet::operator <<(const wchar_t* data)
+fge::net::Packet& Packet::operator <<(const wchar_t* data)
 {
     uint32_t length = static_cast<uint32_t>( std::wcslen(data) );
 
@@ -336,7 +336,7 @@ fge::net::Packet& FGE_API Packet::operator <<(const wchar_t* data)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::operator <<(const std::wstring& data)
+fge::net::Packet& Packet::operator <<(const std::wstring& data)
 {
     uint32_t length = static_cast<uint32_t>( data.size() );
 
@@ -349,7 +349,7 @@ fge::net::Packet& FGE_API Packet::operator <<(const std::wstring& data)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::operator <<(const sf::String& data)
+fge::net::Packet& Packet::operator <<(const sf::String& data)
 {
     uint32_t length = static_cast<uint32_t>( data.getSize() );
 
@@ -363,7 +363,7 @@ fge::net::Packet& FGE_API Packet::operator <<(const sf::String& data)
     return *this;
 }
 
-fge::net::Packet& FGE_API Packet::operator >>(char* data)
+fge::net::Packet& Packet::operator >>(char* data)
 {
     uint32_t length = 0;
     this->unpack(&length, sizeof(uint32_t));
@@ -386,7 +386,7 @@ fge::net::Packet& FGE_API Packet::operator >>(char* data)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::operator >>(std::string& data)
+fge::net::Packet& Packet::operator >>(std::string& data)
 {
     uint32_t length = 0;
     this->unpack(&length, sizeof(uint32_t));
@@ -411,7 +411,7 @@ fge::net::Packet& FGE_API Packet::operator >>(std::string& data)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::operator >>(wchar_t* data)
+fge::net::Packet& Packet::operator >>(wchar_t* data)
 {
     uint32_t length = 0;
     this->unpack(&length, sizeof(uint32_t));
@@ -439,7 +439,7 @@ fge::net::Packet& FGE_API Packet::operator >>(wchar_t* data)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::operator >>(std::wstring& data)
+fge::net::Packet& Packet::operator >>(std::wstring& data)
 {
     uint32_t length = 0;
     this->unpack(&length, sizeof(uint32_t));
@@ -467,7 +467,7 @@ fge::net::Packet& FGE_API Packet::operator >>(std::wstring& data)
     }
     return *this;
 }
-fge::net::Packet& FGE_API Packet::operator >>(sf::String& data)
+fge::net::Packet& Packet::operator >>(sf::String& data)
 {
     uint32_t length = 0;
     this->unpack(&length, sizeof(uint32_t));
@@ -495,7 +495,7 @@ fge::net::Packet& FGE_API Packet::operator >>(sf::String& data)
     return *this;
 }
 
-void FGE_API Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+void Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     this->_g_lastDataValidity = true;
     buffer.resize(this->_g_data.size() + offset);
@@ -504,12 +504,12 @@ void FGE_API Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
         buffer[i + offset] = this->_g_data[i];
     }
 }
-void FGE_API Packet::onReceive(void* data, std::size_t dsize)
+void Packet::onReceive(void* data, std::size_t dsize)
 {
     this->append(data, dsize);
 }
 
-std::size_t FGE_API Packet::_defaultReserveSize = FGE_PACKET_DEFAULT_RESERVESIZE;
+std::size_t Packet::_defaultReserveSize = FGE_PACKET_DEFAULT_RESERVESIZE;
 
 }//end net
 }//end fge

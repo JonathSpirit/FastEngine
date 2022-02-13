@@ -11,25 +11,25 @@ namespace net
 
 ///Class PacketLZ4
 
-uint32_t FGE_API PacketLZ4::_maxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
+uint32_t PacketLZ4::_maxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
-FGE_API PacketLZ4::PacketLZ4() : fge::net::Packet(),
+PacketLZ4::PacketLZ4() : fge::net::Packet(),
     g_lastCompressionSize(0)
 {
 }
-FGE_API PacketLZ4::PacketLZ4(fge::net::PacketLZ4&& pck) noexcept :
+PacketLZ4::PacketLZ4(fge::net::PacketLZ4&& pck) noexcept :
     fge::net::Packet(std::move(pck)),
     g_lastCompressionSize(pck.g_lastCompressionSize),
     g_buffer(std::move(pck.g_buffer))
 {
 }
 
-std::size_t FGE_API PacketLZ4::getLastCompressionSize() const
+std::size_t PacketLZ4::getLastCompressionSize() const
 {
     return this->g_lastCompressionSize;
 }
 
-void FGE_API PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+void PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     std::size_t dataSrcSize = this->getDataSize();
     int dataDstSize = LZ4_compressBound(dataSrcSize);
@@ -55,7 +55,7 @@ void FGE_API PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     this->_g_lastDataValidity = true;
 }
 
-void FGE_API PacketLZ4::onReceive(void* data, std::size_t dsize)
+void PacketLZ4::onReceive(void* data, std::size_t dsize)
 {
     if ( dsize < 4 )
     {
@@ -86,14 +86,14 @@ void FGE_API PacketLZ4::onReceive(void* data, std::size_t dsize)
 
 ///Class PacketLZ4HC
 
-uint32_t FGE_API PacketLZ4HC::_maxUncompressedReceivedSize = FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
+uint32_t PacketLZ4HC::_maxUncompressedReceivedSize = FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
-FGE_API PacketLZ4HC::PacketLZ4HC() : fge::net::Packet(),
+PacketLZ4HC::PacketLZ4HC() : fge::net::Packet(),
     g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
     g_lastCompressionSize(0)
 {
 }
-FGE_API PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
+PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
         fge::net::Packet(std::move(pck)),
         g_lastCompressionSize(pck.g_lastCompressionSize),
         g_compressionLevel(pck.g_compressionLevel),
@@ -101,12 +101,12 @@ FGE_API PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
 {
 }
 
-std::size_t FGE_API PacketLZ4HC::getLastCompressionSize() const
+std::size_t PacketLZ4HC::getLastCompressionSize() const
 {
     return this->g_lastCompressionSize;
 }
 
-void FGE_API PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+void PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     std::size_t dataSrcSize = this->getDataSize();
     int dataDstSize = LZ4_compressBound(dataSrcSize);
@@ -132,7 +132,7 @@ void FGE_API PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offse
     this->_g_lastDataValidity = true;
 }
 
-void FGE_API PacketLZ4HC::onReceive(void* data, std::size_t dsize)
+void PacketLZ4HC::onReceive(void* data, std::size_t dsize)
 {
     if ( dsize < 4 )
     {
@@ -161,11 +161,11 @@ void FGE_API PacketLZ4HC::onReceive(void* data, std::size_t dsize)
     this->append(this->g_buffer.data(), dataUncompressedFinalSize);
 }
 
-void FGE_API PacketLZ4HC::setCompressionLevel(int value)
+void PacketLZ4HC::setCompressionLevel(int value)
 {
     this->g_compressionLevel = value;
 }
-int FGE_API PacketLZ4HC::getCompressionLevel() const
+int PacketLZ4HC::getCompressionLevel() const
 {
     return this->g_compressionLevel;
 }

@@ -3,7 +3,7 @@
 namespace fge
 {
 
-FGE_API ObjAnimation::ObjAnimation() :
+ObjAnimation::ObjAnimation() :
     g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION),
 
     g_paused(false)
@@ -11,7 +11,7 @@ FGE_API ObjAnimation::ObjAnimation() :
     sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect( sf::IntRect(0, 0, buffTexture->getSize().x, buffTexture->getSize().y) );
 }
-FGE_API ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position) :
+ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position) :
     g_animation(animation),
     g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION),
 
@@ -23,14 +23,14 @@ FGE_API ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Ve
     this->setTextureRect( sf::IntRect(0, 0, buffTexture->getSize().x, buffTexture->getSize().y) );
 }
 
-void FGE_API ObjAnimation::setAnimation(const fge::Animation& animation)
+void ObjAnimation::setAnimation(const fge::Animation& animation)
 {
     this->g_animation = animation;
 
     sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect( sf::IntRect(0, 0, buffTexture->getSize().x, buffTexture->getSize().y) );
 }
-void FGE_API ObjAnimation::setTextureRect(const sf::IntRect& rectangle)
+void ObjAnimation::setTextureRect(const sf::IntRect& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -40,7 +40,7 @@ void FGE_API ObjAnimation::setTextureRect(const sf::IntRect& rectangle)
     }
 }
 
-void FGE_API ObjAnimation::setColor(const sf::Color& color)
+void ObjAnimation::setColor(const sf::Color& color)
 {
     this->g_vertices[0].color = color;
     this->g_vertices[1].color = color;
@@ -48,43 +48,43 @@ void FGE_API ObjAnimation::setColor(const sf::Color& color)
     this->g_vertices[3].color = color;
 }
 
-void FGE_API ObjAnimation::setPause(bool flag)
+void ObjAnimation::setPause(bool flag)
 {
     this->g_paused = flag;
 }
-bool FGE_API ObjAnimation::isPaused() const
+bool ObjAnimation::isPaused() const
 {
     return this->g_paused;
 }
 
-void FGE_API ObjAnimation::setTickDuration(const std::chrono::milliseconds& tms)
+void ObjAnimation::setTickDuration(const std::chrono::milliseconds& tms)
 {
     this->g_tickDuration = tms;
 }
-const std::chrono::milliseconds& FGE_API ObjAnimation::getTickDuration() const
+const std::chrono::milliseconds& ObjAnimation::getTickDuration() const
 {
     return this->g_tickDuration;
 }
 
-const fge::Animation& FGE_API ObjAnimation::getAnimation() const
+const fge::Animation& ObjAnimation::getAnimation() const
 {
     return this->g_animation;
 }
-fge::Animation& FGE_API ObjAnimation::getAnimation()
+fge::Animation& ObjAnimation::getAnimation()
 {
     return this->g_animation;
 }
-const sf::IntRect& FGE_API ObjAnimation::getTextureRect() const
+const sf::IntRect& ObjAnimation::getTextureRect() const
 {
     return this->g_textureRect;
 }
 
-const sf::Color& FGE_API ObjAnimation::getColor() const
+const sf::Color& ObjAnimation::getColor() const
 {
     return this->g_vertices[0].color;
 }
 
-void FGE_API ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+void ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
     if (!this->g_paused)
     {
@@ -105,14 +105,14 @@ void FGE_API ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, c
         }
     }
 }
-void FGE_API ObjAnimation::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ObjAnimation::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= this->getTransform();
     states.texture = static_cast<const sf::Texture*>(this->g_animation);
     target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 }
 
-void FGE_API ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::save(jsonObject, scene_ptr);
 
@@ -123,7 +123,7 @@ void FGE_API ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene_pt
     jsonObject["animationLoop"] = this->g_animation.isLoop();
     jsonObject["tickDuration"] = static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void FGE_API ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::load(jsonObject, scene_ptr);
 
@@ -137,7 +137,7 @@ void FGE_API ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_pt
     sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect( sf::IntRect(0, 0, buffTexture->getSize().x, buffTexture->getSize().y) );
 }
-void FGE_API ObjAnimation::pack(fge::net::Packet& pck)
+void ObjAnimation::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
@@ -145,7 +145,7 @@ void FGE_API ObjAnimation::pack(fge::net::Packet& pck)
     pck << static_cast<uint32_t>(this->g_animation.getGroupIndex()) << static_cast<uint32_t>(this->g_animation.getFrameIndex()) << this->g_animation.isLoop();
     pck << static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void FGE_API ObjAnimation::unpack(fge::net::Packet& pck)
+void ObjAnimation::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
@@ -166,20 +166,20 @@ void FGE_API ObjAnimation::unpack(fge::net::Packet& pck)
     this->setTextureRect( sf::IntRect(0, 0, buffTexture->getSize().x, buffTexture->getSize().y) );
 }
 
-std::string FGE_API ObjAnimation::getClassName() const
+std::string ObjAnimation::getClassName() const
 {
     return FGE_OBJANIM_CLASSNAME;
 }
-std::string FGE_API ObjAnimation::getReadableClassName() const
+std::string ObjAnimation::getReadableClassName() const
 {
     return "animation";
 }
 
-sf::FloatRect FGE_API ObjAnimation::getGlobalBounds() const
+sf::FloatRect ObjAnimation::getGlobalBounds() const
 {
     return this->getTransform().transformRect(this->getLocalBounds());
 }
-sf::FloatRect FGE_API ObjAnimation::getLocalBounds() const
+sf::FloatRect ObjAnimation::getLocalBounds() const
 {
     float width = static_cast<float>( std::abs(this->g_textureRect.width) );
     float height = static_cast<float>( std::abs(this->g_textureRect.height) );
@@ -187,7 +187,7 @@ sf::FloatRect FGE_API ObjAnimation::getLocalBounds() const
     return sf::FloatRect(0.f, 0.f, width, height);
 }
 
-void FGE_API ObjAnimation::updatePositions()
+void ObjAnimation::updatePositions()
 {
     sf::FloatRect bounds = this->getLocalBounds();
 
@@ -196,7 +196,7 @@ void FGE_API ObjAnimation::updatePositions()
     this->g_vertices[2].position = sf::Vector2f(bounds.width, 0);
     this->g_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
 }
-void FGE_API ObjAnimation::updateTexCoords()
+void ObjAnimation::updateTexCoords()
 {
     float left   = static_cast<float>(this->g_textureRect.left);
     float right  = left + this->g_textureRect.width;

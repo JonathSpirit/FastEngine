@@ -11,7 +11,7 @@ namespace fge
 namespace screen
 {
 
-void FGE_API Uninit()
+void Uninit()
 {
     for ( auto it=__dataScreen.begin(); it!=__dataScreen.end(); ++it )
     {
@@ -20,7 +20,7 @@ void FGE_API Uninit()
     __dataScreen.clear();
 }
 
-void FGE_API Close(const std::string& name)
+void Close(const std::string& name)
 {
     auto it = __dataScreen.find(name);
     if ( it != __dataScreen.end() )
@@ -30,23 +30,23 @@ void FGE_API Close(const std::string& name)
     }
 }
 
-std::size_t FGE_API GetScreenSize()
+std::size_t GetScreenSize()
 {
     return __dataScreen.size();
 }
 
-std::shared_ptr<sf::RenderWindow> FGE_API Get(const std::string& name)
+std::shared_ptr<sf::RenderWindow> Get(const std::string& name)
 {
     auto it = __dataScreen.find(name);
     return (it != __dataScreen.cend()) ? it->second : nullptr;
 }
 
-bool FGE_API Check(const std::string& name)
+bool Check(const std::string& name)
 {
     return __dataScreen.find(name) != __dataScreen.cend();
 }
 
-std::shared_ptr<sf::RenderWindow> FGE_API New(const std::string& name)
+std::shared_ptr<sf::RenderWindow> New(const std::string& name)
 {
     if ( fge::screen::Check(name) )
     {

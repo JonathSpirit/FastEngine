@@ -13,7 +13,7 @@
 namespace fge
 {
 
-uint16_t FGE_API SwapHostNetEndian_16(uint16_t n)
+uint16_t SwapHostNetEndian_16(uint16_t n)
 {
     if constexpr (std::endian::native == std::endian::big)
     {
@@ -27,7 +27,7 @@ uint16_t FGE_API SwapHostNetEndian_16(uint16_t n)
         return r;
     }
 }
-uint32_t FGE_API SwapHostNetEndian_32(uint32_t n)
+uint32_t SwapHostNetEndian_32(uint32_t n)
 {
     if constexpr (std::endian::native == std::endian::big)
     {
@@ -43,7 +43,7 @@ uint32_t FGE_API SwapHostNetEndian_32(uint32_t n)
         return r;
     }
 }
-uint64_t FGE_API SwapHostNetEndian_64(uint64_t n)
+uint64_t SwapHostNetEndian_64(uint64_t n)
 {
     if constexpr (std::endian::native == std::endian::big)
     {
@@ -63,7 +63,7 @@ uint64_t FGE_API SwapHostNetEndian_64(uint64_t n)
         return r;
     }
 }
-float FGE_API SwapHostNetEndian_f(float n)
+float SwapHostNetEndian_f(float n)
 {
     static_assert(sizeof(float) == 4, "float doesn't have a size of 4 bytes");
 
@@ -81,7 +81,7 @@ float FGE_API SwapHostNetEndian_f(float n)
         return r;
     }
 }
-double FGE_API SwapHostNetEndian_d(double n)
+double SwapHostNetEndian_d(double n)
 {
     static_assert(sizeof(double) == 8, "double doesn't have a size of 8 bytes");
 
@@ -106,14 +106,14 @@ double FGE_API SwapHostNetEndian_d(double n)
 
 ///
 
-uint16_t FGE_API SwapEndian_16(uint16_t n)
+uint16_t SwapEndian_16(uint16_t n)
 {
     uint16_t r;
     static_cast<uint8_t*>(static_cast<void*>(&r))[0] = static_cast<uint8_t*>(static_cast<void*>(&n))[1];
     static_cast<uint8_t*>(static_cast<void*>(&r))[1] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
     return r;
 }
-uint32_t FGE_API SwapEndian_32(uint32_t n)
+uint32_t SwapEndian_32(uint32_t n)
 {
     uint32_t r;
     static_cast<uint8_t*>(static_cast<void*>(&r))[0] = static_cast<uint8_t*>(static_cast<void*>(&n))[3];
@@ -122,7 +122,7 @@ uint32_t FGE_API SwapEndian_32(uint32_t n)
     static_cast<uint8_t*>(static_cast<void*>(&r))[3] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
     return r;
 }
-uint64_t FGE_API SwapEndian_64(uint64_t n)
+uint64_t SwapEndian_64(uint64_t n)
 {
     uint64_t r;
     static_cast<uint8_t*>(static_cast<void*>(&r))[0] = static_cast<uint8_t*>(static_cast<void*>(&n))[7];
@@ -135,7 +135,7 @@ uint64_t FGE_API SwapEndian_64(uint64_t n)
     static_cast<uint8_t*>(static_cast<void*>(&r))[7] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
     return r;
 }
-float FGE_API SwapEndian_f(float n)
+float SwapEndian_f(float n)
 {
     static_assert(sizeof(float) == 4, "float doesn't have a size of 4 bytes");
 
@@ -146,7 +146,7 @@ float FGE_API SwapEndian_f(float n)
     static_cast<uint8_t*>(static_cast<void*>(&r))[3] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
     return r;
 }
-double FGE_API SwapEndian_d(double n)
+double SwapEndian_d(double n)
 {
     static_assert(sizeof(double) == 8, "double doesn't have a size of 8 bytes");
 
@@ -162,7 +162,7 @@ double FGE_API SwapEndian_d(double n)
     return r;
 }
 
-bool FGE_API IsBigEndian()
+bool IsBigEndian()
 {
     if constexpr (std::endian::native == std::endian::big)
     {

@@ -43,26 +43,26 @@ struct AnimationData
 using AnimationDataPtr = std::shared_ptr<fge::anim::AnimationData>;
 using AnimationDataType = std::unordered_map<std::string, fge::anim::AnimationDataPtr>;
 
-void FGE_API Init();
-bool FGE_API IsInit();
-void FGE_API Uninit();
+FGE_API void Init();
+FGE_API bool IsInit();
+FGE_API void Uninit();
 
-std::size_t FGE_API GetAnimationSize();
+FGE_API std::size_t GetAnimationSize();
 
-std::mutex& GetMutex();
-fge::anim::AnimationDataType::const_iterator FGE_API GetCBegin();
-fge::anim::AnimationDataType::const_iterator FGE_API GetCEnd();
+FGE_API std::mutex& GetMutex();
+FGE_API fge::anim::AnimationDataType::const_iterator GetCBegin();
+FGE_API fge::anim::AnimationDataType::const_iterator GetCEnd();
 
-const fge::anim::AnimationDataPtr& FGE_API GetBadAnimation();
-fge::anim::AnimationDataPtr FGE_API GetAnimation(const std::string& name);
+FGE_API const fge::anim::AnimationDataPtr& GetBadAnimation();
+FGE_API fge::anim::AnimationDataPtr GetAnimation(const std::string& name);
 
-bool FGE_API Check(const std::string& name);
+FGE_API bool Check(const std::string& name);
 
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path);
-bool FGE_API Unload(const std::string& name);
-void FGE_API UnloadAll();
+FGE_API bool LoadFromFile(const std::string& name, const std::string& path);
+FGE_API bool Unload(const std::string& name);
+FGE_API void UnloadAll();
 
-bool FGE_API Push(const std::string& name, const fge::anim::AnimationDataPtr& data);
+FGE_API bool Push(const std::string& name, const fge::anim::AnimationDataPtr& data);
 
 }//end anim
 }//end fge

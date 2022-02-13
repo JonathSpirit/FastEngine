@@ -9,17 +9,17 @@ namespace fge
 namespace path
 {
 
-const std::string& FGE_API Get(const std::string& name);
+FGE_API const std::string& Get(const std::string& name);
 
-std::size_t FGE_API GetPathSize();
+FGE_API std::size_t GetPathSize();
 
-void FGE_API Remove(const std::string& name);
+FGE_API void Remove(const std::string& name);
 
-bool FGE_API Check(const std::string& name);
+FGE_API bool Check(const std::string& name);
 
-bool FGE_API New(const std::string& name, const std::string& path);
+FGE_API bool New(const std::string& name, const std::string& path);
 
-bool FGE_API Replace(const std::string& name, const std::string& path);
+FGE_API bool Replace(const std::string& name, const std::string& path);
 
 }//end path
 }//end fge

@@ -6,12 +6,12 @@
 namespace fge
 {
 
-FGE_API CommandHandler::CommandHandler()
+CommandHandler::CommandHandler()
 {
     this->g_cmdData.reserve(_FGE_CMD_RESERVESIZE);
 }
 
-bool FGE_API CommandHandler::addCmd(const std::string &name, fge::CommandHandler *handle, fge::CommandFunction cmdfunc)
+bool CommandHandler::addCmd(const std::string &name, fge::CommandHandler *handle, fge::CommandFunction cmdfunc)
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -24,7 +24,7 @@ bool FGE_API CommandHandler::addCmd(const std::string &name, fge::CommandHandler
     return false;
 }
 
-void FGE_API CommandHandler::delCmd(const std::string &name)
+void CommandHandler::delCmd(const std::string &name)
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -40,7 +40,7 @@ void FGE_API CommandHandler::delCmd(const std::string &name)
     }
 }
 
-bool FGE_API CommandHandler::replaceCmd(const std::string &name, fge::CommandHandler *handle, fge::CommandFunction cmdfunc)
+bool CommandHandler::replaceCmd(const std::string &name, fge::CommandHandler *handle, fge::CommandFunction cmdfunc)
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -53,13 +53,13 @@ bool FGE_API CommandHandler::replaceCmd(const std::string &name, fge::CommandHan
     return false;
 }
 
-void FGE_API CommandHandler::clearCmd()
+void CommandHandler::clearCmd()
 {
     this->g_cmdData.clear();
     this->g_cmdDataMap.clear();
 }
 
-fge::Value FGE_API CommandHandler::callCmd(const std::string &name, fge::Object *caller, const fge::Value &arg, fge::Scene *caller_scene)
+fge::Value CommandHandler::callCmd(const std::string &name, fge::Object *caller, const fge::Value &arg, fge::Scene *caller_scene)
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -97,7 +97,7 @@ std::string CommandHandler::getCmdName(std::size_t index) const
     return {};
 }
 
-const fge::CommandHandler::CommandData* FGE_API CommandHandler::getCmd(const std::string& name) const
+const fge::CommandHandler::CommandData* CommandHandler::getCmd(const std::string& name) const
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -108,16 +108,16 @@ const fge::CommandHandler::CommandData* FGE_API CommandHandler::getCmd(const std
     return nullptr;
 }
 
-std::size_t FGE_API CommandHandler::getCmdSize() const
+std::size_t CommandHandler::getCmdSize() const
 {
     return this->g_cmdData.size();
 }
 
-fge::CommandHandler::CommandDataType::const_iterator FGE_API CommandHandler::cbegin() const
+fge::CommandHandler::CommandDataType::const_iterator CommandHandler::cbegin() const
 {
     return this->g_cmdData.cbegin();
 }
-fge::CommandHandler::CommandDataType::const_iterator FGE_API CommandHandler::cend() const
+fge::CommandHandler::CommandDataType::const_iterator CommandHandler::cend() const
 {
     return this->g_cmdData.cend();
 }

@@ -16,9 +16,9 @@ namespace net
 
 using PacketHeader = uint16_t;
 
-uint32_t FGE_API GetSceneChecksum(fge::Scene& scene);
+FGE_API uint32_t GetSceneChecksum(fge::Scene& scene);
 
-bool FGE_API WritePacketDataToFile(fge::net::Packet& pck, const std::string& file);
+FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, const std::string& file);
 
 
 inline fge::net::Packet& SetHeader(fge::net::Packet& pck, fge::net::PacketHeader header);

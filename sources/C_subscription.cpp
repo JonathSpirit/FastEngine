@@ -4,7 +4,7 @@ namespace fge
 {
 
 ///Subscription
-void FGE_API Subscription::detachAll()
+void Subscription::detachAll()
 {
     for (auto& data : this->g_subData)
     {
@@ -13,7 +13,7 @@ void FGE_API Subscription::detachAll()
     this->g_subData.clear();
 }
 
-void FGE_API Subscription::detachSilent(fge::Subscriber* subscriber)
+void Subscription::detachSilent(fge::Subscriber* subscriber)
 {
     if (subscriber == nullptr)
     {
@@ -28,7 +28,7 @@ void FGE_API Subscription::detachSilent(fge::Subscriber* subscriber)
     }
 }
 
-bool FGE_API Subscription::detach(fge::Subscriber* subscriber)
+bool Subscription::detach(fge::Subscriber* subscriber)
 {
     if (subscriber == nullptr)
     {
@@ -44,7 +44,7 @@ bool FGE_API Subscription::detach(fge::Subscriber* subscriber)
     }
     return false;
 }
-fge::Subscription::SubscriberCount FGE_API Subscription::detachOnce(fge::Subscriber* subscriber)
+fge::Subscription::SubscriberCount Subscription::detachOnce(fge::Subscriber* subscriber)
 {
     if (subscriber == nullptr)
     {
@@ -66,7 +66,7 @@ fge::Subscription::SubscriberCount FGE_API Subscription::detachOnce(fge::Subscri
     return 0;
 }
 
-fge::Subscription::SubscriberCount FGE_API Subscription::attach(fge::Subscriber* subscriber)
+fge::Subscription::SubscriberCount Subscription::attach(fge::Subscriber* subscriber)
 {
     if (subscriber == nullptr)
     {
@@ -86,7 +86,7 @@ fge::Subscription::SubscriberCount FGE_API Subscription::attach(fge::Subscriber*
     }
 }
 
-fge::Subscription::SubscriberCount FGE_API Subscription::getCount(fge::Subscriber* subscriber) const
+fge::Subscription::SubscriberCount Subscription::getCount(fge::Subscriber* subscriber) const
 {
     if (subscriber == nullptr)
     {
@@ -103,7 +103,7 @@ fge::Subscription::SubscriberCount FGE_API Subscription::getCount(fge::Subscribe
 
 ///Subscriber
 
-void FGE_API Subscriber::detachAll()
+void Subscriber::detachAll()
 {
     for (auto data : this->g_subData)
     {
@@ -111,21 +111,21 @@ void FGE_API Subscriber::detachAll()
     }
     this->g_subData.clear();
 }
-void FGE_API Subscriber::detachSilent(fge::Subscription* subscription)
+void Subscriber::detachSilent(fge::Subscription* subscription)
 {
     if ( this->g_subData.erase(subscription) )
     {
         this->onDetach(subscription);
     }
 }
-void FGE_API Subscriber::detach(fge::Subscription* subscription)
+void Subscriber::detach(fge::Subscription* subscription)
 {
     if ( this->g_subData.erase(subscription) )
     {
         subscription->detachSilent(this);
     }
 }
-void FGE_API Subscriber::attachSilent(fge::Subscription* subscription)
+void Subscriber::attachSilent(fge::Subscription* subscription)
 {
     this->g_subData.insert(subscription);
 }

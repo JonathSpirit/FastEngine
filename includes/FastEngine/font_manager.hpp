@@ -27,26 +27,26 @@ struct FontData
 using FontDataPtr = std::shared_ptr<fge::font::FontData>;
 using FontDataType = std::unordered_map<std::string, fge::font::FontDataPtr>;
 
-void FGE_API Init();
-bool FGE_API IsInit();
-void FGE_API Uninit();
+FGE_API void Init();
+FGE_API bool IsInit();
+FGE_API void Uninit();
 
-std::size_t FGE_API GetFontSize();
+FGE_API std::size_t GetFontSize();
 
-std::mutex& FGE_API GetMutex();
-fge::font::FontDataType::const_iterator FGE_API GetCBegin();
-fge::font::FontDataType::const_iterator FGE_API GetCEnd();
+FGE_API std::mutex& GetMutex();
+FGE_API fge::font::FontDataType::const_iterator GetCBegin();
+FGE_API fge::font::FontDataType::const_iterator GetCEnd();
 
-const fge::font::FontDataPtr& FGE_API GetBadFont();
-fge::font::FontDataPtr FGE_API GetFont(const std::string& name);
+FGE_API const fge::font::FontDataPtr& GetBadFont();
+FGE_API fge::font::FontDataPtr GetFont(const std::string& name);
 
-bool FGE_API Check(const std::string& name);
+FGE_API bool Check(const std::string& name);
 
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path);
-bool FGE_API Unload(const std::string& name);
-void FGE_API UnloadAll();
+FGE_API bool LoadFromFile(const std::string& name, const std::string& path);
+FGE_API bool Unload(const std::string& name);
+FGE_API void UnloadAll();
 
-bool FGE_API Push(const std::string& name, const fge::font::FontDataPtr& data);
+FGE_API bool Push(const std::string& name, const fge::font::FontDataPtr& data);
 
 }//end font
 }//end fge

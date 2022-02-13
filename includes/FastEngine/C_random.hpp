@@ -6,6 +6,7 @@
 #include <SFML/System/Vector3.hpp>
 #include <SFML/Graphics/Color.hpp>
 
+//#define PCG_LITTLE_ENDIAN 1
 #include <pcg_random.hpp>
 
 #include <string>
@@ -67,7 +68,7 @@ private:
     std::mutex g_mutex;
 };
 
-extern FGE_API fge::Random<pcg32> __random;
+FGE_API extern fge::Random<pcg32> __random;
 
 }//end fge
 

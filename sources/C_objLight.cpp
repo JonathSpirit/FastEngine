@@ -8,17 +8,17 @@
 namespace fge
 {
 
-FGE_API ObjLight::ObjLight()
+ObjLight::ObjLight()
 {
     this->g_blendMode = sf::BlendAlpha;
 }
-FGE_API ObjLight::ObjLight(const fge::Texture& texture, const sf::Vector2f& position)
+ObjLight::ObjLight(const fge::Texture& texture, const sf::Vector2f& position)
 {
     this->g_blendMode = sf::BlendAlpha;
     this->setTexture(texture);
     this->setPosition(position);
 }
-FGE_API ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position)
+ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position)
 {
     this->g_blendMode = sf::BlendAlpha;
     this->setTexture(texture);
@@ -26,16 +26,16 @@ FGE_API ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& recta
     this->setPosition(position);
 }
 
-void FGE_API ObjLight::setBlendMode(const sf::BlendMode& blendMode)
+void ObjLight::setBlendMode(const sf::BlendMode& blendMode)
 {
     this->g_blendMode = blendMode;
 }
-const sf::BlendMode& FGE_API ObjLight::getBlendMode() const
+const sf::BlendMode& ObjLight::getBlendMode() const
 {
     return this->g_blendMode;
 }
 
-void FGE_API ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
+void ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
 {
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if ( resetRect || !this->g_texture.valid() )
@@ -47,7 +47,7 @@ void FGE_API ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
     this->g_texture = texture;
     this->setOrigin( this->g_textureRect.width/2.0f, this->g_textureRect.height/2.0f );
 }
-void FGE_API ObjLight::setTextureRect(const sf::IntRect& rectangle)
+void ObjLight::setTextureRect(const sf::IntRect& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -57,21 +57,21 @@ void FGE_API ObjLight::setTextureRect(const sf::IntRect& rectangle)
     }
 }
 
-void FGE_API ObjLight::setLightSystem(fge::LightSystem& ls)
+void ObjLight::setLightSystem(fge::LightSystem& ls)
 {
     ls.addGate(&this->g_lightSystemGate, true);
 }
 
-void FGE_API ObjLight::setRenderObject(const fge::ObjectDataShared& obj)
+void ObjLight::setRenderObject(const fge::ObjectDataShared& obj)
 {
     this->g_renderObject = obj;
 }
-const fge::ObjectDataShared& FGE_API ObjLight::getRenderObject() const
+const fge::ObjectDataShared& ObjLight::getRenderObject() const
 {
     return this->g_renderObject;
 }
 
-void FGE_API ObjLight::setColor(const sf::Color& color)
+void ObjLight::setColor(const sf::Color& color)
 {
     this->g_vertices[0].color = color;
     this->g_vertices[1].color = color;
@@ -79,32 +79,32 @@ void FGE_API ObjLight::setColor(const sf::Color& color)
     this->g_vertices[3].color = color;
 }
 
-const fge::Texture& FGE_API ObjLight::getTexture() const
+const fge::Texture& ObjLight::getTexture() const
 {
     return this->g_texture;
 }
-const sf::IntRect& FGE_API ObjLight::getTextureRect() const
+const sf::IntRect& ObjLight::getTextureRect() const
 {
     return this->g_textureRect;
 }
 
-const sf::Color& FGE_API ObjLight::getColor() const
+const sf::Color& ObjLight::getColor() const
 {
     return this->g_vertices[0].color;
 }
 
-void FGE_API ObjLight::first(fge::Scene* scene_ptr)
+void ObjLight::first(fge::Scene* scene_ptr)
 {
     if (scene_ptr && !this->g_renderObject)
     {
         this->g_renderObject = scene_ptr->getFirstObj_ByClass(FGE_OBJLIGHTMAP_CLASSNAME);
     }
 }
-void FGE_API ObjLight::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+void ObjLight::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
     this->g_renderMap.update(screen, event, deltaTime, scene_ptr);
 }
-void FGE_API ObjLight::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ObjLight::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     this->g_renderMap._renderTexture.clear(sf::Color(255,255,255,0));
 
@@ -176,14 +176,14 @@ void FGE_API ObjLight::draw(sf::RenderTarget& target, sf::RenderStates states) c
     theTarget->draw(this->g_renderMap, sf::RenderStates(this->g_blendMode));
 }
 
-void FGE_API ObjLight::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjLight::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::save(jsonObject, scene_ptr);
 
     jsonObject["color"] = this->g_vertices[0].color.toInteger();
     jsonObject["texture"] = this->g_texture;
 }
-void FGE_API ObjLight::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjLight::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::load(jsonObject, scene_ptr);
 
@@ -191,13 +191,13 @@ void FGE_API ObjLight::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
 }
 
-void FGE_API ObjLight::pack(fge::net::Packet& pck)
+void ObjLight::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
     pck << this->g_vertices[0].color << this->g_texture;
 }
-void FGE_API ObjLight::unpack(fge::net::Packet& pck)
+void ObjLight::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
@@ -206,20 +206,20 @@ void FGE_API ObjLight::unpack(fge::net::Packet& pck)
     this->setColor(color);
 }
 
-std::string FGE_API ObjLight::getClassName() const
+std::string ObjLight::getClassName() const
 {
     return FGE_OBJLIGHT_CLASSNAME;
 }
-std::string FGE_API ObjLight::getReadableClassName() const
+std::string ObjLight::getReadableClassName() const
 {
     return "light";
 }
 
-sf::FloatRect FGE_API ObjLight::getGlobalBounds() const
+sf::FloatRect ObjLight::getGlobalBounds() const
 {
     return this->getTransform().transformRect(this->getLocalBounds());
 }
-sf::FloatRect FGE_API ObjLight::getLocalBounds() const
+sf::FloatRect ObjLight::getLocalBounds() const
 {
     float width = static_cast<float>( std::abs(this->g_textureRect.width) );
     float height = static_cast<float>( std::abs(this->g_textureRect.height) );
@@ -227,7 +227,7 @@ sf::FloatRect FGE_API ObjLight::getLocalBounds() const
     return sf::FloatRect(0.f, 0.f, width, height);
 }
 
-void FGE_API ObjLight::updatePositions()
+void ObjLight::updatePositions()
 {
     sf::FloatRect bounds = this->getLocalBounds();
 
@@ -237,7 +237,7 @@ void FGE_API ObjLight::updatePositions()
     this->g_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
 }
 
-void FGE_API ObjLight::updateTexCoords()
+void ObjLight::updateTexCoords()
 {
     float left   = static_cast<float>(this->g_textureRect.left);
     float right  = left + this->g_textureRect.width;

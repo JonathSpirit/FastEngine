@@ -14,7 +14,7 @@ std::mutex _dataMutex;
 
 }//end
 
-void FGE_API Init()
+void Init()
 {
     if ( _dataFontBad == nullptr )
     {
@@ -23,41 +23,41 @@ void FGE_API Init()
         _dataFontBad->_valid = false;
     }
 }
-bool FGE_API IsInit()
+bool IsInit()
 {
     return _dataFontBad != nullptr;
 }
-void FGE_API Uninit()
+void Uninit()
 {
     _dataFont.clear();
     _dataFontBad = nullptr;
 }
 
-std::size_t FGE_API GetFontSize()
+std::size_t GetFontSize()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     return _dataFont.size();
 }
 
-std::mutex& FGE_API GetMutex()
+std::mutex& GetMutex()
 {
     return _dataMutex;
 }
 
-fge::font::FontDataType::const_iterator FGE_API GetCBegin()
+fge::font::FontDataType::const_iterator GetCBegin()
 {
     return _dataFont.cbegin();
 }
-fge::font::FontDataType::const_iterator FGE_API GetCEnd()
+fge::font::FontDataType::const_iterator GetCEnd()
 {
     return _dataFont.cend();
 }
 
-const fge::font::FontDataPtr& FGE_API GetBadFont()
+const fge::font::FontDataPtr& GetBadFont()
 {
     return _dataFontBad;
 }
-fge::font::FontDataPtr FGE_API GetFont(const std::string& name)
+fge::font::FontDataPtr GetFont(const std::string& name)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -74,7 +74,7 @@ fge::font::FontDataPtr FGE_API GetFont(const std::string& name)
     return _dataFontBad;
 }
 
-bool FGE_API Check(const std::string& name)
+bool Check(const std::string& name)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -91,7 +91,7 @@ bool FGE_API Check(const std::string& name)
     return false;
 }
 
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(const std::string& name, const std::string& path)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -123,7 +123,7 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
     return true;
 }
 
-bool FGE_API Unload(const std::string& name)
+bool Unload(const std::string& name)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -142,7 +142,7 @@ bool FGE_API Unload(const std::string& name)
     }
     return false;
 }
-void FGE_API UnloadAll()
+void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
 
@@ -154,7 +154,7 @@ void FGE_API UnloadAll()
     _dataFont.clear();
 }
 
-bool FGE_API Push(const std::string& name, const fge::font::FontDataPtr& data)
+bool Push(const std::string& name, const fge::font::FontDataPtr& data)
 {
     if (name == FGE_FONT_BAD)
     {

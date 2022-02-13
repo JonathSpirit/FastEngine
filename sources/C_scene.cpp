@@ -12,7 +12,7 @@ namespace fge
 {
 
 ///Class Scene
-FGE_API Scene::Scene() :
+Scene::Scene() :
     g_name(),
 
     g_networkEvents(),
@@ -28,7 +28,7 @@ FGE_API Scene::Scene() :
     g_dataMap()
 {
 }
-FGE_API Scene::Scene(const std::string& scene_name) :
+Scene::Scene(const std::string& scene_name) :
     g_name(scene_name),
 
     g_networkEvents(),
@@ -46,7 +46,7 @@ FGE_API Scene::Scene(const std::string& scene_name) :
 }
 
 /** Scene **/
-void FGE_API Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime)
+void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime)
 {
     for ( this->g_updatedObjectIterator=this->g_data.begin(); this->g_updatedObjectIterator!=this->g_data.end(); ++this->g_updatedObjectIterator )
     {
@@ -67,7 +67,7 @@ void FGE_API Scene::update(sf::RenderWindow& screen, fge::Event& event, const st
         }
     }
 }
-void FGE_API Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& clear_color) const
+void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& clear_color) const
 {
     if ( clear_target )
     {
@@ -103,14 +103,14 @@ void FGE_API Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::
     target.setView( backupView );
 }
 
-void FGE_API Scene::clear()
+void Scene::clear()
 {
     this->delAllObject(false);
     this->_globalData.delAllValues();
 }
 
 /** Object **/
-fge::ObjectDataShared FGE_API Scene::newObject(fge::Object* newObject, const fge::ObjectPlan& plan, const fge::ObjectSid& sid, const fge::ObjectType& type)
+fge::ObjectDataShared Scene::newObject(fge::Object* newObject, const fge::ObjectPlan& plan, const fge::ObjectSid& sid, const fge::ObjectType& type)
 {
     fge::ObjectSid thesid = this->generateSid(sid);
     if (thesid == FGE_SCENE_BAD_SID)
@@ -141,7 +141,7 @@ fge::ObjectDataShared FGE_API Scene::newObject(fge::Object* newObject, const fge
     this->_onNewObject.call(this, *it);
     return *it;
 }
-fge::ObjectDataShared FGE_API Scene::newObject(const fge::ObjectDataShared& objectData)
+fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
 {
     fge::ObjectSid thesid = this->generateSid( objectData->g_sid );
     if (thesid == FGE_SCENE_BAD_SID)
@@ -175,7 +175,7 @@ fge::ObjectDataShared FGE_API Scene::newObject(const fge::ObjectDataShared& obje
     return objectData;
 }
 
-fge::ObjectDataShared FGE_API Scene::duplicateObject(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
+fge::ObjectDataShared Scene::duplicateObject(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -187,7 +187,7 @@ fge::ObjectDataShared FGE_API Scene::duplicateObject(const fge::ObjectSid& sid, 
     return nullptr;
 }
 
-fge::ObjectDataShared FGE_API Scene::transferObject(const fge::ObjectSid& sid, fge::Scene& newScene)
+fge::ObjectDataShared Scene::transferObject(const fge::ObjectSid& sid, fge::Scene& newScene)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -212,11 +212,11 @@ fge::ObjectDataShared FGE_API Scene::transferObject(const fge::ObjectSid& sid, f
     return nullptr;
 }
 
-void FGE_API Scene::delUpdatedObject()
+void Scene::delUpdatedObject()
 {
     this->g_deleteMe=true;
 }
-bool FGE_API Scene::delObject(const fge::ObjectSid& sid)
+bool Scene::delObject(const fge::ObjectSid& sid)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -238,7 +238,7 @@ bool FGE_API Scene::delObject(const fge::ObjectSid& sid)
     }
     return false;
 }
-std::size_t FGE_API Scene::delAllObject(bool ignoreGuiObject)
+std::size_t Scene::delAllObject(bool ignoreGuiObject)
 {
     if (this->g_enableNetworkEventsFlag)
     {
@@ -268,7 +268,7 @@ std::size_t FGE_API Scene::delAllObject(bool ignoreGuiObject)
     return buffSize;
 }
 
-bool FGE_API Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
+bool Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
 {
     if (newSid == FGE_SCENE_BAD_SID)
     {
@@ -297,7 +297,7 @@ bool FGE_API Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid
     }
     return false;
 }
-bool FGE_API Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
+bool Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -319,7 +319,7 @@ bool FGE_API Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
     }
     return false;
 }
-bool FGE_API Scene::setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPlan& newPlan)
+bool Scene::setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPlan& newPlan)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -341,7 +341,7 @@ bool FGE_API Scene::setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPl
     }
     return false;
 }
-fge::ObjectDataShared FGE_API Scene::getObject(const fge::ObjectSid& sid) const
+fge::ObjectDataShared Scene::getObject(const fge::ObjectSid& sid) const
 {
     auto it = this->g_dataMap.find(sid);
     if ( it != this->g_dataMap.cend() )
@@ -350,7 +350,7 @@ fge::ObjectDataShared FGE_API Scene::getObject(const fge::ObjectSid& sid) const
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getObject(const fge::Object* ptr) const
+fge::ObjectDataShared Scene::getObject(const fge::Object* ptr) const
 {
     auto it = this->find(ptr);
     if ( it != this->g_data.cend() )
@@ -359,7 +359,7 @@ fge::ObjectDataShared FGE_API Scene::getObject(const fge::Object* ptr) const
     }
     return nullptr;
 }
-fge::Object* FGE_API Scene::getObjectPtr(const fge::ObjectSid& sid) const
+fge::Object* Scene::getObjectPtr(const fge::ObjectSid& sid) const
 {
     auto it = this->g_dataMap.find(sid);
     if ( it != this->g_dataMap.cend() )
@@ -368,7 +368,7 @@ fge::Object* FGE_API Scene::getObjectPtr(const fge::ObjectSid& sid) const
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getUpdatedObject() const
+fge::ObjectDataShared Scene::getUpdatedObject() const
 {
     return *this->g_updatedObjectIterator;
 }
@@ -376,7 +376,7 @@ fge::ObjectDataShared FGE_API Scene::getUpdatedObject() const
 /** Global Data **/
 
 /** Search function **/
-std::size_t FGE_API Scene::getAllObj_ByPosition(const sf::Vector2f& pos, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByPosition(const sf::Vector2f& pos, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -390,7 +390,7 @@ std::size_t FGE_API Scene::getAllObj_ByPosition(const sf::Vector2f& pos, fge::Ob
     }
     return objCount;
 }
-std::size_t FGE_API Scene::getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -404,15 +404,15 @@ std::size_t FGE_API Scene::getAllObj_ByZone(const sf::Rect<float>& zone, fge::Ob
     }
     return objCount;
 }
-std::size_t FGE_API Scene::getAllObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByPosition( target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()), buff );
 }
-std::size_t FGE_API Scene::getAllObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByZone( fge::PixelToCoordRect(zone, target, this->g_customView ? *this->g_customView : target.getView()), buff );
 }
-std::size_t FGE_API Scene::getAllObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -426,7 +426,7 @@ std::size_t FGE_API Scene::getAllObj_FromLocalPosition(const sf::Vector2i& pos, 
     }
     return objCount;
 }
-std::size_t FGE_API Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -440,7 +440,7 @@ std::size_t FGE_API Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, co
     }
     return objCount;
 }
-std::size_t FGE_API Scene::getAllObj_ByClass(const std::string& class_name, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByClass(const std::string& class_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -453,7 +453,7 @@ std::size_t FGE_API Scene::getAllObj_ByClass(const std::string& class_name, fge:
     }
     return objCount;
 }
-std::size_t FGE_API Scene::getAllObj_ByTag(const std::string& tag_name, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByTag(const std::string& tag_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -467,7 +467,7 @@ std::size_t FGE_API Scene::getAllObj_ByTag(const std::string& tag_name, fge::Obj
     return objCount;
 }
 
-fge::ObjectDataShared FGE_API Scene::getFirstObj_ByPosition(const sf::Vector2f& pos) const
+fge::ObjectDataShared Scene::getFirstObj_ByPosition(const sf::Vector2f& pos) const
 {
     for (const auto & data : this->g_data)
     {
@@ -480,7 +480,7 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_ByPosition(const sf::Vector2f& 
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_ByZone(const sf::Rect<float>& zone) const
+fge::ObjectDataShared Scene::getFirstObj_ByZone(const sf::Rect<float>& zone) const
 {
     for (const auto & data : this->g_data)
     {
@@ -493,15 +493,15 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_ByZone(const sf::Rect<float>& z
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const
 {
     return this->getFirstObj_ByPosition( target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()) );
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const
 {
     return this->getFirstObj_ByZone( fge::PixelToCoordRect(zone, target, this->g_customView ? *this->g_customView : target.getView()) );
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const
 {
     for (const auto & data : this->g_data)
     {
@@ -514,7 +514,7 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_FromLocalPosition(const sf::Vec
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const
 {
     for (const auto & data : this->g_data)
     {
@@ -527,7 +527,7 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_FromLocalZone(const sf::Rect<in
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_ByClass(const std::string& class_name) const
+fge::ObjectDataShared Scene::getFirstObj_ByClass(const std::string& class_name) const
 {
     for (const auto & data : this->g_data)
     {
@@ -538,7 +538,7 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_ByClass(const std::string& clas
     }
     return nullptr;
 }
-fge::ObjectDataShared FGE_API Scene::getFirstObj_ByTag(const std::string& tag_name) const
+fge::ObjectDataShared Scene::getFirstObj_ByTag(const std::string& tag_name) const
 {
     for (const auto & data : this->g_data)
     {
@@ -551,7 +551,7 @@ fge::ObjectDataShared FGE_API Scene::getFirstObj_ByTag(const std::string& tag_na
 }
 
 /** Static id **/
-fge::ObjectSid FGE_API Scene::getSid(const fge::Object* ptr) const
+fge::ObjectSid Scene::getSid(const fge::Object* ptr) const
 {
     for (const auto & data : this->g_data)
     {
@@ -563,7 +563,7 @@ fge::ObjectSid FGE_API Scene::getSid(const fge::Object* ptr) const
     return FGE_SCENE_BAD_SID;
 }
 
-fge::ObjectSid FGE_API Scene::generateSid(fge::ObjectSid wanted_sid) const
+fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid) const
 {
     if ( wanted_sid != FGE_SCENE_BAD_SID )
     {
@@ -590,7 +590,7 @@ fge::ObjectSid FGE_API Scene::generateSid(fge::ObjectSid wanted_sid) const
 }
 
 /** Network **/
-void FGE_API Scene::pack(fge::net::Packet& pck)
+void Scene::pack(fge::net::Packet& pck)
 {
     //SCENE NAME
     pck << this->g_name;
@@ -623,7 +623,7 @@ void FGE_API Scene::pack(fge::net::Packet& pck)
         data->g_object->pack(pck);
     }
 }
-void FGE_API Scene::unpack(fge::net::Packet& pck)
+void Scene::unpack(fge::net::Packet& pck)
 {
     fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
     fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
@@ -668,7 +668,7 @@ void FGE_API Scene::unpack(fge::net::Packet& pck)
         }
     }
 }
-void FGE_API Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, const fge::net::Identity& id)
+void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, const fge::net::Identity& id)
 {
     //SCENE NAME
     pck << this->g_name;
@@ -735,7 +735,7 @@ void FGE_API Scene::packModification(fge::net::Packet& pck, fge::net::ClientList
     pck.pack(countObjectPos, &countObject, sizeof(uint32_t)); //Rewriting size
     clients.clearClientEvent();
 }
-void FGE_API Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id)
+void Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id)
 {
     //SCENE NAME
     pck << this->g_name;
@@ -798,7 +798,7 @@ void FGE_API Scene::packModification(fge::net::Packet& pck, const fge::net::Iden
 
     pck.pack(countObjectPos, &countObject, sizeof(uint32_t)); //Rewriting size
 }
-void FGE_API Scene::unpackModification(fge::net::Packet& pck)
+void Scene::unpackModification(fge::net::Packet& pck)
 {
     uint32_t buff_size = 0;
 
@@ -852,7 +852,7 @@ void FGE_API Scene::unpackModification(fge::net::Packet& pck)
     }
 }
 
-void FGE_API Scene::clientsCheckup(const fge::net::ClientList& clients)
+void Scene::clientsCheckup(const fge::net::ClientList& clients)
 {
     this->_netList.clientsCheckup(clients);
 
@@ -862,7 +862,7 @@ void FGE_API Scene::clientsCheckup(const fge::net::ClientList& clients)
     }
 }
 
-void FGE_API Scene::forceCheckClient(const fge::net::Identity& id)
+void Scene::forceCheckClient(const fge::net::Identity& id)
 {
     this->_netList.forceCheckClient(id);
 
@@ -871,7 +871,7 @@ void FGE_API Scene::forceCheckClient(const fge::net::Identity& id)
         data->getObject()->_netList.forceCheckClient(id);
     }
 }
-void FGE_API Scene::forceUncheckClient(const fge::net::Identity& id)
+void Scene::forceUncheckClient(const fge::net::Identity& id)
 {
     this->_netList.forceUncheckClient(id);
 
@@ -882,7 +882,7 @@ void FGE_API Scene::forceUncheckClient(const fge::net::Identity& id)
 }
 
 /** SceneNetEvent **/
-void FGE_API Scene::clientsCheckupEvent(const fge::net::ClientList& clients)
+void Scene::clientsCheckupEvent(const fge::net::ClientList& clients)
 {
     //Remove/Add client
     for (std::size_t i=0; i<clients.getClientEventSize(); ++i)
@@ -898,14 +898,14 @@ void FGE_API Scene::clientsCheckupEvent(const fge::net::ClientList& clients)
         }
     }
 }
-void FGE_API Scene::pushEvent(const fge::SceneNetEvent& netEvent)
+void Scene::pushEvent(const fge::SceneNetEvent& netEvent)
 {
     for (auto & networkEvent : this->g_networkEvents)
     {
         networkEvent.second.push(netEvent);
     }
 }
-bool FGE_API Scene::pushEvent(const fge::SceneNetEvent& netEvent, const fge::net::Identity& id)
+bool Scene::pushEvent(const fge::SceneNetEvent& netEvent, const fge::net::Identity& id)
 {
     auto it = this->g_networkEvents.find(id);
     if (it != this->g_networkEvents.end())
@@ -915,7 +915,7 @@ bool FGE_API Scene::pushEvent(const fge::SceneNetEvent& netEvent, const fge::net
     }
     return false;
 }
-void FGE_API Scene::watchEvent(bool on)
+void Scene::watchEvent(bool on)
 {
     if (!on)
     {
@@ -923,12 +923,12 @@ void FGE_API Scene::watchEvent(bool on)
     }
     this->g_enableNetworkEventsFlag = on;
 }
-bool FGE_API Scene::isWatchingEvent() const
+bool Scene::isWatchingEvent() const
 {
     return this->g_enableNetworkEventsFlag;
 }
 
-void FGE_API Scene::deleteEvents(const fge::net::Identity& id)
+void Scene::deleteEvents(const fge::net::Identity& id)
 {
     auto it = this->g_networkEvents.find(id);
     if (it != this->g_networkEvents.end())
@@ -936,19 +936,19 @@ void FGE_API Scene::deleteEvents(const fge::net::Identity& id)
         std::queue<fge::SceneNetEvent>().swap(it->second);
     }
 }
-void FGE_API Scene::deleteEvents()
+void Scene::deleteEvents()
 {
     for (auto & networkEvent : this->g_networkEvents)
     {
         std::queue<fge::SceneNetEvent>().swap(networkEvent.second);
     }
 }
-void FGE_API Scene::clearEvents()
+void Scene::clearEvents()
 {
     this->g_networkEvents.clear();
 }
 
-void FGE_API Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id)
+void Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id)
 {
     uint32_t counter=0;
     std::size_t rewritePos = pck.getDataSize();
@@ -993,7 +993,7 @@ void FGE_API Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Iden
 
     pck.pack(rewritePos, &counter, sizeof(uint32_t));
 }
-void FGE_API Scene::unpackWatchedEvent(fge::net::Packet& pck)
+void Scene::unpackWatchedEvent(fge::net::Packet& pck)
 {
     fge::ObjectSid buff_sid;
     std::string buff_class;
@@ -1040,36 +1040,36 @@ void FGE_API Scene::unpackWatchedEvent(fge::net::Packet& pck)
 /** Operator **/
 
 /** Custom view **/
-void FGE_API Scene::setCustomView(std::shared_ptr<sf::View>& customView)
+void Scene::setCustomView(std::shared_ptr<sf::View>& customView)
 {
     this->g_customView = customView;
 }
-const std::shared_ptr<sf::View>& FGE_API Scene::getCustomView() const
+const std::shared_ptr<sf::View>& Scene::getCustomView() const
 {
     return this->g_customView;
 }
-void FGE_API Scene::delCustomView()
+void Scene::delCustomView()
 {
     this->g_customView.reset();
 }
 
 /** Linked renderTarget **/
-void FGE_API Scene::setLinkedRenderTarget(sf::RenderTarget* target)
+void Scene::setLinkedRenderTarget(sf::RenderTarget* target)
 {
     this->g_linkedRenderTarget = target;
 }
-const sf::RenderTarget* FGE_API Scene::getLinkedRenderTarget() const
+const sf::RenderTarget* Scene::getLinkedRenderTarget() const
 {
     return this->g_linkedRenderTarget;
 }
-sf::RenderTarget* FGE_API Scene::getLinkedRenderTarget()
+sf::RenderTarget* Scene::getLinkedRenderTarget()
 {
     return this->g_linkedRenderTarget;
 }
 
 /** Save/Load in file **/
 
-bool FGE_API Scene::saveInFile(const std::string& path)
+bool Scene::saveInFile(const std::string& path)
 {
     nlohmann::json outputJson;
 
@@ -1104,7 +1104,7 @@ bool FGE_API Scene::saveInFile(const std::string& path)
     outFile.close();
     return false;
 }
-bool FGE_API Scene::loadFromFile(const std::string& path)
+bool Scene::loadFromFile(const std::string& path)
 {
     std::ifstream inFile(path);
     if ( !inFile )
@@ -1145,17 +1145,17 @@ bool FGE_API Scene::loadFromFile(const std::string& path)
 }
 
 /** Iterator **/
-fge::ObjectContainer::const_iterator FGE_API Scene::find(const fge::ObjectSid& sid) const
+fge::ObjectContainer::const_iterator Scene::find(const fge::ObjectSid& sid) const
 {
     auto it = this->g_dataMap.find(sid);
     return (it != this->g_dataMap.cend()) ? it->second : this->g_data.cend();
 }
-fge::ObjectContainer::iterator FGE_API Scene::find(const fge::ObjectSid& sid)
+fge::ObjectContainer::iterator Scene::find(const fge::ObjectSid& sid)
 {
     auto it = this->g_dataMap.find(sid);
     return (it != this->g_dataMap.end()) ? it->second : this->g_data.end();
 }
-fge::ObjectContainer::const_iterator FGE_API Scene::find(const fge::Object* ptr) const
+fge::ObjectContainer::const_iterator Scene::find(const fge::Object* ptr) const
 {
     for ( auto it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
     {
@@ -1166,7 +1166,7 @@ fge::ObjectContainer::const_iterator FGE_API Scene::find(const fge::Object* ptr)
     }
     return this->g_data.cend();
 }
-fge::ObjectContainer::iterator FGE_API Scene::find(const fge::Object* ptr)
+fge::ObjectContainer::iterator Scene::find(const fge::Object* ptr)
 {
     for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
     {

@@ -3,91 +3,91 @@
 namespace fge
 {
 
-FGE_API Texture::Texture() :
+Texture::Texture() :
     g_data(fge::texture::GetBadTexture()),
     g_name(FGE_TEXTURE_BAD)
 {
 }
-FGE_API Texture::Texture( const std::string& name ) :
+Texture::Texture( const std::string& name ) :
     g_data(fge::texture::GetTexture(name)),
     g_name(name)
 {
 }
-FGE_API Texture::Texture( const char* name ) :
+Texture::Texture( const char* name ) :
     g_data(fge::texture::GetTexture(std::string(name))),
     g_name(name)
 {
 }
-FGE_API Texture::Texture( const fge::texture::TextureDataPtr& data ) :
+Texture::Texture( const fge::texture::TextureDataPtr& data ) :
     g_data(data),
     g_name(FGE_TEXTURE_BAD)
 {
 }
 
-void FGE_API Texture::clear()
+void Texture::clear()
 {
     this->g_data = fge::texture::GetBadTexture();
     this->g_name = FGE_TEXTURE_BAD;
 }
 
-bool FGE_API Texture::valid() const
+bool Texture::valid() const
 {
     return this->g_data->_valid;
 }
 
-sf::Vector2u FGE_API Texture::getTextureSize() const
+sf::Vector2u Texture::getTextureSize() const
 {
     return this->g_data->_texture->getSize();
 }
 
-const fge::texture::TextureDataPtr& FGE_API Texture::getData() const
+const fge::texture::TextureDataPtr& Texture::getData() const
 {
     return this->g_data;
 }
-const std::string& FGE_API Texture::getName() const
+const std::string& Texture::getName() const
 {
     return this->g_name;
 }
 
-void FGE_API Texture::operator =( const std::string& name )
+void Texture::operator =( const std::string& name )
 {
     this->g_name = name;
     this->g_data = fge::texture::GetTexture(name);
 }
-void FGE_API Texture::operator =( const char* name )
+void Texture::operator =( const char* name )
 {
     this->g_name = std::string(name);
     this->g_data = fge::texture::GetTexture(this->g_name);
 }
-void FGE_API Texture::operator =( const fge::texture::TextureDataPtr& data )
+void Texture::operator =( const fge::texture::TextureDataPtr& data )
 {
     this->g_name = FGE_TEXTURE_BAD;
     this->g_data = data;
 }
 
-FGE_API Texture::operator sf::Texture*()
+Texture::operator sf::Texture*()
 {
     return this->g_data->_texture.get();
 }
-FGE_API Texture::operator const sf::Texture*() const
+Texture::operator const sf::Texture*() const
 {
     return this->g_data->_texture.get();
 }
 
-FGE_API Texture::operator sf::Texture&()
+Texture::operator sf::Texture&()
 {
     return *this->g_data->_texture;
 }
-FGE_API Texture::operator const sf::Texture&() const
+Texture::operator const sf::Texture&() const
 {
     return *this->g_data->_texture;
 }
 
-FGE_API Texture::operator std::string&()
+Texture::operator std::string&()
 {
     return this->g_name;
 }
-FGE_API Texture::operator const std::string&() const
+Texture::operator const std::string&() const
 {
     return this->g_name;
 }

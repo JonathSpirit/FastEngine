@@ -9,12 +9,12 @@ namespace fge
 namespace debug
 {
 
-void FGE_API DrawCenteredCircle(sf::RenderTarget& target, const sf::Vector2f& position, float radius,
+FGE_API void DrawCenteredCircle(sf::RenderTarget& target, const sf::Vector2f& position, float radius,
                                 const sf::Color& fillColor,
                                 const sf::Color& outColor,
                                 float outThickness);
 
-void FGE_API DrawCenteredRect(sf::RenderTarget& target, const sf::Vector2f& position, const sf::Vector2f& size,
+FGE_API void DrawCenteredRect(sf::RenderTarget& target, const sf::Vector2f& position, const sf::Vector2f& size,
                               const sf::Color& fillColor,
                               const sf::Color& outColor,
                               float outThickness);

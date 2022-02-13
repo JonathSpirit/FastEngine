@@ -24,25 +24,25 @@ struct TimerData
 };
 using TimerDataShared = std::shared_ptr<fge::timer::TimerData>;
 
-void FGE_API Init();
-bool FGE_API IsInit();
-void FGE_API Uninit();
+FGE_API void Init();
+FGE_API bool IsInit();
+FGE_API void Uninit();
 
-void FGE_API Notify();
+FGE_API void Notify();
 
-fge::timer::TimerDataShared FGE_API Create(const fge::Timer& timer);
+FGE_API fge::timer::TimerDataShared Create(const fge::Timer& timer);
 
-bool FGE_API Destroy(const fge::timer::TimerDataShared& timer);
-bool FGE_API Destroy(const std::string& timerName);
+FGE_API bool Destroy(const fge::timer::TimerDataShared& timer);
+FGE_API bool Destroy(const std::string& timerName);
 
-void FGE_API DestroyAll();
+FGE_API void DestroyAll();
 
-bool FGE_API Check(const fge::timer::TimerDataShared& timer);
-bool FGE_API Check(const std::string& timerName);
+FGE_API bool Check(const fge::timer::TimerDataShared& timer);
+FGE_API bool Check(const std::string& timerName);
 
-std::size_t FGE_API GetTimerSize();
+FGE_API std::size_t GetTimerSize();
 
-fge::timer::TimerDataShared FGE_API Get(const std::string& timerName);
+FGE_API fge::timer::TimerDataShared Get(const std::string& timerName);
 
 }//end timer
 }//end fge

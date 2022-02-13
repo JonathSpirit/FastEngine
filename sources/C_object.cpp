@@ -8,31 +8,31 @@
 namespace fge
 {
 
-void FGE_API Object::first(fge::Scene* scene_ptr)
+void Object::first(fge::Scene* scene_ptr)
 {
 }
-void FGE_API Object::callbackRegister(fge::Event& event)
+void Object::callbackRegister(fge::Event& event)
 {
 }
-void FGE_API Object::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+void Object::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
 }
-void FGE_API Object::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Object::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 }
-void FGE_API Object::networkRegister()
+void Object::networkRegister()
 {
 }
-void FGE_API Object::removed(fge::Scene* scene_ptr)
+void Object::removed(fge::Scene* scene_ptr)
 {
 }
 
-fge::Object* FGE_API Object::copy()
+fge::Object* Object::copy()
 {
     return fge::reg::Duplicate(this);
 }
 
-void FGE_API Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     jsonObject["_posX"] = this->getPosition().x;
     jsonObject["_posY"] = this->getPosition().y;
@@ -51,7 +51,7 @@ void FGE_API Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
         jsonObject["tags"] += (*it);
     }
 }
-void FGE_API Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     this->setPosition( jsonObject["_posX"].get<float>(), jsonObject["_posY"].get<float>() );
 
@@ -69,11 +69,11 @@ void FGE_API Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     }
 }
 
-void FGE_API Object::pack(fge::net::Packet& pck)
+void Object::pack(fge::net::Packet& pck)
 {
     pck << this->getPosition() << this->getRotation() << this->getScale() << this->getOrigin();
 }
-void FGE_API Object::unpack(fge::net::Packet& pck)
+void Object::unpack(fge::net::Packet& pck)
 {
     sf::Vector2f buffVec2f;
     float buffFloat{0.0f};
@@ -88,25 +88,25 @@ void FGE_API Object::unpack(fge::net::Packet& pck)
     this->setOrigin(buffVec2f);
 }
 
-std::string FGE_API Object::getClassName() const
+std::string Object::getClassName() const
 {
     return FGE_OBJ_BADCLASSNAME;
 }
-std::string FGE_API Object::getReadableClassName() const
+std::string Object::getReadableClassName() const
 {
     return FGE_OBJ_BADCLASSNAME;
 }
 
-sf::FloatRect FGE_API Object::getGlobalBounds() const
+sf::FloatRect Object::getGlobalBounds() const
 {
     return this->getTransform().transformRect( this->getLocalBounds() );
 }
-sf::FloatRect FGE_API Object::getLocalBounds() const
+sf::FloatRect Object::getLocalBounds() const
 {
     return {0.0f, 0.0f, 1.0f, 1.0f};
 }
 
-bool FGE_API Object::saveInFile(const std::string& path)
+bool Object::saveInFile(const std::string& path)
 {
     nlohmann::json objNewJson = nlohmann::json::object();
     nlohmann::json& objJson = objNewJson[this->getClassName()];
@@ -125,7 +125,7 @@ bool FGE_API Object::saveInFile(const std::string& path)
     outFile.close();
     return false;
 }
-bool FGE_API Object::loadFromFile(const std::string& path)
+bool Object::loadFromFile(const std::string& path)
 {
     std::ifstream inFile(path);
     if ( !inFile )
@@ -149,7 +149,7 @@ bool FGE_API Object::loadFromFile(const std::string& path)
     }
     return false;
 }
-fge::Object* FGE_API Object::LoadFromFile(const std::string& path)
+fge::Object* Object::LoadFromFile(const std::string& path)
 {
     std::ifstream inFile(path);
     if ( !inFile )

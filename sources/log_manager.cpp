@@ -18,7 +18,7 @@ std::string _defaultFolder;
 
 }//end
 
-const std::string& FGE_API SetDefaultFolder (const std::string& default_folder)
+const std::string& SetDefaultFolder (const std::string& default_folder)
 {
     _defaultFolder = default_folder;
 
@@ -34,7 +34,7 @@ const std::string& FGE_API SetDefaultFolder (const std::string& default_folder)
     return _defaultFolder;
 }
 
-bool FGE_API Remove (const std::string& name)
+bool Remove (const std::string& name)
 {
     int return_value;
 
@@ -45,7 +45,7 @@ bool FGE_API Remove (const std::string& name)
     }
     return false;
 }
-bool FGE_API Clean (const std::string& name)
+bool Clean (const std::string& name)
 {
     std::ofstream file_log;
     file_log.open( (_defaultFolder + name).c_str() );
@@ -57,7 +57,7 @@ bool FGE_API Clean (const std::string& name)
     }
     return false;
 }
-bool FGE_API Rename (const std::string& name, const std::string& new_name)
+bool Rename (const std::string& name, const std::string& new_name)
 {
     int return_value;
 
@@ -68,7 +68,7 @@ bool FGE_API Rename (const std::string& name, const std::string& new_name)
     }
     return false;
 }
-bool FGE_API Write (const std::string& name, const std::string& text, const std::string& desc)
+bool Write (const std::string& name, const std::string& text, const std::string& desc)
 {
     time_t t = time(nullptr);   // get time now
     struct tm * now = localtime( & t );

@@ -12,17 +12,17 @@ namespace fge
 namespace screen
 {
 
-void FGE_API Uninit();
+FGE_API void Uninit();
 
-void FGE_API Close(const std::string& name);
+FGE_API void Close(const std::string& name);
 
-std::size_t FGE_API GetScreenSize();
+FGE_API std::size_t GetScreenSize();
 
-std::shared_ptr<sf::RenderWindow> FGE_API Get(const std::string& name);
+FGE_API std::shared_ptr<sf::RenderWindow> Get(const std::string& name);
 
-bool FGE_API Check(const std::string& name);
+FGE_API bool Check(const std::string& name);
 
-std::shared_ptr<sf::RenderWindow> FGE_API New(const std::string& name);
+FGE_API std::shared_ptr<sf::RenderWindow> New(const std::string& name);
 
 }//end screen
 }//end fge

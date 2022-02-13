@@ -4,7 +4,7 @@
 namespace fge
 {
 
-FGE_API ObjTextInputBox::ObjTextInputBox()
+ObjTextInputBox::ObjTextInputBox()
 {
     this->g_text.setFillColor(this->g_colorText);
     this->g_box.setFillColor(this->g_colorBox);
@@ -14,7 +14,7 @@ FGE_API ObjTextInputBox::ObjTextInputBox()
 
     this->g_text.setCharacterSize(12);
 }
-FGE_API ObjTextInputBox::ObjTextInputBox(const fge::Font& font, uint16_t maxLength, const sf::Vector2f& pos) :
+ObjTextInputBox::ObjTextInputBox(const fge::Font& font, uint16_t maxLength, const sf::Vector2f& pos) :
     g_maxLength(maxLength),
     g_text(font)
 {
@@ -29,97 +29,97 @@ FGE_API ObjTextInputBox::ObjTextInputBox(const fge::Font& font, uint16_t maxLeng
     this->setPosition(pos);
 }
 
-void FGE_API ObjTextInputBox::setString(const sf::String& string)
+void ObjTextInputBox::setString(const sf::String& string)
 {
     this->g_string = string;
 }
-void FGE_API ObjTextInputBox::setCharacterSize(unsigned int size)
+void ObjTextInputBox::setCharacterSize(unsigned int size)
 {
     this->g_text.setCharacterSize(size);
 }
-void FGE_API ObjTextInputBox::setHideTextFlag(bool flag)
+void ObjTextInputBox::setHideTextFlag(bool flag)
 {
     this->g_hide = flag;
 }
-void FGE_API ObjTextInputBox::setMaxLength(uint16_t length)
+void ObjTextInputBox::setMaxLength(uint16_t length)
 {
     this->g_maxLength = length;
 }
 
-void FGE_API ObjTextInputBox::setActiveStat(bool active)
+void ObjTextInputBox::setActiveStat(bool active)
 {
     this->g_statActive = active;
 }
 
-void FGE_API ObjTextInputBox::setBoxSize(const sf::Vector2f& size)
+void ObjTextInputBox::setBoxSize(const sf::Vector2f& size)
 {
     this->g_boxSize = size;
     this->g_box.setSize(this->g_boxSize);
 }
-void FGE_API ObjTextInputBox::setBoxSize(float w, float h)
+void ObjTextInputBox::setBoxSize(float w, float h)
 {
     this->g_boxSize.x = w;
     this->g_boxSize.y = h;
     this->g_box.setSize(this->g_boxSize);
 }
 
-void FGE_API ObjTextInputBox::setBoxColor(const sf::Color& color)
+void ObjTextInputBox::setBoxColor(const sf::Color& color)
 {
     this->g_colorBox = color;
     this->g_box.setFillColor(color);
 }
-void FGE_API ObjTextInputBox::setBoxOutlineColor(const sf::Color& color)
+void ObjTextInputBox::setBoxOutlineColor(const sf::Color& color)
 {
     this->g_colorBoxOutline = color;
     this->g_box.setOutlineColor(color);
 }
-void FGE_API ObjTextInputBox::setTextColor(const sf::Color& color)
+void ObjTextInputBox::setTextColor(const sf::Color& color)
 {
     this->g_colorText = color;
     this->g_text.setFillColor(color);
 }
 
-const sf::String& FGE_API ObjTextInputBox::getString() const
+const sf::String& ObjTextInputBox::getString() const
 {
     return this->g_string;
 }
-unsigned int FGE_API ObjTextInputBox::getCharacterSize() const
+unsigned int ObjTextInputBox::getCharacterSize() const
 {
     return this->g_text.getCharacterSize();
 }
-bool FGE_API ObjTextInputBox::isTextHide() const
+bool ObjTextInputBox::isTextHide() const
 {
     return this->g_hide;
 }
-uint16_t FGE_API ObjTextInputBox::getMaxLength() const
+uint16_t ObjTextInputBox::getMaxLength() const
 {
     return this->g_maxLength;
 }
 
-bool FGE_API ObjTextInputBox::getActiveStat() const
+bool ObjTextInputBox::getActiveStat() const
 {
     return this->g_statActive;
 }
 
-const sf::Vector2f& FGE_API ObjTextInputBox::getBoxSize() const
+const sf::Vector2f& ObjTextInputBox::getBoxSize() const
 {
     return this->g_boxSize;
 }
 
-const sf::Color& FGE_API ObjTextInputBox::getBoxColor() const
+const sf::Color& ObjTextInputBox::getBoxColor() const
 {
     return this->g_colorBox;
 }
-const sf::Color& FGE_API ObjTextInputBox::getBoxOutlineColor() const
+const sf::Color& ObjTextInputBox::getBoxOutlineColor() const
 {
     return this->g_colorBoxOutline;
 }
-const sf::Color& FGE_API ObjTextInputBox::getTextColor() const
+const sf::Color& ObjTextInputBox::getTextColor() const
 {
     return this->g_colorText;
 }
 
-void FGE_API ObjTextInputBox::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+void ObjTextInputBox::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
     if ( this->g_flagMouse.check(event.isMouseButtonPressed(sf::Mouse::Left)) )
     {
@@ -197,7 +197,7 @@ void FGE_API ObjTextInputBox::update(sf::RenderWindow& screen, fge::Event& event
         }
     }
 }
-void FGE_API ObjTextInputBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ObjTextInputBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     sf::String tmpString;
 
@@ -231,7 +231,7 @@ void FGE_API ObjTextInputBox::draw(sf::RenderTarget& target, sf::RenderStates st
     target.draw(this->g_text, states);
 }
 
-void FGE_API ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::save(jsonObject, scene_ptr);
 
@@ -254,7 +254,7 @@ void FGE_API ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene
 
     jsonObject["statActive"] = this->g_statActive;
 }
-void FGE_API ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
     fge::Object::load(jsonObject, scene_ptr);
 
@@ -283,7 +283,7 @@ void FGE_API ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene
     this->g_statActive = jsonObject.value<bool>("statActive", false);
 }
 
-void FGE_API ObjTextInputBox::pack(fge::net::Packet& pck)
+void ObjTextInputBox::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
@@ -299,7 +299,7 @@ void FGE_API ObjTextInputBox::pack(fge::net::Packet& pck)
 
     pck << this->g_statActive;
 }
-void FGE_API ObjTextInputBox::unpack(fge::net::Packet& pck)
+void ObjTextInputBox::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
@@ -323,20 +323,20 @@ void FGE_API ObjTextInputBox::unpack(fge::net::Packet& pck)
     pck >> this->g_statActive;
 }
 
-std::string FGE_API ObjTextInputBox::getClassName() const
+std::string ObjTextInputBox::getClassName() const
 {
     return FGE_OBJTEXTINBOX_CLASSNAME;
 }
-std::string FGE_API ObjTextInputBox::getReadableClassName() const
+std::string ObjTextInputBox::getReadableClassName() const
 {
     return "text input box";
 }
 
-sf::FloatRect FGE_API ObjTextInputBox::getGlobalBounds() const
+sf::FloatRect ObjTextInputBox::getGlobalBounds() const
 {
     return this->getTransform().transformRect( this->g_box.getLocalBounds() );
 }
-sf::FloatRect FGE_API ObjTextInputBox::getLocalBounds() const
+sf::FloatRect ObjTextInputBox::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
 }

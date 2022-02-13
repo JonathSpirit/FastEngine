@@ -16,78 +16,78 @@ class Value;
 namespace string
 {
 
-uint8_t FGE_API ToUint8(const std::string& str);
-uint16_t FGE_API ToUint16(const std::string& str);
-uint32_t FGE_API ToUint32(const std::string& str);
-uint64_t FGE_API ToUint64(const std::string& str);
-int8_t FGE_API ToInt8(const std::string& str);
-int16_t FGE_API ToInt16(const std::string& str);
-int32_t FGE_API ToInt32(const std::string& str);
-int64_t FGE_API ToInt64(const std::string& str);
+FGE_API uint8_t ToUint8(const std::string& str);
+FGE_API uint16_t ToUint16(const std::string& str);
+FGE_API uint32_t ToUint32(const std::string& str);
+FGE_API uint64_t ToUint64(const std::string& str);
+FGE_API int8_t ToInt8(const std::string& str);
+FGE_API int16_t ToInt16(const std::string& str);
+FGE_API int32_t ToInt32(const std::string& str);
+FGE_API int64_t ToInt64(const std::string& str);
 
-unsigned int FGE_API ToUint(const std::string& str);
-int FGE_API ToInt(const std::string& str);
+FGE_API unsigned int ToUint(const std::string& str);
+FGE_API int ToInt(const std::string& str);
 
-unsigned long long int FGE_API ToUlong(const std::string& str);
-long long int FGE_API ToLong(const std::string& str);
+FGE_API unsigned long long int ToUlong(const std::string& str);
+FGE_API long long int ToLong(const std::string& str);
 
-float FGE_API ToFloat(const std::string& str);
-double FGE_API ToDouble(const std::string& str);
-long double FGE_API ToLongDouble(const std::string& str);
+FGE_API float ToFloat(const std::string& str);
+FGE_API double ToDouble(const std::string& str);
+FGE_API long double ToLongDouble(const std::string& str);
 
-bool FGE_API ToBool(const std::string& str);
-void* FGE_API ToPtr(const std::string& str);
+FGE_API bool ToBool(const std::string& str);
+FGE_API void* ToPtr(const std::string& str);
 
-sf::Vector2f FGE_API ToVec2f(const std::string& str);
-sf::Vector2u FGE_API ToVec2u(const std::string& str);
-sf::Vector2i FGE_API ToVec2i(const std::string& str);
+FGE_API sf::Vector2f ToVec2f(const std::string& str);
+FGE_API sf::Vector2u ToVec2u(const std::string& str);
+FGE_API sf::Vector2i ToVec2i(const std::string& str);
 
 //Arithmetic type
 
-std::string FGE_API ToStr(bool val);
-std::string FGE_API ToStr(char val);
-std::string FGE_API ToStr(char16_t val);
-std::string FGE_API ToStr(char32_t val);
-std::string FGE_API ToStr(wchar_t val);
+FGE_API std::string ToStr(bool val);
+FGE_API std::string ToStr(char val);
+FGE_API std::string ToStr(char16_t val);
+FGE_API std::string ToStr(char32_t val);
+FGE_API std::string ToStr(wchar_t val);
 
-std::string FGE_API ToStr(signed char val);
-std::string FGE_API ToStr(short int val);
-std::string FGE_API ToStr(int val);
-std::string FGE_API ToStr(long int val);
-std::string FGE_API ToStr(long long int val);
+FGE_API std::string ToStr(signed char val);
+FGE_API std::string ToStr(short int val);
+FGE_API std::string ToStr(int val);
+FGE_API std::string ToStr(long int val);
+FGE_API std::string ToStr(long long int val);
 
-std::string FGE_API ToStr(unsigned char val);
-std::string FGE_API ToStr(unsigned short int val);
-std::string FGE_API ToStr(unsigned int val);
-std::string FGE_API ToStr(unsigned long int val);
-std::string FGE_API ToStr(unsigned long long int val);
+FGE_API std::string ToStr(unsigned char val);
+FGE_API std::string ToStr(unsigned short int val);
+FGE_API std::string ToStr(unsigned int val);
+FGE_API std::string ToStr(unsigned long int val);
+FGE_API std::string ToStr(unsigned long long int val);
 
-std::string FGE_API ToStr(float val);
-std::string FGE_API ToStr(double val);
-std::string FGE_API ToStr(long double val);
+FGE_API std::string ToStr(float val);
+FGE_API std::string ToStr(double val);
+FGE_API std::string ToStr(long double val);
 
 //Pointer
 
-std::string FGE_API ToStr(void* val);
-std::string FGE_API ToStr(const void* val);
+FGE_API std::string ToStr(void* val);
+FGE_API std::string ToStr(const void* val);
 
 //Classes
 
-std::string FGE_API ToStr(const sf::Vector2f& val);
-std::string FGE_API ToStr(const sf::Vector2u& val);
-std::string FGE_API ToStr(const sf::Vector2i& val);
+FGE_API std::string ToStr(const sf::Vector2f& val);
+FGE_API std::string ToStr(const sf::Vector2u& val);
+FGE_API std::string ToStr(const sf::Vector2i& val);
 
-std::string FGE_API ToStr(const sf::Vector3f& val);
-std::string FGE_API ToStr(const sf::Vector3i& val);
+FGE_API std::string ToStr(const sf::Vector3f& val);
+FGE_API std::string ToStr(const sf::Vector3i& val);
 
-std::string FGE_API ToStr(const fge::Value& val);
+FGE_API std::string ToStr(const fge::Value& val);
 
 template <class T>
 std::string ToStr (const std::list<T>& val, char separator=' ');
 template <class T>
 std::string ToStr (const std::vector<T>& val, char separator=' ');
 
-std::size_t FGE_API Split(const std::string& str, std::vector<std::string>& output, char separator);
+FGE_API std::size_t Split(const std::string& str, std::vector<std::string>& output, char separator);
 
 }//end string
 }//end fge

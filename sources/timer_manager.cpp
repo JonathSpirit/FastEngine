@@ -81,7 +81,7 @@ void TimerThread()
 
 }//end
 
-void FGE_API Init()
+void Init()
 {
     if (_timerThread == nullptr )
     {
@@ -89,11 +89,11 @@ void FGE_API Init()
         _timerThread = std::make_unique<std::thread>(TimerThread);
     }
 }
-bool FGE_API IsInit()
+bool IsInit()
 {
     return _timerThreadRunning;
 }
-void FGE_API Uninit()
+void Uninit()
 {
     if (_timerThread != nullptr )
     {
@@ -109,12 +109,12 @@ void FGE_API Uninit()
     }
 }
 
-void FGE_API Notify()
+void Notify()
 {
     _dataCv.notify_all();
 }
 
-fge::timer::TimerDataShared FGE_API Create(const fge::Timer& timer)
+fge::timer::TimerDataShared Create(const fge::Timer& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     _dataTimers.push_back(std::move(std::make_shared<fge::timer::TimerData>(timer)) );
@@ -122,7 +122,7 @@ fge::timer::TimerDataShared FGE_API Create(const fge::Timer& timer)
     return _dataTimers.back();
 }
 
-bool FGE_API Destroy(const fge::timer::TimerDataShared& timer)
+bool Destroy(const fge::timer::TimerDataShared& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -136,7 +136,7 @@ bool FGE_API Destroy(const fge::timer::TimerDataShared& timer)
     }
     return false;
 }
-bool FGE_API Destroy(const std::string& timerName)
+bool Destroy(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -151,14 +151,14 @@ bool FGE_API Destroy(const std::string& timerName)
     return false;
 }
 
-void FGE_API DestroyAll()
+void DestroyAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     _dataTimers.clear();
     _dataCv.notify_all();
 }
 
-bool FGE_API Check(const fge::timer::TimerDataShared& timer)
+bool Check(const fge::timer::TimerDataShared& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -170,7 +170,7 @@ bool FGE_API Check(const fge::timer::TimerDataShared& timer)
     }
     return false;
 }
-bool FGE_API Check(const std::string& timerName)
+bool Check(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -183,13 +183,13 @@ bool FGE_API Check(const std::string& timerName)
     return false;
 }
 
-std::size_t FGE_API GetTimerSize()
+std::size_t GetTimerSize()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     return _dataTimers.size();
 }
 
-fge::timer::TimerDataShared FGE_API Get(const std::string& timerName)
+fge::timer::TimerDataShared Get(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)

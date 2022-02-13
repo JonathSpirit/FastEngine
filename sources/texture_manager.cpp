@@ -14,7 +14,7 @@ std::mutex _dataMutex;
 
 }//end
 
-FGE_API void Init()
+void Init()
 {
     if ( _dataTextureBad == nullptr )
     {
@@ -42,41 +42,41 @@ FGE_API void Init()
         _dataTextureBad->_valid = false;
     }
 }
-FGE_API bool IsInit()
+bool IsInit()
 {
     return _dataTextureBad != nullptr;
 }
-FGE_API void Uninit()
+void Uninit()
 {
     _dataTexture.clear();
     _dataTextureBad = nullptr;
 }
 
-FGE_API std::size_t GetTextureSize()
+std::size_t GetTextureSize()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     return _dataTexture.size();
 }
 
-FGE_API std::mutex& GetMutex()
+std::mutex& GetMutex()
 {
     return _dataMutex;
 }
 
-FGE_API fge::texture::TextureDataType::const_iterator GetCBegin()
+fge::texture::TextureDataType::const_iterator GetCBegin()
 {
     return _dataTexture.cbegin();
 }
-FGE_API fge::texture::TextureDataType::const_iterator GetCEnd()
+fge::texture::TextureDataType::const_iterator GetCEnd()
 {
     return _dataTexture.cend();
 }
 
-FGE_API const fge::texture::TextureDataPtr& GetBadTexture()
+const fge::texture::TextureDataPtr& GetBadTexture()
 {
     return _dataTextureBad;
 }
-FGE_API fge::texture::TextureDataPtr GetTexture(const std::string& name)
+fge::texture::TextureDataPtr GetTexture(const std::string& name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -93,7 +93,7 @@ FGE_API fge::texture::TextureDataPtr GetTexture(const std::string& name)
     return _dataTextureBad;
 }
 
-FGE_API bool Check(const std::string& name)
+bool Check(const std::string& name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -110,7 +110,7 @@ FGE_API bool Check(const std::string& name)
     return false;
 }
 
-FGE_API bool LoadFromImage(const std::string& name, const sf::Image& image)
+bool LoadFromImage(const std::string& name, const sf::Image& image)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -140,7 +140,7 @@ FGE_API bool LoadFromImage(const std::string& name, const sf::Image& image)
     _dataTexture[name] = std::move(buff);
     return true;
 }
-FGE_API bool LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(const std::string& name, const std::string& path)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -172,7 +172,7 @@ FGE_API bool LoadFromFile(const std::string& name, const std::string& path)
     return true;
 }
 
-FGE_API bool Unload(const std::string& name)
+bool Unload(const std::string& name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -191,7 +191,7 @@ FGE_API bool Unload(const std::string& name)
     }
     return false;
 }
-FGE_API void UnloadAll()
+void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
 
@@ -203,7 +203,7 @@ FGE_API void UnloadAll()
     _dataTexture.clear();
 }
 
-FGE_API bool Push(const std::string& name, const fge::texture::TextureDataPtr& data)
+bool Push(const std::string& name, const fge::texture::TextureDataPtr& data)
 {
     if (name == FGE_TEXTURE_BAD)
     {

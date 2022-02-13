@@ -10,9 +10,9 @@ namespace fge
 namespace crash
 {
 
-void FGE_API Init(sf::RenderWindow& screen, sf::Font& font);
+FGE_API void Init(sf::RenderWindow& screen, sf::Font& font);
 
-void FGE_API SetInfoText(const std::string& txt);
+FGE_API void SetInfoText(const std::string& txt);
 
 }//end crash
 }//end fge

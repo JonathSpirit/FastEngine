@@ -14,7 +14,7 @@ std::mutex _dataMutex;
 
 }//end
 
-void FGE_API Init()
+void Init()
 {
     if ( _dataAudioBad == nullptr )
     {
@@ -23,41 +23,41 @@ void FGE_API Init()
         _dataAudioBad->_valid = false;
     }
 }
-bool FGE_API IsInit()
+bool IsInit()
 {
     return _dataAudioBad != nullptr;
 }
-void FGE_API Uninit()
+void Uninit()
 {
     _dataAudio.clear();
     _dataAudioBad = nullptr;
 }
 
-std::size_t FGE_API GetAudioSize()
+std::size_t GetAudioSize()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     return _dataAudio.size();
 }
 
-std::mutex& FGE_API GetMutex()
+std::mutex& GetMutex()
 {
     return _dataMutex;
 }
 
-fge::audio::AudioDataType::const_iterator FGE_API GetCBegin()
+fge::audio::AudioDataType::const_iterator GetCBegin()
 {
     return _dataAudio.cbegin();
 }
-fge::audio::AudioDataType::const_iterator FGE_API GetCEnd()
+fge::audio::AudioDataType::const_iterator GetCEnd()
 {
     return _dataAudio.cend();
 }
 
-const fge::audio::AudioDataPtr& FGE_API GetBadAudio()
+const fge::audio::AudioDataPtr& GetBadAudio()
 {
     return _dataAudioBad;
 }
-fge::audio::AudioDataPtr FGE_API GetAudio(const std::string& name)
+fge::audio::AudioDataPtr GetAudio(const std::string& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -74,7 +74,7 @@ fge::audio::AudioDataPtr FGE_API GetAudio(const std::string& name)
     return _dataAudioBad;
 }
 
-bool FGE_API Check(const std::string& name)
+bool Check(const std::string& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -91,7 +91,7 @@ bool FGE_API Check(const std::string& name)
     return false;
 }
 
-bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(const std::string& name, const std::string& path)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -123,7 +123,7 @@ bool FGE_API LoadFromFile(const std::string& name, const std::string& path)
     return true;
 }
 
-bool FGE_API Unload(const std::string& name)
+bool Unload(const std::string& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -142,7 +142,7 @@ bool FGE_API Unload(const std::string& name)
     }
     return false;
 }
-void FGE_API UnloadAll()
+void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
 
@@ -154,7 +154,7 @@ void FGE_API UnloadAll()
     _dataAudio.clear();
 }
 
-bool FGE_API Push(const std::string& name, const fge::audio::AudioDataPtr& data)
+bool Push(const std::string& name, const fge::audio::AudioDataPtr& data)
 {
     if (name == FGE_AUDIO_BAD)
     {

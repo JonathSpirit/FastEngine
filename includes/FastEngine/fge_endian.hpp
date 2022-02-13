@@ -7,19 +7,19 @@
 namespace fge
 {
 
-uint16_t FGE_API SwapHostNetEndian_16(uint16_t n);
-uint32_t FGE_API SwapHostNetEndian_32(uint32_t n);
-uint64_t FGE_API SwapHostNetEndian_64(uint64_t n);
-float FGE_API SwapHostNetEndian_f(float n);
-double FGE_API SwapHostNetEndian_d(double n);
+FGE_API uint16_t SwapHostNetEndian_16(uint16_t n);
+FGE_API uint32_t SwapHostNetEndian_32(uint32_t n);
+FGE_API uint64_t SwapHostNetEndian_64(uint64_t n);
+FGE_API float SwapHostNetEndian_f(float n);
+FGE_API double SwapHostNetEndian_d(double n);
 
-uint16_t FGE_API SwapEndian_16(uint16_t n);
-uint32_t FGE_API SwapEndian_32(uint32_t n);
-uint64_t FGE_API SwapEndian_64(uint64_t n);
-float FGE_API SwapEndian_f(float n);
-double FGE_API SwapEndian_d(double n);
+FGE_API uint16_t SwapEndian_16(uint16_t n);
+FGE_API uint32_t SwapEndian_32(uint32_t n);
+FGE_API uint64_t SwapEndian_64(uint64_t n);
+FGE_API float SwapEndian_f(float n);
+FGE_API double SwapEndian_d(double n);
 
-bool FGE_API IsBigEndian();
+FGE_API bool IsBigEndian();
 
 }//end fge
 

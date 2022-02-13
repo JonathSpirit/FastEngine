@@ -9,43 +9,43 @@ namespace fge
 
 ///Value
 
-FGE_API Value::Value() :
+Value::Value() :
     g_valueObj(nullptr),
     g_isModified(false)
 {
 }
 
 //Copy/Move constructor
-FGE_API Value::Value(fge::Value& val) :
+Value::Value(fge::Value& val) :
     g_valueObj(val.g_valueObj->copy()),
     g_isModified(true)
 {
 }
-FGE_API Value::Value(const fge::Value& val) :
+Value::Value(const fge::Value& val) :
     g_valueObj(val.g_valueObj->copy()),
     g_isModified(true)
 {
 }
-FGE_API Value::Value(fge::Value&& val) :
+Value::Value(fge::Value&& val) :
     g_valueObj(std::move(val.g_valueObj)),
     g_isModified(true)
 {
     val.clear();
 }
-FGE_API Value::Value(const fge::Value&& val) :
+Value::Value(const fge::Value&& val) :
     g_valueObj(val.g_valueObj->copy()),
     g_isModified(true)
 {
 }
 
 //Special string copy constructor
-FGE_API Value::Value(const char* val) :
+Value::Value(const char* val) :
     g_valueObj( new fge::ValueObj<std::string>( std::move(std::string(val)) ) ),
     g_isModified(true)
 {
 }
 //Special string copy operator
-fge::Value& FGE_API Value::operator= (const char* val)
+fge::Value& Value::operator= (const char* val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -64,7 +64,7 @@ fge::Value& FGE_API Value::operator= (const char* val)
 }
 
 //Copy/Move operator
-fge::Value& FGE_API Value::operator= (fge::Value& val)
+fge::Value& Value::operator= (fge::Value& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -80,7 +80,7 @@ fge::Value& FGE_API Value::operator= (fge::Value& val)
     this->g_isModified = true;
     return *this;
 }
-fge::Value& FGE_API Value::operator= (const fge::Value& val)
+fge::Value& Value::operator= (const fge::Value& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -96,13 +96,13 @@ fge::Value& FGE_API Value::operator= (const fge::Value& val)
     this->g_isModified = true;
     return *this;
 }
-fge::Value& FGE_API Value::operator= (fge::Value&& val)
+fge::Value& Value::operator= (fge::Value&& val)
 {
     this->g_valueObj = std::move(val.g_valueObj);
     this->g_isModified = true;
     return *this;
 }
-fge::Value& FGE_API Value::operator= (const fge::Value&& val)
+fge::Value& Value::operator= (const fge::Value&& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -119,12 +119,12 @@ fge::Value& FGE_API Value::operator= (const fge::Value&& val)
     return *this;
 }
 
-void FGE_API Value::clear()
+void Value::clear()
 {
     this->g_valueObj.reset();
 }
 
-bool FGE_API Value::operator== (const fge::Value& value) const
+bool Value::operator== (const fge::Value& value) const
 {
     if ( (this->g_valueObj != nullptr) && (value.g_valueObj != nullptr) )
     {
@@ -133,7 +133,7 @@ bool FGE_API Value::operator== (const fge::Value& value) const
     return (this->g_valueObj==nullptr) && (this->g_valueObj==nullptr);
 }
 
-bool FGE_API Value::set(const char* val)
+bool Value::set(const char* val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -153,7 +153,7 @@ bool FGE_API Value::set(const char* val)
     return false;
 }
 
-bool FGE_API Value::set(fge::Value& val)
+bool Value::set(fge::Value& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -171,7 +171,7 @@ bool FGE_API Value::set(fge::Value& val)
     }
     return false;
 }
-bool FGE_API Value::set(const fge::Value& val)
+bool Value::set(const fge::Value& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -189,7 +189,7 @@ bool FGE_API Value::set(const fge::Value& val)
     }
     return false;
 }
-bool FGE_API Value::set(fge::Value&& val)
+bool Value::set(fge::Value&& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -208,7 +208,7 @@ bool FGE_API Value::set(fge::Value&& val)
     }
     return false;
 }
-bool FGE_API Value::set(const fge::Value&& val)
+bool Value::set(const fge::Value&& val)
 {
     if ( this->g_valueObj != nullptr )
     {
@@ -228,7 +228,7 @@ bool FGE_API Value::set(const fge::Value&& val)
 }
 
 //Value array control
-fge::ValueArray& FGE_API Value::setArrayType()
+fge::ValueArray& Value::setArrayType()
 {
     if ( this->getType() != typeid(fge::ValueArray) )
     {
@@ -238,7 +238,7 @@ fge::ValueArray& FGE_API Value::setArrayType()
     return fge::ValueObj<fge::ValueArray>::CastPtr( this->g_valueObj.get() )->_data;
 }
 
-bool FGE_API Value::resize(std::size_t n)
+bool Value::resize(std::size_t n)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -247,7 +247,7 @@ bool FGE_API Value::resize(std::size_t n)
     }
     return false;
 }
-bool FGE_API Value::reserve(std::size_t n)
+bool Value::reserve(std::size_t n)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -257,7 +257,7 @@ bool FGE_API Value::reserve(std::size_t n)
     return false;
 }
 
-bool FGE_API Value::addData(const fge::Value& value)
+bool Value::addData(const fge::Value& value)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is already an array
@@ -276,7 +276,7 @@ bool FGE_API Value::addData(const fge::Value& value)
     }
     return false;
 }
-bool FGE_API Value::addData(fge::Value&& value)
+bool Value::addData(fge::Value&& value)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is already an array
@@ -296,7 +296,7 @@ bool FGE_API Value::addData(fge::Value&& value)
     return false;
 }
 
-bool FGE_API Value::setData(std::size_t index, const fge::Value& value)
+bool Value::setData(std::size_t index, const fge::Value& value)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -308,7 +308,7 @@ bool FGE_API Value::setData(std::size_t index, const fge::Value& value)
     }
     return false;
 }
-bool FGE_API Value::setData(std::size_t index, fge::Value&& value)
+bool Value::setData(std::size_t index, fge::Value&& value)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -321,7 +321,7 @@ bool FGE_API Value::setData(std::size_t index, fge::Value&& value)
     return false;
 }
 
-const fge::Value* FGE_API Value::getData(std::size_t index) const
+const fge::Value* Value::getData(std::size_t index) const
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -333,7 +333,7 @@ const fge::Value* FGE_API Value::getData(std::size_t index) const
     }
     return nullptr;
 }
-fge::Value* FGE_API Value::getData(std::size_t index)
+fge::Value* Value::getData(std::size_t index)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -346,7 +346,7 @@ fge::Value* FGE_API Value::getData(std::size_t index)
     return nullptr;
 }
 
-std::size_t FGE_API Value::getDataSize() const
+std::size_t Value::getDataSize() const
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -355,7 +355,7 @@ std::size_t FGE_API Value::getDataSize() const
     return 0;
 }
 
-const fge::Value* FGE_API Value::operator[] (std::size_t index) const
+const fge::Value* Value::operator[] (std::size_t index) const
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -367,7 +367,7 @@ const fge::Value* FGE_API Value::operator[] (std::size_t index) const
     }
     return nullptr;
 }
-fge::Value* FGE_API Value::operator[] (std::size_t index)
+fge::Value* Value::operator[] (std::size_t index)
 {
     if ( this->getType() == typeid(fge::ValueArray) )
     {//Is an array
@@ -380,19 +380,19 @@ fge::Value* FGE_API Value::operator[] (std::size_t index)
     return nullptr;
 }
 
-std::string FGE_API Value::toString() const
+std::string Value::toString() const
 {
     return (this->g_valueObj!=nullptr) ? this->g_valueObj->toString() : "";
 }
 
 //extra
 
-void FGE_API Value::setObj(std::unique_ptr<fge::ValueObjBase>&& valueObj)
+void Value::setObj(std::unique_ptr<fge::ValueObjBase>&& valueObj)
 {
     this->g_valueObj = std::move(valueObj);
     this->g_isModified = true;
 }
-const std::unique_ptr<fge::ValueObjBase>& FGE_API Value::getObj() const
+const std::unique_ptr<fge::ValueObjBase>& Value::getObj() const
 {
     return this->g_valueObj;
 }

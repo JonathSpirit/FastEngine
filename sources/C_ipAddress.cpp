@@ -45,35 +45,35 @@ const fge::net::IpAddress IpAddress::Any(0, 0, 0, 0);
 const fge::net::IpAddress IpAddress::LocalHost(127, 0, 0, 1);
 const fge::net::IpAddress IpAddress::Broadcast(255, 255, 255, 255);
 
-FGE_API IpAddress::IpAddress() :
+IpAddress::IpAddress() :
     g_address(0),
     g_valid(false)
 {
 }
-FGE_API IpAddress::IpAddress(const std::string& address) :
+IpAddress::IpAddress(const std::string& address) :
     g_address(0),
     g_valid(false)
 {
     this->set(address);
 }
-FGE_API IpAddress::IpAddress(const char* address) :
+IpAddress::IpAddress(const char* address) :
     g_address(0),
     g_valid(false)
 {
     this->set(std::string(address));
 }
-FGE_API IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) :
+IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) :
     g_address( fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0) ),
     g_valid(true)
 {
 }
-FGE_API IpAddress::IpAddress(uint32_t address) :
+IpAddress::IpAddress(uint32_t address) :
     g_address( fge::SwapHostNetEndian_32(address) ),
     g_valid(true)
 {
 }
 
-bool FGE_API IpAddress::set(const std::string& address)
+bool IpAddress::set(const std::string& address)
 {
     if (address == "255.255.255.255")
     {//Broadcast
@@ -122,35 +122,35 @@ bool FGE_API IpAddress::set(const std::string& address)
     this->g_valid = false;
     return false;
 }
-bool FGE_API IpAddress::set(const char* address)
+bool IpAddress::set(const char* address)
 {
     return this->set(std::string(address));
 }
-bool FGE_API IpAddress::set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0)
+bool IpAddress::set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0)
 {
     this->g_address = fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0);
     this->g_valid = true;
     return true;
 }
-bool FGE_API IpAddress::set(uint32_t address)
+bool IpAddress::set(uint32_t address)
 {
     this->g_address = fge::SwapHostNetEndian_32(address);
     this->g_valid = true;
     return true;
 }
-bool FGE_API IpAddress::setNetworkByteOrdered(uint32_t address)
+bool IpAddress::setNetworkByteOrdered(uint32_t address)
 {
     this->g_address = address;
     this->g_valid = true;
     return true;
 }
 
-bool FGE_API IpAddress::operator==(const fge::net::IpAddress& r) const
+bool IpAddress::operator==(const fge::net::IpAddress& r) const
 {
     return (this->g_address == r.g_address) && (this->g_valid == r.g_valid);
 }
 
-std::string FGE_API IpAddress::toString() const
+std::string IpAddress::toString() const
 {
     in_addr address{};
     address.s_addr = this->g_address;
@@ -158,16 +158,16 @@ std::string FGE_API IpAddress::toString() const
     return {inet_ntoa(address)};
 }
 
-uint32_t FGE_API IpAddress::getNetworkByteOrder() const
+uint32_t IpAddress::getNetworkByteOrder() const
 {
     return this->g_address;
 }
-uint32_t FGE_API IpAddress::getHostByteOrder() const
+uint32_t IpAddress::getHostByteOrder() const
 {
     return fge::SwapHostNetEndian_32(this->g_address);
 }
 
-std::string FGE_API IpAddress::getHostName()
+std::string IpAddress::getHostName()
 {
     char name[80];
     if ( gethostname(name, sizeof(name)) == _FGE_SOCKET_ERROR )
@@ -177,7 +177,7 @@ std::string FGE_API IpAddress::getHostName()
     return {name};
 }
 
-void FGE_API IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
+void IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
 {
     buff.clear();
 

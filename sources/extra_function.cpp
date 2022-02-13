@@ -38,7 +38,7 @@ namespace
 
 ///Utility
 
-bool FGE_API IsEngineBuiltInDebugMode()
+bool IsEngineBuiltInDebugMode()
 {
     #ifdef ___DEBUG_MODE_
         return true;
@@ -47,7 +47,7 @@ bool FGE_API IsEngineBuiltInDebugMode()
     #endif // ___DEBUG_MODE_
 }
 
-std::size_t FGE_API GetFilesInFolder(std::list<std::string>& buffer, const std::string& path, const std::string& regexFilter, bool ignoreDirectory, bool onlyFilename, bool recursive)
+std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::string& path, const std::string& regexFilter, bool ignoreDirectory, bool onlyFilename, bool recursive)
 {
     RE2 re(regexFilter);
     if ( !re.ok() )
@@ -105,16 +105,16 @@ std::size_t FGE_API GetFilesInFolder(std::list<std::string>& buffer, const std::
 }
 
 ///Detection
-bool FGE_API IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone)
+bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone)
 {
     return zone.contains( window.mapPixelToCoords( sf::Mouse::getPosition(window) ) );
 }
-bool FGE_API IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone)
+bool IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone)
 {
     return zone.contains( mousePos );
 }
 
-bool FGE_API IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button)
+bool IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button)
 {
     if ( zone.contains( window.mapPixelToCoords( sf::Mouse::getPosition(window) ) ) )
     {
@@ -122,7 +122,7 @@ bool FGE_API IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone
     }
     return false;
 }
-bool FGE_API IsPressed (const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button)
+bool IsPressed (const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button)
 {
     if ( zone.contains( mouse_pos ) )
     {
@@ -132,7 +132,7 @@ bool FGE_API IsPressed (const fge::Event& evt, const sf::Vector2f& mouse_pos, co
 }
 
 ///Reach
-sf::Vector2f FGE_API ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime)
+sf::Vector2f ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime)
 {
     float travelDistance = speed * deltaTime;
     sf::Vector2 direction = fge::NormalizeVector2(target-position);
@@ -144,7 +144,7 @@ sf::Vector2f FGE_API ReachVector(const sf::Vector2f& position, const sf::Vector2
     }
     return position + direction*travelDistance;
 }
-float FGE_API ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode)
+float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode)
 {
     rotation = static_cast<float>( std::fmod(rotation, 360) );
     if (rotation < 0)
@@ -230,62 +230,62 @@ float FGE_API ReachRotation(float rotation, float target, float speed, float del
 }
 
 ///2D Math
-float FGE_API ConvertRadToDeg(float rad)
+float ConvertRadToDeg(float rad)
 {
     return static_cast<float>(std::fmod( (rad * 180.0f / static_cast<float>(M_PI)) + 360.0f, 360.0f ));
 }
-float FGE_API ConvertDegToRad(float deg)
+float ConvertDegToRad(float deg)
 {
     return deg * static_cast<float>(M_PI) / 180.0f;
 }
 
-float FGE_API GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2)
+float GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2)
 {
     return vecCol1.x*vecCol2.y - vecCol1.y*vecCol2.x;
 }
-float FGE_API GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
+float GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
 {
     return vec1.x*vec2.x + vec1.y*vec2.y;
 }
-float FGE_API GetMagnitude(const sf::Vector2f& vec)
+float GetMagnitude(const sf::Vector2f& vec)
 {
     return std::sqrt(vec.x*vec.x + vec.y*vec.y);
 }
-float FGE_API GetRotation(const sf::Vector2f& vec)
+float GetRotation(const sf::Vector2f& vec)
 {
     return fge::ConvertRadToDeg( std::atan2(vec.y, vec.x) );
 }
-float FGE_API GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
+float GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
 {
     return fge::ConvertRadToDeg( std::atan2(fge::GetDeterminant(vec1, vec2), fge::GetDotProduct(vec1, vec2)) );
 }
-float FGE_API GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2)
+float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2)
 {
     return fge::GetMagnitude(pos2 - pos1);
 }
 
-sf::Vector2f FGE_API GetForwardVector(float rotation)
+sf::Vector2f GetForwardVector(float rotation)
 {
     rotation *= M_PI / 180.0f;
     return { std::cos(rotation), std::sin(rotation) };
 }
-sf::Vector2f FGE_API GetBackwardVector(float rotation)
+sf::Vector2f GetBackwardVector(float rotation)
 {
     rotation *= M_PI / 180.0f;
     return -sf::Vector2f( std::cos(rotation), std::sin(rotation) );
 }
-sf::Vector2f FGE_API GetLeftVector(float rotation)
+sf::Vector2f GetLeftVector(float rotation)
 {
     rotation = (rotation-90.0f) * static_cast<float>(M_PI) / 180.0f;
     return { std::cos(rotation), std::sin(rotation) };
 }
-sf::Vector2f FGE_API GetRightVector(float rotation)
+sf::Vector2f GetRightVector(float rotation)
 {
     rotation = (rotation+90.0f) * static_cast<float>(M_PI) / 180.0f;
     return { std::cos(rotation), std::sin(rotation) };
 }
 
-void FGE_API GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output)
+void GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output)
 {
 	size_t n = input.size(), k = 0;
 	if (n <= 3)
@@ -325,21 +325,21 @@ void FGE_API GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<s
 }
 
 ///View
-sf::Vector2f FGE_API GetViewSizePercentage(const sf::View& view, const sf::View& defaultView)
+sf::Vector2f GetViewSizePercentage(const sf::View& view, const sf::View& defaultView)
 {
     return { (view.getSize().x*100.0f) / defaultView.getSize().x, (view.getSize().y*100.0f) / defaultView.getSize().y };
 }
-sf::Vector2f FGE_API SetViewSizePercentage(float percentage, const sf::View& defaultView)
+sf::Vector2f SetViewSizePercentage(float percentage, const sf::View& defaultView)
 {
     return { (percentage*defaultView.getSize().x)/100.0f, (percentage*defaultView.getSize().y)/100.0f };
 }
-sf::Vector2f FGE_API SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView)
+sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView)
 {
     return { (percentage.x*defaultView.getSize().x)/100.0f, (percentage.y*defaultView.getSize().y)/100.0f };
 }
 
 ///Render
-sf::IntRect FGE_API CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target)
+sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target)
 {
     sf::Vector2i positions[4] =
     {
@@ -351,7 +351,7 @@ sf::IntRect FGE_API CoordToPixelRect(const sf::FloatRect& rect, const sf::Render
 
     return fge::ToRect(positions, 4);
 }
-sf::IntRect FGE_API CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view)
+sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view)
 {
     sf::Vector2i positions[4] =
     {
@@ -363,7 +363,7 @@ sf::IntRect FGE_API CoordToPixelRect(const sf::FloatRect& rect, const sf::Render
 
     return fge::ToRect(positions, 4);
 }
-sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target)
+sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target)
 {
     sf::Vector2f positions[4] =
     {
@@ -375,7 +375,7 @@ sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::Render
 
     return fge::ToRect(positions, 4);
 }
-sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target, const sf::View& view)
+sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target, const sf::View& view)
 {
     sf::Vector2f positions[4] =
     {
@@ -388,7 +388,7 @@ sf::FloatRect FGE_API PixelToCoordRect(const sf::IntRect& rect, const sf::Render
     return fge::ToRect(positions, 4);
 }
 
-sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target)
+sf::FloatRect GetScreenRect(const sf::RenderTarget& target)
 {
     sf::Vector2f positions[4] =
     {
@@ -400,7 +400,7 @@ sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target)
 
     return fge::ToRect(positions, 4);
 }
-sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target, const sf::View& view)
+sf::FloatRect GetScreenRect(const sf::RenderTarget& target, const sf::View& view)
 {
     sf::Vector2f positions[4] =
     {
@@ -414,7 +414,7 @@ sf::FloatRect FGE_API GetScreenRect(const sf::RenderTarget& target, const sf::Vi
 }
 
 ///Json
-bool FGE_API LoadJsonFromFile(const std::string& path, nlohmann::json& j)
+bool LoadJsonFromFile(const std::string& path, nlohmann::json& j)
 {
     std::ifstream file(path);
     if ( !file )
@@ -435,7 +435,7 @@ bool FGE_API LoadJsonFromFile(const std::string& path, nlohmann::json& j)
         return false;
     }
 }
-bool FGE_API SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth)
+bool SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth)
 {
     std::ofstream file(path);
     if ( file )

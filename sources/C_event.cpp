@@ -3,7 +3,7 @@
 namespace fge
 {
 
-void FGE_API Event::clear()
+void Event::clear()
 {
     ///Event type
     this->g_types = 0;
@@ -22,14 +22,14 @@ void FGE_API Event::clear()
     this->g_windowSize = sf::Vector2u(0, 0);
 }
 
-void FGE_API Event::start()
+void Event::start()
 {
     this->g_types = 0;
     this->g_keyUnicode = 0;
     this->g_mouseWheelHorizontalDelta = 0;
     this->g_mouseWheelVerticalDelta = 0;
 }
-void FGE_API Event::process( const sf::Event& sfevt )
+void Event::process( const sf::Event& sfevt )
 {
     this->g_types |= (0x80000000 >> sfevt.type);
 
@@ -130,7 +130,7 @@ void FGE_API Event::process( const sf::Event& sfevt )
         break;
     }
 }
-void FGE_API Event::process( sf::Window& sfscreen )
+void Event::process( sf::Window& sfscreen )
 {
     sf::Event evt{};
     this->start();
@@ -140,44 +140,44 @@ void FGE_API Event::process( sf::Window& sfscreen )
     }
 }
 
-bool FGE_API Event::isKeyPressed( sf::Keyboard::Key sfkey ) const
+bool Event::isKeyPressed( sf::Keyboard::Key sfkey ) const
 {
     return this->g_keys[sfkey/32] & (0x80000000 >> (sfkey%32));
 }
-uint32_t FGE_API Event::getKeyUnicode() const
+uint32_t Event::getKeyUnicode() const
 {
     return this->g_keyUnicode;
 }
 
-const sf::Vector2u& FGE_API Event::getWindowSize() const
+const sf::Vector2u& Event::getWindowSize() const
 {
     return this->g_windowSize;
 }
 
-bool FGE_API Event::isEventType( sf::Event::EventType evtType ) const
+bool Event::isEventType( sf::Event::EventType evtType ) const
 {
     return this->g_types&(0x80000000 >> evtType);
 }
 
-const sf::Vector2i& FGE_API Event::getMousePixelPos() const
+const sf::Vector2i& Event::getMousePixelPos() const
 {
     return this->g_mousePixelPos;
 }
-bool FGE_API Event::isMouseButtonPressed( sf::Mouse::Button sfmouse ) const
+bool Event::isMouseButtonPressed( sf::Mouse::Button sfmouse ) const
 {
     return this->g_mouseButtons & (0x80 >> (sfmouse));
 }
 
-float FGE_API Event::getMouseWheelHorizontalDelta() const
+float Event::getMouseWheelHorizontalDelta() const
 {
     return this->g_mouseWheelHorizontalDelta;
 }
-float FGE_API Event::getMouseWheelVerticalDelta() const
+float Event::getMouseWheelVerticalDelta() const
 {
     return this->g_mouseWheelVerticalDelta;
 }
 
-fge::net::Packet& FGE_API Event::pack( fge::net::Packet& pck )
+fge::net::Packet& Event::pack( fge::net::Packet& pck )
 {
     pck << this->g_types;
     pck << this->g_keys[0] << this->g_keys[1] << this->g_keys[2] << this->g_keys[3];
@@ -188,7 +188,7 @@ fge::net::Packet& FGE_API Event::pack( fge::net::Packet& pck )
     pck << this->g_mouseWheelHorizontalDelta << this->g_mouseWheelVerticalDelta;
     return pck;
 }
-fge::net::Packet& FGE_API Event::unpack( fge::net::Packet& pck )
+fge::net::Packet& Event::unpack( fge::net::Packet& pck )
 {
     pck >> this->g_types;
     pck >> this->g_keys[0] >> this->g_keys[1] >> this->g_keys[2] >> this->g_keys[3];
@@ -200,7 +200,7 @@ fge::net::Packet& FGE_API Event::unpack( fge::net::Packet& pck )
     return pck;
 }
 
-std::string FGE_API Event::getBinaryKeysString() const
+std::string Event::getBinaryKeysString() const
 {
     std::string result;
 
@@ -214,7 +214,7 @@ std::string FGE_API Event::getBinaryKeysString() const
     }
     return result;
 }
-std::string FGE_API Event::getBinaryTypesString() const
+std::string Event::getBinaryTypesString() const
 {
     std::string result;
 
@@ -224,7 +224,7 @@ std::string FGE_API Event::getBinaryTypesString() const
     }
     return result;
 }
-std::string FGE_API Event::getBinaryMouseButtonsString() const
+std::string Event::getBinaryMouseButtonsString() const
 {
     std::string result;
 
