@@ -35,6 +35,8 @@
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_objRenderMap.hpp"
 #include "FastEngine/C_bitBank.hpp"
+#include "FastEngine/C_property.hpp"
+#include "FastEngine/C_propertyList.hpp"
 
 #define CLIENT 1
 #define TEST_UDP 0
@@ -213,6 +215,51 @@ public:
 
     void main()
     {
+        //fge::Value tvalue{"testtest"};
+
+        fge::PropertyList lt;
+        lt["etw"] = "3252";
+
+        auto tnow = std::chrono::steady_clock::now();
+
+        /*fge::Value tvalue;
+        tvalue.setArrayType();
+        tvalue.addType<std::string>();*/
+
+        fge::Property tvalue;
+        tvalue.setArrayType();
+        tvalue.pushType<std::string>();
+
+        for (unsigned int i=0; i<10000000; ++i)
+        {
+            tvalue.setData(0, fge::string::ToStr(i));
+            *tvalue.getDataPtr<std::string>(0) = fge::string::ToStr(i);
+
+            //tvalue.setData(0, fge::string::ToStr(i));
+            //*tvalue.getData<std::string>(0) = fge::string::ToStr(i);
+        }
+
+        auto tstop = std::chrono::steady_clock::now();
+
+        //unsigned int
+        //8ms pour : unsigned int
+        //666ms pour : fge::Value
+        //44ms pour : fge::Property
+
+        //std::string
+        //4326ms pour : fge::Value
+        //3379ms pour : fge::Property
+
+        //vector std::string 32bit
+        //8436ms pour : fge::Value
+        //4679ms pour : fge::Property
+        //64bit
+        //8407ms pour : fge::Value
+        //4592ms pour : fge::Property
+
+        std::cout << "time : " << std::chrono::duration_cast<std::chrono::milliseconds>(tstop-tnow).count() << std::endl;
+
+        return;
         /*fge::net::ServerUdp test;
         #if CLIENT == 0
         test.start(42320);
