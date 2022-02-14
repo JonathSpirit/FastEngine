@@ -3,8 +3,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_packet.hpp>
-#include <FastEngine/C_valueList.hpp>
-#include <FastEngine/C_value.hpp>
+#include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_callback.hpp>
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_smoothFloat.hpp>
@@ -171,11 +170,11 @@ private:
 };
 
 template <class T>
-class NetworkTypeValue : public NetworkTypeBase
+class NetworkTypeProperty : public NetworkTypeBase
 {
 public:
-    NetworkTypeValue(fge::Value* source);
-    ~NetworkTypeValue() override = default;
+    NetworkTypeProperty(fge::Property* source);
+    ~NetworkTypeProperty() override = default;
 
     void* getSource() const override;
 
@@ -188,15 +187,15 @@ public:
     void forceUncheck() override;
 
 private:
-    fge::Value* g_typeSource;
+    fge::Property* g_typeSource;
 };
 
 template <class T>
-class NetworkTypeDataList : public NetworkTypeBase
+class NetworkTypePropertyList : public NetworkTypeBase
 {
 public:
-    NetworkTypeDataList(fge::ValueList* source, const std::string& vname);
-    ~NetworkTypeDataList() override = default;
+    NetworkTypePropertyList(fge::PropertyList* source, const std::string& vname);
+    ~NetworkTypePropertyList() override = default;
 
     void* getSource() const override;
 
@@ -211,7 +210,7 @@ public:
     const std::string& getValueName() const;
 
 private:
-    fge::ValueList* g_typeSource;
+    fge::PropertyList* g_typeSource;
     std::string g_vname;
 };
 

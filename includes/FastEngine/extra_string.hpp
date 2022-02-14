@@ -11,7 +11,7 @@
 namespace fge
 {
 
-class Value;
+class Property;
 
 namespace string
 {
@@ -80,7 +80,7 @@ FGE_API std::string ToStr(const sf::Vector2i& val);
 FGE_API std::string ToStr(const sf::Vector3f& val);
 FGE_API std::string ToStr(const sf::Vector3i& val);
 
-FGE_API std::string ToStr(const fge::Value& val);
+FGE_API std::string ToStr(const fge::Property& val);
 
 template <class T>
 std::string ToStr (const std::list<T>& val, char separator=' ');

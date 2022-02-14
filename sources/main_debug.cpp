@@ -101,7 +101,7 @@ public:
         this->_myshape.setPosition(this->getPosition());
         this->_myshape.setOrigin(this->getOrigin());
 
-        scene_ptr->callCmd("updateTxt", this, fge::Value("Coucou"), scene_ptr).toString();
+        scene_ptr->callCmd("updateTxt", this, "Coucou", scene_ptr);
 
         this->_g_myPoints.resize(this->_myshape.getPointCount());
         for (std::size_t i=0; i<this->_myshape.getPointCount(); ++i)
@@ -157,7 +157,7 @@ public:
     }
     void printValeur() const
     {
-        std::cout << *valTest.get<unsigned int>() << std::endl;
+        std::cout << valTest.get<unsigned int>() << std::endl;
     }
 
     void onDetach(fge::Subscription* subscription) override
@@ -166,7 +166,7 @@ public:
     }
 
     std::string you;
-    fge::Value valTest;
+    fge::Property valTest;
     fge::CallbackHandler<bool> wesh;
 };
 
@@ -207,40 +207,14 @@ public:
 
     std::string _supertext;
 
-    fge::Value cmd_updateTxt(fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene)
+    fge::Property cmd_updateTxt(fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene)
     {
         _supertext = "SID:"+fge::string::ToStr(this->getSid(caller))+" SCENE:"+caller_scene->getName()+" MSG:"+arg.toString();
-        return fge::Value("thx bro !");
+        return fge::Property("thx bro !");
     }
 
     void main()
     {
-        //fge::Value tvalue{"testtest"};
-
-        fge::PropertyList lt;
-        lt["etw"] = "3252";
-
-        auto tnow = std::chrono::steady_clock::now();
-
-        /*fge::Value tvalue;
-        tvalue.setArrayType();
-        tvalue.addType<std::string>();*/
-
-        fge::Property tvalue;
-        tvalue.setArrayType();
-        tvalue.pushType<std::string>();
-
-        for (unsigned int i=0; i<10000000; ++i)
-        {
-            tvalue.setData(0, fge::string::ToStr(i));
-            *tvalue.getDataPtr<std::string>(0) = fge::string::ToStr(i);
-
-            //tvalue.setData(0, fge::string::ToStr(i));
-            //*tvalue.getData<std::string>(0) = fge::string::ToStr(i);
-        }
-
-        auto tstop = std::chrono::steady_clock::now();
-
         //unsigned int
         //8ms pour : unsigned int
         //666ms pour : fge::Value
@@ -257,9 +231,6 @@ public:
         //8407ms pour : fge::Value
         //4592ms pour : fge::Property
 
-        std::cout << "time : " << std::chrono::duration_cast<std::chrono::milliseconds>(tstop-tnow).count() << std::endl;
-
-        return;
         /*fge::net::ServerUdp test;
         #if CLIENT == 0
         test.start(42320);
@@ -533,15 +504,15 @@ public:
         window.setKeyRepeatEnabled(true);
 
         sf::RenderWindow* banane = &window;
-        fge::Value superTest;
+        fge::Property superTest;
 
         superTest = &window;
 
-        fge::Value valueTest;
+        fge::Property valueTest;
         cout << "value : " << valueTest.get<unsigned int>() << endl;
         cout << "value str : " << valueTest.toString() << endl;
         valueTest.set("test");
-        valueTest.setType<std::vector<fge::Value> >();
+        valueTest.setType<std::vector<fge::Property> >();
         cout << "value : " << valueTest.get<unsigned int>() << endl;
         //cout << "value cast : " << (int*)valueTest << endl;
         cout << "value : " << valueTest.get<int*>() << endl;
@@ -565,20 +536,20 @@ public:
         delete callbacktest;
 
 
-        (*superTest.get<sf::RenderWindow*>())->setView( canard );
+        (*superTest.get<sf::RenderWindow*>()).setView( canard );
         window.setView( canard );
         window.setView( window.getDefaultView() );
 
 
-        fge::Value test2;
+        fge::Property test2;
         test2.clear();
-        test2.addData("je suis un text");
-        test2.addData(1242);
-        test2.addData(78.12f);
-        test2.addData(true);
-        test2.addData(sf::Vector2f(9.42f, 12.2f));
-        test2.addData(-241);
-        test2.addData("ahah");
+        test2.pushData("je suis un text");
+        test2.pushData(1242);
+        test2.pushData(78.12f);
+        test2.pushData(true);
+        test2.pushData(sf::Vector2f(9.42f, 12.2f));
+        test2.pushData(-241);
+        test2.pushData("ahah");
         //test2 = "|||||||||"+test2.Str()+"|";
         //test2.clear();
         //test2.addData("|||||||||", '|');

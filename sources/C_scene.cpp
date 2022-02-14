@@ -106,7 +106,7 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
 void Scene::clear()
 {
     this->delAllObject(false);
-    this->_globalData.delAllValues();
+    this->_globalData.delAllProperties();
 }
 
 /** Object **/

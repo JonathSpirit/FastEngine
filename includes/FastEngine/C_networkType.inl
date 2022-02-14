@@ -61,177 +61,128 @@ void NetworkType<T>::forceUncheck()
     this->g_typeCopy = *this->g_typeSource;
 }
 
-///NetworkTypeValue
+///NetworkTypeProperty
 
 template<class T>
-NetworkTypeValue<T>::NetworkTypeValue(fge::Value* source)
+NetworkTypeProperty<T>::NetworkTypeProperty(fge::Property* source)
 {
     this->g_typeSource = source;
-
-    if ( source->getType() != typeid(T) )
-    {//not the same type
-        source->setType<T>();
-    }
+    source->setType<T>();
 }
 
 template<class T>
-void* NetworkTypeValue<T>::getSource() const
+void* NetworkTypeProperty<T>::getSource() const
 {
     return this->g_typeSource;
 }
 
 template <class T>
-bool NetworkTypeValue<T>::applyData(fge::net::Packet& pck)
+bool NetworkTypeProperty<T>::applyData(fge::net::Packet& pck)
 {
-    if ( this->g_typeSource->getType() != typeid(T) )
-    {//not the same type
-        pck >> this->g_typeSource->setType<T>();
-    }
-    else
-    {
-        pck >> *this->g_typeSource->get<T>();
-    }
+    pck >> this->g_typeSource->template setType<T>();
 
     this->_onApplied.call();
     return true;
 }
 template <class T>
-void NetworkTypeValue<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        if ( this->g_typeSource->getType() != typeid(T) )
-        {//not the same type
-            pck << this->g_typeSource->setType<T>();
-        }
-        else
-        {
-            pck << *this->g_typeSource->get<T>();
-        }
+        pck << this->g_typeSource->template setType<T>();
 
         it->second = false;
     }
 }
 template <class T>
-void NetworkTypeValue<T>::packData(fge::net::Packet& pck)
+void NetworkTypeProperty<T>::packData(fge::net::Packet& pck)
 {
-    if ( this->g_typeSource->getType() != typeid(T) )
-    {//not the same type
-        pck << this->g_typeSource->setType<T>();
-    }
-    else
-    {
-        pck << *this->g_typeSource->get<T>();
-    }
+    pck << this->g_typeSource->template setType<T>();
 }
 
 template <class T>
-bool NetworkTypeValue<T>::check() const
+bool NetworkTypeProperty<T>::check() const
 {
     return this->g_typeSource->isModified();
 }
 template <class T>
-void NetworkTypeValue<T>::forceCheck()
+void NetworkTypeProperty<T>::forceCheck()
 {
     this->g_typeSource->setModifiedFlag(true);
 }
 template <class T>
-void NetworkTypeValue<T>::forceUncheck()
+void NetworkTypeProperty<T>::forceUncheck()
 {
     this->g_typeSource->setModifiedFlag(false);
 }
 
-///NetworkTypeDataList
+///NetworkTypePropertyList
 template <class T>
-NetworkTypeDataList<T>::NetworkTypeDataList(fge::ValueList* source, const std::string& vname)
+NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, const std::string& vname)
 {
     this->g_typeSource = source;
     this->g_vname = vname;
-    fge::Value* buffer = &source->getValue(vname);
+    fge::Property& property = source->getProperty(vname);
 
-    if ( buffer->getType() != typeid(T) )
-    {//not the same type
-        buffer->setType<T>();
-    }
+    property.setType<T>();
 }
 
 template <class T>
-void* NetworkTypeDataList<T>::getSource() const
+void* NetworkTypePropertyList<T>::getSource() const
 {
     return this->g_typeSource;
 }
 
 template <class T>
-bool NetworkTypeDataList<T>::applyData(fge::net::Packet& pck)
+bool NetworkTypePropertyList<T>::applyData(fge::net::Packet& pck)
 {
-    fge::Value& value = this->g_typeSource->getValue(this->g_vname);
+    fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
 
-    if ( value.getType() != typeid(T) )
-    {//not the same type
-        pck >> value.setType<T>();
-    }
-    else
-    {
-        pck >> *value.get<T>();
-    }
+    pck >> property.setType<T>();
 
     this->_onApplied.call();
     return false;
 }
 template <class T>
-void NetworkTypeDataList<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        fge::Value& value = this->g_typeSource->getValue(this->g_vname);
+        fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
 
-        if ( value.getType() != typeid(T) )
-        {//not the same type
-            pck << value.setType<T>();
-        }
-        else
-        {
-            pck << *value.get<T>();
-        }
+        pck << property.setType<T>();
 
         it->second = false;
     }
 }
 template <class T>
-void NetworkTypeDataList<T>::packData(fge::net::Packet& pck)
+void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck)
 {
-    fge::Value& value = this->g_typeSource->getValue(this->g_vname);
+    fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
 
-    if ( value.getType() != typeid(T) )
-    {//not the same type
-        pck << value.setType<T>();
-    }
-    else
-    {
-        pck << *value.get<T>();
-    }
+    pck << property.setType<T>();
 }
 
 template <class T>
-bool NetworkTypeDataList<T>::check() const
+bool NetworkTypePropertyList<T>::check() const
 {
-    return this->g_typeSource->getValue(this->g_vname).isModified();
+    return this->g_typeSource->getProperty(this->g_vname).isModified();
 }
 template <class T>
-void NetworkTypeDataList<T>::forceCheck()
+void NetworkTypePropertyList<T>::forceCheck()
 {
-    this->g_typeSource->getValue(this->g_vname).setModifiedFlag(true);
+    this->g_typeSource->getProperty(this->g_vname).setModifiedFlag(true);
 }
 template <class T>
-void NetworkTypeDataList<T>::forceUncheck()
+void NetworkTypePropertyList<T>::forceUncheck()
 {
-    this->g_typeSource->getValue(this->g_vname).setModifiedFlag(false);
+    this->g_typeSource->getProperty(this->g_vname).setModifiedFlag(false);
 }
 
 template <class T>
-const std::string& NetworkTypeDataList<T>::getValueName() const
+const std::string& NetworkTypePropertyList<T>::getValueName() const
 {
     return this->g_vname;
 }

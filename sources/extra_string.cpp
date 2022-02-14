@@ -1,6 +1,6 @@
 #include "FastEngine/extra_string.hpp"
 
-#include "FastEngine/C_value.hpp"
+#include "FastEngine/C_property.hpp"
 
 #define strtk_no_tr1_or_boost
 #include <strtk.hpp>
@@ -308,7 +308,7 @@ std::string ToStr(const sf::Vector3i& val)
     return fmt::format(FMT_COMPILE("{} {} {}"), val.x, val.y, val.z);
 }
 
-std::string ToStr(const fge::Value& val)
+std::string ToStr(const fge::Property& val)
 {
     return val.toString();
 }

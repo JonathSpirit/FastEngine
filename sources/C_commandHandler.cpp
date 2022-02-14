@@ -59,7 +59,7 @@ void CommandHandler::clearCmd()
     this->g_cmdDataMap.clear();
 }
 
-fge::Value CommandHandler::callCmd(const std::string &name, fge::Object *caller, const fge::Value &arg, fge::Scene *caller_scene)
+fge::Property CommandHandler::callCmd(const std::string &name, fge::Object *caller, const fge::Property &arg, fge::Scene *caller_scene)
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -69,7 +69,7 @@ fge::Value CommandHandler::callCmd(const std::string &name, fge::Object *caller,
     }
     return {};
 }
-fge::Value CommandHandler::callCmd(std::size_t index, fge::Object *caller, const fge::Value &arg, fge::Scene *caller_scene)
+fge::Property CommandHandler::callCmd(std::size_t index, fge::Object *caller, const fge::Property &arg, fge::Scene *caller_scene)
 {
     if (index < this->g_cmdData.size())
     {

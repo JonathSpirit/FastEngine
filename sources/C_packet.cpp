@@ -1,5 +1,4 @@
 #include "FastEngine/C_packet.hpp"
-#include "FastEngine/C_value.hpp"
 #include <cstring>
 
 #ifdef __GNUC__

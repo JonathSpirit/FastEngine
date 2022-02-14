@@ -3,7 +3,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_identity.hpp>
-#include <FastEngine/C_valueList.hpp>
+#include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_event.hpp>
 #include <queue>
 #include <chrono>
@@ -63,7 +63,7 @@ public:
     bool isPendingPacketsEmpty();
 
     fge::Event _event;
-    fge::ValueList _data;
+    fge::PropertyList _data;
 
 private:
     fge::net::Client::Latency_ms g_latency_ms;

@@ -1648,7 +1648,14 @@ const std::type_info& PropertyClassWrapperType<T>::getType() const
 template<class T>
 std::string PropertyClassWrapperType<T>::toString() const
 {
-    return typeid(T).name();
+    if constexpr ( std::is_same<T, fge::ParrayType>::value )
+    {
+        return fge::string::ToStr(this->_data);
+    }
+    else
+    {
+        return typeid(T).name();
+    }
 }
 
 template<class T>

@@ -13,42 +13,42 @@ class PropertyList
 public:
     using PropertyListType = std::unordered_map<std::string, fge::Property>;
 
-    PropertyList() = default;
-    PropertyList(const PropertyList& r);
-    PropertyList(PropertyList&& r) noexcept;
-    ~PropertyList() = default;
+    inline PropertyList() = default;
+    inline PropertyList(const PropertyList& r);
+    inline PropertyList(PropertyList&& r) noexcept;
+    inline ~PropertyList() = default;
 
-    void delAllProperties();
-    void delProperty(const std::string& key);
+    inline void delAllProperties();
+    inline void delProperty(const std::string& key);
 
-    bool checkProperty(const std::string& key) const;
+    inline bool checkProperty(const std::string& key) const;
 
-    void setProperty(const std::string& key, const fge::Property& value);
-    void setProperty(const std::string& key, fge::Property&& value);
+    inline void setProperty(const std::string& key, const fge::Property& value);
+    inline void setProperty(const std::string& key, fge::Property&& value);
 
     template <typename T>
-    T* getPropertyType(const std::string& key);
+    inline T* getPropertyType(const std::string& key);
     template <typename T>
-    const T* getPropertyType(const std::string& key) const;
+    inline const T* getPropertyType(const std::string& key) const;
 
-    fge::Property& getProperty(const std::string& key);
-    const fge::Property& getProperty(const std::string& key) const;
+    inline fge::Property& getProperty(const std::string& key);
+    inline const fge::Property& getProperty(const std::string& key) const;
 
-    fge::Property& operator[] (const std::string& key);
-    const fge::Property& operator[] (const std::string& key) const;
+    inline fge::Property& operator[] (const std::string& key);
+    inline const fge::Property& operator[] (const std::string& key) const;
 
-    std::size_t getPropertiesSize() const;
+    inline std::size_t getPropertiesSize() const;
 
-    fge::PropertyList::PropertyListType::iterator begin();
-    fge::PropertyList::PropertyListType::iterator end();
-    fge::PropertyList::PropertyListType::const_iterator cbegin();
-    fge::PropertyList::PropertyListType::const_iterator cend();
+    inline fge::PropertyList::PropertyListType::iterator begin();
+    inline fge::PropertyList::PropertyListType::iterator end();
+    inline fge::PropertyList::PropertyListType::const_iterator cbegin();
+    inline fge::PropertyList::PropertyListType::const_iterator cend();
 
-    fge::PropertyList::PropertyListType::const_iterator find(const std::string& key) const;
-    fge::PropertyList::PropertyListType::iterator find(const std::string& key);
+    inline fge::PropertyList::PropertyListType::const_iterator find(const std::string& key) const;
+    inline fge::PropertyList::PropertyListType::iterator find(const std::string& key);
 
-    void clearAllModificationFlags();
-    std::size_t countAllModificationFlags() const;
+    inline void clearAllModificationFlags();
+    inline std::size_t countAllModificationFlags() const;
 
 private:
     fge::PropertyList::PropertyListType g_data;

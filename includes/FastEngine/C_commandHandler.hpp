@@ -2,7 +2,7 @@
 #define _FGE_C_COMMANDHANDLER_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_value.hpp>
+#include <FastEngine/C_property.hpp>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -16,7 +16,7 @@ class CommandHandler;
 class Scene;
 class Object;
 
-using CommandFunction = fge::Value (CommandHandler::*) (fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene);
+using CommandFunction = fge::Property (CommandHandler::*) (fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
 
 class FGE_API CommandHandler
 {
@@ -38,8 +38,8 @@ public:
 
     void clearCmd();
 
-    fge::Value callCmd(const std::string& name, fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene);
-    fge::Value callCmd(std::size_t index, fge::Object* caller, const fge::Value& arg, fge::Scene* caller_scene);
+    fge::Property callCmd(const std::string& name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
+    fge::Property callCmd(std::size_t index, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
 
     [[nodiscard]] std::size_t getCmdIndex(const std::string& name) const;
     [[nodiscard]] std::string getCmdName(std::size_t index) const;

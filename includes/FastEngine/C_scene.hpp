@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <FastEngine/C_object.hpp>
-#include <FastEngine/C_valueList.hpp>
+#include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_commandHandler.hpp>
 #include <FastEngine/C_callback.hpp>
 #include <string>
@@ -314,7 +314,7 @@ public:
     fge::net::NetworkTypeContainer _netList;
 
     /** Global Data **/
-    fge::ValueList _globalData;
+    fge::PropertyList _globalData;
 
     /** Event **/
     mutable fge::CallbackHandler<const fge::Scene*, sf::RenderTarget&, const sf::Color&> _onRenderTargetClear;
