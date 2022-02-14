@@ -54,10 +54,8 @@ public:
     inline Property(const fge::Property&& val);
 
     //Copy/Move some type constructor
-    template<typename T>
-    inline Property(const T& val);
-    template<typename T>
-    inline Property(T&& val);
+    template<class T>
+    inline Property(T val);
 
     //Special string copy constructor
     inline Property(const char* val);
@@ -75,18 +73,18 @@ public:
     inline fge::Property& operator= (const fge::Property&& val);
 
     //Copy/Move some type operator
-    template<typename T>
+    template<class T>
     inline fge::Property& operator= (const T& val);
-    template<typename T>
+    template<class T>
     inline fge::Property& operator= (T&& val);
 
     //Special string copy operator
     inline fge::Property& operator= (const char* val);
 
-    template<typename T>
+    template<class T>
     inline T& setType();
     inline void setType(fge::Property::Types type);
-    template<typename T>
+    template<class T>
     [[nodiscard]] inline bool isType() const;
     [[nodiscard]] inline bool isType(fge::Property::Types type) const;
 
@@ -127,7 +125,7 @@ public:
     inline bool pushData(const fge::Property& value);
     inline bool pushData(fge::Property&& value);
 
-    template<typename T>
+    template<class T>
     inline bool pushType();
 
     inline bool setData(std::size_t index, const fge::Property& value);
@@ -136,11 +134,11 @@ public:
     [[nodiscard]] inline fge::Property* getData(std::size_t index);
     [[nodiscard]] inline const fge::Property* getData(std::size_t index) const;
 
-    template<typename T>
+    template<class T>
     inline bool getData(std::size_t index, T& val) const;
-    template<typename T>
+    template<class T>
     inline T* getDataPtr(std::size_t index);
-    template<typename T>
+    template<class T>
     inline const T* getDataPtr(std::size_t index) const;
 
     [[nodiscard]] inline std::size_t getDataSize() const;

@@ -74,8 +74,8 @@ Property::Property(const fge::Property&& val) :
     }
 }
 
-template<typename T>
-Property::Property(const T& val) :
+template<class T>
+Property::Property(T val) :
         g_isModified(true)
 {
     if constexpr (std::is_integral<T>::value)
@@ -109,7 +109,7 @@ Property::Property(const T& val) :
     else if constexpr ( std::is_same<T, std::string>::value )
     {
         this->g_type = fge::Property::PTYPE_STRING;
-        this->g_data._ptr = new std::string(val);
+        this->g_data._ptr = new std::string(std::move(val));
     }
     else if constexpr ( std::is_pointer<T>::value )
     {
@@ -119,55 +119,7 @@ Property::Property(const T& val) :
     else
     {
         this->g_type = fge::Property::PTYPE_CLASS;
-        this->g_data._ptr = new fge::PropertyClassWrapperType<T>(val);
-    }
-}
-template<typename T>
-Property::Property(T&& val) :
-        g_isModified(true)
-{
-    if constexpr (std::is_integral<T>::value)
-    {
-        this->g_type = fge::Property::PTYPE_INTEGERS;
-
-        if constexpr ( std::is_signed<T>::value )
-        {
-            this->g_data._i = static_cast<fge::PintType>(val);
-            this->g_isSigned = true;
-        }
-        else
-        {
-            this->g_data._u = static_cast<fge::PuintType>(val);
-            this->g_isSigned = false;
-        }
-    }
-    else if constexpr ( std::is_floating_point<T>::value )
-    {
-        if constexpr ( std::is_same<T, float>::value )
-        {
-            this->g_type = fge::Property::PTYPE_FLOAT;
-            this->g_data._f = val;
-        }
-        else
-        {
-            this->g_type = fge::Property::PTYPE_DOUBLE;
-            this->g_data._d = static_cast<double>(val);
-        }
-    }
-    else if constexpr ( std::is_same<T, std::string>::value )
-    {
-        this->g_type = fge::Property::PTYPE_STRING;
-        this->g_data._ptr = new std::string(std::forward<T>(val));
-    }
-    else if constexpr ( std::is_pointer<T>::value )
-    {
-        this->g_type = fge::Property::PTYPE_POINTER;
-        this->g_data._ptr = val;
-    }
-    else
-    {
-        this->g_type = fge::Property::PTYPE_CLASS;
-        this->g_data._ptr = new fge::PropertyClassWrapperType<T>(std::forward<T>(val));
+        this->g_data._ptr = new fge::PropertyClassWrapperType<T>(std::move(val));
     }
 }
 
@@ -271,13 +223,13 @@ fge::Property& Property::operator= (const fge::Property&& val)
     return *this;
 }
 
-template<typename T>
+template<class T>
 fge::Property& Property::operator= (const T& val)
 {
     this->set(val);
     return *this;
 }
-template<typename T>
+template<class T>
 fge::Property& Property::operator= (T&& val)
 {
     this->set(std::forward<T>(val));
@@ -290,7 +242,7 @@ fge::Property& Property::operator= (const char* val)
     return *this;
 }
 
-template<typename T>
+template<class T>
 T& Property::setType()
 {
     if constexpr (std::is_integral<T>::value)
@@ -354,7 +306,7 @@ T& Property::setType()
             this->g_type = fge::Property::PTYPE_POINTER;
         }
 
-        return this->g_data._ptr;
+        return reinterpret_cast<typename std::add_lvalue_reference<T>::type>(this->g_data._ptr);
     }
     else
     {
@@ -398,7 +350,7 @@ void Property::setType(fge::Property::Types type)
         this->g_type = type;
     }
 }
-template<typename T>
+template<class T>
 bool Property::isType() const
 {
     if constexpr (std::is_integral<T>::value)
@@ -1487,7 +1439,7 @@ bool Property::pushData(fge::Property&& value)
     return false;
 }
 
-template<typename T>
+template<class T>
 bool Property::pushType()
 {
     if (this->g_type == fge::Property::PTYPE_CLASS)
@@ -1555,7 +1507,7 @@ const fge::Property* Property::getData(std::size_t index) const
     return nullptr;
 }
 
-template<typename T>
+template<class T>
 bool Property::getData(std::size_t index, T& val) const
 {
     if (this->g_type == fge::Property::PTYPE_CLASS)
@@ -1570,7 +1522,7 @@ bool Property::getData(std::size_t index, T& val) const
     }
     return false;
 }
-template<typename T>
+template<class T>
 T* Property::getDataPtr(std::size_t index)
 {
     if (this->g_type == fge::Property::PTYPE_CLASS)
@@ -1585,7 +1537,7 @@ T* Property::getDataPtr(std::size_t index)
     }
     return nullptr;
 }
-template<typename T>
+template<class T>
 const T* Property::getDataPtr(std::size_t index) const
 {
     if (this->g_type == fge::Property::PTYPE_CLASS)

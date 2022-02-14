@@ -540,11 +540,14 @@ public:
         window.setView( canard );
         window.setView( window.getDefaultView() );
 
+        int oo;
+        fge::Property prop;
+        prop.setType<int*>() = &oo;
 
         fge::Property test2;
         test2.clear();
         test2.pushData("je suis un text");
-        test2.pushData(1242);
+        test2.pushData( fge::Property(1242) );
         test2.pushData(78.12f);
         test2.pushData(true);
         test2.pushData(sf::Vector2f(9.42f, 12.2f));
