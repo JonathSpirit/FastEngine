@@ -26,7 +26,6 @@
 #include <system_error>
 #include <string_view>
 #include <array>
-#include <pcg_random.hpp>
 #include "FastEngine/C_socket.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/C_packet.hpp"
@@ -692,8 +691,8 @@ public:
 
         for ( unsigned int i=0; i<40; ++i )
         {
-            //fge::timer::Create("testtimeA-"+fge::string::ToStr(i), fge::Timer( sf::seconds(fge::__random.range<uint32_t>(1,10)) ), false);
-            //fge::timer::Create("testtimeB-"+fge::string::ToStr(i), fge::Timer( sf::seconds(fge::__random.range<uint32_t>(1,3)) ), true);
+            //fge::timer::Create("testtimeA-"+fge::string::ToStr(i), fge::Timer( sf::seconds(fge::_random.range<uint32_t>(1,10)) ), false);
+            //fge::timer::Create("testtimeB-"+fge::string::ToStr(i), fge::Timer( sf::seconds(fge::_random.range<uint32_t>(1,3)) ), true);
         }
         //fge::timer::Create("pouet", fge::Timer( sf::seconds(6) ), false);
 
@@ -744,7 +743,7 @@ public:
 
         for (int i=0; i<30; ++i)
         {
-            double bba = fge::__random.rand<double>();
+            double bba = fge::_random.rand<double>();
             cout << bba << " | " << fge::string::ToStr( bba ) << " | " << fge::string::ToDouble( fge::string::ToStr( bba ) ) << endl;
         }
 

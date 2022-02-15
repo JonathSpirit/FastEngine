@@ -52,6 +52,7 @@ add_custom_target(version
         -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
         -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
         )
+
 #CMAKE_BINARY_DIR
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC_LIBS OFF)
@@ -113,8 +114,6 @@ add_dependencies(${FGE_SERVER_LIB_NAME} bz2_static)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/bzip2")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
 
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/pcg-cpp/include")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/pcg-cpp/include")
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 
@@ -122,8 +121,8 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 if(FGE_DEBUG)
-    target_compile_definitions(${FGE_LIB_NAME} PRIVATE ___DEBUG_MODE_)
-    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE ___DEBUG_MODE_)
+    target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_DEBUG)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_DEBUG)
 endif()
 
 #Includes path

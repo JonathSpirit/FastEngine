@@ -5,13 +5,11 @@ template<typename TEngine>
 Random<TEngine>::Random() :
     g_engine( std::chrono::system_clock::now().time_since_epoch().count() )
 {
-
 }
 template<typename TEngine>
 Random<TEngine>::Random(uint64_t seed) :
     g_engine(seed)
 {
-
 }
 
 template<typename TEngine>
@@ -139,9 +137,9 @@ sf::Color Random<TEngine>::randColor()
 template<typename TEngine>
 std::string Random<TEngine>::randStr(std::size_t length, const std::string& bucket)
 {
-    if ((length == 0) || (bucket.size() == 0))
+    if ((length == 0) || bucket.empty())
     {
-        return std::string();
+        return {};
     }
 
     std::string result;

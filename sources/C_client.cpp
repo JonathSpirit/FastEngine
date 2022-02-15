@@ -24,7 +24,7 @@ Client::Client(fge::net::Client::Latency_ms latency) :
 
 fge::net::Skey Client::GenerateSkey()
 {
-    return fge::__random.range<fge::net::Skey>(1, std::numeric_limits<fge::net::Skey>::max());
+    return fge::_random.range<fge::net::Skey>(1, std::numeric_limits<fge::net::Skey>::max());
 }
 void Client::setSkey(fge::net::Skey key)
 {

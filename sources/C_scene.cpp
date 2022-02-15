@@ -580,7 +580,7 @@ fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid) const
     fge::ObjectSid new_sid;
     while ( true )
     {
-        new_sid = fge::__random.range<fge::ObjectSid>(0, FGE_SCENE_BAD_SID);
+        new_sid = fge::_random.range<fge::ObjectSid>(0, FGE_SCENE_BAD_SID);
 
         if ( this->g_dataMap.find(wanted_sid) == this->g_dataMap.cend() )
         {

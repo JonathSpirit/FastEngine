@@ -6,9 +6,6 @@
 #include <SFML/System/Vector3.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-//#define PCG_LITTLE_ENDIAN 1
-#include <pcg_random.hpp>
-
 #include <string>
 #include <random>
 #include <chrono>
@@ -23,7 +20,7 @@ class Random
 {
 public:
     Random();
-    Random(uint64_t seed);
+    explicit Random(uint64_t seed);
 
     void setSeed(uint64_t seed);
 
@@ -68,7 +65,7 @@ private:
     std::mutex g_mutex;
 };
 
-FGE_API extern fge::Random<pcg32> __random;
+FGE_API extern fge::Random<std::mt19937_64> _random;
 
 }//end fge
 

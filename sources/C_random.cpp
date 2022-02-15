@@ -3,6 +3,6 @@
 namespace fge
 {
 
-fge::Random<pcg32> __random;
+fge::Random<std::mt19937_64> _random;
 
 }//end fge
