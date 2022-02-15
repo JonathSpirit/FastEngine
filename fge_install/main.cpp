@@ -186,12 +186,6 @@ int main()
     installFiles.emplace_back(false, FTYPE_FILE, "logo.png", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_FILE, "fengine_changelog.txt", FARCH_ALL, FBUILD_ALL);
 
-    //pcg-cpp
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/pcg-cpp/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libpcg-cpp");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/pcg-cpp/include/pcg_extras.hpp", FARCH_ALL, FBUILD_ALL, "libpcg-cpp");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/pcg-cpp/include/pcg_random.hpp", FARCH_ALL, FBUILD_ALL, "libpcg-cpp");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/pcg-cpp/include/pcg_uint128.hpp", FARCH_ALL, FBUILD_ALL, "libpcg-cpp");
-
     //sfml
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
