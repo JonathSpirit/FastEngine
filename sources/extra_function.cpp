@@ -232,11 +232,11 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
 ///2D Math
 float ConvertRadToDeg(float rad)
 {
-    return static_cast<float>(std::fmod( (rad * 180.0f / static_cast<float>(M_PI)) + 360.0f, 360.0f ));
+    return static_cast<float>(std::fmod( (rad * 180.0f / static_cast<float>(FGE_MATH_PI)) + 360.0f, 360.0f ));
 }
 float ConvertDegToRad(float deg)
 {
-    return deg * static_cast<float>(M_PI) / 180.0f;
+    return deg * static_cast<float>(FGE_MATH_PI) / 180.0f;
 }
 
 float GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2)
@@ -266,22 +266,22 @@ float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2)
 
 sf::Vector2f GetForwardVector(float rotation)
 {
-    rotation *= M_PI / 180.0f;
+    rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
     return { std::cos(rotation), std::sin(rotation) };
 }
 sf::Vector2f GetBackwardVector(float rotation)
 {
-    rotation *= M_PI / 180.0f;
+    rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
     return -sf::Vector2f( std::cos(rotation), std::sin(rotation) );
 }
 sf::Vector2f GetLeftVector(float rotation)
 {
-    rotation = (rotation-90.0f) * static_cast<float>(M_PI) / 180.0f;
+    rotation = (rotation-90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
     return { std::cos(rotation), std::sin(rotation) };
 }
 sf::Vector2f GetRightVector(float rotation)
 {
-    rotation = (rotation+90.0f) * static_cast<float>(M_PI) / 180.0f;
+    rotation = (rotation+90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
     return { std::cos(rotation), std::sin(rotation) };
 }
 

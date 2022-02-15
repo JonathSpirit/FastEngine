@@ -1148,7 +1148,7 @@ bool Scene::loadFromFile(const std::string& path)
 fge::ObjectContainer::const_iterator Scene::find(const fge::ObjectSid& sid) const
 {
     auto it = this->g_dataMap.find(sid);
-    return (it != this->g_dataMap.cend()) ? it->second : this->g_data.cend();
+    return (it != this->g_dataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second) : this->g_data.cend();
 }
 fge::ObjectContainer::iterator Scene::find(const fge::ObjectSid& sid)
 {

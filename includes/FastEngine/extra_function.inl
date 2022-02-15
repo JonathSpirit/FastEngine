@@ -46,10 +46,10 @@ sf::Rect<T> ToRect (const std::vector<sf::Vector2<T> >& pos)
 template<typename T>
 sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size)
 {
-    float smallestX = std::numeric_limits<float>::max();
-    float biggestX = std::numeric_limits<float>::lowest();
-    float smallestY = std::numeric_limits<float>::max();
-    float biggestY = std::numeric_limits<float>::lowest();
+    T smallestX = std::numeric_limits<T>::max();
+    T biggestX = std::numeric_limits<T>::lowest();
+    T smallestY = std::numeric_limits<T>::max();
+    T biggestY = std::numeric_limits<T>::lowest();
 
     for (std::size_t i=0; i<size; ++i)
     {

@@ -6,6 +6,8 @@
 #include <SFML/Graphics.hpp>
 #include <json.hpp>
 
+#define FGE_MATH_PI 3.14159265358979323846
+
 namespace fge
 {
 
