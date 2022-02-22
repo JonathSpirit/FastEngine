@@ -252,6 +252,34 @@ bool Packet::unpack(std::size_t pos, void* buff, std::size_t bsize) const
     return false;
 }
 
+fge::net::Packet& Packet::shrink(std::size_t dsize)
+{
+    if (dsize > 0)
+    {
+        if (dsize >= this->_g_data.size())
+        {
+            this->_g_data.resize(0);
+        }
+        else
+        {
+            std::size_t startPos = this->_g_data.size();
+            this->_g_data.resize(startPos - dsize);
+        }
+
+        this->_g_lastDataValidity = false;
+    }
+    return *this;
+}
+bool Packet::erase(std::size_t pos, std::size_t dsize)
+{
+    if ((dsize > 0) && (pos+dsize <= this->_g_data.size()))
+    {
+        this->_g_data.erase(this->_g_data.begin()+pos, this->_g_data.begin()+pos+dsize);
+        this->_g_lastDataValidity = false;
+    }
+    return false;
+}
+
 void Packet::setReadPos(std::size_t pos)
 {
     this->_g_readPos = (pos>this->_g_data.size()) ? this->_g_data.size() : pos;

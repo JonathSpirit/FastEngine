@@ -113,13 +113,9 @@ std::size_t CommandHandler::getCmdSize() const
     return this->g_cmdData.size();
 }
 
-fge::CommandHandler::CommandDataType::const_iterator CommandHandler::cbegin() const
+const fge::CommandHandler::CommandDataType& CommandHandler::getCmdList() const
 {
-    return this->g_cmdData.cbegin();
-}
-fge::CommandHandler::CommandDataType::const_iterator CommandHandler::cend() const
-{
-    return this->g_cmdData.cend();
+    return this->g_cmdData;
 }
 
 }//end fge

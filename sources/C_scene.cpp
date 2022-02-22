@@ -602,7 +602,7 @@ void Scene::pack(fge::net::Packet& pck)
     }
 
     //OBJECT SIZE
-    pck << static_cast<uint32_t>(this->g_data.size());
+    pck << static_cast<fge::net::SizeType>(this->g_data.size());
     for (const auto & data : this->g_data)
     {
         if ( data->g_type == fge::ObjectType::TYPE_GUI )
@@ -618,7 +618,7 @@ void Scene::pack(fge::net::Packet& pck)
         //PLAN
         pck << data->g_plan;
         //TYPE
-        pck << static_cast<uint8_t>(data->g_type);
+        pck << static_cast<std::underlying_type<fge::ObjectType>::type>(data->g_type);
 
         data->g_object->pack(pck);
     }
@@ -628,6 +628,7 @@ void Scene::unpack(fge::net::Packet& pck)
     fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
     fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
     fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
+    std::underlying_type<fge::ObjectType>::type buffType{fge::ObjectType::TYPE_NULL};
 
     //SCENE NAME
     pck >> this->g_name;
@@ -641,9 +642,9 @@ void Scene::unpack(fge::net::Packet& pck)
     //OBJECT SIZE
     this->delAllObject(true);
 
-    uint32_t objectSize{0};
+    fge::net::SizeType objectSize{0};
     pck >> objectSize;
-    for (uint32_t i=0; i<objectSize; ++i)
+    for (fge::net::SizeType i=0; i<objectSize; ++i)
     {
         //SID
         pck >> buffSid;
@@ -656,13 +657,12 @@ void Scene::unpack(fge::net::Packet& pck)
         //PLAN
         pck >> buffPlan;
         //TYPE
-        uint8_t tmpType{fge::ObjectType::TYPE_NULL};
-        pck >> tmpType;
+        pck >> buffType;
 
         fge::Object* buffObject = fge::reg::GetNewClassOf(buffClass);
         if (buffObject)
         {
-            this->newObject(buffObject, buffPlan, buffSid, static_cast<fge::ObjectType>(tmpType) );
+            this->newObject(buffObject, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
 
             buffObject->unpack(pck);
         }
@@ -674,9 +674,10 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
     pck << this->g_name;
 
     //SCENE DATA
-    uint32_t countSceneDataModification = 0;
+    fge::net::SizeType countSceneDataModification = 0;
+
     std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&countSceneDataModification, sizeof(uint32_t)); //Will be rewrited
+    pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewrited
 
     for ( std::size_t i=0; i<this->_netList.size(); ++i )
     {
@@ -685,25 +686,33 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
         netType->clientsCheckup(clients);
         if ( netType->checkClient(id) )
         {
-            ++countSceneDataModification;
-            pck << static_cast<uint32_t>(i);
+            pck << static_cast<fge::net::SizeType>(i);
             netType->packData(pck, id);
+
+            ++countSceneDataModification;
         }
     }
-    pck.pack(rewritePos, &countSceneDataModification, sizeof(uint32_t)); //Rewriting size
+    pck.pack(rewritePos, &countSceneDataModification, sizeof(countSceneDataModification)); //Rewriting size
 
     //OBJECT SIZE
-    uint32_t countObject = 0;
+    fge::net::SizeType countObject = 0;
 
     std::size_t countObjectPos = pck.getDataSize();
-    pck.pack(&countObject, sizeof(uint32_t)); //Will be rewrited
+    pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
 
-    for (const auto & data : *this)
+    std::size_t dataPos = pck.getDataSize();
+    constexpr const std::size_t reservedSize =
+            sizeof(fge::ObjectSid) +
+            sizeof(fge::reg::ClassId) +
+            sizeof(fge::ObjectPlan) +
+            sizeof(std::underlying_type<fge::ObjectType>::type) +
+            sizeof(fge::net::SizeType);
+    pck.append(reservedSize);
+
+    for (const auto & data : this->g_data)
     {
-        fge::net::Packet pckModifiedData;
-
         //MODIF COUNT/OBJECT DATA
-        uint32_t countModification = 0;
+        fge::net::SizeType countModification = 0;
         for ( std::size_t i=0; i<data->getObject()->_netList.size(); ++i )
         {
             fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
@@ -712,27 +721,36 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
 
             if ( netType->checkClient(id) )
             {
+                pck << static_cast<fge::net::SizeType>(i);
+                netType->packData(pck, id);
+
                 ++countModification;
-                pckModifiedData << static_cast<uint32_t>(i);
-                netType->packData(pckModifiedData, id);
             }
         }
         if (countModification)
         {
-            ++countObject;
             //SID
-            pck << data->getSid();
+            pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));
             //CLASS
-            pck << fge::reg::GetClassId( data->getObject()->getClassName() );
+            fge::reg::ClassId tmpClass = fge::reg::GetClassId( data->getObject()->getClassName() );
+            pck.pack(dataPos+sizeof(fge::ObjectSid), &tmpClass, sizeof(fge::reg::ClassId));
             //PLAN
-            pck << data->getPlan();
+            pck.pack(dataPos+sizeof(fge::ObjectSid)+sizeof(fge::reg::ClassId), &data->g_plan, sizeof(fge::ObjectPlan));
+            //TYPE
+            std::underlying_type<fge::ObjectType>::type tmpType = data->g_type;
+            pck.pack(dataPos+sizeof(fge::ObjectSid)+sizeof(fge::reg::ClassId)+sizeof(fge::ObjectPlan), &tmpType, sizeof(tmpType));
 
-            pck << countModification;
-            pck.append(pckModifiedData.getData(), pckModifiedData.getDataSize());
+            pck.pack(dataPos+sizeof(fge::ObjectSid)+sizeof(fge::reg::ClassId)+sizeof(fge::ObjectPlan)+sizeof(tmpType), &countModification, sizeof(countModification));
+
+            dataPos = pck.getDataSize();
+            pck.append(reservedSize);
+
+            ++countObject;
         }
     }
 
-    pck.pack(countObjectPos, &countObject, sizeof(uint32_t)); //Rewriting size
+    pck.shrink(reservedSize);
+    pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
     clients.clearClientEvent();
 }
 void Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id)
@@ -741,9 +759,10 @@ void Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id
     pck << this->g_name;
 
     //SCENE DATA
-    uint32_t countSceneDataModification = 0;
+    fge::net::SizeType countSceneDataModification = 0;
+
     std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&countSceneDataModification, sizeof(uint32_t)); //Will be rewrited
+    pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewrited
 
     for ( std::size_t i=0; i<this->_netList.size(); ++i )
     {
@@ -751,103 +770,123 @@ void Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id
 
         if ( netType->checkClient(id) )
         {
-            ++countSceneDataModification;
-            pck << static_cast<uint32_t>(i);
+            pck << static_cast<fge::net::SizeType>(i);
             netType->packData(pck, id);
+
+            ++countSceneDataModification;
         }
     }
-    pck.pack(rewritePos, &countSceneDataModification, sizeof(uint32_t)); //Rewriting size
+    pck.pack(rewritePos, &countSceneDataModification, sizeof(countSceneDataModification)); //Rewriting size
 
     //OBJECT SIZE
-    uint32_t countObject = 0;
+    fge::net::SizeType countObject = 0;
 
     std::size_t countObjectPos = pck.getDataSize();
-    pck.pack(&countObject, sizeof(uint32_t)); //Will be rewrited
+    pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
 
-    for (const auto & data : *this)
+    std::size_t dataPos = pck.getDataSize();
+    constexpr const std::size_t reservedSize =
+            sizeof(fge::ObjectSid) +
+            sizeof(fge::reg::ClassId) +
+            sizeof(fge::ObjectPlan) +
+            sizeof(std::underlying_type<fge::ObjectType>::type) +
+            sizeof(fge::net::SizeType);
+    pck.append(reservedSize);
+
+    for (const auto & data : this->g_data)
     {
-        fge::net::Packet pckModifiedData;
-
         //MODIF COUNT/OBJECT DATA
-        uint32_t countModification = 0;
+        fge::net::SizeType countModification = 0;
         for ( std::size_t i=0; i<data->getObject()->_netList.size(); ++i )
         {
             fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
 
             if ( netType->checkClient(id) )
             {
+                pck << static_cast<fge::net::SizeType>(i);
+                netType->packData(pck, id);
+
                 ++countModification;
-                pckModifiedData << static_cast<uint32_t>(i);
-                netType->packData(pckModifiedData, id);
             }
         }
         if (countModification)
         {
-            ++countObject;
             //SID
-            pck << data->getSid();
+            pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));
             //CLASS
-            pck << fge::reg::GetClassId( data->getObject()->getClassName() );
+            fge::reg::ClassId tmpClass = fge::reg::GetClassId( data->getObject()->getClassName() );
+            pck.pack(dataPos+sizeof(fge::ObjectSid), &tmpClass, sizeof(fge::reg::ClassId));
             //PLAN
-            pck << data->getPlan();
+            pck.pack(dataPos+sizeof(fge::ObjectSid)+sizeof(fge::reg::ClassId), &data->g_plan, sizeof(fge::ObjectPlan));
+            //TYPE
+            std::underlying_type<fge::ObjectType>::type tmpType = data->g_type;
+            pck.pack(dataPos+sizeof(fge::ObjectSid)+sizeof(fge::reg::ClassId)+sizeof(fge::ObjectPlan), &tmpType, sizeof(tmpType));
 
-            pck << countModification;
-            pck.append(pckModifiedData.getData(), pckModifiedData.getDataSize());
+            pck.pack(dataPos+sizeof(fge::ObjectSid)+sizeof(fge::reg::ClassId)+sizeof(fge::ObjectPlan)+sizeof(tmpType), &countModification, sizeof(countModification));
+
+            dataPos = pck.getDataSize();
+            pck.append(reservedSize);
+
+            ++countObject;
         }
     }
 
-    pck.pack(countObjectPos, &countObject, sizeof(uint32_t)); //Rewriting size
+    pck.shrink(reservedSize);
+    pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
 void Scene::unpackModification(fge::net::Packet& pck)
 {
-    uint32_t buff_size = 0;
+    fge::net::SizeType buffSize = 0;
 
     //SCENE NAME
     pck >> this->g_name;
 
     //SCENE DATA
-    pck >> buff_size;
-    for ( uint32_t i=0; i<buff_size; ++i )
+    pck >> buffSize;
+    for (fge::net::SizeType i=0; i < buffSize; ++i )
     {
-        uint32_t buff_index;
-        pck >> buff_index;
+        fge::net::SizeType buffIndex;
+        pck >> buffIndex;
 
-        this->_netList.at(buff_index)->applyData(pck);
+        this->_netList.at(buffIndex)->applyData(pck);
     }
 
     //OBJECT SIZE
-    buff_size = 0;
-    pck >> buff_size;
-    for ( uint32_t i=0; i<buff_size; ++i )
+    buffSize = 0;
+    pck >> buffSize;
+    for (fge::net::SizeType i=0; i < buffSize; ++i )
     {
-        fge::reg::ClassId buff_class;
-        fge::ObjectPlan buff_plan{FGE_SCENE_PLAN_DEFAULT};
-        fge::ObjectSid buff_sid;
+        fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
+        fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
+        fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
+        std::underlying_type<fge::ObjectType>::type buffType{fge::ObjectType::TYPE_NULL};
 
         //SID
-        pck >> buff_sid;
+        pck >> buffSid;
         //CLASS
-        pck >> buff_class;
+        pck >> buffClass;
         //PLAN
-        pck >> buff_plan;
+        pck >> buffPlan;
+        //TYPE
+        pck >> buffType;
 
-        fge::Object* buff_obj = this->getObjectPtr(buff_sid);
-        if ( !buff_obj )
+        fge::Object* buffObject = this->getObjectPtr(buffSid);
+        if ( !buffObject )
         {
-            buff_obj = fge::reg::GetNewClassOf( buff_class );
-            this->newObject( buff_obj, buff_plan, buff_sid );
+            buffObject = fge::reg::GetNewClassOf(buffClass );
+            this->newObject(buffObject, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
         }
 
         //MODIF COUNT/OBJECT DATA
-        uint32_t counterModif=0;
+        fge::net::SizeType counterModif=0;
         pck >> counterModif;
 
-        for ( uint32_t a=0; a<counterModif; ++a )
+        for ( fge::net::SizeType a=0; a<counterModif; ++a )
         {
-            uint32_t buff_index;
-            pck >> buff_index;
+            fge::net::SizeType buffIndex;
+            pck >> buffIndex;
 
-            buff_obj->_netList.at(buff_index)->applyData(pck);
+            buffObject->_netList.at(buffIndex)->applyData(pck);
         }
     }
 }
@@ -950,9 +989,10 @@ void Scene::clearEvents()
 
 void Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    uint32_t counter=0;
+    fge::net::SizeType counter=0;
+
     std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&counter, sizeof(uint32_t)); //will be rewrited
+    pck.pack(&counter, sizeof(counter)); //will be rewrited
 
     auto it = this->g_networkEvents.find(id);
     if (it == this->g_networkEvents.end())
@@ -969,13 +1009,15 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id
             fge::ObjectDataShared data = this->getObject( events.front()._sid );
             if ( data )
             {
-                pck << static_cast<uint8_t>(fge::SceneNetEvent::SEVT_NEWOBJECT);
+                pck << static_cast<std::underlying_type<fge::SceneNetEvent::Events>::type>(fge::SceneNetEvent::SEVT_NEWOBJECT);
                 //SID
                 pck << data->g_sid;
                 //CLASS
-                pck << data->g_object->getClassName();
+                pck << fge::reg::GetClassId( data->g_object->getClassName() );
                 //PLAN
                 pck << data->g_plan;
+                //TYPE
+                pck << static_cast<std::underlying_type<fge::ObjectType>::type>(data->g_type);;
 
                 data->g_object->pack(pck);
                 ++counter;
@@ -983,7 +1025,7 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id
         }
         else
         {//Remove object
-            pck << static_cast<uint8_t>(fge::SceneNetEvent::SEVT_DELOBJECT);
+            pck << static_cast<std::underlying_type<fge::SceneNetEvent::Events>::type>(fge::SceneNetEvent::SEVT_DELOBJECT);
             //SID
             pck << events.front()._sid;
             ++counter;
@@ -991,47 +1033,50 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id
         events.pop();
     }
 
-    pck.pack(rewritePos, &counter, sizeof(uint32_t));
+    pck.pack(rewritePos, &counter, sizeof(counter));
 }
 void Scene::unpackWatchedEvent(fge::net::Packet& pck)
 {
-    fge::ObjectSid buff_sid;
-    std::string buff_class;
-    fge::ObjectPlan buff_plan;
+    fge::ObjectSid buffSid;
+    fge::reg::ClassId buffClass;
+    fge::ObjectPlan buffPlan;
+    std::underlying_type<fge::ObjectType>::type buffType;
 
-    uint8_t event = fge::SceneNetEvent::SEVT_UNKNOWN;
+    std::underlying_type<fge::SceneNetEvent::Events>::type event = fge::SceneNetEvent::SEVT_UNKNOWN;
 
-    uint32_t dataSize = 0;
+    fge::net::SizeType dataSize = 0;
     pck >> dataSize;
-    for (uint32_t i=0; i<dataSize; ++i)
+    for (fge::net::SizeType i=0; i<dataSize; ++i)
     {
         pck >> event; //Event type
 
         if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
         {//New object
             //SID
-            pck >> buff_sid;
+            pck >> buffSid;
             //CLASS
-            pck >> buff_class;
+            pck >> buffClass;
             //PLAN
-            pck >> buff_plan;
+            pck >> buffPlan;
+            //TYPE
+            pck >> buffType;
 
-            this->delObject(buff_sid);
-            fge::Object* theNewObject = fge::reg::GetNewClassOf(buff_class);
-            this->newObject(theNewObject, buff_plan, buff_sid);
+            this->delObject(buffSid);
+            fge::Object* theNewObject = fge::reg::GetNewClassOf(buffClass);
+            this->newObject(theNewObject, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType));
             theNewObject->unpack(pck);
         }
         else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
         {//Remove object
             //SID
-            pck >> buff_sid;
-            if (buff_sid == FGE_SCENE_BAD_SID)
+            pck >> buffSid;
+            if (buffSid == FGE_SCENE_BAD_SID)
             {
                 this->delAllObject(true);
             }
             else
             {
-                this->delObject(buff_sid);
+                this->delObject(buffSid);
             }
         }
     }

@@ -91,28 +91,28 @@ public:
         return this->g_object.release();
     }
 
-    inline fge::Scene* getLinkedScene() const
+    [[nodiscard]] inline fge::Scene* getLinkedScene() const
     {
         return this->g_linkedScene;
     }
-    inline fge::Object* getObject() const
+    [[nodiscard]] inline fge::Object* getObject() const
     {
         return this->g_object.get();
     }
-    inline fge::ObjectSid getSid() const
+    [[nodiscard]] inline fge::ObjectSid getSid() const
     {
         return this->g_sid;
     }
-    inline fge::ObjectPlan getPlan() const
+    [[nodiscard]] inline fge::ObjectPlan getPlan() const
     {
         return this->g_plan;
     }
-    inline fge::ObjectType getType() const
+    [[nodiscard]] inline fge::ObjectType getType() const
     {
         return this->g_type;
     }
 
-    inline bool isLinked() const
+    [[nodiscard]] inline bool isLinked() const
     {
         return this->g_linkedScene != nullptr;
     }
@@ -141,7 +141,7 @@ public:
 
     static inline bool isValid(const std::shared_ptr<fge::ObjectData>& dataShared)
     {
-        return dataShared ? dataShared->isLinked() : false;
+        return dataShared && dataShared->isLinked();
     }
 
 private:
@@ -165,7 +165,7 @@ public:
     using NetworkEventQueuePerClient = std::unordered_map<fge::net::Identity, std::queue<fge::SceneNetEvent>, fge::net::IdentityHash>;
 
     Scene();
-    Scene(const std::string& scene_name);
+    explicit Scene(const std::string& scene_name);
     virtual ~Scene() = default;
 
     /** Scene **/

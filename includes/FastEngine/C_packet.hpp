@@ -16,7 +16,7 @@
 #include <SFML/System/Vector3.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-#define FGE_PACKET_DEFAULT_RESERVESIZE 2048
+#define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 
 namespace fge
 {
@@ -25,6 +25,8 @@ namespace net
 
 class SocketTcp;
 class SocketUdp;
+
+using SizeType = uint16_t;
 
 class FGE_API Packet
 {
@@ -52,6 +54,9 @@ public:
 
     bool read(std::size_t pos, void* buff, std::size_t bsize) const; //Will read to network byte order
     bool unpack(std::size_t pos, void* buff, std::size_t bsize) const; //Will read and auto convert to host byte order
+
+    fge::net::Packet& shrink(std::size_t dsize);
+    bool erase(std::size_t pos, std::size_t dsize);
 
     void setReadPos(std::size_t pos);
     [[nodiscard]] std::size_t getReadPos() const;

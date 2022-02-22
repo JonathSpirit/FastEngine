@@ -48,8 +48,7 @@ public:
 
     [[nodiscard]] std::size_t getCmdSize() const;
 
-    [[nodiscard]] fge::CommandHandler::CommandDataType::const_iterator cbegin() const;
-    [[nodiscard]] fge::CommandHandler::CommandDataType::const_iterator cend() const;
+    [[nodiscard]] const fge::CommandHandler::CommandDataType& getCmdList() const;
 
 private:
     fge::CommandHandler::CommandDataType g_cmdData;
