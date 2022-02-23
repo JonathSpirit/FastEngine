@@ -18,8 +18,8 @@ Texture::Texture( const char* name ) :
     g_name(name)
 {
 }
-Texture::Texture( const fge::texture::TextureDataPtr& data ) :
-    g_data(data),
+Texture::Texture( fge::texture::TextureDataPtr data ) :
+    g_data(std::move(data)),
     g_name(FGE_TEXTURE_BAD)
 {
 }
@@ -28,6 +28,10 @@ void Texture::clear()
 {
     this->g_data = fge::texture::GetBadTexture();
     this->g_name = FGE_TEXTURE_BAD;
+}
+void Texture::refresh()
+{
+    this->g_data = fge::texture::GetTexture(this->g_name);
 }
 
 bool Texture::valid() const
@@ -49,20 +53,33 @@ const std::string& Texture::getName() const
     return this->g_name;
 }
 
-void Texture::operator =( const std::string& name )
+fge::Texture& Texture::operator =( const std::string& name )
 {
+    if (this->g_name == name)
+    {
+        return *this;
+    }
+
     this->g_name = name;
     this->g_data = fge::texture::GetTexture(name);
+    return *this;
 }
-void Texture::operator =( const char* name )
+fge::Texture& Texture::operator =( const char* name )
 {
-    this->g_name = std::string(name);
+    if (this->g_name == name)
+    {
+        return *this;
+    }
+
+    this->g_name = std::move(std::string(name));
     this->g_data = fge::texture::GetTexture(this->g_name);
+    return *this;
 }
-void Texture::operator =( const fge::texture::TextureDataPtr& data )
+fge::Texture& Texture::operator =( fge::texture::TextureDataPtr data )
 {
     this->g_name = FGE_TEXTURE_BAD;
-    this->g_data = data;
+    this->g_data = std::move(data);
+    return *this;
 }
 
 Texture::operator sf::Texture*()

@@ -13,20 +13,21 @@ public:
     Texture();
     Texture( const std::string& name );
     Texture( const char* name );
-    Texture( const fge::texture::TextureDataPtr& data );
+    Texture( fge::texture::TextureDataPtr data );
 
     void clear();
+    void refresh();
 
-    bool valid() const;
+    [[nodiscard]] bool valid() const;
 
-    sf::Vector2u getTextureSize() const;
+    [[nodiscard]] sf::Vector2u getTextureSize() const;
 
-    const fge::texture::TextureDataPtr& getData() const;
-    const std::string& getName() const;
+    [[nodiscard]] const fge::texture::TextureDataPtr& getData() const;
+    [[nodiscard]] const std::string& getName() const;
 
-    void operator =( const std::string& name );
-    void operator =( const char* name );
-    void operator =( const fge::texture::TextureDataPtr& data );
+    fge::Texture& operator =( const std::string& name );
+    fge::Texture& operator =( const char* name );
+    fge::Texture& operator =( fge::texture::TextureDataPtr data );
 
     explicit operator sf::Texture*();
     explicit operator const sf::Texture*() const;

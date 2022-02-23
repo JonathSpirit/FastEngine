@@ -1,0 +1,30 @@
+---------------------------------------------
+Target version 0.9.2             FastEngine |
+---------------------------------------------
+[V]: implemented                            |
+[X]: rejected                               |
+[-]: to do                                  |
+[?]: will maybe be implemented              |
+[!]: urgent !                               |
+[/]: implemented but modified               |
+[T]: implemented but must be tested         |
+[C]: must be fixed !                        |
+[>]: will be on the next update ...         |
+---------------------------------------------
+
+[-] Add a collision system
+[-] Add a gravity system
+[-] Add a velocity system
+[-] Add a language manager
+[-] Add some debug function to quickly draw something on screen
+[-] Add a Packable class that will contain pack(), unpack()
+[-] Get rid of graphical part of the library in the server version
+[-] Clean and do a new test main
+[-] Data protection and check in packet (new Blueprint class ?)
+[?] Create a tree object system (child and parent)
+[?] Big packets cut into multiple packet
+[-] Add more events callback
+[-] Make the engine good on linux
+[>] Make the engine good on mac
+[-] Replace strk cause obsolete
+[-] Class struct that have a size <8Bytes have to not be allocated in property
