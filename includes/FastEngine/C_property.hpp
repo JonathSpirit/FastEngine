@@ -74,9 +74,13 @@ public:
 
     //Copy/Move some type operator
     template<class T>
+    inline fge::Property& operator= (T& val);
+    template<class T>
     inline fge::Property& operator= (const T& val);
     template<class T>
     inline fge::Property& operator= (T&& val);
+    template<class T>
+    inline fge::Property& operator= (const T&& val);
 
     //Special string copy operator
     inline fge::Property& operator= (const char* val);
@@ -100,9 +104,13 @@ public:
     inline bool set(const fge::Property&& val);
 
     template<class T>
+    inline bool set(T& val);
+    template<class T>
     inline bool set(const T& val);
     template<class T>
     inline bool set(T&& val);
+    template<class T>
+    inline bool set(const T&& val);
 
     inline bool set(const char* val);
 

@@ -338,25 +338,25 @@ bool Packet::endReached() const
 
 fge::net::Packet& Packet::operator <<(const char* data)
 {
-    uint32_t length = static_cast<uint32_t>( std::strlen(data) );
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( std::strlen(data) );
 
-    this->pack(&length, sizeof(uint32_t));
+    this->pack(&length, sizeof(length));
     return this->append(data, sizeof(char) * length);
 }
 fge::net::Packet& Packet::operator <<(const std::string& data)
 {
-    uint32_t length = static_cast<uint32_t>( data.size() );
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( data.size() );
 
-    this->pack(&length, sizeof(uint32_t));
+    this->pack(&length, sizeof(length));
     return this->append(data.data(), sizeof(std::string::value_type) * length);
 }
 fge::net::Packet& Packet::operator <<(const wchar_t* data)
 {
-    uint32_t length = static_cast<uint32_t>( std::wcslen(data) );
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( std::wcslen(data) );
 
-    this->pack(&length, sizeof(uint32_t));
+    this->pack(&length, sizeof(length));
 
-    for (uint32_t i=0; i<length; ++i)
+    for (fge::net::SizeType i=0; i<length; ++i)
     {
         uint32_t buff = data[i];
         this->pack(&buff, sizeof(uint32_t));
@@ -365,11 +365,11 @@ fge::net::Packet& Packet::operator <<(const wchar_t* data)
 }
 fge::net::Packet& Packet::operator <<(const std::wstring& data)
 {
-    uint32_t length = static_cast<uint32_t>( data.size() );
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( data.size() );
 
-    this->pack(&length, sizeof(uint32_t));
+    this->pack(&length, sizeof(length));
 
-    for (uint32_t i=0; i<length; ++i)
+    for (fge::net::SizeType i=0; i<length; ++i)
     {
         uint32_t buff = data[i];
         this->pack(&buff, sizeof(uint32_t));
@@ -378,11 +378,11 @@ fge::net::Packet& Packet::operator <<(const std::wstring& data)
 }
 fge::net::Packet& Packet::operator <<(const sf::String& data)
 {
-    uint32_t length = static_cast<uint32_t>( data.getSize() );
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( data.getSize() );
 
-    this->pack(&length, sizeof(uint32_t));
+    this->pack(&length, sizeof(length));
 
-    for (uint32_t i=0; i<length; ++i)
+    for (fge::net::SizeType i=0; i<length; ++i)
     {
         uint32_t buff = data[i];
         this->pack(&buff, sizeof(uint32_t));
@@ -392,8 +392,8 @@ fge::net::Packet& Packet::operator <<(const sf::String& data)
 
 fge::net::Packet& Packet::operator >>(char* data)
 {
-    uint32_t length = 0;
-    this->unpack(&length, sizeof(uint32_t));
+    fge::net::SizeType length = 0;
+    this->unpack(&length, sizeof(length));
 
     if (length > 0)
     {
@@ -415,8 +415,8 @@ fge::net::Packet& Packet::operator >>(char* data)
 }
 fge::net::Packet& Packet::operator >>(std::string& data)
 {
-    uint32_t length = 0;
-    this->unpack(&length, sizeof(uint32_t));
+    fge::net::SizeType length = 0;
+    this->unpack(&length, sizeof(length));
 
     if (length > 0)
     {
@@ -440,14 +440,14 @@ fge::net::Packet& Packet::operator >>(std::string& data)
 }
 fge::net::Packet& Packet::operator >>(wchar_t* data)
 {
-    uint32_t length = 0;
-    this->unpack(&length, sizeof(uint32_t));
+    fge::net::SizeType length = 0;
+    this->unpack(&length, sizeof(length));
 
     if (length > 0)
     {
         if ((this->_g_readPos + (length - 1) * sizeof(uint32_t) ) < this->_g_data.size())
         {
-            for (unsigned int i = 0; i<length; ++i)
+            for (fge::net::SizeType i = 0; i<length; ++i)
             {
                 uint32_t buff = 0;
                 this->unpack(&buff, sizeof(uint32_t));
@@ -468,15 +468,15 @@ fge::net::Packet& Packet::operator >>(wchar_t* data)
 }
 fge::net::Packet& Packet::operator >>(std::wstring& data)
 {
-    uint32_t length = 0;
-    this->unpack(&length, sizeof(uint32_t));
+    fge::net::SizeType length = 0;
+    this->unpack(&length, sizeof(length));
 
     if (length > 0)
     {
         if ((this->_g_readPos + (length - 1) * sizeof(uint32_t) ) < this->_g_data.size())
         {
             data.resize(length);
-            for (unsigned int i = 0; i<length; ++i)
+            for (fge::net::SizeType i = 0; i<length; ++i)
             {
                 uint32_t buff = 0;
                 this->unpack(&buff, sizeof(uint32_t));
@@ -496,14 +496,14 @@ fge::net::Packet& Packet::operator >>(std::wstring& data)
 }
 fge::net::Packet& Packet::operator >>(sf::String& data)
 {
-    uint32_t length = 0;
-    this->unpack(&length, sizeof(uint32_t));
+    fge::net::SizeType length = 0;
+    this->unpack(&length, sizeof(length));
 
     if (length > 0)
     {
         if ((this->_g_readPos + (length - 1) * sizeof(uint32_t) ) < this->_g_data.size())
         {
-            for (uint32_t i = 0; i<length; ++i)
+            for (fge::net::SizeType i = 0; i<length; ++i)
             {
                 uint32_t buff = 0;
                 this->unpack(&buff, sizeof(uint32_t));
