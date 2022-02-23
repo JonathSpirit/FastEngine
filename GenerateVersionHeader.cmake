@@ -9,7 +9,7 @@ if(GIT_EXECUTABLE)
     OUTPUT_STRIP_TRAILING_WHITESPACE
     )
   if(NOT GIT_DESCRIBE_ERROR_CODE)
-    STRING(REGEX MATCH "v?((([0-9]+)\\.([0-9]+)\\.([0-9]+))-(.+))" REGEX_OUT ${GIT_DESCRIBE_VERSION})
+    STRING(REGEX MATCH "v?((([0-9]+)\\.([0-9]+)\\.([0-9]+))-?(.+)*)" REGEX_OUT ${GIT_DESCRIBE_VERSION})
 
     # message("match 1 : ${CMAKE_MATCH_1}")
     # message("match 2 : ${CMAKE_MATCH_2}")
