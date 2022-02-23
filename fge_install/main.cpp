@@ -184,7 +184,7 @@ int main()
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/json.hpp", FARCH_ALL, FBUILD_ALL);
 
     installFiles.emplace_back(false, FTYPE_FILE, "logo.png", FARCH_ALL, FBUILD_ALL);
-    installFiles.emplace_back(false, FTYPE_FILE, "fengine_changelog.txt", FARCH_ALL, FBUILD_ALL);
+    installFiles.emplace_back(false, FTYPE_FILE, "fge_changelog.txt", FARCH_ALL, FBUILD_ALL);
 
     //sfml
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
