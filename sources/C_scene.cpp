@@ -257,14 +257,15 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
                 continue;
             }
         }
+
         (*it)->g_object->removed(this);
         this->_onRemoveObject.call(this, *it);
         (*it)->g_linkedScene = nullptr;
         (*it)->g_object->_myObjectData = nullptr;
-    }
 
-    this->g_data.clear();
-    this->g_dataMap.clear();
+        this->g_dataMap.erase((*it)->g_sid);
+        it = --this->g_data.erase(it);
+    }
     return buffSize;
 }
 
