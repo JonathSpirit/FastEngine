@@ -48,14 +48,16 @@ public:
     Property() = default;
 
     //Copy/Move constructor
-    inline Property(fge::Property& val);
     inline Property(const fge::Property& val);
     inline Property(fge::Property&& val) noexcept;
-    inline Property(const fge::Property&& val);
 
     //Copy/Move some type constructor
-    template<class T>
-    inline Property(T val);
+    template<class T,
+            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
+    inline Property(const T& val);
+    template<class T,
+            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
+    inline Property(T&& val);
 
     //Special string copy constructor
     inline Property(const char* val);
@@ -67,20 +69,16 @@ public:
     inline bool operator== (const fge::Property& val) const;
 
     //Copy/Move operator
-    inline fge::Property& operator= (fge::Property& val);
     inline fge::Property& operator= (const fge::Property& val);
     inline fge::Property& operator= (fge::Property&& val) noexcept;
-    inline fge::Property& operator= (const fge::Property&& val);
 
     //Copy/Move some type operator
-    template<class T>
-    inline fge::Property& operator= (T& val);
-    template<class T>
+    template<class T,
+            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
     inline fge::Property& operator= (const T& val);
-    template<class T>
+    template<class T,
+            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
     inline fge::Property& operator= (T&& val);
-    template<class T>
-    inline fge::Property& operator= (const T&& val);
 
     //Special string copy operator
     inline fge::Property& operator= (const char* val);
@@ -98,19 +96,15 @@ public:
 
     [[nodiscard]] inline std::string toString() const;
 
-    inline bool set(fge::Property& val);
     inline bool set(const fge::Property& val);
     inline bool set(fge::Property&& val);
-    inline bool set(const fge::Property&& val);
 
-    template<class T>
-    inline bool set(T& val);
-    template<class T>
+    template<class T,
+            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
     inline bool set(const T& val);
-    template<class T>
+    template<class T,
+            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
     inline bool set(T&& val);
-    template<class T>
-    inline bool set(const T&& val);
 
     inline bool set(const char* val);
 
