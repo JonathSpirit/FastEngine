@@ -178,8 +178,10 @@ public:
 template<class T>
 class PropertyClassWrapperType : public PropertyClassWrapper
 {
+    static_assert(std::negation<std::is_base_of<fge::PropertyClassWrapper, T>>::value, "fge::PropertyClassWrapperType<T>, T must not be based on fge::PropertyClassWrapper class type !");
     static_assert(std::negation<std::is_base_of<fge::Property, T>>::value, "fge::PropertyClassWrapperType<T>, T must not be based on fge::Property class type !");
     static_assert(std::negation<std::is_pointer<T>>::value, "fge::PropertyClassWrapperType<T>, T must not be a pointer !");
+    static_assert(std::negation<std::is_reference<T>>::value, "fge::PropertyClassWrapperType<T>, T must not be a reference !");
 public:
     PropertyClassWrapperType() = default;
     explicit PropertyClassWrapperType(T val);
