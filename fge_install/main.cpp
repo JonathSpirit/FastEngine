@@ -162,23 +162,43 @@ int main()
 
     list<InstallFile> installFiles;
 
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug32/libFastEngine32_d.dll", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug64/libFastEngine64_d.dll", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug32/libFastEngineServer32_d.dll", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-debug64/libFastEngineServer64_d.dll", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release32/libFastEngine32.dll", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release64/libFastEngine64.dll", FARCH_64, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release32/libFastEngineServer32.dll", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, "cmake-build-release64/libFastEngineServer64.dll", FARCH_64, FBUILD_RELEASE);
+#ifdef __linux__
+    filesystem::path pathBuild32DebugDir = "cmake-build-debug32linux/";
+    filesystem::path pathBuild32ReleaseDir = "cmake-build-release32linux/";
+    filesystem::path pathBuild64DebugDir = "cmake-build-debug64linux/";
+    filesystem::path pathBuild64ReleaseDir = "cmake-build-release64linux/";
 
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug32/libFastEngine32_d.dll.a", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug64/libFastEngine64_d.dll.a", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug32/libFastEngineServer32_d.dll.a", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-debug64/libFastEngineServer64_d.dll.a", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release32/libFastEngine32.dll.a", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release64/libFastEngine64.dll.a", FARCH_64, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release32/libFastEngineServer32.dll.a", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, "cmake-build-release64/libFastEngineServer64.dll.a", FARCH_64, FBUILD_RELEASE);
+    filesystem::path pathLibExtension = ".so";
+    filesystem::path pathSfmlLibExtension = ".so";
+#else
+    filesystem::path pathBuild32DebugDir = "cmake-build-debug32/";
+    filesystem::path pathBuild32ReleaseDir = "cmake-build-release32/";
+    filesystem::path pathBuild64DebugDir = "cmake-build-debug64/";
+    filesystem::path pathBuild64ReleaseDir = "cmake-build-release64/";
+
+    filesystem::path pathLibExtension = ".dll.a";
+    filesystem::path pathSfmlLibExtension = ".a";
+#endif //__linux__
+
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32DebugDir/"libFastEngine32_d.dll", FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64DebugDir/"libFastEngine64_d.dll", FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32DebugDir/"libFastEngineServer32_d.dll", FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64DebugDir/"libFastEngineServer64_d.dll", FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32ReleaseDir/"libFastEngine32.dll", FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64ReleaseDir/"libFastEngine64.dll", FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32ReleaseDir/"libFastEngineServer32.dll", FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64ReleaseDir/"libFastEngineServer64.dll", FARCH_64, FBUILD_RELEASE);
+#endif //_WIN32
+
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32DebugDir/"libFastEngine32_d"+=pathLibExtension, FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64DebugDir/"libFastEngine64_d"+=pathLibExtension, FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32DebugDir/"libFastEngineServer32_d"+=pathLibExtension, FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64DebugDir/"libFastEngineServer64_d"+=pathLibExtension, FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32ReleaseDir/"libFastEngine32"+=pathLibExtension, FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64ReleaseDir/"libFastEngine64"+=pathLibExtension, FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32ReleaseDir/"libFastEngineServer32"+=pathLibExtension, FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64ReleaseDir/"libFastEngineServer64"+=pathLibExtension, FARCH_64, FBUILD_RELEASE);
 
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/FastEngine", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/json.hpp", FARCH_ALL, FBUILD_ALL);
@@ -187,48 +207,66 @@ int main()
     installFiles.emplace_back(false, FTYPE_FILE, "fge_changelog.txt", FARCH_ALL, FBUILD_ALL);
 
     //sfml
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-system-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug32/libs/SFML/lib/sfml-window-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-audio-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-graphics-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-system-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-window-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug32/libs/SFML/lib/libsfml-main-d.a", FARCH_32, FBUILD_DEBUG, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-system-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-window-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+#endif //_WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-audio-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-graphics-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-system-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-window-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-main-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+#endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug64/libs/SFML/lib/sfml-audio-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug64/libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug64/libs/SFML/lib/sfml-system-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-debug64/libs/SFML/lib/sfml-window-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-audio-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-graphics-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-system-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-window-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-debug64/libs/SFML/lib/libsfml-main-d.a", FARCH_64, FBUILD_DEBUG, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-audio-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-system-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-window-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+#endif //_WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-audio-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-graphics-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-system-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-window-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-main-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+#endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release32/libs/SFML/lib/sfml-audio-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release32/libs/SFML/lib/sfml-graphics-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release32/libs/SFML/lib/sfml-system-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release32/libs/SFML/lib/sfml-window-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-audio.a", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-graphics.a", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-system.a", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-window.a", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release32/libs/SFML/lib/libsfml-main.a", FARCH_32, FBUILD_RELEASE, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-audio-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-graphics-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-system-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-window-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-audio"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-graphics"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-system"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-window"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-main"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release64/libs/SFML/lib/sfml-audio-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release64/libs/SFML/lib/sfml-graphics-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release64/libs/SFML/lib/sfml-system-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "cmake-build-release64/libs/SFML/lib/sfml-window-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-audio.a", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-graphics.a", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-system.a", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-window.a", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "cmake-build-release64/libs/SFML/lib/libsfml-main.a", FARCH_64, FBUILD_RELEASE, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-audio-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-graphics-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-system-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-window-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-audio"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-graphics"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-system"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-window"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-main"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
 
+#ifdef _WIN32
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/extlibs/bin/x64/openal32.dll", FARCH_64, FBUILD_ALL, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/extlibs/bin/x86/openal32.dll", FARCH_32, FBUILD_ALL, "libsfml");
+#endif //_WIN32
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SFML/include/SFML", FARCH_ALL, FBUILD_ALL, "libsfml");
 

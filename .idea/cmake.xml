@@ -2,10 +2,46 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug32" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MSYS2_MinGW_32" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine32d_win" />
-      <configuration PROFILE_NAME="Release32" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="MSYS2_MinGW_32" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine32_win" />
-      <configuration PROFILE_NAME="Debug64" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="MSYS2_MinGW_64" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine64d_win" />
-      <configuration PROFILE_NAME="Release64" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="MSYS2_MinGW_64" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine64_win" />
+      <configuration PROFILE_NAME="Debug32" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine32d_win" />
+      <configuration PROFILE_NAME="Release32" ENABLED="false" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine32_win" />
+      <configuration PROFILE_NAME="Debug64" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine64d_win" />
+      <configuration PROFILE_NAME="Release64" ENABLED="false" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot; -DCMAKE_INSTALL_PREFIX=FastEngine64_win" />
+      <configuration PROFILE_NAME="Debug32Linux" ENABLED="true" CONFIG_NAME="Debug">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="CFLAGS" value="-m32" />
+            <env name="CXXFLAGS" value="-m32" />
+            <env name="CPPFLAGS" value="-m32" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
+      <configuration PROFILE_NAME="Release32Linux" ENABLED="true" CONFIG_NAME="Release">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="CFLAGS" value="-m32" />
+            <env name="CXXFLAGS" value="-m32" />
+            <env name="CPPFLAGS" value="-m32" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
+      <configuration PROFILE_NAME="Debug64Linux" ENABLED="true" CONFIG_NAME="Debug">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="CFLAGS" value="-m64" />
+            <env name="CXXFLAGS" value="-m64" />
+            <env name="CPPFLAGS" value="-m64" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
+      <configuration PROFILE_NAME="Release64Linux" ENABLED="true" CONFIG_NAME="Release">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="CFLAGS" value="-m64" />
+            <env name="CXXFLAGS" value="-m64" />
+            <env name="CPPFLAGS" value="-m64" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
     </configurations>
   </component>
 </project>
