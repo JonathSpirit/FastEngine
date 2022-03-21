@@ -6,27 +6,27 @@
 namespace fge
 {
 
-template<unsigned int TNbytes>
+template<std::size_t TNbytes>
 class BitBank
 {
     static_assert(TNbytes>0, "TNbytes must be greater than 0");
 public:
-    BitBank();
+    BitBank() = default;
     ~BitBank() = default;
 
     void clear();
 
-    void set(unsigned int index, bool flag);
-    bool get(unsigned int index) const;
-    uint8_t getByte(unsigned int index) const;
+    void set(std::size_t index, bool flag);
+    [[nodiscard]] bool get(std::size_t index) const;
+    [[nodiscard]] uint8_t getByte(std::size_t index) const;
 
-    unsigned int getSize() const;
+    [[nodiscard]] std::size_t getSize() const;
 
     void pack(fge::net::Packet& pck);
     void unpack(fge::net::Packet& pck);
 
 private:
-    uint8_t g_data[TNbytes];
+    uint8_t g_data[TNbytes]{0};
 };
 
 }//end fge

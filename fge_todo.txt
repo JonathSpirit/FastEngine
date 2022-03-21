@@ -24,7 +24,7 @@ Target version 0.9.2             FastEngine |
 [?] Create a tree object system (child and parent)
 [?] Big packets cut into multiple packet
 [-] Add more events callback
-[-] fix weird c++ copy/affect on property
+[V] fix weird c++ copy/affect on property
 [V] Make the engine good on linux
 [>] Make the engine good on mac
 [X] Replace strk cause obsolete
