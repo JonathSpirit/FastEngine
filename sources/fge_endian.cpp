@@ -8,6 +8,7 @@
     #endif
 #else
     #include <bit>
+    #include <type_traits>
 #endif
 
 namespace fge
