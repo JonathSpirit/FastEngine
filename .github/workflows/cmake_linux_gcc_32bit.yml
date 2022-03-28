@@ -34,7 +34,7 @@ jobs:
     
     - name: Install dependencies (32bit)
       run: |
-        sudo apt-get install libfreetype-dev:i386 libx11-dev:i386 libxrandr-dev:i386 libudev-dev:i386 \
+        sudo apt-get install libfreetype-dev:i386 libx11-dev libx11-dev:i386 libxrandr-dev:i386 libudev-dev:i386 \
         libglu1-mesa-dev:i386 freeglut3-dev:i386 mesa-common-dev:i386 libflac-dev:i386 libogg-dev:i386 \
         libvorbis-dev:i386 libopenal-dev:i386 xserver-xorg-dev:i386 libxcursor-dev:i386 libx11-6:i386 libxfont-dev:i386 
 
