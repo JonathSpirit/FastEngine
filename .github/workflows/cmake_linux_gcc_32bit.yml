@@ -25,13 +25,13 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/build
       
+    - name: Add 32bits arch
+      run: sudo dpkg --add-architecture i386
+      
     - name: Install c c++ lib (32bit)
       # Removing "file not found" bug with gcc
       run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib libc6 libc6-dev
-      
-    - name: Add 32bits arch
-      run: sudo dpkg --add-architecture i386
-
+    
     - name: Install dependencies (32bit)
       run: |
         sudo apt-get install libfreetype-dev:i386 libx11-dev:i386 libxrandr-dev:i386 libudev-dev:i386 \
