@@ -25,6 +25,12 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/build
       
+    - name: Install dependencies
+      run: |
+        sudo apt-get install libfreetype-dev libx11-dev libxrandr-dev libudev-dev \
+        libglu1-mesa-dev freeglut3-dev mesa-common-dev libflac-dev libogg-dev \
+        libvorbis-dev libopenal-dev
+      
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system

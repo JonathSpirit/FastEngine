@@ -29,6 +29,12 @@ jobs:
       # Removing "file not found" bug with clang
       run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib libc6 libc6-dev
       
+    - name: Install dependencies (32bit)
+      run: |
+        sudo apt-get install libfreetype-dev:i386 libx11-dev:i386 libxrandr-dev:i386 libudev-dev:i386 \
+        libglu1-mesa-dev:i386 freeglut3-dev:i386 mesa-common-dev:i386 libflac-dev:i386 libogg-dev:i386 \
+        libvorbis-dev:i386 libopenal-dev:i386
+      
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
