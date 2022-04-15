@@ -32,7 +32,7 @@ jobs:
       run: |
         sudo apt-get install libfreetype-dev libx11-dev libxrandr-dev libudev-dev \
         libglu1-mesa-dev freeglut3-dev mesa-common-dev libflac-dev libogg-dev \
-        libvorbis-dev libopenal-dev
+        libvorbis-dev libopenal-dev libxcursor-dev
       
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
