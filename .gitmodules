@@ -16,7 +16,7 @@
     path = libs/re2
     url = https://github.com/google/re2.git
     ignore = dirty
-    branch = 2022-02-01
+    branch = 2022-04-01
 [submodule "libs/SFML"]
     path = libs/SFML
     url = https://github.com/SFML/SFML.git
