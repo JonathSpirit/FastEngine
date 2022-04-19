@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(FastEngine)
 
+include(ExternalProject)
+
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(FGE_ARCH 64)
@@ -44,33 +46,54 @@ set(FGE_EXE_NAME ${PROJECT_NAME}_test)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-#Dependency
+#Get the GIT version target
 find_package(Git)
-add_custom_target(version
+add_custom_target(fgeVersion
         ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in
         -D DST=${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp
         -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
         -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
         )
 
-#CMAKE_BINARY_DIR
-set(BUILD_SHARED_LIBS ON)
-set(BUILD_STATIC_LIBS OFF)
+#Add all subdirectories
 
-set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE)
+#Make sure we are building shared libs for libraries that need to be shared
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE) #BEGIN BUILD_SHARED_LIBS
+set(BUILD_STATIC_LIBS OFF CACHE BOOL "" FORCE)
+
+if(WIN32)
+    ExternalProject_Add(OpenAL_extern #OpenAL-soft
+            URL "${PROJECT_SOURCE_DIR}/libs/openal-soft"
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern
+            CMAKE_ARGS -DALSOFT_UTILS=OFF -DALSOFT_EXAMPLES=OFF -DCMAKE_BUILD_TYPE=Release
+            INSTALL_COMMAND ""
+            TEST_COMMAND ""
+            DOWNLOAD_COMMAND ""
+            SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/openal-soft
+            EXCLUDE_FROM_ALL
+            )
+
+    set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
+    set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
+endif()
+
+set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
 add_subdirectory("libs/SFML" EXCLUDE_FROM_ALL)
 
-set(BUILD_SHARED_LIBS OFF)
-set(BUILD_STATIC_LIBS ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE) #END BUILD_SHARED_LIBS
 
-set(LZ4_BUILD_CLI OFF CACHE BOOL "" FORCE)
+set(LZ4_BUILD_CLI OFF CACHE BOOL "" FORCE) #lz4
 add_subdirectory("libs/lz4/build/cmake" EXCLUDE_FROM_ALL)
-set(FMT_TEST OFF CACHE BOOL "" FORCE)
+
+set(FMT_TEST OFF CACHE BOOL "" FORCE) #fmt
 add_subdirectory("libs/fmt" EXCLUDE_FROM_ALL)
-set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+
+set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE) #re2
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/re2" EXCLUDE_FROM_ALL)
-set(ENABLE_LIB_ONLY ON CACHE BOOL "" FORCE)
+
+set(ENABLE_LIB_ONLY ON CACHE BOOL "" FORCE) #bzip2
 set(ENABLE_APP OFF CACHE BOOL "" FORCE)
 set(ENABLE_STATIC_LIB ON CACHE BOOL "" FORCE)
 add_subdirectory("libs/bzip2" EXCLUDE_FROM_ALL)
@@ -88,33 +111,40 @@ add_executable(${FGE_EXE_NAME})
 add_dependencies(${FGE_EXE_NAME} ${FGE_LIB_NAME})
 
 #Dependencies
-add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window)
-add_dependencies(${FGE_LIB_NAME} version)
-add_dependencies(${FGE_SERVER_LIB_NAME} sfml-graphics sfml-system sfml-window)
-add_dependencies(${FGE_SERVER_LIB_NAME} version)
-add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
+if(WIN32)
+    add_dependencies(sfml-audio OpenAL_extern)
+endif()
 
+add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
+add_dependencies(${FGE_LIB_NAME} fgeVersion)
+add_dependencies(${FGE_SERVER_LIB_NAME} sfml-graphics sfml-system sfml-window)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/SFML/include")
 
-add_dependencies(${FGE_LIB_NAME} lz4_static)
+add_dependencies(${FGE_SERVER_LIB_NAME} fgeVersion) #fgeVersion
+add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
+
+add_dependencies(${FGE_LIB_NAME} lz4_static) #Lz4
 add_dependencies(${FGE_SERVER_LIB_NAME} lz4_static)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/lz4/lib")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/lz4/lib")
-add_dependencies(${FGE_LIB_NAME} fmt)
+
+add_dependencies(${FGE_LIB_NAME} fmt) #fmt
 add_dependencies(${FGE_SERVER_LIB_NAME} fmt)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/fmt/include")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/fmt/include")
-add_dependencies(${FGE_LIB_NAME} re2)
+
+add_dependencies(${FGE_LIB_NAME} re2) #re2
 add_dependencies(${FGE_SERVER_LIB_NAME} re2)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/re2/re2")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/re2/re2")
-add_dependencies(${FGE_LIB_NAME} bz2_static)
+
+add_dependencies(${FGE_LIB_NAME} bz2_static) #bz2
 add_dependencies(${FGE_SERVER_LIB_NAME} bz2_static)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/bzip2")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
 
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk")
+target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 
 #Definition
