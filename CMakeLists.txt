@@ -61,19 +61,21 @@ add_custom_target(fgeVersion
 set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE) #BEGIN BUILD_SHARED_LIBS
 set(BUILD_STATIC_LIBS OFF CACHE BOOL "" FORCE)
 
-ExternalProject_Add(OpenAL_extern #OpenAL-soft
-        URL "${PROJECT_SOURCE_DIR}/libs/openal-soft"
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern
-        CMAKE_ARGS -DALSOFT_UTILS=OFF -DALSOFT_EXAMPLES=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        INSTALL_COMMAND ""
-        TEST_COMMAND ""
-        DOWNLOAD_COMMAND ""
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/openal-soft
-        EXCLUDE_FROM_ALL
-        )
+if(WIN32)
+    ExternalProject_Add(OpenAL_extern #OpenAL-soft
+            URL "${PROJECT_SOURCE_DIR}/libs/openal-soft"
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern
+            CMAKE_ARGS -DALSOFT_UTILS=OFF -DALSOFT_EXAMPLES=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            INSTALL_COMMAND ""
+            TEST_COMMAND ""
+            DOWNLOAD_COMMAND ""
+            SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/openal-soft
+            EXCLUDE_FROM_ALL
+            )
 
-set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
-set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
+    set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
+    set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
+endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
 add_subdirectory("libs/SFML" EXCLUDE_FROM_ALL)
@@ -109,7 +111,9 @@ add_executable(${FGE_EXE_NAME})
 add_dependencies(${FGE_EXE_NAME} ${FGE_LIB_NAME})
 
 #Dependencies
-add_dependencies(sfml-audio OpenAL_extern)
+if(WIN32)
+    add_dependencies(sfml-audio OpenAL_extern)
+endif()
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
 add_dependencies(${FGE_LIB_NAME} fgeVersion)
