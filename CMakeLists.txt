@@ -65,7 +65,7 @@ if(WIN32)
     ExternalProject_Add(OpenAL_extern #OpenAL-soft
             URL "${PROJECT_SOURCE_DIR}/libs/openal-soft"
             PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern
-            CMAKE_ARGS -DALSOFT_UTILS=OFF -DALSOFT_EXAMPLES=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            CMAKE_ARGS -DALSOFT_UTILS=OFF -DALSOFT_EXAMPLES=OFF -DCMAKE_BUILD_TYPE=Release
             INSTALL_COMMAND ""
             TEST_COMMAND ""
             DOWNLOAD_COMMAND ""
