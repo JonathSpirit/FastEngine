@@ -38,7 +38,7 @@ uint8_t BitBank<TNbytes>::getByte(std::size_t index) const
 }
 
 template<std::size_t TNbytes>
-unsigned int BitBank<TNbytes>::getSize() const
+std::size_t BitBank<TNbytes>::getSize() const
 {
     return TNbytes;
 }

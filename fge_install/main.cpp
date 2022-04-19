@@ -264,8 +264,14 @@ int main()
 #endif //_WIN32
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/extlibs/bin/x64/openal32.dll", FARCH_64, FBUILD_ALL, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/extlibs/bin/x86/openal32.dll", FARCH_32, FBUILD_ALL, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_32, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_64, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a", FARCH_32, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a", FARCH_64, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/openal-soft/include/AL", FARCH_ALL, FBUILD_ALL, "libopenal");
+
+    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/openal-soft/COPYING", FARCH_ALL, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/openal-soft/README.md", FARCH_ALL, FBUILD_ALL, "libopenal");
 #endif //_WIN32
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SFML/include/SFML", FARCH_ALL, FBUILD_ALL, "libsfml");
