@@ -16,6 +16,8 @@ template <class ... Types>
 class CallbackFunctorBase
 {
 public:
+    virtual ~CallbackFunctorBase() = default;
+
     virtual void call(Types ... args) = 0;
     virtual bool check(void* ptr) = 0;
 };
@@ -26,12 +28,13 @@ template <class ... Types>
 class CallbackFunctor : public fge::CallbackFunctorBase<Types ...>
 {
 public:
-    using CallbackFunction =  void (*) (Types ... args);
+    using CallbackFunction = void (*) (Types ... args);
 
     CallbackFunctor(fge::CallbackFunctor<Types ...>::CallbackFunction func);
+    ~CallbackFunctor() override = default;
 
-    virtual void call(Types ... args);
-    inline virtual bool check(void* ptr);
+    void call(Types ... args) override;
+    inline bool check(void* ptr) override;
 
 protected:
     fge::CallbackFunctor<Types ...>::CallbackFunction g_function;
@@ -46,9 +49,10 @@ public:
     using CallbackFunctionObject = void (TObject::*) (Types ... args);
 
     CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject func, TObject* object);
+    ~CallbackFunctorObject() override = default;
 
-    virtual void call(Types ... args);
-    inline virtual bool check(void* ptr);
+    void call(Types ... args) override;
+    inline bool check(void* ptr) override;
 
 protected:
     fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject g_functionObj;
@@ -62,19 +66,16 @@ class CallbackHandler : public fge::Subscription
 {
 public:
     CallbackHandler() = default;
+    ~CallbackHandler() override = default;
 
     //Copy constructor that does nothing
     CallbackHandler(const fge::CallbackHandler<Types ...>& n){};
-    CallbackHandler(fge::CallbackHandler<Types ...>& n){};
     //Move constructor prohibed
-    CallbackHandler(const fge::CallbackHandler<Types ...>&& n) = delete;
     CallbackHandler(fge::CallbackHandler<Types ...>&& n) = delete;
 
     //Copy operator that does nothing
     fge::CallbackHandler<Types ...>& operator =(const fge::CallbackHandler<Types ...>& n){return *this;};
-    fge::CallbackHandler<Types ...>& operator =(fge::CallbackHandler<Types ...>& n){return *this;};
     //Move operator prohibed
-    fge::CallbackHandler<Types ...>& operator =(const fge::CallbackHandler<Types ...>&& n) = delete;
     fge::CallbackHandler<Types ...>& operator =(fge::CallbackHandler<Types ...>&& n) = delete;
 
     inline void clear();

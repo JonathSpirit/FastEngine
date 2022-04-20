@@ -14,11 +14,15 @@ namespace fge
 class FGE_API ObjRenderMap : public fge::Object, public fge::Subscriber
 {
 public:
-    ObjRenderMap();
+    ObjRenderMap() = default;
     ObjRenderMap(const fge::ObjRenderMap& r) :
+        fge::Object(r),
+        fge::Subscriber(r),
         g_colorClear(r.g_colorClear)
     {};
     ObjRenderMap(fge::ObjRenderMap& r) :
+        fge::Object(r),
+        fge::Subscriber(r),
         g_colorClear(r.g_colorClear)
     {};
 
@@ -32,13 +36,13 @@ public:
     void setClearColor(const sf::Color& color);
     const sf::Color& getClearColor() const;
 
-    void first(fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void first(fge::Scene* scene_ptr) override;
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void removed(fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void removed(fge::Scene* scene_ptr) override;
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
@@ -55,7 +59,7 @@ private:
     void updatePositions();
     void updateTexCoords();
 
-    sf::Color g_colorClear = sf::Color::White;
+    sf::Color g_colorClear{sf::Color::White};
 
     sf::Vertex g_vertices[4];
     sf::View g_windowView;

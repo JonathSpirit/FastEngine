@@ -4,10 +4,6 @@
 namespace fge
 {
 
-ObjRenderMap::ObjRenderMap()
-{
-}
-
 void ObjRenderMap::onClear(const fge::Scene* scene, sf::RenderTarget& target, const sf::Color& color)
 {
     this->_renderTexture.clear( this->g_colorClear );
@@ -41,7 +37,7 @@ void ObjRenderMap::update(sf::RenderWindow& screen, fge::Event& event, const std
 
         this->g_windowView = screen.getDefaultView();
         this->g_windowView.setSize(static_cast<sf::Vector2f>(this->g_windowSize));
-        this->g_windowView.setCenter(this->g_windowSize.x/2.0f, this->g_windowSize.y/2.0f);
+        this->g_windowView.setCenter(static_cast<float>(this->g_windowSize.x)/2.0f, static_cast<float>(this->g_windowSize.y)/2.0f);
     }
 }
 void ObjRenderMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -93,7 +89,7 @@ sf::FloatRect ObjRenderMap::getLocalBounds() const
     float width = static_cast<float>( this->g_windowSize.x );
     float height = static_cast<float>( this->g_windowSize.y );
 
-    return sf::FloatRect(0.f, 0.f, width, height);
+    return {0.f, 0.f, width, height};
 }
 
 void ObjRenderMap::updatePositions()
