@@ -84,33 +84,87 @@ private:
     const sf::RenderTarget* g_target;
 };
 
-class GuiRectElement : public fge::GuiElement
+class GuiElementRectangle : public fge::GuiElement
 {
 public:
-    GuiRectElement() = default;
-    GuiRectElement(const sf::FloatRect& rect, fge::GuiElement::Priority priority) :
-            _g_rect(rect),
+    GuiElementRectangle() = default;
+    GuiElementRectangle(const sf::FloatRect& rect, fge::GuiElement::Priority priority) :
+            fge::GuiElement(priority),
+            g_rect(rect)
+    {}
+    explicit GuiElementRectangle(fge::GuiElement::Priority priority) :
             fge::GuiElement(priority)
     {}
-    explicit GuiRectElement(fge::GuiElement::Priority priority) :
-            fge::GuiElement(priority)
-    {}
-    ~GuiRectElement() override = default;
+    ~GuiElementRectangle() override = default;
 
     void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
     {
         if ( this->verifyPriority(element) )
         {
-            if ( this->_g_rect.contains(mouseGuiPos) )
+            if ( this->g_rect.contains(mouseGuiPos) )
             {
                 element = this;
-                index = 0;
             }
         }
     }
 
-protected:
-    sf::FloatRect _g_rect;
+    void setRectangle(const sf::FloatRect& rect)
+    {
+        this->g_rect = rect;
+    }
+    const sf::FloatRect& getRectangle() const
+    {
+        return this->g_rect;
+    }
+
+private:
+    sf::FloatRect g_rect;
+};
+
+class GuiElementArray : public fge::GuiElement
+{
+public:
+    GuiElementArray() = default;
+    ~GuiElementArray() override = default;
+
+    void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
+    {
+        for (std::size_t i=0; i<this->g_elements.size(); ++i)
+        {
+            this->g_elements[i]->onGuiVerify(evt, arg, mouseGuiPos, element, index);
+            if (element == this->g_elements[i])
+            {
+                index = i;
+            }
+        }
+    }
+
+    void addElement(fge::GuiElement* element)
+    {
+        this->g_elements.push_back(element);
+    }
+    void delElement(fge::GuiElement* element)
+    {
+        for (auto it = this->g_elements.cbegin(); it != this->g_elements.cend(); ++it)
+        {
+            this->g_elements.erase(it);
+        }
+    }
+    void delAllElement()
+    {
+        this->g_elements.clear();
+    }
+    [[nodiscard]] fge::GuiElement* getElement(std::size_t index) const
+    {
+        return this->g_elements[index];
+    }
+    [[nodiscard]] std::size_t getElementCount() const
+    {
+        return this->g_elements.size();
+    }
+
+private:
+    std::vector<fge::GuiElement*> g_elements;
 };
 
 }//end fge
