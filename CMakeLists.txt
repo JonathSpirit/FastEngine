@@ -75,6 +75,20 @@ if(WIN32)
 
     set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
     set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
+
+    ExternalProject_Add(freetype_extern #freetype
+            URL "${PROJECT_SOURCE_DIR}/libs/freetype"
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/freetype_extern
+            CMAKE_ARGS -DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_BUILD_TYPE=Release
+            INSTALL_COMMAND ""
+            TEST_COMMAND ""
+            DOWNLOAD_COMMAND ""
+            SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/freetype
+            EXCLUDE_FROM_ALL
+            )
+
+    set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
+    set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
 endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
@@ -113,6 +127,7 @@ add_dependencies(${FGE_EXE_NAME} ${FGE_LIB_NAME})
 #Dependencies
 if(WIN32)
     add_dependencies(sfml-audio OpenAL_extern)
+    add_dependencies(sfml-graphics freetype_extern)
 endif()
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
