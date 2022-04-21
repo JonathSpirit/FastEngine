@@ -13,8 +13,8 @@ namespace fge
 class FGE_API ObjSprite : public fge::Object
 {
 public:
-    ObjSprite();
-    ObjSprite(const fge::Texture& texture, const sf::Vector2f& position=sf::Vector2f());
+    ObjSprite() = default;
+    explicit ObjSprite(const fge::Texture& texture, const sf::Vector2f& position=sf::Vector2f());
     ObjSprite(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position=sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSprite)
@@ -31,8 +31,8 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 

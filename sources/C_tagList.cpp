@@ -8,18 +8,32 @@ void TagList::clear()
     this->g_tags.clear();
 }
 
-void TagList::add(const std::string& tag)
+void TagList::add(std::string_view tag)
 {
-    this->g_tags.insert(tag);
+    this->g_tags.insert(std::move( std::string(tag) ));
 }
-void TagList::del(const std::string& tag)
+void TagList::del(std::string_view tag)
 {
-    this->g_tags.erase(tag);
+    for (auto it = this->g_tags.cbegin(); it != this->g_tags.cend(); ++it)
+    {
+        if ((*it) == tag)
+        {
+            this->g_tags.erase(it);
+            return;
+        }
+    }
 }
 
-bool TagList::check(const std::string& tag) const
+bool TagList::check(std::string_view tag) const
 {
-    return this->g_tags.find(tag) != this->g_tags.cend();
+    for (const auto& value : this->g_tags)
+    {
+        if (value == tag)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 std::size_t TagList::getSize() const
@@ -27,13 +41,13 @@ std::size_t TagList::getSize() const
     return this->g_tags.size();
 }
 
-fge::TagList::TagListType::const_iterator TagList::cbegin() const
+fge::TagList::TagListType::const_iterator TagList::begin() const
 {
-    return this->g_tags.cbegin();
+    return this->g_tags.begin();
 }
-fge::TagList::TagListType::const_iterator TagList::cend() const
+fge::TagList::TagListType::const_iterator TagList::end() const
 {
-    return this->g_tags.cend();
+    return this->g_tags.end();
 }
 
 }//end fge

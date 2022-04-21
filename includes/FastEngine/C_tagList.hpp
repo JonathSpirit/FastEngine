@@ -18,15 +18,15 @@ public:
 
     void clear();
 
-    void add(const std::string& tag);
-    void del(const std::string& tag);
+    void add(std::string_view tag);
+    void del(std::string_view tag);
 
-    bool check(const std::string& tag) const;
+    bool check(std::string_view tag) const;
 
     std::size_t getSize() const;
 
-    fge::TagList::TagListType::const_iterator cbegin() const;
-    fge::TagList::TagListType::const_iterator cend() const;
+    fge::TagList::TagListType::const_iterator begin() const;
+    fge::TagList::TagListType::const_iterator end() const;
 
 private:
     fge::TagList::TagListType g_tags;

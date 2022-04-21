@@ -15,7 +15,7 @@ class FGE_API ObjTextInputBox : public fge::Object
 {
 public:
     ObjTextInputBox();
-    ObjTextInputBox(const fge::Font& font, uint16_t maxLength = 10, const sf::Vector2f& pos = sf::Vector2f());
+    explicit ObjTextInputBox(const fge::Font& font, uint16_t maxLength = 10, const sf::Vector2f& pos = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
@@ -46,11 +46,11 @@ public:
     const sf::Color& getBoxOutlineColor() const;
     const sf::Color& getTextColor() const;
 
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 

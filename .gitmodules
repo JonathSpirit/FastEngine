@@ -31,3 +31,8 @@
     path = libs/strtk
     url = https://github.com/ArashPartow/strtk.git
     ignore = dirty
+[submodule "libs/freetype"]
+    path = libs/freetype
+    url = https://gitlab.freedesktop.org/freetype/freetype.git
+    ignore = dirty
+    branch = VER-2-12-0

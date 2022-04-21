@@ -18,7 +18,7 @@ class FGE_API ObjAnimation : public fge::Object
 {
 public:
     ObjAnimation();
-    ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position=sf::Vector2f());
+    explicit ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position=sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjAnimation)
 
@@ -39,11 +39,11 @@ public:
 
     const sf::Color& getColor() const;
 
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 

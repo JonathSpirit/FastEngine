@@ -14,7 +14,7 @@ class FGE_API ObjText : public fge::Object
 {
 public:
     ObjText();
-    ObjText(const fge::Font& font, const sf::Vector2f& position=sf::Vector2f());
+    explicit ObjText(const fge::Font& font, const sf::Vector2f& position=sf::Vector2f());
     ObjText(const fge::Font& font, const std::string& txt, const sf::Vector2f& position=sf::Vector2f());
     ObjText(const fge::Font& font, const char* txt, const sf::Vector2f& position=sf::Vector2f());
 
@@ -106,8 +106,8 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr=FGE_OBJ_NOSCENE) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 

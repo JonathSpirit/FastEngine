@@ -3,9 +3,6 @@
 namespace fge
 {
 
-ObjSprite::ObjSprite()
-{
-}
 ObjSprite::ObjSprite(const fge::Texture& texture, const sf::Vector2f& position)
 {
     this->setTexture(texture);
@@ -117,7 +114,7 @@ sf::FloatRect ObjSprite::getLocalBounds() const
     float width = static_cast<float>( std::abs(this->g_textureRect.width) );
     float height = static_cast<float>( std::abs(this->g_textureRect.height) );
 
-    return sf::FloatRect(0.f, 0.f, width, height);
+    return {0.f, 0.f, width, height};
 }
 
 void ObjSprite::updatePositions()
@@ -133,9 +130,9 @@ void ObjSprite::updatePositions()
 void ObjSprite::updateTexCoords()
 {
     float left   = static_cast<float>(this->g_textureRect.left);
-    float right  = left + this->g_textureRect.width;
+    float right  = left + static_cast<float>(this->g_textureRect.width);
     float top    = static_cast<float>(this->g_textureRect.top);
-    float bottom = top + this->g_textureRect.height;
+    float bottom = top + static_cast<float>(this->g_textureRect.height);
 
     this->g_vertices[0].texCoords = sf::Vector2f(left, top);
     this->g_vertices[1].texCoords = sf::Vector2f(left, bottom);

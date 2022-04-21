@@ -11,7 +11,7 @@ namespace fge
 void Object::first(fge::Scene* scene_ptr)
 {
 }
-void Object::callbackRegister(fge::Event& event)
+void Object::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
 }
 void Object::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
@@ -46,9 +46,9 @@ void Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["_originY"] = this->getOrigin().y;
 
     jsonObject["tags"] = nlohmann::json::array();
-    for ( fge::TagList::TagListType::const_iterator it=this->_tags.cbegin(); it!=this->_tags.cend(); ++it )
+    for (const auto& tag : this->_tags)
     {
-        jsonObject["tags"] += (*it);
+        jsonObject["tags"] += tag;
     }
 }
 void Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
@@ -63,9 +63,9 @@ void Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 
     this->_tags.clear();
 
-    for (nlohmann::json::iterator it = jsonObject["tags"].begin(); it != jsonObject["tags"].end(); ++it)
+    for (auto& it : jsonObject["tags"])
     {
-        this->_tags.add( (*it).get<std::string>() );
+        this->_tags.add( it.get<std::string>() );
     }
 }
 
@@ -113,7 +113,7 @@ bool Object::saveInFile(const std::string& path)
 
     objJson = nlohmann::json::object();
 
-    this->save( objJson );
+    this->save(objJson, FGE_OBJ_NOSCENE);
 
     std::ofstream outFile(path);
     if ( outFile )
@@ -144,7 +144,7 @@ bool Object::loadFromFile(const std::string& path)
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
-        this->load( objJson );
+        this->load(objJson, FGE_OBJ_NOSCENE);
         return true;
     }
     return false;
@@ -166,7 +166,7 @@ fge::Object* Object::LoadFromFile(const std::string& path)
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
-        buffObj->load( objJson );
+        buffObj->load(objJson, FGE_OBJ_NOSCENE);
         return buffObj;
     }
     return nullptr;

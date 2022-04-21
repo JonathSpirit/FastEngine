@@ -8,11 +8,11 @@
 #include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_commandHandler.hpp>
 #include <FastEngine/C_callback.hpp>
+#include <FastEngine/C_identity.hpp>
 #include <string>
 #include <queue>
 #include <unordered_map>
 #include <memory>
-#include <FastEngine/C_identity.hpp>
 
 #define FGE_SCENE_PLAN_HIDE_BACK fge::ObjectPlan(0)
 #define FGE_SCENE_PLAN_BACK fge::ObjectPlan(1)
