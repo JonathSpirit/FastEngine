@@ -23,6 +23,10 @@ public:
     {}
     virtual ~GuiElement() = default;
 
+    void setPriority(fge::GuiElement::Priority priority)
+    {
+        this->_g_priority = priority;
+    }
     [[nodiscard]] fge::GuiElement::Priority getPriority() const
     {
         return this->_g_priority;
@@ -119,6 +123,24 @@ public:
 
 private:
     sf::FloatRect g_rect;
+};
+
+class GuiElementDefault : public fge::GuiElement
+{
+public:
+    GuiElementDefault() = default;
+    explicit GuiElementDefault(fge::GuiElement::Priority priority) :
+            fge::GuiElement(priority)
+    {}
+    ~GuiElementDefault() override = default;
+
+    void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
+    {
+        if ( this->verifyPriority(element) )
+        {
+            element = this;
+        }
+    }
 };
 
 class GuiElementArray : public fge::GuiElement
