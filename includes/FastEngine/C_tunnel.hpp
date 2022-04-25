@@ -13,13 +13,13 @@ template <class T>
 class Tunnel
 {
 public:
-    Tunnel();
+    Tunnel() = default;
     Tunnel(fge::Tunnel<T>& r) = delete;
-    Tunnel(fge::Tunnel<T>&& r);
+    Tunnel(fge::Tunnel<T>&& r) noexcept;
     ~Tunnel();
 
     fge::Tunnel<T>& operator =(fge::Tunnel<T>& r) = delete;
-    fge::Tunnel<T>& operator =(fge::Tunnel<T>&& r);
+    fge::Tunnel<T>& operator =(fge::Tunnel<T>&& r) noexcept;
 
     bool knock(fge::TunnelGate<T>* gate, bool anonymous=false);
     bool addGate(fge::TunnelGate<T>* gate, bool anonymous=false);
@@ -33,8 +33,8 @@ public:
 
     T* get(std::size_t index) const;
     T* getAnonymous(std::size_t index) const;
-    std::size_t getGatesSize() const;
-    std::size_t getAnonymousGatesSize() const;
+    [[nodiscard]] std::size_t getGatesSize() const;
+    [[nodiscard]] std::size_t getAnonymousGatesSize() const;
 
     T* operator[](std::size_t index) const;
 
@@ -49,23 +49,23 @@ class TunnelGate
 public:
     TunnelGate();
     TunnelGate(const fge::TunnelGate<T>& gate);
-    TunnelGate(fge::TunnelGate<T>&& gate);
-    TunnelGate(T* data);
+    TunnelGate(fge::TunnelGate<T>&& gate) noexcept;
+    explicit TunnelGate(T* data);
     ~TunnelGate();
 
     fge::TunnelGate<T>& operator=(const fge::TunnelGate<T>& gate);
-    fge::TunnelGate<T>& operator=(fge::TunnelGate<T>&& gate);
+    fge::TunnelGate<T>& operator=(fge::TunnelGate<T>&& gate) noexcept;
 
-    bool openTo(fge::Tunnel<T>* tunnel, bool annonymous=false);
+    bool openTo(fge::Tunnel<T>* tunnel, bool anonymous=false);
     void close();
-    bool isOpen() const;
+    [[nodiscard]] bool isOpen() const;
 
     void setData(T* val);
     const T* getData() const;
     T* getData();
 
     void setLock(bool val);
-    bool isLocked() const;
+    [[nodiscard]] bool isLocked() const;
 
     fge::Tunnel<T>* getTunnel() const;
 
