@@ -28,8 +28,8 @@ Scene::Scene() :
     g_dataMap()
 {
 }
-Scene::Scene(const std::string& scene_name) :
-    g_name(scene_name),
+Scene::Scene(std::string sceneName) :
+    g_name(std::move(sceneName)),
 
     g_networkEvents(),
     g_enableNetworkEventsFlag(false),
@@ -63,6 +63,7 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
             this->_onRemoveObject.call(this, *this->g_updatedObjectIterator);
             (*this->g_updatedObjectIterator)->g_linkedScene = nullptr;
             (*this->g_updatedObjectIterator)->g_object->_myObjectData = nullptr;
+            this->refreshPlanDataMap((*this->g_updatedObjectIterator)->g_plan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
         }
     }
@@ -88,8 +89,14 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
         if (!data->g_object->_alwaysDrawed)
         {
             sf::FloatRect objectBounds = data->g_object->getGlobalBounds();
-            if (objectBounds.width == 0.0f) ++objectBounds.width;
-            if (objectBounds.height == 0.0f) ++objectBounds.height;
+            if (objectBounds.width == 0.0f)
+            {
+                ++objectBounds.width;
+            }
+            if (objectBounds.height == 0.0f)
+            {
+                ++objectBounds.height;
+            }
 
             if ( !objectBounds.intersects(screenBounds) )
             {
@@ -110,72 +117,53 @@ void Scene::clear()
 }
 
 /** Object **/
-fge::ObjectDataShared Scene::newObject(fge::Object* newObject, const fge::ObjectPlan& plan, const fge::ObjectSid& sid, const fge::ObjectType& type)
+fge::ObjectDataShared Scene::newObject(fge::Object* newObject, fge::ObjectPlan plan, fge::ObjectSid sid, fge::ObjectType type)
 {
-    fge::ObjectSid thesid = this->generateSid(sid);
-    if (thesid == FGE_SCENE_BAD_SID)
+    fge::ObjectSid generatedSid = this->generateSid(sid);
+    if (generatedSid == FGE_SCENE_BAD_SID)
     {
         return nullptr;
     }
     if (this->g_enableNetworkEventsFlag)
     {
-        this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, thesid});
+        this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, generatedSid});
     }
 
-    for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
-    {
-        if ( plan <= (*it)->g_plan )
-        {
-            it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, newObject, thesid, plan, type) );
-            this->g_dataMap[thesid] = it;
-            newObject->_myObjectData = *it;
-            newObject->first(this);
-            this->_onNewObject.call(this, *it);
-            return *it;
-        }
-    }
-    auto it = this->g_data.insert( this->g_data.end(), std::make_shared<fge::ObjectData>(this, newObject, thesid, plan, type) );
-    this->g_dataMap[thesid] = it;
+    auto it = this->getInsertBeginPositionWithPlan(plan);
+
+    it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, newObject, generatedSid, plan, type) );
+    this->g_dataMap[generatedSid] = it;
     newObject->_myObjectData = *it;
+    this->refreshPlanDataMap((*it)->g_plan, it, false);
     newObject->first(this);
     this->_onNewObject.call(this, *it);
     return *it;
 }
 fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
 {
-    fge::ObjectSid thesid = this->generateSid( objectData->g_sid );
-    if (thesid == FGE_SCENE_BAD_SID)
+    fge::ObjectSid generatedSid = this->generateSid( objectData->g_sid );
+    if (generatedSid == FGE_SCENE_BAD_SID)
     {
         return nullptr;
     }
     if (this->g_enableNetworkEventsFlag)
     {
-        this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, thesid});
+        this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, generatedSid});
     }
 
-    for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
-    {
-        if ( objectData->g_plan <= objectData->g_plan )
-        {
-            it = this->g_data.insert( it, objectData );
-            this->g_dataMap[thesid] = it;
-            objectData->g_linkedScene = this;
-            objectData->g_object->_myObjectData = objectData;
-            objectData->g_object->first(this);
-            this->_onNewObject.call(this, objectData);
-            return objectData;
-        }
-    }
-    auto it = this->g_data.insert(this->g_data.end(), objectData);
-    this->g_dataMap[thesid] = it;
+    auto it = this->getInsertBeginPositionWithPlan(objectData->g_plan);
+
+    it = this->g_data.insert( it, objectData );
+    this->g_dataMap[generatedSid] = it;
     objectData->g_linkedScene = this;
     objectData->g_object->_myObjectData = objectData;
+    this->refreshPlanDataMap((*it)->g_plan, it, false);
     objectData->g_object->first(this);
     this->_onNewObject.call(this, objectData);
     return objectData;
 }
 
-fge::ObjectDataShared Scene::duplicateObject(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
+fge::ObjectDataShared Scene::duplicateObject(fge::ObjectSid sid, fge::ObjectSid newSid)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -187,7 +175,7 @@ fge::ObjectDataShared Scene::duplicateObject(const fge::ObjectSid& sid, const fg
     return nullptr;
 }
 
-fge::ObjectDataShared Scene::transferObject(const fge::ObjectSid& sid, fge::Scene& newScene)
+fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newScene)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -198,6 +186,7 @@ fge::ObjectDataShared Scene::transferObject(const fge::ObjectSid& sid, fge::Scen
             fge::ObjectDataShared buff = std::move(*it->second);
             buff->g_object->removed(this);
             this->_onRemoveObject.call(this, buff);
+            this->refreshPlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
 
@@ -216,7 +205,7 @@ void Scene::delUpdatedObject()
 {
     this->g_deleteMe=true;
 }
-bool Scene::delObject(const fge::ObjectSid& sid)
+bool Scene::delObject(fge::ObjectSid sid)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -231,6 +220,7 @@ bool Scene::delObject(const fge::ObjectSid& sid)
         this->_onRemoveObject.call(this, *it->second);
         (*it->second)->g_linkedScene = nullptr;
         (*it->second)->g_object->_myObjectData = nullptr;
+        this->refreshPlanDataMap((*it->second)->g_plan, it->second, true);
         this->g_data.erase(it->second);
         this->g_dataMap.erase(it);
 
@@ -262,6 +252,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         this->_onRemoveObject.call(this, *it);
         (*it)->g_linkedScene = nullptr;
         (*it)->g_object->_myObjectData = nullptr;
+        this->refreshPlanDataMap((*it)->g_plan, it, true);
 
         this->g_dataMap.erase((*it)->g_sid);
         it = --this->g_data.erase(it);
@@ -269,7 +260,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
     return buffSize;
 }
 
-bool Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid& newSid)
+bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
 {
     if (newSid == FGE_SCENE_BAD_SID)
     {
@@ -298,7 +289,7 @@ bool Scene::setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid& newSid
     }
     return false;
 }
-bool Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
+bool Scene::setObject(fge::ObjectSid sid, fge::Object* newObject)
 {
     auto it = this->g_dataMap.find(sid);
 
@@ -320,29 +311,83 @@ bool Scene::setObject(const fge::ObjectSid& sid, fge::Object* newObject)
     }
     return false;
 }
-bool Scene::setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPlan& newPlan)
+bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
 {
     auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
     {
+        this->refreshPlanDataMap((*it->second)->g_plan, it->second, true);
+
+        auto newPosIt = this->getInsertBeginPositionWithPlan(newPlan);
+
         (*it->second)->g_plan = newPlan;
 
-        for ( auto newPosIt=this->g_data.begin(); newPosIt!=this->g_data.end(); ++newPosIt )
-        {
-            if ( newPlan <= (*newPosIt)->g_plan )
-            {
-                this->g_data.splice(newPosIt, this->g_data, it->second);
-                return true;
-            }
-        }
-
-        this->g_data.splice(this->g_data.end(), this->g_data, it->second);
+        this->g_data.splice(newPosIt, this->g_data, it->second);
+        this->refreshPlanDataMap(newPlan, it->second, false);
         return true;
     }
     return false;
 }
-fge::ObjectDataShared Scene::getObject(const fge::ObjectSid& sid) const
+bool Scene::setObjectPlanTop(fge::ObjectSid sid)
+{
+    auto it = this->g_dataMap.find(sid);
+
+    if ( it != this->g_dataMap.end() )
+    {
+        auto newPosIt = this->g_planDataMap.find( (*it->second)->g_plan );
+
+        if (it->second == newPosIt->second)
+        {//already on top
+            return true;
+        }
+
+        this->g_data.splice(newPosIt->second, this->g_data, it->second);
+        this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+        return true;
+    }
+    return false;
+}
+bool Scene::setObjectPlanBot(fge::ObjectSid sid)
+{
+    auto it = this->g_dataMap.find(sid);
+
+    if ( it != this->g_dataMap.end() )
+    {
+        auto newPosIt = this->g_planDataMap.find( (*it->second)->g_plan );
+
+        bool wasOnTop = false;
+        if (it->second == newPosIt->second)
+        {//is on top
+            wasOnTop = true;
+            this->refreshPlanDataMap((*it->second)->g_plan, it->second, true);
+        }
+
+        ++newPosIt; //go on next plan
+
+        if (newPosIt == this->g_planDataMap.end())
+        {//object can be pushed at the end
+            this->g_data.splice(this->g_data.end(), this->g_data, it->second);
+            if (wasOnTop)
+            {
+                this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+            }
+        }
+        else
+        {
+            this->g_data.splice(newPosIt->second, this->g_data, it->second);
+            if (wasOnTop)
+            {
+                this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+            }
+        }
+
+        return true;
+    }
+    return false;
+}
+
+fge::ObjectDataShared Scene::getObject(fge::ObjectSid sid) const
 {
     auto it = this->g_dataMap.find(sid);
     if ( it != this->g_dataMap.cend() )
@@ -360,7 +405,7 @@ fge::ObjectDataShared Scene::getObject(const fge::Object* ptr) const
     }
     return nullptr;
 }
-fge::Object* Scene::getObjectPtr(const fge::ObjectSid& sid) const
+fge::Object* Scene::getObjectPtr(fge::ObjectSid sid) const
 {
     auto it = this->g_dataMap.find(sid);
     if ( it != this->g_dataMap.cend() )
@@ -373,8 +418,6 @@ fge::ObjectDataShared Scene::getUpdatedObject() const
 {
     return *this->g_updatedObjectIterator;
 }
-
-/** Global Data **/
 
 /** Search function **/
 std::size_t Scene::getAllObj_ByPosition(const sf::Vector2f& pos, fge::ObjectContainer& buff) const
@@ -1083,8 +1126,6 @@ void Scene::unpackWatchedEvent(fge::net::Packet& pck)
     }
 }
 
-/** Operator **/
-
 /** Custom view **/
 void Scene::setCustomView(std::shared_ptr<sf::View>& customView)
 {
@@ -1191,7 +1232,7 @@ bool Scene::loadFromFile(const std::string& path)
 }
 
 /** Iterator **/
-fge::ObjectContainer::const_iterator Scene::find(const fge::ObjectSid& sid) const
+fge::ObjectContainer::const_iterator Scene::find(fge::ObjectSid sid) const
 {
     auto it = this->g_dataMap.find(sid);
     return (it != this->g_dataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second) : this->g_data.cend();
@@ -1206,6 +1247,74 @@ fge::ObjectContainer::const_iterator Scene::find(const fge::Object* ptr) const
         }
     }
     return this->g_data.cend();
+}
+fge::ObjectContainer::const_iterator Scene::findPlan(fge::ObjectPlan plan) const
+{
+    auto it = this->g_planDataMap.find(plan);
+    return (it != this->g_planDataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second) : this->g_data.cend();
+}
+
+///Private
+void Scene::refreshPlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator hintIt, bool isLeaving)
+{
+    /*
+     * This function is called when an iterator (hintIt) HAVE BEEN moved in this plan and must be checked
+     * or an object IS ABOUT to leave the plan.
+     */
+
+    if (isLeaving)
+    {
+        auto it = this->g_planDataMap.find(plan);
+        if (it->second == hintIt)
+        {
+            ++it->second; //go to the next element and check is plan (or end)
+            if (it->second != this->g_data.end())
+            {
+                if ( (*it->second)->g_plan == plan )
+                {
+                    //we already updated the iterator, nothing to do more.
+                    return;
+                }
+            }
+            //erase the element
+            this->g_planDataMap.erase(it);
+        }
+    }
+    else
+    {
+        auto pair = this->g_planDataMap.insert(std::make_pair(plan, hintIt));
+        //we try to insert it
+        if (!pair.second)
+        {//we have to check the object on the left.
+            auto itLeft = pair.first->second;
+            --itLeft;
+            if (itLeft == hintIt)
+            {//the new object is on the left, so we update the stocked iterator
+                pair.first->second = hintIt;
+            }
+        }
+    }
+}
+fge::ObjectContainer::iterator Scene::getInsertBeginPositionWithPlan(fge::ObjectPlan plan)
+{
+    auto it = this->g_planDataMap.find(plan);
+
+    if (it == this->g_planDataMap.end())
+    {
+        for ( auto itPlan = this->g_planDataMap.begin(); itPlan != this->g_planDataMap.end(); ++itPlan )
+        {
+            if (plan <= itPlan->first)
+            {
+                return itPlan->second;
+            }
+        }
+    }
+    else
+    {
+        return it->second;
+    }
+
+    return this->g_data.end();
 }
 
 }//end fge

@@ -158,6 +158,7 @@ private:
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectContainer = std::list<fge::ObjectDataShared>;
 using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
+using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
 
 class FGE_API Scene : public fge::CommandHandler
 {
@@ -165,7 +166,7 @@ public:
     using NetworkEventQueuePerClient = std::unordered_map<fge::net::Identity, std::queue<fge::SceneNetEvent>, fge::net::IdentityHash>;
 
     Scene();
-    explicit Scene(const std::string& scene_name);
+    explicit Scene(std::string sceneName);
     virtual ~Scene() = default;
 
     /** Scene **/
@@ -184,24 +185,26 @@ public:
     void clear();
 
     /** Object **/
-    fge::ObjectDataShared newObject(fge::Object* newObject, const fge::ObjectPlan& plan = FGE_SCENE_PLAN_DEFAULT, const fge::ObjectSid& sid = FGE_SCENE_BAD_SID, const fge::ObjectType& type = fge::ObjectType::TYPE_OBJECT);
+    fge::ObjectDataShared newObject(fge::Object* newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
     fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData);
 
-    fge::ObjectDataShared duplicateObject(const fge::ObjectSid& sid, const fge::ObjectSid& newSid = FGE_SCENE_BAD_SID);
+    fge::ObjectDataShared duplicateObject(fge::ObjectSid sid, fge::ObjectSid newSid = FGE_SCENE_BAD_SID);
 
-    fge::ObjectDataShared transferObject(const fge::ObjectSid& sid, fge::Scene& newScene);
+    fge::ObjectDataShared transferObject(fge::ObjectSid sid, fge::Scene& newScene);
 
     void delUpdatedObject();
-    bool delObject(const fge::ObjectSid& sid);
+    bool delObject(fge::ObjectSid sid);
     std::size_t delAllObject(bool ignoreGuiObject);
 
-    bool setObjectSid(const fge::ObjectSid& sid, const fge::ObjectSid& newSid);
-    bool setObject(const fge::ObjectSid& sid, fge::Object* newObject);
-    bool setObjectPlan(const fge::ObjectSid& sid, const fge::ObjectPlan& newPlan);
+    bool setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid);
+    bool setObject(fge::ObjectSid sid, fge::Object* newObject);
+    bool setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan);
+    bool setObjectPlanTop(fge::ObjectSid sid);
+    bool setObjectPlanBot(fge::ObjectSid sid);
 
-    fge::ObjectDataShared getObject(const fge::ObjectSid& sid) const;
+    fge::ObjectDataShared getObject(fge::ObjectSid sid) const;
     fge::ObjectDataShared getObject(const fge::Object* ptr) const;
-    fge::Object* getObjectPtr(const fge::ObjectSid& sid) const;
+    fge::Object* getObjectPtr(fge::ObjectSid sid) const;
     fge::ObjectDataShared getUpdatedObject() const;
 
     inline std::size_t getObjectSize() const
@@ -231,7 +234,7 @@ public:
     /** Static id **/
     fge::ObjectSid getSid(const fge::Object* ptr) const;
 
-    inline bool isValid(const fge::ObjectSid& sid) const
+    inline bool isValid(fge::ObjectSid sid) const
     {
         return this->find(sid) != this->g_data.cend();
     }
@@ -265,7 +268,7 @@ public:
     void unpackWatchedEvent(fge::net::Packet& pck);
 
     /** Operator **/
-    inline fge::ObjectDataShared operator[] (const fge::ObjectSid& sid) const
+    inline fge::ObjectDataShared operator[] (fge::ObjectSid sid) const
     {
         return this->getObject(sid);
     }
@@ -297,8 +300,9 @@ public:
         return this->g_data.end();
     }
 
-    fge::ObjectContainer::const_iterator find(const fge::ObjectSid& sid) const;
+    fge::ObjectContainer::const_iterator find(fge::ObjectSid sid) const;
     fge::ObjectContainer::const_iterator find(const fge::Object* ptr) const;
+    fge::ObjectContainer::const_iterator findPlan(fge::ObjectPlan plan) const;
 
     /** Network type **/
     fge::net::NetworkTypeContainer _netList;
@@ -313,6 +317,9 @@ public:
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared> _onRemoveObject;
 
 private:
+    void refreshPlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator hintIt, bool isLeaving);
+    fge::ObjectContainer::iterator getInsertBeginPositionWithPlan(fge::ObjectPlan plan);
+
     std::string g_name;
 
     fge::Scene::NetworkEventQueuePerClient g_networkEvents;
@@ -326,6 +333,7 @@ private:
 
     fge::ObjectContainer g_data;
     fge::ObjectDataMap g_dataMap;
+    fge::ObjectPlanDataMap g_planDataMap;
 };
 
 }//end fge

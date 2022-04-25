@@ -160,8 +160,20 @@ public:
         return {};
     }
 
+    void printObjects()
+    {
+        for (auto it = this->begin(); it != this->end(); ++it)
+        {
+            std::cout << "\tsid: " << (*it)->getSid() << " class: " << (*it)->getObject()->getClassName() << " plan: "
+                      << (*it)->getPlan() << " isTopPlan: " << (it == this->findPlan((*it)->getPlan())) << std::endl;
+        }
+        std::cout << "\t-----------" << std::endl;
+    }
+
     void main()
     {
+        fge::_random.setSeed(2);
+
         sf::RenderWindow window(sf::VideoMode(800, 600), "FastEngine "+(std::string)FGE_VERSION_FULL_WITHTAG_STRING);
         fge::Event event(window);
 
@@ -285,6 +297,8 @@ public:
         this->setObjectPlan(buffDataShared->getSid(), 1);
         std::cout << "ok" << std::endl;
 
+        this->printObjects();
+
         buffDataShared = this->duplicateObject(buffDataShared->getSid());
         buffTextInputBox = reinterpret_cast<fge::ObjTextInputBox*>(buffDataShared->getObject());
         buffTextInputBox->setPosition(20, 240);
@@ -361,10 +375,7 @@ public:
         testLight->setScale(2, 2);
         this->newObject( testLight, 0 );
 
-        for (const auto& it : *this)
-        {
-            std::cout << "there is a " << it->getObject()->getClassName() << " in this scene !" << std::endl;
-        }
+        this->printObjects();
 
         cout << "My checksum : " << fge::net::GetSceneChecksum(*this) << endl;
 
