@@ -288,33 +288,23 @@ public:
     bool loadFromFile(const std::string& path);
 
     /** Iterator **/
-    inline fge::ObjectContainer::iterator begin()
+    inline fge::ObjectContainer::const_iterator begin() const
     {
         return this->g_data.begin();
     }
-    inline fge::ObjectContainer::iterator end()
+    inline fge::ObjectContainer::const_iterator end() const
     {
         return this->g_data.end();
     }
-    inline fge::ObjectContainer::const_iterator cbegin() const
-    {
-        return this->g_data.cbegin();
-    }
-    inline fge::ObjectContainer::const_iterator cend() const
-    {
-        return this->g_data.cend();
-    }
 
     fge::ObjectContainer::const_iterator find(const fge::ObjectSid& sid) const;
-    fge::ObjectContainer::iterator find(const fge::ObjectSid& sid);
     fge::ObjectContainer::const_iterator find(const fge::Object* ptr) const;
-    fge::ObjectContainer::iterator find(const fge::Object* ptr);
 
     /** Network type **/
     fge::net::NetworkTypeContainer _netList;
 
-    /** Global Data **/
-    fge::PropertyList _globalData;
+    /** Properties **/
+    fge::PropertyList _properties;
 
     /** Event **/
     mutable fge::CallbackHandler<const fge::Scene*, sf::RenderTarget&, const sf::Color&> _onRenderTargetClear;

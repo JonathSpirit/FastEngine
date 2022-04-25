@@ -106,7 +106,7 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
 void Scene::clear()
 {
     this->delAllObject(false);
-    this->_globalData.delAllProperties();
+    this->_properties.delAllProperties();
 }
 
 /** Object **/
@@ -1196,11 +1196,6 @@ fge::ObjectContainer::const_iterator Scene::find(const fge::ObjectSid& sid) cons
     auto it = this->g_dataMap.find(sid);
     return (it != this->g_dataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second) : this->g_data.cend();
 }
-fge::ObjectContainer::iterator Scene::find(const fge::ObjectSid& sid)
-{
-    auto it = this->g_dataMap.find(sid);
-    return (it != this->g_dataMap.end()) ? it->second : this->g_data.end();
-}
 fge::ObjectContainer::const_iterator Scene::find(const fge::Object* ptr) const
 {
     for ( auto it=this->g_data.cbegin(); it!=this->g_data.cend(); ++it )
@@ -1211,17 +1206,6 @@ fge::ObjectContainer::const_iterator Scene::find(const fge::Object* ptr) const
         }
     }
     return this->g_data.cend();
-}
-fge::ObjectContainer::iterator Scene::find(const fge::Object* ptr)
-{
-    for ( auto it=this->g_data.begin(); it!=this->g_data.end(); ++it )
-    {
-        if ( *(*it) == ptr )
-        {
-            return it;
-        }
-    }
-    return this->g_data.end();
 }
 
 }//end fge

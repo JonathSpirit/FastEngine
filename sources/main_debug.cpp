@@ -346,7 +346,7 @@ public:
         //https://pvigier.github.io/2019/07/28/vagabond-2d-light-system.html
 
         fge::LightSystem ls;
-        this->_globalData.setProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS, &ls);
+        this->_properties.setProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS, &ls);
 
         Bloc* lightBloc = new Bloc();
         this->newObject(lightBloc, 0 );
@@ -361,9 +361,9 @@ public:
         testLight->setScale(2, 2);
         this->newObject( testLight, 0 );
 
-        for (auto it = this->cbegin(); it != this->cend(); ++it)
+        for (const auto& it : *this)
         {
-            std::cout << "there is a " << (*it)->getObject()->getClassName() << " in this scene !" << std::endl;
+            std::cout << "there is a " << it->getObject()->getClassName() << " in this scene !" << std::endl;
         }
 
         cout << "My checksum : " << fge::net::GetSceneChecksum(*this) << endl;
