@@ -13,7 +13,12 @@ class FGE_API Event
 {
 public:
     Event() = default;
-    Event(const sf::Vector2u& windowSize){this->g_windowSize=windowSize;};
+    explicit Event(const sf::Vector2u& windowSize) :
+            g_windowSize(windowSize)
+    {}
+    explicit Event(const sf::Window& window) :
+            g_windowSize(window.getSize())
+    {}
     ~Event() = default;
 
     void clear();

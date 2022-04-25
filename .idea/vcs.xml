@@ -6,6 +6,7 @@
     <mapping directory="$PROJECT_DIR$/libs/bzip2" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/freetype" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/freetype/subprojects/dlg" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/lz4" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/openal-soft" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/re2" vcs="Git" />

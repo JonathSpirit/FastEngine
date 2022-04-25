@@ -14,7 +14,7 @@
 namespace fge
 {
 
-class FGE_API ObjLight : public fge::Object
+class FGE_API ObjLight : public fge::Object, public fge::LightComponent
 {
 public:
     ObjLight();
@@ -28,8 +28,6 @@ public:
 
     void setTexture(const fge::Texture& texture, bool resetRect = false);
     void setTextureRect(const sf::IntRect& rectangle);
-
-    void setLightSystem(fge::LightSystem& ls);
 
     void setRenderObject(const fge::ObjectDataShared& obj);
     const fge::ObjectDataShared& getRenderObject() const;
@@ -68,8 +66,6 @@ private:
 
     fge::ObjRenderMap g_renderMap;
     sf::BlendMode g_blendMode;
-
-    fge::LightSystemGate g_lightSystemGate;
 };
 
 }//end fge

@@ -57,11 +57,6 @@ void ObjLight::setTextureRect(const sf::IntRect& rectangle)
     }
 }
 
-void ObjLight::setLightSystem(fge::LightSystem& ls)
-{
-    ls.addGate(&this->g_lightSystemGate, true);
-}
-
 void ObjLight::setRenderObject(const fge::ObjectDataShared& obj)
 {
     this->g_renderObject = obj;
@@ -99,6 +94,10 @@ void ObjLight::first(fge::Scene* scene_ptr)
     {
         this->g_renderObject = scene_ptr->getFirstObj_ByClass(FGE_OBJLIGHTMAP_CLASSNAME);
     }
+    if (!this->_g_lightSystemGate.isOpen())
+    {
+        this->setDefaultLightSystem(scene_ptr);
+    }
 }
 void ObjLight::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
 {
@@ -114,10 +113,9 @@ void ObjLight::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     this->g_renderMap._renderTexture.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 
-
-    if ( this->g_lightSystemGate.isOpen() )
+    if ( this->_g_lightSystemGate.isOpen() )
     {
-        fge::LightSystem* lightSystem = this->g_lightSystemGate.getTunnel();
+        fge::LightSystem* lightSystem = this->_g_lightSystemGate.getTunnel();
 
         sf::BlendMode noLightBlend = sf::BlendMode(sf::BlendMode::Factor::One, sf::BlendMode::Factor::One, sf::BlendMode::Equation::Add,
                                                 sf::BlendMode::Factor::Zero, sf::BlendMode::Factor::Zero, sf::BlendMode::Equation::Add);
