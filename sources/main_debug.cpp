@@ -143,7 +143,7 @@ void TestPrintClock(fge::Timer& timer)
     static fge::Clock clock;
 
     timer.restart();
-    std::cout << "Hi : " << clock.restart<std::chrono::milliseconds>() << std::endl;
+    std::cout << "Hi : " << clock.restart<std::chrono::milliseconds>() << "ms" << std::endl;
 }
 
 class MainScene : public fge::Scene
@@ -165,7 +165,8 @@ public:
         for (auto it = this->begin(); it != this->end(); ++it)
         {
             std::cout << "\tsid: " << (*it)->getSid() << " class: " << (*it)->getObject()->getClassName() << " plan: "
-                      << (*it)->getPlan() << " isTopPlan: " << (it == this->findPlan((*it)->getPlan())) << std::endl;
+                      << (*it)->getPlan() << " isTopPlan: " << (it == this->findPlan((*it)->getPlan()))
+                      << " planDepth: " << (*it)->getPlanDepth() << std::endl;
         }
         std::cout << "\t-----------" << std::endl;
     }
@@ -375,6 +376,7 @@ public:
         testLight->setScale(2, 2);
         this->newObject( testLight, 0 );
 
+        this->draw(window, false); //<- dummy draw to refresh planDepth
         this->printObjects();
 
         cout << "My checksum : " << fge::net::GetSceneChecksum(*this) << endl;
@@ -408,6 +410,7 @@ public:
                 }
 
                 std::cout << "FPS : " + fge::string::ToStr(countFps) + " max FPS : " + fge::string::ToStr(countMaxFps) << std::endl;
+                std::cout << "Object count : " << this->getObjectSize() << std::endl;
 
                 countFps=0;
                 clockFps.restart();

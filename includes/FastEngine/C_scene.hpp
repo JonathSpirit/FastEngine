@@ -22,6 +22,7 @@
 #define FGE_SCENE_PLAN_DEFAULT FGE_SCENE_PLAN_MIDDLE
 
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
+#define FGE_SCENE_BAD_PLANDEPTH std::numeric_limits<fge::ObjectPlanDepth>::max()
 
 namespace fge
 {
@@ -35,6 +36,7 @@ class ClientList;
 
 class Scene;
 
+using ObjectPlanDepth = uint32_t;
 using ObjectPlan = uint16_t;
 using ObjectSid = uint32_t;
 using ObjectPtr = std::unique_ptr<fge::Object>;
@@ -71,7 +73,9 @@ public:
         g_object(nullptr),
         g_sid(FGE_SCENE_BAD_SID),
         g_plan(FGE_SCENE_PLAN_DEFAULT),
-        g_type(fge::ObjectType::TYPE_NULL)
+        g_type(fge::ObjectType::TYPE_NULL),
+
+        g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
     ObjectData(fge::Scene* linkedScene,
                fge::Object* newObj,
@@ -83,7 +87,9 @@ public:
         g_object(newObj),
         g_sid(newSid),
         g_plan(newPlan),
-        g_type(newType)
+        g_type(newType),
+
+        g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
 
     inline fge::Object* releaseObject()
@@ -110,6 +116,15 @@ public:
     [[nodiscard]] inline fge::ObjectType getType() const
     {
         return this->g_type;
+    }
+
+    inline void setPlanDepth(fge::ObjectPlanDepth depth) const
+    {
+        this->g_planDepth = depth;
+    }
+    [[nodiscard]] inline fge::ObjectPlanDepth getPlanDepth() const
+    {
+        return this->g_planDepth;
     }
 
     [[nodiscard]] inline bool isLinked() const
@@ -151,6 +166,9 @@ private:
     fge::ObjectSid g_sid;
     fge::ObjectPlan g_plan;
     fge::ObjectType g_type;
+
+    //Dynamic data (not saved, local only)
+    mutable fge::ObjectPlanDepth g_planDepth;
 
     friend fge::Scene;
 };

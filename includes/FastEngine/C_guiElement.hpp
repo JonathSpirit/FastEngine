@@ -146,18 +146,22 @@ public:
 class GuiElementArray : public fge::GuiElement
 {
 public:
-    GuiElementArray() = default;
+    GuiElementArray()
+    {
+        this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
+    }
+    explicit GuiElementArray(fge::GuiElement::Priority priority) :
+            fge::GuiElement(priority)
+    {
+        this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
+    }
     ~GuiElementArray() override = default;
 
     void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
     {
-        for (std::size_t i=0; i<this->g_elements.size(); ++i)
+        if ( this->verifyPriority(element) )
         {
-            this->g_elements[i]->onGuiVerify(evt, arg, mouseGuiPos, element, index);
-            if (element == this->g_elements[i])
-            {
-                index = i;
-            }
+            element = this;
         }
     }
 
@@ -169,7 +173,11 @@ public:
     {
         for (auto it = this->g_elements.cbegin(); it != this->g_elements.cend(); ++it)
         {
-            this->g_elements.erase(it);
+            if (*it == element)
+            {
+                this->g_elements.erase(it);
+                return;
+            }
         }
     }
     void delAllElement()
@@ -185,8 +193,35 @@ public:
         return this->g_elements.size();
     }
 
+    void refreshInternalCallback()
+    {
+        this->_onGuiMouseButtonPressed.del(&this->g_subscriber);
+        this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
+    }
+
 private:
+    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, std::size_t index)
+    {
+        fge::GuiElement* element = nullptr;
+        std::size_t index2 = 0;
+
+        for (std::size_t i=0; i<this->g_elements.size(); ++i)
+        {
+            this->g_elements[i]->onGuiVerify(evt, arg, mouseGuiPos, element, index2);
+            if (element == this->g_elements[i])
+            {
+                index2 = i;
+            }
+        }
+
+        if (element)
+        {
+            element->_onGuiMouseButtonPressed.call(evt, arg, mouseGuiPos, index2);
+        }
+    }
+
     std::vector<fge::GuiElement*> g_elements;
+    fge::Subscriber g_subscriber;
 };
 
 }//end fge

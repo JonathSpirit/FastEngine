@@ -84,11 +84,28 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
         target.setView( *this->g_customView );
     }
 
-    for (const auto & data : this->g_data)
+    fge::ObjectPlanDepth depthCount = 0;
+    auto planDataMapIt = this->g_planDataMap.begin();
+
+    for (auto objectIt = this->g_data.begin(); objectIt != this->g_data.end(); ++objectIt)
     {
-        if (!data->g_object->_alwaysDrawed)
+        //Check plan depth
+        if (planDataMapIt != this->g_planDataMap.end())
         {
-            sf::FloatRect objectBounds = data->g_object->getGlobalBounds();
+            if (objectIt == planDataMapIt->second)
+            {//New plan, we reset depth count
+                depthCount = 0;
+                ++planDataMapIt; //go next plan ...
+            }
+        }
+
+        (*objectIt)->g_planDepth = depthCount++;
+
+        fge::Object* object = (*objectIt)->g_object.get();
+
+        if (!object->_alwaysDrawed)
+        {
+            sf::FloatRect objectBounds = object->getGlobalBounds();
             if (objectBounds.width == 0.0f)
             {
                 ++objectBounds.width;
@@ -104,7 +121,7 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
             }
         }
 
-        target.draw( *data->g_object );
+        target.draw( *object );
     }
 
     target.setView( backupView );
