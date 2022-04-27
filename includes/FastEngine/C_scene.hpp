@@ -23,6 +23,7 @@
 
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
 #define FGE_SCENE_BAD_PLANDEPTH std::numeric_limits<fge::ObjectPlanDepth>::max()
+#define FGE_SCENE_BAD_PLAN std::numeric_limits<fge::ObjectPlan>::max()
 
 namespace fge
 {
@@ -333,6 +334,8 @@ public:
 
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared> _onNewObject;
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared> _onRemoveObject;
+
+    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 
 private:
     void refreshPlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator hintIt, bool isLeaving);

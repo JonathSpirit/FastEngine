@@ -63,8 +63,11 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
             this->_onRemoveObject.call(this, *this->g_updatedObjectIterator);
             (*this->g_updatedObjectIterator)->g_linkedScene = nullptr;
             (*this->g_updatedObjectIterator)->g_object->_myObjectData = nullptr;
-            this->refreshPlanDataMap((*this->g_updatedObjectIterator)->g_plan, this->g_updatedObjectIterator, true);
+            auto objectPlan = (*this->g_updatedObjectIterator)->g_plan;
+            this->refreshPlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
+
+            this->_onPlanUpdate.call(this, objectPlan);
         }
     }
 }
@@ -151,9 +154,12 @@ fge::ObjectDataShared Scene::newObject(fge::Object* newObject, fge::ObjectPlan p
     it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, newObject, generatedSid, plan, type) );
     this->g_dataMap[generatedSid] = it;
     newObject->_myObjectData = *it;
-    this->refreshPlanDataMap((*it)->g_plan, it, false);
+    this->refreshPlanDataMap(plan, it, false);
     newObject->first(this);
+
     this->_onNewObject.call(this, *it);
+    this->_onPlanUpdate.call(this, plan);
+
     return *it;
 }
 fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
@@ -174,9 +180,12 @@ fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
     this->g_dataMap[generatedSid] = it;
     objectData->g_linkedScene = this;
     objectData->g_object->_myObjectData = objectData;
-    this->refreshPlanDataMap((*it)->g_plan, it, false);
+    this->refreshPlanDataMap(objectData->g_plan, it, false);
     objectData->g_object->first(this);
+
     this->_onNewObject.call(this, objectData);
+    this->_onPlanUpdate.call(this, objectData->g_plan);
+
     return objectData;
 }
 
@@ -206,6 +215,8 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
             this->refreshPlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
+
+            this->_onPlanUpdate.call(this, buff->g_plan);
 
             if (this->g_enableNetworkEventsFlag)
             {
@@ -237,9 +248,12 @@ bool Scene::delObject(fge::ObjectSid sid)
         this->_onRemoveObject.call(this, *it->second);
         (*it->second)->g_linkedScene = nullptr;
         (*it->second)->g_object->_myObjectData = nullptr;
-        this->refreshPlanDataMap((*it->second)->g_plan, it->second, true);
+        auto objectPlan = (*it->second)->g_plan;
+        this->refreshPlanDataMap(objectPlan, it->second, true);
         this->g_data.erase(it->second);
         this->g_dataMap.erase(it);
+
+        this->_onPlanUpdate.call(this, objectPlan);
 
         return true;
     }
@@ -274,6 +288,8 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         this->g_dataMap.erase((*it)->g_sid);
         it = --this->g_data.erase(it);
     }
+
+    this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);
     return buffSize;
 }
 
@@ -338,10 +354,17 @@ bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
 
         auto newPosIt = this->getInsertBeginPositionWithPlan(newPlan);
 
+        auto oldPlan = (*it->second)->g_plan;
         (*it->second)->g_plan = newPlan;
 
         this->g_data.splice(newPosIt, this->g_data, it->second);
         this->refreshPlanDataMap(newPlan, it->second, false);
+
+        if (oldPlan != newPlan)
+        {
+            this->_onPlanUpdate.call(this, oldPlan);
+        }
+        this->_onPlanUpdate.call(this, newPlan);
         return true;
     }
     return false;
@@ -361,6 +384,8 @@ bool Scene::setObjectPlanTop(fge::ObjectSid sid)
 
         this->g_data.splice(newPosIt->second, this->g_data, it->second);
         this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+
+        this->_onPlanUpdate.call(this, (*it->second)->g_plan);
         return true;
     }
     return false;
@@ -398,6 +423,8 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
                 this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
             }
         }
+
+        this->_onPlanUpdate.call(this, (*it->second)->g_plan);
 
         return true;
     }

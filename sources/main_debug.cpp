@@ -56,6 +56,10 @@ public:
         {
             this->setDefaultLightSystem(scene_ptr);
         }
+        if (this->g_copied)
+        {
+            this->_tags.add("badBloc");
+        }
     }
 
     void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr) override
@@ -390,6 +394,18 @@ public:
             if ( event.isEventType(sf::Event::Closed ) )
             {
                 window.close();
+            }
+            if ( event.isKeyPressed(sf::Keyboard::Space) )
+            {
+                for (auto it = this->begin(); it != this->end(); ++it)
+                {
+                    if ( (*it)->getObject()->_tags.check("badBloc") )
+                    {
+                        auto sid = (*it)->getSid();
+                        --it;
+                        this->delObject(sid);
+                    }
+                }
             }
 
             auto deltaTimeDuration = deltaTime.restart();

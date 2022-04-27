@@ -23,7 +23,7 @@ public:
     {}
     virtual ~GuiElement() = default;
 
-    void setPriority(fge::GuiElement::Priority priority)
+    void setPriority(fge::GuiElement::Priority priority) const
     {
         this->_g_priority = priority;
     }
@@ -49,7 +49,7 @@ public:
     fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, const sf::Vector2f&, std::size_t> _onGuiMouseButtonPressed;
 
 protected:
-    fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
+    mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
 };
 
 class GuiElementHandler : public fge::Subscriber
