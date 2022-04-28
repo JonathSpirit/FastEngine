@@ -62,18 +62,12 @@ public:
     inline std::vector<std::vector<T> >& get();
     inline const std::vector<std::vector<T> >& get() const;
 
-    void set(std::size_t x, std::size_t y, const T&& value);
-    template<class Tvec>
-    void set(const sf::Vector2<Tvec>& coord, const T&& value);
     void set(std::size_t x, std::size_t y, T&& value);
     template<class Tvec>
     void set(const sf::Vector2<Tvec>& coord, T&& value);
     void set(std::size_t x, std::size_t y, const T& value);
     template<class Tvec>
     void set(const sf::Vector2<Tvec>& coord, const T& value);
-    void set(std::size_t x, std::size_t y, T& value);
-    template<class Tvec>
-    void set(const sf::Vector2<Tvec>& coord, T& value);
 
     void set(std::initializer_list<std::initializer_list<T>> data);
 

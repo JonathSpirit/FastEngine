@@ -184,17 +184,6 @@ const std::vector<std::vector<T> >& Matrix<T>::get() const
 }
 
 template<class T>
-void Matrix<T>::set(std::size_t x, std::size_t y, const T&& value)
-{
-    this->g_matrix.at(x).at(y) = std::move(value);
-}
-template<class T>
-template<class Tvec>
-void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T&& value)
-{
-    this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = std::move(value);
-}
-template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, T&& value)
 {
     this->g_matrix.at(x).at(y) = std::move(value);
@@ -213,17 +202,6 @@ void Matrix<T>::set(std::size_t x, std::size_t y, const T& value)
 template<class T>
 template<class Tvec>
 void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T& value)
-{
-    this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = value;
-}
-template<class T>
-void Matrix<T>::set(std::size_t x, std::size_t y, T& value)
-{
-    this->g_matrix.at(x).at(y) = value;
-}
-template<class T>
-template<class Tvec>
-void Matrix<T>::set(const sf::Vector2<Tvec>& coord, T& value)
 {
     this->g_matrix.at(static_cast<std::size_t>(coord.x)).at(static_cast<std::size_t>(coord.y)) = value;
 }
