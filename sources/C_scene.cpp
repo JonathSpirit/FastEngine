@@ -195,7 +195,14 @@ fge::ObjectDataShared Scene::duplicateObject(fge::ObjectSid sid, fge::ObjectSid 
 
     if ( it != this->g_dataMap.end() )
     {
-        return this->newObject( (*it->second)->g_object->copy(), (*it->second)->g_plan, newSid, (*it->second)->g_type );
+        fge::ObjectDataShared object = *it->second;
+        fge::ObjectDataShared newObject = std::make_shared<fge::ObjectData>();
+        newObject->g_object.reset( object->g_object->copy() );
+        newObject->g_plan = object->g_plan;
+        newObject->g_sid = newSid;
+        newObject->g_type = object->g_type;
+
+        return this->newObject(newObject);
     }
 
     return nullptr;
