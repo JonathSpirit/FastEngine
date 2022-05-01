@@ -10,7 +10,7 @@ namespace fge
 class Tileset
 {
 public:
-    Tileset(){}
+    Tileset() = default;
     Tileset( const fge::Texture& texture ) :
         g_texture(texture)
     {
@@ -36,7 +36,7 @@ public:
         this->g_offset.y = 0;
     }
 
-    inline bool valid() const
+    [[nodiscard]] inline bool valid() const
     {
         return this->g_texture.valid();
     }
@@ -72,11 +72,11 @@ public:
         this->g_offset = offset;
     }
 
-    inline sf::IntRect getTextureRect(const sf::Vector2i& pos)
+    inline sf::IntRect getTextureRect(const sf::Vector2i& pos) const
     {
         return sf::IntRect(pos.x*this->g_tileSize.x + this->g_offset.x, pos.y*this->g_tileSize.y + this->g_offset.y, this->g_tileSize.x,this->g_tileSize.y);
     }
-    inline sf::IntRect getTextureRect(int posX, int posY)
+    inline sf::IntRect getTextureRect(int posX, int posY) const
     {
         return sf::IntRect(posX*this->g_tileSize.x + this->g_offset.x, posY*this->g_tileSize.y + this->g_offset.y, this->g_tileSize.x,this->g_tileSize.y);
     }

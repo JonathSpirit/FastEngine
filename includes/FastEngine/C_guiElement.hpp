@@ -23,6 +23,14 @@ public:
     {}
     virtual ~GuiElement() = default;
 
+    void setScale(const sf::Vector2f& scale)
+    {
+        this->_g_scale = scale;
+    }
+    [[nodiscard]] const sf::Vector2f& getScale() const
+    {
+        return this->_g_scale;
+    }
     void setPriority(fge::GuiElement::Priority priority) const
     {
         this->_g_priority = priority;
@@ -50,6 +58,7 @@ public:
 
 protected:
     mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
+    sf::Vector2f _g_scale{1.0f,1.0f};
 };
 
 class GuiElementHandler : public fge::Subscriber
@@ -60,6 +69,19 @@ public:
             g_target(&target)
     {}
     ~GuiElementHandler() override = default;
+
+    fge::Event& getEvent()
+    {
+        return *this->g_event;
+    }
+    const fge::Event& getEvent() const
+    {
+        return *this->g_event;
+    }
+    const sf::RenderTarget& getRenderTarget() const
+    {
+        return *this->g_target;
+    }
 
     void setEventCallback(fge::Event& event)
     {
@@ -105,7 +127,8 @@ public:
     {
         if ( this->verifyPriority(element) )
         {
-            if ( this->g_rect.contains(mouseGuiPos) )
+            sf::FloatRect rect{this->g_rect.getPosition(), {this->g_rect.width*this->_g_scale.x, this->g_rect.height*this->_g_scale.y}};
+            if ( rect.contains(mouseGuiPos) )
             {
                 element = this;
             }
