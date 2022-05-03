@@ -199,7 +199,7 @@ public:
     }
 
     void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
-    void draw(sf::RenderTarget& target, bool clear_target = true, const sf::Color& clear_color = sf::Color::White) const;
+    void draw(sf::RenderTarget& target, bool clear_target = true, const sf::Color& clear_color = sf::Color::White, sf::RenderStates states=sf::RenderStates::Default) const;
 
     void clear();
 

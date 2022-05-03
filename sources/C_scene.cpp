@@ -71,7 +71,7 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
         }
     }
 }
-void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& clear_color) const
+void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& clear_color, sf::RenderStates states) const
 {
     if ( clear_target )
     {
@@ -124,7 +124,8 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
             }
         }
 
-        target.draw( *object );
+        sf::RenderStates statesCopy = states;
+        target.draw(*object, statesCopy);
     }
 
     target.setView( backupView );
