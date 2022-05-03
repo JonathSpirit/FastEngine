@@ -14,11 +14,12 @@
 #include <unordered_map>
 #include <memory>
 
-#define FGE_SCENE_PLAN_HIDE_BACK fge::ObjectPlan(0)
-#define FGE_SCENE_PLAN_BACK fge::ObjectPlan(1)
-#define FGE_SCENE_PLAN_MIDDLE fge::ObjectPlan(2)
-#define FGE_SCENE_PLAN_TOP fge::ObjectPlan(3)
-#define FGE_SCENE_PLAN_HIGH_TOP fge::ObjectPlan(4)
+#define FGE_SCENE_PLAN_HIDE_BACK (FGE_SCENE_PLAN_MIDDLE-4)
+#define FGE_SCENE_PLAN_BACK (FGE_SCENE_PLAN_MIDDLE-2)
+#define FGE_SCENE_PLAN_MIDDLE fge::ObjectPlan{100}
+#define FGE_SCENE_PLAN_TOP (FGE_SCENE_PLAN_MIDDLE+2)
+#define FGE_SCENE_PLAN_GUI (FGE_SCENE_PLAN_MIDDLE+4)
+#define FGE_SCENE_PLAN_HIGH_TOP (FGE_SCENE_PLAN_MIDDLE+6)
 #define FGE_SCENE_PLAN_DEFAULT FGE_SCENE_PLAN_MIDDLE
 
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
