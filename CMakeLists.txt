@@ -48,12 +48,36 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #Get the GIT version target
 find_package(Git)
-add_custom_target(fgeVersion
-        ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in
-        -D DST=${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp
-        -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
-        -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
-        )
+
+#Get FastEngine version
+set(SRC ${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in)
+set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp)
+include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
+
+# first we can indicate the documentation build as an option and set it to ON by default
+option(BUILD_DOC "Build documentation" ON)
+
+# check if Doxygen is installed
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    # set input and output files
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+    # request to configure the file
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+    message("Doxygen build started")
+
+    # note the option ALL which allows to build the docs together with the application
+    add_custom_target( doc_doxygen ALL
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM )
+
+else (DOXYGEN_FOUND)
+    message("Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)
 
 #Add all subdirectories
 
@@ -131,12 +155,10 @@ if(WIN32)
 endif()
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
-add_dependencies(${FGE_LIB_NAME} fgeVersion)
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-graphics sfml-system sfml-window)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/SFML/include")
 
-add_dependencies(${FGE_SERVER_LIB_NAME} fgeVersion) #fgeVersion
 add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
 
 add_dependencies(${FGE_LIB_NAME} lz4_static) #Lz4
