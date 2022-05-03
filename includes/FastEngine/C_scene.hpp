@@ -119,10 +119,10 @@ public:
     /**
      * \brief Release the Object handled by the smart pointer.
      *
-     * This function should only be usefull if you use a custom Scene like object to
+     * This method should only be useful if you use a custom Object handler to
      * handle your objects.
      *
-     * \warning This is your responsibility to destroy the Object after a call to this function.
+     * \warning This is your responsibility to destroy the Object after a call to this method.
      *
      * \return The pointer of the Object
      */
@@ -191,6 +191,7 @@ public:
     /**
      * \brief Set the plan depth of the Object.
      *
+     * \param depth The new depth
      * \see getPlanDepth
      */
     inline void setPlanDepth(fge::ObjectPlanDepth depth) const
@@ -279,7 +280,7 @@ public:
      * For an shared pointer Object to be considered valid he need
      * to be not \b nullptr and have a linked Scene.
      *
-     * \param dataShared the shared pointer Object
+     * \param dataShared The shared pointer Object
      */
     static inline bool isValid(const std::shared_ptr<fge::ObjectData>& dataShared)
     {
@@ -311,7 +312,7 @@ using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterat
  * \brief A scene contain a collection of object and handle them
  *
  * The job of a Scene is to hande a collection of Object and implement some
- * utility function for the user to control them.
+ * utility method for the user to control them.
  *
  * \see ObjectData
  */
@@ -324,37 +325,209 @@ public:
     explicit Scene(std::string sceneName);
     virtual ~Scene() = default;
 
-    /** Scene **/
+    //Scene
+
+    /**
+     * \brief Get the name of the Scene.
+     *
+     * \return the name of the Scene
+     */
     inline const std::string& getName() const
     {
         return this->g_name;
     }
-    inline void setName(const std::string& name)
+    /**
+     * \brief Set the name of the Scene.
+     *
+     * \param name The new name of the scene
+     */
+    inline void setName(std::string name)
     {
-        this->g_name = name;
+        this->g_name = std::move(name);
     }
 
+    /**
+     * \brief Update of the Scene.
+     *
+     * This method call the Object::update() method of every Object in the scene.
+     *
+     * \warning If the updated Object want to delete itself during an update, it have to use
+     * the delUpdatedObject() and not any others delete methode that will cause
+     * undefined behaviour.
+     *
+     * \param screen A SFML RenderWindow
+     * \param event The FastEngine Event class
+     * \param deltaTime The time in milliseconds between two updates
+     */
     void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
+    /**
+     * \brief Draw the Scene.
+     *
+     * This method call the Object::draw() method of every Object in the scene.
+     *
+     * Before drawing an Object, the Scene check if the global bounds of the Object
+     * is in the bounds of the screen and draw it if it's there.
+     *
+     * This behaviour can be surpassed if the Object::_alwaysDrawed is \b true.
+     * \see Object::getGlobalBounds()
+     *
+     * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.
+     * \see ObjectData::getPlanDepth()
+     *
+     * \param target A SFML RenderTarget
+     * \param clear_target Set to \b true to let the Scene clear the target
+     * \param clear_color If clear_target is set to \b true, this parameter is used to set the clear color
+     * \param states The default SFML RenderStates to be used for every drawn Object
+     */
     void draw(sf::RenderTarget& target, bool clear_target = true, const sf::Color& clear_color = sf::Color::White, sf::RenderStates states=sf::RenderStates::Default) const;
 
+    /**
+     * \brief Clear the Scene.
+     *
+     * This method call delAllObject() including GUI Object type and PropertyList::delAllProperties().
+     */
     void clear();
 
-    /** Object **/
+    //Object
+
+    /**
+     * \brief Add a new Object in the Scene.
+     *
+     * This method add a created Object in the Scene.
+     * The provided SID is passed to the virtual generateSid() method.
+     *
+     * \warning The provided pointer of the Object, have to be allocated in the \b heap and must not be
+     * handled by the user. (The Scene will automatically put the pointer in a smart managed pointer)
+     *
+     * \warning If there is an error during the addition of the new Object, the returned shared pointer
+     * is not valid and the provided Object pointer is dismissed and **not freed by the Scene**.
+     *
+     * \param newObject The object pointer allocated by the user
+     * \param plan The plan of the new object
+     * \param sid The wanted SID
+     * \param type The type of the new Object
+     * \return An shared pointer of the ObjectData
+     */
     fge::ObjectDataShared newObject(fge::Object* newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
+    /**
+     * \brief Add a new Object in the Scene.
+     *
+     * This method add already handled shared ObjectData in the Scene.
+     * The linked Scene is automatically set to the target Scene.
+     *
+     * \warning The provided ObjectData must have a valid Object pointer.
+     *
+     * \param objectData The shared ObjectData
+     * \return An shared pointer of the ObjectData
+     */
     fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData);
 
+    /**
+     * \brief Duplicate the provided Object SID.
+     *
+     * This method duplicate the Object corresponding to the provided SID by giving an new SID
+     * to the freshly duplicated Object.
+     *
+     * This method call the Object::copy() method.
+     *
+     * \param sid The SID of the Object to be duplicated
+     * \param newSid The new SID of the duplicated Object
+     * \return An shared pointer of the new ObjectData
+     */
     fge::ObjectDataShared duplicateObject(fge::ObjectSid sid, fge::ObjectSid newSid = FGE_SCENE_BAD_SID);
 
+    /**
+     * \brief Transfer the specified Object to another Scene.
+     *
+     * The provided Scene must not have another Object with the same SID,
+     * causing the method to failed and return an invalid shared pointer.
+     *
+     * \warning This method is not meant to be used on the same Scene, however
+     * it will work as expected.
+     *
+     * \param sid The SID of the Object to be transferred
+     * \param newScene The Scene that will get the Object
+     * \return An shared pointer of the transferred Object from the new scene
+     */
     fge::ObjectDataShared transferObject(fge::ObjectSid sid, fge::Scene& newScene);
 
+    /**
+     * \brief Delete the actual updated Object.
+     *
+     * This method mark the actual Object to be deleted internally. When the actual Object has
+     * finished is update, the update() method correctly delete it.
+     *
+     * \warning This method is not meant to be used outside of an update and will cause
+     * weird behaviour if not respected. (like deleting the first updated Object)
+     *
+     * \see update()
+     */
     void delUpdatedObject();
+    /**
+     * \brief Delete the Object provided with his SID.
+     *
+     * \warning This method should not be called in the updated Object for deleting itself
+     *
+     * \see delUpdatedObject()
+     *
+     * \param sid The SID of the Object to be deleted
+     * \return \b true if the Object is correctly deleted or \b false if the Object is not found
+     */
     bool delObject(fge::ObjectSid sid);
+    /**
+     * \brief Delete every Object in the Scene.
+     *
+     * \param ignoreGuiObject If \b true, every GUI type Object is not deleted by this method
+     * \return The number of deleted Object
+     */
     std::size_t delAllObject(bool ignoreGuiObject);
 
+    /**
+     * \brief Set the Object with a new SID.
+     *
+     * If the new SID is FGE_SCENE_BAD_SID, the method return \b false.
+     *
+     * \param sid Actual SID of the Object
+     * \param newSid The new SID of the Object
+     * \return \b true if the change is successful
+     */
     bool setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid);
+    /**
+     * \brief Set a new Object pointer in place of the provided one.
+     *
+     * \warning The provided pointer must respect the same rule as a
+     * newly created object with the newObject() method
+     *
+     * \param sid Actual SID of the Object
+     * \param newObject The new Object pointer
+     * \return \b true if the change is successful
+     */
     bool setObject(fge::ObjectSid sid, fge::Object* newObject);
+    /**
+     * \brief Set a new Object plan.
+     *
+     * \param sid Actual SID of the Object
+     * \param newPlan The new plan
+     * \return \b true if the change is successful
+     */
     bool setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan);
+    /**
+     * \brief Set an Object on top of his plan.
+     *
+     * This make the object be drawn first.
+     *
+     * \param sid Actual SID of the Object
+     * \return \b true if the change is successful
+     */
     bool setObjectPlanTop(fge::ObjectSid sid);
+    /**
+     * \brief Set an Object in the bottom of his plan.
+     *
+     * This make the object be drawn last.
+     *
+     * \param sid Actual SID of the Object
+     * \return \b true if the change is successful
+     */
     bool setObjectPlanBot(fge::ObjectSid sid);
 
     fge::ObjectDataShared getObject(fge::ObjectSid sid) const;

@@ -307,6 +307,10 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
     {
         return false;
     }
+    if (sid == newSid)
+    {
+        return true;
+    }
 
     auto it = this->g_dataMap.find(newSid);
 
@@ -332,6 +336,11 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
 }
 bool Scene::setObject(fge::ObjectSid sid, fge::Object* newObject)
 {
+    if (newObject == nullptr)
+    {
+        return false;
+    }
+
     auto it = this->g_dataMap.find(sid);
 
     if ( it != this->g_dataMap.end() )
