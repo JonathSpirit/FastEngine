@@ -14,6 +14,9 @@
 #endif // _FGE_FASTENGINE_EXTERN_HPP_INCLUDED
 
 /**
-*  \defgroup objectControl Object control
-*  \brief Everything related to objects
-*/
+ *  \defgroup objectControl Object control
+ *  \brief Everything related to objects
+ *
+ *  \defgroup network Network utility/tools
+ *  \brief Everything related to network
+ */

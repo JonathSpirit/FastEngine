@@ -43,6 +43,14 @@ using ObjectPlan = uint16_t;
 using ObjectSid = uint32_t;
 using ObjectPtr = std::unique_ptr<fge::Object>;
 
+/**
+ * \struct SceneNetEvent
+ * \ingroup network
+ * \brief Structure that represent an network event related to Scene.
+ *
+ * This structure is necessary to synchronize events like Object deletion and creation.
+ * This is handled via the Scene and you should not really use it.
+ */
 struct SceneNetEvent
 {
     enum Events : uint8_t
@@ -108,27 +116,73 @@ public:
         g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
 
+    /**
+     * \brief Release the Object handled by the smart pointer.
+     *
+     * This function should only be usefull if you use a custom Scene like object to
+     * handle your objects.
+     *
+     * \warning This is your responsibility to destroy the Object after a call to this function.
+     *
+     * \return The pointer of the Object
+     */
     inline fge::Object* releaseObject()
     {
         return this->g_object.release();
     }
 
+    /**
+     * \brief Get the linked Scene.
+     *
+     * \return The linked Scene pointer or \b nullptr if there is no Scene
+     */
     [[nodiscard]] inline fge::Scene* getLinkedScene() const
     {
         return this->g_linkedScene;
     }
+    /**
+     * \brief Get the Object pointer.
+     *
+     * \return The Object pointer
+     */
     [[nodiscard]] inline fge::Object* getObject() const
     {
         return this->g_object.get();
     }
+    /**
+     * \brief Get the SID of the Object.
+     *
+     * An SID (for secret identifier) is an unique id for every object in your scene.
+     *
+     * \return The SID of the object
+     */
     [[nodiscard]] inline fge::ObjectSid getSid() const
     {
         return this->g_sid;
     }
+    /**
+     * \brief Get the plan of the Object.
+     *
+     * The plan determine the draw order of the Object.
+     * If the plan is \b 0, the Object will be drawn first.
+     *
+     * \return The plan of the Object.
+     */
     [[nodiscard]] inline fge::ObjectPlan getPlan() const
     {
         return this->g_plan;
     }
+    /**
+     * \brief Get the type of the Object.
+     *
+     * The type determine how the Object is synchronised on the network.
+     *
+     * - TYPE_OBJECT: a normal object that will be synchronised between client and server
+     * - TYPE_DECAY: an object that will be sent from the server but not synchronised
+     * - TYPE_GUI: an object that is client only and will be not destroyed by a full synchronisation
+     *
+     * \return The type of the Object.
+     */
     [[nodiscard]] inline fge::ObjectType getType() const
     {
         return this->g_type;
@@ -211,9 +265,8 @@ public:
     /**
      * \brief Get the SID of the Object.
      *
-     * An SID (for secret identifier) is an unique id for every object in your scene.
-     *
      * \return The SID of the object
+     * \see getSid()
      */
     inline operator const fge::ObjectSid&() const
     {
@@ -259,6 +312,8 @@ using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterat
  *
  * The job of a Scene is to hande a collection of Object and implement some
  * utility function for the user to control them.
+ *
+ * \see ObjectData
  */
 class FGE_API Scene : public fge::CommandHandler
 {
