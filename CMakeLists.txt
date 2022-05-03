@@ -56,9 +56,9 @@ include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
 #Documentation
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
-    option(BUILD_DOC "Build documentation" OFF)
-else()
     option(BUILD_DOC "Build documentation" ON)
+else()
+    option(BUILD_DOC "Build documentation" OFF)
 endif()
 
 #Check if Doxygen is installed
