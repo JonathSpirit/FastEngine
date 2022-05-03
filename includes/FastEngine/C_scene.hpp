@@ -180,6 +180,14 @@ using ObjectContainer = std::list<fge::ObjectDataShared>;
 using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
 using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
 
+/**
+ * \class Scene
+ * \ingroup objectControl
+ * \brief A scene contain a collection of object and handle them
+ *
+ * The job of a Scene is to hande a collection of Object and implement some
+ * utility function for the user to control them.
+ */
 class FGE_API Scene : public fge::CommandHandler
 {
 public:
