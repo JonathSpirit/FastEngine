@@ -152,7 +152,7 @@ public:
     /**
      * \brief Get the SID of the Object.
      *
-     * An SID (for secret identifier) is an unique id for every object in your scene.
+     * An SID (for static identifier) is an unique id for every object in your scene.
      *
      * \return The SID of the object
      */
@@ -267,7 +267,7 @@ public:
      * \brief Get the SID of the Object.
      *
      * \return The SID of the object
-     * \see getSid()
+     * \see getSid
      */
     inline operator const fge::ObjectSid&() const
     {
@@ -325,8 +325,7 @@ public:
     explicit Scene(std::string sceneName);
     virtual ~Scene() = default;
 
-    //Scene
-
+    // Scene
     /**
      * \brief Get the name of the Scene.
      *
@@ -349,10 +348,10 @@ public:
     /**
      * \brief Update of the Scene.
      *
-     * This method call the Object::update() method of every Object in the scene.
+     * This method call the Object::update method of every Object in the scene.
      *
      * \warning If the updated Object want to delete itself during an update, it have to use
-     * the delUpdatedObject() and not any others delete methode that will cause
+     * the delUpdatedObject and not any others delete methode that will cause
      * undefined behaviour.
      *
      * \param screen A SFML RenderWindow
@@ -363,16 +362,16 @@ public:
     /**
      * \brief Draw the Scene.
      *
-     * This method call the Object::draw() method of every Object in the scene.
+     * This method call the Object::draw method of every Object in the scene.
      *
      * Before drawing an Object, the Scene check if the global bounds of the Object
      * is in the bounds of the screen and draw it if it's there.
      *
      * This behaviour can be surpassed if the Object::_alwaysDrawed is \b true.
-     * \see Object::getGlobalBounds()
+     * \see Object::getGlobalBounds
      *
      * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.
-     * \see ObjectData::getPlanDepth()
+     * \see ObjectData::getPlanDepth
      *
      * \param target A SFML RenderTarget
      * \param clear_target Set to \b true to let the Scene clear the target
@@ -384,12 +383,11 @@ public:
     /**
      * \brief Clear the Scene.
      *
-     * This method call delAllObject() including GUI Object type and PropertyList::delAllProperties().
+     * This method call delAllObject including GUI Object type and PropertyList::delAllProperties.
      */
     void clear();
 
-    //Object
-
+    // Object
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -428,7 +426,7 @@ public:
      * This method duplicate the Object corresponding to the provided SID by giving an new SID
      * to the freshly duplicated Object.
      *
-     * This method call the Object::copy() method.
+     * This method call the Object::copy method.
      *
      * \param sid The SID of the Object to be duplicated
      * \param newSid The new SID of the duplicated Object
@@ -460,7 +458,7 @@ public:
      * \warning This method is not meant to be used outside of an update and will cause
      * weird behaviour if not respected. (like deleting the first updated Object)
      *
-     * \see update()
+     * \see update
      */
     void delUpdatedObject();
     /**
@@ -468,7 +466,7 @@ public:
      *
      * \warning This method should not be called in the updated Object for deleting itself
      *
-     * \see delUpdatedObject()
+     * \see delUpdatedObject
      *
      * \param sid The SID of the Object to be deleted
      * \return \b true if the Object is correctly deleted or \b false if the Object is not found
@@ -530,48 +528,318 @@ public:
      */
     bool setObjectPlanBot(fge::ObjectSid sid);
 
+    /**
+     * \brief Get an Object with his SID.
+     *
+     * \param sid Actual SID of the wanted Object
+     * \return The shared ObjectData pointer
+     */
     fge::ObjectDataShared getObject(fge::ObjectSid sid) const;
+    /**
+     * \brief Get an Object with his pointer.
+     *
+     * \param ptr Actual pointer of the wanted Object
+     * \return The shared ObjectData pointer
+     */
     fge::ObjectDataShared getObject(const fge::Object* ptr) const;
+    /**
+     * \brief Get an Object pointer with his SID.
+     *
+     * \param sid Actual SID of the wanted Object
+     * \return The Object pointer
+     */
     fge::Object* getObjectPtr(fge::ObjectSid sid) const;
+    /**
+     * \brief Get the actual updated Object.
+     *
+     * \return The shared ObjectData pointer
+     */
     fge::ObjectDataShared getUpdatedObject() const;
 
+    /**
+     * \brief Get total Object stored in this Scene.
+     *
+     * \return The size of the Scene.
+     */
     inline std::size_t getObjectSize() const
     {
         return this->g_data.size();
     }
 
-    /** Search function **/
+    // Search function
+    /**
+     * \brief Get all Object with a position.
+     *
+     * This function check if the global bounds of every Object
+     * contain the provided position.
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param pos The position
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_ByPosition(const sf::Vector2f& pos, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object within a zone (or rectangle).
+     *
+     * This function check if the global bounds of every Object
+     * intersect with the provided zone (or rectangle).
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param zone The zone
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object with a local position.
+     *
+     * This function first convert the local position to global coordinate with
+     * the \b custom \b view of the Scene if there is one.
+     * Then it check if the global bounds of every Object
+     * contain the provided position.
+     *
+     * \see setCustomView
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param pos The local position
+     * \param target An SFML RenderTarget
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object within a local zone (or rectangle).
+     *
+     * This function first convert the local zone to global coordinate with
+     * the \b custom \b view of the Scene if there is one.
+     * Then it check if the global bounds of every Object
+     * intersect with the provided zone (or rectangle).
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param zone The local zone
+     * \param target An SFML RenderTarget
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object with a local position.
+     *
+     * Instead of converting the provided local position to global coordinate,
+     * this function convert the global bounds of the Object to local coordinate
+     * and check if converted local bounds contain the provided position.
+     *
+     * This function will use the \b custom \b view of the Scene if there is one.
+     *
+     * \see setCustomView getAllObj_ByLocalPosition
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param pos The local position
+     * \param target An SFML RenderTarget
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object within a local zone (or rectangle).
+     *
+     * Instead of converting the provided local zone to global coordinate,
+     * this function convert the global bounds of the Object to local coordinate
+     * and check if the converted local bounds intersect with the provided zone.
+     *
+     * This function will use the \b custom \b view of the Scene if there is one.
+     *
+     * \see setCustomView getAllObj_ByLocalZone
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param zone The local zone
+     * \param target An SFML RenderTarget
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object with the same class name.
+     *
+     * \see Object::getClassName
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param class_name The wanted class name
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_ByClass(const std::string& class_name, fge::ObjectContainer& buff) const;
+    /**
+     * \brief Get all Object that contain the provided tag.
+     *
+     * \see TagList
+     *
+     * \warning This function do not clear data in the ObjectContainer.
+     *
+     * \param tag_name The wanted tag
+     * \param buff An ObjectContainer that will receive results
+     * \return The number of Objects added in the container
+     */
     std::size_t getAllObj_ByTag(const std::string& tag_name, fge::ObjectContainer& buff) const;
 
+    /**
+     * \brief Get the first Object with a position.
+     *
+     * \see getAllObj_ByPosition
+     *
+     * \param pos The position
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_ByPosition(const sf::Vector2f& pos) const;
+    /**
+     * \brief Get the first Object within a zone.
+     *
+     * \see getAllObj_ByZone
+     *
+     * \param zone The zone
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_ByZone(const sf::Rect<float>& zone) const;
+    /**
+     * \brief Get the first Object with a local position.
+     *
+     * \see getAllObj_ByLocalPosition
+     *
+     * \param pos The local position
+     * \param target The SFML RenderTarget
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const;
+    /**
+     * \brief Get the first Object within a local zone.
+     *
+     * \see getAllObj_ByLocalZone
+     *
+     * \param zone The local zone
+     * \param target The SFML RenderTarget
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const;
+    /**
+     * \brief Get the first Object with a local position position.
+     *
+     * \see getAllObj_FromLocalPosition
+     *
+     * \param pos The position
+     * \param target The SFML RenderTarget
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const;
+    /**
+     * \brief Get the first Object within a local zone.
+     *
+     * \see getAllObj_FromLocalZone
+     *
+     * \param zone The local zone
+     * \param target The SFML RenderTarget
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const;
+    /**
+     * \brief Get the first Object that match a provided class name.
+     *
+     * \see getAllObj_ByClass
+     *
+     * \param class_name The class name
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_ByClass(const std::string& class_name) const;
+    /**
+     * \brief Get the first Object that match a provided tag.
+     *
+     * \see getAllObj_ByTag
+     *
+     * \param tag_name The tag
+     * \return The first Object that match the argument
+     */
     fge::ObjectDataShared getFirstObj_ByTag(const std::string& tag_name) const;
 
-    /** Static id **/
+    // Static id
+    /**
+     * \brief Get the SID of the provided Object pointer.
+     *
+     * \param ptr The Object pointer
+     * \return FGE_SCENE_BAD_SID if there is no match, the Object SID otherwise
+     */
     fge::ObjectSid getSid(const fge::Object* ptr) const;
 
+    /**
+     * \brief Check if the SID correspond to an Object in this Scene.
+     *
+     * \param sid The Object SID
+     * \return \b true if the SID correspond
+     */
     inline bool isValid(fge::ObjectSid sid) const
     {
         return this->find(sid) != this->g_data.cend();
     }
 
+    /**
+     * \brief Generate an SID based on the provided wanted SID.
+     *
+     * By default, if the wanted SID is FGE_SCENE_BAD_SID, this function
+     * try to generate one with random value using fge::_random.
+     *
+     * If the wanted SID is already taken, this will cause an random SID generation.
+     *
+     * \param wanted_sid The wanted SID
+     * \return The SID generated
+     */
     virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid = FGE_SCENE_BAD_SID) const;
 
-    /** Network **/
+    // Network
+    /**
+     * \brief Pack all the Scene data in a Packet.
+     *
+     * This function is useful to do a full Scene synchronisation in a network from a server.
+     *
+     * \warning The maximum Object that can be packed is fge::net::SizeType.
+     *
+     * \param pck The network packet
+     */
     void pack(fge::net::Packet& pck);
+    /**
+     * \brief Unpack all the received data of a serverside Scene.
+     *
+     * This function delete every actual Object in the Scene except GUI Object.
+     *
+     * \see pack
+     *
+     * \param pck The network packet
+     */
     void unpack(fge::net::Packet& pck);
+    /**
+     * \brief Pack all modification in a Packet with clients checkup.
+     *
+     * This function do a ClientList::clientsCheckup and try to see if there
+     * is a modification on a network variable from the Object::_netList client by client.
+     *
+     * If there is a detected modification, the new value is packed in the network Packet, with some
+     * basic Object information like the SID.
+     *
+     * The _netList of this Scene is verified too.
+     *
+     * This allows a partial synchronisation between multiple clients and a server. A partial sync is here
+     * to avoid re-sending over and over the complete Scene data. If you have a lots of Object, this can
+     * be helpful for the Packet size sended to clients.
+     *
+     * \warning The maximum Object that can be packed is fge::net::SizeType.
+     *
+     * \param pck The network packet
+     */
     void packModification(fge::net::Packet& pck, fge::net::ClientList& clients, const fge::net::Identity& id);
     void packModification(fge::net::Packet& pck, const fge::net::Identity& id);
     void unpackModification(fge::net::Packet& pck);
