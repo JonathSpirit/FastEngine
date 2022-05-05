@@ -65,6 +65,11 @@ struct SceneNetEvent
     fge::ObjectSid _sid;
 };
 
+/**
+ * \enum ObjectType
+ * \ingroup objectControl
+ * \brief Represent different Object type
+ */
 enum ObjectType : uint8_t
 {
     TYPE_NULL = 0,
@@ -822,71 +827,272 @@ public:
      */
     void unpack(fge::net::Packet& pck);
     /**
-     * \brief Pack all modification in a Packet with clients checkup.
+     * \brief Pack all modification in a net::Packet for a net::Client with clients checkup.
      *
-     * This function do a ClientList::clientsCheckup and try to see if there
-     * is a modification on a network variable from the Object::_netList client by client.
+     * This function do a net::NetworkTypeBase::clientsCheckup and try to see if there
+     * is a modification in every network variable from the Object::_netList. This is done
+     * per net::Client with the provided net::Identity.
      *
-     * If there is a detected modification, the new value is packed in the network Packet, with some
+     * If there is a detected modification, the new value is packed in the network net::Packet, with some
      * basic Object information like the SID.
      *
      * The _netList of this Scene is verified too.
      *
-     * This allows a partial synchronisation between multiple clients and a server. A partial sync is here
-     * to avoid re-sending over and over the complete Scene data. If you have a lots of Object, this can
-     * be helpful for the Packet size sended to clients.
+     * This allow a partial synchronisation between multiple clients and a server. A partial sync is here
+     * to avoid re-sending over and over the same or a bit modified full Scene data. If you have a lots of Object,
+     * this can be helpful for Packet size and bandwidth.
+     *
+     * \see clientsCheckup
      *
      * \warning The maximum Object that can be packed is fge::net::SizeType.
      *
      * \param pck The network packet
+     * \param clients The ClientList used for clients checkup
+     * \param id The Identity of the client
      */
     void packModification(fge::net::Packet& pck, fge::net::ClientList& clients, const fge::net::Identity& id);
+    /**
+     * \brief Pack all modification in a net::Packet for a net::Client.
+     *
+     * This function do the same as packModification but without net::NetworkTypeBase::clientsCheckup
+     *
+     * \see clientsCheckup
+     *
+     * \warning The maximum Object that can be packed is fge::net::SizeType.
+     *
+     * \param pck The network packet
+     * \param id The Identity of the client
+     */
     void packModification(fge::net::Packet& pck, const fge::net::Identity& id);
+    /**
+     * \brief Unpack all modification of received data packet from a server.
+     *
+     * This function only extract Scene partial data, for full Scene sync please see pack and unpack
+     *
+     * \see packModification
+     *
+     * \param pck The network packet
+     */
     void unpackModification(fge::net::Packet& pck);
 
+    /**
+     * \brief Do a clients checkup for the Scene::_netList and Object::_netList.
+     *
+     * A clients checkup is necessary to keep an eye of new/removal client and keep a modification flag
+     * for every one of them.
+     *
+     * Every clients latency will vary a lot, so to keep an eye of what partial Scene modification have to be
+     * sent, a clients checkup is required.
+     *
+     * \see net::NetworkTypeBase::clientsCheckup
+     *
+     * \param clients The net::ClientList attributed to this Scene
+     */
     void clientsCheckup(const fge::net::ClientList& clients);
 
+    /**
+     * \brief Force every network type modification flag to be \b true for a specified client net::Identity.
+     *
+     * When a modification flag is \b true for a net::NetworkType, every data affected will be
+     * packed in the next call of packModification
+     *
+     * \param id The client net::Identity
+     */
     void forceCheckClient(const fge::net::Identity& id);
+    /**
+     * \brief Force every network type modification flag to be \b false for a specified client net::Identity.
+     *
+     * \see forceCheckClient
+     *
+     * \param id The client net::Identity
+     */
     void forceUncheckClient(const fge::net::Identity& id);
 
-    /** SceneNetEvent **/
+    // SceneNetEvent
+    /**
+     * \brief Do a clients checkup for Scene related events.
+     *
+     * \see clientsCheckup
+     *
+     * \param clients The net::ClientList attributed to this Scene
+     */
     void clientsCheckupEvent(const fge::net::ClientList& clients);
+    /**
+     * \brief Manually push a Scene related event for every clients.
+     *
+     * \param netEvent The SceneNetEvent
+     */
     void pushEvent(const fge::SceneNetEvent& netEvent);
+    /**
+     * \brief Manually push a Scene related event for a specified client.
+     *
+     * \param netEvent The SceneNetEvent
+     * \param id A client net::Identity
+     */
     bool pushEvent(const fge::SceneNetEvent& netEvent, const fge::net::Identity& id);
+    /**
+     * \brief Start to watch Scene related event or not.
+     *
+     * When \b true, the Scene will start to push SceneNetEvent for clients. This is
+     * \b false by default to avoid events overflow.
+     *
+     * \warning SceneNetEvent have to be cleared manually by the user with deleteEvents.
+     *
+     * \param on Start or stop watching Scene related events
+     */
     void watchEvent(bool on);
+    /**
+     * \brief Check if the Scene is currently watching events.
+     "
+     * \see watchEvent
+     *
+     * \return Watch Scene events stats
+     */
     bool isWatchingEvent() const;
 
+    /**
+     * \brief Clear Scene events queue for the specified client.
+     *
+     * \param id A client net::Identity
+     */
     void deleteEvents(const fge::net::Identity& id);
+    /**
+     * \brief Clear Scene events queue for all clients.
+     */
     void deleteEvents();
+    /**
+     * \brief Remove all clients related data.
+     *
+     * This function clear all the clients data and queue. After a call to this function,
+     * you have to recall clientsCheckupEvent to re-register clients.
+     *
+     * \warning not to be confounded with deleteEvents that just clear up events queue.
+     */
     void clearEvents();
 
+    /**
+     * \brief Pack all Scene related events for a specified client.
+     *
+     * After a call to this function, the event queue is empty.
+     *
+     * \param pck The network packet
+     * \param id The client net::Identity
+     */
     void packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id);
+    /**
+     * \brief Unpack all Scene related events from a server.
+     *
+     * \param pck The network packet
+     */
     void unpackWatchedEvent(fge::net::Packet& pck);
 
-    /** Operator **/
+    // Operator
     inline fge::ObjectDataShared operator[] (fge::ObjectSid sid) const
     {
         return this->getObject(sid);
     }
 
-    /** Custom view **/
-    void setCustomView(std::shared_ptr<sf::View>& customView);
+    // Custom view
+    /**
+     * \brief Set a custom shared view.
+     *
+     * This is useful if you need to draw a Scene in another place in the screen.
+     *
+     * \param customView The shared pointer of a SFML view
+     */
+    void setCustomView(std::shared_ptr<sf::View> customView);
+    /**
+     * \brief Get the custom shared view if there is one.
+     *
+     * \see setCustomView
+     *
+     * \return The shared point of the SFML view
+     */
     const std::shared_ptr<sf::View>& getCustomView() const;
+    /**
+     * \brief Remove the actual custom view.
+     *
+     * \see setCustomView
+     */
     void delCustomView();
 
-    /** Linked renderTarget **/
+    // Linked renderTarget
+    /**
+     * \brief Link a SFML RenderTarget to the Scene.
+     *
+     * This is useful for any Object that required an RenderTarget in its method.
+     *
+     * \param target The SFML RenderTarget (can be \b nullptr)
+     */
     void setLinkedRenderTarget(sf::RenderTarget* target);
+    /**
+     * \brief Get the RenderTarget linked to this Scene.
+     *
+     * \see setLinkedRenderTarget
+     *
+     * \return The linked RenderTarget or \b nullptr if there is none
+     */
     const sf::RenderTarget* getLinkedRenderTarget() const;
+    /**
+     * \brief Get the RenderTarget linked to this Scene (non-const).
+     *
+     * \see setLinkedRenderTarget
+     *
+     * \return The linked RenderTarget or \b nullptr if there is none
+     */
     sf::RenderTarget* getLinkedRenderTarget();
 
-    /** Save/Load in file **/
+    // Save/Load in file
+    /**
+     * \brief Save some user defined custom data.
+     *
+     * This function doesn't do anything by default but can be override to save some
+     * data during a saveInFile call.
+     *
+     * \see saveInFile
+     *
+     * \param jsonObject The json object
+     */
     virtual void saveCustomData(nlohmann::json& jsonObject){};
+    /**
+     * \brief Load some user defined custom data.
+     *
+     * This function doesn't do anything by default but can be override to load some
+     * data during a loadFromFile call.
+     *
+     * \see loadFromFile
+     *
+     * \param jsonObject The json object
+     */
     virtual void loadCustomData(nlohmann::json& jsonObject){};
 
+    /**
+     * \brief Save all the Scene with its Object in a file.
+     *
+     * This function save all the data in a json format.
+     *
+     * \see loadFromFile
+     *
+     * \param path The path of the file
+     * \return \b true if successful, \b false otherwise
+     */
     bool saveInFile(const std::string& path);
+    /**
+     * \brief Load all the Scene data from a json file.
+     *
+     * This function load all the data from a json format.
+     *
+     * \warning This function clear everything in the Scene before
+     * the file loading.
+     *
+     * \see saveInFile
+     *
+     * \param path The path of the file
+     * \return \b true if successful, \b false otherwise
+     */
     bool loadFromFile(const std::string& path);
 
-    /** Iterator **/
+    // Iterator
     inline fge::ObjectContainer::const_iterator begin() const
     {
         return this->g_data.begin();
@@ -896,17 +1102,42 @@ public:
         return this->g_data.end();
     }
 
+    /**
+     * \brief Find an Object with the specified SID.
+     *
+     * \param sid The Object SID
+     * \return An constant iterator representing the ObjectData
+     */
     fge::ObjectContainer::const_iterator find(fge::ObjectSid sid) const;
+    /**
+     * \brief Find an Object with the specified Object pointer.
+     *
+     * \param ptr The Object pointer
+     * \return An constant iterator representing the ObjectData
+     */
     fge::ObjectContainer::const_iterator find(const fge::Object* ptr) const;
+    /**
+     * \brief Find an Object with the specified plan.
+     *
+     * \param plan The Object plan
+     * \return An constant iterator representing the ObjectData
+     */
     fge::ObjectContainer::const_iterator findPlan(fge::ObjectPlan plan) const;
 
-    /** Network type **/
+    // Network type
+    /**
+     * The network list must be used to synchronised data between client
+     * and server.
+     */
     fge::net::NetworkTypeContainer _netList;
 
-    /** Properties **/
+    // Properties
+    /**
+     * The properties list is a multi-type container for multi-purpose use.
+     */
     fge::PropertyList _properties;
 
-    /** Event **/
+    // Event
     mutable fge::CallbackHandler<const fge::Scene*, sf::RenderTarget&, const sf::Color&> _onRenderTargetClear;
 
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared> _onNewObject;

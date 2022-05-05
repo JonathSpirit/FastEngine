@@ -1188,9 +1188,9 @@ void Scene::unpackWatchedEvent(fge::net::Packet& pck)
 }
 
 /** Custom view **/
-void Scene::setCustomView(std::shared_ptr<sf::View>& customView)
+void Scene::setCustomView(std::shared_ptr<sf::View> customView)
 {
-    this->g_customView = customView;
+    this->g_customView = std::move(customView);
 }
 const std::shared_ptr<sf::View>& Scene::getCustomView() const
 {
