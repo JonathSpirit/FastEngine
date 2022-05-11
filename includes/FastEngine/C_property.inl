@@ -15,7 +15,7 @@ Property::Property(const fge::Property& val) :
         this->g_data._ptr = new std::string( *reinterpret_cast<std::string*>(val.g_data._ptr) );
         break;
     case fge::Property::PTYPE_CLASS:
-        this->g_data._ptr = reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->copy();
+        this->g_data._ptr = reinterpret_cast<fge::PropertyClassWrapper*>(val.g_data._ptr)->copy();
         break;
 
     default:
