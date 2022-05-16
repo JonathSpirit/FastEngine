@@ -3,6 +3,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_event.hpp>
+#include <FastEngine/C_tunnel.hpp>
 #include <cstdint>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -166,6 +167,7 @@ public:
     }
 };
 
+
 class GuiElementArray : public fge::GuiElement
 {
 public:
@@ -188,39 +190,13 @@ public:
         }
     }
 
-    void addElement(fge::GuiElement* element)
-    {
-        this->g_elements.push_back(element);
-    }
-    void delElement(fge::GuiElement* element)
-    {
-        for (auto it = this->g_elements.cbegin(); it != this->g_elements.cend(); ++it)
-        {
-            if (*it == element)
-            {
-                this->g_elements.erase(it);
-                return;
-            }
-        }
-    }
-    void delAllElement()
-    {
-        this->g_elements.clear();
-    }
-    [[nodiscard]] fge::GuiElement* getElement(std::size_t index) const
-    {
-        return this->g_elements[index];
-    }
-    [[nodiscard]] std::size_t getElementCount() const
-    {
-        return this->g_elements.size();
-    }
-
     void refreshInternalCallback()
     {
         this->_onGuiMouseButtonPressed.del(&this->g_subscriber);
         this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
     }
+
+    fge::Tunnel<fge::GuiElement> _elements;
 
 private:
     void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, std::size_t index)
@@ -228,10 +204,10 @@ private:
         fge::GuiElement* element = nullptr;
         std::size_t index2 = 0;
 
-        for (std::size_t i=0; i<this->g_elements.size(); ++i)
+        for (std::size_t i=0; i<this->_elements.getGatesSize(); ++i)
         {
-            this->g_elements[i]->onGuiVerify(evt, arg, mouseGuiPos, element, index2);
-            if (element == this->g_elements[i])
+            this->_elements[i]->onGuiVerify(evt, arg, mouseGuiPos, element, index2);
+            if (element == this->_elements[i])
             {
                 index2 = i;
             }
@@ -243,7 +219,6 @@ private:
         }
     }
 
-    std::vector<fge::GuiElement*> g_elements;
     fge::Subscriber g_subscriber;
 };
 
