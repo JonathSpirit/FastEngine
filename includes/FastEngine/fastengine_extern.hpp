@@ -25,4 +25,7 @@
  *
  *  \defgroup callback Callback
  *  \brief Everything related to callback
+ *
+ *  \defgroup time Time utility/tools
+ *  \brief Everything related to time control
  */
