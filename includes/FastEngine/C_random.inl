@@ -31,12 +31,6 @@ TEngine& Random<TEngine>::getEngine()
 }
 
 template<typename TEngine>
-std::mutex& Random<TEngine>::getMutex()
-{
-    return this->g_mutex;
-}
-
-template<typename TEngine>
 template<typename T>
 T Random<TEngine>::range(T min, T max)
 {

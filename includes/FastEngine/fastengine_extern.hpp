@@ -17,6 +17,9 @@
  *  \defgroup objectControl Object control
  *  \brief Everything related to objects
  *
- *  \defgroup network Network utility/tools
+ *  \defgroup network Network
  *  \brief Everything related to network
+ *
+ *  \defgroup utility Utility/Tools
+ *  \brief Everything related to some utility/tools
  */
