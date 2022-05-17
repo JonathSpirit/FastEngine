@@ -28,4 +28,7 @@
  *
  *  \defgroup time Time utility/tools
  *  \brief Everything related to time control
+ *
+ *  \defgroup extraString Extra string utility/tools
+ *  \brief Everything related to strings
  */
