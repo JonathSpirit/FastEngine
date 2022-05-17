@@ -22,4 +22,7 @@
  *
  *  \defgroup utility Utility/Tools
  *  \brief Everything related to some utility/tools
+ *
+ *  \defgroup callback Callback
+ *  \brief Everything related to callback
  */
