@@ -34,4 +34,7 @@
  *
  * \defgroup animation Animation utility/tools
  * \brief Everything related to animation
+ *
+ * \defgroup audio Audio utility/tools
+ * \brief Everything related to audio
  */

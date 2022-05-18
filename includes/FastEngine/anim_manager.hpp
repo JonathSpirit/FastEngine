@@ -66,6 +66,7 @@ using AnimationDataType = std::unordered_map<std::string, fge::anim::AnimationDa
  * \brief Initialize the animation manager
  *
  * This function must be called before any attempt to use animations.
+ * The animation manager is a global thread safe storage of animations.
  *
  * \warning The texture manager must be initialized before the animation manager.
  */
@@ -119,15 +120,15 @@ FGE_API const fge::anim::AnimationDataPtr& GetBadAnimation();
  * \brief Get the animation with the given name
  *
  * \param name The name of the animation to get
- * \return The animation with the given name
+ * \return The animation with the given name or the bad animation if not found
  */
 FGE_API fge::anim::AnimationDataPtr GetAnimation(const std::string& name);
 
 /**
- * \brief Check if the animation with the given name is valid
+ * \brief Check if the animation with the given name exist
  *
  * \param name The name of the animation to check
- * \return \b true if the animation is valid, \b false otherwise
+ * \return \b true if the animation exist, \b false otherwise
  */
 FGE_API bool Check(const std::string& name);
 
