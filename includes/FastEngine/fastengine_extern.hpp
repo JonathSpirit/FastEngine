@@ -14,21 +14,24 @@
 #endif // _FGE_FASTENGINE_EXTERN_HPP_INCLUDED
 
 /**
- *  \defgroup objectControl Object control
- *  \brief Everything related to objects
+ * \defgroup objectControl Object control
+ * \brief Everything related to objects
  *
- *  \defgroup network Network
- *  \brief Everything related to network
+ * \defgroup network Network
+ * \brief Everything related to network
  *
- *  \defgroup utility Utility/Tools
- *  \brief Everything related to some utility/tools
+ * \defgroup utility Utility/Tools
+ * \brief Everything related to some utility/tools
  *
- *  \defgroup callback Callback
- *  \brief Everything related to callback
+ * \defgroup callback Callback
+ * \brief Everything related to callback
  *
- *  \defgroup time Time utility/tools
- *  \brief Everything related to time control
+ * \defgroup time Time utility/tools
+ * \brief Everything related to time control
  *
- *  \defgroup extraString Extra string utility/tools
- *  \brief Everything related to strings
+ * \defgroup extraString Extra string utility/tools
+ * \brief Everything related to strings
+ *
+ * \defgroup animation Animation utility/tools
+ * \brief Everything related to animation
  */

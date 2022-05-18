@@ -2,80 +2,77 @@
 #include "FastEngine/texture_manager.hpp"
 
 #include <fstream>
-#include <iomanip>
 
 #include "json.hpp"
 
-namespace fge
-{
-namespace anim
+namespace fge::anim
 {
 
 namespace
 {
 
-fge::anim::AnimationDataPtr __dataAnimBad;
-fge::anim::AnimationDataType __dataAnim;
-std::mutex __dataMutex;
+fge::anim::AnimationDataPtr _dataAnimBad;
+fge::anim::AnimationDataType _dataAnim;
+std::mutex _dataMutex;
 
 }//end
 
 void Init()
 {
-    if ( __dataAnimBad == nullptr )
+    if (_dataAnimBad == nullptr )
     {
-        __dataAnimBad = std::make_shared<fge::anim::AnimationData>();
-        __dataAnimBad->_valid = false;
+        _dataAnimBad = std::make_shared<fge::anim::AnimationData>();
+        _dataAnimBad->_valid = false;
     }
 }
 bool IsInit()
 {
-    return __dataAnimBad != nullptr;
+    return _dataAnimBad != nullptr;
 }
 void Uninit()
 {
-    __dataAnim.clear();
-    __dataAnimBad = nullptr;
+    _dataAnim.clear();
+    _dataAnimBad = nullptr;
 }
 
 std::size_t GetAnimationSize()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    return __dataAnim.size();
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    return _dataAnim.size();
 }
 
 std::mutex& GetMutex()
 {
-    return __dataMutex;
+    return _dataMutex;
 }
 fge::anim::AnimationDataType::const_iterator GetCBegin()
 {
-    return __dataAnim.cbegin();
+    return _dataAnim.cbegin();
 }
 fge::anim::AnimationDataType::const_iterator GetCEnd()
 {
-    return __dataAnim.cend();
+    return _dataAnim.cend();
 }
 
 const fge::anim::AnimationDataPtr& GetBadAnimation()
 {
-    return __dataAnimBad;
+    return _dataAnimBad;
 }
 fge::anim::AnimationDataPtr GetAnimation(const std::string& name)
 {
     if (name == FGE_ANIM_BAD)
     {
-        return __dataAnimBad;
+        return _dataAnimBad;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::anim::AnimationDataType::iterator it = __dataAnim.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAnim.find(name);
 
-    if (it != __dataAnim.end())
+    if (it != _dataAnim.end())
     {
         return it->second;
     }
-    return __dataAnimBad;
+    return _dataAnimBad;
 }
 
 bool Check(const std::string& name)
@@ -85,33 +82,29 @@ bool Check(const std::string& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::anim::AnimationDataType::iterator it = __dataAnim.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAnim.find(name);
 
-    if (it != __dataAnim.end())
-    {
-        return true;
-    }
-    return false;
+    return it != _dataAnim.end();
 }
 
-bool LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(const std::string& name, std::filesystem::path path)
 {
     if (name == FGE_ANIM_BAD)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::anim::AnimationDataType::iterator it = __dataAnim.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAnim.find(name);
 
-    if (it != __dataAnim.end())
+    if (it != _dataAnim.end())
     {
         return false;
     }
 
     std::ifstream inFile(path);
-    if ( !inFile.is_open() )
+    if ( !inFile )
     {
         return false;
     }
@@ -122,13 +115,13 @@ bool LoadFromFile(const std::string& name, const std::string& path)
         inFile >> inputJson;
         inFile.close();
 
-        if ( !inputJson.size() )
+        if ( inputJson.empty() )
         {
             return false;
         }
 
         fge::anim::AnimationDataPtr buffAnimData = std::make_shared<fge::anim::AnimationData>();
-        buffAnimData->_path = path;
+        buffAnimData->_path = std::move(path);
         buffAnimData->_valid = true;
 
         buffAnimData->_groups.resize( inputJson.size() );
@@ -157,14 +150,13 @@ bool LoadFromFile(const std::string& name, const std::string& path)
                 tmpFrame._ticks = jsonFrame.value<uint32_t>("ticks", FGE_ANIM_DEFAULT_TICKS);
 
                 //Load texture
-                sf::Texture* buffTexture = new sf::Texture();
+                std::shared_ptr<sf::Texture> buffTexture{ new sf::Texture() };
                 if ( buffTexture->loadFromFile(tmpFrame._path) )
                 {
-                    tmpFrame._texture = std::shared_ptr<sf::Texture>(buffTexture);
+                    tmpFrame._texture = std::move(buffTexture);
                 }
                 else
                 {
-                    delete buffTexture;
                     tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
                 }
 
@@ -173,7 +165,7 @@ bool LoadFromFile(const std::string& name, const std::string& path)
             ++iGroup;
         }
 
-        __dataAnim[name] = std::move(buffAnimData);
+        _dataAnim[name] = std::move(buffAnimData);
         return true;
     }
     catch(std::exception& e)
@@ -189,28 +181,28 @@ bool Unload(const std::string& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
-    fge::anim::AnimationDataType::iterator it = __dataAnim.find(name);
+    std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataAnim.find(name);
 
-    if (it != __dataAnim.end())
+    if (it != _dataAnim.end())
     {
         it->second->_valid = false;
         it->second->_groups.clear();
-        __dataAnim.erase(it);
+        _dataAnim.erase(it);
         return true;
     }
     return false;
 }
 void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (fge::anim::AnimationDataType::iterator it=__dataAnim.begin(); it!=__dataAnim.end(); ++it)
+    for (auto& it : _dataAnim)
     {
-        it->second->_valid = false;
-        it->second->_groups.clear();
+        it.second->_valid = false;
+        it.second->_groups.clear();
     }
-    __dataAnim.clear();
+    _dataAnim.clear();
 }
 
 bool Push(const std::string& name, const fge::anim::AnimationDataPtr& data)
@@ -220,15 +212,14 @@ bool Push(const std::string& name, const fge::anim::AnimationDataPtr& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(__dataMutex);
+    std::lock_guard<std::mutex> lck(_dataMutex);
     if ( fge::anim::Check(name) )
     {
         return false;
     }
 
-    __dataAnim.emplace(name, data);
+    _dataAnim.emplace(name, data);
     return true;
 }
 
-}//end anim
-}//end fge
+}//end fge::anim
