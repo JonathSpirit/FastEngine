@@ -4,9 +4,7 @@
 
 #define _FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 Client::Client() :
@@ -114,5 +112,4 @@ bool Client::isPendingPacketsEmpty()
     return this->g_pendingTransmitPackets.empty();
 }
 
-}//end net
-}//end fge
+}//end fge::net
