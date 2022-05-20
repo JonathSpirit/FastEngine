@@ -64,7 +64,7 @@ fge::net::ClientList::ClientListData::iterator ClientList::begin()
 {
     return this->g_data.begin();
 }
-fge::net::ClientList::ClientListData::const_iterator ClientList::cbegin() const
+fge::net::ClientList::ClientListData::const_iterator ClientList::begin() const
 {
     return this->g_data.cbegin();
 }
@@ -72,7 +72,7 @@ fge::net::ClientList::ClientListData::iterator ClientList::end()
 {
     return this->g_data.end();
 }
-fge::net::ClientList::ClientListData::const_iterator ClientList::cend() const
+fge::net::ClientList::ClientListData::const_iterator ClientList::end() const
 {
     return this->g_data.cend();
 }
