@@ -95,7 +95,7 @@ public:
     fge::net::ClientList::ClientListData::const_iterator end() const;
 
     /**
-     * \brif Get the number of clients in the list
+     * \brief Get the number of clients in the list
      *
      * \return Number of clients
      */
