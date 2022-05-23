@@ -3,6 +3,9 @@ project(FastEngine)
 
 include(ExternalProject)
 
+#Fix compile error with minimp3
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow=)
+
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(FGE_ARCH 64)

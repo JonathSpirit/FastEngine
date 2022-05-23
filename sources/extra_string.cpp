@@ -2,8 +2,17 @@
 
 #include "FastEngine/C_property.hpp"
 
+#ifdef __GNUC__
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif //__GNUC__
+
 #define strtk_no_tr1_or_boost
 #include <strtk.hpp>
+
+#ifdef __GNUC__
+    #pragma GCC diagnostic pop
+#endif //__GNUC__
 
 #include <fmt/compile.h>
 #include <fmt/format.h>
