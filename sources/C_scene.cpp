@@ -413,35 +413,36 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
 
     if ( it != this->g_dataMap.end() )
     {
-        auto newPosIt = this->g_planDataMap.find( (*it->second)->g_plan );
+        auto plan = (*it->second)->g_plan;
+        auto planIt = this->g_planDataMap.find(plan);
+        auto planItAfter = planIt;
+        ++planItAfter; //Next plan
 
         bool wasOnTop = false;
-        if (it->second == newPosIt->second)
+        if (it->second == planIt->second)
         {//is on top
             wasOnTop = true;
-            this->refreshPlanDataMap((*it->second)->g_plan, it->second, true);
+            this->refreshPlanDataMap(plan, it->second, true);
         }
 
-        ++newPosIt; //go on next plan
-
-        if (newPosIt == this->g_planDataMap.end())
+        if (planItAfter == this->g_planDataMap.end())
         {//object can be pushed at the end
             this->g_data.splice(this->g_data.end(), this->g_data, it->second);
             if (wasOnTop)
             {
-                this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+                this->refreshPlanDataMap(plan, it->second, false);
             }
         }
         else
         {
-            this->g_data.splice(newPosIt->second, this->g_data, it->second);
+            this->g_data.splice(planItAfter->second, this->g_data, it->second);
             if (wasOnTop)
             {
-                this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+                this->refreshPlanDataMap(plan, it->second, false);
             }
         }
 
-        this->_onPlanUpdate.call(this, (*it->second)->g_plan);
+        this->_onPlanUpdate.call(this, plan);
 
         return true;
     }
