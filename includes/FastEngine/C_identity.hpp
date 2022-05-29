@@ -22,7 +22,7 @@ struct Identity
 
 struct IdentityHash
 {
-    std::size_t operator() (const fge::net::Identity& id) const
+    inline std::size_t operator() (const fge::net::Identity& id) const
     {
         return std::hash<uint64_t>()(static_cast<uint64_t>(id._ip.getNetworkByteOrder()) | (static_cast<uint64_t>(id._port)<<32));
     }
