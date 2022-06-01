@@ -35,4 +35,4 @@
     path = libs/freetype
     url = https://gitlab.freedesktop.org/freetype/freetype.git
     ignore = dirty
-    branch = VER-2-12-0
+    branch = VER-2-12-1
