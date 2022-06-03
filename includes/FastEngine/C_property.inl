@@ -37,7 +37,7 @@ template<class T,
 Property::Property(const T& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<std::remove_reference_t<T> >::value)
+    if constexpr (std::is_integral<std::remove_reference_t<T> >::value || std::is_enum<std::remove_reference_t<T> >::value)
     {
         this->g_type = fge::Property::PTYPE_INTEGERS;
 
@@ -86,7 +86,7 @@ template<class T,
 Property::Property(T&& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<std::remove_reference_t<T> >::value)
+    if constexpr (std::is_integral<std::remove_reference_t<T> >::value || std::is_enum<std::remove_reference_t<T> >::value)
     {
         this->g_type = fge::Property::PTYPE_INTEGERS;
 
@@ -245,7 +245,7 @@ fge::Property& Property::operator= (const char* val)
 template<class T>
 T& Property::setType()
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
         if (this->g_type != fge::Property::PTYPE_INTEGERS)
         {
@@ -353,7 +353,7 @@ void Property::setType(fge::Property::Types type)
 template<class T>
 bool Property::isType() const
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
         return this->g_type == fge::Property::PTYPE_INTEGERS;
     }
@@ -555,7 +555,7 @@ template<class T,
         typename>
 bool Property::set(const T& val)
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<std::remove_reference_t<T> >::value || std::is_enum<std::remove_reference_t<T> >::value)
     {
         if (this->g_type != fge::Property::PTYPE_INTEGERS)
         {
@@ -569,22 +569,22 @@ bool Property::set(const T& val)
             }
         }
 
-        if constexpr ( std::is_signed<T>::value )
+        if constexpr ( std::is_signed<std::remove_reference_t<T> >::value )
         {
-            this->g_data._i = static_cast<int64_t>(val);
+            this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
             return true;
         }
         else
         {
-            this->g_data._u = static_cast<uint64_t>(val);
+            this->g_data._u = static_cast<fge::PuintType>(val);
             this->g_isSigned = false;
             return true;
         }
     }
-    else if constexpr ( std::is_floating_point<T>::value )
+    else if constexpr ( std::is_floating_point<std::remove_reference_t<T> >::value )
     {
-        if constexpr ( std::is_same<T, float>::value )
+        if constexpr ( std::is_same<std::remove_reference_t<T>, float>::value )
         {
             if (this->g_type != fge::Property::PTYPE_FLOAT)
             {
@@ -619,7 +619,7 @@ bool Property::set(const T& val)
             return true;
         }
     }
-    else if constexpr ( std::is_same<T, std::string>::value )
+    else if constexpr ( std::is_same<std::remove_reference_t<T>, std::string>::value )
     {
         if (this->g_type != fge::Property::PTYPE_STRING)
         {
@@ -640,7 +640,7 @@ bool Property::set(const T& val)
             return true;
         }
     }
-    else if constexpr ( std::is_pointer<T>::value )
+    else if constexpr ( std::is_pointer<std::remove_reference_t<T> >::value )
     {
         if (this->g_type != fge::Property::PTYPE_POINTER)
         {
@@ -674,7 +674,7 @@ bool Property::set(const T& val)
         }
         else
         {
-            if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T) )
+            if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(std::remove_reference_t<T>) )
             {
                 reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T> >* >(this->g_data._ptr)->_data = val;
                 return true;
@@ -687,7 +687,7 @@ template<class T,
         typename>
 bool Property::set(T&& val)
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<std::remove_reference_t<T> >::value || std::is_enum<std::remove_reference_t<T> >::value)
     {
         if (this->g_type != fge::Property::PTYPE_INTEGERS)
         {
@@ -701,22 +701,22 @@ bool Property::set(T&& val)
             }
         }
 
-        if constexpr ( std::is_signed<T>::value )
+        if constexpr ( std::is_signed<std::remove_reference_t<T> >::value )
         {
-            this->g_data._i = static_cast<int64_t>(val);
+            this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
             return true;
         }
         else
         {
-            this->g_data._u = static_cast<uint64_t>(val);
+            this->g_data._u = static_cast<fge::PuintType>(val);
             this->g_isSigned = false;
             return true;
         }
     }
-    else if constexpr ( std::is_floating_point<T>::value )
+    else if constexpr ( std::is_floating_point<std::remove_reference_t<T> >::value )
     {
-        if constexpr ( std::is_same<T, float>::value )
+        if constexpr ( std::is_same<std::remove_reference_t<T>, float>::value )
         {
             if (this->g_type != fge::Property::PTYPE_FLOAT)
             {
@@ -751,7 +751,7 @@ bool Property::set(T&& val)
             return true;
         }
     }
-    else if constexpr ( std::is_same<T, std::string>::value )
+    else if constexpr ( std::is_same<std::remove_reference_t<T>, std::string>::value )
     {
         if (this->g_type != fge::Property::PTYPE_STRING)
         {
@@ -772,7 +772,7 @@ bool Property::set(T&& val)
             return true;
         }
     }
-    else if constexpr ( std::is_pointer<T>::value )
+    else if constexpr ( std::is_pointer<std::remove_reference_t<T> >::value )
     {
         if (this->g_type != fge::Property::PTYPE_POINTER)
         {
@@ -806,7 +806,7 @@ bool Property::set(T&& val)
         }
         else
         {
-            if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T) )
+            if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(std::remove_reference_t<T>) )
             {
                 reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T> >* >(this->g_data._ptr)->_data = std::forward<T>(val);
                 return true;
@@ -841,7 +841,7 @@ bool Property::set(const char* val)
 template<class T>
 bool Property::get(T& val) const
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
         if (this->g_type != Property::PTYPE_INTEGERS)
         {
@@ -984,7 +984,7 @@ bool Property::get(T& val) const
 template<class T>
 T Property::get() const
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
         if (this->g_type != Property::PTYPE_INTEGERS)
         {
@@ -998,7 +998,7 @@ T Property::get() const
             }
             else
             {
-                return 0;
+                return static_cast<T>(0);
             }
         }
 
@@ -1112,7 +1112,7 @@ T Property::get() const
 template<class T>
 T* Property::getPtr()
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
         if constexpr ( sizeof(T) != sizeof(fge::PintType) )
         {
@@ -1188,7 +1188,7 @@ T* Property::getPtr()
 template<class T>
 const T* Property::getPtr() const
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
         if constexpr ( sizeof(T) != sizeof(fge::PintType) )
         {
