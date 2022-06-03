@@ -170,6 +170,19 @@ public:
     [[nodiscard]] bool isLoop() const;
 
     /**
+     * \brief Set the reverse mode of the animation
+     *
+     * \param active \b true to enable the reverse mode, \b false otherwise
+     */
+    void setReverse(bool active);
+    /**
+     * \brief Check if the reverse mode is active
+     *
+     * \return \b true if the reverse mode is active, \b false otherwise
+     */
+    [[nodiscard]] bool isReverse() const;
+
+    /**
      * \brief Get the load animation data
      *
      * \return The animation data
@@ -202,6 +215,7 @@ private:
     std::size_t g_frameIndex;
 
     bool g_loop;
+    bool g_reverse;
 };
 
 }//end fge

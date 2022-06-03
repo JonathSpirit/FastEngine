@@ -37,11 +37,11 @@ template<class T,
 Property::Property(const T& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<std::remove_reference_t<T> >::value)
     {
         this->g_type = fge::Property::PTYPE_INTEGERS;
 
-        if constexpr ( std::is_signed<T>::value )
+        if constexpr ( std::is_signed<std::remove_reference_t<T> >::value )
         {
             this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
@@ -52,9 +52,9 @@ Property::Property(const T& val) :
             this->g_isSigned = false;
         }
     }
-    else if constexpr ( std::is_floating_point<T>::value )
+    else if constexpr ( std::is_floating_point<std::remove_reference_t<T> >::value )
     {
-        if constexpr ( std::is_same<T, float>::value )
+        if constexpr ( std::is_same<std::remove_reference_t<T>, float>::value )
         {
             this->g_type = fge::Property::PTYPE_FLOAT;
             this->g_data._f = val;
@@ -65,12 +65,12 @@ Property::Property(const T& val) :
             this->g_data._d = static_cast<double>(val);
         }
     }
-    else if constexpr ( std::is_same<T, std::string>::value )
+    else if constexpr ( std::is_same<std::remove_reference_t<T>, std::string>::value )
     {
         this->g_type = fge::Property::PTYPE_STRING;
         this->g_data._ptr = new std::string(val);
     }
-    else if constexpr ( std::is_pointer<T>::value )
+    else if constexpr ( std::is_pointer<std::remove_reference_t<T> >::value )
     {
         this->g_type = fge::Property::PTYPE_POINTER;
         this->g_data._ptr = val;
@@ -86,11 +86,11 @@ template<class T,
 Property::Property(T&& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<T>::value)
+    if constexpr (std::is_integral<std::remove_reference_t<T> >::value)
     {
         this->g_type = fge::Property::PTYPE_INTEGERS;
 
-        if constexpr ( std::is_signed<T>::value )
+        if constexpr ( std::is_signed<std::remove_reference_t<T> >::value )
         {
             this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
@@ -101,9 +101,9 @@ Property::Property(T&& val) :
             this->g_isSigned = false;
         }
     }
-    else if constexpr ( std::is_floating_point<T>::value )
+    else if constexpr ( std::is_floating_point<std::remove_reference_t<T> >::value )
     {
-        if constexpr ( std::is_same<T, float>::value )
+        if constexpr ( std::is_same<std::remove_reference_t<T>, float>::value )
         {
             this->g_type = fge::Property::PTYPE_FLOAT;
             this->g_data._f = val;
@@ -114,12 +114,12 @@ Property::Property(T&& val) :
             this->g_data._d = static_cast<double>(val);
         }
     }
-    else if constexpr ( std::is_same<T, std::string>::value )
+    else if constexpr ( std::is_same<std::remove_reference_t<T>, std::string>::value )
     {
         this->g_type = fge::Property::PTYPE_STRING;
         this->g_data._ptr = new std::string(std::forward<T>(val));
     }
-    else if constexpr ( std::is_pointer<T>::value )
+    else if constexpr ( std::is_pointer<std::remove_reference_t<T> >::value )
     {
         this->g_type = fge::Property::PTYPE_POINTER;
         this->g_data._ptr = val;

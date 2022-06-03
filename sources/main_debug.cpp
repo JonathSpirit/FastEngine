@@ -333,6 +333,7 @@ public:
 
         buffAnimation = new fge::ObjAnimation(fge::Animation("animation", "just_a_test"));
         buffAnimation->getAnimation().setLoop(true);
+        buffAnimation->getAnimation().setReverse(true);
         buffAnimation->setTickDuration(std::chrono::milliseconds(1) );
 
         buffDataShared = this->newObject(buffAnimation, FGE_SCENE_PLAN_MIDDLE);

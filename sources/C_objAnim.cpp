@@ -121,6 +121,7 @@ void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["animationGroup"] = this->g_animation.getGroupIndex();
     jsonObject["animationFrame"] = this->g_animation.getFrameIndex();
     jsonObject["animationLoop"] = this->g_animation.isLoop();
+    jsonObject["animationReverse"] = this->g_animation.isReverse();
     jsonObject["tickDuration"] = static_cast<uint16_t>(this->g_tickDuration.count());
 }
 void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
@@ -132,6 +133,7 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     this->g_animation.setGroup( jsonObject.value<std::size_t>("animationGroup", 0) );
     this->g_animation.setFrame( jsonObject.value<std::size_t>("animationFrame", 0) );
     this->g_animation.setLoop( jsonObject.value<bool>("animationLoop", false) );
+    this->g_animation.setReverse( jsonObject.value<bool>("animationReverse", false) );
     this->g_tickDuration = std::chrono::milliseconds( jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION) );
 
     sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
@@ -142,7 +144,8 @@ void ObjAnimation::pack(fge::net::Packet& pck)
     fge::Object::pack(pck);
 
     pck << this->g_vertices[0].color << this->g_animation;
-    pck << static_cast<uint32_t>(this->g_animation.getGroupIndex()) << static_cast<uint32_t>(this->g_animation.getFrameIndex()) << this->g_animation.isLoop();
+    pck << static_cast<uint32_t>(this->g_animation.getGroupIndex()) << static_cast<uint32_t>(this->g_animation.getFrameIndex());
+    pck << this->g_animation.isLoop() << this->g_animation.isReverse();
     pck << static_cast<uint16_t>(this->g_tickDuration.count());
 }
 void ObjAnimation::unpack(fge::net::Packet& pck)
@@ -152,11 +155,13 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
     sf::Color color;
     pck >> color >> this->g_animation;
     this->setColor(color);
-    uint32_t group=0, frame=0; bool loop=false;
-    pck >> group >> frame >> loop;
+    uint32_t group=0, frame=0;
+    bool loop=false, reverse=false;
+    pck >> group >> frame >> loop >> reverse;
     this->g_animation.setGroup(group);
     this->g_animation.setFrame(frame);
     this->g_animation.setLoop(loop);
+    this->g_animation.setReverse(reverse);
 
     uint16_t tmpTick = FGE_OBJANIM_DEFAULT_TICKDURATION;
     pck >> tmpTick;

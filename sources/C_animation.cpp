@@ -11,7 +11,8 @@ Animation::Animation() :
     g_groupIndex(0),
     g_frameIndex(0),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
 }
 Animation::Animation(const std::string& name, std::size_t frame) :
@@ -21,7 +22,8 @@ Animation::Animation(const std::string& name, std::size_t frame) :
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
 }
 Animation::Animation(const std::string& name, const std::string& group, std::size_t frame) :
@@ -31,7 +33,8 @@ Animation::Animation(const std::string& name, const std::string& group, std::siz
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
     this->setGroup(group);
 }
@@ -42,7 +45,8 @@ Animation::Animation(const char* name, std::size_t frame) :
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
 
 }
@@ -53,7 +57,8 @@ Animation::Animation(const char* name, const char* group, std::size_t frame) :
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
     this->setGroup(std::string(group));
 }
@@ -64,7 +69,8 @@ Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame)
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
 
 }
@@ -75,7 +81,8 @@ Animation::Animation(const fge::anim::AnimationDataPtr& data, const std::string&
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
     this->setGroup(group);
 }
@@ -86,7 +93,8 @@ Animation::Animation(const fge::anim::AnimationDataPtr& data, const char* group,
     g_groupIndex(0),
     g_frameIndex(frame),
 
-    g_loop(false)
+    g_loop(false),
+    g_reverse(false)
 {
     this->setGroup(std::string(group));
 }
@@ -100,6 +108,7 @@ void Animation::clear()
     this->g_frameIndex = 0;
 
     this->g_loop = false;
+    this->g_reverse = false;
 }
 
 bool Animation::valid() const
@@ -119,6 +128,7 @@ bool Animation::setGroup(const std::string& groupName)
         if ( this->g_data->_groups[i]._groupName == groupName )
         {
             this->g_groupIndex = i;
+            this->g_frameIndex = 0;
             return true;
         }
     }
@@ -129,6 +139,7 @@ bool Animation::setGroup(std::size_t groupIndex)
     if ( groupIndex < this->g_data->_groups.size() )
     {
         this->g_groupIndex = groupIndex;
+        this->g_frameIndex = 0;
         return true;
     }
     return false;
@@ -191,27 +202,40 @@ fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex)
 
 bool Animation::isGroupValid() const
 {
-    if ( this->g_groupIndex < this->g_data->_groups.size() )
-    {
-        return true;
-    }
-    return false;
+    return this->g_groupIndex < this->g_data->_groups.size();
 }
 
 std::size_t Animation::nextFrame()
 {
     if ( this->isGroupValid() )
     {
-        if ( this->g_frameIndex+1 >= this->g_data->_groups[this->g_groupIndex]._frames.size() )
+        if (this->g_reverse)
         {
-            if ( this->g_loop )
+            if ( this->g_frameIndex == 0 )
             {
-                this->g_frameIndex = 0;
+                if ( this->g_loop )
+                {
+                    this->g_frameIndex = this->g_data->_groups[this->g_groupIndex]._frames.size()-1;
+                }
+            }
+            else
+            {
+                --this->g_frameIndex;
             }
         }
         else
         {
-            ++this->g_frameIndex;
+            if ( this->g_frameIndex+1 >= this->g_data->_groups[this->g_groupIndex]._frames.size() )
+            {
+                if ( this->g_loop )
+                {
+                    this->g_frameIndex = 0;
+                }
+            }
+            else
+            {
+                ++this->g_frameIndex;
+            }
         }
     }
     return this->g_frameIndex;
@@ -290,6 +314,15 @@ bool Animation::isLoop() const
     return this->g_loop;
 }
 
+void Animation::setReverse(bool active)
+{
+    this->g_reverse = active;
+}
+bool Animation::isReverse() const
+{
+    return this->g_reverse;
+}
+
 const fge::anim::AnimationDataPtr& Animation::getData() const
 {
     return this->g_data;
@@ -332,17 +365,17 @@ Animation::operator sf::Texture&()
 {
     if ( this->isFrameValid() )
     {
-        return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
+        return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
     }
-    return *fge::texture::GetBadTexture()->_texture.get();
+    return *fge::texture::GetBadTexture()->_texture;
 }
 Animation::operator const sf::Texture&() const
 {
     if ( this->isFrameValid() )
     {
-        return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
+        return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
     }
-    return *fge::texture::GetBadTexture()->_texture.get();
+    return *fge::texture::GetBadTexture()->_texture;
 }
 
 Animation::operator std::string&()
