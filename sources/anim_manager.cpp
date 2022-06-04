@@ -150,6 +150,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 tmpFrame._ticks = jsonFrame.value<uint32_t>("ticks", FGE_ANIM_DEFAULT_TICKS);
 
                 //Load texture
+#ifndef _FGE_DEF_SERVER
                 std::shared_ptr<sf::Texture> buffTexture{ new sf::Texture() };
                 if ( buffTexture->loadFromFile(tmpFrame._path) )
                 {
@@ -159,6 +160,9 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 {
                     tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
                 }
+#else
+                tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
+#endif //_FGE_DEF_SERVER
 
                 ++iFrame;
             }

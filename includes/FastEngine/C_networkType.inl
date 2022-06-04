@@ -1,6 +1,4 @@
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 ///NetworkType
@@ -8,8 +6,7 @@ namespace net
 template<class T>
 NetworkType<T>::NetworkType(T* source) :
     g_typeCopy(*source),
-    g_typeSource(source),
-    g_force(false)
+    g_typeSource(source)
 {
 }
 
@@ -32,7 +29,7 @@ bool NetworkType<T>::applyData(fge::net::Packet& pck)
 template<class T>
 void NetworkType<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
+    auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
         pck << *this->g_typeSource;
@@ -47,17 +44,17 @@ void NetworkType<T>::packData(fge::net::Packet& pck)
 template<class T>
 bool NetworkType<T>::check() const
 {
-    return ((*this->g_typeSource) != this->g_typeCopy) || this->g_force;
+    return ((*this->g_typeSource) != this->g_typeCopy) || this->_g_force;
 }
 template<class T>
 void NetworkType<T>::forceCheck()
 {
-    this->g_force = true;
+    this->_g_force = true;
 }
 template<class T>
 void NetworkType<T>::forceUncheck()
 {
-    this->g_force = false;
+    this->_g_force = false;
     this->g_typeCopy = *this->g_typeSource;
 }
 
@@ -92,7 +89,7 @@ void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, const fge::net::Ide
     {
         pck << this->g_typeSource->template setType<T>();
 
-        it->second = false;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template <class T>
@@ -154,7 +151,7 @@ void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, const fge::net:
 
         pck << property.setType<T>();
 
-        it->second = false;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template <class T>
@@ -218,7 +215,7 @@ void NetworkTypeManual<T>::packData(fge::net::Packet& pck, const fge::net::Ident
     if (it != this->_g_tableId.end())
     {
         pck << *this->g_typeSource;
-        it->second = false;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template<class T>
@@ -249,5 +246,4 @@ void NetworkTypeManual<T>::trigger()
     this->g_trigger = true;
 }
 
-}//end net
-}//end fge
+}//end fge::net

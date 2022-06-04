@@ -55,8 +55,9 @@ public:
     bool read(std::size_t pos, void* buff, std::size_t bsize) const; //Will read to network byte order
     bool unpack(std::size_t pos, void* buff, std::size_t bsize) const; //Will read and auto convert to host byte order
 
-    fge::net::Packet& shrink(std::size_t dsize);
+    fge::net::Packet& shrink(std::size_t bsize);
     bool erase(std::size_t pos, std::size_t dsize);
+    fge::net::Packet& skip(std::size_t dsize);
 
     void setReadPos(std::size_t pos);
     [[nodiscard]] std::size_t getReadPos() const;

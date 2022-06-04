@@ -21,7 +21,14 @@ class TagList;
 namespace net
 {
 
-using NetworkPerClientModificationTable = std::unordered_map<fge::net::Identity, bool, fge::net::IdentityHash>;
+using NetworkPerClientConfigByte = uint8_t;
+enum NetworkPerClientConfigByteMasks : NetworkPerClientConfigByte
+{
+    CONFIG_BYTE_MODIFIED_CHECK = 1 << 0,
+    CONFIG_BYTE_EXPLICIT_UPDATE = 1 << 1
+};
+
+using NetworkPerClientModificationTable = std::unordered_map<fge::net::Identity, fge::net::NetworkPerClientConfigByte, fge::net::IdentityHash>;
 
 class ClientList;
 
@@ -44,15 +51,23 @@ public:
     virtual bool checkClient(const fge::net::Identity& id) const;
     virtual void forceCheckClient(const fge::net::Identity& id);
     virtual void forceUncheckClient(const fge::net::Identity& id);
+    virtual void requireExplicitUpdateClient(const fge::net::Identity& id);
 
     virtual bool check() const = 0;
     virtual void forceCheck() = 0;
     virtual void forceUncheck() = 0;
+    [[nodiscard]] bool isForced() const;
+
+    void clearNeedUpdateFlag();
+    void needUpdate();
+    bool isNeedingUpdate() const;
 
     fge::CallbackHandler<> _onApplied;
 
 protected:
     fge::net::NetworkPerClientModificationTable _g_tableId;
+    bool _g_needUpdate{false};
+    bool _g_force{false};
 };
 
 template<class T>
@@ -75,7 +90,6 @@ public:
 private:
     T g_typeCopy;
     T* g_typeSource;
-    bool g_force;
 };
 
 class FGE_API NetworkTypeScene : public NetworkTypeBase
@@ -107,7 +121,7 @@ private:
 class FGE_API NetworkTypeTag : public NetworkTypeBase
 {
 public:
-    NetworkTypeTag(fge::TagList* source, const std::string& tag);
+    NetworkTypeTag(fge::TagList* source, std::string tag);
     ~NetworkTypeTag() override = default;
 
     void* getSource() const override;
@@ -144,7 +158,6 @@ public:
 private:
     fge::net::SmoothVec2Float* g_typeSource;
     sf::Vector2f g_typeCopy;
-    bool g_force;
 };
 
 class FGE_API NetworkTypeSmoothFloat : public NetworkTypeBase
@@ -166,7 +179,6 @@ public:
 private:
     fge::net::SmoothFloat* g_typeSource;
     float g_typeCopy;
-    bool g_force;
 };
 
 template <class T>
@@ -259,6 +271,9 @@ public:
     void push(fge::net::NetworkTypeBase* newNet);
 
     void reserve(size_t n);
+
+    std::size_t packNeededUpdate(fge::net::Packet& pck);
+    void unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id);
 
     inline size_t size() const
     {

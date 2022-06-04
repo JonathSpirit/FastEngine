@@ -3,9 +3,7 @@
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_tagList.hpp"
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 ///NetworkTypeBase
@@ -22,7 +20,7 @@ bool NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients)
         }
         else
         {
-            this->_g_tableId.emplace( evt._id, false );
+            this->_g_tableId.emplace( evt._id, 0 );
         }
     }
 
@@ -32,7 +30,7 @@ bool NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients)
     {
         for (auto & it : this->_g_tableId)
         {
-            it.second = true;
+            it.second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
         }
         this->forceUncheck();
     }
@@ -43,7 +41,7 @@ bool NetworkTypeBase::checkClient(const fge::net::Identity& id) const
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.cend())
     {
-        return it->second;
+        return (it->second & fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK) > 0;
     }
     return false;
 }
@@ -52,7 +50,7 @@ void NetworkTypeBase::forceCheckClient(const fge::net::Identity& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second = true;
+        it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeBase::forceUncheckClient(const fge::net::Identity& id)
@@ -60,8 +58,34 @@ void NetworkTypeBase::forceUncheckClient(const fge::net::Identity& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second = false;
+        it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
+}
+void NetworkTypeBase::requireExplicitUpdateClient(const fge::net::Identity& id)
+{
+    auto it = this->_g_tableId.find(id);
+    if (it != this->_g_tableId.end())
+    {
+        it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_EXPLICIT_UPDATE;
+    }
+}
+
+bool NetworkTypeBase::isForced() const
+{
+    return this->_g_force;
+}
+
+void NetworkTypeBase::clearNeedUpdateFlag()
+{
+    this->_g_needUpdate = false;
+}
+void NetworkTypeBase::needUpdate()
+{
+    this->_g_needUpdate = true;
+}
+bool NetworkTypeBase::isNeedingUpdate() const
+{
+    return this->_g_needUpdate;
 }
 
 ///NetworkTypeScene
@@ -129,8 +153,7 @@ void NetworkTypeScene::forceUncheck()
 
 NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::net::SmoothVec2Float* source) :
     g_typeSource(source),
-    g_typeCopy(source->_real),
-    g_force(false)
+    g_typeCopy(source->_real)
 {
 }
 
@@ -164,7 +187,7 @@ void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, const fge::net:
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource->_real;
-        it->second = false;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
@@ -174,15 +197,15 @@ void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
 
 bool NetworkTypeSmoothVec2Float::check() const
 {
-    return (this->g_typeSource->_real != this->g_typeCopy) || this->g_force;
+    return (this->g_typeSource->_real != this->g_typeCopy) || this->_g_force;
 }
 void NetworkTypeSmoothVec2Float::forceCheck()
 {
-    this->g_force = true;
+    this->_g_force = true;
 }
 void NetworkTypeSmoothVec2Float::forceUncheck()
 {
-    this->g_force = false;
+    this->_g_force = false;
     this->g_typeCopy = this->g_typeSource->_real;
 }
 
@@ -190,8 +213,7 @@ void NetworkTypeSmoothVec2Float::forceUncheck()
 
 NetworkTypeSmoothFloat::NetworkTypeSmoothFloat(fge::net::SmoothFloat* source) :
     g_typeSource(source),
-    g_typeCopy(source->_real),
-    g_force(false)
+    g_typeCopy(source->_real)
 {
 }
 
@@ -225,7 +247,7 @@ void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, const fge::net::Ide
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource->_real;
-        it->second = false;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)
@@ -235,23 +257,23 @@ void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)
 
 bool NetworkTypeSmoothFloat::check() const
 {
-    return (this->g_typeSource->_real != this->g_typeCopy) || this->g_force;
+    return (this->g_typeSource->_real != this->g_typeCopy) || this->_g_force;
 }
 void NetworkTypeSmoothFloat::forceCheck()
 {
-    this->g_force = true;
+    this->_g_force = true;
 }
 void NetworkTypeSmoothFloat::forceUncheck()
 {
-    this->g_force = false;
+    this->_g_force = false;
     this->g_typeCopy = this->g_typeSource->_real;
 }
 
 ///NetworkTypeTag
 
-NetworkTypeTag::NetworkTypeTag(fge::TagList* source, const std::string& tag) :
+NetworkTypeTag::NetworkTypeTag(fge::TagList* source, std::string tag) :
     g_typeSource(source),
-    g_tag(tag)
+    g_tag(std::move(tag))
 {
 }
 
@@ -314,6 +336,41 @@ void NetworkTypeContainer::reserve(size_t n)
     this->g_data.reserve(n);
 }
 
+std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
+{
+    std::size_t rewritePos = pck.getDataSize();
+    pck.append( sizeof(fge::net::SizeType) ); //Will be rewrited
+
+    fge::net::SizeType count{0};
+    for ( std::size_t i=0; i<this->g_data.size(); ++i )
+    {
+        if ( this->g_data[i]->isNeedingUpdate() )
+        {
+            pck << static_cast<fge::net::SizeType>(i);
+            ++count;
+            this->g_data[i]->clearNeedUpdateFlag();
+        }
+    }
+
+    pck.pack(rewritePos, &count, sizeof(fge::net::SizeType));
+
+    return count;
+}
+void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id)
+{
+    fge::net::SizeType count{0};
+    pck >> count;
+
+    for ( fge::net::SizeType i=0; i<count; ++i )
+    {
+        fge::net::SizeType dataIndex{0};
+
+        auto* net = this->g_data.at(dataIndex).get();
+        net->forceCheckClient(id);
+        net->requireExplicitUpdateClient(id);
+    }
+}
+
 void NetworkTypeContainer::clientsCheckup(const fge::net::ClientList& clients)
 {
     for ( std::size_t i=0; i<this->g_data.size(); ++i )
@@ -336,5 +393,4 @@ void NetworkTypeContainer::forceUncheckClient(const fge::net::Identity& id)
     }
 }
 
-}//end net
-}//end fge
+}//end fge::net

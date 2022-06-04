@@ -876,6 +876,28 @@ public:
     void unpackModification(fge::net::Packet& pck);
 
     /**
+     * \brief Pack object that need an explicit update from the server.
+     *
+     * This should be called by a client to ask the server for specific network value update.
+     *
+     * \see NetworkTypeContainer::packNeededUpdate
+     *
+     * \param pck The network packet
+     */
+    void packNeededUpdate(fge::net::Packet& pck);
+    /**
+     * \brief Unpack client object that require an explicit update.
+     *
+     * This should be called by a server.
+     *
+     * \see NetworkTypeContainer::packNeededUpdate
+     *
+     * \param pck The network packet
+     * \param id The Identity of the client
+     */
+    void unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id);
+
+    /**
      * \brief Do a clients checkup for the Scene::_netList and Object::_netList.
      *
      * A clients checkup is necessary to keep an eye of new/removal client and keep a modification flag

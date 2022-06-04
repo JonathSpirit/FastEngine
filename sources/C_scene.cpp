@@ -833,7 +833,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
                 ++countModification;
             }
         }
-        if (countModification)
+        if (countModification > 0)
         {
             //SID
             pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));
@@ -993,6 +993,59 @@ void Scene::unpackModification(fge::net::Packet& pck)
             pck >> buffIndex;
 
             buffObject->_netList.at(buffIndex)->applyData(pck);
+        }
+    }
+}
+
+void Scene::packNeededUpdate(fge::net::Packet& pck)
+{
+    fge::net::SizeType countObject = 0;
+
+    std::size_t countObjectPos = pck.getDataSize();
+    pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
+
+    for (const auto & data : this->g_data)
+    {
+        std::size_t dataPos = pck.getDataSize();
+        constexpr const std::size_t reservedSize = sizeof(fge::ObjectSid);
+        pck.append(reservedSize);
+
+        std::size_t count = data->getObject()->_netList.packNeededUpdate(pck);
+
+        if (count > 0)
+        {
+            //SID
+            pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));
+            ++countObject;
+        }
+        else
+        {
+            pck.shrink(reservedSize + sizeof(fge::net::SizeType));
+        }
+    }
+
+    pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
+}
+void Scene::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id)
+{
+    fge::net::SizeType countObject{0};
+    pck >> countObject;
+
+    for (fge::net::SizeType i=0; i<countObject; ++i)
+    {
+        fge::ObjectSid sid;
+        pck >> sid;
+
+        auto object = this->getObject(sid);
+        if ( object )
+        {
+            object->g_object->_netList.unpackNeededUpdate(pck, id);
+        }
+        else
+        {
+            fge::net::SizeType uselessDataSize{0};
+            pck >> uselessDataSize;
+            pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
         }
     }
 }

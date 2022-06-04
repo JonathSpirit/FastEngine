@@ -280,6 +280,17 @@ bool Packet::erase(std::size_t pos, std::size_t dsize)
     }
     return false;
 }
+fge::net::Packet& Packet::skip(std::size_t bsize)
+{
+    if ((bsize > 0) && (this->_g_readPos+bsize <= this->_g_data.size()))
+    {
+        this->_g_readPos += bsize;
+        this->_g_valid = true;
+        return *this;
+    }
+    this->_g_valid = false;
+    return *this;
+}
 
 void Packet::setReadPos(std::size_t pos)
 {
