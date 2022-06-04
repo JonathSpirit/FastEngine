@@ -4,7 +4,7 @@ namespace fge
 {
 
 ObjAnimation::ObjAnimation() :
-    g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION),
+    g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
 
     g_paused(false)
 {
@@ -13,7 +13,7 @@ ObjAnimation::ObjAnimation() :
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position) :
     g_animation(animation),
-    g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION),
+    g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
 
     g_paused(false)
 {
@@ -91,17 +91,18 @@ void ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, const std
         fge::anim::AnimationFrame* frame = this->g_animation.getFrame();
         if ( frame != nullptr )
         {
-            if ( std::chrono::duration_cast<std::chrono::milliseconds>(this->g_clock.getElapsedTime()) >= this->g_tickDuration*frame->_ticks )
+            this->g_nextFrameTime += deltaTime;
+            if ( this->g_nextFrameTime >= std::chrono::milliseconds{this->g_tickDuration*frame->_ticks} )
             {
                 frame = this->g_animation.getFrame(this->g_animation.nextFrame());
-                this->setTextureRect( sf::IntRect(0, 0, frame->_texture->getSize().x, frame->_texture->getSize().y) );
-                this->g_clock.restart();
+                this->setTextureRect( sf::IntRect(0, 0, static_cast<int>(frame->_texture->getSize().x), static_cast<int>(frame->_texture->getSize().y)) );
+                this->g_nextFrameTime = std::chrono::milliseconds{0};
             }
         }
         else
         {
             this->g_animation.setFrame(0);
-            this->g_clock.restart();
+            this->g_nextFrameTime = std::chrono::milliseconds{0};
         }
     }
 }
@@ -134,7 +135,7 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     this->g_animation.setFrame( jsonObject.value<std::size_t>("animationFrame", 0) );
     this->g_animation.setLoop( jsonObject.value<bool>("animationLoop", false) );
     this->g_animation.setReverse( jsonObject.value<bool>("animationReverse", false) );
-    this->g_tickDuration = std::chrono::milliseconds( jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION) );
+    this->g_tickDuration = std::chrono::milliseconds( jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION_MS) );
 
     sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect( sf::IntRect(0, 0, buffTexture->getSize().x, buffTexture->getSize().y) );
@@ -163,7 +164,7 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
     this->g_animation.setLoop(loop);
     this->g_animation.setReverse(reverse);
 
-    uint16_t tmpTick = FGE_OBJANIM_DEFAULT_TICKDURATION;
+    uint16_t tmpTick = FGE_OBJANIM_DEFAULT_TICKDURATION_MS;
     pck >> tmpTick;
     this->g_tickDuration = std::chrono::milliseconds(tmpTick);
 

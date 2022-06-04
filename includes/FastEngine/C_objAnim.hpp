@@ -4,11 +4,10 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_object.hpp>
 #include <FastEngine/C_animation.hpp>
-#include <FastEngine/C_clock.hpp>
 #include <chrono>
 #include <string>
 
-#define FGE_OBJANIM_DEFAULT_TICKDURATION 10
+#define FGE_OBJANIM_DEFAULT_TICKDURATION_MS 10
 #define FGE_OBJANIM_CLASSNAME "FGE:OBJ:ANIM"
 
 namespace fge
@@ -63,10 +62,9 @@ private:
     sf::IntRect g_textureRect;
 
     std::chrono::milliseconds g_tickDuration;
+    std::chrono::milliseconds g_nextFrameTime;
 
     bool g_paused;
-
-    fge::Clock g_clock;
 };
 
 }//end fge
