@@ -1,15 +1,13 @@
 #include "FastEngine/crash_manager.hpp"
 #include <exception>
 
-namespace fge
-{
-namespace crash
+namespace fge::crash
 {
 
 namespace
 {
 
-const char _computerCrash[] =
+const signed char _computerCrash[] =
 {
     -119,80,78,71,13,
     10,26,10,0,0,
@@ -174,5 +172,4 @@ void SetInfoText(const std::string& txt)
     _crashInfoText[txt.size()] = '\0';
 }
 
-}//end crash
-}//end fge
+}//end fge::crash
