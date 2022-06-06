@@ -1,4 +1,5 @@
 #include "FastEngine/C_event.hpp"
+#include <FastEngine/C_packet.hpp>
 
 namespace fge
 {
@@ -130,19 +131,20 @@ void Event::process( const sf::Event& sfevt )
         break;
     }
 }
-void Event::process( sf::Window& sfscreen )
+void Event::process( sf::Window& sfscreen, unsigned int maxEventCount )
 {
     sf::Event evt{};
     this->start();
-    while ( sfscreen.pollEvent(evt) )
+    while ( sfscreen.pollEvent(evt) && maxEventCount>0 )
     {
         this->process(evt);
+        --maxEventCount;
     }
 }
 
 bool Event::isKeyPressed( sf::Keyboard::Key sfkey ) const
 {
-    return this->g_keys[sfkey/32] & (0x80000000 >> (sfkey%32));
+    return static_cast<bool>(this->g_keys[sfkey/32] & (0x80000000 >> (sfkey%32)));
 }
 uint32_t Event::getKeyUnicode() const
 {
@@ -156,7 +158,7 @@ const sf::Vector2u& Event::getWindowSize() const
 
 bool Event::isEventType( sf::Event::EventType evtType ) const
 {
-    return this->g_types&(0x80000000 >> evtType);
+    return static_cast<bool>(this->g_types&(0x80000000 >> evtType));
 }
 
 const sf::Vector2i& Event::getMousePixelPos() const
@@ -165,7 +167,7 @@ const sf::Vector2i& Event::getMousePixelPos() const
 }
 bool Event::isMouseButtonPressed( sf::Mouse::Button sfmouse ) const
 {
-    return this->g_mouseButtons & (0x80 >> (sfmouse));
+    return static_cast<bool>(this->g_mouseButtons & (0x80 >> (sfmouse)));
 }
 
 float Event::getMouseWheelHorizontalDelta() const
@@ -208,7 +210,7 @@ std::string Event::getBinaryKeysString() const
     {
         for ( unsigned int a = 0; a<32; ++a )
         {
-            result += (this->g_keys[i] & (0x80000000 >> a)) ? '1' : '0';
+            result += static_cast<bool>(this->g_keys[i] & (0x80000000 >> a)) ? '1' : '0';
         }
         result += ' ';
     }
@@ -220,7 +222,7 @@ std::string Event::getBinaryTypesString() const
 
     for ( unsigned int i = 0; i<32; ++i )
     {
-        result += (this->g_types & (0x80000000 >> i)) ? '1' : '0';
+        result += static_cast<bool>(this->g_types & (0x80000000 >> i)) ? '1' : '0';
     }
     return result;
 }
@@ -230,7 +232,7 @@ std::string Event::getBinaryMouseButtonsString() const
 
     for ( unsigned int i = 0; i<8; ++i )
     {
-        result += (this->g_mouseButtons & (0x80 >> i)) ? '1' : '0';
+        result += static_cast<bool>(this->g_mouseButtons & (0x80 >> i)) ? '1' : '0';
     }
     return result;
 }

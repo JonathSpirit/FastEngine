@@ -3,11 +3,19 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_callback.hpp>
-#include <FastEngine/C_packet.hpp>
 #include <SFML/Window.hpp>
+
+#define FGE_EVENT_DEFAULT_MAXEVENTCOUNT 20
 
 namespace fge
 {
+
+namespace net
+{
+
+class Packet;
+
+}//end net
 
 /**
  * \class Event
@@ -76,8 +84,9 @@ public:
      * start function is called by this function.
      *
      * \param sfscreen The SFML window
+     * \param maxEventCount The maximum number of processed events par call
      */
-    void process( sf::Window& sfscreen );
+    void process( sf::Window& sfscreen, unsigned int maxEventCount=FGE_EVENT_DEFAULT_MAXEVENTCOUNT );
 
     /**
      * \brief Check if a key is pressed
