@@ -402,7 +402,7 @@ public:
                 {
                     if ( (*it)->getObject()->_tags.check("badBloc") )
                     {
-                        auto sid = (*it)->getSid();
+                        auto sid= (*it)->getSid();
                         --it;
                         this->delObject(sid);
                     }

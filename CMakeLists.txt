@@ -344,7 +344,11 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
 target_link_libraries(${FGE_SERVER_LIB_NAME} sfml-graphics sfml-system sfml-window)
 target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
 
-target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
+if(WIN32)
+    target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
+else()
+    target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window X11 ${FGE_LIB_NAME})
+endif()
 
 #Install
 install(TARGETS ${FGE_LIB_NAME})

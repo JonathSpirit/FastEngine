@@ -175,6 +175,8 @@ fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
         this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, generatedSid});
     }
 
+    objectData->g_sid = generatedSid;
+
     auto it = this->getInsertBeginPositionWithPlan(objectData->g_plan);
 
     it = this->g_data.insert( it, objectData );
