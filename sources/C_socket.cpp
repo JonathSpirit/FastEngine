@@ -47,9 +47,7 @@
     #endif
 #endif
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 #ifdef _WIN32
@@ -405,11 +403,8 @@ fge::net::Socket::Error Socket::select(bool read, uint32_t timeoutms)
         }
         return fge::net::Socket::ERR_NOERROR;
     }
-    else
-    {
-        // Failed to connect before timeout is over
-        return fge::net::NormalizeError();
-    }
+    // Failed to connect before timeout is over
+    return fge::net::NormalizeError();
 }
 
 bool Socket::initSocket()
@@ -428,7 +423,7 @@ void Socket::uninitSocket()
     #endif // _WIN32
 }
 
-int Socket::getPlatformSpecifiedError() const
+int Socket::getPlatformSpecifiedError()
 {
     #ifdef _WIN32
     return WSAGetLastError();
@@ -567,7 +562,7 @@ fge::net::Socket::Error SocketUdp::sendTo(const void* data, std::size_t size, co
 }
 fge::net::Socket::Error SocketUdp::send(const void* data, std::size_t size)
 {
-    if (!data || (size == 0))
+    if ((data == nullptr) || (size == 0))
     {
         return fge::net::Socket::ERR_INVALIDARGUMENT;
     }
@@ -590,7 +585,7 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data, std::size_t size, std
     remotePort    = 0;
 
     // Check the destination buffer
-    if (!data)
+    if (data == nullptr)
     {
         return fge::net::Socket::ERR_INVALIDARGUMENT;
     }
@@ -626,7 +621,7 @@ fge::net::Socket::Error SocketUdp::receive(void* data, std::size_t size, std::si
     received = 0;
 
     // Check the destination buffer
-    if (!data)
+    if (data == nullptr)
     {
         return fge::net::Socket::ERR_INVALIDARGUMENT;
     }
@@ -641,7 +636,7 @@ fge::net::Socket::Error SocketUdp::receive(void* data, std::size_t size, std::si
     }
 
     // Fill the sender informations
-    received      = static_cast<std::size_t>(sizeReceived);
+    received = static_cast<std::size_t>(sizeReceived);
 
     return fge::net::Socket::ERR_NOERROR;
 }
@@ -709,7 +704,7 @@ fge::net::Socket::Error SocketUdp::sendTo(fge::net::Packet& packet, const IpAddr
 fge::net::Socket::Error SocketUdp::receiveFrom(fge::net::Packet& packet, fge::net::IpAddress& remoteAddress, fge::net::Port& remotePort)
 {
     size_t received = 0;
-    fge::net::Socket::Error status = this->receiveFrom(&this->g_buffer[0], this->g_buffer.size(), received, remoteAddress, remotePort);
+    fge::net::Socket::Error status = this->receiveFrom(this->g_buffer.data(), this->g_buffer.size(), received, remoteAddress, remotePort);
 
     packet.clear();
     if ((status == fge::net::Socket::ERR_NOERROR) && (received > 0))
@@ -731,7 +726,7 @@ fge::net::Socket::Error SocketUdp::receive(fge::net::Packet& packet)
     return status;
 }
 
-fge::net::SocketUdp& SocketUdp::operator=(fge::net::SocketUdp&& r)
+fge::net::SocketUdp& SocketUdp::operator=(fge::net::SocketUdp&& r) noexcept
 {
     this->g_isBlocking = r.g_isBlocking;
     this->g_type = r.g_type;
@@ -861,7 +856,7 @@ fge::net::Socket::Error SocketTcp::connect(const fge::net::IpAddress& remoteAddr
         address.sin_len = sizeof(addr);
     #endif
 
-    if (!timeoutms)
+    if (timeoutms == 0)
     {
         // Connect the socket
         if (::connect(this->g_socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == _FGE_SOCKET_ERROR)
@@ -872,82 +867,79 @@ fge::net::Socket::Error SocketTcp::connect(const fge::net::IpAddress& remoteAddr
         // Connection succeeded
         return fge::net::Socket::ERR_NOERROR;
     }
-    else
+    // Save the previous blocking state
+    bool blocking = this->isBlocking();
+
+    // Switch to non-blocking to enable our connection timeout
+    if (blocking)
     {
-        // Save the previous blocking state
-        bool blocking = this->isBlocking();
+        this->setBlocking(false);
+    }
 
-        // Switch to non-blocking to enable our connection timeout
-        if (blocking)
-        {
-            this->setBlocking(false);
-        }
+    // Try to connect to the remote address
+    if (::connect(this->g_socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != _FGE_SOCKET_ERROR)
+    {
+        // We got instantly connected! (it may no happen a lot...)
+        this->setBlocking(blocking);
+        return fge::net::Socket::ERR_NOERROR;
+    }
 
-        // Try to connect to the remote address
-        if (::connect(this->g_socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != _FGE_SOCKET_ERROR)
-        {
-            // We got instantly connected! (it may no happen a lot...)
-            this->setBlocking(blocking);
-            return fge::net::Socket::ERR_NOERROR;
-        }
+    // Get the error status
+    fge::net::Socket::Error status = fge::net::NormalizeError();
 
-        // Get the error status
-        fge::net::Socket::Error status = fge::net::NormalizeError();
-
-        // If we were in non-blocking mode, return immediately
-        if (!blocking)
-        {
-            return status;
-        }
-
-        // Otherwise, wait until something happens to our socket (success, timeout or error)
-        if (status == fge::net::Socket::ERR_NOTREADY)
-        {
-            // Setup the selector
-            fd_set selector;
-            #ifdef _win32
-            selector.fd_count = 1;
-            *selector.fd_array = this->g_socket;
-            #else
-            FD_ZERO(&selector);
-            FD_SET(this->g_socket, &selector);
-            #endif // _win32
-
-            // Setup the timeout
-            timeval time{};
-            time.tv_sec  = static_cast<long>(timeoutms / 1000);
-            time.tv_usec = static_cast<long>((timeoutms%1000) * 1000);
-
-            // Wait for something to write on our socket (which means that the connection request has returned)
-            if (::select(static_cast<int>(this->g_socket + 1), nullptr, &selector, nullptr, &time) == 1)
-            {
-                // Socket selected for write, Check for errors
-                int32_t optval;
-                fge::net::SocketLength optlen = sizeof(optval);
-
-                if (getsockopt(this->g_socket, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&optval), &optlen) == _FGE_SOCKET_ERROR)
-                {
-                    return fge::net::NormalizeError();
-                }
-                // Check the value returned...
-                if (optval != 0)
-                {
-                    return fge::net::NormalizeError(optval);
-                }
-                status = fge::net::Socket::ERR_NOERROR;
-            }
-            else
-            {
-                // Failed to connect before timeout is over
-                status = fge::net::NormalizeError();
-            }
-        }
-
-        // Switch back to blocking mode
-        this->setBlocking(true);
-
+    // If we were in non-blocking mode, return immediately
+    if (!blocking)
+    {
         return status;
     }
+
+    // Otherwise, wait until something happens to our socket (success, timeout or error)
+    if (status == fge::net::Socket::ERR_NOTREADY)
+    {
+        // Setup the selector
+        fd_set selector;
+        #ifdef _win32
+        selector.fd_count = 1;
+        *selector.fd_array = this->g_socket;
+        #else
+        FD_ZERO(&selector);
+        FD_SET(this->g_socket, &selector);
+        #endif // _win32
+
+        // Setup the timeout
+        timeval time{};
+        time.tv_sec  = static_cast<long>(timeoutms / 1000);
+        time.tv_usec = static_cast<long>((timeoutms%1000) * 1000);
+
+        // Wait for something to write on our socket (which means that the connection request has returned)
+        if (::select(static_cast<int>(this->g_socket + 1), nullptr, &selector, nullptr, &time) == 1)
+        {
+            // Socket selected for write, Check for errors
+            int32_t optval;
+            fge::net::SocketLength optlen = sizeof(optval);
+
+            if (getsockopt(this->g_socket, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&optval), &optlen) == _FGE_SOCKET_ERROR)
+            {
+                return fge::net::NormalizeError();
+            }
+            // Check the value returned...
+            if (optval != 0)
+            {
+                return fge::net::NormalizeError(optval);
+            }
+            status = fge::net::Socket::ERR_NOERROR;
+        }
+        else
+        {
+            // Failed to connect before timeout is over
+            status = fge::net::NormalizeError();
+        }
+    }
+
+    // Switch back to blocking mode
+    this->setBlocking(true);
+
+    return status;
 }
 
 fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size)
@@ -958,7 +950,7 @@ fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size)
 fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size, std::size_t& sent)
 {
     // Check the parameters
-    if (!data || (size == 0))
+    if ((data == nullptr) || (size == 0))
     {
         return fge::net::Socket::ERR_INVALIDARGUMENT;
     }
@@ -975,7 +967,7 @@ fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size, std:
         {
             fge::net::Socket::Error status = fge::net::NormalizeError();
 
-            if ((status == fge::net::Socket::ERR_NOTREADY) && sent)
+            if ((status == fge::net::Socket::ERR_NOTREADY) && (sent > 0))
             {
                 return fge::net::Socket::ERR_PARTIAL;
             }
@@ -991,7 +983,7 @@ fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::si
     received = 0;
 
     // Check the destination buffer
-    if (!data)
+    if (data == nullptr)
     {
         return fge::net::Socket::ERR_INVALIDARGUMENT;
     }
@@ -1148,7 +1140,7 @@ fge::net::Socket::Error SocketTcp::receive(fge::net::Packet& packet, uint32_t ti
     return error;
 }
 
-fge::net::SocketTcp& SocketTcp::operator=(fge::net::SocketTcp&& r)
+fge::net::SocketTcp& SocketTcp::operator=(fge::net::SocketTcp&& r) noexcept
 {
     this->g_isBlocking = r.g_isBlocking;
     this->g_type = r.g_type;
@@ -1280,7 +1272,7 @@ fge::net::Socket::Error SocketListenerTcp::accept(fge::net::SocketTcp& socket)
     return fge::net::Socket::ERR_NOERROR;
 }
 
-fge::net::SocketListenerTcp& SocketListenerTcp::operator=(fge::net::SocketListenerTcp&& r)
+fge::net::SocketListenerTcp& SocketListenerTcp::operator=(fge::net::SocketListenerTcp&& r) noexcept
 {
     this->g_isBlocking = r.g_isBlocking;
     this->g_type = r.g_type;
@@ -1289,5 +1281,4 @@ fge::net::SocketListenerTcp& SocketListenerTcp::operator=(fge::net::SocketListen
     return *this;
 }
 
-}//end net
-}//end fge
+}//end fge::net
