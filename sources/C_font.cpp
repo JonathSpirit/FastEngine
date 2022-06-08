@@ -44,20 +44,23 @@ const std::string& Font::getName() const
     return this->g_name;
 }
 
-void Font::operator =( const std::string& name )
+fge::Font& Font::operator =( const std::string& name )
 {
     this->g_name = name;
     this->g_data = fge::font::GetFont(name);
+    return *this;
 }
-void Font::operator =( const char* name )
+fge::Font& Font::operator =( const char* name )
 {
     this->g_name = std::string(name);
     this->g_data = fge::font::GetFont(this->g_name);
+    return *this;
 }
-void Font::operator =( const fge::font::FontDataPtr& data )
+fge::Font& Font::operator =( const fge::font::FontDataPtr& data )
 {
     this->g_name = FGE_FONT_BAD;
     this->g_data = data;
+    return *this;
 }
 
 Font::operator sf::Font*()

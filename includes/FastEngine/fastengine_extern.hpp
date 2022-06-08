@@ -37,4 +37,7 @@
  *
  * \defgroup audio Audio utility/tools
  * \brief Everything related to audio
+ *
+ * \defgroup graphics Graphics utility/tools
+ * \brief Everything related to graphics
  */
