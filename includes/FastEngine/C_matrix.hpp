@@ -263,6 +263,14 @@ public:
      * \brief Rotate the matrix by 90 degrees counter-clockwise
      */
     void rotateCounterClockwise();
+    /**
+     * \brief Flip the matrix horizontally
+     */
+    void flipHorizontally();
+    /**
+     * \brief Flip the matrix vertically
+     */
+    void flipVertically();
 
     /**
      * \brief Insert all elements of the matrix in a 1D vector

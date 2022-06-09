@@ -319,7 +319,7 @@ void Matrix<T>::rotateClockwise()
     {
         for (std::size_t x=0; x<this->g_msize.x; ++x)
         {
-            newMatrix.g_matrix[newMatrix.g_msize.x - y-1][x] = this->g_matrix[x][y];
+            newMatrix.g_matrix[newMatrix.g_msize.x - y-1][x] = std::move(this->g_matrix[x][y]);
         }
     }
     this->g_matrix = std::move(newMatrix.g_matrix);
@@ -334,7 +334,39 @@ void Matrix<T>::rotateCounterClockwise()
     {
         for (std::size_t x=0; x<this->g_msize.x; ++x)
         {
-            newMatrix.g_matrix[y][newMatrix.g_msize.y - x-1] = this->g_matrix[x][y];
+            newMatrix.g_matrix[y][newMatrix.g_msize.y - x-1] = std::move(this->g_matrix[x][y]);
+        }
+    }
+    this->g_matrix = std::move(newMatrix.g_matrix);
+    this->g_msize = newMatrix.g_msize;
+}
+
+template<class T>
+void Matrix<T>::flipHorizontally()
+{
+    Matrix<T> newMatrix(this->g_msize.x, this->g_msize.y);
+
+    for (std::size_t x=0; x<this->g_msize.x; ++x)
+    {
+        for (std::size_t y=0; y<this->g_msize.y; ++y)
+        {
+            newMatrix.g_matrix[x][y] = std::move(this->g_matrix[this->g_msize.x-1-x][y]);
+        }
+    }
+    this->g_matrix = std::move(newMatrix.g_matrix);
+    this->g_msize = newMatrix.g_msize;
+}
+
+template<class T>
+void Matrix<T>::flipVertically()
+{
+    Matrix<T> newMatrix(this->g_msize.x, this->g_msize.y);
+
+    for (std::size_t x=0; x<this->g_msize.x; ++x)
+    {
+        for (std::size_t y=0; y<this->g_msize.y; ++y)
+        {
+            newMatrix.g_matrix[x][y] = std::move(this->g_matrix[x][this->g_msize.y-1-y]);
         }
     }
     this->g_matrix = std::move(newMatrix.g_matrix);
