@@ -4,11 +4,14 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_ipAddress.hpp>
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
+/**
+ * \struct Identity
+ * \ingroup network
+ * \brief A class to represent a client or server identity with an IP address and a port
+ */
 struct Identity
 {
     fge::net::IpAddress _ip;
@@ -20,6 +23,11 @@ struct Identity
     }
 };
 
+/**
+ * \struct IdentityHash
+ * \ingroup network
+ * \brief A class to hash an Identity (useful for std::unordered_map or other containers)
+ */
 struct IdentityHash
 {
     inline std::size_t operator() (const fge::net::Identity& id) const
@@ -28,7 +36,6 @@ struct IdentityHash
     }
 };
 
-}//end net
-}//end fge
+}//end fge::net
 
 #endif // _FGE_C_IDENTITY_HPP_INCLUDED

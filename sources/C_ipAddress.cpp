@@ -1,5 +1,6 @@
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
+#include <cstring>
 
 #ifdef _WIN32
     #ifdef _WIN32_WINDOWS
@@ -35,17 +36,15 @@
     #define _FGE_SOCKET_ERROR -1
 #endif
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
-const fge::net::IpAddress IpAddress::None;
-const fge::net::IpAddress IpAddress::Any(0, 0, 0, 0);
-const fge::net::IpAddress IpAddress::LocalHost(127, 0, 0, 1);
-const fge::net::IpAddress IpAddress::Broadcast(255, 255, 255, 255);
+const fge::net::IpAddress IpAddress::None{};
+const fge::net::IpAddress IpAddress::Any{0, 0, 0, 0};
+const fge::net::IpAddress IpAddress::LocalHost{127, 0, 0, 1};
+const fge::net::IpAddress IpAddress::Broadcast{255, 255, 255, 255};
 
-IpAddress::IpAddress() :
+IpAddress::IpAddress() noexcept :
     g_address(0),
     g_valid(false)
 {
@@ -54,20 +53,20 @@ IpAddress::IpAddress(const std::string& address) :
     g_address(0),
     g_valid(false)
 {
-    this->set(address);
+    this->set(address.c_str());
 }
 IpAddress::IpAddress(const char* address) :
     g_address(0),
     g_valid(false)
 {
-    this->set(std::string(address));
+    this->set(address);
 }
-IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) :
+IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept :
     g_address( fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0) ),
     g_valid(true)
 {
 }
-IpAddress::IpAddress(uint32_t address) :
+IpAddress::IpAddress(uint32_t address) noexcept :
     g_address( fge::SwapHostNetEndian_32(address) ),
     g_valid(true)
 {
@@ -75,56 +74,56 @@ IpAddress::IpAddress(uint32_t address) :
 
 bool IpAddress::set(const std::string& address)
 {
-    if (address == "255.255.255.255")
+    return this->set(address.c_str());
+}
+bool IpAddress::set(const char* address)
+{
+    if ( std::strcmp(address, "255.255.255.255") == 0 )
     {//Broadcast
         this->g_address = INADDR_BROADCAST;
         this->g_valid = true;
         return true;
     }
-    else if (address == "0.0.0.0")
+
+    if ( std::strcmp(address, "0.0.0.0") == 0 )
     {//Any
         this->g_address = INADDR_ANY;
         this->g_valid = true;
         return true;
     }
-    else
-    {//IP as string xxx.xxx.xxx.xxx
-        uint32_t ip = inet_addr(address.c_str());
 
-        if (ip != INADDR_NONE)
+    //IP as string xxx.xxx.xxx.xxx
+    uint32_t ip = inet_addr(address);
+
+    if (ip != INADDR_NONE)
+    {
+        this->g_address = ip;
+        this->g_valid = true;
+        return true;
+    }
+
+    //Maybe host name
+    addrinfo hints{};
+    hints.ai_family = AF_INET;
+    addrinfo* result = nullptr;
+
+    if ( getaddrinfo(address, nullptr, &hints, &result) == 0 )
+    {
+        if (result != nullptr)
         {
+            ip = reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr.s_addr;
+            freeaddrinfo(result);
+
             this->g_address = ip;
             this->g_valid = true;
             return true;
         }
-        else
-        {//Maybe host name
-            addrinfo hints{};
-            hints.ai_family = AF_INET;
-            addrinfo* result = nullptr;
-
-            if ( getaddrinfo(address.c_str(), nullptr, &hints, &result) == 0 )
-            {
-                if (result)
-                {
-                    ip = reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr.s_addr;
-                    freeaddrinfo(result);
-
-                    this->g_address = ip;
-                    this->g_valid = true;
-                    return true;
-                }
-            }
-        }
     }
 
+    //Invalid address
     this->g_address = 0;
     this->g_valid = false;
     return false;
-}
-bool IpAddress::set(const char* address)
-{
-    return this->set(std::string(address));
 }
 bool IpAddress::set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0)
 {
@@ -187,7 +186,7 @@ void IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
 
     if ( getaddrinfo("", nullptr, &hints, &result) == 0 )
     {
-        if (result)
+        if (result != nullptr)
         {
             addrinfo *ptr = result;
 
@@ -208,5 +207,4 @@ void IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
     }
 }
 
-}//end net
-}//end fge
+}//end fge::net
