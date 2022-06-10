@@ -342,6 +342,27 @@ void Matrix<T>::rotateCounterClockwise()
 }
 
 template<class T>
+void Matrix<T>::rotateClockwise(unsigned int n)
+{
+    n %= 4;
+    while (n>0)
+    {
+        this->rotateClockwise();
+        --n;
+    }
+}
+template<class T>
+void Matrix<T>::rotateCounterClockwise(unsigned int n)
+{
+    n %= 4;
+    while (n>0)
+    {
+        this->rotateCounterClockwise();
+        --n;
+    }
+}
+
+template<class T>
 void Matrix<T>::flipHorizontally()
 {
     Matrix<T> newMatrix(this->g_msize.x, this->g_msize.y);

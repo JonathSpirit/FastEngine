@@ -264,6 +264,18 @@ public:
      */
     void rotateCounterClockwise();
     /**
+     * \brief Rotate the matrix by 90 degrees clockwise and n times
+     *
+     * \param n The number of times to rotate
+     */
+    void rotateClockwise(unsigned int n);
+    /**
+     * \brief Rotate the matrix by 90 degrees counter-clockwise and n times
+     *
+     * \param n The number of times to rotate
+     */
+    void rotateCounterClockwise(unsigned int n);
+    /**
      * \brief Flip the matrix horizontally
      */
     void flipHorizontally();
