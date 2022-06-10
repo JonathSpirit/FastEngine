@@ -121,6 +121,11 @@ const std::string& Animation::getName() const
     return this->g_name;
 }
 
+fge::anim::AnimationType Animation::getType() const
+{
+    return this->g_data->_type;
+}
+
 bool Animation::setGroup(const std::string& groupName)
 {
     if ( this->isGroupValid() )
@@ -341,52 +346,95 @@ const fge::anim::AnimationDataPtr& Animation::getData() const
     return this->g_data;
 }
 
-void Animation::operator =( const std::string& name )
+fge::Animation& Animation::operator =( const std::string& name )
 {
     this->g_name = name;
     this->g_data = fge::anim::GetAnimation(name);
+    return *this;
 }
-void Animation::operator =( const char* name )
+fge::Animation& Animation::operator =( const char* name )
 {
     this->g_name = std::string(name);
     this->g_data = fge::anim::GetAnimation(this->g_name);
+    return *this;
 }
-void Animation::operator =( const fge::anim::AnimationDataPtr& data )
+fge::Animation& Animation::operator =( const fge::anim::AnimationDataPtr& data )
 {
     this->g_name = FGE_ANIM_BAD;
     this->g_data = data;
+    return *this;
 }
 
 Animation::operator sf::Texture*()
 {
-    if ( this->isFrameValid() )
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
+        if ( this->g_data->_valid )
+        {
+            return this->g_data->_tilesetTexture.get();
+        }
+    }
+    else
+    {
+        if ( this->isFrameValid() )
+        {
+            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
+        }
     }
     return fge::texture::GetBadTexture()->_texture.get();
 }
 Animation::operator const sf::Texture*() const
 {
-    if ( this->isFrameValid() )
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
+        if ( this->g_data->_valid )
+        {
+            return this->g_data->_tilesetTexture.get();
+        }
+    }
+    else
+    {
+        if ( this->isFrameValid() )
+        {
+            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
+        }
     }
     return fge::texture::GetBadTexture()->_texture.get();
 }
 
 Animation::operator sf::Texture&()
 {
-    if ( this->isFrameValid() )
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        if ( this->g_data->_valid )
+        {
+            return *this->g_data->_tilesetTexture;
+        }
+    }
+    else
+    {
+        if ( this->isFrameValid() )
+        {
+            return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        }
     }
     return *fge::texture::GetBadTexture()->_texture;
 }
 Animation::operator const sf::Texture&() const
 {
-    if ( this->isFrameValid() )
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        if ( this->g_data->_valid )
+        {
+            return *this->g_data->_tilesetTexture;
+        }
+    }
+    else
+    {
+        if ( this->isFrameValid() )
+        {
+            return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        }
     }
     return *fge::texture::GetBadTexture()->_texture;
 }
@@ -398,6 +446,30 @@ Animation::operator std::string&()
 Animation::operator const std::string&() const
 {
     return this->g_name;
+}
+
+Animation::operator sf::IntRect() const
+{
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    {
+        if ( this->isFrameValid() )
+        {
+            auto gridSize = static_cast<sf::Vector2i>(this->g_data->_tilesetGridSize);
+            auto gridPosition = static_cast<sf::Vector2i>(this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
+            gridPosition.x *= gridSize.x;
+            gridPosition.y *= gridSize.y;
+            return {gridPosition, gridSize};
+        }
+    }
+    else
+    {
+        if ( this->isFrameValid() )
+        {
+            auto gridSize = static_cast<sf::Vector2i>(this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
+            return {{0,0}, gridSize};
+        }
+    }
+    return {{0,0}, static_cast<sf::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
 }
 
 }//end fge

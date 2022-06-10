@@ -63,6 +63,13 @@ public:
     [[nodiscard]] const std::string& getName() const;
 
     /**
+     * \brief Get the type of the loaded animation
+     *
+     * \return The type of the loaded animation
+     */
+    [[nodiscard]] fge::anim::AnimationType getType() const;
+
+    /**
      * \brief Set the group of the animation by its name
      *
      * \param groupName The name of the group
@@ -189,9 +196,9 @@ public:
      */
     [[nodiscard]] const fge::anim::AnimationDataPtr& getData() const;
 
-    void operator =( const std::string& name );
-    void operator =( const char* name );
-    void operator =( const fge::anim::AnimationDataPtr& data );
+    fge::Animation& operator =( const std::string& name );
+    fge::Animation& operator =( const char* name );
+    fge::Animation& operator =( const fge::anim::AnimationDataPtr& data );
 
     /**
      * \brief Get the texture of the actual frame
@@ -206,6 +213,13 @@ public:
 
     operator std::string&();
     operator const std::string&() const;
+
+    /**
+     * \brief Get the texture rectangle if the type of the animation is fge::anim::ANIM_TYPE_TILESET of the actual frame
+     *
+     * \return The SFML texture rectangle or {0,0,16,16} if something is invalid
+     */
+    operator sf::IntRect() const;
 
 private:
     fge::anim::AnimationDataPtr g_data;

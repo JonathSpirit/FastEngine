@@ -26,6 +26,7 @@
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_objRenderMap.hpp"
 #include "FastEngine/C_property.hpp"
+#include "FastEngine/arbitraryJsonTypes.hpp"
 
 
 using namespace std;
@@ -245,6 +246,7 @@ public:
         {
             std::cout << "Animation loaded !" << endl;
         }
+        fge::anim::LoadFromFile("animationTileset", "test/testTileset.json");
 
         fge::crash::Init(window, *fge::font::GetFont("base")->_font);
 
@@ -335,11 +337,17 @@ public:
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(true);
         buffAnimation->setTickDuration(std::chrono::milliseconds(1) );
-
         buffDataShared = this->newObject(buffAnimation, FGE_SCENE_PLAN_MIDDLE);
 
         buffDataShared = this->duplicateObject(buffDataShared->getSid());
         buffDataShared->getObject()->move(40, 0);
+
+        buffAnimation = new fge::ObjAnimation(fge::Animation("animationTileset", "group3"));
+        buffAnimation->move(80.0f, 0.0f);
+        buffAnimation->getAnimation().setLoop(true);
+        buffAnimation->getAnimation().setReverse(false);
+        buffAnimation->setTickDuration(std::chrono::milliseconds(50) );
+        buffDataShared = this->newObject(buffAnimation, FGE_SCENE_PLAN_MIDDLE);
 
         rectangleTest.setFillColor(sf::Color(0, 255, 0));
         rectangleTest.setSize(sf::Vector2f(50, 50) );

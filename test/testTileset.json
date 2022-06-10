@@ -1,0 +1,50 @@
+{
+    "type": "tileset",
+    "gridSize": {"x": 32, "y": 32},
+    "tileset": "test/tileset_test.png",
+    
+    "data": {
+        "group1": [
+            {
+                "ticks": 20,
+                "position": {"x": 0, "y": 0}
+            },
+            {
+                "ticks": 20,
+                "position": {"x": 1, "y": 0}
+            },
+            {
+                "ticks": 20,
+                "position": {"x": 2, "y": 0}
+            }
+        ],
+        "group2": [
+            {
+                "ticks": 20,
+                "position": {"x": 0, "y": 1}
+            },
+            {
+                "ticks": 20,
+                "position": {"x": 1, "y": 1}
+            },
+            {
+                "ticks": 20,
+                "position": {"x": 2, "y": 1}
+            }
+        ],
+        "group3": [
+            {
+                "ticks": 20,
+                "position": {"x": 0, "y": 2}
+            },
+            {
+                "ticks": 20,
+                "position": {"x": 1, "y": 2}
+            },
+            {
+                "ticks": 20,
+                "position": {"x": 2, "y": 2}
+            }
+        ]
+    }
+}

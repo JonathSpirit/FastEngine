@@ -21,6 +21,7 @@ using ListOfPoints = std::vector<sf::Vector2f>;
  */
 class LightObstacle : public fge::ObstacleComponent
 {
+public:
     LightObstacle() :
             fge::ObstacleComponent(this)
     {}

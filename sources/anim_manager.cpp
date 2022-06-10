@@ -1,5 +1,6 @@
 #include "FastEngine/anim_manager.hpp"
 #include "FastEngine/texture_manager.hpp"
+#include "FastEngine/arbitraryJsonTypes.hpp"
 
 #include <fstream>
 
@@ -120,15 +121,53 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
             return false;
         }
 
+        std::string animTypeStr = inputJson["type"].get<std::string>();
+        fge::anim::AnimationType animType;
+        if ( animTypeStr == "tileset" )
+        {
+            animType = fge::anim::AnimationType::ANIM_TYPE_TILESET;
+        }
+        else if ( animTypeStr == "separate" )
+        {
+            animType = fge::anim::AnimationType::ANIM_TYPE_SEPARATE_FILES;
+        }
+        else
+        {
+            return false;
+        }
+
         fge::anim::AnimationDataPtr buffAnimData = std::make_shared<fge::anim::AnimationData>();
         buffAnimData->_path = std::move(path);
         buffAnimData->_valid = true;
+        buffAnimData->_type = animType;
 
-        buffAnimData->_groups.resize( inputJson.size() );
+        if (animType == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+        {
+            buffAnimData->_tilesetPath = inputJson.value<std::filesystem::path>("tileset", {});
+
+            std::shared_ptr<sf::Texture> buffTexture{ new sf::Texture() };
+            if ( buffTexture->loadFromFile(buffAnimData->_tilesetPath.string()) )
+            {
+                buffAnimData->_tilesetTexture = std::move(buffTexture);
+            }
+            else
+            {
+                buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
+            }
+            buffAnimData->_tilesetGridSize = inputJson.value<sf::Vector2u>("gridSize", {0,0});
+        }
+
+        nlohmann::ordered_json& inputJsonDataObject = inputJson["data"];
+        if ( !inputJsonDataObject.is_object() )
+        {
+            return false;
+        }
+
+        buffAnimData->_groups.resize( inputJsonDataObject.size() );
 
         std::size_t iGroup = 0;
 
-        for ( nlohmann::ordered_json::iterator itGroup=inputJson.begin(); itGroup!=inputJson.end(); ++itGroup )
+        for (nlohmann::ordered_json::iterator itGroup=inputJsonDataObject.begin(); itGroup != inputJsonDataObject.end(); ++itGroup )
         {
             nlohmann::ordered_json& jsonGroup = itGroup.value();
 
@@ -146,23 +185,36 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
 
                 fge::anim::AnimationFrame& tmpFrame = tmpGroup._frames[iFrame];
 
-                tmpFrame._path = jsonFrame.value<std::string>("path", "");
+                switch (animType)
+                {
+                case AnimationType::ANIM_TYPE_TILESET:
+                    tmpFrame._texturePosition = jsonFrame.value<sf::Vector2u>("position", {0,0});
+                    tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
+                    break;
+                case AnimationType::ANIM_TYPE_SEPARATE_FILES:
+                    tmpFrame._path = jsonFrame.value<std::string>("path", "");
+                    break;
+                }
+
                 tmpFrame._ticks = jsonFrame.value<uint32_t>("ticks", FGE_ANIM_DEFAULT_TICKS);
 
                 //Load texture
+                if (animType != fge::anim::AnimationType::ANIM_TYPE_TILESET)
+                {
 #ifndef _FGE_DEF_SERVER
-                std::shared_ptr<sf::Texture> buffTexture{ new sf::Texture() };
-                if ( buffTexture->loadFromFile(tmpFrame._path) )
-                {
-                    tmpFrame._texture = std::move(buffTexture);
-                }
-                else
-                {
-                    tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
-                }
+                    std::shared_ptr<sf::Texture> buffTexture{new sf::Texture()};
+                    if (buffTexture->loadFromFile(tmpFrame._path))
+                    {
+                        tmpFrame._texture = std::move(buffTexture);
+                    }
+                    else
+                    {
+                        tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
+                    }
 #else
-                tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
+                    tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
 #endif //_FGE_DEF_SERVER
+                }
 
                 ++iFrame;
             }
@@ -174,6 +226,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
     }
     catch(std::exception& e)
     {
+        const char* test = e.what();
         inFile.close();
         return false;
     }

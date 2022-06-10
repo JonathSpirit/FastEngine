@@ -19,6 +19,17 @@ namespace fge::anim
 {
 
 /**
+ * \enum AnimationType
+ * \ingroup animation
+ * \brief Enum that represent different way of loading an animation
+ */
+enum class AnimationType
+{
+    ANIM_TYPE_TILESET, ///< Tileset type, you have just one texture with multiple frame in it
+    ANIM_TYPE_SEPARATE_FILES ///< Separate files, every frame is in a different file
+};
+
+/**
  * \struct AnimationFrame
  * \ingroup animation
  * \brief Structure that contains the information of a frame of an animation
@@ -27,6 +38,7 @@ struct AnimationFrame
 {
     std::shared_ptr<sf::Texture> _texture; ///< The shared pointer texture of the frame
     std::string _path; ///< The file path of the texture
+    sf::Vector2u _texturePosition; ///< The tileset grid position, only useful if the type is ANIM_TYPE_TILESET
 
     uint32_t _ticks; ///< The number of ticks that the frame will be displayed, by default 1 tick take 100 ms.
 };
@@ -52,6 +64,11 @@ struct AnimationData
     std::vector<fge::anim::AnimationGroup> _groups; ///< The vector of groups of the animation
     bool _valid; ///< The validity of the animation
     std::filesystem::path _path; ///< The file path of the animation
+
+    fge::anim::AnimationType _type; ///< The type of the animation
+    sf::Vector2u _tilesetGridSize; ///< The tileset grid size, only useful if the type is ANIM_TYPE_TILESET
+    std::shared_ptr<sf::Texture> _tilesetTexture; ///< The tileset texture, only useful if the type is ANIM_TYPE_TILESET
+    std::filesystem::path _tilesetPath; ///< The tileset texture path, only useful if the type is ANIM_TYPE_TILESET
 };
 
 using AnimationDataPtr = std::shared_ptr<fge::anim::AnimationData>;
@@ -141,14 +158,20 @@ FGE_API bool Check(const std::string& name);
  * Here is an example of a valid json file:
  * \code{.json}
  * {
+ *    "type": "tileset" or "separate",
+ *    "gridSize": {"x": 32, "y": 32}, (not necessary if the type is separate)
+ *    "tileset": "test/tileset_test.png", (not necessary if the type is separate)
+ *
  *    "animationGroup1": [
  *    {
- *    "path": "path/to/the/texture1",
- *    "ticks": 10
+ *    "path": "path/to/the/texture1", (not necessary if the type is tileset)
+ *    "ticks": 10,
+ *    "position": {"x": 0, "y": 0} (not necessary if the type is separate)
  *    },
  *    {
- *    "path": "path/to/the/texture2",
- *    "ticks": 10
+ *    "path": "path/to/the/texture2", (not necessary if the type is tileset)
+ *    "ticks": 10,
+ *    "position": {"x": 1, "y": 0} (not necessary if the type is separate)
  *    }
  *    ],
  *    "animationGroup2": [
