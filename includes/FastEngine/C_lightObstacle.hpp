@@ -12,7 +12,14 @@ class ObjLight;
 
 using ListOfPoints = std::vector<sf::Vector2f>;
 
-struct LightObstacle : public fge::ObstacleComponent
+/**
+ * \class LightObstacle
+ * \ingroup graphics
+ * \brief A base class to define an obstacle for the light system
+ *
+ * An obstacle is a group of points that define the shape of the object.
+ */
+class LightObstacle : public fge::ObstacleComponent
 {
     LightObstacle() :
             fge::ObstacleComponent(this)

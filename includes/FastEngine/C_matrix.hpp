@@ -296,8 +296,22 @@ private:
     sf::Vector2<std::size_t> g_msize;
 };
 
+/**
+ * \brief json function to save a matrix
+ *
+ * \tparam T The type of the matrix
+ * \param j The json object to save the matrix in
+ * \param r The matrix to save
+ */
 template<class T>
 void to_json(nlohmann::json& j, const fge::Matrix<T>& r);
+/**
+ * \brief json function to load a matrix
+ *
+ * \tparam T The type of the matrix
+ * \param j The json object to load the matrix from
+ * \param r The matrix to load
+ */
 template<class T>
 void from_json(const nlohmann::json& j, fge::Matrix<T>& r);
 
