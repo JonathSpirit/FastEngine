@@ -13,6 +13,15 @@
 namespace fge
 {
 
+/**
+ * \class GuiElement
+ * \ingroup objectControl
+ * \brief A base class for all GUI elements
+ *
+ * A GUI element is a utility to handle mouse events by priority for superposed elements.
+ *
+ * \warning Work in progress, this class will handle drawing elements in the future.
+ */
 class GuiElement
 {
 public:
@@ -24,22 +33,52 @@ public:
     {}
     virtual ~GuiElement() = default;
 
+    /**
+     * \brief Set the scale of the element
+     *
+     * \param scale The scale of the element
+     */
     void setScale(const sf::Vector2f& scale)
     {
         this->_g_scale = scale;
     }
+    /**
+     * \brief Get the scale of the element
+     *
+     * \return The scale of the element
+     */
     [[nodiscard]] const sf::Vector2f& getScale() const
     {
         return this->_g_scale;
     }
+    /**
+     * \brief Set the priority of the element
+     *
+     * The priority value can be used with the scene DepthPlan.
+     *
+     * \param priority The priority of the element
+     */
     void setPriority(fge::GuiElement::Priority priority) const
     {
         this->_g_priority = priority;
     }
+    /**
+     * \brief Get the priority of the element
+     *
+     * \return The priority of the element
+     */
     [[nodiscard]] fge::GuiElement::Priority getPriority() const
     {
         return this->_g_priority;
     }
+    /**
+     * \brief Verify if the priority of the element is higher than the given element
+     *
+     * If the provided element is null, the function will assume that the element is the highest priority.
+     *
+     * \param element The element to compare with
+     * \return \b true if the priority of the element is higher than the given element, \b false otherwise
+     */
     [[nodiscard]] bool verifyPriority(fge::GuiElement* element) const
     {
         if (element == nullptr)
@@ -53,8 +92,24 @@ public:
         return false;
     }
 
+    /**
+     * \brief Function called to verify if the element is hovered/clicked by the mouse
+     *
+     * This function should call verifyPriority to verify the priority of the element.
+     * If the priority is higher than the given element, the function should replace the
+     * provided pointer reference \b element with the element itself.
+     *
+     * \param evt An fge::Event
+     * \param arg The argument of the mouse button event
+     * \param mouseGuiPos The position of the mouse already converted to the GUI coordinate system
+     * \param element An element to compare with
+     * \param index The index of the element if there are multiple elements
+     */
     virtual void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) = 0;
 
+    /**
+     * \brief Callback called when the element is verified and the mouse is pressed
+     */
     fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, const sf::Vector2f&, std::size_t> _onGuiMouseButtonPressed;
 
 protected:
@@ -62,6 +117,11 @@ protected:
     sf::Vector2f _g_scale{1.0f,1.0f};
 };
 
+/**
+ * \class GuiElementHandler
+ * \ingroup objectControl
+ * \brief A class to handle highest priority selection of GUI elements
+ */
 class GuiElementHandler : public fge::Subscriber
 {
 public:
@@ -98,7 +158,7 @@ public:
 
         this->_onGuiVerify.call(evt, arg, mouseGuiPos, element, index);
 
-        if (element)
+        if (element != nullptr)
         {
             element->_onGuiMouseButtonPressed.call(evt, arg, mouseGuiPos, index);
         }
@@ -111,6 +171,11 @@ private:
     const sf::RenderTarget* g_target;
 };
 
+/**
+ * \class GuiElementRectangle
+ * \ingroup objectControl
+ * \brief A GUI element that verify if the mouse is inside a rectangle
+ */
 class GuiElementRectangle : public fge::GuiElement
 {
 public:
@@ -149,6 +214,11 @@ private:
     sf::FloatRect g_rect;
 };
 
+/**
+ * \class GuiElementDefault
+ * \ingroup objectControl
+ * \brief A GUI element that does not any verification bounds of the mouse the mouse
+ */
 class GuiElementDefault : public fge::GuiElement
 {
 public:
@@ -167,7 +237,11 @@ public:
     }
 };
 
-
+/**
+ * \class GuiElementArray
+ * \ingroup objectControl
+ * \brief A GUI element that verify a list of GUI elements
+ */
 class GuiElementArray : public fge::GuiElement
 {
 public:
