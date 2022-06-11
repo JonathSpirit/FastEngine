@@ -29,11 +29,11 @@ void from_json(const nlohmann::json& j, sf::Vector3<T>& p)
     j.at("z").get_to(p.z);
 }
 
-void to_json(nlohmann::json& j, const sf::Color& p)
+inline void to_json(nlohmann::json& j, const sf::Color& p)
 {
     j = nlohmann::json{p.toInteger()};
 }
-void from_json(const nlohmann::json& j, sf::Color& p)
+inline void from_json(const nlohmann::json& j, sf::Color& p)
 {
     uint32_t color{0};
     j.get_to(color);

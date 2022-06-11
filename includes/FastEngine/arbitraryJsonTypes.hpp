@@ -17,8 +17,8 @@ void to_json(nlohmann::json& j, const sf::Vector3<T>& p);
 template<class T>
 void from_json(const nlohmann::json& j, sf::Vector3<T>& p);
 
-void to_json(nlohmann::json& j, const sf::Color& p);
-void from_json(const nlohmann::json& j, sf::Color& p);
+inline void to_json(nlohmann::json& j, const sf::Color& p);
+inline void from_json(const nlohmann::json& j, sf::Color& p);
 
 }//end sc
 
