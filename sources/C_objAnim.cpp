@@ -8,7 +8,6 @@ ObjAnimation::ObjAnimation() :
 
     g_paused(false)
 {
-    sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect(this->g_animation);
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position) :
@@ -18,16 +17,12 @@ ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& 
     g_paused(false)
 {
     this->setPosition(position);
-
-    sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect(this->g_animation);
 }
 
 void ObjAnimation::setAnimation(const fge::Animation& animation)
 {
     this->g_animation = animation;
-
-    sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect(this->g_animation);
 }
 void ObjAnimation::setTextureRect(const sf::IntRect& rectangle)
@@ -55,6 +50,12 @@ void ObjAnimation::setPause(bool flag)
 bool ObjAnimation::isPaused() const
 {
     return this->g_paused;
+}
+
+void ObjAnimation::refresh()
+{
+    this->g_nextFrameTime = std::chrono::milliseconds{0};
+    this->setTextureRect(this->g_animation);
 }
 
 void ObjAnimation::setTickDuration(const std::chrono::milliseconds& tms)
@@ -94,7 +95,7 @@ void ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, const std
             this->g_nextFrameTime += deltaTime;
             if ( this->g_nextFrameTime >= std::chrono::milliseconds{this->g_tickDuration*frame->_ticks} )
             {
-                frame = this->g_animation.getFrame(this->g_animation.nextFrame());
+                this->g_animation.nextFrame();
                 this->setTextureRect(this->g_animation);
                 this->g_nextFrameTime = std::chrono::milliseconds{0};
             }
@@ -137,7 +138,6 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     this->g_animation.setReverse( jsonObject.value<bool>("animationReverse", false) );
     this->g_tickDuration = std::chrono::milliseconds( jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION_MS) );
 
-    sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect(this->g_animation);
 }
 void ObjAnimation::pack(fge::net::Packet& pck)
@@ -168,7 +168,6 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
     pck >> tmpTick;
     this->g_tickDuration = std::chrono::milliseconds(tmpTick);
 
-    sf::Texture* buffTexture = static_cast<sf::Texture*>(this->g_animation);
     this->setTextureRect(this->g_animation);
 }
 
@@ -205,9 +204,9 @@ void ObjAnimation::updatePositions()
 void ObjAnimation::updateTexCoords()
 {
     float left   = static_cast<float>(this->g_textureRect.left);
-    float right  = left + this->g_textureRect.width;
+    float right  = left + static_cast<float>(this->g_textureRect.width);
     float top    = static_cast<float>(this->g_textureRect.top);
-    float bottom = top + this->g_textureRect.height;
+    float bottom = top + static_cast<float>(this->g_textureRect.height);
 
     this->g_vertices[0].texCoords = sf::Vector2f(left, top);
     this->g_vertices[1].texCoords = sf::Vector2f(left, bottom);

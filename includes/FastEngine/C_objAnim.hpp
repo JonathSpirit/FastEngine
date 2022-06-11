@@ -29,6 +29,8 @@ public:
     void setPause(bool flag);
     bool isPaused() const;
 
+    void refresh();
+
     void setTickDuration(const std::chrono::milliseconds& tms);
     const std::chrono::milliseconds& getTickDuration() const;
 

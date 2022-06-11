@@ -132,7 +132,7 @@ bool Animation::setGroup(const std::string& groupName)
     {//If same group, we do nothing
         if ( this->g_data->_groups[this->g_groupIndex]._groupName == groupName )
         {
-            return true;
+            return false;
         }
     }
 
@@ -151,7 +151,7 @@ bool Animation::setGroup(std::size_t groupIndex)
 {
     if ( this->g_groupIndex == groupIndex )
     {//If same group, we do nothing
-        return true;
+        return false;
     }
 
     if ( groupIndex < this->g_data->_groups.size() )
