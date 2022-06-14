@@ -4,9 +4,9 @@ namespace fge
 ///CallbackFunctor
 
 template <class ... Types>
-CallbackFunctor<Types ...>::CallbackFunctor(fge::CallbackFunctor<Types ...>::CallbackFunction func)
+CallbackFunctor<Types ...>::CallbackFunctor(fge::CallbackFunctor<Types ...>::CallbackFunction func) :
+    g_function(func)
 {
-    this->g_function = func;
 }
 
 template <class ... Types>
@@ -23,10 +23,10 @@ bool CallbackFunctor<Types ...>::check(void* ptr)
 ///CallbackFunctorObject
 
 template <class TObject, class ... Types>
-CallbackFunctorObject<TObject, Types ...>::CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject func, TObject* object)
+CallbackFunctorObject<TObject, Types ...>::CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject func, TObject* object) :
+    g_functionObj(func),
+    g_object(object)
 {
-    this->g_functionObj = func;
-    this->g_object = object;
 }
 
 template <class TObject, class ... Types>

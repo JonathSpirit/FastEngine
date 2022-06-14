@@ -416,6 +416,33 @@ public:
                     }
                 }
             }
+            if ( event.isKeyPressed(sf::Keyboard::A) )
+            {
+                fge::ObjectContainer container;
+                const sf::Vector2i localPosition{event.getMousePixelPos()};
+
+                auto tstart = std::chrono::steady_clock::now();
+
+                this->getAllObj_FromLocalPosition( localPosition, window, container );
+
+                //Only selectable object
+                for ( auto it=container.begin(); it!=container.end();)
+                {
+                    auto* tmpObject = (*it)->getObject();
+
+                    if ( tmpObject->getClassName() != "FGE:_DEBUG_:BLOC" )
+                    {
+                        it = container.erase(it);
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+
+                auto tstop = std::chrono::steady_clock::now();
+                std::cout << "time took : " << std::chrono::duration_cast<std::chrono::milliseconds>(tstop-tstart).count() << std::endl;
+            }
 
             auto deltaTimeDuration = deltaTime.restart();
 
