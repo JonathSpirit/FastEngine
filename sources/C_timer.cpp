@@ -4,58 +4,58 @@ namespace fge
 {
 
 Timer::Timer(const fge::Timer& timer) :
-    g_lifeTimePoint( timer.g_lifeTimePoint ),
+        g_lifeTimePoint( timer.g_lifeTimePoint ),
 
-    g_stepDuration( timer.g_stepDuration ),
-    g_goalDuration( timer.g_goalDuration ),
+        g_elapsedTime(timer.g_elapsedTime ),
+        g_goalDuration( timer.g_goalDuration ),
 
-    g_isPaused( timer.g_isPaused ),
-    g_name( timer.g_name )
+        g_isPaused( timer.g_isPaused ),
+        g_name( timer.g_name )
 {
 
 }
-Timer::Timer(fge::Timer&& timer) :
-    g_lifeTimePoint( std::move(timer.g_lifeTimePoint) ),
+Timer::Timer(fge::Timer&& timer) noexcept :
+        g_lifeTimePoint( std::move(timer.g_lifeTimePoint) ),
 
-    g_stepDuration( std::move(timer.g_stepDuration) ),
-    g_goalDuration( std::move(timer.g_goalDuration) ),
+        g_elapsedTime(std::move(timer.g_elapsedTime) ),
+        g_goalDuration( std::move(timer.g_goalDuration) ),
 
-    g_isPaused( std::move(timer.g_isPaused) ),
-    g_name( std::move(timer.g_name) )
+        g_isPaused( std::move(timer.g_isPaused) ),
+        g_name( std::move(timer.g_name) )
 {
 
 }
 
 Timer::Timer(const std::chrono::milliseconds& goal) :
-    g_lifeTimePoint( std::chrono::steady_clock::now() ),
+        g_lifeTimePoint( std::chrono::steady_clock::now() ),
 
-    g_stepDuration(0),
-    g_goalDuration(goal),
+        g_elapsedTime(0),
+        g_goalDuration(goal),
 
-    g_isPaused(false),
-    g_name()
+        g_isPaused(false),
+        g_name()
 {
 
 }
 Timer::Timer(const std::chrono::milliseconds& goal, bool paused) :
-    g_lifeTimePoint( std::chrono::steady_clock::now() ),
+        g_lifeTimePoint( std::chrono::steady_clock::now() ),
 
-    g_stepDuration(0),
-    g_goalDuration(goal),
+        g_elapsedTime(0),
+        g_goalDuration(goal),
 
-    g_isPaused(paused),
-    g_name()
+        g_isPaused(paused),
+        g_name()
 {
 
 }
-Timer::Timer(const std::chrono::milliseconds& goal, const std::string& name, bool paused) :
-    g_lifeTimePoint( std::chrono::steady_clock::now() ),
+Timer::Timer(const std::chrono::milliseconds& goal, std::string name, bool paused) :
+        g_lifeTimePoint( std::chrono::steady_clock::now() ),
 
-    g_stepDuration(0),
-    g_goalDuration(goal),
+        g_elapsedTime(0),
+        g_goalDuration(goal),
 
-    g_isPaused(paused),
-    g_name(name)
+        g_isPaused(paused),
+        g_name(std::move(name))
 {
 
 }
@@ -87,44 +87,46 @@ void Timer::subToGoal(const std::chrono::milliseconds& t)
     this->g_goalDuration -= t;
 }
 
-void Timer::setStepDuration(const std::chrono::milliseconds& t)
+void Timer::setElapsedTime(const std::chrono::milliseconds& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     if (!this->g_isPaused)
     {
-        this->g_stepDuration = t;
+        this->g_elapsedTime = t;
     }
 }
-void Timer::addToStep(const std::chrono::milliseconds& t)
+void Timer::addToElapsedTime(const std::chrono::milliseconds& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     if (!this->g_isPaused)
     {
-        this->g_stepDuration += t;
+        this->g_elapsedTime += t;
     }
 }
-void Timer::subToStep(const std::chrono::milliseconds& t)
+void Timer::subToElapsedTime(const std::chrono::milliseconds& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     if (!this->g_isPaused)
     {
-        this->g_stepDuration -= t;
+        this->g_elapsedTime -= t;
     }
 }
 
 const std::chrono::steady_clock::time_point& Timer::getLifeTimePoint() const
 {
+    std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_lifeTimePoint;
 }
 std::chrono::milliseconds Timer::getLifeDuration() const
 {
+    std::lock_guard<std::mutex> lck(this->g_mutex);
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - this->g_lifeTimePoint);
 }
 
-const std::chrono::milliseconds& Timer::getStepDuration() const
+const std::chrono::milliseconds& Timer::getElapsedTime() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    return this->g_stepDuration;
+    return this->g_elapsedTime;
 }
 const std::chrono::milliseconds& Timer::getGoalDuration() const
 {
@@ -135,18 +137,18 @@ const std::chrono::milliseconds& Timer::getGoalDuration() const
 std::chrono::milliseconds Timer::getTimeLeft() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    return this->g_goalDuration - this->g_stepDuration;
+    return this->g_goalDuration - this->g_elapsedTime;
 }
 
 bool Timer::goalReached() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    return (this->g_goalDuration - this->g_stepDuration).count() <= 0;
+    return (this->g_goalDuration - this->g_elapsedTime).count() <= 0;
 }
 void Timer::restart()
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
-    this->g_stepDuration = std::chrono::milliseconds(0);
+    this->g_elapsedTime = std::chrono::milliseconds(0);
 }
 
 void Timer::pause()
@@ -163,11 +165,6 @@ bool Timer::isPaused() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_isPaused;
-}
-
-std::mutex& Timer::getMutex()
-{
-    return this->g_mutex;
 }
 
 }//end fge

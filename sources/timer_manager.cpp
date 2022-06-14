@@ -1,22 +1,18 @@
 #include "FastEngine/timer_manager.hpp"
 
 #include <list>
-#include <memory>
-#include <mutex>
 #include <thread>
 #include <condition_variable>
 
 #include "FastEngine/C_clock.hpp"
 
-namespace fge
-{
-namespace timer
+namespace fge::timer
 {
 
 namespace
 {
 
-using DataTimersType = std::list<fge::timer::TimerDataShared>;
+using DataTimersType = std::list<fge::timer::TimerShared>;
 
 DataTimersType _dataTimers;
 std::mutex _dataMutex;
@@ -47,15 +43,15 @@ void TimerThread()
 
         for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
         {
-            fge::timer::TimerData* timerData = (*it).get();
+            auto* timerData = (*it).get();
 
-            timerData->_timer.addToStep( interval );
-            std::chrono::milliseconds timeLeft = timerData->_timer.getTimeLeft();
+            timerData->addToElapsedTime(interval);
+            std::chrono::milliseconds timeLeft = timerData->getTimeLeft();
             if ( timeLeft.count() <= 0 )
             {//time reached
-                timerData->_onTimeReached.call(timerData->_timer);
+                timerData->_onTimeReached.call(*timerData);
 
-                timeLeft = timerData->_timer.getTimeLeft();
+                timeLeft = timerData->getTimeLeft();
                 if ( timeLeft.count() <= 0 )
                 {//We recheck if the goal is reached after the call to the callback (if the user restarted the timer, we will not destroy it (loop))
                     it = --_dataTimers.erase(it);
@@ -114,15 +110,15 @@ void Notify()
     _dataCv.notify_all();
 }
 
-fge::timer::TimerDataShared Create(const fge::Timer& timer)
+fge::timer::TimerShared Create(fge::timer::TimerShared timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    _dataTimers.push_back(std::move(std::make_shared<fge::timer::TimerData>(timer)) );
+    _dataTimers.push_back( std::move(timer) );
     _dataCv.notify_all();
     return _dataTimers.back();
 }
 
-bool Destroy(const fge::timer::TimerDataShared& timer)
+bool Destroy(const fge::timer::TimerShared& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -141,7 +137,7 @@ bool Destroy(const std::string& timerName)
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
-        if ( (*it)->_timer.getName() == timerName )
+        if ( (*it)->getName() == timerName )
         {
             _dataTimers.erase(it);
             _dataCv.notify_all();
@@ -158,12 +154,12 @@ void DestroyAll()
     _dataCv.notify_all();
 }
 
-bool Check(const fge::timer::TimerDataShared& timer)
+bool Check(const fge::timer::TimerShared& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
+    for (auto& dataTimer : _dataTimers)
     {
-        if ( (*it).get() == timer.get() )
+        if ( dataTimer.get() == timer.get() )
         {
             return true;
         }
@@ -173,9 +169,9 @@ bool Check(const fge::timer::TimerDataShared& timer)
 bool Check(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
+    for (auto& dataTimer : _dataTimers)
     {
-        if ( (*it)->_timer.getName() == timerName )
+        if ( dataTimer->getName() == timerName )
         {
             return true;
         }
@@ -189,18 +185,17 @@ std::size_t GetTimerSize()
     return _dataTimers.size();
 }
 
-fge::timer::TimerDataShared Get(const std::string& timerName)
+fge::timer::TimerShared Get(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
+    for (auto& dataTimer : _dataTimers)
     {
-        if ( (*it)->_timer.getName() == timerName )
+        if ( dataTimer->getName() == timerName )
         {
-            return (*it);
+            return dataTimer;
         }
     }
     return nullptr;
 }
 
-}//end timer
-}//end fge
+}//end fge::timer

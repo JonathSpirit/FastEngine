@@ -367,7 +367,7 @@ public:
 
         event._onTextEntered.add(new fge::CallbackFunctor(TestPrint) );
 
-        fge::timer::Create( fge::Timer(std::chrono::milliseconds(1000)) )->_onTimeReached.add( new fge::CallbackFunctor<fge::Timer&>(TestPrintClock) );
+        fge::timer::Create( std::make_shared<fge::Timer>(std::chrono::milliseconds(1000)) )->_onTimeReached.add( new fge::CallbackFunctor<fge::Timer&>(TestPrintClock) );
         fge::timer::Notify();
 
         //https://ncase.me/sight-and-light/
