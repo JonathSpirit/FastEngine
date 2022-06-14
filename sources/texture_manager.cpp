@@ -1,8 +1,6 @@
 #include "FastEngine/texture_manager.hpp"
 
-namespace fge
-{
-namespace texture
+namespace fge::texture
 {
 
 namespace
@@ -103,11 +101,7 @@ bool Check(const std::string& name)
     std::lock_guard<std::mutex> lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
-    if (it != _dataTexture.end())
-    {
-        return true;
-    }
-    return false;
+    return it != _dataTexture.end();
 }
 
 bool LoadFromImage(const std::string& name, const sf::Image& image)
@@ -125,22 +119,21 @@ bool LoadFromImage(const std::string& name, const sf::Image& image)
         return false;
     }
 
-    sf::Texture* tmpTexture = new sf::Texture();
+    auto tmpTexture = std::make_shared<sf::Texture>();
 
     if ( !tmpTexture->loadFromImage(image) )
     {
-        delete tmpTexture;
         return false;
     }
 
     fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
-    buff->_texture = std::move( std::shared_ptr<sf::Texture>(tmpTexture) );
+    buff->_texture = std::move(tmpTexture);
     buff->_valid = true;
 
     _dataTexture[name] = std::move(buff);
     return true;
 }
-bool LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(const std::string& name, std::filesystem::path path)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -155,18 +148,17 @@ bool LoadFromFile(const std::string& name, const std::string& path)
         return false;
     }
 
-    sf::Texture* tmpTexture = new sf::Texture();
+    auto tmpTexture = std::make_shared<sf::Texture>();
 
-    if ( !tmpTexture->loadFromFile(path) )
+    if ( !tmpTexture->loadFromFile(path.string()) )
     {
-        delete tmpTexture;
         return false;
     }
 
     fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
-    buff->_texture = std::move( std::shared_ptr<sf::Texture>(tmpTexture) );
+    buff->_texture = std::move(tmpTexture);
     buff->_valid = true;
-    buff->_path = path;
+    buff->_path = std::move(path);
 
     _dataTexture[name] = std::move(buff);
     return true;
@@ -220,5 +212,4 @@ bool Push(const std::string& name, const fge::texture::TextureDataPtr& data)
     return true;
 }
 
-}//end texture
-}//end fge
+}//end fge::texture
