@@ -78,7 +78,7 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
             (*this->g_updatedObjectIterator)->g_object->removed(this);
             this->_onRemoveObject.call(this, *this->g_updatedObjectIterator);
             (*this->g_updatedObjectIterator)->g_linkedScene = nullptr;
-            (*this->g_updatedObjectIterator)->g_object->_myObjectData = nullptr;
+            (*this->g_updatedObjectIterator)->g_object->_myObjectData.reset();
             auto objectPlan = (*this->g_updatedObjectIterator)->g_plan;
             this->refreshPlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
@@ -273,7 +273,7 @@ bool Scene::delObject(fge::ObjectSid sid)
         (*it->second)->g_object->removed(this);
         this->_onRemoveObject.call(this, *it->second);
         (*it->second)->g_linkedScene = nullptr;
-        (*it->second)->g_object->_myObjectData = nullptr;
+        (*it->second)->g_object->_myObjectData.reset();
         auto objectPlan = (*it->second)->g_plan;
         this->refreshPlanDataMap(objectPlan, it->second, true);
         this->g_data.erase(it->second);
@@ -308,7 +308,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         (*it)->g_object->removed(this);
         this->_onRemoveObject.call(this, *it);
         (*it)->g_linkedScene = nullptr;
-        (*it)->g_object->_myObjectData = nullptr;
+        (*it)->g_object->_myObjectData.reset();
         this->refreshPlanDataMap((*it)->g_plan, it, true);
 
         this->g_dataMap.erase((*it)->g_sid);
@@ -370,7 +370,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::Object* newObject)
 
         (*it->second)->g_object->removed(this);
         (*it->second)->g_linkedScene = nullptr;
-        (*it->second)->g_object->_myObjectData = nullptr;
+        (*it->second)->g_object->_myObjectData.reset();
 
         (*it->second) = std::make_shared<fge::ObjectData>( this, newObject, (*it->second)->g_sid, (*it->second)->g_plan, (*it->second)->g_type );
         (*it->second)->g_object->_myObjectData = *it->second;

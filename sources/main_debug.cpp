@@ -101,7 +101,7 @@ public:
 
         if ( event.isMouseButtonPressed(sf::Mouse::Left) )
         {
-            scene_ptr->duplicateObject(this->_myObjectData->getSid());
+            scene_ptr->duplicateObject(this->_myObjectData.lock()->getSid());
         }
     }
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override

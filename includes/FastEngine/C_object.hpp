@@ -39,6 +39,7 @@ namespace fge
 class Scene;
 
 class ObjectData;
+using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 
 /**
@@ -187,8 +188,8 @@ public:
 
     //Scene control
 
-    fge::ObjectDataShared _myObjectData = nullptr; ///< The object data of the object (valid only if the object is in a scene)
-    bool _alwaysDrawed = false; ///< \b true if the object is always drawn, \b false otherwise
+    fge::ObjectDataWeak _myObjectData{}; ///< The object data of the object (valid only if the object is in a scene)
+    bool _alwaysDrawed{false}; ///< \b true if the object is always drawn, \b false otherwise
 };
 
 }//end fge

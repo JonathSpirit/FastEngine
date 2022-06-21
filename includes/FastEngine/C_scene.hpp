@@ -322,6 +322,7 @@ private:
     friend fge::Scene;
 };
 
+using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectContainer = std::list<fge::ObjectDataShared>;
 using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
