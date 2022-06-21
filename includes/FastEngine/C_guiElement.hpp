@@ -29,6 +29,17 @@
 namespace fge
 {
 
+class GuiElement;
+
+struct GuiElementContext
+{
+    fge::GuiElement* _prioritizedElement{nullptr};
+    bool _recursive{false};
+    std::size_t _index{0};
+    sf::Vector2f _mouseGuiPosition;
+    sf::Vector2i _mousePosition;
+};
+
 /**
  * \class GuiElement
  * \ingroup objectControl
@@ -49,6 +60,17 @@ public:
     {}
     virtual ~GuiElement() = default;
 
+    /**
+     * \brief Check if this GuiElement is recursive
+     *
+     * A gui element is recursive if it handle others GuiElements.
+     *
+     * \return \b true if it is recursive, \b false otherwise
+     */
+    [[nodiscard]] virtual bool isRecursive() const
+    {
+        return false;
+    }
     /**
      * \brief Set the scale of the element
      *
@@ -109,7 +131,7 @@ public:
     }
 
     /**
-     * \brief Function called to verify if the element is hovered/clicked by the mouse
+     * \brief Function called to verify if the element is hovered by the mouse
      *
      * This function should call verifyPriority to verify the priority of the element.
      * If the priority is higher than the given element, the function should replace the
@@ -121,12 +143,12 @@ public:
      * \param element An element to compare with
      * \param index The index of the element if there are multiple elements
      */
-    virtual void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) = 0;
+    virtual void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) = 0;
 
-    /**
-     * \brief Callback called when the element is verified and the mouse is pressed
-     */
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, const sf::Vector2f&, std::size_t> _onGuiMouseButtonPressed;
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseWheelScrollEvent&, fge::GuiElementContext&> _onGuiMouseWheelScrolled; ///< Callback called when the element is verified and the mouse wheel is scrolled
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, fge::GuiElementContext&> _onGuiMouseButtonPressed; ///< Callback called when the element is verified and the mouse is pressed
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, fge::GuiElementContext&> _onGuiMouseButtonReleased; ///< Callback called when the element is verified and a mouse button is released
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseMoveEvent&, fge::GuiElementContext&> _onGuiMouseMoved; ///< Callback called when the element is verified and the mouse is moved
 
 protected:
     mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
@@ -163,24 +185,122 @@ public:
     void setEventCallback(fge::Event& event)
     {
         this->detachAll();
+        event._onMouseWheelScrolled.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this), this );
         event._onMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this), this );
+        event._onMouseButtonReleased.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this );
+        event._onMouseMoved.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this );
     }
 
+    void onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg)
+    {
+        fge::GuiElementContext context{};
+        context._mousePosition = {arg.x, arg.y};
+        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+
+        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseWheelScrolled, context);
+
+        if (context._prioritizedElement != nullptr)
+        {
+            if (context._prioritizedElement->isRecursive())
+            {
+                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
+                context._recursive = true;
+                context._prioritizedElement = nullptr;
+                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseWheelScrolled, context);
+                if (context._prioritizedElement != nullptr)
+                {
+                    context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
+                }
+            }
+            else
+            {
+                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
+            }
+        }
+    }
     void onMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
     {
-        fge::GuiElement* element = nullptr;
-        std::size_t index = 0;
-        sf::Vector2f mouseGuiPos = this->g_target->mapPixelToCoords({arg.x, arg.y}, this->g_target->getDefaultView());
+        fge::GuiElementContext context{};
+        context._mousePosition = {arg.x, arg.y};
+        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
 
-        this->_onGuiVerify.call(evt, arg, mouseGuiPos, element, index);
+        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonPressed, context);
 
-        if (element != nullptr)
+        if (context._prioritizedElement != nullptr)
         {
-            element->_onGuiMouseButtonPressed.call(evt, arg, mouseGuiPos, index);
+            if (context._prioritizedElement->isRecursive())
+            {
+                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
+                context._recursive = true;
+                context._prioritizedElement = nullptr;
+                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseButtonPressed, context);
+                if (context._prioritizedElement != nullptr)
+                {
+                    context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
+                }
+            }
+            else
+            {
+                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
+            }
+        }
+    }
+    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
+    {
+        fge::GuiElementContext context{};
+        context._mousePosition = {arg.x, arg.y};
+        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+
+        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonReleased, context);
+
+        if (context._prioritizedElement != nullptr)
+        {
+            if (context._prioritizedElement->isRecursive())
+            {
+                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
+                context._recursive = true;
+                context._prioritizedElement = nullptr;
+                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseButtonReleased, context);
+                if (context._prioritizedElement != nullptr)
+                {
+                    context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
+                }
+            }
+            else
+            {
+                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
+            }
+        }
+    }
+    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
+    {
+        fge::GuiElementContext context{};
+        context._mousePosition = {arg.x, arg.y};
+        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+
+        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseMoved, context);
+
+        if (context._prioritizedElement != nullptr)
+        {
+            if (context._prioritizedElement->isRecursive())
+            {
+                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
+                context._recursive = true;
+                context._prioritizedElement = nullptr;
+                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseMoved, context);
+                if (context._prioritizedElement != nullptr)
+                {
+                    context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
+                }
+            }
+            else
+            {
+                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
+            }
         }
     }
 
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, const sf::Vector2f&, fge::GuiElement*&, std::size_t&> _onGuiVerify;
+    fge::CallbackHandler<const fge::Event&, sf::Event::EventType, fge::GuiElementContext&> _onGuiVerify;
 
 private:
     fge::Event* g_event;
@@ -205,14 +325,14 @@ public:
     {}
     ~GuiElementRectangle() override = default;
 
-    void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
+    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
-        if ( this->verifyPriority(element) )
+        if ( this->verifyPriority(context._prioritizedElement) )
         {
             sf::FloatRect rect{this->g_rect.getPosition(), {this->g_rect.width*this->_g_scale.x, this->g_rect.height*this->_g_scale.y}};
-            if ( rect.contains(mouseGuiPos) )
+            if ( rect.contains(context._mouseGuiPosition) )
             {
-                element = this;
+                context._prioritizedElement = this;
             }
         }
     }
@@ -244,11 +364,11 @@ public:
     {}
     ~GuiElementDefault() override = default;
 
-    void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
+    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
-        if ( this->verifyPriority(element) )
+        if ( this->verifyPriority(context._prioritizedElement) )
         {
-            element = this;
+            context._prioritizedElement = this;
         }
     }
 };
@@ -261,55 +381,60 @@ public:
 class GuiElementArray : public fge::GuiElement
 {
 public:
-    GuiElementArray()
-    {
-        this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
-    }
+    GuiElementArray() = default;
     explicit GuiElementArray(fge::GuiElement::Priority priority) :
             fge::GuiElement(priority)
-    {
-        this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
-    }
+    {}
     ~GuiElementArray() override = default;
 
-    void onGuiVerify(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, fge::GuiElement*& element, std::size_t& index) override
+    [[nodiscard]] bool isRecursive() const override
     {
-        if ( this->verifyPriority(element) )
-        {
-            element = this;
-        }
+        return true;
     }
 
-    void refreshInternalCallback()
+    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
-        this->_onGuiMouseButtonPressed.del(&this->g_subscriber);
-        this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiMouseButtonPressed, this), &this->g_subscriber);
+        if (context._recursive)
+        {
+            this->verifyRecursively(evt, evtType, context);
+        }
+        else
+        {
+            if ( this->verifyPriority(context._prioritizedElement) )
+            {
+                context._prioritizedElement = this;
+            }
+        }
     }
 
     fge::Tunnel<fge::GuiElement> _elements;
 
-private:
-    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, const sf::Vector2f& mouseGuiPos, std::size_t index)
+protected:
+    void verifyRecursively(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) const
     {
-        fge::GuiElement* element = nullptr;
-        std::size_t index2 = 0;
+        fge::GuiElementContext context2{};
+        context2._mouseGuiPosition = context._mouseGuiPosition;
+        context2._mousePosition = context._mousePosition;
 
         for (std::size_t i=0; i<this->_elements.getGatesSize(); ++i)
         {
-            this->_elements[i]->onGuiVerify(evt, arg, mouseGuiPos, element, index2);
-            if (element == this->_elements[i])
+            context2._index = i;
+            this->_elements[i]->onGuiVerify(evt, evtType, context2);
+        }
+
+        if (context2._prioritizedElement != nullptr)
+        {
+            if (context2._prioritizedElement->isRecursive())
             {
-                index2 = i;
+                context2._recursive = true;
+                context2._prioritizedElement = nullptr;
+                context2._prioritizedElement->onGuiVerify(evt, evtType, context2);
             }
         }
 
-        if (element)
-        {
-            element->_onGuiMouseButtonPressed.call(evt, arg, mouseGuiPos, index2);
-        }
+        context._prioritizedElement = context2._prioritizedElement;
+        context._index = context2._index;
     }
-
-    fge::Subscriber g_subscriber;
 };
 
 }//end fge
