@@ -22,7 +22,6 @@
 #include <FastEngine/C_networkType.hpp>
 #include <FastEngine/C_event.hpp>
 #include <FastEngine/C_packet.hpp>
-#include <FastEngine/C_guiElement.hpp>
 #include <SFML/Graphics.hpp>
 #include <json.hpp>
 
@@ -35,6 +34,9 @@
 
 namespace fge
 {
+
+class GuiElementHandler;
+class GuiElement;
 
 class Scene;
 
@@ -177,6 +179,13 @@ public:
      * \return The allocated pointer of the loaded object or nullptr if the object was not loaded
      */
     static fge::Object* LoadFromFile(const std::string& path);
+
+    /**
+     * \brief Get the GuiElement attached to this object if there is one
+     *
+     * \return The GuiElement pointer or \b nullptr
+     */
+    virtual fge::GuiElement* getGuiElement();
 
     //Data
 

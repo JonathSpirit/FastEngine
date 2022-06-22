@@ -229,6 +229,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objText.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
 
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
+
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_random.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_client.cpp")
@@ -285,6 +287,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSprite.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objText.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
+
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_random.cpp")
 

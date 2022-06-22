@@ -25,9 +25,16 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 
 #define FGE_GUI_ELEMENT_PRIORITY_LAST std::numeric_limits<fge::GuiElement::Priority>::max()
+#define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
 
 namespace fge
 {
+
+using ObjectSid = uint32_t;
+
+class ObjectData;
+using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
+using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 
 class GuiElement;
 
@@ -40,6 +47,15 @@ struct GuiElementContext
     sf::Vector2i _mousePosition;
 };
 
+enum AnchorType
+{
+    ANCHOR_NONE,
+    ANCHOR_TOP_LEFT,
+    ANCHOR_BOT_LEFT,
+    ANCHOR_TOP_RIGHT,
+    ANCHOR_BOT_RIGHT
+};
+
 /**
  * \class GuiElement
  * \ingroup objectControl
@@ -49,7 +65,7 @@ struct GuiElementContext
  *
  * \warning Work in progress, this class will handle drawing elements in the future.
  */
-class GuiElement
+class FGE_API GuiElement
 {
 public:
     using Priority = uint8_t;
@@ -58,7 +74,7 @@ public:
     explicit GuiElement(fge::GuiElement::Priority priority) :
             _g_priority(priority)
     {}
-    virtual ~GuiElement() = default;
+    virtual ~GuiElement();
 
     /**
      * \brief Check if this GuiElement is recursive
@@ -76,7 +92,7 @@ public:
      *
      * \param scale The scale of the element
      */
-    void setScale(const sf::Vector2f& scale)
+    void setGuiScale(const sf::Vector2f& scale)
     {
         this->_g_scale = scale;
     }
@@ -85,7 +101,7 @@ public:
      *
      * \return The scale of the element
      */
-    [[nodiscard]] const sf::Vector2f& getScale() const
+    [[nodiscard]] const sf::Vector2f& getGuiScale() const
     {
         return this->_g_scale;
     }
@@ -130,6 +146,33 @@ public:
         return false;
     }
 
+    void updateAnchor();
+    inline void setObjectGuiParent(fge::ObjectDataWeak parent)
+    {
+        this->_g_objectParent = std::move(parent);
+    }
+    inline void setAnchor(fge::AnchorType type, fge::ObjectSid target)
+    {
+        this->_g_anchorType = type;
+        this->_g_anchorTarget = target;
+    }
+    inline fge::AnchorType getAnchorType() const
+    {
+        return this->_g_anchorType;
+    }
+    inline fge::ObjectSid getAnchorTarget() const
+    {
+        return this->_g_anchorTarget;
+    }
+    inline void setAnchorSuccessor(fge::ObjectDataWeak successor)
+    {
+        this->_g_anchorSuccessor = std::move(successor);
+    }
+    inline fge::ObjectDataWeak getAnchorSuccessor() const
+    {
+        return this->_g_anchorSuccessor;
+    }
+
     /**
      * \brief Function called to verify if the element is hovered by the mouse
      *
@@ -150,9 +193,19 @@ public:
     fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, fge::GuiElementContext&> _onGuiMouseButtonReleased; ///< Callback called when the element is verified and a mouse button is released
     fge::CallbackHandler<const fge::Event&, const sf::Event::MouseMoveEvent&, fge::GuiElementContext&> _onGuiMouseMoved; ///< Callback called when the element is verified and the mouse is moved
 
+    static fge::CallbackHandler<const sf::Vector2f&> _onGlobalGuiScaleChange;
+    inline static void setGlobalGuiScale(const sf::Vector2f& scale)
+    {
+        fge::GuiElement::_onGlobalGuiScaleChange.call(scale);
+    }
+
 protected:
     mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
     sf::Vector2f _g_scale{1.0f,1.0f};
+    fge::AnchorType _g_anchorType{fge::AnchorType::ANCHOR_NONE};
+    fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
+    fge::ObjectDataWeak _g_anchorSuccessor{};
+    fge::ObjectDataWeak _g_objectParent{};
 };
 
 /**
@@ -390,6 +443,14 @@ public:
     [[nodiscard]] bool isRecursive() const override
     {
         return true;
+    }
+
+    void callbackRegister(fge::GuiElementHandler* guiElementHandlerPtr, fge::Subscriber* subscriber)
+    {
+        if (guiElementHandlerPtr != nullptr)
+        {
+            guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiVerify, this), subscriber );
+        }
     }
 
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override

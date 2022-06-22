@@ -42,6 +42,7 @@
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_objRenderMap.hpp"
 #include "FastEngine/C_property.hpp"
+#include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
 
 
@@ -409,6 +410,21 @@ public:
         this->printObjects();
 
         cout << "My checksum : " << fge::net::GetSceneChecksum(*this) << endl;
+
+        this->setLinkedRenderTarget(&window);
+
+        auto elementTest1 = this->newObject( new fge::ObjButton("p1", "p2", sf::Vector2f(300, 50)) );
+        elementTest1->getObject()->setOrigin(20.0f,20.0f);
+        auto elementTest2 = this->newObject( new fge::ObjButton("p2", "p1") );
+        elementTest2->getObject()->setOrigin(-2.0f,2.0f);
+        elementTest2->getObject()->setScale(0.5f, 0.5f);
+
+        fge::GuiElementDefault test2;
+
+        test2.setObjectGuiParent(elementTest2);
+        test2.setAnchor(fge::AnchorType::ANCHOR_BOT_RIGHT, elementTest1->getSid());
+
+        test2.updateAnchor();
 
         fge::Clock deltaTime;
 

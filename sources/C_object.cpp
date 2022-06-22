@@ -188,4 +188,9 @@ fge::Object* Object::LoadFromFile(const std::string& path)
     return nullptr;
 }
 
+fge::GuiElement* Object::getGuiElement()
+{
+    return nullptr;
+}
+
 }//end fge
