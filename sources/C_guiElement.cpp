@@ -21,6 +21,7 @@ namespace fge
 {
 
 fge::CallbackHandler<const sf::Vector2f&> GuiElement::_onGlobalGuiScaleChange;
+sf::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
 
 GuiElement::~GuiElement()
 {

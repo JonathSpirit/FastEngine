@@ -181,10 +181,8 @@ public:
      * provided pointer reference \b element with the element itself.
      *
      * \param evt An fge::Event
-     * \param arg The argument of the mouse button event
-     * \param mouseGuiPos The position of the mouse already converted to the GUI coordinate system
-     * \param element An element to compare with
-     * \param index The index of the element if there are multiple elements
+     * \param evtType The type of the SFML event called
+     * \param context The GuiElement context
      */
     virtual void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) = 0;
 
@@ -196,7 +194,12 @@ public:
     static fge::CallbackHandler<const sf::Vector2f&> _onGlobalGuiScaleChange;
     inline static void setGlobalGuiScale(const sf::Vector2f& scale)
     {
+        fge::GuiElement::_GlobalGuiScale = scale;
         fge::GuiElement::_onGlobalGuiScaleChange.call(scale);
+    }
+    inline static const sf::Vector2f& getGlobalGuiScale()
+    {
+        return fge::GuiElement::_GlobalGuiScale;
     }
 
 protected:
@@ -206,6 +209,9 @@ protected:
     fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
     fge::ObjectDataWeak _g_anchorSuccessor{};
     fge::ObjectDataWeak _g_objectParent{};
+
+private:
+    static sf::Vector2f _GlobalGuiScale;
 };
 
 /**
@@ -258,8 +264,9 @@ public:
             {
                 context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
                 context._recursive = true;
+                auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
-                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseWheelScrolled, context);
+                element->onGuiVerify(evt, sf::Event::EventType::MouseWheelScrolled, context);
                 if (context._prioritizedElement != nullptr)
                 {
                     context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
@@ -285,8 +292,9 @@ public:
             {
                 context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
                 context._recursive = true;
+                auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
-                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseButtonPressed, context);
+                element->onGuiVerify(evt, sf::Event::EventType::MouseButtonPressed, context);
                 if (context._prioritizedElement != nullptr)
                 {
                     context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
@@ -312,8 +320,9 @@ public:
             {
                 context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
                 context._recursive = true;
+                auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
-                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseButtonReleased, context);
+                element->onGuiVerify(evt, sf::Event::EventType::MouseButtonReleased, context);
                 if (context._prioritizedElement != nullptr)
                 {
                     context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
@@ -339,8 +348,9 @@ public:
             {
                 context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
                 context._recursive = true;
+                auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
-                context._prioritizedElement->onGuiVerify(evt, sf::Event::EventType::MouseMoved, context);
+                element->onGuiVerify(evt, sf::Event::EventType::MouseMoved, context);
                 if (context._prioritizedElement != nullptr)
                 {
                     context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
@@ -443,14 +453,6 @@ public:
     [[nodiscard]] bool isRecursive() const override
     {
         return true;
-    }
-
-    void callbackRegister(fge::GuiElementHandler* guiElementHandlerPtr, fge::Subscriber* subscriber)
-    {
-        if (guiElementHandlerPtr != nullptr)
-        {
-            guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::GuiElementArray::onGuiVerify, this), subscriber );
-        }
     }
 
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
