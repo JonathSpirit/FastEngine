@@ -22,6 +22,7 @@
 #include <FastEngine/C_networkType.hpp>
 #include <FastEngine/C_event.hpp>
 #include <FastEngine/C_packet.hpp>
+#include <FastEngine/C_childObjectsAccessor.hpp>
 #include <SFML/Graphics.hpp>
 #include <json.hpp>
 
@@ -199,6 +200,10 @@ public:
 
     fge::ObjectDataWeak _myObjectData{}; ///< The object data of the object (valid only if the object is in a scene)
     bool _alwaysDrawed{false}; ///< \b true if the object is always drawn, \b false otherwise
+
+    //Child objects
+
+    fge::ChildObjectsAccessor _children; ///< An access to child objects of this object
 };
 
 }//end fge

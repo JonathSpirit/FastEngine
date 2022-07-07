@@ -238,6 +238,35 @@ public:
     }
 
     /**
+     * \brief Set an parent object
+     *
+     * \param object The parent object
+     */
+    inline void setParent(fge::ObjectDataShared& object) const
+    {
+        if (object)
+        {
+            this->g_parent = object;
+        }
+    }
+    /**
+     * \brief Clear the parent object
+     */
+    inline void clearParent() const
+    {
+        this->g_parent.reset();
+    }
+    /**
+     * \brief Get the parent object
+     *
+     * \return A weak pointer to the parent object
+     */
+    [[nodiscard]] inline fge::ObjectDataWeak getParent() const
+    {
+        return this->g_parent;
+    }
+
+    /**
      * \brief Check if the Object have an linked Scene.
      *
      * \return True if have a linked Scene, False otherwise
@@ -318,6 +347,7 @@ private:
 
     //Dynamic data (not saved, local only)
     mutable fge::ObjectPlanDepth g_planDepth;
+    mutable fge::ObjectDataWeak g_parent;
 
     friend fge::Scene;
 };
