@@ -26,7 +26,7 @@
     path = libs/openal-soft
     url = https://github.com/kcat/openal-soft.git
     ignore = dirty
-    branch = 1.22.0
+    branch = 1.22.2
 [submodule "libs/strtk"]
     path = libs/strtk
     url = https://github.com/ArashPartow/strtk.git
