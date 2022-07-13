@@ -72,7 +72,10 @@ public:
 private:
     struct DataContext
     {
-        static void dataSharedNotHandledObjectDeleter(fge::ObjectData* data);
+        struct NotHandledObjectDeleter
+        {
+            void operator()(fge::ObjectData* data);
+        };
 
         fge::Object* _objPtr;
         fge::ObjectDataShared _objData;

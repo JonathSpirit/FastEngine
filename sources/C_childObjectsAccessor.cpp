@@ -20,7 +20,7 @@
 namespace fge
 {
 
-void ChildObjectsAccessor::DataContext::dataSharedNotHandledObjectDeleter(fge::ObjectData* data)
+void ChildObjectsAccessor::DataContext::NotHandledObjectDeleter::operator()(fge::ObjectData* data)
 {
     (void)data->releaseObject();
     delete data;
@@ -33,11 +33,23 @@ void ChildObjectsAccessor::clear()
 
 void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, fge::Object* object, fge::Scene* linkedScene, std::size_t insertionIndex)
 {
-    auto it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
-                            {object,
-                            fge::ObjectDataShared{new fge::ObjectData{
-                                linkedScene, object
-                                }, &DataContext::dataSharedNotHandledObjectDeleter}});
+    std::vector<DataContext>::iterator it;
+    if (insertionIndex >= this->g_data.size())
+    {
+        it = this->g_data.insert(this->g_data.end(),
+                                  {object,
+                                   fge::ObjectDataShared{new fge::ObjectData{
+                                           linkedScene, object
+                                   }, DataContext::NotHandledObjectDeleter{}}});
+    }
+    else
+    {
+        it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
+                                  {object,
+                                   fge::ObjectDataShared{new fge::ObjectData{
+                                           linkedScene, object
+                                   }, DataContext::NotHandledObjectDeleter{}}});
+    }
 
     auto parentPtr = parent.lock();
     it->_objData->setParent(parentPtr);
@@ -45,11 +57,23 @@ void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, 
 }
 void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent, fge::Object* newObject, fge::Scene* linkedScene, std::size_t insertionIndex)
 {
-    auto it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
+    std::vector<DataContext>::iterator it;
+    if (insertionIndex >= this->g_data.size())
+    {
+        it = this->g_data.insert(this->g_data.end(),
                                   {newObject,
                                    std::make_shared<fge::ObjectData>(
                                            linkedScene, newObject
                                    )});
+    }
+    else
+    {
+        it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
+                                  {newObject,
+                                   std::make_shared<fge::ObjectData>(
+                                           linkedScene, newObject
+                                   )});
+    }
 
     auto parentPtr = parent.lock();
     it->_objData->setParent(parentPtr);
