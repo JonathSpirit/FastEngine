@@ -41,6 +41,7 @@ void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, 
 
     auto parentPtr = parent.lock();
     it->_objData->setParent(parentPtr);
+    it->_objPtr->_myObjectData = it->_objData;
 }
 void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent, fge::Object* newObject, fge::Scene* linkedScene, std::size_t insertionIndex)
 {
@@ -52,6 +53,7 @@ void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent, fge::
 
     auto parentPtr = parent.lock();
     it->_objData->setParent(parentPtr);
+    it->_objPtr->_myObjectData = it->_objData;
 }
 
 std::size_t ChildObjectsAccessor::getSize() const
