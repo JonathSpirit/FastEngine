@@ -37,6 +37,7 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 
 class GuiElement;
+class GuiElementHandler;
 
 struct GuiElementContext
 {
@@ -45,6 +46,7 @@ struct GuiElementContext
     std::size_t _index{0};
     sf::Vector2f _mouseGuiPosition;
     sf::Vector2i _mousePosition;
+    fge::GuiElementHandler* _handler{nullptr};
 };
 
 enum AnchorType
@@ -255,6 +257,7 @@ public:
         fge::GuiElementContext context{};
         context._mousePosition = {arg.x, arg.y};
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+        context._handler = this;
 
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseWheelScrolled, context);
 
@@ -283,6 +286,7 @@ public:
         fge::GuiElementContext context{};
         context._mousePosition = {arg.x, arg.y};
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+        context._handler = this;
 
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonPressed, context);
 
@@ -311,6 +315,7 @@ public:
         fge::GuiElementContext context{};
         context._mousePosition = {arg.x, arg.y};
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+        context._handler = this;
 
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonReleased, context);
 
@@ -339,6 +344,7 @@ public:
         fge::GuiElementContext context{};
         context._mousePosition = {arg.x, arg.y};
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+        context._handler = this;
 
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseMoved, context);
 
@@ -478,6 +484,7 @@ protected:
         fge::GuiElementContext context2{};
         context2._mouseGuiPosition = context._mouseGuiPosition;
         context2._mousePosition = context._mousePosition;
+        context2._handler = context._handler;
 
         for (std::size_t i=0; i<this->_elements.getGatesSize(); ++i)
         {
