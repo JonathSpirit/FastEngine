@@ -230,6 +230,19 @@ public:
         }
         std::cout << "-------------" << '\n';
 
+        fge::Matrix<fge::MBool> matrixTest2;
+        matrixTest2.setSize(5,5);
+        matrixTest2.get(1,1) = true;
+
+        fge::MBool test1;
+        matrixTest2.get(1,1,test1);
+
+        if (matrixTest2[0][0])
+        {
+            matrixTest2.fill(true);
+        }
+        *matrixTest2.getPtr(0,0) = false;
+
         fge::Property valueTest;
         cout << "value : " << valueTest.get<fge::PuintType>() << endl;
         cout << "value str : " << valueTest.toString() << endl;
@@ -249,6 +262,7 @@ public:
         callbackHandlerTest->add(new fge::CallbackFunctorObject<CallbackTestClass>(&CallbackTestClass::callbackMethodTestClass, callbackTestClass), callbackTestClass );
 
         callbackHandlerTest->call();
+
 
         delete callbackHandlerTest;
 

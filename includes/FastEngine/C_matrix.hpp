@@ -35,6 +35,7 @@ namespace fge
 template<class T>
 class Matrix
 {
+    static_assert( !std::is_same<T, bool>::value, "please use the fge::MBool wrapper for boolean, or use another type" );
 public:
     /**
      * \brief Construct a empty matrix
@@ -242,7 +243,7 @@ public:
      *
      * \return The 2D array as a vector
      */
-    inline const std::vector<T>& get() const;
+    [[nodiscard]] inline const std::vector<T>& get() const;
 
     /**
      * \brief Set the size of the matrix
@@ -306,6 +307,19 @@ public:
 private:
     std::vector<T> g_mdata;
     sf::Vector2<std::size_t> g_msize;
+};
+
+struct MBool
+{
+    inline MBool() = default;
+    inline MBool(bool r) : _b(r) {}
+
+    inline operator bool() const { return this->_b; }
+    inline operator bool&() { return this->_b; }
+
+    inline bool& operator=(bool r) { return this->_b = r; }
+
+    bool _b{};
 };
 
 /**
