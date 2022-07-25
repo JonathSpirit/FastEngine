@@ -203,6 +203,43 @@ public:
         window.setFramerateLimit(60);
         window.setKeyRepeatEnabled(true);
 
+        fge::Matrix<std::string> matrixTest{{{"hello", "hi", "gm", "1"},
+                                             {"goodbye", "bye", "goodnight", "2"},
+                                             {"eat", "lunch", "dinner", "3"}}};
+
+        for (std::size_t y=0; y<matrixTest.getSizeY(); ++y)
+        {
+            for (std::size_t x=0; x<matrixTest.getSizeX(); ++x)
+            {
+                std::cout << matrixTest.get(x,y) << " ";
+            }
+            std::cout << '\n';
+        }
+        /*matrixTest.rotateClockwise();
+        std::cout << "-------------" << '\n';
+        for (std::size_t y=0; y<matrixTest.getSizeY(); ++y)
+        {
+            for (std::size_t x=0; x<matrixTest.getSizeX(); ++x)
+            {
+                std::cout << matrixTest[x][y] << " ";
+            }
+            std::cout << '\n';
+        }*/
+        std::cout << "-------------" << '\n';
+
+        std::cout << sizeof(fge::Matrix<std::string>) << '\n';
+        std::cout << sizeof(std::vector<std::string>) << '\n';
+        std::cout << sizeof(std::vector<std::vector<std::string> >) << '\n';
+        std::cout << sizeof(std::vector<std::string>)*3 << '\n';
+        /*
+        20
+        12
+        12
+        36
+         */
+
+        return;
+
         fge::Property valueTest;
         cout << "value : " << valueTest.get<fge::PuintType>() << endl;
         cout << "value str : " << valueTest.toString() << endl;

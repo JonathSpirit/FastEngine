@@ -94,9 +94,6 @@ public:
      */
     void clear();
 
-    inline explicit operator std::vector<std::vector<T> >&();
-    inline explicit operator const std::vector<std::vector<T> >&() const;
-
     fge::Matrix<T>& operator =(const fge::Matrix<T>& m) = default;
     fge::Matrix<T>& operator =(fge::Matrix<T>&& m) noexcept;
 
@@ -106,8 +103,8 @@ public:
      * \param x The index of the row
      * \return The row as a vector
      */
-    inline std::vector<T>& operator[](std::size_t x);
-    inline const std::vector<T>& operator[](std::size_t x) const;
+    inline T* operator[](std::size_t x);
+    inline const T* operator[](std::size_t x) const;
 
     /**
      * \brief Get the specified value
@@ -170,14 +167,6 @@ public:
     const T* getPtr(std::size_t x, std::size_t y) const;
     template<class Tvec>
     const T* getPtr(const sf::Vector2<Tvec>& coord) const;
-
-    /**
-     * \brief Get the 2D array of the matrix
-     *
-     * \return The 2D array as vector of vectors
-     */
-    inline std::vector<std::vector<T> >& get();
-    inline const std::vector<std::vector<T> >& get() const;
 
     /**
      * \brief Set the specified value by moving it
@@ -308,7 +297,8 @@ public:
     void toVector(std::vector<T>& buff) const;
 
 private:
-    std::vector<std::vector<T> > g_matrix;
+    std::vector<T> g_mdata;
+    //std::vector<std::vector<T> > g_matrix;
     sf::Vector2<std::size_t> g_msize;
 };
 
