@@ -17,7 +17,7 @@
 #ifndef _FGE_C_MATRIX_HPP_INCLUDED
 #define _FGE_C_MATRIX_HPP_INCLUDED
 
-#include <SFML/System.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <vector>
 #include <initializer_list>
 #include <json.hpp>
@@ -238,6 +238,13 @@ public:
     [[nodiscard]] inline std::size_t getSizeY() const;
 
     /**
+     * \brief Get the 2D array of the matrix
+     *
+     * \return The 2D array as a vector
+     */
+    inline const std::vector<T>& get() const;
+
+    /**
      * \brief Set the size of the matrix
      *
      * \tparam Tvec The type of the vector
@@ -298,7 +305,6 @@ public:
 
 private:
     std::vector<T> g_mdata;
-    //std::vector<std::vector<T> > g_matrix;
     sf::Vector2<std::size_t> g_msize;
 };
 

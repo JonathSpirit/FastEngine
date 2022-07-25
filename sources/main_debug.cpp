@@ -215,7 +215,10 @@ public:
             }
             std::cout << '\n';
         }
-        /*matrixTest.rotateClockwise();
+
+        matrixTest.rotateClockwise();
+        matrixTest.rotateCounterClockwise(2);
+
         std::cout << "-------------" << '\n';
         for (std::size_t y=0; y<matrixTest.getSizeY(); ++y)
         {
@@ -224,21 +227,8 @@ public:
                 std::cout << matrixTest[x][y] << " ";
             }
             std::cout << '\n';
-        }*/
+        }
         std::cout << "-------------" << '\n';
-
-        std::cout << sizeof(fge::Matrix<std::string>) << '\n';
-        std::cout << sizeof(std::vector<std::string>) << '\n';
-        std::cout << sizeof(std::vector<std::vector<std::string> >) << '\n';
-        std::cout << sizeof(std::vector<std::string>)*3 << '\n';
-        /*
-        20
-        12
-        12
-        36
-         */
-
-        return;
 
         fge::Property valueTest;
         cout << "value : " << valueTest.get<fge::PuintType>() << endl;
