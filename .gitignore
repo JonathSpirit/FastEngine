@@ -8,3 +8,5 @@
 .idea/deployment.xml
 .idea/encodings.xml
 .idea/other.xml
+
+cmake.lock
