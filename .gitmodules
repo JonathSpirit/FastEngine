@@ -11,7 +11,7 @@
     path = libs/lz4
     url = https://github.com/lz4/lz4.git
     ignore = dirty
-    branch = v1.9.3
+    branch = v1.9.4
 [submodule "libs/re2"]
     path = libs/re2
     url = https://github.com/google/re2.git
