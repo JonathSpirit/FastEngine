@@ -18,7 +18,6 @@
 #define _FGE_C_CLIENTLIST_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_socket.hpp>
 #include <FastEngine/C_client.hpp>
 #include <unordered_map>
 #include <memory>
@@ -27,6 +26,8 @@
 
 namespace fge::net
 {
+
+class SocketUdp;
 
 using ClientSharedPtr = std::shared_ptr<fge::net::Client>;
 
@@ -103,25 +104,42 @@ public:
      * \param id The client's identity
      * \return The client if found, nullptr otherwise
      */
-    fge::net::ClientSharedPtr get(const fge::net::Identity& id);
+    fge::net::ClientSharedPtr get(const fge::net::Identity& id) const;
 
-    fge::net::ClientList::ClientListData::iterator begin();
-    fge::net::ClientList::ClientListData::const_iterator begin() const;
-    fge::net::ClientList::ClientListData::iterator end();
-    fge::net::ClientList::ClientListData::const_iterator end() const;
+    /**
+     * \brief Acquire a unique lock, with the ClientList mutex
+     *
+     * In order to use iterators, you have to acquire a unique lock from this
+     * ClientList.
+     * The lock is not differed and will lock the mutex.
+     *
+     * \return A unique lock bound to this mutex
+     */
+    std::unique_lock<std::recursive_mutex> acquireLock() const;
+
+    /**
+     * \brief Get the begin iterator of the ClientList
+     *
+     * You have to provide a valid reference to a unique lock acquire with
+     * the method ClientList::acquireLock().
+     * This method will throw if one of this is not respected :
+     * - The lock does not owned the associated mutex.
+     * - The mutex pointer of the lock does not correspond to this ClientList mutex.
+     *
+     * \param lock A unique lock bound to this mutex
+     * \return The begin iterator
+     */
+    fge::net::ClientList::ClientListData::iterator begin(const std::unique_lock<std::recursive_mutex>& lock);
+    fge::net::ClientList::ClientListData::const_iterator begin(const std::unique_lock<std::recursive_mutex>& lock) const;
+    fge::net::ClientList::ClientListData::iterator end(const std::unique_lock<std::recursive_mutex>& lock);
+    fge::net::ClientList::ClientListData::const_iterator end(const std::unique_lock<std::recursive_mutex>& lock) const;
 
     /**
      * \brief Get the number of clients in the list
      *
      * \return Number of clients
      */
-    std::size_t getSize();
-    /**
-     * \brief Get client list mutex
-     *
-     * \return The client list mutex
-     */
-    std::mutex& getMutex();
+    std::size_t getSize() const;
 
     /**
      * \brief Enable or disable the gathering of client events
@@ -130,62 +148,44 @@ public:
      *
      * \param on \b True to enable, \b false to disable
      */
-    inline void watchEvent(bool on)
-    {
-        this->g_enableClientEventsFlag = on;
-    }
+    void watchEvent(bool on);
     /**
      * \brief Check if the gathering of client events is enabled
      *
      * \return \b True if enabled, \b false otherwise
      */
-    inline bool isWatchingEvent() const
-    {
-        return this->g_enableClientEventsFlag;
-    }
+    bool isWatchingEvent() const;
 
     /**
      * \brief Manually push a client event
      *
      * \param evt A client event
      */
-    inline void pushClientEvent(const fge::net::ClientListEvent& evt)
-    {
-        this->g_events.push_back(evt);
-    }
+    void pushClientEvent(const fge::net::ClientListEvent& evt);
     /**
      * \brief Get the client event with its index
      *
      * \return The client event
      */
-    inline const fge::net::ClientListEvent& getClientEvent(std::size_t index) const
-    {
-        return this->g_events[index];
-    }
+    const fge::net::ClientListEvent& getClientEvent(std::size_t index) const;
     /**
      * \brief Get the number of client events
      *
      * \return The number of client events
      */
-    inline std::size_t getClientEventSize() const
-    {
-        return this->g_events.size();
-    }
+    std::size_t getClientEventSize() const;
     /**
      * \brief Clear the client event list
      *
      * The client event list should be cleared manually after
      * client checkup has been done.
      */
-    inline void clearClientEvent()
-    {
-        this->g_events.clear();
-    }
+    void clearClientEvent();
 
 private:
     fge::net::ClientList::ClientListData g_data;
     fge::net::ClientList::ClientEventList g_events;
-    std::mutex g_mutex;
+    mutable std::recursive_mutex g_mutex;
     bool g_enableClientEventsFlag = false;
 };
 

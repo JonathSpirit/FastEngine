@@ -220,14 +220,16 @@ void ServerUdp::serverThreadTransmission()
         //Flux
         for (std::size_t i=0; i<this->g_flux.size(); ++i)
         {
-            std::lock_guard<std::mutex> lck(this->g_flux[i]->_clients.getMutex());
-            for (auto& client : this->g_flux[i]->_clients)
+            fge::net::ClientList& clients = this->g_flux[i]->_clients;
+            std::unique_lock<std::recursive_mutex> lck{clients.acquireLock()};
+
+            for (auto itClient=clients.begin(lck); itClient!=clients.end(lck); ++itClient)
             {
-                if ( !client.second->isPendingPacketsEmpty() )
+                if ( !itClient->second->isPendingPacketsEmpty() )
                 {
-                    if ( client.second->getLastPacketElapsedTime() >= client.second->getLatency_ms() )
+                    if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getLatency_ms() )
                     {//Ready to send !
-                        fge::net::ClientSendQueuePacket buffPck = client.second->popPacket();
+                        fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
                         if (buffPck._pck)
                         {//Last verification of the packet
                             if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
@@ -235,22 +237,23 @@ void ServerUdp::serverThreadTransmission()
                                 fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
                                 buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
                             }
-                            this->sendTo(*buffPck._pck, client.first);
-                            client.second->resetLastPacketTimePoint();
+                            this->sendTo(*buffPck._pck, itClient->first);
+                            itClient->second->resetLastPacketTimePoint();
                         }
                     }
                 }
             }
         }
         //Default flux
-        std::lock_guard<std::mutex> lck(this->g_defaultFlux._clients.getMutex());
-        for (auto& client : this->g_defaultFlux._clients)
+        std::unique_lock<std::recursive_mutex> lck{this->g_defaultFlux._clients.acquireLock()};
+
+        for (auto itClient=this->g_defaultFlux._clients.begin(lck); itClient!=this->g_defaultFlux._clients.end(lck); ++itClient)
         {
-            if ( !client.second->isPendingPacketsEmpty() )
+            if ( !itClient->second->isPendingPacketsEmpty() )
             {
-                if ( client.second->getLastPacketElapsedTime() >= client.second->getLatency_ms() )
+                if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getLatency_ms() )
                 {//Ready to send !
-                    fge::net::ClientSendQueuePacket buffPck = client.second->popPacket();
+                    fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
                     if (buffPck._pck)
                     {//Last verification of the packet
                         if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
@@ -258,8 +261,8 @@ void ServerUdp::serverThreadTransmission()
                             fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
                             buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
                         }
-                        this->sendTo(*buffPck._pck, client.first);
-                        client.second->resetLastPacketTimePoint();
+                        this->sendTo(*buffPck._pck, itClient->first);
+                        itClient->second->resetLastPacketTimePoint();
                     }
                 }
             }
