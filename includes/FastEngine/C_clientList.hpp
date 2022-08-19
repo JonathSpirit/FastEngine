@@ -97,6 +97,17 @@ public:
      * \param id The client's identity
      */
     void remove(const fge::net::Identity& id);
+    /**
+     * \brief Remove a client from the list
+     *
+     * You have to provide a valid reference to a unique lock acquire with
+     * the method ClientList::acquireLock().
+     *
+     * \param itPos The client's iterator
+     * \param lock A unique lock bound to this mutex
+     * \return The iterator after the erased element
+     */
+    fge::net::ClientList::ClientListData::iterator remove(fge::net::ClientList::ClientListData::const_iterator itPos, const std::unique_lock<std::recursive_mutex>& lock);
 
     /**
      * \brief Get a client from the list

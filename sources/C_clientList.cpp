@@ -64,6 +64,18 @@ void ClientList::remove(const fge::net::Identity& id)
         this->g_events.push_back({fge::net::ClientListEvent::CLEVT_DELCLIENT, id});
     }
 }
+fge::net::ClientList::ClientListData::iterator ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos, const std::unique_lock<std::recursive_mutex>& lock)
+{
+    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
+    {
+        throw std::runtime_error("ClientList::remove : lock is not owned or not my mutex !");
+    }
+    if (this->g_enableClientEventsFlag)
+    {
+        this->g_events.push_back({fge::net::ClientListEvent::CLEVT_DELCLIENT, itPos->first});
+    }
+    return this->g_data.erase(itPos);
+}
 
 fge::net::ClientSharedPtr ClientList::get(const fge::net::Identity& id) const
 {
