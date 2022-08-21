@@ -138,13 +138,13 @@ public:
      *
      * \return The unique class name of the object
      */
-    virtual std::string getClassName() const;
+    virtual const char* getClassName() const;
     /**
      * \brief Get a readable version of the class name
      *
      * \return A readable version of the class name
      */
-    virtual std::string getReadableClassName() const;
+    virtual const char* getReadableClassName() const;
 
     /**
      * \brief Get the global bounds of the object

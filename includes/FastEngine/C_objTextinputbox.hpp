@@ -70,8 +70,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    std::string getClassName() const override;
-    std::string getReadableClassName() const override;
+    const char* getClassName() const override;
+    const char* getReadableClassName() const override;
 
     sf::FloatRect getGlobalBounds() const override;
     sf::FloatRect getLocalBounds() const override;

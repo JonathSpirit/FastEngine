@@ -286,11 +286,11 @@ void ObjSelectBox::unpack(fge::net::Packet& pck)
     pck >> this->g_statActive >> this->g_statMouseOn;
 }
 
-std::string ObjSelectBox::getClassName() const
+const char* ObjSelectBox::getClassName() const
 {
     return FGE_OBJSELECTBOX_CLASSNAME;
 }
-std::string ObjSelectBox::getReadableClassName() const
+const char* ObjSelectBox::getReadableClassName() const
 {
     return "selection box";
 }

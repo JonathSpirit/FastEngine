@@ -104,11 +104,11 @@ void Object::unpack(fge::net::Packet& pck)
     this->setOrigin(buffVec2f);
 }
 
-std::string Object::getClassName() const
+const char* Object::getClassName() const
 {
     return FGE_OBJ_BADCLASSNAME;
 }
-std::string Object::getReadableClassName() const
+const char* Object::getReadableClassName() const
 {
     return FGE_OBJ_BADCLASSNAME;
 }

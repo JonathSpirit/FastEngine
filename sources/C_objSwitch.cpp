@@ -125,11 +125,11 @@ void ObjSwitch::unpack(fge::net::Packet& pck)
     pck >> this->g_color >> this->g_textureOn >> this->g_textureOff >> this->g_statMouseOn >> this->g_statActive;
 }
 
-std::string ObjSwitch::getClassName() const
+const char* ObjSwitch::getClassName() const
 {
     return FGE_OBJSWITCH_CLASSNAME;
 }
-std::string ObjSwitch::getReadableClassName() const
+const char* ObjSwitch::getReadableClassName() const
 {
     return "switch";
 }

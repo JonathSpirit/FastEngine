@@ -220,11 +220,11 @@ void ObjLight::unpack(fge::net::Packet& pck)
     this->setColor(color);
 }
 
-std::string ObjLight::getClassName() const
+const char* ObjLight::getClassName() const
 {
     return FGE_OBJLIGHT_CLASSNAME;
 }
-std::string ObjLight::getReadableClassName() const
+const char* ObjLight::getReadableClassName() const
 {
     return "light";
 }

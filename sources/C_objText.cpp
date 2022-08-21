@@ -141,11 +141,11 @@ void ObjText::unpack(fge::net::Packet& pck)
     this->g_text.setOutlineThickness(tmpFloat);
 }
 
-std::string ObjText::getClassName() const
+const char* ObjText::getClassName() const
 {
     return FGE_OBJTEXT_CLASSNAME;
 }
-std::string ObjText::getReadableClassName() const
+const char* ObjText::getReadableClassName() const
 {
     return "text";
 }

@@ -339,11 +339,11 @@ void ObjTextInputBox::unpack(fge::net::Packet& pck)
     pck >> this->g_statActive;
 }
 
-std::string ObjTextInputBox::getClassName() const
+const char* ObjTextInputBox::getClassName() const
 {
     return FGE_OBJTEXTINBOX_CLASSNAME;
 }
-std::string ObjTextInputBox::getReadableClassName() const
+const char* ObjTextInputBox::getReadableClassName() const
 {
     return "text input box";
 }

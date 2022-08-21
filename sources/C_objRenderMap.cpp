@@ -87,11 +87,11 @@ void ObjRenderMap::unpack(fge::net::Packet& pck)
 {
 }
 
-std::string ObjRenderMap::getClassName() const
+const char* ObjRenderMap::getClassName() const
 {
     return FGE_OBJLIGHTMAP_CLASSNAME;
 }
-std::string ObjRenderMap::getReadableClassName() const
+const char* ObjRenderMap::getReadableClassName() const
 {
     return "render map";
 }

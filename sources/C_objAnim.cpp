@@ -187,11 +187,11 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
     this->setTextureRect(this->g_animation);
 }
 
-std::string ObjAnimation::getClassName() const
+const char* ObjAnimation::getClassName() const
 {
     return FGE_OBJANIM_CLASSNAME;
 }
-std::string ObjAnimation::getReadableClassName() const
+const char* ObjAnimation::getReadableClassName() const
 {
     return "animation";
 }

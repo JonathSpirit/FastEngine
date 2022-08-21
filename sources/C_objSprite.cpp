@@ -112,11 +112,11 @@ void ObjSprite::unpack(fge::net::Packet& pck)
     this->setColor(color);
 }
 
-std::string ObjSprite::getClassName() const
+const char* ObjSprite::getClassName() const
 {
     return FGE_OBJSPRITE_CLASSNAME;
 }
-std::string ObjSprite::getReadableClassName() const
+const char* ObjSprite::getReadableClassName() const
 {
     return "sprite";
 }

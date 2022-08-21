@@ -137,11 +137,11 @@ void ObjButton::unpack(fge::net::Packet& pck)
     pck >> this->g_color >> this->g_textureOn >> this->g_textureOff >> this->g_statMouseOn >> this->g_statActive;
 }
 
-std::string ObjButton::getClassName() const
+const char* ObjButton::getClassName() const
 {
     return FGE_OBJBUTTON_CLASSNAME;
 }
-std::string ObjButton::getReadableClassName() const
+const char* ObjButton::getReadableClassName() const
 {
     return "button";
 }

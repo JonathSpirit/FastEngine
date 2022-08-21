@@ -111,11 +111,11 @@ public:
         target.draw(this->g_shape, states);
     }
 
-    std::string getClassName() const override
+    const char* getClassName() const override
     {
         return "FGE:_DEBUG_:BLOC";
     }
-    std::string getReadableClassName() const override
+    const char* getReadableClassName() const override
     {
         return "debug bloc";
     }
