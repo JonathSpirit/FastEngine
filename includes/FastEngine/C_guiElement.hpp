@@ -174,6 +174,14 @@ public:
     {
         return this->_g_anchorSuccessor;
     }
+    inline void needAnchorUpdate(bool flag)
+    {
+        this->_g_anchorNeedUpdate = flag;
+    }
+    inline bool isNeedingAnchorUpdate() const
+    {
+        return this->_g_anchorNeedUpdate;
+    }
 
     /**
      * \brief Function called to verify if the element is hovered by the mouse
@@ -209,6 +217,7 @@ protected:
     sf::Vector2f _g_scale{1.0f,1.0f};
     fge::AnchorType _g_anchorType{fge::AnchorType::ANCHOR_NONE};
     fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
+    bool _g_anchorNeedUpdate{true};
     fge::ObjectDataWeak _g_anchorSuccessor{};
     fge::ObjectDataWeak _g_objectParent{};
 

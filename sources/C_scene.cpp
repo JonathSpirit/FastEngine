@@ -19,6 +19,7 @@
 #include "FastEngine/reg_manager.hpp"
 #include "FastEngine/extra_function.hpp"
 #include "FastEngine/C_clientList.hpp"
+#include "FastEngine/C_guiElement.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -66,6 +67,16 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
 {
     for ( this->g_updatedObjectIterator=this->g_data.begin(); this->g_updatedObjectIterator!=this->g_data.end(); ++this->g_updatedObjectIterator )
     {
+        auto* guiElement = (*this->g_updatedObjectIterator)->g_object->getGuiElement();
+        if (guiElement != nullptr)
+        {
+            if (guiElement->isNeedingAnchorUpdate())
+            {
+                guiElement->updateAnchor();
+                guiElement->needAnchorUpdate(false);
+            }
+        }
+
         (*this->g_updatedObjectIterator)->g_object->update(screen, event, deltaTime, this);
         if ( this->g_deleteMe )
         {
