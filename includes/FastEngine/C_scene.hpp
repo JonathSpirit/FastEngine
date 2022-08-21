@@ -59,6 +59,12 @@ using ObjectPlan = uint16_t;
 using ObjectSid = uint32_t;
 using ObjectPtr = std::unique_ptr<fge::Object>;
 
+struct CallbackContext
+{
+    fge::Event* _event;
+    fge::GuiElementHandler* _guiElementHandler;
+};
+
 /**
  * \struct SceneNetEvent
  * \ingroup network
@@ -1111,6 +1117,9 @@ public:
      */
     sf::RenderTarget* getLinkedRenderTarget();
 
+    void setCallbackContext(fge::CallbackContext context);
+    fge::CallbackContext getCallbackContext() const;
+
     // Save/Load in file
     /**
      * \brief Save some user defined custom data.
@@ -1232,6 +1241,8 @@ private:
     fge::ObjectContainer g_data;
     fge::ObjectDataMap g_dataMap;
     fge::ObjectPlanDataMap g_planDataMap;
+
+    fge::CallbackContext g_callbackContext{nullptr, nullptr};
 };
 
 }//end fge

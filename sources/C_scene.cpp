@@ -1298,6 +1298,15 @@ sf::RenderTarget* Scene::getLinkedRenderTarget()
     return this->g_linkedRenderTarget;
 }
 
+void Scene::setCallbackContext(fge::CallbackContext context)
+{
+    this->g_callbackContext = context;
+}
+fge::CallbackContext Scene::getCallbackContext() const
+{
+    return this->g_callbackContext;
+}
+
 /** Save/Load in file **/
 
 bool Scene::saveInFile(const std::string& path)
