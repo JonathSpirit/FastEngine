@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/texture_manager.hpp"
+#include "private/string_hash.hpp"
 
 namespace fge::texture
 {
@@ -23,7 +24,7 @@ namespace
 {
 
 fge::texture::TextureDataPtr _dataTextureBad;
-fge::texture::TextureDataType _dataTexture;
+std::unordered_map<std::string, fge::texture::TextureDataPtr, fge::priv::string_hash, std::equal_to<>> _dataTexture;
 std::mutex _dataMutex;
 
 }//end
@@ -90,7 +91,7 @@ const fge::texture::TextureDataPtr& GetBadTexture()
 {
     return _dataTextureBad;
 }
-fge::texture::TextureDataPtr GetTexture(const std::string& name)
+fge::texture::TextureDataPtr GetTexture(std::string_view name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -107,7 +108,7 @@ fge::texture::TextureDataPtr GetTexture(const std::string& name)
     return _dataTextureBad;
 }
 
-bool Check(const std::string& name)
+bool Check(std::string_view name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -120,7 +121,7 @@ bool Check(const std::string& name)
     return it != _dataTexture.end();
 }
 
-bool LoadFromImage(const std::string& name, const sf::Image& image)
+bool LoadFromImage(std::string_view name, const sf::Image& image)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -146,10 +147,10 @@ bool LoadFromImage(const std::string& name, const sf::Image& image)
     buff->_texture = std::move(tmpTexture);
     buff->_valid = true;
 
-    _dataTexture[name] = std::move(buff);
+    _dataTexture[std::move(std::string{name})] = std::move(buff);
     return true;
 }
-bool LoadFromFile(const std::string& name, std::filesystem::path path)
+bool LoadFromFile(std::string_view name, std::filesystem::path path)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -176,11 +177,11 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
     buff->_valid = true;
     buff->_path = std::move(path);
 
-    _dataTexture[name] = std::move(buff);
+    _dataTexture[std::move(std::string{name})] = std::move(buff);
     return true;
 }
 
-bool Unload(const std::string& name)
+bool Unload(std::string_view name)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -211,7 +212,7 @@ void UnloadAll()
     _dataTexture.clear();
 }
 
-bool Push(const std::string& name, const fge::texture::TextureDataPtr& data)
+bool Push(std::string_view name, const fge::texture::TextureDataPtr& data)
 {
     if (name == FGE_TEXTURE_BAD)
     {

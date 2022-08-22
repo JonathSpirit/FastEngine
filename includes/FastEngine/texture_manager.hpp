@@ -107,7 +107,7 @@ FGE_API const fge::texture::TextureDataPtr& GetBadTexture();
  * \param name The name of the texture to get
  * \return The texture with the given name or the bad texture if not found
  */
-FGE_API fge::texture::TextureDataPtr GetTexture(const std::string& name);
+FGE_API fge::texture::TextureDataPtr GetTexture(std::string_view name);
 
 /**
  * \brief Check if the texture with the given name exist
@@ -115,7 +115,7 @@ FGE_API fge::texture::TextureDataPtr GetTexture(const std::string& name);
  * \param name The name of the texture to check
  * \return \b true if the texture exist, \b false otherwise
  */
-FGE_API bool Check(const std::string& name);
+FGE_API bool Check(std::string_view name);
 
 /**
  * \brief Load a texture from an image
@@ -124,7 +124,7 @@ FGE_API bool Check(const std::string& name);
  * \param image The image to load
  * \return \b true if the texture was loaded, \b false otherwise
  */
-FGE_API bool LoadFromImage(const std::string& name, const sf::Image& image);
+FGE_API bool LoadFromImage(std::string_view name, const sf::Image& image);
 /**
  * \brief Load a texture from a file
  *
@@ -132,14 +132,14 @@ FGE_API bool LoadFromImage(const std::string& name, const sf::Image& image);
  * \param path The path of the file to load
  * \return \b true if the texture was loaded, \b false otherwise
  */
-FGE_API bool LoadFromFile(const std::string& name, std::filesystem::path path);
+FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path path);
 /**
  * \brief Unload the texture with the given name
  *
  * \param name The name of the texture to unload
  * \return \b true if the texture was unloaded, \b false otherwise
  */
-FGE_API bool Unload(const std::string& name);
+FGE_API bool Unload(std::string_view name);
 /**
  * \brief Unload all textures
  */
@@ -152,7 +152,7 @@ FGE_API void UnloadAll();
  * \param data The texture data to add
  * \return \b true if the texture was added, \b false otherwise
  */
-FGE_API bool Push(const std::string& name, const fge::texture::TextureDataPtr& data);
+FGE_API bool Push(std::string_view name, const fge::texture::TextureDataPtr& data);
 
 /**
  * @}

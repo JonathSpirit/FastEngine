@@ -503,7 +503,7 @@ public:
                 {
                     auto* tmpObject = (*it)->getObject();
 
-                    if ( tmpObject->getClassName() != "FGE:_DEBUG_:BLOC" )
+                    if ( std::strcmp(tmpObject->getClassName(), "FGE:_DEBUG_:BLOC") == 0 )
                     {
                         it = container.erase(it);
                     }
