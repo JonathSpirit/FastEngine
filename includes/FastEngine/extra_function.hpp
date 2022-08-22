@@ -21,6 +21,7 @@
 #include <FastEngine/C_object.hpp>
 #include <SFML/Graphics.hpp>
 #include <json.hpp>
+#include <filesystem>
 
 #define FGE_MATH_PI 3.14159265358979323846
 
@@ -40,7 +41,7 @@ inline char UnicodeToChar(uint32_t unicode);
 
 FGE_API bool IsEngineBuiltInDebugMode();
 
-FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::string& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
+FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
 
 ///Detection
 FGE_API bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
@@ -123,8 +124,8 @@ template<class T>
 inline float DurationToSecondFloat(T duration);
 
 ///Json
-FGE_API bool LoadJsonFromFile(const std::string& path, nlohmann::json& j);
-FGE_API bool SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth=2);
+FGE_API bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j);
+FGE_API bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth=2);
 
 }//end fge
 

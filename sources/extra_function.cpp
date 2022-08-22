@@ -63,7 +63,7 @@ bool IsEngineBuiltInDebugMode()
     #endif // _FGE_DEF_DEBUG
 }
 
-std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::string& path, const std::string& regexFilter, bool ignoreDirectory, bool onlyFilename, bool recursive)
+std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter, bool ignoreDirectory, bool onlyFilename, bool recursive)
 {
     RE2 re(regexFilter);
     if ( !re.ok() )
@@ -430,7 +430,7 @@ sf::FloatRect GetScreenRect(const sf::RenderTarget& target, const sf::View& view
 }
 
 ///Json
-bool LoadJsonFromFile(const std::string& path, nlohmann::json& j)
+bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j)
 {
     std::ifstream file(path);
     if ( !file )
@@ -451,7 +451,7 @@ bool LoadJsonFromFile(const std::string& path, nlohmann::json& j)
         return false;
     }
 }
-bool SaveJsonToFile(const std::string& path, const nlohmann::json& j, int fieldWidth)
+bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth)
 {
     std::ofstream file(path);
     if ( file )
