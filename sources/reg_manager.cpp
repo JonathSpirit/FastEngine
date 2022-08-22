@@ -15,21 +15,19 @@
  */
 
 #include "FastEngine/reg_manager.hpp"
-#include "FastEngine/extra_string.hpp"
+#include "private/string_hash.hpp"
 
 #include <unordered_map>
 #include <vector>
 #include "FastEngine/C_scene.hpp"
 
-namespace fge
-{
-namespace reg
+namespace fge::reg
 {
 
 namespace
 {
 
-using ClassNameMapType = std::unordered_map<std::string, fge::reg::ClassId>;
+using ClassNameMapType = std::unordered_map<std::string, fge::reg::ClassId, fge::priv::string_hash, std::equal_to<>>;
 using ClassIdMapType = std::vector<std::unique_ptr<fge::reg::BaseStamp> >;
 
 ClassNameMapType _dataClassNameMap;
@@ -56,7 +54,7 @@ bool RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
     return true;
 }
 
-bool Check(const std::string& className)
+bool Check(std::string_view className)
 {
     return _dataClassNameMap.find(className) != _dataClassNameMap.cend();
 }
@@ -76,7 +74,7 @@ fge::Object* Duplicate(const fge::Object* obj)
     return new fge::Object();
 }
 
-bool Replace(const std::string& className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
+bool Replace(std::string_view className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
 {
     auto it = _dataClassNameMap.find(className);
 
@@ -102,7 +100,7 @@ std::size_t GetRegisterSize()
     return _dataClassIdMap.size();
 }
 
-fge::Object* GetNewClassOf(const std::string& className)
+fge::Object* GetNewClassOf(std::string_view className)
 {
     auto it = _dataClassNameMap.find(className);
 
@@ -121,7 +119,7 @@ fge::Object* GetNewClassOf(fge::reg::ClassId classId)
     return new fge::Object();
 }
 
-fge::reg::ClassId GetClassId(const std::string& className)
+fge::reg::ClassId GetClassId(std::string_view className)
 {
     auto it = _dataClassNameMap.find(className);
 
@@ -140,7 +138,7 @@ std::string GetClassName(fge::reg::ClassId classId)
     return FGE_OBJ_BADCLASSNAME;
 }
 
-fge::reg::BaseStamp* GetStampOf(const std::string& className)
+fge::reg::BaseStamp* GetStampOf(std::string_view className)
 {
     auto it = _dataClassNameMap.find(className);
 
@@ -159,5 +157,4 @@ fge::reg::BaseStamp* GetStampOf(fge::reg::ClassId classId)
     return nullptr;
 }
 
-}//end reg
-}//end fge
+}//end fge::reg

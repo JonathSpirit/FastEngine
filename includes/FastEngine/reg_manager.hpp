@@ -25,9 +25,7 @@
 
 #define FGE_REG_BADCLASSID std::numeric_limits<fge::reg::ClassId>::max()
 
-namespace fge
-{
-namespace reg
+namespace fge::reg
 {
 
 using ClassId = uint16_t;
@@ -67,27 +65,26 @@ FGE_API void ClearAll();
 
 FGE_API bool RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 
-FGE_API bool Check(const std::string& className);
+FGE_API bool Check(std::string_view className);
 FGE_API bool Check(fge::reg::ClassId classId);
 
 FGE_API fge::Object* Duplicate(const fge::Object* obj);
 
-FGE_API bool Replace(const std::string& className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
+FGE_API bool Replace(std::string_view className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 FGE_API bool Replace(fge::reg::ClassId classId, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 
 FGE_API std::size_t GetRegisterSize();
 
-FGE_API fge::Object* GetNewClassOf(const std::string& className);
+FGE_API fge::Object* GetNewClassOf(std::string_view className);
 FGE_API fge::Object* GetNewClassOf(fge::reg::ClassId classId);
 
-FGE_API fge::reg::ClassId GetClassId(const std::string& className);
+FGE_API fge::reg::ClassId GetClassId(std::string_view className);
 FGE_API std::string GetClassName(fge::reg::ClassId classId);
 
-FGE_API fge::reg::BaseStamp* GetStampOf(const std::string& className);
+FGE_API fge::reg::BaseStamp* GetStampOf(std::string_view className);
 FGE_API fge::reg::BaseStamp* GetStampOf(fge::reg::ClassId classId);
 
-}//end reg
-}//end fge
+}//end fge::reg
 
 
 #endif // _FGE_REG_MANAGER_HPP_INCLUDED
