@@ -102,7 +102,7 @@ bool Check(std::string_view name)
     return it != _dataFont.end();
 }
 
-bool LoadFromFile(std::string_view name, const std::string& path)
+bool LoadFromFile(std::string_view name, std::filesystem::path path)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -119,7 +119,7 @@ bool LoadFromFile(std::string_view name, const std::string& path)
 
     auto tmpFont = std::make_shared<sf::Font>();
 
-    if ( !tmpFont->loadFromFile(path) )
+    if ( !tmpFont->loadFromFile(path.string()) )
     {
         return false;
     }
@@ -127,7 +127,7 @@ bool LoadFromFile(std::string_view name, const std::string& path)
     fge::font::FontDataPtr buff = std::make_shared<fge::font::FontData>();
     buff->_font = std::move(tmpFont);
     buff->_valid = true;
-    buff->_path = path;
+    buff->_path = std::move(path);
 
     _dataFont[std::move(std::string{name})] = std::move(buff);
     return true;

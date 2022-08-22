@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <memory>
+#include <filesystem>
 
 #define FGE_FONT_DEFAULT FGE_FONT_BAD
 #define FGE_FONT_BAD ""
@@ -35,7 +36,7 @@ struct FontData
 {
     std::shared_ptr<sf::Font> _font;
     bool _valid;
-    std::string _path;
+    std::filesystem::path _path;
 };
 
 using FontDataPtr = std::shared_ptr<fge::font::FontData>;
@@ -56,7 +57,7 @@ FGE_API fge::font::FontDataPtr GetFont(std::string_view name);
 
 FGE_API bool Check(std::string_view name);
 
-FGE_API bool LoadFromFile(std::string_view name, const std::string& path);
+FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path path);
 FGE_API bool Unload(std::string_view name);
 FGE_API void UnloadAll();
 
