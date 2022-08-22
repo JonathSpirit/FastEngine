@@ -15,17 +15,16 @@
  */
 
 #include "FastEngine/font_manager.hpp"
+#include "private/string_hash.hpp"
 
-namespace fge
-{
-namespace font
+namespace fge::font
 {
 
 namespace
 {
 
 fge::font::FontDataPtr _dataFontBad;
-fge::font::FontDataType _dataFont;
+std::unordered_map<std::string, fge::font::FontDataPtr, fge::priv::string_hash, std::equal_to<>> _dataFont;
 std::mutex _dataMutex;
 
 }//end
@@ -73,7 +72,7 @@ const fge::font::FontDataPtr& GetBadFont()
 {
     return _dataFontBad;
 }
-fge::font::FontDataPtr GetFont(const std::string& name)
+fge::font::FontDataPtr GetFont(std::string_view name)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -90,7 +89,7 @@ fge::font::FontDataPtr GetFont(const std::string& name)
     return _dataFontBad;
 }
 
-bool Check(const std::string& name)
+bool Check(std::string_view name)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -100,14 +99,10 @@ bool Check(const std::string& name)
     std::lock_guard<std::mutex> lck(_dataMutex);
     auto it = _dataFont.find(name);
 
-    if (it != _dataFont.end())
-    {
-        return true;
-    }
-    return false;
+    return it != _dataFont.end();
 }
 
-bool LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(std::string_view name, const std::string& path)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -122,24 +117,23 @@ bool LoadFromFile(const std::string& name, const std::string& path)
         return false;
     }
 
-    sf::Font* tmpFont = new sf::Font();
+    auto tmpFont = std::make_shared<sf::Font>();
 
     if ( !tmpFont->loadFromFile(path) )
     {
-        delete tmpFont;
         return false;
     }
 
     fge::font::FontDataPtr buff = std::make_shared<fge::font::FontData>();
-    buff->_font = std::move( std::shared_ptr<sf::Font>(tmpFont) );
+    buff->_font = std::move(tmpFont);
     buff->_valid = true;
     buff->_path = path;
 
-    _dataFont[name] = std::move(buff);
+    _dataFont[std::move(std::string{name})] = std::move(buff);
     return true;
 }
 
-bool Unload(const std::string& name)
+bool Unload(std::string_view name)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -170,7 +164,7 @@ void UnloadAll()
     _dataFont.clear();
 }
 
-bool Push(const std::string& name, const fge::font::FontDataPtr& data)
+bool Push(std::string_view name, const fge::font::FontDataPtr& data)
 {
     if (name == FGE_FONT_BAD)
     {
@@ -187,5 +181,4 @@ bool Push(const std::string& name, const fge::font::FontDataPtr& data)
     return true;
 }
 
-}//end font
-}//end fge
+}//end fge::font

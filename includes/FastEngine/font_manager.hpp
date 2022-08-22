@@ -28,9 +28,7 @@
 #define FGE_FONT_DEFAULT FGE_FONT_BAD
 #define FGE_FONT_BAD ""
 
-namespace fge
-{
-namespace font
+namespace fge::font
 {
 
 struct FontData
@@ -54,17 +52,16 @@ FGE_API fge::font::FontDataType::const_iterator GetCBegin();
 FGE_API fge::font::FontDataType::const_iterator GetCEnd();
 
 FGE_API const fge::font::FontDataPtr& GetBadFont();
-FGE_API fge::font::FontDataPtr GetFont(const std::string& name);
+FGE_API fge::font::FontDataPtr GetFont(std::string_view name);
 
-FGE_API bool Check(const std::string& name);
+FGE_API bool Check(std::string_view name);
 
-FGE_API bool LoadFromFile(const std::string& name, const std::string& path);
-FGE_API bool Unload(const std::string& name);
+FGE_API bool LoadFromFile(std::string_view name, const std::string& path);
+FGE_API bool Unload(std::string_view name);
 FGE_API void UnloadAll();
 
-FGE_API bool Push(const std::string& name, const fge::font::FontDataPtr& data);
+FGE_API bool Push(std::string_view name, const fge::font::FontDataPtr& data);
 
-}//end font
-}//end fge
+}//end fge::font
 
 #endif // _FGE_FONT_MANAGER_HPP_INCLUDED
