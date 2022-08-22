@@ -19,7 +19,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <string>
-#include <unordered_set>
+#include <set>
 
 namespace fge
 {
@@ -27,7 +27,7 @@ namespace fge
 class FGE_API TagList
 {
 public:
-    using TagListType = std::unordered_set<std::string>;
+    using TagListType = std::set<std::string, std::less<>>;
 
     TagList() = default;
     ~TagList() = default;
@@ -37,12 +37,12 @@ public:
     void add(std::string_view tag);
     void del(std::string_view tag);
 
-    bool check(std::string_view tag) const;
+    [[nodiscard]] bool check(std::string_view tag) const;
 
-    std::size_t getSize() const;
+    [[nodiscard]] std::size_t getSize() const;
 
-    fge::TagList::TagListType::const_iterator begin() const;
-    fge::TagList::TagListType::const_iterator end() const;
+    [[nodiscard]] fge::TagList::TagListType::const_iterator begin() const;
+    [[nodiscard]] fge::TagList::TagListType::const_iterator end() const;
 
 private:
     fge::TagList::TagListType g_tags;

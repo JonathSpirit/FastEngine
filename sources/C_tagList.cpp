@@ -26,30 +26,20 @@ void TagList::clear()
 
 void TagList::add(std::string_view tag)
 {
-    this->g_tags.insert(std::move( std::string(tag) ));
+    this->g_tags.insert(std::move(std::string{tag}));
 }
 void TagList::del(std::string_view tag)
 {
-    for (auto it = this->g_tags.cbegin(); it != this->g_tags.cend(); ++it)
+    auto it = this->g_tags.find(tag);
+    if (it != this->g_tags.end())
     {
-        if ((*it) == tag)
-        {
-            this->g_tags.erase(it);
-            return;
-        }
+        this->g_tags.erase(it);
     }
 }
 
 bool TagList::check(std::string_view tag) const
 {
-    for (const auto& value : this->g_tags)
-    {
-        if (value == tag)
-        {
-            return true;
-        }
-    }
-    return false;
+    return this->g_tags.find(tag) != this->g_tags.end();
 }
 
 std::size_t TagList::getSize() const
