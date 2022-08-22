@@ -239,10 +239,7 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
     {
         return rotation + 360.0f;
     }
-    else
-    {
-        return rotation;
-    }
+    return rotation;
 }
 
 ///2D Math
@@ -303,7 +300,8 @@ sf::Vector2f GetRightVector(float rotation)
 
 void GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output)
 {
-	size_t n = input.size(), k = 0;
+    std::size_t n = input.size();
+    std::size_t k = 0;
 	if (n <= 3)
     {
         output = input;
