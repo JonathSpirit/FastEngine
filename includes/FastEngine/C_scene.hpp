@@ -734,7 +734,7 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByClass(const std::string& class_name, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByClass(std::string_view class_name, fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object that contain the provided tag.
      *
@@ -746,7 +746,7 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByTag(const std::string& tag_name, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByTag(std::string_view tag_name, fge::ObjectContainer& buff) const;
 
     /**
      * \brief Get the first Object with a position.
@@ -814,7 +814,7 @@ public:
      * \param class_name The class name
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByClass(const std::string& class_name) const;
+    fge::ObjectDataShared getFirstObj_ByClass(std::string_view class_name) const;
     /**
      * \brief Get the first Object that match a provided tag.
      *
@@ -823,7 +823,7 @@ public:
      * \param tag_name The tag
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByTag(const std::string& tag_name) const;
+    fge::ObjectDataShared getFirstObj_ByTag(std::string_view tag_name) const;
 
     // Static id
     /**

@@ -575,7 +575,7 @@ std::size_t Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::
     }
     return objCount;
 }
-std::size_t Scene::getAllObj_ByClass(const std::string& class_name, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByClass(std::string_view class_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -588,7 +588,7 @@ std::size_t Scene::getAllObj_ByClass(const std::string& class_name, fge::ObjectC
     }
     return objCount;
 }
-std::size_t Scene::getAllObj_ByTag(const std::string& tag_name, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByTag(std::string_view tag_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
     for (const auto & data : this->g_data)
@@ -662,7 +662,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(const sf::Rect<int>& zone
     }
     return nullptr;
 }
-fge::ObjectDataShared Scene::getFirstObj_ByClass(const std::string& class_name) const
+fge::ObjectDataShared Scene::getFirstObj_ByClass(std::string_view class_name) const
 {
     for (const auto & data : this->g_data)
     {
@@ -673,7 +673,7 @@ fge::ObjectDataShared Scene::getFirstObj_ByClass(const std::string& class_name) 
     }
     return nullptr;
 }
-fge::ObjectDataShared Scene::getFirstObj_ByTag(const std::string& tag_name) const
+fge::ObjectDataShared Scene::getFirstObj_ByTag(std::string_view tag_name) const
 {
     for (const auto & data : this->g_data)
     {
