@@ -77,13 +77,13 @@ public:
      * \param cmdfunc The function pointer of the command
      * \return \b true if the command was added, \b false otherwise
      */
-    bool addCmd(const std::string& name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
+    bool addCmd(std::string_view name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
     /**
      * \brief Delete a command from the handler
      *
      * \param name The name of the command
      */
-    void delCmd(const std::string& name);
+    void delCmd(std::string_view name);
     /**
      * \brief Replace a command from the handler
      *
@@ -92,7 +92,7 @@ public:
      * \param cmdfunc The new function pointer of the command
      * \return \b true if the command was replaced, \b false otherwise
      */
-    bool replaceCmd(const std::string& name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
+    bool replaceCmd(std::string_view name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
 
     /**
      * \brief Clear all commands from the handler
@@ -108,7 +108,7 @@ public:
      * \param caller_scene The scene that contains the caller
      * \return A Property containing the result of the command
      */
-    fge::Property callCmd(const std::string& name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
+    fge::Property callCmd(std::string_view name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
     /**
      * \brief Call a command by its index
      *
@@ -126,14 +126,14 @@ public:
      * \param name The name of the command
      * \return The index of the command or std::numeric_limits<std::size_t>::max() if the command doesn't exist
      */
-    [[nodiscard]] std::size_t getCmdIndex(const std::string& name) const;
+    [[nodiscard]] std::size_t getCmdIndex(std::string_view name) const;
     /**
      * \brief Get the name of a command by its index
      *
      * \param index The index of the command
      * \return The name of the command or an empty string if the command doesn't exist
      */
-    [[nodiscard]] std::string getCmdName(std::size_t index) const;
+    [[nodiscard]] std::string_view getCmdName(std::size_t index) const;
 
     /**
      * \brief Get a command by its name
@@ -141,7 +141,7 @@ public:
      * \param name The name of the command
      * \return The command or nullptr if the command doesn't exist
      */
-    [[nodiscard]] const fge::CommandHandler::CommandData* getCmd(const std::string& name) const;
+    [[nodiscard]] const fge::CommandHandler::CommandData* getCmd(std::string_view name) const;
 
     /**
      * \brief Get the number of commands
@@ -159,7 +159,7 @@ public:
 
 private:
     fge::CommandHandler::CommandDataType g_cmdData;
-    std::unordered_map<std::string, std::size_t> g_cmdDataMap;
+    std::unordered_map<std::string_view, std::size_t> g_cmdDataMap;
 };
 
 }//end fge
