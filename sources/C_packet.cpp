@@ -21,6 +21,7 @@
     #if __GNUC__ > 8
         #include <bit>
     #else
+        #include <bit>
         #include <type_traits>
     #endif
 #else
