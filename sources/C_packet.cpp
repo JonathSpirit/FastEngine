@@ -364,6 +364,13 @@ bool Packet::endReached() const
 
 ///
 
+fge::net::Packet& Packet::operator <<(const std::string_view& data)
+{
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( data.size() );
+
+    this->pack(&length, sizeof(length));
+    return this->append(data.data(), sizeof(std::string_view::value_type) * length);
+}
 fge::net::Packet& Packet::operator <<(const char* data)
 {
     fge::net::SizeType length = static_cast<fge::net::SizeType>( std::strlen(data) );

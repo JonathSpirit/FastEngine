@@ -115,6 +115,7 @@ public:
     inline fge::net::Packet& operator <<(double data);
     inline fge::net::Packet& operator <<(long double data);
 
+    fge::net::Packet& operator <<(const std::string_view& data);
     fge::net::Packet& operator <<(const char* data);
     fge::net::Packet& operator <<(const std::string& data);
     fge::net::Packet& operator <<(const wchar_t* data);
