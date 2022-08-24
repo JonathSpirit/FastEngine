@@ -222,6 +222,7 @@ int main()
     installFiles.emplace_back(false, FTYPE_FILE, "logo.png", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_FILE, "fge_changelog.txt", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_FILE, "LICENSE", FARCH_ALL, FBUILD_ALL);
+    installFiles.emplace_back(false, FTYPE_FILE, "IMAGE_LOGO_LICENSE", FARCH_ALL, FBUILD_ALL);
 
     //sfml
 #ifdef _WIN32
