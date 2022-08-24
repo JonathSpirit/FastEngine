@@ -562,7 +562,7 @@ fge::net::Socket::Error SocketUdp::sendTo(const void* data, std::size_t size, co
     address.sin_family      = AF_INET;
     address.sin_port        = fge::SwapHostNetEndian_16(remotePort);
     #ifdef _FGE_MACOS
-        address.sin_len = sizeof(addr);
+        address.sin_len = sizeof(address);
     #endif
 
     // Send the data (unlike TCP, all the data is always sent in one call)
@@ -611,7 +611,7 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data, std::size_t size, std
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port        = 0;
     #ifdef _FGE_MACOS
-        address.sin_len = sizeof(addr);
+        address.sin_len = sizeof(address);
     #endif
 
     // Receive a chunk of bytes
@@ -697,7 +697,7 @@ fge::net::Socket::Error SocketUdp::sendTo(fge::net::Packet& packet, const IpAddr
     address.sin_family      = AF_INET;
     address.sin_port        = fge::SwapHostNetEndian_16(remotePort);
     #ifdef _FGE_MACOS
-        address.sin_len = sizeof(addr);
+        address.sin_len = sizeof(address);
     #endif
 
     if (!packet._g_lastDataValidity)
@@ -869,7 +869,7 @@ fge::net::Socket::Error SocketTcp::connect(const fge::net::IpAddress& remoteAddr
     address.sin_family      = AF_INET;
     address.sin_port        = fge::SwapHostNetEndian_16(remotePort);
     #ifdef _FGE_MACOS
-        address.sin_len = sizeof(addr);
+        address.sin_len = sizeof(address);
     #endif
 
     if (timeoutms == 0)
