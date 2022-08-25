@@ -15,64 +15,74 @@
  */
 
 #include "FastEngine/path_manager.hpp"
+#include "private/string_hash.hpp"
 #include <unordered_map>
+#include <mutex>
 
-namespace fge
-{
-namespace path
+namespace fge::path
 {
 
 namespace
 {
 
-std::unordered_map<std::string, std::string> _dataPath;
-const std::string _dataPathBad;
+std::unordered_map<std::string, std::filesystem::path, fge::priv::string_hash, std::equal_to<>> _dataPath;
+const std::filesystem::path _dataPathBad;
+std::mutex _dataMutex;
 
 }//end
 
-const std::string& Get(const std::string& name)
+std::filesystem::path Get(std::string_view name)
 {
+    std::scoped_lock<std::mutex> lock(_dataMutex);
     auto it = _dataPath.find(name);
-    return (it != _dataPath.cend()) ? it->second : _dataPathBad;
+    return (it != _dataPath.end()) ? it->second : _dataPathBad;
 }
 
 std::size_t GetPathSize()
 {
+    std::scoped_lock<std::mutex> lock(_dataMutex);
     return _dataPath.size();
 }
 
-void Remove(const std::string& name)
+void Remove(std::string_view name)
 {
-    _dataPath.erase(name);
+    std::scoped_lock<std::mutex> lock(_dataMutex);
+    auto it = _dataPath.find(name);
+    if (it != _dataPath.end())
+    {
+        _dataPath.erase(it);
+    }
 }
 
-bool Check(const std::string& name)
+bool Check(std::string_view name)
 {
+    std::scoped_lock<std::mutex> lock(_dataMutex);
     return _dataPath.find(name) != _dataPath.cend();
 }
 
-bool New(const std::string& name, const std::string& path)
+bool New(std::string_view name, std::filesystem::path path)
 {
     if ( fge::path::Check(name) )
     {
         return false;
     }
 
-    _dataPath[name] = path;
+    std::scoped_lock<std::mutex> lock(_dataMutex);
+    _dataPath[std::move(std::string{name})] = std::move(path);
     return true;
 }
 
-bool Replace(const std::string& name, const std::string& path)
+bool Replace(std::string_view name, std::filesystem::path path)
 {
+    std::scoped_lock<std::mutex> lock(_dataMutex);
     auto it = _dataPath.find(name);
 
     if ( it != _dataPath.end() )
     {
-        it->second = path;
+        it->second = std::move(path);
         return true;
     }
     return false;
 }
 
-}//end path
-}//end fge
+}//end fge::path

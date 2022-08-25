@@ -18,27 +18,25 @@
 #define _FGE_PATH_MANAGER_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include <filesystem>
 #include <string>
 
-namespace fge
-{
-namespace path
+namespace fge::path
 {
 
-FGE_API const std::string& Get(const std::string& name);
+FGE_API std::filesystem::path Get(std::string_view name);
 
 FGE_API std::size_t GetPathSize();
 
-FGE_API void Remove(const std::string& name);
+FGE_API void Remove(std::string_view name);
 
-FGE_API bool Check(const std::string& name);
+FGE_API bool Check(std::string_view name);
 
-FGE_API bool New(const std::string& name, const std::string& path);
+FGE_API bool New(std::string_view name, std::filesystem::path path);
 
-FGE_API bool Replace(const std::string& name, const std::string& path);
+FGE_API bool Replace(std::string_view name, std::filesystem::path path);
 
-}//end path
-}//end fge
+}//end fge::path
 
 
 #endif // _FGE_PATH_MANAGER_HPP_INCLUDED
