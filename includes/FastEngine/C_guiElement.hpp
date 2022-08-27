@@ -49,13 +49,20 @@ struct GuiElementContext
     fge::GuiElementHandler* _handler{nullptr};
 };
 
-enum AnchorType
+enum class AnchorType
 {
     ANCHOR_NONE,
-    ANCHOR_TOP_LEFT,
-    ANCHOR_BOT_LEFT,
-    ANCHOR_TOP_RIGHT,
-    ANCHOR_BOT_RIGHT
+    ANCHOR_UPLEFT_CORNER,
+    ANCHOR_UPRIGHT_CORNER,
+    ANCHOR_DOWNLEFT_CORNER,
+    ANCHOR_DOWNRIGHT_CORNER
+};
+
+enum class AnchorShift
+{
+    SHIFT_NONE,
+    SHIFT_POSITIVE_BOUNDS,
+    SHIFT_NEGATIVE_BOUNDS
 };
 
 /**
@@ -153,10 +160,12 @@ public:
     {
         this->_g_objectParent = std::move(parent);
     }
-    inline void setAnchor(fge::AnchorType type, fge::ObjectSid target)
+    inline void setAnchor(fge::AnchorType type, sf::Vector2<fge::AnchorShift> shift, fge::ObjectSid target=FGE_SCENE_BAD_SID)
     {
         this->_g_anchorType = type;
+        this->_g_anchorShift = shift;
         this->_g_anchorTarget = target;
+        this->_g_anchorNeedUpdate = true;
     }
     inline fge::AnchorType getAnchorType() const
     {
@@ -216,6 +225,7 @@ protected:
     mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
     sf::Vector2f _g_scale{1.0f,1.0f};
     fge::AnchorType _g_anchorType{fge::AnchorType::ANCHOR_NONE};
+    sf::Vector2<fge::AnchorShift> _g_anchorShift{fge::AnchorShift::SHIFT_NONE,fge::AnchorShift::SHIFT_NONE};
     fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
     bool _g_anchorNeedUpdate{true};
     fge::ObjectDataWeak _g_anchorSuccessor{};

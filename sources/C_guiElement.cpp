@@ -29,13 +29,17 @@ GuiElement::~GuiElement()
     {
         if (auto* element = successor->getObject()->getGuiElement())
         {
-            element->setAnchor(this->_g_anchorType, this->_g_anchorTarget);
+            element->setAnchor(this->_g_anchorType, this->_g_anchorShift, this->_g_anchorTarget);
         }
     }
 }
 
 void GuiElement::updateAnchor()
 {
+    if (this->_g_anchorType == fge::AnchorType::ANCHOR_NONE)
+    {
+        return;
+    }
     auto parent = this->_g_objectParent.lock();
     if ( !fge::ObjectData::isValid(parent) )
     {
@@ -47,124 +51,70 @@ void GuiElement::updateAnchor()
         return;
     }
 
+    sf::Vector2f movePosition;
+
+    sf::FloatRect targetGlobalBounds;
+    sf::FloatRect parentGlobalBounds = parent->getObject()->getGlobalBounds();
+
+    auto target = scene->getObject(this->_g_anchorTarget);
+    if ( fge::ObjectData::isValid(target) )
+    {//On a target
+        targetGlobalBounds = target->getObject()->getGlobalBounds();
+    }
+    else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
+    {//On the render target
+        auto* renderTarget = scene->getLinkedRenderTarget();
+        if ( renderTarget != nullptr )
+        {
+            targetGlobalBounds = {{0.0f, 0.0f}, renderTarget->getDefaultView().getSize()};
+        }
+    }
+
+    sf::Vector2f anchorPosition;
     switch (this->_g_anchorType)
     {
+    case AnchorType::ANCHOR_UPLEFT_CORNER:
+        anchorPosition = targetGlobalBounds.getPosition();
+        break;
+    case AnchorType::ANCHOR_UPRIGHT_CORNER:
+        anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, 0.0f};
+        break;
+    case AnchorType::ANCHOR_DOWNLEFT_CORNER:
+        anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{0.0f, targetGlobalBounds.height};
+        break;
+    case AnchorType::ANCHOR_DOWNRIGHT_CORNER:
+        anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, targetGlobalBounds.height};
+        break;
     default:
-    case ANCHOR_NONE:
+        anchorPosition = {0.0f, 0.0f};
         break;
-    case ANCHOR_TOP_LEFT:
+    }
+
+    switch (this->_g_anchorShift.x)
     {
-        auto target = scene->getObject(this->_g_anchorTarget);
-        if ( fge::ObjectData::isValid(target) )
-        {//On a target
-            auto targetGlobalBounds = target->getObject()->getGlobalBounds();
-            auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-            sf::Vector2f targetAnchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, 0.0f};
-            sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-            parent->getObject()->move(movePosition);
-        }
-        else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
-        {//On the render target
-            auto* renderTarget = scene->getLinkedRenderTarget();
-            if ( renderTarget != nullptr )
-            {
-                auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-                sf::Vector2f targetAnchorPosition = sf::Vector2f{0.0f, 0.0f};
-                sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-                parent->getObject()->move(movePosition);
-            }
-        }
-    }
+    case AnchorShift::SHIFT_NONE:
         break;
-    case ANCHOR_BOT_LEFT:
+    case AnchorShift::SHIFT_POSITIVE_BOUNDS:
+        anchorPosition.x += parentGlobalBounds.width;
+        break;
+    case AnchorShift::SHIFT_NEGATIVE_BOUNDS:
+        anchorPosition.x -= parentGlobalBounds.width;
+        break;
+    }
+    switch (this->_g_anchorShift.y)
     {
-        auto target = scene->getObject(this->_g_anchorTarget);
-        if ( fge::ObjectData::isValid(target) )
-        {
-            auto targetGlobalBounds = target->getObject()->getGlobalBounds();
-            auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-            sf::Vector2f targetAnchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, targetGlobalBounds.height-parentGlobalBounds.height};
-            sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-            parent->getObject()->move(movePosition);
-        }
-        else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
-        {//On the render target
-            auto* renderTarget = scene->getLinkedRenderTarget();
-            if ( renderTarget != nullptr )
-            {
-                auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-                sf::Vector2f targetAnchorPosition = sf::Vector2f{0.0f, renderTarget->getDefaultView().getSize().y-parentGlobalBounds.height};
-                sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-                parent->getObject()->move(movePosition);
-            }
-        }
-    }
+    case AnchorShift::SHIFT_NONE:
         break;
-    case ANCHOR_TOP_RIGHT:
-    {
-        auto target = scene->getObject(this->_g_anchorTarget);
-        if ( fge::ObjectData::isValid(target) )
-        {
-            auto targetGlobalBounds = target->getObject()->getGlobalBounds();
-            auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-            sf::Vector2f targetAnchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{-parentGlobalBounds.width, 0.0f};
-            sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-            parent->getObject()->move(movePosition);
-        }
-        else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
-        {//On the render target
-            auto* renderTarget = scene->getLinkedRenderTarget();
-            if ( renderTarget != nullptr )
-            {
-                auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-                sf::Vector2f targetAnchorPosition = sf::Vector2f{renderTarget->getDefaultView().getSize().x-parentGlobalBounds.width, 0.0f};
-                sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-                parent->getObject()->move(movePosition);
-            }
-        }
-    }
+    case AnchorShift::SHIFT_POSITIVE_BOUNDS:
+        anchorPosition.y += parentGlobalBounds.height;
         break;
-    case ANCHOR_BOT_RIGHT:
-    {
-        auto target = scene->getObject(this->_g_anchorTarget);
-        if ( fge::ObjectData::isValid(target) )
-        {
-            auto targetGlobalBounds = target->getObject()->getGlobalBounds();
-            auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-            sf::Vector2f targetAnchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{-parentGlobalBounds.width, targetGlobalBounds.height-parentGlobalBounds.height};
-            sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-            parent->getObject()->move(movePosition);
-        }
-        else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
-        {//On the render target
-            auto* renderTarget = scene->getLinkedRenderTarget();
-            if ( renderTarget != nullptr )
-            {
-                auto parentGlobalBounds = parent->getObject()->getGlobalBounds();
-
-                sf::Vector2f targetAnchorPosition = renderTarget->getDefaultView().getSize()-sf::Vector2f{parentGlobalBounds.width, parentGlobalBounds.height};
-                sf::Vector2f movePosition = targetAnchorPosition - parentGlobalBounds.getPosition();
-
-                parent->getObject()->move(movePosition);
-            }
-        }
-    }
+    case AnchorShift::SHIFT_NEGATIVE_BOUNDS:
+        anchorPosition.y -= parentGlobalBounds.height;
         break;
     }
+
+    movePosition = anchorPosition - parentGlobalBounds.getPosition();
+    parent->getObject()->move(movePosition);
 }
 
 }//end fge

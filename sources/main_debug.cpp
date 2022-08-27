@@ -463,7 +463,7 @@ public:
         fge::GuiElementDefault test2;
 
         test2.setObjectGuiParent(elementTest2);
-        test2.setAnchor(fge::AnchorType::ANCHOR_BOT_RIGHT, elementTest1->getSid());
+        test2.setAnchor(fge::AnchorType::ANCHOR_DOWNRIGHT_CORNER, {fge::AnchorShift::SHIFT_NONE, fge::AnchorShift::SHIFT_NONE}, elementTest1->getSid());
 
         test2.updateAnchor();
 
