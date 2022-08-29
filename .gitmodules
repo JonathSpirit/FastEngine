@@ -6,7 +6,7 @@
     path = libs/fmt
     url = https://github.com/fmtlib/fmt.git
     ignore = dirty
-    branch = 9.0.0
+    branch = 9.1.0
 [submodule "libs/lz4"]
     path = libs/lz4
     url = https://github.com/lz4/lz4.git
