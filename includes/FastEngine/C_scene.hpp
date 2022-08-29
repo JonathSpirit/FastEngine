@@ -1179,6 +1179,14 @@ public:
     {
         return this->g_data.end();
     }
+    inline fge::ObjectContainer::const_reverse_iterator rbegin() const
+    {
+        return this->g_data.rbegin();
+    }
+    inline fge::ObjectContainer::const_reverse_iterator rend() const
+    {
+        return this->g_data.rend();
+    }
 
     /**
      * \brief Find an Object with the specified SID.
