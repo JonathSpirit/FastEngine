@@ -110,6 +110,8 @@ FGE_API sf::Vector2f GetViewSizePercentage(const sf::View& view, const sf::View&
 FGE_API sf::Vector2f SetViewSizePercentage(float percentage, const sf::View& defaultView);
 FGE_API sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView);
 
+FGE_API sf::Vector2f TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView);
+
 ///Render
 FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target);
 FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view);

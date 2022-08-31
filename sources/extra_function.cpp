@@ -352,6 +352,12 @@ sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::Vie
     return { (percentage.x*defaultView.getSize().x)/100.0f, (percentage.y*defaultView.getSize().y)/100.0f };
 }
 
+sf::Vector2f TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView)
+{
+    sf::Vector2f normalized = pointView.getTransform().transformPoint(point);
+    return newView.getInverseTransform().transformPoint(normalized);
+}
+
 ///Render
 sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target)
 {
