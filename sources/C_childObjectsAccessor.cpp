@@ -39,7 +39,7 @@ void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, 
         it = this->g_data.insert(this->g_data.end(),
                                   {object,
                                    fge::ObjectDataShared{new fge::ObjectData{
-                                           linkedScene, object
+                                           linkedScene, std::unique_ptr<fge::Object>{object}
                                    }, DataContext::NotHandledObjectDeleter{}}});
     }
     else
@@ -47,7 +47,7 @@ void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, 
         it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
                                   {object,
                                    fge::ObjectDataShared{new fge::ObjectData{
-                                           linkedScene, object
+                                           linkedScene, std::unique_ptr<fge::Object>{object}
                                    }, DataContext::NotHandledObjectDeleter{}}});
     }
 
@@ -55,23 +55,23 @@ void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, 
     it->_objData->setParent(parentPtr);
     it->_objPtr->_myObjectData = it->_objData;
 }
-void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent, fge::Object* newObject, fge::Scene* linkedScene, std::size_t insertionIndex)
+void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent, std::unique_ptr<fge::Object>&& newObject, fge::Scene* linkedScene, std::size_t insertionIndex)
 {
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
         it = this->g_data.insert(this->g_data.end(),
-                                  {newObject,
+                                  {newObject.get(),
                                    std::make_shared<fge::ObjectData>(
-                                           linkedScene, newObject
+                                           linkedScene, std::move(newObject)
                                    )});
     }
     else
     {
         it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
-                                  {newObject,
+                                  {newObject.get(),
                                    std::make_shared<fge::ObjectData>(
-                                           linkedScene, newObject
+                                           linkedScene, std::move(newObject)
                                    )});
     }
 

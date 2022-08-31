@@ -42,6 +42,9 @@
 #define FGE_SCENE_BAD_PLANDEPTH std::numeric_limits<fge::ObjectPlanDepth>::max()
 #define FGE_SCENE_BAD_PLAN std::numeric_limits<fge::ObjectPlan>::max()
 
+#define FGE_NEWOBJECT(objectType_, objectArgs_ ...) std::unique_ptr<fge::Object>{new objectType_{objectArgs_}}
+#define FGE_NEWOBJECT_PTR(objectPtr_) std::unique_ptr<fge::Object>{objectPtr_}
+
 namespace fge
 {
 
@@ -129,13 +132,13 @@ public:
         g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
     ObjectData(fge::Scene* linkedScene,
-               fge::Object* newObj,
+               std::unique_ptr<fge::Object>&& newObj,
                fge::ObjectSid newSid=FGE_SCENE_BAD_SID,
                fge::ObjectPlan newPlan=FGE_SCENE_PLAN_DEFAULT,
                fge::ObjectType newType=fge::ObjectType::TYPE_OBJECT) :
         g_linkedScene(linkedScene),
 
-        g_object(newObj),
+        g_object(std::move(newObj)),
         g_sid(newSid),
         g_plan(newPlan),
         g_type(newType),
@@ -453,10 +456,10 @@ public:
      * The provided SID is passed to the virtual generateSid() method.
      *
      * \warning The provided pointer of the Object, have to be allocated in the \b heap and must not be
-     * handled by the user. (The Scene will automatically put the pointer in a smart managed pointer)
+     * handled by the user.
      *
      * \warning If there is an error during the addition of the new Object, the returned shared pointer
-     * is not valid and the provided Object pointer is dismissed and **not freed by the Scene**.
+     * is not valid and the provided Object is dismissed.
      *
      * If the object is created inside the update() method from a second object, the second object become parent.
      *
@@ -466,7 +469,7 @@ public:
      * \param type The type of the new Object
      * \return An shared pointer of the ObjectData
      */
-    fge::ObjectDataShared newObject(fge::Object* newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
+    fge::ObjectDataShared newObject(std::unique_ptr<fge::Object>&& newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -562,7 +565,7 @@ public:
      * \param newObject The new Object pointer
      * \return \b true if the change is successful
      */
-    bool setObject(fge::ObjectSid sid, fge::Object* newObject);
+    bool setObject(fge::ObjectSid sid, std::unique_ptr<fge::Object>&& newObject);
     /**
      * \brief Set a new Object plan.
      *

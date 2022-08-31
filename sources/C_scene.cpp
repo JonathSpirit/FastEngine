@@ -167,8 +167,12 @@ void Scene::clear()
 }
 
 /** Object **/
-fge::ObjectDataShared Scene::newObject(fge::Object* newObject, fge::ObjectPlan plan, fge::ObjectSid sid, fge::ObjectType type)
+fge::ObjectDataShared Scene::newObject(std::unique_ptr<fge::Object>&& newObject, fge::ObjectPlan plan, fge::ObjectSid sid, fge::ObjectType type)
 {
+    if (newObject == nullptr)
+    {
+        return nullptr;
+    }
     fge::ObjectSid generatedSid = this->generateSid(sid);
     if (generatedSid == FGE_SCENE_BAD_SID)
     {
@@ -181,15 +185,15 @@ fge::ObjectDataShared Scene::newObject(fge::Object* newObject, fge::ObjectPlan p
 
     auto it = this->getInsertBeginPositionWithPlan(plan);
 
-    it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, newObject, generatedSid, plan, type) );
+    it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, std::move(newObject), generatedSid, plan, type) );
     this->g_dataMap[generatedSid] = it;
-    newObject->_myObjectData = *it;
+    (*it)->g_object->_myObjectData = *it;
     this->refreshPlanDataMap(plan, it, false);
     if ((this->g_updatedObjectIterator != this->g_data.end()) && (*it)->g_parent.expired())
     {//An object is created inside another object and orphan, make it parent
         (*it)->g_parent = *this->g_updatedObjectIterator;
     }
-    newObject->first(this);
+    (*it)->g_object->first(this);
 
     this->_onNewObject.call(this, *it);
     this->_onPlanUpdate.call(this, plan);
@@ -373,7 +377,7 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
     }
     return false;
 }
-bool Scene::setObject(fge::ObjectSid sid, fge::Object* newObject)
+bool Scene::setObject(fge::ObjectSid sid, std::unique_ptr<fge::Object>&& newObject)
 {
     if (newObject == nullptr)
     {
@@ -393,7 +397,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::Object* newObject)
         (*it->second)->g_linkedScene = nullptr;
         (*it->second)->g_object->_myObjectData.reset();
 
-        (*it->second) = std::make_shared<fge::ObjectData>( this, newObject, (*it->second)->g_sid, (*it->second)->g_plan, (*it->second)->g_type );
+        (*it->second) = std::make_shared<fge::ObjectData>( this, std::move(newObject), (*it->second)->g_sid, (*it->second)->g_plan, (*it->second)->g_type );
         (*it->second)->g_object->_myObjectData = *it->second;
         (*it->second)->g_object->first(this);
         return true;
@@ -804,12 +808,10 @@ void Scene::unpack(fge::net::Packet& pck)
         //TYPE
         pck >> buffType;
 
-        fge::Object* buffObject = fge::reg::GetNewClassOf(buffClass);
+        std::unique_ptr<fge::Object> buffObject{fge::reg::GetNewClassOf(buffClass)};
         if (buffObject)
         {
-            this->newObject(buffObject, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
-
-            buffObject->unpack(pck);
+            this->newObject(std::move(buffObject), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) )->g_object->unpack(pck);
         }
     }
 }
@@ -1015,11 +1017,10 @@ void Scene::unpackModification(fge::net::Packet& pck)
         //TYPE
         pck >> buffType;
 
-        fge::Object* buffObject = this->getObjectPtr(buffSid);
+        auto buffObject = this->getObject(buffSid);
         if ( !buffObject )
         {
-            buffObject = fge::reg::GetNewClassOf(buffClass );
-            this->newObject(buffObject, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
+            buffObject = this->newObject(std::unique_ptr<fge::Object>{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
         }
 
         //MODIF COUNT/OBJECT DATA
@@ -1031,7 +1032,7 @@ void Scene::unpackModification(fge::net::Packet& pck)
             fge::net::SizeType buffIndex;
             pck >> buffIndex;
 
-            buffObject->_netList.at(buffIndex)->applyData(pck);
+            buffObject->g_object->_netList.at(buffIndex)->applyData(pck);
         }
     }
 }
@@ -1260,9 +1261,7 @@ void Scene::unpackWatchedEvent(fge::net::Packet& pck)
             pck >> buffType;
 
             this->delObject(buffSid);
-            fge::Object* theNewObject = fge::reg::GetNewClassOf(buffClass);
-            this->newObject(theNewObject, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType));
-            theNewObject->unpack(pck);
+            this->newObject(std::unique_ptr<fge::Object>{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))->g_object->unpack(pck);
         }
         else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
         {//Remove object
@@ -1375,16 +1374,15 @@ bool Scene::loadFromFile(const std::string& path)
     nlohmann::json& jsonObjArray = inputJson["Objects"];
     for (auto & it : jsonObjArray)
     {
-        fge::Object* buffObj = fge::reg::GetNewClassOf( it.begin().key() );
+        std::unique_ptr<fge::Object> buffObj{fge::reg::GetNewClassOf(it.begin().key())};
 
         if ( buffObj )
         {
             nlohmann::json& objJson = it.begin().value();
 
-            this->newObject(buffObj, objJson["_plan"].get<fge::ObjectPlan>(),
-                                     objJson["_sid"].get<fge::ObjectSid>(),
-                                     objJson["_type"].get<fge::ObjectType>() );
-            buffObj->load( objJson, this );
+            this->newObject(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(),
+                                                objJson["_sid"].get<fge::ObjectSid>(),
+                                                objJson["_type"].get<fge::ObjectType>() )->g_object->load(objJson, this);
         }
         else
         {

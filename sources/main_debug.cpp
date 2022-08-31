@@ -325,7 +325,7 @@ public:
             std::cout << stamp->getClassName() << " is registered, with classId " << i << std::endl;
         }
 
-        this->newObject( new fge::ObjSprite("p1", sf::Vector2f(100, 100)) );
+        this->newObject( FGE_NEWOBJECT(fge::ObjSprite, "p1", sf::Vector2f(100, 100)) );
 
         sf::RectangleShape rectangleTest;
 
@@ -347,7 +347,7 @@ public:
         buffTextInputBox->setMaxLength(10);
         buffTextInputBox->setCharacterSize(12);
         buffTextInputBox->setHideTextFlag(false);
-        buffDataShared = this->newObject(buffTextInputBox, FGE_SCENE_PLAN_MIDDLE);
+        buffDataShared = this->newObject(FGE_NEWOBJECT_PTR(buffTextInputBox), FGE_SCENE_PLAN_MIDDLE);
 
         std::cout << "Switching plan test ..." << std::endl;
         this->setObjectPlan(buffDataShared->getSid(), 1);
@@ -375,13 +375,13 @@ public:
         buffSelectBox->getTextList().emplace_back("Really bad");
         buffSelectBox->setBoxSize(buffSelectBox->getBoxSize() + sf::Vector2f(100, 0) );
         buffSelectBox->setSelectedText("Not cool");
-        this->newObject(buffSelectBox, FGE_SCENE_PLAN_MIDDLE);
+        this->newObject(FGE_NEWOBJECT_PTR(buffSelectBox), FGE_SCENE_PLAN_MIDDLE);
 
         buffSwitch = new fge::ObjSwitch("p2", "p1", sf::Vector2f(400, 200) );
         buffSwitch->setColor(sf::Color::Yellow);
         buffButton = new fge::ObjButton("p2", "p1", sf::Vector2f(400, 100) );
         buffButton->setScale(2, 2);
-        this->newObject(buffButton, FGE_SCENE_PLAN_MIDDLE);
+        this->newObject(FGE_NEWOBJECT_PTR(buffButton), FGE_SCENE_PLAN_MIDDLE);
 
         buffText = new fge::ObjText("base");
         buffText->setCharacterSize(16);
@@ -389,13 +389,13 @@ public:
         buffText->_tags.add("info");
         buffText->setFillColor(sf::Color::Black);
         buffText->setString("This is a simple test");
-        this->newObject(buffText, FGE_SCENE_PLAN_MIDDLE);
+        this->newObject(FGE_NEWOBJECT_PTR(buffText), FGE_SCENE_PLAN_MIDDLE);
 
         buffAnimation = new fge::ObjAnimation(fge::Animation("animation", "just_a_test"));
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(true);
         buffAnimation->setTickDuration(std::chrono::milliseconds(1) );
-        buffDataShared = this->newObject(buffAnimation, FGE_SCENE_PLAN_MIDDLE);
+        buffDataShared = this->newObject(FGE_NEWOBJECT_PTR(buffAnimation), FGE_SCENE_PLAN_MIDDLE);
 
         buffDataShared = this->duplicateObject(buffDataShared->getSid());
         buffDataShared->getObject()->move(40, 0);
@@ -405,7 +405,7 @@ public:
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(false);
         buffAnimation->setTickDuration(std::chrono::milliseconds(50) );
-        buffDataShared = this->newObject(buffAnimation, FGE_SCENE_PLAN_MIDDLE);
+        buffDataShared = this->newObject(FGE_NEWOBJECT_PTR(buffAnimation), FGE_SCENE_PLAN_MIDDLE);
 
         rectangleTest.setFillColor(sf::Color(0, 255, 0));
         rectangleTest.setSize(sf::Vector2f(50, 50) );
@@ -435,17 +435,17 @@ public:
         this->_properties.setProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS, &ls);
 
         Bloc* lightBloc = new Bloc();
-        this->newObject(lightBloc, 0 );
+        this->newObject(FGE_NEWOBJECT_PTR(lightBloc), 0 );
 
         fge::ObjLight* testLight = new fge::ObjLight("light", sf::Vector2f(300,300));
         testLight->setColor(sf::Color::Red);
         testLight->setScale(3, 3);
-        this->newObject( testLight, 0 );
+        this->newObject(FGE_NEWOBJECT_PTR(testLight), 0 );
 
         testLight = new fge::ObjLight("light", sf::Vector2f(200,200));
         testLight->setColor(sf::Color::Yellow);
         testLight->setScale(2, 2);
-        this->newObject( testLight, 0 );
+        this->newObject(FGE_NEWOBJECT_PTR(testLight), 0 );
 
         this->draw(window, false); //<- dummy draw to refresh planDepth
         this->printObjects();
@@ -454,9 +454,9 @@ public:
 
         this->setLinkedRenderTarget(&window);
 
-        auto elementTest1 = this->newObject( new fge::ObjButton("p1", "p2", sf::Vector2f(300, 50)) );
+        auto elementTest1 = this->newObject( FGE_NEWOBJECT(fge::ObjButton, "p1", "p2", sf::Vector2f(300, 50)) );
         elementTest1->getObject()->setOrigin(20.0f,20.0f);
-        auto elementTest2 = this->newObject( new fge::ObjButton("p2", "p1") );
+        auto elementTest2 = this->newObject( FGE_NEWOBJECT(fge::ObjButton, "p2", "p1") );
         elementTest2->getObject()->setOrigin(-2.0f,2.0f);
         elementTest2->getObject()->setScale(0.5f, 0.5f);
 
