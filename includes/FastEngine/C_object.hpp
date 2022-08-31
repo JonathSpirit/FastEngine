@@ -188,6 +188,13 @@ public:
      */
     virtual fge::GuiElement* getGuiElement();
 
+    /**
+     * \brief Retrieve recursively all parents transform by combining them
+     *
+     * \return Parents transform
+     */
+    sf::Transform getParentsTransform() const;
+
     //Data
 
     fge::TagList _tags; ///< The tags of the object

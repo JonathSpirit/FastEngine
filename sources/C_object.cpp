@@ -17,6 +17,7 @@
 #include "FastEngine/C_object.hpp"
 #include "FastEngine/extra_string.hpp"
 #include "FastEngine/reg_manager.hpp"
+#include "FastEngine/C_scene.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -178,7 +179,7 @@ fge::Object* Object::LoadFromFile(const std::string& path)
     inFile >> inputJson;
 
     fge::Object* buffObj = fge::reg::GetNewClassOf( inputJson.begin().key() );
-    if ( buffObj )
+    if ( buffObj != nullptr )
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
@@ -191,6 +192,22 @@ fge::Object* Object::LoadFromFile(const std::string& path)
 fge::GuiElement* Object::getGuiElement()
 {
     return nullptr;
+}
+
+sf::Transform Object::getParentsTransform() const
+{
+    sf::Transform parentsTransform = sf::Transform::Identity;
+    if (auto myObject = this->_myObjectData.lock())
+    {
+        auto parent = myObject->getParent().lock();
+
+        while (parent)
+        {
+            parentsTransform *= parent->getObject()->getTransform();
+            parent = parent->getParent().lock();
+        }
+    }
+    return parentsTransform;
 }
 
 }//end fge
