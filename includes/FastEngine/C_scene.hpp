@@ -458,6 +458,8 @@ public:
      * \warning If there is an error during the addition of the new Object, the returned shared pointer
      * is not valid and the provided Object pointer is dismissed and **not freed by the Scene**.
      *
+     * If the object is created inside the update() method from a second object, the second object become parent.
+     *
      * \param newObject The object pointer allocated by the user
      * \param plan The plan of the new object
      * \param sid The wanted SID
@@ -472,6 +474,8 @@ public:
      * The linked Scene is automatically set to the target Scene.
      *
      * \warning The provided ObjectData must have a valid Object pointer.
+     *
+     * If the object is created inside the update() method from a second object, the second object become parent.
      *
      * \param objectData The shared ObjectData
      * \return An shared pointer of the ObjectData

@@ -44,6 +44,7 @@ Scene::Scene() :
     g_data(),
     g_dataMap()
 {
+    this->g_updatedObjectIterator = this->g_data.end();
 }
 Scene::Scene(std::string sceneName) :
     g_name(std::move(sceneName)),
@@ -60,6 +61,7 @@ Scene::Scene(std::string sceneName) :
     g_data(),
     g_dataMap()
 {
+    this->g_updatedObjectIterator = this->g_data.end();
 }
 
 /** Scene **/
@@ -183,6 +185,10 @@ fge::ObjectDataShared Scene::newObject(fge::Object* newObject, fge::ObjectPlan p
     this->g_dataMap[generatedSid] = it;
     newObject->_myObjectData = *it;
     this->refreshPlanDataMap(plan, it, false);
+    if ((this->g_updatedObjectIterator != this->g_data.end()) && (*it)->g_parent.expired())
+    {//An object is created inside another object and orphan, make it parent
+        (*it)->g_parent = *this->g_updatedObjectIterator;
+    }
     newObject->first(this);
 
     this->_onNewObject.call(this, *it);
@@ -211,6 +217,10 @@ fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
     objectData->g_linkedScene = this;
     objectData->g_object->_myObjectData = objectData;
     this->refreshPlanDataMap(objectData->g_plan, it, false);
+    if ((this->g_updatedObjectIterator != this->g_data.end()) && objectData->g_parent.expired())
+    {//An object is created inside another object and orphan, make it parent
+        objectData->g_parent = *this->g_updatedObjectIterator;
+    }
     objectData->g_object->first(this);
 
     this->_onNewObject.call(this, objectData);
