@@ -24,13 +24,13 @@ Texture::Texture() :
     g_name(FGE_TEXTURE_BAD)
 {
 }
-Texture::Texture( const std::string& name ) :
+Texture::Texture(std::string name) :
     g_data(fge::texture::GetTexture(name)),
-    g_name(name)
+    g_name(std::move(name))
 {
 }
-Texture::Texture( const char* name ) :
-    g_data(fge::texture::GetTexture(std::string(name))),
+Texture::Texture(const char* name) :
+    g_data(fge::texture::GetTexture(name)),
     g_name(name)
 {
 }

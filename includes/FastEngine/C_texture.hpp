@@ -37,8 +37,8 @@ public:
      *
      * \param name The name of the loaded texture
      */
-    Texture( const std::string& name );
-    Texture( const char* name );
+    Texture(std::string name);
+    Texture(const char* name);
     /**
      * \brief Copy a custom texture data pointer.
      *
