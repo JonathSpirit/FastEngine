@@ -51,6 +51,7 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
+        debug: true
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -63,7 +64,7 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
       
     - name: Install gcc
-      run: sudo apt-get update && sudo apt-get install gcc-12 g++-12
+      run: sudo apt-get update && sudo apt-get install gcc-11 g++-11
       
     - name: Install dependencies
       run: |
@@ -74,7 +75,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -D CMAKE_C_COMPILER=gcc-12 -D CMAKE_CXX_COMPILER=g++-12 -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D TARGET_ARCH=$ARCH
+      run: cmake $GITHUB_WORKSPACE -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D TARGET_ARCH=$ARCH
 
     - name: Build
       working-directory: ${{github.workspace}}/build
