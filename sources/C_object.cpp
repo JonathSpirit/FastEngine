@@ -18,6 +18,7 @@
 #include "FastEngine/extra_string.hpp"
 #include "FastEngine/reg_manager.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/arbitraryJsonTypes.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -51,16 +52,10 @@ fge::Object* Object::copy()
 
 void Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
-    jsonObject["_posX"] = this->getPosition().x;
-    jsonObject["_posY"] = this->getPosition().y;
-
+    jsonObject["_pos"] = this->getPosition();
     jsonObject["_rotation"] = this->getRotation();
-
-    jsonObject["_scaleX"] = this->getScale().x;
-    jsonObject["_scaleY"] = this->getScale().y;
-
-    jsonObject["_originX"] = this->getOrigin().x;
-    jsonObject["_originY"] = this->getOrigin().y;
+    jsonObject["_scale"] = this->getScale();
+    jsonObject["_origin"] = this->getOrigin();
 
     jsonObject["tags"] = nlohmann::json::array();
     for (const auto& tag : this->_tags)
@@ -70,13 +65,10 @@ void Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 }
 void Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 {
-    this->setPosition( jsonObject["_posX"].get<float>(), jsonObject["_posY"].get<float>() );
-
+    this->setPosition( jsonObject["_pos"].get<sf::Vector2f>() );
     this->setRotation( jsonObject["_rotation"].get<float>() );
-
-    this->setScale( jsonObject["_scaleX"].get<float>(), jsonObject["_scaleY"].get<float>() );
-
-    this->setOrigin( jsonObject["_originX"].get<float>(), jsonObject["_originY"].get<float>() );
+    this->setScale( jsonObject["_scale"].get<sf::Vector2f>() );
+    this->setOrigin( jsonObject["_origin"].get<sf::Vector2f>() );
 
     this->_tags.clear();
 
