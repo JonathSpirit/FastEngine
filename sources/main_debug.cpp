@@ -469,6 +469,14 @@ public:
 
         fge::Clock deltaTime;
 
+        {
+            auto lock = fge::texture::AcquireLock();
+            for (auto it=fge::texture::IteratorBegin(lock); it!=fge::texture::IteratorEnd(lock); ++it)
+            {
+                std::cout << "TEXTURE: " << it->first << " FROM: " << it->second->_path << std::endl;
+            }
+        }
+
         while (window.isOpen())
         {
             event.process(window);

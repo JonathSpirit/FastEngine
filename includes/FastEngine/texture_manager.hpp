@@ -77,23 +77,37 @@ FGE_API void Uninit();
 FGE_API std::size_t GetTextureSize();
 
 /**
- * \brief Get the mutex of the texture manager
+ * \brief Acquire a unique lock, with the texture manager mutex
  *
- * \return The mutex of the texture manager
+ * In order to use iterators, you have to acquire a unique lock from this
+ * function.
+ * The lock is not differed and will lock the mutex.
+ *
+ * \return A unique lock bound to this mutex
  */
-FGE_API std::mutex& GetMutex();
+FGE_API std::unique_lock<std::mutex> AcquireLock();
 /**
  * \brief Get the begin iterator of the texture manager
  *
+ * You have to provide a valid reference to a unique lock acquire with
+ * the function AcquireLock().
+ * This function will throw if one of this is not respected :
+ * - The lock does not owned the associated mutex.
+ * - The mutex pointer of the lock does not correspond to this mutex.
+ *
+ * \param lock A unique lock bound to this mutex
  * \return The begin iterator of the texture manager
  */
-FGE_API fge::texture::TextureDataType::const_iterator GetCBegin();
+FGE_API fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lock<std::mutex>& lock);
 /**
  * \brief Get the end iterator of the texture manager
  *
- * \return The end iterator of the texture manager
+ * \see fge::texture::IteratorBegin()
+ *
+ * \param lock A unique lock bound to this mutex
+ * \return The begin iterator of the texture manager
  */
-FGE_API fge::texture::TextureDataType::const_iterator GetCEnd();
+FGE_API fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock<std::mutex>& lock);
 
 /**
  * \brief Get the bad texture

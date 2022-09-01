@@ -73,18 +73,25 @@ std::size_t GetTextureSize()
     return _dataTexture.size();
 }
 
-std::mutex& GetMutex()
+std::unique_lock<std::mutex> AcquireLock()
 {
-    return _dataMutex;
+    return std::unique_lock<std::mutex>(_dataMutex);
 }
-
-fge::texture::TextureDataType::const_iterator GetCBegin()
+fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lock<std::mutex>& lock)
 {
-    return _dataTexture.cbegin();
+    if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
+    {
+        throw std::runtime_error("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
+    }
+    return _dataTexture.begin();
 }
-fge::texture::TextureDataType::const_iterator GetCEnd()
+fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock<std::mutex>& lock)
 {
-    return _dataTexture.cend();
+    if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
+    {
+        throw std::runtime_error("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
+    }
+    return _dataTexture.end();
 }
 
 const fge::texture::TextureDataPtr& GetBadTexture()
