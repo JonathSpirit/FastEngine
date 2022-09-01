@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/C_texture.hpp"
+#include "FastEngine/C_packet.hpp"
 
 namespace fge
 {
@@ -69,7 +70,18 @@ const std::string& Texture::getName() const
     return this->g_name;
 }
 
-fge::Texture& Texture::operator =( const std::string& name )
+fge::Texture& Texture::operator =(std::string name)
+{
+    if (this->g_name == name)
+    {
+        return *this;
+    }
+
+    this->g_name = std::move(name);
+    this->g_data = fge::texture::GetTexture(this->g_name);
+    return *this;
+}
+fge::Texture& Texture::operator =(const char* name)
 {
     if (this->g_name == name)
     {
@@ -77,17 +89,6 @@ fge::Texture& Texture::operator =( const std::string& name )
     }
 
     this->g_name = name;
-    this->g_data = fge::texture::GetTexture(name);
-    return *this;
-}
-fge::Texture& Texture::operator =( const char* name )
-{
-    if (this->g_name == name)
-    {
-        return *this;
-    }
-
-    this->g_name = std::move(std::string(name));
     this->g_data = fge::texture::GetTexture(this->g_name);
     return *this;
 }
@@ -116,13 +117,27 @@ Texture::operator const sf::Texture&() const
     return *this->g_data->_texture;
 }
 
-Texture::operator std::string&()
+fge::net::Packet& operator >>(fge::net::Packet& pck, fge::Texture& data)
 {
-    return this->g_name;
+    std::string textureName;
+    pck >> textureName;
+    data = std::move(textureName);
+    return pck;
 }
-Texture::operator const std::string&() const
+fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Texture& data)
 {
-    return this->g_name;
+    return pck << data.getName();
+}
+
+void to_json(nlohmann::json& j, const fge::Texture& p)
+{
+    j = p.getName();
+}
+void from_json(const nlohmann::json& j, fge::Texture& p)
+{
+    std::string textureName;
+    j.get_to(textureName);
+    p = std::move(textureName);
 }
 
 }//end fge

@@ -19,9 +19,17 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/texture_manager.hpp>
+#include <json.hpp>
 
 namespace fge
 {
+
+namespace net
+{
+
+class Packet;
+
+}//end net
 
 /**
  * \class Texture
@@ -89,8 +97,8 @@ public:
      *
      * \param name The name of the loaded texture
      */
-    fge::Texture& operator =( const std::string& name );
-    fge::Texture& operator =( const char* name );
+    fge::Texture& operator =(std::string name);
+    fge::Texture& operator =(const char* name);
     /**
      * \brief Copy a custom texture data pointer.
      *
@@ -109,13 +117,16 @@ public:
     operator sf::Texture&();
     operator const sf::Texture&() const;
 
-    operator std::string&();
-    operator const std::string&() const;
-
 private:
     fge::texture::TextureDataPtr g_data;
     std::string g_name;
 };
+
+FGE_API fge::net::Packet& operator >>(fge::net::Packet& pck, fge::Texture& data);
+FGE_API fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Texture& data);
+
+FGE_API void to_json(nlohmann::json& j, const fge::Texture& p);
+FGE_API void from_json(const nlohmann::json& j, fge::Texture& p);
 
 }//end fge
 
