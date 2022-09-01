@@ -47,7 +47,7 @@ void from_json(const nlohmann::json& j, sf::Vector3<T>& p)
 
 inline void to_json(nlohmann::json& j, const sf::Color& p)
 {
-    j = nlohmann::json{p.toInteger()};
+    j = p.toInteger();
 }
 inline void from_json(const nlohmann::json& j, sf::Color& p)
 {
