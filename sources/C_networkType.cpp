@@ -112,7 +112,7 @@ NetworkTypeScene::NetworkTypeScene(fge::Scene* source) :
 
 }
 
-void* NetworkTypeScene::getSource() const
+const void* NetworkTypeScene::getSource() const
 {
     return this->g_typeSource;
 }
@@ -175,10 +175,9 @@ NetworkTypeSmoothVec2FloatSetter::NetworkTypeSmoothVec2FloatSetter(const sf::Vec
 {
 }
 
-void* NetworkTypeSmoothVec2FloatSetter::getSource() const
+const void* NetworkTypeSmoothVec2FloatSetter::getSource() const
 {
-    ///TODO: getSource() should return a const void*
-    return nullptr;
+    return this->g_typeSource;
 }
 
 bool NetworkTypeSmoothVec2FloatSetter::applyData(fge::net::Packet& pck)
@@ -249,7 +248,7 @@ NetworkTypeSmoothFloatGetterSetter::NetworkTypeSmoothFloatGetterSetter(std::func
 {
 }
 
-void* NetworkTypeSmoothFloatGetterSetter::getSource() const
+const void* NetworkTypeSmoothFloatGetterSetter::getSource() const
 {
     return nullptr;
 }
@@ -320,7 +319,7 @@ NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::net::SmoothVec2Float
 {
 }
 
-void* NetworkTypeSmoothVec2Float::getSource() const
+const void* NetworkTypeSmoothVec2Float::getSource() const
 {
     return this->g_typeSource;
 }
@@ -380,7 +379,7 @@ NetworkTypeSmoothFloat::NetworkTypeSmoothFloat(fge::net::SmoothFloat* source) :
 {
 }
 
-void* NetworkTypeSmoothFloat::getSource() const
+const void* NetworkTypeSmoothFloat::getSource() const
 {
     return this->g_typeSource;
 }
@@ -440,7 +439,7 @@ NetworkTypeTag::NetworkTypeTag(fge::TagList* source, std::string tag) :
 {
 }
 
-void* NetworkTypeTag::getSource() const
+const void* NetworkTypeTag::getSource() const
 {
     return this->g_typeSource;
 }

@@ -27,7 +27,7 @@ NetworkType<T>::NetworkType(T* source) :
 }
 
 template<class T>
-void* NetworkType<T>::getSource() const
+const void* NetworkType<T>::getSource() const
 {
     return this->g_typeSource;
 }
@@ -84,7 +84,7 @@ NetworkTypeProperty<T>::NetworkTypeProperty(fge::Property* source)
 }
 
 template<class T>
-void* NetworkTypeProperty<T>::getSource() const
+const void* NetworkTypeProperty<T>::getSource() const
 {
     return this->g_typeSource;
 }
@@ -142,7 +142,7 @@ NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, c
 }
 
 template <class T>
-void* NetworkTypePropertyList<T>::getSource() const
+const void* NetworkTypePropertyList<T>::getSource() const
 {
     return this->g_typeSource;
 }
@@ -209,7 +209,7 @@ NetworkTypeManual<T>::NetworkTypeManual(T* source)
 }
 
 template<class T>
-void* NetworkTypeManual<T>::getSource() const
+const void* NetworkTypeManual<T>::getSource() const
 {
     return this->g_typeSource;
 }

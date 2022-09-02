@@ -71,7 +71,7 @@ public:
      *
      * \return A pointer to the source object
      */
-    virtual void* getSource() const = 0;
+    virtual const void* getSource() const = 0;
 
     /**
      * \brief Apply the data packed by the same network type from a server
@@ -196,7 +196,7 @@ public:
     NetworkType(T* source);
     ~NetworkType() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -222,7 +222,7 @@ public:
     NetworkTypeScene(fge::Scene* source);
     ~NetworkTypeScene() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -253,7 +253,7 @@ public:
     NetworkTypeTag(fge::TagList* source, std::string tag);
     ~NetworkTypeTag() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -279,7 +279,7 @@ public:
     NetworkTypeSmoothVec2FloatSetter(const sf::Vector2f* source, std::function<void(const sf::Vector2f&)> setter, float errorRange);
     ~NetworkTypeSmoothVec2FloatSetter() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -310,7 +310,7 @@ public:
     NetworkTypeSmoothFloatGetterSetter(std::function<float(void)> getter, std::function<void(float)> setter, float errorRange);
     ~NetworkTypeSmoothFloatGetterSetter() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -342,7 +342,7 @@ public:
     NetworkTypeSmoothVec2Float(fge::net::SmoothVec2Float* source);
     ~NetworkTypeSmoothVec2Float() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -368,7 +368,7 @@ public:
     NetworkTypeSmoothFloat(fge::net::SmoothFloat* source);
     ~NetworkTypeSmoothFloat() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -397,7 +397,7 @@ public:
     NetworkTypeProperty(fge::Property* source);
     ~NetworkTypeProperty() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -425,7 +425,7 @@ public:
     NetworkTypePropertyList(fge::PropertyList* source, const std::string& vname);
     ~NetworkTypePropertyList() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
@@ -456,7 +456,7 @@ public:
     NetworkTypeManual(T* source);
     ~NetworkTypeManual() override = default;
 
-    void* getSource() const override;
+    const void* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
     void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
