@@ -271,7 +271,7 @@ private:
 /**
  * \class NetworkTypeSmoothVec2FloatSetter
  * \ingroup network
- * \brief The network type for a source Vector2f and a setter method from an object
+ * \brief The network type for a source Vector2f that can only be set with a setter method
  */
 class FGE_API NetworkTypeSmoothVec2FloatSetter : public NetworkTypeBase
 {
@@ -297,6 +297,37 @@ private:
     const sf::Vector2f* g_typeSource;
     sf::Vector2f g_typeCopy;
     std::function<void(const sf::Vector2f&)> g_setter;
+    float g_errorRange;
+};
+/**
+ * \class NetworkTypeSmoothFloatGetterSetter
+ * \ingroup network
+ * \brief The network type for a float that can only be get/set by a getter/setter method
+ */
+class FGE_API NetworkTypeSmoothFloatGetterSetter : public NetworkTypeBase
+{
+public:
+    NetworkTypeSmoothFloatGetterSetter(std::function<float(void)> getter, std::function<void(float)> setter, float errorRange);
+    ~NetworkTypeSmoothFloatGetterSetter() override = default;
+
+    void* getSource() const override;
+
+    bool applyData(fge::net::Packet& pck) override;
+    void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
+    void packData(fge::net::Packet& pck) override;
+
+    bool check() const override;
+    void forceCheck() override;
+    void forceUncheck() override;
+
+    float getCache() const;
+    void setErrorRange(float range);
+    float getErrorRange() const;
+
+private:
+    std::function<float()> g_getter;
+    float g_typeCopy;
+    std::function<void(float)> g_setter;
     float g_errorRange;
 };
 
