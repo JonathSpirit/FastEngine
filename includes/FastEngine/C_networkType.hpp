@@ -269,6 +269,38 @@ private:
 };
 
 /**
+ * \class NetworkTypeSmoothVec2FloatSetter
+ * \ingroup network
+ * \brief The network type for a source Vector2f and a setter method from an object
+ */
+class FGE_API NetworkTypeSmoothVec2FloatSetter : public NetworkTypeBase
+{
+public:
+    NetworkTypeSmoothVec2FloatSetter(const sf::Vector2f* source, std::function<void(const sf::Vector2f&)> setter, float errorRange);
+    ~NetworkTypeSmoothVec2FloatSetter() override = default;
+
+    void* getSource() const override;
+
+    bool applyData(fge::net::Packet& pck) override;
+    void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
+    void packData(fge::net::Packet& pck) override;
+
+    bool check() const override;
+    void forceCheck() override;
+    void forceUncheck() override;
+
+    const sf::Vector2f& getCache() const;
+    void setErrorRange(float range);
+    float getErrorRange() const;
+
+private:
+    const sf::Vector2f* g_typeSource;
+    sf::Vector2f g_typeCopy;
+    std::function<void(const sf::Vector2f&)> g_setter;
+    float g_errorRange;
+};
+
+/**
  * \class NetworkTypeSmoothVec2Float
  * \ingroup network
  * \brief The network type for a smooth vector2 float
