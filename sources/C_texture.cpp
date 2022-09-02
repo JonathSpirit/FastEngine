@@ -35,7 +35,7 @@ Texture::Texture(const char* name) :
     g_name(name)
 {
 }
-Texture::Texture( fge::texture::TextureDataPtr data ) :
+Texture::Texture(fge::texture::TextureDataPtr data) :
     g_data(std::move(data)),
     g_name(FGE_TEXTURE_BAD)
 {
@@ -92,7 +92,7 @@ fge::Texture& Texture::operator =(const char* name)
     this->g_data = fge::texture::GetTexture(this->g_name);
     return *this;
 }
-fge::Texture& Texture::operator =( fge::texture::TextureDataPtr data )
+fge::Texture& Texture::operator =(fge::texture::TextureDataPtr data)
 {
     this->g_name = FGE_TEXTURE_BAD;
     this->g_data = std::move(data);

@@ -52,7 +52,7 @@ public:
      *
      * \param data The custom texture data pointer
      */
-    Texture( fge::texture::TextureDataPtr data );
+    Texture(fge::texture::TextureDataPtr data);
 
     /**
      * \brief Clear the texture data

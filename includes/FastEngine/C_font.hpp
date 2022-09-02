@@ -19,9 +19,17 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/font_manager.hpp>
+#include <json.hpp>
 
 namespace fge
 {
+
+namespace net
+{
+
+class Packet;
+
+}//end net
 
 /**
  * \class Font
@@ -37,14 +45,14 @@ public:
      *
      * \param name The name of the loaded font
      */
-    Font( const std::string& name );
-    Font( const char* name );
+    Font(std::string name);
+    Font(const char* name);
     /**
      * \brief Copy a custom font data pointer.
      *
      * \param data The custom font data pointer
      */
-    Font( const fge::font::FontDataPtr& data );
+    Font(fge::font::FontDataPtr data);
 
     /**
      * \brief Clear the font data
@@ -78,14 +86,14 @@ public:
      *
      * \param name The name of the loaded font
      */
-    fge::Font& operator =( const std::string& name );
-    fge::Font& operator =( const char* name );
+    fge::Font& operator =(std::string name);
+    fge::Font& operator =(const char* name);
     /**
      * \brief Copy a custom font data pointer.
      *
      * \param data The custom font data pointer
      */
-    fge::Font& operator =( const fge::font::FontDataPtr& data );
+    fge::Font& operator =(fge::font::FontDataPtr data);
 
     explicit operator sf::Font*();
     explicit operator const sf::Font*() const;
@@ -98,13 +106,16 @@ public:
     operator sf::Font&();
     operator const sf::Font&() const;
 
-    operator std::string&();
-    operator const std::string&() const;
-
 private:
     fge::font::FontDataPtr g_data;
     std::string g_name;
 };
+
+FGE_API fge::net::Packet& operator >>(fge::net::Packet& pck, fge::Font& data);
+FGE_API fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Font& data);
+
+FGE_API void to_json(nlohmann::json& j, const fge::Font& p);
+FGE_API void from_json(const nlohmann::json& j, fge::Font& p);
 
 }//end fge
 
