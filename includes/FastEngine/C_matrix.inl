@@ -78,7 +78,7 @@ Matrix<T>::Matrix(fge::Matrix<T>&& m) noexcept :
 template<class T>
 void Matrix<T>::clear()
 {
-    this->g_mdata.clear();
+    this->g_mdata.reset();
     this->g_msize.x = 0;
     this->g_msize.y = 0;
 }
