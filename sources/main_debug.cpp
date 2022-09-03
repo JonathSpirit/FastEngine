@@ -230,11 +230,11 @@ public:
         }
         std::cout << "-------------" << '\n';
 
-        fge::Matrix<fge::MBool> matrixTest2;
+        fge::Matrix<bool> matrixTest2;
         matrixTest2.setSize(5,5);
         matrixTest2.get(1,1) = true;
 
-        fge::MBool test1;
+        bool test1;
         matrixTest2.get(1,1,test1);
 
         if (matrixTest2[0][0])

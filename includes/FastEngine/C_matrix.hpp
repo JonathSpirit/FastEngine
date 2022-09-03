@@ -18,7 +18,6 @@
 #define _FGE_C_MATRIX_HPP_INCLUDED
 
 #include <SFML/System/Vector2.hpp>
-#include <vector>
 #include <initializer_list>
 #include <json.hpp>
 
@@ -35,8 +34,10 @@ namespace fge
 template<class T>
 class Matrix
 {
-    static_assert( !std::is_same<T, bool>::value, "please use the fge::MBool wrapper for boolean, or use another type" );
 public:
+    using iterator=T*;
+    using const_iterator=const T*;
+
     /**
      * \brief Construct a empty matrix
      */
@@ -85,7 +86,7 @@ public:
      */
     Matrix(std::size_t sizex, std::size_t sizey, const T& defaultValue);
 
-    Matrix(const fge::Matrix<T>& m) = default;
+    Matrix(const fge::Matrix<T>& m);
     Matrix(fge::Matrix<T>&& m) noexcept;
 
     ~Matrix() = default;
@@ -95,7 +96,7 @@ public:
      */
     void clear();
 
-    fge::Matrix<T>& operator =(const fge::Matrix<T>& m) = default;
+    fge::Matrix<T>& operator =(const fge::Matrix<T>& m);
     fge::Matrix<T>& operator =(fge::Matrix<T>&& m) noexcept;
 
     /**
@@ -114,7 +115,7 @@ public:
      * \param y The y index of the value
      * \return A reference to the value
      */
-    inline typename std::vector<T>::const_reference get(std::size_t x, std::size_t y) const;
+    inline const T& get(std::size_t x, std::size_t y) const;
     /**
      * \brief Get the specified value
      *
@@ -123,10 +124,10 @@ public:
      * \return A reference to the value
      */
     template<class Tvec>
-    inline typename std::vector<T>::const_reference get(const sf::Vector2<Tvec>& coord) const;
-    inline typename std::vector<T>::reference get(std::size_t x, std::size_t y);
+    inline const T& get(const sf::Vector2<Tvec>& coord) const;
+    inline T& get(std::size_t x, std::size_t y);
     template<class Tvec>
-    inline typename std::vector<T>::reference get(const sf::Vector2<Tvec>& coord);
+    inline T& get(const sf::Vector2<Tvec>& coord);
 
     /**
      * \brief Get the specified value without throwing an exception
@@ -241,9 +242,15 @@ public:
     /**
      * \brief Get the 2D array of the matrix
      *
-     * \return The 2D array as a vector
+     * \return The 2D array as a pointer of the first element
      */
-    [[nodiscard]] inline const std::vector<T>& get() const;
+    [[nodiscard]] inline const T* get() const;
+    [[nodiscard]] inline T* get();
+
+    [[nodiscard]] fge::Matrix<T>::iterator begin();
+    [[nodiscard]] fge::Matrix<T>::iterator end();
+    [[nodiscard]] fge::Matrix<T>::const_iterator begin() const;
+    [[nodiscard]] fge::Matrix<T>::const_iterator end() const;
 
     /**
      * \brief Set the size of the matrix
@@ -305,21 +312,8 @@ public:
     void toVector(std::vector<T>& buff) const;
 
 private:
-    std::vector<T> g_mdata;
+    std::unique_ptr<T[]> g_mdata;
     sf::Vector2<std::size_t> g_msize;
-};
-
-struct MBool
-{
-    inline MBool() = default;
-    inline MBool(bool r) : _b(r) {}
-
-    inline operator bool() const { return this->_b; }
-    inline operator bool&() { return this->_b; }
-
-    inline bool& operator=(bool r) { return this->_b = r; }
-
-    bool _b{};
 };
 
 /**

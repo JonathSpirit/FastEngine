@@ -58,6 +58,15 @@ Matrix<T>::Matrix(std::size_t sizex, std::size_t sizey, const T& defaultValue)
 }
 
 template<class T>
+Matrix<T>::Matrix(const fge::Matrix<T>& m)
+{
+    this->setSize(m.g_msize);
+    for (std::size_t i=0; i<m.getTotalSize(); ++i)
+    {
+        this->g_mdata[i] = m.g_mdata[i];
+    }
+}
+template<class T>
 Matrix<T>::Matrix(fge::Matrix<T>&& m) noexcept :
     g_msize(m.g_msize),
     g_mdata( std::move(m.g_mdata) )
@@ -75,6 +84,16 @@ void Matrix<T>::clear()
 }
 
 template<class T>
+fge::Matrix<T>& Matrix<T>::operator =(const fge::Matrix<T>& m)
+{
+    this->setSize(m.g_msize);
+    for (std::size_t i=0; i<m.getTotalSize(); ++i)
+    {
+        this->g_mdata[i] = m.g_mdata[i];
+    }
+    return *this;
+}
+template<class T>
 fge::Matrix<T>& Matrix<T>::operator =(fge::Matrix<T>&& m) noexcept
 {
     this->g_msize = m.g_msize;
@@ -87,37 +106,37 @@ fge::Matrix<T>& Matrix<T>::operator =(fge::Matrix<T>&& m) noexcept
 template<class T>
 T* Matrix<T>::operator[](std::size_t x)
 {
-    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x];
+    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x];
 }
 template<class T>
 const T* Matrix<T>::operator[](std::size_t x) const
 {
-    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.data())[x];
+    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x];
 }
 
 template<class T>
-typename std::vector<T>::const_reference Matrix<T>::get(std::size_t x, std::size_t y) const
+const T& Matrix<T>::get(std::size_t x, std::size_t y) const
 {
-    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y];
+    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
 }
 template<class T>
 template<class Tvec>
-typename std::vector<T>::const_reference Matrix<T>::get(const sf::Vector2<Tvec>& coord) const
+const T& Matrix<T>::get(const sf::Vector2<Tvec>& coord) const
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.data())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
+    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
 }
 template<class T>
-typename std::vector<T>::reference Matrix<T>::get(std::size_t x, std::size_t y)
+T& Matrix<T>::get(std::size_t x, std::size_t y)
 {
-    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y];
+    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
 }
 template<class T>
 template<class Tvec>
-typename std::vector<T>::reference Matrix<T>::get(const sf::Vector2<Tvec>& coord)
+T& Matrix<T>::get(const sf::Vector2<Tvec>& coord)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
+    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
 }
 
 template<class T>
@@ -125,7 +144,7 @@ bool Matrix<T>::get(std::size_t x, std::size_t y, T& buff) const
 {
     if ( (x < this->g_msize.x) && (y < this->g_msize.y) )
     {
-        buff = reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y];
+        buff = reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
         return true;
     }
     return false;
@@ -143,7 +162,7 @@ T* Matrix<T>::getPtr(std::size_t x, std::size_t y)
 {
     if ( (x < this->g_msize.x) && (y < this->g_msize.y) )
     {
-        return &reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y];
+        return &reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
     }
     return nullptr;
 }
@@ -159,7 +178,7 @@ const T* Matrix<T>::getPtr(std::size_t x, std::size_t y) const
 {
     if ( (x < this->g_msize.x) && (y < this->g_msize.y) )
     {
-        return &reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y];
+        return &reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
     }
     return nullptr;
 }
@@ -174,26 +193,26 @@ const T* Matrix<T>::getPtr(const sf::Vector2<Tvec>& coord) const
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, T&& value)
 {
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y] = std::move(value);
+    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y] = std::move(value);
 }
 template<class T>
 template<class Tvec>
 void Matrix<T>::set(const sf::Vector2<Tvec>& coord, T&& value)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)] = std::move(value);
+    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)] = std::move(value);
 }
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, const T& value)
 {
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y] = value;
+    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y] = value;
 }
 template<class T>
 template<class Tvec>
 void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T& value)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)] = value;
+    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)] = value;
 }
 
 template<class T>
@@ -222,7 +241,7 @@ void Matrix<T>::set(std::initializer_list<std::initializer_list<T>> data)
         std::size_t xcount = 0;
         for (auto datax : datay)
         {
-            reinterpret_cast<T(*)[sizey]>(this->g_mdata.data())[xcount][ycount] = std::move(datax);
+            reinterpret_cast<T(*)[sizey]>(this->g_mdata.get())[xcount][ycount] = std::move(datax);
             ++xcount;
         }
         ++ycount;
@@ -251,9 +270,35 @@ std::size_t Matrix<T>::getSizeY() const
 }
 
 template<class T>
-inline const std::vector<T>& Matrix<T>::get() const
+inline const T* Matrix<T>::get() const
 {
     return this->g_mdata;
+}
+template<class T>
+inline T* Matrix<T>::get()
+{
+    return this->g_mdata;
+}
+
+template<class T>
+typename Matrix<T>::iterator Matrix<T>::begin()
+{
+    return this->g_mdata.get();
+}
+template<class T>
+typename Matrix<T>::iterator Matrix<T>::end()
+{
+    return this->g_mdata.get()+this->getTotalSize();
+}
+template<class T>
+typename Matrix<T>::const_iterator Matrix<T>::begin() const
+{
+    return this->g_mdata.get();
+}
+template<class T>
+typename Matrix<T>::const_iterator Matrix<T>::end() const
+{
+    return this->g_mdata.get()+this->getTotalSize();
 }
 
 template<class T>
@@ -275,7 +320,7 @@ void Matrix<T>::setSize(std::size_t sizex, std::size_t sizey)
         throw std::runtime_error("Matrix : size cannot be 0");
     }
 
-    this->g_mdata.resize(sizex*sizey);
+    this->g_mdata.reset( new T[sizex*sizey] );
     this->g_msize.x = sizex;
     this->g_msize.y = sizey;
 }
@@ -287,7 +332,7 @@ void Matrix<T>::fill(const T& value)
     {
         for (std::size_t y=0; y<this->g_msize.y; ++y)
         {
-            reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y] = value;
+            reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y] = value;
         }
     }
 }
@@ -301,7 +346,7 @@ void Matrix<T>::rotateClockwise()
     {
         for (std::size_t x=0; x<this->g_msize.x; ++x)
         {
-            newMatrix[newMatrix.g_msize.x - y-1][x] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y]);
+            newMatrix[newMatrix.g_msize.x - y-1][x] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y]);
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -316,7 +361,7 @@ void Matrix<T>::rotateCounterClockwise()
     {
         for (std::size_t x=0; x<this->g_msize.x; ++x)
         {
-            newMatrix[y][newMatrix.g_msize.y - x-1] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][y]);
+            newMatrix[y][newMatrix.g_msize.y - x-1] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y]);
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -353,7 +398,7 @@ void Matrix<T>::flipHorizontally()
     {
         for (std::size_t y=0; y<this->g_msize.y; ++y)
         {
-            newMatrix[x][y] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[this->g_msize.x-1-x][y]);
+            newMatrix[x][y] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[this->g_msize.x-1-x][y]);
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -369,7 +414,7 @@ void Matrix<T>::flipVertically()
     {
         for (std::size_t y=0; y<this->g_msize.y; ++y)
         {
-            newMatrix[x][y] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.data())[x][this->g_msize.y-1-y]);
+            newMatrix[x][y] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][this->g_msize.y-1-y]);
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -379,7 +424,7 @@ void Matrix<T>::flipVertically()
 template<class T>
 void Matrix<T>::toVector(std::vector<T>& buff) const
 {
-    buff = this->g_mdata;
+    buff.assign(this->g_mdata.get(), this->g_mdata.get()+this->g_msize.x*this->g_msize.y);
 }
 
 template<class T>
