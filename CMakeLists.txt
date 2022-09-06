@@ -360,6 +360,20 @@ else()
     target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window X11 ${FGE_LIB_NAME})
 endif()
 
+#Copy compiled DLLs
+if (WIN32)
+    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window)
+        add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:${DEPENDENCY}>
+                $<TARGET_FILE_DIR:${FGE_EXE_NAME}>)
+    endforeach()
+    add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
+            $<TARGET_FILE_DIR:${FGE_EXE_NAME}>)
+endif()
+
 #Install
 install(TARGETS ${FGE_LIB_NAME})
 install(TARGETS ${FGE_SERVER_LIB_NAME})
