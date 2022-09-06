@@ -59,13 +59,15 @@ include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
 #Documentation
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
-    option(BUILD_DOC "Build documentation" ON)
+    option(FGE_BUILD_DOC "Build documentation" ON)
 else()
-    option(BUILD_DOC "Build documentation" OFF)
+    option(FGE_BUILD_DOC "Build documentation" OFF)
 endif()
 
+option(FGE_BUILD_TESTS "Build tests" ON)
+
 #Check if Doxygen is installed
-if (BUILD_DOC)
+if (FGE_BUILD_DOC)
     find_package(Doxygen)
     if (DOXYGEN_FOUND)
         # set input and output files
@@ -365,3 +367,9 @@ install(FILES ${FGE_INCLUDES_EXTRA}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES ${FGE_INCLUDES_PROJECT}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/FastEngine)
+
+#Tests
+if (FGE_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
