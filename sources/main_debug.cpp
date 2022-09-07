@@ -200,6 +200,10 @@ public:
         sf::RenderWindow window(sf::VideoMode(800, 600), "FastEngine "+(std::string)FGE_VERSION_FULL_WITHTAG_STRING);
         fge::Event event(window);
 
+        event._onClosed.add( new fge::CallbackLambda<const fge::Event&>([&]([[maybe_unused]] const fge::Event& evt){
+            std::cout << "event _onClosed called from a lambda with capture" << std::endl;
+        }) );
+
         window.setFramerateLimit(60);
         window.setKeyRepeatEnabled(true);
 

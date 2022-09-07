@@ -26,8 +26,6 @@
 namespace fge
 {
 
-//CallbackFunctorBase
-
 /**
  * \class CallbackFunctorBase
  * \ingroup callback
@@ -44,8 +42,6 @@ public:
     virtual void call(Types ... args) = 0;
     virtual bool check(void* ptr) = 0;
 };
-
-//CallbackFunctor
 
 /**
  * \class CallbackFunctor
@@ -86,7 +82,45 @@ protected:
     fge::CallbackFunctor<Types ...>::CallbackFunction g_function;
 };
 
-//CallbackFunctorObject
+/**
+ * \class CallbackLambda
+ * \ingroup callback
+ * \brief Callback lambda (with/without capture)
+ *
+ * \tparam Types The list of arguments types passed to the lambda
+ */
+template <class ... Types>
+class CallbackLambda : public fge::CallbackFunctorBase<Types ...>
+{
+public:
+    /**
+     * \brief Constructor
+     *
+     * \param func The callback function
+     */
+    template<typename TLambda>
+    explicit CallbackLambda(const TLambda& lambda);
+    ~CallbackLambda() override;
+
+    /**
+     * \brief Call the callback function with the given arguments
+     *
+     * \param args The list of arguments
+     */
+    void call(Types ... args) override;
+    /**
+     * \brief Always return false
+     *
+     * \param ptr The pointer to check (unused)
+     * \return \b False
+     */
+    inline bool check(void* ptr) override;
+
+protected:
+    void* g_lambda;
+    void (*g_executeLambda)(void *, Types...);
+    void (*g_deleteLambda)(void *);
+};
 
 /**
  * \class CallbackFunctorObject
@@ -129,8 +163,6 @@ protected:
     fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject g_functionObj;
     TObject* g_object;
 };
-
-//CallbackHandler
 
 /**
  * \class CallbackHandler

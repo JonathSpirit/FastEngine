@@ -57,6 +57,39 @@ bool CallbackFunctorObject<TObject, Types ...>::check(void* ptr)
     return this->g_object == reinterpret_cast<TObject*>(ptr);
 }
 
+///CallbackLambda
+
+template <class ... Types>
+template<typename TLambda>
+CallbackLambda<Types ...>::CallbackLambda(const TLambda& lambda) :
+        g_lambda(new TLambda(lambda))
+{
+    this->g_executeLambda = [](void* lambda, Types... arguments)
+    {
+        return (*reinterpret_cast<TLambda*>(lambda))(arguments...);
+    };
+    this->g_deleteLambda = [](void* lambda)
+    {
+        delete reinterpret_cast<TLambda*>(lambda);
+    };
+}
+template <class ... Types>
+CallbackLambda<Types ...>::~CallbackLambda()
+{
+    (*this->g_deleteLambda)(this->g_lambda);
+}
+
+template <class ... Types>
+void CallbackLambda<Types ...>::call(Types ... args)
+{
+    (*this->g_executeLambda)(this->g_lambda, args...);
+}
+template <class ... Types>
+bool CallbackLambda<Types ...>::check([[maybe_unused]] void* ptr)
+{
+    return false;
+}
+
 ///CallbackHandler
 
 template <class ... Types>
