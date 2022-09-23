@@ -262,4 +262,64 @@ void NetworkTypeManual<T>::trigger()
     this->g_trigger = true;
 }
 
+///NetworkTypeSetter
+
+template<class T>
+NetworkTypeSetter<T>::NetworkTypeSetter(const T* source, std::function<void(const T&)> setter) :
+        g_typeSource(source),
+        g_typeCopy(*source),
+        g_setter(std::move(setter))
+{
+}
+
+template<class T>
+const void* NetworkTypeSetter<T>::getSource() const
+{
+    return this->g_typeSource;
+}
+
+template<class T>
+bool NetworkTypeSetter<T>::applyData(fge::net::Packet& pck)
+{
+    if ( pck >> this->g_typeCopy )
+    {
+        this->g_setter(this->g_typeCopy);
+        this->_onApplied.call();
+        return true;
+    }
+    return false;
+}
+template<class T>
+void NetworkTypeSetter<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+{
+    auto it = this->_g_tableId.find(id);
+    if (it != this->_g_tableId.end())
+    {
+        pck << *this->g_typeSource;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+    }
+}
+template<class T>
+void NetworkTypeSetter<T>::packData(fge::net::Packet& pck)
+{
+    pck << *this->g_typeSource;
+}
+
+template<class T>
+bool NetworkTypeSetter<T>::check() const
+{
+    return (*this->g_typeSource != this->g_typeCopy) || this->_g_force;
+}
+template<class T>
+void NetworkTypeSetter<T>::forceCheck()
+{
+    this->_g_force = true;
+}
+template<class T>
+void NetworkTypeSetter<T>::forceUncheck()
+{
+    this->_g_force = false;
+    this->g_typeCopy = *this->g_typeSource;
+}
+
 }//end fge::net
