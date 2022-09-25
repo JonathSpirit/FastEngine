@@ -45,10 +45,10 @@ public:
 
     const sf::Color& getColor() const;
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    FGE_OBJ_DRAW_DECLARE
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 

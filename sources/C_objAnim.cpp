@@ -101,7 +101,7 @@ const sf::Color& ObjAnimation::getColor() const
     return this->g_vertices[0].color;
 }
 
-void ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+FGE_OBJ_UPDATE_BODY(ObjAnimation)
 {
     if (!this->g_paused)
     {
@@ -123,16 +123,19 @@ void ObjAnimation::update(sf::RenderWindow& screen, fge::Event& event, const std
         }
     }
 }
-void ObjAnimation::draw(sf::RenderTarget& target, sf::RenderStates states) const
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjAnimation)
 {
     states.transform *= this->getTransform();
     states.texture = static_cast<const sf::Texture*>(this->g_animation);
     target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 }
+#endif
 
-void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["color"] = this->g_vertices[0].color.toInteger();
     jsonObject["animation"] = this->g_animation;
@@ -142,9 +145,9 @@ void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["animationReverse"] = this->g_animation.isReverse();
     jsonObject["tickDuration"] = static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->setColor( sf::Color( jsonObject.value<uint32_t>("color", 0) ) );
     this->g_animation = jsonObject.value<std::string>("animation", FGE_ANIM_BAD);

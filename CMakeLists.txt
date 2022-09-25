@@ -199,10 +199,10 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 if(FGE_DEBUG)
-    target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_DEBUG)
-    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_DEBUG)
+    target_compile_definitions(${FGE_LIB_NAME} PRIVATE FGE_DEF_DEBUG)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_DEF_DEBUG)
 endif()
-target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_SERVER)
+target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_DEF_SERVER)
 
 #Includes path
 target_include_directories(${FGE_LIB_NAME} PUBLIC "includes")

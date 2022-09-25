@@ -65,7 +65,10 @@ bool ObjSwitch::getActiveStat() const
     return this->g_statActive;
 }
 
-void ObjSwitch::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+#ifdef FGE_DEF_SERVER
+FGE_OBJ_UPDATE_BODY(ObjSwitch){}
+#else
+FGE_OBJ_UPDATE_BODY(ObjSwitch)
 {
     this->g_statMouseOn = fge::IsMouseOn( screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds() );
 
@@ -78,16 +81,20 @@ void ObjSwitch::update(sf::RenderWindow& screen, fge::Event& event, const std::c
         }
     }
 }
-void ObjSwitch::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#endif
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjSwitch)
 {
     states.transform *= this->getTransform();
     this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - sf::Color(50,50,50,0)) : this->g_color);
     target.draw(this->g_sprite, states);
 }
+#endif
 
-void ObjSwitch::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSwitch::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["color"] = this->g_color.toInteger();
 
@@ -97,9 +104,9 @@ void ObjSwitch::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["statMouseOn"] = this->g_statMouseOn;
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjSwitch::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSwitch::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->g_color = sf::Color( jsonObject.value<uint32_t>("color", 0) );
 

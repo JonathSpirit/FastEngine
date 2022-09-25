@@ -419,7 +419,11 @@ public:
      * \param event The FastEngine Event class
      * \param deltaTime The time in milliseconds between two updates
      */
+#ifdef FGE_DEF_SERVER
+    void update(fge::Event& event, const std::chrono::milliseconds& deltaTime);
+#else
     void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
+#endif
     /**
      * \brief Draw the Scene.
      *
@@ -439,7 +443,9 @@ public:
      * \param clear_color If clear_target is set to \b true, this parameter is used to set the clear color
      * \param states The default SFML RenderStates to be used for every drawn Object
      */
+#ifndef FGE_DEF_SERVER
     void draw(sf::RenderTarget& target, bool clear_target = true, const sf::Color& clear_color = sf::Color::White, sf::RenderStates states=sf::RenderStates::Default) const;
+#endif //FGE_DEF_SERVER
 
     /**
      * \brief Clear the Scene.

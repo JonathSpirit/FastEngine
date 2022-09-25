@@ -54,16 +54,18 @@ const fge::Font& ObjText::getFont() const
     return this->g_font;
 }
 
-void ObjText::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjText)
 {
     states.transform *= this->getTransform();
     this->g_text.setFont( this->g_font );
     target.draw(this->g_text, states);
 }
+#endif
 
-void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["font"] = this->g_font;
 
@@ -78,9 +80,9 @@ void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["outlineColor"] = static_cast<uint32_t>(this->g_text.getOutlineColor().toInteger());
     jsonObject["outlineThickness"] = this->g_text.getOutlineThickness();
 }
-void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->g_font = jsonObject.value<std::string>("font", FGE_FONT_BAD);
 

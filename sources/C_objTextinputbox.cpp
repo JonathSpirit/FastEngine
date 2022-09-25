@@ -135,7 +135,10 @@ const sf::Color& ObjTextInputBox::getTextColor() const
     return this->g_colorText;
 }
 
-void ObjTextInputBox::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+#ifdef FGE_DEF_SERVER
+FGE_OBJ_UPDATE_BODY(ObjTextInputBox){}
+#else
+FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
 {
     if ( this->g_flagMouse.check(event.isMouseButtonPressed(sf::Mouse::Left)) )
     {
@@ -213,7 +216,10 @@ void ObjTextInputBox::update(sf::RenderWindow& screen, fge::Event& event, const 
         }
     }
 }
-void ObjTextInputBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#endif
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 {
     sf::String tmpString;
 
@@ -246,10 +252,11 @@ void ObjTextInputBox::draw(sf::RenderTarget& target, sf::RenderStates states) co
     target.draw(this->g_box, states);
     target.draw(this->g_text, states);
 }
+#endif
 
-void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["cursor"] = this->g_cursor;
     jsonObject["maxLength"] = this->g_maxLength;
@@ -270,9 +277,9 @@ void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
 
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->g_cursor = jsonObject.value<uint16_t>("cursor", 0);
     this->g_maxLength = jsonObject.value<uint16_t>("maxLength", 10);

@@ -56,11 +56,11 @@ namespace
 
 bool IsEngineBuiltInDebugMode()
 {
-    #ifdef _FGE_DEF_DEBUG
+    #ifdef FGE_DEF_DEBUG
         return true;
     #else
         return false;
-    #endif // _FGE_DEF_DEBUG
+    #endif // FGE_DEF_DEBUG
 }
 
 std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter, bool ignoreDirectory, bool onlyFilename, bool recursive)

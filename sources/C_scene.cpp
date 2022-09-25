@@ -65,7 +65,11 @@ Scene::Scene(std::string sceneName) :
 }
 
 /** Scene **/
+#ifdef FGE_DEF_SERVER
+void Scene::update(fge::Event& event, const std::chrono::milliseconds& deltaTime)
+#else
 void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime)
+#endif //FGE_DEF_SERVER
 {
     for ( this->g_updatedObjectIterator=this->g_data.begin(); this->g_updatedObjectIterator!=this->g_data.end(); ++this->g_updatedObjectIterator )
     {
@@ -79,7 +83,11 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
             }
         }
 
+#ifdef FGE_DEF_SERVER
+        (*this->g_updatedObjectIterator)->g_object->update(event, deltaTime, this);
+#else
         (*this->g_updatedObjectIterator)->g_object->update(screen, event, deltaTime, this);
+#endif //FGE_DEF_SERVER
         if ( this->g_deleteMe )
         {
             this->g_deleteMe = false;
@@ -100,6 +108,7 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
         }
     }
 }
+#ifndef FGE_DEF_SERVER
 void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& clear_color, sf::RenderStates states) const
 {
     if ( clear_target )
@@ -159,6 +168,7 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
 
     target.setView( backupView );
 }
+#endif //FGE_DEF_SERVER
 
 void Scene::clear()
 {

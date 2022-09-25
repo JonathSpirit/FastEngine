@@ -74,23 +74,25 @@ const sf::Color& ObjSprite::getColor() const
     return this->g_vertices[0].color;
 }
 
-void ObjSprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjSprite)
 {
     states.transform *= this->getTransform();
     states.texture = static_cast<const sf::Texture*>(this->g_texture);
     target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 }
+#endif
 
-void ObjSprite::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSprite::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["color"] = this->g_vertices[0].color.toInteger();
     jsonObject["texture"] = this->g_texture;
 }
-void ObjSprite::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSprite::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->setColor( sf::Color( jsonObject.value<uint32_t>("color", 0) ) );
     this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);

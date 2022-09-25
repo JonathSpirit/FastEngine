@@ -26,22 +26,29 @@
 namespace fge
 {
 
-void Object::first(fge::Scene* scene_ptr)
+void Object::first(fge::Scene* scene)
 {
 }
 void Object::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
 }
-void Object::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+#ifdef FGE_DEF_SERVER
+void Object::update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+#else
+void Object::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+#endif //FGE_DEF_SERVER
 {
 }
+
+#ifndef FGE_DEF_SERVER
 void Object::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 }
+#endif //FGE_DEF_SERVER
 void Object::networkRegister()
 {
 }
-void Object::removed(fge::Scene* scene_ptr)
+void Object::removed(fge::Scene* scene)
 {
 }
 
@@ -50,7 +57,7 @@ fge::Object* Object::copy()
     return fge::reg::Duplicate(this);
 }
 
-void Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void Object::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
     jsonObject["_pos"] = this->getPosition();
     jsonObject["_rotation"] = this->getRotation();
@@ -63,7 +70,7 @@ void Object::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
         jsonObject["tags"] += tag;
     }
 }
-void Object::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void Object::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
     this->setPosition( jsonObject["_pos"].get<sf::Vector2f>() );
     this->setRotation( jsonObject["_rotation"].get<float>() );

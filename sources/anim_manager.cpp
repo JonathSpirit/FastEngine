@@ -217,7 +217,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 //Load texture
                 if (animType != fge::anim::AnimationType::ANIM_TYPE_TILESET)
                 {
-#ifndef _FGE_DEF_SERVER
+#ifndef FGE_DEF_SERVER
                     std::shared_ptr<sf::Texture> buffTexture{new sf::Texture()};
                     if (buffTexture->loadFromFile(tmpFrame._path))
                     {
@@ -229,7 +229,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                     }
 #else
                     tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
-#endif //_FGE_DEF_SERVER
+#endif //FGE_DEF_SERVER
                 }
 
                 ++iFrame;

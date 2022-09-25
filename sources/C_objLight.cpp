@@ -104,22 +104,25 @@ const sf::Color& ObjLight::getColor() const
     return this->g_vertices[0].color;
 }
 
-void ObjLight::first(fge::Scene* scene_ptr)
+void ObjLight::first(fge::Scene* scene)
 {
-    if (scene_ptr && !this->g_renderObject)
+    if (scene != nullptr && !this->g_renderObject)
     {
-        this->g_renderObject = scene_ptr->getFirstObj_ByClass(FGE_OBJLIGHTMAP_CLASSNAME);
+        this->g_renderObject = scene->getFirstObj_ByClass(FGE_OBJLIGHTMAP_CLASSNAME);
     }
     if (!this->_g_lightSystemGate.isOpen())
     {
-        this->setDefaultLightSystem(scene_ptr);
+        this->setDefaultLightSystem(scene);
     }
 }
-void ObjLight::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+
+FGE_OBJ_UPDATE_BODY(ObjLight)
 {
-    this->g_renderMap.update(screen, event, deltaTime, scene_ptr);
+    FGE_OBJ_UPDATE_CALL(this->g_renderMap);
 }
-void ObjLight::draw(sf::RenderTarget& target, sf::RenderStates states) const
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjLight)
 {
     this->g_renderMap._renderTexture.clear(sf::Color(255,255,255,0));
 
@@ -189,17 +192,18 @@ void ObjLight::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     theTarget->draw(this->g_renderMap, sf::RenderStates(this->g_blendMode));
 }
+#endif
 
-void ObjLight::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjLight::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["color"] = this->g_vertices[0].color.toInteger();
     jsonObject["texture"] = this->g_texture;
 }
-void ObjLight::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjLight::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->setColor( sf::Color( jsonObject.value<uint32_t>("color", 0) ) );
     this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);

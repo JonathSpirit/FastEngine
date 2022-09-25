@@ -128,7 +128,10 @@ const sf::Color& ObjSelectBox::getTextColor() const
     return this->g_colorText;
 }
 
-void ObjSelectBox::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+#ifdef FGE_DEF_SERVER
+FGE_OBJ_UPDATE_BODY(ObjSelectBox){}
+#else
+FGE_OBJ_UPDATE_BODY(ObjSelectBox)
 {
     sf::Vector2f mousePosition = screen.mapPixelToCoords(event.getMousePixelPos());
     sf::FloatRect bounds = this->getGlobalBounds();
@@ -168,7 +171,10 @@ void ObjSelectBox::update(sf::RenderWindow& screen, fge::Event& event, const std
         }
     }
 }
-void ObjSelectBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#endif
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjSelectBox)
 {
     this->g_text.setString( this->g_textSelected );
 
@@ -192,10 +198,11 @@ void ObjSelectBox::draw(sf::RenderTarget& target, sf::RenderStates states) const
         }
     }
 }
+#endif
 
-void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene_ptr);
+    fge::Object::save(jsonObject, scene);
 
     jsonObject["colorBox"] = this->g_colorBox.toInteger();
     jsonObject["colorBoxOutline"] = this->g_colorBoxOutline.toInteger();
@@ -214,9 +221,9 @@ void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
     jsonObject["statActive"] = this->g_statActive;
     jsonObject["statMouseOn"] = this->g_statMouseOn;
 }
-void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene_ptr);
+    fge::Object::load(jsonObject, scene);
 
     this->g_colorBox = sf::Color( jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF) );
     this->g_colorBoxOutline = sf::Color( jsonObject.value<uint32_t>("colorBoxOutline", 0) );

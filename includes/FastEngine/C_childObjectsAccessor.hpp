@@ -35,13 +35,16 @@ class ObjectData;
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 
+#ifdef FGE_DEF_SERVER
+class FGE_API ChildObjectsAccessor
+#else
 class FGE_API ChildObjectsAccessor : public sf::Drawable
+#endif //FGE_DEF_SERVER
 {
 public:
     ChildObjectsAccessor() = default;
     ChildObjectsAccessor([[maybe_unused]]const ChildObjectsAccessor& r){};
     ChildObjectsAccessor([[maybe_unused]]ChildObjectsAccessor&& r) noexcept {};
-    ~ChildObjectsAccessor() override = default;
 
     ChildObjectsAccessor& operator=([[maybe_unused]]const ChildObjectsAccessor& r){return *this;};
     ChildObjectsAccessor& operator=([[maybe_unused]]ChildObjectsAccessor&& r) noexcept {return *this;};
@@ -59,8 +62,12 @@ public:
     void remove(std::size_t index);
     void remove(std::size_t first, std::size_t last);
 
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr);
+#ifdef FGE_DEF_SERVER
+    void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+#else
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+#endif //FGE_DEF_SERVER
 
     void putInFront(std::size_t index);
     void putInBack(std::size_t index);

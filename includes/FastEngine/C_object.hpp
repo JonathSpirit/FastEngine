@@ -33,6 +33,32 @@
 #define FGE_OBJ_NOSCENE nullptr
 #define FGE_OBJ_DEFAULT_COPYMETHOD(objClass) fge::Object* copy() override { return new objClass(*this); }
 
+#ifdef FGE_DEF_SERVER
+    #define FGE_OBJ_UPDATE_DECLARE void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
+#else
+    #define FGE_OBJ_UPDATE_DECLARE void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
+#endif //FGE_DEF_SERVER
+
+#ifdef FGE_DEF_SERVER
+    #define FGE_OBJ_UPDATE_BODY(class_) void class_::update([[maybe_unused]] fge::Event& event, [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
+
+    #define FGE_OBJ_UPDATE_CALL(object_) object_.update(event, deltaTime, scene)
+    #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(event, deltaTime, scene)
+#else
+    #define FGE_OBJ_UPDATE_BODY(class_) void class_::update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event, [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
+
+    #define FGE_OBJ_UPDATE_CALL(object_) object_.update(screen, event, deltaTime, scene)
+    #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(screen, event, deltaTime, scene)
+#endif //FGE_DEF_SERVER
+
+#ifdef FGE_DEF_SERVER
+    #define FGE_OBJ_DRAW_DECLARE
+#else
+    #define FGE_OBJ_DRAW_DECLARE void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+#endif //FGE_DEF_SERVER
+
+#define FGE_OBJ_DRAW_BODY(class_) void class_::draw(sf::RenderTarget& target, sf::RenderStates states) const
+
 namespace fge
 {
 
@@ -50,7 +76,11 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
  * \ingroup objectControl
  * \brief The Object class is the base class for all objects in the engine.
  */
+#ifdef FGE_DEF_SERVER
+class FGE_API Object : public sf::Transformable
+#else
 class FGE_API Object : public sf::Drawable, public sf::Transformable
+#endif //FGE_DEF_SERVER
 {
 public:
     Object() = default;
@@ -69,9 +99,9 @@ public:
     /**
      * \brief Method called when the object is added to a scene for initialization purposes.
      *
-     * \param scene_ptr The scene where the object is added (can be nullptr)
+     * \param scene The scene where the object is added (can be nullptr)
      */
-    virtual void first(fge::Scene* scene_ptr);
+    virtual void first(fge::Scene* scene);
     /**
      * \brief Ask the object to register all callbacks it needs to receive events.
      *
@@ -85,16 +115,22 @@ public:
      * \param screen The screen where the object is drawn
      * \param event The event system
      * \param deltaTime The time since the last frame
-     * \param scene_ptr The scene where the object is updated (can be nullptr)
+     * \param scene The scene where the object is updated (can be nullptr)
      */
-    virtual void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr);
+#ifdef FGE_DEF_SERVER
+    virtual void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+#else
+    virtual void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+#endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object
      *
      * \param target The target where the object is drawn
      * \param states The SFML render states
      */
+#ifndef FGE_DEF_SERVER
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+#endif //FGE_DEF_SERVER
     /**
      * \brief Register all network types needed by the object
      */
@@ -102,24 +138,24 @@ public:
     /**
      * \brief Method called when the object is removed from a scene
      *
-     * \param scene_ptr The scene where the object is removed (can be nullptr)
+     * \param scene The scene where the object is removed (can be nullptr)
      */
-    virtual void removed(fge::Scene* scene_ptr);
+    virtual void removed(fge::Scene* scene);
 
     /**
      * \brief Save the object to a json object
      *
      * \param jsonObject The json object where the object is saved
-     * \param scene_ptr The scene where the object is saved (can be nullptr)
+     * \param scene The scene where the object is saved (can be nullptr)
      */
-    virtual void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr);
+    virtual void save(nlohmann::json& jsonObject, fge::Scene* scene);
     /**
      * \brief Load the object from a json object
      *
      * \param jsonObject The json object where the object is loaded
-     * \param scene_ptr The scene where the object is loaded (can be nullptr)
+     * \param scene The scene where the object is loaded (can be nullptr)
      */
-    virtual void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr);
+    virtual void load(nlohmann::json& jsonObject, fge::Scene* scene);
     /**
      * \brief Pack the object into a packet
      *

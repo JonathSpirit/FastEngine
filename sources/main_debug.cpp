@@ -68,11 +68,11 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Bloc)
 
-    void first(fge::Scene* scene_ptr) override
+    void first(fge::Scene* scene) override
     {
         if (!this->_g_lightSystemGate.isOpen())
         {
-            this->setDefaultLightSystem(scene_ptr);
+            this->setDefaultLightSystem(scene);
         }
         if (this->g_copied)
         {
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr) override
+    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override
     {
         if (this->g_copied)
         {
@@ -102,7 +102,7 @@ public:
 
         if ( event.isMouseButtonPressed(sf::Mouse::Left) )
         {
-            scene_ptr->duplicateObject(this->_myObjectData.lock()->getSid());
+            scene->duplicateObject(this->_myObjectData.lock()->getSid());
         }
     }
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override

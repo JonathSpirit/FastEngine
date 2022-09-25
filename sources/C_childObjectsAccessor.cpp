@@ -113,11 +113,20 @@ void ChildObjectsAccessor::remove(std::size_t first, std::size_t last)
     }
 }
 
-void ChildObjectsAccessor::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+#ifdef FGE_DEF_SERVER
+void ChildObjectsAccessor::update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
 {
     for (this->g_actualIteratedIndex=0; this->g_actualIteratedIndex<this->g_data.size(); ++this->g_actualIteratedIndex)
     {
-        this->g_data[this->g_actualIteratedIndex]._objPtr->update(screen, event, deltaTime, scene_ptr);
+        this->g_data[this->g_actualIteratedIndex]._objPtr->update(event, deltaTime, scene);
+    }
+}
+#else
+void ChildObjectsAccessor::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+{
+    for (this->g_actualIteratedIndex=0; this->g_actualIteratedIndex<this->g_data.size(); ++this->g_actualIteratedIndex)
+    {
+        this->g_data[this->g_actualIteratedIndex]._objPtr->update(screen, event, deltaTime, scene);
     }
 }
 void ChildObjectsAccessor::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -128,6 +137,7 @@ void ChildObjectsAccessor::draw(sf::RenderTarget& target, sf::RenderStates state
         this->g_data[this->g_actualIteratedIndex]._objPtr->draw(target, states);
     }
 }
+#endif //FGE_DEF_SERVER
 
 void ChildObjectsAccessor::putInFront(std::size_t index)
 {

@@ -34,14 +34,18 @@ const sf::Color& ObjRenderMap::getClearColor() const
     return this->g_colorClear;
 }
 
-void ObjRenderMap::first(fge::Scene* scene_ptr)
+void ObjRenderMap::first(fge::Scene* scene)
 {
-    if (scene_ptr)
+    if (scene != nullptr)
     {
-        scene_ptr->_onRenderTargetClear.add( new CallbackFunctorObject(&fge::ObjRenderMap::onClear, this), this );
+        scene->_onRenderTargetClear.add( new CallbackFunctorObject(&fge::ObjRenderMap::onClear, this), this );
     }
 }
-void ObjRenderMap::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr)
+
+#ifdef FGE_DEF_SERVER
+FGE_OBJ_UPDATE_BODY(ObjRenderMap){}
+#else
+FGE_OBJ_UPDATE_BODY(ObjRenderMap)
 {
     if ( screen.getSize() != this->g_windowSize )
     {
@@ -56,7 +60,10 @@ void ObjRenderMap::update(sf::RenderWindow& screen, fge::Event& event, const std
         this->g_windowView.setCenter(static_cast<float>(this->g_windowSize.x)/2.0f, static_cast<float>(this->g_windowSize.y)/2.0f);
     }
 }
-void ObjRenderMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#endif
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjRenderMap)
 {
     this->_renderTexture.setView(target.getView());
     this->_renderTexture.display();
@@ -69,15 +76,17 @@ void ObjRenderMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     target.setView( this->_renderTexture.getView() );
 }
-void ObjRenderMap::removed(fge::Scene* scene_ptr)
+#endif
+
+void ObjRenderMap::removed(fge::Scene* scene)
 {
     this->detachAll();
 }
 
-void ObjRenderMap::save(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjRenderMap::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
 }
-void ObjRenderMap::load(nlohmann::json& jsonObject, fge::Scene* scene_ptr)
+void ObjRenderMap::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
 }
 void ObjRenderMap::pack(fge::net::Packet& pck)

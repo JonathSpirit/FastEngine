@@ -52,13 +52,13 @@ public:
     void setClearColor(const sf::Color& color);
     const sf::Color& getClearColor() const;
 
-    void first(fge::Scene* scene_ptr) override;
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene_ptr) override;
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void removed(fge::Scene* scene_ptr) override;
+    void first(fge::Scene* scene) override;
+    FGE_OBJ_UPDATE_DECLARE
+    FGE_OBJ_DRAW_DECLARE
+    void removed(fge::Scene* scene) override;
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene_ptr) override;
+    void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
