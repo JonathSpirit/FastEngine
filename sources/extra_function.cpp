@@ -121,6 +121,7 @@ std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesyst
 }
 
 ///Detection
+#ifndef FGE_DEF_SERVER
 bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone)
 {
     return zone.contains( window.mapPixelToCoords( sf::Mouse::getPosition(window) ) );
@@ -146,6 +147,7 @@ bool IsPressed (const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::
     }
     return false;
 }
+#endif //FGE_DEF_SERVER
 
 ///Reach
 sf::Vector2f ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime)

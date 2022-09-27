@@ -46,6 +46,7 @@ void Event::start()
     this->g_mouseWheelHorizontalDelta = 0;
     this->g_mouseWheelVerticalDelta = 0;
 }
+#ifndef FGE_DEF_SERVER
 void Event::process( const sf::Event& sfevt )
 {
     this->g_types |= (0x80000000 >> sfevt.type);
@@ -157,6 +158,7 @@ void Event::process( sf::Window& sfscreen, unsigned int maxEventCount )
         --maxEventCount;
     }
 }
+#endif //FGE_DEF_SERVER
 
 bool Event::isKeyPressed( sf::Keyboard::Key sfkey ) const
 {

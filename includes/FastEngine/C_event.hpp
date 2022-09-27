@@ -61,9 +61,11 @@ public:
      *
      * \param window The window
      */
+#ifndef FGE_DEF_SERVER
     explicit Event(const sf::Window& window) :
             g_windowSize(window.getSize())
     {}
+#endif //FGE_DEF_SERVER
     ~Event() = default;
 
     /**
@@ -83,6 +85,7 @@ public:
      * \see process
      */
     void start();
+#ifndef FGE_DEF_SERVER
     /**
      * \brief Process an SFML event
      *
@@ -103,6 +106,7 @@ public:
      * \param maxEventCount The maximum number of processed events par call
      */
     void process( sf::Window& sfscreen, unsigned int maxEventCount=FGE_EVENT_DEFAULT_MAXEVENTCOUNT );
+#endif //FGE_DEF_SERVER
 
     /**
      * \brief Check if a key is pressed

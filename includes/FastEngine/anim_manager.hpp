@@ -19,7 +19,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 
-#include <SFML/Graphics/Texture.hpp>
+#include <FastEngine/textureType.hpp>
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -52,7 +52,7 @@ enum class AnimationType
  */
 struct AnimationFrame
 {
-    std::shared_ptr<sf::Texture> _texture; ///< The shared pointer texture of the frame
+    std::shared_ptr<fge::TextureType> _texture; ///< The shared pointer texture of the frame
     std::string _path; ///< The file path of the texture
     sf::Vector2u _texturePosition; ///< The tileset grid position, only useful if the type is ANIM_TYPE_TILESET
 
@@ -83,7 +83,7 @@ struct AnimationData
 
     fge::anim::AnimationType _type; ///< The type of the animation
     sf::Vector2u _tilesetGridSize; ///< The tileset grid size, only useful if the type is ANIM_TYPE_TILESET
-    std::shared_ptr<sf::Texture> _tilesetTexture; ///< The tileset texture, only useful if the type is ANIM_TYPE_TILESET
+    std::shared_ptr<fge::TextureType> _tilesetTexture; ///< The tileset texture, only useful if the type is ANIM_TYPE_TILESET
     std::filesystem::path _tilesetPath; ///< The tileset texture path, only useful if the type is ANIM_TYPE_TILESET
 };
 

@@ -44,11 +44,13 @@ FGE_API bool IsEngineBuiltInDebugMode();
 FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
 
 ///Detection
+#ifndef FGE_DEF_SERVER
 FGE_API bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
 FGE_API bool IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone);
 
 FGE_API bool IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
 FGE_API bool IsPressed(const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
+#endif //FGE_DEF_SERVER
 
 ///Position/Rectangle
 template<typename T>

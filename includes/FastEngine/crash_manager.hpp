@@ -16,6 +16,7 @@
 
 #ifndef _FGE_CRASH_MANAGER_HPP_INCLUDED
 #define _FGE_CRASH_MANAGER_HPP_INCLUDED
+#ifndef FGE_DEF_SERVER
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <SFML/Graphics.hpp>
@@ -30,4 +31,5 @@ FGE_API void SetInfoText(const std::string& txt);
 
 }//end fge::crash
 
+#endif //FGE_DEF_SERVER
 #endif // _FGE_CRASH_MANAGER_HPP_INCLUDED

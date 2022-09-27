@@ -19,7 +19,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 
-#include <SFML/Graphics/Texture.hpp>
+#include <FastEngine/textureType.hpp>
 #include <string>
 #include <unordered_map>
 #include <mutex>
@@ -39,7 +39,7 @@ namespace fge::texture
  */
 struct TextureData
 {
-    std::shared_ptr<sf::Texture> _texture;
+    std::shared_ptr<fge::TextureType> _texture;
     bool _valid;
     std::filesystem::path _path;
 };
