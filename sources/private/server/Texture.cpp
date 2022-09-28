@@ -29,6 +29,10 @@
 ////////////////////////////////////////////////////////////
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>
+#include <cassert>
+
+#define HACK_IMG_PTR(x_) reinterpret_cast<sf::Image*>(x_);
+#define HACK_IMG_CONST_PTR(x_) reinterpret_cast<const sf::Image*>(x_);
 
 namespace sf
 {
@@ -66,41 +70,86 @@ m_cacheId      (0)
 
 
 ////////////////////////////////////////////////////////////
-Texture::~Texture()=default;
-
+Texture::~Texture()
+{
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr != nullptr)
+    {
+        delete ptr;
+    }
+}
 
 ////////////////////////////////////////////////////////////
 bool Texture::create(unsigned int width, unsigned int height)
 {
-    return false;
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        ptr = new sf::Image{};
+    }
+
+    ptr->create(width, height);
+    this->m_size = ptr->getSize();
+    return true;
 }
 
 
 ////////////////////////////////////////////////////////////
-bool Texture::loadFromFile(const std::string& filename, const IntRect& area)
+bool Texture::loadFromFile(const std::string& filename, [[maybe_unused]] const IntRect& area)
 {
-    return false;
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        ptr = new sf::Image{};
+    }
+    bool result = ptr->loadFromFile(filename);
+    this->m_size = ptr->getSize();
+    return result;
 }
 
 
 ////////////////////////////////////////////////////////////
-bool Texture::loadFromMemory(const void* data, std::size_t size, const IntRect& area)
+bool Texture::loadFromMemory(const void* data, std::size_t size, [[maybe_unused]] const IntRect& area)
 {
-    return false;
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        ptr = new sf::Image{};
+    }
+    bool result = ptr->loadFromMemory(data, size);
+    this->m_size = ptr->getSize();
+    return result;
 }
 
 
 ////////////////////////////////////////////////////////////
-bool Texture::loadFromStream(InputStream& stream, const IntRect& area)
+bool Texture::loadFromStream(InputStream& stream, [[maybe_unused]] const IntRect& area)
 {
-    return false;
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        ptr = new sf::Image{};
+    }
+    bool result = ptr->loadFromStream(stream);
+    this->m_size = ptr->getSize();
+    return result;
 }
 
 
 ////////////////////////////////////////////////////////////
-bool Texture::loadFromImage(const Image& image, const IntRect& area)
+bool Texture::loadFromImage(const Image& image, [[maybe_unused]] const IntRect& area)
 {
-    return false;
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        ptr = new sf::Image{image};
+    }
+    else
+    {
+        *ptr = image;
+    }
+    this->m_size = ptr->getSize();
+    return true;
 }
 
 
@@ -114,43 +163,76 @@ Vector2u Texture::getSize() const
 ////////////////////////////////////////////////////////////
 Image Texture::copyToImage() const
 {
-    return Image();
+    const auto* ptr = HACK_IMG_CONST_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        return {};
+    }
+    return *ptr;
 }
 
 
 ////////////////////////////////////////////////////////////
 void Texture::update(const Uint8* pixels)
 {
+    // Update the whole texture
+    update(pixels, m_size.x, m_size.y, 0, 0);
 }
 
 
 ////////////////////////////////////////////////////////////
 void Texture::update(const Uint8* pixels, unsigned int width, unsigned int height, unsigned int x, unsigned int y)
 {
+    assert(x + width <= m_size.x);
+    assert(y + height <= m_size.y);
+
+    auto* ptr = HACK_IMG_PTR(this->m_cacheId);
+    if (ptr == nullptr)
+    {
+        return;
+    }
+
+    const auto* colors = reinterpret_cast<const uint32_t*>(pixels);
+
+    for (unsigned int ix=x; ix<width; ++ix)
+    {
+        for (unsigned int iy=y; iy<height; ++iy)
+        {
+            ptr->setPixel(ix, iy, sf::Color{*(colors++)});
+        }
+    }
 }
 
 
 ////////////////////////////////////////////////////////////
 void Texture::update(const Texture& texture)
 {
+    update(texture, 0, 0);
 }
 
 
 ////////////////////////////////////////////////////////////
-void Texture::update(const Texture& texture, unsigned int x, unsigned int y)
+void Texture::update(const Texture& texture, [[maybe_unused]] unsigned int x, [[maybe_unused]] unsigned int y)
 {
+    const auto* ptr = HACK_IMG_CONST_PTR(texture.m_cacheId);
+    if (ptr != nullptr)
+    {
+        this->loadFromImage(*ptr);
+    }
 }
 
 
 ////////////////////////////////////////////////////////////
 void Texture::update(const Image& image)
 {
+    update(image, 0, 0);
 }
 
 
 ////////////////////////////////////////////////////////////
-void Texture::update(const Image& image, unsigned int x, unsigned int y)
+void Texture::update(const Image& image, [[maybe_unused]] unsigned int x, [[maybe_unused]] unsigned int y)
 {
+    this->loadFromImage(image);
 }
 
 
@@ -231,16 +313,45 @@ void Texture::bind(const Texture* texture, CoordinateType coordinateType)
 ////////////////////////////////////////////////////////////
 unsigned int Texture::getMaximumSize()
 {
-    return 0;
+    return 16384;
 }
 
 
 ////////////////////////////////////////////////////////////
 Texture& Texture::operator =(const Texture& right)
 {
-    Texture temp(right);
+    const auto* ptr = HACK_IMG_CONST_PTR(right.m_cacheId);
+    auto* thisPtr = HACK_IMG_PTR(this->m_cacheId);
 
-    swap(temp);
+    if (ptr == nullptr)
+    {
+        if (thisPtr != nullptr)
+        {
+            delete thisPtr;
+            thisPtr = nullptr;
+        }
+    }
+    else
+    {
+        if (thisPtr != nullptr)
+        {
+            *thisPtr = *ptr;
+        }
+        else
+        {
+            thisPtr = new sf::Image{*ptr};
+        }
+    }
+
+    m_size = right.m_size;
+    m_actualSize = right.m_actualSize;
+    m_texture = right.m_texture;
+    m_isSmooth = right.m_isSmooth;
+    m_sRgb = right.m_sRgb;
+    m_isRepeated = right.m_isRepeated;
+    m_pixelsFlipped = right.m_pixelsFlipped;
+    m_fboAttachment = right.m_fboAttachment;
+    m_hasMipmap = right.m_hasMipmap;
 
     return *this;
 }
@@ -259,8 +370,10 @@ void Texture::swap(Texture& right)
     std::swap(m_fboAttachment, right.m_fboAttachment);
     std::swap(m_hasMipmap,     right.m_hasMipmap);
 
-    m_cacheId = 0;
-    right.m_cacheId = 0;
+    auto cacheCpy = this->m_cacheId;
+
+    this->m_cacheId = right.m_cacheId;
+    right.m_cacheId = cacheCpy;
 }
 
 
