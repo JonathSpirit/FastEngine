@@ -96,7 +96,8 @@ public:
     /**
      * \brief Constructor
      *
-     * \param func The callback function
+     * \tparam TLambda The lambda type
+     * \param lambda The callback lambda
      */
     template<typename TLambda>
     explicit CallbackLambda(const TLambda& lambda);
