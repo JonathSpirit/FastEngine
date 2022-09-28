@@ -124,6 +124,8 @@ if(WIN32)
 
     set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
     set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
+else()
+    find_package(freetype REQUIRED)
 endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
@@ -163,14 +165,13 @@ add_dependencies(${FGE_EXE_NAME} ${FGE_LIB_NAME})
 if(WIN32)
     add_dependencies(sfml-audio OpenAL_extern)
     add_dependencies(sfml-graphics freetype_extern)
+    add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
 endif()
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/SFML/include")
-
-add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern) #freetype
 
 add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
 
