@@ -125,7 +125,8 @@ if(WIN32)
     set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
     set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
 else()
-    find_package(freetype REQUIRED)
+    find_library(FREETYPE NAMES freetype REQUIRED)
+    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
