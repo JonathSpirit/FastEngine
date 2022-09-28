@@ -126,7 +126,6 @@ if(WIN32)
     set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
 else()
     find_library(FREETYPE NAMES freetype REQUIRED)
-    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
@@ -285,6 +284,9 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/texture_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/timer_manager.cpp")
 
 if(FGE_TESTING_SERVER_CHANGE)
+    if(NOT WIN32)
+        set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
+    endif()
     set(FGE_SFML_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/SFML)
 
     target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS SFML_WINDOW_EXPORTS)
