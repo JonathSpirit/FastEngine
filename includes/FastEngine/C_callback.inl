@@ -17,7 +17,7 @@
 namespace fge
 {
 
-///CallbackFunctor
+//CallbackFunctor
 
 template <class ... Types>
 CallbackFunctor<Types ...>::CallbackFunctor(fge::CallbackFunctor<Types ...>::CallbackFunction func) :
@@ -36,7 +36,7 @@ bool CallbackFunctor<Types ...>::check(void* ptr)
     return this->g_function == reinterpret_cast<fge::CallbackFunctor<Types ...>::CallbackFunction>(ptr);
 }
 
-///CallbackFunctorObject
+//CallbackFunctorObject
 
 template <class TObject, class ... Types>
 CallbackFunctorObject<TObject, Types ...>::CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject func, TObject* object) :
@@ -57,7 +57,7 @@ bool CallbackFunctorObject<TObject, Types ...>::check(void* ptr)
     return this->g_object == reinterpret_cast<TObject*>(ptr);
 }
 
-///CallbackLambda
+//CallbackLambda
 
 template <class ... Types>
 template<typename TLambda>
@@ -90,7 +90,7 @@ bool CallbackLambda<Types ...>::check([[maybe_unused]] void* ptr)
     return false;
 }
 
-///CallbackHandler
+//CallbackHandler
 
 template <class ... Types>
 void CallbackHandler<Types ...>::clear()

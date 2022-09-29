@@ -221,11 +221,11 @@ public:
      *
      * \return The SFML texture or texture::GetBadTexture if something is invalid
      */
-    explicit operator sf::Texture*();
-    explicit operator const sf::Texture*() const;
+    explicit operator fge::TextureType*();
+    explicit operator const fge::TextureType*() const;
 
-    operator sf::Texture&();
-    operator const sf::Texture&() const;
+    operator fge::TextureType&();
+    operator const fge::TextureType&() const;
 
     operator std::string&();
     operator const std::string&() const;

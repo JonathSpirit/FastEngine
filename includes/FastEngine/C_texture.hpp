@@ -106,16 +106,16 @@ public:
      */
     fge::Texture& operator =( fge::texture::TextureDataPtr data );
 
-    explicit operator sf::Texture*();
-    explicit operator const sf::Texture*() const;
+    explicit operator fge::TextureType*();
+    explicit operator const fge::TextureType*() const;
 
     /**
      * \brief Directly get the SFML texture
      *
      * \return The SFML texture
      */
-    operator sf::Texture&();
-    operator const sf::Texture&() const;
+    operator fge::TextureType&();
+    operator const fge::TextureType&() const;
 
 private:
     fge::texture::TextureDataPtr g_data;

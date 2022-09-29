@@ -563,6 +563,7 @@ std::size_t Scene::getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectCont
     }
     return objCount;
 }
+#ifndef FGE_DEF_SERVER
 std::size_t Scene::getAllObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByPosition( target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()), buff );
@@ -599,6 +600,8 @@ std::size_t Scene::getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::
     }
     return objCount;
 }
+#endif //FGE_DEF_SERVER
+
 std::size_t Scene::getAllObj_ByClass(std::string_view class_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
@@ -652,6 +655,8 @@ fge::ObjectDataShared Scene::getFirstObj_ByZone(const sf::Rect<float>& zone) con
     }
     return nullptr;
 }
+
+#ifndef FGE_DEF_SERVER
 fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const
 {
     return this->getFirstObj_ByPosition( target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()) );
@@ -686,6 +691,8 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(const sf::Rect<int>& zone
     }
     return nullptr;
 }
+#endif //FGE_DEF_SERVER
+
 fge::ObjectDataShared Scene::getFirstObj_ByClass(std::string_view class_name) const
 {
     for (const auto & data : this->g_data)

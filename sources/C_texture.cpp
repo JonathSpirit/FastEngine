@@ -99,20 +99,20 @@ fge::Texture& Texture::operator =(fge::texture::TextureDataPtr data)
     return *this;
 }
 
-Texture::operator sf::Texture*()
+Texture::operator fge::TextureType*()
 {
     return this->g_data->_texture.get();
 }
-Texture::operator const sf::Texture*() const
+Texture::operator const fge::TextureType*() const
 {
     return this->g_data->_texture.get();
 }
 
-Texture::operator sf::Texture&()
+Texture::operator fge::TextureType&()
 {
     return *this->g_data->_texture;
 }
-Texture::operator const sf::Texture&() const
+Texture::operator const fge::TextureType&() const
 {
     return *this->g_data->_texture;
 }

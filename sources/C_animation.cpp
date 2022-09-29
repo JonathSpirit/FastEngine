@@ -381,7 +381,7 @@ fge::Animation& Animation::operator =( const fge::anim::AnimationDataPtr& data )
     return *this;
 }
 
-Animation::operator sf::Texture*()
+Animation::operator fge::TextureType*()
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
@@ -399,7 +399,7 @@ Animation::operator sf::Texture*()
     }
     return fge::texture::GetBadTexture()->_texture.get();
 }
-Animation::operator const sf::Texture*() const
+Animation::operator const fge::TextureType*() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
@@ -418,7 +418,7 @@ Animation::operator const sf::Texture*() const
     return fge::texture::GetBadTexture()->_texture.get();
 }
 
-Animation::operator sf::Texture&()
+Animation::operator fge::TextureType&()
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
@@ -436,7 +436,7 @@ Animation::operator sf::Texture&()
     }
     return *fge::texture::GetBadTexture()->_texture;
 }
-Animation::operator const sf::Texture&() const
+Animation::operator const fge::TextureType&() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {

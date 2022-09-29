@@ -664,6 +664,8 @@ public:
      * \return The number of Objects added in the container
      */
     std::size_t getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectContainer& buff) const;
+
+#ifndef FGE_DEF_SERVER
     /**
      * \brief Get all Object with a local position.
      *
@@ -736,6 +738,8 @@ public:
      * \return The number of Objects added in the container
      */
     std::size_t getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+#endif //FGE_DEF_SERVER
+
     /**
      * \brief Get all Object with the same class name.
      *
@@ -779,6 +783,8 @@ public:
      * \return The first Object that match the argument
      */
     fge::ObjectDataShared getFirstObj_ByZone(const sf::Rect<float>& zone) const;
+
+#ifndef FGE_DEF_SERVER
     /**
      * \brief Get the first Object with a local position.
      *
@@ -827,6 +833,8 @@ public:
      * \param class_name The class name
      * \return The first Object that match the argument
      */
+#endif //FGE_DEF_SERVER
+
     fge::ObjectDataShared getFirstObj_ByClass(std::string_view class_name) const;
     /**
      * \brief Get the first Object that match a provided tag.

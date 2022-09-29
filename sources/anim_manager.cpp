@@ -161,7 +161,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
         {
             buffAnimData->_tilesetPath = inputJson.value<std::filesystem::path>("tileset", {});
 
-            std::shared_ptr<sf::Texture> buffTexture{ new sf::Texture() };
+            std::shared_ptr<fge::TextureType> buffTexture{ new fge::TextureType{} };
             if ( buffTexture->loadFromFile(buffAnimData->_tilesetPath.string()) )
             {
                 buffAnimData->_tilesetTexture = std::move(buffTexture);
@@ -217,8 +217,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 //Load texture
                 if (animType != fge::anim::AnimationType::ANIM_TYPE_TILESET)
                 {
-#ifndef FGE_DEF_SERVER
-                    std::shared_ptr<sf::Texture> buffTexture{new sf::Texture()};
+                    std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
                     if (buffTexture->loadFromFile(tmpFrame._path))
                     {
                         tmpFrame._texture = std::move(buffTexture);
@@ -227,9 +226,6 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                     {
                         tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
                     }
-#else
-                    tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
-#endif //FGE_DEF_SERVER
                 }
 
                 ++iFrame;

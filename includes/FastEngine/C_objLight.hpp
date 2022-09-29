@@ -80,7 +80,9 @@ private:
 
     fge::ObjectDataShared g_renderObject;
 
+#ifndef FGE_DEF_SERVER
     fge::ObjRenderMap g_renderMap;
+#endif //FGE_DEF_SERVER
     sf::BlendMode g_blendMode;
 };
 

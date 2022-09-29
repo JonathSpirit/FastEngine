@@ -52,8 +52,12 @@ void Init()
         }
 
         _dataTextureBad = std::make_shared<fge::texture::TextureData>();
-        _dataTextureBad->_texture = std::make_shared<sf::Texture>();
+#ifdef FGE_DEF_SERVER
+        _dataTextureBad->_texture = std::make_shared<fge::TextureType>(tmpImage);
+#else
+        _dataTextureBad->_texture = std::make_shared<fge::TextureType>();
         _dataTextureBad->_texture->loadFromImage(tmpImage);
+#endif //FGE_DEF_SERVER
         _dataTextureBad->_valid = false;
     }
 }
@@ -143,12 +147,16 @@ bool LoadFromImage(std::string_view name, const sf::Image& image)
         return false;
     }
 
-    auto tmpTexture = std::make_shared<sf::Texture>();
+#ifdef FGE_DEF_SERVER
+    auto tmpTexture = std::make_shared<fge::TextureType>(image);
+#else
+    auto tmpTexture = std::make_shared<fge::TextureType>();
 
     if ( !tmpTexture->loadFromImage(image) )
     {
         return false;
     }
+#endif //FGE_DEF_SERVER
 
     fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
     buff->_texture = std::move(tmpTexture);
@@ -172,7 +180,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
         return false;
     }
 
-    auto tmpTexture = std::make_shared<sf::Texture>();
+    auto tmpTexture = std::make_shared<fge::TextureType>();
 
     if ( !tmpTexture->loadFromFile(path.string()) )
     {

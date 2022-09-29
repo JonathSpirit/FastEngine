@@ -16,6 +16,7 @@
 
 #ifndef _FGE_DRAWING_HPP_INCLUDED_
 #define _FGE_DRAWING_HPP_INCLUDED_
+#ifndef FGE_DEF_SERVER
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <SFML/Graphics.hpp>
@@ -38,4 +39,5 @@ FGE_API void DrawCenteredRect(sf::RenderTarget& target, const sf::Vector2f& posi
 }//end debug
 }//end fge
 
+#endif //FGE_DEF_SERVER
 #endif // _FGE_DRAWING_HPP_INCLUDED_

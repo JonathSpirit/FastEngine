@@ -118,7 +118,9 @@ void ObjLight::first(fge::Scene* scene)
 
 FGE_OBJ_UPDATE_BODY(ObjLight)
 {
+#ifndef FGE_DEF_SERVER
     FGE_OBJ_UPDATE_CALL(this->g_renderMap);
+#endif //FGE_DEF_SERVER
 }
 
 #ifndef FGE_DEF_SERVER
