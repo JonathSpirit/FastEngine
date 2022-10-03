@@ -36,6 +36,7 @@
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/C_objLight.hpp"
+#include "FastEngine/C_objTextNew.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
 #include "FastEngine/C_server.hpp"
@@ -320,6 +321,7 @@ public:
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjTextInputBox>()) );
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjSelectBox>()) );
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjLight>()) );
+        fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjTextNew>()) );
 
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<Bloc>()) );
 
@@ -480,6 +482,12 @@ public:
                 std::cout << "TEXTURE: " << it->first << " FROM: " << it->second->_path << std::endl;
             }
         }
+
+        auto oldTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjText, "base", "hello world !", {100.0f,430.0f}));
+        ((fge::ObjText*)oldTextTest->getObject())->setFillColor(sf::Color::Blue);
+
+        auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjTextNew, "hello world !", "base", {100.0f,400.0f}));
+        ((fge::ObjTextNew*)newTextTest->getObject())->setFillColor(sf::Color::Black);
 
         while (window.isOpen())
         {
