@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#define private public //TODO: A bit hacky, must be changed in future !
+#include <SFML/Graphics/Texture.hpp>
+#undef private
+
 #include "FastEngine/C_objTextNew.hpp"
 #include "FastEngine/font_manager.hpp"
 
@@ -22,7 +26,6 @@ namespace fge
 
 void Character::clear()
 {
-    this->_character = 0;
     this->_vertices.clear();
     this->_outlineVertices.clear();
 }
@@ -80,7 +83,6 @@ ObjTextNew::ObjTextNew(const sf::String& string, const fge::Font& font, const sf
 void ObjTextNew::setFont(const fge::Font& font)
 {
     this->g_font = font;
-    //this->g_text.setFont(this->g_font);
 }
 const fge::Font& ObjTextNew::getFont() const
 {
@@ -221,53 +223,27 @@ float ObjTextNew::getOutlineThickness() const
 
 sf::Vector2f ObjTextNew::findCharacterPos(std::size_t index) const
 {
-    // Make sure that we have a valid font
-    if (!this->g_font.valid())
+    if (this->g_characters.empty())
     {
         return {};
     }
 
     // Adjust the index if it's out of range
-    if (index > this->g_string.getSize())
+    if (index > this->g_characters.size())
     {
-        index = this->g_string.getSize();
+        index = this->g_characters.size();
     }
 
-    // Precompute the variables needed by the algorithm
-    const auto* font = static_cast<const sf::Font*>(this->g_font);
-    bool  isBold          = this->g_style & Bold;
-    float whitespaceWidth = font->getGlyph(L' ', this->g_characterSize, isBold).advance;
-    float letterSpacing   = ( whitespaceWidth / 3.f ) * ( this->g_letterSpacingFactor - 1.f );
-    whitespaceWidth      += letterSpacing;
-    float lineSpacing     = font->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
+    return this->getTransform().transformPoint(this->g_characters[index].getPosition());
+}
 
-    // Compute the position
-    sf::Vector2f position;
-    uint32_t prevChar = 0;
-    for (std::size_t i = 0; i < index; ++i)
-    {
-        uint32_t curChar = this->g_string[i];
-
-        // Apply the kerning offset
-        position.x += font->getKerning(prevChar, curChar, this->g_characterSize, isBold);
-        prevChar = curChar;
-
-        // Handle special characters
-        switch (curChar)
-        {
-        case ' ':  position.x += whitespaceWidth;             continue;
-        case '\t': position.x += whitespaceWidth * 4;         continue;
-        case '\n': position.y += lineSpacing; position.x = 0; continue;
-        }
-
-        // For regular characters, add the advance offset of the glyph
-        position.x += font->getGlyph(curChar, this->g_characterSize, isBold).advance + letterSpacing;
-    }
-
-    // Transform the position to global coordinates
-    position = getTransform().transformPoint(position);
-
-    return position;
+std::vector<fge::Character>& ObjTextNew::getCharacters()
+{
+    return this->g_characters;
+}
+const std::vector<fge::Character>& ObjTextNew::getCharacters() const
+{
+    return this->g_characters;
 }
 
 #ifndef FGE_DEF_SERVER
@@ -280,16 +256,22 @@ FGE_OBJ_DRAW_BODY(ObjTextNew)
         states.transform *= getTransform();
         states.texture = &this->g_font.getData()->_font->getTexture(this->g_characterSize);
 
+        if (this->g_outlineThickness != 0.0f)
+        {
+            for (const auto& character : this->g_characters)
+            {
+                sf::RenderStates statesCharacter{states};
+                statesCharacter.transform *= character.getTransform();
+
+                target.draw(character._outlineVertices, statesCharacter);
+            }
+        }
+
         for (const auto& character : this->g_characters)
         {
             sf::RenderStates statesCharacter{states};
             statesCharacter.transform *= character.getTransform();
 
-            // Only draw the outline if there is something to draw
-            if (this->g_outlineThickness != 0)
-            {
-                target.draw(character._outlineVertices, statesCharacter);
-            }
             target.draw(character._vertices, statesCharacter);
         }
     }
@@ -298,82 +280,64 @@ FGE_OBJ_DRAW_BODY(ObjTextNew)
 
 void ObjTextNew::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    /*fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject, scene);
 
-    jsonObject["font"] = this->g_font;
-
-    std::basic_string<uint32_t> tmpString = this->g_text.getString().toUtf32();
+    std::basic_string<uint32_t> tmpString = this->g_string.toUtf32();
     jsonObject["string"] = tmpString;
 
-    jsonObject["characterSize"] = static_cast<uint16_t>(this->g_text.getCharacterSize());
-    jsonObject["letterSpacing"] = this->g_text.getLetterSpacing();
-    jsonObject["lineSpacing"] = this->g_text.getLineSpacing();
-    jsonObject["style"] = static_cast<uint32_t>(this->g_text.getStyle());
-    jsonObject["fillColor"] = static_cast<uint32_t>(this->g_text.getFillColor().toInteger());
-    jsonObject["outlineColor"] = static_cast<uint32_t>(this->g_text.getOutlineColor().toInteger());
-    jsonObject["outlineThickness"] = this->g_text.getOutlineThickness();*/
+    jsonObject["font"] = this->g_font;
+    jsonObject["characterSize"] = static_cast<uint16_t>(this->g_characterSize);
+    jsonObject["letterSpacing"] = this->g_letterSpacingFactor;
+    jsonObject["lineSpacing"] = this->g_lineSpacingFactor;
+    jsonObject["style"] = static_cast<std::underlying_type<Style>::type >(this->g_style);
+    jsonObject["fillColor"] = static_cast<uint32_t>(this->g_fillColor.toInteger());
+    jsonObject["outlineColor"] = static_cast<uint32_t>(this->g_outlineColor.toInteger());
+    jsonObject["outlineThickness"] = this->g_outlineThickness;
 }
 void ObjTextNew::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    /*fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject, scene);
+
+    auto tmpString = jsonObject.value<std::basic_string<uint32_t> >("string", std::basic_string<uint32_t>());
+    this->g_string = tmpString;
 
     this->g_font = jsonObject.value<std::string>("font", FGE_FONT_BAD);
+    this->g_characterSize = jsonObject.value<uint16_t>("characterSize", 30);
+    this->g_letterSpacingFactor = jsonObject.value<float>("letterSpacing", 1.0f);
+    this->g_lineSpacingFactor = jsonObject.value<float>("lineSpacing", 1.0f);
+    this->g_style = jsonObject.value<std::underlying_type<Style>::type >("style", Regular);
+    this->g_fillColor = sf::Color{jsonObject.value<uint32_t>("fillColor", sf::Color::White.toInteger())};
+    this->g_outlineColor = sf::Color{jsonObject.value<uint32_t>("outlineColor", sf::Color::Black.toInteger())};
+    this->g_outlineThickness = jsonObject.value<float>("outlineThickness", 0.0f);
 
-    std::basic_string<uint32_t> tmpString = jsonObject.value<std::basic_string<uint32_t> >("string", std::basic_string<uint32_t>());
-    this->g_text.setString( sf::String(tmpString) );
-
-    this->g_text.setCharacterSize( jsonObject.value<uint16_t>("characterSize", this->g_text.getCharacterSize()) );
-    this->g_text.setLetterSpacing( jsonObject.value<float>("letterSpacing", this->g_text.getLetterSpacing()) );
-    this->g_text.setLineSpacing( jsonObject.value<float>("lineSpacing", this->g_text.getLineSpacing()) );
-    this->g_text.setStyle( jsonObject.value<uint32_t>("style", this->g_text.getStyle()) );
-    this->g_text.setFillColor( sf::Color(jsonObject.value<uint32_t>("fillColor", 0)) );
-    this->g_text.setOutlineColor( sf::Color(jsonObject.value<uint32_t>("outlineColor", 0)) );
-    this->g_text.setOutlineThickness( jsonObject.value<float>("outlineThickness", 0.0f) );*/
+    this->g_geometryNeedUpdate = true;
 }
 
 void ObjTextNew::pack(fge::net::Packet& pck)
 {
-    /*fge::Object::pack(pck);
+    fge::Object::pack(pck);
 
+    pck << this->g_string;
     pck << this->g_font;
-
-    pck << this->g_text.getString();
-    pck << static_cast<uint16_t>(this->g_text.getCharacterSize());
-    pck << this->g_text.getLetterSpacing();
-    pck << this->g_text.getLineSpacing();
-    pck << static_cast<uint32_t>(this->g_text.getStyle());
-    pck << this->g_text.getFillColor();
-    pck << this->g_text.getOutlineColor();
-    pck << this->g_text.getOutlineThickness();*/
+    pck << this->g_characterSize;
+    pck << this->g_letterSpacingFactor << this->g_lineSpacingFactor;
+    pck << this->g_style;
+    pck << this->g_fillColor << this->g_outlineColor;
+    pck << this->g_outlineThickness;
 }
 void ObjTextNew::unpack(fge::net::Packet& pck)
 {
-    /*fge::Object::unpack(pck);
+    fge::Object::unpack(pck);
 
-    sf::String tmpString;
-    uint16_t tmpUint16=0;
-    uint32_t tmpUint32=0;
-    float tmpFloat=0;
-    sf::Color tmpColor;
-
+    pck >> this->g_string;
     pck >> this->g_font;
+    pck >> this->g_characterSize;
+    pck >> this->g_letterSpacingFactor >> this->g_lineSpacingFactor;
+    pck >> this->g_style;
+    pck >> this->g_fillColor >> this->g_outlineColor;
+    pck >> this->g_outlineThickness;
 
-    pck >> tmpString;
-    this->g_text.setString(tmpString);
-    pck >> tmpUint16;
-    this->g_text.setCharacterSize(tmpUint16);
-    pck >> tmpFloat;
-    this->g_text.setLetterSpacing(tmpFloat);
-    pck >> tmpFloat;
-    this->g_text.setLineSpacing(tmpFloat);
-    pck >> tmpUint32;
-    this->g_text.setStyle(tmpUint32);
-    pck >> tmpColor;
-    this->g_text.setFillColor(tmpColor);
-    pck >> tmpColor;
-    this->g_text.setOutlineColor(tmpColor);
-    pck >> tmpFloat;
-    this->g_text.setOutlineThickness(tmpFloat);*/
+    this->g_geometryNeedUpdate = true;
 }
 
 const char* ObjTextNew::getClassName() const
@@ -402,14 +366,16 @@ void ObjTextNew::ensureGeometryUpdate() const
         return;
     }
 
+    const auto* font = static_cast<const sf::Font*>(this->g_font);
+
     // Do nothing, if geometry has not changed and the font texture has not changed
-    if (!this->g_geometryNeedUpdate /**&& this->g_font.getData()->_font->getTexture(this->g_characterSize).m_cacheId == m_fontTextureId**/)
+    if (!this->g_geometryNeedUpdate && this->g_font.getData()->_font->getTexture(this->g_characterSize).m_cacheId == this->g_fontTextureId)
     {
         return;
     }
 
     // Save the current fonts texture id
-    ///m_fontTextureId = m_font->getTexture(this->g_characterSize).m_cacheId;
+    this->g_fontTextureId = font->getTexture(this->g_characterSize).m_cacheId;
 
     // Mark geometry as updated
     this->g_geometryNeedUpdate = false;
@@ -429,23 +395,21 @@ void ObjTextNew::ensureGeometryUpdate() const
     bool  isUnderlined       = this->g_style & Underlined;
     bool  isStrikeThrough    = this->g_style & StrikeThrough;
     float italicShear        = (this->g_style & Italic) ? 0.209f : 0.f; // 12 degrees in radians
-    const auto* font = static_cast<const sf::Font*>(this->g_font);
     float underlineOffset    = font->getUnderlinePosition(this->g_characterSize);
     float underlineThickness = font->getUnderlineThickness(this->g_characterSize);
 
     // Compute the location of the strike through dynamically
     // We use the center point of the lowercase 'x' glyph as the reference
     // We reuse the underline thickness as the thickness of the strike through as well
-    sf::FloatRect xBounds = font->getGlyph(L'x', this->g_characterSize, isBold).bounds;
+    sf::FloatRect xBounds = font->getGlyph(U'x', this->g_characterSize, isBold).bounds;
     float strikeThroughOffset = xBounds.top + xBounds.height / 2.f;
 
     // Precompute the variables needed by the algorithm
-    float whitespaceWidth = font->getGlyph(L' ', this->g_characterSize, isBold).advance;
+    float whitespaceWidth = font->getGlyph(U' ', this->g_characterSize, isBold).advance;
     float letterSpacing   = ( whitespaceWidth / 3.f ) * ( this->g_letterSpacingFactor - 1.f );
     whitespaceWidth      += letterSpacing;
     float lineSpacing     = font->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
-    ///float x               = 0.f;
-    ///float y               = static_cast<float>(this->g_characterSize);
+
     sf::Vector2f position{0.0f, 0.0f};
 
     // Create one quad for each character
@@ -459,7 +423,7 @@ void ObjTextNew::ensureGeometryUpdate() const
         uint32_t curChar = this->g_string[i];
 
         // Skip the \r char to avoid weird graphical issues
-        if (curChar == L'\r')
+        if (curChar == U'\r')
         {
             continue;
         }
@@ -472,7 +436,7 @@ void ObjTextNew::ensureGeometryUpdate() const
         position.x += font->getKerning(prevChar, curChar, this->g_characterSize, isBold);
 
         // If we're using the underlined style and there's a new line, draw a line
-        if (isUnderlined && (curChar == L'\n' && prevChar != L'\n'))
+        if (isUnderlined && (curChar == U'\n' && prevChar != U'\n'))
         {
             character.addLine(false, size.x, size.y, this->g_fillColor, underlineOffset, underlineThickness);
 
@@ -483,7 +447,7 @@ void ObjTextNew::ensureGeometryUpdate() const
         }
 
         // If we're using the strike through style and there's a new line, draw a line across all characters
-        if (isStrikeThrough && (curChar == L'\n' && prevChar != L'\n'))
+        if (isStrikeThrough && (curChar == U'\n' && prevChar != U'\n'))
         {
             character.addLine(false, size.x, size.y, this->g_fillColor, strikeThroughOffset, underlineThickness);
 
@@ -496,7 +460,7 @@ void ObjTextNew::ensureGeometryUpdate() const
         prevChar = curChar;
 
         // Handle special characters
-        if ((curChar == L' ') || (curChar == L'\n') || (curChar == L'\t'))
+        if ((curChar == U' ') || (curChar == U'\n') || (curChar == U'\t'))
         {
             // Update the current bounds (min coordinates)
             minX = std::min(minX, size.x);
@@ -504,10 +468,45 @@ void ObjTextNew::ensureGeometryUpdate() const
 
             switch (curChar)
             {
-            case L' ':  size.x += whitespaceWidth;     break;
-            case L'\t': size.x += whitespaceWidth * 4; break;
-            case L'\n': position.y += lineSpacing; position.x = 0;  break;
+            case U' ':
+                position.x += whitespaceWidth;
+                size.x -= whitespaceWidth;
+                break;
+            case U'\t':
+                position.x += whitespaceWidth * 4.0f;
+                size.x -= whitespaceWidth * 4.0f;
+                break;
+            case U'\n':
+                position.y += lineSpacing;
+                position.x = 0.0f;
+                break;
             }
+
+            if ((curChar == U' ') || (curChar == U'\t'))
+            {
+                if (isUnderlined)
+                {
+                    character.addLine(false, size.x, size.y, this->g_fillColor, underlineOffset, underlineThickness);
+
+                    if (this->g_outlineThickness != 0.0f)
+                    {
+                        character.addLine(true, size.x, size.y, this->g_outlineColor, underlineOffset, underlineThickness, this->g_outlineThickness);
+                    }
+                }
+
+                // If we're using the strike through style, add the last line across all characters
+                if (isStrikeThrough)
+                {
+                    character.addLine(false, size.x, size.y, this->g_fillColor, strikeThroughOffset, underlineThickness);
+
+                    if (this->g_outlineThickness != 0.0f)
+                    {
+                        character.addLine(true, size.x, size.y, this->g_outlineColor, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
+                    }
+                }
+            }
+
+            character.setPosition(position);
 
             // Update the current bounds (max coordinates)
             maxX = std::max(maxX, size.x+position.x);
@@ -522,19 +521,8 @@ void ObjTextNew::ensureGeometryUpdate() const
         {
             const sf::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold, this->g_outlineThickness);
 
-            float left   = glyph.bounds.left;
-            float top    = glyph.bounds.top;
-            float right  = glyph.bounds.left + glyph.bounds.width;
-            float bottom = glyph.bounds.top  + glyph.bounds.height;
-
             // Add the outline glyph to the vertices
             character.addGlyphQuad(true, size, this->g_outlineColor, glyph, italicShear);
-
-            // Update the current bounds with the outlined glyph bounds
-            minX = std::min(minX, size.x + left   - italicShear * bottom);
-            maxX = std::max(maxX, size.x + right  - italicShear * top);
-            minY = std::min(minY, size.y + top);
-            maxY = std::max(maxY, size.y + bottom);
         }
 
         // Extract the current glyph's description
@@ -544,41 +532,53 @@ void ObjTextNew::ensureGeometryUpdate() const
         character.addGlyphQuad(false, size, this->g_fillColor, glyph, italicShear);
         character.setPosition(position);
 
-        // Update the current bounds with the non outlined glyph bounds
-        if (this->g_outlineThickness == 0.0f)
-        {
-            float left   = glyph.bounds.left;
-            float top    = glyph.bounds.top;
-            float right  = glyph.bounds.left + glyph.bounds.width;
-            float bottom = glyph.bounds.top  + glyph.bounds.height;
+        float sizeX = glyph.advance + letterSpacing;
 
-            minX = std::min(minX, size.x + left  - italicShear * bottom);
-            maxX = std::max(maxX, size.x + right - italicShear * top);
-            minY = std::min(minY, size.y + top);
-            maxY = std::max(maxY, size.y + bottom);
+        if (isUnderlined && (sizeX > 0))
+        {
+            character.addLine(false, sizeX, size.y, this->g_fillColor, underlineOffset, underlineThickness);
+
+            if (this->g_outlineThickness != 0.0f)
+            {
+                character.addLine(true, sizeX, size.y, this->g_outlineColor, underlineOffset, underlineThickness, this->g_outlineThickness);
+            }
         }
+
+        // If we're using the strike through style, add the last line across all characters
+        if (isStrikeThrough && (sizeX > 0))
+        {
+            character.addLine(false, sizeX, size.y, this->g_fillColor, strikeThroughOffset, underlineThickness);
+
+            if (this->g_outlineThickness != 0.0f)
+            {
+                character.addLine(true, sizeX, size.y, this->g_outlineColor, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
+            }
+        }
+
+        // Update the current bounds
+        float left   = glyph.bounds.left;
+        float top    = glyph.bounds.top;
+        float right  = glyph.bounds.left + glyph.bounds.width;
+        float bottom = glyph.bounds.top + glyph.bounds.height;
+
+        minX = std::min(minX, size.x+position.x + left - italicShear * bottom);
+        maxX = std::max(maxX, size.x+position.x + right - italicShear * top);
+        minY = std::min(minY, size.y+position.y + top);
+        maxY = std::max(maxY, size.y+position.y + bottom);
 
         // Advance to the next character
         position.x += glyph.advance + letterSpacing;
     }
 
-    // If we're using the underlined style, add the last line
-    /**if (isUnderlined && (x > 0))
+    // If we're using outline, update the current bounds
+    if (this->g_outlineThickness != 0)
     {
-        character.addLine(m_vertices, x, y, m_fillColor, underlineOffset, underlineThickness);
-
-        if (m_outlineThickness != 0)
-            addLine(m_outlineVertices, x, y, m_outlineColor, underlineOffset, underlineThickness, m_outlineThickness);
+        float outline = std::abs(std::ceil(this->g_outlineThickness));
+        minX -= outline;
+        maxX += outline;
+        minY -= outline;
+        maxY += outline;
     }
-
-    // If we're using the strike through style, add the last line across all characters
-    if (isStrikeThrough && (x > 0))
-    {
-        addLine(m_vertices, x, y, m_fillColor, strikeThroughOffset, underlineThickness);
-
-        if (m_outlineThickness != 0)
-            addLine(m_outlineVertices, x, y, m_outlineColor, strikeThroughOffset, underlineThickness, m_outlineThickness);
-    }**/
 
     // Update the bounding rectangle
     this->g_bounds.left = minX;

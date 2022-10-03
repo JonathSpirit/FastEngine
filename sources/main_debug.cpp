@@ -483,14 +483,48 @@ public:
             }
         }
 
-        auto oldTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjText, "base", "hello world !", {100.0f,430.0f}));
-        ((fge::ObjText*)oldTextTest->getObject())->setFillColor(sf::Color::Blue);
+        auto oldTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjText, "base", "hello world !\ttab\nnewLine", {100.0f,500.0f}));
+        auto* oldTextTestPtr = (fge::ObjText*)oldTextTest->getObject();
+        oldTextTestPtr->setFillColor(sf::Color::Blue);
+        oldTextTestPtr->setOutlineThickness(2.0f);
+        oldTextTestPtr->setOutlineColor(sf::Color::Yellow);
+        oldTextTestPtr->setStyle(sf::Text::Style::Italic | sf::Text::Style::StrikeThrough | sf::Text::Style::Bold);
 
-        auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjTextNew, "hello world !", "base", {100.0f,400.0f}));
-        ((fge::ObjTextNew*)newTextTest->getObject())->setFillColor(sf::Color::Black);
+        auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjTextNew, "hello world !\ttab\nnewLine", "base", {100.0f,400.0f}));
+        auto* newTextTestPtr = (fge::ObjTextNew*)newTextTest->getObject();
+        newTextTestPtr->setFillColor(sf::Color::Black);
+        newTextTestPtr->setOutlineThickness(2.0f);
+        newTextTestPtr->setOutlineColor(sf::Color::Yellow);
+        newTextTestPtr->setStyle(fge::ObjTextNew::Style::Italic | fge::ObjTextNew::Style::StrikeThrough | fge::ObjTextNew::Style::Bold);
+
+        float t = 0.0f;
+        float f = 0.0002f;
+        float amp = 30.0f;
+
+        sf::RectangleShape rectText;
+
+        auto rect = newTextTestPtr->getGlobalBounds();
+        rectText.setPosition(rect.getPosition());
+        rectText.setSize(rect.getSize());
+        rectText.setFillColor(sf::Color::Transparent);
+        rectText.setOutlineColor(sf::Color::Red);
+        rectText.setOutlineThickness(2.0f);
 
         while (window.isOpen())
         {
+            {
+                auto& characters = newTextTestPtr->getCharacters();
+                float ti = (1/f)/static_cast<float>(characters.size());
+                for (auto& c : characters)
+                {
+                    c.setOrigin({0.0f, amp*std::sin(2.0f*static_cast<float>(FGE_MATH_PI)*f*(t+ti))});
+                    ti += (1/f)/static_cast<float>(characters.size());
+                }
+
+                t += 1000.0f/60.0f;
+            }
+
+
             event.process(window);
 
             if ( event.isEventType(sf::Event::Closed ) )
@@ -563,6 +597,7 @@ public:
 
             this->draw( window );
             window.draw(rectangleTest );
+            window.draw(rectText);
 
             window.display();
         }

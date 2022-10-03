@@ -33,15 +33,14 @@ struct FGE_API Character : public sf::Transformable
     void addLine(bool outlineVertices, float lineLength, float lineTop, const sf::Color& color, float offset, float thickness, float outlineThickness = 0.0f);
     void addGlyphQuad(bool outlineVertices, const sf::Vector2f& position, const sf::Color& color, const sf::Glyph& glyph, float italicShear);
 
-    uint32_t _character{0};
-    sf::VertexArray _vertices{sf::PrimitiveType::Triangles};            //!< Vertex array containing the fill geometry
-    sf::VertexArray _outlineVertices{sf::PrimitiveType::Triangles};     //!< Vertex array containing the outline geometry
+    sf::VertexArray _vertices{sf::PrimitiveType::Triangles}; //!< Vertex array containing the fill geometry
+    sf::VertexArray _outlineVertices{sf::PrimitiveType::Triangles}; //!< Vertex array containing the outline geometry
 };
 
 class FGE_API ObjTextNew : public fge::Object
 {
 public:
-    enum Style
+    enum Style : uint8_t
     {
         Regular       = 0,      //!< Regular characters, no style
         Bold          = 1 << 0, //!< Bold characters
@@ -88,6 +87,9 @@ public:
 
     sf::Vector2f findCharacterPos(std::size_t index) const;
 
+    std::vector<fge::Character>& getCharacters();
+    const std::vector<fge::Character>& getCharacters() const;
+
     FGE_OBJ_DRAW_DECLARE
 
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
@@ -101,25 +103,23 @@ public:
     sf::FloatRect getGlobalBounds() const override;
     sf::FloatRect getLocalBounds() const override;
 
-protected:
+private:
     void ensureGeometryUpdate() const;
 
-private:
-    sf::String              g_string;              //!< String to display
-    fge::Font g_font;                //!< Font used to display the string
-    unsigned int        g_characterSize;       //!< Base size of characters, in pixels
-    float               g_letterSpacingFactor{1.0f}; //!< Spacing factor between letters
-    float               g_lineSpacingFactor{1.0f};   //!< Spacing factor between lines
-    uint32_t             g_style{Regular};               //!< Text style (see Style enum)
-    sf::Color               g_fillColor{255,255,255};           //!< Text fill color
-    sf::Color               g_outlineColor{0,0,0};        //!< Text outline color
-    float               g_outlineThickness{0.0f};    //!< Thickness of the text's outline
-    //mutable sf::VertexArray g_vertices;            //!< Vertex array containing the fill geometry
-    //mutable sf::VertexArray g_outlineVertices;     //!< Vertex array containing the outline geometry
+    sf::String g_string; //!< String to display
+    fge::Font g_font; //!< Font used to display the string
+    uint16_t g_characterSize{30}; //!< Base size of characters, in pixels
+    float g_letterSpacingFactor{1.0f}; //!< Spacing factor between letters
+    float g_lineSpacingFactor{1.0f}; //!< Spacing factor between lines
+    std::underlying_type<Style>::type g_style{Regular}; //!< Text style (see Style enum)
+    sf::Color g_fillColor{255,255,255}; //!< Text fill color
+    sf::Color g_outlineColor{0,0,0}; //!< Text outline color
+    float g_outlineThickness{0.0f}; //!< Thickness of the text's outline
+
     mutable std::vector<Character> g_characters;
-    mutable sf::FloatRect   g_bounds;              //!< Bounding rectangle of the text (in local coordinates)
-    mutable bool        g_geometryNeedUpdate{false};  //!< Does the geometry need to be recomputed?
-    mutable uint64_t      g_fontTextureId{0};       //!< The font texture id
+    mutable sf::FloatRect g_bounds; //!< Bounding rectangle of the text (in local coordinates)
+    mutable bool g_geometryNeedUpdate{false}; //!< Does the geometry need to be recomputed?
+    mutable uint64_t g_fontTextureId{0}; //!< The font texture id
 };
 
 }//end fge
