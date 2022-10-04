@@ -20,105 +20,94 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_object.hpp>
 #include <FastEngine/C_font.hpp>
+#include <vector>
 
 #define FGE_OBJTEXT_CLASSNAME "FGE:OBJ:TEXT"
 
 namespace fge
 {
 
+class ObjText;
+
+class FGE_API Character : public sf::Transformable
+{
+public:
+    Character() = default;
+    Character(const sf::Color& fillColor, const sf::Color& outlineColor);
+
+    void clear();
+    void addLine(bool outlineVertices, float lineLength, float lineTop, float offset, float thickness, float outlineThickness = 0.0f);
+    void addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, const sf::Glyph& glyph, float italicShear);
+
+    void setFillColor(const sf::Color& color);
+    void setOutlineColor(const sf::Color& color);
+
+    [[nodiscard]] const sf::Color& getFillColor() const;
+    [[nodiscard]] const sf::Color& getOutlineColor() const;
+
+private:
+    friend ObjText;
+
+    sf::VertexArray g_vertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the fill geometry
+    sf::VertexArray g_outlineVertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the outline geometry
+
+    sf::Color g_fillColor{255,255,255};
+    sf::Color g_outlineColor{0,0,0};
+};
+
 class FGE_API ObjText : public fge::Object
 {
 public:
-    ObjText();
-    explicit ObjText(const fge::Font& font, const sf::Vector2f& position=sf::Vector2f());
-    ObjText(const fge::Font& font, const std::string& txt, const sf::Vector2f& position=sf::Vector2f());
-    ObjText(const fge::Font& font, const char* txt, const sf::Vector2f& position=sf::Vector2f());
+    enum Style : uint8_t
+    {
+        Regular       = 0,      /// Regular characters, no style
+        Bold          = 1 << 0, /// Bold characters
+        Italic        = 1 << 1, /// Italic characters
+        Underlined    = 1 << 2, /// Underlined characters
+        StrikeThrough = 1 << 3  /// Strike through characters
+    };
+
+    ObjText() = default;
+    ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position = {}, unsigned int characterSize = 30);
+    ObjText(const fge::Font& font, const sf::Vector2f& position = {}, unsigned int characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
     void setFont(const fge::Font& font);
     const fge::Font& getFont() const;
 
-    inline void setString(const sf::String& string)
-    {
-        this->g_text.setString(string);
-    }
+    void setString(const sf::String& string);
 
-    inline void setCharacterSize(unsigned int size)
-    {
-        this->g_text.setCharacterSize(size);
-    }
+    void setCharacterSize(unsigned int size);
 
-    inline void setLineSpacing(float spacingFactor)
-    {
-        this->g_text.setLineSpacing(spacingFactor);
-    }
-    inline void setLetterSpacing(float spacingFactor)
-    {
-        this->g_text.setLetterSpacing(spacingFactor);
-    }
+    void setLineSpacing(float spacingFactor);
+    void setLetterSpacing(float spacingFactor);
 
-    inline void setStyle(uint32_t style)
-    {
-        this->g_text.setStyle(style);
-    }
+    void setStyle(uint32_t style);
 
-    inline void setFillColor(const sf::Color& color)
-    {
-        this->g_text.setFillColor(color);
-    }
-    inline void setOutlineColor(const sf::Color& color)
-    {
-        this->g_text.setOutlineColor(color);
-    }
+    void setFillColor(const sf::Color& color);
+    void setOutlineColor(const sf::Color& color);
 
-    inline void setOutlineThickness(float thickness)
-    {
-        this->g_text.setOutlineThickness(thickness);
-    }
+    void setOutlineThickness(float thickness);
 
-    inline const sf::String& getString() const
-    {
-        return this->g_text.getString();
-    }
+    const sf::String& getString() const;
 
-    inline unsigned int getCharacterSize() const
-    {
-        return this->g_text.getCharacterSize();
-    }
+    unsigned int getCharacterSize() const;
 
-    inline float getLetterSpacing() const
-    {
-        return this->g_text.getLetterSpacing();
-    }
-    inline float getLineSpacing() const
-    {
-        return this->g_text.getLineSpacing();
-    }
+    float getLetterSpacing() const;
+    float getLineSpacing() const;
 
-    inline uint32_t getStyle() const
-    {
-        return this->g_text.getStyle();
-    }
+    uint32_t getStyle() const;
 
-    inline const sf::Color& getFillColor() const
-    {
-        return this->g_text.getFillColor();
-    }
-    inline const sf::Color& getOutlineColor() const
-    {
-        return this->g_text.getOutlineColor();
-    }
+    const sf::Color& getFillColor() const;
+    const sf::Color& getOutlineColor() const;
 
-    inline float getOutlineThickness() const
-    {
-        return this->g_text.getOutlineThickness();
-    }
+    float getOutlineThickness() const;
 
-    inline sf::Vector2f findCharacterPos(std::size_t index) const
-    {
-        return this->g_text.findCharacterPos(index);
-    }
+    sf::Vector2f findCharacterPos(std::size_t index) const;
+
+    std::vector<fge::Character>& getCharacters();
+    const std::vector<fge::Character>& getCharacters() const;
 
     FGE_OBJ_DRAW_DECLARE
 
@@ -134,8 +123,22 @@ public:
     sf::FloatRect getLocalBounds() const override;
 
 private:
-    mutable sf::Text g_text;
-    fge::Font g_font;
+    void ensureGeometryUpdate() const;
+
+    sf::String g_string; /// String to display
+    fge::Font g_font; /// Font used to display the string
+    uint16_t g_characterSize{30}; /// Base size of characters, in pixels
+    float g_letterSpacingFactor{1.0f}; /// Spacing factor between letters
+    float g_lineSpacingFactor{1.0f}; /// Spacing factor between lines
+    std::underlying_type<Style>::type g_style{Regular}; /// Text style (see Style enum)
+    sf::Color g_fillColor{255,255,255}; /// Text fill color
+    sf::Color g_outlineColor{0,0,0}; /// Text outline color
+    float g_outlineThickness{0.0f}; /// Thickness of the text's outline
+
+    mutable std::vector<Character> g_characters;
+    mutable sf::FloatRect g_bounds; /// Bounding rectangle of the text (in local coordinates)
+    mutable bool g_geometryNeedUpdate{false}; /// Does the geometry need to be recomputed?
+    mutable uint64_t g_fontTextureId{0}; /// The font texture id
 };
 
 }//end fge

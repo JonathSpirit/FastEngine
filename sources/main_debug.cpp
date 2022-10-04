@@ -36,7 +36,7 @@
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/C_objLight.hpp"
-#include "FastEngine/C_objTextNew.hpp"
+#include "FastEngine/C_objText.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
 #include "FastEngine/C_server.hpp"
@@ -321,7 +321,6 @@ public:
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjTextInputBox>()) );
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjSelectBox>()) );
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjLight>()) );
-        fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjTextNew>()) );
 
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<Bloc>()) );
 
@@ -483,19 +482,12 @@ public:
             }
         }
 
-        auto oldTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjText, "base", "hello world !\ttab\nnewLine", {100.0f,500.0f}));
-        auto* oldTextTestPtr = (fge::ObjText*)oldTextTest->getObject();
-        oldTextTestPtr->setFillColor(sf::Color::Blue);
-        oldTextTestPtr->setOutlineThickness(2.0f);
-        oldTextTestPtr->setOutlineColor(sf::Color::Yellow);
-        oldTextTestPtr->setStyle(sf::Text::Style::Italic | sf::Text::Style::StrikeThrough | sf::Text::Style::Bold | sf::Text::Style::Underlined);
-
-        auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjTextNew, "hello world !\ttab\nnewLine", "base", {100.0f,400.0f}));
-        auto* newTextTestPtr = (fge::ObjTextNew*)newTextTest->getObject();
+        auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjText, "hello world !\ttab\nnewLine", "base", {100.0f,400.0f}));
+        auto* newTextTestPtr = (fge::ObjText*)newTextTest->getObject();
         newTextTestPtr->setFillColor(sf::Color::Black);
         newTextTestPtr->setOutlineThickness(2.0f);
         newTextTestPtr->setOutlineColor(sf::Color::Yellow);
-        newTextTestPtr->setStyle(fge::ObjTextNew::Style::Italic | fge::ObjTextNew::Style::StrikeThrough | fge::ObjTextNew::Style::Bold | fge::ObjTextNew::Style::Underlined);
+        newTextTestPtr->setStyle(fge::ObjText::Style::Italic | fge::ObjText::Style::StrikeThrough | fge::ObjText::Style::Bold | fge::ObjText::Style::Underlined);
 
         float t = 0.0f;
         float f = 0.0002f;

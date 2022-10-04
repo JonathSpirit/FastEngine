@@ -324,7 +324,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSelectBox.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSprite.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objText.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTextNew.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
