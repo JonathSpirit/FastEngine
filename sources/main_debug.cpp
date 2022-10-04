@@ -488,14 +488,14 @@ public:
         oldTextTestPtr->setFillColor(sf::Color::Blue);
         oldTextTestPtr->setOutlineThickness(2.0f);
         oldTextTestPtr->setOutlineColor(sf::Color::Yellow);
-        oldTextTestPtr->setStyle(sf::Text::Style::Italic | sf::Text::Style::StrikeThrough | sf::Text::Style::Bold);
+        oldTextTestPtr->setStyle(sf::Text::Style::Italic | sf::Text::Style::StrikeThrough | sf::Text::Style::Bold | sf::Text::Style::Underlined);
 
         auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjTextNew, "hello world !\ttab\nnewLine", "base", {100.0f,400.0f}));
         auto* newTextTestPtr = (fge::ObjTextNew*)newTextTest->getObject();
         newTextTestPtr->setFillColor(sf::Color::Black);
         newTextTestPtr->setOutlineThickness(2.0f);
         newTextTestPtr->setOutlineColor(sf::Color::Yellow);
-        newTextTestPtr->setStyle(fge::ObjTextNew::Style::Italic | fge::ObjTextNew::Style::StrikeThrough | fge::ObjTextNew::Style::Bold);
+        newTextTestPtr->setStyle(fge::ObjTextNew::Style::Italic | fge::ObjTextNew::Style::StrikeThrough | fge::ObjTextNew::Style::Bold | fge::ObjTextNew::Style::Underlined);
 
         float t = 0.0f;
         float f = 0.0002f;
@@ -510,6 +510,8 @@ public:
         rectText.setOutlineColor(sf::Color::Red);
         rectText.setOutlineThickness(2.0f);
 
+        fge::Clock changeTextColorClock;
+
         while (window.isOpen())
         {
             {
@@ -517,8 +519,19 @@ public:
                 float ti = (1/f)/static_cast<float>(characters.size());
                 for (auto& c : characters)
                 {
+                    if (changeTextColorClock.reached(std::chrono::milliseconds{500}))
+                    {
+                        c.setFillColor(fge::_random.randColor());
+                        c.setOutlineColor(fge::_random.randColor());
+                    }
+
                     c.setOrigin({0.0f, amp*std::sin(2.0f*static_cast<float>(FGE_MATH_PI)*f*(t+ti))});
                     ti += (1/f)/static_cast<float>(characters.size());
+                }
+
+                if (changeTextColorClock.reached(std::chrono::milliseconds{500}))
+                {
+                    changeTextColorClock.restart();
                 }
 
                 t += 1000.0f/60.0f;

@@ -24,31 +24,39 @@
 namespace fge
 {
 
+Character::Character(const sf::Color& fillColor, const sf::Color& outlineColor) :
+        g_fillColor(fillColor),
+        g_outlineColor(outlineColor)
+{
+}
+
 void Character::clear()
 {
-    this->_vertices.clear();
-    this->_outlineVertices.clear();
+    this->g_vertices.clear();
+    this->g_outlineVertices.clear();
 }
 // Add an underline or strikethrough line to the vertex array
-void Character::addLine(bool outlineVertices, float lineLength, float lineTop, const sf::Color& color, float offset, float thickness, float outlineThickness)
+void Character::addLine(bool outlineVertices, float lineLength, float lineTop, float offset, float thickness, float outlineThickness)
 {
-    sf::VertexArray* vertices = outlineVertices ? &this->_outlineVertices : &this->_vertices;
+    sf::VertexArray* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
+    sf::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
     float top = std::floor(lineTop + offset - (thickness / 2.0f) + 0.5f);
     float bottom = top + std::floor(thickness + 0.5f);
 
-    vertices->append(sf::Vertex(sf::Vector2f(-outlineThickness,             top    - outlineThickness), color, sf::Vector2f(1, 1)));
-    vertices->append(sf::Vertex(sf::Vector2f(lineLength + outlineThickness, top    - outlineThickness), color, sf::Vector2f(1, 1)));
-    vertices->append(sf::Vertex(sf::Vector2f(-outlineThickness,             bottom + outlineThickness), color, sf::Vector2f(1, 1)));
-    vertices->append(sf::Vertex(sf::Vector2f(-outlineThickness,             bottom + outlineThickness), color, sf::Vector2f(1, 1)));
-    vertices->append(sf::Vertex(sf::Vector2f(lineLength + outlineThickness, top    - outlineThickness), color, sf::Vector2f(1, 1)));
-    vertices->append(sf::Vertex(sf::Vector2f(lineLength + outlineThickness, bottom + outlineThickness), color, sf::Vector2f(1, 1)));
+    vertices->append(sf::Vertex{{-outlineThickness,             top    - outlineThickness}, color, {1, 1}});
+    vertices->append(sf::Vertex{{lineLength + outlineThickness, top    - outlineThickness}, color, {1, 1}});
+    vertices->append(sf::Vertex{{-outlineThickness,             bottom + outlineThickness}, color, {1, 1}});
+    vertices->append(sf::Vertex{{-outlineThickness,             bottom + outlineThickness}, color, {1, 1}});
+    vertices->append(sf::Vertex{{lineLength + outlineThickness, top    - outlineThickness}, color, {1, 1}});
+    vertices->append(sf::Vertex{{lineLength + outlineThickness, bottom + outlineThickness}, color, {1, 1}});
 }
 
 // Add a glyph quad to the vertex array
-void Character::addGlyphQuad(bool outlineVertices, const sf::Vector2f& position, const sf::Color& color, const sf::Glyph& glyph, float italicShear)
+void Character::addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, const sf::Glyph& glyph, float italicShear)
 {
-    sf::VertexArray* vertices = outlineVertices ? &this->_outlineVertices : &this->_vertices;
+    sf::VertexArray* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
+    sf::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
     float padding = 1.0f;
 
@@ -62,13 +70,41 @@ void Character::addGlyphQuad(bool outlineVertices, const sf::Vector2f& position,
     float u2 = static_cast<float>(glyph.textureRect.left + glyph.textureRect.width) + padding;
     float v2 = static_cast<float>(glyph.textureRect.top  + glyph.textureRect.height) + padding;
 
-    vertices->append(sf::Vertex(sf::Vector2f(position.x + left  - italicShear * top   , position.y + top),    color, sf::Vector2f(u1, v1)));
-    vertices->append(sf::Vertex(sf::Vector2f(position.x + right - italicShear * top   , position.y + top),    color, sf::Vector2f(u2, v1)));
-    vertices->append(sf::Vertex(sf::Vector2f(position.x + left  - italicShear * bottom, position.y + bottom), color, sf::Vector2f(u1, v2)));
-    vertices->append(sf::Vertex(sf::Vector2f(position.x + left  - italicShear * bottom, position.y + bottom), color, sf::Vector2f(u1, v2)));
-    vertices->append(sf::Vertex(sf::Vector2f(position.x + right - italicShear * top   , position.y + top),    color, sf::Vector2f(u2, v1)));
-    vertices->append(sf::Vertex(sf::Vector2f(position.x + right - italicShear * bottom, position.y + bottom), color, sf::Vector2f(u2, v2)));
+    vertices->append(sf::Vertex{{size.x + left  - italicShear * top   , size.y + top},    color, {u1, v1}});
+    vertices->append(sf::Vertex{{size.x + right - italicShear * top   , size.y + top},    color, {u2, v1}});
+    vertices->append(sf::Vertex{{size.x + left  - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
+    vertices->append(sf::Vertex{{size.x + left  - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
+    vertices->append(sf::Vertex{{size.x + right - italicShear * top   , size.y + top},    color, {u2, v1}});
+    vertices->append(sf::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
 }
+
+void Character::setFillColor(const sf::Color& color)
+{
+    this->g_fillColor = color;
+    for (std::size_t i=0; i<this->g_vertices.getVertexCount(); ++i)
+    {
+        this->g_vertices[i].color = color;
+    }
+}
+void Character::setOutlineColor(const sf::Color& color)
+{
+    this->g_outlineColor = color;
+    for (std::size_t i=0; i<this->g_outlineVertices.getVertexCount(); ++i)
+    {
+        this->g_outlineVertices[i].color = color;
+    }
+}
+
+const sf::Color& Character::getFillColor() const
+{
+    return this->g_fillColor;
+}
+const sf::Color& Character::getOutlineColor() const
+{
+    return this->g_outlineColor;
+}
+
+//ObjTextNew
 
 ObjTextNew::ObjTextNew() = default;
 ObjTextNew::ObjTextNew(const sf::String& string, const fge::Font& font, const sf::Vector2f& position, unsigned int characterSize) :
@@ -145,10 +181,7 @@ void ObjTextNew::setFillColor(const sf::Color& color)
         {
             for (auto& character : this->g_characters)
             {
-                for (std::size_t i = 0; i < character._vertices.getVertexCount(); ++i)
-                {
-                    character._vertices[i].color = this->g_fillColor;
-                }
+                character.setFillColor(color);
             }
         }
     }
@@ -165,10 +198,7 @@ void ObjTextNew::setOutlineColor(const sf::Color& color)
         {
             for (auto& character : this->g_characters)
             {
-                for (std::size_t i = 0; i < character._outlineVertices.getVertexCount(); ++i)
-                {
-                    character._outlineVertices[i].color = this->g_outlineColor;
-                }
+                character.setOutlineColor(color);
             }
         }
     }
@@ -263,7 +293,7 @@ FGE_OBJ_DRAW_BODY(ObjTextNew)
                 sf::RenderStates statesCharacter{states};
                 statesCharacter.transform *= character.getTransform();
 
-                target.draw(character._outlineVertices, statesCharacter);
+                target.draw(character.g_outlineVertices, statesCharacter);
             }
         }
 
@@ -272,7 +302,7 @@ FGE_OBJ_DRAW_BODY(ObjTextNew)
             sf::RenderStates statesCharacter{states};
             statesCharacter.transform *= character.getTransform();
 
-            target.draw(character._vertices, statesCharacter);
+            target.draw(character.g_vertices, statesCharacter);
         }
     }
 }
@@ -417,6 +447,7 @@ void ObjTextNew::ensureGeometryUpdate() const
     float minY = static_cast<float>(this->g_characterSize);
     float maxX = 0.f;
     float maxY = 0.f;
+
     uint32_t prevChar = 0;
     for (std::size_t i = 0; i < this->g_string.getSize(); ++i)
     {
@@ -430,7 +461,7 @@ void ObjTextNew::ensureGeometryUpdate() const
 
         sf::Vector2f size{0.0f, static_cast<float>(this->g_characterSize)};
 
-        Character& character = this->g_characters.emplace_back();
+        Character& character = this->g_characters.emplace_back(this->g_fillColor, this->g_outlineColor);
 
         // Apply the kerning offset
         position.x += font->getKerning(prevChar, curChar, this->g_characterSize, isBold);
@@ -438,22 +469,22 @@ void ObjTextNew::ensureGeometryUpdate() const
         // If we're using the underlined style and there's a new line, draw a line
         if (isUnderlined && (curChar == U'\n' && prevChar != U'\n'))
         {
-            character.addLine(false, size.x, size.y, this->g_fillColor, underlineOffset, underlineThickness);
+            character.addLine(false, size.x, size.y, underlineOffset, underlineThickness);
 
             if (this->g_outlineThickness != 0.0f)
             {
-                character.addLine(true, size.x, size.y, this->g_outlineColor, underlineOffset, underlineThickness, this->g_outlineThickness);
+                character.addLine(true, size.x, size.y, underlineOffset, underlineThickness, this->g_outlineThickness);
             }
         }
 
         // If we're using the strike through style and there's a new line, draw a line across all characters
         if (isStrikeThrough && (curChar == U'\n' && prevChar != U'\n'))
         {
-            character.addLine(false, size.x, size.y, this->g_fillColor, strikeThroughOffset, underlineThickness);
+            character.addLine(false, size.x, size.y, strikeThroughOffset, underlineThickness);
 
             if (this->g_outlineThickness != 0)
             {
-                character.addLine(true, size.x, size.y, this->g_outlineColor, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
+                character.addLine(true, size.x, size.y, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
             }
         }
 
@@ -486,22 +517,22 @@ void ObjTextNew::ensureGeometryUpdate() const
             {
                 if (isUnderlined)
                 {
-                    character.addLine(false, size.x, size.y, this->g_fillColor, underlineOffset, underlineThickness);
+                    character.addLine(false, size.x, size.y, underlineOffset, underlineThickness);
 
                     if (this->g_outlineThickness != 0.0f)
                     {
-                        character.addLine(true, size.x, size.y, this->g_outlineColor, underlineOffset, underlineThickness, this->g_outlineThickness);
+                        character.addLine(true, size.x, size.y, underlineOffset, underlineThickness, this->g_outlineThickness);
                     }
                 }
 
                 // If we're using the strike through style, add the last line across all characters
                 if (isStrikeThrough)
                 {
-                    character.addLine(false, size.x, size.y, this->g_fillColor, strikeThroughOffset, underlineThickness);
+                    character.addLine(false, size.x, size.y, strikeThroughOffset, underlineThickness);
 
                     if (this->g_outlineThickness != 0.0f)
                     {
-                        character.addLine(true, size.x, size.y, this->g_outlineColor, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
+                        character.addLine(true, size.x, size.y, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
                     }
                 }
             }
@@ -522,36 +553,36 @@ void ObjTextNew::ensureGeometryUpdate() const
             const sf::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold, this->g_outlineThickness);
 
             // Add the outline glyph to the vertices
-            character.addGlyphQuad(true, size, this->g_outlineColor, glyph, italicShear);
+            character.addGlyphQuad(true, size, glyph, italicShear);
         }
 
         // Extract the current glyph's description
         const sf::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold);
 
         // Add the glyph to the vertices
-        character.addGlyphQuad(false, size, this->g_fillColor, glyph, italicShear);
+        character.addGlyphQuad(false, size, glyph, italicShear);
         character.setPosition(position);
 
-        float sizeX = glyph.advance + letterSpacing;
+        float characterLength = glyph.advance + letterSpacing;
 
-        if (isUnderlined && (sizeX > 0))
+        if (isUnderlined && (characterLength > 0.0f))
         {
-            character.addLine(false, sizeX, size.y, this->g_fillColor, underlineOffset, underlineThickness);
+            character.addLine(false, characterLength, size.y, underlineOffset, underlineThickness);
 
             if (this->g_outlineThickness != 0.0f)
             {
-                character.addLine(true, sizeX, size.y, this->g_outlineColor, underlineOffset, underlineThickness, this->g_outlineThickness);
+                character.addLine(true, characterLength, size.y, underlineOffset, underlineThickness, this->g_outlineThickness);
             }
         }
 
         // If we're using the strike through style, add the last line across all characters
-        if (isStrikeThrough && (sizeX > 0))
+        if (isStrikeThrough && (characterLength > 0.0f))
         {
-            character.addLine(false, sizeX, size.y, this->g_fillColor, strikeThroughOffset, underlineThickness);
+            character.addLine(false, characterLength, size.y, strikeThroughOffset, underlineThickness);
 
             if (this->g_outlineThickness != 0.0f)
             {
-                character.addLine(true, sizeX, size.y, this->g_outlineColor, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
+                character.addLine(true, characterLength, size.y, strikeThroughOffset, underlineThickness, this->g_outlineThickness);
             }
         }
 
@@ -567,11 +598,11 @@ void ObjTextNew::ensureGeometryUpdate() const
         maxY = std::max(maxY, size.y+position.y + bottom);
 
         // Advance to the next character
-        position.x += glyph.advance + letterSpacing;
+        position.x += characterLength;
     }
 
     // If we're using outline, update the current bounds
-    if (this->g_outlineThickness != 0)
+    if (this->g_outlineThickness != 0.0f)
     {
         float outline = std::abs(std::ceil(this->g_outlineThickness));
         minX -= outline;
