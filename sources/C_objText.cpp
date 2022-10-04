@@ -106,7 +106,7 @@ const sf::Color& Character::getOutlineColor() const
 
 //ObjText
 
-ObjText::ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position, unsigned int characterSize) :
+ObjText::ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
     g_font(font),
     g_string(string),
     g_characterSize(characterSize),
@@ -114,7 +114,7 @@ ObjText::ObjText(const sf::String& string, const fge::Font& font, const sf::Vect
 {
     this->setPosition(position);
 }
-ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position, unsigned int characterSize) :
+ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
         g_font(font),
         g_characterSize(characterSize)
 {
@@ -139,7 +139,7 @@ void ObjText::setString(const sf::String& string)
     }
 }
 
-void ObjText::setCharacterSize(unsigned int size)
+void ObjText::setCharacterSize(fge::ObjText::CharacterSize size)
 {
     if (this->g_characterSize != size)
     {
@@ -165,7 +165,7 @@ void ObjText::setLetterSpacing(float spacingFactor)
     }
 }
 
-void ObjText::setStyle(uint32_t style)
+void ObjText::setStyle(std::underlying_type<Style>::type style)
 {
     if (this->g_style != style)
     {
@@ -223,7 +223,7 @@ const sf::String& ObjText::getString() const
     return this->g_string;
 }
 
-unsigned int ObjText::getCharacterSize() const
+fge::ObjText::CharacterSize ObjText::getCharacterSize() const
 {
     return this->g_characterSize;
 }
@@ -237,7 +237,7 @@ float ObjText::getLineSpacing() const
     return this->g_lineSpacingFactor;
 }
 
-uint32_t ObjText::getStyle() const
+std::underlying_type<ObjText::Style>::type ObjText::getStyle() const
 {
     return this->g_style;
 }

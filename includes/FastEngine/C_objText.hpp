@@ -58,6 +58,8 @@ private:
 class FGE_API ObjText : public fge::Object
 {
 public:
+    using CharacterSize = uint16_t;
+
     enum Style : uint8_t
     {
         Regular       = 0,      /// Regular characters, no style
@@ -68,8 +70,8 @@ public:
     };
 
     ObjText() = default;
-    ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position = {}, unsigned int characterSize = 30);
-    ObjText(const fge::Font& font, const sf::Vector2f& position = {}, unsigned int characterSize = 30);
+    ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    explicit ObjText(const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
@@ -78,12 +80,12 @@ public:
 
     void setString(const sf::String& string);
 
-    void setCharacterSize(unsigned int size);
+    void setCharacterSize(fge::ObjText::CharacterSize size);
 
     void setLineSpacing(float spacingFactor);
     void setLetterSpacing(float spacingFactor);
 
-    void setStyle(uint32_t style);
+    void setStyle(std::underlying_type<Style>::type style);
 
     void setFillColor(const sf::Color& color);
     void setOutlineColor(const sf::Color& color);
@@ -92,12 +94,12 @@ public:
 
     const sf::String& getString() const;
 
-    unsigned int getCharacterSize() const;
+    fge::ObjText::CharacterSize getCharacterSize() const;
 
     float getLetterSpacing() const;
     float getLineSpacing() const;
 
-    uint32_t getStyle() const;
+    std::underlying_type<Style>::type getStyle() const;
 
     const sf::Color& getFillColor() const;
     const sf::Color& getOutlineColor() const;
@@ -127,7 +129,7 @@ private:
 
     sf::String g_string; /// String to display
     fge::Font g_font; /// Font used to display the string
-    uint16_t g_characterSize{30}; /// Base size of characters, in pixels
+    fge::ObjText::CharacterSize g_characterSize{30}; /// Base size of characters, in pixels
     float g_letterSpacingFactor{1.0f}; /// Spacing factor between letters
     float g_lineSpacingFactor{1.0f}; /// Spacing factor between lines
     std::underlying_type<Style>::type g_style{Regular}; /// Text style (see Style enum)
