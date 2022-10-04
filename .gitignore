@@ -8,5 +8,6 @@
 .idea/deployment.xml
 .idea/encodings.xml
 .idea/other.xml
+.idea/vcs.xml
 
 cmake.lock

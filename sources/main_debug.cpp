@@ -36,6 +36,7 @@
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/C_objLight.hpp"
+#include "FastEngine/C_objText.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
 #include "FastEngine/C_server.hpp"
@@ -481,8 +482,63 @@ public:
             }
         }
 
+        auto newTextTest = this->newObject(FGE_NEWOBJECT(fge::ObjText, "hello world !\ttab\nnewLine", "base", {100.0f,400.0f}));
+        auto* newTextTestPtr = (fge::ObjText*)newTextTest->getObject();
+        newTextTestPtr->setFillColor(sf::Color::Black);
+        newTextTestPtr->setOutlineThickness(2.0f);
+        newTextTestPtr->setOutlineColor(sf::Color::Yellow);
+        newTextTestPtr->setStyle(fge::ObjText::Style::Italic | fge::ObjText::Style::StrikeThrough | fge::ObjText::Style::Bold | fge::ObjText::Style::Underlined);
+
+        float t = 0.0f;
+        float f = 0.0002f;
+        float amp = 30.0f;
+
+        sf::RectangleShape rectText;
+
+        auto rect = newTextTestPtr->getGlobalBounds();
+        rectText.setPosition(rect.getPosition());
+        rectText.setSize(rect.getSize());
+        rectText.setFillColor(sf::Color::Transparent);
+        rectText.setOutlineColor(sf::Color::Red);
+        rectText.setOutlineThickness(2.0f);
+
+        fge::Clock changeTextColorClock;
+
         while (window.isOpen())
         {
+            {
+                auto& characters = newTextTestPtr->getCharacters();
+                float ti = (1/f)/static_cast<float>(characters.size());
+                for (auto& c : characters)
+                {
+                    if (changeTextColorClock.reached(std::chrono::milliseconds{500}))
+                    {
+                        c.setFillColor(fge::_random.randColor());
+                        c.setOutlineColor(fge::_random.randColor());
+                    }
+
+                    c.setOrigin({0.0f, amp*std::sin(2.0f*static_cast<float>(FGE_MATH_PI)*f*(t+ti))});
+                    ti += (1/f)/static_cast<float>(characters.size());
+
+                    if (c.getOrigin().y > -(amp/2.0f))
+                    {
+                        c.setVisibility(false);
+                    }
+                    else
+                    {
+                        c.setVisibility(true);
+                    }
+                }
+
+                if (changeTextColorClock.reached(std::chrono::milliseconds{500}))
+                {
+                    changeTextColorClock.restart();
+                }
+
+                t += 1000.0f/60.0f;
+            }
+
+
             event.process(window);
 
             if ( event.isEventType(sf::Event::Closed ) )
@@ -555,6 +611,7 @@ public:
 
             this->draw( window );
             window.draw(rectangleTest );
+            window.draw(rectText);
 
             window.display();
         }
