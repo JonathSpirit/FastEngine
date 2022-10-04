@@ -519,6 +519,15 @@ public:
 
                     c.setOrigin({0.0f, amp*std::sin(2.0f*static_cast<float>(FGE_MATH_PI)*f*(t+ti))});
                     ti += (1/f)/static_cast<float>(characters.size());
+
+                    if (c.getOrigin().y > -(amp/2.0f))
+                    {
+                        c.setVisibility(false);
+                    }
+                    else
+                    {
+                        c.setVisibility(true);
+                    }
                 }
 
                 if (changeTextColorClock.reached(std::chrono::milliseconds{500}))

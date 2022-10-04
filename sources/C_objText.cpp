@@ -78,6 +78,17 @@ void Character::addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, con
     vertices->append(sf::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
 }
 
+void Character::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    if (this->g_visibility)
+    {
+        states.transform *= this->getTransform();
+
+        target.draw(this->g_outlineVertices, states);
+        target.draw(this->g_vertices, states);
+    }
+}
+
 void Character::setFillColor(const sf::Color& color)
 {
     this->g_fillColor = color;
@@ -102,6 +113,15 @@ const sf::Color& Character::getFillColor() const
 const sf::Color& Character::getOutlineColor() const
 {
     return this->g_outlineColor;
+}
+
+void Character::setVisibility(bool visibility)
+{
+    this->g_visibility = visibility;
+}
+bool Character::isVisible() const
+{
+    return this->g_visibility;
 }
 
 //ObjText
@@ -295,19 +315,25 @@ FGE_OBJ_DRAW_BODY(ObjText)
         {
             for (const auto& character : this->g_characters)
             {
-                sf::RenderStates statesCharacter{states};
-                statesCharacter.transform *= character.getTransform();
+                if (character.isVisible())
+                {
+                    sf::RenderStates statesCharacter{states};
+                    statesCharacter.transform *= character.getTransform();
 
-                target.draw(character.g_outlineVertices, statesCharacter);
+                    target.draw(character.g_outlineVertices, statesCharacter);
+                }
             }
         }
 
         for (const auto& character : this->g_characters)
         {
-            sf::RenderStates statesCharacter{states};
-            statesCharacter.transform *= character.getTransform();
+            if (character.isVisible())
+            {
+                sf::RenderStates statesCharacter{states};
+                statesCharacter.transform *= character.getTransform();
 
-            target.draw(character.g_vertices, statesCharacter);
+                target.draw(character.g_vertices, statesCharacter);
+            }
         }
     }
 }

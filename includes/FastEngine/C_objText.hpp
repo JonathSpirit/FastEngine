@@ -17,6 +17,13 @@
 #ifndef _FGE_C_OBJTEXT_HPP_INCLUDED
 #define _FGE_C_OBJTEXT_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_object.hpp>
 #include <FastEngine/C_font.hpp>
@@ -29,7 +36,7 @@ namespace fge
 
 class ObjText;
 
-class FGE_API Character : public sf::Transformable
+class FGE_API Character : public sf::Transformable, public sf::Drawable
 {
 public:
     Character() = default;
@@ -39,11 +46,16 @@ public:
     void addLine(bool outlineVertices, float lineLength, float lineTop, float offset, float thickness, float outlineThickness = 0.0f);
     void addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, const sf::Glyph& glyph, float italicShear);
 
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
     void setFillColor(const sf::Color& color);
     void setOutlineColor(const sf::Color& color);
 
     [[nodiscard]] const sf::Color& getFillColor() const;
     [[nodiscard]] const sf::Color& getOutlineColor() const;
+
+    void setVisibility(bool visibility);
+    [[nodiscard]] bool isVisible() const;
 
 private:
     friend ObjText;
@@ -53,6 +65,8 @@ private:
 
     sf::Color g_fillColor{255,255,255};
     sf::Color g_outlineColor{0,0,0};
+
+    bool g_visibility{true};
 };
 
 class FGE_API ObjText : public fge::Object
