@@ -244,7 +244,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
         }
     }
 
-    this->g_text.setString( tmpString );
+    this->g_text.setUtf8String( tmpString );
 
     this->g_box.setFillColor( this->g_statActive ? (this->g_colorBox - sf::Color(50,50,50,0)) : this->g_colorBox );
 

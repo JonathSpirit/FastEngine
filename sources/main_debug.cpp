@@ -46,7 +46,6 @@
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
 
-
 using namespace std;
 
 class Bloc : public fge::Object, public fge::LightObstacle
@@ -304,7 +303,7 @@ public:
         fge::texture::LoadFromFile("light", "test/light_test.png");
         fge::texture::LoadFromFile("arrow", "arrow.png");
 
-        fge::font::LoadFromFile("base", "typed.ttf");
+        fge::font::LoadFromFile("base", "SourceSansPro-Regular.ttf");
         if ( fge::anim::LoadFromFile("animation", "test/anim/anim_data.json") )
         {
             std::cout << "Animation loaded !" << endl;
@@ -393,7 +392,7 @@ public:
         buffText->setPosition(10, 300);
         buffText->_tags.add("info");
         buffText->setFillColor(sf::Color::Black);
-        buffText->setString("This is a simple test");
+        buffText->setUtf8String("This is a simple text with utf8 char lik é¨àöüöüäà");
         this->newObject(FGE_NEWOBJECT_PTR(buffText), FGE_SCENE_PLAN_MIDDLE);
 
         buffAnimation = new fge::ObjAnimation(fge::Animation("animation", "just_a_test"));

@@ -20,6 +20,7 @@
 
 #include "FastEngine/C_objText.hpp"
 #include "FastEngine/font_manager.hpp"
+#include <utf8.h>
 
 namespace fge
 {
@@ -124,14 +125,19 @@ bool Character::isVisible() const
     return this->g_visibility;
 }
 
+uint32_t Character::getUnicode() const
+{
+    return this->g_unicodeChar;
+}
+
 //ObjText
 
-ObjText::ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+ObjText::ObjText(const std::string& string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
     g_font(font),
-    g_string(string),
     g_characterSize(characterSize),
     g_geometryNeedUpdate(true)
 {
+    this->setUtf8String(string);
     this->setPosition(position);
 }
 ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
@@ -150,12 +156,27 @@ const fge::Font& ObjText::getFont() const
     return this->g_font;
 }
 
-void ObjText::setString(const sf::String& string)
+void ObjText::setUtf8String(const std::string& string)
 {
-    if (this->g_string != string)
+    auto endIt = utf8::find_invalid(string.begin(), string.end());
+
+    if (endIt != string.end())
     {
-        this->g_string = string;
-        this->g_geometryNeedUpdate = true;
+        std::string validString{string.begin(), endIt};
+
+        if (this->g_utf8String != validString)
+        {
+            this->g_utf8String = std::move(validString);
+            this->g_geometryNeedUpdate = true;
+        }
+    }
+    else
+    {
+        if (this->g_utf8String != string)
+        {
+            this->g_utf8String = string;
+            this->g_geometryNeedUpdate = true;
+        }
     }
 }
 
@@ -238,9 +259,9 @@ void ObjText::setOutlineThickness(float thickness)
     }
 }
 
-const sf::String& ObjText::getString() const
+const std::string& ObjText::getUtf8String() const
 {
-    return this->g_string;
+    return this->g_utf8String;
 }
 
 fge::ObjText::CharacterSize ObjText::getCharacterSize() const
@@ -343,8 +364,7 @@ void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::save(jsonObject, scene);
 
-    std::basic_string<uint32_t> tmpString = this->g_string.toUtf32();
-    jsonObject["string"] = tmpString;
+    jsonObject["string"] = this->g_utf8String;
 
     jsonObject["font"] = this->g_font;
     jsonObject["characterSize"] = static_cast<uint16_t>(this->g_characterSize);
@@ -359,8 +379,17 @@ void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    auto tmpString = jsonObject.value<std::basic_string<uint32_t> >("string", std::basic_string<uint32_t>());
-    this->g_string = tmpString;
+    std::string string = jsonObject.value<std::string>("string", {});
+
+    auto endIt = utf8::find_invalid(string.begin(), string.end());
+    if (endIt != string.end())
+    {
+        this->g_utf8String.assign(string.begin(), endIt);
+    }
+    else
+    {
+        this->g_utf8String = std::move(string);
+    }
 
     this->g_font = jsonObject.value<std::string>("font", FGE_FONT_BAD);
     this->g_characterSize = jsonObject.value<uint16_t>("characterSize", 30);
@@ -378,7 +407,7 @@ void ObjText::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
-    pck << this->g_string;
+    pck << this->g_utf8String;
     pck << this->g_font;
     pck << this->g_characterSize;
     pck << this->g_letterSpacingFactor << this->g_lineSpacingFactor;
@@ -390,7 +419,20 @@ void ObjText::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
-    pck >> this->g_string;
+    std::string string;
+    pck >> string;
+
+    auto endIt = utf8::find_invalid(string.begin(), string.end());
+    if (endIt != string.end())
+    {
+        this->g_utf8String.clear();
+        this->g_utf8String.append(string.begin(), endIt);
+    }
+    else
+    {
+        this->g_utf8String = std::move(string);
+    }
+
     pck >> this->g_font;
     pck >> this->g_characterSize;
     pck >> this->g_letterSpacingFactor >> this->g_lineSpacingFactor;
@@ -446,7 +488,7 @@ void ObjText::ensureGeometryUpdate() const
     this->g_bounds = sf::FloatRect();
 
     // No text: nothing to draw
-    if (this->g_string.isEmpty())
+    if (this->g_utf8String.empty())
     {
         return;
     }
@@ -480,9 +522,9 @@ void ObjText::ensureGeometryUpdate() const
     float maxY = 0.f;
 
     uint32_t prevChar = 0;
-    for (std::size_t i = 0; i < this->g_string.getSize(); ++i)
+    for (auto it = this->g_utf8String.begin(); it!=this->g_utf8String.end();)
     {
-        uint32_t curChar = this->g_string[i];
+        uint32_t curChar = utf8::next(it, this->g_utf8String.end());
 
         // Skip the \r char to avoid weird graphical issues
         if (curChar == U'\r')
@@ -493,6 +535,7 @@ void ObjText::ensureGeometryUpdate() const
         sf::Vector2f size{0.0f, static_cast<float>(this->g_characterSize)};
 
         Character& character = this->g_characters.emplace_back(this->g_fillColor, this->g_outlineColor);
+        character.g_unicodeChar = curChar;
 
         // Apply the kerning offset
         position.x += font->getKerning(prevChar, curChar, this->g_characterSize, isBold);

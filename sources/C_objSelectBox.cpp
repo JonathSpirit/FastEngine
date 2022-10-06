@@ -176,7 +176,7 @@ FGE_OBJ_UPDATE_BODY(ObjSelectBox)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSelectBox)
 {
-    this->g_text.setString( this->g_textSelected );
+    this->g_text.setUtf8String( this->g_textSelected );
 
     this->g_box.setFillColor( this->g_colorBox );
 
@@ -193,7 +193,7 @@ FGE_OBJ_DRAW_BODY(ObjSelectBox)
             this->g_box.setFillColor( (&this->g_textList[i] == this->g_textCursor) ? this->g_colorBox-sf::Color(100,100,0,0) : this->g_colorBox );
 
             target.draw(this->g_box, states);
-            this->g_text.setString(this->g_textList[i]);
+            this->g_text.setUtf8String(this->g_textList[i]);
             target.draw(this->g_text, states);
         }
     }

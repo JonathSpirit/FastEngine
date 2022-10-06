@@ -57,6 +57,8 @@ public:
     void setVisibility(bool visibility);
     [[nodiscard]] bool isVisible() const;
 
+    [[nodiscard]] uint32_t getUnicode() const;
+
 private:
     friend ObjText;
 
@@ -65,6 +67,8 @@ private:
 
     sf::Color g_fillColor{255,255,255};
     sf::Color g_outlineColor{0,0,0};
+
+    uint32_t g_unicodeChar;
 
     bool g_visibility{true};
 };
@@ -84,7 +88,7 @@ public:
     };
 
     ObjText() = default;
-    ObjText(const sf::String& string, const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    ObjText(const std::string& string, const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
     explicit ObjText(const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
@@ -92,7 +96,7 @@ public:
     void setFont(const fge::Font& font);
     const fge::Font& getFont() const;
 
-    void setString(const sf::String& string);
+    void setUtf8String(const std::string& string);
 
     void setCharacterSize(fge::ObjText::CharacterSize size);
 
@@ -106,7 +110,7 @@ public:
 
     void setOutlineThickness(float thickness);
 
-    const sf::String& getString() const;
+    const std::string& getUtf8String() const;
 
     fge::ObjText::CharacterSize getCharacterSize() const;
 
@@ -141,7 +145,7 @@ public:
 private:
     void ensureGeometryUpdate() const;
 
-    sf::String g_string; /// String to display
+    std::string g_utf8String; /// String to display
     fge::Font g_font; /// Font used to display the string
     fge::ObjText::CharacterSize g_characterSize{30}; /// Base size of characters, in pixels
     float g_letterSpacingFactor{1.0f}; /// Spacing factor between letters
