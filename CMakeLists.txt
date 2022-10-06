@@ -168,6 +168,9 @@ if(WIN32)
     add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
 endif()
 
+target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/utfcpp/source") #utfcpp
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/utfcpp/source")
+
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
