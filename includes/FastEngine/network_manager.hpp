@@ -22,6 +22,7 @@
 #include <FastEngine/C_object.hpp>
 #include <FastEngine/C_packet.hpp>
 #include <FastEngine/C_client.hpp>
+#include <optional>
 
 #define FGE_NET_BAD_HEADER 0
 #define FGE_NET_RULES_START {auto chainedArgs_=
