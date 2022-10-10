@@ -24,6 +24,11 @@ namespace sf
 {
 
 template<class T>
+void to_json(nlohmann::json& j, const sf::Rect<T>& p);
+template<class T>
+void from_json(const nlohmann::json& j, sf::Rect<T>& p);
+
+template<class T>
 void to_json(nlohmann::json& j, const sf::Vector2<T>& p);
 template<class T>
 void from_json(const nlohmann::json& j, sf::Vector2<T>& p);
