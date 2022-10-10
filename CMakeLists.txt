@@ -256,6 +256,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_childObjectsAccessor.cp
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_texture.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_timer.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra_function.cpp")
@@ -349,6 +350,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_soundBuffer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_texture.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_timer.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/extra_function.cpp")

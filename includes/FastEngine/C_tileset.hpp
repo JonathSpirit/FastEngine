@@ -19,94 +19,78 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_texture.hpp>
+#include <FastEngine/C_propertyList.hpp>
+#include <set>
+#include <json.hpp>
 
 namespace fge
 {
 
-class Tileset
+struct Tile
+{
+    int _id{-1};
+    sf::IntRect _rect;
+    fge::PropertyList _properties;
+};
+
+inline bool operator<(const fge::Tile& l, int r) { return l._id < r; }
+inline bool operator<(int l, const fge::Tile& r) { return l < r._id; }
+inline bool operator<(const fge::Tile& l, const fge::Tile& r) { return l._id < r._id; }
+
+class FGE_API Tileset
 {
 public:
+    using TileListType = std::set<fge::Tile, std::less<>>;
+
     Tileset() = default;
-    Tileset( const fge::Texture& texture ) :
-        g_texture(texture)
-    {
-    }
-    Tileset( const fge::Texture& texture, const sf::Vector2i& tileSize) :
-        g_texture(texture),
-        g_tileSize(tileSize)
-    {
-    }
-    Tileset( const fge::Texture& texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset) :
-        g_texture(texture),
-        g_tileSize(tileSize),
-        g_offset(offset)
-    {
-    }
+    Tileset(fge::Texture texture);
+    Tileset(fge::Texture texture, const sf::Vector2i& tileSize);
+    Tileset(fge::Texture texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset);
 
-    inline void clear()
-    {
-        this->g_texture.clear();
-        this->g_tileSize.x = 0;
-        this->g_tileSize.y = 0;
-        this->g_offset.x = 0;
-        this->g_offset.y = 0;
-    }
+    void clearTiles();
 
-    [[nodiscard]] inline bool valid() const
-    {
-        return this->g_texture.valid();
-    }
+    void setName(std::string name);
+    [[nodiscard]] const std::string& getName() const;
 
-    inline fge::Texture& getTexture()
-    {
-        return this->g_texture;
-    }
-    inline const fge::Texture& getTexture() const
-    {
-        return this->g_texture;
-    }
-    inline void setTexture(const fge::Texture& texture)
-    {
-        this->g_texture = texture;
-    }
+    [[nodiscard]] bool valid() const;
 
-    inline const sf::Vector2i& getTileSize() const
-    {
-        return this->g_tileSize;
-    }
-    inline void setTileSize(const sf::Vector2i& tileSize)
-    {
-        this->g_tileSize = tileSize;
-    }
+    [[nodiscard]] const fge::Texture& getTexture() const;
+    void setTexture(fge::Texture texture);
 
-    inline const sf::Vector2i& getOffset() const
-    {
-        return this->g_offset;
-    }
-    inline void setOffset(const sf::Vector2i& offset)
-    {
-        this->g_offset = offset;
-    }
+    [[nodiscard]] const sf::Vector2i& getTileSize() const;
+    void setTileSize(const sf::Vector2i& tileSize);
 
-    inline sf::IntRect getTextureRect(const sf::Vector2i& pos) const
-    {
-        return sf::IntRect(pos.x*this->g_tileSize.x + this->g_offset.x, pos.y*this->g_tileSize.y + this->g_offset.y, this->g_tileSize.x,this->g_tileSize.y);
-    }
-    inline sf::IntRect getTextureRect(int posX, int posY) const
-    {
-        return sf::IntRect(posX*this->g_tileSize.x + this->g_offset.x, posY*this->g_tileSize.y + this->g_offset.y, this->g_tileSize.x,this->g_tileSize.y);
-    }
+    [[nodiscard]] const sf::Vector2i& getOffset() const;
+    void setOffset(const sf::Vector2i& offset);
 
-    inline void operator =( const fge::Texture& texture )
-    {
-        this->g_texture = texture;
-    }
+    [[nodiscard]] const fge::Tile* getTile(int id) const;
+    [[nodiscard]] fge::Tile* getTile(int id);
+    void setTile(fge::Tile tile);
+
+    TileListType::iterator begin();
+    TileListType::const_iterator begin() const;
+    TileListType::iterator end();
+    TileListType::const_iterator end() const;
+
+    void slice();
+
+    [[nodiscard]] sf::IntRect getTextureRect(const sf::Vector2i& pos) const;
+
+    fge::Tileset& operator =(fge::Texture texture);
 
 private:
+    std::string g_name;
     fge::Texture g_texture;
     sf::Vector2i g_tileSize;
-    sf::Vector2i g_offset;
+    sf::Vector2i g_offset{0,0};
+    TileListType g_tiles;
 };
+
+FGE_API void to_json(nlohmann::json& j, const fge::Tileset& p);
+FGE_API void from_json(const nlohmann::json& j, fge::Tileset& p);
+
+FGE_API void to_json(nlohmann::json& j, const fge::Tile& p);
+FGE_API void from_json(const nlohmann::json& j, fge::Tile& p);
 
 }//end fge
 
