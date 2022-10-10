@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 fge::net::Packet& SetHeader(fge::net::Packet& pck, fge::net::PacketHeader header)
@@ -51,5 +49,52 @@ fge::net::Skey GetSkey(fge::net::Packet& pck)
     return FGE_NET_BAD_SKEY;
 }
 
-}//end net
-}//end fge
+namespace rules
+{
+
+template<class TValue>
+TValue& Extract(fge::net::rules::ChainedArguments<TValue>& args)
+{
+    if (args._value.has_value())
+    {
+        return args._value.value();
+    }
+    *args._pck >> args._value.emplace();
+    return args._value.value();
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        auto& val = Extract(args);
+
+        if ( (val >= min && val <= max) ^ TInvertResult )
+        {
+            return std::move(args);
+        }
+        args._pck->setValidity(false);
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        auto& val = Extract(args);
+
+        if ( (val == a) ^ TInvertResult )
+        {
+            return std::move(args);
+        }
+        args._pck->setValidity(false);
+    }
+    return std::move(args);
+}
+
+}//end rules
+
+}//end fge::net

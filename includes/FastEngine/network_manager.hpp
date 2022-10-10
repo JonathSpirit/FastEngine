@@ -24,10 +24,17 @@
 #include <FastEngine/C_client.hpp>
 
 #define FGE_NET_BAD_HEADER 0
+#define FGE_NET_RULES_START {auto chainedArgs_=
+#define FGE_NET_RULES_TRY if (!chainedArgs_._pck->isValid()) {return;}
+#define FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = std::move(chainedArgs_._value.value());}else{(var_) = chainedArgs_._value.value();}
+#define FGE_NET_RULES_AFFECT_SETTER(setter_) FGE_NET_RULES_TRY setter_(std::move(chainedArgs_._value.value()));
+#define FGE_NET_RULES_RESULT std::move(chainedArgs_._value.value())
+#define FGE_NET_RULES_RESULT_N chainedArgs_._value.value()
+#define FGE_NET_RULES_END }
+#define FGE_NET_RULES_AFFECT_END(var_) FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_END
+#define FGE_NET_RULES_AFFECT_SETTER_END(setter_) FGE_NET_RULES_AFFECT_SETTER(setter_) FGE_NET_RULES_END
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 using PacketHeader = uint16_t;
@@ -43,8 +50,28 @@ inline fge::net::PacketHeader GetHeader(fge::net::Packet& pck);
 inline bool CheckSkey(fge::net::Packet& pck, fge::net::Skey skey);
 inline fge::net::Skey GetSkey(fge::net::Packet& pck);
 
-}//end net
-}//end fge
+namespace rules
+{
+
+template<class TValue>
+struct ChainedArguments
+{
+    fge::net::Packet* _pck;
+    std::optional<TValue> _value{std::nullopt};
+};
+
+template<class TValue>
+TValue& Extract(fge::net::rules::ChainedArguments<TValue>& args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args);
+
+}//end rules
+
+}//end fge::net
 
 #include <FastEngine/network_manager.inl>
 
