@@ -66,11 +66,12 @@ public:
     [[nodiscard]] const fge::Tile* getTile(int id) const;
     [[nodiscard]] fge::Tile* getTile(int id);
     void setTile(fge::Tile tile);
+    void pushTile(fge::Tile tile);
 
-    TileListType::iterator begin();
-    TileListType::const_iterator begin() const;
-    TileListType::iterator end();
-    TileListType::const_iterator end() const;
+    [[nodiscard]] TileListType::iterator begin();
+    [[nodiscard]] TileListType::const_iterator begin() const;
+    [[nodiscard]] TileListType::iterator end();
+    [[nodiscard]] TileListType::const_iterator end() const;
 
     void slice();
 

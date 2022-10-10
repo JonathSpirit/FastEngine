@@ -101,6 +101,14 @@ void Tileset::setTile(fge::Tile tile)
     }
     this->g_tiles.insert(std::move(tile));
 }
+void Tileset::pushTile(fge::Tile tile)
+{
+    auto it = this->g_tiles.find(tile);
+    if (it == this->g_tiles.end())
+    {
+        this->g_tiles.insert(std::move(tile));
+    }
+}
 
 Tileset::TileListType::iterator Tileset::begin()
 {
@@ -122,7 +130,7 @@ Tileset::TileListType::const_iterator Tileset::end() const
 void Tileset::slice()
 {
     int id = 0;
-    this->g_tiles.clear();
+    this->clearTiles();
     if (this->g_texture.valid())
     {
         sf::Vector2u size = this->g_texture.getTextureSize();
@@ -130,7 +138,7 @@ void Tileset::slice()
         {
             for (int y=this->g_offset.y; x<size.y; y+=this->g_tileSize.y)
             {
-                this->g_tiles.emplace( fge::Tile{id, sf::IntRect{{x,y},this->g_tileSize}} );
+                this->pushTile( fge::Tile{id, sf::IntRect{{x,y},this->g_tileSize}} );
                 ++id;
             }
         }
