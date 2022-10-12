@@ -1,0 +1,69 @@
+/*
+ * Copyright 2022 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "FastEngine/C_objTilemap.hpp"
+
+namespace fge
+{
+
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjTilemap)
+{
+    states.transform *= this->getTransform();
+    for (std::size_t i=0; i<this->g_layers.size(); ++i)
+    {
+        target.draw(*this->g_layers[i], states);
+    }
+}
+#endif
+
+void ObjTilemap::save(nlohmann::json& jsonObject, fge::Scene* scene)
+{
+    fge::Object::save(jsonObject, scene);
+}
+void ObjTilemap::load(nlohmann::json& jsonObject, fge::Scene* scene)
+{
+    fge::Object::load(jsonObject, scene);
+}
+
+void ObjTilemap::pack(fge::net::Packet& pck)
+{
+    fge::Object::pack(pck);
+}
+void ObjTilemap::unpack(fge::net::Packet& pck)
+{
+    fge::Object::unpack(pck);
+}
+
+const char* ObjTilemap::getClassName() const
+{
+    return FGE_OBJTILEMAP_CLASSNAME;
+}
+const char* ObjTilemap::getReadableClassName() const
+{
+    return "tileMap";
+}
+
+sf::FloatRect ObjTilemap::getGlobalBounds() const
+{
+    return this->getTransform().transformRect(this->getLocalBounds());
+}
+sf::FloatRect ObjTilemap::getLocalBounds() const
+{
+    return {0.f, 0.f, 1.f, 1.f};
+}
+
+}//end fge

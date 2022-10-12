@@ -236,6 +236,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objSprite.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objText.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objTilemap.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -257,6 +258,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_texture.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tilelayer.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_timer.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra_function.cpp")
@@ -329,6 +331,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSprite.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objText.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTilemap.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -351,6 +354,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_texture.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tilelayer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_timer.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/extra_function.cpp")

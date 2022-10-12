@@ -15,84 +15,84 @@
  */
 
 #include "FastEngine/C_tileset.hpp"
-#include "FastEngine/arbitraryJsonTypes.hpp"
 
 namespace fge
 {
 
-Tileset::Tileset(fge::Texture texture) :
+TileSet::TileSet(fge::Texture texture) :
         g_texture(std::move(texture))
 {
 }
-Tileset::Tileset(fge::Texture texture, const sf::Vector2i& tileSize) :
+TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize)
 {
 }
-Tileset::Tileset(fge::Texture texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset) :
+TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize),
         g_offset(offset)
 {
 }
 
-void Tileset::clearTiles()
+void TileSet::clearTiles()
 {
     this->g_tiles.clear();
 }
 
-void Tileset::setName(std::string name)
+void TileSet::setName(std::string name)
 {
     this->g_name = std::move(name);
 }
-const std::string& Tileset::getName() const
+const std::string& TileSet::getName() const
 {
     return this->g_name;
 }
 
-bool Tileset::valid() const
+bool TileSet::valid() const
 {
     return this->g_texture.valid();
 }
 
-const fge::Texture& Tileset::getTexture() const
+const fge::Texture& TileSet::getTexture() const
 {
     return this->g_texture;
 }
-void Tileset::setTexture(fge::Texture texture)
+void TileSet::setTexture(fge::Texture texture)
 {
     this->g_texture = std::move(texture);
 }
 
-const sf::Vector2i& Tileset::getTileSize() const
+const sf::Vector2i& TileSet::getTileSize() const
 {
     return this->g_tileSize;
 }
-void Tileset::setTileSize(const sf::Vector2i& tileSize)
+void TileSet::setTileSize(const sf::Vector2i& tileSize)
 {
     this->g_tileSize = tileSize;
 }
 
-const sf::Vector2i& Tileset::getOffset() const
+const sf::Vector2i& TileSet::getOffset() const
 {
     return this->g_offset;
 }
-void Tileset::setOffset(const sf::Vector2i& offset)
+void TileSet::setOffset(const sf::Vector2i& offset)
 {
     this->g_offset = offset;
 }
 
-const fge::Tile* Tileset::getTile(int id) const
+std::size_t TileSet::getTileCount() const
+{
+    return this->g_tiles.size();
+}
+
+const fge::Tile* TileSet::getTile(TileId id) const
 {
     auto it = this->g_tiles.find(id);
     return it != this->g_tiles.end() ? &(*it) : nullptr;
 }
-fge::Tile* Tileset::getTile(int id)
-{
-    auto it = this->g_tiles.find(id);
-    return it != this->g_tiles.end() ? const_cast<fge::Tile*>(&(*it)) : nullptr;
-}
-void Tileset::setTile(fge::Tile tile)
+
+void TileSet::setTile(fge::Tile tile)
 {
     auto it = this->g_tiles.find(tile);
     if (it != this->g_tiles.end())
@@ -101,7 +101,7 @@ void Tileset::setTile(fge::Tile tile)
     }
     this->g_tiles.insert(std::move(tile));
 }
-void Tileset::pushTile(fge::Tile tile)
+void TileSet::pushTile(fge::Tile tile)
 {
     auto it = this->g_tiles.find(tile);
     if (it == this->g_tiles.end())
@@ -110,26 +110,31 @@ void Tileset::pushTile(fge::Tile tile)
     }
 }
 
-Tileset::TileListType::iterator Tileset::begin()
+TileId TileSet::getLocalId(TileId gid) const
+{
+    return gid - this->g_firstGid;
+}
+void TileSet::setFirstGid(TileId gid)
+{
+    this->g_firstGid = gid;
+}
+TileId TileSet::getFirstGid() const
+{
+    return this->g_firstGid;
+}
+
+TileSet::TileListType::const_iterator TileSet::begin() const
 {
     return this->g_tiles.begin();
 }
-Tileset::TileListType::const_iterator Tileset::begin() const
-{
-    return this->g_tiles.begin();
-}
-Tileset::TileListType::iterator Tileset::end()
-{
-    return this->g_tiles.end();
-}
-Tileset::TileListType::const_iterator Tileset::end() const
+TileSet::TileListType::const_iterator TileSet::end() const
 {
     return this->g_tiles.end();
 }
 
-void Tileset::slice()
+void TileSet::slice()
 {
-    int id = 0;
+    TileId id = 0;
     this->clearTiles();
     if (this->g_texture.valid())
     {
@@ -145,27 +150,73 @@ void Tileset::slice()
     }
 }
 
-sf::IntRect Tileset::getTextureRect(const sf::Vector2i& pos) const
+std::optional<sf::IntRect> TileSet::getTextureRect(TileId id) const
 {
-    return {pos.x*this->g_tileSize.x + this->g_offset.x,
-            pos.y*this->g_tileSize.y + this->g_offset.y,
-            this->g_tileSize.x,
-            this->g_tileSize.y};
+    auto it = this->g_tiles.find(id);
+    if (it != this->g_tiles.end())
+    {
+        return it->_rect;
+    }
+    return std::nullopt;
+}
+sf::IntRect TileSet::computeTextureRect(TileId id) const
+{
+    if (id < 0)
+    {
+        return {};
+    }
+
+    if (!this->g_texture.valid())
+    {
+        return {};
+    }
+
+    auto textureSize = this->g_texture.getTextureSize();
+    int numOfColumns = (static_cast<int>(textureSize.x)-this->g_offset.x)/this->g_tileSize.x;
+    int numOfRows = (static_cast<int>(textureSize.y)-this->g_offset.y)/this->g_tileSize.y;
+
+    if (numOfColumns < 0 || numOfRows < 0)
+    {
+        return {};
+    }
+
+    sf::IntRect result;
+
+    result.left = this->g_tileSize.x * (id%numOfColumns);
+    result.top = this->g_tileSize.y * (id%numOfRows);
+    result.width = this->g_tileSize.x;
+    result.height = this->g_tileSize.y;
+
+    return result;
 }
 
-fge::Tileset& Tileset::operator =(fge::Texture texture)
+fge::TileSet& TileSet::operator =(fge::Texture texture)
 {
     this->g_texture = std::move(texture);
     return *this;
 }
 
-void to_json(nlohmann::json& j, const fge::Tileset& p)
+void to_json(nlohmann::json& j, const fge::TileSet& p)
 {
-    j["name"] = p.getName();
-    j["texture"] = p.getTexture();
+    // Tiled info :
+    j["type"] = "TileSet";
+    j["version"] = "1.9";
+    j["tiledversion"] = "1.9.2";
 
-    j["size"] = p.getTileSize();
-    j["offset"] = p.getOffset();
+    j["name"] = p.getName();
+    j["image"] = p.getTexture();
+    j["imagewidth"] = p.getTexture().getTextureSize().y;
+    j["imageheight"] = p.getTexture().getTextureSize().y;
+
+    j["tilecount"] = p.getTileCount();
+    j["columns"] = (static_cast<int>(p.getTexture().getTextureSize().x)-p.getOffset().x)/p.getTileSize().x;
+
+    j["margin"] = 0; //TODO: margin and spacing
+    j["spacing"] = 0;
+
+    j["tileheight"] = p.getTileSize().x;
+    j["tilewidth"] = p.getTileSize().x;
+    j["offset"] = {{"x", p.getOffset().x}, {"y", p.getOffset().y}};
 
     auto& tilesArray = j["tiles"];
     for (const auto& tile : p)
@@ -173,80 +224,66 @@ void to_json(nlohmann::json& j, const fge::Tileset& p)
         tilesArray.push_back(tile);
     }
 }
-void from_json(const nlohmann::json& j, fge::Tileset& p)
+void from_json(const nlohmann::json& j, fge::TileSet& p)
 {
     p.clearTiles();
 
-    if ( j.contains("image") )
-    {//Is a "Tiled" json format
-        p.setName(j.value<std::string>("name", ""));
-        p.setTexture( j.at("image").get<fge::Texture>() );
+    p.setFirstGid(j.value<TileId>("firstgid", 1));
+    p.setName(j.value<std::string>("name", {}));
+    p.setTexture( j.at("image").get<fge::Texture>() );
 
-        p.setTileSize({
-            j.at("tileheight").get<int>(),
-            j.at("tilewidth").get<int>()
+    p.setTileSize({
+        j.at("tileheight").get<int>(),
+        j.at("tilewidth").get<int>()
+    });
+
+    auto itOffset = j.find("tileoffset");
+    if (itOffset != j.end())
+    {
+        p.setOffset({
+            itOffset->value<int>("x", 0),
+            itOffset->value<int>("y", 0)
         });
+    }
 
-        auto itOffset = j.find("tileoffset");
-        if (itOffset != j.end())
+    auto itTiles = j.find("tiles");
+    if (itTiles != j.end() && itTiles->is_array())
+    {
+        for (const auto& tile : *itTiles)
         {
-            p.setOffset({
-                itOffset->value<int>("x", 0),
-                itOffset->value<int>("y", 0)
-            });
-        }
+            fge::Tile newTile = tile.get<fge::Tile>();
 
-        auto itTiles = j.find("tiles");
-        if (itTiles != j.end() && itTiles->is_array())
-        {
-            for (const auto& tile : *itTiles)
+            if (newTile._rect.height < 0 || newTile._rect.width < 0 ||
+                newTile._rect.left < 0 || newTile._rect.top < 0)
             {
-                fge::Tile newTile = tile.get<fge::Tile>();
-                p.setTile(newTile);
+                newTile._rect = p.computeTextureRect(newTile._id);
             }
+
+            p.setTile(newTile);
         }
     }
     else
-    {//Is a FGE format
-        p.setName(j.value<std::string>("name", ""));
-        p.setTexture( j.at("texture").get<fge::Texture>() );
-
-        p.setTileSize(j.at("size").get<sf::Vector2i>());
-        p.setOffset(j.value<sf::Vector2i>("offset", {0,0}));
-
-        auto itTiles = j.find("tiles");
-        if (itTiles != j.end() && itTiles->is_array())
-        {
-            for (const auto& tile : *itTiles)
-            {
-                fge::Tile newTile = tile.get<fge::Tile>();
-                p.setTile(newTile);
-            }
-        }
+    {
+        p.slice();
     }
 }
 
 void to_json(nlohmann::json& j, const fge::Tile& p)
 {
     j = nlohmann::json{{"id", p._id},
-                       {"rect", p._rect}};
+                       {"width", p._rect.width},
+                       {"height", p._rect.height},
+                       {"x", p._rect.left},
+                       {"y", p._rect.top}};
 }
 void from_json(const nlohmann::json& j, fge::Tile& p)
 {
-    if ( !j.contains("rect") )
-    {//Is a "Tiled" json format
-        j.at("id").get_to(p._id);
+    j.at("id").get_to(p._id);
 
-        j.at("width").get_to(p._rect.width);
-        j.at("height").get_to(p._rect.height);
-        j.at("x").get_to(p._rect.left);
-        j.at("y").get_to(p._rect.top);
-    }
-    else
-    {//Is a FGE format
-        j.at("id").get_to(p._id);
-        j.at("rect").get_to(p._rect);
-    }
+    p._rect.width = j.value<int>("width", -1);
+    p._rect.height = j.value<int>("height", -1);
+    p._rect.left = j.value<int>("x", -1);
+    p._rect.top = j.value<int>("y", -1);
 }
 
 }//end fge
