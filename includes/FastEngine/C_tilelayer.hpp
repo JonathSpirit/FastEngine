@@ -31,7 +31,11 @@ namespace fge
 using TileId = int32_t;
 using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
 
+#ifdef FGE_DEF_SERVER
+class FGE_API TileLayer : public sf::Transformable
+#else
 class FGE_API TileLayer : public sf::Transformable, public sf::Drawable
+#endif
 {
 public:
     struct Data
