@@ -27,6 +27,8 @@
 namespace fge
 {
 
+using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
+
 class FGE_API ObjTilemap : public fge::Object
 {
 public:
@@ -35,6 +37,9 @@ public:
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTilemap)
 
     FGE_OBJ_DRAW_DECLARE
+
+    TileSetList& getTileSets();
+    const TileSetList& getTileSets() const;
 
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
@@ -49,6 +54,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<fge::TileLayer> > g_layers;
+    TileSetList g_tileSets;
 };
 
 }//end fge

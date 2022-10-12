@@ -37,6 +37,7 @@
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/C_objLight.hpp"
 #include "FastEngine/C_objText.hpp"
+#include "FastEngine/C_objTilemap.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
 #include "FastEngine/C_server.hpp"
@@ -310,7 +311,7 @@ public:
         }
         fge::anim::LoadFromFile("animationTileset", "test/testTileset.json");
 
-        fge::crash::Init(window, *fge::font::GetFont("base")->_font);
+        //fge::crash::Init(window, *fge::font::GetFont("base")->_font);
 
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjAnimation>()) );
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjText>()) );
@@ -502,6 +503,15 @@ public:
         rectText.setOutlineThickness(2.0f);
 
         fge::Clock changeTextColorClock;
+
+        auto tilemap = this->newObject(FGE_NEWOBJECT(fge::ObjTilemap));
+
+        fge::texture::LoadFromFile("tileset_test.png", "test/tiled/tileset_test.png");
+        fge::texture::LoadFromFile("tileset_test2.png", "test/tiled/tileset_test2.png");
+
+        nlohmann::json tilemapFile;
+        fge::LoadJsonFromFile("test/tiled/tiledMap.json", tilemapFile);
+        tilemap->getObject()->load(tilemapFile, this);
 
         while (window.isOpen())
         {

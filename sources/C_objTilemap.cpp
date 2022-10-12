@@ -30,13 +30,43 @@ FGE_OBJ_DRAW_BODY(ObjTilemap)
 }
 #endif
 
+TileSetList& ObjTilemap::getTileSets()
+{
+    return this->g_tileSets;
+}
+const TileSetList& ObjTilemap::getTileSets() const
+{
+    return this->g_tileSets;
+}
+
 void ObjTilemap::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::save(jsonObject, scene);
+    //fge::Object::save(jsonObject, scene);
 }
 void ObjTilemap::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    fge::Object::load(jsonObject, scene);
+    //fge::Object::load(jsonObject, scene);
+
+    const auto& tileSetsArray = jsonObject.at("tilesets");
+    if (tileSetsArray.is_array())
+    {
+        for (const auto& tileSet : tileSetsArray)
+        {
+            this->g_tileSets.emplace_back(std::make_shared<fge::TileSet>());
+            tileSet.get_to(*this->g_tileSets.back());
+        }
+    }
+
+    const auto& layersArray = jsonObject.at("layers");
+    if (layersArray.is_array())
+    {
+        for (const auto& layer : layersArray)
+        {
+            this->g_layers.emplace_back(std::make_shared<fge::TileLayer>());
+            layer.get_to(*this->g_layers.back());
+            this->g_layers.back()->refreshTextures(this->g_tileSets);
+        }
+    }
 }
 
 void ObjTilemap::pack(fge::net::Packet& pck)

@@ -73,6 +73,7 @@ public:
     void pushTile(fge::Tile tile);
 
     [[nodiscard]] TileId getLocalId(TileId gid) const;
+    [[nodiscard]] bool isGidContained(TileId gid) const;
     void setFirstGid(TileId gid);
     [[nodiscard]] TileId getFirstGid() const;
 

@@ -114,6 +114,10 @@ TileId TileSet::getLocalId(TileId gid) const
 {
     return gid - this->g_firstGid;
 }
+bool TileSet::isGidContained(TileId gid) const
+{
+    return gid >= this->g_firstGid && gid < (this->g_firstGid+this->g_tiles.size());
+}
 void TileSet::setFirstGid(TileId gid)
 {
     this->g_firstGid = gid;
@@ -139,9 +143,9 @@ void TileSet::slice()
     if (this->g_texture.valid())
     {
         sf::Vector2u size = this->g_texture.getTextureSize();
-        for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
+        for (int y=this->g_offset.y; y<size.y; y+=this->g_tileSize.y)
         {
-            for (int y=this->g_offset.y; x<size.y; y+=this->g_tileSize.y)
+            for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
             {
                 this->pushTile( fge::Tile{id, sf::IntRect{{x,y},this->g_tileSize}} );
                 ++id;
@@ -249,6 +253,7 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     auto itTiles = j.find("tiles");
     if (itTiles != j.end() && itTiles->is_array())
     {
+        /*fge::TileId realTileId = 0;
         for (const auto& tile : *itTiles)
         {
             fge::Tile newTile = tile.get<fge::Tile>();
@@ -256,11 +261,13 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
             if (newTile._rect.height < 0 || newTile._rect.width < 0 ||
                 newTile._rect.left < 0 || newTile._rect.top < 0)
             {
-                newTile._rect = p.computeTextureRect(newTile._id);
+                newTile._rect = p.computeTextureRect(realTileId);
             }
 
             p.setTile(newTile);
-        }
+            ++realTileId;
+        }*/
+        p.slice();
     }
     else
     {

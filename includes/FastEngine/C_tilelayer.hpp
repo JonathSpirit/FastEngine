@@ -29,15 +29,20 @@ namespace fge
 {
 
 using TileId = int32_t;
+using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
 
 class FGE_API TileLayer : public sf::Transformable, public sf::Drawable
 {
 public:
     struct Data
     {
-        TileId _gid;
+        TileId _gid{0};
         std::shared_ptr<fge::TileSet> _tileSet;
         sf::Vertex _vertex[4];
+        sf::Vector2f _position;
+
+        void updatePositions();
+        void updateTexCoords();
     };
 
     TileLayer() = default;
@@ -46,6 +51,8 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 #endif
 
+    void clear();
+
     void setId(TileId id);
     [[nodiscard]] TileId getId() const;
 
@@ -53,24 +60,18 @@ public:
     [[nodiscard]] const std::string& getName() const;
 
     [[nodiscard]] const fge::Matrix<TileLayer::Data>& getData() const;
+    void setGid(std::size_t x, std::size_t y, const TileSetList& tileSets, TileId gid);
     void setGid(std::size_t x, std::size_t y, TileId gid);
+    void setGridSize(std::size_t x, std::size_t y);
 
-    [[nodiscard]] std::size_t getTileSetSize() const;
-    void pushTileSet(std::shared_ptr<fge::TileSet> tileSet);
-    [[nodiscard]] std::shared_ptr<fge::TileSet> getTileSet(std::size_t index) const;
-    void clearTileSet();
-
-    void refreshTextures();
+    void refreshTextures(const TileSetList& tileSets);
 
 private:
-    static void updatePositions(TileLayer::Data& data);
-    static void updateTexCoords(TileLayer::Data& data);
-    std::shared_ptr<fge::TileSet> retrieveTileSet(TileId gid) const;
+    static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(const TileSetList& tileSets, TileId gid);
 
     TileId g_id{1};
     std::string g_name;
     fge::Matrix<TileLayer::Data> g_data;
-    std::vector<std::shared_ptr<fge::TileSet> > g_tileSets;
 };
 
 FGE_API void to_json(nlohmann::json& j, const fge::TileLayer& p);
