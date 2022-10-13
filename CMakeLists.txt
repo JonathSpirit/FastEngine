@@ -3,8 +3,8 @@ project(FastEngine)
 
 include(ExternalProject)
 
-#Fix compile error with minimp3
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow=)
+#Flags
+add_compile_options(-Wno-error=stringop-overflow=) #Fix compile error with minimp3
 
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -200,6 +200,10 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
 
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
+
+#Compile options
+target_compile_options(${FGE_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra -Wshadow)
+target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra -Wshadow)
 
 #Definition
 target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)

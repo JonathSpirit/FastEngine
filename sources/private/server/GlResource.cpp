@@ -44,7 +44,7 @@ GlResource::~GlResource()
 
 
 ////////////////////////////////////////////////////////////
-void GlResource::registerContextDestroyCallback(ContextDestroyCallback callback, void* arg)
+void GlResource::registerContextDestroyCallback([[maybe_unused]] ContextDestroyCallback callback, [[maybe_unused]] void* arg)
 {
 }
 

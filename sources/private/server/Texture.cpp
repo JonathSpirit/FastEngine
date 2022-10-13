@@ -237,13 +237,13 @@ void Texture::update(const Image& image, [[maybe_unused]] unsigned int x, [[mayb
 
 
 ////////////////////////////////////////////////////////////
-void Texture::update(const Window& window)
+void Texture::update([[maybe_unused]] const Window& window)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void Texture::update(const Window& window, unsigned int x, unsigned int y)
+void Texture::update([[maybe_unused]] const Window& window, [[maybe_unused]] unsigned int x, [[maybe_unused]] unsigned int y)
 {
 }
 
@@ -305,7 +305,7 @@ void Texture::invalidateMipmap()
 
 
 ////////////////////////////////////////////////////////////
-void Texture::bind(const Texture* texture, CoordinateType coordinateType)
+void Texture::bind([[maybe_unused]] const Texture* texture, [[maybe_unused]] CoordinateType coordinateType)
 {
 }
 

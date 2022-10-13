@@ -42,7 +42,7 @@
 #define FGE_SCENE_BAD_PLANDEPTH std::numeric_limits<fge::ObjectPlanDepth>::max()
 #define FGE_SCENE_BAD_PLAN std::numeric_limits<fge::ObjectPlan>::max()
 
-#define FGE_NEWOBJECT(objectType_, objectArgs_ ...) std::unique_ptr<fge::Object>{new objectType_{objectArgs_}}
+#define FGE_NEWOBJECT(objectType_, ...) std::unique_ptr<fge::Object>{new objectType_{__VA_ARGS__}}
 #define FGE_NEWOBJECT_PTR(objectPtr_) std::unique_ptr<fge::Object>{objectPtr_}
 
 namespace fge
@@ -1152,7 +1152,7 @@ public:
      *
      * \param jsonObject The json object
      */
-    virtual void saveCustomData(nlohmann::json& jsonObject){};
+    virtual void saveCustomData([[maybe_unused]] nlohmann::json& jsonObject){};
     /**
      * \brief Load some user defined custom data.
      *
@@ -1163,7 +1163,7 @@ public:
      *
      * \param jsonObject The json object
      */
-    virtual void loadCustomData(nlohmann::json& jsonObject){};
+    virtual void loadCustomData([[maybe_unused]] nlohmann::json& jsonObject){};
 
     /**
      * \brief Save all the Scene with its Object in a file.

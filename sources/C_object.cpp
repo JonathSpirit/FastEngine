@@ -26,29 +26,30 @@
 namespace fge
 {
 
-void Object::first(fge::Scene* scene)
+void Object::first([[maybe_unused]] fge::Scene* scene)
 {
 }
-void Object::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
+void Object::callbackRegister([[maybe_unused]] fge::Event& event, [[maybe_unused]] fge::GuiElementHandler* guiElementHandlerPtr)
 {
 }
 #ifdef FGE_DEF_SERVER
-void Object::update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+void Object::update([[maybe_unused]] fge::Event& event, [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
 #else
-void Object::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+void Object::update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event,
+                    [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
 #endif //FGE_DEF_SERVER
 {
 }
 
 #ifndef FGE_DEF_SERVER
-void Object::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Object::draw([[maybe_unused]] sf::RenderTarget& target, [[maybe_unused]] sf::RenderStates states) const
 {
 }
 #endif //FGE_DEF_SERVER
 void Object::networkRegister()
 {
 }
-void Object::removed(fge::Scene* scene)
+void Object::removed([[maybe_unused]] fge::Scene* scene)
 {
 }
 

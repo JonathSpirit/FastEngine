@@ -64,13 +64,13 @@ template<typename TLambda>
 CallbackLambda<Types ...>::CallbackLambda(const TLambda& lambda) :
         g_lambda(new TLambda(lambda))
 {
-    this->g_executeLambda = [](void* lambda, Types... arguments)
+    this->g_executeLambda = [](void* lambdaPtr, Types... arguments)
     {
-        return (*reinterpret_cast<TLambda*>(lambda))(arguments...);
+        return (*reinterpret_cast<TLambda*>(lambdaPtr))(arguments...);
     };
-    this->g_deleteLambda = [](void* lambda)
+    this->g_deleteLambda = [](void* lambdaPtr)
     {
-        delete reinterpret_cast<TLambda*>(lambda);
+        delete reinterpret_cast<TLambda*>(lambdaPtr);
     };
 }
 template <class ... Types>
