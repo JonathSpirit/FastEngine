@@ -270,6 +270,38 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
 void to_json(nlohmann::json& j, const fge::Tile& p)
 {
     j = nlohmann::json{{"id", p._id}};
+
+    if (p._properties.getPropertiesSize() != 0)
+    {
+        auto& propertiesArray = j["properties"];
+        for (auto& property : p._properties)
+        {
+            switch (property.second.getType())
+            {//TODO: add a bool type for property
+            case Property::PTYPE_INTEGERS:
+                propertiesArray.push_back({{"name", property.first},
+                                           {"type", "int"},
+                                           {"value", property.second.get<fge::PintType>()}});
+                break;
+            case Property::PTYPE_FLOAT:
+                propertiesArray.push_back({{"name", property.first},
+                                           {"type", "float"},
+                                           {"value", property.second.get<fge::PfloatType>()}});
+            case Property::PTYPE_DOUBLE:
+                propertiesArray.push_back({{"name", property.first},
+                                           {"type", "float"},
+                                           {"value", property.second.get<fge::PfloatType>()}});
+                break;
+            case Property::PTYPE_STRING:
+                propertiesArray.push_back({{"name", property.first},
+                                           {"type", "string"},
+                                           {"value", property.second.get<std::string>()}});
+                break;
+            default:
+                break;
+            }
+        }
+    }
 }
 void from_json(const nlohmann::json& j, fge::Tile& p)
 {
