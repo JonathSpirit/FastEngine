@@ -26,7 +26,7 @@ void TagList::clear()
 
 void TagList::add(std::string_view tag)
 {
-    this->g_tags.insert(std::move(std::string{tag}));
+    this->g_tags.insert(std::string{tag});
 }
 void TagList::del(std::string_view tag)
 {

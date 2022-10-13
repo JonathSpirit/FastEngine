@@ -23,6 +23,7 @@
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     #pragma GCC diagnostic ignored "-Wshadow"
     #pragma GCC diagnostic ignored "-Wdeprecated-copy"
+    #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif //__GNUC__
 
 #define strtk_no_tr1_or_boost

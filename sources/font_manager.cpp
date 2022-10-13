@@ -129,7 +129,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
     buff->_valid = true;
     buff->_path = std::move(path);
 
-    _dataFont[std::move(std::string{name})] = std::move(buff);
+    _dataFont[std::string{name}] = std::move(buff);
     return true;
 }
 

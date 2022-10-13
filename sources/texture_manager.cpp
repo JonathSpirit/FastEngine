@@ -162,7 +162,7 @@ bool LoadFromImage(std::string_view name, const sf::Image& image)
     buff->_texture = std::move(tmpTexture);
     buff->_valid = true;
 
-    _dataTexture[std::move(std::string{name})] = std::move(buff);
+    _dataTexture[std::string{name}] = std::move(buff);
     return true;
 }
 bool LoadFromFile(std::string_view name, std::filesystem::path path)
@@ -192,7 +192,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
     buff->_valid = true;
     buff->_path = std::move(path);
 
-    _dataTexture[std::move(std::string{name})] = std::move(buff);
+    _dataTexture[std::string{name}] = std::move(buff);
     return true;
 }
 
