@@ -196,14 +196,14 @@ public:
     void main()
     {
         fge::net::Packet testPck;
-        testPck << (std::size_t)123 << (std::size_t)321;
+        testPck << (uint32_t)123 << (uint32_t)321;
 
-        std::size_t b;
-        auto aaa = [&](std::size_t v){
+        uint32_t b;
+        auto aaa = [&](uint32_t v){
             b = v;
         };
 
-        std::size_t c;
+        uint32_t c;
 
         FGE_NET_RULES_START
             fge::net::rules::RMustEqual<std::size_t, false>(123,fge::net::rules::RRange<std::size_t, false>(0, 200, {&testPck}));
