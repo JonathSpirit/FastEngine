@@ -38,15 +38,33 @@ class FGE_API TileLayer : public sf::Transformable, public sf::Drawable
 #endif
 {
 public:
-    struct Data
+    class Tile
     {
-        TileId _gid{0};
-        std::shared_ptr<fge::TileSet> _tileSet;
-        sf::Vertex _vertex[4];
-        sf::Vector2f _position;
+    public:
+        Tile() = default;
 
+        void setGid(TileId gid);
+        [[nodiscard]] TileId getGid() const;
+
+        void setPosition(const sf::Vector2f& position);
+        [[nodiscard]] const sf::Vector2f& getPosition() const;
+
+        void setColor(const sf::Color& color);
+        [[nodiscard]] const sf::Color& getColor() const;
+
+        void setTileSet(std::shared_ptr<fge::TileSet> tileSet);
+        [[nodiscard]] const std::shared_ptr<fge::TileSet>& getTileSet() const;
+
+    private:
         void updatePositions();
         void updateTexCoords();
+
+        TileId g_gid{0};
+        std::shared_ptr<fge::TileSet> g_tileSet;
+        sf::Vertex g_vertex[4];
+        sf::Vector2f g_position;
+
+        friend TileLayer;
     };
 
     TileLayer() = default;
@@ -63,7 +81,7 @@ public:
     void setName(std::string name);
     [[nodiscard]] const std::string& getName() const;
 
-    [[nodiscard]] const fge::Matrix<TileLayer::Data>& getData() const;
+    [[nodiscard]] const fge::Matrix<TileLayer::Tile>& getTiles() const;
     void setGid(std::size_t x, std::size_t y, const TileSetList& tileSets, TileId gid);
     void setGid(std::size_t x, std::size_t y, TileId gid);
     void setGridSize(std::size_t x, std::size_t y);
@@ -75,7 +93,7 @@ private:
 
     TileId g_id{1};
     std::string g_name;
-    fge::Matrix<TileLayer::Data> g_data;
+    fge::Matrix<TileLayer::Tile> g_data;
 };
 
 FGE_API void to_json(nlohmann::json& j, const fge::TileLayer& p);

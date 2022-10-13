@@ -30,6 +30,12 @@ FGE_OBJ_DRAW_BODY(ObjTilemap)
 }
 #endif
 
+void ObjTilemap::clear()
+{
+    this->g_tileSets.clear();
+    this->g_layers.clear();
+}
+
 TileSetList& ObjTilemap::getTileSets()
 {
     return this->g_tileSets;
@@ -39,14 +45,44 @@ const TileSetList& ObjTilemap::getTileSets() const
     return this->g_tileSets;
 }
 
+TileLayerList& ObjTilemap::getTileLayers()
+{
+    return this->g_layers;
+}
+const TileLayerList& ObjTilemap::getTileLayers() const
+{
+    return this->g_layers;
+}
+
 void ObjTilemap::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    //fge::Object::save(jsonObject, scene);
+    jsonObject = nlohmann::json{{"infinite", false},
+                                {"orientation", "orthogonal"},
+                                {"renderorder", "right-down"},
+                                {"tiledversion", "1.9.2"},
+                                {"version", "1.9"},
+                                {"type", "map"}};
+
+    auto& tileSetsArray = jsonObject["tilesets"];
+    tileSetsArray = nlohmann::json::array();
+
+    for (auto& tileSet : this->g_tileSets)
+    {
+        auto& obj = tileSetsArray.emplace_back(nlohmann::json::object());
+        obj = *tileSet;
+    }
+
+    auto& layersArray = jsonObject["layers"];
+    layersArray = nlohmann::json::array();
+
+    for (auto& layer : this->g_layers)
+    {
+        auto& obj = layersArray.emplace_back(nlohmann::json::object());
+        obj = *layer;
+    }
 }
 void ObjTilemap::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
-    //fge::Object::load(jsonObject, scene);
-
     const auto& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())
     {

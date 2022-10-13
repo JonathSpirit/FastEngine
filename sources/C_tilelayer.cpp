@@ -20,24 +20,67 @@
 namespace fge
 {
 
-void TileLayer::Data::updatePositions()
+void TileLayer::Tile::setGid(TileId gid)
 {
-    if (this->_tileSet)
-    {
-        auto size = static_cast<sf::Vector2f>(this->_tileSet->getTileSize());
+    this->g_gid = gid;
+    this->updateTexCoords();
+}
+TileId TileLayer::Tile::getGid() const
+{
+    return this->g_gid;
+}
 
-        this->_vertex[0].position = sf::Vector2f(this->_position.x, this->_position.y);
-        this->_vertex[1].position = sf::Vector2f(this->_position.x, this->_position.y+size.y);
-        this->_vertex[2].position = sf::Vector2f(this->_position.x+size.x, this->_position.y);
-        this->_vertex[3].position = sf::Vector2f(this->_position.x+size.x, this->_position.y+size.y);
+void TileLayer::Tile::setPosition(const sf::Vector2f& position)
+{
+    this->g_position = position;
+    this->updatePositions();
+}
+const sf::Vector2f& TileLayer::Tile::getPosition() const
+{
+    return this->g_position;
+}
+
+void TileLayer::Tile::setColor(const sf::Color& color)
+{
+    for (std::size_t i=0; i<4; ++i)
+    {
+        this->g_vertex[i].color = color;
+    }
+}
+const sf::Color& TileLayer::Tile::getColor() const
+{
+    return this->g_vertex[0].color;
+}
+
+void TileLayer::Tile::setTileSet(std::shared_ptr<fge::TileSet> tileSet)
+{
+    this->g_tileSet = std::move(tileSet);
+    this->updatePositions();
+    this->updateTexCoords();
+}
+const std::shared_ptr<fge::TileSet>& TileLayer::Tile::getTileSet() const
+{
+    return this->g_tileSet;
+}
+
+void TileLayer::Tile::updatePositions()
+{
+    if (this->g_tileSet)
+    {
+        auto size = static_cast<sf::Vector2f>(this->g_tileSet->getTileSize());
+
+        this->g_vertex[0].position = sf::Vector2f(this->g_position.x, this->g_position.y);
+        this->g_vertex[1].position = sf::Vector2f(this->g_position.x, this->g_position.y+size.y);
+        this->g_vertex[2].position = sf::Vector2f(this->g_position.x+size.x, this->g_position.y);
+        this->g_vertex[3].position = sf::Vector2f(this->g_position.x+size.x, this->g_position.y+size.y);
     }
 }
 
-void TileLayer::Data::updateTexCoords()
+void TileLayer::Tile::updateTexCoords()
 {
-    if (this->_tileSet)
+    if (this->g_tileSet)
     {
-        const auto* tile = this->_tileSet->getTile(this->_tileSet->getLocalId(this->_gid));
+        const auto* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
         if (tile != nullptr)
         {
             auto rect = tile->_rect;
@@ -47,14 +90,10 @@ void TileLayer::Data::updateTexCoords()
             float top    = static_cast<float>(rect.top);
             float bottom = top + static_cast<float>(rect.height);
 
-            this->_vertex[0].texCoords = sf::Vector2f(left, top);
-            this->_vertex[1].texCoords = sf::Vector2f(left, bottom);
-            this->_vertex[2].texCoords = sf::Vector2f(right, top);
-            this->_vertex[3].texCoords = sf::Vector2f(right, bottom);
-        }
-        else
-        {
-            std::terminate();
+            this->g_vertex[0].texCoords = sf::Vector2f(left, top);
+            this->g_vertex[1].texCoords = sf::Vector2f(left, bottom);
+            this->g_vertex[2].texCoords = sf::Vector2f(right, top);
+            this->g_vertex[3].texCoords = sf::Vector2f(right, bottom);
         }
     }
 }
@@ -66,10 +105,10 @@ void TileLayer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     for (const auto& data : this->g_data)
     {
-        if (data._tileSet)
+        if (data.g_tileSet)
         {
-            states.texture = static_cast<const sf::Texture*>(data._tileSet->getTexture());
-            target.draw(data._vertex, 4, sf::TriangleStrip, states);
+            states.texture = static_cast<const sf::Texture*>(data.g_tileSet->getTexture());
+            target.draw(data.g_vertex, 4, sf::TriangleStrip, states);
         }
     }
 }
@@ -98,7 +137,7 @@ const std::string& TileLayer::getName() const
     return this->g_name;
 }
 
-const fge::Matrix<TileLayer::Data>& TileLayer::getData() const
+const fge::Matrix<TileLayer::Tile>& TileLayer::getTiles() const
 {
     return this->g_data;
 }
@@ -107,12 +146,12 @@ void TileLayer::setGid(std::size_t x, std::size_t y, const TileSetList& tileSets
     auto* data = this->g_data.getPtr(x,y);
     if (data != nullptr)
     {
-        data->_gid = gid;
-        data->_tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, gid);
-        if (data->_tileSet)
+        data->g_gid = gid;
+        data->g_tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, gid);
+        if (data->g_tileSet)
         {
-            data->_position = {static_cast<float>(data->_tileSet->getTileSize().x*x),
-                               static_cast<float>(data->_tileSet->getTileSize().y*y)};
+            data->g_position = {static_cast<float>(data->g_tileSet->getTileSize().x*x),
+                                static_cast<float>(data->g_tileSet->getTileSize().y*y)};
         }
         data->updatePositions();
         data->updateTexCoords();
@@ -123,7 +162,7 @@ void TileLayer::setGid(std::size_t x, std::size_t y, TileId gid)
     auto* data = this->g_data.getPtr(x,y);
     if (data != nullptr)
     {
-        data->_gid = gid;
+        data->g_gid = gid;
     }
 }
 void TileLayer::setGridSize(std::size_t x, std::size_t y)
@@ -140,11 +179,11 @@ void TileLayer::refreshTextures(const TileSetList& tileSets)
         {
             auto& data = this->g_data[ix][iy];
 
-            data._tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, data._gid);
-            if (data._tileSet)
+            data.g_tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, data.g_gid);
+            if (data.g_tileSet)
             {
-                data._position = {static_cast<float>(data._tileSet->getTileSize().x*ix),
-                                  static_cast<float>(data._tileSet->getTileSize().y*iy)};
+                data.g_position = {static_cast<float>(data.g_tileSet->getTileSize().x*ix),
+                                    static_cast<float>(data.g_tileSet->getTileSize().y*iy)};
             }
             data.updatePositions();
             data.updateTexCoords();
@@ -166,11 +205,27 @@ std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(const TileSet
 
 void to_json(nlohmann::json& j, const fge::TileLayer& p)
 {
-    /*j = nlohmann::json{{"id", p._id},
-                       {"width", p._rect.width},
-                       {"height", p._rect.height},
-                       {"x", p._rect.left},
-                       {"y", p._rect.top}};*/
+    j = nlohmann::json{{"id", p.getId()},
+                       {"name", p.getName()},
+                       {"type", "tilelayer"},
+
+                       {"width", p.getTiles().getSizeX()},
+                       {"height", p.getTiles().getSizeY()},
+
+                       {"offsetx", static_cast<int>(p.getPosition().x)},
+                       {"offsety", static_cast<int>(p.getPosition().y)}};
+
+    auto& dataArray = j["data"];
+    dataArray = nlohmann::json::array();
+
+    for (std::size_t ih=0; ih<p.getTiles().getSizeY(); ++ih)
+    {
+        for (std::size_t iw=0; iw<p.getTiles().getSizeX(); ++iw)
+        {
+            int gid = p.getTiles().get(iw, ih).getGid();
+            dataArray.push_back(gid);
+        }
+    }
 }
 void from_json(const nlohmann::json& j, fge::TileLayer& p)
 {
