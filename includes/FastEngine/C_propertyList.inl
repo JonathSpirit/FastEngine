@@ -17,15 +17,6 @@
 namespace fge
 {
 
-PropertyList::PropertyList(const PropertyList& r) :
-        g_data(r.g_data)
-{
-}
-PropertyList::PropertyList(PropertyList&& r) noexcept :
-        g_data(std::move(r.g_data))
-{
-}
-
 void PropertyList::delAllProperties()
 {
     this->g_data.clear();
@@ -106,13 +97,13 @@ fge::PropertyList::PropertyListType::iterator PropertyList::end()
 {
     return this->g_data.end();
 }
-fge::PropertyList::PropertyListType::const_iterator PropertyList::cbegin()
+fge::PropertyList::PropertyListType::const_iterator PropertyList::begin() const
 {
-    return this->g_data.cbegin();
+    return this->g_data.begin();
 }
-fge::PropertyList::PropertyListType::const_iterator PropertyList::cend()
+fge::PropertyList::PropertyListType::const_iterator PropertyList::end() const
 {
-    return this->g_data.cend();
+    return this->g_data.end();
 }
 
 fge::PropertyList::PropertyListType::const_iterator PropertyList::find(const std::string& key) const
