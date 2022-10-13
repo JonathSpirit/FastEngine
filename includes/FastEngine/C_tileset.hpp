@@ -69,8 +69,6 @@ public:
     [[nodiscard]] std::size_t getTileCount() const;
 
     [[nodiscard]] const fge::Tile* getTile(TileId id) const;
-    void setTile(fge::Tile tile);
-    void pushTile(fge::Tile tile);
 
     [[nodiscard]] TileId getLocalId(TileId gid) const;
     [[nodiscard]] bool isGidContained(TileId gid) const;
@@ -88,6 +86,9 @@ public:
     fge::TileSet& operator =(fge::Texture texture);
 
 private:
+    void setTile(fge::Tile tile);
+    void pushTile(fge::Tile tile);
+
     std::string g_name;
     fge::Texture g_texture;
     sf::Vector2i g_tileSize;

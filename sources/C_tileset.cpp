@@ -112,7 +112,7 @@ void TileSet::pushTile(fge::Tile tile)
 
 TileId TileSet::getLocalId(TileId gid) const
 {
-    return gid - this->g_firstGid;
+    return this->isGidContained(gid) ? (gid - this->g_firstGid) : -1;
 }
 bool TileSet::isGidContained(TileId gid) const
 {
@@ -147,7 +147,7 @@ void TileSet::slice()
         {
             for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
             {
-                this->pushTile( fge::Tile{id, sf::IntRect{{x,y},this->g_tileSize}} );
+                this->pushTile( fge::Tile{id, sf::IntRect{{x,y}, this->g_tileSize}} );
                 ++id;
             }
         }
@@ -250,47 +250,69 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
         });
     }
 
+    p.slice();
+
     auto itTiles = j.find("tiles");
     if (itTiles != j.end() && itTiles->is_array())
     {
-        /*fge::TileId realTileId = 0;
         for (const auto& tile : *itTiles)
         {
             fge::Tile newTile = tile.get<fge::Tile>();
-
-            if (newTile._rect.height < 0 || newTile._rect.width < 0 ||
-                newTile._rect.left < 0 || newTile._rect.top < 0)
+            const auto* actualTile = p.getTile(newTile._id);
+            if (actualTile != nullptr)
             {
-                newTile._rect = p.computeTextureRect(realTileId);
+                actualTile->_properties = std::move(newTile._properties);
             }
-
-            p.setTile(newTile);
-            ++realTileId;
-        }*/
-        p.slice();
-    }
-    else
-    {
-        p.slice();
+        }
     }
 }
 
 void to_json(nlohmann::json& j, const fge::Tile& p)
 {
-    j = nlohmann::json{{"id", p._id},
-                       {"width", p._rect.width},
-                       {"height", p._rect.height},
-                       {"x", p._rect.left},
-                       {"y", p._rect.top}};
+    j = nlohmann::json{{"id", p._id}};
 }
 void from_json(const nlohmann::json& j, fge::Tile& p)
 {
     j.at("id").get_to(p._id);
 
-    p._rect.width = j.value<int>("width", -1);
-    p._rect.height = j.value<int>("height", -1);
-    p._rect.left = j.value<int>("x", -1);
-    p._rect.top = j.value<int>("y", -1);
+    auto itProperties = j.find("properties");
+    if (itProperties != j.end() && itProperties->is_array())
+    {
+        for (const auto& property : *itProperties)
+        {
+            if (property.is_object())
+            {
+                auto name = property.value<std::string>("name", {});
+                auto type = property.value<std::string>("type", "string");
+
+                if (name.empty())
+                {
+                    continue;
+                }
+
+                if (type == "string")
+                {
+                    auto value = property.value<std::string>("value", {});
+                    p._properties[name] = std::move(value);
+                }
+                else if (type == "int")
+                {
+                    auto value = property.value<int>("value", 0);
+                    p._properties[name] = value;
+                }
+                else if (type == "float")
+                {
+                    auto value = property.value<float>("value", 0.0f);
+                    p._properties[name] = value;
+                }
+                else if (type == "bool")
+                {
+                    auto value = property.value<bool>("value", false);
+                    p._properties[name] = value;
+                }
+            }
+        }
+    }
 }
 
 }//end fge
