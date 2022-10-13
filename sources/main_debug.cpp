@@ -206,11 +206,11 @@ public:
         uint32_t c;
 
         FGE_NET_RULES_START
-            fge::net::rules::RMustEqual<std::size_t, false>(123,fge::net::rules::RRange<std::size_t, false>(0, 200, {&testPck}));
+            fge::net::rules::RMustEqual<uint32_t, false>(123,fge::net::rules::RRange<uint32_t, false>(0, 200, {&testPck}));
         FGE_NET_RULES_SETTER_END_ELSE(aaa, std::cout << "rule 1 is not valid !" << std::endl; return;)
 
         FGE_NET_RULES_START
-            fge::net::rules::RMustEqual<std::size_t, false>(321,fge::net::rules::RRange<std::size_t, false>(100, 400, {&testPck}));
+            fge::net::rules::RMustEqual<uint32_t, false>(321,fge::net::rules::RRange<uint32_t, false>(100, 400, {&testPck}));
         FGE_NET_RULES_AFFECT_END_ELSE(c, std::cout << "rule 2 is not valid !" << std::endl; return;)
 
         std::cout << c << " " << b << " packet validity : " << std::boolalpha << testPck.isValid() << std::endl;
