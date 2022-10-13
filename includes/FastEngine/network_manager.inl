@@ -62,13 +62,22 @@ TValue& Extract(fge::net::rules::ChainedArguments<TValue>& args)
     *args._pck >> args._value.emplace();
     return args._value.value();
 }
+template<class TValue>
+TValue Peek(fge::net::rules::ChainedArguments<TValue>& args)
+{
+    auto pos = args._pck->getReadPos();
+    TValue value;
+    *args._pck >> value;
+    args._pck->setReadPos(pos);
+    return std::move(value);
+}
 
 template<class TValue, bool TInvertResult>
 fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args)
 {
     if (args._pck->isValid())
     {
-        auto& val = Extract(args);
+        auto& val = Extract<TValue>(args);
 
         if ( (val >= min && val <= max) ^ TInvertResult )
         {
@@ -84,9 +93,57 @@ fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::
 {
     if (args._pck->isValid())
     {
-        auto& val = Extract(args);
+        auto& val = Extract<TValue>(args);
 
         if ( (val == a) ^ TInvertResult )
+        {
+            return std::move(args);
+        }
+        args._pck->setValidity(false);
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        fge::net::SizeType val = Peek<fge::net::SizeType>(args);
+
+        if ( (val >= min && val <= max) ^ TInvertResult )
+        {
+            return std::move(args);
+        }
+        args._pck->setValidity(false);
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        fge::net::SizeType val = Peek<fge::net::SizeType>(args);
+
+        if ( (val == a) ^ TInvertResult )
+        {
+            return std::move(args);
+        }
+        args._pck->setValidity(false);
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        auto& val = Extract<TValue>(args);
+
+        if ( fge::string::IsValidUtf8String(val) ^ TInvertResult )
         {
             return std::move(args);
         }

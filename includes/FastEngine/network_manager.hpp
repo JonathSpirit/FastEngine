@@ -25,15 +25,21 @@
 #include <optional>
 
 #define FGE_NET_BAD_HEADER 0
+
 #define FGE_NET_RULES_START {auto chainedArgs_=
 #define FGE_NET_RULES_TRY if (!chainedArgs_._pck->isValid()) {return;}
-#define FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = std::move(chainedArgs_._value.value());}else{(var_) = chainedArgs_._value.value();}
-#define FGE_NET_RULES_AFFECT_SETTER(setter_) FGE_NET_RULES_TRY setter_(std::move(chainedArgs_._value.value()));
-#define FGE_NET_RULES_RESULT std::move(chainedArgs_._value.value())
-#define FGE_NET_RULES_RESULT_N chainedArgs_._value.value()
+#define FGE_NET_RULES_TRY_ELSE(else_) if (!chainedArgs_._pck->isValid()) {else_}
+#define FGE_NET_RULES_RESULT std::move(fge::net::rules::Extract(chainedArgs_))
+#define FGE_NET_RULES_RESULT_N fge::net::rules::Extract(chainedArgs_)
+#define FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = FGE_NET_RULES_RESULT;}else{(var_) = FGE_NET_RULES_RESULT_N;}
+#define FGE_NET_RULES_SETTER(setter_) FGE_NET_RULES_TRY setter_(FGE_NET_RULES_RESULT);
+#define FGE_NET_RULES_AFFECT_ELSE(var_, else_) FGE_NET_RULES_TRY_ELSE(else_) if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = FGE_NET_RULES_RESULT;}else{(var_) = FGE_NET_RULES_RESULT_N;}
+#define FGE_NET_RULES_SETTER_ELSE(setter_, else_) FGE_NET_RULES_TRY_ELSE(else_) setter_(FGE_NET_RULES_RESULT);
 #define FGE_NET_RULES_END }
 #define FGE_NET_RULES_AFFECT_END(var_) FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_END
-#define FGE_NET_RULES_AFFECT_SETTER_END(setter_) FGE_NET_RULES_AFFECT_SETTER(setter_) FGE_NET_RULES_END
+#define FGE_NET_RULES_SETTER_END(setter_) FGE_NET_RULES_SETTER(setter_) FGE_NET_RULES_END
+#define FGE_NET_RULES_AFFECT_END_ELSE(var_, else_) FGE_NET_RULES_AFFECT_ELSE(var_, else_) FGE_NET_RULES_END
+#define FGE_NET_RULES_SETTER_END_ELSE(setter_, else_) FGE_NET_RULES_SETTER_ELSE(setter_, else_) FGE_NET_RULES_END
 
 namespace fge::net
 {
@@ -63,12 +69,23 @@ struct ChainedArguments
 
 template<class TValue>
 TValue& Extract(fge::net::rules::ChainedArguments<TValue>& args);
+template<class TValue>
+TValue Peek(fge::net::rules::ChainedArguments<TValue>& args);
 
 template<class TValue, bool TInvertResult=false>
 fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args);
 
 template<class TValue, bool TInvertResult=false>
 fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, fge::net::rules::ChainedArguments<TValue> args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::ChainedArguments<TValue> args);
 
 }//end rules
 
