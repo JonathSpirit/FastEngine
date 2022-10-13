@@ -34,6 +34,15 @@ namespace string
 
 /**
  * \ingroup extraString
+ * \brief Check if the provided string has valid utf8 encoded chars
+ *
+ * \param str The string to check
+ * \return \b True if the string is valid, \b False otherwise
+ */
+FGE_API bool IsValidUtf8String(const std::string& str);
+
+/**
+ * \ingroup extraString
  * \brief Convert efficiently a string to an uint8_t
  *
  * \param str The string to convert
