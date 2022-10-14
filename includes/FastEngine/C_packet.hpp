@@ -65,25 +65,26 @@ public:
     void flush();
     void reserve(std::size_t reserveSize);
 
-    fge::net::Packet& append(std::size_t dsize); //Will push to host byte order without data (increasing size)
-    fge::net::Packet& append(const void* data, std::size_t dsize); //Will push to host byte order
-    fge::net::Packet& pack(const void* data, std::size_t dsize); //Will push and auto convert to network byte order
+    fge::net::Packet& append(std::size_t size); //Will push to host byte order without data (increasing size)
+    fge::net::Packet& append(const void* data, std::size_t size); //Will push to host byte order
+    fge::net::Packet& pack(const void* data, std::size_t size); //Will push and auto convert to network byte order
 
-    bool write(std::size_t pos, const void* data, std::size_t dsize); //Will write to host byte order
-    bool pack(std::size_t pos, const void* data, std::size_t dsize); //Will write and auto convert to network byte order
+    bool write(std::size_t pos, const void* data, std::size_t size); //Will write to host byte order
+    bool pack(std::size_t pos, const void* data, std::size_t size); //Will write and auto convert to network byte order
 
-    fge::net::Packet& read(void* buff, std::size_t bsize); //Will read to network byte order
-    fge::net::Packet& unpack(void* buff, std::size_t bsize); //Will read and auto convert to host byte order
+    fge::net::Packet& read(void* buff, std::size_t size); //Will read to network byte order
+    fge::net::Packet& unpack(void* buff, std::size_t size); //Will read and auto convert to host byte order
 
-    bool read(std::size_t pos, void* buff, std::size_t bsize) const; //Will read to network byte order
-    bool unpack(std::size_t pos, void* buff, std::size_t bsize) const; //Will read and auto convert to host byte order
+    bool read(std::size_t pos, void* buff, std::size_t size) const; //Will read to network byte order
+    bool unpack(std::size_t pos, void* buff, std::size_t size) const; //Will read and auto convert to host byte order
 
-    fge::net::Packet& shrink(std::size_t bsize);
-    bool erase(std::size_t pos, std::size_t dsize);
-    fge::net::Packet& skip(std::size_t dsize);
+    fge::net::Packet& shrink(std::size_t size);
+    bool erase(std::size_t pos, std::size_t size);
+    fge::net::Packet& skip(std::size_t size);
 
     void setReadPos(std::size_t pos);
     [[nodiscard]] std::size_t getReadPos() const;
+    [[nodiscard]] bool isExtractable(std::size_t size) const;
 
     [[nodiscard]] const uint8_t* getData(std::size_t pos) const; //Get data pointer to pos
     [[nodiscard]] uint8_t* getData(std::size_t pos);
@@ -94,7 +95,7 @@ public:
     [[nodiscard]] uint32_t getLength() const; //Get length of a string or others at the read position
                                 //can be useful to allocate a char buffer before reading
 
-    void setValidity(bool validity);
+    void setValidity(bool validity) const;
     [[nodiscard]] bool isValid() const;
     [[nodiscard]] explicit operator bool() const;
     [[nodiscard]] bool endReached() const;
@@ -124,11 +125,11 @@ public:
 
     inline fge::net::Packet& operator <<(const fge::net::IpAddress& data);
 
-    template <typename T>
+    template<typename T>
     fge::net::Packet& operator <<(const std::forward_list<T>& data);
-    template <typename T>
+    template<typename T>
     fge::net::Packet& operator <<(const std::list<T>& data);
-    template <typename T>
+    template<typename T>
     fge::net::Packet& operator <<(const std::vector<T>& data);
 
     template<typename T>
@@ -167,11 +168,11 @@ public:
 
     inline fge::net::Packet& operator >>(fge::net::IpAddress& data);
 
-    template <typename T>
+    template<typename T>
     fge::net::Packet& operator >>(std::forward_list<T>& data);
-    template <typename T>
+    template<typename T>
     fge::net::Packet& operator >>(std::list<T>& data);
-    template <typename T>
+    template<typename T>
     fge::net::Packet& operator >>(std::vector<T>& data);
 
     template<typename T>
@@ -190,7 +191,7 @@ public:
     static std::size_t _defaultReserveSize;
 
     virtual void onSend(std::vector<uint8_t>& buffer, std::size_t offset);
-    virtual void onReceive(void* data, std::size_t dsize);
+    virtual void onReceive(void* data, std::size_t size);
 
 protected:
     friend class fge::net::SocketTcp;
@@ -202,7 +203,7 @@ protected:
 
     std::vector<uint8_t> _g_data;
     std::size_t _g_readPos;
-    bool _g_valid;
+    mutable bool _g_valid;
 };
 
 }//end net
