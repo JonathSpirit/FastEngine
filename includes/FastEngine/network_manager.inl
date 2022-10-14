@@ -53,22 +53,33 @@ namespace rules
 {
 
 template<class TValue>
-TValue& Extract(fge::net::rules::ChainedArguments<TValue>& args)
+bool fge::net::rules::ChainedArguments<TValue>::checkExtract()
 {
-    if (args._value.has_value())
+    if (this->_value.has_value())
     {
-        return args._value.value();
+        return this->_pck->isValid();
     }
-    *args._pck >> args._value.emplace();
-    return args._value.value();
+    *this->_pck >> this->_value.emplace();
+    return this->_pck->isValid();
 }
 template<class TValue>
-TValue Peek(fge::net::rules::ChainedArguments<TValue>& args)
+TValue& fge::net::rules::ChainedArguments<TValue>::extract()
 {
-    auto pos = args._pck->getReadPos();
-    TValue value;
-    *args._pck >> value;
-    args._pck->setReadPos(pos);
+    if (this->_value.has_value())
+    {
+        return this->_value.value();
+    }
+    *this->_pck >> this->_value.emplace();
+    return this->_value.value();
+}
+template<class TValue>
+template<class TPeek>
+TPeek fge::net::rules::ChainedArguments<TValue>::peek()
+{
+    auto pos = this->_pck->getReadPos();
+    TPeek value;
+    *this->_pck >> value;
+    this->_pck->setReadPos(pos);
     return std::move(value);
 }
 
@@ -77,12 +88,12 @@ fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue
 {
     if (args._pck->isValid())
     {
-        auto& val = Extract<TValue>(args);
+        auto& val = args.extract();
         if (args._pck->isValid())
         {
             if ( !((val >= min && val <= max) ^ TInvertResult) )
             {
-                args._pck->setValidity(false);
+                args._pck->invalidate();
             }
         }
     }
@@ -94,12 +105,46 @@ fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::
 {
     if (args._pck->isValid())
     {
-        auto& val = Extract<TValue>(args);
+        auto& val = args.extract();
         if (args._pck->isValid())
         {
             if ( !((val == a) ^ TInvertResult) )
             {
-                args._pck->setValidity(false);
+                args._pck->invalidate();
+            }
+        }
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        auto& val = args.extract();
+        if (args._pck->isValid())
+        {
+            if ( !((val < less) ^ TInvertResult) )
+            {
+                args._pck->invalidate();
+            }
+        }
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::ChainedArguments<TValue> args)
+{
+    if (args._pck->isValid())
+    {
+        auto& val = args.extract();
+        if (args._pck->isValid())
+        {
+            if ( !((val <= less) ^ TInvertResult) )
+            {
+                args._pck->invalidate();
             }
         }
     }
@@ -111,12 +156,12 @@ fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge
 {
     if (args._pck->isValid())
     {
-        fge::net::SizeType val = Peek<fge::net::SizeType>(args);
+        fge::net::SizeType val = args.template peek<fge::net::SizeType>();
         if (args._pck->isValid())
         {
             if ( !((val >= min && val <= max) ^ TInvertResult) )
             {
-                args._pck->setValidity(false);
+                args._pck->invalidate();
             }
         }
     }
@@ -128,12 +173,12 @@ fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, f
 {
     if (args._pck->isValid())
     {
-        fge::net::SizeType val = Peek<fge::net::SizeType>(args);
+        fge::net::SizeType val = args.template peek<fge::net::SizeType>();
         if (args._pck->isValid())
         {
             if ( !((val == a) ^ TInvertResult) )
             {
-                args._pck->setValidity(false);
+                args._pck->invalidate();
             }
         }
     }
@@ -145,12 +190,12 @@ fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::Chaine
 {
     if (args._pck->isValid())
     {
-        auto& val = Extract<TValue>(args);
+        auto& val = args.extract();
         if (args._pck->isValid())
         {
             if ( !(fge::string::IsValidUtf8String(val) ^ TInvertResult) )
             {
-                args._pck->setValidity(false);
+                args._pck->invalidate();
             }
         }
     }

@@ -195,27 +195,6 @@ public:
 
     void main()
     {
-        fge::net::Packet testPck;
-        testPck << (uint32_t)123 << (uint32_t)321;
-
-        uint32_t b;
-        auto aaa = [&](uint32_t v){
-            b = v;
-        };
-
-        uint32_t c;
-
-        FGE_NET_RULES_START
-            fge::net::rules::RMustEqual<uint32_t, false>(123,fge::net::rules::RRange<uint32_t, false>(0, 200, {&testPck}));
-        FGE_NET_RULES_SETTER_END_ELSE(aaa, std::cout << "rule 1 is not valid !" << std::endl; return;)
-
-        FGE_NET_RULES_START
-            fge::net::rules::RMustEqual<uint32_t, false>(321,fge::net::rules::RRange<uint32_t, false>(100, 400, {&testPck}));
-        FGE_NET_RULES_AFFECT_END_ELSE(c, std::cout << "rule 2 is not valid !" << std::endl; return;)
-
-        std::cout << c << " " << b << " packet validity : " << std::boolalpha << testPck.isValid() << std::endl;
-
-        return;
         fge::_random.setSeed(2);
 
         sf::RenderWindow window(sf::VideoMode(800, 600), "FastEngine "+(std::string)FGE_VERSION_FULL_WITHTAG_STRING);

@@ -188,7 +188,7 @@ bool Packet::pack(std::size_t pos, const void* data, std::size_t size)
     return false;
 }
 
-fge::net::Packet& Packet::read(void* buff, std::size_t size)
+const fge::net::Packet& Packet::read(void* buff, std::size_t size) const
 {
     if (buff && (size > 0) && (this->_g_readPos+size <= this->_g_data.size()))
     {
@@ -204,7 +204,7 @@ fge::net::Packet& Packet::read(void* buff, std::size_t size)
     this->_g_valid = false;
     return *this;
 }
-fge::net::Packet& Packet::unpack(void* buff, std::size_t size)
+const fge::net::Packet& Packet::unpack(void* buff, std::size_t size) const
 {
     if (buff && (size > 0) && (this->_g_readPos+size <= this->_g_data.size()))
     {
@@ -297,7 +297,7 @@ bool Packet::erase(std::size_t pos, std::size_t size)
     }
     return false;
 }
-fge::net::Packet& Packet::skip(std::size_t size)
+const fge::net::Packet& Packet::skip(std::size_t size) const
 {
     if ((size > 0) && (this->_g_readPos+size <= this->_g_data.size()))
     {
@@ -309,7 +309,7 @@ fge::net::Packet& Packet::skip(std::size_t size)
     return *this;
 }
 
-void Packet::setReadPos(std::size_t pos)
+void Packet::setReadPos(std::size_t pos) const
 {
     this->_g_readPos = (pos>this->_g_data.size()) ? this->_g_data.size() : pos;
 }
@@ -350,6 +350,10 @@ uint32_t Packet::getLength() const
     return result;
 }
 
+void Packet::invalidate() const
+{
+    this->_g_valid = false;
+}
 void Packet::setValidity(bool validity) const
 {
     this->_g_valid = validity;
@@ -430,7 +434,7 @@ fge::net::Packet& Packet::operator <<(const sf::String& data)
     return *this;
 }
 
-fge::net::Packet& Packet::operator >>(char* data)
+const fge::net::Packet& Packet::operator >>(char* data) const
 {
     fge::net::SizeType length = 0;
     this->unpack(&length, sizeof(length));
@@ -453,7 +457,7 @@ fge::net::Packet& Packet::operator >>(char* data)
     }
     return *this;
 }
-fge::net::Packet& Packet::operator >>(std::string& data)
+const fge::net::Packet& Packet::operator >>(std::string& data) const
 {
     fge::net::SizeType length = 0;
     this->unpack(&length, sizeof(length));
@@ -463,7 +467,7 @@ fge::net::Packet& Packet::operator >>(std::string& data)
         if ((this->_g_readPos + length - 1) < this->_g_data.size())
         {
             data.clear();
-            data.assign(reinterpret_cast<char*>(&this->_g_data[this->_g_readPos]), length);
+            data.assign(reinterpret_cast<const char*>(&this->_g_data[this->_g_readPos]), length);
 
             this->_g_readPos += length;
         }
@@ -478,7 +482,7 @@ fge::net::Packet& Packet::operator >>(std::string& data)
     }
     return *this;
 }
-fge::net::Packet& Packet::operator >>(wchar_t* data)
+const fge::net::Packet& Packet::operator >>(wchar_t* data) const
 {
     fge::net::SizeType length = 0;
     this->unpack(&length, sizeof(length));
@@ -506,7 +510,7 @@ fge::net::Packet& Packet::operator >>(wchar_t* data)
     }
     return *this;
 }
-fge::net::Packet& Packet::operator >>(std::wstring& data)
+const fge::net::Packet& Packet::operator >>(std::wstring& data) const
 {
     fge::net::SizeType length = 0;
     this->unpack(&length, sizeof(length));
@@ -534,7 +538,7 @@ fge::net::Packet& Packet::operator >>(std::wstring& data)
     }
     return *this;
 }
-fge::net::Packet& Packet::operator >>(sf::String& data)
+const fge::net::Packet& Packet::operator >>(sf::String& data) const
 {
     fge::net::SizeType length = 0;
     this->unpack(&length, sizeof(length));

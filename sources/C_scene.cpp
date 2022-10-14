@@ -17,6 +17,7 @@
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/reg_manager.hpp"
+#include "FastEngine/network_manager.hpp"
 #include "FastEngine/extra_function.hpp"
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_guiElement.hpp"
@@ -797,7 +798,9 @@ void Scene::unpack(fge::net::Packet& pck)
     std::underlying_type<fge::ObjectType>::type buffType{fge::ObjectType::TYPE_NULL};
 
     //SCENE NAME
-    pck >> this->g_name;
+    FGE_NET_RULES_START
+        fge::net::rules::RSizeRange<std::string>(0,FGE_SCENE_LIMIT_NAMESIZE, pck);
+    FGE_NET_RULES_AFFECT_END(this->g_name)
 
     //SCENE DATA
     for ( std::size_t i=0; i<this->_netList.size(); ++i )
@@ -823,12 +826,19 @@ void Scene::unpack(fge::net::Packet& pck)
         //PLAN
         pck >> buffPlan;
         //TYPE
-        pck >> buffType;
+        FGE_NET_RULES_START
+            fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType> >(fge::ObjectType::TYPE_MAX_, pck);
+        FGE_NET_RULES_AFFECT_END(buffType)
 
         std::unique_ptr<fge::Object> buffObject{fge::reg::GetNewClassOf(buffClass)};
         if (buffObject)
         {
             this->newObject(std::move(buffObject), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) )->g_object->unpack(pck);
+        }
+        else
+        {
+            pck.invalidate();
+            return;
         }
     }
 }
@@ -1003,16 +1013,20 @@ void Scene::unpackModification(fge::net::Packet& pck)
     fge::net::SizeType buffSize = 0;
 
     //SCENE NAME
-    pck >> this->g_name;
+    FGE_NET_RULES_START
+        fge::net::rules::RSizeRange<std::string>(0,FGE_SCENE_LIMIT_NAMESIZE, pck);
+    FGE_NET_RULES_AFFECT_END(this->g_name)
 
     //SCENE DATA
-    pck >> buffSize;
+    FGE_NET_RULES_START
+        fge::net::rules::RLess<fge::net::SizeType>(this->_netList.size(), pck);
+    FGE_NET_RULES_AFFECT_END(buffSize)
     for (fge::net::SizeType i=0; i < buffSize; ++i )
     {
         fge::net::SizeType buffIndex;
         pck >> buffIndex;
 
-        this->_netList.at(buffIndex)->applyData(pck);
+        this->_netList[buffIndex]->applyData(pck);
     }
 
     //OBJECT SIZE
@@ -1032,24 +1046,38 @@ void Scene::unpackModification(fge::net::Packet& pck)
         //PLAN
         pck >> buffPlan;
         //TYPE
-        pck >> buffType;
+        FGE_NET_RULES_START
+            fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType> >(fge::ObjectType::TYPE_MAX_, pck);
+        FGE_NET_RULES_AFFECT_END(buffType)
 
         auto buffObject = this->getObject(buffSid);
         if ( !buffObject )
         {
             buffObject = this->newObject(std::unique_ptr<fge::Object>{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
+            if ( !buffObject )
+            {
+                pck.invalidate();
+                return;
+            }
         }
 
         //MODIF COUNT/OBJECT DATA
+        auto& objectNetList = buffObject->g_object->_netList;
+
         fge::net::SizeType counterModif=0;
-        pck >> counterModif;
+        FGE_NET_RULES_START
+            fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck);
+        FGE_NET_RULES_AFFECT_END(counterModif)
 
         for ( fge::net::SizeType a=0; a<counterModif; ++a )
         {
             fge::net::SizeType buffIndex;
+            FGE_NET_RULES_START
+                fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck);
+            FGE_NET_RULES_AFFECT_END(buffIndex)
             pck >> buffIndex;
 
-            buffObject->g_object->_netList.at(buffIndex)->applyData(pck);
+            objectNetList[buffIndex]->applyData(pck);
         }
     }
 }
@@ -1059,7 +1087,7 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
     fge::net::SizeType countObject = 0;
 
     std::size_t countObjectPos = pck.getDataSize();
-    pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
+    pck.pack(&countObject, sizeof(countObject)); //Will be rewritten
 
     for (const auto & data : this->g_data)
     {
@@ -1091,7 +1119,9 @@ void Scene::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& 
     for (fge::net::SizeType i=0; i<countObject; ++i)
     {
         fge::ObjectSid sid;
-        pck >> sid;
+        FGE_NET_RULES_START
+            fge::net::rules::RMustEqual<fge::ObjectSid, true>(FGE_SCENE_BAD_SID, pck);
+        FGE_NET_RULES_AFFECT_END(sid)
 
         auto object = this->getObject(sid);
         if ( object )
@@ -1103,6 +1133,10 @@ void Scene::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& 
             fge::net::SizeType uselessDataSize{0};
             pck >> uselessDataSize;
             pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
+            if (!pck.isValid())
+            {
+                return;
+            }
         }
     }
 }
@@ -1111,7 +1145,7 @@ void Scene::clientsCheckup(const fge::net::ClientList& clients)
 {
     this->_netList.clientsCheckup(clients);
 
-    for (auto & data : *this)
+    for (const auto& data : *this)
     {
         data->getObject()->_netList.clientsCheckup(clients);
     }
@@ -1121,7 +1155,7 @@ void Scene::forceCheckClient(const fge::net::Identity& id)
 {
     this->_netList.forceCheckClient(id);
 
-    for (auto & data : *this)
+    for (const auto& data : *this)
     {
         data->getObject()->_netList.forceCheckClient(id);
     }
@@ -1130,7 +1164,7 @@ void Scene::forceUncheckClient(const fge::net::Identity& id)
 {
     this->_netList.forceUncheckClient(id);
 
-    for (auto & data : *this)
+    for (const auto& data : *this)
     {
         data->getObject()->_netList.forceUncheckClient(id);
     }
@@ -1264,7 +1298,10 @@ void Scene::unpackWatchedEvent(fge::net::Packet& pck)
     pck >> dataSize;
     for (fge::net::SizeType i=0; i<dataSize; ++i)
     {
-        pck >> event; //Event type
+        //Event type
+        FGE_NET_RULES_START
+            fge::net::rules::RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events> >(fge::SceneNetEvent::Events::SEVT_MAX_, pck);
+        FGE_NET_RULES_AFFECT_END(event)
 
         if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
         {//New object
@@ -1275,10 +1312,18 @@ void Scene::unpackWatchedEvent(fge::net::Packet& pck)
             //PLAN
             pck >> buffPlan;
             //TYPE
-            pck >> buffType;
+            FGE_NET_RULES_START
+                fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType> >(fge::ObjectType::TYPE_MAX_, pck);
+            FGE_NET_RULES_AFFECT_END(buffType)
 
             this->delObject(buffSid);
-            this->newObject(std::unique_ptr<fge::Object>{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))->g_object->unpack(pck);
+            auto* newObj = fge::reg::GetNewClassOf(buffClass);
+            if (newObj == nullptr)
+            {
+                pck.invalidate();
+                return;
+            }
+            this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))->g_object->unpack(pck);
         }
         else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
         {//Remove object

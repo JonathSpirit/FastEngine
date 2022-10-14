@@ -27,9 +27,9 @@
 #define FGE_NET_BAD_HEADER 0
 
 #define FGE_NET_RULES_START {auto chainedArgs_=
-#define FGE_NET_RULES_EXTRACT fge::net::rules::Extract(chainedArgs_);
-#define FGE_NET_RULES_TRY if (!chainedArgs_._pck->isValid()) {return;} FGE_NET_RULES_EXTRACT if (!chainedArgs_._pck->isValid()) {return;}
-#define FGE_NET_RULES_TRY_ELSE(else_) if (!chainedArgs_._pck->isValid()) {else_} FGE_NET_RULES_EXTRACT if (!chainedArgs_._pck->isValid()) {else_}
+#define FGE_NET_RULES_CHECK_EXTRACT chainedArgs_.checkExtract()
+#define FGE_NET_RULES_TRY if (!FGE_NET_RULES_CHECK_EXTRACT) {return;}
+#define FGE_NET_RULES_TRY_ELSE(else_) if (!FGE_NET_RULES_CHECK_EXTRACT) {else_}
 #define FGE_NET_RULES_RESULT std::move(chainedArgs_._value.value())
 #define FGE_NET_RULES_RESULT_N chainedArgs_._value.value()
 #define FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = FGE_NET_RULES_RESULT;}else{(var_) = FGE_NET_RULES_RESULT_N;}
@@ -62,25 +62,43 @@ namespace rules
 {
 
 template<class TValue>
-struct ChainedArguments;
+struct ChainedArguments
+{
+    ChainedArguments() = default;
+    ChainedArguments(const fge::net::Packet& pck) :
+            _pck(&pck)
+    {}
+    ChainedArguments(const fge::net::Packet* pck) :
+            _pck(pck)
+    {}
 
+    const fge::net::Packet* _pck;
+    std::optional<TValue> _value{std::nullopt};
+
+    bool checkExtract();
+    TValue& extract();
+    template<class TPeek>
+    TPeek peek();
+};
+
+template<class TValue>
+bool CheckExtract(fge::net::rules::ChainedArguments<TValue>& args);
 template<class TValue>
 TValue& Extract(fge::net::rules::ChainedArguments<TValue>& args);
 template<class TValue>
 TValue Peek(fge::net::rules::ChainedArguments<TValue>& args);
-
-template<class TValue>
-struct ChainedArguments
-{
-    fge::net::Packet* _pck;
-    std::optional<TValue> _value{std::nullopt};
-};
 
 template<class TValue, bool TInvertResult=false>
 fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args);
 
 template<class TValue, bool TInvertResult=false>
 fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rules::ChainedArguments<TValue> args);
+
+template<class TValue, bool TInvertResult=false>
+fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::ChainedArguments<TValue> args);
 
 template<class TValue, bool TInvertResult=false>
 fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args);

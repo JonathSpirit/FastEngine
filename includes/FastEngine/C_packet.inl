@@ -141,7 +141,7 @@ fge::net::Packet& Packet::operator <<(const fge::net::IpAddress& data)
 
 ///
 
-fge::net::Packet& Packet::operator >>(bool& data)
+const fge::net::Packet& Packet::operator >>(bool& data) const
 {
     uint8_t a;
     this->read(&a, sizeof(uint8_t));
@@ -149,55 +149,55 @@ fge::net::Packet& Packet::operator >>(bool& data)
     return *this;
 }
 
-fge::net::Packet& Packet::operator >>(int8_t& data)
+const fge::net::Packet& Packet::operator >>(int8_t& data) const
 {
     return this->read(&data, sizeof(int8_t));
 }
-fge::net::Packet& Packet::operator >>(int16_t& data)
+const fge::net::Packet& Packet::operator >>(int16_t& data) const
 {
     return this->unpack(&data, sizeof(int16_t));
 }
-fge::net::Packet& Packet::operator >>(int32_t& data)
+const fge::net::Packet& Packet::operator >>(int32_t& data) const
 {
     return this->unpack(&data, sizeof(int32_t));
 }
-fge::net::Packet& Packet::operator >>(int64_t& data)
+const fge::net::Packet& Packet::operator >>(int64_t& data) const
 {
     return this->unpack(&data, sizeof(int64_t));
 }
 
-fge::net::Packet& Packet::operator >>(uint8_t& data)
+const fge::net::Packet& Packet::operator >>(uint8_t& data) const
 {
     return this->read(&data, sizeof(uint8_t));
 }
-fge::net::Packet& Packet::operator >>(uint16_t& data)
+const fge::net::Packet& Packet::operator >>(uint16_t& data) const
 {
     return this->unpack(&data, sizeof(uint16_t));
 }
-fge::net::Packet& Packet::operator >>(uint32_t& data)
+const fge::net::Packet& Packet::operator >>(uint32_t& data) const
 {
     return this->unpack(&data, sizeof(uint32_t));
 }
-fge::net::Packet& Packet::operator >>(uint64_t& data)
+const fge::net::Packet& Packet::operator >>(uint64_t& data) const
 {
     return this->unpack(&data, sizeof(uint64_t));
 }
 
-fge::net::Packet& Packet::operator >>(float& data)
+const fge::net::Packet& Packet::operator >>(float& data) const
 {
     return this->unpack(&data, sizeof(float));
 }
-fge::net::Packet& Packet::operator >>(double& data)
+const fge::net::Packet& Packet::operator >>(double& data) const
 {
     return this->unpack(&data, sizeof(double));
 }
-fge::net::Packet& Packet::operator >>(long double& data)
+const fge::net::Packet& Packet::operator >>(long double& data) const
 {
     return this->unpack(&data, sizeof(long double));
 }
 
 template <typename T>
-fge::net::Packet& Packet::operator >>(std::forward_list<T>& data)
+const fge::net::Packet& Packet::operator >>(std::forward_list<T>& data) const
 {
     fge::net::SizeType length = 0;
     *this >> length;
@@ -213,7 +213,7 @@ fge::net::Packet& Packet::operator >>(std::forward_list<T>& data)
     return *this;
 }
 template <typename T>
-fge::net::Packet& Packet::operator >>(std::list<T>& data)
+const fge::net::Packet& Packet::operator >>(std::list<T>& data) const
 {
     fge::net::SizeType length = 0;
     *this >> length;
@@ -229,7 +229,7 @@ fge::net::Packet& Packet::operator >>(std::list<T>& data)
     return *this;
 }
 template <typename T>
-fge::net::Packet& Packet::operator >>(std::vector<T>& data)
+const fge::net::Packet& Packet::operator >>(std::vector<T>& data) const
 {
     fge::net::SizeType length = 0;
     *this >> length;
@@ -244,18 +244,18 @@ fge::net::Packet& Packet::operator >>(std::vector<T>& data)
 }
 
 template<typename T>
-fge::net::Packet& Packet::operator >>(sf::Vector2<T>& data)
+const fge::net::Packet& Packet::operator >>(sf::Vector2<T>& data) const
 {
     return *this >> data.x >> data.y;
 }
 template<typename T>
-fge::net::Packet& Packet::operator >>(sf::Vector3<T>& data)
+const fge::net::Packet& Packet::operator >>(sf::Vector3<T>& data) const
 {
     return *this >> data.x >> data.y >> data.z;
 }
 
 template<typename T>
-fge::net::Packet& Packet::operator >>(fge::Matrix<T>& data)
+const fge::net::Packet& Packet::operator >>(fge::Matrix<T>& data) const
 {
     fge::net::SizeType sizeX=0, sizeY=0;
     *this >> sizeX >> sizeY;
@@ -272,7 +272,7 @@ fge::net::Packet& Packet::operator >>(fge::Matrix<T>& data)
     return *this;
 }
 
-fge::net::Packet& Packet::operator >>(sf::Color& data)
+const fge::net::Packet& Packet::operator >>(sf::Color& data) const
 {
     uint32_t buff;
     *this >> buff;
@@ -280,7 +280,7 @@ fge::net::Packet& Packet::operator >>(sf::Color& data)
     return *this;
 }
 
-fge::net::Packet& Packet::operator >>(fge::net::IpAddress& data)
+const fge::net::Packet& Packet::operator >>(fge::net::IpAddress& data) const
 {
     uint32_t ip=0;
     this->read(&ip, sizeof(uint32_t) );

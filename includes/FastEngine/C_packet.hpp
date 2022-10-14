@@ -72,17 +72,17 @@ public:
     bool write(std::size_t pos, const void* data, std::size_t size); //Will write to host byte order
     bool pack(std::size_t pos, const void* data, std::size_t size); //Will write and auto convert to network byte order
 
-    fge::net::Packet& read(void* buff, std::size_t size); //Will read to network byte order
-    fge::net::Packet& unpack(void* buff, std::size_t size); //Will read and auto convert to host byte order
+    const fge::net::Packet& read(void* buff, std::size_t size) const; //Will read to network byte order
+    const fge::net::Packet& unpack(void* buff, std::size_t size) const; //Will read and auto convert to host byte order
 
     bool read(std::size_t pos, void* buff, std::size_t size) const; //Will read to network byte order
     bool unpack(std::size_t pos, void* buff, std::size_t size) const; //Will read and auto convert to host byte order
 
     fge::net::Packet& shrink(std::size_t size);
     bool erase(std::size_t pos, std::size_t size);
-    fge::net::Packet& skip(std::size_t size);
+    const fge::net::Packet& skip(std::size_t size) const;
 
-    void setReadPos(std::size_t pos);
+    void setReadPos(std::size_t pos) const;
     [[nodiscard]] std::size_t getReadPos() const;
     [[nodiscard]] bool isExtractable(std::size_t size) const;
 
@@ -94,7 +94,7 @@ public:
     [[nodiscard]] std::size_t getDataSize() const;
     [[nodiscard]] uint32_t getLength() const; //Get length of a string or others at the read position
                                 //can be useful to allocate a char buffer before reading
-
+    void invalidate() const;
     void setValidity(bool validity) const;
     [[nodiscard]] bool isValid() const;
     [[nodiscard]] explicit operator bool() const;
@@ -144,46 +144,46 @@ public:
 
     ///
 
-    inline fge::net::Packet& operator >>(bool& data);
+    inline const fge::net::Packet& operator >>(bool& data) const;
 
-    inline fge::net::Packet& operator >>(int8_t& data);
-    inline fge::net::Packet& operator >>(int16_t& data);
-    inline fge::net::Packet& operator >>(int32_t& data);
-    inline fge::net::Packet& operator >>(int64_t& data);
+    inline const fge::net::Packet& operator >>(int8_t& data) const;
+    inline const fge::net::Packet& operator >>(int16_t& data) const;
+    inline const fge::net::Packet& operator >>(int32_t& data) const;
+    inline const fge::net::Packet& operator >>(int64_t& data) const;
 
-    inline fge::net::Packet& operator >>(uint8_t& data);
-    inline fge::net::Packet& operator >>(uint16_t& data);
-    inline fge::net::Packet& operator >>(uint32_t& data);
-    inline fge::net::Packet& operator >>(uint64_t& data);
+    inline const fge::net::Packet& operator >>(uint8_t& data) const;
+    inline const fge::net::Packet& operator >>(uint16_t& data) const;
+    inline const fge::net::Packet& operator >>(uint32_t& data) const;
+    inline const fge::net::Packet& operator >>(uint64_t& data) const;
 
-    inline fge::net::Packet& operator >>(float& data);
-    inline fge::net::Packet& operator >>(double& data);
-    inline fge::net::Packet& operator >>(long double& data);
+    inline const fge::net::Packet& operator >>(float& data) const;
+    inline const fge::net::Packet& operator >>(double& data) const;
+    inline const fge::net::Packet& operator >>(long double& data) const;
 
-    fge::net::Packet& operator >>(char* data);
-    fge::net::Packet& operator >>(std::string& data);
-    fge::net::Packet& operator >>(wchar_t* data);
-    fge::net::Packet& operator >>(std::wstring& data);
-    fge::net::Packet& operator >>(sf::String& data);
+    const fge::net::Packet& operator >>(char* data) const;
+    const fge::net::Packet& operator >>(std::string& data) const;
+    const fge::net::Packet& operator >>(wchar_t* data) const;
+    const fge::net::Packet& operator >>(std::wstring& data) const;
+    const fge::net::Packet& operator >>(sf::String& data) const;
 
-    inline fge::net::Packet& operator >>(fge::net::IpAddress& data);
-
-    template<typename T>
-    fge::net::Packet& operator >>(std::forward_list<T>& data);
-    template<typename T>
-    fge::net::Packet& operator >>(std::list<T>& data);
-    template<typename T>
-    fge::net::Packet& operator >>(std::vector<T>& data);
+    inline const fge::net::Packet& operator >>(fge::net::IpAddress& data) const;
 
     template<typename T>
-    fge::net::Packet& operator >>(sf::Vector2<T>& data);
+    const fge::net::Packet& operator >>(std::forward_list<T>& data) const;
     template<typename T>
-    fge::net::Packet& operator >>(sf::Vector3<T>& data);
+    const fge::net::Packet& operator >>(std::list<T>& data) const;
+    template<typename T>
+    const fge::net::Packet& operator >>(std::vector<T>& data) const;
 
     template<typename T>
-    fge::net::Packet& operator >>(fge::Matrix<T>& data);
+    const fge::net::Packet& operator >>(sf::Vector2<T>& data) const;
+    template<typename T>
+    const fge::net::Packet& operator >>(sf::Vector3<T>& data) const;
 
-    inline fge::net::Packet& operator >>(sf::Color& data);
+    template<typename T>
+    const fge::net::Packet& operator >>(fge::Matrix<T>& data) const;
+
+    inline const fge::net::Packet& operator >>(sf::Color& data) const;
 
     bool operator ==(const Packet& right) const = delete;
     bool operator !=(const Packet& right) const = delete;
@@ -202,7 +202,7 @@ protected:
     bool _g_lastDataValidity;
 
     std::vector<uint8_t> _g_data;
-    std::size_t _g_readPos;
+    mutable std::size_t _g_readPos;
     mutable bool _g_valid;
 };
 
