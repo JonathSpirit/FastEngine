@@ -21,6 +21,8 @@
 #include <initializer_list>
 #include <json.hpp>
 
+#define FGE_MATRIX_GET(dataType_, data_, sizeY_, px_, py_) (reinterpret_cast<dataType_*>(data_)+(py_)+((px_)*(sizeY_)))
+
 namespace fge
 {
 
