@@ -98,7 +98,7 @@ Font::operator const sf::Font&() const
     return *this->g_data->_font;
 }
 
-fge::net::Packet& operator >>(fge::net::Packet& pck, fge::Font& data)
+const fge::net::Packet& operator >>(const fge::net::Packet& pck, fge::Font& data)
 {
     std::string fontName;
     pck >> fontName;

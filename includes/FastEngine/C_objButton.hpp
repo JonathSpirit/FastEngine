@@ -69,7 +69,7 @@ private:
     bool g_statMouseOn = false;
     bool g_statActive = false;
 
-    bool g_flag = false;
+    [[maybe_unused]] bool g_flag = false;
 };
 
 }//end fge

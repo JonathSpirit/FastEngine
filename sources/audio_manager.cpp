@@ -131,7 +131,7 @@ bool LoadFromFile(const std::string& name, const std::string& path)
     }
 
     fge::audio::AudioDataPtr buff = std::make_shared<fge::audio::AudioData>();
-    buff->_audio = std::move( std::shared_ptr<sf::SoundBuffer>(tmpAudio) );
+    buff->_audio = std::shared_ptr<sf::SoundBuffer>(tmpAudio);
     buff->_valid = true;
     buff->_path = path;
 

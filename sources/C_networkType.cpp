@@ -461,7 +461,7 @@ bool NetworkTypeTag::applyData(fge::net::Packet& pck)
     this->_onApplied.call();
     return true;
 }
-void NetworkTypeTag::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeTag::packData(fge::net::Packet& pck, [[maybe_unused]] const fge::net::Identity& id)
 {
     pck << this->g_typeSource->check(this->g_tag);
 }

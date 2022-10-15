@@ -21,6 +21,9 @@
 #ifdef __GNUC__
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    #pragma GCC diagnostic ignored "-Wshadow"
+    #pragma GCC diagnostic ignored "-Wdeprecated-copy"
+    #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif //__GNUC__
 
 #define strtk_no_tr1_or_boost
@@ -33,10 +36,17 @@
 #include <fmt/compile.h>
 #include <fmt/format.h>
 
+#include <utf8.h>
+
 namespace fge
 {
 namespace string
 {
+
+bool IsValidUtf8String(const std::string& str)
+{
+    return utf8::is_valid(str);
+}
 
 uint8_t ToUint8(const std::string& str)
 {

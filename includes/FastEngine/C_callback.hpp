@@ -190,7 +190,9 @@ public:
     /**
      * \brief Copy constructor that does nothing
      */
-    CallbackHandler(const fge::CallbackHandler<Types ...>& n){};
+    CallbackHandler([[maybe_unused]] const fge::CallbackHandler<Types ...>& n) :
+            fge::Subscription()
+    {};
     /**
      * \brief Move constructor prohibited
      */
@@ -199,7 +201,7 @@ public:
     /**
      * \brief Copy operator that does nothing
      */
-    fge::CallbackHandler<Types ...>& operator =(const fge::CallbackHandler<Types ...>& n){return *this;};
+    fge::CallbackHandler<Types ...>& operator =([[maybe_unused]] const fge::CallbackHandler<Types ...>& n){return *this;};
     /**
      * \brief Move operator prohibited
      */

@@ -49,7 +49,7 @@ RenderTarget::~RenderTarget() = default;
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::clear(const Color& color)
+void RenderTarget::clear([[maybe_unused]] const Color& color)
 {
 }
 
@@ -135,27 +135,27 @@ Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view)
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
+void RenderTarget::draw([[maybe_unused]] const Drawable& drawable, [[maybe_unused]] const RenderStates& states)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw(const Vertex* vertices, std::size_t vertexCount,
-                        PrimitiveType type, const RenderStates& states)
+void RenderTarget::draw([[maybe_unused]] const Vertex* vertices, [[maybe_unused]] std::size_t vertexCount,
+                        [[maybe_unused]] PrimitiveType type, [[maybe_unused]] const RenderStates& states)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw(const VertexBuffer& vertexBuffer, const RenderStates& states)
+void RenderTarget::draw([[maybe_unused]] const VertexBuffer& vertexBuffer, [[maybe_unused]] const RenderStates& states)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw(const VertexBuffer& vertexBuffer, std::size_t firstVertex,
-                        std::size_t vertexCount, const RenderStates& states)
+void RenderTarget::draw([[maybe_unused]] const VertexBuffer& vertexBuffer, [[maybe_unused]] std::size_t firstVertex,
+                        [[maybe_unused]] std::size_t vertexCount, [[maybe_unused]] const RenderStates& states)
 {
 }
 
@@ -169,7 +169,7 @@ bool RenderTarget::isSrgb() const
 
 
 ////////////////////////////////////////////////////////////
-bool RenderTarget::setActive(bool active)
+bool RenderTarget::setActive([[maybe_unused]] bool active)
 {
     return true;
 }
@@ -206,43 +206,43 @@ void RenderTarget::applyCurrentView()
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyBlendMode(const BlendMode& mode)
+void RenderTarget::applyBlendMode([[maybe_unused]] const BlendMode& mode)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyTransform(const Transform& transform)
+void RenderTarget::applyTransform([[maybe_unused]] const Transform& transform)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyTexture(const Texture* texture)
+void RenderTarget::applyTexture([[maybe_unused]] const Texture* texture)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyShader(const Shader* shader)
+void RenderTarget::applyShader([[maybe_unused]] const Shader* shader)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::setupDraw(bool useVertexCache, const RenderStates& states)
+void RenderTarget::setupDraw([[maybe_unused]] bool useVertexCache, [[maybe_unused]] const RenderStates& states)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::drawPrimitives(PrimitiveType type, std::size_t firstVertex, std::size_t vertexCount)
+void RenderTarget::drawPrimitives([[maybe_unused]] PrimitiveType type, [[maybe_unused]] std::size_t firstVertex, [[maybe_unused]] std::size_t vertexCount)
 {
 }
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::cleanupDraw(const RenderStates& states)
+void RenderTarget::cleanupDraw([[maybe_unused]] const RenderStates& states)
 {
 }
 

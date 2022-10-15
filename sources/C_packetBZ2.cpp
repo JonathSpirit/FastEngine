@@ -36,8 +36,8 @@ PacketBZ2::PacketBZ2(fge::net::PacketBZ2&& pck) noexcept :
     fge::net::Packet(std::move(pck)),
     g_blockSize(pck.g_blockSize),
     g_workfactor(pck.g_workfactor),
-    g_lastCompressionSize(pck.g_lastCompressionSize),
-    g_buffer(std::move(pck.g_buffer))
+    g_buffer(std::move(pck.g_buffer)),
+    g_lastCompressionSize(pck.g_lastCompressionSize)
 {
 }
 

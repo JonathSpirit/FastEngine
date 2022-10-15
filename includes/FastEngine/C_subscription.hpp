@@ -37,8 +37,8 @@ public:
     Subscription() = default;
 
     //Copy constructor prohibited (does nothing)
-    Subscription(const fge::Subscription& r){};
-    Subscription(fge::Subscription& r){};
+    Subscription([[maybe_unused]] const fge::Subscription& r){};
+    Subscription([[maybe_unused]] fge::Subscription& r){};
     //Move constructor prohibited
     Subscription(const fge::Subscription&& r) = delete;
     Subscription(fge::Subscription&& r) = delete;
@@ -46,8 +46,8 @@ public:
     virtual inline ~Subscription(){this->detachAll();}
 
     //Copy operator prohibited (does nothing)
-    fge::Subscription& operator =(const fge::Subscription& r){return *this;};
-    fge::Subscription& operator =(fge::Subscription& r){return *this;};
+    fge::Subscription& operator =([[maybe_unused]] const fge::Subscription& r){return *this;};
+    fge::Subscription& operator =([[maybe_unused]] fge::Subscription& r){return *this;};
     //Move operator prohibited
     fge::Subscription& operator =(const fge::Subscription&& r) = delete;
     fge::Subscription& operator =(fge::Subscription&& r) = delete;
@@ -81,8 +81,8 @@ public:
     Subscriber() = default;
 
     //Copy constructor prohibited (does nothing)
-    Subscriber(const fge::Subscriber& n){};
-    Subscriber(fge::Subscriber& n){};
+    Subscriber([[maybe_unused]] const fge::Subscriber& n){};
+    Subscriber([[maybe_unused]] fge::Subscriber& n){};
     //Move constructor prohibited
     Subscriber(const fge::Subscriber&& n) = delete;
     Subscriber(fge::Subscriber&& n) = delete;
@@ -90,14 +90,14 @@ public:
     virtual inline ~Subscriber(){this->detachAll();};
 
     //Copy operator prohibited (does nothing)
-    fge::Subscriber& operator =(const fge::Subscriber& n){return *this;};
-    fge::Subscriber& operator =(fge::Subscriber& n){return *this;};
+    fge::Subscriber& operator =([[maybe_unused]] const fge::Subscriber& n){return *this;};
+    fge::Subscriber& operator =([[maybe_unused]] fge::Subscriber& n){return *this;};
     //Move operator prohibited
     fge::Subscriber& operator =(const fge::Subscriber&& n) = delete;
     fge::Subscriber& operator =(fge::Subscriber&& n) = delete;
 
 protected:
-    virtual void onDetach(fge::Subscription* subscription){}
+    virtual void onDetach([[maybe_unused]] fge::Subscription* subscription){}
 
     void detachAll();
     void detach(fge::Subscription* subscription);

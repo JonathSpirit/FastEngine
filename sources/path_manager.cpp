@@ -68,7 +68,7 @@ bool New(std::string_view name, std::filesystem::path path)
     }
 
     std::scoped_lock<std::mutex> lock(_dataMutex);
-    _dataPath[std::move(std::string{name})] = std::move(path);
+    _dataPath[std::string{name}] = std::move(path);
     return true;
 }
 

@@ -117,7 +117,7 @@ Texture::operator const fge::TextureType&() const
     return *this->g_data->_texture;
 }
 
-fge::net::Packet& operator >>(fge::net::Packet& pck, fge::Texture& data)
+const fge::net::Packet& operator >>(const fge::net::Packet& pck, fge::Texture& data)
 {
     std::string textureName;
     pck >> textureName;
