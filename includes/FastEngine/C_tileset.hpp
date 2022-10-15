@@ -33,7 +33,7 @@ struct Tile
 {
     TileId _id{0};
     sf::IntRect _rect;
-    mutable fge::PropertyList _properties;
+    mutable fge::PropertyList _properties{};
 };
 
 inline bool operator<(const fge::Tile& l, int r) { return l._id < r; }

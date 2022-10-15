@@ -116,7 +116,7 @@ TileId TileSet::getLocalId(TileId gid) const
 }
 bool TileSet::isGidContained(TileId gid) const
 {
-    return gid >= this->g_firstGid && gid < (this->g_firstGid+this->g_tiles.size());
+    return gid >= this->g_firstGid && gid < (this->g_firstGid+static_cast<TileId>(this->g_tiles.size()));
 }
 void TileSet::setFirstGid(TileId gid)
 {
@@ -142,7 +142,7 @@ void TileSet::slice()
     this->clearTiles();
     if (this->g_texture.valid())
     {
-        sf::Vector2u size = this->g_texture.getTextureSize();
+        sf::Vector2i size = static_cast<sf::Vector2i>(this->g_texture.getTextureSize());
         for (int y=this->g_offset.y; y<size.y; y+=this->g_tileSize.y)
         {
             for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
@@ -284,9 +284,6 @@ void to_json(nlohmann::json& j, const fge::Tile& p)
                                            {"value", property.second.get<fge::PintType>()}});
                 break;
             case Property::PTYPE_FLOAT:
-                propertiesArray.push_back({{"name", property.first},
-                                           {"type", "float"},
-                                           {"value", property.second.get<fge::PfloatType>()}});
             case Property::PTYPE_DOUBLE:
                 propertiesArray.push_back({{"name", property.first},
                                            {"type", "float"},
