@@ -20,7 +20,7 @@
 namespace fge
 {
 
-void ObjRenderMap::onClear(const fge::Scene* scene, sf::RenderTarget& target, const sf::Color& color)
+void ObjRenderMap::onClear([[maybe_unused]] const fge::Scene* scene, [[maybe_unused]] sf::RenderTarget& target, [[maybe_unused]] const sf::Color& color)
 {
     this->_renderTexture.clear( this->g_colorClear );
 }
@@ -78,21 +78,21 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
 }
 #endif
 
-void ObjRenderMap::removed(fge::Scene* scene)
+void ObjRenderMap::removed([[maybe_unused]] fge::Scene* scene)
 {
     this->detachAll();
 }
 
-void ObjRenderMap::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjRenderMap::save([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
 }
-void ObjRenderMap::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
 }
-void ObjRenderMap::pack(fge::net::Packet& pck)
+void ObjRenderMap::pack([[maybe_unused]] fge::net::Packet& pck)
 {
 }
-void ObjRenderMap::unpack(fge::net::Packet& pck)
+void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet& pck)
 {
 }
 

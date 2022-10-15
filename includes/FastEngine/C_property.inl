@@ -191,14 +191,14 @@ bool Property::operator== (const fge::Property& val) const
                 }
                 else
                 {
-                    return this->g_data._i == val.g_data._u;
+                    return this->g_data._i == static_cast<fge::PintType>(val.g_data._u);
                 }
             }
             else
             {
                 if (val.g_isSigned)
                 {
-                    return this->g_data._u == val.g_data._i;
+                    return this->g_data._u == static_cast<fge::PuintType>(val.g_data._i);
                 }
                 else
                 {

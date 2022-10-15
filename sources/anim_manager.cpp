@@ -238,7 +238,6 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
     }
     catch(std::exception& e)
     {
-        const char* test = e.what();
         inFile.close();
         return false;
     }

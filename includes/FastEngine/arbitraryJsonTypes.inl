@@ -18,6 +18,23 @@ namespace sf
 {
 
 template<class T>
+void to_json(nlohmann::json& j, const sf::Rect<T>& p)
+{
+    j = nlohmann::json{{"x", p.left},
+                       {"y", p.top},
+                       {"w", p.width},
+                       {"h", p.height}};
+}
+template<class T>
+void from_json(const nlohmann::json& j, sf::Rect<T>& p)
+{
+    j.at("x").get_to(p.left);
+    j.at("y").get_to(p.top);
+    j.at("w").get_to(p.width);
+    j.at("h").get_to(p.height);
+}
+
+template<class T>
 void to_json(nlohmann::json& j, const sf::Vector2<T>& p)
 {
     j = nlohmann::json{{"x", p.x},

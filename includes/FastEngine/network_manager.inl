@@ -114,7 +114,7 @@ fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -131,7 +131,7 @@ fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rul
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -148,7 +148,7 @@ fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::Ch
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -165,7 +165,7 @@ fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -182,7 +182,7 @@ fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, f
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -199,7 +199,7 @@ fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::Chaine
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 }//end rules

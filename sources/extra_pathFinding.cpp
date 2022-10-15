@@ -24,10 +24,10 @@ namespace fge::AStar
 {
 
 Node::Node(fge::AStar::Vector2i coord, Node* parent) :
-        _parent(parent),
-        _coord(coord),
         _g(0),
-        _h(0)
+        _h(0),
+        _coord(coord),
+        _parent(parent)
 {
 }
 

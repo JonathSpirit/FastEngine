@@ -513,10 +513,10 @@ public:
     ~NetworkTypeContainer() = default;
 
     //Copy function that does nothing
-    NetworkTypeContainer(const NetworkTypeContainer& n){};
-    NetworkTypeContainer(NetworkTypeContainer& n){};
-    NetworkTypeContainer& operator=(const NetworkTypeContainer& n){return *this;};
-    NetworkTypeContainer& operator=(NetworkTypeContainer& n){return *this;};
+    NetworkTypeContainer([[maybe_unused]] const NetworkTypeContainer& n){};
+    NetworkTypeContainer([[maybe_unused]] NetworkTypeContainer& n){};
+    NetworkTypeContainer& operator=([[maybe_unused]] const NetworkTypeContainer& n){return *this;};
+    NetworkTypeContainer& operator=([[maybe_unused]] NetworkTypeContainer& n){return *this;};
 
     void clear();
 

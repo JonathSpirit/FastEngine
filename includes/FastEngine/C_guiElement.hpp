@@ -413,7 +413,7 @@ public:
     {}
     ~GuiElementRectangle() override = default;
 
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
+    void onGuiVerify([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
         if ( this->verifyPriority(context._prioritizedElement) )
         {
@@ -452,7 +452,7 @@ public:
     {}
     ~GuiElementDefault() override = default;
 
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
+    void onGuiVerify([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
         if ( this->verifyPriority(context._prioritizedElement) )
         {

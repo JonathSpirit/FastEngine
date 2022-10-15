@@ -85,7 +85,7 @@ private:
 
     std::vector<sf::String> g_textList;
     sf::String g_textSelected;
-    sf::String* g_textCursor;
+    [[maybe_unused]] sf::String* g_textCursor;
 
     mutable fge::ObjText g_text;
     mutable sf::RectangleShape g_box;

@@ -218,7 +218,7 @@ void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T& value)
 template<class T>
 void Matrix<T>::set(std::initializer_list<std::initializer_list<T>> data)
 {
-    std::size_t sizey = data.size();
+    const std::size_t sizey = data.size();
     std::size_t sizex = 0;
     if (sizey > 0)
     {

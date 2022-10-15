@@ -35,8 +35,8 @@ PacketLZ4::PacketLZ4() : fge::net::Packet(),
 }
 PacketLZ4::PacketLZ4(fge::net::PacketLZ4&& pck) noexcept :
     fge::net::Packet(std::move(pck)),
-    g_lastCompressionSize(pck.g_lastCompressionSize),
-    g_buffer(std::move(pck.g_buffer))
+    g_buffer(std::move(pck.g_buffer)),
+    g_lastCompressionSize(pck.g_lastCompressionSize)
 {
 }
 
@@ -111,9 +111,9 @@ PacketLZ4HC::PacketLZ4HC() : fge::net::Packet(),
 }
 PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
         fge::net::Packet(std::move(pck)),
-        g_lastCompressionSize(pck.g_lastCompressionSize),
+        g_buffer(std::move(pck.g_buffer)),
         g_compressionLevel(pck.g_compressionLevel),
-        g_buffer(std::move(pck.g_buffer))
+        g_lastCompressionSize(pck.g_lastCompressionSize)
 {
 }
 
