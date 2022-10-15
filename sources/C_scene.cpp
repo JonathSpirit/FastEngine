@@ -1075,7 +1075,6 @@ void Scene::unpackModification(fge::net::Packet& pck)
             FGE_NET_RULES_START
                 fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck);
             FGE_NET_RULES_AFFECT_END(buffIndex)
-            pck >> buffIndex;
 
             objectNetList[buffIndex]->applyData(pck);
         }
