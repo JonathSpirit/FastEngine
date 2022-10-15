@@ -36,6 +36,12 @@
  * \defgroup network Network
  * \brief Everything related to network
  *
+ * \defgroup networkRules Network rules
+ * \brief Everything related to network rules
+ *
+ * Network rules are utilities that make sure that the data inside of a packet is
+ * valid before extracting and using it.
+ *
  * \defgroup utility Utility/Tools
  * \brief Everything related to some utility/tools
  *
