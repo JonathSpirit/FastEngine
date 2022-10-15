@@ -20,9 +20,7 @@
 #include <vector>
 #include <fstream>
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 uint32_t GetSceneChecksum(fge::Scene& scene)
@@ -64,6 +62,5 @@ bool WriteOnSendPacketDataToFile(fge::net::Packet& pck, const std::string& file)
     return true;
 }
 
-}//end net
-}//end fge
+}//end fge::net
 

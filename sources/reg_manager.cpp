@@ -71,7 +71,7 @@ fge::Object* Duplicate(const fge::Object* obj)
     {
         return _dataClassIdMap[it->second]->duplicate(obj);
     }
-    return new fge::Object();
+    return nullptr;
 }
 
 bool Replace(std::string_view className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
@@ -108,7 +108,7 @@ fge::Object* GetNewClassOf(std::string_view className)
     {
         return _dataClassIdMap[it->second]->createNew();
     }
-    return new fge::Object();
+    return nullptr;
 }
 fge::Object* GetNewClassOf(fge::reg::ClassId classId)
 {
@@ -116,7 +116,7 @@ fge::Object* GetNewClassOf(fge::reg::ClassId classId)
     {
         return _dataClassIdMap[classId]->createNew();
     }
-    return new fge::Object();
+    return nullptr;
 }
 
 fge::reg::ClassId GetClassId(std::string_view className)

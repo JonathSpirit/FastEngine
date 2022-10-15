@@ -122,7 +122,7 @@ private:
     std::string g_name;
 };
 
-FGE_API fge::net::Packet& operator >>(fge::net::Packet& pck, fge::Texture& data);
+FGE_API const fge::net::Packet& operator >>(const fge::net::Packet& pck, fge::Texture& data);
 FGE_API fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Texture& data);
 
 FGE_API void to_json(nlohmann::json& j, const fge::Texture& p);
