@@ -1,0 +1,28 @@
+{
+    "type": "separate",
+    
+    "data": {
+        "just_a_test": [
+            {
+                "path": "resources/animations/simple_1/A1.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/simple_1/A2.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/simple_1/A3.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/simple_1/A4.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/simple_1/A5.png",
+                "ticks": 200
+            }
+        ]
+    }
+}

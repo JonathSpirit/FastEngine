@@ -305,7 +305,7 @@ public:
         fge::texture::LoadFromFile("arrow", "arrow.png");
 
         fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
-        if ( fge::anim::LoadFromFile("animation", "test/anim/anim_data.json") )
+        if ( fge::anim::LoadFromFile("animationSimple1", "resources/animations/simple_1/animation.json") )
         {
             std::cout << "Animation loaded !" << endl;
         }
@@ -396,7 +396,7 @@ public:
         buffText->setUtf8String("This is a simple text with utf8 char lik é¨àöüöüäà");
         this->newObject(FGE_NEWOBJECT_PTR(buffText), FGE_SCENE_PLAN_MIDDLE);
 
-        buffAnimation = new fge::ObjAnimation(fge::Animation("animation", "just_a_test"));
+        buffAnimation = new fge::ObjAnimation(fge::Animation("animationSimple1", "just_a_test"));
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(true);
         buffAnimation->setTickDuration(std::chrono::milliseconds(1) );
