@@ -22,7 +22,6 @@ namespace fge
 TileSet::TileSet(fge::Texture texture) :
         g_texture(std::move(texture))
 {
-    this->slice();
 }
 TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize) :
         g_texture(std::move(texture)),
@@ -144,7 +143,7 @@ void TileSet::slice()
 {
     TileId id = 0;
     this->clearTiles();
-    if (this->g_texture.valid())
+    if (this->g_texture.valid() && this->g_tileSize.x>0 && this->g_tileSize.y>0)
     {
         sf::Vector2i size = static_cast<sf::Vector2i>(this->g_texture.getTextureSize());
         for (int y=this->g_offset.y; y<size.y; y+=this->g_tileSize.y)
