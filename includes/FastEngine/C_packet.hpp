@@ -41,9 +41,7 @@
 
 #define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 class SocketTcp;
@@ -206,8 +204,7 @@ protected:
     mutable bool _g_valid;
 };
 
-}//end net
-}//end fge
+}//end fge::net
 
 #include "FastEngine/C_packet.inl"
 

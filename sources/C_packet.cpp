@@ -29,9 +29,7 @@
     #include <type_traits>
 #endif
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 ///Packet
@@ -582,5 +580,4 @@ void Packet::onReceive(void* data, std::size_t size)
 
 std::size_t Packet::_defaultReserveSize = FGE_PACKET_DEFAULT_RESERVESIZE;
 
-}//end net
-}//end fge
+}//end fge::net
