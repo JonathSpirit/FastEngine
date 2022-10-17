@@ -70,6 +70,7 @@ public:
 
     [[nodiscard]] const fge::Tile* getTile(TileId id) const;
 
+    [[nodiscard]] TileId getLocalId(const sf::Vector2i& position) const;
     [[nodiscard]] TileId getLocalId(TileId gid) const;
     [[nodiscard]] bool isGidContained(TileId gid) const;
     void setFirstGid(TileId gid);
@@ -79,6 +80,9 @@ public:
     [[nodiscard]] TileListType::const_iterator end() const;
 
     void slice();
+
+    [[nodiscard]] int getColumns() const;
+    [[nodiscard]] int getRows() const;
 
     [[nodiscard]] std::optional<sf::IntRect> getTextureRect(TileId id) const;
     [[nodiscard]] sf::IntRect computeTextureRect(TileId id) const;
@@ -95,6 +99,8 @@ private:
     sf::Vector2i g_offset{0,0};
     TileListType g_tiles;
     TileId g_firstGid{1};
+    int g_columns{0};
+    int g_rows{0};
 };
 
 FGE_API void to_json(nlohmann::json& j, const fge::TileSet& p);

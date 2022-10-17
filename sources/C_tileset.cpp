@@ -40,6 +40,8 @@ TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize, const sf::V
 void TileSet::clearTiles()
 {
     this->g_tiles.clear();
+    this->g_columns = 0;
+    this->g_rows = 0;
 }
 
 void TileSet::setName(std::string name)
@@ -73,6 +75,7 @@ const sf::Vector2i& TileSet::getTileSize() const
 void TileSet::setTileSize(const sf::Vector2i& tileSize)
 {
     this->g_tileSize = tileSize;
+    this->slice();
 }
 
 const sf::Vector2i& TileSet::getOffset() const
@@ -82,6 +85,7 @@ const sf::Vector2i& TileSet::getOffset() const
 void TileSet::setOffset(const sf::Vector2i& offset)
 {
     this->g_offset = offset;
+    this->slice();
 }
 
 std::size_t TileSet::getTileCount() const
@@ -113,6 +117,15 @@ void TileSet::pushTile(fge::Tile tile)
     }
 }
 
+TileId TileSet::getLocalId(const sf::Vector2i& position) const
+{
+    if (position.x<0 || position.y<0)
+    {
+        return -1;
+    }
+    fge::TileId localId = position.x + (this->g_columns*position.y);
+    return localId<static_cast<fge::TileId>(this->g_tiles.size()) ? localId : -1;
+}
 TileId TileSet::getLocalId(TileId gid) const
 {
     return this->isGidContained(gid) ? (gid - this->g_firstGid) : -1;
@@ -146,6 +159,9 @@ void TileSet::slice()
     if (this->g_texture.valid() && this->g_tileSize.x>0 && this->g_tileSize.y>0)
     {
         sf::Vector2i size = static_cast<sf::Vector2i>(this->g_texture.getTextureSize());
+        this->g_columns = (static_cast<int>(size.x)-this->g_offset.x)/this->g_tileSize.x;
+        this->g_rows = (static_cast<int>(size.y)-this->g_offset.y)/this->g_tileSize.y;
+
         for (int y=this->g_offset.y; y<size.y; y+=this->g_tileSize.y)
         {
             for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
@@ -155,6 +171,15 @@ void TileSet::slice()
             }
         }
     }
+}
+
+int TileSet::getColumns() const
+{
+    return this->g_columns;
+}
+int TileSet::getRows() const
+{
+    return this->g_rows;
 }
 
 std::optional<sf::IntRect> TileSet::getTextureRect(TileId id) const
@@ -178,19 +203,15 @@ sf::IntRect TileSet::computeTextureRect(TileId id) const
         return {};
     }
 
-    auto textureSize = this->g_texture.getTextureSize();
-    int numOfColumns = (static_cast<int>(textureSize.x)-this->g_offset.x)/this->g_tileSize.x;
-    int numOfRows = (static_cast<int>(textureSize.y)-this->g_offset.y)/this->g_tileSize.y;
-
-    if (numOfColumns < 0 || numOfRows < 0)
+    if (this->g_columns < 0 || this->g_rows < 0)
     {
         return {};
     }
 
     sf::IntRect result;
 
-    result.left = this->g_tileSize.x * (id%numOfColumns);
-    result.top = this->g_tileSize.y * (id%numOfRows);
+    result.left = this->g_tileSize.x * (id%this->g_columns);
+    result.top = this->g_tileSize.y * (id%this->g_rows);
     result.width = this->g_tileSize.x;
     result.height = this->g_tileSize.y;
 
@@ -216,7 +237,7 @@ void to_json(nlohmann::json& j, const fge::TileSet& p)
     j["imageheight"] = p.getTexture().getTextureSize().y;
 
     j["tilecount"] = p.getTileCount();
-    j["columns"] = (static_cast<int>(p.getTexture().getTextureSize().x)-p.getOffset().x)/p.getTileSize().x;
+    j["columns"] = p.getColumns();
 
     j["margin"] = 0; //TODO: margin and spacing
     j["spacing"] = 0;
