@@ -70,6 +70,8 @@ public:
     ~Generator() = default;
 
     void setWorldSize(fge::AStar::Vector2i worldSize);
+    [[nodiscard]] const fge::AStar::Vector2i& getWorldSize() const;
+
     void setDiagonalMovement(bool enable);
     void setHeuristic(HeuristicFunction heuristic);
     CoordinateList findPath(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
