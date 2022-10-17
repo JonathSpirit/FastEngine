@@ -304,7 +304,7 @@ public:
         fge::texture::LoadFromFile("light", "test/light_test.png");
         fge::texture::LoadFromFile("arrow", "arrow.png");
 
-        fge::font::LoadFromFile("base", "SourceSansPro-Regular.ttf");
+        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
         if ( fge::anim::LoadFromFile("animation", "test/anim/anim_data.json") )
         {
             std::cout << "Animation loaded !" << endl;
