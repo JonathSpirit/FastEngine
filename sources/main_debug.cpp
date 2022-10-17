@@ -504,15 +504,6 @@ public:
 
         fge::Clock changeTextColorClock;
 
-        auto tilemap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap));
-
-        fge::texture::LoadFromFile("tileset_test", "test/tiled/tileset_test.png");
-        fge::texture::LoadFromFile("tileset_test2", "test/tiled/tileset_test2.png");
-
-        nlohmann::json tilemapFile;
-        fge::LoadJsonFromFile("test/tiled/tiledMap.json", tilemapFile);
-        tilemap->getObject()->load(tilemapFile, this);
-
         while (window.isOpen())
         {
             {
