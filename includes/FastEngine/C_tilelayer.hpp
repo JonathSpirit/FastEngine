@@ -38,7 +38,7 @@ class FGE_API TileLayer : public sf::Transformable, public sf::Drawable
 #endif
 {
 public:
-    class Tile
+    class FGE_API Tile
     {
     public:
         Tile() = default;
