@@ -437,3 +437,8 @@ if (FGE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+#Examples
+add_subdirectory(examples/tileMapAndPathfinding_001)

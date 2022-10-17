@@ -20,7 +20,7 @@ namespace fge
 {
 
 #ifndef FGE_DEF_SERVER
-FGE_OBJ_DRAW_BODY(ObjTilemap)
+FGE_OBJ_DRAW_BODY(ObjTileMap)
 {
     states.transform *= this->getTransform();
     for (std::size_t i=0; i<this->g_layers.size(); ++i)
@@ -30,31 +30,31 @@ FGE_OBJ_DRAW_BODY(ObjTilemap)
 }
 #endif
 
-void ObjTilemap::clear()
+void ObjTileMap::clear()
 {
     this->g_tileSets.clear();
     this->g_layers.clear();
 }
 
-TileSetList& ObjTilemap::getTileSets()
+TileSetList& ObjTileMap::getTileSets()
 {
     return this->g_tileSets;
 }
-const TileSetList& ObjTilemap::getTileSets() const
+const TileSetList& ObjTileMap::getTileSets() const
 {
     return this->g_tileSets;
 }
 
-TileLayerList& ObjTilemap::getTileLayers()
+TileLayerList& ObjTileMap::getTileLayers()
 {
     return this->g_layers;
 }
-const TileLayerList& ObjTilemap::getTileLayers() const
+const TileLayerList& ObjTileMap::getTileLayers() const
 {
     return this->g_layers;
 }
 
-void ObjTilemap::save(nlohmann::json& jsonObject,[[maybe_unused]] fge::Scene* scene)
+void ObjTileMap::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
     jsonObject = nlohmann::json{{"infinite", false},
                                 {"orientation", "orthogonal"},
@@ -81,7 +81,7 @@ void ObjTilemap::save(nlohmann::json& jsonObject,[[maybe_unused]] fge::Scene* sc
         obj = *layer;
     }
 }
-void ObjTilemap::load(nlohmann::json& jsonObject,[[maybe_unused]] fge::Scene* scene)
+void ObjTileMap::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
     const auto& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())
@@ -105,29 +105,29 @@ void ObjTilemap::load(nlohmann::json& jsonObject,[[maybe_unused]] fge::Scene* sc
     }
 }
 
-void ObjTilemap::pack(fge::net::Packet& pck)
+void ObjTileMap::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 }
-void ObjTilemap::unpack(fge::net::Packet& pck)
+void ObjTileMap::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 }
 
-const char* ObjTilemap::getClassName() const
+const char* ObjTileMap::getClassName() const
 {
     return FGE_OBJTILEMAP_CLASSNAME;
 }
-const char* ObjTilemap::getReadableClassName() const
+const char* ObjTileMap::getReadableClassName() const
 {
     return "tileMap";
 }
 
-sf::FloatRect ObjTilemap::getGlobalBounds() const
+sf::FloatRect ObjTileMap::getGlobalBounds() const
 {
     return this->getTransform().transformRect(this->getLocalBounds());
 }
-sf::FloatRect ObjTilemap::getLocalBounds() const
+sf::FloatRect ObjTileMap::getLocalBounds() const
 {
     return {0.f, 0.f, 1.f, 1.f};
 }

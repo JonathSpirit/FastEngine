@@ -301,10 +301,10 @@ public:
 
         fge::texture::LoadFromFile("p1", "test/anim/p1.png");
         fge::texture::LoadFromFile("p2", "test/anim/p2.png");
-        fge::texture::LoadFromFile("light", "test/light_test.png");
+        fge::texture::LoadFromFile("light", "resources/images/light_test.png");
         fge::texture::LoadFromFile("arrow", "arrow.png");
 
-        fge::font::LoadFromFile("base", "SourceSansPro-Regular.ttf");
+        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
         if ( fge::anim::LoadFromFile("animation", "test/anim/anim_data.json") )
         {
             std::cout << "Animation loaded !" << endl;
@@ -504,10 +504,10 @@ public:
 
         fge::Clock changeTextColorClock;
 
-        auto tilemap = this->newObject(FGE_NEWOBJECT(fge::ObjTilemap));
+        auto tilemap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap));
 
-        fge::texture::LoadFromFile("tileset_test.png", "test/tiled/tileset_test.png");
-        fge::texture::LoadFromFile("tileset_test2.png", "test/tiled/tileset_test2.png");
+        fge::texture::LoadFromFile("tileset_test", "test/tiled/tileset_test.png");
+        fge::texture::LoadFromFile("tileset_test2", "test/tiled/tileset_test2.png");
 
         nlohmann::json tilemapFile;
         fge::LoadJsonFromFile("test/tiled/tiledMap.json", tilemapFile);

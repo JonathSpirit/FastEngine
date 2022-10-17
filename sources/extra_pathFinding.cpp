@@ -50,6 +50,10 @@ void Generator::setWorldSize(fge::AStar::Vector2i worldSize)
 {
     this->g_worldSize = worldSize;
 }
+const fge::AStar::Vector2i& Generator::getWorldSize() const
+{
+    return this->g_worldSize;
+}
 
 void Generator::setDiagonalMovement(bool enable)
 {
