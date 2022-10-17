@@ -309,7 +309,7 @@ public:
         {
             std::cout << "Animation loaded !" << endl;
         }
-        fge::anim::LoadFromFile("animationTileset", "test/testTileset.json");
+        fge::anim::LoadFromFile("animationTileset1", "resources/animations/tileset_1/animation.json");
 
         //fge::crash::Init(window, *fge::font::GetFont("base")->_font);
 
@@ -405,7 +405,7 @@ public:
         buffDataShared = this->duplicateObject(buffDataShared->getSid());
         buffDataShared->getObject()->move(40, 0);
 
-        buffAnimation = new fge::ObjAnimation(fge::Animation("animationTileset", "group3"));
+        buffAnimation = new fge::ObjAnimation(fge::Animation("animationTileset1", "group3"));
         buffAnimation->move(80.0f, 0.0f);
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(false);
