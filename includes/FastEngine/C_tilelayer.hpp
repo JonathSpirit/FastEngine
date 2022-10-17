@@ -33,7 +33,7 @@ using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
 
 /**
  * \class TileLayer
- * \return A tile layer contain a matrix of global tile id and a list of tileset
+ * \brief A tile layer contain a matrix of global tile id and a list of TileSet
  * \ingroup graphics
  *
  * This class is compatible with the "Tiled" map editor.

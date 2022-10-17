@@ -93,13 +93,13 @@ std::size_t TileSet::getTileCount() const
     return this->g_tiles.size();
 }
 
-const fge::Tile* TileSet::getTile(TileId id) const
+const fge::TileData* TileSet::getTile(TileId id) const
 {
     auto it = this->g_tiles.find(id);
     return it != this->g_tiles.end() ? &(*it) : nullptr;
 }
 
-void TileSet::setTile(fge::Tile tile)
+void TileSet::setTile(fge::TileData tile)
 {
     auto it = this->g_tiles.find(tile);
     if (it != this->g_tiles.end())
@@ -108,7 +108,7 @@ void TileSet::setTile(fge::Tile tile)
     }
     this->g_tiles.insert(std::move(tile));
 }
-void TileSet::pushTile(fge::Tile tile)
+void TileSet::pushTile(fge::TileData tile)
 {
     auto it = this->g_tiles.find(tile);
     if (it == this->g_tiles.end())
@@ -166,7 +166,7 @@ void TileSet::slice()
         {
             for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
             {
-                this->pushTile( fge::Tile{id, sf::IntRect{{x,y}, this->g_tileSize}} );
+                this->pushTile( fge::TileData{id, sf::IntRect{{x,y}, this->g_tileSize}} );
                 ++id;
             }
         }
@@ -285,7 +285,7 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     {
         for (const auto& tile : *itTiles)
         {
-            fge::Tile newTile = tile.get<fge::Tile>();
+            fge::TileData newTile = tile.get<fge::TileData>();
             const auto* actualTile = p.getTile(newTile._id);
             if (actualTile != nullptr)
             {
@@ -295,7 +295,7 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     }
 }
 
-void to_json(nlohmann::json& j, const fge::Tile& p)
+void to_json(nlohmann::json& j, const fge::TileData& p)
 {
     j = nlohmann::json{{"id", p._id}};
 
@@ -328,7 +328,7 @@ void to_json(nlohmann::json& j, const fge::Tile& p)
         }
     }
 }
-void from_json(const nlohmann::json& j, fge::Tile& p)
+void from_json(const nlohmann::json& j, fge::TileData& p)
 {
     j.at("id").get_to(p._id);
 

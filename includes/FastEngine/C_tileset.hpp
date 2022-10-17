@@ -30,22 +30,22 @@ namespace fge
 using TileId = int32_t;
 
 /**
- * \struct Tile
- * \brief A tile structure that contain mostly the texture rectangle
+ * \struct TileData
+ * \brief A tile structure that contain mostly the texture rectangle and data
  * \ingroup graphics
  *
  * This structure is compatible with the "Tiled" map editor. The id is the local id of the tile in the tileset.
  */
-struct Tile
+struct TileData
 {
     TileId _id{0};
     sf::IntRect _rect;
     mutable fge::PropertyList _properties{};
 };
 
-inline bool operator<(const fge::Tile& l, int r) { return l._id < r; }
-inline bool operator<(int l, const fge::Tile& r) { return l < r._id; }
-inline bool operator<(const fge::Tile& l, const fge::Tile& r) { return l._id < r._id; }
+inline bool operator<(const fge::TileData& l, int r) { return l._id < r; }
+inline bool operator<(int l, const fge::TileData& r) { return l < r._id; }
+inline bool operator<(const fge::TileData& l, const fge::TileData& r) { return l._id < r._id; }
 
 /**
  * \class TileSet
@@ -57,7 +57,7 @@ inline bool operator<(const fge::Tile& l, const fge::Tile& r) { return l._id < r
 class FGE_API TileSet
 {
 public:
-    using TileListType = std::set<fge::Tile, std::less<>>;
+    using TileListType = std::set<fge::TileData, std::less<>>;
 
     TileSet() = default;
     TileSet(fge::Texture texture);
@@ -145,7 +145,7 @@ public:
      * \param id The local id of the tile
      * \return The tile pointer if found, \b nullptr otherwise
      */
-    [[nodiscard]] const fge::Tile* getTile(TileId id) const;
+    [[nodiscard]] const fge::TileData* getTile(TileId id) const;
 
     /**
      * \brief Get the local id of a tile by its grid position
@@ -230,8 +230,8 @@ public:
     fge::TileSet& operator =(fge::Texture texture);
 
 private:
-    void setTile(fge::Tile tile);
-    void pushTile(fge::Tile tile);
+    void setTile(fge::TileData tile);
+    void pushTile(fge::TileData tile);
 
     std::string g_name;
     fge::Texture g_texture;
@@ -246,8 +246,8 @@ private:
 FGE_API void to_json(nlohmann::json& j, const fge::TileSet& p);
 FGE_API void from_json(const nlohmann::json& j, fge::TileSet& p);
 
-FGE_API void to_json(nlohmann::json& j, const fge::Tile& p);
-FGE_API void from_json(const nlohmann::json& j, fge::Tile& p);
+FGE_API void to_json(nlohmann::json& j, const fge::TileData& p);
+FGE_API void from_json(const nlohmann::json& j, fge::TileData& p);
 
 }//end fge
 
