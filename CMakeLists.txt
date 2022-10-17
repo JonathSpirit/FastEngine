@@ -59,13 +59,14 @@ set(SRC ${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in)
 set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp)
 include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
-#Documentation
+#Options
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
     option(FGE_BUILD_DOC "Build documentation" ON)
 else()
     option(FGE_BUILD_DOC "Build documentation" OFF)
 endif()
 
+option(FGE_BUILD_EXAMPLES "Build examples" ON)
 option(FGE_BUILD_TESTS "Build tests" ON)
 
 #Check if Doxygen is installed
@@ -441,4 +442,6 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 #Examples
-add_subdirectory(examples/tileMapAndPathfinding_001)
+if (FGE_BUILD_EXAMPLES)
+    add_subdirectory(examples/tileMapAndPathfinding_001)
+endif()
