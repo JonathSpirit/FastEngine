@@ -4,6 +4,7 @@
 #include <FastEngine/texture_manager.hpp>
 #include <FastEngine/C_clock.hpp>
 #include <FastEngine/C_objTilemap.hpp>
+#include <FastEngine/C_objText.hpp>
 
 //Create a pathFinder class object
 class PathFinder : public fge::Object
@@ -37,9 +38,6 @@ public:
     {
         //Clear the collisions list
         this->g_pathGenerator.clearCollisions();
-
-        //Get the tileMap size
-        auto tileMapSize = tileMap->getTileLayers().front()->getTiles().getSize();
 
         //Get the front tile layer
         auto tileLayer = tileMap->getTileLayers().front();
@@ -87,8 +85,8 @@ public:
         this->generatePath();
 
         //Set object position in the center of the tile
-        this->setPosition(this->g_start.x * this->g_tileSize.x + static_cast<float>(this->g_tileSize.x) / 2.f,
-                          this->g_start.y * this->g_tileSize.y + static_cast<float>(this->g_tileSize.y) / 2.f);
+        this->setPosition(static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) + static_cast<float>(this->g_tileSize.x) / 2.f,
+                          static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) + static_cast<float>(this->g_tileSize.y) / 2.f);
     }
 
     void generatePath()
@@ -107,8 +105,8 @@ public:
             circle.setRadius(5.f);
             circle.setOrigin(5.f, 5.f);
             circle.setFillColor(sf::Color::Green);
-            circle.setPosition(pathPoint.x * this->g_tileSize.x + static_cast<float>(this->g_tileSize.x) / 2.f,
-                               pathPoint.y * this->g_tileSize.y + static_cast<float>(this->g_tileSize.y) / 2.f);
+            circle.setPosition(static_cast<float>(pathPoint.x) * static_cast<float>(this->g_tileSize.x) + static_cast<float>(this->g_tileSize.x) / 2.f,
+                               static_cast<float>(pathPoint.y) * static_cast<float>(this->g_tileSize.y) + static_cast<float>(this->g_tileSize.y) / 2.f);
             this->g_pathCircles.push_back(circle);
         }
 
@@ -116,8 +114,8 @@ public:
         this->g_startCircle.setRadius(5.f);
         this->g_startCircle.setOrigin(5.f, 5.f);
         this->g_startCircle.setFillColor(sf::Color::Transparent);
-        this->g_startCircle.setPosition(this->g_start.x * this->g_tileSize.x + static_cast<float>(this->g_tileSize.x) / 2.f,
-                                        this->g_start.y * this->g_tileSize.y + static_cast<float>(this->g_tileSize.y) / 2.f);
+        this->g_startCircle.setPosition(static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) + static_cast<float>(this->g_tileSize.x) / 2.f,
+                                        static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) + static_cast<float>(this->g_tileSize.y) / 2.f);
         this->g_startCircle.setOutlineColor(sf::Color::Red);
         this->g_startCircle.setOutlineThickness(2.f);
     }
@@ -149,15 +147,29 @@ public:
     void main()
     {
         sf::RenderWindow window(sf::VideoMode{800, 600}, "example 001: tileMapAndPathfinding");
+        window.setFramerateLimit(60);
         fge::Event event(window);
 
         //Init texture manager
         fge::texture::Init();
+        //Init font manager
+        fge::font::Init();
 
         //Load texture
         fge::texture::LoadFromFile("tileset_basic", "resources/tilesets/tileset_basic.png");
 
+        //Load font
+        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
+
         fge::Clock tick;
+
+        //Create a text object with explanation
+        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use WASD/Arrow keys to move the view around\n"
+                                                                       "Use the left mouse button to set the goal position\n"
+                                                                       "Use the right mouse button to set the start position\n"
+                                                                       "Use the mouse wheel to zoom in and out",
+                                                                       "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP);
+        reinterpret_cast<fge::ObjText*>(explainText->getObject())->setFillColor(sf::Color::Black);
 
         //Create a tileMap object
         auto tileMap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap), FGE_SCENE_PLAN_BACK);
@@ -267,8 +279,10 @@ public:
             window.display();
         }
 
-        //Unit texture manager
+        //Uninit texture manager
         fge::texture::Uninit();
+        //Uninit font manager
+        fge::font::Uninit();
     }
 };
 
