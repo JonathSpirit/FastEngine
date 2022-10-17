@@ -14,6 +14,11 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(PathFinder)
 
+    void first([[maybe_unused]] fge::Scene* scene) override
+    {
+        this->_alwaysDrawed = true;
+    }
+
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override
     {
         //Draw path circles
