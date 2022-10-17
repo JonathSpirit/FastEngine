@@ -8,9 +8,12 @@ var searchData=
   ['networktypeproperty_5',['NetworkTypeProperty',['../classfge_1_1net_1_1NetworkTypeProperty.html',1,'fge::net']]],
   ['networktypepropertylist_6',['NetworkTypePropertyList',['../classfge_1_1net_1_1NetworkTypePropertyList.html',1,'fge::net']]],
   ['networktypescene_7',['NetworkTypeScene',['../classfge_1_1net_1_1NetworkTypeScene.html',1,'fge::net']]],
-  ['networktypesmoothfloat_8',['NetworkTypeSmoothFloat',['../classfge_1_1net_1_1NetworkTypeSmoothFloat.html',1,'fge::net']]],
-  ['networktypesmoothvec2float_9',['NetworkTypeSmoothVec2Float',['../classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html',1,'fge::net']]],
-  ['networktypetag_10',['NetworkTypeTag',['../classfge_1_1net_1_1NetworkTypeTag.html',1,'fge::net']]],
-  ['node_11',['Node',['../structfge_1_1AStar_1_1Node.html',1,'fge::AStar']]],
-  ['nothandledobjectdeleter_12',['NotHandledObjectDeleter',['../structfge_1_1ChildObjectsAccessor_1_1DataContext_1_1NotHandledObjectDeleter.html',1,'fge::ChildObjectsAccessor::DataContext']]]
+  ['networktypesetter_8',['NetworkTypeSetter',['../classfge_1_1net_1_1NetworkTypeSetter.html',1,'fge::net']]],
+  ['networktypesmoothfloat_9',['NetworkTypeSmoothFloat',['../classfge_1_1net_1_1NetworkTypeSmoothFloat.html',1,'fge::net']]],
+  ['networktypesmoothfloatgettersetter_10',['NetworkTypeSmoothFloatGetterSetter',['../classfge_1_1net_1_1NetworkTypeSmoothFloatGetterSetter.html',1,'fge::net']]],
+  ['networktypesmoothvec2float_11',['NetworkTypeSmoothVec2Float',['../classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html',1,'fge::net']]],
+  ['networktypesmoothvec2floatsetter_12',['NetworkTypeSmoothVec2FloatSetter',['../classfge_1_1net_1_1NetworkTypeSmoothVec2FloatSetter.html',1,'fge::net']]],
+  ['networktypetag_13',['NetworkTypeTag',['../classfge_1_1net_1_1NetworkTypeTag.html',1,'fge::net']]],
+  ['node_14',['Node',['../structfge_1_1AStar_1_1Node.html',1,'fge::AStar']]],
+  ['nothandledobjectdeleter_15',['NotHandledObjectDeleter',['../structfge_1_1ChildObjectsAccessor_1_1DataContext_1_1NotHandledObjectDeleter.html',1,'fge::ChildObjectsAccessor::DataContext']]]
 ];

@@ -1,5 +1,5 @@
 var searchData=
 [
   ['matrix_0',['Matrix',['../classfge_1_1Matrix.html',1,'fge']]],
-  ['mbool_1',['MBool',['../structfge_1_1MBool.html',1,'fge']]]
+  ['matrix_3c_20fge_3a_3atilelayer_3a_3atile_20_3e_1',['Matrix&lt; fge::TileLayer::Tile &gt;',['../classfge_1_1Matrix.html',1,'fge']]]
 ];
