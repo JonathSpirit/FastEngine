@@ -234,7 +234,11 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
 
     p.setFirstGid(j.value<TileId>("firstgid", 1));
     p.setName(j.value<std::string>("name", {}));
-    p.setTexture( j.at("image").get<fge::Texture>() );
+
+    std::filesystem::path path =  j.at("image").get<std::filesystem::path>();
+    //Retrieve the filename of the path
+    std::string filename = path.stem().string();
+    p.setTexture(std::move(filename));
 
     p.setTileSize({
         j.at("tileheight").get<int>(),
