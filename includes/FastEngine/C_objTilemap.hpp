@@ -30,12 +30,12 @@ namespace fge
 using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
 using TileLayerList = std::vector<std::shared_ptr<fge::TileLayer> >;
 
-class FGE_API ObjTilemap : public fge::Object
+class FGE_API ObjTileMap : public fge::Object
 {
 public:
-    ObjTilemap() = default;
+    ObjTileMap() = default;
 
-    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTilemap)
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTileMap)
 
     FGE_OBJ_DRAW_DECLARE
 
