@@ -302,7 +302,7 @@ public:
         fge::texture::LoadFromFile("button_1", "resources/images/button_1.png");
         fge::texture::LoadFromFile("button_2", "resources/images/button_2.png");
         fge::texture::LoadFromFile("light", "resources/images/light_test.png");
-        fge::texture::LoadFromFile("arrow", "arrow.png");
+        fge::texture::LoadFromFile("arrow_1", "resources/images/arrow_1.png");
 
         fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
         if ( fge::anim::LoadFromFile("animationSimple1", "resources/animations/simple_1/animation.json") )
