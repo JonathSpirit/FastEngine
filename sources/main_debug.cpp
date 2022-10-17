@@ -37,6 +37,7 @@
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/C_objLight.hpp"
 #include "FastEngine/C_objText.hpp"
+#include "FastEngine/C_objTilemap.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
 #include "FastEngine/C_server.hpp"
@@ -298,19 +299,19 @@ public:
         fge::timer::Init();
         fge::anim::Init();
 
-        fge::texture::LoadFromFile("p1", "test/anim/p1.png");
-        fge::texture::LoadFromFile("p2", "test/anim/p2.png");
-        fge::texture::LoadFromFile("light", "test/light_test.png");
-        fge::texture::LoadFromFile("arrow", "arrow.png");
+        fge::texture::LoadFromFile("button_1", "resources/images/button_1.png");
+        fge::texture::LoadFromFile("button_2", "resources/images/button_2.png");
+        fge::texture::LoadFromFile("light", "resources/images/light_test.png");
+        fge::texture::LoadFromFile("arrow_1", "resources/images/arrow_1.png");
 
-        fge::font::LoadFromFile("base", "SourceSansPro-Regular.ttf");
-        if ( fge::anim::LoadFromFile("animation", "test/anim/anim_data.json") )
+        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
+        if ( fge::anim::LoadFromFile("animationSimple1", "resources/animations/simple_1/animation.json") )
         {
             std::cout << "Animation loaded !" << endl;
         }
-        fge::anim::LoadFromFile("animationTileset", "test/testTileset.json");
+        fge::anim::LoadFromFile("animationTileset1", "resources/animations/tileset_1/animation.json");
 
-        fge::crash::Init(window, *fge::font::GetFont("base")->_font);
+        //fge::crash::Init(window, *fge::font::GetFont("base")->_font);
 
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjAnimation>()) );
         fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<fge::ObjText>()) );
@@ -329,7 +330,7 @@ public:
             std::cout << stamp->getClassName() << " is registered, with classId " << i << std::endl;
         }
 
-        this->newObject( FGE_NEWOBJECT(fge::ObjSprite, "p1", sf::Vector2f(100, 100)) );
+        this->newObject( FGE_NEWOBJECT(fge::ObjSprite, "button_1", sf::Vector2f(100, 100)) );
 
         sf::RectangleShape rectangleTest;
 
@@ -381,9 +382,9 @@ public:
         buffSelectBox->setSelectedText("Not cool");
         this->newObject(FGE_NEWOBJECT_PTR(buffSelectBox), FGE_SCENE_PLAN_MIDDLE);
 
-        buffSwitch = new fge::ObjSwitch("p2", "p1", sf::Vector2f(400, 200) );
+        buffSwitch = new fge::ObjSwitch("button_2", "button_1", sf::Vector2f(400, 200) );
         buffSwitch->setColor(sf::Color::Yellow);
-        buffButton = new fge::ObjButton("p2", "p1", sf::Vector2f(400, 100) );
+        buffButton = new fge::ObjButton("button_2", "button_1", sf::Vector2f(400, 100) );
         buffButton->setScale(2, 2);
         this->newObject(FGE_NEWOBJECT_PTR(buffButton), FGE_SCENE_PLAN_MIDDLE);
 
@@ -395,7 +396,7 @@ public:
         buffText->setUtf8String("This is a simple text with utf8 char lik é¨àöüöüäà");
         this->newObject(FGE_NEWOBJECT_PTR(buffText), FGE_SCENE_PLAN_MIDDLE);
 
-        buffAnimation = new fge::ObjAnimation(fge::Animation("animation", "just_a_test"));
+        buffAnimation = new fge::ObjAnimation(fge::Animation("animationSimple1", "just_a_test"));
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(true);
         buffAnimation->setTickDuration(std::chrono::milliseconds(1) );
@@ -404,7 +405,7 @@ public:
         buffDataShared = this->duplicateObject(buffDataShared->getSid());
         buffDataShared->getObject()->move(40, 0);
 
-        buffAnimation = new fge::ObjAnimation(fge::Animation("animationTileset", "group3"));
+        buffAnimation = new fge::ObjAnimation(fge::Animation("animationTileset1", "group3"));
         buffAnimation->move(80.0f, 0.0f);
         buffAnimation->getAnimation().setLoop(true);
         buffAnimation->getAnimation().setReverse(false);
@@ -458,9 +459,9 @@ public:
 
         this->setLinkedRenderTarget(&window);
 
-        auto elementTest1 = this->newObject( FGE_NEWOBJECT(fge::ObjButton, "p1", "p2", sf::Vector2f(300, 50)) );
+        auto elementTest1 = this->newObject( FGE_NEWOBJECT(fge::ObjButton, "button_1", "button_2", sf::Vector2f(300, 50)) );
         elementTest1->getObject()->setOrigin(20.0f,20.0f);
-        auto elementTest2 = this->newObject( FGE_NEWOBJECT(fge::ObjButton, "p2", "p1") );
+        auto elementTest2 = this->newObject( FGE_NEWOBJECT(fge::ObjButton, "button_2", "button_1") );
         elementTest2->getObject()->setOrigin(-2.0f,2.0f);
         elementTest2->getObject()->setScale(0.5f, 0.5f);
 

@@ -30,9 +30,12 @@ public:
     using PropertyListType = std::unordered_map<std::string, fge::Property>;
 
     inline PropertyList() = default;
-    inline PropertyList(const PropertyList& r);
-    inline PropertyList(PropertyList&& r) noexcept;
+    inline PropertyList(const PropertyList& r) = default;
+    inline PropertyList(PropertyList&& r) noexcept = default;
     inline ~PropertyList() = default;
+
+    inline PropertyList& operator=(const PropertyList& r) = default;
+    inline PropertyList& operator=(PropertyList&& r) noexcept = default;
 
     inline void delAllProperties();
     inline void delProperty(const std::string& key);
@@ -57,8 +60,8 @@ public:
 
     inline fge::PropertyList::PropertyListType::iterator begin();
     inline fge::PropertyList::PropertyListType::iterator end();
-    inline fge::PropertyList::PropertyListType::const_iterator cbegin();
-    inline fge::PropertyList::PropertyListType::const_iterator cend();
+    inline fge::PropertyList::PropertyListType::const_iterator begin() const;
+    inline fge::PropertyList::PropertyListType::const_iterator end() const;
 
     inline fge::PropertyList::PropertyListType::const_iterator find(const std::string& key) const;
     inline fge::PropertyList::PropertyListType::iterator find(const std::string& key);

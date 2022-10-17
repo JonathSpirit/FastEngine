@@ -1,5 +1,3 @@
-
-
 # FastEngine
 
 Copyright (C) 2022 Guillaume Guillet
@@ -78,6 +76,11 @@ You can build the Doxygen documentation by setting :
 
     -DFGE_BUILD_DOC=ON or OFF
 By default the documentation is built if the build type is **Release**. (You will need [Doxygen](https://doxygen.nl/) in order to build the doc.)
+
+You can build all examples by setting :
+
+    -DFGE_BUILD_EXAMPLES=ON or OFF
+By default the all examples are built inside the **all** target.
 
 The library type flag (**BUILD_SHARED_LIBS**) must not be manually set and static build is not supported.
 

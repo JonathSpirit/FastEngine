@@ -1,7 +1,7 @@
 {
     "type": "tileset",
     "gridSize": {"x": 32, "y": 32},
-    "tileset": "test/tileset_test.png",
+    "tileset": "resources/animations/tileset_1/tileset_test.png",
     
     "data": {
         "group1": [

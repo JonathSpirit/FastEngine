@@ -59,13 +59,14 @@ set(SRC ${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in)
 set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp)
 include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
-#Documentation
+#Options
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
     option(FGE_BUILD_DOC "Build documentation" ON)
 else()
     option(FGE_BUILD_DOC "Build documentation" OFF)
 endif()
 
+option(FGE_BUILD_EXAMPLES "Build examples" ON)
 option(FGE_BUILD_TESTS "Build tests" ON)
 
 #Check if Doxygen is installed
@@ -242,6 +243,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objSprite.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objText.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_objTilemap.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -262,6 +264,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_childObjectsAccessor.cp
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_texture.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tilelayer.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_timer.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra_function.cpp")
@@ -334,6 +338,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSprite.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objText.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTextinputbox.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_objTilemap.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -355,6 +360,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_soundBuffer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_texture.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tilelayer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_timer.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/extra_function.cpp")
@@ -430,4 +437,11 @@ install(FILES ${FGE_INCLUDES_PROJECT}
 if (FGE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+endif()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+#Examples
+if (FGE_BUILD_EXAMPLES)
+    add_subdirectory(examples/tileMapAndPathfinding_001)
 endif()

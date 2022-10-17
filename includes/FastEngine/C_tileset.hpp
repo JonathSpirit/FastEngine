@@ -19,94 +19,235 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_texture.hpp>
+#include <FastEngine/C_propertyList.hpp>
+#include <set>
+#include <optional>
+#include <json.hpp>
 
 namespace fge
 {
 
-class Tileset
+using TileId = int32_t;
+
+/**
+ * \struct TileData
+ * \brief A tile structure that contain mostly the texture rectangle and data
+ * \ingroup graphics
+ *
+ * This structure is compatible with the "Tiled" map editor. The id is the local id of the tile in the tileset.
+ */
+struct TileData
+{
+    TileId _id{0};
+    sf::IntRect _rect;
+    mutable fge::PropertyList _properties{};
+};
+
+inline bool operator<(const fge::TileData& l, int r) { return l._id < r; }
+inline bool operator<(int l, const fge::TileData& r) { return l < r._id; }
+inline bool operator<(const fge::TileData& l, const fge::TileData& r) { return l._id < r._id; }
+
+/**
+ * \class TileSet
+ * \brief A class that represent a set of tiles that can be used in a TileLayer
+ * \ingroup graphics
+ *
+ * This class is compatible with the "Tiled" map editor.
+ */
+class FGE_API TileSet
 {
 public:
-    Tileset() = default;
-    Tileset( const fge::Texture& texture ) :
-        g_texture(texture)
-    {
-    }
-    Tileset( const fge::Texture& texture, const sf::Vector2i& tileSize) :
-        g_texture(texture),
-        g_tileSize(tileSize)
-    {
-    }
-    Tileset( const fge::Texture& texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset) :
-        g_texture(texture),
-        g_tileSize(tileSize),
-        g_offset(offset)
-    {
-    }
+    using TileListType = std::set<fge::TileData, std::less<>>;
 
-    inline void clear()
-    {
-        this->g_texture.clear();
-        this->g_tileSize.x = 0;
-        this->g_tileSize.y = 0;
-        this->g_offset.x = 0;
-        this->g_offset.y = 0;
-    }
+    TileSet() = default;
+    TileSet(fge::Texture texture);
+    TileSet(fge::Texture texture, const sf::Vector2i& tileSize);
+    TileSet(fge::Texture texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset);
 
-    [[nodiscard]] inline bool valid() const
-    {
-        return this->g_texture.valid();
-    }
+    /**
+     * \brief Clear the tiles
+     */
+    void clearTiles();
 
-    inline fge::Texture& getTexture()
-    {
-        return this->g_texture;
-    }
-    inline const fge::Texture& getTexture() const
-    {
-        return this->g_texture;
-    }
-    inline void setTexture(const fge::Texture& texture)
-    {
-        this->g_texture = texture;
-    }
+    /**
+     * \brief Set the name of the TileSet
+     *
+     * \param name The name of the TileSet
+     */
+    void setName(std::string name);
+    /**
+     * \brief Get the name of the TileSet
+     *
+     * \return The name of the TileSet
+     */
+    [[nodiscard]] const std::string& getName() const;
 
-    inline const sf::Vector2i& getTileSize() const
-    {
-        return this->g_tileSize;
-    }
-    inline void setTileSize(const sf::Vector2i& tileSize)
-    {
-        this->g_tileSize = tileSize;
-    }
+    /**
+     * \brief Check if the TileSet have a valid Texture
+     *
+     * \return \b true if the TileSet have a valid Texture, \b false otherwise
+     */
+    [[nodiscard]] bool valid() const;
 
-    inline const sf::Vector2i& getOffset() const
-    {
-        return this->g_offset;
-    }
-    inline void setOffset(const sf::Vector2i& offset)
-    {
-        this->g_offset = offset;
-    }
+    /**
+     * \brief Get the texture of the TileSet
+     *
+     * \return The texture of the TileSet
+     */
+    [[nodiscard]] const fge::Texture& getTexture() const;
+    /**
+     * \brief Set the texture of the TileSet
+     *
+     * This function will automatically slice the texture into tiles.
+     *
+     * \param texture The texture of the TileSet
+     */
+    void setTexture(fge::Texture texture);
 
-    inline sf::IntRect getTextureRect(const sf::Vector2i& pos) const
-    {
-        return sf::IntRect(pos.x*this->g_tileSize.x + this->g_offset.x, pos.y*this->g_tileSize.y + this->g_offset.y, this->g_tileSize.x,this->g_tileSize.y);
-    }
-    inline sf::IntRect getTextureRect(int posX, int posY) const
-    {
-        return sf::IntRect(posX*this->g_tileSize.x + this->g_offset.x, posY*this->g_tileSize.y + this->g_offset.y, this->g_tileSize.x,this->g_tileSize.y);
-    }
+    /**
+     * \brief Get the tile size of the TileSet
+     *
+     * \return The tile size of the TileSet
+     */
+    [[nodiscard]] const sf::Vector2i& getTileSize() const;
+    /**
+     * \brief Set the tile size of the TileSet
+     *
+     * This function will automatically slice the texture into tiles.
+     *
+     * \param tileSize The tile size of the TileSet
+     */
+    void setTileSize(const sf::Vector2i& tileSize);
 
-    inline void operator =( const fge::Texture& texture )
-    {
-        this->g_texture = texture;
-    }
+    /**
+     * \brief Get the offset in pixel of the TileSet
+     *
+     * \return The offset in pixel of the TileSet
+     */
+    [[nodiscard]] const sf::Vector2i& getOffset() const;
+    /**
+     * \brief Set the offset in pixel of the TileSet
+     *
+     * \param offset The offset in pixel of the TileSet
+     */
+    void setOffset(const sf::Vector2i& offset);
+
+    /**
+     * \brief Get the total number of tiles in the TileSet
+     *
+     * \return The total number of tiles in the TileSet
+     */
+    [[nodiscard]] std::size_t getTileCount() const;
+
+    /**
+     * \brief Retrieve a tile by its local id
+     *
+     * \param id The local id of the tile
+     * \return The tile pointer if found, \b nullptr otherwise
+     */
+    [[nodiscard]] const fge::TileData* getTile(TileId id) const;
+
+    /**
+     * \brief Get the local id of a tile by its grid position
+     *
+     * \param position The grid position of the tile
+     * \return The local id of the tile if found, \b -1 otherwise
+     */
+    [[nodiscard]] TileId getLocalId(const sf::Vector2i& position) const;
+    /**
+     * \brief Get the local id of a tile by its global id
+     *
+     * The global id is subtracted by the first global id of the tileset in
+     * order to get the local id.
+     *
+     * \param gid The global id of the tile
+     * \return The local id of the tile if found, \b -1 otherwise
+     */
+    [[nodiscard]] TileId getLocalId(TileId gid) const;
+    /**
+     * \brief Check if the global id is in the tileset
+     *
+     * \param gid The global id of the tile
+     * \return \b true if the global id is in the tileset, \b false otherwise
+     */
+    [[nodiscard]] bool isGidContained(TileId gid) const;
+    /**
+     * \brief Set the first global id of the tileset
+     *
+     * The first global id correspond to the first tile id in the tileset.
+     *
+     * \param gid The first global id of the tileset
+     */
+    void setFirstGid(TileId gid);
+    /**
+     * \brief Get the first global id of the tileset
+     *
+     * \return The first global id of the tileset
+     */
+    [[nodiscard]] TileId getFirstGid() const;
+
+    [[nodiscard]] TileListType::const_iterator begin() const;
+    [[nodiscard]] TileListType::const_iterator end() const;
+
+    /**
+     * \brief Slice the texture into tiles
+     *
+     * The texture will be sliced into tiles of the size specified by the tile size.
+     * Tiles is always sliced from the top left corner of the texture in a Z pattern.
+     *
+     * Previous tiles will be cleared.
+     */
+    void slice();
+
+    /**
+     * \brief Return the number of columns in the texture
+     *
+     * \return The number of columns in the texture
+     */
+    [[nodiscard]] int getColumns() const;
+    /**
+     * \brief Return the number of rows in the texture
+     *
+     * \return The number of rows in the texture
+     */
+    [[nodiscard]] int getRows() const;
+
+    /**
+     * \brief Get the texture rectangle of a tile by its local id
+     *
+     * \param id The local id of the tile
+     * \return The texture rectangle of the tile if found, \b std::nullopt otherwise
+     */
+    [[nodiscard]] std::optional<sf::IntRect> getTextureRect(TileId id) const;
+    /**
+     * \brief Compute the supposed texture rectangle with a local id
+     *
+     * \param id The local id of the tile
+     * \return The supposed texture rectangle of the tile
+     */
+    [[nodiscard]] sf::IntRect computeTextureRect(TileId id) const;
+
+    fge::TileSet& operator =(fge::Texture texture);
 
 private:
+    void setTile(fge::TileData tile);
+    void pushTile(fge::TileData tile);
+
+    std::string g_name;
     fge::Texture g_texture;
     sf::Vector2i g_tileSize;
-    sf::Vector2i g_offset;
+    sf::Vector2i g_offset{0,0};
+    TileListType g_tiles;
+    TileId g_firstGid{1};
+    int g_columns{0};
+    int g_rows{0};
 };
+
+FGE_API void to_json(nlohmann::json& j, const fge::TileSet& p);
+FGE_API void from_json(const nlohmann::json& j, fge::TileSet& p);
+
+FGE_API void to_json(nlohmann::json& j, const fge::TileData& p);
+FGE_API void from_json(const nlohmann::json& j, fge::TileData& p);
 
 }//end fge
 

@@ -106,37 +106,37 @@ fge::Matrix<T>& Matrix<T>::operator =(fge::Matrix<T>&& m) noexcept
 template<class T>
 T* Matrix<T>::operator[](std::size_t x)
 {
-    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x];
+    return FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, 0);
 }
 template<class T>
 const T* Matrix<T>::operator[](std::size_t x) const
 {
-    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x];
+    return FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, 0);
 }
 
 template<class T>
 const T& Matrix<T>::get(std::size_t x, std::size_t y) const
 {
-    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
+    return *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, y);
 }
 template<class T>
 template<class Tvec>
 const T& Matrix<T>::get(const sf::Vector2<Tvec>& coord) const
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    return reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
+    return *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y));
 }
 template<class T>
 T& Matrix<T>::get(std::size_t x, std::size_t y)
 {
-    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
+    return *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y);
 }
 template<class T>
 template<class Tvec>
 T& Matrix<T>::get(const sf::Vector2<Tvec>& coord)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    return reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)];
+    return *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y));
 }
 
 template<class T>
@@ -144,7 +144,7 @@ bool Matrix<T>::get(std::size_t x, std::size_t y, T& buff) const
 {
     if ( (x < this->g_msize.x) && (y < this->g_msize.y) )
     {
-        buff = reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
+        buff = *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, y);
         return true;
     }
     return false;
@@ -162,7 +162,7 @@ T* Matrix<T>::getPtr(std::size_t x, std::size_t y)
 {
     if ( (x < this->g_msize.x) && (y < this->g_msize.y) )
     {
-        return &reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
+        return FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y);
     }
     return nullptr;
 }
@@ -178,7 +178,7 @@ const T* Matrix<T>::getPtr(std::size_t x, std::size_t y) const
 {
     if ( (x < this->g_msize.x) && (y < this->g_msize.y) )
     {
-        return &reinterpret_cast<const T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y];
+        return FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, y);
     }
     return nullptr;
 }
@@ -193,26 +193,26 @@ const T* Matrix<T>::getPtr(const sf::Vector2<Tvec>& coord) const
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, T&& value)
 {
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y] = std::move(value);
+    *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y) = std::move(value);
 }
 template<class T>
 template<class Tvec>
 void Matrix<T>::set(const sf::Vector2<Tvec>& coord, T&& value)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)] = std::move(value);
+    *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y)) = std::move(value);
 }
 template<class T>
 void Matrix<T>::set(std::size_t x, std::size_t y, const T& value)
 {
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y] = value;
+    *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y) = value;
 }
 template<class T>
 template<class Tvec>
 void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T& value)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[static_cast<std::size_t>(coord.x)][static_cast<std::size_t>(coord.y)] = value;
+    *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y)) = value;
 }
 
 template<class T>
@@ -241,7 +241,7 @@ void Matrix<T>::set(std::initializer_list<std::initializer_list<T>> data)
         std::size_t xcount = 0;
         for (auto datax : datay)
         {
-            reinterpret_cast<T(*)[sizey]>(this->g_mdata.get())[xcount][ycount] = std::move(datax);
+            *FGE_MATRIX_GET(T, this->g_mdata.get(), sizey, xcount, ycount) = std::move(datax);
             ++xcount;
         }
         ++ycount;
@@ -332,7 +332,7 @@ void Matrix<T>::fill(const T& value)
     {
         for (std::size_t y=0; y<this->g_msize.y; ++y)
         {
-            reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y] = value;
+            *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y) = value;
         }
     }
 }
@@ -346,7 +346,7 @@ void Matrix<T>::rotateClockwise()
     {
         for (std::size_t x=0; x<this->g_msize.x; ++x)
         {
-            newMatrix[newMatrix.g_msize.x - y-1][x] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y]);
+            newMatrix[newMatrix.g_msize.x - y-1][x] = std::move(*FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y));
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -361,7 +361,7 @@ void Matrix<T>::rotateCounterClockwise()
     {
         for (std::size_t x=0; x<this->g_msize.x; ++x)
         {
-            newMatrix[y][newMatrix.g_msize.y - x-1] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][y]);
+            newMatrix[y][newMatrix.g_msize.y - x-1] = std::move(*FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, y));
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -398,7 +398,7 @@ void Matrix<T>::flipHorizontally()
     {
         for (std::size_t y=0; y<this->g_msize.y; ++y)
         {
-            newMatrix[x][y] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[this->g_msize.x-1-x][y]);
+            newMatrix[x][y] = std::move(*FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, this->g_msize.x-1-x, y));
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
@@ -414,7 +414,7 @@ void Matrix<T>::flipVertically()
     {
         for (std::size_t y=0; y<this->g_msize.y; ++y)
         {
-            newMatrix[x][y] = std::move(reinterpret_cast<T(*)[this->g_msize.y]>(this->g_mdata.get())[x][this->g_msize.y-1-y]);
+            newMatrix[x][y] = std::move(*FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, x, this->g_msize.y-1-y));
         }
     }
     this->g_mdata = std::move(newMatrix.g_mdata);
