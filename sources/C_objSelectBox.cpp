@@ -44,25 +44,25 @@ ObjSelectBox::ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos) :
     this->setPosition(pos);
 }
 
-std::vector<sf::String>& ObjSelectBox::getTextList()
+std::vector<std::string>& ObjSelectBox::getTextList()
 {
     return this->g_textList;
 }
-const std::vector<sf::String>& ObjSelectBox::getTextList() const
+const std::vector<std::string>& ObjSelectBox::getTextList() const
 {
     return this->g_textList;
 }
 
-void ObjSelectBox::setSelectedText(const sf::String& string)
+void ObjSelectBox::setSelectedText(std::string string)
 {
-    this->g_textSelected = string;
+    this->g_textSelected = std::move(string);
 }
-const sf::String& ObjSelectBox::getSelectedText() const
+const std::string& ObjSelectBox::getSelectedText() const
 {
     return this->g_textSelected;
 }
 
-void ObjSelectBox::setCharacterSize(unsigned int size)
+void ObjSelectBox::setCharacterSize(fge::ObjText::CharacterSize size)
 {
     this->g_text.setCharacterSize(size);
 }
@@ -100,7 +100,7 @@ void ObjSelectBox::setTextColor(const sf::Color& color)
     this->g_text.setFillColor(color);
 }
 
-unsigned int ObjSelectBox::getCharacterSize() const
+fge::ObjText::CharacterSize ObjSelectBox::getCharacterSize() const
 {
     return this->g_text.getCharacterSize();
 }
@@ -208,8 +208,7 @@ void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["colorBoxOutline"] = this->g_colorBoxOutline.toInteger();
     jsonObject["colorText"] = this->g_colorText.toInteger();
 
-    std::basic_string<uint32_t> tmpString = this->g_textSelected.toUtf32();
-    jsonObject["textSelected"] = tmpString;
+    jsonObject["textSelected"] = this->g_textSelected;
     jsonObject["texts"] = this->g_textList;
 
     jsonObject["characterSize"] = this->g_text.getCharacterSize();
@@ -232,16 +231,10 @@ void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_text.setFillColor(this->g_colorText);
 
-    std::basic_string<uint32_t> tmpString = jsonObject.value<std::basic_string<uint32_t> >("textSelected", std::basic_string<uint32_t>());
-    this->g_textSelected = tmpString;
-    std::vector<std::string> tmpStrings = jsonObject.value<std::vector<std::string> >("texts", std::vector<std::string>());
-    this->g_textList.clear();
-    for (std::size_t i=0; i<tmpStrings.size(); ++i)
-    {
-        this->g_textList.push_back(tmpStrings[i]);
-    }
+    this->g_textSelected = jsonObject.value<std::string>("textSelected", {});
+    this->g_textList = jsonObject.value<std::vector<std::string> >("texts", std::vector<std::string>{});
 
-    unsigned int charSize = jsonObject.value<uint32_t>("characterSize", 12);
+    fge::ObjText::CharacterSize charSize = jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12);
     this->g_text.setCharacterSize(charSize);
     this->g_text.setFont( jsonObject.value<std::string>("font", FGE_FONT_BAD) );
 
@@ -261,7 +254,7 @@ void ObjSelectBox::pack(fge::net::Packet& pck)
 
     pck << this->g_textSelected;
 
-    pck << static_cast<uint16_t>(this->g_text.getCharacterSize()) << this->g_text.getFont();
+    pck << this->g_text.getCharacterSize() << this->g_text.getFont();
     pck << this->g_textList;
 
     pck << this->g_boxSize;
@@ -279,7 +272,8 @@ void ObjSelectBox::unpack(fge::net::Packet& pck)
 
     pck >> this->g_textSelected;
 
-    uint16_t tmpCharSize=12; fge::Font tmpFont;
+    fge::ObjText::CharacterSize tmpCharSize=12;
+    fge::Font tmpFont;
     pck >> tmpCharSize >> tmpFont;
 
     this->g_text.setCharacterSize(tmpCharSize);
