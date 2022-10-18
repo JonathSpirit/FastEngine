@@ -218,6 +218,7 @@ int main()
 
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/FastEngine", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/json.hpp", FARCH_ALL, FBUILD_ALL);
+    installFiles.emplace_back(false, FTYPE_HEADER, "includes/tinyutf8.h", FARCH_ALL, FBUILD_ALL);
 
     installFiles.emplace_back(false, FTYPE_FILE, "logo.png", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_FILE, "fge_changelog.txt", FARCH_ALL, FBUILD_ALL);
