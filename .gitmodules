@@ -36,8 +36,4 @@
     url = https://gitlab.freedesktop.org/freetype/freetype.git
     ignore = dirty
     branch = VER-2-12-1
-[submodule "libs/utfcpp"]
-    path = libs/utfcpp
-    url = https://github.com/nemtrif/utfcpp.git
-    ignore = dirty
-    branch = v3.2.1
+
