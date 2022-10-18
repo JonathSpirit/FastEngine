@@ -74,3 +74,19 @@ inline void from_json(const nlohmann::json& j, sf::Color& p)
 }
 
 }//end sf
+
+namespace tiny_utf8
+{
+
+inline void to_json(nlohmann::json& j, const tiny_utf8::string& p)
+{
+    j = p.c_str();
+}
+inline void from_json(const nlohmann::json& j, tiny_utf8::string& p)
+{
+    std::string str;
+    j.get_to(str);
+    p = tiny_utf8::string{std::move(str)};
+}
+
+}//end tiny_utf8
