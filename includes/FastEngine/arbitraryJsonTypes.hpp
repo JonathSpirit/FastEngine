@@ -19,6 +19,7 @@
 
 #include <SFML/System.hpp>
 #include <json.hpp>
+#include <tinyutf8.h>
 
 namespace sf
 {
@@ -42,6 +43,14 @@ inline void to_json(nlohmann::json& j, const sf::Color& p);
 inline void from_json(const nlohmann::json& j, sf::Color& p);
 
 }//end sc
+
+namespace tiny_utf8
+{
+
+inline void to_json(nlohmann::json& j, const tiny_utf8::string& p);
+inline void from_json(const nlohmann::json& j, tiny_utf8::string& p);
+
+}//end tiny_utf8
 
 #include <FastEngine/arbitraryJsonTypes.inl>
 

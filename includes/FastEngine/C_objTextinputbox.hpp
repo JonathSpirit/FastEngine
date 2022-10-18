@@ -35,8 +35,8 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
-    void setString(const sf::String& string);
-    void setCharacterSize(unsigned int size);
+    void setString(tiny_utf8::string string);
+    void setCharacterSize(fge::ObjText::CharacterSize size);
     void setHideTextFlag(bool flag);
     void setMaxLength(uint16_t length);
 
@@ -49,8 +49,8 @@ public:
     void setBoxOutlineColor(const sf::Color& color);
     void setTextColor(const sf::Color& color);
 
-    const sf::String& getString() const;
-    unsigned int getCharacterSize() const;
+    const tiny_utf8::string& getString() const;
+    fge::ObjText::CharacterSize getCharacterSize() const;
     bool isTextHide() const;
     uint16_t getMaxLength() const;
 
@@ -85,7 +85,7 @@ private:
     sf::Color g_colorBoxOutline = sf::Color::Black;
     sf::Color g_colorText = sf::Color::Black;
 
-    sf::String g_string;
+    tiny_utf8::string g_string;
     mutable fge::ObjText g_text;
     mutable sf::RectangleShape g_box;
 

@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/extra_string.hpp"
-
 #include "FastEngine/C_property.hpp"
 
 #ifdef __GNUC__
@@ -36,16 +35,49 @@
 #include <fmt/compile.h>
 #include <fmt/format.h>
 
-#include <utf8.h>
-
-namespace fge
-{
-namespace string
+namespace fge::string
 {
 
 bool IsValidUtf8String(const std::string& str)
 {
-    return utf8::is_valid(str);
+    uint8_t requiredBytes{0};
+
+    for (char c : str)
+    {
+        if ((c & 0xC0) == 0x80)
+        {//Multibyte
+            if (requiredBytes == 0)
+            {//No start sequence
+                return false;
+            }
+            --requiredBytes;
+        }
+        else if ((c & 0xF1) == 0xF0)
+        {
+            if (requiredBytes != 0)
+            {//Invalid sequence
+                return false;
+            }
+            requiredBytes = 3;
+        }
+        else if ((c & 0xF0) == 0xE0)
+        {
+            if (requiredBytes != 0)
+            {//Invalid sequence
+                return false;
+            }
+            requiredBytes = 2;
+        }
+        else if ((c & 0xE0) == 0xC0)
+        {
+            if (requiredBytes != 0)
+            {//Invalid sequence
+                return false;
+            }
+            requiredBytes = 1;
+        }
+    }
+    return requiredBytes == 0;
 }
 
 uint8_t ToUint8(const std::string& str)
@@ -364,5 +396,4 @@ std::size_t Split(const std::string& str, std::vector<std::string>& output, char
     return output.size();
 }
 
-}//end string
-}//end fge
+}//end fge::string

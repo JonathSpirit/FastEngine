@@ -392,6 +392,13 @@ fge::net::Packet& Packet::operator <<(const std::string& data)
     this->pack(&length, sizeof(length));
     return this->append(data.data(), sizeof(std::string::value_type) * length);
 }
+fge::net::Packet& Packet::operator <<(const tiny_utf8::string& data)
+{
+    fge::net::SizeType length = static_cast<fge::net::SizeType>( data.size() );
+
+    this->pack(&length, sizeof(length));
+    return this->append(data.data(), sizeof(tiny_utf8::string::data_type) * length);
+}
 fge::net::Packet& Packet::operator <<(const wchar_t* data)
 {
     fge::net::SizeType length = static_cast<fge::net::SizeType>( std::wcslen(data) );
@@ -456,6 +463,31 @@ const fge::net::Packet& Packet::operator >>(char* data) const
     return *this;
 }
 const fge::net::Packet& Packet::operator >>(std::string& data) const
+{
+    fge::net::SizeType length = 0;
+    this->unpack(&length, sizeof(length));
+
+    if (length > 0)
+    {
+        if ((this->_g_readPos + length - 1) < this->_g_data.size())
+        {
+            data.clear();
+            data.assign(reinterpret_cast<const char*>(&this->_g_data[this->_g_readPos]), length);
+
+            this->_g_readPos += length;
+        }
+        else
+        {
+            this->_g_valid = false;
+        }
+    }
+    else
+    {
+        data.clear();
+    }
+    return *this;
+}
+const fge::net::Packet& Packet::operator >>(tiny_utf8::string& data) const
 {
     fge::net::SizeType length = 0;
     this->unpack(&length, sizeof(length));

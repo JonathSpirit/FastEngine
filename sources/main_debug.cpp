@@ -393,7 +393,7 @@ public:
         buffText->setPosition(10, 300);
         buffText->_tags.add("info");
         buffText->setFillColor(sf::Color::Black);
-        buffText->setUtf8String("This is a simple text with utf8 char lik é¨àöüöüäà");
+        buffText->setString("This is a simple text with utf8 char lik é¨àöüöüäà");
         this->newObject(FGE_NEWOBJECT_PTR(buffText), FGE_SCENE_PLAN_MIDDLE);
 
         buffAnimation = new fge::ObjAnimation(fge::Animation("animationSimple1", "just_a_test"));
