@@ -16,6 +16,7 @@
 
 #include "FastEngine/C_objSelectBox.hpp"
 #include <FastEngine/extra_function.hpp>
+#include <FastEngine/arbitraryJsonTypes.hpp>
 
 namespace fge
 {
@@ -44,20 +45,20 @@ ObjSelectBox::ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos) :
     this->setPosition(pos);
 }
 
-std::vector<std::string>& ObjSelectBox::getTextList()
+std::vector<tiny_utf8::string>& ObjSelectBox::getTextList()
 {
     return this->g_textList;
 }
-const std::vector<std::string>& ObjSelectBox::getTextList() const
+const std::vector<tiny_utf8::string>& ObjSelectBox::getTextList() const
 {
     return this->g_textList;
 }
 
-void ObjSelectBox::setSelectedText(std::string string)
+void ObjSelectBox::setSelectedText(tiny_utf8::string string)
 {
     this->g_textSelected = std::move(string);
 }
-const std::string& ObjSelectBox::getSelectedText() const
+const tiny_utf8::string& ObjSelectBox::getSelectedText() const
 {
     return this->g_textSelected;
 }
@@ -231,12 +232,11 @@ void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_text.setFillColor(this->g_colorText);
 
-    this->g_textSelected = jsonObject.value<std::string>("textSelected", {});
-    this->g_textList = jsonObject.value<std::vector<std::string> >("texts", std::vector<std::string>{});
+    this->g_textSelected = jsonObject.value<tiny_utf8::string>("textSelected", {});
+    this->g_textList = jsonObject.value<std::vector<tiny_utf8::string> >("texts", std::vector<tiny_utf8::string>{});
 
-    fge::ObjText::CharacterSize charSize = jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12);
-    this->g_text.setCharacterSize(charSize);
-    this->g_text.setFont( jsonObject.value<std::string>("font", FGE_FONT_BAD) );
+    this->g_text.setCharacterSize(jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12));
+    this->g_text.setFont( jsonObject.value<fge::Font>("font", FGE_FONT_BAD) );
 
     this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);
     this->g_boxSize.y = jsonObject.value<float>("boxSizeY", 18);

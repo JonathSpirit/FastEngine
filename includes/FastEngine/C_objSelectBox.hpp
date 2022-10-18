@@ -37,11 +37,11 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSelectBox)
 
-    std::vector<std::string>& getTextList();
-    const std::vector<std::string>& getTextList() const;
+    std::vector<tiny_utf8::string>& getTextList();
+    const std::vector<tiny_utf8::string>& getTextList() const;
 
-    void setSelectedText(std::string string);
-    const std::string& getSelectedText() const;
+    void setSelectedText(tiny_utf8::string string);
+    const tiny_utf8::string& getSelectedText() const;
 
     void setCharacterSize(fge::ObjText::CharacterSize size);
 
@@ -83,9 +83,9 @@ private:
     sf::Color g_colorBoxOutline = sf::Color::Black;
     sf::Color g_colorText = sf::Color::Black;
 
-    std::vector<std::string> g_textList;
-    std::string g_textSelected;
-    std::string* g_textCursor;
+    std::vector<tiny_utf8::string> g_textList;
+    tiny_utf8::string g_textSelected;
+    tiny_utf8::string* g_textCursor;
 
     mutable fge::ObjText g_text;
     mutable sf::RectangleShape g_box;

@@ -20,6 +20,7 @@
 
 #include "FastEngine/C_objText.hpp"
 #include "FastEngine/font_manager.hpp"
+#include "FastEngine/arbitraryJsonTypes.hpp"
 
 namespace fge
 {
@@ -349,9 +350,8 @@ void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene)
     fge::Object::save(jsonObject, scene);
 
     jsonObject["string"] = this->g_string;
-
     jsonObject["font"] = this->g_font;
-    jsonObject["characterSize"] = static_cast<uint16_t>(this->g_characterSize);
+    jsonObject["characterSize"] = this->g_characterSize;
     jsonObject["letterSpacing"] = this->g_letterSpacingFactor;
     jsonObject["lineSpacing"] = this->g_lineSpacingFactor;
     jsonObject["style"] = static_cast<std::underlying_type<Style>::type >(this->g_style);
@@ -363,9 +363,9 @@ void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->g_string = jsonObject.value<std::string>("string", {});
-    this->g_font = jsonObject.value<std::string>("font", FGE_FONT_BAD);
-    this->g_characterSize = jsonObject.value<uint16_t>("characterSize", 30);
+    this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
+    this->g_font = jsonObject.value<fge::Font>("font", FGE_FONT_BAD);
+    this->g_characterSize = jsonObject.value<CharacterSize>("characterSize", 30);
     this->g_letterSpacingFactor = jsonObject.value<float>("letterSpacing", 1.0f);
     this->g_lineSpacingFactor = jsonObject.value<float>("lineSpacing", 1.0f);
     this->g_style = jsonObject.value<std::underlying_type<Style>::type >("style", Regular);
