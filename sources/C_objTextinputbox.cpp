@@ -16,6 +16,7 @@
 
 #include "FastEngine/C_objTextinputbox.hpp"
 #include <FastEngine/extra_function.hpp>
+#include <FastEngine/arbitraryJsonTypes.hpp>
 
 namespace fge
 {
@@ -45,9 +46,9 @@ ObjTextInputBox::ObjTextInputBox(const fge::Font& font, uint16_t maxLength, cons
     this->setPosition(pos);
 }
 
-void ObjTextInputBox::setString(const sf::String& string)
+void ObjTextInputBox::setString(tiny_utf8::string string)
 {
-    this->g_string = string;
+    this->g_string = std::move(string);
 }
 void ObjTextInputBox::setCharacterSize(fge::ObjText::CharacterSize size)
 {
@@ -95,7 +96,7 @@ void ObjTextInputBox::setTextColor(const sf::Color& color)
     this->g_text.setFillColor(color);
 }
 
-const sf::String& ObjTextInputBox::getString() const
+const tiny_utf8::string& ObjTextInputBox::getString() const
 {
     return this->g_string;
 }
@@ -170,14 +171,14 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
             }
             if ( event.isKeyPressed(sf::Keyboard::Right) )
             {
-                this->g_cursor = (this->g_cursor < this->g_string.getSize()) ? (this->g_cursor+1) : this->g_string.getSize();
+                this->g_cursor = (this->g_cursor < this->g_string.length()) ? (this->g_cursor+1) : this->g_string.length();
                 return;
             }
 
             //BackSpace
             if (key == 8)
             {
-                if ( this->g_string.getSize() && this->g_cursor )
+                if ( this->g_string.length()>0 && this->g_cursor>0 )
                 {
                     this->g_string.erase(this->g_cursor-1);
                     --this->g_cursor;
@@ -187,7 +188,7 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
             //Delete
             if ( event.isKeyPressed(sf::Keyboard::Key::Delete) )
             {
-                if ( this->g_cursor < this->g_string.getSize() )
+                if ( this->g_cursor < this->g_string.length() )
                 {
                     this->g_string.erase(this->g_cursor);
                 }
@@ -201,9 +202,9 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
             }
 
             //Insert Unicode char
-            if ( this->g_string.getSize() < this->g_maxLength )
+            if ( this->g_string.length() < this->g_maxLength )
             {
-                if (this->g_cursor >= this->g_string.getSize())
+                if (this->g_cursor >= this->g_string.length())
                 {
                     this->g_string += key;
                 }
@@ -221,11 +222,11 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 {
-    sf::String tmpString;
+    tiny_utf8::string tmpString;
 
     if ( this->g_hide )
     {
-        tmpString = std::string(this->g_string.getSize(), '*');
+        tmpString.assign(this->g_string.length(), '*');
     }
     else
     {
@@ -234,7 +235,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 
     if ( this->g_statActive )
     {
-        if (this->g_cursor >= this->g_string.getSize())
+        if (this->g_cursor >= this->g_string.length())
         {
             tmpString += '|';
         }
@@ -244,7 +245,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
         }
     }
 
-    this->g_text.setString(tmpString.operator std::string());
+    this->g_text.setString(tmpString);
 
     this->g_box.setFillColor( this->g_statActive ? (this->g_colorBox - sf::Color(50,50,50,0)) : this->g_colorBox );
 
@@ -266,8 +267,7 @@ void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["colorBoxOutline"] = this->g_colorBoxOutline.toInteger();
     jsonObject["colorText"] = this->g_colorText.toInteger();
 
-    std::basic_string<uint32_t> tmpString = this->g_string.toUtf32();
-    jsonObject["string"] = tmpString;
+    jsonObject["string"] = this->g_string;
 
     jsonObject["characterSize"] = this->g_text.getCharacterSize();
     jsonObject["font"] = this->g_text.getFont();
@@ -292,8 +292,7 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_text.setFillColor(this->g_colorText);
 
-    std::basic_string<uint32_t> tmpString = jsonObject.value<std::basic_string<uint32_t> >("string", std::basic_string<uint32_t>());
-    this->g_string = tmpString;
+    this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
 
     this->g_text.setCharacterSize(jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12));
     this->g_text.setFont( jsonObject.value<std::string>("font", FGE_FONT_BAD) );
@@ -315,7 +314,7 @@ void ObjTextInputBox::pack(fge::net::Packet& pck)
 
     pck << this->g_string;
 
-    pck << static_cast<uint16_t>(this->g_text.getCharacterSize()) << this->g_text.getFont();
+    pck << this->g_text.getCharacterSize() << this->g_text.getFont();
 
     pck << this->g_boxSize;
 
@@ -334,7 +333,8 @@ void ObjTextInputBox::unpack(fge::net::Packet& pck)
 
     pck >> this->g_string;
 
-    uint16_t tmpCharSize=12; fge::Font tmpFont;
+    fge::ObjText::CharacterSize tmpCharSize=12;
+    fge::Font tmpFont;
     pck >> tmpCharSize >> tmpFont;
     this->g_text.setCharacterSize(tmpCharSize);
     this->g_text.setFont(tmpFont);
