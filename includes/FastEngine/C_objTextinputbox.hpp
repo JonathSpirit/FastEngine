@@ -36,7 +36,7 @@ public:
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
     void setString(const sf::String& string);
-    void setCharacterSize(unsigned int size);
+    void setCharacterSize(fge::ObjText::CharacterSize size);
     void setHideTextFlag(bool flag);
     void setMaxLength(uint16_t length);
 
@@ -50,7 +50,7 @@ public:
     void setTextColor(const sf::Color& color);
 
     const sf::String& getString() const;
-    unsigned int getCharacterSize() const;
+    fge::ObjText::CharacterSize getCharacterSize() const;
     bool isTextHide() const;
     uint16_t getMaxLength() const;
 

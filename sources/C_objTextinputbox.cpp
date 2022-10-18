@@ -49,7 +49,7 @@ void ObjTextInputBox::setString(const sf::String& string)
 {
     this->g_string = string;
 }
-void ObjTextInputBox::setCharacterSize(unsigned int size)
+void ObjTextInputBox::setCharacterSize(fge::ObjText::CharacterSize size)
 {
     this->g_text.setCharacterSize(size);
 }
@@ -99,7 +99,7 @@ const sf::String& ObjTextInputBox::getString() const
 {
     return this->g_string;
 }
-unsigned int ObjTextInputBox::getCharacterSize() const
+fge::ObjText::CharacterSize ObjTextInputBox::getCharacterSize() const
 {
     return this->g_text.getCharacterSize();
 }
@@ -244,7 +244,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
         }
     }
 
-    this->g_text.setUtf8String( tmpString );
+    this->g_text.setString(tmpString.operator std::string());
 
     this->g_box.setFillColor( this->g_statActive ? (this->g_colorBox - sf::Color(50,50,50,0)) : this->g_colorBox );
 
@@ -295,8 +295,7 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     std::basic_string<uint32_t> tmpString = jsonObject.value<std::basic_string<uint32_t> >("string", std::basic_string<uint32_t>());
     this->g_string = tmpString;
 
-    unsigned int charSize = jsonObject.value<uint32_t>("characterSize", 12);
-    this->g_text.setCharacterSize(charSize);
+    this->g_text.setCharacterSize(jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12));
     this->g_text.setFont( jsonObject.value<std::string>("font", FGE_FONT_BAD) );
 
     this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);

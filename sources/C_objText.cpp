@@ -20,7 +20,6 @@
 
 #include "FastEngine/C_objText.hpp"
 #include "FastEngine/font_manager.hpp"
-#include <utf8.h>
 
 namespace fge
 {
@@ -132,12 +131,12 @@ uint32_t Character::getUnicode() const
 
 //ObjText
 
-ObjText::ObjText(const std::string& string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+ObjText::ObjText(tiny_utf8::string string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
     g_font(font),
     g_characterSize(characterSize),
     g_geometryNeedUpdate(true)
 {
-    this->setUtf8String(string);
+    this->setString(std::move(string));
     this->setPosition(position);
 }
 ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
@@ -156,27 +155,12 @@ const fge::Font& ObjText::getFont() const
     return this->g_font;
 }
 
-void ObjText::setUtf8String(const std::string& string)
+void ObjText::setString(tiny_utf8::string string)
 {
-    auto endIt = utf8::find_invalid(string.begin(), string.end());
-
-    if (endIt != string.end())
+    if (this->g_string != string)
     {
-        std::string validString{string.begin(), endIt};
-
-        if (this->g_utf8String != validString)
-        {
-            this->g_utf8String = std::move(validString);
-            this->g_geometryNeedUpdate = true;
-        }
-    }
-    else
-    {
-        if (this->g_utf8String != string)
-        {
-            this->g_utf8String = string;
-            this->g_geometryNeedUpdate = true;
-        }
+        this->g_string = std::move(string);
+        this->g_geometryNeedUpdate = true;
     }
 }
 
@@ -259,9 +243,9 @@ void ObjText::setOutlineThickness(float thickness)
     }
 }
 
-const std::string& ObjText::getUtf8String() const
+const tiny_utf8::string& ObjText::getString() const
 {
-    return this->g_utf8String;
+    return this->g_string;
 }
 
 fge::ObjText::CharacterSize ObjText::getCharacterSize() const
@@ -364,7 +348,7 @@ void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::save(jsonObject, scene);
 
-    jsonObject["string"] = this->g_utf8String;
+    jsonObject["string"] = this->g_string;
 
     jsonObject["font"] = this->g_font;
     jsonObject["characterSize"] = static_cast<uint16_t>(this->g_characterSize);
@@ -379,18 +363,7 @@ void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    std::string string = jsonObject.value<std::string>("string", {});
-
-    auto endIt = utf8::find_invalid(string.begin(), string.end());
-    if (endIt != string.end())
-    {
-        this->g_utf8String.assign(string.begin(), endIt);
-    }
-    else
-    {
-        this->g_utf8String = std::move(string);
-    }
-
+    this->g_string = jsonObject.value<std::string>("string", {});
     this->g_font = jsonObject.value<std::string>("font", FGE_FONT_BAD);
     this->g_characterSize = jsonObject.value<uint16_t>("characterSize", 30);
     this->g_letterSpacingFactor = jsonObject.value<float>("letterSpacing", 1.0f);
@@ -407,7 +380,7 @@ void ObjText::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
-    pck << this->g_utf8String;
+    pck << this->g_string;
     pck << this->g_font;
     pck << this->g_characterSize;
     pck << this->g_letterSpacingFactor << this->g_lineSpacingFactor;
@@ -419,20 +392,7 @@ void ObjText::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
-    std::string string;
-    pck >> string;
-
-    auto endIt = utf8::find_invalid(string.begin(), string.end());
-    if (endIt != string.end())
-    {
-        this->g_utf8String.clear();
-        this->g_utf8String.append(string.begin(), endIt);
-    }
-    else
-    {
-        this->g_utf8String = std::move(string);
-    }
-
+    pck >> this->g_string;
     pck >> this->g_font;
     pck >> this->g_characterSize;
     pck >> this->g_letterSpacingFactor >> this->g_lineSpacingFactor;
@@ -488,7 +448,7 @@ void ObjText::ensureGeometryUpdate() const
     this->g_bounds = sf::FloatRect();
 
     // No text: nothing to draw
-    if (this->g_utf8String.empty())
+    if (this->g_string.empty())
     {
         return;
     }
@@ -522,9 +482,9 @@ void ObjText::ensureGeometryUpdate() const
     float maxY = 0.f;
 
     uint32_t prevChar = 0;
-    for (auto it = this->g_utf8String.begin(); it!=this->g_utf8String.end();)
+    for (auto it = this->g_string.begin(); it != this->g_string.end(); ++it)
     {
-        uint32_t curChar = utf8::next(it, this->g_utf8String.end());
+        uint32_t curChar = static_cast<uint32_t>(*it);
 
         // Skip the \r char to avoid weird graphical issues
         if (curChar == U'\r')

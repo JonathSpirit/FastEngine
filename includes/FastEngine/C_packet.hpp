@@ -33,6 +33,7 @@
 #include <forward_list>
 #include <cstdint>
 #include <stdexcept>
+#include <tinyutf8.h>
 
 #include <SFML/System/String.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -117,6 +118,7 @@ public:
     fge::net::Packet& operator <<(const std::string_view& data);
     fge::net::Packet& operator <<(const char* data);
     fge::net::Packet& operator <<(const std::string& data);
+    fge::net::Packet& operator <<(const tiny_utf8::string& data);
     fge::net::Packet& operator <<(const wchar_t* data);
     fge::net::Packet& operator <<(const std::wstring& data);
     fge::net::Packet& operator <<(const sf::String& data);
@@ -160,6 +162,7 @@ public:
 
     const fge::net::Packet& operator >>(char* data) const;
     const fge::net::Packet& operator >>(std::string& data) const;
+    const fge::net::Packet& operator >>(tiny_utf8::string& data) const;
     const fge::net::Packet& operator >>(wchar_t* data) const;
     const fge::net::Packet& operator >>(std::wstring& data) const;
     const fge::net::Packet& operator >>(sf::String& data) const;
