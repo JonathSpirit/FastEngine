@@ -205,8 +205,8 @@ target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 
 #Compile options
-target_compile_options(${FGE_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra -Wshadow)
-target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra -Wshadow)
+target_compile_options(${FGE_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
+target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
 
 #Definition
 target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
