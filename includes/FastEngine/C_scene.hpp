@@ -20,7 +20,7 @@
 #include <FastEngine/fastengine_extern.hpp>
 
 #include <SFML/Graphics.hpp>
-#include <FastEngine/C_object.hpp>
+#include "FastEngine/object/C_object.hpp"
 #include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_commandHandler.hpp>
 #include <FastEngine/C_callback.hpp>

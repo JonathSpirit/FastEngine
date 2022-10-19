@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/C_networkType.hpp"
-#include "FastEngine/network_manager.hpp"
+#include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_tagList.hpp"
 

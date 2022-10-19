@@ -19,16 +19,16 @@
 
 #include <FastEngine/fastengine_version.hpp>
 
-#include <FastEngine/texture_manager.hpp>
-#include <FastEngine/font_manager.hpp>
-#include <FastEngine/log_manager.hpp>
-#include <FastEngine/audio_manager.hpp>
-#include <FastEngine/timer_manager.hpp>
+#include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/manager/font_manager.hpp"
+#include "FastEngine/manager/log_manager.hpp"
+#include "FastEngine/manager/audio_manager.hpp"
+#include "FastEngine/manager/timer_manager.hpp"
 
-#include <FastEngine/extra_function.hpp>
+#include "FastEngine/extra/extra_function.hpp"
 #include <FastEngine/C_random.hpp>
-#include <FastEngine/extra_objectclass.hpp>
-#include <FastEngine/extra_string.hpp>
+#include "FastEngine/extra/extra_objectclass.hpp"
+#include "FastEngine/extra/extra_string.hpp"
 
 #include <FastEngine/C_scene.hpp>
 

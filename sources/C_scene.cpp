@@ -16,9 +16,9 @@
 
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/C_random.hpp"
-#include "FastEngine/reg_manager.hpp"
-#include "FastEngine/network_manager.hpp"
-#include "FastEngine/extra_function.hpp"
+#include "FastEngine/manager/reg_manager.hpp"
+#include "FastEngine/manager/network_manager.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_guiElement.hpp"
 

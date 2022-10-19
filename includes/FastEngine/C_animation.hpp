@@ -18,7 +18,7 @@
 #define _FGE_C_ANIMATION_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/anim_manager.hpp>
+#include "FastEngine/manager/anim_manager.hpp"
 
 namespace fge
 {

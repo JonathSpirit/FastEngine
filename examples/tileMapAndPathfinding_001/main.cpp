@@ -1,10 +1,10 @@
 #include <FastEngine/C_scene.hpp>
-#include <FastEngine/extra_pathFinding.hpp>
-#include <FastEngine/extra_function.hpp>
-#include <FastEngine/texture_manager.hpp>
+#include "FastEngine/extra/extra_pathFinding.hpp"
+#include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
 #include <FastEngine/C_clock.hpp>
-#include <FastEngine/C_objTilemap.hpp>
-#include <FastEngine/C_objText.hpp>
+#include "FastEngine/object/C_objTilemap.hpp"
+#include "FastEngine/object/C_objText.hpp"
 
 //Create a pathFinder class object
 class PathFinder : public fge::Object

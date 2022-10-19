@@ -18,7 +18,7 @@
 #define _FGE_C_FONT_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/font_manager.hpp>
+#include "FastEngine/manager/font_manager.hpp"
 #include <json.hpp>
 
 namespace fge

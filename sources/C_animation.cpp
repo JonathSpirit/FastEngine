@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/C_animation.hpp"
-#include "FastEngine/texture_manager.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
 
 namespace fge
 {
