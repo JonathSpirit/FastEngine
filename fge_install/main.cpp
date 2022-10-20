@@ -18,10 +18,13 @@
 #include <filesystem>
 #include <string>
 #include <fstream>
+#include <optional>
 #include <list>
 #include <utility>
+#include <unordered_set>
+#include "re2.h"
 
-enum InstallFileType
+enum InstallFileType : uint8_t
 {
     FTYPE_HEADER,
     FTYPE_DLL,
@@ -33,17 +36,51 @@ enum InstallFileType
     FTYPE_REQUIRE_LIB,
     FTYPE_REQUIRE_FILE
 };
-enum InstallFileArch
+enum InstallFileArch : uint8_t
 {
     FARCH_32,
     FARCH_64,
     FARCH_ALL
 };
-enum InstallFileBuild
+enum InstallFileBuild : uint8_t
 {
     FBUILD_DEBUG,
     FBUILD_RELEASE,
     FBUILD_ALL
+};
+
+std::optional<std::string> EnumToString(InstallFileArch e)
+{
+    switch (e)
+    {
+    case FARCH_32:
+        return "32";
+    case FARCH_64:
+        return "64";
+    case FARCH_ALL:
+        return "all";
+    }
+    return std::nullopt;
+}
+std::optional<std::string> EnumToString(InstallFileBuild e)
+{
+    switch (e)
+    {
+    case FBUILD_DEBUG:
+        return "debug";
+    case FBUILD_RELEASE:
+        return "release";
+    case FBUILD_ALL:
+        return "all";
+    }
+    return std::nullopt;
+}
+
+struct BuildDirectory
+{
+    std::filesystem::path _path;
+    InstallFileArch _arch;
+    InstallFileBuild _build;
 };
 
 struct InstallFile
@@ -56,22 +93,13 @@ struct InstallFile
             _build(build)
     {}
 
-    InstallFile(bool ignored, InstallFileType type, std::filesystem::path path, InstallFileArch arch, InstallFileBuild build, std::string&& name) :
+    InstallFile(bool ignored, InstallFileType type, std::filesystem::path path, InstallFileArch arch, InstallFileBuild build, std::string name) :
             _ignored(ignored),
             _type(type),
             _path(std::move(path)),
             _arch(arch),
             _build(build),
             _name(std::move(name))
-    {}
-
-    InstallFile() :
-        _ignored(true),
-        _type(),
-        _path(),
-        _arch(),
-        _build(),
-        _name()
     {}
 
     bool _ignored;
@@ -82,28 +110,135 @@ struct InstallFile
     std::string _name;
 };
 
-bool GetFGEversionName(std::string& name)
+std::optional<InstallFileBuild> FindBuildDirectoryBuildType(const std::filesystem::path& buildPath)
+{
+    RE2 re("libFastEngine(?:32|64)(_d)?\\.dll");
+    if (!re.ok())
+    {
+        throw std::runtime_error(re.error());
+    }
+
+    if ( std::filesystem::is_directory(buildPath) )
+    {
+        for (const auto& entry : std::filesystem::directory_iterator{buildPath})
+        {
+            if (entry.is_regular_file())
+            {
+                std::string buildType;
+                if ( RE2::FullMatch(entry.path().filename().string(), re, &buildType) )
+                {
+                    if (buildType == "_d")
+                    {
+                        return InstallFileBuild::FBUILD_DEBUG;
+                    }
+                    return InstallFileBuild::FBUILD_RELEASE;
+                }
+            }
+        }
+    }
+    return std::nullopt;
+}
+std::optional<InstallFileArch> FindBuildDirectoryArchitecture(const std::filesystem::path& buildPath)
+{
+    RE2 re("libFastEngine(32|64)(?:_d)?\\.dll");
+    if (!re.ok())
+    {
+        throw std::runtime_error(re.error());
+    }
+
+    if ( std::filesystem::is_directory(buildPath) )
+    {
+        for (const auto& entry : std::filesystem::directory_iterator{buildPath})
+        {
+            if (entry.is_regular_file())
+            {
+                std::string arch;
+                if ( RE2::FullMatch(entry.path().filename().string(), re, &arch) )
+                {
+                    if (arch == "32")
+                    {
+                        return InstallFileArch::FARCH_32;
+                    }
+                    return InstallFileArch::FARCH_64;
+                }
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+std::vector<BuildDirectory> GetPossibleBuildDirectory()
+{
+    RE2 reBuildDir(".*[bB]uild.*");
+    if (!reBuildDir.ok())
+    {
+        throw std::runtime_error(reBuildDir.error());
+    }
+
+    std::vector<BuildDirectory> results;
+    std::unordered_set<uint32_t> founded;
+
+    for (const auto& entry : std::filesystem::directory_iterator{"./"})
+    {
+        if (entry.is_directory() && RE2::FullMatch(entry.path().string(), reBuildDir))
+        {
+            BuildDirectory buildDirectory;
+            buildDirectory._path = entry.path();
+
+            std::cout << "["<<buildDirectory._path<<"]";
+
+            auto buildType = FindBuildDirectoryBuildType(buildDirectory._path);
+            auto arch = FindBuildDirectoryArchitecture(buildDirectory._path);
+
+            if (!buildType.has_value())
+            {
+                std::cout << " <- Can't find the build type !\n";
+                continue;
+            }
+            buildDirectory._build = buildType.value();
+            std::cout << "["<<EnumToString(buildDirectory._build).value_or("-")<<"]";
+            if (!arch.has_value())
+            {
+                std::cout << " <- Can't find the build architecture !\n";
+                continue;
+            }
+            buildDirectory._arch = arch.value();
+            std::cout << "["<<EnumToString(buildDirectory._arch).value_or("-")<<"]";
+
+            uint32_t key = static_cast<uint32_t>(buildDirectory._build) |
+                    (static_cast<uint32_t>(buildDirectory._arch)<<8);
+
+            if (!founded.insert(key).second)
+            {
+                std::cout << " <- Duplicate ! (ignoring)\n";
+                continue;
+            }
+            std::cout << '\n';
+            results.push_back(std::move(buildDirectory));
+        }
+    }
+    return results;
+}
+
+bool GetFastEngineVersionName(std::string& name)
 {
     std::ifstream versionFile{"includes/FastEngine/fastengine_version.hpp"};
 
     if (versionFile)
     {
+        RE2 re("FGE_VERSION_FULL_WITHTAG_STRING +\"([0-9.]+[-0-9.a-zA-Z]+)\"");
+        if (!re.ok())
+        {
+            throw std::runtime_error(re.error());
+        }
+
         std::string line;
         while ( getline(versionFile, line) )
         {
-            auto pos = line.find("FGE_VERSION_FULL_WITHTAG_STRING");
-            if ( pos != std::string::npos )
+            if ( RE2::PartialMatch(line, re, &name) )
             {
-                auto posQuote = line.find('\"');
-                auto posEndQuote = line.rfind('\"');
-                if ( posQuote != std::string::npos && posEndQuote != std::string::npos )
-                {
-                    if (posEndQuote-posQuote-1 >= 5)
-                    {
-                        name = "FastEngine_" + line.substr(posQuote+1, posEndQuote-posQuote-1);
-                        return true;
-                    }
-                }
+                name.insert(0, "FastEngine_");
+                return true;
             }
         }
     }
@@ -112,7 +247,24 @@ bool GetFGEversionName(std::string& name)
 
 int main()
 {
-    std::cout << "Installing fastengine project ..." << std::endl;
+    std::cout << "Computing FGE directory name ..." << std::endl;
+    std::string fgeName;
+    if ( !GetFastEngineVersionName(fgeName) )
+    {
+        std::cout << "Can't get the FastEngine version name in \"includes/FastEngine/fastengine_version.hpp\"" << std::endl;
+        return -1;
+    }
+    std::cout << "Name : \""<< fgeName <<"\"" << std::endl;
+
+    std::cout << "Computing possible build directories ..." << std::endl;
+    auto fgeBuildDir = GetPossibleBuildDirectory();
+    if ( fgeBuildDir.empty() )
+    {
+        std::cout << "No build directories founded, nothing to install !" << std::endl;
+        return -1;
+    }
+
+    std::cout << "Installing FastEngine project ..." << std::endl;
 
     std::cout << "Where do you want to install it ?" << std::endl << ">";
 
@@ -125,15 +277,6 @@ int main()
         std::cout << "Invalid path !" << std::endl;
         return -1;
     }
-
-    std::cout << "Computing FGE directory name ..." << std::endl;
-    std::string fgeName;
-    if ( !GetFGEversionName(fgeName) )
-    {
-        std::cout << "Can't get the fastengine version name in \"includes/FastEngine/fastengine_version.hpp\"" << std::endl;
-        return -1;
-    }
-    std::cout << "Name : \""<< fgeName <<"\"" << std::endl;
 
     installPath /= fgeName+"/";
 
@@ -177,42 +320,32 @@ int main()
     std::list<InstallFile> installFiles;
 
 #ifdef __linux__
-    std::filesystem::path pathBuild32DebugDir = "cmake-build-debug32linux/";
-    std::filesystem::path pathBuild32ReleaseDir = "cmake-build-release32linux/";
-    std::filesystem::path pathBuild64DebugDir = "cmake-build-debug64linux/";
-    std::filesystem::path pathBuild64ReleaseDir = "cmake-build-release64linux/";
-
     std::filesystem::path pathLibExtension = ".so";
     std::filesystem::path pathSfmlLibExtension = ".so";
 #else
-    std::filesystem::path pathBuild32DebugDir = "cmake-build-debug32/";
-    std::filesystem::path pathBuild32ReleaseDir = "cmake-build-release32/";
-    std::filesystem::path pathBuild64DebugDir = "cmake-build-debug64/";
-    std::filesystem::path pathBuild64ReleaseDir = "cmake-build-release64/";
-
     std::filesystem::path pathLibExtension = ".dll.a";
     std::filesystem::path pathSfmlLibExtension = ".a";
 #endif //__linux__
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32DebugDir/"libFastEngine32_d.dll", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64DebugDir/"libFastEngine64_d.dll", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32DebugDir/"libFastEngineServer32_d.dll", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64DebugDir/"libFastEngineServer64_d.dll", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32ReleaseDir/"libFastEngine32.dll", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64ReleaseDir/"libFastEngine64.dll", FARCH_64, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild32ReleaseDir/"libFastEngineServer32.dll", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, pathBuild64ReleaseDir/"libFastEngineServer64.dll", FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine32_d.dll", FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine64_d.dll", FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer32_d.dll", FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer64_d.dll", FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine32.dll", FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine64.dll", FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer32.dll", FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer64.dll", FARCH_64, FBUILD_RELEASE);
 #endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32DebugDir/"libFastEngine32_d"+=pathLibExtension, FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64DebugDir/"libFastEngine64_d"+=pathLibExtension, FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32DebugDir/"libFastEngineServer32_d"+=pathLibExtension, FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64DebugDir/"libFastEngineServer64_d"+=pathLibExtension, FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32ReleaseDir/"libFastEngine32"+=pathLibExtension, FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64ReleaseDir/"libFastEngine64"+=pathLibExtension, FARCH_64, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild32ReleaseDir/"libFastEngineServer32"+=pathLibExtension, FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, pathBuild64ReleaseDir/"libFastEngineServer64"+=pathLibExtension, FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngine32_d")+=pathLibExtension, FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngine64_d")+=pathLibExtension, FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngineServer32_d")+=pathLibExtension, FARCH_32, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngineServer64_d")+=pathLibExtension, FARCH_64, FBUILD_DEBUG);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngine32")+=pathLibExtension, FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngine64")+=pathLibExtension, FARCH_64, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngineServer32")+=pathLibExtension, FARCH_32, FBUILD_RELEASE);
+    installFiles.emplace_back(false, FTYPE_LIB, std::filesystem::path("libFastEngineServer64")+=pathLibExtension, FARCH_64, FBUILD_RELEASE);
 
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/FastEngine", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_HEADER, "includes/json.hpp", FARCH_ALL, FBUILD_ALL);
@@ -225,66 +358,66 @@ int main()
 
     //sfml
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-system-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32DebugDir/"libs/SFML/lib/sfml-window-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
 #endif //_WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-audio-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-graphics-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-system-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-window-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-audio-d")+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-graphics-d")+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-system-d")+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-window-d")+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32DebugDir/"libs/SFML/lib/libsfml-main-d"+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
-#endif //_WIN32
-
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-audio-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-system-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64DebugDir/"libs/SFML/lib/sfml-window-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-#endif //_WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-audio-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-graphics-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-system-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-window-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64DebugDir/"libs/SFML/lib/libsfml-main-d"+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-main-d")+=pathSfmlLibExtension, FARCH_32, FBUILD_DEBUG, "libsfml");
 #endif //_WIN32
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-audio-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-graphics-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-system-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"libs/SFML/lib/sfml-window-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
 #endif //_WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-audio"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-graphics"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-system"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-window"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-audio-d")+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-graphics-d")+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-system-d")+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-window-d")+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"libs/SFML/lib/libsfml-main"+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
-#endif //_WIN32
-
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-audio-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-graphics-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-system-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"libs/SFML/lib/sfml-window-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-#endif //_WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-audio"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-graphics"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-system"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-window"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"libs/SFML/lib/libsfml-main"+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-main-d")+=pathSfmlLibExtension, FARCH_64, FBUILD_DEBUG, "libsfml");
 #endif //_WIN32
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild32ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_32, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, pathBuild64ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_64, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild32ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a", FARCH_32, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, pathBuild64ReleaseDir/"OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a", FARCH_64, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-audio")+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-graphics")+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-system")+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-window")+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-main")+=pathSfmlLibExtension, FARCH_32, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
+
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-audio")+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-graphics")+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-system")+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-window")+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, std::filesystem::path("libs/SFML/lib/libsfml-main")+=pathSfmlLibExtension, FARCH_64, FBUILD_RELEASE, "libsfml");
+#endif //_WIN32
+
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_32, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_64, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a", FARCH_32, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a", FARCH_64, FBUILD_ALL, "libopenal");
     installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/openal-soft/include/AL", FARCH_ALL, FBUILD_ALL, "libopenal");
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/openal-soft/COPYING", FARCH_ALL, FBUILD_ALL, "libopenal");
@@ -295,6 +428,36 @@ int main()
 
     installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SFML/license.md", FARCH_ALL, FBUILD_ALL, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SFML/readme.md", FARCH_ALL, FBUILD_ALL, "libsfml");
+
+    //Ignoring un-built files and prefix path to the built ones
+    for (auto itFile=installFiles.begin(); itFile!=installFiles.end(); ++itFile)
+    {
+        auto& file = *itFile;
+
+        bool ok = false;
+        for (const auto& buildDir : fgeBuildDir)
+        {
+            if ( (buildDir._arch == file._arch || file._arch == InstallFileArch::FARCH_ALL) &&
+                (buildDir._build == file._build || file._build == InstallFileBuild::FBUILD_ALL) )
+            {
+                ok = true;
+                if (file._type != InstallFileType::FTYPE_HEADER &&
+                    file._type != InstallFileType::FTYPE_REQUIRE_HEADER &&
+                    file._type != InstallFileType::FTYPE_FILE &&
+                    file._type != InstallFileType::FTYPE_REQUIRE_FILE)
+                {
+                    std::filesystem::path newPath = buildDir._path;
+                    newPath /= file._path;
+                    file._path = std::move(newPath);
+                }
+                break;
+            }
+        }
+        if (!ok)
+        {
+            itFile = --installFiles.erase(itFile);
+        }
+    }
 
     std::cout << "Checking for required files ..." << std::endl;
 
