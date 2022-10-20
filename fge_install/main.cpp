@@ -147,7 +147,7 @@ struct InstallFile
 
 std::optional<InstallFileBuild> FindBuildDirectoryBuildType(const std::filesystem::path& buildPath)
 {
-    RE2 re("libFastEngine(?:32|64)(_d)?\\.dll");
+    RE2 re("libFastEngine(?:32|64)(_d)?\\.(?:dll|so|dylib)");
     if (!re.ok())
     {
         throw std::runtime_error(re.error());
@@ -175,7 +175,7 @@ std::optional<InstallFileBuild> FindBuildDirectoryBuildType(const std::filesyste
 }
 std::optional<InstallFileArch> FindBuildDirectoryArchitecture(const std::filesystem::path& buildPath)
 {
-    RE2 re("libFastEngine(32|64)(?:_d)?\\.dll");
+    RE2 re("libFastEngine(32|64)(?:_d)?\\.(?:dll|so|dylib)");
     if (!re.ok())
     {
         throw std::runtime_error(re.error());
