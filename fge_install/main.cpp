@@ -272,7 +272,15 @@ bool GetFastEngineVersionName(std::string& name)
         {
             if ( RE2::PartialMatch(line, re, &name) )
             {
-                name.insert(0, "FastEngine_");
+#ifdef __linux__
+                name.insert(0, "FastEngineLinux_");
+#else
+    #ifdef __APPLE__
+                name.insert(0, "FastEngineMac_");
+    #else
+                name.insert(0, "FastEngineWin_");
+    #endif //__APPLE__
+#endif //__linux__
                 return true;
             }
         }
