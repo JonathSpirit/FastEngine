@@ -21,8 +21,6 @@
 #include <list>
 #include <utility>
 
-using namespace std;
-
 enum InstallFileType
 {
     FTYPE_HEADER,
@@ -50,7 +48,7 @@ enum InstallFileBuild
 
 struct InstallFile
 {
-    InstallFile(bool ignored, InstallFileType type, filesystem::path path, InstallFileArch arch, InstallFileBuild build) :
+    InstallFile(bool ignored, InstallFileType type, std::filesystem::path path, InstallFileArch arch, InstallFileBuild build) :
             _ignored(ignored),
             _type(type),
             _path(std::move(path)),
@@ -58,7 +56,7 @@ struct InstallFile
             _build(build)
     {}
 
-    InstallFile(bool ignored, InstallFileType type, filesystem::path path, InstallFileArch arch, InstallFileBuild build, std::string&& name) :
+    InstallFile(bool ignored, InstallFileType type, std::filesystem::path path, InstallFileArch arch, InstallFileBuild build, std::string&& name) :
             _ignored(ignored),
             _type(type),
             _path(std::move(path)),
@@ -78,27 +76,27 @@ struct InstallFile
 
     bool _ignored;
     InstallFileType _type;
-    filesystem::path _path;
+    std::filesystem::path _path;
     InstallFileArch _arch;
     InstallFileBuild _build;
     std::string _name;
 };
 
-bool GetFGEversionName(string& name)
+bool GetFGEversionName(std::string& name)
 {
-    ifstream versionFile{"includes/FastEngine/fastengine_version.hpp"};
+    std::ifstream versionFile{"includes/FastEngine/fastengine_version.hpp"};
 
     if (versionFile)
     {
-        string line;
+        std::string line;
         while ( getline(versionFile, line) )
         {
             auto pos = line.find("FGE_VERSION_FULL_WITHTAG_STRING");
-            if ( pos != string::npos )
+            if ( pos != std::string::npos )
             {
                 auto posQuote = line.find('\"');
                 auto posEndQuote = line.rfind('\"');
-                if ( posQuote != string::npos && posEndQuote != string::npos )
+                if ( posQuote != std::string::npos && posEndQuote != std::string::npos )
                 {
                     if (posEndQuote-posQuote-1 >= 5)
                     {
@@ -114,86 +112,86 @@ bool GetFGEversionName(string& name)
 
 int main()
 {
-    cout << "Installing fastengine project ..." << endl;
+    std::cout << "Installing fastengine project ..." << std::endl;
 
-    cout << "Where do you want to install it ?" << endl << ">";
+    std::cout << "Where do you want to install it ?" << std::endl << ">";
 
-    string installPathStr;
-    getline(cin, installPathStr);
-    filesystem::path installPath{installPathStr};
+    std::string installPathStr;
+    getline(std::cin, installPathStr);
+    std::filesystem::path installPath{installPathStr};
 
     if ( installPath.empty() || installPath.has_filename() )
     {
-        cout << "Invalid path !" << endl;
+        std::cout << "Invalid path !" << std::endl;
         return -1;
     }
 
-    cout << "Computing FGE directory name ..." << endl;
-    string fgeName;
+    std::cout << "Computing FGE directory name ..." << std::endl;
+    std::string fgeName;
     if ( !GetFGEversionName(fgeName) )
     {
-        cout << "Can't get the fastengine version name in \"includes/FastEngine/fastengine_version.hpp\"" << endl;
+        std::cout << "Can't get the fastengine version name in \"includes/FastEngine/fastengine_version.hpp\"" << std::endl;
         return -1;
     }
-    cout << "Name : \""<< fgeName <<"\"" << endl;
+    std::cout << "Name : \""<< fgeName <<"\"" << std::endl;
 
     installPath /= fgeName+"/";
 
-    cout << "Check if directory "<< installPath <<" exist ..." << endl;
-    if ( filesystem::is_directory(installPath) )
+    std::cout << "Check if directory "<< installPath <<" exist ..." << std::endl;
+    if ( std::filesystem::is_directory(installPath) )
     {
-        cout << "A directory is already present ... do you want to remove this directory before proceeding ?" << endl;
-        cout << "[y/n] (default to n)>";
-        string response;
-        getline(cin, response);
+        std::cout << "A directory is already present ... do you want to remove this directory before proceeding ?" << std::endl;
+        std::cout << "[y/n] (default to n)>";
+        std::string response;
+        getline(std::cin, response);
         if (response == "y")
         {
-            cout << "Removing ..." << endl;
-            cout << "Removed " << filesystem::remove_all(installPath) << " files" << endl;
-            if ( !filesystem::create_directory(installPath) )
+            std::cout << "Removing ..." << std::endl;
+            std::cout << "Removed " << std::filesystem::remove_all(installPath) << " files" << std::endl;
+            if ( !std::filesystem::create_directory(installPath) )
             {
-                cout << "Can't recreate directory : " << installPath << endl;
+                std::cout << "Can't recreate directory : " << installPath << std::endl;
                 return -1;
             }
         }
     }
     else
     {
-        if (!filesystem::create_directories(installPath))
+        if (!std::filesystem::create_directories(installPath))
         {
-            cout << "Can't create directory : " << installPath << endl;
+            std::cout << "Can't create directory : " << installPath << std::endl;
             return -1;
         }
     }
 
-    cout << "Proceeding with installation ?" << endl;
-    cout << "[y/n] (default to n)>";
-    string response;
-    getline(cin, response);
+    std::cout << "Proceeding with installation ?" << std::endl;
+    std::cout << "[y/n] (default to n)>";
+    std::string response;
+    getline(std::cin, response);
     if (response != "y")
     {
-        cout << "Aborting ..." << endl;
+        std::cout << "Aborting ..." << std::endl;
         return 0;
     }
 
-    list<InstallFile> installFiles;
+    std::list<InstallFile> installFiles;
 
 #ifdef __linux__
-    filesystem::path pathBuild32DebugDir = "cmake-build-debug32linux/";
-    filesystem::path pathBuild32ReleaseDir = "cmake-build-release32linux/";
-    filesystem::path pathBuild64DebugDir = "cmake-build-debug64linux/";
-    filesystem::path pathBuild64ReleaseDir = "cmake-build-release64linux/";
+    std::filesystem::path pathBuild32DebugDir = "cmake-build-debug32linux/";
+    std::filesystem::path pathBuild32ReleaseDir = "cmake-build-release32linux/";
+    std::filesystem::path pathBuild64DebugDir = "cmake-build-debug64linux/";
+    std::filesystem::path pathBuild64ReleaseDir = "cmake-build-release64linux/";
 
-    filesystem::path pathLibExtension = ".so";
-    filesystem::path pathSfmlLibExtension = ".so";
+    std::filesystem::path pathLibExtension = ".so";
+    std::filesystem::path pathSfmlLibExtension = ".so";
 #else
-    filesystem::path pathBuild32DebugDir = "cmake-build-debug32/";
-    filesystem::path pathBuild32ReleaseDir = "cmake-build-release32/";
-    filesystem::path pathBuild64DebugDir = "cmake-build-debug64/";
-    filesystem::path pathBuild64ReleaseDir = "cmake-build-release64/";
+    std::filesystem::path pathBuild32DebugDir = "cmake-build-debug32/";
+    std::filesystem::path pathBuild32ReleaseDir = "cmake-build-release32/";
+    std::filesystem::path pathBuild64DebugDir = "cmake-build-debug64/";
+    std::filesystem::path pathBuild64ReleaseDir = "cmake-build-release64/";
 
-    filesystem::path pathLibExtension = ".dll.a";
-    filesystem::path pathSfmlLibExtension = ".a";
+    std::filesystem::path pathLibExtension = ".dll.a";
+    std::filesystem::path pathSfmlLibExtension = ".a";
 #endif //__linux__
 
 #ifdef _WIN32
@@ -298,34 +296,34 @@ int main()
     installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SFML/license.md", FARCH_ALL, FBUILD_ALL, "libsfml");
     installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SFML/readme.md", FARCH_ALL, FBUILD_ALL, "libsfml");
 
-    cout << "Checking for required files ..." << endl;
+    std::cout << "Checking for required files ..." << std::endl;
 
     for (auto itFile=installFiles.begin(); itFile!=installFiles.end(); ++itFile)
     {
         auto& file = *itFile;
 
-        cout << "\tChecking " << file._path << " ";
-        if ( !filesystem::is_regular_file(file._path) && !filesystem::is_directory(file._path) )
+        std::cout << "\tChecking " << file._path << " ";
+        if ( !std::filesystem::is_regular_file(file._path) && !std::filesystem::is_directory(file._path) )
         {//Is a file or directory
             if (file._ignored)
             {
-                cout << "not ok !, but can be ignored !" << endl;
+                std::cout << "not ok !, but can be ignored !" << std::endl;
                 itFile = --installFiles.erase(itFile);
                 continue;
             }
-            cout << "not ok !, not found ! (not a file or directory)" << endl;
+            std::cout << "not ok !, not found ! (not a file or directory)" << std::endl;
             return -1;
         }
-        cout << "ok !" << endl;
+        std::cout << "ok !" << std::endl;
     }
 
     for (const auto& file : installFiles)
     {
-        cout << "\tInstalling " << file._path << " ";
+        std::cout << "\tInstalling " << file._path << " ";
 
         std::string fileName = file._name + ((file._build==FBUILD_DEBUG) ? "_d" : "");
 
-        filesystem::path fileFolderPath = installPath;
+        std::filesystem::path fileFolderPath = installPath;
         switch (file._type)
         {
         case FTYPE_HEADER:
@@ -411,34 +409,26 @@ int main()
 
         fileFolderPath += file._path.filename();
 
-        error_code err;
-        const auto options = filesystem::copy_options::overwrite_existing | filesystem::copy_options::recursive;
+        std::error_code err;
+        const auto options = std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive;
 
-        cout << "in " << fileFolderPath << " ";
-        filesystem::create_directories(fileFolderPath.parent_path(), err);
+        std::cout << "in " << fileFolderPath << " ";
+        std::filesystem::create_directories(fileFolderPath.parent_path(), err);
         if (err)
         {
-            cout << "not ok !, " << err.message() << endl;
+            std::cout << "not ok !, " << err.message() << std::endl;
             return -1;
         }
-        filesystem::copy(file._path, fileFolderPath, options, err);
+        std::filesystem::copy(file._path, fileFolderPath, options, err);
         if (err)
         {
-            cout << "not ok !, " << err.message() << endl;
+            std::cout << "not ok !, " << err.message() << std::endl;
             return -2;
         }
-        cout << "ok !" << endl;
+        std::cout << "ok !" << std::endl;
     }
 
-    cout << "everything is good !" << endl;
+    std::cout << "everything is good !" << std::endl;
 
     return 0;
 }
-/*
-    bool _required;
-    InstallFileType _type;
-    filesystem::path _path;
-    InstallFileArch _arch;
-    InstallFileBuild _build;
-    std::string _name;
-*/
