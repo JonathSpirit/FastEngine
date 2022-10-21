@@ -441,6 +441,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 #Examples
 if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/tileMapAndPathfinding_001)
+    add_subdirectory(examples/lightAndObstacle_002)
 endif()
 
 add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
