@@ -442,3 +442,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/tileMapAndPathfinding_001)
 endif()
+
+add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E create_symlink
+            ${CMAKE_CURRENT_SOURCE_DIR}/resources
+            ${CMAKE_CURRENT_BINARY_DIR}/resources)
