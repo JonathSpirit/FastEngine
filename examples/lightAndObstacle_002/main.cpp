@@ -136,6 +136,8 @@ public:
         //Create a text object with explanation
         auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use Q/E to switch between light and obstacle follow up\n"
                                                                        "Use 1/2/3/4 to change the obstacle form\n"
+                                                                       "Use left mouse click to duplicate the obstacle/light\n"
+                                                                       "Use space to delete all duplicated objects\n",
                                                                        "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP);
         reinterpret_cast<fge::ObjText*>(explainText->getObject())->setFillColor(sf::Color::Black);
 
