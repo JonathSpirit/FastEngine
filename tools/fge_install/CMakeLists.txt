@@ -10,7 +10,7 @@ target_sources(${PROJECT_NAME} PRIVATE "main.cpp")
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wpedantic -Wall -Wextra)
 
-set(FGE_LIBS_DIR "../libs")
+set(FGE_LIBS_DIR "../../libs")
 
 add_subdirectory(${FGE_LIBS_DIR}/re2 ${CMAKE_CURRENT_BINARY_DIR}/libs/re2 EXCLUDE_FROM_ALL) # re2
 target_include_directories(${PROJECT_NAME} PRIVATE ${FGE_LIBS_DIR}/re2/re2)
