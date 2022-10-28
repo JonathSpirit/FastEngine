@@ -37,7 +37,7 @@ using ParrayType = std::vector<fge::Property>;
 class Property
 {
 public:
-    enum Types
+    enum class Types
     {
         PTYPE_NULL,
 
@@ -168,7 +168,7 @@ public:
     inline void setModifiedFlag(bool flag);
 
 private:
-    Property::Types g_type{Property::PTYPE_NULL};
+    Property::Types g_type{Property::Types::PTYPE_NULL};
     Property::Data g_data{};
     bool g_isSigned{};
     bool g_isModified{false};

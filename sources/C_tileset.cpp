@@ -306,18 +306,18 @@ void to_json(nlohmann::json& j, const fge::TileData& p)
         {
             switch (property.second.getType())
             {//TODO: add a bool type for property
-            case Property::PTYPE_INTEGERS:
+            case fge::Property::Types::PTYPE_INTEGERS:
                 propertiesArray.push_back({{"name", property.first},
                                            {"type", "int"},
                                            {"value", property.second.get<fge::PintType>().value_or(0)}});
                 break;
-            case Property::PTYPE_FLOAT:
-            case Property::PTYPE_DOUBLE:
+            case fge::Property::Types::PTYPE_FLOAT:
+            case fge::Property::Types::PTYPE_DOUBLE:
                 propertiesArray.push_back({{"name", property.first},
                                            {"type", "float"},
                                            {"value", property.second.get<fge::PfloatType>().value_or(0.0f)}});
                 break;
-            case Property::PTYPE_STRING:
+            case fge::Property::Types::PTYPE_STRING:
                 propertiesArray.push_back({{"name", property.first},
                                            {"type", "string"},
                                            {"value", property.second.get<std::string>().value_or("")}});

@@ -258,7 +258,7 @@ public:
 
         valueTest.setType<std::vector<fge::Property> >();
         cout << "value : " << valueTest.get<fge::PuintType>().value_or(0) << endl;
-        cout << "value type : " << valueTest.getType() << endl;
+        cout << "value type : " << (int)valueTest.getType() << endl;
 
         CallbackTestClass* callbackTestClass = new CallbackTestClass("Hey I'm a text !");
 
