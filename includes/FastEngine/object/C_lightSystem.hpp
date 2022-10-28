@@ -45,7 +45,7 @@ inline fge::LightSystem* GetDefaultLightSystem(fge::Scene* scene)
 {
     if (scene != nullptr)
     {
-        return scene->_properties.getProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS).get<fge::LightSystem*>();
+        return scene->_properties.getProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS).get<fge::LightSystem*>().value_or(nullptr);
     }
     return nullptr;
 }

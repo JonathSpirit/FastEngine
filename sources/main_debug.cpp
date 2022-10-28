@@ -249,15 +249,15 @@ public:
         *matrixTest2.getPtr(0,0) = false;
 
         fge::Property valueTest;
-        cout << "value : " << valueTest.get<fge::PuintType>() << endl;
+        cout << "value : " << valueTest.get<fge::PuintType>().value_or(0) << endl;
         cout << "value str : " << valueTest.toString() << endl;
 
         valueTest.set("test");
-        cout << "value : " << valueTest.get<std::string>() << endl;
+        cout << "value : " << valueTest.get<std::string>().value_or("") << endl;
         cout << "value str : " << valueTest.toString() << endl;
 
         valueTest.setType<std::vector<fge::Property> >();
-        cout << "value : " << valueTest.get<fge::PuintType>() << endl;
+        cout << "value : " << valueTest.get<fge::PuintType>().value_or(0) << endl;
         cout << "value type : " << valueTest.getType() << endl;
 
         CallbackTestClass* callbackTestClass = new CallbackTestClass("Hey I'm a text !");

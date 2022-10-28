@@ -353,7 +353,7 @@ void Property::setType(fge::Property::Types type)
 {
     if (type == fge::Property::PTYPE_CLASS)
     {
-        throw std::logic_error("Can't set arbitrary class type !");
+        return;
     }
 
     if (type != this->g_type)
@@ -415,7 +415,7 @@ const std::type_info& Property::getClassType() const
     {
         return reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType();
     }
-    throw std::logic_error("Not a class type !");
+    return typeid(nullptr);
 }
 Property::Types Property::getType() const
 {
@@ -998,7 +998,7 @@ bool Property::get(T& val) const
     }
 }
 template<class T>
-T Property::get() const
+std::optional<T> Property::get() const
 {
     if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
@@ -1008,14 +1008,11 @@ T Property::get() const
             {
                 return static_cast<T>(this->g_data._f);
             }
-            else if (this->g_type == Property::PTYPE_DOUBLE)
+            if (this->g_type == Property::PTYPE_DOUBLE)
             {
                 return static_cast<T>(this->g_data._d);
             }
-            else
-            {
-                return static_cast<T>(0);
-            }
+            return std::nullopt;
         }
 
         if constexpr ( std::is_signed<T>::value )
@@ -1039,19 +1036,13 @@ T Property::get() const
                     {
                         return static_cast<T>(this->g_data._i);
                     }
-                    else
-                    {
-                        return static_cast<T>(this->g_data._u);
-                    }
+                    return static_cast<T>(this->g_data._u);
                 }
-                else if (this->g_type == Property::PTYPE_DOUBLE)
+                if (this->g_type == Property::PTYPE_DOUBLE)
                 {
                     return static_cast<T>(this->g_data._d);
                 }
-                else
-                {
-                    return 0.0f;
-                }
+                return std::nullopt;
             }
 
             return static_cast<T>(this->g_data._f);
@@ -1066,19 +1057,13 @@ T Property::get() const
                     {
                         return static_cast<T>(this->g_data._i);
                     }
-                    else
-                    {
-                        return static_cast<T>(this->g_data._u);
-                    }
+                    return static_cast<T>(this->g_data._u);
                 }
-                else if (this->g_type == Property::PTYPE_FLOAT)
+                if (this->g_type == Property::PTYPE_FLOAT)
                 {
                     return static_cast<T>(this->g_data._f);
                 }
-                else
-                {
-                    return 0.0;
-                }
+                return std::nullopt;
             }
 
             return static_cast<T>(this->g_data._d);
@@ -1088,7 +1073,7 @@ T Property::get() const
     {
         if (this->g_type != fge::Property::PTYPE_STRING)
         {
-            return {};
+            return std::nullopt;
         }
 
         return *reinterpret_cast<std::string*>(this->g_data._ptr);
@@ -1097,7 +1082,7 @@ T Property::get() const
     {
         if (this->g_type != fge::Property::PTYPE_STRING)
         {
-            return nullptr;
+            return std::nullopt;
         }
 
         return reinterpret_cast<std::string*>(this->g_data._ptr)->data();
@@ -1106,7 +1091,7 @@ T Property::get() const
     {
         if (this->g_type != fge::Property::PTYPE_POINTER)
         {
-            return nullptr;
+            return std::nullopt;
         }
 
         return reinterpret_cast<T>(this->g_data._ptr);
@@ -1121,7 +1106,7 @@ T Property::get() const
             }
         }
 
-        throw std::logic_error("not implemented !");
+        return std::nullopt;
     }
 }
 

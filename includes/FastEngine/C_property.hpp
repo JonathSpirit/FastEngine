@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
-#include <stdexcept>
+#include <optional>
 
 namespace fge
 {
@@ -127,7 +127,7 @@ public:
     template<class T>
     inline bool get(T& val) const;
     template<class T>
-    inline T get() const;
+    inline std::optional<T> get() const;
 
     template<class T>
     inline T* getPtr();
