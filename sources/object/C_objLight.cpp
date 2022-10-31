@@ -28,15 +28,15 @@ ObjLight::ObjLight()
 {
     this->g_blendMode = sf::BlendAlpha;
 }
-ObjLight::ObjLight(const fge::Texture& texture, const sf::Vector2f& position)
+ObjLight::ObjLight(const fge::Texture& texture, const sf::Vector2f& position) :
+        fge::ObjLight()
 {
-    this->g_blendMode = sf::BlendAlpha;
     this->setTexture(texture);
     this->setPosition(position);
 }
-ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position)
+ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position) :
+        fge::ObjLight()
 {
-    this->g_blendMode = sf::BlendAlpha;
     this->setTexture(texture);
     this->setTextureRect(rectangle);
     this->setPosition(position);
@@ -126,11 +126,17 @@ FGE_OBJ_UPDATE_BODY(ObjLight)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjLight)
 {
-    this->g_renderMap._renderTexture.clear(sf::Color(255,255,255,0));
+    this->g_renderMap._renderTexture.clear(sf::Color(0,0,0,0));
 
     states.transform *= this->getTransform();
     states.texture = static_cast<const sf::Texture*>(this->g_texture);
-    states.blendMode = sf::BlendAlpha;
+    states.blendMode = sf::BlendMode{sf::BlendMode::Factor::One,
+                                     sf::BlendMode::Factor::Zero,
+                                     sf::BlendMode::Equation::Add,
+
+                                     sf::BlendMode::Factor::One,
+                                     sf::BlendMode::Factor::Zero,
+                                     sf::BlendMode::Equation::Add};
 
     this->g_renderMap._renderTexture.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 
@@ -144,7 +150,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         sf::FloatRect bounds = this->getGlobalBounds();
         float range = (bounds.width > bounds.height) ? bounds.width : bounds.height;
 
-        for ( unsigned int i=0; i<lightSystem->getGatesSize(); ++i )
+        for ( std::size_t i=0; i<lightSystem->getGatesSize(); ++i )
         {
             fge::LightObstacle* obstacle = lightSystem->get(i);
 

@@ -70,7 +70,6 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
 
     target.setView(this->g_windowView);
 
-    states.blendMode = sf::BlendMultiply;
     states.texture = &this->_renderTexture.getTexture();
     target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 
