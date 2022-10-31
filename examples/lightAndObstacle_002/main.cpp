@@ -1,6 +1,7 @@
 #include <FastEngine/C_scene.hpp>
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/C_random.hpp"
 #include <FastEngine/C_clock.hpp>
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objLight.hpp"
@@ -137,9 +138,10 @@ public:
         auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use Q/E to switch between light and obstacle follow up\n"
                                                                        "Use 1/2/3/4 to change the obstacle form\n"
                                                                        "Use left mouse click to duplicate the obstacle/light\n"
-                                                                       "Use space to delete all duplicated objects\n",
-                                                                       "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP);
-        reinterpret_cast<fge::ObjText*>(explainText->getObject())->setFillColor(sf::Color::Black);
+                                                                       "Use space to delete all duplicated objects\n"
+                                                                       "Use right click to change the light color\n",
+                                                                       "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP+1);
+        reinterpret_cast<fge::ObjText*>(explainText->getObject())->setFillColor(sf::Color::White);
 
         //Create the light system
         fge::LightSystem lightSystem;
@@ -148,6 +150,10 @@ public:
         //Create the obstacle
         auto obstacle = this->newObject(FGE_NEWOBJECT(Obstacle), FGE_SCENE_PLAN_MIDDLE);
         reinterpret_cast<Obstacle*>(obstacle->getObject())->scale(2.0f, 2.0f);
+
+        //Create a render map
+        auto renderMap = this->newObject(FGE_NEWOBJECT(fge::ObjRenderMap), FGE_SCENE_PLAN_HIGH_TOP);
+        reinterpret_cast<fge::ObjRenderMap*>(renderMap->getObject())->setClearColor(sf::Color{10,10,10,240});
 
         //Create the light
         auto light = this->newObject(FGE_NEWOBJECT(fge::ObjLight, "light_test", {400.0f, 300.0f}), FGE_SCENE_PLAN_MIDDLE);
@@ -176,6 +182,12 @@ public:
                     auto newLight = this->duplicateObject(light->getSid());
                     newLight->getObject()->_tags.add("duplicate");
                 }
+            }
+            //If the right button is pressed
+            if (mouseEvent.button == sf::Mouse::Right)
+            {
+                //Change randomly the color of the light
+                reinterpret_cast<fge::ObjLight*>(light->getObject())->setColor(fge::_random.randColor());
             }
         }));
 
