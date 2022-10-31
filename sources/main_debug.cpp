@@ -37,6 +37,7 @@
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/object/C_objLight.hpp"
 #include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/C_tunnel.hpp"
 #include "FastEngine/object/C_objTilemap.hpp"
 #include "FastEngine/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"

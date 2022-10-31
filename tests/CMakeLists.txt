@@ -13,6 +13,10 @@ function(fge_add_test target SOURCES DEPENDS)
                     $<TARGET_FILE:${DEPENDENCY}>
                     $<TARGET_FILE_DIR:${target}>)
         endforeach()
+        add_custom_command(TARGET ${target} PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
+                $<TARGET_FILE_DIR:${target}>)
     endif()
 endfunction()
 
@@ -31,10 +35,9 @@ set(TESTS_DEPENDENCIES
     ${FGE_SFML_MAIN}
     sfml-system
     sfml-window
+    sfml-audio
     ${FGE_LIB_NAME}
 )
 
-set(TESTS_SRC
-    test_fge_matrix.cpp
-)
-fge_add_test(fgeMatrixTests "${TESTS_SRC}" "${TESTS_DEPENDENCIES}")
+fge_add_test(fgeMatrixTests test_fge_matrix.cpp "${TESTS_DEPENDENCIES}")
+fge_add_test(fgeExtraStringTests test_fge_extra_string.cpp "${TESTS_DEPENDENCIES}")
