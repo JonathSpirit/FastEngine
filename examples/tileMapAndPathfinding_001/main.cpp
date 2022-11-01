@@ -56,7 +56,7 @@ public:
                 auto tileSet = tile.getTileSet();
 
                 //Add every red tiles to the collisions list
-                if ( tileSet && tileSet->getTile(tileSet->getLocalId(tile.getGid()))->_properties["isred"].get<bool>() )
+                if ( tileSet && tileSet->getTile(tileSet->getLocalId(tile.getGid()))->_properties["isred"].get<bool>().value_or(false) )
                 {
                     this->g_pathGenerator.addCollision(static_cast<fge::AStar::Vector2i>(sf::Vector2<std::size_t>{x, y}));
                 }
