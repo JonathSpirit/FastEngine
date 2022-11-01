@@ -23,6 +23,7 @@
 #include <FastEngine/C_callback.hpp>
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_smoothFloat.hpp>
+#include <FastEngine/C_dataAccessor.hpp>
 #include <string>
 #include <memory>
 #include <vector>
@@ -193,7 +194,7 @@ template<class T>
 class NetworkType : public NetworkTypeBase
 {
 public:
-    NetworkType(T* source);
+    NetworkType(fge::DataAccessor<T> source);
     ~NetworkType() override = default;
 
     const void* getSource() const override;
@@ -208,7 +209,7 @@ public:
 
 private:
     T g_typeCopy;
-    T* g_typeSource;
+    fge::DataAccessor<T> g_typeSource;
 };
 
 /**
@@ -266,34 +267,6 @@ public:
 private:
     fge::TagList* g_typeSource;
     std::string g_tag;
-};
-
-/**
- * \class NetworkTypeSetter
- * \ingroup network
- * \brief The network type for a source T that can only be set with a setter method
- */
-template<class T>
-class NetworkTypeSetter : public NetworkTypeBase
-{
-public:
-    NetworkTypeSetter(const T* source, std::function<void(const T&)> setter);
-    ~NetworkTypeSetter() override = default;
-
-    const void* getSource() const override;
-
-    bool applyData(fge::net::Packet& pck) override;
-    void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
-    void packData(fge::net::Packet& pck) override;
-
-    bool check() const override;
-    void forceCheck() override;
-    void forceUncheck() override;
-
-private:
-    const T* g_typeSource;
-    T g_typeCopy;
-    std::function<void(const T&)> g_setter;
 };
 
 /**
