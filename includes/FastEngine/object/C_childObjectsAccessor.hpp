@@ -32,6 +32,7 @@ class Event;
 class Scene;
 class Object;
 class ObjectData;
+using ObjectPtr = std::unique_ptr<fge::Object>;
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 
@@ -52,7 +53,7 @@ public:
     void clear();
 
     void addExistingObject(const fge::ObjectDataWeak& parent, fge::Object* object, fge::Scene* linkedScene, std::size_t insertionIndex=std::numeric_limits<std::size_t>::max());
-    void addNewObject(const fge::ObjectDataWeak& parent, std::unique_ptr<fge::Object>&& newObject, fge::Scene* linkedScene, std::size_t insertionIndex=std::numeric_limits<std::size_t>::max());
+    void addNewObject(const fge::ObjectDataWeak& parent, fge::ObjectPtr&& newObject, fge::Scene* linkedScene, std::size_t insertionIndex=std::numeric_limits<std::size_t>::max());
 
     [[nodiscard]] std::size_t getSize() const;
     [[nodiscard]] const fge::Object* get(std::size_t index) const;

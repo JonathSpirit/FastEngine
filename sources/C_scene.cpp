@@ -178,7 +178,7 @@ void Scene::clear()
 }
 
 /** Object **/
-fge::ObjectDataShared Scene::newObject(std::unique_ptr<fge::Object>&& newObject, fge::ObjectPlan plan, fge::ObjectSid sid, fge::ObjectType type)
+fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject, fge::ObjectPlan plan, fge::ObjectSid sid, fge::ObjectType type)
 {
     if (newObject == nullptr)
     {
@@ -388,7 +388,7 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
     }
     return false;
 }
-bool Scene::setObject(fge::ObjectSid sid, std::unique_ptr<fge::Object>&& newObject)
+bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
 {
     if (newObject == nullptr)
     {
@@ -830,7 +830,7 @@ void Scene::unpack(fge::net::Packet& pck)
             fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType> >(fge::ObjectType::TYPE_MAX_, pck);
         FGE_NET_RULES_AFFECT_END(buffType)
 
-        std::unique_ptr<fge::Object> buffObject{fge::reg::GetNewClassOf(buffClass)};
+        fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
         if (buffObject)
         {
             this->newObject(std::move(buffObject), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) )->g_object->unpack(pck);
@@ -1053,7 +1053,7 @@ void Scene::unpackModification(fge::net::Packet& pck)
         auto buffObject = this->getObject(buffSid);
         if ( !buffObject )
         {
-            buffObject = this->newObject(std::unique_ptr<fge::Object>{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
+            buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid, static_cast<fge::ObjectType>(buffType) );
             if ( !buffObject )
             {
                 pck.invalidate();
@@ -1435,7 +1435,7 @@ bool Scene::loadFromFile(const std::string& path)
     nlohmann::json& jsonObjArray = inputJson["Objects"];
     for (auto & it : jsonObjArray)
     {
-        std::unique_ptr<fge::Object> buffObj{fge::reg::GetNewClassOf(it.begin().key())};
+        fge::ObjectPtr buffObj{fge::reg::GetNewClassOf(it.begin().key())};
 
         if ( buffObj )
         {

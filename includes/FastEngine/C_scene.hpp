@@ -44,8 +44,8 @@
 
 #define FGE_SCENE_LIMIT_NAMESIZE 200
 
-#define FGE_NEWOBJECT(objectType_, ...) std::unique_ptr<fge::Object>{new objectType_{__VA_ARGS__}}
-#define FGE_NEWOBJECT_PTR(objectPtr_) std::unique_ptr<fge::Object>{objectPtr_}
+#define FGE_NEWOBJECT(objectType_, ...) fge::ObjectPtr{new objectType_{__VA_ARGS__}}
+#define FGE_NEWOBJECT_PTR(objectPtr_) fge::ObjectPtr{objectPtr_}
 
 namespace fge
 {
@@ -138,7 +138,7 @@ public:
         g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
     ObjectData(fge::Scene* linkedScene,
-               std::unique_ptr<fge::Object>&& newObj,
+               fge::ObjectPtr&& newObj,
                fge::ObjectSid newSid=FGE_SCENE_BAD_SID,
                fge::ObjectPlan newPlan=FGE_SCENE_PLAN_DEFAULT,
                fge::ObjectType newType=fge::ObjectType::TYPE_OBJECT) :
@@ -484,7 +484,7 @@ public:
      * \param type The type of the new Object
      * \return An shared pointer of the ObjectData
      */
-    fge::ObjectDataShared newObject(std::unique_ptr<fge::Object>&& newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
+    fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -580,7 +580,7 @@ public:
      * \param newObject The new Object pointer
      * \return \b true if the change is successful
      */
-    bool setObject(fge::ObjectSid sid, std::unique_ptr<fge::Object>&& newObject);
+    bool setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject);
     /**
      * \brief Set a new Object plan.
      *
