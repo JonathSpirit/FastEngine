@@ -18,7 +18,6 @@
 #define _FGE_C_DATAACCESSOR_HPP_INCLUDED
 
 #include <functional>
-#include <memory>
 
 namespace fge
 {
@@ -28,7 +27,7 @@ struct DataAccessor
 {
     DataAccessor() = default;
 
-    explicit DataAccessor(T* directAccessPtr) :
+    DataAccessor(T* directAccessPtr) :
             _setter([directAccessPtr](T&& r){*directAccessPtr = std::forward<T>(r);}),
             _getter([directAccessPtr](){return *directAccessPtr;})
     {}
@@ -38,7 +37,7 @@ struct DataAccessor
             _getter(std::move(getter))
     {}
 
-    DataAccessor(T* directAccessPtrGetter, std::function<void(T)> setter) :
+    DataAccessor(const T* directAccessPtrGetter, std::function<void(T)> setter) :
             _setter(std::move(setter)),
             _getter([directAccessPtrGetter](){return *directAccessPtrGetter;})
     {}

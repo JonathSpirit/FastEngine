@@ -165,175 +165,29 @@ void NetworkTypeScene::forceUncheck()
 {
 }
 
-///NetworkTypeSmoothVec2FloatSetter
-
-NetworkTypeSmoothVec2FloatSetter::NetworkTypeSmoothVec2FloatSetter(const sf::Vector2f* source, std::function<void(const sf::Vector2f&)> setter, float errorRange) :
-        g_typeSource(source),
-        g_typeCopy(*source),
-        g_setter(std::move(setter)),
-        g_errorRange(errorRange)
-{
-}
-
-const void* NetworkTypeSmoothVec2FloatSetter::getSource() const
-{
-    return this->g_typeSource;
-}
-
-bool NetworkTypeSmoothVec2FloatSetter::applyData(fge::net::Packet& pck)
-{
-    if ( pck >> this->g_typeCopy )
-    {
-        float error = std::abs(this->g_typeCopy.x - this->g_typeSource->x) + std::abs(this->g_typeCopy.y - this->g_typeSource->y);
-        if ( error >= this->g_errorRange )
-        {//Too much error
-            this->g_setter(this->g_typeCopy);
-            this->_onApplied.call();
-            return true;
-        }
-
-        //Acceptable error, continuing
-        return true;
-    }
-    return false;
-}
-void NetworkTypeSmoothVec2FloatSetter::packData(fge::net::Packet& pck, const fge::net::Identity& id)
-{
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
-    {
-        pck << *this->g_typeSource;
-        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
-    }
-}
-void NetworkTypeSmoothVec2FloatSetter::packData(fge::net::Packet& pck)
-{
-    pck << *this->g_typeSource;
-}
-
-bool NetworkTypeSmoothVec2FloatSetter::check() const
-{
-    return (*this->g_typeSource != this->g_typeCopy) || this->_g_force;
-}
-void NetworkTypeSmoothVec2FloatSetter::forceCheck()
-{
-    this->_g_force = true;
-}
-void NetworkTypeSmoothVec2FloatSetter::forceUncheck()
-{
-    this->_g_force = false;
-    this->g_typeCopy = *this->g_typeSource;
-}
-
-const sf::Vector2f& NetworkTypeSmoothVec2FloatSetter::getCache() const
-{
-    return this->g_typeCopy;
-}
-void NetworkTypeSmoothVec2FloatSetter::setErrorRange(float range)
-{
-    this->g_errorRange = range;
-}
-float NetworkTypeSmoothVec2FloatSetter::getErrorRange() const
-{
-    return this->g_errorRange;
-}
-
-///NetworkTypeSmoothFloatGetterSetter
-
-NetworkTypeSmoothFloatGetterSetter::NetworkTypeSmoothFloatGetterSetter(std::function<float(void)> getter, std::function<void(float)> setter, float errorRange) :
-        g_getter(std::move(getter)),
-        g_typeCopy(this->g_getter()),
-        g_setter(std::move(setter)),
-        g_errorRange(errorRange)
-{
-}
-
-const void* NetworkTypeSmoothFloatGetterSetter::getSource() const
-{
-    return nullptr;
-}
-
-bool NetworkTypeSmoothFloatGetterSetter::applyData(fge::net::Packet& pck)
-{
-    if ( pck >> this->g_typeCopy )
-    {
-        float error = std::abs(this->g_typeCopy - this->g_getter());
-        if ( error >= this->g_errorRange )
-        {//Too much error
-            this->g_setter(this->g_typeCopy);
-            this->_onApplied.call();
-            return true;
-        }
-
-        //Acceptable error, continuing
-        return true;
-    }
-    return false;
-}
-void NetworkTypeSmoothFloatGetterSetter::packData(fge::net::Packet& pck, const fge::net::Identity& id)
-{
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
-    {
-        pck << this->g_getter();
-        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
-    }
-}
-void NetworkTypeSmoothFloatGetterSetter::packData(fge::net::Packet& pck)
-{
-    pck << this->g_getter();
-}
-
-bool NetworkTypeSmoothFloatGetterSetter::check() const
-{
-    return (this->g_getter() != this->g_typeCopy) || this->_g_force;
-}
-void NetworkTypeSmoothFloatGetterSetter::forceCheck()
-{
-    this->_g_force = true;
-}
-void NetworkTypeSmoothFloatGetterSetter::forceUncheck()
-{
-    this->_g_force = false;
-    this->g_typeCopy = this->g_getter();
-}
-
-float NetworkTypeSmoothFloatGetterSetter::getCache() const
-{
-    return this->g_typeCopy;
-}
-void NetworkTypeSmoothFloatGetterSetter::setErrorRange(float range)
-{
-    this->g_errorRange = range;
-}
-float NetworkTypeSmoothFloatGetterSetter::getErrorRange() const
-{
-    return this->g_errorRange;
-}
-
 ///NetworkTypeSmoothVec2Float
 
-NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::net::SmoothVec2Float* source) :
-    g_typeSource(source),
-    g_typeCopy(source->_real)
+NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::DataAccessor<sf::Vector2f> source, float errorRange) :
+        g_typeCopy(source._getter()),
+        g_typeSource(std::move(source)),
+        g_errorRange(errorRange)
 {
 }
 
 const void* NetworkTypeSmoothVec2Float::getSource() const
 {
-    return this->g_typeSource;
+    return nullptr;
 }
 
 bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet& pck)
 {
     if ( pck >> this->g_typeCopy )
     {
-        this->g_typeSource->_cache = this->g_typeCopy;
-
-        float error = std::abs(this->g_typeSource->_cache.x - this->g_typeSource->_real.x) + std::abs(this->g_typeSource->_cache.y - this->g_typeSource->_real.y);
-        if ( error >= this->g_typeSource->_errorRange )
+        sf::Vector2f source = this->g_typeSource._getter();
+        float error = std::abs(this->g_typeCopy.x - source.x) + std::abs(this->g_typeCopy.y - source.y);
+        if ( error >= this->g_errorRange )
         {//Too much error
-            this->g_typeSource->_real = this->g_typeSource->_cache;
+            this->g_typeSource._setter(this->g_typeCopy);
             this->_onApplied.call();
             return true;
         }
@@ -348,18 +202,18 @@ void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, const fge::net:
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        pck << this->g_typeSource->_real;
+        pck << this->g_typeSource._getter();
         it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
 {
-    pck << this->g_typeSource->_real;
+    pck << this->g_typeSource._getter();
 }
 
 bool NetworkTypeSmoothVec2Float::check() const
 {
-    return (this->g_typeSource->_real != this->g_typeCopy) || this->_g_force;
+    return (this->g_typeSource._getter() != this->g_typeCopy) || this->_g_force;
 }
 void NetworkTypeSmoothVec2Float::forceCheck()
 {
@@ -368,32 +222,44 @@ void NetworkTypeSmoothVec2Float::forceCheck()
 void NetworkTypeSmoothVec2Float::forceUncheck()
 {
     this->_g_force = false;
-    this->g_typeCopy = this->g_typeSource->_real;
+    this->g_typeCopy = this->g_typeSource._getter();
+}
+
+const sf::Vector2f& NetworkTypeSmoothVec2Float::getCache() const
+{
+    return this->g_typeCopy;
+}
+void NetworkTypeSmoothVec2Float::setErrorRange(float range)
+{
+    this->g_errorRange = range;
+}
+float NetworkTypeSmoothVec2Float::getErrorRange() const
+{
+    return this->g_errorRange;
 }
 
 ///NetworkTypeSmoothFloat
 
-NetworkTypeSmoothFloat::NetworkTypeSmoothFloat(fge::net::SmoothFloat* source) :
-    g_typeSource(source),
-    g_typeCopy(source->_real)
+NetworkTypeSmoothFloat::NetworkTypeSmoothFloat(fge::DataAccessor<float> source, float errorRange) :
+        g_typeCopy(source._getter()),
+        g_typeSource(std::move(source)),
+        g_errorRange(errorRange)
 {
 }
 
 const void* NetworkTypeSmoothFloat::getSource() const
 {
-    return this->g_typeSource;
+    return nullptr;
 }
 
 bool NetworkTypeSmoothFloat::applyData(fge::net::Packet& pck)
 {
     if ( pck >> this->g_typeCopy )
     {
-        this->g_typeSource->_cache = this->g_typeCopy;
-
-        float error = std::abs(this->g_typeSource->_cache - this->g_typeSource->_real);
-        if ( error >= this->g_typeSource->_errorRange )
+        float error = std::abs(this->g_typeCopy - this->g_typeSource._getter());
+        if ( error >= this->g_errorRange )
         {//Too much error
-            this->g_typeSource->_real = this->g_typeSource->_cache;
+            this->g_typeSource._setter(this->g_typeCopy);
             this->_onApplied.call();
             return true;
         }
@@ -408,18 +274,18 @@ void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, const fge::net::Ide
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        pck << this->g_typeSource->_real;
+        pck << this->g_typeSource._getter();
         it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)
 {
-    pck << this->g_typeSource->_real;
+    pck << this->g_typeSource._getter();
 }
 
 bool NetworkTypeSmoothFloat::check() const
 {
-    return (this->g_typeSource->_real != this->g_typeCopy) || this->_g_force;
+    return (this->g_typeSource._getter() != this->g_typeCopy) || this->_g_force;
 }
 void NetworkTypeSmoothFloat::forceCheck()
 {
@@ -428,7 +294,20 @@ void NetworkTypeSmoothFloat::forceCheck()
 void NetworkTypeSmoothFloat::forceUncheck()
 {
     this->_g_force = false;
-    this->g_typeCopy = this->g_typeSource->_real;
+    this->g_typeCopy = this->g_typeSource._getter();
+}
+
+float NetworkTypeSmoothFloat::getCache() const
+{
+    return this->g_typeCopy;
+}
+void NetworkTypeSmoothFloat::setErrorRange(float range)
+{
+    this->g_errorRange = range;
+}
+float NetworkTypeSmoothFloat::getErrorRange() const
+{
+    return this->g_errorRange;
 }
 
 ///NetworkTypeTag

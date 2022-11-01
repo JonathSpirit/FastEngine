@@ -22,7 +22,6 @@
 #include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_callback.hpp>
 #include <FastEngine/C_identity.hpp>
-#include <FastEngine/C_smoothFloat.hpp>
 #include <FastEngine/C_dataAccessor.hpp>
 #include <string>
 #include <memory>
@@ -270,15 +269,16 @@ private:
 };
 
 /**
- * \class NetworkTypeSmoothVec2FloatSetter
+ * \class NetworkTypeSmoothVec2Float
  * \ingroup network
- * \brief The network type for a source Vector2f that can only be set with a setter method
+ * \brief The network type for a vector2 float that wait for the error threshold in order to set the value
+ * (useful for smooth position sync)
  */
-class FGE_API NetworkTypeSmoothVec2FloatSetter : public NetworkTypeBase
+class FGE_API NetworkTypeSmoothVec2Float : public NetworkTypeBase
 {
 public:
-    NetworkTypeSmoothVec2FloatSetter(const sf::Vector2f* source, std::function<void(const sf::Vector2f&)> setter, float errorRange);
-    ~NetworkTypeSmoothVec2FloatSetter() override = default;
+    NetworkTypeSmoothVec2Float(fge::DataAccessor<sf::Vector2f> source, float errorRange);
+    ~NetworkTypeSmoothVec2Float() override = default;
 
     const void* getSource() const override;
 
@@ -295,21 +295,20 @@ public:
     float getErrorRange() const;
 
 private:
-    const sf::Vector2f* g_typeSource;
     sf::Vector2f g_typeCopy;
-    std::function<void(const sf::Vector2f&)> g_setter;
+    fge::DataAccessor<sf::Vector2f> g_typeSource;
     float g_errorRange;
 };
 /**
- * \class NetworkTypeSmoothFloatGetterSetter
+ * \class NetworkTypeSmoothFloat
  * \ingroup network
- * \brief The network type for a float that can only be get/set by a getter/setter method
+ * \brief The network type for a float that wait for the error threshold in order to set the value
  */
-class FGE_API NetworkTypeSmoothFloatGetterSetter : public NetworkTypeBase
+class FGE_API NetworkTypeSmoothFloat : public NetworkTypeBase
 {
 public:
-    NetworkTypeSmoothFloatGetterSetter(std::function<float(void)> getter, std::function<void(float)> setter, float errorRange);
-    ~NetworkTypeSmoothFloatGetterSetter() override = default;
+    NetworkTypeSmoothFloat(fge::DataAccessor<float> source, float errorRange);
+    ~NetworkTypeSmoothFloat() override = default;
 
     const void* getSource() const override;
 
@@ -326,62 +325,9 @@ public:
     float getErrorRange() const;
 
 private:
-    std::function<float()> g_getter;
     float g_typeCopy;
-    std::function<void(float)> g_setter;
+    fge::DataAccessor<float> g_typeSource;
     float g_errorRange;
-};
-
-/**
- * \class NetworkTypeSmoothVec2Float
- * \ingroup network
- * \brief The network type for a smooth vector2 float
- */
-class FGE_API NetworkTypeSmoothVec2Float : public NetworkTypeBase
-{
-public:
-    NetworkTypeSmoothVec2Float(fge::net::SmoothVec2Float* source);
-    ~NetworkTypeSmoothVec2Float() override = default;
-
-    const void* getSource() const override;
-
-    bool applyData(fge::net::Packet& pck) override;
-    void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
-    void packData(fge::net::Packet& pck) override;
-
-    bool check() const override;
-    void forceCheck() override;
-    void forceUncheck() override;
-
-private:
-    fge::net::SmoothVec2Float* g_typeSource;
-    sf::Vector2f g_typeCopy;
-};
-
-/**
- * \class NetworkTypeSmoothFloat
- * \ingroup network
- * \brief The network type for a smooth float
- */
-class FGE_API NetworkTypeSmoothFloat : public NetworkTypeBase
-{
-public:
-    NetworkTypeSmoothFloat(fge::net::SmoothFloat* source);
-    ~NetworkTypeSmoothFloat() override = default;
-
-    const void* getSource() const override;
-
-    bool applyData(fge::net::Packet& pck) override;
-    void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
-    void packData(fge::net::Packet& pck) override;
-
-    bool check() const override;
-    void forceCheck() override;
-    void forceUncheck() override;
-
-private:
-    fge::net::SmoothFloat* g_typeSource;
-    float g_typeCopy;
 };
 
 /**
@@ -487,9 +433,7 @@ public:
 
     //Copy function that does nothing
     NetworkTypeContainer([[maybe_unused]] const NetworkTypeContainer& n){};
-    NetworkTypeContainer([[maybe_unused]] NetworkTypeContainer& n){};
     NetworkTypeContainer& operator=([[maybe_unused]] const NetworkTypeContainer& n){return *this;};
-    NetworkTypeContainer& operator=([[maybe_unused]] NetworkTypeContainer& n){return *this;};
 
     void clear();
 
@@ -504,7 +448,7 @@ public:
     std::size_t packNeededUpdate(fge::net::Packet& pck);
     void unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id);
 
-    inline size_t size() const
+    [[nodiscard]] inline size_t size() const
     {
         return this->g_data.size();
     }
