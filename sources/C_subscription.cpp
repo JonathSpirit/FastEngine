@@ -19,7 +19,7 @@
 namespace fge
 {
 
-///Subscription
+//Subscription
 void Subscription::detachAll()
 {
     for (auto& data : this->g_subData)
@@ -76,7 +76,6 @@ fge::Subscription::SubscriberCount Subscription::detachOnce(fge::Subscriber* sub
             this->g_subData.erase(it);
             return 0;
         }
-
         return it->second;
     }
     return 0;
@@ -94,12 +93,10 @@ fge::Subscription::SubscriberCount Subscription::attach(fge::Subscriber* subscri
     {
         return ++it->second;
     }
-    else
-    {
-        this->g_subData[subscriber] = 1;
-        subscriber->attachSilent(this);
-        return 1;
-    }
+
+    this->g_subData[subscriber] = 1;
+    subscriber->attachSilent(this);
+    return 1;
 }
 
 fge::Subscription::SubscriberCount Subscription::getCount(fge::Subscriber* subscriber) const
@@ -117,11 +114,10 @@ fge::Subscription::SubscriberCount Subscription::getCount(fge::Subscriber* subsc
     return 0;
 }
 
-///Subscriber
-
+//Subscriber
 void Subscriber::detachAll()
 {
-    for (auto data : this->g_subData)
+    for (auto* data : this->g_subData)
     {
         data->detachSilent(this);
     }
@@ -129,14 +125,14 @@ void Subscriber::detachAll()
 }
 void Subscriber::detachSilent(fge::Subscription* subscription)
 {
-    if ( this->g_subData.erase(subscription) )
+    if ( this->g_subData.erase(subscription) > 0 )
     {
         this->onDetach(subscription);
     }
 }
 void Subscriber::detach(fge::Subscription* subscription)
 {
-    if ( this->g_subData.erase(subscription) )
+    if ( this->g_subData.erase(subscription) > 0 )
     {
         subscription->detachSilent(this);
     }

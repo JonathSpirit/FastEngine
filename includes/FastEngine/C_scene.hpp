@@ -364,7 +364,7 @@ private:
     mutable fge::ObjectPlanDepth g_planDepth;
     mutable fge::ObjectDataWeak g_parent;
 
-    friend fge::Scene;
+    friend class fge::Scene;
 };
 
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
