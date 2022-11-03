@@ -9,12 +9,12 @@ function(fge_add_test target SOURCES DEPENDS)
     if (WIN32)
         foreach (DEPENDENCY ${DEPENDS})
             add_custom_command(TARGET ${target} PRE_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     $<TARGET_FILE:${DEPENDENCY}>
                     $<TARGET_FILE_DIR:${target}>)
         endforeach()
         add_custom_command(TARGET ${target} PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${CMAKE_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
                 $<TARGET_FILE_DIR:${target}>)
     endif()

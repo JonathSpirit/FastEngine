@@ -412,12 +412,12 @@ endif()
 if (WIN32)
     foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window)
         add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>
                 $<TARGET_FILE_DIR:${FGE_EXE_NAME}>)
     endforeach()
     add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
             $<TARGET_FILE_DIR:${FGE_EXE_NAME}>)
 endif()
