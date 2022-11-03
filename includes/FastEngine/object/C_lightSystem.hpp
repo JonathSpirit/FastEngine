@@ -70,7 +70,7 @@ public:
      */
     void setLightSystem(fge::LightSystem& lightSystem)
     {
-        this->_g_lightSystemGate.openTo(&lightSystem, true);
+        this->_g_lightSystemGate.openTo(lightSystem, true);
     }
 
     /**
@@ -111,7 +111,7 @@ public:
      */
     void setLightSystem(fge::LightSystem& lightSystem)
     {
-        this->_g_lightSystemGate.openTo(&lightSystem, false);
+        this->_g_lightSystemGate.openTo(lightSystem, false);
     }
 
     /**

@@ -55,46 +55,46 @@ fge::Tunnel<T>& Tunnel<T>::operator =(fge::Tunnel<T>&& r) noexcept
 }
 
 template <class T>
-bool Tunnel<T>::knock(fge::TunnelGate<T>* gate, bool anonymous)
+bool Tunnel<T>::knock(fge::TunnelGate<T>& gate, bool anonymous)
 {
-    if ( (!gate->isLocked()) || gate->status() )
+    if ( (!gate.isLocked()) || gate.status() )
     {
         return false;
     }
 
-    gate->g_tunnel = this;
+    gate.g_tunnel = this;
     if (anonymous)
     {
-        this->g_anonymousGates.push_back(gate);
+        this->g_anonymousGates.push_back(&gate);
         return true;
     }
-    this->g_gates.push_back(gate);
+    this->g_gates.push_back(&gate);
     return true;
 }
 template <class T>
-bool Tunnel<T>::addGate(fge::TunnelGate<T>* gate, bool anonymous)
+bool Tunnel<T>::addGate(fge::TunnelGate<T>& gate, bool anonymous)
 {
-    if ( gate->isOpen() )
+    if ( gate.isOpen() )
     {
         return false;
     }
 
-    gate->g_tunnel = this;
+    gate.g_tunnel = this;
     if (anonymous)
     {
-        this->g_anonymousGates.push_back(gate);
+        this->g_anonymousGates.push_back(&gate);
         return true;
     }
-    this->g_gates.push_back(gate);
+    this->g_gates.push_back(&gate);
     return true;
 }
 
 template <class T>
-bool Tunnel<T>::isAnonymous(const fge::TunnelGate<T>* gate) const
+bool Tunnel<T>::isAnonymous(const fge::TunnelGate<T>& gate) const
 {
     for ( std::size_t i=0; i<this->g_anonymousGates.size(); ++i )
     {
-        if ( this->g_anonymousGates[i] == gate )
+        if ( this->g_anonymousGates[i] == &gate )
         {
             return true;
         }
@@ -123,11 +123,11 @@ void Tunnel<T>::closeAnonymousGate(std::size_t index)
     this->g_anonymousGates.erase( this->g_anonymousGates.begin()+index );
 }
 template <class T>
-void Tunnel<T>::closeGate(fge::TunnelGate<T>* gate)
+void Tunnel<T>::closeGate(fge::TunnelGate<T>& gate)
 {
     for ( std::size_t i=0; i<this->g_anonymousGates.size(); ++i )
     {
-        if (this->g_anonymousGates[i] == gate)
+        if (this->g_anonymousGates[i] == &gate)
         {
             this->g_anonymousGates[i]->g_tunnel = nullptr;
             this->g_anonymousGates.erase( this->g_anonymousGates.begin()+i );
@@ -136,7 +136,7 @@ void Tunnel<T>::closeGate(fge::TunnelGate<T>* gate)
     }
     for ( std::size_t i=0; i<this->g_gates.size(); ++i )
     {
-        if (this->g_gates[i] == gate)
+        if (this->g_gates[i] == &gate)
         {
             this->g_gates[i]->g_tunnel = nullptr;
             this->g_gates.erase( this->g_gates.begin()+i );
@@ -215,7 +215,7 @@ TunnelGate<T>::TunnelGate(const fge::TunnelGate<T>& gate) :
 {
     if (gate.g_tunnel)
     {
-        gate.g_tunnel->addGate(this, gate.g_tunnel->isAnonymous(&gate));
+        gate.g_tunnel->addGate(*this, gate.g_tunnel->isAnonymous(gate));
     }
 }
 template <class T>
@@ -252,7 +252,7 @@ fge::TunnelGate<T>& TunnelGate<T>::operator=(const fge::TunnelGate<T>& gate)
 
     if (gate.g_tunnel)
     {
-        gate.g_tunnel->addGate(this, gate.g_tunnel->isAnonymous(&gate));
+        gate.g_tunnel->addGate(*this, gate.g_tunnel->isAnonymous(gate));
     }
     return *this;
 }
@@ -272,16 +272,16 @@ fge::TunnelGate<T>& TunnelGate<T>::operator=(fge::TunnelGate<T>&& gate) noexcept
 }
 
 template <class T>
-bool TunnelGate<T>::openTo(fge::Tunnel<T>* tunnel, bool anonymous)
+bool TunnelGate<T>::openTo(fge::Tunnel<T>& tunnel, bool anonymous)
 {
-    return tunnel->addGate(this, anonymous);
+    return tunnel.addGate(*this, anonymous);
 }
 template <class T>
 void TunnelGate<T>::close()
 {
     if ( this->g_tunnel )
     {
-        this->g_tunnel->closeGate(this);
+        this->g_tunnel->closeGate(*this);
     }
 }
 template <class T>

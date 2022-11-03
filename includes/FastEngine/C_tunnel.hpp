@@ -37,14 +37,14 @@ public:
     fge::Tunnel<T>& operator =(fge::Tunnel<T>& r) = delete;
     fge::Tunnel<T>& operator =(fge::Tunnel<T>&& r) noexcept;
 
-    bool knock(fge::TunnelGate<T>* gate, bool anonymous=false);
-    bool addGate(fge::TunnelGate<T>* gate, bool anonymous=false);
+    bool knock(fge::TunnelGate<T>& gate, bool anonymous=false);
+    bool addGate(fge::TunnelGate<T>& gate, bool anonymous=false);
 
-    bool isAnonymous(const fge::TunnelGate<T>* gate) const;
+    bool isAnonymous(const fge::TunnelGate<T>& gate) const;
 
     void closeGate(std::size_t index);
     void closeAnonymousGate(std::size_t index);
-    void closeGate(fge::TunnelGate<T>* gate);
+    void closeGate(fge::TunnelGate<T>& gate);
     void closeAll();
 
     T* get(std::size_t index) const;
@@ -72,7 +72,7 @@ public:
     fge::TunnelGate<T>& operator=(const fge::TunnelGate<T>& gate);
     fge::TunnelGate<T>& operator=(fge::TunnelGate<T>&& gate) noexcept;
 
-    bool openTo(fge::Tunnel<T>* tunnel, bool anonymous=false);
+    bool openTo(fge::Tunnel<T>& tunnel, bool anonymous=false);
     void close();
     [[nodiscard]] bool isOpen() const;
 
