@@ -449,10 +449,11 @@ public:
      *
      * This method call the Object::draw method of every Object in the scene.
      *
-     * Before drawing an Object, the Scene check if the global bounds of the Object
+     * The scene will draw an object according to it's Object::_drawMode :
+     * By default, the Scene check if the global bounds of the Object
      * is in the bounds of the screen and draw it if it's there.
      *
-     * This behaviour can be surpassed if the Object::_alwaysDrawed is \b true.
+     * This behaviour can be surpassed by setting Object::_drawMode.
      * \see Object::getGlobalBounds
      *
      * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.

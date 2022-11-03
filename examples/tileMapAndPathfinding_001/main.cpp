@@ -16,7 +16,7 @@ public:
 
     void first([[maybe_unused]] fge::Scene* scene) override
     {
-        this->_alwaysDrawed = true;
+        this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
     }
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override
@@ -180,7 +180,7 @@ public:
         auto tileMap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap), FGE_SCENE_PLAN_BACK);
 
         //Make sure it's always drawn
-        tileMap->getObject()->_alwaysDrawed = true;
+        tileMap->getObject()->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
         //Load the "tiled" json
         nlohmann::json json;

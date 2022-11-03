@@ -243,7 +243,16 @@ public:
     //Scene control
 
     fge::ObjectDataWeak _myObjectData{}; ///< The object data of the object (valid only if the object is in a scene)
-    bool _alwaysDrawed{false}; ///< \b true if the object is always drawn, \b false otherwise
+
+    enum class DrawModes : uint8_t
+    {
+        DRAW_IF_ON_TARGET,
+        DRAW_ALWAYS_HIDDEN,
+        DRAW_ALWAYS_DRAWN,
+
+        DRAW_DEFAULT = DRAW_IF_ON_TARGET
+    };
+    fge::Object::DrawModes _drawMode{fge::Object::DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
 
     //Child objects
 

@@ -145,7 +145,12 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
 
         fge::Object* object = (*objectIt)->g_object.get();
 
-        if (!object->_alwaysDrawed)
+        if (object->_drawMode == fge::Object::DrawModes::DRAW_ALWAYS_HIDDEN)
+        {
+            continue;
+        }
+
+        if (object->_drawMode == fge::Object::DrawModes::DRAW_IF_ON_TARGET)
         {
             sf::FloatRect objectBounds = object->getGlobalBounds();
             if (objectBounds.width == 0.0f)
