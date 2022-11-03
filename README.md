@@ -141,15 +141,17 @@ The **install** target is not supported for now. but you can use *fge_install* t
 
 Once built, you have to place the executable at the root and run it. You just have to follow prompts.
 
-The tool is not really "friendly" for now and will only work if you have 4 build folders (on windows) :
+The tool will check for every **build** folder and automatically detach the build type (debug/release) and the architecture (64/32).
+Here is some possible build folder name :
 - cmake-build-debug32
 - cmake-build-debug64
 - cmake-build-release32
 - cmake-build-release64
+- build
+- cmake-build
+- ...
 
-As I work with [CLion ide](https://www.jetbrains.com/clion/) it's pretty easy to do, but this will change in order to accept all situations.
-
-It will create a directory like this example :
+Once executed correctly, it will create a directory structure like this example :
 - FastEngine_0.9.1-186-g6cb2357-dirty
   - bin32
   - bin64
