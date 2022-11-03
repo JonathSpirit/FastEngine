@@ -186,6 +186,17 @@ public:
         return this->g_object.get();
     }
     /**
+     * \brief Get the Object pointer and cast it.
+     *
+     * \tparam TObject The wanted Object type
+     * \return The Object pointer
+     */
+    template<class TObject>
+    [[nodiscard]] inline TObject* getObject() const
+    {
+        return reinterpret_cast<TObject*>(this->g_object.get());
+    }
+    /**
      * \brief Get the SID of the Object.
      *
      * An SID (for static identifier) is an unique id for every object in your scene.

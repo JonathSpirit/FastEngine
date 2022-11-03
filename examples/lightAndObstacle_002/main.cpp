@@ -141,7 +141,7 @@ public:
                                                                        "Use space to delete all duplicated objects\n"
                                                                        "Use right click to change the light color\n",
                                                                        "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP+1);
-        reinterpret_cast<fge::ObjText*>(explainText->getObject())->setFillColor(sf::Color::White);
+        explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::White);
 
         //Create the light system
         fge::LightSystem lightSystem;
@@ -149,16 +149,16 @@ public:
 
         //Create the obstacle
         auto obstacle = this->newObject(FGE_NEWOBJECT(Obstacle), FGE_SCENE_PLAN_MIDDLE);
-        reinterpret_cast<Obstacle*>(obstacle->getObject())->scale(2.0f, 2.0f);
+        obstacle->getObject<Obstacle>()->scale(2.0f, 2.0f);
 
         //Create a render map
         auto renderMap = this->newObject(FGE_NEWOBJECT(fge::ObjRenderMap), FGE_SCENE_PLAN_HIGH_TOP);
-        reinterpret_cast<fge::ObjRenderMap*>(renderMap->getObject())->setClearColor(sf::Color{10,10,10,240});
+        renderMap->getObject<fge::ObjRenderMap>()->setClearColor(sf::Color{10,10,10,240});
 
         //Create the light
         auto light = this->newObject(FGE_NEWOBJECT(fge::ObjLight, "light_test", {400.0f, 300.0f}), FGE_SCENE_PLAN_MIDDLE);
-        reinterpret_cast<fge::ObjLight*>(light->getObject())->setColor(sf::Color::Red);
-        reinterpret_cast<fge::ObjLight*>(light->getObject())->setScale(3.0f, 3.0f);
+        light->getObject<fge::ObjLight>()->setColor(sf::Color::Red);
+        light->getObject<fge::ObjLight>()->setScale(3.0f, 3.0f);
 
         //Have a property that tell what object must follow the mouse
         this->_properties["follow"] = "obstacle";
@@ -187,7 +187,7 @@ public:
             if (mouseEvent.button == sf::Mouse::Right)
             {
                 //Change randomly the color of the light
-                reinterpret_cast<fge::ObjLight*>(light->getObject())->setColor(fge::_random.randColor());
+                light->getObject<fge::ObjLight>()->setColor(fge::_random.randColor());
             }
         }));
 
@@ -197,19 +197,19 @@ public:
             //Changing the obstacle type
             if (keyEvent.code == sf::Keyboard::Key::Num1)
             {
-                reinterpret_cast<Obstacle*>(obstacle->getObject())->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_RECTANGLE);
+                obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_RECTANGLE);
             }
             else if (keyEvent.code == sf::Keyboard::Key::Num2)
             {
-                reinterpret_cast<Obstacle*>(obstacle->getObject())->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_TRIANGLE);
+                obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_TRIANGLE);
             }
             else if (keyEvent.code == sf::Keyboard::Key::Num3)
             {
-                reinterpret_cast<Obstacle*>(obstacle->getObject())->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_CONVEX);
+                obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_CONVEX);
             }
             else if (keyEvent.code == sf::Keyboard::Key::Num4)
             {
-                reinterpret_cast<Obstacle*>(obstacle->getObject())->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_CONCAVE);
+                obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_CONCAVE);
             }
 
             //Follow up with mouse

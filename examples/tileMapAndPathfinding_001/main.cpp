@@ -174,7 +174,7 @@ public:
                                                                        "Use the right mouse button to set the start position\n"
                                                                        "Use the mouse wheel to zoom in and out",
                                                                        "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP);
-        reinterpret_cast<fge::ObjText*>(explainText->getObject())->setFillColor(sf::Color::Black);
+        explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::Black);
 
         //Create a tileMap object
         auto tileMap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap), FGE_SCENE_PLAN_BACK);
@@ -190,13 +190,13 @@ public:
         tileMap->getObject()->load(json, this);
 
         //Get the tileMap size
-        auto tileMapSize = reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject())->getTileLayers().front()->getTiles().getSize();
+        auto tileMapSize = tileMap->getObject<fge::ObjTileMap>()->getTileLayers().front()->getTiles().getSize();
 
         //Create a pathfinder object
         auto pathFinder = this->newObject(FGE_NEWOBJECT(PathFinder), FGE_SCENE_PLAN_TOP);
-        reinterpret_cast<PathFinder*>(pathFinder->getObject())->setWorldSize(static_cast<fge::AStar::Vector2i>(tileMapSize));
-        reinterpret_cast<PathFinder*>(pathFinder->getObject())->setTileSize({32,32});
-        reinterpret_cast<PathFinder*>(pathFinder->getObject())->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
+        pathFinder->getObject<PathFinder>()->setWorldSize(static_cast<fge::AStar::Vector2i>(tileMapSize));
+        pathFinder->getObject<PathFinder>()->setTileSize({32,32});
+        pathFinder->getObject<PathFinder>()->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
 
         //Create event callback for moving the view
         event._onKeyPressed.add(new fge::CallbackLambda<const fge::Event&, const sf::Event::KeyEvent&>{
@@ -250,12 +250,12 @@ public:
                 //Set the pathfinder goal when the left mouse button is pressed
                 if (mouseButtonEvent.button == sf::Mouse::Left)
                 {
-                    reinterpret_cast<PathFinder*>(pathFinder->getObject())->setGoal(mousePosition);
+                    pathFinder->getObject<PathFinder>()->setGoal(mousePosition);
                 }
                 //Set the pathfinder start when the right mouse button is pressed
                 else if (mouseButtonEvent.button == sf::Mouse::Right)
                 {
-                    reinterpret_cast<PathFinder*>(pathFinder->getObject())->setStart(mousePosition);
+                    pathFinder->getObject<PathFinder>()->setStart(mousePosition);
                 }
             }
         });
