@@ -20,6 +20,28 @@ namespace fge
 {
 
 //Subscription
+Subscription::Subscription(fge::Subscription&& r) noexcept :
+        g_subData(std::move(r.g_subData))
+{
+    for (auto& data : this->g_subData)
+    {
+        data.first->detachSilent(&r);
+        data.first->attachSilent(this);
+    }
+}
+
+fge::Subscription& Subscription::operator =(fge::Subscription&& r) noexcept
+{
+    this->detachAll();
+    this->g_subData = std::move(r.g_subData);
+    for (auto& data : this->g_subData)
+    {
+        data.first->detachSilent(&r);
+        data.first->attachSilent(this);
+    }
+    return *this;
+}
+
 void Subscription::detachAll()
 {
     for (auto& data : this->g_subData)

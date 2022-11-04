@@ -53,8 +53,7 @@ public:
 
     ///\warning Empty copy constructor as it's not permitted (does nothing)
     Subscription([[maybe_unused]] const fge::Subscription& r){};
-    ///\warning Move constructor prohibited
-    Subscription(fge::Subscription&& r) noexcept = delete;
+    Subscription(fge::Subscription&& r) noexcept;
 
     /**
      * \brief When the object is destroyed, it will detach all subscribers
@@ -63,8 +62,7 @@ public:
 
     ///\warning Empty copy operator as it's not permitted (does nothing)
     fge::Subscription& operator =([[maybe_unused]] const fge::Subscription& r){return *this;};
-    ///\warning Move operator prohibited
-    fge::Subscription& operator =(fge::Subscription&& r) noexcept = delete;
+    fge::Subscription& operator =(fge::Subscription&& r) noexcept;
 
 protected:
     /**
