@@ -235,6 +235,12 @@ private:
     static sf::Vector2f _GlobalGuiScale;
 };
 
+class GuiElementRecursive : public virtual fge::GuiElement
+{
+public:
+    bool isRecursive() const final{return true;}
+};
+
 /**
  * \class GuiElementHandler
  * \ingroup objectControl
@@ -282,9 +288,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -293,10 +300,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
             }
         }
     }
@@ -311,9 +314,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -322,10 +326,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
             }
         }
     }
@@ -340,9 +340,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -351,10 +352,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
             }
         }
     }
@@ -369,9 +366,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -380,10 +378,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
             }
         }
     }
@@ -466,7 +460,7 @@ public:
  * \ingroup objectControl
  * \brief A GUI element that verify a list of GUI elements
  */
-class GuiElementArray : public fge::GuiElement
+class GuiElementArray : public fge::GuiElementRecursive
 {
 public:
     GuiElementArray() = default;
@@ -474,11 +468,6 @@ public:
             fge::GuiElement(priority)
     {}
     ~GuiElementArray() override = default;
-
-    [[nodiscard]] bool isRecursive() const override
-    {
-        return true;
-    }
 
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
