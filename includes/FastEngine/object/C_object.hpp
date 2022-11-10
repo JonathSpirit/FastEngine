@@ -254,6 +254,15 @@ public:
     };
     fge::Object::DrawModes _drawMode{fge::Object::DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
 
+    enum class CallbackContextModes : uint8_t
+    {
+        CONTEXT_MANUAL,
+        CONTEXT_AUTO,
+
+        CONTEXT_DEFAULT = CONTEXT_AUTO
+    };
+    fge::Object::CallbackContextModes _callbackContextMode{fge::Object::CallbackContextModes::CONTEXT_DEFAULT}; ///< Tell a scene how the callbackRegister must be called
+
     //Child objects
 
     fge::ChildObjectsAccessor _children; ///< An access to child objects of this object
