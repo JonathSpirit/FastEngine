@@ -49,6 +49,7 @@ public:
         objWindow->_textureWindowMinimize = "minimize";
         objWindow->_textureWindowResize = "resize";
         objWindow->_tilesetWindow.setTexture("window");
+        objWindow->refreshRectBounds();
 
         //Begin loop
         while (window.isOpen())
