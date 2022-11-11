@@ -95,6 +95,7 @@ public:
     fge::Texture _textureWindowClose{};
     fge::Texture _textureWindowResize{};
     fge::TileSet _tilesetWindow{{}, {FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE}};
+    void refreshRectBounds();
 
     fge::Scene _windowScene;
     fge::GuiElementHandler _windowHandler;
@@ -110,8 +111,6 @@ private:
     void onPlanUpdate(fge::Scene* scene, fge::ObjectPlan plan);
 
     void onRefreshGlobalScale(const sf::Vector2f& scale);
-
-    void refreshRectBounds();
 
     bool g_movingWindowFlag{false};
     bool g_resizeWindowFlag{false};
