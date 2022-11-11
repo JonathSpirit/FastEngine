@@ -285,6 +285,7 @@ public:
         event._onMouseButtonReleased.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this );
         event._onMouseMoved.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this );
         event._onResized.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this );
+        this->onResized(event, {event.getWindowSize().x, event.getWindowSize().y});
     }
 
     void onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg)
@@ -396,10 +397,12 @@ public:
     {
         sf::Vector2f size{static_cast<float>(arg.width), static_cast<float>(arg.height)};
         this->_onGuiResized.call(*this, size);
+        this->_lastSize = size;
     }
 
     fge::CallbackHandler<const fge::Event&, sf::Event::EventType, fge::GuiElementContext&> _onGuiVerify;
     fge::CallbackHandler<const fge::GuiElementHandler&, const sf::Vector2f&> _onGuiResized;
+    sf::Vector2f _lastSize{0.0f, 0.0f};
 
 private:
     fge::Event* g_event{nullptr};
