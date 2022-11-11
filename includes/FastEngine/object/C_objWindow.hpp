@@ -23,7 +23,7 @@
 namespace fge
 {
 
-class ObjWindow : public fge::Object, public fge::Subscriber, public fge::GuiElementRecursive
+class FGE_API ObjWindow : public fge::Object, public fge::Subscriber, public fge::GuiElementRecursive
 {
 public:
     enum class SizeMode
@@ -137,7 +137,7 @@ private:
     mutable fge::ObjSprite g_sprite;
 };
 
-class ObjTextList : public fge::Object, public fge::Subscriber
+class FGE_API ObjTextList : public fge::Object, public fge::Subscriber
 {
 public:
     ObjTextList() = default;
