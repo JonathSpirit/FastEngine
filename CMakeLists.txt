@@ -336,6 +336,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
