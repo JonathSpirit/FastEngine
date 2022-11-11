@@ -249,12 +249,17 @@ public:
 class GuiElementHandler : public fge::Subscriber
 {
 public:
+    GuiElementHandler() = default;
     GuiElementHandler(fge::Event& event, const sf::RenderTarget& target) :
             g_event(&event),
             g_target(&target)
     {}
     ~GuiElementHandler() override = default;
 
+    void setEvent(fge::Event& event)
+    {
+        this->g_event = &event;
+    }
     fge::Event& getEvent()
     {
         return *this->g_event;
@@ -262,6 +267,10 @@ public:
     const fge::Event& getEvent() const
     {
         return *this->g_event;
+    }
+    void setRenderTarget(const sf::RenderTarget& target)
+    {
+        this->g_target = &target;
     }
     const sf::RenderTarget& getRenderTarget() const
     {
@@ -385,8 +394,8 @@ public:
     fge::CallbackHandler<const fge::Event&, sf::Event::EventType, fge::GuiElementContext&> _onGuiVerify;
 
 private:
-    fge::Event* g_event;
-    const sf::RenderTarget* g_target;
+    fge::Event* g_event{nullptr};
+    const sf::RenderTarget* g_target{nullptr};
 };
 
 /**
