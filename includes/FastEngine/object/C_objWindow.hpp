@@ -91,6 +91,11 @@ public:
         object->setParent(myObj);
     }
 
+    fge::Texture _textureWindowMinimize{};
+    fge::Texture _textureWindowClose{};
+    fge::Texture _textureWindowResize{};
+    fge::TileSet _tilesetWindow{{}, {FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE}};
+
     fge::Scene _windowScene;
     fge::GuiElementHandler _windowHandler;
     mutable sf::View _windowView;
@@ -130,10 +135,7 @@ private:
     sf::FloatRect g_windowMinimizeRect;
     sf::FloatRect g_windowCloseRect;
     sf::FloatRect g_windowResizeRect;
-    fge::Texture g_windowMinimizeTexture{"gui_window_minimize"};
-    fge::Texture g_windowCloseTexture{"gui_window_close"};
-    fge::Texture g_windowResizeTexture{"gui_window_resize"};
-    fge::TileSet g_windowTextures{"gui_window", {FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE}};
+    
     mutable fge::ObjSprite g_sprite;
 };
 
