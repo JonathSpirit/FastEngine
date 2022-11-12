@@ -114,6 +114,15 @@ FGE_API sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const
 
 FGE_API sf::Vector2f TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView);
 
+enum class ClipClampModes
+{
+    CLIP_CLAMP_NOTHING,
+    CLIP_CLAMP_STRETCH,
+    CLIP_CLAMP_PUSH,
+    CLIP_CLAMP_HIDE
+};
+FGE_API sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf::FloatRect& worldCoordClipRect, fge::ClipClampModes clampMode);
+
 ///Render
 FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target);
 FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view);
