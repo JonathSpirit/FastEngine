@@ -31,10 +31,10 @@ public:
 
     void onGuiResized(const fge::GuiElementHandler& handler, const sf::Vector2f& size);
 
-    void addString(std::string string);
+    void addString(tiny_utf8::string string);
     std::size_t getStringsSize() const;
-    std::string& getString(std::size_t index);
-    const std::string& getString(std::size_t index) const;
+    tiny_utf8::string& getString(std::size_t index);
+    const tiny_utf8::string& getString(std::size_t index) const;
     void removeAllStrings();
 
     void setFont(const fge::Font& font);
@@ -65,7 +65,7 @@ private:
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
-    std::deque<std::string> g_stringList;
+    std::deque<tiny_utf8::string> g_stringList;
     std::size_t g_maxStrings{100};
     float g_bottomOffset{70.0f};
 

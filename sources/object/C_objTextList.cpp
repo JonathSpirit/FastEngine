@@ -68,7 +68,7 @@ void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& ha
     this->refreshPosition(size);
 }
 
-void ObjTextList::addString(std::string string)
+void ObjTextList::addString(tiny_utf8::string string)
 {
     this->g_stringList.insert(this->g_stringList.begin(), std::move(string));
     if (this->g_stringList.size() > this->g_maxStrings)
@@ -80,11 +80,11 @@ std::size_t ObjTextList::getStringsSize() const
 {
     return this->g_stringList.size();
 }
-std::string& ObjTextList::getString(std::size_t index)
+tiny_utf8::string& ObjTextList::getString(std::size_t index)
 {
     return this->g_stringList[index];
 }
-const std::string& ObjTextList::getString(std::size_t index) const
+const tiny_utf8::string& ObjTextList::getString(std::size_t index) const
 {
     return this->g_stringList[index];
 }
