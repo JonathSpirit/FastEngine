@@ -178,20 +178,10 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     target.draw(this->g_sprite, states);
 
     ///Drawing elements
-    auto globalRect = states.transform.transformRect({{0.0f,0.0f}, this->g_size});
-
-    sf::Vector2f screenPositionStart = this->_windowView.getTransform().transformPoint( this->getPosition() + parentStates.transform.transformPoint({0.0f, this->g_windowMoveRect.height}) );
-    sf::Vector2f screenPositionEnd = this->_windowView.getTransform().transformPoint( globalRect.getPosition() + globalRect.getSize() );
-
-    screenPositionStart = sf::Vector2f{(screenPositionStart.x+1.0f)/2.0f, 1.0f-(screenPositionStart.y+1.0f)/2.0f};
-    screenPositionEnd = {(screenPositionEnd.x+1.0f)/2.0f, 1.0f-(screenPositionEnd.y+1.0f)/2.0f};
-
-    this->_windowView.setCenter(sf::Vector2f{globalRect.width / 2.0f, (globalRect.height - this->g_windowMoveRect.height) / 2.0f} + this->g_viewCenterOffset);
-    this->_windowView.setViewport(sf::FloatRect{screenPositionStart, screenPositionEnd - screenPositionStart});
-    this->_windowView.setSize(globalRect.getSize() - sf::Vector2f{0.0f, this->g_windowMoveRect.height});
+    this->_windowView = fge::ClipView(this->_windowView, target, states.transform.transformRect({{0.0f,0.0f}, this->g_size}), fge::ClipClampModes::CLIP_CLAMP_NOTHING);
     target.setView(this->_windowView);
 
-    this->_windowScene.draw(target, false);
+    this->_windowScene.draw(target, false, sf::Color::White, states);
 
     target.setView(backupView);
 }
@@ -228,6 +218,7 @@ void ObjWindow::setSize(const sf::Vector2f& size)
 
     this->refreshRectBounds();
     this->_windowHandler._onGuiResized.call(this->_windowHandler, this->g_size);
+    this->_windowHandler._lastSize = this->g_size;
 }
 const sf::Vector2f& ObjWindow::getSize() const
 {
