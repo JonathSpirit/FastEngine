@@ -101,8 +101,8 @@ public:
 
     void setCharacterSize(fge::ObjText::CharacterSize size);
 
-    void setLineSpacing(float spacingFactor);
-    void setLetterSpacing(float spacingFactor);
+    void setLineSpacingFactor(float spacingFactor);
+    void setLetterSpacingFactor(float spacingFactor);
 
     void setStyle(std::underlying_type<Style>::type style);
 
@@ -115,7 +115,8 @@ public:
 
     fge::ObjText::CharacterSize getCharacterSize() const;
 
-    float getLetterSpacing() const;
+    float getLetterSpacingFactor() const;
+    float getLineSpacingFactor() const;
     float getLineSpacing() const;
 
     std::underlying_type<Style>::type getStyle() const;
