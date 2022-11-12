@@ -51,6 +51,13 @@ public:
         objWindow->_tilesetWindow.setTexture("window");
         objWindow->refreshRectBounds();
 
+        auto* objTextList = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
+        objTextList->addString("this is a text");
+        objTextList->addString("hello world");
+        objTextList->addString("good morning");
+        objTextList->setFont("base");
+        objTextList->setCursorRatio(0.0f);
+
         //Begin loop
         while (window.isOpen())
         {

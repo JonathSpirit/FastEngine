@@ -158,6 +158,9 @@ public:
     const std::string& getString(std::size_t index) const;
     void removeAllStrings();
 
+    void setFont(const fge::Font& font);
+    const fge::Font& getFont() const;
+
     void setBottomOffset(float offset);
     float getBottomOffset() const;
 
@@ -180,6 +183,8 @@ private:
     mutable sf::RectangleShape g_scrollBaseRect;
     fge::TunnelGate<fge::GuiElement> g_defaultElementGate;
     fge::GuiElementDefault g_defaultElement{FGE_WINDOW_DEFAULT_PRIORITY};
+
+    fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
     std::deque<std::string> g_stringList;
     std::size_t g_maxStrings{100};

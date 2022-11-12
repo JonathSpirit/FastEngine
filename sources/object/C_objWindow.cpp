@@ -44,6 +44,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 {
     this->detachAll();
 
+    this->_windowHandler._lastSize = this->g_size;
     this->_windowHandler.setEvent(event);
     if (guiElementHandlerPtr != nullptr)
     {
@@ -441,7 +442,6 @@ void ObjTextList::first(fge::Scene* scene)
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
     this->g_parentPtr = fge::ObjWindow::getWindowFromScene(scene);
 
-    this->g_text.setFont("default");
     this->g_text.setCharacterSize(14);
     this->g_text.setFillColor(sf::Color::White);
     this->g_text.setOutlineColor(sf::Color::Black);
@@ -451,15 +451,18 @@ void ObjTextList::first(fge::Scene* scene)
     this->g_scrollRect.setFillColor(sf::Color{160,160,160,80});
     this->g_scrollRect.setOutlineColor(sf::Color{255,255,255,80});
 
-    this->g_defaultElementGate.setData(&this->g_defaultElement);
+    //this->g_defaultElementGate.setData(&this->g_defaultElement);
     ///this->g_parentPtr->_elements.addGate(this->g_defaultElementGate);
-    this->g_defaultElement._onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiMouseButtonPressed, this), this );
+    //this->g_defaultElement._onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiMouseButtonPressed, this), this );
 }
 void ObjTextList::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
+    this->g_guiElementHandler = guiElementHandlerPtr;
     event._onMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjTextList::onMouseMoved, this), this);
     event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjTextList::onMouseButtonReleased, this), this);
     guiElementHandlerPtr->_onGuiResized.add( new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiResized, this), this );
+
+    this->refreshPosition(guiElementHandlerPtr->_lastSize);
 }
 
 #ifndef FGE_DEF_SERVER
@@ -470,7 +473,7 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     float textOffset = -static_cast<float>(this->g_text.getCharacterSize());
 
     this->g_text.setPosition(4.0f, textOffset);
-    for (std::size_t i=static_cast<std::size_t>(static_cast<float>(this->g_maxStrings-1)*this->getCursorRatio()); i<this->g_stringList.size(); ++i)
+    for (std::size_t i=static_cast<std::size_t>(static_cast<float>(this->g_maxStrings-1)*this->getCursorRatio()); i<this->g_stringList.size()-1; ++i)
     {
         this->g_text.setString(this->g_stringList[i]);
         target.draw(this->g_text, states);
@@ -513,6 +516,15 @@ void ObjTextList::removeAllStrings()
     this->g_stringList.clear();
 }
 
+void ObjTextList::setFont(const fge::Font& font)
+{
+    this->g_text.setFont(font);
+}
+const fge::Font& ObjTextList::getFont() const
+{
+    return this->g_text.getFont();
+}
+
 void ObjTextList::setBottomOffset(float offset)
 {
     this->g_bottomOffset = offset;
@@ -525,7 +537,7 @@ float ObjTextList::getBottomOffset() const
 void ObjTextList::setCursorRatio(float ratio)
 {
     this->g_scrollPositionY = -ratio * (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y);
-    ///this->refreshPosition(this->g_parentPtr);
+    this->refreshPosition(this->g_guiElementHandler->_lastSize);
 }
 float ObjTextList::getCursorRatio() const
 {
@@ -592,7 +604,7 @@ void ObjTextList::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf:
 
         this->g_scrollPositionY = (mousePos.y-this->g_scrollRelativePosY) - this->getPosition().y;
 
-        ///this->refreshPosition(this->g_parentPtr);
+        this->refreshPosition(this->g_guiElementHandler->_lastSize);
     }
 }
 
