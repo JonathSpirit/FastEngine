@@ -191,6 +191,18 @@ public:
     [[nodiscard]] virtual bool compare(const fge::PropertyClassWrapper* val) = 0;
 };
 
+namespace comparisonCheck
+{
+    struct No {};
+    template<typename T, typename Arg> No operator== (const T&, const Arg&);
+
+    template<typename T, typename Arg = T>
+    struct EqualExists
+    {
+        enum { value = !std::is_same<decltype(std::declval<T>() == std::declval<Arg>()), No>::value };
+    };
+}
+
 template<class T>
 class PropertyClassWrapperType : public PropertyClassWrapper
 {

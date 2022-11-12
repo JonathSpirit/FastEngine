@@ -94,7 +94,7 @@ Property::Property(const T& val) :
     else
     {
         this->g_type = fge::Property::Types::PTYPE_CLASS;
-        this->g_data._ptr = new fge::PropertyClassWrapperType<std::remove_reference_t<T> >(val);
+        this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<std::remove_reference_t<T> >(val));
     }
 }
 template<class T,
@@ -143,7 +143,7 @@ Property::Property(T&& val) :
     else
     {
         this->g_type = fge::Property::Types::PTYPE_CLASS;
-        this->g_data._ptr = new fge::PropertyClassWrapperType<std::remove_reference_t<T> >(std::forward<T>(val));
+        this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<std::remove_reference_t<T> >(std::forward<T>(val)));
     }
 }
 
@@ -330,7 +330,7 @@ T& Property::setType()
         {
             this->clear();
             this->g_type = fge::Property::Types::PTYPE_CLASS;
-            this->g_data._ptr = new fge::PropertyClassWrapperType<std::remove_reference_t<T> >();
+            this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<std::remove_reference_t<T> >());
             return reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>* >(this->g_data._ptr)->_data;
         }
         else
@@ -343,7 +343,7 @@ T& Property::setType()
             {
                 this->clear();
                 this->g_type = fge::Property::Types::PTYPE_CLASS;
-                this->g_data._ptr = new fge::PropertyClassWrapperType<std::remove_reference_t<T>>();
+                this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<std::remove_reference_t<T>>());
                 return reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)->_data;
             }
         }
@@ -680,7 +680,7 @@ bool Property::set(const T& val)
             if (this->g_type == fge::Property::Types::PTYPE_NULL)
             {
                 this->g_type = fge::Property::Types::PTYPE_CLASS;
-                this->g_data._ptr = new fge::PropertyClassWrapperType<std::remove_reference_t<T> >(val);
+                this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<std::remove_reference_t<T> >(val));
                 return true;
             }
             else
@@ -812,7 +812,7 @@ bool Property::set(T&& val)
             if (this->g_type == fge::Property::Types::PTYPE_NULL)
             {
                 this->g_type = fge::Property::Types::PTYPE_CLASS;
-                this->g_data._ptr = new fge::PropertyClassWrapperType<std::remove_reference_t<T>>(std::forward<T>(val));
+                this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<std::remove_reference_t<T>>(std::forward<T>(val)));
                 return true;
             }
             else
@@ -1269,7 +1269,7 @@ fge::ParrayType& Property::setArrayType()
     {
         this->clear();
         this->g_type = fge::Property::Types::PTYPE_CLASS;
-        this->g_data._ptr = new fge::PropertyClassWrapperType<fge::ParrayType>();
+        this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<fge::ParrayType>());
     }
     else
     {
@@ -1277,7 +1277,7 @@ fge::ParrayType& Property::setArrayType()
         {
             this->clear();
             this->g_type = fge::Property::Types::PTYPE_CLASS;
-            this->g_data._ptr = new fge::PropertyClassWrapperType<fge::ParrayType>();
+            this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<fge::ParrayType>());
         }
     }
 
@@ -1508,7 +1508,7 @@ std::string PropertyClassWrapperType<T>::toString() const
 template<class T>
 fge::PropertyClassWrapper* PropertyClassWrapperType<T>::copy() const
 {
-    return new fge::PropertyClassWrapperType<T>(this->_data);
+    return static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<T>(this->_data));
 }
 
 template<class T>
@@ -1516,7 +1516,7 @@ bool PropertyClassWrapperType<T>::tryToCopy(const fge::PropertyClassWrapper* val
 {
     if (val->getType() == typeid(T))
     {
-        this->_data = reinterpret_cast<const PropertyClassWrapperType<T>*>(val)->_data;
+        this->_data = reinterpret_cast<const fge::PropertyClassWrapperType<T>*>(val)->_data;
         return true;
     }
     return false;
@@ -1527,7 +1527,14 @@ bool PropertyClassWrapperType<T>::compare(const fge::PropertyClassWrapper* val)
 {
     if (val->getType() == typeid(T))
     {
-        return this->_data == reinterpret_cast<const PropertyClassWrapperType<T>*>(val)->_data;
+        if constexpr (comparisonCheck::EqualExists<T>::value)
+        {
+            return this->_data == reinterpret_cast<const fge::PropertyClassWrapperType<T>*>(val)->_data;
+        }
+        else
+        {
+            return false;
+        }
     }
     return false;
 }
