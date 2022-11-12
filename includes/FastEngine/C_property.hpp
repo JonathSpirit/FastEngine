@@ -80,7 +80,7 @@ public:
 
     inline ~Property();
 
-    inline void clear();
+    inline __attribute__((noinline)) void clear();
 
     inline bool operator== (const fge::Property& val) const;
 
