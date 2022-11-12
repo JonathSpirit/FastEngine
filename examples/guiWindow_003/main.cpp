@@ -4,6 +4,7 @@
 #include "FastEngine/C_random.hpp"
 #include <FastEngine/C_clock.hpp>
 #include "FastEngine/object/C_objWindow.hpp"
+#include "FastEngine/object/C_objTextList.hpp"
 
 //Create the MainScene class
 class MainScene : public fge::Scene
