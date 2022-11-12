@@ -525,7 +525,6 @@ protected:
             if (context2._prioritizedElement->isRecursive())
             {
                 context2._recursive = true;
-                context2._prioritizedElement = nullptr;
                 context2._prioritizedElement->onGuiVerify(evt, evtType, context2);
             }
         }
