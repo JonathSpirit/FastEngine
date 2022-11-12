@@ -12,12 +12,10 @@
 namespace fge
 {
 
-class ObjWindow;
-
 class FGE_API ObjTextList : public fge::Object, public fge::Subscriber
 {
 public:
-    ObjTextList() = default;
+    ObjTextList();
     ~ObjTextList() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextList)
@@ -40,38 +38,34 @@ public:
     void setFont(const fge::Font& font);
     const fge::Font& getFont() const;
 
+    void setBoxSize(const sf::Vector2f& size);
+    const sf::Vector2f& getBoxSize();
+
     void setBottomOffset(float offset);
     float getBottomOffset() const;
 
     void setCursorRatio(float ratio);
     float getCursorRatio() const;
-    bool isScrollPressed() const;
 
     void setMaxStrings(std::size_t max);
     std::size_t getMaxStrings() const;
 
 private:
     void refreshPosition(const sf::Vector2f& size);
-    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
 
-    fge::ObjWindow* g_parentPtr{nullptr};
     mutable fge::ObjText g_text;
-    mutable sf::RectangleShape g_scrollRect;
-    mutable sf::RectangleShape g_scrollBaseRect;
-    fge::TunnelGate<fge::GuiElement> g_defaultElementGate;
-    //fge::GuiElementDefault g_defaultElement{FGE_WINDOW_DEFAULT_PRIORITY};
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
+
+    mutable sf::RectangleShape g_box{{50.0f,50.0f}};
+    float g_textScrollRatio{0.0f};
 
     std::deque<tiny_utf8::string> g_stringList;
     std::size_t g_maxStrings{100};
     float g_bottomOffset{70.0f};
 
-    bool g_scrollPressed{false};
-    float g_scrollRelativePosY{0.0f};
-    float g_scrollPositionY{0.0f};
+    ///float g_scrollRelativePosY{0.0f};
+    ///float g_scrollPositionY{0.0f};
 };
 
 }//end fge

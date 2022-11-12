@@ -50,14 +50,26 @@ public:
         objWindow->_textureWindowMinimize = "minimize";
         objWindow->_textureWindowResize = "resize";
         objWindow->_tilesetWindow.setTexture("window");
+        objWindow->scale(1.0f, 1.0f);
         objWindow->refreshRectBounds();
 
         auto* objTextList = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
         objTextList->addString("this is a text");
         objTextList->addString("hello world");
         objTextList->addString("good morning");
+        objTextList->addString("yes and no");
         objTextList->setFont("base");
+        objTextList->move(100.0f, 100.0f);
         objTextList->setCursorRatio(0.0f);
+
+        auto* objTextList2 = this->newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
+        objTextList2->addString("this is a text");
+        objTextList2->addString("hello world");
+        objTextList2->addString("good morning");
+        objTextList2->addString("yes and no");
+        objTextList2->setFont("base");
+        objTextList2->move(0.0f, 100.0f);
+        objTextList2->setCursorRatio(0.0f);
 
         //Begin loop
         while (window.isOpen())
