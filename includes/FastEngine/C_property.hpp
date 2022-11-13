@@ -17,6 +17,7 @@
 #ifndef _FGE_C_PROPERTY_HPP_INCLUDED
 #define _FGE_C_PROPERTY_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/extra/extra_string.hpp"
 #include <string>
 #include <vector>
@@ -34,10 +35,10 @@ using PdoubleType = double;
 class Property;
 using ParrayType = std::vector<fge::Property>;
 
-class Property
+class FGE_API Property
 {
 public:
-    enum class Types
+    enum class Types : uint8_t
     {
         PTYPE_NULL,
 
@@ -64,108 +65,108 @@ public:
     Property() = default;
 
     //Copy/Move constructor
-    inline Property(const fge::Property& val);
-    inline Property(fge::Property&& val) noexcept;
+    Property(const fge::Property& val);
+    Property(fge::Property&& val) noexcept;
 
     //Copy/Move some type constructor
     template<class T,
             typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    inline Property(const T& val);
+    Property(const T& val);
     template<class T,
             typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    inline Property(T&& val);
+    Property(T&& val);
 
     //Special string copy constructor
-    inline Property(const char* val);
+    Property(const char* val);
 
-    inline ~Property();
+    ~Property();
 
-    inline __attribute__((noinline)) void clear();
+    void clear();
 
-    inline bool operator== (const fge::Property& val) const;
+    bool operator== (const fge::Property& val) const;
 
     //Copy/Move operator
-    inline fge::Property& operator= (const fge::Property& val);
-    inline fge::Property& operator= (fge::Property&& val) noexcept;
+    fge::Property& operator= (const fge::Property& val);
+    fge::Property& operator= (fge::Property&& val) noexcept;
 
     //Copy/Move some type operator
     template<class T,
             typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    inline fge::Property& operator= (const T& val);
+    fge::Property& operator= (const T& val);
     template<class T,
             typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    inline fge::Property& operator= (T&& val);
+    fge::Property& operator= (T&& val);
 
     //Special string copy operator
-    inline fge::Property& operator= (const char* val);
+    fge::Property& operator= (const char* val);
 
     template<class T>
-    inline T& setType();
-    inline void setType(fge::Property::Types type);
+    T& setType();
+    void setType(fge::Property::Types type);
     template<class T>
-    [[nodiscard]] inline bool isType() const;
-    [[nodiscard]] inline bool isType(fge::Property::Types type) const;
+    [[nodiscard]] bool isType() const;
+    [[nodiscard]] bool isType(fge::Property::Types type) const;
 
-    [[nodiscard]] inline const std::type_info& getClassType() const;
-    [[nodiscard]] inline Property::Types getType() const;
-    [[nodiscard]] inline bool isSigned() const;
+    [[nodiscard]] const std::type_info& getClassType() const;
+    [[nodiscard]] Property::Types getType() const;
+    [[nodiscard]] bool isSigned() const;
 
-    [[nodiscard]] inline std::string toString() const;
+    [[nodiscard]] std::string toString() const;
 
-    inline bool set(const fge::Property& val);
-    inline bool set(fge::Property&& val);
+    bool set(const fge::Property& val);
+    bool set(fge::Property&& val);
 
     template<class T,
             typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    inline bool set(const T& val);
+    bool set(const T& val);
     template<class T,
             typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    inline bool set(T&& val);
+    bool set(T&& val);
 
-    inline bool set(const char* val);
-
-    template<class T>
-    inline bool get(T& val) const;
-    template<class T>
-    inline std::optional<T> get() const;
+    bool set(const char* val);
 
     template<class T>
-    inline T* getPtr();
+    bool get(T& val) const;
     template<class T>
-    inline const T* getPtr() const;
+    std::optional<T> get() const;
+
+    template<class T>
+    T* getPtr();
+    template<class T>
+    const T* getPtr() const;
 
     //Value array control
-    inline fge::ParrayType& setArrayType();
+    fge::ParrayType& setArrayType();
 
-    inline bool resize(std::size_t n);
-    inline bool reserve(std::size_t n);
+    bool resize(std::size_t n);
+    bool reserve(std::size_t n);
 
-    inline bool pushData(const fge::Property& value);
-    inline bool pushData(fge::Property&& value);
-
-    template<class T>
-    inline bool pushType();
-
-    inline bool setData(std::size_t index, const fge::Property& value);
-    inline bool setData(std::size_t index, fge::Property&& value);
-
-    [[nodiscard]] inline fge::Property* getData(std::size_t index);
-    [[nodiscard]] inline const fge::Property* getData(std::size_t index) const;
+    bool pushData(const fge::Property& value);
+    bool pushData(fge::Property&& value);
 
     template<class T>
-    inline bool getData(std::size_t index, T& val) const;
+    bool pushType();
+
+    bool setData(std::size_t index, const fge::Property& value);
+    bool setData(std::size_t index, fge::Property&& value);
+
+    [[nodiscard]] fge::Property* getData(std::size_t index);
+    [[nodiscard]] const fge::Property* getData(std::size_t index) const;
+
     template<class T>
-    inline T* getDataPtr(std::size_t index);
+    bool getData(std::size_t index, T& val) const;
     template<class T>
-    inline const T* getDataPtr(std::size_t index) const;
+    T* getDataPtr(std::size_t index);
+    template<class T>
+    const T* getDataPtr(std::size_t index) const;
 
-    [[nodiscard]] inline std::size_t getDataSize() const;
+    [[nodiscard]] std::size_t getDataSize() const;
 
-    inline fge::Property* operator[] (std::size_t index);
-    inline const fge::Property* operator[] (std::size_t index) const;
+    fge::Property* operator[] (std::size_t index);
+    const fge::Property* operator[] (std::size_t index) const;
 
-    [[nodiscard]] inline bool isModified() const;
-    inline void setModifiedFlag(bool flag);
+    [[nodiscard]] bool isModified() const;
+    void setModifiedFlag(bool flag);
 
 private:
     Property::Types g_type{Property::Types::PTYPE_NULL};
