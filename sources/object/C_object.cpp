@@ -26,6 +26,10 @@
 namespace fge
 {
 
+Object::Object() :
+        fge::Anchor(this)
+{}
+
 void Object::first([[maybe_unused]] fge::Scene* scene)
 {
 }

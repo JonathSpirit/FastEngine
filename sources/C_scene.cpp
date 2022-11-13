@@ -74,14 +74,10 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
 {
     for ( this->g_updatedObjectIterator=this->g_data.begin(); this->g_updatedObjectIterator!=this->g_data.end(); ++this->g_updatedObjectIterator )
     {
-        auto* guiElement = (*this->g_updatedObjectIterator)->g_object->getGuiElement();
-        if (guiElement != nullptr)
+        if ((*this->g_updatedObjectIterator)->g_object->isNeedingAnchorUpdate())
         {
-            if (guiElement->isNeedingAnchorUpdate())
-            {
-                guiElement->updateAnchor();
-                guiElement->needAnchorUpdate(false);
-            }
+            (*this->g_updatedObjectIterator)->g_object->updateAnchor();
+            (*this->g_updatedObjectIterator)->g_object->needAnchorUpdate(false);
         }
 
 #ifdef FGE_DEF_SERVER

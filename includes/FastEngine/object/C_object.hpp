@@ -22,6 +22,7 @@
 #include "FastEngine/C_networkType.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_packet.hpp"
+#include "FastEngine/object/C_objectAnchor.hpp"
 #include "C_childObjectsAccessor.hpp"
 #include "SFML/Graphics.hpp"
 #include "json.hpp"
@@ -77,13 +78,13 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
  * \brief The Object class is the base class for all objects in the engine.
  */
 #ifdef FGE_DEF_SERVER
-class FGE_API Object : public sf::Transformable
+class FGE_API Object : public sf::Transformable, public fge::Anchor
 #else
-class FGE_API Object : public sf::Drawable, public sf::Transformable
+class FGE_API Object : public sf::Drawable, public sf::Transformable, public fge::Anchor
 #endif //FGE_DEF_SERVER
 {
 public:
-    Object() = default;
+    Object();
     ~Object() override = default;
 
     /**
