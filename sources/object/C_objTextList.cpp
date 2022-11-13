@@ -8,7 +8,7 @@ ObjTextList::ObjTextList()
 {
     this->g_box.setFillColor(sf::Color::Transparent);
     this->g_box.setOutlineColor(sf::Color{100,100,100,255});
-    this->g_box.setOutlineThickness(6.0f);
+    this->g_box.setOutlineThickness(2.0f);
 }
 
 void ObjTextList::first([[maybe_unused]] fge::Scene* scene)
@@ -33,13 +33,13 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
 {
     states.transform *= this->getTransform();
 
+    target.draw(this->g_box, states);
+
     sf::View backupView = target.getView();
     sf::View clipView = fge::ClipView(backupView, target, states.transform.transformRect({{0.0f,0.0f}, this->g_box.getSize()}),
                                       fge::ClipClampModes::CLIP_CLAMP_HIDE);
 
     target.setView(clipView);
-
-    target.draw(this->g_box, states);
 
     if (this->g_stringList.empty())
     {
