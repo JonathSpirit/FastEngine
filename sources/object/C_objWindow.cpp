@@ -42,7 +42,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 {
     this->detachAll();
 
-    this->_windowHandler._lastSize = this->g_size;
+    this->_windowHandler._lastSize = this->getDrawAreaSize();
     this->_windowHandler.setEvent(event);
     if (guiElementHandlerPtr != nullptr)
     {
@@ -212,8 +212,8 @@ void ObjWindow::setSize(const sf::Vector2f& size)
     this->g_size.y = std::clamp(size.y, static_cast<float>(this->g_textureWindowResize.getTextureSize().y) + FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT, renderTarget.getDefaultView().getSize().y);
 
     this->refreshRectBounds();
-    this->_windowHandler._onGuiResized.call(this->_windowHandler, this->g_size);
-    this->_windowHandler._lastSize = this->g_size;
+    this->_windowHandler._onGuiResized.call(this->_windowHandler, this->getDrawAreaSize());
+    this->_windowHandler._lastSize = this->getDrawAreaSize();
 }
 const sf::Vector2f& ObjWindow::getSize() const
 {
@@ -403,7 +403,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
 void ObjWindow::onRefreshGlobalScale(const sf::Vector2f& scale)
 {
     this->setScale(scale);
-    this->_windowHandler._onGuiResized.call(this->_windowHandler, this->g_size);
+    this->_windowHandler._onGuiResized.call(this->_windowHandler, this->getDrawAreaSize());
 }
 
 void ObjWindow::setTextureMinimize(fge::Texture texture)
