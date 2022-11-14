@@ -81,18 +81,9 @@ FGE_OBJ_UPDATE_BODY(ObjWindow)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjWindow)
 {
-    auto parentStates = states;
     sf::View backupView = target.getView();
     this->_windowView = target.getDefaultView();
     target.setView(this->_windowView);
-
-    sf::RectangleShape rectTest;
-    rectTest.setPosition(parentStates.transform.transformPoint({0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}) + this->getPosition() );
-    rectTest.setSize(this->getDrawAreaSize());
-    rectTest.setFillColor(sf::Color::Transparent);
-    rectTest.setOutlineThickness(1.0f);
-    rectTest.setOutlineColor(sf::Color::Red);
-    target.draw(rectTest);
 
     states.transform *= this->getTransform();
 
