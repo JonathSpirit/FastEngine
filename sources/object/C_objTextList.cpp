@@ -118,13 +118,10 @@ sf::Vector2f ObjTextList::getBoxSize()
 void ObjTextList::setTextScrollRatio(float ratio)
 {
     this->g_textScrollRatio = std::clamp(ratio, 0.0f, 1.0f);
-    //this->g_scrollPositionY = -ratio * (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y);
-    //this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 float ObjTextList::getTextScrollRatio() const
 {
     return this->g_textScrollRatio;
-    //return std::abs( this->g_scrollPositionY / (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y) );
 }
 
 void ObjTextList::setMaxStrings(std::size_t max)
