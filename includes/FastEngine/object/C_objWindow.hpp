@@ -33,10 +33,7 @@ public:
     ObjWindow();
     ~ObjWindow() override = default;
 
-    fge::Object* copy() override
-    {
-        return new fge::ObjWindow();
-    }
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjWindow)
 
     fge::GuiElement* getGuiElement() override
     {
@@ -89,10 +86,17 @@ public:
         object->setParent(myObj);
     }
 
-    fge::Texture _textureWindowMinimize{};
-    fge::Texture _textureWindowClose{};
-    fge::Texture _textureWindowResize{};
-    fge::TileSet _tilesetWindow{{}, {FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE}};
+    void setTextureMinimize(fge::Texture texture);
+    void setTextureClose(fge::Texture texture);
+    void setTextureResize(fge::Texture texture);
+
+    const fge::Texture& getTextureMinimize() const;
+    const fge::Texture& getTextureClose() const;
+    const fge::Texture& getTextureResize() const;
+
+    fge::TileSet& getTileSet();
+    const fge::TileSet& getTileSet() const;
+
     void refreshRectBounds();
 
     fge::Scene _windowScene;
@@ -127,7 +131,12 @@ private:
 
     sf::Vector2f g_viewCenterOffset;
 
-    ///Textures
+    //Textures
+    fge::Texture g_textureWindowMinimize{};
+    fge::Texture g_textureWindowClose{};
+    fge::Texture g_textureWindowResize{};
+    fge::TileSet g_tileSetWindow{{}, {FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE}};
+
     sf::FloatRect g_windowMoveRect;
     sf::FloatRect g_windowMinimizeRect;
     sf::FloatRect g_windowCloseRect;

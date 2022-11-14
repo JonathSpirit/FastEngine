@@ -46,10 +46,10 @@ public:
 
         //Create the window
         auto* objWindow = this->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP)->getObject<fge::ObjWindow>();
-        objWindow->_textureWindowClose = "close";
-        objWindow->_textureWindowMinimize = "minimize";
-        objWindow->_textureWindowResize = "resize";
-        objWindow->_tilesetWindow.setTexture("window");
+        objWindow->setTextureClose("close");
+        objWindow->setTextureMinimize("minimize");
+        objWindow->setTextureResize("resize");
+        objWindow->getTileSet().setTexture("window");
         objWindow->scale(1.0f, 1.0f);
         objWindow->refreshRectBounds();
 
