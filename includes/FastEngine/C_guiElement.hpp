@@ -59,19 +59,48 @@ struct DynamicSize
     };
 
     sf::Vector2f _fixedSize{0.0f,0.0f};
-    fge::DynamicSize::SizeModes _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT};
+    sf::Vector2<fge::DynamicSize::SizeModes> _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT,
+                                                       fge::DynamicSize::SizeModes::SIZE_DEFAULT};
     sf::Vector2f _offset{0.0f,0.0f};
 
     [[nodiscard]] inline sf::Vector2f getSize(const sf::Vector2f& position, const sf::Vector2f& targetSize) const
     {
-        switch (this->_sizeMode)
+        sf::Vector2f size{};
+
+        switch (this->_sizeMode.x)
         {
         case SizeModes::SIZE_FIXED:
-            return this->_fixedSize;
+            size.x = this->_fixedSize.x;
+            break;
         case SizeModes::SIZE_AUTO:
-            return sf::Vector2f{targetSize.x-position.x, targetSize.y-position.y}+this->_offset;
+            size.x = (targetSize.x-position.x) + this->_offset.x;
+            break;
+        default:
+            break;
         }
-        return {};
+
+        switch (this->_sizeMode.y)
+        {
+        case SizeModes::SIZE_FIXED:
+            size.y = this->_fixedSize.y;
+            break;
+        case SizeModes::SIZE_AUTO:
+            size.y = (targetSize.y-position.y) + this->_offset.y;
+            break;
+        default:
+            break;
+        }
+
+        if (size.x < 0.0f)
+        {
+            size.x = 0.0f;
+        }
+        if (size.y < 0.0f)
+        {
+            size.y = 0.0f;
+        }
+
+        return size;
     }
 };
 

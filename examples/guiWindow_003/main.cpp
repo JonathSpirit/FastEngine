@@ -59,6 +59,9 @@ public:
         objTextList->setFont("base");
         objTextList->move(100.0f, 100.0f);
         objTextList->setTextScrollRatio(0.0f);
+        objTextList->setBoxSize({{0.0f,0.0f}, {fge::DynamicSize::SizeModes::SIZE_DEFAULT,
+                                               fge::DynamicSize::SizeModes::SIZE_DEFAULT},
+                                 {-20.0f,0.0f}});
 
         auto* objTextList2 = this->newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
         objTextList2->addString("this is a text");
