@@ -49,6 +49,32 @@ struct GuiElementContext
     fge::GuiElementHandler* _handler{nullptr};
 };
 
+struct DynamicSize
+{
+    enum class SizeModes
+    {
+        SIZE_FIXED,
+        SIZE_AUTO,
+        SIZE_DEFAULT = SIZE_AUTO
+    };
+
+    sf::Vector2f _fixedSize{0.0f,0.0f};
+    fge::DynamicSize::SizeModes _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT};
+    sf::Vector2f _offset{0.0f,0.0f};
+
+    [[nodiscard]] inline sf::Vector2f getSize(const sf::Vector2f& position, const sf::Vector2f& targetSize) const
+    {
+        switch (this->_sizeMode)
+        {
+        case SizeModes::SIZE_FIXED:
+            return this->_fixedSize;
+        case SizeModes::SIZE_AUTO:
+            return sf::Vector2f{targetSize.x-position.x, targetSize.y-position.y}+this->_offset;
+        }
+        return {};
+    }
+};
+
 /**
  * \class GuiElement
  * \ingroup objectControl
