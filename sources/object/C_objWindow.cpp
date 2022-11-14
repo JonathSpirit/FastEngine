@@ -169,8 +169,12 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     target.draw(this->g_sprite, states);
 
     ///Drawing elements
-    this->_windowView = fge::ClipView(this->_windowView, target, states.transform.transformRect({{0.0f,0.0f}, this->g_size}), fge::ClipClampModes::CLIP_CLAMP_NOTHING);
+    this->_windowView = fge::ClipView(this->_windowView, target,
+                                      states.transform.transformRect({{0.0f,FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}, this->getDrawAreaSize()}),
+                                      fge::ClipClampModes::CLIP_CLAMP_NOTHING);
     target.setView(this->_windowView);
+
+    states.transform.translate(0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT);
 
     this->_windowScene.draw(target, false, sf::Color::White, states);
 
