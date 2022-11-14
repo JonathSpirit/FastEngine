@@ -50,8 +50,6 @@ public:
         objWindow->setTextureMinimize("minimize");
         objWindow->setTextureResize("resize");
         objWindow->getTileSet().setTexture("window");
-        objWindow->scale(1.0f, 1.0f);
-        objWindow->refreshRectBounds();
 
         auto* objTextList = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
         objTextList->addString("this is a text");
@@ -60,7 +58,7 @@ public:
         objTextList->addString("yes and no");
         objTextList->setFont("base");
         objTextList->move(100.0f, 100.0f);
-        objTextList->setCursorRatio(0.0f);
+        objTextList->setTextScrollRatio(0.0f);
 
         auto* objTextList2 = this->newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
         objTextList2->addString("this is a text");
@@ -69,7 +67,8 @@ public:
         objTextList2->addString("yes and no");
         objTextList2->setFont("base");
         objTextList2->move(0.0f, 100.0f);
-        objTextList2->setCursorRatio(0.0f);
+        objTextList2->setTextScrollRatio(0.0f);
+        objTextList2->refreshSize();
 
         fge::GuiElement::setGlobalGuiScale({2.0f,2.0f});
 

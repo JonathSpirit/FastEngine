@@ -132,24 +132,24 @@ uint32_t Character::getUnicode() const
 
 //ObjText
 
-ObjText::ObjText(tiny_utf8::string string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
-    g_font(font),
+ObjText::ObjText(tiny_utf8::string string, fge::Font font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+    g_font(std::move(font)),
     g_characterSize(characterSize),
     g_geometryNeedUpdate(true)
 {
     this->setString(std::move(string));
     this->setPosition(position);
 }
-ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
-        g_font(font),
+ObjText::ObjText(fge::Font font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+        g_font(std::move(font)),
         g_characterSize(characterSize)
 {
     this->setPosition(position);
 }
 
-void ObjText::setFont(const fge::Font& font)
+void ObjText::setFont(fge::Font font)
 {
-    this->g_font = font;
+    this->g_font = std::move(font);
 }
 const fge::Font& ObjText::getFont() const
 {
