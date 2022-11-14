@@ -8,7 +8,7 @@ ObjTextList::ObjTextList()
 {
     this->g_box.setFillColor(sf::Color::Transparent);
     this->g_box.setOutlineColor(sf::Color{100,100,100,255});
-    this->g_box.setOutlineThickness(2.0f);
+    this->g_box.setOutlineThickness(-2.0f);
 }
 
 void ObjTextList::first([[maybe_unused]] fge::Scene* scene)
@@ -25,7 +25,7 @@ void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiE
     this->g_guiElementHandler = guiElementHandlerPtr;
     guiElementHandlerPtr->_onGuiResized.add( new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiResized, this), this );
 
-    this->refreshPosition(guiElementHandlerPtr->_lastSize);
+    this->refreshSize(guiElementHandlerPtr->_lastSize);
 }
 
 #ifndef FGE_DEF_SERVER
@@ -49,7 +49,8 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     float characterHeightOffset = static_cast<float>(this->g_text.getLineSpacing());
 
     this->g_text.setPosition(4.0f, this->g_box.getSize().y-characterHeightOffset);
-    for (std::size_t i=static_cast<std::size_t>(static_cast<float>(this->g_stringList.size()-1)*this->getCursorRatio()); i<this->g_stringList.size(); ++i)
+    for (std::size_t i=static_cast<std::size_t>(static_cast<float>(this->g_stringList.size()-1)*
+            this->getTextScrollRatio()); i < this->g_stringList.size(); ++i)
     {
         this->g_text.setString(this->g_stringList[i]);
         target.draw(this->g_text, states);
@@ -68,11 +69,6 @@ const char* ObjTextList::getClassName() const
 const char* ObjTextList::getReadableClassName() const
 {
     return "text list";
-}
-
-void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const sf::Vector2f& size)
-{
-    this->refreshPosition(size);
 }
 
 void ObjTextList::addString(tiny_utf8::string string)
@@ -100,40 +96,32 @@ void ObjTextList::removeAllStrings()
     this->g_stringList.clear();
 }
 
-void ObjTextList::setFont(const fge::Font& font)
+void ObjTextList::setFont(fge::Font font)
 {
-    this->g_text.setFont(font);
+    this->g_text.setFont(std::move(font));
 }
 const fge::Font& ObjTextList::getFont() const
 {
     return this->g_text.getFont();
 }
 
-void ObjTextList::setBoxSize(const sf::Vector2f& size)
+void ObjTextList::setBoxSize(const fge::DynamicSize& size)
 {
-    this->g_box.setSize(size);
+    this->g_boxSize = size;
+    this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
-const sf::Vector2f& ObjTextList::getBoxSize()
+sf::Vector2f ObjTextList::getBoxSize()
 {
-    return this->g_box.getSize();
-}
-
-void ObjTextList::setBottomOffset(float offset)
-{
-    this->g_bottomOffset = offset;
-}
-float ObjTextList::getBottomOffset() const
-{
-    return this->g_bottomOffset;
+    return this->g_boxSize.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
 
-void ObjTextList::setCursorRatio(float ratio)
+void ObjTextList::setTextScrollRatio(float ratio)
 {
     this->g_textScrollRatio = std::clamp(ratio, 0.0f, 1.0f);
     //this->g_scrollPositionY = -ratio * (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y);
-    this->refreshPosition(this->g_guiElementHandler->_lastSize);
+    //this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
-float ObjTextList::getCursorRatio() const
+float ObjTextList::getTextScrollRatio() const
 {
     return this->g_textScrollRatio;
     //return std::abs( this->g_scrollPositionY / (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y) );
@@ -148,21 +136,18 @@ std::size_t ObjTextList::getMaxStrings() const
     return this->g_maxStrings;
 }
 
-void ObjTextList::refreshPosition([[maybe_unused]] const sf::Vector2f& size)
+void ObjTextList::refreshSize()
 {
-    /*this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, -(this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y), 0.0f);
+    this->refreshSize(this->g_guiElementHandler->_lastSize);
+}
 
-    auto windowSize = size;
-
-    this->setPosition( sf::Vector2f{0.0f, windowSize.y - this->g_bottomOffset} );
-
-    this->g_scrollRect.setSize({10.0f, 30.0f});
-    this->g_scrollBaseRect.setSize({10.0f, this->getPosition().y});
-    this->g_scrollRect.setPosition({windowSize.x - 14.0f, this->g_scrollPositionY});
-    this->g_scrollBaseRect.setPosition({windowSize.x - 14.0f, 0.0f});
-
-    this->g_scrollBaseRect.setOrigin(0.0f, this->g_scrollBaseRect.getSize().y);
-    this->g_scrollRect.setOrigin(0.0f, this->g_scrollRect.getSize().y);*/
+void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const sf::Vector2f& size)
+{
+    this->refreshSize(size);
+}
+void ObjTextList::refreshSize(const sf::Vector2f& targetSize)
+{
+    this->g_box.setSize( this->g_boxSize.getSize(this->getPosition(), targetSize) );
 }
 
 }//end fge
