@@ -71,6 +71,8 @@ public:
         objTextList2->move(0.0f, 100.0f);
         objTextList2->setCursorRatio(0.0f);
 
+        fge::GuiElement::setGlobalGuiScale({2.0f,2.0f});
+
         //Begin loop
         while (window.isOpen())
         {

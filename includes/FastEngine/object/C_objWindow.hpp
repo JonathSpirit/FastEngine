@@ -17,6 +17,7 @@
 #define FGE_WINDOW_RANGEMAX_PRIORITY 300
 
 #define FGE_OBJWINDOW_CLASSNAME "FGE:OBJ:WINDOW"
+#define FGE_OBJWINDOW_SCENE_PARENT_PROPERTY "_OBJWINDOW_PARENT_"
 
 namespace fge
 {
@@ -24,7 +25,7 @@ namespace fge
 class FGE_API ObjWindow : public fge::Object, public fge::Subscriber, public fge::GuiElementRecursive
 {
 public:
-    enum class SizeMode
+    enum class ResizeModes
     {
         MODE_FREE,
         MODE_FIXED
@@ -62,29 +63,12 @@ public:
     void makeMovable(bool enable);
     void makeResizable(bool enable);
 
-    void setResizeMode(ObjWindow::SizeMode modeX, ObjWindow::SizeMode modeY);
+    void setResizeMode(ObjWindow::ResizeModes modeX, ObjWindow::ResizeModes modeY);
 
     void setViewCenterOffset(const sf::Vector2f& offset);
     const sf::Vector2f& getViewCenterOffset() const;
 
-    static fge::ObjWindow* getWindowFromScene(fge::Scene* scene)
-    {
-        if (scene != nullptr)
-        {
-            fge::ObjectDataShared obj{nullptr};
-            if ( scene->_properties.getProperty("parent").get(obj) )
-            {
-                return reinterpret_cast<fge::ObjWindow*>( obj->getObject() );
-            }
-        }
-        return nullptr;
-    }
-
-    void setThisAsParent(const fge::ObjectDataShared& object)
-    {
-        auto myObj = this->_myObjectData.lock();
-        object->setParent(myObj);
-    }
+    static fge::ObjWindow* getWindowObjectFromScene(fge::Scene* scene);
 
     void setTextureMinimize(fge::Texture texture);
     void setTextureClose(fge::Texture texture);
@@ -124,8 +108,8 @@ private:
     bool g_makeMovable{true};
     bool g_makeResizable{true};
 
-    fge::ObjWindow::SizeMode g_resizeModeX{fge::ObjWindow::SizeMode::MODE_FREE};
-    fge::ObjWindow::SizeMode g_resizeModeY{fge::ObjWindow::SizeMode::MODE_FREE};
+    fge::ObjWindow::ResizeModes g_resizeModeX{fge::ObjWindow::ResizeModes::MODE_FREE};
+    fge::ObjWindow::ResizeModes g_resizeModeY{fge::ObjWindow::ResizeModes::MODE_FREE};
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 

@@ -35,7 +35,7 @@ void ObjWindow::first(fge::Scene* scene)
     this->setPriority(FGE_WINDOW_DEFAULT_PRIORITY);
     this->setScale( fge::GuiElement::getGlobalGuiScale()/*fge::ObjWindow::g_globalScale*/ );
 
-    this->_windowScene._properties.setProperty("parent", this->_myObjectData.lock());
+    this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
     this->_windowScene.setLinkedRenderTarget( scene->getLinkedRenderTarget() );
 }
 void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
@@ -237,7 +237,7 @@ void ObjWindow::makeResizable(bool enable)
     this->g_makeResizable = enable;
 }
 
-void ObjWindow::setResizeMode(ObjWindow::SizeMode modeX, ObjWindow::SizeMode modeY)
+void ObjWindow::setResizeMode(ObjWindow::ResizeModes modeX, ObjWindow::ResizeModes modeY)
 {
     this->g_resizeModeX = modeX;
     this->g_resizeModeY = modeY;
@@ -250,6 +250,15 @@ void ObjWindow::setViewCenterOffset(const sf::Vector2f& offset)
 const sf::Vector2f& ObjWindow::getViewCenterOffset() const
 {
     return this->g_viewCenterOffset;
+}
+
+fge::ObjWindow* ObjWindow::getWindowObjectFromScene(fge::Scene* scene)
+{
+    if (scene != nullptr)
+    {
+        return scene->_properties.getProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY).get<fge::ObjWindow*>().value_or(nullptr);
+    }
+    return nullptr;
 }
 
 void ObjWindow::onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context)
@@ -368,8 +377,8 @@ void ObjWindow::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::E
 
         sf::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, renderTarget.getDefaultView());
 
-        sf::Vector2f mouseDiff{this->g_resizeModeX == ObjWindow::SizeMode::MODE_FREE ? (mousePos.x - this->g_mouseClickLastPosition.x)/this->getScale().x : 0.0f,
-                               this->g_resizeModeY == ObjWindow::SizeMode::MODE_FREE ? (mousePos.y - this->g_mouseClickLastPosition.y)/this->getScale().y : 0.0f};
+        sf::Vector2f mouseDiff{this->g_resizeModeX == ObjWindow::ResizeModes::MODE_FREE ? (mousePos.x - this->g_mouseClickLastPosition.x) / this->getScale().x : 0.0f,
+                               this->g_resizeModeY == ObjWindow::ResizeModes::MODE_FREE ? (mousePos.y - this->g_mouseClickLastPosition.y) / this->getScale().y : 0.0f};
 
         this->setSize(this->g_mouseClickLastSize + mouseDiff);
     }
