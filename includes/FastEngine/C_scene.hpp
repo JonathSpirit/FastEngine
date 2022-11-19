@@ -268,7 +268,7 @@ public:
      *
      * \param object The parent object
      */
-    inline void setParent(fge::ObjectDataShared& object) const
+    inline void setParent(const fge::ObjectDataShared& object) const
     {
         if (object)
         {
