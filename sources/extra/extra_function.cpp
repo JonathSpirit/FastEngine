@@ -364,8 +364,16 @@ sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf
 {
     sf::View clippedView = view;
 
-    sf::Vector2f clipPositionStart = worldCoordClipRect.getPosition();
-    sf::Vector2f clipPositionEnd = worldCoordClipRect.getPosition()+worldCoordClipRect.getSize();
+    //Compute offset with respect of default view
+    auto oldViewPort = view.getViewport();
+    auto defaultViewSize = target.getDefaultView().getSize();
+    sf::Vector2f whatCenterShouldBe = {defaultViewSize.x*oldViewPort.left+(defaultViewSize.x*oldViewPort.width)/2.0f,
+                                       defaultViewSize.y*oldViewPort.top+(defaultViewSize.y*oldViewPort.height)/2.0f};
+    sf::Vector2f centerOffset = whatCenterShouldBe - view.getCenter();
+
+    //Compute clip view
+    sf::Vector2f clipPositionStart = worldCoordClipRect.getPosition()+centerOffset;
+    sf::Vector2f clipPositionEnd = worldCoordClipRect.getPosition()+centerOffset+worldCoordClipRect.getSize();
 
     clipPositionStart.x = clipPositionStart.x/static_cast<float>(target.getDefaultView().getSize().x);
     clipPositionStart.y = clipPositionStart.y/static_cast<float>(target.getDefaultView().getSize().y);
@@ -385,7 +393,6 @@ sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf
         break;
     case fge::ClipClampModes::CLIP_CLAMP_STRETCH:
         {
-            sf::FloatRect oldViewPort = view.getViewport();
             viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
             viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
 
@@ -409,7 +416,6 @@ sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf
         break;
     case fge::ClipClampModes::CLIP_CLAMP_PUSH:
         {
-            sf::FloatRect oldViewPort = view.getViewport();
             viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
             viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
 
@@ -437,7 +443,6 @@ sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf
         break;
     case fge::ClipClampModes::CLIP_CLAMP_HIDE:
         {
-            sf::FloatRect oldViewPort = view.getViewport();
             viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
             viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
 
