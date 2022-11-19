@@ -5,6 +5,7 @@
 #include <FastEngine/C_clock.hpp>
 #include "FastEngine/object/C_objWindow.hpp"
 #include "FastEngine/object/C_objTextList.hpp"
+#include "FastEngine/object/C_objSlider.hpp"
 
 //Create the MainScene class
 class MainScene : public fge::Scene
@@ -63,7 +64,7 @@ public:
                                                fge::DynamicSize::SizeModes::SIZE_DEFAULT},
                                  {-20.0f,0.0f}});
 
-        auto* objTextList2 = this->newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
+        /*auto* objTextList2 = this->newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
         objTextList2->addString("this is a text");
         objTextList2->addString("hello world");
         objTextList2->addString("good morning");
@@ -71,9 +72,11 @@ public:
         objTextList2->setFont("base");
         objTextList2->move(0.0f, 100.0f);
         objTextList2->setTextScrollRatio(0.0f);
-        objTextList2->refreshSize();
+        objTextList2->refreshSize();*/
 
-        fge::GuiElement::setGlobalGuiScale({2.0f,2.0f});
+        auto* objSlider = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
+
+        fge::GuiElement::setGlobalGuiScale({1.0f,1.0f});
 
         //Begin loop
         while (window.isOpen())

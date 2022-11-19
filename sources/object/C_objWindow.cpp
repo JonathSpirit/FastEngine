@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "FastEngine/object/C_objWindow.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 
@@ -37,6 +53,8 @@ void ObjWindow::first(fge::Scene* scene)
 
     this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
     this->_windowScene.setLinkedRenderTarget( scene->getLinkedRenderTarget() );
+    this->_windowView.reset(new sf::View{});
+    this->_windowScene.setCustomView(this->_windowView);
 }
 void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
@@ -49,6 +67,8 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
         this->_windowHandler.setRenderTarget(guiElementHandlerPtr->getRenderTarget());
     }
     this->_windowScene.setCallbackContext({&event, &this->_windowHandler});
+
+    this->_windowScene._onNewObject.add( new fge::CallbackFunctorObject(&fge::ObjWindow::onNewObject, this), this );
 
     fge::GuiElement::_onGlobalGuiScaleChange.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onRefreshGlobalScale, this), this);
     this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.add( new fge::CallbackFunctorObject(&fge::ObjWindow::onPlanUpdate, this), this );
@@ -82,8 +102,8 @@ FGE_OBJ_UPDATE_BODY(ObjWindow)
 FGE_OBJ_DRAW_BODY(ObjWindow)
 {
     sf::View backupView = target.getView();
-    this->_windowView = target.getDefaultView();
-    target.setView(this->_windowView);
+    *this->_windowView = target.getDefaultView();
+    target.setView(*this->_windowView);
 
     states.transform *= this->getTransform();
 
@@ -168,17 +188,19 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     this->g_sprite.setPosition(this->g_windowMinimizeRect.getPosition());
     target.draw(this->g_sprite, states);
 
-    ///Drawing elements
-    this->_windowView = fge::ClipView(this->_windowView, target,
-                                      states.transform.transformRect({{0.0f,FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}, this->getDrawAreaSize()}),
-                                      fge::ClipClampModes::CLIP_CLAMP_NOTHING);
-    target.setView(this->_windowView);
+    //Drawing elements
+    auto worldCoord = states.transform.transformRect({sf::Vector2f{0.0f,FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}, this->getDrawAreaSize()});
+    *this->_windowView = fge::ClipView(*this->_windowView, target,
+                                       worldCoord, fge::ClipClampModes::CLIP_CLAMP_NOTHING);
+    this->_windowView->setCenter(this->_windowView->getCenter() - (worldCoord.getPosition()-states.transform.transformPoint({})) );
+    //target.setView(*this->_windowView);
 
-    states.transform.translate(0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT);
+
+    //states.transform.translate(0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT);
 
     this->_windowScene.draw(target, false, sf::Color::White, states);
 
-    target.setView(backupView);
+    //target.setView(backupView);
 }
 #endif
 
@@ -398,6 +420,10 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
             this->setPriority(FGE_WINDOW_RANGEMAX_PRIORITY - myObjectData->getPlanDepth());
         }
     }
+}
+void ObjWindow::onNewObject(fge::Scene* scene, fge::ObjectDataShared object)
+{
+    object->setParent(this->_myObjectData.lock());
 }
 
 void ObjWindow::onRefreshGlobalScale(const sf::Vector2f& scale)
