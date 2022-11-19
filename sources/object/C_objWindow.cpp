@@ -421,7 +421,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         }
     }
 }
-void ObjWindow::onNewObject(fge::Scene* scene, fge::ObjectDataShared object)
+void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared object)
 {
     object->setParent(this->_myObjectData.lock());
 }

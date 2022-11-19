@@ -5,7 +5,7 @@
 namespace fge
 {
 
-void ObjSlider::first(fge::Scene* scene_ptr)
+void ObjSlider::first([[maybe_unused]] fge::Scene* scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
     ///this->setPriority(SC_GUI_PRIORITY_WINDOW);
@@ -97,7 +97,7 @@ void ObjSlider::refreshPosition(const sf::Vector2f& targetSize)
     this->_onSlide.call( this->getCursorRatio() );
 }
 
-void ObjSlider::onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context)
+void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context)
 {
     auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y}/*, this->g_parentPtr->_windowView*/);
 
@@ -105,7 +105,7 @@ void ObjSlider::onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::
     this->g_scrollRelativePosY = (mousePosition.y - this->getPosition().y)/this->getScale().y - this->g_scrollPositionY;
     this->g_scrollRect.setOutlineThickness(2.0f);
 }
-void ObjSlider::onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
+void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
 {
     if ( this->g_scrollPressed )
     {
@@ -113,7 +113,7 @@ void ObjSlider::onMouseButtonReleased(const fge::Event& evt, const sf::Event::Mo
         this->g_scrollRect.setOutlineThickness(0.0f);
     }
 }
-void ObjSlider::onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
+void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
 {
     if ( this->g_scrollPressed )
     {
@@ -132,7 +132,7 @@ void ObjSlider::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& hand
     this->refreshPosition(size);
 }
 
-void ObjSlider::onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context)
+void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context)
 {
     if (evtType != sf::Event::MouseButtonPressed)
     {
