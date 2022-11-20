@@ -31,8 +31,10 @@ Anchor::~Anchor()
     }
 }
 
-void Anchor::updateAnchor()
+void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
 {
+    this->_g_anchorNeedUpdate = false;
+
     if (this->_g_anchorType == fge::Anchor::Types::ANCHOR_NONE)
     {
         return;
@@ -60,10 +62,17 @@ void Anchor::updateAnchor()
     }
     else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
     {//On the render target
-        auto* renderTarget = scene->getLinkedRenderTarget();
-        if ( renderTarget != nullptr )
+        if (customTargetSize.x != 0.0f && customTargetSize.y != 0.0f)
         {
-            targetGlobalBounds = {{0.0f, 0.0f}, renderTarget->getDefaultView().getSize()};
+            targetGlobalBounds = {{0.0f, 0.0f}, customTargetSize};
+        }
+        else
+        {
+            auto* renderTarget = scene->getLinkedRenderTarget();
+            if ( renderTarget != nullptr )
+            {
+                targetGlobalBounds = {{0.0f, 0.0f}, renderTarget->getDefaultView().getSize()};
+            }
         }
     }
 

@@ -77,7 +77,6 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
         if ((*this->g_updatedObjectIterator)->g_object->isNeedingAnchorUpdate())
         {
             (*this->g_updatedObjectIterator)->g_object->updateAnchor();
-            (*this->g_updatedObjectIterator)->g_object->needAnchorUpdate(false);
         }
 
 #ifdef FGE_DEF_SERVER

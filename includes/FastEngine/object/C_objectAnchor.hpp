@@ -58,7 +58,7 @@ public:
     explicit Anchor(fge::Object* parent);
     ~Anchor();
 
-    void updateAnchor();
+    void updateAnchor(const sf::Vector2f& customTargetSize={0.0f,0.0f});
 
     void setAnchor(fge::Anchor::Types type, const sf::Vector2<fge::Anchor::Shifts>& shift, fge::ObjectSid target=FGE_SCENE_BAD_SID);
 
