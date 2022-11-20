@@ -3,7 +3,6 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/object/C_object.hpp"
-#include "FastEngine/object/C_objSprite.hpp"
 #include "FastEngine/C_guiElement.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
@@ -14,12 +13,6 @@ namespace fge
 class FGE_API ObjSlider : public fge::Object, public fge::Subscriber, public fge::GuiElement
 {
 public:
-    enum class PositionMode
-    {
-        MODE_MANUAL,
-        MODE_AUTO
-    };
-
     ObjSlider() = default;
     ~ObjSlider() override = default;
 
@@ -34,20 +27,20 @@ public:
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     FGE_OBJ_DRAW_DECLARE
 
-    void setBottomOffset(float offset);
-    float getBottomOffset() const;
+    void setSize(const fge::DynamicSize& size);
+    sf::Vector2f getSize() const;
 
     void setCursorRatio(float ratio);
     float getCursorRatio() const;
     bool isScrollPressed() const;
 
-    void setPositionMode(ObjSlider::PositionMode modeX, ObjSlider::PositionMode modeY);
-
-    void refreshPosition(const sf::Vector2f& targetSize);
+    void refreshSize();
 
     const char* getClassName() const override;
-
     const char* getReadableClassName() const override;
+
+    sf::FloatRect getGlobalBounds() const override;
+    sf::FloatRect getLocalBounds() const override;
 
     fge::CallbackHandler<float> _onSlide;
 
@@ -60,14 +53,14 @@ private:
 
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
 
+    void refreshSize(const sf::Vector2f& targetSize);
+
     mutable sf::RectangleShape g_scrollRect;
     mutable sf::RectangleShape g_scrollBaseRect;
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
-    float g_bottomOffset{70.0f};
-    ObjSlider::PositionMode g_positionModeX{ObjSlider::PositionMode::MODE_AUTO};
-    ObjSlider::PositionMode g_positionModeY{ObjSlider::PositionMode::MODE_AUTO};
+    fge::DynamicSize g_size;
 
     bool g_scrollPressed{false};
     float g_scrollRelativePosY{0.0f};

@@ -21,6 +21,8 @@ public:
         fge::GuiElementHandler guiElementHandler(event, window);
         guiElementHandler.setEventCallback(event);
 
+        this->setLinkedRenderTarget(&window);
+
         //Set default callback context
         this->setCallbackContext({&event, &guiElementHandler});
 
@@ -52,6 +54,7 @@ public:
         objWindow->setTextureResize("resize");
         objWindow->getTileSet().setTexture("window");
 
+        //Create a text list object
         auto* objTextList = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
         objTextList->addString("this is a text");
         objTextList->addString("hello world");
@@ -64,17 +67,17 @@ public:
                                                fge::DynamicSize::SizeModes::SIZE_DEFAULT},
                                  {-20.0f,0.0f}});
 
-        /*auto* objTextList2 = this->newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
-        objTextList2->addString("this is a text");
-        objTextList2->addString("hello world");
-        objTextList2->addString("good morning");
-        objTextList2->addString("yes and no");
-        objTextList2->setFont("base");
-        objTextList2->move(0.0f, 100.0f);
-        objTextList2->setTextScrollRatio(0.0f);
-        objTextList2->refreshSize();*/
-
+        //Create a slider object
         auto* objSlider = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
+        objSlider->setSize({{10.0f, 0.0f}, {fge::DynamicSize::SizeModes::SIZE_FIXED,
+                                            fge::DynamicSize::SizeModes::SIZE_AUTO},
+                            {0.0f,-50.0f}});
+        objSlider->setAnchor(fge::Anchor::Types::ANCHOR_UPRIGHT_CORNER, {fge::Anchor::Shifts::SHIFT_NEGATIVE_BOUNDS,
+                                                                         fge::Anchor::Shifts::SHIFT_NONE});
+        objSlider->needAnchorUpdate(false);
+
+        //Linking the slide ratio with the text list scroll ratio
+        objSlider->_onSlide.add( new fge::CallbackFunctorObject(&fge::ObjTextList::setTextScrollRatio, objTextList), objTextList );
 
         fge::GuiElement::setGlobalGuiScale({1.0f,1.0f});
 
