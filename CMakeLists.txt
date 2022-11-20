@@ -114,6 +114,14 @@ if(WIN32)
     set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
     set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
 
+    # In order to set IMPORTED_LOCATION, SFML check if the filepath exist.
+    # But if it's the first time that the user configure with cmake, the file will not be created yet.
+    # SFML see that and try to populate IMPORTED_LIBNAME that doesn't accept filepath anymore.
+    # In order to fix that, we create a dummy but valid file at the required path.
+    if (NOT EXISTS ${OPENAL_LIBRARY})
+        file(TOUCH ${OPENAL_LIBRARY})
+    endif()
+
     ExternalProject_Add(freetype_extern #freetype
             URL "${PROJECT_SOURCE_DIR}/libs/freetype"
             PREFIX ${CMAKE_CURRENT_BINARY_DIR}/freetype_extern
