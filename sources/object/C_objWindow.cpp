@@ -101,7 +101,6 @@ FGE_OBJ_UPDATE_BODY(ObjWindow)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjWindow)
 {
-    sf::View backupView = target.getView();
     *this->_windowView = target.getDefaultView();
     target.setView(*this->_windowView);
 
@@ -193,14 +192,8 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     *this->_windowView = fge::ClipView(*this->_windowView, target,
                                        worldCoord, fge::ClipClampModes::CLIP_CLAMP_NOTHING);
     this->_windowView->setCenter(this->_windowView->getCenter() - (worldCoord.getPosition()-states.transform.transformPoint({})) );
-    //target.setView(*this->_windowView);
-
-
-    //states.transform.translate(0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT);
 
     this->_windowScene.draw(target, false, sf::Color::White, states);
-
-    //target.setView(backupView);
 }
 #endif
 
