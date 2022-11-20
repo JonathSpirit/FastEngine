@@ -232,6 +232,12 @@ public:
      * \return Parents transform
      */
     sf::Transform getParentsTransform() const;
+    /**
+     * \brief Retrieve recursively all parents scale by combining them
+     *
+     * \return Parents scale
+     */
+    sf::Vector2f getParentsScale() const;
 
     //Data
 

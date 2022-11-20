@@ -204,7 +204,6 @@ sf::Transform Object::getParentsTransform() const
     if (auto myObject = this->_myObjectData.lock())
     {
         auto parent = myObject->getParent().lock();
-
         while (parent)
         {
             parentsTransform *= parent->getObject()->getTransform();
@@ -212,6 +211,21 @@ sf::Transform Object::getParentsTransform() const
         }
     }
     return parentsTransform;
+}
+sf::Vector2f Object::getParentsScale() const
+{
+    sf::Vector2f parentsScale{1.0f, 1.0f};
+    if (auto myObject = this->_myObjectData.lock())
+    {
+        auto parent = myObject->getParent().lock();
+        while (parent)
+        {
+            parentsScale.x *= parent->getObject()->getScale().x;
+            parentsScale.y *= parent->getObject()->getScale().y;
+            parent = parent->getParent().lock();
+        }
+    }
+    return parentsScale;
 }
 
 }//end fge
