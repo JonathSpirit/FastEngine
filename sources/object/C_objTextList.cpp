@@ -90,6 +90,15 @@ const char* ObjTextList::getReadableClassName() const
     return "text list";
 }
 
+sf::FloatRect ObjTextList::getGlobalBounds() const
+{
+    return this->getTransform().transformRect(this->getLocalBounds());
+}
+sf::FloatRect ObjTextList::getLocalBounds() const
+{
+    return this->g_box.getLocalBounds();
+}
+
 void ObjTextList::addString(tiny_utf8::string string)
 {
     this->g_stringList.insert(this->g_stringList.begin(), std::move(string));
@@ -129,7 +138,7 @@ void ObjTextList::setBoxSize(const fge::DynamicSize& size)
     this->g_boxSize = size;
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
-sf::Vector2f ObjTextList::getBoxSize()
+sf::Vector2f ObjTextList::getBoxSize() const
 {
     return this->g_boxSize.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }

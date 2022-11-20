@@ -43,6 +43,9 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
+    sf::FloatRect getGlobalBounds() const override;
+    sf::FloatRect getLocalBounds() const override;
+
     void addString(tiny_utf8::string string);
     std::size_t getStringsSize() const;
     tiny_utf8::string& getString(std::size_t index);
@@ -53,7 +56,7 @@ public:
     const fge::Font& getFont() const;
 
     void setBoxSize(const fge::DynamicSize& size);
-    sf::Vector2f getBoxSize();
+    sf::Vector2f getBoxSize() const;
 
     void setTextScrollRatio(float ratio);
     float getTextScrollRatio() const;
