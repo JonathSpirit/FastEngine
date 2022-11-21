@@ -63,8 +63,9 @@ private:
     fge::DynamicSize g_size;
 
     bool g_scrollPressed{false};
-    float g_scrollRelativePosY{0.0f};
     float g_scrollPositionY{0.0f};
+    float g_scrollLastPositionY{0.0f};
+    float g_lastMousePositionY{0.0f};
 };
 
 }//end fge

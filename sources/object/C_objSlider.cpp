@@ -90,10 +90,11 @@ void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
 
 void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context)
 {
-    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y}/*, this->g_parentPtr->_windowView*/);
+    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y});
 
     this->g_scrollPressed = true;
-    this->g_scrollRelativePosY = (mousePosition.y - this->getPosition().y)/this->getScale().y - this->g_scrollPositionY;
+    this->g_scrollLastPositionY = this->g_scrollPositionY;
+    this->g_lastMousePositionY = mousePosition.y;
     this->g_scrollRect.setOutlineThickness(2.0f);
 }
 void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
@@ -108,11 +109,12 @@ void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::E
 {
     if ( this->g_scrollPressed )
     {
-        const sf::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();//this->_myObjectData.lock()->getLinkedScene()->getLinkedRenderTarget();
+        const sf::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        sf::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}/*, this->g_parentPtr->_windowView*/);
+        sf::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y});
 
-        this->g_scrollPositionY = (mousePos.y-this->g_scrollRelativePosY)/this->getScale().y + this->getPosition().y;
+        auto scale = this->getParentsScale().y * this->getScale().y;
+        this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y-this->g_lastMousePositionY)/scale;
 
         this->refreshSize(this->g_guiElementHandler->_lastSize);
     }
@@ -137,9 +139,17 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Event::E
 
         auto scrollRect = transform.transformRect(this->g_scrollRect.getGlobalBounds());
 
-        //auto mousePosition = context._mouseGuiPosition;//this->getParentsTransform().transformPoint(context._mouseGuiPosition);
-        auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y},
-                                                                                  *this->_myObjectData.lock()->getLinkedScene()->getCustomView());
+        auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+        sf::Vector2f mousePosition;
+        if (customView)
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition,*customView);
+        }
+        else
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
+        }
+
         if ( scrollRect.contains(mousePosition) )
         {
             context._prioritizedElement = this;
