@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.10)
+project(004_server)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ../share/C_creature.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ../share/C_customObject.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ../share/C_drink.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ../share/C_food.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ../share/C_moveable.cpp)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ../share/includes)
+target_compile_definitions(${PROJECT_NAME} PRIVATE FGE_DEF_SERVER)
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} sfml-system ${FGE_SERVER_LIB_NAME})
+elseif(APPLE)
+    target_link_libraries(${PROJECT_NAME} sfml-system ${FGE_SERVER_LIB_NAME})
+else()
+    target_link_libraries(${PROJECT_NAME} sfml-system ${FGE_SERVER_LIB_NAME})
+endif()

@@ -1,0 +1,28 @@
+{
+    "type": "separate",
+    
+    "data": {
+        "speak": [
+            {
+                "path": "resources/animations/ugandan_1/ugandan1.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/ugandan_1/ugandan2.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/ugandan_1/ugandan3.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/ugandan_1/ugandan2.png",
+                "ticks": 200
+            },
+            {
+                "path": "resources/animations/ugandan_1/ugandan1.png",
+                "ticks": 200
+            }
+        ]
+    }
+}
