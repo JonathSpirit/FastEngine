@@ -466,12 +466,9 @@ public:
         elementTest2->getObject()->setOrigin(-2.0f,2.0f);
         elementTest2->getObject()->setScale(0.5f, 0.5f);
 
-        fge::GuiElementDefault test2;
-
-        test2.setObjectGuiParent(elementTest2);
-        test2.setAnchor(fge::AnchorType::ANCHOR_DOWNRIGHT_CORNER, {fge::AnchorShift::SHIFT_NONE, fge::AnchorShift::SHIFT_NONE}, elementTest1->getSid());
-
-        test2.updateAnchor();
+        elementTest2->getObject()->setAnchor(fge::Anchor::Types::ANCHOR_DOWNRIGHT_CORNER,
+                                             {fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE}, elementTest1->getSid());
+        elementTest2->getObject()->updateAnchor();
 
         fge::Clock deltaTime;
 

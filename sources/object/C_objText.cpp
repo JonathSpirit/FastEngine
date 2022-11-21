@@ -132,24 +132,24 @@ uint32_t Character::getUnicode() const
 
 //ObjText
 
-ObjText::ObjText(tiny_utf8::string string, const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
-    g_font(font),
+ObjText::ObjText(tiny_utf8::string string, fge::Font font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+    g_font(std::move(font)),
     g_characterSize(characterSize),
     g_geometryNeedUpdate(true)
 {
     this->setString(std::move(string));
     this->setPosition(position);
 }
-ObjText::ObjText(const fge::Font& font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
-        g_font(font),
+ObjText::ObjText(fge::Font font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+        g_font(std::move(font)),
         g_characterSize(characterSize)
 {
     this->setPosition(position);
 }
 
-void ObjText::setFont(const fge::Font& font)
+void ObjText::setFont(fge::Font font)
 {
-    this->g_font = font;
+    this->g_font = std::move(font);
 }
 const fge::Font& ObjText::getFont() const
 {
@@ -174,7 +174,7 @@ void ObjText::setCharacterSize(fge::ObjText::CharacterSize size)
     }
 }
 
-void ObjText::setLineSpacing(float spacingFactor)
+void ObjText::setLineSpacingFactor(float spacingFactor)
 {
     if (this->g_lineSpacingFactor != spacingFactor)
     {
@@ -182,7 +182,7 @@ void ObjText::setLineSpacing(float spacingFactor)
         this->g_geometryNeedUpdate = true;
     }
 }
-void ObjText::setLetterSpacing(float spacingFactor)
+void ObjText::setLetterSpacingFactor(float spacingFactor)
 {
     if (this->g_letterSpacingFactor != spacingFactor)
     {
@@ -254,13 +254,17 @@ fge::ObjText::CharacterSize ObjText::getCharacterSize() const
     return this->g_characterSize;
 }
 
-float ObjText::getLetterSpacing() const
+float ObjText::getLetterSpacingFactor() const
 {
     return this->g_letterSpacingFactor;
 }
-float ObjText::getLineSpacing() const
+float ObjText::getLineSpacingFactor() const
 {
     return this->g_lineSpacingFactor;
+}
+float ObjText::getLineSpacing() const
+{
+    return this->g_font.getData()->_font->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
 }
 
 std::underlying_type<ObjText::Style>::type ObjText::getStyle() const

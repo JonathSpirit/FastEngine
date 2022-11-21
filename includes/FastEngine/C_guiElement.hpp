@@ -49,20 +49,59 @@ struct GuiElementContext
     fge::GuiElementHandler* _handler{nullptr};
 };
 
-enum class AnchorType
+struct DynamicSize
 {
-    ANCHOR_NONE,
-    ANCHOR_UPLEFT_CORNER,
-    ANCHOR_UPRIGHT_CORNER,
-    ANCHOR_DOWNLEFT_CORNER,
-    ANCHOR_DOWNRIGHT_CORNER
-};
+    enum class SizeModes
+    {
+        SIZE_FIXED,
+        SIZE_AUTO,
+        SIZE_DEFAULT = SIZE_AUTO
+    };
 
-enum class AnchorShift
-{
-    SHIFT_NONE,
-    SHIFT_POSITIVE_BOUNDS,
-    SHIFT_NEGATIVE_BOUNDS
+    sf::Vector2f _fixedSize{0.0f,0.0f};
+    sf::Vector2<fge::DynamicSize::SizeModes> _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT,
+                                                       fge::DynamicSize::SizeModes::SIZE_DEFAULT};
+    sf::Vector2f _offset{0.0f,0.0f};
+
+    [[nodiscard]] inline sf::Vector2f getSize(const sf::Vector2f& position, const sf::Vector2f& targetSize) const
+    {
+        sf::Vector2f size{};
+
+        switch (this->_sizeMode.x)
+        {
+        case SizeModes::SIZE_FIXED:
+            size.x = this->_fixedSize.x;
+            break;
+        case SizeModes::SIZE_AUTO:
+            size.x = (targetSize.x-position.x) + this->_offset.x;
+            break;
+        default:
+            break;
+        }
+
+        switch (this->_sizeMode.y)
+        {
+        case SizeModes::SIZE_FIXED:
+            size.y = this->_fixedSize.y;
+            break;
+        case SizeModes::SIZE_AUTO:
+            size.y = (targetSize.y-position.y) + this->_offset.y;
+            break;
+        default:
+            break;
+        }
+
+        if (size.x < 0.0f)
+        {
+            size.x = 0.0f;
+        }
+        if (size.y < 0.0f)
+        {
+            size.y = 0.0f;
+        }
+
+        return size;
+    }
 };
 
 /**
@@ -83,7 +122,7 @@ public:
     explicit GuiElement(fge::GuiElement::Priority priority) :
             _g_priority(priority)
     {}
-    virtual ~GuiElement();
+    virtual ~GuiElement() = default;
 
     /**
      * \brief Check if this GuiElement is recursive
@@ -155,43 +194,6 @@ public:
         return false;
     }
 
-    void updateAnchor();
-    inline void setObjectGuiParent(fge::ObjectDataWeak parent)
-    {
-        this->_g_objectParent = std::move(parent);
-    }
-    inline void setAnchor(fge::AnchorType type, sf::Vector2<fge::AnchorShift> shift, fge::ObjectSid target=FGE_SCENE_BAD_SID)
-    {
-        this->_g_anchorType = type;
-        this->_g_anchorShift = shift;
-        this->_g_anchorTarget = target;
-        this->_g_anchorNeedUpdate = true;
-    }
-    inline fge::AnchorType getAnchorType() const
-    {
-        return this->_g_anchorType;
-    }
-    inline fge::ObjectSid getAnchorTarget() const
-    {
-        return this->_g_anchorTarget;
-    }
-    inline void setAnchorSuccessor(fge::ObjectDataWeak successor)
-    {
-        this->_g_anchorSuccessor = std::move(successor);
-    }
-    inline fge::ObjectDataWeak getAnchorSuccessor() const
-    {
-        return this->_g_anchorSuccessor;
-    }
-    inline void needAnchorUpdate(bool flag)
-    {
-        this->_g_anchorNeedUpdate = flag;
-    }
-    inline bool isNeedingAnchorUpdate() const
-    {
-        return this->_g_anchorNeedUpdate;
-    }
-
     /**
      * \brief Function called to verify if the element is hovered by the mouse
      *
@@ -224,15 +226,15 @@ public:
 protected:
     mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
     sf::Vector2f _g_scale{1.0f,1.0f};
-    fge::AnchorType _g_anchorType{fge::AnchorType::ANCHOR_NONE};
-    sf::Vector2<fge::AnchorShift> _g_anchorShift{fge::AnchorShift::SHIFT_NONE,fge::AnchorShift::SHIFT_NONE};
-    fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
-    bool _g_anchorNeedUpdate{true};
-    fge::ObjectDataWeak _g_anchorSuccessor{};
-    fge::ObjectDataWeak _g_objectParent{};
 
 private:
     static sf::Vector2f _GlobalGuiScale;
+};
+
+class GuiElementRecursive : public virtual fge::GuiElement
+{
+public:
+    bool isRecursive() const final{return true;}
 };
 
 /**
@@ -243,12 +245,17 @@ private:
 class GuiElementHandler : public fge::Subscriber
 {
 public:
+    GuiElementHandler() = default;
     GuiElementHandler(fge::Event& event, const sf::RenderTarget& target) :
             g_event(&event),
             g_target(&target)
     {}
     ~GuiElementHandler() override = default;
 
+    void setEvent(fge::Event& event)
+    {
+        this->g_event = &event;
+    }
     fge::Event& getEvent()
     {
         return *this->g_event;
@@ -256,6 +263,10 @@ public:
     const fge::Event& getEvent() const
     {
         return *this->g_event;
+    }
+    void setRenderTarget(const sf::RenderTarget& target)
+    {
+        this->g_target = &target;
     }
     const sf::RenderTarget& getRenderTarget() const
     {
@@ -269,6 +280,8 @@ public:
         event._onMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this), this );
         event._onMouseButtonReleased.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this );
         event._onMouseMoved.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this );
+        event._onResized.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this );
+        this->onResized(event, {event.getWindowSize().x, event.getWindowSize().y});
     }
 
     void onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg)
@@ -282,9 +295,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -293,10 +307,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
             }
         }
     }
@@ -311,9 +321,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -322,10 +333,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
             }
         }
     }
@@ -340,9 +347,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -351,10 +359,6 @@ public:
                 {
                     context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
                 }
-            }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
             }
         }
     }
@@ -369,9 +373,10 @@ public:
 
         if (context._prioritizedElement != nullptr)
         {
+            context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
+
             if (context._prioritizedElement->isRecursive())
             {
-                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
                 context._recursive = true;
                 auto* element = context._prioritizedElement;
                 context._prioritizedElement = nullptr;
@@ -381,18 +386,23 @@ public:
                     context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
                 }
             }
-            else
-            {
-                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
-            }
         }
     }
 
+    void onResized([[maybe_unused]] const fge::Event& evt, const sf::Event::SizeEvent& arg)
+    {
+        sf::Vector2f size{static_cast<float>(arg.width), static_cast<float>(arg.height)};
+        this->_onGuiResized.call(*this, size);
+        this->_lastSize = size;
+    }
+
     fge::CallbackHandler<const fge::Event&, sf::Event::EventType, fge::GuiElementContext&> _onGuiVerify;
+    fge::CallbackHandler<const fge::GuiElementHandler&, const sf::Vector2f&> _onGuiResized;
+    sf::Vector2f _lastSize{0.0f, 0.0f};
 
 private:
-    fge::Event* g_event;
-    const sf::RenderTarget* g_target;
+    fge::Event* g_event{nullptr};
+    const sf::RenderTarget* g_target{nullptr};
 };
 
 /**
@@ -466,7 +476,7 @@ public:
  * \ingroup objectControl
  * \brief A GUI element that verify a list of GUI elements
  */
-class GuiElementArray : public fge::GuiElement
+class GuiElementArray : public fge::GuiElementRecursive
 {
 public:
     GuiElementArray() = default;
@@ -474,11 +484,6 @@ public:
             fge::GuiElement(priority)
     {}
     ~GuiElementArray() override = default;
-
-    [[nodiscard]] bool isRecursive() const override
-    {
-        return true;
-    }
 
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
     {
@@ -516,7 +521,6 @@ protected:
             if (context2._prioritizedElement->isRecursive())
             {
                 context2._recursive = true;
-                context2._prioritizedElement = nullptr;
                 context2._prioritizedElement->onGuiVerify(evt, evtType, context2);
             }
         }

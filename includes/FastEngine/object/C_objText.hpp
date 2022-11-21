@@ -89,20 +89,20 @@ public:
     };
 
     ObjText() = default;
-    ObjText(tiny_utf8::string string, const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
-    explicit ObjText(const fge::Font& font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    ObjText(tiny_utf8::string string, fge::Font font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    explicit ObjText(fge::Font font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
-    void setFont(const fge::Font& font);
+    void setFont(fge::Font font);
     const fge::Font& getFont() const;
 
     void setString(tiny_utf8::string string);
 
     void setCharacterSize(fge::ObjText::CharacterSize size);
 
-    void setLineSpacing(float spacingFactor);
-    void setLetterSpacing(float spacingFactor);
+    void setLineSpacingFactor(float spacingFactor);
+    void setLetterSpacingFactor(float spacingFactor);
 
     void setStyle(std::underlying_type<Style>::type style);
 
@@ -115,7 +115,8 @@ public:
 
     fge::ObjText::CharacterSize getCharacterSize() const;
 
-    float getLetterSpacing() const;
+    float getLetterSpacingFactor() const;
+    float getLineSpacingFactor() const;
     float getLineSpacing() const;
 
     std::underlying_type<Style>::type getStyle() const;

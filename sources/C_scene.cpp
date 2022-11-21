@@ -74,14 +74,9 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
 {
     for ( this->g_updatedObjectIterator=this->g_data.begin(); this->g_updatedObjectIterator!=this->g_data.end(); ++this->g_updatedObjectIterator )
     {
-        auto* guiElement = (*this->g_updatedObjectIterator)->g_object->getGuiElement();
-        if (guiElement != nullptr)
+        if ((*this->g_updatedObjectIterator)->g_object->isNeedingAnchorUpdate())
         {
-            if (guiElement->isNeedingAnchorUpdate())
-            {
-                guiElement->updateAnchor();
-                guiElement->needAnchorUpdate(false);
-            }
+            (*this->g_updatedObjectIterator)->g_object->updateAnchor();
         }
 
 #ifdef FGE_DEF_SERVER
@@ -211,6 +206,12 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject, fge::ObjectPl
     }
     (*it)->g_object->first(this);
 
+    if ((*it)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
+        this->g_callbackContext._event != nullptr)
+    {
+        (*it)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
+    }
+
     this->_onNewObject.call(this, *it);
     this->_onPlanUpdate.call(this, plan);
 
@@ -242,6 +243,12 @@ fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
         objectData->g_parent = *this->g_updatedObjectIterator;
     }
     objectData->g_object->first(this);
+
+    if (objectData->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
+        this->g_callbackContext._event != nullptr)
+    {
+        objectData->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
+    }
 
     this->_onNewObject.call(this, objectData);
     this->_onPlanUpdate.call(this, objectData->g_plan);
@@ -416,6 +423,12 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
         (*it->second) = std::make_shared<fge::ObjectData>( this, std::move(newObject), (*it->second)->g_sid, (*it->second)->g_plan, (*it->second)->g_type );
         (*it->second)->g_object->_myObjectData = *it->second;
         (*it->second)->g_object->first(this);
+
+        if ((*it->second)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
+            this->g_callbackContext._event != nullptr)
+        {
+            (*it->second)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
+        }
         return true;
     }
     return false;

@@ -114,6 +114,14 @@ if(WIN32)
     set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
     set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
 
+    # In order to set IMPORTED_LOCATION, SFML check if the filepath exist.
+    # But if it's the first time that the user configure with cmake, the file will not be created yet.
+    # SFML see that and try to populate IMPORTED_LIBNAME that doesn't accept filepath anymore.
+    # In order to fix that, we create a dummy but valid file at the required path.
+    if (NOT EXISTS ${OPENAL_LIBRARY})
+        file(TOUCH ${OPENAL_LIBRARY})
+    endif()
+
     ExternalProject_Add(freetype_extern #freetype
             URL "${PROJECT_SOURCE_DIR}/libs/freetype"
             PREFIX ${CMAKE_CURRENT_BINARY_DIR}/freetype_extern
@@ -127,6 +135,11 @@ if(WIN32)
 
     set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
     set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
+
+    if (NOT EXISTS ${FREETYPE_LIBRARY})
+        file(TOUCH ${FREETYPE_LIBRARY})
+    endif()
+
 else()
     find_library(FREETYPE NAMES freetype REQUIRED)
 endif()
@@ -229,10 +242,12 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_event.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_font.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
 #target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
@@ -241,6 +256,9 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -324,10 +342,12 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_event.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_font.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
@@ -336,6 +356,9 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -442,6 +465,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/tileMapAndPathfinding_001)
     add_subdirectory(examples/lightAndObstacle_002)
+    add_subdirectory(examples/guiWindow_003)
 endif()
 
 add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD

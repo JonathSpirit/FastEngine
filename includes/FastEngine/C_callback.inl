@@ -158,9 +158,11 @@ template <class ... Types>
 void CallbackHandler<Types ...>::call(Types ... args)
 {
     std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
-    for (auto& callee : this->g_callees)
+    auto itCalleeNext = this->g_callees.begin();
+    for (auto itCallee=this->g_callees.begin(); itCallee!=this->g_callees.end(); itCallee=itCalleeNext)
     {
-        callee._f->call(args ...);
+        ++itCalleeNext;
+        itCallee->_f->call(args ...);
     }
 }
 

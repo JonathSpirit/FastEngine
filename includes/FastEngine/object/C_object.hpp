@@ -22,6 +22,7 @@
 #include "FastEngine/C_networkType.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_packet.hpp"
+#include "FastEngine/object/C_objectAnchor.hpp"
 #include "C_childObjectsAccessor.hpp"
 #include "SFML/Graphics.hpp"
 #include "json.hpp"
@@ -77,13 +78,13 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
  * \brief The Object class is the base class for all objects in the engine.
  */
 #ifdef FGE_DEF_SERVER
-class FGE_API Object : public sf::Transformable
+class FGE_API Object : public sf::Transformable, public fge::Anchor
 #else
-class FGE_API Object : public sf::Drawable, public sf::Transformable
+class FGE_API Object : public sf::Drawable, public sf::Transformable, public fge::Anchor
 #endif //FGE_DEF_SERVER
 {
 public:
-    Object() = default;
+    Object();
     ~Object() override = default;
 
     /**
@@ -231,6 +232,12 @@ public:
      * \return Parents transform
      */
     sf::Transform getParentsTransform() const;
+    /**
+     * \brief Retrieve recursively all parents scale by combining them
+     *
+     * \return Parents scale
+     */
+    sf::Vector2f getParentsScale() const;
 
     //Data
 
@@ -253,6 +260,15 @@ public:
         DRAW_DEFAULT = DRAW_IF_ON_TARGET
     };
     fge::Object::DrawModes _drawMode{fge::Object::DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
+
+    enum class CallbackContextModes : uint8_t
+    {
+        CONTEXT_MANUAL,
+        CONTEXT_AUTO,
+
+        CONTEXT_DEFAULT = CONTEXT_AUTO
+    };
+    fge::Object::CallbackContextModes _callbackContextMode{fge::Object::CallbackContextModes::CONTEXT_DEFAULT}; ///< Tell a scene how the callbackRegister must be called
 
     //Child objects
 

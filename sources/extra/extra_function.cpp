@@ -360,6 +360,125 @@ sf::Vector2f TransposePointFromAnotherView(const sf::View& pointView, const sf::
     return newView.getInverseTransform().transformPoint(normalized);
 }
 
+sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf::FloatRect& worldCoordClipRect, fge::ClipClampModes clampMode)
+{
+    sf::View clippedView = view;
+
+    //Compute offset with respect of default view
+    auto oldViewPort = view.getViewport();
+    auto defaultViewSize = target.getDefaultView().getSize();
+    sf::Vector2f whatCenterShouldBe = {defaultViewSize.x*oldViewPort.left+(defaultViewSize.x*oldViewPort.width)/2.0f,
+                                       defaultViewSize.y*oldViewPort.top+(defaultViewSize.y*oldViewPort.height)/2.0f};
+    sf::Vector2f centerOffset = whatCenterShouldBe - view.getCenter();
+
+    //Compute clip view
+    sf::Vector2f clipPositionStart = worldCoordClipRect.getPosition()+centerOffset;
+    sf::Vector2f clipPositionEnd = worldCoordClipRect.getPosition()+centerOffset+worldCoordClipRect.getSize();
+
+    clipPositionStart.x = clipPositionStart.x/static_cast<float>(target.getDefaultView().getSize().x);
+    clipPositionStart.y = clipPositionStart.y/static_cast<float>(target.getDefaultView().getSize().y);
+
+    clipPositionEnd.x = clipPositionEnd.x/static_cast<float>(target.getDefaultView().getSize().x);
+    clipPositionEnd.y = clipPositionEnd.y/static_cast<float>(target.getDefaultView().getSize().y);
+
+    sf::FloatRect viewPort{clipPositionStart, clipPositionEnd-clipPositionStart};
+    sf::Vector2f viewSize{worldCoordClipRect.getSize()};
+    sf::Vector2f viewCenter{worldCoordClipRect.getPosition()+sf::Vector2f{worldCoordClipRect.width / 2.0f, worldCoordClipRect.height / 2.0f}};
+
+    //Clamping
+    switch (clampMode)
+    {
+    default:
+    case fge::ClipClampModes::CLIP_CLAMP_NOTHING:
+        break;
+    case fge::ClipClampModes::CLIP_CLAMP_STRETCH:
+        {
+            viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
+            viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
+
+            if (viewPort.left+viewPort.width > oldViewPort.left+oldViewPort.width)
+            {
+                viewPort.width = viewPort.width-((viewPort.left+viewPort.width)-(oldViewPort.left+oldViewPort.width));
+                if (viewPort.width < 0.0f)
+                {
+                    viewPort.width = 0.0f;
+                }
+            }
+            if (viewPort.top+viewPort.height > oldViewPort.top+oldViewPort.height)
+            {
+                viewPort.height = viewPort.height-((viewPort.top+viewPort.height)-(oldViewPort.top+oldViewPort.height));
+                if (viewPort.height < 0.0f)
+                {
+                    viewPort.height = 0.0f;
+                }
+            }
+        }
+        break;
+    case fge::ClipClampModes::CLIP_CLAMP_PUSH:
+        {
+            viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
+            viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
+
+            if (viewPort.left+viewPort.width > oldViewPort.left+oldViewPort.width)
+            {
+                float oldWidth = viewPort.width;
+                viewPort.width = viewPort.width-((viewPort.left+viewPort.width)-(oldViewPort.left+oldViewPort.width));
+                if (viewPort.width < 0.0f)
+                {
+                    viewPort.width = 0.0f;
+                }
+                viewSize.x *= viewPort.width/oldWidth;
+            }
+            if (viewPort.top+viewPort.height > oldViewPort.top+oldViewPort.height)
+            {
+                float oldHeight = viewPort.height;
+                viewPort.height = viewPort.height-((viewPort.top+viewPort.height)-(oldViewPort.top+oldViewPort.height));
+                if (viewPort.height < 0.0f)
+                {
+                    viewPort.height = 0.0f;
+                }
+                viewSize.y *= viewPort.height/oldHeight;
+            }
+        }
+        break;
+    case fge::ClipClampModes::CLIP_CLAMP_HIDE:
+        {
+            viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
+            viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
+
+            if (viewPort.left+viewPort.width > oldViewPort.left+oldViewPort.width)
+            {
+                float oldWidth = viewPort.width;
+                viewPort.width = viewPort.width-((viewPort.left+viewPort.width)-(oldViewPort.left+oldViewPort.width));
+                if (viewPort.width < 0.0f)
+                {
+                    viewPort.width = 0.0f;
+                }
+                viewSize.x *= viewPort.width/oldWidth;
+                viewCenter.x -= (worldCoordClipRect.width-viewSize.x)/2.0f;
+            }
+            if (viewPort.top+viewPort.height > oldViewPort.top+oldViewPort.height)
+            {
+                float oldHeight = viewPort.height;
+                viewPort.height = viewPort.height-((viewPort.top+viewPort.height)-(oldViewPort.top+oldViewPort.height));
+                if (viewPort.height < 0.0f)
+                {
+                    viewPort.height = 0.0f;
+                }
+                viewSize.y *= viewPort.height/oldHeight;
+                viewCenter.y -= (worldCoordClipRect.height-viewSize.y)/2.0f;
+            }
+        }
+        break;
+    }
+
+    clippedView.setViewport(viewPort);
+    clippedView.setCenter(viewCenter);
+    clippedView.setSize(viewSize);
+
+    return clippedView;
+}
+
 ///Render
 sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target)
 {
