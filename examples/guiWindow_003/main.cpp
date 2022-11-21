@@ -79,6 +79,18 @@ public:
         //Linking the slide ratio with the text list scroll ratio
         objSlider->_onSlide.add( new fge::CallbackFunctorObject(&fge::ObjTextList::setTextScrollRatio, objTextList), objTextList );
 
+        //Create a slider object for the scaling
+        auto* objSlider2 = this->newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
+        objSlider2->setSize({{10.0f, 0.0f}, {fge::DynamicSize::SizeModes::SIZE_FIXED,
+                                             fge::DynamicSize::SizeModes::SIZE_AUTO}});
+        objSlider2->setAnchor(fge::Anchor::Types::ANCHOR_UPLEFT_CORNER, {fge::Anchor::Shifts::SHIFT_NONE,
+                                                                         fge::Anchor::Shifts::SHIFT_NONE});
+        objSlider2->needAnchorUpdate(false);
+
+        objSlider2->_onSlide.add( new fge::CallbackLambda<float>{[](float ratio){
+            fge::GuiElement::setGlobalGuiScale({2.0f*ratio+0.5f,2.0f*ratio+0.5f});
+        }} );
+
         fge::GuiElement::setGlobalGuiScale({1.0f,1.0f});
 
         //Begin loop
