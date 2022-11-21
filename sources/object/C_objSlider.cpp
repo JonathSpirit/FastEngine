@@ -10,7 +10,7 @@ void ObjSlider::first([[maybe_unused]] fge::Scene* scene)
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
     this->g_scrollBaseRect.setFillColor(sf::Color{100,100,100,80});
-    this->g_scrollRect.setFillColor(sf::Color{180,180,180,80});
+    this->g_scrollRect.setFillColor(sf::Color{60,60,60,140});
     this->g_scrollRect.setOutlineColor(sf::Color{255,255,255,80});
 }
 void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
