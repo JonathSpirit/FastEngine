@@ -27,6 +27,11 @@
 #define LIFESIM_TIME_TIMEOUT std::chrono::milliseconds{100}
 #define LIFESIM_TIMEOUT_COUNT 30
 
+#define LIFESIM_VIDEOMODE sf::VideoMode(1600, 900)
+#define LIFESIM_FRAMERATE 60
+#define LIFESIM_TIME_CONNECTION_TIMEOUT std::chrono::milliseconds{3000}
+#define LIFESIM_TIME_CLIENT_UPDATE std::chrono::milliseconds{1000}
+
 namespace ls
 {
 
