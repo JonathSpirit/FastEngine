@@ -6,6 +6,7 @@
 #include <FastEngine/manager/font_manager.hpp>
 #include <FastEngine/manager/anim_manager.hpp>
 #include <FastEngine/manager/audio_manager.hpp>
+#include <FastEngine/object/C_objText.hpp>
 #include <FastEngine/C_packetLZ4.hpp>
 #include <FastEngine/C_clock.hpp>
 
@@ -65,21 +66,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             {
                 server.stop();
                 std::cout << "Server refused the connection !" << std::endl;
-                return -1;
+                //return -1;
             }
         }
         else
         {
             std::cout << "Bad protocol response from server !" << std::endl;
             server.stop();
-            return -1;
+            //return -1;
         }
     }
     else
     {
         std::cout << "No response (timeout) !" << std::endl;
         server.stop();
-        return -1;
+        //return -1;
     }
 
     ///TEXTURE
@@ -107,6 +108,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::Clock clockPing;
     fge::Clock deltaTime;
 
+    ///Scene
+    char latencyTextBuffer[200];
+    const char* latencyTextFormat = "latency CTOS: %d, STOC: %d, ping: %d";
+    auto* latencyText = mainScene.newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
+                                            FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)->getObject<fge::ObjText>();
+    latencyText->setFillColor(sf::Color::Black);
+
+    fge::net::Client::Latency_ms latencySTOC;
+    fge::net::Client::Latency_ms ping;
+
     fge::Event event;
     while (screen.isOpen())
     {
@@ -121,8 +132,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         if (clockPing.reached(std::chrono::milliseconds{1000}))
         {
             packetSend = std::make_shared<fge::net::PacketLZ4>();
-            fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_ALL_PING);
-            server._client.pushPacket({packetSend});
+            fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_UPDATE);
+            *packetSend << fge::net::Client::getTimestamp_ms() << latencySTOC;
+            server._client.pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP,
+                                       sizeof(fge::net::PacketHeader)});
         }
 
         std::size_t pckSize = server.getPacketsSize();
@@ -138,8 +151,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 screen.close();
                 break;
             case ls::LS_PROTOCOL_S_UPDATE:
-                mainScene.unpackModification(fluxPacket->_pck);
-                mainScene.unpackWatchedEvent(fluxPacket->_pck);
+                {
+                    fge::net::Client::Latency_ms latencyCTOS;
+                    fge::net::Client::Timestamp timestampSTOC;
+
+                    fluxPacket->_pck >> timestampSTOC >> latencyCTOS;
+                    latencySTOC = fge::net::Client::computeLatency_ms(timestampSTOC, fluxPacket->_timestamp);
+                    server._client.setLatency_ms(latencyCTOS);
+                    ping = latencySTOC + latencyCTOS;
+
+                    int size = sprintf(latencyTextBuffer, latencyTextFormat, latencyCTOS, latencySTOC, ping);
+
+                    latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
+
+                    mainScene.unpackModification(fluxPacket->_pck);
+                    mainScene.unpackWatchedEvent(fluxPacket->_pck);
+                }
                 break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 mainScene.unpack(fluxPacket->_pck);

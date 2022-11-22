@@ -156,6 +156,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     server.sendTo(*packetSend, fluxPacket->_id);
                 }
                 break;
+            case ls::LS_PROTOCOL_C_UPDATE:
+                if (client)
+                {
+                    fge::net::Client::Timestamp timestampCTOS;
+                    fge::net::Client::Latency_ms latencySTOC;
+                    fluxPacket->_pck >> timestampCTOS >> latencySTOC;
+
+                    auto latencyCTOS = fge::net::Client::computeLatency_ms(timestampCTOS, fluxPacket->_timestamp);
+
+                    client->setLatency_ms(latencySTOC);
+                    client->_data.setProperty(LIFESIM_CLIENTDATA_LATENCY, latencyCTOS);
+                    client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
+                }
+                break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
                 fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
                 if (client != nullptr)
@@ -211,10 +225,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 packetSend = std::make_shared<fge::net::PacketLZ4>();
                 fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_S_UPDATE);
 
+                //Timestamp TIMESTAMP_STOC_SERVER
+                //Latency_ms LATENCY_CTOS
+                packetSend->append(sizeof(fge::net::Client::Timestamp));
+                auto latencyCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_LATENCY].get<fge::net::Client::Latency_ms>().value_or(0);
+                *packetSend << latencyCTOS;
+
                 mainScene.packModification(*packetSend, (*it).first);
                 mainScene.packWatchedEvent(*packetSend, (*it).first);
 
-                (*it).second->pushPacket({packetSend});
+                (*it).second->pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP,
+                                          sizeof(fge::net::PacketHeader)});
             }
         }
 

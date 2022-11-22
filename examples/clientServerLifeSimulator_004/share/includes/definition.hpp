@@ -15,13 +15,14 @@
 #define LIFESIM_MAP_SIZE_MINY 50
 
 #define LIFESIM_CLIENTDATA_TIMEOUT "timeout"
+#define LIFESIM_CLIENTDATA_LATENCY "latencyCTOS"
 #define LIFESIM_SERVER_TICK 20
 #define LIFESIM_TIMEOUT 200
 
 namespace ls
 {
 
-enum ProtocolHeaders : uint16_t
+enum ProtocolHeaders : fge::net::PacketHeader
 {
     LS_PROTOCOL_ALL_PING = 0,
     /*
@@ -37,6 +38,14 @@ enum ProtocolHeaders : uint16_t
     OUT:
         -
     */
+    LS_PROTOCOL_C_UPDATE,
+    /*
+    IN:
+        Timestamp TIMESTAMP_CTOS_CLIENT
+        Latency_ms LATENCY_STOC
+    OUT:
+        -
+    */
     LS_PROTOCOL_C_PLEASE_CONNECT_ME,
     /*
     IN:
@@ -49,8 +58,10 @@ enum ProtocolHeaders : uint16_t
     LS_PROTOCOL_S_UPDATE,
     /*
     IN:
-        modifiedScene MODIFIED_SCENE_DATA
-        eventScene EVENT_SCENE_DATA
+        Timestamp TIMESTAMP_STOC_SERVER
+        Latency_ms LATENCY_CTOS
+        sceneModification MODIFIED_SCENE_DATA
+        sceneWatchedEvent EVENT_SCENE_DATA
     OUT:
         -
     */
