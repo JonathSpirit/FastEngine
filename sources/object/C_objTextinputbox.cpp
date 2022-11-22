@@ -17,6 +17,7 @@
 #include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/C_scene.hpp"
 
 namespace fge
 {
@@ -136,23 +137,20 @@ const sf::Color& ObjTextInputBox::getTextColor() const
     return this->g_colorText;
 }
 
+void ObjTextInputBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
+{
+    this->detachAll();
+
+    guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::ObjTextInputBox::onGuiVerify, this), this );
+
+    this->_onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjTextInputBox::onGuiMouseButtonPressed, this), this );
+}
+
 #ifdef FGE_DEF_SERVER
 FGE_OBJ_UPDATE_BODY(ObjTextInputBox){}
 #else
 FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
 {
-    if ( this->g_flagMouse.check(event.isMouseButtonPressed(sf::Mouse::Left)) )
-    {
-        if ( fge::IsMouseOn( screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds() ) )
-        {
-            this->g_statActive = true;
-        }
-        else
-        {
-            this->g_statActive = false;
-        }
-    }
-
     if ( event.isEventType(sf::Event::EventType::KeyPressed) )
     {
         if ( this->g_statActive )
@@ -361,6 +359,45 @@ sf::FloatRect ObjTextInputBox::getGlobalBounds() const
 sf::FloatRect ObjTextInputBox::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
+}
+
+void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg, [[maybe_unused]] fge::GuiElementContext& context)
+{
+    this->g_statActive = true;
+}
+
+void ObjTextInputBox::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context)
+{
+    if ( this->verifyPriority(context._prioritizedElement) )
+    {
+        auto transform = this->getParentsTransform() * this->getTransform();
+
+        auto scrollRect = transform.transformRect(this->getLocalBounds());
+
+        auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+        sf::Vector2f mousePosition;
+        if (customView)
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition,*customView);
+        }
+        else
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
+        }
+
+        if ( scrollRect.contains(mousePosition) )
+        {
+            context._prioritizedElement = this;
+        }
+        else if (evtType == sf::Event::EventType::MouseButtonPressed)
+        {
+            this->g_statActive = false;
+        }
+    }
+    else if (evtType == sf::Event::EventType::MouseButtonPressed)
+    {
+        this->g_statActive = false;
+    }
 }
 
 }//end fge

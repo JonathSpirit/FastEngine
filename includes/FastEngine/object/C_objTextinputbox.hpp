@@ -18,22 +18,28 @@
 #define _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "C_object.hpp"
+#include "FastEngine/object/C_object.hpp"
+#include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/C_flag.hpp"
-#include "C_objText.hpp"
+#include "FastEngine/C_guiElement.hpp"
 
 #define FGE_OBJTEXTINBOX_CLASSNAME "FGE:OBJ:TEXTINBOX"
 
 namespace fge
 {
 
-class FGE_API ObjTextInputBox : public fge::Object
+class FGE_API ObjTextInputBox : public fge::Object, public fge::Subscriber, public fge::GuiElement
 {
 public:
     ObjTextInputBox();
     explicit ObjTextInputBox(const fge::Font& font, uint16_t maxLength = 10, const sf::Vector2f& pos = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
+
+    fge::GuiElement* getGuiElement() override
+    {
+        return this;
+    }
 
     void setString(tiny_utf8::string string);
     void setCharacterSize(fge::ObjText::CharacterSize size);
@@ -62,6 +68,8 @@ public:
     const sf::Color& getBoxOutlineColor() const;
     const sf::Color& getTextColor() const;
 
+    void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
+
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
 
@@ -77,6 +85,10 @@ public:
     sf::FloatRect getLocalBounds() const override;
 
 private:
+    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context);
+
+    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
+
     uint16_t g_cursor = 0;
     uint16_t g_maxLength = 10;
     bool g_hide = false;
@@ -92,7 +104,6 @@ private:
     sf::Vector2f g_boxSize = sf::Vector2f(120, 18);
 
     bool g_statActive = false;
-    fge::Flag g_flagMouse;
 };
 
 }//end fge
