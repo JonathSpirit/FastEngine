@@ -16,6 +16,7 @@
 
 #include "FastEngine/object/C_objButton.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/C_scene.hpp"
 
 namespace fge
 {
@@ -65,35 +66,17 @@ bool ObjButton::getActiveStat() const
     return this->g_statActive;
 }
 
-#ifdef FGE_DEF_SERVER
-FGE_OBJ_UPDATE_BODY(ObjButton){}
-#else
-FGE_OBJ_UPDATE_BODY(ObjButton)
+void ObjButton::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
-    this->g_statMouseOn = fge::IsMouseOn( screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds() );
+    this->detachAll();
 
-    if ( event.isMouseButtonPressed( sf::Mouse::Left ) )
-    {
-        if ( !this->g_flag )
-        {
-            this->g_flag = true;
-            this->g_statActive = this->g_statMouseOn;
-            this->g_sprite.setTexture(this->g_statActive ? this->g_textureOn : this->g_textureOff);
-        }
-    }
-    else
-    {
-        this->g_flag = false;
-        this->g_statActive = false;
-        this->g_sprite.setTexture(this->g_textureOff);
-    }
+    guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::ObjButton::onGuiVerify, this), this );
 
-    if ( !this->g_statMouseOn )
-    {
-        this->g_statActive = false;
-    }
+    this->_onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseButtonPressed, this), this );
+    this->_onGuiMouseMoved.add( new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseMoved, this), this );
+
+    event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjButton::onMouseButtonReleased, this), this);
 }
-#endif
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjButton)
@@ -160,6 +143,56 @@ sf::FloatRect ObjButton::getGlobalBounds() const
 sf::FloatRect ObjButton::getLocalBounds() const
 {
     return this->g_sprite.getLocalBounds();
+}
+
+void ObjButton::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,[[maybe_unused]]  const sf::Event::MouseButtonEvent& arg,[[maybe_unused]]  fge::GuiElementContext& context)
+{
+    this->g_statActive = true;
+    this->g_sprite.setTexture(this->g_textureOn);
+    this->_onButtonPressed.call(this);
+}
+void ObjButton::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,[[maybe_unused]]  const sf::Event::MouseButtonEvent& arg)
+{
+    this->g_statActive = false;
+    this->g_sprite.setTexture(this->g_textureOff);
+}
+void ObjButton::onGuiMouseMoved([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseMoveEvent& arg, [[maybe_unused]] fge::GuiElementContext& context)
+{
+    this->g_statMouseOn = true;
+}
+
+void ObjButton::onGuiVerify([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] sf::Event::EventType evtType, fge::GuiElementContext& context)
+{
+    if ( this->verifyPriority(context._prioritizedElement) )
+    {
+        auto transform = this->getParentsTransform() * this->getTransform();
+
+        auto scrollRect = transform.transformRect(this->getLocalBounds());
+
+        auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+        sf::Vector2f mousePosition;
+        if (customView)
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition,*customView);
+        }
+        else
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
+        }
+
+        if ( scrollRect.contains(mousePosition) )
+        {
+            context._prioritizedElement = this;
+        }
+        else
+        {
+            this->g_statMouseOn = false;
+        }
+    }
+    else
+    {
+        this->g_statMouseOn = false;
+    }
 }
 
 }//end fge
