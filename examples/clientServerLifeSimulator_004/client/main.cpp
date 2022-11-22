@@ -52,7 +52,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
 
     packetSend = std::make_shared<fge::net::PacketLZ4>();
-    fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME) << "Hello" << LIFESIM_CONNECTION_TEXT;
+    fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME) << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
     server._client.pushPacket({packetSend});
     if (server.waitForPackets(std::chrono::milliseconds{3000}))
     {
