@@ -221,16 +221,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 {
                     //Retrieving "Client To Server" timestamp
                     //and the "Server To Client" latency
-                    fge::net::Client::Timestamp timestampClient;
-                    fge::net::Client::Latency_ms latencySTOC;
-                    fluxPacket->_pck >> timestampClient >> latencySTOC;
+                    fge::net::Client::Timestamp timestampCTOS;
+                    fge::net::Client::Timestamp timestampSTOC;
+                    fge::net::Client::Latency_ms latencyCTOS;
+                    fluxPacket->_pck >> timestampCTOS >> timestampSTOC >> latencyCTOS;
 
-                    //We can compute the "Client To Server" latency with the provided server timestamp and the packet timestamp
-                    auto latencyCTOS = fge::net::Client::computeLatency_ms(timestampClient, fluxPacket->_timestamp);
+                    //We can compute the "Server To Client" latency with the provided server timestamp and the packet timestamp
+                    auto latencySTOC = fge::net::Client::computeLatency_ms(timestampSTOC, fluxPacket->_timestamp);
 
                     //We can set the required latency of the server
-                    client->setLatency_ms(latencySTOC);
-                    client->_data.setProperty(LIFESIM_CLIENTDATA_LATENCY, latencyCTOS);
+                    client->setSTOCLatency_ms(latencySTOC);
+                    client->setCTOSLatency_ms(latencyCTOS);
+                    client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
                 }
                 break;
@@ -261,8 +263,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2), {fluxPacket->_pck});
                     FGE_NET_RULES_AFFECT_END_ELSE(connectionText2,)
 
-                    fge::net::Client::Timestamp syncTimestampClientStart;
-                    fluxPacket->_pck >> syncTimestampClientStart;
+                    fge::net::Client::Timestamp timestampCTOS;
+                    fluxPacket->_pck >> timestampCTOS;
 
                     //Check if the packet is still valid after extraction and/or rules
                     if (fluxPacket->_pck)
@@ -270,10 +272,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         //Check if those text is respected
                         if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
                         {
-                            fge::net::Client::Timestamp syncTimestampServerStart = fluxPacket->_timestamp;
-
                             //The client is valid, we can connect him
-                            *packetSend << true << syncTimestampClientStart << syncTimestampServerStart;
+                            *packetSend << true << timestampCTOS;
                             const std::size_t timestampPos = packetSend->getDataSize();
                             packetSend->append(sizeof(fge::net::Client::Timestamp));
 
@@ -283,6 +283,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             client = std::make_shared<fge::net::Client>();
                             clients.add(fluxPacket->_id, client);
 
+                            //Storing the client timestamp
+                            client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
+
+                            //Ask the server thread to automatically update the timestamp just before sending it
                             client->pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP, timestampPos});
 
                             //We will send a full scene update to the client too
@@ -334,9 +338,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 //just before sending the packet (more precise timestamp).
                 packetSend->append(sizeof(fge::net::Client::Timestamp));
 
-                //We retrieve the stored "Client To Server" latency and push it in the packet
-                auto latencyCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_LATENCY].get<fge::net::Client::Latency_ms>().value_or(0);
-                *packetSend << latencyCTOS;
+                //We retrieve the stored "Client To Server" timestamp and re-sent it to the client as it is not useful for us.
+                auto timestampCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_TIMESTAMP].get<fge::net::Client::Timestamp>().value_or(0);
+                *packetSend << timestampCTOS << (*it).second->getSTOCLatency_ms();
 
                 //We can now push all scene modification by clients
                 mainScene.packModification(*packetSend, (*it).first);

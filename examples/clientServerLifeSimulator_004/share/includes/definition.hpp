@@ -22,7 +22,7 @@
 #define LIFESIM_TIME_WORLDTICK std::chrono::milliseconds{20000}
 
 #define LIFESIM_CLIENTDATA_TIMEOUT "timeout"
-#define LIFESIM_CLIENTDATA_LATENCY "latencyCTOS"
+#define LIFESIM_CLIENTDATA_TIMESTAMP "timestampCTOS"
 #define LIFESIM_SERVER_TICK 20
 #define LIFESIM_TIME_TIMEOUT std::chrono::milliseconds{100}
 #define LIFESIM_TIMEOUT_COUNT 30
@@ -62,8 +62,9 @@ enum ProtocolHeaders : fge::net::PacketHeader
     LS_PROTOCOL_C_UPDATE,
     /*
     IN:
-        Timestamp TIMESTAMP_CLIENT
-        Latency_ms LATENCY_STOC
+        Timestamp LATENCY_TIMESTAMP_CTOS
+        Timestamp LATENCY_TIMESTAMP_STOC
+        Latency_ms LATENCY_CTOS
     OUT:
         -
     */
@@ -72,19 +73,19 @@ enum ProtocolHeaders : fge::net::PacketHeader
     IN:
         string "Hello"
         string CONNECTION_TEXT
-        Timestamp SYNC_TIMESTAMP_CLIENT_START
+        Timestamp LATENCY_TIMESTAMP_CTOS
     OUT:
         bool VALID
-        Timestamp SYNC_TIMESTAMP_CLIENT_START
-        Timestamp SYNC_TIMESTAMP_SERVER_START
-        Timestamp SYNC_TIMESTAMP_SERVER_STOP
+        Timestamp LATENCY_TIMESTAMP_CTOS
+        Timestamp LATENCY_TIMESTAMP_STOC
     */
 
     LS_PROTOCOL_S_UPDATE,
     /*
     IN:
-        Timestamp TIMESTAMP_SERVER
-        Latency_ms LATENCY_CTOS
+        Timestamp LATENCY_TIMESTAMP_STOC
+        Timestamp LATENCY_TIMESTAMP_CTOS
+        Latency_ms LATENCY_STOC
         sceneModification MODIFIED_SCENE_DATA
         sceneWatchedEvent EVENT_SCENE_DATA
     OUT:

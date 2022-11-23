@@ -96,8 +96,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)->getObject<fge::ObjText>();
     latencyText->setFillColor(sf::Color::Black);
 
-    fge::net::Client::Latency_ms latencySTOC = 0;
-    fge::net::Client::Latency_ms ping = 0;
+    fge::net::Client::Timestamp latencyTimestampSTOC;
 
     bool connectionValid = false;
     bool connectionTimeoutCheck = false;
@@ -187,7 +186,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_UPDATE);
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets
-            *packetSend << fge::net::Client::getTimestamp_ms() << latencySTOC;
+            *packetSend << fge::net::Client::getTimestamp_ms() << latencyTimestampSTOC << server._client.getCTOSLatency_ms();
             server._client.pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP,
                                        sizeof(fge::net::PacketHeader)});
         }
@@ -231,25 +230,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     bool valid = false;
                     fluxPacket->_pck >> valid;
 
-                    fge::net::Client::Timestamp SyncTimestampClientStart;
-                    fge::net::Client::Timestamp SyncTimestampServerStart;
-                    fge::net::Client::Timestamp SyncTimestampServerStop;
+                    fge::net::Client::Timestamp latencyTimestampCTOS;
 
-                    fge::net::Client::Timestamp SyncTimestampClientStop = fluxPacket->_timestamp;
-
-                    fluxPacket->_pck >> SyncTimestampClientStart >> SyncTimestampServerStart >> SyncTimestampServerStop;
+                    fluxPacket->_pck >> latencyTimestampCTOS >> latencyTimestampSTOC;
 
                     if (fluxPacket->_pck && valid)
                     {
-                        auto extraDelay = (fge::net::Client::computeLatency_ms(SyncTimestampClientStart, SyncTimestampClientStop) -
-                                fge::net::Client::computeLatency_ms(SyncTimestampServerStart, SyncTimestampServerStop))/2;
-                        SyncTimestampServerStop += extraDelay;
-                        int32_t offset = SyncTimestampServerStop-SyncTimestampClientStop;
-                        server._client.setSyncOffset(offset);
-
-                        std::cout << "cStart: " << SyncTimestampClientStart << " cStop: " << SyncTimestampClientStop << std::endl;
-                        std::cout << "sStart: " << SyncTimestampServerStart << " sStop: " << SyncTimestampServerStop << std::endl;
-                        std::cout << "extraDelay: " << extraDelay << " offset: " << offset << std::endl;
+                        //Computing Client To Server latency
+                        server._client.setCTOSLatency_ms( fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp) );
 
                         //We are connected, we can destroy the window
                         auto windowObject = mainScene.getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME);
@@ -269,21 +257,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 break;
             case ls::LS_PROTOCOL_S_UPDATE:
                 {
-                    //Retrieving "Client To Server" latency
-                    //and the "Server To Client" timestamp
-                    fge::net::Client::Latency_ms latencyCTOS;
-                    fge::net::Client::Timestamp timestampServer;
-                    fluxPacket->_pck >> timestampServer >> latencyCTOS;
+                    //Retrieving "Client To Server" timestamp that is used to calculate the CTOS latency
+                    //and the "Server To Client" timestamp and latency that will be re-sent to the server.
+                    fge::net::Client::Timestamp latencyTimestampCTOS;
+                    fge::net::Client::Latency_ms latencySTOC;
+                    fluxPacket->_pck >> latencyTimestampSTOC >> latencyTimestampCTOS >> latencySTOC;
 
-                    //We can compute the "Server To Client" latency with the provided server timestamp and the packet timestamp
-                    latencySTOC = fge::net::Client::computeLatency_ms(server._client.syncServerTimestampToClient(timestampServer), fluxPacket->_timestamp);
-                    server._client.setLatency_ms(latencyCTOS);
+                    server._client.setSTOCLatency_ms(latencySTOC);
 
-                    //We can simply get the ping by summing the 2 latencies
-                    ping = latencySTOC + latencyCTOS;
+                    //We can compute the "Client To Server" latency with the provided timestamp and the packet timestamp
+                    server._client.setCTOSLatency_ms(fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp));
 
                     //Updating the latencyText
-                    int size = sprintf(latencyTextBuffer, latencyTextFormat, latencyCTOS, latencySTOC, ping);
+                    int size = sprintf(latencyTextBuffer, latencyTextFormat, server._client.getCTOSLatency_ms(), latencySTOC, server._client.getPing_ms());
                     latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                     //And then unpack all modification made by the server scene
