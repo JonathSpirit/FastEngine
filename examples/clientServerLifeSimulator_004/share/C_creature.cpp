@@ -17,6 +17,7 @@ CreatureData::CreatureData()
     this->_thirst = 20;
     this->_libido = 0;
     this->_libidoAdd = fge::_random.range(0, 10);
+    this->_pregnant = false;
     this->_energy = 60;
     this->_height = fge::_random.range(10, 100);
     this->_muscularMass = fge::_random.range(1, 100);
@@ -32,6 +33,7 @@ void CreatureData::networkRegister(fge::net::NetworkTypeContainer& netList)
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_thirst});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_libido});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_libidoAdd});
+    netList.push(new fge::net::NetworkType<bool>{&this->_pregnant});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_energy});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_height});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_muscularMass});
@@ -115,6 +117,16 @@ bool Creature::worldTick()
 
     this->_data._libido = std::clamp(this->_data._libido+this->_data._libidoAdd, 0, 100);
 
+    if (this->_data._pregnant)
+    {
+        if (this->_timePregnant >= std::chrono::milliseconds(30000))
+        {
+            this->_data._pregnant = false;
+            auto* scene = this->_myObjectData.lock()->getLinkedScene();
+            scene->newObject(FGE_NEWOBJECT(ls::Creature, this->getPosition()), FGE_SCENE_PLAN_MIDDLE );
+        }
+    }
+
     return false;
 }
 
@@ -135,10 +147,10 @@ FGE_OBJ_UPDATE_BODY(Creature)
             this->updateMoveable(*this, deltaTime);
         }
 
-        if ( this->_data._hunger >= 10 )
+        if (this->_data._hunger >= 10)
         {//Finding food
             fge::ObjectContainer objects;
-            if ( scene->getAllObj_ByClass("LS:OBJ:FOOD", objects) > 0 )
+            if (scene->getAllObj_ByClass("LS:OBJ:FOOD", objects) > 0)
             {
                 for (auto& obj : objects)
                 {
@@ -152,10 +164,10 @@ FGE_OBJ_UPDATE_BODY(Creature)
                 }
             }
         }
-        if ( this->_data._thirst >= 10 )
+        if (this->_data._thirst >= 10)
         {//Finding drink
             fge::ObjectContainer objects;
-            if ( scene->getAllObj_ByClass("LS:OBJ:DRINK", objects) > 0 )
+            if (scene->getAllObj_ByClass("LS:OBJ:DRINK", objects) > 0)
             {
                 for (auto& obj : objects)
                 {
@@ -169,24 +181,32 @@ FGE_OBJ_UPDATE_BODY(Creature)
                 }
             }
         }
-        if ( this->_data._libido >= 50 )
+        if (this->_data._libido >= 50)
         {//Finding partner
             fge::ObjectContainer objects;
-            if ( scene->getAllObj_ByClass("LS:OBJ:CREATURE", objects) > 0 )
+            if (scene->getAllObj_ByClass("LS:OBJ:CREATURE", objects) > 0)
             {
                 for (auto& obj : objects)
                 {
-                    float distance = fge::GetDistanceBetween(this->getPosition(), obj->getObject()->getPosition());
-                    if (distance <= this->_data._sightRadius)
+                    if (obj->getObject() != this)
                     {
-                        auto* target = obj->getObject<Creature>();
-                        if (target->_data._libido >= 50)
+                        float distance = fge::GetDistanceBetween(this->getPosition(), obj->getObject()->getPosition());
+                        if (distance <= this->_data._sightRadius)
                         {
-                            if (target->_data._gender == ((this->_data._gender==CreatureGender::GENDER_FEMALE) ? CreatureGender::GENDER_MALE : CreatureGender::GENDER_FEMALE))
-                            {//Opposite gender
-                                this->_actionQueue.push({Action::Types::ACTION_MAKEBABY, obj->getSid()});
-                                this->setTargetPos( obj->getObject()->getPosition() );
-                                break;
+                            ls::Creature* target = obj->getObject<ls::Creature>();
+                            if (target->_data._libido >= 50)
+                            {
+                                if (!this->_data._pregnant && !target->_data._pregnant)
+                                {
+                                    if (target->_data._gender ==
+                                        ((this->_data._gender == ls::CreatureGender::GENDER_FEMALE)
+                                         ? ls::CreatureGender::GENDER_MALE : ls::CreatureGender::GENDER_FEMALE))
+                                    {//Opposite gender
+                                        this->_actionQueue.push({Action::Types::ACTION_MAKEBABY, obj->getSid()});
+                                        this->setTargetPos(target->getPosition());
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -205,23 +225,30 @@ FGE_OBJ_UPDATE_BODY(Creature)
                 switch (this->_actionQueue.front()._type)
                 {
                 case Action::Types::ACTION_EAT:
-                {
-                    auto nutrition = targetObject->getObject<ls::Food>()->_nutrition;
-                    this->_data._hunger = std::clamp(this->_data._hunger - nutrition, 0, 100);
-                    scene->delObject(targetObject->getSid());
-                }
+                    {
+                        auto nutrition = targetObject->getObject<ls::Food>()->_nutrition;
+                        this->_data._hunger = std::clamp(this->_data._hunger - nutrition, 0, 100);
+                        scene->delObject(targetObject->getSid());
+                    }
                     break;
                 case Action::Types::ACTION_DRINK:
-                {
-                    auto nutrition = targetObject->getObject<ls::Drink>()->_nutrition;
-                    this->_data._thirst = std::clamp(this->_data._thirst - nutrition, 0, 100);
-                    scene->delObject(targetObject->getSid());
-                }
+                    {
+                        auto nutrition = targetObject->getObject<ls::Drink>()->_nutrition;
+                        this->_data._thirst = std::clamp(this->_data._thirst - nutrition, 0, 100);
+                        scene->delObject(targetObject->getSid());
+                    }
                     break;
                 case Action::Types::ACTION_MAKEBABY:
-                {
-                    ///TODO
-                }
+                    {
+                        this->_data._libido = 0;
+                        auto* creature = targetObject->getObject<ls::Creature>();
+                        creature->_data._libido = 0;
+                        if (creature->_data._gender == ls::CreatureGender::GENDER_FEMALE)
+                        {
+                            creature->_data._pregnant = true;
+                        }
+                        this->_timePregnant = std::chrono::milliseconds{0};
+                    }
                     break;
                 }
 
@@ -240,6 +267,11 @@ FGE_OBJ_UPDATE_BODY(Creature)
         {
             this->_actionQueue.pop();
         }
+    }
+
+    if (this->_data._pregnant)
+    {
+        this->_timePregnant += deltaTime;
     }
 }
 #else
@@ -290,7 +322,8 @@ FGE_OBJ_DRAW_BODY(Creature)
     sight.setOrigin(this->_data._sightRadius, this->_data._sightRadius);
 
     //Gender
-    sf::Text txtGender(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female", this->_font, 12);
+    sf::Text txtGender(std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female")
+                        + (this->_data._pregnant ? " pregnant" : ""), this->_font, 12);
     txtGender.setPosition(this->getPosition().x-20, this->getPosition().y+30);
     txtGender.setOutlineThickness(1.0f);
     txtGender.setOutlineColor(sf::Color::Black);

@@ -32,6 +32,7 @@ struct CreatureData
 
     uint8_t _libido;
     uint8_t _libidoAdd;
+    bool _pregnant;
 
     uint8_t _energy;
 
@@ -91,6 +92,7 @@ public:
 
     std::chrono::milliseconds _timeAnimation{0};
     std::chrono::milliseconds _timeRandomMove{0};
+    std::chrono::milliseconds _timePregnant{0};
     std::queue<Action> _actionQueue;
 
     CreatureData _data;

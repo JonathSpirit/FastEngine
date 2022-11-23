@@ -62,7 +62,7 @@ enum ProtocolHeaders : fge::net::PacketHeader
     LS_PROTOCOL_C_UPDATE,
     /*
     IN:
-        Timestamp TIMESTAMP_CTOS_CLIENT
+        Timestamp TIMESTAMP_CLIENT
         Latency_ms LATENCY_STOC
     OUT:
         -
@@ -72,14 +72,18 @@ enum ProtocolHeaders : fge::net::PacketHeader
     IN:
         string "Hello"
         string CONNECTION_TEXT
+        Timestamp SYNC_TIMESTAMP_CLIENT_START
     OUT:
         bool VALID
+        Timestamp SYNC_TIMESTAMP_CLIENT_START
+        Timestamp SYNC_TIMESTAMP_SERVER_START
+        Timestamp SYNC_TIMESTAMP_SERVER_STOP
     */
 
     LS_PROTOCOL_S_UPDATE,
     /*
     IN:
-        Timestamp TIMESTAMP_STOC_SERVER
+        Timestamp TIMESTAMP_SERVER
         Latency_ms LATENCY_CTOS
         sceneModification MODIFIED_SCENE_DATA
         sceneWatchedEvent EVENT_SCENE_DATA

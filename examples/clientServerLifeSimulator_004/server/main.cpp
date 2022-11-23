@@ -221,12 +221,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 {
                     //Retrieving "Client To Server" timestamp
                     //and the "Server To Client" latency
-                    fge::net::Client::Timestamp timestampCTOS;
+                    fge::net::Client::Timestamp timestampClient;
                     fge::net::Client::Latency_ms latencySTOC;
-                    fluxPacket->_pck >> timestampCTOS >> latencySTOC;
+                    fluxPacket->_pck >> timestampClient >> latencySTOC;
 
                     //We can compute the "Client To Server" latency with the provided server timestamp and the packet timestamp
-                    auto latencyCTOS = fge::net::Client::computeLatency_ms(timestampCTOS, fluxPacket->_timestamp);
+                    auto latencyCTOS = fge::net::Client::computeLatency_ms(timestampClient, fluxPacket->_timestamp);
 
                     //We can set the required latency of the server
                     client->setLatency_ms(latencySTOC);
@@ -261,14 +261,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2), {fluxPacket->_pck});
                     FGE_NET_RULES_AFFECT_END_ELSE(connectionText2,)
 
+                    fge::net::Client::Timestamp syncTimestampClientStart;
+                    fluxPacket->_pck >> syncTimestampClientStart;
+
                     //Check if the packet is still valid after extraction and/or rules
                     if (fluxPacket->_pck)
                     {
                         //Check if those text is respected
                         if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
                         {
+                            fge::net::Client::Timestamp syncTimestampServerStart = fluxPacket->_timestamp;
+
                             //The client is valid, we can connect him
-                            *packetSend << true;
+                            *packetSend << true << syncTimestampClientStart << syncTimestampServerStart;
+                            const std::size_t timestampPos = packetSend->getDataSize();
+                            packetSend->append(sizeof(fge::net::Client::Timestamp));
 
                             std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !" << std::endl;
 
@@ -276,7 +283,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             client = std::make_shared<fge::net::Client>();
                             clients.add(fluxPacket->_id, client);
 
-                            client->pushPacket({packetSend});
+                            client->pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP, timestampPos});
 
                             //We will send a full scene update to the client too
                             packetSend = std::make_shared<fge::net::PacketLZ4>();
@@ -314,6 +321,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto clientsLock = clients.acquireLock();
             for (auto it=clients.begin(clientsLock); it!=clients.end(clientsLock); ++it)
             {
+                //Make sure that the server thread is not busy with another packet
+                if ( !(*it).second->isPendingPacketsEmpty() )
+                {
+                    continue;
+                }
+
                 packetSend = std::make_shared<fge::net::PacketLZ4>();
                 fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_S_UPDATE);
 
@@ -333,6 +346,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
                 (*it).second->pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP,
                                           sizeof(fge::net::PacketHeader)});
+
+                //Notify the server that a packet as been pushed
+                server.notify();
             }
         }
 
