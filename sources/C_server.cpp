@@ -227,7 +227,7 @@ void ServerUdp::serverThreadTransmission()
             {
                 if ( !itClient->second->isPendingPacketsEmpty() )
                 {
-                    if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getLatency_ms() )
+                    if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
                     {//Ready to send !
                         fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
                         if (buffPck._pck)
@@ -251,7 +251,7 @@ void ServerUdp::serverThreadTransmission()
         {
             if ( !itClient->second->isPendingPacketsEmpty() )
             {
-                if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getLatency_ms() )
+                if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
                 {//Ready to send !
                     fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
                     if (buffPck._pck)
@@ -406,14 +406,14 @@ void ServerClientSideUdp::serverThreadTransmission()
         //Flux
         if ( !this->_client.isPendingPacketsEmpty() )
         {
-            if ( this->_client.getLastPacketElapsedTime() >= this->_client.getLatency_ms() )
+            if ( this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms() )
             {//Ready to send !
                 fge::net::ClientSendQueuePacket buffPck = this->_client.popPacket();
                 if (buffPck._pck)
                 {//Last verification of the packet
                     if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
                     {
-                        fge::net::Client::Timestamp tmpTimestamp = this->_client.syncClientTimestampToServer(fge::net::Client::getTimestamp_ms());
+                        fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
                         buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
                     }
                     this->send(*buffPck._pck);

@@ -27,7 +27,8 @@
 #include <memory>
 
 #define FGE_NET_BAD_SKEY 0
-#define FGE_NET_DEFAULT_LATENCY 80
+#define FGE_NET_DEFAULT_LATENCY 50
+#define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 
 namespace fge::net
 {
@@ -77,11 +78,12 @@ public:
 
     Client();
     /**
-     * \brief Constructor with a default server->client latency
+     * \brief Constructor with default latencies
      *
-     * \param latency The server->client latency
+     * \param CTOSLatency The "Client To Server" latency
+     * \param STOCLatency The "Server To Client" latency
      */
-    explicit Client(fge::net::Client::Latency_ms latency);
+    explicit Client(fge::net::Client::Latency_ms CTOSLatency, fge::net::Client::Latency_ms STOCLatency);
 
     /**
      * \brief Generate a new random session key
@@ -103,17 +105,37 @@ public:
     fge::net::Skey getSkey() const;
 
     /**
-     * \brief Set the server->client latency
+     * \brief Set the "Client To Server" latency
      *
-     * \param t Latency in milliseconds
+     * \param latency Latency in milliseconds
      */
-    void setLatency_ms(fge::net::Client::Latency_ms t);
+    void setCTOSLatency_ms(fge::net::Client::Latency_ms latency);
     /**
-     * \brief Get the server->client latency
+     * \brief Set the "Server To Client" latency
+     *
+     * \param latency Latency in milliseconds
+     */
+    void setSTOCLatency_ms(fge::net::Client::Latency_ms latency);
+    /**
+     * \brief Get the "Client To Server" latency
      *
      * \return Latency in milliseconds
      */
-    fge::net::Client::Latency_ms getLatency_ms() const;
+    fge::net::Client::Latency_ms getCTOSLatency_ms() const;
+    /**
+     * \brief Get the "Server To Client" latency
+     *
+     * \return Latency in milliseconds
+     */
+    fge::net::Client::Latency_ms getSTOCLatency_ms() const;
+    /**
+     * \brief Compute the ping
+     *
+     * The ping is simply the CTOS + STOC latencies.
+     *
+     * \return Pin in milliseconds
+     */
+    fge::net::Client::Latency_ms getPing_ms() const;
 
     /**
      * \brief Reset the time point for limiting the packets sending frequency
@@ -137,35 +159,12 @@ public:
     /**
      * \brief Compute the latency for the client->server / server->client with the given timestamps
      *
-     * \param startedTime The timestamp of the sender packet
-     * \param returnedTime The timestamp returned by the client/server
+     * \param sentTimestamp The timestamp that have been sent
+     * \param receivedTimestamp The received timestamp
      * \return Latency in milliseconds
      */
-    static fge::net::Client::Latency_ms computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
-                                                          const fge::net::Client::Timestamp& returnedTime);
-
-    fge::net::Client::Timestamp syncClientTimestampToServer(const fge::net::Client::Timestamp& timestamp);
-    fge::net::Client::Timestamp syncServerTimestampToClient(const fge::net::Client::Timestamp& timestamp);
-
-    /**
-     * \brief Set the synchronisation offset
-     *
-     * The clock of 2 computers can be significantly different.
-     * You can correct this by sending timestamps between client and server
-     * and then compute a latency offset.
-     * Only the client have to apply this offset to correct the error.
-     *
-     * \param latency The offset latency
-     */
-    void setSyncOffset(int32_t offset);
-    /**
-     * \brief Get the synchronisation offset
-     *
-     * \see setSyncOffset
-     *
-     * \return timestamp The computed sync offset
-     */
-    int32_t getSyncOffset() const;
+    static fge::net::Client::Latency_ms computeLatency_ms(const fge::net::Client::Timestamp& sentTimestamp,
+                                                          const fge::net::Client::Timestamp& receivedTimestamp);
 
     /**
      * \brief Clear the packet queue
@@ -198,8 +197,8 @@ public:
     fge::PropertyList _data; ///< Some user-defined client properties
 
 private:
-    int32_t g_syncOffset;
-    fge::net::Client::Latency_ms g_latency_ms;
+    fge::net::Client::Latency_ms g_CTOSLatency_ms;
+    fge::net::Client::Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
     std::queue<fge::net::ClientSendQueuePacket> g_pendingTransmitPackets;
