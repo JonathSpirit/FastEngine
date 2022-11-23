@@ -97,12 +97,20 @@ fge::net::Client::Timestamp Client::syncClientTimestampToServer(const fge::net::
     {
         t -= _FGE_NET_CLIENT_TIMESTAMP_MODULO;
     }
+    else if (t<0)
+    {
+        t += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+    }
     return t;
 }
 fge::net::Client::Timestamp Client::syncServerTimestampToClient(const fge::net::Client::Timestamp& timestamp)
 {
     int32_t t = static_cast<int32_t>(timestamp) - this->g_syncOffset;
-    if (t<0)
+    if (t>=_FGE_NET_CLIENT_TIMESTAMP_MODULO)
+    {
+        t -= _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+    }
+    else if (t<0)
     {
         t += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
     }

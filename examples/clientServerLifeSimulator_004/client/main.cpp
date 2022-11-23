@@ -247,6 +247,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         int32_t offset = SyncTimestampServerStop-SyncTimestampClientStop;
                         server._client.setSyncOffset(offset);
 
+                        std::cout << "cStart: " << SyncTimestampClientStart << " cStop: " << SyncTimestampClientStop << std::endl;
+                        std::cout << "sStart: " << SyncTimestampServerStart << " sStop: " << SyncTimestampServerStop << std::endl;
+                        std::cout << "extraDelay: " << extraDelay << " offset: " << offset << std::endl;
+
                         //We are connected, we can destroy the window
                         auto windowObject = mainScene.getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME);
                         if (windowObject)
