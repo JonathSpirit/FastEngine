@@ -119,6 +119,12 @@ fge::net::Client::Timestamp Client::syncServerTimestampToClient(const fge::net::
 
 void Client::setSyncOffset(int32_t offset)
 {
+    offset %= _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+
+    if (offset<0)
+    {
+        offset += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+    }
     this->g_syncOffset = offset;
 }
 int32_t Client::getSyncOffset() const
