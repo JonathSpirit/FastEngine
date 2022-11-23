@@ -244,7 +244,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         auto extraDelay = (fge::net::Client::computeLatency_ms(SyncTimestampClientStart, SyncTimestampClientStop) -
                                 fge::net::Client::computeLatency_ms(SyncTimestampServerStart, SyncTimestampServerStop))/2;
                         SyncTimestampServerStop += extraDelay;
-                        auto offset = SyncTimestampServerStop-SyncTimestampClientStop;
+                        int32_t offset = SyncTimestampServerStop-SyncTimestampClientStop;
                         server._client.setSyncOffset(offset);
 
                         //We are connected, we can destroy the window
@@ -272,7 +272,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     fluxPacket->_pck >> timestampServer >> latencyCTOS;
 
                     //We can compute the "Server To Client" latency with the provided server timestamp and the packet timestamp
-                    latencySTOC = fge::net::Client::computeLatency_ms(server._client.syncTimestampToClient(timestampServer), fluxPacket->_timestamp);
+                    latencySTOC = fge::net::Client::computeLatency_ms(server._client.syncServerTimestampToClient(timestampServer), fluxPacket->_timestamp);
                     server._client.setLatency_ms(latencyCTOS);
 
                     //We can simply get the ping by summing the 2 latencies

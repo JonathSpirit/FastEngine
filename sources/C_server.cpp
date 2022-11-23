@@ -413,7 +413,7 @@ void ServerClientSideUdp::serverThreadTransmission()
                 {//Last verification of the packet
                     if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
                     {
-                        fge::net::Client::Timestamp tmpTimestamp = this->_client.syncTimestampToServer(fge::net::Client::getTimestamp_ms());
+                        fge::net::Client::Timestamp tmpTimestamp = this->_client.syncClientTimestampToServer(fge::net::Client::getTimestamp_ms());
                         buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
                     }
                     this->send(*buffPck._pck);

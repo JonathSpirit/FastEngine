@@ -144,19 +144,20 @@ public:
     static fge::net::Client::Latency_ms computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
                                                           const fge::net::Client::Timestamp& returnedTime);
 
-    fge::net::Client::Timestamp syncTimestampToServer(const fge::net::Client::Timestamp& timestamp);
-    fge::net::Client::Timestamp syncTimestampToClient(const fge::net::Client::Timestamp& timestamp);
+    fge::net::Client::Timestamp syncClientTimestampToServer(const fge::net::Client::Timestamp& timestamp);
+    fge::net::Client::Timestamp syncServerTimestampToClient(const fge::net::Client::Timestamp& timestamp);
 
     /**
-     * \brief Set the synchronisation offset from a full timestamp
+     * \brief Set the synchronisation offset
      *
-     * The time since epoch can be different in multiple computers.
-     * You can correct this by sending (as the server) a full timestamp
-     * to every clients and they will correct there error with an offset.
+     * The clock of 2 computers can be significantly different.
+     * You can correct this by sending timestamps between client and server
+     * and then compute a latency offset.
+     * Only the client have to apply this offset to correct the error.
      *
-     * \param timestamp The timestamp of the server
+     * \param latency The offset latency
      */
-    void setSyncOffset(int latency);
+    void setSyncOffset(int32_t offset);
     /**
      * \brief Get the synchronisation offset
      *
@@ -164,7 +165,7 @@ public:
      *
      * \return timestamp The computed sync offset
      */
-    int getSyncOffset() const;
+    int32_t getSyncOffset() const;
 
     /**
      * \brief Clear the packet queue
@@ -197,7 +198,7 @@ public:
     fge::PropertyList _data; ///< Some user-defined client properties
 
 private:
-    int g_syncOffset;
+    int32_t g_syncOffset;
     fge::net::Client::Latency_ms g_latency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
