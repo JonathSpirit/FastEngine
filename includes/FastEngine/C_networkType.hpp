@@ -441,7 +441,7 @@ public:
     void forceCheckClient(const fge::net::Identity& id);
     void forceUncheckClient(const fge::net::Identity& id);
 
-    void push(fge::net::NetworkTypeBase* newNet);
+    fge::net::NetworkTypeBase* push(fge::net::NetworkTypeBase* newNet);
 
     void reserve(size_t n);
 

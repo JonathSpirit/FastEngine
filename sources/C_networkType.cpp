@@ -367,9 +367,10 @@ void NetworkTypeContainer::clear()
     this->g_data.clear();
 }
 
-void NetworkTypeContainer::push(fge::net::NetworkTypeBase* newNet)
+fge::net::NetworkTypeBase* NetworkTypeContainer::push(fge::net::NetworkTypeBase* newNet)
 {
     this->g_data.push_back(std::unique_ptr<fge::net::NetworkTypeBase>(newNet));
+    return newNet;
 }
 
 void NetworkTypeContainer::reserve(size_t n)

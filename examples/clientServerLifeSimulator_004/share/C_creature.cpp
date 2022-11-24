@@ -123,7 +123,10 @@ bool Creature::worldTick()
         {
             this->_data._pregnant = false;
             auto* scene = this->_myObjectData.lock()->getLinkedScene();
-            scene->newObject(FGE_NEWOBJECT(ls::Creature, this->getPosition()), FGE_SCENE_PLAN_MIDDLE );
+            for (std::size_t i=0; i<fge::_random.range(1,2); ++i)
+            {
+                scene->newObject(FGE_NEWOBJECT(ls::Creature, this->getPosition()), FGE_SCENE_PLAN_MIDDLE );
+            }
         }
     }
 
@@ -133,6 +136,8 @@ bool Creature::worldTick()
 FGE_OBJ_UPDATE_BODY(Creature)
 #ifdef FGE_DEF_SERVER
 {
+    bool finishMoving = this->updateMoveable(*this, deltaTime);
+
     if ( this->_actionQueue.empty() )
     {//No action in queue
         this->_timeRandomMove += deltaTime;
@@ -141,10 +146,6 @@ FGE_OBJ_UPDATE_BODY(Creature)
         {//Random move
             this->_timeRandomMove = std::chrono::milliseconds{0};
             this->setTargetPos(ls::GetRandomPositionFromCenter(this->getPosition(), 200.0f));
-        }
-        else
-        {
-            this->updateMoveable(*this, deltaTime);
         }
 
         if (this->_data._hunger >= 10)
@@ -188,22 +189,23 @@ FGE_OBJ_UPDATE_BODY(Creature)
             {
                 for (auto& obj : objects)
                 {
-                    if (obj->getObject() != this)
+                    auto* creature = obj->getObject<ls::Creature>();
+
+                    if (creature != this)
                     {
-                        float distance = fge::GetDistanceBetween(this->getPosition(), obj->getObject()->getPosition());
+                        float distance = fge::GetDistanceBetween(this->getPosition(), creature->getPosition());
                         if (distance <= this->_data._sightRadius)
                         {
-                            ls::Creature* target = obj->getObject<ls::Creature>();
-                            if (target->_data._libido >= 50)
+                            if (creature->_data._libido >= 50)
                             {
-                                if (!this->_data._pregnant && !target->_data._pregnant)
+                                if (!this->_data._pregnant && !creature->_data._pregnant)
                                 {
-                                    if (target->_data._gender ==
+                                    if (creature->_data._gender ==
                                         ((this->_data._gender == ls::CreatureGender::GENDER_FEMALE)
                                          ? ls::CreatureGender::GENDER_MALE : ls::CreatureGender::GENDER_FEMALE))
                                     {//Opposite gender
                                         this->_actionQueue.push({Action::Types::ACTION_MAKEBABY, obj->getSid()});
-                                        this->setTargetPos(target->getPosition());
+                                        this->setTargetPos(creature->getPosition());
                                         break;
                                     }
                                 }
@@ -220,7 +222,13 @@ FGE_OBJ_UPDATE_BODY(Creature)
 
         if (targetObject)
         {
-            if ( this->updateMoveable(*this, deltaTime) )
+            if (fge::GetDistanceBetween(this->_g_targetPos, targetObject->getObject()->getPosition()) >= 10.0f)
+            {
+                this->setTargetPos(targetObject->getObject()->getPosition());
+                finishMoving = false;
+            }
+
+            if (finishMoving)
             {//Target reached
                 switch (this->_actionQueue.front()._type)
                 {
@@ -240,8 +248,16 @@ FGE_OBJ_UPDATE_BODY(Creature)
                     break;
                 case Action::Types::ACTION_MAKEBABY:
                     {
-                        this->_data._libido = 0;
                         auto* creature = targetObject->getObject<ls::Creature>();
+
+                        //Already pregnant
+                        if (creature->_data._pregnant || this->_data._pregnant)
+                        {
+                            break;
+                        }
+
+                        this->_data._libido = 0;
+
                         creature->_data._libido = 0;
                         if (creature->_data._gender == ls::CreatureGender::GENDER_FEMALE)
                         {
@@ -254,14 +270,14 @@ FGE_OBJ_UPDATE_BODY(Creature)
 
                 this->_actionQueue.pop();
             }
-            else
+            /*else
             {
                 if (this->_timeRandomMove >= std::chrono::milliseconds{500})
                 {
                     this->_timeRandomMove = std::chrono::milliseconds{0};
                     this->setTargetPos( targetObject->getObject()->getPosition() );
                 }
-            }
+            }*/
         }
         else
         {
@@ -373,8 +389,15 @@ void Creature::networkRegister()
     this->_netList.clear();
 
     this->_netList.push(new fge::net::NetworkTypeSmoothVec2Float{{&this->getPosition(), [&](const sf::Vector2f& pos){this->setPosition(pos);}}, 100.0f});
-    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>{&this->_g_targetPos});
-    this->_netList.push(new fge::net::NetworkType<bool>{&this->_g_finish});
+    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>{&this->_g_targetPos})->_onApplied.add(new fge::CallbackLambda<>{[&](){
+        this->_g_finish = this->getPosition() == this->_g_targetPos;
+    }}, this);
+    this->_netList.push(new fge::net::NetworkType<bool>{&this->_g_finish})->_onApplied.add(new fge::CallbackLambda<>{[&](){
+        if (this->_g_finish)
+        {
+            this->setPosition(this->_g_targetPos);
+        }
+    }}, this);
 
     this->_data.networkRegister(this->_netList);
 }

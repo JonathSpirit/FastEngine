@@ -59,7 +59,7 @@ struct Action
 fge::net::Packet& operator<<(fge::net::Packet& pck, const CreatureData& data);
 const fge::net::Packet& operator>>(const fge::net::Packet& pck, CreatureData& data);
 
-class Creature : public ls::CustomObject
+class Creature : public ls::CustomObject, public fge::Subscriber
 {
 public:
     Creature() = default;
