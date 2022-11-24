@@ -97,7 +97,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     latencyText->setFillColor(sf::Color::Black);
 
     fge::net::Client::Timestamp latencyTimestampSTOC;
-    fge::Clock latencyCorrectorSTOC;
+    //fge::Clock latencyCorrectorSTOC;
+    fge::net::Client::Timestamp latencyCorrectorSTOC;
 
     bool connectionValid = false;
     bool connectionTimeoutCheck = false;
@@ -187,7 +188,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_UPDATE);
 
             //Correct the STOC timestamp
-            latencyTimestampSTOC += latencyCorrectorSTOC.getElapsedTime<std::chrono::milliseconds>();
+            latencyTimestampSTOC += fge::net::Client::computeLatency_ms(latencyCorrectorSTOC, fge::net::Client::getTimestamp_ms());
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets
             *packetSend << fge::net::Client::getTimestamp_ms() << latencyTimestampSTOC << server._client.getCTOSLatency_ms();
@@ -237,7 +238,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     fge::net::Client::Timestamp latencyTimestampCTOS;
 
                     fluxPacket->_pck >> latencyTimestampCTOS >> latencyTimestampSTOC;
-                    latencyCorrectorSTOC.restart();
+                    latencyCorrectorSTOC = fluxPacket->_timestamp;
 
                     if (fluxPacket->_pck && valid)
                     {
@@ -267,7 +268,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     fge::net::Client::Timestamp latencyTimestampCTOS;
                     fge::net::Client::Latency_ms latencySTOC;
                     fluxPacket->_pck >> latencyTimestampSTOC >> latencyTimestampCTOS >> latencySTOC;
-                    latencyCorrectorSTOC.restart();
+                    latencyCorrectorSTOC = fluxPacket->_timestamp;
 
                     server._client.setSTOCLatency_ms(latencySTOC);
 

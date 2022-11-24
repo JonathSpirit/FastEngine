@@ -233,7 +233,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     client->setSTOCLatency_ms(latencySTOC);
                     client->setCTOSLatency_ms(latencyCTOS);
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
-                    client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR, std::chrono::steady_clock::now());
+                    client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR, fluxPacket->_timestamp);
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
                 }
                 break;
@@ -286,7 +286,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                             //Storing the client timestamp
                             client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
-                            client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR, std::chrono::steady_clock::now());
+                            client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR, fluxPacket->_timestamp);
 
                             //Ask the server thread to automatically update the timestamp just before sending it
                             client->pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP, timestampPos});
@@ -342,8 +342,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                 //We retrieve the stored "Client To Server" timestamp and re-sent it to the client as it is not useful for us.
                 auto timestampCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_TIMESTAMP].get<fge::net::Client::Timestamp>().value_or(0);
-                auto timestampCorrectorCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR].get<std::chrono::steady_clock::time_point>().value_or(std::chrono::steady_clock::now());
-                auto corrector = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-timestampCorrectorCTOS).count();
+                auto timestampCorrectorCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR].get<fge::net::Client::Timestamp>().value_or(fge::net::Client::getTimestamp_ms());
+                auto corrector = fge::net::Client::computeLatency_ms(timestampCorrectorCTOS, fge::net::Client::getTimestamp_ms());
                 timestampCTOS += corrector;
                 *packetSend << timestampCTOS << (*it).second->getSTOCLatency_ms();
 
