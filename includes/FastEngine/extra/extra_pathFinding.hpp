@@ -29,6 +29,7 @@
 #include <vector>
 #include <unordered_set>
 #include <array>
+#include <optional>
 #include <cstdint>
 #include "SFML/System/Vector2.hpp"
 
@@ -53,15 +54,15 @@ using CoordinateSet = std::unordered_set<fge::AStar::Vector2i, fge::AStar::Vecto
 
 struct FGE_API Node
 {
-    explicit Node(fge::AStar::Vector2i coord, Node* parent = nullptr);
+    explicit Node(std::optional<fge::AStar::Vector2i> parent=std::nullopt);
     [[nodiscard]] unsigned int getScore() const;
 
-    unsigned int _g, _h;
-    fge::AStar::Vector2i _coord;
-    Node* _parent;
+    unsigned int _costScore;
+    unsigned int _heuristicScore;
+    std::optional<fge::AStar::Vector2i> _parent;
 };
 
-using NodeList = std::vector<Node*>;
+using NodeMap = std::unordered_map<fge::AStar::Vector2i, fge::AStar::Node, fge::AStar::Vector2int32Hash>;
 
 class FGE_API Generator
 {
@@ -81,8 +82,6 @@ public:
 
 private:
     bool detectCollision(fge::AStar::Vector2i coord);
-    [[nodiscard]] Node* findNodeOnList(const NodeList& nodes, fge::AStar::Vector2i coord) const;
-    void releaseNodes(NodeList& nodes);
 
     HeuristicFunction g_heuristic;
     CoordinateSet g_walls;

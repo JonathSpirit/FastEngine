@@ -18,29 +18,27 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace std::placeholders;
-
 namespace fge::AStar
 {
 
-Node::Node(fge::AStar::Vector2i coord, Node* parent) :
-        _g(0),
-        _h(0),
-        _coord(coord),
+Node::Node(std::optional<fge::AStar::Vector2i> parent) :
+        _costScore(0),
+        _heuristicScore(0),
         _parent(parent)
-{
-}
+{}
 
 unsigned int Node::getScore() const
 {
-    return this->_g + this->_h;
+    return this->_costScore + this->_heuristicScore;
 }
 
 Generator::Generator() :
+        g_heuristic(&Heuristic::euclidean),
         g_directions({{
             {0, 1}, {1, 0}, {0, -1}, {-1, 0},
             {-1, -1}, {1, 1}, {-1, 1}, {1, -1}
-        }})
+        }}),
+        g_directionsCount(8)
 {
     this->setDiagonalMovement(false);
     this->setHeuristic(&Heuristic::manhattan);
@@ -62,7 +60,7 @@ void Generator::setDiagonalMovement(bool enable)
 
 void Generator::setHeuristic(HeuristicFunction heuristic)
 {
-    this->g_heuristic = std::bind(heuristic, _1, _2);
+    this->g_heuristic = std::move(heuristic);
 }
 
 void Generator::addCollision(fge::AStar::Vector2i coord)
@@ -83,104 +81,93 @@ void Generator::clearCollisions()
 CoordinateList Generator::findPath(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
 {
     Node* current = nullptr;
-    NodeList openNodes;
-    NodeList closeNodes;
+    fge::AStar::Vector2i currentCoord;
+    NodeMap openNodes;
+    NodeMap closeNodes;
 
     openNodes.reserve(100);
     closeNodes.reserve(100);
-    openNodes.push_back(new Node(source));
+    openNodes.emplace(source, Node{});
 
     bool validPath = false;
 
     while (!openNodes.empty())
     {
         auto itCurrent = openNodes.begin();
-        current = *itCurrent;
+        current = &itCurrent->second;
 
         for (auto it = ++openNodes.begin(); it != openNodes.end(); ++it)
         {
-            auto* node = *it;
-            if (node->getScore() <= current->getScore())
+            if (it->second.getScore() <= current->getScore())
             {
-                current = node;
+                current = &it->second;
                 itCurrent = it;
             }
         }
 
-        if (current->_coord == target)
-        {
+        currentCoord = itCurrent->first;
+
+        if (currentCoord == target)
+        {//Goal reached
             validPath = true;
             break;
         }
 
-        closeNodes.push_back(current);
-        openNodes.erase(itCurrent);
+        closeNodes.emplace(currentCoord, *current);
 
         for (std::size_t i = 0; i < this->g_directionsCount; ++i)
         {
-            fge::AStar::Vector2i newCoordinates{current->_coord + this->g_directions[i]};
-            if (this->detectCollision(newCoordinates) ||
-                this->findNodeOnList(closeNodes, newCoordinates) != nullptr)
+            fge::AStar::Vector2i newCoordinates{currentCoord + this->g_directions[i]};
+            if (this->detectCollision(newCoordinates) || closeNodes.find(newCoordinates) != closeNodes.end())
             {
                 continue;
             }
 
-            unsigned int totalCost = current->_g + ((i < 4) ? 10 : 14);
+            unsigned int totalCost = current->_costScore + ((i < 4) ? 10 : 14);
 
-            Node* successor = findNodeOnList(openNodes, newCoordinates);
-            if (successor == nullptr)
+            auto successor = openNodes.find(newCoordinates);
+            if (successor == openNodes.end())
             {
-                successor = new Node(newCoordinates, current);
-                successor->_g = totalCost;
-                successor->_h = g_heuristic(successor->_coord, target);
-                openNodes.push_back(successor);
+                successor = openNodes.emplace(newCoordinates, Node{currentCoord}).first;
+                successor->second._costScore = totalCost;
+                successor->second._heuristicScore = this->g_heuristic(successor->first, target);
             }
-            else if (totalCost < successor->_g)
+            else if (totalCost < successor->second._costScore)
             {
-                successor->_parent = current;
-                successor->_g = totalCost;
+                successor->second._parent = currentCoord;
+                successor->second._costScore = totalCost;
             }
         }
-    }
 
-    CoordinateList path;
+        openNodes.erase(itCurrent);
+    }
 
     if (validPath)
     {
+        CoordinateList path;
+        path.reserve(closeNodes.size());
+
         while (current != nullptr)
         {
-            path.push_back(current->_coord);
-            current = current->_parent;
+            path.push_back(currentCoord);
+
+            if (current->_parent.has_value())
+            {
+                auto it = closeNodes.find(current->_parent.value());
+                if (it != closeNodes.end())
+                {
+                    current = &it->second;
+                    currentCoord = it->first;
+                    continue;
+                }
+            }
+            current = nullptr;
         }
 
         std::reverse(path.begin(), path.end());
+        return path;
     }
-
-    this->releaseNodes(openNodes);
-    this->releaseNodes(closeNodes);
-
-    return path;
-}
-
-Node* Generator::findNodeOnList(const NodeList& nodes, fge::AStar::Vector2i coord) const
-{
-    for (auto* node: nodes)
-    {
-        if (node->_coord == coord)
-        {
-            return node;
-        }
-    }
-    return nullptr;
-}
-
-void Generator::releaseNodes(NodeList& nodes)
-{
-    for (auto* node: nodes)
-    {
-        delete node;
-    }
-    nodes.clear();
+    return {};
 }
 
 bool Generator::detectCollision(fge::AStar::Vector2i coord)
