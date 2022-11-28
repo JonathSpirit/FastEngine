@@ -5,6 +5,7 @@
 #include <FastEngine/C_clock.hpp>
 #include "FastEngine/object/C_objTilemap.hpp"
 #include "FastEngine/object/C_objText.hpp"
+#include <iostream>
 
 //Create a pathFinder class object
 class PathFinder : public fge::Object
@@ -100,7 +101,10 @@ public:
         this->g_path.clear();
 
         //Generate the path
+        auto tStart = std::chrono::high_resolution_clock::now();
         this->g_path = this->g_pathGenerator.findPath(this->g_start, this->g_goal);
+        auto tDelta_us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now()-tStart).count();
+        std::cout << "path was generated in " << tDelta_us << "us" << std::endl;
 
         //Prepare a circle shape for every path point
         this->g_pathCircles.clear();
