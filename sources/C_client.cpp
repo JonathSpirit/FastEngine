@@ -74,25 +74,34 @@ fge::net::Client::Latency_ms Client::getPing_ms() const
 
 void Client::setCorrectorTimestamp(fge::net::Client::Timestamp timestamp)
 {
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_correctorTimestamp = timestamp;
 }
-fge::net::Client::Timestamp Client::getCorrectorTimestamp() const
+std::optional<fge::net::Client::Timestamp> Client::getCorrectorTimestamp() const
 {
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     return this->g_correctorTimestamp;
 }
-fge::net::Client::Latency_ms Client::getCorrectorLatency() const
+std::optional<fge::net::Client::Latency_ms> Client::getCorrectorLatency() const
 {
-    return fge::net::Client::computeLatency_ms(this->g_correctorTimestamp, fge::net::Client::getTimestamp_ms());
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
+    if (this->g_correctorTimestamp.has_value())
+    {
+        auto latency = fge::net::Client::computeLatency_ms(this->g_correctorTimestamp.value(), fge::net::Client::getTimestamp_ms());
+        this->g_correctorTimestamp = std::nullopt;
+        return latency;
+    }
+    return std::nullopt;
 }
 
 void Client::resetLastPacketTimePoint()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
 fge::net::Client::Latency_ms Client::getLastPacketElapsedTime()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
     uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - this->g_lastPacketTimePoint).count();
@@ -117,7 +126,7 @@ fge::net::Client::Latency_ms Client::computeLatency_ms(const fge::net::Client::T
 
 void Client::clearPackets()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     for (std::size_t i=0; i<this->g_pendingTransmitPackets.size(); ++i)
     {
@@ -126,13 +135,13 @@ void Client::clearPackets()
 }
 void Client::pushPacket(const fge::net::ClientSendQueuePacket& pck)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     this->g_pendingTransmitPackets.push(pck);
 }
 fge::net::ClientSendQueuePacket Client::popPacket()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     if (this->g_pendingTransmitPackets.empty())
     {
@@ -144,7 +153,7 @@ fge::net::ClientSendQueuePacket Client::popPacket()
 }
 bool Client::isPendingPacketsEmpty()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
 }
 

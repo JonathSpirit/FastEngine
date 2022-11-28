@@ -24,12 +24,13 @@
 #include <queue>
 #include <chrono>
 #include <mutex>
-#include <array>
+#include <vector>
 #include <memory>
 
 #define FGE_NET_BAD_SKEY 0
 #define FGE_NET_DEFAULT_LATENCY 50
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
+#define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Client::Latency_ms>::max()
 
 namespace fge::net
 {
@@ -72,7 +73,7 @@ struct ClientSendQueuePacket
     };
 
     std::shared_ptr<fge::net::Packet> _pck; ///< The data packet to send
-    std::array<Option, static_cast<std::size_t>(Options::ENUM_MAX_COUNT)-1> _options{};
+    std::vector<Option> _options{};
 };
 
 /**
@@ -147,8 +148,8 @@ public:
     fge::net::Client::Latency_ms getPing_ms() const;
 
     void setCorrectorTimestamp(fge::net::Client::Timestamp timestamp);
-    fge::net::Client::Timestamp getCorrectorTimestamp() const;
-    fge::net::Client::Latency_ms getCorrectorLatency() const;
+    std::optional<fge::net::Client::Timestamp> getCorrectorTimestamp() const;
+    std::optional<fge::net::Client::Latency_ms> getCorrectorLatency() const;
 
     /**
      * \brief Reset the time point for limiting the packets sending frequency
@@ -210,13 +211,13 @@ public:
     fge::PropertyList _data; ///< Some user-defined client properties
 
 private:
-    fge::net::Client::Timestamp g_correctorTimestamp;
+    mutable std::optional<fge::net::Client::Timestamp> g_correctorTimestamp;
     fge::net::Client::Latency_ms g_CTOSLatency_ms;
     fge::net::Client::Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
     std::queue<fge::net::ClientSendQueuePacket> g_pendingTransmitPackets;
-    std::recursive_mutex g_mutex;
+    mutable std::recursive_mutex g_mutex;
 
     fge::net::Skey g_skey;
 };

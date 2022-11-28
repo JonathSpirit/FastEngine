@@ -228,14 +228,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     fluxPacket->_pck >> timestampCTOS >> timestampSTOC >> latencyCTOS >> latencyCorrectorSTOC;
 
                     //We can compute the "Server To Client" latency with the provided server timestamp and the packet timestamp
-                    auto latencySTOC = fge::net::Client::computeLatency_ms(timestampSTOC, fluxPacket->_timestamp) + latencyCorrectorSTOC;
+                    if (latencyCorrectorSTOC != FGE_NET_BAD_LATENCY)
+                    {
+                        auto latencySTOC = fge::net::Client::computeLatency_ms(timestampSTOC, fluxPacket->_timestamp);
+                        latencySTOC = latencyCorrectorSTOC>latencySTOC ? 0 : latencySTOC-latencyCorrectorSTOC;
+                        client->setSTOCLatency_ms(latencySTOC/2);
+                    }
 
                     std::cout << latencyCorrectorSTOC << std::endl;
 
                     //We can set the required latency of the server
-                    client->setSTOCLatency_ms(latencySTOC);
                     client->setCTOSLatency_ms(latencyCTOS);
-                    client->setCorrectorTimestamp(fluxPacket->_timestamp);
+                    if (!client->getCorrectorLatency().has_value())
+                    {
+                        client->setCorrectorTimestamp(fluxPacket->_timestamp);
+                    }
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
                 }
@@ -295,8 +302,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             client->setCorrectorTimestamp(fluxPacket->_timestamp);
 
                             //Ask the server thread to automatically update the timestamp just before sending it
-                            client->pushPacket({packetSend, {fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, timestampPos,
-                                                             fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}});
+                            client->pushPacket({packetSend, {{fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, timestampPos},
+                                                             {fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}}});
 
                             //We will send a full scene update to the client too
                             packetSend = std::make_shared<fge::net::PacketLZ4>();
@@ -360,8 +367,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 mainScene.packWatchedEvent(*packetSend, (*it).first);
 
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
-                (*it).second->pushPacket({packetSend, {fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, sizeof(fge::net::PacketHeader),
-                                                       fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}});
+                (*it).second->pushPacket({packetSend, {{fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, sizeof(fge::net::PacketHeader)},
+                                                       {fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}}});
 
                 //Notify the server that a packet as been pushed
                 server.notify();

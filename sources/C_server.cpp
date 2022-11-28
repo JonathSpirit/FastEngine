@@ -243,12 +243,8 @@ void ServerUdp::serverThreadTransmission()
                                 }
                                 else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                                 {
-                                    fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency();
+                                    fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                     buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-                                }
-                                else
-                                {
-                                    break;
                                 }
                             }
 
@@ -283,12 +279,8 @@ void ServerUdp::serverThreadTransmission()
                             }
                             else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                             {
-                                fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency();
+                                fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                 buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-                            }
-                            else
-                            {
-                                break;
                             }
                         }
 
@@ -454,12 +446,8 @@ void ServerClientSideUdp::serverThreadTransmission()
                         }
                         else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                         {
-                            fge::net::Client::Latency_ms correctorLatency = this->_client.getCorrectorLatency();
+                            fge::net::Client::Latency_ms correctorLatency = this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                             buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-                        }
-                        else
-                        {
-                            break;
                         }
                     }
 
