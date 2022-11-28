@@ -23,7 +23,6 @@
 
 #define LIFESIM_CLIENTDATA_TIMEOUT "timeout"
 #define LIFESIM_CLIENTDATA_TIMESTAMP "timestampCTOS"
-#define LIFESIM_CLIENTDATA_TIMESTAMP_CORRECTOR "timestampCorrectorCTOS"
 #define LIFESIM_SERVER_TICK 20
 #define LIFESIM_TIME_TIMEOUT std::chrono::milliseconds{100}
 #define LIFESIM_TIMEOUT_COUNT 30
@@ -66,6 +65,7 @@ enum ProtocolHeaders : fge::net::PacketHeader
         Timestamp LATENCY_TIMESTAMP_CTOS
         Timestamp LATENCY_TIMESTAMP_STOC
         Latency_ms LATENCY_CTOS
+        Latency_ms LATENCY_CORRECTOR_STOC
     OUT:
         -
     */
@@ -79,6 +79,7 @@ enum ProtocolHeaders : fge::net::PacketHeader
         bool VALID
         Timestamp LATENCY_TIMESTAMP_CTOS
         Timestamp LATENCY_TIMESTAMP_STOC
+        Latency_ms LATENCY_CORRECTOR_CTOS
     */
 
     LS_PROTOCOL_S_UPDATE,
@@ -87,6 +88,7 @@ enum ProtocolHeaders : fge::net::PacketHeader
         Timestamp LATENCY_TIMESTAMP_STOC
         Timestamp LATENCY_TIMESTAMP_CTOS
         Latency_ms LATENCY_STOC
+        Latency_ms LATENCY_CORRECTOR_CTOS
         sceneModification MODIFIED_SCENE_DATA
         sceneWatchedEvent EVENT_SCENE_DATA
     OUT:

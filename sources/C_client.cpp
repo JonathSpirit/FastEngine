@@ -22,6 +22,7 @@ namespace fge::net
 {
 
 Client::Client() :
+    g_correctorTimestamp(0),
     g_CTOSLatency_ms(FGE_NET_DEFAULT_LATENCY),
     g_STOCLatency_ms(FGE_NET_DEFAULT_LATENCY),
     g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
@@ -29,6 +30,7 @@ Client::Client() :
 {
 }
 Client::Client(fge::net::Client::Latency_ms CTOSLatency, fge::net::Client::Latency_ms STOCLatency) :
+    g_correctorTimestamp(0),
     g_CTOSLatency_ms(CTOSLatency),
     g_STOCLatency_ms(STOCLatency),
     g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
@@ -68,6 +70,19 @@ fge::net::Client::Latency_ms Client::getSTOCLatency_ms() const
 fge::net::Client::Latency_ms Client::getPing_ms() const
 {
     return this->g_CTOSLatency_ms + this->g_STOCLatency_ms;
+}
+
+void Client::setCorrectorTimestamp(fge::net::Client::Timestamp timestamp)
+{
+    this->g_correctorTimestamp = timestamp;
+}
+fge::net::Client::Timestamp Client::getCorrectorTimestamp() const
+{
+    return this->g_correctorTimestamp;
+}
+fge::net::Client::Latency_ms Client::getCorrectorLatency() const
+{
+    return fge::net::Client::computeLatency_ms(this->g_correctorTimestamp, fge::net::Client::getTimestamp_ms());
 }
 
 void Client::resetLastPacketTimePoint()

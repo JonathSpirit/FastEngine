@@ -232,11 +232,27 @@ void ServerUdp::serverThreadTransmission()
                         fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
                         if (buffPck._pck)
                         {//Last verification of the packet
-                            if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+
+                            //Applying options
+                            for (const auto& option : buffPck._options)
                             {
-                                fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
-                                buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                                if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
+                                {
+                                    fge::net::Client::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                    buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                                }
+                                else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                                {
+                                    fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency();
+                                    buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
+
+                            //Sending the packet
                             this->sendTo(*buffPck._pck, itClient->first);
                             itClient->second->resetLastPacketTimePoint();
                         }
@@ -244,7 +260,7 @@ void ServerUdp::serverThreadTransmission()
                 }
             }
         }
-        //Default flux
+        //Default flux TODO: redundant code
         std::unique_lock<std::recursive_mutex> lck{this->g_defaultFlux._clients.acquireLock()};
 
         for (auto itClient=this->g_defaultFlux._clients.begin(lck); itClient!=this->g_defaultFlux._clients.end(lck); ++itClient)
@@ -256,11 +272,27 @@ void ServerUdp::serverThreadTransmission()
                     fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
                     if (buffPck._pck)
                     {//Last verification of the packet
-                        if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+
+                        //Applying options
+                        for (const auto& option : buffPck._options)
                         {
-                            fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
-                            buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                            if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
+                            {
+                                fge::net::Client::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                            }
+                            else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                            {
+                                fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency();
+                                buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
+
+                        //Sending the packet
                         this->sendTo(*buffPck._pck, itClient->first);
                         itClient->second->resetLastPacketTimePoint();
                     }
@@ -411,11 +443,27 @@ void ServerClientSideUdp::serverThreadTransmission()
                 fge::net::ClientSendQueuePacket buffPck = this->_client.popPacket();
                 if (buffPck._pck)
                 {//Last verification of the packet
-                    if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+
+                    //Applying options
+                    for (const auto& option : buffPck._options)
                     {
-                        fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
-                        buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                        if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
+                        {
+                            fge::net::Client::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                            buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                        }
+                        else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                        {
+                            fge::net::Client::Latency_ms correctorLatency = this->_client.getCorrectorLatency();
+                            buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
+
+                    //Sending the packet
                     this->send(*buffPck._pck);
                     this->_client.resetLastPacketTimePoint();
                 }

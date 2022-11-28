@@ -24,6 +24,7 @@
 #include <queue>
 #include <chrono>
 #include <mutex>
+#include <array>
 #include <memory>
 
 #define FGE_NET_BAD_SKEY 0
@@ -46,24 +47,32 @@ namespace fge::net
 using Skey = uint32_t;
 
 /**
- * \enum ClientSendQueuePacketOptions
- * \brief Options to pass to the network thread when sending a packet
- */
-enum ClientSendQueuePacketOptions : uint8_t
-{
-    QUEUE_PACKET_OPTION_NONE = 0, ///< No option, the packet will be sent immediately
-    QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP ///< The timestamp of the packet will be updated when sending
-};
-
-/**
  * \struct ClientSendQueuePacket
  * \brief A packet to send to the network thread
  */
 struct ClientSendQueuePacket
 {
+    /**
+     * \enum Options
+     * \brief Options to pass to the network thread when sending a packet
+     */
+    enum class Options : uint8_t
+    {
+        NONE = 0, ///< No option, the packet will be sent immediately
+        UPDATE_TIMESTAMP, ///< The timestamp of the packet will be updated when sending
+        UPDATE_CORRECTION_LATENCY, ///< The latency of the packet will be updated with the corrector latency from the Client
+
+        ENUM_MAX_COUNT
+    };
+
+    struct Option
+    {
+        Options _option{Options::NONE}; ///< The option to send the packet with
+        std::size_t _argument{0}; ///< The option argument
+    };
+
     std::shared_ptr<fge::net::Packet> _pck; ///< The data packet to send
-    fge::net::ClientSendQueuePacketOptions _option{fge::net::QUEUE_PACKET_OPTION_NONE}; ///< The option to send the packet with
-    std::size_t _optionArg{0}; ///< The option argument
+    std::array<Option, static_cast<std::size_t>(Options::ENUM_MAX_COUNT)-1> _options{};
 };
 
 /**
@@ -137,6 +146,10 @@ public:
      */
     fge::net::Client::Latency_ms getPing_ms() const;
 
+    void setCorrectorTimestamp(fge::net::Client::Timestamp timestamp);
+    fge::net::Client::Timestamp getCorrectorTimestamp() const;
+    fge::net::Client::Latency_ms getCorrectorLatency() const;
+
     /**
      * \brief Reset the time point for limiting the packets sending frequency
      *
@@ -197,6 +210,7 @@ public:
     fge::PropertyList _data; ///< Some user-defined client properties
 
 private:
+    fge::net::Client::Timestamp g_correctorTimestamp;
     fge::net::Client::Latency_ms g_CTOSLatency_ms;
     fge::net::Client::Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;

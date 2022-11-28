@@ -97,8 +97,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     latencyText->setFillColor(sf::Color::Black);
 
     fge::net::Client::Timestamp latencyTimestampSTOC;
-    //fge::Clock latencyCorrectorSTOC;
-    fge::net::Client::Timestamp latencyCorrectorSTOC;
 
     bool connectionValid = false;
     bool connectionTimeoutCheck = false;
@@ -160,7 +158,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME) << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
             const std::size_t pckTimestampPos = packetSend->getDataSize();
             packetSend->append(sizeof(fge::net::Client::Timestamp));
-            server._client.pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP, pckTimestampPos});
+            server._client.pushPacket({packetSend, {fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, pckTimestampPos}});
 
             connectionTimeoutCheck = true;
             connectionTimeout.restart();
@@ -187,13 +185,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_UPDATE);
 
-            //Correct the STOC timestamp
-            latencyTimestampSTOC += fge::net::Client::computeLatency_ms(latencyCorrectorSTOC, fge::net::Client::getTimestamp_ms());
-
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets
             *packetSend << fge::net::Client::getTimestamp_ms() << latencyTimestampSTOC << server._client.getCTOSLatency_ms();
-            server._client.pushPacket({packetSend, fge::net::ClientSendQueuePacketOptions::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP,
-                                       sizeof(fge::net::PacketHeader)});
+            const std::size_t latencyCorrectorPos = packetSend->getDataSize();
+            packetSend->append(sizeof(fge::net::Client::Latency_ms));
+            server._client.pushPacket({packetSend, {fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, sizeof(fge::net::PacketHeader),
+                                                    fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}});
         }
 
         //Check if the connection is unsuccessful
@@ -236,14 +233,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     fluxPacket->_pck >> valid;
 
                     fge::net::Client::Timestamp latencyTimestampCTOS;
+                    fge::net::Client::Latency_ms latencyCorrectorCTOS;
 
-                    fluxPacket->_pck >> latencyTimestampCTOS >> latencyTimestampSTOC;
-                    latencyCorrectorSTOC = fluxPacket->_timestamp;
+                    fluxPacket->_pck >> latencyTimestampCTOS >> latencyTimestampSTOC >> latencyCorrectorCTOS;
+                    server._client.setCorrectorTimestamp(fluxPacket->_timestamp);
 
                     if (fluxPacket->_pck && valid)
                     {
                         //Computing Client To Server latency
-                        server._client.setCTOSLatency_ms( fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp) );
+                        server._client.setCTOSLatency_ms( fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp)+latencyCorrectorCTOS );
 
                         //We are connected, we can destroy the window
                         auto windowObject = mainScene.getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME);
@@ -267,13 +265,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     //and the "Server To Client" timestamp and latency that will be re-sent to the server.
                     fge::net::Client::Timestamp latencyTimestampCTOS;
                     fge::net::Client::Latency_ms latencySTOC;
-                    fluxPacket->_pck >> latencyTimestampSTOC >> latencyTimestampCTOS >> latencySTOC;
-                    latencyCorrectorSTOC = fluxPacket->_timestamp;
+                    fge::net::Client::Latency_ms latencyCorrectCTOS;
+                    fluxPacket->_pck >> latencyTimestampSTOC >> latencyTimestampCTOS >> latencySTOC >> latencyCorrectCTOS;
+                    server._client.setCorrectorTimestamp(fluxPacket->_timestamp);
 
                     server._client.setSTOCLatency_ms(latencySTOC);
 
                     //We can compute the "Client To Server" latency with the provided timestamp and the packet timestamp
-                    server._client.setCTOSLatency_ms(fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp));
+                    server._client.setCTOSLatency_ms(fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp)+latencyCorrectCTOS);
+
+                    std::cout << latencyCorrectCTOS << std::endl;
 
                     //Updating the latencyText
                     int size = sprintf(latencyTextBuffer, latencyTextFormat, server._client.getCTOSLatency_ms(), latencySTOC, server._client.getPing_ms());
