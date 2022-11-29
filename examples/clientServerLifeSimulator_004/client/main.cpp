@@ -45,8 +45,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::net::ServerClientSideUdp server;
     auto& serverSocket = server.getSocket();
 
-    std::shared_ptr<fge::net::PacketLZ4> packetSend;
-
     //Texture
     fge::texture::Init();
     fge::texture::LoadFromFile("close", "resources/images/window/close.png");
@@ -91,12 +89,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Create a latency text
     char latencyTextBuffer[200];
-    const char* latencyTextFormat = "latency CTOS: %d, STOC: %d, ping: %d";
+    const char* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
     auto* latencyText = mainScene.newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)->getObject<fge::ObjText>();
     latencyText->setFillColor(sf::Color::Black);
-
-    fge::net::Client::Timestamp latencyTimestampSTOC;
 
     bool connectionValid = false;
     bool connectionTimeoutCheck = false;
@@ -154,11 +150,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            packetSend = std::make_shared<fge::net::PacketLZ4>();
-            fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME) << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
-            const std::size_t pckTimestampPos = packetSend->getDataSize();
-            packetSend->append(sizeof(fge::net::Client::Timestamp));
-            server._client.pushPacket({packetSend, {{fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, pckTimestampPos}}});
+            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME) << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
+
+            //Ask the server thread to automatically update the timestamp just before sending it
+            server._client._latencyPlanner.pack(packetSend);
+
+            server._client.pushPacket(std::move(packetSend));
 
             connectionTimeoutCheck = true;
             connectionTimeout.restart();
@@ -177,21 +175,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Send an update packet to the server
-        if (clockUpdate.reached(LIFESIM_TIME_CLIENT_UPDATE*2) && connectionValid)
+        if (clockUpdate.reached(LIFESIM_TIME_CLIENT_UPDATE) && connectionValid)
         {
             clockUpdate.restart();
 
-            packetSend = std::make_shared<fge::net::PacketLZ4>();
+            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
 
-            fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_UPDATE);
+            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_UPDATE);
 
-            //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets
-            packetSend->append(sizeof(fge::net::Client::Timestamp));
-            *packetSend << latencyTimestampSTOC << server._client.getCTOSLatency_ms();
-            const std::size_t latencyCorrectorPos = packetSend->getDataSize();
-            packetSend->append(sizeof(fge::net::Client::Latency_ms));
-            server._client.pushPacket({packetSend, {{fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, sizeof(fge::net::PacketHeader)},
-                                                    {fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}}});
+            //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
+            //The LatencyPlanner class will do all the work for that.
+            server._client._latencyPlanner.pack(packetSend);
+            server._client.pushPacket(std::move(packetSend));
         }
 
         //Check if the connection is unsuccessful
@@ -216,7 +211,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto fluxPacket = server.popNextPacket();
 
             //Prepare a sending packet
-            packetSend = std::make_shared<fge::net::PacketLZ4>();
+            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
 
             //Retrieve the packet header
             switch ( fge::net::GetHeader(fluxPacket->_pck) )
@@ -233,20 +228,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     bool valid = false;
                     fluxPacket->_pck >> valid;
 
-                    fge::net::Client::Timestamp latencyTimestampCTOS;
-                    fge::net::Client::Latency_ms latencyCorrectorCTOS;
-
-                    fluxPacket->_pck >> latencyTimestampCTOS >> latencyTimestampSTOC >> latencyCorrectorCTOS;
-                    server._client.setCorrectorTimestamp(fluxPacket->_timestamp);
-
                     if (fluxPacket->_pck && valid)
                     {
-                        //Computing Client To Server latency
-                        if (latencyCorrectorCTOS != FGE_NET_BAD_LATENCY)
+                        //Get latency
+                        server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
+                        if (auto latency = server._client._latencyPlanner.getLatency())
                         {
-                            auto latencyCTOS = fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp);
-                            latencyCTOS = latencyCorrectorCTOS>latencyCTOS ? 0 : latencyCTOS-latencyCorrectorCTOS;
-                            server._client.setCTOSLatency_ms(latencyCTOS/2);
+                            server._client.setCTOSLatency_ms(latency.value());
                         }
 
                         //We are connected, we can destroy the window
@@ -267,31 +255,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 break;
             case ls::LS_PROTOCOL_S_UPDATE:
                 {
-                    //Retrieving "Client To Server" timestamp that is used to calculate the CTOS latency
-                    //and the "Server To Client" timestamp and latency that will be re-sent to the server.
-                    fge::net::Client::Timestamp latencyTimestampCTOS;
-                    fge::net::Client::Latency_ms latencySTOC;
-                    fge::net::Client::Latency_ms latencyCorrectorCTOS;
-                    fluxPacket->_pck >> latencyTimestampSTOC >> latencyTimestampCTOS >> latencySTOC >> latencyCorrectorCTOS;
-                    if (!server._client.getCorrectorLatency().has_value())
+                    //Get latency
+                    server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
+                    if (auto latency = server._client._latencyPlanner.getLatency())
                     {
-                        server._client.setCorrectorTimestamp(fluxPacket->_timestamp);
-                    }
-
-                    server._client.setSTOCLatency_ms(latencySTOC);
-
-                    //We can compute the "Client To Server" latency with the provided timestamp and the packet timestamp
-                    if (latencyCorrectorCTOS != FGE_NET_BAD_LATENCY)
-                    {
-                        auto latencyCTOS = fge::net::Client::computeLatency_ms(latencyTimestampCTOS, fluxPacket->_timestamp);
-                        latencyCTOS = latencyCorrectorCTOS>latencyCTOS ? 0 : latencyCTOS-latencyCorrectorCTOS;
-                        server._client.setCTOSLatency_ms(latencyCTOS/2);
-
-                        std::cout << latencyCorrectorCTOS << std::endl;
+                        server._client.setCTOSLatency_ms(latency.value());
                     }
 
                     //Updating the latencyText
-                    int size = sprintf(latencyTextBuffer, latencyTextFormat, server._client.getCTOSLatency_ms(), latencySTOC, server._client.getPing_ms());
+                    int size = sprintf(latencyTextBuffer, latencyTextFormat, fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                                       server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(), server._client.getPing_ms());
                     latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                     //And then unpack all modification made by the server scene

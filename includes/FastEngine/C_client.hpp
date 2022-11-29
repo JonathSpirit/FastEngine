@@ -26,11 +26,14 @@
 #include <mutex>
 #include <vector>
 #include <memory>
+#include <array>
 
 #define FGE_NET_BAD_SKEY 0
 #define FGE_NET_DEFAULT_LATENCY 50
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
-#define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Client::Latency_ms>::max()
+#define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
+#define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
+#define FGE_NET_LATENCY_PLANNER_MEAN 6
 
 namespace fge::net
 {
@@ -61,6 +64,7 @@ struct ClientSendQueuePacket
     {
         NONE = 0, ///< No option, the packet will be sent immediately
         UPDATE_TIMESTAMP, ///< The timestamp of the packet will be updated when sending
+        UPDATE_FULL_TIMESTAMP, ///< The full timestamp of the packet will be updated when sending
         UPDATE_CORRECTION_LATENCY, ///< The latency of the packet will be updated with the corrector latency from the Client
 
         ENUM_MAX_COUNT
@@ -68,12 +72,55 @@ struct ClientSendQueuePacket
 
     struct Option
     {
+        inline Option(Options option, std::size_t argument=0) :
+            _option(option),
+            _argument(argument)
+        {}
+
         Options _option{Options::NONE}; ///< The option to send the packet with
         std::size_t _argument{0}; ///< The option argument
     };
 
     std::shared_ptr<fge::net::Packet> _pck; ///< The data packet to send
     std::vector<Option> _options{};
+};
+
+struct FluxPacket;
+class Client;
+
+using Timestamp = uint16_t; ///< An timestamp represent modulated current time in milliseconds
+using FullTimestamp = uint64_t; ///< An timestamp represent current time in milliseconds
+using FullTimestampOffset = int64_t; ///< An timestamp offset
+using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
+
+class FGE_API OneWayLatencyPlanner
+{
+public:
+    OneWayLatencyPlanner() = default;
+
+    enum Stats : uint8_t
+    {
+        HAVE_EXTERNAL_TIMESTAMP = 1<<0
+    };
+
+    void pack(fge::net::ClientSendQueuePacket& packet);
+    void unpack(fge::net::FluxPacket* packet, fge::net::Client& client);
+
+    [[nodiscard]] std::optional<fge::net::FullTimestampOffset> getClockOffset() const;
+    [[nodiscard]] std::optional<fge::net::Latency_ms> getLatency() const;
+    [[nodiscard]] std::optional<fge::net::Latency_ms> getRoundTripTime() const;
+
+private:
+    std::optional<fge::net::Latency_ms> g_latency;
+
+    std::optional<fge::net::FullTimestampOffset> g_meanClockOffset;
+    std::array<fge::net::FullTimestampOffset, FGE_NET_LATENCY_PLANNER_MEAN> g_clockOffsets{};
+    std::size_t g_clockOffsetCount{0};
+
+    std::optional<fge::net::Latency_ms> g_roundTripTime;
+
+    fge::net::Timestamp g_externalStoredTimestamp{0};
+    std::underlying_type_t<Stats> g_syncStat{0};
 };
 
 /**
@@ -83,9 +130,6 @@ struct ClientSendQueuePacket
 class FGE_API Client
 {
 public:
-    using Timestamp = uint16_t; ///< An timestamp represent modulated current time in milliseconds
-    using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
-
     Client();
     /**
      * \brief Constructor with default latencies
@@ -93,7 +137,7 @@ public:
      * \param CTOSLatency The "Client To Server" latency
      * \param STOCLatency The "Server To Client" latency
      */
-    explicit Client(fge::net::Client::Latency_ms CTOSLatency, fge::net::Client::Latency_ms STOCLatency);
+    explicit Client(fge::net::Latency_ms CTOSLatency, fge::net::Latency_ms STOCLatency);
 
     /**
      * \brief Generate a new random session key
@@ -119,25 +163,25 @@ public:
      *
      * \param latency Latency in milliseconds
      */
-    void setCTOSLatency_ms(fge::net::Client::Latency_ms latency);
+    void setCTOSLatency_ms(fge::net::Latency_ms latency);
     /**
      * \brief Set the "Server To Client" latency
      *
      * \param latency Latency in milliseconds
      */
-    void setSTOCLatency_ms(fge::net::Client::Latency_ms latency);
+    void setSTOCLatency_ms(fge::net::Latency_ms latency);
     /**
      * \brief Get the "Client To Server" latency
      *
      * \return Latency in milliseconds
      */
-    fge::net::Client::Latency_ms getCTOSLatency_ms() const;
+    fge::net::Latency_ms getCTOSLatency_ms() const;
     /**
      * \brief Get the "Server To Client" latency
      *
      * \return Latency in milliseconds
      */
-    fge::net::Client::Latency_ms getSTOCLatency_ms() const;
+    fge::net::Latency_ms getSTOCLatency_ms() const;
     /**
      * \brief Compute the ping
      *
@@ -145,11 +189,11 @@ public:
      *
      * \return Pin in milliseconds
      */
-    fge::net::Client::Latency_ms getPing_ms() const;
+    fge::net::Latency_ms getPing_ms() const;
 
-    void setCorrectorTimestamp(fge::net::Client::Timestamp timestamp);
-    std::optional<fge::net::Client::Timestamp> getCorrectorTimestamp() const;
-    std::optional<fge::net::Client::Latency_ms> getCorrectorLatency() const;
+    void setCorrectorTimestamp(fge::net::Timestamp timestamp);
+    std::optional<fge::net::Timestamp> getCorrectorTimestamp() const;
+    std::optional<fge::net::Latency_ms> getCorrectorLatency() const;
 
     /**
      * \brief Reset the time point for limiting the packets sending frequency
@@ -162,14 +206,21 @@ public:
      *
      * \return The delta time in milliseconds
      */
-    fge::net::Client::Latency_ms getLastPacketElapsedTime();
+    fge::net::Latency_ms getLastPacketElapsedTime();
 
     /**
      * \brief Get a modulated timestamp of the current time
      *
      * \return The modulated timestamp
      */
-    static fge::net::Client::Timestamp getTimestamp_ms();
+    static fge::net::Timestamp getTimestamp_ms();
+    static fge::net::Timestamp getTimestamp_ms(fge::net::FullTimestamp fullTimestamp);
+    /**
+     * \brief Get a timestamp of the current time
+     *
+     * \return The timestamp
+     */
+    static fge::net::FullTimestamp getFullTimestamp_ms();
     /**
      * \brief Compute the latency for the client->server / server->client with the given timestamps
      *
@@ -177,8 +228,8 @@ public:
      * \param receivedTimestamp The received timestamp
      * \return Latency in milliseconds
      */
-    static fge::net::Client::Latency_ms computeLatency_ms(const fge::net::Client::Timestamp& sentTimestamp,
-                                                          const fge::net::Client::Timestamp& receivedTimestamp);
+    static fge::net::Latency_ms computeLatency_ms(const fge::net::Timestamp& sentTimestamp,
+                                                  const fge::net::Timestamp& receivedTimestamp);
 
     /**
      * \brief Clear the packet queue
@@ -194,6 +245,7 @@ public:
      * \param pck The packet to send with eventual options
      */
     void pushPacket(const fge::net::ClientSendQueuePacket& pck);
+    void pushPacket(fge::net::ClientSendQueuePacket&& pck);
     /**
      * \brief Pop a packet from the queue
      *
@@ -209,11 +261,12 @@ public:
 
     fge::Event _event; ///< Optional client-side event that can be synchronized with the server
     fge::PropertyList _data; ///< Some user-defined client properties
+    fge::net::OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
 
 private:
-    mutable std::optional<fge::net::Client::Timestamp> g_correctorTimestamp;
-    fge::net::Client::Latency_ms g_CTOSLatency_ms;
-    fge::net::Client::Latency_ms g_STOCLatency_ms;
+    mutable std::optional<fge::net::Timestamp> g_correctorTimestamp;
+    fge::net::Latency_ms g_CTOSLatency_ms;
+    fge::net::Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
     std::queue<fge::net::ClientSendQueuePacket> g_pendingTransmitPackets;

@@ -46,7 +46,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
 
     fge::net::ServerUdp server;
-    std::shared_ptr<fge::net::PacketLZ4> packetSend;
     ///TODO: fge::net::ServerUdp should have a function to create a packet for us. \
     /// This will save some time if the user want to re-change the packet type.
 
@@ -199,125 +198,100 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto client = clients.get(fluxPacket->_id);
 
             //Prepare a sending packet
-            packetSend = std::make_shared<fge::net::PacketLZ4>();
+            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
 
             //Retrieve the packet header
             switch (fge::net::GetHeader(fluxPacket->_pck))
             {
             case ls::LS_PROTOCOL_ALL_PING:
-                fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_ALL_PONG);
+                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_ALL_PONG);
 
                 if (client)
                 {
-                    client->pushPacket({packetSend});
+                    client->pushPacket(std::move(packetSend));
                 }
                 else
                 {
-                    server.sendTo(*packetSend, fluxPacket->_id);
+                    server.sendTo(*packetSend._pck, fluxPacket->_id);
                 }
                 break;
             case ls::LS_PROTOCOL_C_UPDATE:
                 if (client)
                 {
-                    //Retrieving "Client To Server" timestamp
-                    //and the "Server To Client" latency
-                    fge::net::Client::Timestamp timestampCTOS;
-                    fge::net::Client::Timestamp timestampSTOC;
-                    fge::net::Client::Latency_ms latencyCTOS;
-                    fge::net::Client::Latency_ms latencyCorrectorSTOC;
-                    fluxPacket->_pck >> timestampCTOS >> timestampSTOC >> latencyCTOS >> latencyCorrectorSTOC;
-
-                    //We can compute the "Server To Client" latency with the provided server timestamp and the packet timestamp
-                    if (latencyCorrectorSTOC != FGE_NET_BAD_LATENCY)
+                    //We compute the latency with the LatencyPlanner help class
+                    client->_latencyPlanner.unpack(fluxPacket.get(), *client);
+                    if (auto latency = client->_latencyPlanner.getLatency())
                     {
-                        auto latencySTOC = fge::net::Client::computeLatency_ms(timestampSTOC, fluxPacket->_timestamp);
-                        latencySTOC = latencyCorrectorSTOC>latencySTOC ? 0 : latencySTOC-latencyCorrectorSTOC;
-                        client->setSTOCLatency_ms(latencySTOC/2);
+                        client->setSTOCLatency_ms(latency.value());
                     }
 
-                    std::cout << latencyCorrectorSTOC << std::endl;
-
-                    //We can set the required latency of the server
-                    client->setCTOSLatency_ms(latencyCTOS);
-                    if (!client->getCorrectorLatency().has_value())
-                    {
-                        client->setCorrectorTimestamp(fluxPacket->_timestamp);
-                    }
-                    client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
+                    //We reset the timeout count
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
                 }
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
-                fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
-
-                if (client != nullptr)
                 {
-                    //The client is already connected, so we just send "true"
-                    *packetSend << true;
-                    client->pushPacket({packetSend});
-                }
-                else
-                {
-                    //The potential client is not connected
+                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
 
-                    //We extract 2 "really super secret" strings for validating the connection
-                    std::string connectionText1;
-                    std::string connectionText2;
-
-                    //Before extracting a string from the packet, we must be sure that the string
-                    //will have a valid size range.
-                    FGE_NET_RULES_START
-                        fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1), {fluxPacket->_pck});
-                    FGE_NET_RULES_AFFECT_END_ELSE(connectionText1,)
-
-                    FGE_NET_RULES_START
-                        fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2), {fluxPacket->_pck});
-                    FGE_NET_RULES_AFFECT_END_ELSE(connectionText2,)
-
-                    fge::net::Client::Timestamp timestampCTOS;
-                    fluxPacket->_pck >> timestampCTOS;
-
-                    //Check if the packet is still valid after extraction and/or rules
-                    if (fluxPacket->_pck)
+                    if (client != nullptr)
                     {
-                        //Check if those text is respected
-                        if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
-                        {
-                            //The client is valid, we can connect him
-                            *packetSend << true << timestampCTOS;
-                            const std::size_t timestampPos = packetSend->getDataSize();
-                            packetSend->append(sizeof(fge::net::Client::Timestamp));
-
-                            const std::size_t latencyCorrectorPos = packetSend->getDataSize();
-                            packetSend->append(sizeof(fge::net::Client::Latency_ms));
-
-                            std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !" << std::endl;
-
-                            //Create the new client with the packet identity
-                            client = std::make_shared<fge::net::Client>();
-                            clients.add(fluxPacket->_id, client);
-
-                            //Storing the client timestamp
-                            client->_data.setProperty(LIFESIM_CLIENTDATA_TIMESTAMP, timestampCTOS);
-                            client->setCorrectorTimestamp(fluxPacket->_timestamp);
-
-                            //Ask the server thread to automatically update the timestamp just before sending it
-                            client->pushPacket({packetSend, {{fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, timestampPos},
-                                                             {fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}}});
-
-                            //We will send a full scene update to the client too
-                            packetSend = std::make_shared<fge::net::PacketLZ4>();
-                            fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_S_UPDATE_ALL);
-                            mainScene.pack(*packetSend);
-
-                            client->pushPacket({packetSend});
-                            break;
-                        }
+                        //The client is already connected, so we just send "true"
+                        *packetSend._pck << true;
+                        client->pushPacket(std::move(packetSend));
                     }
+                    else
+                    {
+                        //The potential client is not connected
 
-                    //Something is not right, we will send "false" to the potential client
-                    *packetSend << false;
-                    server.sendTo(*packetSend, fluxPacket->_id);
+                        //We extract 2 "really super secret" strings for validating the connection
+                        std::string connectionText1;
+                        std::string connectionText2;
+
+                        //Before extracting a string from the packet, we must be sure that the string
+                        //will have a valid size range.
+                        FGE_NET_RULES_START
+                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1), {fluxPacket->_pck});
+                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText1,)
+
+                        FGE_NET_RULES_START
+                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2), {fluxPacket->_pck});
+                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText2,)
+
+                        //Check if the packet is still valid after extraction and/or rules
+                        if (fluxPacket->_pck)
+                        {
+                            //Check if those text is respected
+                            if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
+                            {
+                                //The client is valid, we can connect him
+                                *packetSend._pck << true;
+
+                                std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !" << std::endl;
+
+                                //Create the new client with the packet identity
+                                client = std::make_shared<fge::net::Client>();
+                                clients.add(fluxPacket->_id, client);
+
+                                //Pack data required by the LatencyPlanner in order to compute latency
+                                client->_latencyPlanner.pack(packetSend);
+
+                                //Ask the server thread to automatically update the timestamp just before sending it
+                                client->pushPacket(std::move(packetSend));
+
+                                //We will send a full scene update to the client too
+                                packetSend = fge::net::ClientSendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
+                                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
+                                mainScene.pack(*packetSend._pck);
+
+                                client->pushPacket(std::move(packetSend));
+                                break;
+                            }
+                        }
+
+                        //Something is not right, we will send "false" to the potential client
+                        *packetSend._pck << false;
+                        server.sendTo(*packetSend._pck, fluxPacket->_id);
+                    }
                 }
                 break;
             default:
@@ -347,28 +321,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     continue;
                 }
 
-                packetSend = std::make_shared<fge::net::PacketLZ4>();
-                fge::net::SetHeader(*packetSend, ls::LS_PROTOCOL_S_UPDATE);
+                fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE);
 
-                //We append the byte size of a timestamp here cause the server thread will automatically update it
-                //just before sending the packet (more precise timestamp).
-                packetSend->append(sizeof(fge::net::Client::Timestamp));
-
-                //We retrieve the stored "Client To Server" timestamp and re-sent it to the client as it is not useful for us.
-                auto timestampCTOS = (*it).second->_data[LIFESIM_CLIENTDATA_TIMESTAMP].get<fge::net::Client::Timestamp>().value_or(0);
-                *packetSend << timestampCTOS << (*it).second->getSTOCLatency_ms();
-
-                const std::size_t latencyCorrectorPos = packetSend->getDataSize();
-                packetSend->append(sizeof(fge::net::Client::Latency_ms));
+                //Pack data required by the LatencyPlanner in order to compute latency
+                (*it).second->_latencyPlanner.pack(packetSend);
 
                 //We can now push all scene modification by clients
-                mainScene.packModification(*packetSend, (*it).first);
+                mainScene.packModification(*packetSend._pck, (*it).first);
                 //And push all scene events by clients
-                mainScene.packWatchedEvent(*packetSend, (*it).first);
+                mainScene.packWatchedEvent(*packetSend._pck, (*it).first);
 
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
-                (*it).second->pushPacket({packetSend, {{fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, sizeof(fge::net::PacketHeader)},
-                                                       {fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, latencyCorrectorPos}}});
+                (*it).second->pushPacket(std::move(packetSend));
 
                 //Notify the server that a packet as been pushed
                 server.notify();

@@ -238,12 +238,17 @@ void ServerUdp::serverThreadTransmission()
                             {
                                 if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
                                 {
-                                    fge::net::Client::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                    fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                    buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                                }
+                                else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                                {
+                                    fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                                     buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                                 }
                                 else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                                 {
-                                    fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                                    fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                     buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                                 }
                             }
@@ -274,12 +279,17 @@ void ServerUdp::serverThreadTransmission()
                         {
                             if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
                             {
-                                fge::net::Client::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                            }
+                            else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                            {
+                                fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                                 buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                             }
                             else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                             {
-                                fge::net::Client::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                                fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                 buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                             }
                         }
@@ -441,12 +451,17 @@ void ServerClientSideUdp::serverThreadTransmission()
                     {
                         if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
                         {
-                            fge::net::Client::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                            fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                            buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                        }
+                        else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                        {
+                            fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                             buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                         }
                         else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                         {
-                            fge::net::Client::Latency_ms correctorLatency = this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                            fge::net::Latency_ms correctorLatency = this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                             buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                         }
                     }
