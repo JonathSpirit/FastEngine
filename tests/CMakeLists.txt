@@ -1,23 +1,11 @@
 include(FetchContent)
 
-function(fge_add_test target SOURCES DEPENDS)
-    add_executable(${target} ${SOURCES})
-    target_link_libraries(${target} PRIVATE ${DEPENDS} fgeDoctestMain)
-    add_test(${target} ${target})
+function(fge_add_test TARGET SOURCES DEPENDS)
+    add_executable(${TARGET} ${SOURCES})
+    target_link_libraries(${TARGET} PRIVATE ${DEPENDS} fgeDoctestMain)
+    add_test(NAME ${TARGET} COMMAND ${TARGET} WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-    #Copy dlls
-    if (WIN32)
-        foreach (DEPENDENCY ${DEPENDS})
-            add_custom_command(TARGET ${target} PRE_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    $<TARGET_FILE:${DEPENDENCY}>
-                    $<TARGET_FILE_DIR:${target}>)
-        endforeach()
-        add_custom_command(TARGET ${target} PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${CMAKE_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
-                $<TARGET_FILE_DIR:${target}>)
-    endif()
+    add_dependencies(${TARGET} FgeExeDeps)
 endfunction()
 
 set(DOCTEST_NO_INSTALL ON)

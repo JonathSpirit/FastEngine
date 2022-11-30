@@ -11,6 +11,8 @@ target_sources(${PROJECT_NAME} PRIVATE ../share/C_moveable.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ../share/includes)
 target_compile_definitions(${PROJECT_NAME} PRIVATE FGE_DEF_SERVER)
 
+add_dependencies(${PROJECT_NAME} FgeExeDeps)
+
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} sfml-system ${FGE_SERVER_LIB_NAME})
 elseif(APPLE)
