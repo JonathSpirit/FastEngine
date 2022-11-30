@@ -4,6 +4,8 @@
 #include <FastEngine/manager/reg_manager.hpp>
 #include <FastEngine/C_packetLZ4.hpp>
 #include <FastEngine/C_clock.hpp>
+#include <FastEngine/extra/extra_function.hpp>
+#include <FastEngine/fastengine_version.hpp>
 
 #include <C_creature.hpp>
 #include <C_food.hpp>
@@ -44,6 +46,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         std::cout << "can't init socket system !" << std::endl;
         TERMINUS(-1)
     }
+
+    //Enable virtual terminal sequence support
+    std::cout << "virtual terminal sequence support : " << std::boolalpha << fge::SetVirtualTerminalSequenceSupport() << std::endl;
+
+    std::string title = "Life simulator server, FastEngine "+std::string{FGE_VERSION_FULL_WITHTAG_STRING};
+    fge::SetConsoleCmdTitle(title.c_str());
 
     fge::net::ServerUdp server;
     ///TODO: fge::net::ServerUdp should have a function to create a packet for us. \

@@ -20,8 +20,13 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
+#include <iostream>
 #include "SFML/System/Vector2.hpp"
 #include "re2.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif //_WIN32
 
 namespace fge
 {
@@ -118,6 +123,76 @@ std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesyst
     }
 
     return buffer.size() - actualSize;
+}
+
+bool SetVirtualTerminalSequenceSupport()
+{
+#ifdef _WIN32
+    HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (stdHandle == INVALID_HANDLE_VALUE)
+    {
+        return false;
+    }
+
+    DWORD dwMode;
+    if (GetConsoleMode(stdHandle, &dwMode) == 0)
+    {
+        return false;
+    }
+
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+    return SetConsoleMode(stdHandle, dwMode) != 0;
+#else
+    return true;
+#endif //_WIN32
+}
+void SetConsoleCmdTitle(const char* title)
+{
+    if (title == nullptr)
+    {
+        return;
+    }
+
+#ifdef _WIN32
+    HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (stdHandle == INVALID_HANDLE_VALUE)
+    {
+        return;
+    }
+
+    DWORD dwMode;
+    if (GetConsoleMode(stdHandle, &dwMode) == 0)
+    {
+        return;
+    }
+
+    if ((dwMode&ENABLE_VIRTUAL_TERMINAL_PROCESSING)>0)
+    {
+        std::cout << "\033]0;" << title << "\007";
+    }
+    else
+    {
+        /*
+         * From MSDN :
+         * https://learn.microsoft.com/en-us/windows/console/setconsoletitle
+         *
+         * This document describes console platform functionality that is no longer a part of our ecosystem roadmap.
+         * We do not recommend using this content in new products, but we will continue to support existing usages
+         * for the indefinite future. Our preferred modern solution focuses on virtual terminal sequences for
+         * maximum compatibility in cross-platform scenarios. You can find more information about this design decision
+         * in our classic console vs. virtual terminal document.
+         */
+
+    #ifdef SetConsoleTitle
+        SetConsoleTitle(title);
+    #endif
+    }
+#else
+    std::cout << "\033]0;" << title << "\007";
+#endif //_WIN32
 }
 
 ///Detection

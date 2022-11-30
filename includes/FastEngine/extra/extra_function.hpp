@@ -43,6 +43,9 @@ FGE_API bool IsEngineBuiltInDebugMode();
 
 FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
 
+FGE_API bool SetVirtualTerminalSequenceSupport();
+FGE_API void SetConsoleCmdTitle(const char* title);
+
 ///Detection
 #ifndef FGE_DEF_SERVER
 FGE_API bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
