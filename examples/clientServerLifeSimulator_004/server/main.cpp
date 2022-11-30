@@ -198,7 +198,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto client = clients.get(fluxPacket->_id);
 
             //Prepare a sending packet
-            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
 
             //Retrieve the packet header
             switch (fge::net::GetHeader(fluxPacket->_pck))
@@ -283,7 +283,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                 client->pushPacket(std::move(packetSend));
 
                                 //We will send a full scene update to the client too
-                                packetSend = fge::net::ClientSendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
+                                packetSend = fge::net::SendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
                                 fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
                                 mainScene.pack(*packetSend._pck);
 
@@ -325,7 +325,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     continue;
                 }
 
-                fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+                fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
                 fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE);
 
                 //Pack data required by the LatencyPlanner in order to compute latency

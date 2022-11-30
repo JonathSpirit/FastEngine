@@ -150,7 +150,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
             fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME) << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
             //Ask the server thread to automatically update the timestamp just before sending it
@@ -179,7 +179,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         {
             clockUpdate.restart();
 
-            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
 
             fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_UPDATE);
 
@@ -211,7 +211,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto fluxPacket = server.popNextPacket();
 
             //Prepare a sending packet
-            fge::net::ClientSendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
 
             //Retrieve the packet header
             switch ( fge::net::GetHeader(fluxPacket->_pck) )

@@ -50,10 +50,10 @@ using FullTimestampOffset = int64_t; ///< An timestamp offset
 using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
 
 /**
- * \struct ClientSendQueuePacket
+ * \struct SendQueuePacket
  * \brief A packet to send to the network thread
  */
-struct ClientSendQueuePacket
+struct SendQueuePacket
 {
     /**
      * \enum Options
@@ -112,7 +112,7 @@ public:
      *
      * \param packet A SendQueuePacket that will be sent
      */
-    void pack(fge::net::ClientSendQueuePacket& packet);
+    void pack(fge::net::SendQueuePacket& packet);
     /**
      * \brief Unpack the data received by another client/server planner
      *
@@ -345,14 +345,14 @@ public:
      *
      * \param pck The packet to send with eventual options
      */
-    void pushPacket(const fge::net::ClientSendQueuePacket& pck);
-    void pushPacket(fge::net::ClientSendQueuePacket&& pck);
+    void pushPacket(const fge::net::SendQueuePacket& pck);
+    void pushPacket(fge::net::SendQueuePacket&& pck);
     /**
      * \brief Pop a packet from the queue
      *
      * \return The popped packet or nullptr if the queue is empty
      */
-    fge::net::ClientSendQueuePacket popPacket();
+    fge::net::SendQueuePacket popPacket();
     /**
      * \brief Check if the packet queue is empty
      *
@@ -370,7 +370,7 @@ private:
     fge::net::Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
-    std::queue<fge::net::ClientSendQueuePacket> g_pendingTransmitPackets;
+    std::queue<fge::net::SendQueuePacket> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
 
     fge::net::Skey g_skey;

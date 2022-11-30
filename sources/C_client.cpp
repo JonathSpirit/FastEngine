@@ -142,17 +142,17 @@ void Client::clearPackets()
         this->g_pendingTransmitPackets.pop();
     }
 }
-void Client::pushPacket(const fge::net::ClientSendQueuePacket& pck)
+void Client::pushPacket(const fge::net::SendQueuePacket& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_pendingTransmitPackets.push(pck);
 }
-void Client::pushPacket(fge::net::ClientSendQueuePacket&& pck)
+void Client::pushPacket(fge::net::SendQueuePacket&& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_pendingTransmitPackets.push(std::move(pck));
 }
-fge::net::ClientSendQueuePacket Client::popPacket()
+fge::net::SendQueuePacket Client::popPacket()
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
@@ -160,7 +160,7 @@ fge::net::ClientSendQueuePacket Client::popPacket()
     {
         return {nullptr};
     }
-    fge::net::ClientSendQueuePacket tmp = this->g_pendingTransmitPackets.front();
+    fge::net::SendQueuePacket tmp = this->g_pendingTransmitPackets.front();
     this->g_pendingTransmitPackets.pop();
     return tmp;
 }
@@ -172,7 +172,7 @@ bool Client::isPendingPacketsEmpty()
 
 //OneWayLatencyPlanner
 
-void OneWayLatencyPlanner::pack(fge::net::ClientSendQueuePacket& packet)
+void OneWayLatencyPlanner::pack(fge::net::SendQueuePacket& packet)
 {
     //Append my timestamp
     std::size_t myTimestampPos = packet._pck->getDataSize();
@@ -200,13 +200,13 @@ void OneWayLatencyPlanner::pack(fge::net::ClientSendQueuePacket& packet)
     if ((this->g_syncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
         packet._pck->pack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
-        packet._options.emplace_back(fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
+        packet._options.emplace_back(fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
         this->g_syncStat &=~ Stats::HAVE_EXTERNAL_TIMESTAMP;
     }
 
-    packet._options.emplace_back(fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
+    packet._options.emplace_back(fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
 #ifdef FGE_DEF_SERVER
-    packet._options.emplace_back(fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
+    packet._options.emplace_back(fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
 #endif //FGE_DEF_SERVER
 }
 void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client& client)

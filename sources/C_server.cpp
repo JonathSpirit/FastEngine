@@ -229,24 +229,24 @@ void ServerUdp::serverThreadTransmission()
                 {
                     if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
                     {//Ready to send !
-                        fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
+                        fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
                         if (buffPck._pck)
                         {//Last verification of the packet
 
                             //Applying options
                             for (const auto& option : buffPck._options)
                             {
-                                if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
+                                if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                                 {
                                     fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
                                     buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                                 }
-                                else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                                else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
                                 {
                                     fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                                     buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                                 }
-                                else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                                else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                                 {
                                     fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                     buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
@@ -270,24 +270,24 @@ void ServerUdp::serverThreadTransmission()
             {
                 if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
                 {//Ready to send !
-                    fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
+                    fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
                     if (buffPck._pck)
                     {//Last verification of the packet
 
                         //Applying options
                         for (const auto& option : buffPck._options)
                         {
-                            if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
+                            if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                             {
                                 fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
                                 buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                             }
-                            else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                            else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
                             {
                                 fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                                 buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                             }
-                            else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                            else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                             {
                                 fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                 buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
@@ -442,24 +442,24 @@ void ServerClientSideUdp::serverThreadTransmission()
         {
             if ( this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms() )
             {//Ready to send !
-                fge::net::ClientSendQueuePacket buffPck = this->_client.popPacket();
+                fge::net::SendQueuePacket buffPck = this->_client.popPacket();
                 if (buffPck._pck)
                 {//Last verification of the packet
 
                     //Applying options
                     for (const auto& option : buffPck._options)
                     {
-                        if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_TIMESTAMP)
+                        if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                         {
                             fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
                             buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                         }
-                        else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                        else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
                         {
                             fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                             buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                         }
-                        else if (option._option == fge::net::ClientSendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                        else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                         {
                             fge::net::Latency_ms correctorLatency = this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                             buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
