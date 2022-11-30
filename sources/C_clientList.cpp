@@ -37,7 +37,7 @@ void ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
 }
-void ClientList::sendToAll(const fge::net::ClientSendQueuePacket& pck)
+void ClientList::sendToAll(const fge::net::SendQueuePacket& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     for (auto & it : this->g_data)

@@ -227,16 +227,33 @@ void ServerUdp::serverThreadTransmission()
             {
                 if ( !itClient->second->isPendingPacketsEmpty() )
                 {
-                    if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getLatency_ms() )
+                    if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
                     {//Ready to send !
-                        fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
+                        fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
                         if (buffPck._pck)
                         {//Last verification of the packet
-                            if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+
+                            //Applying options
+                            for (const auto& option : buffPck._options)
                             {
-                                fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
-                                buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                                if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
+                                {
+                                    fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                    buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                                }
+                                else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                                {
+                                    fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
+                                    buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                                }
+                                else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                                {
+                                    fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                                    buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+                                }
                             }
+
+                            //Sending the packet
                             this->sendTo(*buffPck._pck, itClient->first);
                             itClient->second->resetLastPacketTimePoint();
                         }
@@ -244,23 +261,40 @@ void ServerUdp::serverThreadTransmission()
                 }
             }
         }
-        //Default flux
+        //Default flux TODO: redundant code
         std::unique_lock<std::recursive_mutex> lck{this->g_defaultFlux._clients.acquireLock()};
 
         for (auto itClient=this->g_defaultFlux._clients.begin(lck); itClient!=this->g_defaultFlux._clients.end(lck); ++itClient)
         {
             if ( !itClient->second->isPendingPacketsEmpty() )
             {
-                if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getLatency_ms() )
+                if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
                 {//Ready to send !
-                    fge::net::ClientSendQueuePacket buffPck = itClient->second->popPacket();
+                    fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
                     if (buffPck._pck)
                     {//Last verification of the packet
-                        if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+
+                        //Applying options
+                        for (const auto& option : buffPck._options)
                         {
-                            fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
-                            buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                            if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
+                            {
+                                fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                                buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                            }
+                            else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                            {
+                                fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
+                                buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                            }
+                            else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                            {
+                                fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                                buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+                            }
                         }
+
+                        //Sending the packet
                         this->sendTo(*buffPck._pck, itClient->first);
                         itClient->second->resetLastPacketTimePoint();
                     }
@@ -406,16 +440,33 @@ void ServerClientSideUdp::serverThreadTransmission()
         //Flux
         if ( !this->_client.isPendingPacketsEmpty() )
         {
-            if ( this->_client.getLastPacketElapsedTime() >= this->_client.getLatency_ms() )
+            if ( this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms() )
             {//Ready to send !
-                fge::net::ClientSendQueuePacket buffPck = this->_client.popPacket();
+                fge::net::SendQueuePacket buffPck = this->_client.popPacket();
                 if (buffPck._pck)
                 {//Last verification of the packet
-                    if (buffPck._option == fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP)
+
+                    //Applying options
+                    for (const auto& option : buffPck._options)
                     {
-                        fge::net::Client::Timestamp tmpTimestamp = fge::net::Client::getTimestamp_ms();
-                        buffPck._pck->pack(buffPck._optionArg, &tmpTimestamp, sizeof(fge::net::Client::Timestamp));
+                        if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
+                        {
+                            fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                            buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                        }
+                        else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                        {
+                            fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
+                            buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                        }
+                        else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                        {
+                            fge::net::Latency_ms correctorLatency = this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                            buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+                        }
                     }
+
+                    //Sending the packet
                     this->send(*buffPck._pck);
                     this->_client.resetLastPacketTimePoint();
                 }

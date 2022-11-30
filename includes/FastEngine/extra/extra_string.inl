@@ -48,7 +48,15 @@ std::string ToStr(const std::vector<T>& val, char separator)
     return result;
 }
 
-
+template<class T>
+std::string ToStr(const std::optional<T>& val)
+{
+    if (val.has_value())
+    {
+        return fge::string::ToStr(val.value());
+    }
+    return "NO_VALUE";
+}
 
 }//end string
 }//end fge

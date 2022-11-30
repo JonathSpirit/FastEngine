@@ -31,9 +31,7 @@
 
 #define FGE_SERVER_DEFAULT_MAXPACKET 200
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 struct FGE_API FluxPacket
@@ -47,7 +45,7 @@ struct FGE_API FluxPacket
 
     fge::net::Packet _pck;
     fge::net::Identity _id;
-    fge::net::Client::Timestamp _timestamp;
+    fge::net::Timestamp _timestamp;
 
     std::size_t _fluxIndex;
     std::size_t _fluxCount;
@@ -203,8 +201,7 @@ private:
     fge::net::Identity g_clientIdentity;
 };
 
-}//end net
-}//end fge
+}//end fge::net
 
 #include <FastEngine/C_server.inl>
 

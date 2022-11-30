@@ -466,6 +466,7 @@ if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/tileMapAndPathfinding_001)
     add_subdirectory(examples/lightAndObstacle_002)
     add_subdirectory(examples/guiWindow_003)
+    add_subdirectory(examples/clientServerLifeSimulator_004)
 endif()
 
 add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD

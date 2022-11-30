@@ -16,21 +16,24 @@
 
 #include "FastEngine/C_client.hpp"
 #include "FastEngine/C_random.hpp"
+#include "FastEngine/C_server.hpp"
 #include <limits>
-
-#define _FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 
 namespace fge::net
 {
 
 Client::Client() :
-    g_latency_ms(FGE_NET_DEFAULT_LATENCY),
+    g_correctorTimestamp(std::nullopt),
+    g_CTOSLatency_ms(FGE_NET_DEFAULT_LATENCY),
+    g_STOCLatency_ms(FGE_NET_DEFAULT_LATENCY),
     g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
     g_skey(FGE_NET_BAD_SKEY)
 {
 }
-Client::Client(fge::net::Client::Latency_ms latency) :
-    g_latency_ms(latency),
+Client::Client(fge::net::Latency_ms CTOSLatency, fge::net::Latency_ms STOCLatency) :
+    g_correctorTimestamp(std::nullopt),
+    g_CTOSLatency_ms(CTOSLatency),
+    g_STOCLatency_ms(STOCLatency),
     g_lastPacketTimePoint( std::chrono::steady_clock::now() ),
     g_skey(FGE_NET_BAD_SKEY)
 {
@@ -49,83 +52,272 @@ fge::net::Skey Client::getSkey() const
     return this->g_skey;
 }
 
-void Client::setLatency_ms(fge::net::Client::Latency_ms t)
+void Client::setCTOSLatency_ms(fge::net::Latency_ms latency)
 {
-    this->g_latency_ms = t;
+    this->g_CTOSLatency_ms = latency;
 }
-fge::net::Client::Latency_ms Client::getLatency_ms() const
+void Client::setSTOCLatency_ms(fge::net::Latency_ms latency)
 {
-    return this->g_latency_ms;
+    this->g_STOCLatency_ms = latency;
+}
+fge::net::Latency_ms Client::getCTOSLatency_ms() const
+{
+    return this->g_CTOSLatency_ms;
+}
+fge::net::Latency_ms Client::getSTOCLatency_ms() const
+{
+    return this->g_STOCLatency_ms;
+}
+fge::net::Latency_ms Client::getPing_ms() const
+{
+    return this->g_CTOSLatency_ms + this->g_STOCLatency_ms;
+}
+
+void Client::setCorrectorTimestamp(fge::net::Timestamp timestamp)
+{
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
+    this->g_correctorTimestamp = timestamp;
+}
+std::optional<fge::net::Timestamp> Client::getCorrectorTimestamp() const
+{
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
+    return this->g_correctorTimestamp;
+}
+std::optional<fge::net::Latency_ms> Client::getCorrectorLatency() const
+{
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
+    if (this->g_correctorTimestamp.has_value())
+    {
+        auto latency = fge::net::Client::computeLatency_ms(this->g_correctorTimestamp.value(), fge::net::Client::getTimestamp_ms());
+        this->g_correctorTimestamp = std::nullopt;
+        return latency;
+    }
+    return std::nullopt;
 }
 
 void Client::resetLastPacketTimePoint()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
-fge::net::Client::Latency_ms Client::getLastPacketElapsedTime()
+fge::net::Latency_ms Client::getLastPacketElapsedTime()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
     uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - this->g_lastPacketTimePoint).count();
-    return (t >= std::numeric_limits<fge::net::Client::Latency_ms>::max()) ? std::numeric_limits<fge::net::Client::Latency_ms>::max() : static_cast<fge::net::Client::Latency_ms>(t);
+    return (t >= std::numeric_limits<fge::net::Latency_ms>::max()) ? std::numeric_limits<fge::net::Latency_ms>::max() : static_cast<fge::net::Latency_ms>(t);
 }
 
-fge::net::Client::Timestamp Client::getTimestamp_ms()
+fge::net::Timestamp Client::getTimestamp_ms()
 {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % _FGE_NET_CLIENT_TIMESTAMP_MODULO;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() % FGE_NET_CLIENT_TIMESTAMP_MODULO;
 }
-fge::net::Client::Latency_ms Client::computeLatency_ms(const fge::net::Client::Timestamp& startedTime,
-                                                                const fge::net::Client::Timestamp& returnedTime )
+fge::net::Timestamp Client::getTimestamp_ms(fge::net::FullTimestamp fullTimestamp)
 {
-    int32_t t = static_cast<int32_t>(returnedTime) - static_cast<int32_t>(startedTime);
+    return fullTimestamp % FGE_NET_CLIENT_TIMESTAMP_MODULO;
+}
+fge::net::FullTimestamp Client::getFullTimestamp_ms()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+fge::net::Latency_ms Client::computeLatency_ms(const fge::net::Timestamp& sentTimestamp,
+                                               const fge::net::Timestamp& receivedTimestamp)
+{
+    int32_t t = static_cast<int32_t>(receivedTimestamp) - static_cast<int32_t>(sentTimestamp);
     if (t<0)
-        t += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
-
-    return static_cast<fge::net::Client::Latency_ms>(t);
-}
-fge::net::Client::Latency_ms Client::computePing_ms(const fge::net::Client::Timestamp& startedTime)
-{
-    fge::net::Client::Timestamp now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % _FGE_NET_CLIENT_TIMESTAMP_MODULO;
-    int32_t t = static_cast<int32_t>(now) - static_cast<int32_t>(startedTime);
-    if (t<0)
-        t += _FGE_NET_CLIENT_TIMESTAMP_MODULO;
-
-    return static_cast<fge::net::Client::Latency_ms>(t);
+    {
+        t += FGE_NET_CLIENT_TIMESTAMP_MODULO;
+    }
+    return static_cast<fge::net::Latency_ms>(t);
 }
 
 void Client::clearPackets()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     for (std::size_t i=0; i<this->g_pendingTransmitPackets.size(); ++i)
     {
         this->g_pendingTransmitPackets.pop();
     }
 }
-void Client::pushPacket(const fge::net::ClientSendQueuePacket& pck)
+void Client::pushPacket(const fge::net::SendQueuePacket& pck)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
-
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_pendingTransmitPackets.push(pck);
 }
-fge::net::ClientSendQueuePacket Client::popPacket()
+void Client::pushPacket(fge::net::SendQueuePacket&& pck)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
+    this->g_pendingTransmitPackets.push(std::move(pck));
+}
+fge::net::SendQueuePacket Client::popPacket()
+{
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
 
     if (this->g_pendingTransmitPackets.empty())
     {
         return {nullptr};
     }
-    fge::net::ClientSendQueuePacket tmp = this->g_pendingTransmitPackets.front();
+    fge::net::SendQueuePacket tmp = this->g_pendingTransmitPackets.front();
     this->g_pendingTransmitPackets.pop();
     return tmp;
 }
 bool Client::isPendingPacketsEmpty()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
+}
+
+//OneWayLatencyPlanner
+
+void OneWayLatencyPlanner::pack(fge::net::SendQueuePacket& packet)
+{
+    //Append my timestamp
+    std::size_t myTimestampPos = packet._pck->getDataSize();
+    packet._pck->append(sizeof(fge::net::Timestamp));
+
+    //Append latency corrector
+    std::size_t myLatencyCorrectorPos = packet._pck->getDataSize();
+    fge::net::Latency_ms dummyLatency = FGE_NET_BAD_LATENCY;
+    packet._pck->pack(&dummyLatency, sizeof(dummyLatency));
+
+    //Append my computed latency
+    fge::net::Latency_ms myComputedLatency = this->g_latency.value_or(FGE_NET_BAD_LATENCY);
+    packet._pck->pack(&myComputedLatency, sizeof(myComputedLatency));
+
+#ifdef FGE_DEF_SERVER
+    //Append full (only server) timestamp
+    std::size_t myFullTimestampPos = packet._pck->getDataSize();
+    packet._pck->append(sizeof(fge::net::FullTimestamp));
+#endif //FGE_DEF_SERVER
+
+    //Append sync stat
+    packet._pck->pack(&this->g_syncStat, sizeof(this->g_syncStat));
+
+    //Append external stored timestamp (if exist)
+    if ((this->g_syncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
+    {
+        packet._pck->pack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
+        packet._options.emplace_back(fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
+        this->g_syncStat &=~ Stats::HAVE_EXTERNAL_TIMESTAMP;
+    }
+
+    packet._options.emplace_back(fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
+#ifdef FGE_DEF_SERVER
+    packet._options.emplace_back(fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
+#endif //FGE_DEF_SERVER
+}
+void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client& client)
+{
+    bool finishedToSendLastPacket = !client.getCorrectorTimestamp().has_value();
+
+    if (finishedToSendLastPacket)
+    {
+        packet->_pck.unpack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
+        this->g_syncStat |= Stats::HAVE_EXTERNAL_TIMESTAMP;
+    }
+    else
+    {
+        packet->_pck.skip(sizeof(fge::net::Timestamp));
+    }
+
+    //Retrieve external latency corrector
+    fge::net::Latency_ms latencyCorrector;
+    packet->_pck.unpack(&latencyCorrector, sizeof(latencyCorrector));
+
+    //Retrieve the latency computed at the other side (client or server)
+    fge::net::Latency_ms otherSideLatency;
+    packet->_pck.unpack(&otherSideLatency, sizeof(otherSideLatency));
+    if (otherSideLatency != FGE_NET_BAD_LATENCY)
+    {
+        this->g_otherSideLatency = otherSideLatency;
+    }
+
+#ifndef FGE_DEF_SERVER
+    //Retrieve full server timestamp (only client)
+    fge::net::FullTimestamp fullTimestamp;
+    packet->_pck.unpack(&fullTimestamp, sizeof(fullTimestamp));
+#endif //FGE_DEF_SERVER
+
+    //Retrieve external sync stat
+    std::underlying_type_t<Stats> externalSyncStat;
+    packet->_pck.unpack(&externalSyncStat, sizeof(externalSyncStat));
+
+    //Does he have our timestamp ?
+    if ((externalSyncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
+    {
+        //Retrieve our timestamp
+        fge::net::Timestamp firstTimestamp;
+        packet->_pck.unpack(&firstTimestamp, sizeof(firstTimestamp));
+
+        //We didn't finish the last packet yet
+        if (!finishedToSendLastPacket)
+        {
+            return;
+        }
+
+        client.setCorrectorTimestamp(packet->_timestamp);
+
+        //Do nothing as we don't have a latency corrector
+        if (latencyCorrector == FGE_NET_BAD_LATENCY)
+        {
+            return;
+        }
+
+        //Compute RTT
+        this->g_roundTripTime = fge::net::Client::computeLatency_ms(firstTimestamp, packet->_timestamp);
+
+        //Compute new latency
+        this->g_latency = (this->g_roundTripTime.value() - latencyCorrector) / 2;
+
+#ifndef FGE_DEF_SERVER
+        //Compute time offset
+        fge::net::FullTimestampOffset clockOffset =
+                static_cast<fge::net::FullTimestampOffset>(fge::net::Client::getFullTimestamp_ms()) - static_cast<fge::net::FullTimestampOffset>(fullTimestamp) + this->g_latency.value();
+        if (this->g_clockOffsetCount == this->g_clockOffsets.max_size())
+        {
+            //Shift the array by 1
+            for (std::size_t i=0; i< this->g_clockOffsets.max_size() - 1; ++i)
+            {
+                this->g_clockOffsets[i] = this->g_clockOffsets[i + 1];
+            }
+            //Insert new offset
+            this->g_clockOffsets.back() = clockOffset;
+        }
+        else
+        {
+            //Insert new offset
+            this->g_clockOffsets[this->g_clockOffsetCount++] = clockOffset;
+        }
+
+        //Compute new offset
+        fge::net::FullTimestamp result = 0;
+        for (std::size_t i=0; i<this->g_clockOffsetCount; ++i)
+        {
+            result += this->g_clockOffsets[i];
+        }
+        this->g_meanClockOffset = result / this->g_clockOffsetCount;
+#endif
+    }
+}
+
+std::optional<fge::net::FullTimestampOffset> OneWayLatencyPlanner::getClockOffset() const
+{
+    return this->g_meanClockOffset;
+}
+std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getLatency() const
+{
+    return this->g_latency;
+}
+std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getOtherSideLatency() const
+{
+    return this->g_otherSideLatency;
+}
+std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getRoundTripTime() const
+{
+    return this->g_roundTripTime;
 }
 
 }//end fge::net

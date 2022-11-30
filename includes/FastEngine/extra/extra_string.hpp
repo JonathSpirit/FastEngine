@@ -23,6 +23,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <optional>
 
 namespace fge
 {
@@ -395,6 +396,18 @@ FGE_API std::string ToStr(void* val);
  * \return The converted string
  */
 FGE_API std::string ToStr(const void* val);
+
+/**
+ * \ingroup extraString
+ * \brief Convert a optional value to a string
+ *
+ * Return NO_VALUE if the optional doesn't have a value.
+ *
+ * \param val The optional value to convert
+ * \return The converted string
+ */
+template<class T>
+std::string ToStr(const std::optional<T>& val);
 
 //Classes
 
