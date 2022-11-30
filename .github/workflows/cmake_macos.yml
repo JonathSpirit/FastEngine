@@ -25,6 +25,10 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/build
       
+    - name: Get number of CPU cores
+      uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
+        
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
@@ -39,7 +43,7 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
 
     - name: Test
       working-directory: ${{github.workspace}}/build
