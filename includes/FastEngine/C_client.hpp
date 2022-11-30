@@ -42,13 +42,12 @@ namespace fge::net
  * @{
  */
 
-/**
- * \typedef Skey
- * \brief The session key type
- *
- * The session key can be used to identify a client when connecting to a server.
- */
-using Skey = uint32_t;
+using Skey = uint32_t; ///< The session key can be used to identify a client when connecting to a server.
+
+using Timestamp = uint16_t; ///< An timestamp represent modulated current time in milliseconds
+using FullTimestamp = uint64_t; ///< An timestamp represent current time in milliseconds
+using FullTimestampOffset = int64_t; ///< An timestamp offset
+using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
 
 /**
  * \struct ClientSendQueuePacket
@@ -88,11 +87,16 @@ struct ClientSendQueuePacket
 struct FluxPacket;
 class Client;
 
-using Timestamp = uint16_t; ///< An timestamp represent modulated current time in milliseconds
-using FullTimestamp = uint64_t; ///< An timestamp represent current time in milliseconds
-using FullTimestampOffset = int64_t; ///< An timestamp offset
-using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
-
+/**
+ * \struct OneWayLatencyPlanner
+ * \brief A helper class that measure latency between client/server
+ *
+ * This class is called "one-way latency" but it actually compute the
+ * Round Trip Time minus a latency corrector divided by 2.
+ *
+ * \warning When using this class, do not manually edit the corrector latency
+ * in the Client class.
+ */
 class FGE_API OneWayLatencyPlanner
 {
 public:
@@ -103,15 +107,80 @@ public:
         HAVE_EXTERNAL_TIMESTAMP = 1<<0
     };
 
+    /**
+     * \brief Pack the required data by the planner to the client/server
+     *
+     * \param packet A SendQueuePacket that will be sent
+     */
     void pack(fge::net::ClientSendQueuePacket& packet);
+    /**
+     * \brief Unpack the data received by another client/server planner
+     *
+     * \param packet A received packet
+     * \param client A client
+     */
     void unpack(fge::net::FluxPacket* packet, fge::net::Client& client);
 
+    /**
+     * \brief Retrieve the clock offset
+     *
+     * The clock offset represent the delta time between 2 computers clocks.
+     * It is useful in order to predicate some data.
+     *
+     * \warning The offset is only available for clients
+     *
+     * \return Optionally a full timestamp offset
+     */
     [[nodiscard]] std::optional<fge::net::FullTimestampOffset> getClockOffset() const;
+    /**
+     * \brief Retrieve the latency
+     *
+     * \return Optionally a latency
+     */
     [[nodiscard]] std::optional<fge::net::Latency_ms> getLatency() const;
+    /**
+     * \brief Retrieve the other side latency
+     *
+     * This is the latency computed at the other end (client or server)
+     *
+     * \return Optionally a latency
+     */
+    [[nodiscard]] std::optional<fge::net::Latency_ms> getOtherSideLatency() const;
+    /**
+     * \brief Retrieve the RTT (Round Trip Time)
+     *
+     * CLIENT
+     *
+     * FIRST_PACKET         LAST_PACKET
+     * O                    O
+     * |                    |
+     * -                    -
+     *  -                  -
+     *   -                -
+     *    -              -
+     *     -            -
+     *      -          -
+     *      |          |
+     *      O -------- O
+     *    RECEIVING PACKETS
+     *
+     * SERVER
+     *
+     * |                    |
+     * -----------------------> RTT (Round Trip Time) ms
+     * |    |          |    |
+     * |    |          -------> Server To Client (STOC) time ms
+     * -------> Client To Server (CTOS) time ms
+     *      |          |
+     *      -------------> Latency corrector computed by the server
+     *
+     * \return Optionally a RTT in ms
+     */
     [[nodiscard]] std::optional<fge::net::Latency_ms> getRoundTripTime() const;
 
 private:
     std::optional<fge::net::Latency_ms> g_latency;
+    std::optional<fge::net::Latency_ms> g_otherSideLatency;
 
     std::optional<fge::net::FullTimestampOffset> g_meanClockOffset;
     std::array<fge::net::FullTimestampOffset, FGE_NET_LATENCY_PLANNER_MEAN> g_clockOffsets{};
@@ -191,8 +260,40 @@ public:
      */
     fge::net::Latency_ms getPing_ms() const;
 
+    /**
+     * \brief Set the corrector timestamp
+     *
+     * A corrector timestamp is generally set with the timestamp
+     * of a received packet.
+     *
+     * \see getCorrectorLatency
+     *
+     * \param timestamp The corrector timestamp
+     */
     void setCorrectorTimestamp(fge::net::Timestamp timestamp);
+    /**
+     * \brief Get the corrector timestamp
+     *
+     * When the getCorrectorLatency method is called, it will
+     * clear the corrector timestamp and std::nullopt will be
+     * returned.
+     *
+     * \see getCorrectorLatency
+     *
+     * \return The corrector timestamp
+     */
     std::optional<fge::net::Timestamp> getCorrectorTimestamp() const;
+    /**
+     * \brief Compute the corrector latency
+     *
+     * The corrector latency is simply the time between the set
+     * timestamp and the timestamp now.
+     *
+     * This is useful in order to compute more precise latency
+     * between client/server
+     *
+     * \return The corrector latency
+     */
     std::optional<fge::net::Latency_ms> getCorrectorLatency() const;
 
     /**

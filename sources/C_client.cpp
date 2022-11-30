@@ -18,7 +18,6 @@
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/C_server.hpp"
 #include <limits>
-#include <iostream>
 
 namespace fge::net
 {
@@ -184,8 +183,12 @@ void OneWayLatencyPlanner::pack(fge::net::ClientSendQueuePacket& packet)
     fge::net::Latency_ms dummyLatency = FGE_NET_BAD_LATENCY;
     packet._pck->pack(&dummyLatency, sizeof(dummyLatency));
 
-    //Append full (only server) timestamp
+    //Append my computed latency
+    fge::net::Latency_ms myComputedLatency = this->g_latency.value_or(FGE_NET_BAD_LATENCY);
+    packet._pck->pack(&myComputedLatency, sizeof(myComputedLatency));
+
 #ifdef FGE_DEF_SERVER
+    //Append full (only server) timestamp
     std::size_t myFullTimestampPos = packet._pck->getDataSize();
     packet._pck->append(sizeof(fge::net::FullTimestamp));
 #endif //FGE_DEF_SERVER
@@ -224,8 +227,16 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
     fge::net::Latency_ms latencyCorrector;
     packet->_pck.unpack(&latencyCorrector, sizeof(latencyCorrector));
 
-    //Retrieve full server timestamp (only client)
+    //Retrieve the latency computed at the other side (client or server)
+    fge::net::Latency_ms otherSideLatency;
+    packet->_pck.unpack(&otherSideLatency, sizeof(otherSideLatency));
+    if (otherSideLatency != FGE_NET_BAD_LATENCY)
+    {
+        this->g_otherSideLatency = otherSideLatency;
+    }
+
 #ifndef FGE_DEF_SERVER
+    //Retrieve full server timestamp (only client)
     fge::net::FullTimestamp fullTimestamp;
     packet->_pck.unpack(&fullTimestamp, sizeof(fullTimestamp));
 #endif //FGE_DEF_SERVER
@@ -261,9 +272,6 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         //Compute new latency
         this->g_latency = (this->g_roundTripTime.value() - latencyCorrector) / 2;
 
-        std::cout << "firstTimestamp=" << firstTimestamp << " packetTimestamp=" << packet->_timestamp << " RTT=" << this->g_roundTripTime.value()
-                  << " latencyCorrector=" << latencyCorrector << " latency=" << this->g_latency.value() << std::endl;
-
 #ifndef FGE_DEF_SERVER
         //Compute time offset
         fge::net::FullTimestampOffset clockOffset =
@@ -291,7 +299,6 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
             result += this->g_clockOffsets[i];
         }
         this->g_meanClockOffset = result / this->g_clockOffsetCount;
-        std::cout << "mean clock offset : " << this->g_meanClockOffset.value() << std::endl;
 #endif
     }
 }
@@ -303,6 +310,10 @@ std::optional<fge::net::FullTimestampOffset> OneWayLatencyPlanner::getClockOffse
 std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getLatency() const
 {
     return this->g_latency;
+}
+std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getOtherSideLatency() const
+{
+    return this->g_otherSideLatency;
 }
 std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getRoundTripTime() const
 {

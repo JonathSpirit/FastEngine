@@ -236,6 +236,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         {
                             server._client.setCTOSLatency_ms(latency.value());
                         }
+                        if (auto latency = server._client._latencyPlanner.getOtherSideLatency())
+                        {
+                            server._client.setSTOCLatency_ms(latency.value());
+                        }
 
                         //We are connected, we can destroy the window
                         auto windowObject = mainScene.getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME);
@@ -260,6 +264,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     if (auto latency = server._client._latencyPlanner.getLatency())
                     {
                         server._client.setCTOSLatency_ms(latency.value());
+                    }
+                    if (auto latency = server._client._latencyPlanner.getOtherSideLatency())
+                    {
+                        server._client.setSTOCLatency_ms(latency.value());
                     }
 
                     //Updating the latencyText

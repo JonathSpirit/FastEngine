@@ -224,6 +224,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     {
                         client->setSTOCLatency_ms(latency.value());
                     }
+                    if (auto latency = client->_latencyPlanner.getOtherSideLatency())
+                    {
+                        client->setCTOSLatency_ms(latency.value());
+                    }
 
                     //We reset the timeout count
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
