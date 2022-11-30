@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(example_tileMapAndPathFinding_001)
 
 add_executable(${PROJECT_NAME} main.cpp)
+add_dependencies(${PROJECT_NAME} FgeExeDeps)
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})

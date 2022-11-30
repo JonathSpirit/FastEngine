@@ -172,11 +172,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_library(${FGE_LIB_NAME} SHARED)
 add_library(${FGE_SERVER_LIB_NAME} SHARED)
 
-#Create the test executable
-
-add_executable(${FGE_EXE_NAME})
-add_dependencies(${FGE_EXE_NAME} ${FGE_LIB_NAME})
-
 #Dependencies
 if(WIN32)
     add_dependencies(sfml-audio OpenAL_extern)
@@ -188,8 +183,6 @@ add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-windo
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/SFML/include")
-
-add_dependencies(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window)
 
 add_dependencies(${FGE_LIB_NAME} lz4_static) #Lz4
 add_dependencies(${FGE_SERVER_LIB_NAME} lz4_static)
@@ -403,8 +396,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
 
-target_sources(${FGE_EXE_NAME} PRIVATE "sources/main_debug.cpp")
-
 #Linking library
 if(WIN32)
     target_link_libraries(${FGE_LIB_NAME} user32 ws2_32)
@@ -423,28 +414,6 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
 target_link_libraries(${FGE_SERVER_LIB_NAME} ${FREETYPE_LIBRARY} sfml-system)
 target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
 
-if(WIN32)
-    target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
-elseif(APPLE)
-    target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
-else()
-    target_link_libraries(${FGE_EXE_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window X11 ${FGE_LIB_NAME})
-endif()
-
-#Copy compiled DLLs
-if (WIN32)
-    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window)
-        add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:${DEPENDENCY}>
-                $<TARGET_FILE_DIR:${FGE_EXE_NAME}>)
-    endforeach()
-    add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
-            $<TARGET_FILE_DIR:${FGE_EXE_NAME}>)
-endif()
-
 #Install
 install(TARGETS ${FGE_LIB_NAME})
 install(TARGETS ${FGE_SERVER_LIB_NAME})
@@ -453,13 +422,35 @@ install(FILES ${FGE_INCLUDES_EXTRA}
 install(FILES ${FGE_INCLUDES_PROJECT}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/FastEngine)
 
+#Custom target for executables that copy compiled DLLs and symlink the resources folder
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_custom_target(FgeExeDeps)
+add_dependencies(FgeExeDeps ${FGE_LIB_NAME} ${FGE_SERVER_LIB_NAME})
+
+if (WIN32)
+    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window)
+        add_custom_command(TARGET FgeExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:${DEPENDENCY}>
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+    add_custom_command(TARGET FgeExeDeps PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+
+add_custom_command(TARGET FgeExeDeps PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+
 #Tests
 if (FGE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 #Examples
 if (FGE_BUILD_EXAMPLES)
@@ -469,8 +460,3 @@ if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/clientServerLifeSimulator_004)
     add_subdirectory(examples/deepText_005)
 endif()
-
-add_custom_command(TARGET ${FGE_EXE_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E create_symlink
-            ${CMAKE_CURRENT_SOURCE_DIR}/resources
-            ${CMAKE_CURRENT_BINARY_DIR}/resources)

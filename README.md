@@ -98,10 +98,10 @@ This is the default target, it will build **FastEngine_test** **FastEngine** and
 This will build the client (audio, graphics, window, ...) shared library.
 - **FastEngineServer##&&**
 This will build the server (no audio, graphics or window dependencies) shared library. Note that the server library will manually build bits of **SFML** sources in order to retain nice features like *sf::View* or *sf::Transform* but remove drawing capacity and OpenGL stuff.
-- **FastEngine_test**
-This is a simple, not optimized, all purpose, test executable in order to see if the project can run with some feature exposition.
 - **install**
 The install target is not supported **for now** and should not be used. In order to install the library please see go to the *Installing* section.
+
+You can also build every examples target.
 
 **##** is replaced with the architecture (32 or 64) and **&&** is replaced with **_d** if in debug mode or nothing otherwise.
 
