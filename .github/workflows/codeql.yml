@@ -78,7 +78,7 @@ jobs:
     
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v1
-        id: cpu-cores
+      id: cpu-cores
     
     - name: Build
       working-directory: ${{github.workspace}}/build
