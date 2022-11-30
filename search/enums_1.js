@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['clientsendqueuepacketoptions_0',['ClientSendQueuePacketOptions',['../group__network.html#gad4fcb532a35b45de26e3259b81a37aad',1,'fge::net']]]
+  ['error_0',['Error',['../classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f',1,'fge::net::Socket']]]
 ];

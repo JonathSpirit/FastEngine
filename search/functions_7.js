@@ -18,7 +18,7 @@ var searchData=
   ['isneedingupdate_15',['isNeedingUpdate',['../classfge_1_1net_1_1NetworkTypeBase.html#a5d0526a0ef8c0c342d7939b5aaa22f01',1,'fge::net::NetworkTypeBase']]],
   ['ispaused_16',['isPaused',['../classfge_1_1Timer.html#af5540cd66dd3a61c5a056a03f1e1cb67',1,'fge::Timer']]],
   ['ispendingpacketsempty_17',['isPendingPacketsEmpty',['../classfge_1_1net_1_1Client.html#af044244df233dd95253ebac4c48e696d',1,'fge::net::Client']]],
-  ['isrecursive_18',['isRecursive',['../classfge_1_1GuiElementArray.html#a12d6b5068615a28aae826ff8e0173f32',1,'fge::GuiElementArray::isRecursive()'],['../classfge_1_1GuiElement.html#aab89ef891d28966cbdf3b306ba4b89cc',1,'fge::GuiElement::isRecursive()']]],
+  ['isrecursive_18',['isRecursive',['../classfge_1_1GuiElementRecursive.html#a388be26cac8ad10c874e5cea498df7a8',1,'fge::GuiElementRecursive::isRecursive()'],['../classfge_1_1GuiElement.html#aab89ef891d28966cbdf3b306ba4b89cc',1,'fge::GuiElement::isRecursive()']]],
   ['isreverse_19',['isReverse',['../classfge_1_1Animation.html#a7b17b266590bca0f8a086dc4ebe3aa5e',1,'fge::Animation']]],
   ['isvalid_20',['isValid',['../classfge_1_1net_1_1Socket.html#a8225d60e0b7ff068832473e4863b6f24',1,'fge::net::Socket::isValid()'],['../classfge_1_1Scene.html#a925832b373e45368c78c642829a8d615',1,'fge::Scene::isValid()'],['../classfge_1_1ObjectData.html#aa4d27b64621e69e648a115da179d853b',1,'fge::ObjectData::isValid()']]],
   ['isvalidutf8string_21',['IsValidUtf8String',['../group__extraString.html#ga452f4484af0362300edc0f40c7f0fb67',1,'fge::string']]],

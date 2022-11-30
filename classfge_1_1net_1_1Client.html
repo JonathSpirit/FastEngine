@@ -76,7 +76,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
@@ -90,65 +89,80 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="C__client_8hpp_source.html">C_client.hpp</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:adc4f7dfb59d60406424eb4d2d0f0cd38"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">Timestamp</a> = uint16_t</td></tr>
-<tr class="memdesc:adc4f7dfb59d60406424eb4d2d0f0cd38"><td class="mdescLeft">&#160;</td><td class="mdescRight">An timestamp represent modulated current time in milliseconds.  <a href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">More...</a><br /></td></tr>
-<tr class="separator:adc4f7dfb59d60406424eb4d2d0f0cd38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6994a3ede9b956f0966a5c45d1714f35"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">Latency_ms</a> = uint16_t</td></tr>
-<tr class="memdesc:a6994a3ede9b956f0966a5c45d1714f35"><td class="mdescLeft">&#160;</td><td class="mdescRight">An latency represent the latency of the client-&gt;server / server-&gt;client connection.  <a href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">More...</a><br /></td></tr>
-<tr class="separator:a6994a3ede9b956f0966a5c45d1714f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0bb7eb0fa5132d7a84013487123eca41"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a0bb7eb0fa5132d7a84013487123eca41">Client</a> (<a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> latency)</td></tr>
-<tr class="memdesc:a0bb7eb0fa5132d7a84013487123eca41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with a default server-&gt;client latency.  <a href="classfge_1_1net_1_1Client.html#a0bb7eb0fa5132d7a84013487123eca41">More...</a><br /></td></tr>
-<tr class="separator:a0bb7eb0fa5132d7a84013487123eca41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc7702f4bfc904d7ea9cec005d40f511"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#abc7702f4bfc904d7ea9cec005d40f511">setSkey</a> (<a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a> key)</td></tr>
+<tr class="memitem:a3a4c31111e9ced36b474091fc0ca6f71"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a3a4c31111e9ced36b474091fc0ca6f71">Client</a> (<a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> CTOSLatency, <a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> STOCLatency)</td></tr>
+<tr class="memdesc:a3a4c31111e9ced36b474091fc0ca6f71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor with default latencies.  <a href="classfge_1_1net_1_1Client.html#a3a4c31111e9ced36b474091fc0ca6f71">More...</a><br /></td></tr>
+<tr class="separator:a3a4c31111e9ced36b474091fc0ca6f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc7702f4bfc904d7ea9cec005d40f511"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#abc7702f4bfc904d7ea9cec005d40f511">setSkey</a> (<a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> key)</td></tr>
 <tr class="memdesc:abc7702f4bfc904d7ea9cec005d40f511"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the session key for this client.  <a href="classfge_1_1net_1_1Client.html#abc7702f4bfc904d7ea9cec005d40f511">More...</a><br /></td></tr>
 <tr class="separator:abc7702f4bfc904d7ea9cec005d40f511"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76cdf97f36bcaf7cac7969a9179d1b88"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a76cdf97f36bcaf7cac7969a9179d1b88">getSkey</a> () const</td></tr>
+<tr class="memitem:a76cdf97f36bcaf7cac7969a9179d1b88"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a76cdf97f36bcaf7cac7969a9179d1b88">getSkey</a> () const</td></tr>
 <tr class="memdesc:a76cdf97f36bcaf7cac7969a9179d1b88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the session key for this client.  <a href="classfge_1_1net_1_1Client.html#a76cdf97f36bcaf7cac7969a9179d1b88">More...</a><br /></td></tr>
 <tr class="separator:a76cdf97f36bcaf7cac7969a9179d1b88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aadac64fed49844cf13a1ba502e984b99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#aadac64fed49844cf13a1ba502e984b99">setLatency_ms</a> (<a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> t)</td></tr>
-<tr class="memdesc:aadac64fed49844cf13a1ba502e984b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the server-&gt;client latency.  <a href="classfge_1_1net_1_1Client.html#aadac64fed49844cf13a1ba502e984b99">More...</a><br /></td></tr>
-<tr class="separator:aadac64fed49844cf13a1ba502e984b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a452c83137dd2a8989b3b58a5cdad5375"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a452c83137dd2a8989b3b58a5cdad5375">getLatency_ms</a> () const</td></tr>
-<tr class="memdesc:a452c83137dd2a8989b3b58a5cdad5375"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the server-&gt;client latency.  <a href="classfge_1_1net_1_1Client.html#a452c83137dd2a8989b3b58a5cdad5375">More...</a><br /></td></tr>
-<tr class="separator:a452c83137dd2a8989b3b58a5cdad5375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7d3b51132f74bb73aa81d63e0699337"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ab7d3b51132f74bb73aa81d63e0699337">setCTOSLatency_ms</a> (<a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> latency)</td></tr>
+<tr class="memdesc:ab7d3b51132f74bb73aa81d63e0699337"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the "Client To Server" latency.  <a href="classfge_1_1net_1_1Client.html#ab7d3b51132f74bb73aa81d63e0699337">More...</a><br /></td></tr>
+<tr class="separator:ab7d3b51132f74bb73aa81d63e0699337"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfbc046eb8e810e8a410d1adaf727024"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#acfbc046eb8e810e8a410d1adaf727024">setSTOCLatency_ms</a> (<a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> latency)</td></tr>
+<tr class="memdesc:acfbc046eb8e810e8a410d1adaf727024"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the "Server To Client" latency.  <a href="classfge_1_1net_1_1Client.html#acfbc046eb8e810e8a410d1adaf727024">More...</a><br /></td></tr>
+<tr class="separator:acfbc046eb8e810e8a410d1adaf727024"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2eddb6eb0f731a34d8082968152230b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ab2eddb6eb0f731a34d8082968152230b">getCTOSLatency_ms</a> () const</td></tr>
+<tr class="memdesc:ab2eddb6eb0f731a34d8082968152230b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the "Client To Server" latency.  <a href="classfge_1_1net_1_1Client.html#ab2eddb6eb0f731a34d8082968152230b">More...</a><br /></td></tr>
+<tr class="separator:ab2eddb6eb0f731a34d8082968152230b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e9e6a1a1ad1db7468aeaf373994767e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a0e9e6a1a1ad1db7468aeaf373994767e">getSTOCLatency_ms</a> () const</td></tr>
+<tr class="memdesc:a0e9e6a1a1ad1db7468aeaf373994767e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the "Server To Client" latency.  <a href="classfge_1_1net_1_1Client.html#a0e9e6a1a1ad1db7468aeaf373994767e">More...</a><br /></td></tr>
+<tr class="separator:a0e9e6a1a1ad1db7468aeaf373994767e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac78ab315acb0a38cfb4f29b234439c95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ac78ab315acb0a38cfb4f29b234439c95">getPing_ms</a> () const</td></tr>
+<tr class="memdesc:ac78ab315acb0a38cfb4f29b234439c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the ping.  <a href="classfge_1_1net_1_1Client.html#ac78ab315acb0a38cfb4f29b234439c95">More...</a><br /></td></tr>
+<tr class="separator:ac78ab315acb0a38cfb4f29b234439c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a623435364f14157ef83d254227715d94"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a623435364f14157ef83d254227715d94">setCorrectorTimestamp</a> (<a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> timestamp)</td></tr>
+<tr class="memdesc:a623435364f14157ef83d254227715d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the corrector timestamp.  <a href="classfge_1_1net_1_1Client.html#a623435364f14157ef83d254227715d94">More...</a><br /></td></tr>
+<tr class="separator:a623435364f14157ef83d254227715d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c5f5490511e91068c313c48b3dd4a44"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a3c5f5490511e91068c313c48b3dd4a44">getCorrectorTimestamp</a> () const</td></tr>
+<tr class="memdesc:a3c5f5490511e91068c313c48b3dd4a44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the corrector timestamp.  <a href="classfge_1_1net_1_1Client.html#a3c5f5490511e91068c313c48b3dd4a44">More...</a><br /></td></tr>
+<tr class="separator:a3c5f5490511e91068c313c48b3dd4a44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3520e3c226767542d71aba628def0802"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a3520e3c226767542d71aba628def0802">getCorrectorLatency</a> () const</td></tr>
+<tr class="memdesc:a3520e3c226767542d71aba628def0802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the corrector latency.  <a href="classfge_1_1net_1_1Client.html#a3520e3c226767542d71aba628def0802">More...</a><br /></td></tr>
+<tr class="separator:a3520e3c226767542d71aba628def0802"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0132fede020e46c177f62b4a937fa413"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a0132fede020e46c177f62b4a937fa413">resetLastPacketTimePoint</a> ()</td></tr>
 <tr class="memdesc:a0132fede020e46c177f62b4a937fa413"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset the time point for limiting the packets sending frequency.  <a href="classfge_1_1net_1_1Client.html#a0132fede020e46c177f62b4a937fa413">More...</a><br /></td></tr>
 <tr class="separator:a0132fede020e46c177f62b4a937fa413"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac390415ac76e634fd8078c7f7b8897f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#aac390415ac76e634fd8078c7f7b8897f">getLastPacketElapsedTime</a> ()</td></tr>
-<tr class="memdesc:aac390415ac76e634fd8078c7f7b8897f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the delta time between the last sent packet and the current time.  <a href="classfge_1_1net_1_1Client.html#aac390415ac76e634fd8078c7f7b8897f">More...</a><br /></td></tr>
-<tr class="separator:aac390415ac76e634fd8078c7f7b8897f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ed04564e3231f7584d05c1b8284556a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a1ed04564e3231f7584d05c1b8284556a">getLastPacketElapsedTime</a> ()</td></tr>
+<tr class="memdesc:a1ed04564e3231f7584d05c1b8284556a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the delta time between the last sent packet and the current time.  <a href="classfge_1_1net_1_1Client.html#a1ed04564e3231f7584d05c1b8284556a">More...</a><br /></td></tr>
+<tr class="separator:a1ed04564e3231f7584d05c1b8284556a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a451b2cfcc024f6ce1b3f57956ff2702b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a451b2cfcc024f6ce1b3f57956ff2702b">clearPackets</a> ()</td></tr>
 <tr class="memdesc:a451b2cfcc024f6ce1b3f57956ff2702b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the packet queue.  <a href="classfge_1_1net_1_1Client.html#a451b2cfcc024f6ce1b3f57956ff2702b">More...</a><br /></td></tr>
 <tr class="separator:a451b2cfcc024f6ce1b3f57956ff2702b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a4b8ef34966d3845740cab27fce8020"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a9a4b8ef34966d3845740cab27fce8020">pushPacket</a> (const <a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a> &amp;pck)</td></tr>
-<tr class="memdesc:a9a4b8ef34966d3845740cab27fce8020"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a packet to the queue.  <a href="classfge_1_1net_1_1Client.html#a9a4b8ef34966d3845740cab27fce8020">More...</a><br /></td></tr>
-<tr class="separator:a9a4b8ef34966d3845740cab27fce8020"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6edc37d7cfed97cc6b60445229304532"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a6edc37d7cfed97cc6b60445229304532">popPacket</a> ()</td></tr>
-<tr class="memdesc:a6edc37d7cfed97cc6b60445229304532"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop a packet from the queue.  <a href="classfge_1_1net_1_1Client.html#a6edc37d7cfed97cc6b60445229304532">More...</a><br /></td></tr>
-<tr class="separator:a6edc37d7cfed97cc6b60445229304532"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78fd2864226c2425fb7261db42e10818"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a78fd2864226c2425fb7261db42e10818">pushPacket</a> (const <a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;pck)</td></tr>
+<tr class="memdesc:a78fd2864226c2425fb7261db42e10818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a packet to the queue.  <a href="classfge_1_1net_1_1Client.html#a78fd2864226c2425fb7261db42e10818">More...</a><br /></td></tr>
+<tr class="separator:a78fd2864226c2425fb7261db42e10818"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af229caffd9e0f9caa1610e9b0a5cd543"><td class="memItemLeft" align="right" valign="top"><a id="af229caffd9e0f9caa1610e9b0a5cd543" name="af229caffd9e0f9caa1610e9b0a5cd543"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>pushPacket</b> (<a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;&amp;pck)</td></tr>
+<tr class="separator:af229caffd9e0f9caa1610e9b0a5cd543"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae87e8325e2103b8486b4a2a38466075"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#aae87e8325e2103b8486b4a2a38466075">popPacket</a> ()</td></tr>
+<tr class="memdesc:aae87e8325e2103b8486b4a2a38466075"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop a packet from the queue.  <a href="classfge_1_1net_1_1Client.html#aae87e8325e2103b8486b4a2a38466075">More...</a><br /></td></tr>
+<tr class="separator:aae87e8325e2103b8486b4a2a38466075"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af044244df233dd95253ebac4c48e696d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#af044244df233dd95253ebac4c48e696d">isPendingPacketsEmpty</a> ()</td></tr>
 <tr class="memdesc:af044244df233dd95253ebac4c48e696d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the packet queue is empty.  <a href="classfge_1_1net_1_1Client.html#af044244df233dd95253ebac4c48e696d">More...</a><br /></td></tr>
 <tr class="separator:af044244df233dd95253ebac4c48e696d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a61dbbea183b8375ec9acd6381534e0f6"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a61dbbea183b8375ec9acd6381534e0f6">GenerateSkey</a> ()</td></tr>
+<tr class="memitem:a61dbbea183b8375ec9acd6381534e0f6"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a61dbbea183b8375ec9acd6381534e0f6">GenerateSkey</a> ()</td></tr>
 <tr class="memdesc:a61dbbea183b8375ec9acd6381534e0f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a new random session key.  <a href="classfge_1_1net_1_1Client.html#a61dbbea183b8375ec9acd6381534e0f6">More...</a><br /></td></tr>
 <tr class="separator:a61dbbea183b8375ec9acd6381534e0f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1fa1d1cb0f6f451b4c897f6d75e0949"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ab1fa1d1cb0f6f451b4c897f6d75e0949">getTimestamp_ms</a> ()</td></tr>
-<tr class="memdesc:ab1fa1d1cb0f6f451b4c897f6d75e0949"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a modulated timestamp of the current time.  <a href="classfge_1_1net_1_1Client.html#ab1fa1d1cb0f6f451b4c897f6d75e0949">More...</a><br /></td></tr>
-<tr class="separator:ab1fa1d1cb0f6f451b4c897f6d75e0949"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54b13269ca0e78f877d65fc0b7dafcb8"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a54b13269ca0e78f877d65fc0b7dafcb8">computeLatency_ms</a> (const <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> &amp;startedTime, const <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> &amp;returnedTime)</td></tr>
-<tr class="memdesc:a54b13269ca0e78f877d65fc0b7dafcb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the latency for the client-&gt;server / server-&gt;client with the given timestamps.  <a href="classfge_1_1net_1_1Client.html#a54b13269ca0e78f877d65fc0b7dafcb8">More...</a><br /></td></tr>
-<tr class="separator:a54b13269ca0e78f877d65fc0b7dafcb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1ccf903c38e4315f330834377214fd9"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ae1ccf903c38e4315f330834377214fd9">computePing_ms</a> (const <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> &amp;startedTime)</td></tr>
-<tr class="memdesc:ae1ccf903c38e4315f330834377214fd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the ping (latency of the client + latency of the server)  <a href="classfge_1_1net_1_1Client.html#ae1ccf903c38e4315f330834377214fd9">More...</a><br /></td></tr>
-<tr class="separator:ae1ccf903c38e4315f330834377214fd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75f46bdba15a70622fd5befd61bcad7a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a75f46bdba15a70622fd5befd61bcad7a">getTimestamp_ms</a> ()</td></tr>
+<tr class="memdesc:a75f46bdba15a70622fd5befd61bcad7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a modulated timestamp of the current time.  <a href="classfge_1_1net_1_1Client.html#a75f46bdba15a70622fd5befd61bcad7a">More...</a><br /></td></tr>
+<tr class="separator:a75f46bdba15a70622fd5befd61bcad7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bbe8a880ccf28183612cc42b036ec59"><td class="memItemLeft" align="right" valign="top"><a id="a8bbe8a880ccf28183612cc42b036ec59" name="a8bbe8a880ccf28183612cc42b036ec59"></a>
+static <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getTimestamp_ms</b> (<a class="el" href="group__network.html#ga77bb6b0432123bbcaa2844695164f4f2">fge::net::FullTimestamp</a> fullTimestamp)</td></tr>
+<tr class="separator:a8bbe8a880ccf28183612cc42b036ec59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22f0e805e6170da477d409a7d3a52af1"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__network.html#ga77bb6b0432123bbcaa2844695164f4f2">fge::net::FullTimestamp</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a22f0e805e6170da477d409a7d3a52af1">getFullTimestamp_ms</a> ()</td></tr>
+<tr class="memdesc:a22f0e805e6170da477d409a7d3a52af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a timestamp of the current time.  <a href="classfge_1_1net_1_1Client.html#a22f0e805e6170da477d409a7d3a52af1">More...</a><br /></td></tr>
+<tr class="separator:a22f0e805e6170da477d409a7d3a52af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aa79d21c6f7d9f1dc575c5cd7e9e11f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a0aa79d21c6f7d9f1dc575c5cd7e9e11f">computeLatency_ms</a> (const <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> &amp;sentTimestamp, const <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> &amp;receivedTimestamp)</td></tr>
+<tr class="memdesc:a0aa79d21c6f7d9f1dc575c5cd7e9e11f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the latency for the client-&gt;server / server-&gt;client with the given timestamps.  <a href="classfge_1_1net_1_1Client.html#a0aa79d21c6f7d9f1dc575c5cd7e9e11f">More...</a><br /></td></tr>
+<tr class="separator:a0aa79d21c6f7d9f1dc575c5cd7e9e11f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -158,45 +172,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ac0871be6548f19dc7081fbcd41e1f3e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1PropertyList.html">fge::PropertyList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ac0871be6548f19dc7081fbcd41e1f3e8">_data</a></td></tr>
 <tr class="memdesc:ac0871be6548f19dc7081fbcd41e1f3e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Some user-defined client properties.  <a href="classfge_1_1net_1_1Client.html#ac0871be6548f19dc7081fbcd41e1f3e8">More...</a><br /></td></tr>
 <tr class="separator:ac0871be6548f19dc7081fbcd41e1f3e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00283d9ca2f226334521d6dfd3dcd1ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html">fge::net::OneWayLatencyPlanner</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a00283d9ca2f226334521d6dfd3dcd1ab">_latencyPlanner</a></td></tr>
+<tr class="memdesc:a00283d9ca2f226334521d6dfd3dcd1ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">A latency planner that will help latency calculation.  <a href="classfge_1_1net_1_1Client.html#a00283d9ca2f226334521d6dfd3dcd1ab">More...</a><br /></td></tr>
+<tr class="separator:a00283d9ca2f226334521d6dfd3dcd1ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Class that represent the identity of a client. </p>
-</div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a6994a3ede9b956f0966a5c45d1714f35" name="a6994a3ede9b956f0966a5c45d1714f35"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6994a3ede9b956f0966a5c45d1714f35">&#9670;&#160;</a></span>Latency_ms</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">using <a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> =  uint16_t</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>An latency represent the latency of the client-&gt;server / server-&gt;client connection. </p>
-
-</div>
-</div>
-<a id="adc4f7dfb59d60406424eb4d2d0f0cd38" name="adc4f7dfb59d60406424eb4d2d0f0cd38"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc4f7dfb59d60406424eb4d2d0f0cd38">&#9670;&#160;</a></span>Timestamp</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">using <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> =  uint16_t</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>An timestamp represent modulated current time in milliseconds. </p>
-
-</div>
-</div>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a0bb7eb0fa5132d7a84013487123eca41" name="a0bb7eb0fa5132d7a84013487123eca41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0bb7eb0fa5132d7a84013487123eca41">&#9670;&#160;</a></span>Client()</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a3a4c31111e9ced36b474091fc0ca6f71" name="a3a4c31111e9ced36b474091fc0ca6f71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a4c31111e9ced36b474091fc0ca6f71">&#9670;&#160;</a></span>Client()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -207,9 +191,19 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">fge::net::Client::Client </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a>&#160;</td>
-          <td class="paramname"><em>latency</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td>
+          <td class="paramname"><em>CTOSLatency</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td>
+          <td class="paramname"><em>STOCLatency</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -219,10 +213,11 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Constructor with a default server-&gt;client latency. </p>
+<p>Constructor with default latencies. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">latency</td><td>The server-&gt;client latency </td></tr>
+    <tr><td class="paramname">CTOSLatency</td><td>The "Client To Server" latency </td></tr>
+    <tr><td class="paramname">STOCLatency</td><td>The "Server To Client" latency </td></tr>
   </table>
   </dd>
 </dl>
@@ -249,8 +244,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a54b13269ca0e78f877d65fc0b7dafcb8" name="a54b13269ca0e78f877d65fc0b7dafcb8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54b13269ca0e78f877d65fc0b7dafcb8">&#9670;&#160;</a></span>computeLatency_ms()</h2>
+<a id="a0aa79d21c6f7d9f1dc575c5cd7e9e11f" name="a0aa79d21c6f7d9f1dc575c5cd7e9e11f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0aa79d21c6f7d9f1dc575c5cd7e9e11f">&#9670;&#160;</a></span>computeLatency_ms()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -259,16 +254,16 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> fge::net::Client::computeLatency_ms </td>
+          <td class="memname">static <a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> fge::net::Client::computeLatency_ms </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> &amp;&#160;</td>
-          <td class="paramname"><em>startedTime</em>, </td>
+          <td class="paramtype">const <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> &amp;&#160;</td>
+          <td class="paramname"><em>sentTimestamp</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> &amp;&#160;</td>
-          <td class="paramname"><em>returnedTime</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> &amp;&#160;</td>
+          <td class="paramname"><em>receivedTimestamp</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -286,47 +281,12 @@ Public Attributes</h2></td></tr>
 <p>Compute the latency for the client-&gt;server / server-&gt;client with the given timestamps. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">startedTime</td><td>The timestamp of the sender packet </td></tr>
-    <tr><td class="paramname">returnedTime</td><td>The timestamp returned by the client/server </td></tr>
+    <tr><td class="paramname">sentTimestamp</td><td>The timestamp that have been sent </td></tr>
+    <tr><td class="paramname">receivedTimestamp</td><td>The received timestamp </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Latency in milliseconds </dd></dl>
-
-</div>
-</div>
-<a id="ae1ccf903c38e4315f330834377214fd9" name="ae1ccf903c38e4315f330834377214fd9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae1ccf903c38e4315f330834377214fd9">&#9670;&#160;</a></span>computePing_ms()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static <a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> fge::net::Client::computePing_ms </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> &amp;&#160;</td>
-          <td class="paramname"><em>startedTime</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Compute the ping (latency of the client + latency of the server) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">startedTime</td><td>The timestamp of the sender packet </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>The ping in milliseconds </dd></dl>
 
 </div>
 </div>
@@ -340,7 +300,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a> fge::net::Client::GenerateSkey </td>
+          <td class="memname">static <a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> fge::net::Client::GenerateSkey </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -358,14 +318,106 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aac390415ac76e634fd8078c7f7b8897f" name="aac390415ac76e634fd8078c7f7b8897f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac390415ac76e634fd8078c7f7b8897f">&#9670;&#160;</a></span>getLastPacketElapsedTime()</h2>
+<a id="a3520e3c226767542d71aba628def0802" name="a3520e3c226767542d71aba628def0802"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3520e3c226767542d71aba628def0802">&#9670;&#160;</a></span>getCorrectorLatency()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> fge::net::Client::getLastPacketElapsedTime </td>
+          <td class="memname">std::optional&lt; <a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> &gt; fge::net::Client::getCorrectorLatency </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute the corrector latency. </p>
+<p >The corrector latency is simply the time between the set timestamp and the timestamp now.</p>
+<p >This is useful in order to compute more precise latency between client/server</p>
+<dl class="section return"><dt>Returns</dt><dd>The corrector latency </dd></dl>
+
+</div>
+</div>
+<a id="a3c5f5490511e91068c313c48b3dd4a44" name="a3c5f5490511e91068c313c48b3dd4a44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c5f5490511e91068c313c48b3dd4a44">&#9670;&#160;</a></span>getCorrectorTimestamp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt; <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> &gt; fge::net::Client::getCorrectorTimestamp </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the corrector timestamp. </p>
+<p >When the getCorrectorLatency method is called, it will clear the corrector timestamp and std::nullopt will be returned.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classfge_1_1net_1_1Client.html#a3520e3c226767542d71aba628def0802" title="Compute the corrector latency.">getCorrectorLatency</a></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The corrector timestamp </dd></dl>
+
+</div>
+</div>
+<a id="ab2eddb6eb0f731a34d8082968152230b" name="ab2eddb6eb0f731a34d8082968152230b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2eddb6eb0f731a34d8082968152230b">&#9670;&#160;</a></span>getCTOSLatency_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> fge::net::Client::getCTOSLatency_ms </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the "Client To Server" latency. </p>
+<dl class="section return"><dt>Returns</dt><dd>Latency in milliseconds </dd></dl>
+
+</div>
+</div>
+<a id="a22f0e805e6170da477d409a7d3a52af1" name="a22f0e805e6170da477d409a7d3a52af1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22f0e805e6170da477d409a7d3a52af1">&#9670;&#160;</a></span>getFullTimestamp_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="group__network.html#ga77bb6b0432123bbcaa2844695164f4f2">fge::net::FullTimestamp</a> fge::net::Client::getFullTimestamp_ms </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get a timestamp of the current time. </p>
+<dl class="section return"><dt>Returns</dt><dd>The timestamp </dd></dl>
+
+</div>
+</div>
+<a id="a1ed04564e3231f7584d05c1b8284556a" name="a1ed04564e3231f7584d05c1b8284556a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ed04564e3231f7584d05c1b8284556a">&#9670;&#160;</a></span>getLastPacketElapsedTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> fge::net::Client::getLastPacketElapsedTime </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -378,14 +430,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a452c83137dd2a8989b3b58a5cdad5375" name="a452c83137dd2a8989b3b58a5cdad5375"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a452c83137dd2a8989b3b58a5cdad5375">&#9670;&#160;</a></span>getLatency_ms()</h2>
+<a id="ac78ab315acb0a38cfb4f29b234439c95" name="ac78ab315acb0a38cfb4f29b234439c95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac78ab315acb0a38cfb4f29b234439c95">&#9670;&#160;</a></span>getPing_ms()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a> fge::net::Client::getLatency_ms </td>
+          <td class="memname"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> fge::net::Client::getPing_ms </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -393,8 +445,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get the server-&gt;client latency. </p>
-<dl class="section return"><dt>Returns</dt><dd>Latency in milliseconds </dd></dl>
+<p>Compute the ping. </p>
+<p >The ping is simply the CTOS + STOC latencies.</p>
+<dl class="section return"><dt>Returns</dt><dd>Pin in milliseconds </dd></dl>
 
 </div>
 </div>
@@ -405,7 +458,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a> fge::net::Client::getSkey </td>
+          <td class="memname"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> fge::net::Client::getSkey </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -418,8 +471,28 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ab1fa1d1cb0f6f451b4c897f6d75e0949" name="ab1fa1d1cb0f6f451b4c897f6d75e0949"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab1fa1d1cb0f6f451b4c897f6d75e0949">&#9670;&#160;</a></span>getTimestamp_ms()</h2>
+<a id="a0e9e6a1a1ad1db7468aeaf373994767e" name="a0e9e6a1a1ad1db7468aeaf373994767e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e9e6a1a1ad1db7468aeaf373994767e">&#9670;&#160;</a></span>getSTOCLatency_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> fge::net::Client::getSTOCLatency_ms </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the "Server To Client" latency. </p>
+<dl class="section return"><dt>Returns</dt><dd>Latency in milliseconds </dd></dl>
+
+</div>
+</div>
+<a id="a75f46bdba15a70622fd5befd61bcad7a" name="a75f46bdba15a70622fd5befd61bcad7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75f46bdba15a70622fd5befd61bcad7a">&#9670;&#160;</a></span>getTimestamp_ms()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -428,7 +501,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="classfge_1_1net_1_1Client.html#adc4f7dfb59d60406424eb4d2d0f0cd38">fge::net::Client::Timestamp</a> fge::net::Client::getTimestamp_ms </td>
+          <td class="memname">static <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> fge::net::Client::getTimestamp_ms </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -466,14 +539,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a6edc37d7cfed97cc6b60445229304532" name="a6edc37d7cfed97cc6b60445229304532"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6edc37d7cfed97cc6b60445229304532">&#9670;&#160;</a></span>popPacket()</h2>
+<a id="aae87e8325e2103b8486b4a2a38466075" name="aae87e8325e2103b8486b4a2a38466075"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae87e8325e2103b8486b4a2a38466075">&#9670;&#160;</a></span>popPacket()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a> fge::net::Client::popPacket </td>
+          <td class="memname"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> fge::net::Client::popPacket </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -486,8 +559,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a9a4b8ef34966d3845740cab27fce8020" name="a9a4b8ef34966d3845740cab27fce8020"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9a4b8ef34966d3845740cab27fce8020">&#9670;&#160;</a></span>pushPacket()</h2>
+<a id="a78fd2864226c2425fb7261db42e10818" name="a78fd2864226c2425fb7261db42e10818"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78fd2864226c2425fb7261db42e10818">&#9670;&#160;</a></span>pushPacket()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -495,7 +568,7 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">void fge::net::Client::pushPacket </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;&#160;</td>
           <td class="paramname"><em>pck</em></td><td>)</td>
           <td></td>
         </tr>
@@ -533,26 +606,54 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aadac64fed49844cf13a1ba502e984b99" name="aadac64fed49844cf13a1ba502e984b99"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aadac64fed49844cf13a1ba502e984b99">&#9670;&#160;</a></span>setLatency_ms()</h2>
+<a id="a623435364f14157ef83d254227715d94" name="a623435364f14157ef83d254227715d94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a623435364f14157ef83d254227715d94">&#9670;&#160;</a></span>setCorrectorTimestamp()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::Client::setLatency_ms </td>
+          <td class="memname">void fge::net::Client::setCorrectorTimestamp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Client.html#a6994a3ede9b956f0966a5c45d1714f35">fge::net::Client::Latency_ms</a>&#160;</td>
-          <td class="paramname"><em>t</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a>&#160;</td>
+          <td class="paramname"><em>timestamp</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set the server-&gt;client latency. </p>
+<p>Set the corrector timestamp. </p>
+<p >A corrector timestamp is generally set with the timestamp of a received packet.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classfge_1_1net_1_1Client.html#a3520e3c226767542d71aba628def0802" title="Compute the corrector latency.">getCorrectorLatency</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">t</td><td>Latency in milliseconds </td></tr>
+    <tr><td class="paramname">timestamp</td><td>The corrector timestamp </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab7d3b51132f74bb73aa81d63e0699337" name="ab7d3b51132f74bb73aa81d63e0699337"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7d3b51132f74bb73aa81d63e0699337">&#9670;&#160;</a></span>setCTOSLatency_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::net::Client::setCTOSLatency_ms </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td>
+          <td class="paramname"><em>latency</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the "Client To Server" latency. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">latency</td><td>Latency in milliseconds </td></tr>
   </table>
   </dd>
 </dl>
@@ -568,7 +669,7 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">void fge::net::Client::setSkey </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a>&#160;</td>
           <td class="paramname"><em>key</em></td><td>)</td>
           <td></td>
         </tr>
@@ -579,6 +680,32 @@ Public Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">key</td><td>The session key </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acfbc046eb8e810e8a410d1adaf727024" name="acfbc046eb8e810e8a410d1adaf727024"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfbc046eb8e810e8a410d1adaf727024">&#9670;&#160;</a></span>setSTOCLatency_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::net::Client::setSTOCLatency_ms </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a>&#160;</td>
+          <td class="paramname"><em>latency</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the "Server To Client" latency. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">latency</td><td>Latency in milliseconds </td></tr>
   </table>
   </dd>
 </dl>
@@ -615,6 +742,22 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Optional client-side event that can be synchronized with the server. </p>
+
+</div>
+</div>
+<a id="a00283d9ca2f226334521d6dfd3dcd1ab" name="a00283d9ca2f226334521d6dfd3dcd1ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00283d9ca2f226334521d6dfd3dcd1ab">&#9670;&#160;</a></span>_latencyPlanner</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html">fge::net::OneWayLatencyPlanner</a> fge::net::Client::_latencyPlanner</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A latency planner that will help latency calculation. </p>
 
 </div>
 </div>

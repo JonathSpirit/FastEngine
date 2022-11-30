@@ -71,7 +71,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_09e761304027c904456130627fd4dcf5.html">includes</a></li><li class="navelem"><a class="el" href="dir_479b92ef2e34739f1a2f441ac0b317f0.html">FastEngine</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_09e761304027c904456130627fd4dcf5.html">includes</a></li><li class="navelem"><a class="el" href="dir_479b92ef2e34739f1a2f441ac0b317f0.html">FastEngine</a></li><li class="navelem"><a class="el" href="dir_5a920a419acbc92df4ff05202ad22447.html">object</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -97,91 +97,105 @@ $(function() {
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &lt;FastEngine/fastengine_extern.hpp&gt;</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &lt;FastEngine/C_object.hpp&gt;</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;FastEngine/C_flag.hpp&gt;</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;FastEngine/C_objText.hpp&gt;</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#define FGE_OBJTEXTINBOX_CLASSNAME &quot;FGE:OBJ:TEXTINBOX&quot;</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">namespace </span>fge</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>{</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html">   30</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">ObjTextInputBox</a> : <span class="keyword">public</span> <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>{</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">ObjTextInputBox</a>();</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keyword">explicit</span> <a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">ObjTextInputBox</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1Font.html">fge::Font</a>&amp; font, uint16_t maxLength = 10, <span class="keyword">const</span> sf::Vector2f&amp; pos = sf::Vector2f());</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    FGE_OBJ_DEFAULT_COPYMETHOD(<a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">fge::ObjTextInputBox</a>)</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordtype">void</span> setString(<span class="keyword">const</span> sf::String&amp; <span class="keywordtype">string</span>);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordtype">void</span> setCharacterSize(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> size);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">void</span> setHideTextFlag(<span class="keywordtype">bool</span> flag);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">void</span> setMaxLength(uint16_t length);</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">void</span> setActiveStat(<span class="keywordtype">bool</span> active);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">void</span> setBoxSize(<span class="keyword">const</span> sf::Vector2f&amp; size);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">void</span> setBoxSize(<span class="keywordtype">float</span> w, <span class="keywordtype">float</span> h);</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">void</span> setBoxColor(<span class="keyword">const</span> sf::Color&amp; color);</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">void</span> setBoxOutlineColor(<span class="keyword">const</span> sf::Color&amp; color);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordtype">void</span> setTextColor(<span class="keyword">const</span> sf::Color&amp; color);</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">const</span> sf::String&amp; getString() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> getCharacterSize() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">bool</span> isTextHide() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    uint16_t getMaxLength() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">bool</span> getActiveStat() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">const</span> sf::Vector2f&amp; getBoxSize() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">const</span> sf::Color&amp; getBoxColor() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">const</span> sf::Color&amp; getBoxOutlineColor() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keyword">const</span> sf::Color&amp; getTextColor() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;FastEngine/object/C_object.hpp&quot;</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;FastEngine/object/C_objText.hpp&quot;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;FastEngine/C_flag.hpp&quot;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;FastEngine/C_guiElement.hpp&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#define FGE_OBJTEXTINBOX_CLASSNAME &quot;FGE:OBJ:TEXTINBOX&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">namespace </span>fge</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>{</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html">   31</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">ObjTextInputBox</a> : <span class="keyword">public</span> <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>, <span class="keyword">public</span> <a class="code hl_class" href="classfge_1_1Subscriber.html">fge::Subscriber</a>, <span class="keyword">public</span> <a class="code hl_class" href="classfge_1_1GuiElement.html">fge::GuiElement</a></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>{</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">ObjTextInputBox</a>();</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">explicit</span> <a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">ObjTextInputBox</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1Font.html">fge::Font</a>&amp; font, uint16_t maxLength = 10, <span class="keyword">const</span> sf::Vector2f&amp; pos = sf::Vector2f());</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    FGE_OBJ_DEFAULT_COPYMETHOD(<a class="code hl_class" href="classfge_1_1ObjTextInputBox.html">fge::ObjTextInputBox</a>)</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#ad09ce50ddc883399bbeb859462796c8e">   39</a></span>    fge::<a class="code hl_class" href="classfge_1_1GuiElement.html">GuiElement</a>* getGuiElement()<span class="keyword"> override</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keywordflow">return</span> <span class="keyword">this</span>;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    }</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordtype">void</span> setString(tiny_utf8::string <span class="keywordtype">string</span>);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">void</span> setCharacterSize(fge::ObjText::CharacterSize size);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">void</span> setHideTextFlag(<span class="keywordtype">bool</span> flag);</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">void</span> setMaxLength(uint16_t length);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">void</span> setActiveStat(<span class="keywordtype">bool</span> active);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">void</span> setBoxSize(<span class="keyword">const</span> sf::Vector2f&amp; size);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">void</span> setBoxSize(<span class="keywordtype">float</span> w, <span class="keywordtype">float</span> h);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span> setBoxColor(<span class="keyword">const</span> sf::Color&amp; color);</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">void</span> setBoxOutlineColor(<span class="keyword">const</span> sf::Color&amp; color);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">void</span> setTextColor(<span class="keyword">const</span> sf::Color&amp; color);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">const</span> tiny_utf8::string&amp; getString() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    fge::ObjText::CharacterSize getCharacterSize() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">bool</span> isTextHide() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    uint16_t getMaxLength() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">bool</span> getActiveStat() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    FGE_OBJ_UPDATE_DECLARE</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    FGE_OBJ_DRAW_DECLARE</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">   68</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">save</a>(nlohmann::json&amp; jsonObject, <a class="code hl_class" href="classfge_1_1Scene.html">fge::Scene</a>* scene) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a8cd95aa81c4bbb4cd12c3c232de65dd8">   69</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a8cd95aa81c4bbb4cd12c3c232de65dd8">load</a>(nlohmann::json&amp; jsonObject, <a class="code hl_class" href="classfge_1_1Scene.html">fge::Scene</a>* scene) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#aa25a647e38dfaa173b634d1191ae970b">   70</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#aa25a647e38dfaa173b634d1191ae970b">pack</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a88ec47598c519bbcbfc19998a1db34e8">   71</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a88ec47598c519bbcbfc19998a1db34e8">unpack</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keyword">const</span> sf::Vector2f&amp; getBoxSize() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keyword">const</span> sf::Color&amp; getBoxColor() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">const</span> sf::Color&amp; getBoxOutlineColor() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keyword">const</span> sf::Color&amp; getTextColor() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a7540ce7a97195b66c533b833782971e8">   71</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a7540ce7a97195b66c533b833782971e8">callbackRegister</a>(<a class="code hl_class" href="classfge_1_1Event.html">fge::Event</a>&amp; event, <a class="code hl_class" href="classfge_1_1GuiElementHandler.html">fge::GuiElementHandler</a>* guiElementHandlerPtr) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#add1cc00e20f7e63eecc7426b796f07b9">   73</a></span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#add1cc00e20f7e63eecc7426b796f07b9">getClassName</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a3ada80125c4b841b84a33a06870871e5">   74</a></span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a3ada80125c4b841b84a33a06870871e5">getReadableClassName</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    FGE_OBJ_UPDATE_DECLARE</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    FGE_OBJ_DRAW_DECLARE</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a820880b315244f4cb6431d9da977bd0f">   76</a></span>    sf::FloatRect <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a820880b315244f4cb6431d9da977bd0f">getGlobalBounds</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#af5ffc168b57a5df235671fdac07af148">   77</a></span>    sf::FloatRect <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#af5ffc168b57a5df235671fdac07af148">getLocalBounds</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    uint16_t g_cursor = 0;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    uint16_t g_maxLength = 10;</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordtype">bool</span> g_hide = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">   76</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">save</a>(nlohmann::json&amp; jsonObject, <a class="code hl_class" href="classfge_1_1Scene.html">fge::Scene</a>* scene) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a8cd95aa81c4bbb4cd12c3c232de65dd8">   77</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a8cd95aa81c4bbb4cd12c3c232de65dd8">load</a>(nlohmann::json&amp; jsonObject, <a class="code hl_class" href="classfge_1_1Scene.html">fge::Scene</a>* scene) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#aa25a647e38dfaa173b634d1191ae970b">   78</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#aa25a647e38dfaa173b634d1191ae970b">pack</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a88ec47598c519bbcbfc19998a1db34e8">   79</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a88ec47598c519bbcbfc19998a1db34e8">unpack</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#add1cc00e20f7e63eecc7426b796f07b9">   81</a></span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#add1cc00e20f7e63eecc7426b796f07b9">getClassName</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a3ada80125c4b841b84a33a06870871e5">   82</a></span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a3ada80125c4b841b84a33a06870871e5">getReadableClassName</a>() <span class="keyword">const override</span>;</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    sf::Color g_colorBox = sf::Color::White;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    sf::Color g_colorBoxOutline = sf::Color::Black;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    sf::Color g_colorText = sf::Color::Black;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    sf::String g_string;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1ObjText.html">fge::ObjText</a> g_text;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keyword">mutable</span> sf::RectangleShape g_box;</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#a820880b315244f4cb6431d9da977bd0f">   84</a></span>    sf::FloatRect <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#a820880b315244f4cb6431d9da977bd0f">getGlobalBounds</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextInputBox.html#af5ffc168b57a5df235671fdac07af148">   85</a></span>    sf::FloatRect <a class="code hl_function" href="classfge_1_1ObjTextInputBox.html#af5ffc168b57a5df235671fdac07af148">getLocalBounds</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordtype">void</span> onGuiMouseButtonPressed(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1Event.html">fge::Event</a>&amp; evt, <span class="keyword">const</span> sf::Event::MouseButtonEvent&amp; arg, <a class="code hl_struct" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a>&amp; context);</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">void</span> onGuiVerify(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1Event.html">fge::Event</a>&amp; evt, sf::Event::EventType evtType, <a class="code hl_struct" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a>&amp; context) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    sf::Vector2f g_boxSize = sf::Vector2f(120, 18);</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">bool</span> g_statActive = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <a class="code hl_class" href="classfge_1_1Flag.html">fge::Flag</a> g_flagMouse;</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>};</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>}<span class="comment">//end fge</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    uint16_t g_cursor = 0;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    uint16_t g_maxLength = 10;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">bool</span> g_hide = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    sf::Color g_colorBox = sf::Color::White;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    sf::Color g_colorBoxOutline = sf::Color::Black;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    sf::Color g_colorText = sf::Color::Black;</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED</span></div>
-<div class="ttc" id="aclassfge_1_1Flag_html"><div class="ttname"><a href="classfge_1_1Flag.html">fge::Flag</a></div><div class="ttdoc">A class to handle flags.</div><div class="ttdef"><b>Definition:</b> C_flag.hpp:31</div></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    tiny_utf8::string g_string;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1ObjText.html">fge::ObjText</a> g_text;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">mutable</span> sf::RectangleShape g_box;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    sf::Vector2f g_boxSize = sf::Vector2f(120, 18);</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">bool</span> g_statActive = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>};</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>}<span class="comment">//end fge</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED</span></div>
+<div class="ttc" id="aclassfge_1_1Event_html"><div class="ttname"><a href="classfge_1_1Event.html">fge::Event</a></div><div class="ttdoc">This class is a wrapper for SFML events.</div><div class="ttdef"><b>Definition:</b> C_event.hpp:48</div></div>
 <div class="ttc" id="aclassfge_1_1Font_html"><div class="ttname"><a href="classfge_1_1Font.html">fge::Font</a></div><div class="ttdoc">This class is a wrapper for the font manger to allow easy manipulation.</div><div class="ttdef"><b>Definition:</b> C_font.hpp:40</div></div>
-<div class="ttc" id="aclassfge_1_1ObjTextInputBox_html"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html">fge::ObjTextInputBox</a></div><div class="ttdef"><b>Definition:</b> C_objTextinputbox.hpp:31</div></div>
+<div class="ttc" id="aclassfge_1_1GuiElementHandler_html"><div class="ttname"><a href="classfge_1_1GuiElementHandler.html">fge::GuiElementHandler</a></div><div class="ttdoc">A class to handle highest priority selection of GUI elements.</div><div class="ttdef"><b>Definition:</b> C_guiElement.hpp:246</div></div>
+<div class="ttc" id="aclassfge_1_1GuiElement_html"><div class="ttname"><a href="classfge_1_1GuiElement.html">fge::GuiElement</a></div><div class="ttdoc">A base class for all GUI elements.</div><div class="ttdef"><b>Definition:</b> C_guiElement.hpp:117</div></div>
+<div class="ttc" id="aclassfge_1_1ObjTextInputBox_html"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html">fge::ObjTextInputBox</a></div><div class="ttdef"><b>Definition:</b> C_objTextinputbox.hpp:32</div></div>
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_a3ada80125c4b841b84a33a06870871e5"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#a3ada80125c4b841b84a33a06870871e5">fge::ObjTextInputBox::getReadableClassName</a></div><div class="ttdeci">const char * getReadableClassName() const override</div><div class="ttdoc">Get a readable version of the class name.</div></div>
+<div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_a7540ce7a97195b66c533b833782971e8"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#a7540ce7a97195b66c533b833782971e8">fge::ObjTextInputBox::callbackRegister</a></div><div class="ttdeci">void callbackRegister(fge::Event &amp;event, fge::GuiElementHandler *guiElementHandlerPtr) override</div><div class="ttdoc">Ask the object to register all callbacks it needs to receive events.</div></div>
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_a820880b315244f4cb6431d9da977bd0f"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#a820880b315244f4cb6431d9da977bd0f">fge::ObjTextInputBox::getGlobalBounds</a></div><div class="ttdeci">sf::FloatRect getGlobalBounds() const override</div><div class="ttdoc">Get the global bounds of the object.</div></div>
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_a88ec47598c519bbcbfc19998a1db34e8"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#a88ec47598c519bbcbfc19998a1db34e8">fge::ObjTextInputBox::unpack</a></div><div class="ttdeci">void unpack(fge::net::Packet &amp;pck) override</div><div class="ttdoc">Unpack the object from a packet.</div></div>
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_a8cd95aa81c4bbb4cd12c3c232de65dd8"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#a8cd95aa81c4bbb4cd12c3c232de65dd8">fge::ObjTextInputBox::load</a></div><div class="ttdeci">void load(nlohmann::json &amp;jsonObject, fge::Scene *scene) override</div><div class="ttdoc">Load the object from a json object.</div></div>
@@ -189,10 +203,12 @@ $(function() {
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_ab4efa12cfeb64052aed2f67247d0adfa"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">fge::ObjTextInputBox::save</a></div><div class="ttdeci">FGE_OBJ_UPDATE_DECLARE FGE_OBJ_DRAW_DECLARE void save(nlohmann::json &amp;jsonObject, fge::Scene *scene) override</div><div class="ttdoc">Save the object to a json object.</div></div>
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_add1cc00e20f7e63eecc7426b796f07b9"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#add1cc00e20f7e63eecc7426b796f07b9">fge::ObjTextInputBox::getClassName</a></div><div class="ttdeci">const char * getClassName() const override</div><div class="ttdoc">Get the unique class name of the object.</div></div>
 <div class="ttc" id="aclassfge_1_1ObjTextInputBox_html_af5ffc168b57a5df235671fdac07af148"><div class="ttname"><a href="classfge_1_1ObjTextInputBox.html#af5ffc168b57a5df235671fdac07af148">fge::ObjTextInputBox::getLocalBounds</a></div><div class="ttdeci">sf::FloatRect getLocalBounds() const override</div><div class="ttdoc">Get the local bounds of the object (without any transformations)</div></div>
-<div class="ttc" id="aclassfge_1_1ObjText_html"><div class="ttname"><a href="classfge_1_1ObjText.html">fge::ObjText</a></div><div class="ttdef"><b>Definition:</b> C_objText.hpp:77</div></div>
-<div class="ttc" id="aclassfge_1_1Object_html"><div class="ttname"><a href="classfge_1_1Object.html">fge::Object</a></div><div class="ttdoc">The Object class is the base class for all objects in the engine.</div><div class="ttdef"><b>Definition:</b> C_object.hpp:84</div></div>
-<div class="ttc" id="aclassfge_1_1Scene_html"><div class="ttname"><a href="classfge_1_1Scene.html">fge::Scene</a></div><div class="ttdoc">A scene contain a collection of object and handle them.</div><div class="ttdef"><b>Definition:</b> C_scene.hpp:387</div></div>
-<div class="ttc" id="aclassfge_1_1net_1_1Packet_html"><div class="ttname"><a href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a></div><div class="ttdef"><b>Definition:</b> C_packet.hpp:53</div></div>
+<div class="ttc" id="aclassfge_1_1ObjText_html"><div class="ttname"><a href="classfge_1_1ObjText.html">fge::ObjText</a></div><div class="ttdef"><b>Definition:</b> C_objText.hpp:78</div></div>
+<div class="ttc" id="aclassfge_1_1Object_html"><div class="ttname"><a href="classfge_1_1Object.html">fge::Object</a></div><div class="ttdoc">The Object class is the base class for all objects in the engine.</div><div class="ttdef"><b>Definition:</b> C_object.hpp:85</div></div>
+<div class="ttc" id="aclassfge_1_1Scene_html"><div class="ttname"><a href="classfge_1_1Scene.html">fge::Scene</a></div><div class="ttdoc">A scene contain a collection of object and handle them.</div><div class="ttdef"><b>Definition:</b> C_scene.hpp:398</div></div>
+<div class="ttc" id="aclassfge_1_1Subscriber_html"><div class="ttname"><a href="classfge_1_1Subscriber.html">fge::Subscriber</a></div><div class="ttdoc">This class is a useful utility to &quot;link&quot; multiple objects around.</div><div class="ttdef"><b>Definition:</b> C_subscription.hpp:150</div></div>
+<div class="ttc" id="aclassfge_1_1net_1_1Packet_html"><div class="ttname"><a href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a></div><div class="ttdef"><b>Definition:</b> C_packet.hpp:54</div></div>
+<div class="ttc" id="astructfge_1_1GuiElementContext_html"><div class="ttname"><a href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a></div><div class="ttdef"><b>Definition:</b> C_guiElement.hpp:43</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

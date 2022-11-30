@@ -17,7 +17,7 @@ var searchData=
   ['refreshtextures_14',['refreshTextures',['../classfge_1_1TileLayer.html#a2b279b2e53c55f8a66ef69e9a26f0280',1,'fge::TileLayer']]],
   ['releaseobject_15',['releaseObject',['../classfge_1_1ObjectData.html#ad2dbf6ed3d6d63bc498eaf4bbd7e8989',1,'fge::ObjectData']]],
   ['remove_16',['remove',['../classfge_1_1net_1_1ClientList.html#a97f5e997a8f8c6818140272b6fbd8ac3',1,'fge::net::ClientList::remove(const fge::net::Identity &amp;id)'],['../classfge_1_1net_1_1ClientList.html#ab0d337afc66542e518eaef370f37aba1',1,'fge::net::ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos, const std::unique_lock&lt; std::recursive_mutex &gt; &amp;lock)']]],
-  ['removed_17',['removed',['../classfge_1_1Object.html#a581c6d7b620521b52dd2a49e482792f7',1,'fge::Object::removed()'],['../classfge_1_1ObjRenderMap.html#abad88320c57e5c48180e26d7ba143d2d',1,'fge::ObjRenderMap::removed()']]],
+  ['removed_17',['removed',['../classfge_1_1Object.html#a581c6d7b620521b52dd2a49e482792f7',1,'fge::Object::removed()'],['../classfge_1_1ObjRenderMap.html#a6bfaf04ce2e6ad71225d426db9bc53cf',1,'fge::ObjRenderMap::removed()'],['../classfge_1_1ObjWindow.html#a780a3a445040cf52ba451591a4b8965c',1,'fge::ObjWindow::removed()']]],
   ['replacecmd_18',['replaceCmd',['../classfge_1_1CommandHandler.html#aa06c716d59048bbd8bc4398685b3f3a1',1,'fge::CommandHandler']]],
   ['requireexplicitupdateclient_19',['requireExplicitUpdateClient',['../classfge_1_1net_1_1NetworkTypeBase.html#a79c9c73a9218ecbf3686cdcad648d193',1,'fge::net::NetworkTypeBase']]],
   ['resetlastpackettimepoint_20',['resetLastPacketTimePoint',['../classfge_1_1net_1_1Client.html#a0132fede020e46c177f62b4a937fa413',1,'fge::net::Client']]],

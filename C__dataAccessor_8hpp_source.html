@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.5"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>FastEngine: C_smoothFloat.hpp Source File</title>
+<title>FastEngine: C_dataAccessor.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -75,7 +75,7 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
-  <div class="headertitle"><div class="title">C_smoothFloat.hpp</div></div>
+  <div class="headertitle"><div class="title">C_dataAccessor.hpp</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/*</span></div>
@@ -94,38 +94,47 @@ $(function() {
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment"> * limitations under the License.</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_C_SMOOTHFLOAT_HPP_INCLUDED</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_C_SMOOTHFLOAT_HPP_INCLUDED</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_C_DATAACCESSOR_HPP_INCLUDED</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_C_DATAACCESSOR_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &lt;SFML/System/Vector2.hpp&gt;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &lt;functional&gt;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">namespace </span>fge</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>{</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span>net</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>{</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structfge_1_1net_1_1SmoothVec2Float.html">   27</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structfge_1_1net_1_1SmoothVec2Float.html">SmoothVec2Float</a></div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>{</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    sf::Vector2f _real;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keywordtype">float</span> _errorRange;</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    sf::Vector2f _cache;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>};</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="structfge_1_1DataAccessor.html">   26</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structfge_1_1DataAccessor.html">DataAccessor</a></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>{</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <a class="code hl_struct" href="structfge_1_1DataAccessor.html">DataAccessor</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <a class="code hl_struct" href="structfge_1_1DataAccessor.html">DataAccessor</a>(T* directAccessPtr) :</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>            _setter([directAccessPtr](T&amp;&amp; r){*directAccessPtr = std::forward&lt;T&gt;(r);}),</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            _getter([directAccessPtr](){<span class="keywordflow">return</span> *directAccessPtr;})</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    {}</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="structfge_1_1net_1_1SmoothFloat.html">   35</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structfge_1_1net_1_1SmoothFloat.html">SmoothFloat</a></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>{</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keywordtype">float</span> _real;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordtype">float</span> _errorRange;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <a class="code hl_struct" href="structfge_1_1DataAccessor.html">DataAccessor</a>(std::function&lt;T()&gt; getter, std::function&lt;<span class="keywordtype">void</span>(T)&gt; setter) :</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>            _setter(std::move(setter)),</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>            _getter(std::move(getter))</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    {}</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">float</span> _cache;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>};</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>}<span class="comment">//end net</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>}<span class="comment">//end fge</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_SMOOTHFLOAT_HPP_INCLUDED</span></div>
-<div class="ttc" id="astructfge_1_1net_1_1SmoothFloat_html"><div class="ttname"><a href="structfge_1_1net_1_1SmoothFloat.html">fge::net::SmoothFloat</a></div><div class="ttdef"><b>Definition:</b> C_smoothFloat.hpp:36</div></div>
-<div class="ttc" id="astructfge_1_1net_1_1SmoothVec2Float_html"><div class="ttname"><a href="structfge_1_1net_1_1SmoothVec2Float.html">fge::net::SmoothVec2Float</a></div><div class="ttdef"><b>Definition:</b> C_smoothFloat.hpp:28</div></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <a class="code hl_struct" href="structfge_1_1DataAccessor.html">DataAccessor</a>(<span class="keyword">const</span> T* directAccessPtrGetter, std::function&lt;<span class="keywordtype">void</span>(T)&gt; setter) :</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            _setter(std::move(setter)),</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            _getter([directAccessPtrGetter](){<span class="keywordflow">return</span> *directAccessPtrGetter;})</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    {}</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <a class="code hl_struct" href="structfge_1_1DataAccessor.html">DataAccessor</a>(std::function&lt;T()&gt; getter, T* directAccessPtrSetter) :</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            _setter([directAccessPtrSetter](T&amp;&amp; r){*directAccessPtrSetter = std::forward&lt;T&gt;(r);}),</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            _getter(std::move(getter))</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    {}</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    std::function&lt;void(T)&gt; _setter;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    std::function&lt;T()&gt; _getter;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>};</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>}<span class="comment">//end fge</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_C_DATAACCESSOR_HPP_INCLUDED</span></div>
+<div class="ttc" id="astructfge_1_1DataAccessor_html"><div class="ttname"><a href="structfge_1_1DataAccessor.html">fge::DataAccessor</a></div><div class="ttdef"><b>Definition:</b> C_dataAccessor.hpp:27</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

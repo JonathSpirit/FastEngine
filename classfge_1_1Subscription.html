@@ -79,12 +79,13 @@ $(function() {
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classfge_1_1Subscription-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fge::Subscription Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
+  <div class="headertitle"><div class="title">fge::Subscription Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span><div class="ingroups"><a class="el" href="group__utility.html">Utility/Tools</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="classfge_1_1Subscription.html" title="Subscription.">Subscription</a>.  
+<p>This class is a useful utility to "link" multiple objects around a specific use with automatic lifetime management.  
  <a href="classfge_1_1Subscription.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="C__subscription_8hpp_source.html">C_subscription.hpp</a>&gt;</code></p>
@@ -112,11 +113,14 @@ Inheritance diagram for fge::Subscription:</div>
 <area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseMoveEvent &amp;, fge::GuiElementContext &amp; &gt;" shape="rect" coords="671,896,1332,920"/>
 <area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; const sf::Vector2f &amp; &gt;" shape="rect" coords="671,952,1332,976"/>
 <area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; const fge::Event &amp;, sf::Event::EventType, fge::GuiElementContext &amp; &gt;" shape="rect" coords="671,1008,1332,1032"/>
-<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; const fge::Scene *, sf::RenderTarget &amp;, const sf::Color &amp; &gt;" shape="rect" coords="671,1064,1332,1088"/>
-<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::Scene *, fge::ObjectDataShared &gt;" shape="rect" coords="671,1120,1332,1144"/>
-<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::Scene *, fge::ObjectPlan &gt;" shape="rect" coords="671,1176,1332,1200"/>
-<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::Timer &amp; &gt;" shape="rect" coords="671,1232,1332,1256"/>
-<area href="classfge_1_1CallbackHandler.html" title="This class is used to handle callbacks in a safe way." alt="fge::CallbackHandler&lt; Types &gt;" shape="rect" coords="671,1288,1332,1312"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; const fge::GuiElementHandler &amp;, const sf::Vector2f &amp; &gt;" shape="rect" coords="671,1064,1332,1088"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::ObjButton * &gt;" shape="rect" coords="671,1120,1332,1144"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; float &gt;" shape="rect" coords="671,1176,1332,1200"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; const fge::Scene *, sf::RenderTarget &amp;, const sf::Color &amp; &gt;" shape="rect" coords="671,1232,1332,1256"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::Scene *, fge::ObjectDataShared &gt;" shape="rect" coords="671,1288,1332,1312"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::Scene *, fge::ObjectPlan &gt;" shape="rect" coords="671,1344,1332,1368"/>
+<area href="classfge_1_1CallbackHandler.html" alt="fge::CallbackHandler&lt; fge::Timer &amp; &gt;" shape="rect" coords="671,1400,1332,1424"/>
+<area href="classfge_1_1CallbackHandler.html" title="This class is used to handle callbacks in a safe way." alt="fge::CallbackHandler&lt; Types &gt;" shape="rect" coords="671,1456,1332,1480"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -128,54 +132,279 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>SubscriberCount</b> 
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a883db20d47313ccce2ae285f945740e6"><td class="memItemLeft" align="right" valign="top"><a id="a883db20d47313ccce2ae285f945740e6" name="a883db20d47313ccce2ae285f945740e6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Subscription</b> (const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;r)</td></tr>
+<tr class="memitem:a883db20d47313ccce2ae285f945740e6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a883db20d47313ccce2ae285f945740e6">Subscription</a> (const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;r)</td></tr>
 <tr class="separator:a883db20d47313ccce2ae285f945740e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2378b99b1787ddfb0bd47e32f67e00ca"><td class="memItemLeft" align="right" valign="top"><a id="a2378b99b1787ddfb0bd47e32f67e00ca" name="a2378b99b1787ddfb0bd47e32f67e00ca"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Subscription</b> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;r)</td></tr>
-<tr class="separator:a2378b99b1787ddfb0bd47e32f67e00ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44a5589e66fdff7c5ef61be651635ea4"><td class="memItemLeft" align="right" valign="top"><a id="a44a5589e66fdff7c5ef61be651635ea4" name="a44a5589e66fdff7c5ef61be651635ea4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Subscription</b> (const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&amp;r)=delete</td></tr>
-<tr class="separator:a44a5589e66fdff7c5ef61be651635ea4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10377c3c3bb71d43742a88afa4811c6d"><td class="memItemLeft" align="right" valign="top"><a id="a10377c3c3bb71d43742a88afa4811c6d" name="a10377c3c3bb71d43742a88afa4811c6d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Subscription</b> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&amp;r)=delete</td></tr>
-<tr class="separator:a10377c3c3bb71d43742a88afa4811c6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec082fdabab8fc5024e430ad47e89de5"><td class="memItemLeft" align="right" valign="top"><a id="aec082fdabab8fc5024e430ad47e89de5" name="aec082fdabab8fc5024e430ad47e89de5"></a>
-<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;r)</td></tr>
+<tr class="memitem:a8908aed8f929dead5eed8208c11baccd"><td class="memItemLeft" align="right" valign="top"><a id="a8908aed8f929dead5eed8208c11baccd" name="a8908aed8f929dead5eed8208c11baccd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Subscription</b> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&amp;r) noexcept</td></tr>
+<tr class="separator:a8908aed8f929dead5eed8208c11baccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a179ffb6f920e059252e0b1bff4aa582b"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a179ffb6f920e059252e0b1bff4aa582b">~Subscription</a> ()</td></tr>
+<tr class="memdesc:a179ffb6f920e059252e0b1bff4aa582b"><td class="mdescLeft">&#160;</td><td class="mdescRight">When the object is destroyed, it will detach all subscribers.  <a href="classfge_1_1Subscription.html#a179ffb6f920e059252e0b1bff4aa582b">More...</a><br /></td></tr>
+<tr class="separator:a179ffb6f920e059252e0b1bff4aa582b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec082fdabab8fc5024e430ad47e89de5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#aec082fdabab8fc5024e430ad47e89de5">operator=</a> (const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;r)</td></tr>
 <tr class="separator:aec082fdabab8fc5024e430ad47e89de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b7b14455d64b3d0f9a696c2cc79db99"><td class="memItemLeft" align="right" valign="top"><a id="a9b7b14455d64b3d0f9a696c2cc79db99" name="a9b7b14455d64b3d0f9a696c2cc79db99"></a>
-<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;r)</td></tr>
-<tr class="separator:a9b7b14455d64b3d0f9a696c2cc79db99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fec063ff0e138e01f0602ade060c35f"><td class="memItemLeft" align="right" valign="top"><a id="a7fec063ff0e138e01f0602ade060c35f" name="a7fec063ff0e138e01f0602ade060c35f"></a>
-<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&amp;r)=delete</td></tr>
-<tr class="separator:a7fec063ff0e138e01f0602ade060c35f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b722aacf81bd5d66a0c6f58ff0d58f1"><td class="memItemLeft" align="right" valign="top"><a id="a3b722aacf81bd5d66a0c6f58ff0d58f1" name="a3b722aacf81bd5d66a0c6f58ff0d58f1"></a>
-<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&amp;r)=delete</td></tr>
-<tr class="separator:a3b722aacf81bd5d66a0c6f58ff0d58f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a662f57bedd79ff56341211450e574c60"><td class="memItemLeft" align="right" valign="top"><a id="a662f57bedd79ff56341211450e574c60" name="a662f57bedd79ff56341211450e574c60"></a>
+<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&amp;r) noexcept</td></tr>
+<tr class="separator:a662f57bedd79ff56341211450e574c60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a38f99c57eb69088cc34d9acb180f8a81"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a38f99c57eb69088cc34d9acb180f8a81">onDetach</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)=0</td></tr>
+<tr class="memdesc:a38f99c57eb69088cc34d9acb180f8a81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when a subscriber is detached.  <a href="classfge_1_1Subscription.html#a38f99c57eb69088cc34d9acb180f8a81">More...</a><br /></td></tr>
 <tr class="separator:a38f99c57eb69088cc34d9acb180f8a81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c6f9739e6a05e23ec6e1c226fa2014f"><td class="memItemLeft" align="right" valign="top"><a id="a6c6f9739e6a05e23ec6e1c226fa2014f" name="a6c6f9739e6a05e23ec6e1c226fa2014f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>detachAll</b> ()</td></tr>
+<tr class="memitem:a6c6f9739e6a05e23ec6e1c226fa2014f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a6c6f9739e6a05e23ec6e1c226fa2014f">detachAll</a> ()</td></tr>
+<tr class="memdesc:a6c6f9739e6a05e23ec6e1c226fa2014f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach all subscribers.  <a href="classfge_1_1Subscription.html#a6c6f9739e6a05e23ec6e1c226fa2014f">More...</a><br /></td></tr>
 <tr class="separator:a6c6f9739e6a05e23ec6e1c226fa2014f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7f209c78bb094c210499334fbe908fe"><td class="memItemLeft" align="right" valign="top"><a id="ad7f209c78bb094c210499334fbe908fe" name="ad7f209c78bb094c210499334fbe908fe"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>detach</b> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memitem:ad7f209c78bb094c210499334fbe908fe"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#ad7f209c78bb094c210499334fbe908fe">detach</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memdesc:ad7f209c78bb094c210499334fbe908fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach a specific subscriber.  <a href="classfge_1_1Subscription.html#ad7f209c78bb094c210499334fbe908fe">More...</a><br /></td></tr>
 <tr class="separator:ad7f209c78bb094c210499334fbe908fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2750507b3dd297219da4f1d7a67ee5f3"><td class="memItemLeft" align="right" valign="top"><a id="a2750507b3dd297219da4f1d7a67ee5f3" name="a2750507b3dd297219da4f1d7a67ee5f3"></a>
-fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bottom"><b>detachOnce</b> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memitem:a2750507b3dd297219da4f1d7a67ee5f3"><td class="memItemLeft" align="right" valign="top">fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a2750507b3dd297219da4f1d7a67ee5f3">detachOnce</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memdesc:a2750507b3dd297219da4f1d7a67ee5f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach only once a specific subscriber.  <a href="classfge_1_1Subscription.html#a2750507b3dd297219da4f1d7a67ee5f3">More...</a><br /></td></tr>
 <tr class="separator:a2750507b3dd297219da4f1d7a67ee5f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27d113732fa40742b245d81a3df92bce"><td class="memItemLeft" align="right" valign="top"><a id="a27d113732fa40742b245d81a3df92bce" name="a27d113732fa40742b245d81a3df92bce"></a>
-fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bottom"><b>attach</b> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memitem:a27d113732fa40742b245d81a3df92bce"><td class="memItemLeft" align="right" valign="top">fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a27d113732fa40742b245d81a3df92bce">attach</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memdesc:a27d113732fa40742b245d81a3df92bce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attach a specific subscriber.  <a href="classfge_1_1Subscription.html#a27d113732fa40742b245d81a3df92bce">More...</a><br /></td></tr>
 <tr class="separator:a27d113732fa40742b245d81a3df92bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a807d81379af800d337c1ecf57fd563f3"><td class="memItemLeft" align="right" valign="top"><a id="a807d81379af800d337c1ecf57fd563f3" name="a807d81379af800d337c1ecf57fd563f3"></a>
-fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bottom"><b>getCount</b> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber) const</td></tr>
+<tr class="memitem:a807d81379af800d337c1ecf57fd563f3"><td class="memItemLeft" align="right" valign="top">fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscription.html#a807d81379af800d337c1ecf57fd563f3">getCount</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber) const</td></tr>
+<tr class="memdesc:a807d81379af800d337c1ecf57fd563f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the SubscriberCount of a specific subscriber.  <a href="classfge_1_1Subscription.html#a807d81379af800d337c1ecf57fd563f3">More...</a><br /></td></tr>
 <tr class="separator:a807d81379af800d337c1ecf57fd563f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a1685ef7d1d8bf7563038a34aa094f84b"><td class="memItemLeft" align="right" valign="top"><a id="a1685ef7d1d8bf7563038a34aa094f84b" name="a1685ef7d1d8bf7563038a34aa094f84b"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>fge::Subscriber</b></td></tr>
+<tr class="separator:a1685ef7d1d8bf7563038a34aa094f84b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p ><a class="el" href="classfge_1_1Subscription.html" title="Subscription.">Subscription</a>. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<div class="textblock"><p >This class is a useful utility to "link" multiple objects around a specific use with automatic lifetime management. </p>
+<p >A good example is the callback system. When inheriting from <a class="el" href="classfge_1_1Subscriber.html" title="This class is a useful utility to &quot;link&quot; multiple objects around.">Subscriber</a>, you will be able to subscribe a function to a <a class="el" href="classfge_1_1CallbackHandler.html" title="This class is used to handle callbacks in a safe way.">CallbackHandler</a> (inheriting from <a class="el" href="classfge_1_1Subscription.html" title="This class is a useful utility to &quot;link&quot; multiple objects around a specific use with automatic lifeti...">Subscription</a>) and you don't have to worry about unsubscribing it when the object is destroyed.</p>
+<p >A <b>nullptr</b> subscriber mean that you are subscribing something that is not class related. (sort of a global scope).</p>
+<p >Alone this class will not do much as you have to implement the required functionality around it.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classfge_1_1CallbackHandler.html" title="This class is used to handle callbacks in a safe way.">CallbackHandler</a> </dd></dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a883db20d47313ccce2ae285f945740e6" name="a883db20d47313ccce2ae285f945740e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a883db20d47313ccce2ae285f945740e6">&#9670;&#160;</a></span>Subscription()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::Subscription::Subscription </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td>
+          <td class="paramname"><em>r</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section warning"><dt>Warning</dt><dd>Empty copy constructor as it's not permitted (does nothing) </dd></dl>
+
+</div>
+</div>
+<a id="a179ffb6f920e059252e0b1bff4aa582b" name="a179ffb6f920e059252e0b1bff4aa582b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a179ffb6f920e059252e0b1bff4aa582b">&#9670;&#160;</a></span>~Subscription()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual fge::Subscription::~Subscription </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>When the object is destroyed, it will detach all subscribers. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a27d113732fa40742b245d81a3df92bce" name="a27d113732fa40742b245d81a3df92bce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27d113732fa40742b245d81a3df92bce">&#9670;&#160;</a></span>attach()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::Subscription::SubscriberCount fge::Subscription::attach </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *&#160;</td>
+          <td class="paramname"><em>subscriber</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Attach a specific subscriber. </p>
+<p >You can't directly attach a <b>nullptr</b> global scope subscriber. But if you do, this function will do nothing and return 1 as the SubscriberCount.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscriber</td><td>The subscriber to attach </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The SubscriberCount </dd></dl>
+
+</div>
+</div>
+<a id="ad7f209c78bb094c210499334fbe908fe" name="ad7f209c78bb094c210499334fbe908fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7f209c78bb094c210499334fbe908fe">&#9670;&#160;</a></span>detach()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::Subscription::detach </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *&#160;</td>
+          <td class="paramname"><em>subscriber</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detach a specific subscriber. </p>
+<p >Detaching a <b>nullptr</b> global scope subscriber will do nothing.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscriber</td><td>The subscriber to detach </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the subscriber was detached, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a6c6f9739e6a05e23ec6e1c226fa2014f" name="a6c6f9739e6a05e23ec6e1c226fa2014f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c6f9739e6a05e23ec6e1c226fa2014f">&#9670;&#160;</a></span>detachAll()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::Subscription::detachAll </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detach all subscribers. </p>
+
+</div>
+</div>
+<a id="a2750507b3dd297219da4f1d7a67ee5f3" name="a2750507b3dd297219da4f1d7a67ee5f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2750507b3dd297219da4f1d7a67ee5f3">&#9670;&#160;</a></span>detachOnce()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::Subscription::SubscriberCount fge::Subscription::detachOnce </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *&#160;</td>
+          <td class="paramname"><em>subscriber</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detach only once a specific subscriber. </p>
+<p >You can attach a subscriber multiple times and it will augment the SubscriberCount. This function will only detach one time the subscriber and decrement the SubscriberCount. If the SubscriberCount is 0, the subscriber will be detached.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscriber</td><td>The subscriber to detach </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The remaining SubscriberCount </dd></dl>
+
+</div>
+</div>
+<a id="a807d81379af800d337c1ecf57fd563f3" name="a807d81379af800d337c1ecf57fd563f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a807d81379af800d337c1ecf57fd563f3">&#9670;&#160;</a></span>getCount()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::Subscription::SubscriberCount fge::Subscription::getCount </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *&#160;</td>
+          <td class="paramname"><em>subscriber</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the SubscriberCount of a specific subscriber. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscriber</td><td>The subscriber to get the SubscriberCount </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The SubscriberCount </dd></dl>
+
+</div>
+</div>
 <a id="a38f99c57eb69088cc34d9acb180f8a81" name="a38f99c57eb69088cc34d9acb180f8a81"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a38f99c57eb69088cc34d9acb180f8a81">&#9670;&#160;</a></span>onDetach()</h2>
 
@@ -200,7 +429,43 @@ fge::Subscription::SubscriberCount&#160;</td><td class="memItemRight" valign="bo
 </table>
 </div><div class="memdoc">
 
-<p>Implemented in <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; Types &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; Types... &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::SizeEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::TextEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::KeyEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseWheelScrollEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseButtonEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseMoveEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::JoystickButtonEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::JoystickMoveEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::JoystickConnectEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::TouchEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::SensorEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseWheelScrollEvent &amp;, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseButtonEvent &amp;, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseMoveEvent &amp;, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const sf::Vector2f &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, sf::Event::EventType, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Scene *, sf::RenderTarget &amp;, const sf::Color &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::Scene *, fge::ObjectDataShared &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::Scene *, fge::ObjectPlan &gt;</a>, and <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::Timer &amp; &gt;</a>.</p>
+<p>Callback called when a subscriber is detached. </p>
+<p >The subscriber, at this point, can't be <b>nullptr</b>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscriber</td><td>The subscriber that was detached </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implemented in <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; Types &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; Types... &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::SizeEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::TextEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::KeyEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseWheelScrollEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseButtonEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseMoveEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::JoystickButtonEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::JoystickMoveEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::JoystickConnectEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::TouchEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::SensorEvent &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseWheelScrollEvent &amp;, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseButtonEvent &amp;, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, const sf::Event::MouseMoveEvent &amp;, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const sf::Vector2f &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Event &amp;, sf::Event::EventType, fge::GuiElementContext &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::GuiElementHandler &amp;, const sf::Vector2f &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::ObjButton * &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; float &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; const fge::Scene *, sf::RenderTarget &amp;, const sf::Color &amp; &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::Scene *, fge::ObjectDataShared &gt;</a>, <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::Scene *, fge::ObjectPlan &gt;</a>, and <a class="el" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">fge::CallbackHandler&lt; fge::Timer &amp; &gt;</a>.</p>
+
+</div>
+</div>
+<a id="aec082fdabab8fc5024e430ad47e89de5" name="aec082fdabab8fc5024e430ad47e89de5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec082fdabab8fc5024e430ad47e89de5">&#9670;&#160;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp; fge::Subscription::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> &amp;&#160;</td>
+          <td class="paramname"><em>r</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section warning"><dt>Warning</dt><dd>Empty copy operator as it's not permitted (does nothing) </dd></dl>
 
 </div>
 </div>

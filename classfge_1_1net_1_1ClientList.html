@@ -105,9 +105,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a69117490e2401ce6efb00851d686754e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a69117490e2401ce6efb00851d686754e">sendToAll</a> (<a class="el" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a> &amp;socket, <a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)</td></tr>
 <tr class="memdesc:a69117490e2401ce6efb00851d686754e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Directly send a packet to every clients in the list.  <a href="classfge_1_1net_1_1ClientList.html#a69117490e2401ce6efb00851d686754e">More...</a><br /></td></tr>
 <tr class="separator:a69117490e2401ce6efb00851d686754e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b234718ccf779d5461595ccedfa0f9f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a4b234718ccf779d5461595ccedfa0f9f">sendToAll</a> (const <a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a> &amp;pck)</td></tr>
-<tr class="memdesc:a4b234718ccf779d5461595ccedfa0f9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a packet to every clients in the list.  <a href="classfge_1_1net_1_1ClientList.html#a4b234718ccf779d5461595ccedfa0f9f">More...</a><br /></td></tr>
-<tr class="separator:a4b234718ccf779d5461595ccedfa0f9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a008808df0675ff0a2100664e17e5c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a4a008808df0675ff0a2100664e17e5c9">sendToAll</a> (const <a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;pck)</td></tr>
+<tr class="memdesc:a4a008808df0675ff0a2100664e17e5c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a packet to every clients in the list.  <a href="classfge_1_1net_1_1ClientList.html#a4a008808df0675ff0a2100664e17e5c9">More...</a><br /></td></tr>
+<tr class="separator:a4a008808df0675ff0a2100664e17e5c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a01bdf49a3aaba56d1e4e4e3e609dd9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a4a01bdf49a3aaba56d1e4e4e3e609dd9">add</a> (const <a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> &amp;id, const fge::net::ClientSharedPtr &amp;newClient)</td></tr>
 <tr class="memdesc:a4a01bdf49a3aaba56d1e4e4e3e609dd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a client to the list.  <a href="classfge_1_1net_1_1ClientList.html#a4a01bdf49a3aaba56d1e4e4e3e609dd9">More...</a><br /></td></tr>
 <tr class="separator:a4a01bdf49a3aaba56d1e4e4e3e609dd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -487,8 +487,8 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 
 </div>
 </div>
-<a id="a4b234718ccf779d5461595ccedfa0f9f" name="a4b234718ccf779d5461595ccedfa0f9f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4b234718ccf779d5461595ccedfa0f9f">&#9670;&#160;</a></span>sendToAll() <span class="overload">[1/2]</span></h2>
+<a id="a4a008808df0675ff0a2100664e17e5c9" name="a4a008808df0675ff0a2100664e17e5c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a008808df0675ff0a2100664e17e5c9">&#9670;&#160;</a></span>sendToAll() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -496,7 +496,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
         <tr>
           <td class="memname">void fge::net::ClientList::sendToAll </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;&#160;</td>
           <td class="paramname"><em>pck</em></td><td>)</td>
           <td></td>
         </tr>

@@ -74,7 +74,6 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">Network</div></div>
 </div><!--header-->
@@ -85,8 +84,11 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfge_1_1net_1_1ClientSendQueuePacket.html">fge::net::ClientSendQueuePacket</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A packet to send to the network thread.  <a href="structfge_1_1net_1_1ClientSendQueuePacket.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A packet to send to the network thread.  <a href="structfge_1_1net_1_1SendQueuePacket.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html">fge::net::OneWayLatencyPlanner</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper class that measure latency between client/server.  <a href="classfge_1_1net_1_1OneWayLatencyPlanner.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html">fge::net::Client</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class that represent the identity of a client.  <a href="classfge_1_1net_1_1Client.html#details">More...</a><br /></td></tr>
@@ -118,20 +120,11 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeTag.html">fge::net::NetworkTypeTag</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a tag.  <a href="classfge_1_1net_1_1NetworkTypeTag.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeSetter.html">fge::net::NetworkTypeSetter&lt; T &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a source T that can only be set with a setter method.  <a href="classfge_1_1net_1_1NetworkTypeSetter.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeSmoothVec2FloatSetter.html">fge::net::NetworkTypeSmoothVec2FloatSetter</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a source Vector2f that can only be set with a setter method.  <a href="classfge_1_1net_1_1NetworkTypeSmoothVec2FloatSetter.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeSmoothFloatGetterSetter.html">fge::net::NetworkTypeSmoothFloatGetterSetter</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a float that can only be get/set by a getter/setter method.  <a href="classfge_1_1net_1_1NetworkTypeSmoothFloatGetterSetter.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html">fge::net::NetworkTypeSmoothVec2Float</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a smooth vector2 float.  <a href="classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a vector2 float that wait for the error threshold in order to set the value (useful for smooth position sync)  <a href="classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeSmoothFloat.html">fge::net::NetworkTypeSmoothFloat</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a smooth float.  <a href="classfge_1_1net_1_1NetworkTypeSmoothFloat.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a float that wait for the error threshold in order to set the value.  <a href="classfge_1_1net_1_1NetworkTypeSmoothFloat.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html">fge::net::NetworkTypeProperty&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a property.  <a href="classfge_1_1net_1_1NetworkTypeProperty.html#details">More...</a><br /></td></tr>
@@ -163,17 +156,21 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:gaa693fd244e255acb9409e8aedd359044"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a> = uint32_t</td></tr>
-<tr class="memdesc:gaa693fd244e255acb9409e8aedd359044"><td class="mdescLeft">&#160;</td><td class="mdescRight">The session key type.  <a href="group__network.html#gaa693fd244e255acb9409e8aedd359044">More...</a><br /></td></tr>
-<tr class="separator:gaa693fd244e255acb9409e8aedd359044"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:gad4fcb532a35b45de26e3259b81a37aad"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#gad4fcb532a35b45de26e3259b81a37aad">fge::net::ClientSendQueuePacketOptions</a> : uint8_t { <a class="el" href="group__network.html#ggad4fcb532a35b45de26e3259b81a37aada24b76fea8cfe78958c109861a434da5b">fge::net::QUEUE_PACKET_OPTION_NONE</a> = 0
-, <a class="el" href="group__network.html#ggad4fcb532a35b45de26e3259b81a37aadab3bdaf04a8f09b5e413f752256d1a0ef">fge::net::QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP</a>
- }</td></tr>
-<tr class="memdesc:gad4fcb532a35b45de26e3259b81a37aad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Options to pass to the network thread when sending a packet.  <a href="group__network.html#gad4fcb532a35b45de26e3259b81a37aad">More...</a><br /></td></tr>
-<tr class="separator:gad4fcb532a35b45de26e3259b81a37aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga834e56033e1193820be2727381eae8a4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> = uint32_t</td></tr>
+<tr class="memdesc:ga834e56033e1193820be2727381eae8a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">The session key can be used to identify a client when connecting to a server.  <a href="group__network.html#ga834e56033e1193820be2727381eae8a4">More...</a><br /></td></tr>
+<tr class="separator:ga834e56033e1193820be2727381eae8a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab483810d8b3272229999029b2cbb7994"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> = uint16_t</td></tr>
+<tr class="memdesc:gab483810d8b3272229999029b2cbb7994"><td class="mdescLeft">&#160;</td><td class="mdescRight">An timestamp represent modulated current time in milliseconds.  <a href="group__network.html#gab483810d8b3272229999029b2cbb7994">More...</a><br /></td></tr>
+<tr class="separator:gab483810d8b3272229999029b2cbb7994"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga77bb6b0432123bbcaa2844695164f4f2"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga77bb6b0432123bbcaa2844695164f4f2">fge::net::FullTimestamp</a> = uint64_t</td></tr>
+<tr class="memdesc:ga77bb6b0432123bbcaa2844695164f4f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">An timestamp represent current time in milliseconds.  <a href="group__network.html#ga77bb6b0432123bbcaa2844695164f4f2">More...</a><br /></td></tr>
+<tr class="separator:ga77bb6b0432123bbcaa2844695164f4f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8e0aa7766b712742f5e50079b6d64467"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga8e0aa7766b712742f5e50079b6d64467">fge::net::FullTimestampOffset</a> = int64_t</td></tr>
+<tr class="memdesc:ga8e0aa7766b712742f5e50079b6d64467"><td class="mdescLeft">&#160;</td><td class="mdescRight">An timestamp offset.  <a href="group__network.html#ga8e0aa7766b712742f5e50079b6d64467">More...</a><br /></td></tr>
+<tr class="separator:ga8e0aa7766b712742f5e50079b6d64467"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga67e842bbf62052bdb51991c219cf29dc"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> = uint16_t</td></tr>
+<tr class="memdesc:ga67e842bbf62052bdb51991c219cf29dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">An latency represent the latency of the client-&gt;server / server-&gt;client connection.  <a href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">More...</a><br /></td></tr>
+<tr class="separator:ga67e842bbf62052bdb51991c219cf29dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -225,16 +222,64 @@ Functions</h2></td></tr>
 <tr class="memitem:ga67ef98252dfb96d0495f065ef43986e0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#gabdc1ea82e9f9daf4a0295e5ee083954a">fge::net::PacketHeader</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga67ef98252dfb96d0495f065ef43986e0">fge::net::GetHeader</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)</td></tr>
 <tr class="memdesc:ga67ef98252dfb96d0495f065ef43986e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shortcut function that will retrieve the received <a class="el" href="classfge_1_1net_1_1Packet.html">Packet</a> header.  <a href="group__network.html#ga67ef98252dfb96d0495f065ef43986e0">More...</a><br /></td></tr>
 <tr class="separator:ga67ef98252dfb96d0495f065ef43986e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga318a8e3cf60b1fcdb6319509c3e99c5c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga318a8e3cf60b1fcdb6319509c3e99c5c">fge::net::CheckSkey</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck, <a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a> skey)</td></tr>
+<tr class="memitem:ga318a8e3cf60b1fcdb6319509c3e99c5c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga318a8e3cf60b1fcdb6319509c3e99c5c">fge::net::CheckSkey</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck, <a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> skey)</td></tr>
 <tr class="memdesc:ga318a8e3cf60b1fcdb6319509c3e99c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shortcut function that will extract and compare the provided skey.  <a href="group__network.html#ga318a8e3cf60b1fcdb6319509c3e99c5c">More...</a><br /></td></tr>
 <tr class="separator:ga318a8e3cf60b1fcdb6319509c3e99c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1b5fd6d3dff3635de5ec744765ef2091"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga1b5fd6d3dff3635de5ec744765ef2091">fge::net::GetSkey</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)</td></tr>
+<tr class="memitem:ga1b5fd6d3dff3635de5ec744765ef2091"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga1b5fd6d3dff3635de5ec744765ef2091">fge::net::GetSkey</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)</td></tr>
 <tr class="memdesc:ga1b5fd6d3dff3635de5ec744765ef2091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shortcut function that will extract the skey.  <a href="group__network.html#ga1b5fd6d3dff3635de5ec744765ef2091">More...</a><br /></td></tr>
 <tr class="separator:ga1b5fd6d3dff3635de5ec744765ef2091"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >Everything related to network. </p>
 <h2 class="groupheader">Typedef Documentation</h2>
+<a id="ga77bb6b0432123bbcaa2844695164f4f2" name="ga77bb6b0432123bbcaa2844695164f4f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga77bb6b0432123bbcaa2844695164f4f2">&#9670;&#160;</a></span>FullTimestamp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="group__network.html#ga77bb6b0432123bbcaa2844695164f4f2">fge::net::FullTimestamp</a> = typedef uint64_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>An timestamp represent current time in milliseconds. </p>
+
+</div>
+</div>
+<a id="ga8e0aa7766b712742f5e50079b6d64467" name="ga8e0aa7766b712742f5e50079b6d64467"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8e0aa7766b712742f5e50079b6d64467">&#9670;&#160;</a></span>FullTimestampOffset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="group__network.html#ga8e0aa7766b712742f5e50079b6d64467">fge::net::FullTimestampOffset</a> = typedef int64_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>An timestamp offset. </p>
+
+</div>
+</div>
+<a id="ga67e842bbf62052bdb51991c219cf29dc" name="ga67e842bbf62052bdb51991c219cf29dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga67e842bbf62052bdb51991c219cf29dc">&#9670;&#160;</a></span>Latency_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> = typedef uint16_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>An latency represent the latency of the client-&gt;server / server-&gt;client connection. </p>
+
+</div>
+</div>
 <a id="gabdc1ea82e9f9daf4a0295e5ee083954a" name="gabdc1ea82e9f9daf4a0295e5ee083954a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gabdc1ea82e9f9daf4a0295e5ee083954a">&#9670;&#160;</a></span>PacketHeader</h2>
 
@@ -251,43 +296,35 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gaa693fd244e255acb9409e8aedd359044" name="gaa693fd244e255acb9409e8aedd359044"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa693fd244e255acb9409e8aedd359044">&#9670;&#160;</a></span>Skey</h2>
+<a id="ga834e56033e1193820be2727381eae8a4" name="ga834e56033e1193820be2727381eae8a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga834e56033e1193820be2727381eae8a4">&#9670;&#160;</a></span>Skey</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a></td>
+          <td class="memname">using <a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> = typedef uint32_t</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>The session key type. </p>
-<p >The session key can be used to identify a client when connecting to a server. </p>
+<p>The session key can be used to identify a client when connecting to a server. </p>
 
 </div>
 </div>
-<h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="gad4fcb532a35b45de26e3259b81a37aad" name="gad4fcb532a35b45de26e3259b81a37aad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad4fcb532a35b45de26e3259b81a37aad">&#9670;&#160;</a></span>ClientSendQueuePacketOptions</h2>
+<a id="gab483810d8b3272229999029b2cbb7994" name="gab483810d8b3272229999029b2cbb7994"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab483810d8b3272229999029b2cbb7994">&#9670;&#160;</a></span>Timestamp</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="group__network.html#gad4fcb532a35b45de26e3259b81a37aad">fge::net::ClientSendQueuePacketOptions</a> : uint8_t</td>
+          <td class="memname">using <a class="el" href="group__network.html#gab483810d8b3272229999029b2cbb7994">fge::net::Timestamp</a> = typedef uint16_t</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Options to pass to the network thread when sending a packet. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggad4fcb532a35b45de26e3259b81a37aada24b76fea8cfe78958c109861a434da5b" name="ggad4fcb532a35b45de26e3259b81a37aada24b76fea8cfe78958c109861a434da5b"></a>QUEUE_PACKET_OPTION_NONE&#160;</td><td class="fielddoc"><p >No option, the packet will be sent immediately. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ggad4fcb532a35b45de26e3259b81a37aadab3bdaf04a8f09b5e413f752256d1a0ef" name="ggad4fcb532a35b45de26e3259b81a37aadab3bdaf04a8f09b5e413f752256d1a0ef"></a>QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP&#160;</td><td class="fielddoc"><p >The timestamp of the packet will be updated when sending. </p>
-</td></tr>
-</table>
+<p>An timestamp represent modulated current time in milliseconds. </p>
 
 </div>
 </div>
@@ -310,7 +347,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a>&#160;</td>
           <td class="paramname"><em>skey</em>&#160;</td>
         </tr>
         <tr>
@@ -411,7 +448,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__network.html#gaa693fd244e255acb9409e8aedd359044">fge::net::Skey</a> fge::net::GetSkey </td>
+          <td class="memname"><a class="el" href="group__network.html#ga834e56033e1193820be2727381eae8a4">fge::net::Skey</a> fge::net::GetSkey </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;&#160;</td>
           <td class="paramname"><em>pck</em></td><td>)</td>

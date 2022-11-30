@@ -6,5 +6,6 @@ var searchData=
   ['guielementcontext_3',['GuiElementContext',['../structfge_1_1GuiElementContext.html',1,'fge']]],
   ['guielementdefault_4',['GuiElementDefault',['../classfge_1_1GuiElementDefault.html',1,'fge']]],
   ['guielementhandler_5',['GuiElementHandler',['../classfge_1_1GuiElementHandler.html',1,'fge']]],
-  ['guielementrectangle_6',['GuiElementRectangle',['../classfge_1_1GuiElementRectangle.html',1,'fge']]]
+  ['guielementrectangle_6',['GuiElementRectangle',['../classfge_1_1GuiElementRectangle.html',1,'fge']]],
+  ['guielementrecursive_7',['GuiElementRecursive',['../classfge_1_1GuiElementRecursive.html',1,'fge']]]
 ];

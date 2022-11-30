@@ -98,7 +98,8 @@ Inheritance diagram for fge::GuiElementArray:</div>
  <div class="center">
   <img src="classfge_1_1GuiElementArray.png" usemap="#fge::GuiElementArray_map" alt=""/>
   <map id="fge::GuiElementArray_map" name="fge::GuiElementArray_map">
-<area href="classfge_1_1GuiElement.html" title="A base class for all GUI elements." alt="fge::GuiElement" shape="rect" coords="0,0,132,24"/>
+<area href="classfge_1_1GuiElementRecursive.html" alt="fge::GuiElementRecursive" shape="rect" coords="0,56,156,80"/>
+<area href="classfge_1_1GuiElement.html" title="A base class for all GUI elements." alt="fge::GuiElement" shape="rect" coords="0,0,156,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -113,12 +114,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4ae9d03289003c8a5c44c70a98c05b6e"><td class="memItemLeft" align="right" valign="top"><a id="a4ae9d03289003c8a5c44c70a98c05b6e" name="a4ae9d03289003c8a5c44c70a98c05b6e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>GuiElementArray</b> (fge::GuiElement::Priority priority)</td></tr>
 <tr class="separator:a4ae9d03289003c8a5c44c70a98c05b6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12d6b5068615a28aae826ff8e0173f32"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElementArray.html#a12d6b5068615a28aae826ff8e0173f32">isRecursive</a> () const override</td></tr>
-<tr class="memdesc:a12d6b5068615a28aae826ff8e0173f32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if this <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> is recursive.  <a href="classfge_1_1GuiElementArray.html#a12d6b5068615a28aae826ff8e0173f32">More...</a><br /></td></tr>
-<tr class="separator:a12d6b5068615a28aae826ff8e0173f32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accccd956144bc16e559e33ca3e53c61c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElementArray.html#accccd956144bc16e559e33ca3e53c61c">onGuiVerify</a> (const <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;evt, sf::Event::EventType evtType, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a> &amp;context) override</td></tr>
 <tr class="memdesc:accccd956144bc16e559e33ca3e53c61c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function called to verify if the element is hovered by the mouse.  <a href="classfge_1_1GuiElementArray.html#accccd956144bc16e559e33ca3e53c61c">More...</a><br /></td></tr>
 <tr class="separator:accccd956144bc16e559e33ca3e53c61c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a388be26cac8ad10c874e5cea498df7a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElementRecursive.html#a388be26cac8ad10c874e5cea498df7a8">isRecursive</a> () const final</td></tr>
+<tr class="memdesc:a388be26cac8ad10c874e5cea498df7a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if this <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> is recursive.  <a href="classfge_1_1GuiElementRecursive.html#a388be26cac8ad10c874e5cea498df7a8">More...</a><br /></td></tr>
+<tr class="separator:a388be26cac8ad10c874e5cea498df7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a715d30dfe59c830b8918a9a14a9d79b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#a715d30dfe59c830b8918a9a14a9d79b6">setGuiScale</a> (const sf::Vector2f &amp;scale)</td></tr>
 <tr class="memdesc:a715d30dfe59c830b8918a9a14a9d79b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the scale of the element.  <a href="classfge_1_1GuiElement.html#a715d30dfe59c830b8918a9a14a9d79b6">More...</a><br /></td></tr>
 <tr class="separator:a715d30dfe59c830b8918a9a14a9d79b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,33 +135,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab9f41a5aec961e94dc3e00480877eb2a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#ab9f41a5aec961e94dc3e00480877eb2a">verifyPriority</a> (<a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> *element) const</td></tr>
 <tr class="memdesc:ab9f41a5aec961e94dc3e00480877eb2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify if the priority of the element is higher than the given element.  <a href="classfge_1_1GuiElement.html#ab9f41a5aec961e94dc3e00480877eb2a">More...</a><br /></td></tr>
 <tr class="separator:ab9f41a5aec961e94dc3e00480877eb2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0efa530e2d32ac0b69045bdbcda8cefe"><td class="memItemLeft" align="right" valign="top"><a id="a0efa530e2d32ac0b69045bdbcda8cefe" name="a0efa530e2d32ac0b69045bdbcda8cefe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateAnchor</b> ()</td></tr>
-<tr class="separator:a0efa530e2d32ac0b69045bdbcda8cefe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae63c03ebca532d7c3f9a129a76e71da5"><td class="memItemLeft" align="right" valign="top"><a id="ae63c03ebca532d7c3f9a129a76e71da5" name="ae63c03ebca532d7c3f9a129a76e71da5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setObjectGuiParent</b> (fge::ObjectDataWeak parent)</td></tr>
-<tr class="separator:ae63c03ebca532d7c3f9a129a76e71da5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae82ca0bf4c1def1fbe12f6da69e7c02a"><td class="memItemLeft" align="right" valign="top"><a id="ae82ca0bf4c1def1fbe12f6da69e7c02a" name="ae82ca0bf4c1def1fbe12f6da69e7c02a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchor</b> (fge::AnchorType type, sf::Vector2&lt; fge::AnchorShift &gt; shift, fge::ObjectSid target=std::numeric_limits&lt; fge::ObjectSid &gt;::max())</td></tr>
-<tr class="separator:ae82ca0bf4c1def1fbe12f6da69e7c02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a968e76102a27623e0cc379db1f222087"><td class="memItemLeft" align="right" valign="top"><a id="a968e76102a27623e0cc379db1f222087" name="a968e76102a27623e0cc379db1f222087"></a>
-fge::AnchorType&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorType</b> () const</td></tr>
-<tr class="separator:a968e76102a27623e0cc379db1f222087"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab561a90c09803f3ecb260a17d72477ce"><td class="memItemLeft" align="right" valign="top"><a id="ab561a90c09803f3ecb260a17d72477ce" name="ab561a90c09803f3ecb260a17d72477ce"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorTarget</b> () const</td></tr>
-<tr class="separator:ab561a90c09803f3ecb260a17d72477ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8465b7a1b33409e20f8e1b3826bce33"><td class="memItemLeft" align="right" valign="top"><a id="ae8465b7a1b33409e20f8e1b3826bce33" name="ae8465b7a1b33409e20f8e1b3826bce33"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorSuccessor</b> (fge::ObjectDataWeak successor)</td></tr>
-<tr class="separator:ae8465b7a1b33409e20f8e1b3826bce33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1cb23c43bd69a0f45274459ecf6b2516"><td class="memItemLeft" align="right" valign="top"><a id="a1cb23c43bd69a0f45274459ecf6b2516" name="a1cb23c43bd69a0f45274459ecf6b2516"></a>
-fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorSuccessor</b> () const</td></tr>
-<tr class="separator:a1cb23c43bd69a0f45274459ecf6b2516"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9318348dffc6bb7b62143ae39a2528b"><td class="memItemLeft" align="right" valign="top"><a id="ab9318348dffc6bb7b62143ae39a2528b" name="ab9318348dffc6bb7b62143ae39a2528b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>needAnchorUpdate</b> (bool flag)</td></tr>
-<tr class="separator:ab9318348dffc6bb7b62143ae39a2528b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1dee70a33e38cc4dada2c79f48a24e4a"><td class="memItemLeft" align="right" valign="top"><a id="a1dee70a33e38cc4dada2c79f48a24e4a" name="a1dee70a33e38cc4dada2c79f48a24e4a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isNeedingAnchorUpdate</b> () const</td></tr>
-<tr class="separator:a1dee70a33e38cc4dada2c79f48a24e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -209,24 +183,6 @@ fge::GuiElement::Priority&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="memitem:a1e4bbe072066137439be7ff211a08462"><td class="memItemLeft" align="right" valign="top"><a id="a1e4bbe072066137439be7ff211a08462" name="a1e4bbe072066137439be7ff211a08462"></a>
 sf::Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>_g_scale</b> {1.0f,1.0f}</td></tr>
 <tr class="separator:a1e4bbe072066137439be7ff211a08462"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad031d2c61edd8cb353a5a0d6e00f1ff9"><td class="memItemLeft" align="right" valign="top"><a id="ad031d2c61edd8cb353a5a0d6e00f1ff9" name="ad031d2c61edd8cb353a5a0d6e00f1ff9"></a>
-fge::AnchorType&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorType</b> {fge::AnchorType::ANCHOR_NONE}</td></tr>
-<tr class="separator:ad031d2c61edd8cb353a5a0d6e00f1ff9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a03fb1749288586ab61aea3d7d9090d7c"><td class="memItemLeft" align="right" valign="top"><a id="a03fb1749288586ab61aea3d7d9090d7c" name="a03fb1749288586ab61aea3d7d9090d7c"></a>
-sf::Vector2&lt; fge::AnchorShift &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorShift</b> {fge::AnchorShift::SHIFT_NONE,fge::AnchorShift::SHIFT_NONE}</td></tr>
-<tr class="separator:a03fb1749288586ab61aea3d7d9090d7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a611eb8f0dbce4cd32f5b4d363530df21"><td class="memItemLeft" align="right" valign="top"><a id="a611eb8f0dbce4cd32f5b4d363530df21" name="a611eb8f0dbce4cd32f5b4d363530df21"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorTarget</b> { std::numeric_limits&lt;fge::ObjectSid&gt;::max() }</td></tr>
-<tr class="separator:a611eb8f0dbce4cd32f5b4d363530df21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b5624160b78a469535903fde38f06d1"><td class="memItemLeft" align="right" valign="top"><a id="a5b5624160b78a469535903fde38f06d1" name="a5b5624160b78a469535903fde38f06d1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorNeedUpdate</b> {true}</td></tr>
-<tr class="separator:a5b5624160b78a469535903fde38f06d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd917cbf2a4f62b55f7bf30138b39a76"><td class="memItemLeft" align="right" valign="top"><a id="acd917cbf2a4f62b55f7bf30138b39a76" name="acd917cbf2a4f62b55f7bf30138b39a76"></a>
-fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorSuccessor</b> {}</td></tr>
-<tr class="separator:acd917cbf2a4f62b55f7bf30138b39a76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f8bdb6509385bdad95bfefdd0b0271e"><td class="memItemLeft" align="right" valign="top"><a id="a0f8bdb6509385bdad95bfefdd0b0271e" name="a0f8bdb6509385bdad95bfefdd0b0271e"></a>
-fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_objectParent</b> {}</td></tr>
-<tr class="separator:a0f8bdb6509385bdad95bfefdd0b0271e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >A GUI element that verify a list of GUI elements. </p>
@@ -287,8 +243,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_obj
 
 </div>
 </div>
-<a id="a12d6b5068615a28aae826ff8e0173f32" name="a12d6b5068615a28aae826ff8e0173f32"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12d6b5068615a28aae826ff8e0173f32">&#9670;&#160;</a></span>isRecursive()</h2>
+<a id="a388be26cac8ad10c874e5cea498df7a8" name="a388be26cac8ad10c874e5cea498df7a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a388be26cac8ad10c874e5cea498df7a8">&#9670;&#160;</a></span>isRecursive()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -297,7 +253,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_obj
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool fge::GuiElementArray::isRecursive </td>
+          <td class="memname">bool fge::GuiElementRecursive::isRecursive </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -305,7 +261,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_obj
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">final</span><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

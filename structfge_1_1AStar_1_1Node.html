@@ -85,27 +85,24 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acb0459c145ae7a3d310d29db77545405"><td class="memItemLeft" align="right" valign="top"><a id="acb0459c145ae7a3d310d29db77545405" name="acb0459c145ae7a3d310d29db77545405"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b> (fge::AStar::Vector2i coord, <a class="el" href="structfge_1_1AStar_1_1Node.html">Node</a> *parent=nullptr)</td></tr>
-<tr class="separator:acb0459c145ae7a3d310d29db77545405"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a220a444f41dbcd4a039fba71e5a8f12a"><td class="memItemLeft" align="right" valign="top"><a id="a220a444f41dbcd4a039fba71e5a8f12a" name="a220a444f41dbcd4a039fba71e5a8f12a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Node</b> (std::optional&lt; fge::AStar::Vector2i &gt; parent=std::nullopt)</td></tr>
+<tr class="separator:a220a444f41dbcd4a039fba71e5a8f12a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8741f2ac5d7a83c790824a427a2da594"><td class="memItemLeft" align="right" valign="top"><a id="a8741f2ac5d7a83c790824a427a2da594" name="a8741f2ac5d7a83c790824a427a2da594"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>getScore</b> () const</td></tr>
 <tr class="separator:a8741f2ac5d7a83c790824a427a2da594"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a2712c68a46b96cf7c37e87d8e2473465"><td class="memItemLeft" align="right" valign="top"><a id="a2712c68a46b96cf7c37e87d8e2473465" name="a2712c68a46b96cf7c37e87d8e2473465"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_g</b></td></tr>
-<tr class="separator:a2712c68a46b96cf7c37e87d8e2473465"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac18f30d9290ffaf3622f5e9d33cda84d"><td class="memItemLeft" align="right" valign="top"><a id="ac18f30d9290ffaf3622f5e9d33cda84d" name="ac18f30d9290ffaf3622f5e9d33cda84d"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_h</b></td></tr>
-<tr class="separator:ac18f30d9290ffaf3622f5e9d33cda84d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed81cd1314f648e35a32b02cc1a020cc"><td class="memItemLeft" align="right" valign="top"><a id="aed81cd1314f648e35a32b02cc1a020cc" name="aed81cd1314f648e35a32b02cc1a020cc"></a>
-fge::AStar::Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>_coord</b></td></tr>
-<tr class="separator:aed81cd1314f648e35a32b02cc1a020cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d3ba9c4e8fe62e076367d8a985e87c3"><td class="memItemLeft" align="right" valign="top"><a id="a0d3ba9c4e8fe62e076367d8a985e87c3" name="a0d3ba9c4e8fe62e076367d8a985e87c3"></a>
-<a class="el" href="structfge_1_1AStar_1_1Node.html">Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_parent</b></td></tr>
-<tr class="separator:a0d3ba9c4e8fe62e076367d8a985e87c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12a279e48976a1899cac2a60fc6ac5f2"><td class="memItemLeft" align="right" valign="top"><a id="a12a279e48976a1899cac2a60fc6ac5f2" name="a12a279e48976a1899cac2a60fc6ac5f2"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_costScore</b></td></tr>
+<tr class="separator:a12a279e48976a1899cac2a60fc6ac5f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95ecea6f5dd3af9a1941f83341309f35"><td class="memItemLeft" align="right" valign="top"><a id="a95ecea6f5dd3af9a1941f83341309f35" name="a95ecea6f5dd3af9a1941f83341309f35"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_heuristicScore</b></td></tr>
+<tr class="separator:a95ecea6f5dd3af9a1941f83341309f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1996393b54489ca61048a23a22b670f"><td class="memItemLeft" align="right" valign="top"><a id="ad1996393b54489ca61048a23a22b670f" name="ad1996393b54489ca61048a23a22b670f"></a>
+std::optional&lt; fge::AStar::Vector2i &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_parent</b></td></tr>
+<tr class="separator:ad1996393b54489ca61048a23a22b670f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="extra__pathFinding_8hpp_source.html">extra_pathFinding.hpp</a></li>
