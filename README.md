@@ -141,7 +141,7 @@ The **install** target is not supported for now. but you can use *fge_install* t
 
 Once built, you have to place the executable at the root and run it. You just have to follow prompts.
 
-The tool will check for every **build** folder and automatically detach the build type (debug/release) and the architecture (64/32).
+The tool will check for every **build** folder and automatically get the build type (debug/release) and the architecture (64/32).
 Here is some possible build folder name :
 - cmake-build-debug32
 - cmake-build-debug64
