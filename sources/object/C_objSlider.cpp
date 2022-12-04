@@ -90,7 +90,8 @@ void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
 
 void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context)
 {
-    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y});
+    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y},
+                                                                              *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
     this->g_scrollPressed = true;
     this->g_scrollLastPositionY = this->g_scrollPositionY;
@@ -111,7 +112,7 @@ void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::E
     {
         const sf::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        sf::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y});
+        sf::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
         auto scale = this->getParentsScale().y * this->getScale().y;
         this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y-this->g_lastMousePositionY)/scale;
