@@ -1159,7 +1159,36 @@ public:
      */
     sf::RenderTarget* getLinkedRenderTarget();
 
+    /**
+     * \brief Get the related view of the scene.
+     *
+     * If the scene have a custom view set, the custom view is returned.
+     * Else if the scene have a linked render target, the view of this
+     * render target is returned.
+     *
+     * Else return \b nullptr.
+     *
+     * \return The related view pointer or \b nullptr if there is none
+     */
+    [[nodiscard]] const sf::View* getRelatedView() const;
+
+    /**
+     * \brief Set the callback context of this Scene.
+     *
+     * By setting a callback context, the scene will be able to
+     * automatically call Object::callbackRegister during object
+     * creation.
+     *
+     * \param context The callback context
+     */
     void setCallbackContext(fge::CallbackContext context);
+    /**
+     * \brief Get the callback context of this Scene.
+     *
+     * \see setCallbackContext
+     *
+     * \return The callback context
+     */
     fge::CallbackContext getCallbackContext() const;
 
     // Save/Load in file

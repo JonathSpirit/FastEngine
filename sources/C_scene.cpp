@@ -1386,6 +1386,19 @@ sf::RenderTarget* Scene::getLinkedRenderTarget()
     return this->g_linkedRenderTarget;
 }
 
+const sf::View* Scene::getRelatedView() const
+{
+    if (this->g_customView != nullptr)
+    {
+        return this->g_customView.get();
+    }
+    if (this->g_linkedRenderTarget != nullptr)
+    {
+        return &this->g_linkedRenderTarget->getView();
+    }
+    return nullptr;
+}
+
 void Scene::setCallbackContext(fge::CallbackContext context)
 {
     this->g_callbackContext = context;
