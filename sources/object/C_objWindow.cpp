@@ -49,7 +49,7 @@ void ObjWindow::first(fge::Scene* scene)
     this->refreshRectBounds();
 
     this->setPriority(FGE_WINDOW_DEFAULT_PRIORITY);
-    this->setScale( fge::GuiElement::getGlobalGuiScale()/*fge::ObjWindow::g_globalScale*/ );
+    this->setScale(fge::GuiElement::getGlobalGuiScale());
 
     this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
     this->_windowScene.setLinkedRenderTarget( scene->getLinkedRenderTarget() );
@@ -102,6 +102,7 @@ FGE_OBJ_UPDATE_BODY(ObjWindow)
 FGE_OBJ_DRAW_BODY(ObjWindow)
 {
     *this->_windowView = target.getDefaultView();
+    auto backupView = target.getView();
     target.setView(*this->_windowView);
 
     states.transform *= this->getTransform();
@@ -194,6 +195,8 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     this->_windowView->setCenter(this->_windowView->getCenter() - (worldCoord.getPosition()-states.transform.transformPoint({})) );
 
     this->_windowScene.draw(target, false, sf::Color::White, states);
+
+    target.setView(backupView);
 }
 #endif
 
