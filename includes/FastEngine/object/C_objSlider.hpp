@@ -35,6 +35,10 @@ public:
     bool isScrollPressed() const;
 
     void refreshSize();
+    
+    void setScrollRectFillColor(sf::Color color);
+    void setScrollRectOutlineColor(sf::Color color);
+    void setScrollBaseRectFillColor(sf::Color color);
 
     const char* getClassName() const override;
     const char* getReadableClassName() const override;

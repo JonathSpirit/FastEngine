@@ -71,6 +71,19 @@ void ObjSlider::refreshSize()
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 
+void ObjSlider::setScrollRectFillColor(sf::Color color)
+{
+    this->g_scrollRect.setFillColor(color);
+}
+void ObjSlider::setScrollRectOutlineColor(sf::Color color)
+{
+    this->g_scrollRect.setOutlineColor(color);
+}
+void ObjSlider::setScrollBaseRectFillColor(sf::Color color)
+{
+    this->g_scrollBaseRect.setFillColor(color);
+}
+
 void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
 {
     this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, 0.0f, this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
