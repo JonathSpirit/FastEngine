@@ -47,6 +47,7 @@ struct GuiElementContext
     sf::Vector2f _mouseGuiPosition;
     sf::Vector2i _mousePosition;
     fge::GuiElementHandler* _handler{nullptr};
+    std::vector<fge::ObjectDataShared>* _keepAliveObject{nullptr};
 };
 
 struct DynamicSize
@@ -291,6 +292,9 @@ public:
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
         context._handler = this;
 
+        std::vector<fge::ObjectDataShared> keepAliveObject;
+        context._keepAliveObject = &keepAliveObject;
+
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseWheelScrolled, context);
 
         if (context._prioritizedElement != nullptr)
@@ -316,6 +320,9 @@ public:
         context._mousePosition = {arg.x, arg.y};
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
         context._handler = this;
+
+        std::vector<fge::ObjectDataShared> keepAliveObject;
+        context._keepAliveObject = &keepAliveObject;
 
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonPressed, context);
 
@@ -343,6 +350,9 @@ public:
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
         context._handler = this;
 
+        std::vector<fge::ObjectDataShared> keepAliveObject;
+        context._keepAliveObject = &keepAliveObject;
+
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonReleased, context);
 
         if (context._prioritizedElement != nullptr)
@@ -369,6 +379,9 @@ public:
         context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
         context._handler = this;
 
+        std::vector<fge::ObjectDataShared> keepAliveObject;
+        context._keepAliveObject = &keepAliveObject;
+
         this->_onGuiVerify.call(evt, sf::Event::EventType::MouseMoved, context);
 
         if (context._prioritizedElement != nullptr)
@@ -391,7 +404,7 @@ public:
 
     void onResized([[maybe_unused]] const fge::Event& evt, const sf::Event::SizeEvent& arg)
     {
-        sf::Vector2f size{static_cast<float>(arg.width), static_cast<float>(arg.height)};
+        const sf::Vector2f size{static_cast<float>(arg.width), static_cast<float>(arg.height)};
         this->_onGuiResized.call(*this, size);
         this->_lastSize = size;
     }
@@ -509,6 +522,7 @@ protected:
         context2._mouseGuiPosition = context._mouseGuiPosition;
         context2._mousePosition = context._mousePosition;
         context2._handler = context._handler;
+        context2._keepAliveObject = context._keepAliveObject;
 
         for (std::size_t i=0; i<this->_elements.getGatesSize(); ++i)
         {

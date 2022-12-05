@@ -287,6 +287,9 @@ void ObjWindow::onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType,
         context2._mouseGuiPosition = context._mouseGuiPosition;
         context2._mousePosition = context._mousePosition;
         context2._handler = &this->_windowHandler;
+        context2._keepAliveObject = context._keepAliveObject;
+
+        context._keepAliveObject->push_back(this->_myObjectData.lock());
 
         this->_windowHandler._onGuiVerify.call(evt, evtType, context2);
 
