@@ -31,7 +31,8 @@ class FGE_API ObjButton : public fge::Object, public fge::Subscriber, public fge
 {
 public:
     ObjButton();
-    ObjButton(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos=sf::Vector2f());
+    ObjButton(fge::Texture textureOn, fge::Texture textureOff, const sf::Vector2f& pos=sf::Vector2f());
+    explicit ObjButton(const fge::Texture& texture, const sf::Vector2f& pos=sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjButton)
 
@@ -42,8 +43,8 @@ public:
 
     const fge::Texture& getTextureOn() const;
     const fge::Texture& getTextureOff() const;
-    void setTextureOn(const fge::Texture& t_on);
-    void setTextureOff(const fge::Texture& t_off);
+    void setTextureOn(const fge::Texture& textureOn);
+    void setTextureOff(const fge::Texture& textureOff);
 
     void setColor(const sf::Color& color);
 

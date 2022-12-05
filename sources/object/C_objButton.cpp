@@ -25,13 +25,21 @@ ObjButton::ObjButton() :
     g_color(sf::Color::White)
 {
 }
-ObjButton::ObjButton(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos) :
-    g_textureOn(t_on),
-    g_textureOff(t_off),
+ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, const sf::Vector2f& pos) :
+    g_textureOn(std::move(textureOn)),
+    g_textureOff(std::move(textureOff)),
     g_color(sf::Color::White)
 {
     this->setPosition(pos);
-    this->g_sprite.setTexture(t_off);
+    this->g_sprite.setTexture(this->g_textureOff);
+}
+ObjButton::ObjButton(const fge::Texture& texture, const sf::Vector2f& pos) :
+        g_textureOn(texture),
+        g_textureOff(texture),
+        g_color(sf::Color::White)
+{
+    this->setPosition(pos);
+    this->g_sprite.setTexture(this->g_textureOff);
 }
 
 const fge::Texture& ObjButton::getTextureOn() const
@@ -42,13 +50,13 @@ const fge::Texture& ObjButton::getTextureOff() const
 {
     return this->g_textureOff;
 }
-void ObjButton::setTextureOn(const fge::Texture& t_on)
+void ObjButton::setTextureOn(const fge::Texture& textureOn)
 {
-    this->g_textureOn = t_on;
+    this->g_textureOn = textureOn;
 }
-void ObjButton::setTextureOff(const fge::Texture& t_off)
+void ObjButton::setTextureOff(const fge::Texture& textureOff)
 {
-    this->g_textureOff = t_off;
+    this->g_textureOff = textureOff;
 }
 
 void ObjButton::setColor(const sf::Color& color)
