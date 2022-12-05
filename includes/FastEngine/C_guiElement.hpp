@@ -243,7 +243,7 @@ public:
  * \ingroup objectControl
  * \brief A class to handle highest priority selection of GUI elements
  */
-class GuiElementHandler : public fge::Subscriber
+class FGE_API GuiElementHandler : public fge::Subscriber
 {
 public:
     GuiElementHandler() = default;
@@ -253,161 +253,35 @@ public:
     {}
     ~GuiElementHandler() override = default;
 
-    void setEvent(fge::Event& event)
+    inline void setEvent(fge::Event& event)
     {
         this->g_event = &event;
     }
-    fge::Event& getEvent()
+    [[nodiscard]] inline fge::Event& getEvent()
     {
         return *this->g_event;
     }
-    const fge::Event& getEvent() const
+    [[nodiscard]] inline const fge::Event& getEvent() const
     {
         return *this->g_event;
     }
-    void setRenderTarget(const sf::RenderTarget& target)
+    inline void setRenderTarget(const sf::RenderTarget& target)
     {
         this->g_target = &target;
     }
-    const sf::RenderTarget& getRenderTarget() const
+    [[nodiscard]] inline const sf::RenderTarget& getRenderTarget() const
     {
         return *this->g_target;
     }
 
-    void setEventCallback(fge::Event& event)
-    {
-        this->detachAll();
-        event._onMouseWheelScrolled.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this), this );
-        event._onMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this), this );
-        event._onMouseButtonReleased.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this );
-        event._onMouseMoved.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this );
-        event._onResized.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this );
-        this->onResized(event, {event.getWindowSize().x, event.getWindowSize().y});
-    }
+    void setEventCallback(fge::Event& event);
 
-    void onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg)
-    {
-        fge::GuiElementContext context{};
-        context._mousePosition = {arg.x, arg.y};
-        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
-        context._handler = this;
+    void onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg);
+    void onMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
+    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
+    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
 
-        std::vector<fge::ObjectDataShared> keepAliveObject;
-        context._keepAliveObject = &keepAliveObject;
-
-        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseWheelScrolled, context);
-
-        if (context._prioritizedElement != nullptr)
-        {
-            context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
-
-            if (context._prioritizedElement->isRecursive())
-            {
-                context._recursive = true;
-                auto* element = context._prioritizedElement;
-                context._prioritizedElement = nullptr;
-                element->onGuiVerify(evt, sf::Event::EventType::MouseWheelScrolled, context);
-                if (context._prioritizedElement != nullptr)
-                {
-                    context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
-                }
-            }
-        }
-    }
-    void onMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
-    {
-        fge::GuiElementContext context{};
-        context._mousePosition = {arg.x, arg.y};
-        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
-        context._handler = this;
-
-        std::vector<fge::ObjectDataShared> keepAliveObject;
-        context._keepAliveObject = &keepAliveObject;
-
-        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonPressed, context);
-
-        if (context._prioritizedElement != nullptr)
-        {
-            context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
-
-            if (context._prioritizedElement->isRecursive())
-            {
-                context._recursive = true;
-                auto* element = context._prioritizedElement;
-                context._prioritizedElement = nullptr;
-                element->onGuiVerify(evt, sf::Event::EventType::MouseButtonPressed, context);
-                if (context._prioritizedElement != nullptr)
-                {
-                    context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
-                }
-            }
-        }
-    }
-    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
-    {
-        fge::GuiElementContext context{};
-        context._mousePosition = {arg.x, arg.y};
-        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
-        context._handler = this;
-
-        std::vector<fge::ObjectDataShared> keepAliveObject;
-        context._keepAliveObject = &keepAliveObject;
-
-        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonReleased, context);
-
-        if (context._prioritizedElement != nullptr)
-        {
-            context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
-
-            if (context._prioritizedElement->isRecursive())
-            {
-                context._recursive = true;
-                auto* element = context._prioritizedElement;
-                context._prioritizedElement = nullptr;
-                element->onGuiVerify(evt, sf::Event::EventType::MouseButtonReleased, context);
-                if (context._prioritizedElement != nullptr)
-                {
-                    context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
-                }
-            }
-        }
-    }
-    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
-    {
-        fge::GuiElementContext context{};
-        context._mousePosition = {arg.x, arg.y};
-        context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
-        context._handler = this;
-
-        std::vector<fge::ObjectDataShared> keepAliveObject;
-        context._keepAliveObject = &keepAliveObject;
-
-        this->_onGuiVerify.call(evt, sf::Event::EventType::MouseMoved, context);
-
-        if (context._prioritizedElement != nullptr)
-        {
-            context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
-
-            if (context._prioritizedElement->isRecursive())
-            {
-                context._recursive = true;
-                auto* element = context._prioritizedElement;
-                context._prioritizedElement = nullptr;
-                element->onGuiVerify(evt, sf::Event::EventType::MouseMoved, context);
-                if (context._prioritizedElement != nullptr)
-                {
-                    context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
-                }
-            }
-        }
-    }
-
-    void onResized([[maybe_unused]] const fge::Event& evt, const sf::Event::SizeEvent& arg)
-    {
-        const sf::Vector2f size{static_cast<float>(arg.width), static_cast<float>(arg.height)};
-        this->_onGuiResized.call(*this, size);
-        this->_lastSize = size;
-    }
+    void onResized(const fge::Event& evt, const sf::Event::SizeEvent& arg);
 
     fge::CallbackHandler<const fge::Event&, sf::Event::EventType, fge::GuiElementContext&> _onGuiVerify;
     fge::CallbackHandler<const fge::GuiElementHandler&, const sf::Vector2f&> _onGuiResized;
