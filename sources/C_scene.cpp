@@ -29,7 +29,6 @@
 namespace fge
 {
 
-///Class Scene
 Scene::Scene() :
     g_name(),
 
@@ -43,7 +42,10 @@ Scene::Scene() :
     g_updatedObjectIterator(),
 
     g_data(),
-    g_dataMap()
+    g_dataMap(),
+    g_planDataMap(),
+
+    g_callbackContext({nullptr, nullptr})
 {
     this->g_updatedObjectIterator = this->g_data.end();
 }
@@ -60,9 +62,68 @@ Scene::Scene(std::string sceneName) :
     g_updatedObjectIterator(),
 
     g_data(),
-    g_dataMap()
+    g_dataMap(),
+    g_planDataMap(),
+
+    g_callbackContext({nullptr, nullptr})
 {
     this->g_updatedObjectIterator = this->g_data.end();
+}
+Scene::Scene(const Scene& r) :
+        _netList(),
+        _properties(r._properties),
+
+        g_name(r.g_name),
+
+        g_networkEvents(),
+        g_enableNetworkEventsFlag(r.g_enableNetworkEventsFlag),
+
+        g_customView(r.g_customView),
+        g_linkedRenderTarget(r.g_linkedRenderTarget),
+
+        g_deleteMe(false),
+        g_updatedObjectIterator(),
+
+        g_data(),
+        g_dataMap(),
+        g_planDataMap(),
+
+        g_callbackContext(r.g_callbackContext)
+{
+    this->g_updatedObjectIterator = this->g_data.end();
+
+    for (const auto& objectData : r.g_data)
+    {
+        this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan,
+                        objectData->g_sid, objectData->g_type);
+    }
+}
+
+Scene& Scene::operator=(const Scene& r)
+{
+    this->clear();
+
+    this->_properties = r._properties;
+
+    this->g_name = r.g_name;
+
+    this->g_networkEvents.clear();
+    this->g_enableNetworkEventsFlag = r.g_enableNetworkEventsFlag;
+
+    this->g_customView = r.g_customView;
+    this->g_linkedRenderTarget = r.g_linkedRenderTarget;
+
+    this->g_deleteMe = false;
+    this->g_updatedObjectIterator = this->g_data.end();
+
+    this->g_callbackContext = r.g_callbackContext;
+
+    for (const auto& objectData : r.g_data)
+    {
+        this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan,
+                        objectData->g_sid, objectData->g_type);
+    }
+    return *this;
 }
 
 /** Scene **/
@@ -97,7 +158,7 @@ void Scene::update(sf::RenderWindow& screen, fge::Event& event, const std::chron
             (*this->g_updatedObjectIterator)->g_linkedScene = nullptr;
             (*this->g_updatedObjectIterator)->g_object->_myObjectData.reset();
             auto objectPlan = (*this->g_updatedObjectIterator)->g_plan;
-            this->refreshPlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
+            this->hash_updatePlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
 
             this->_onPlanUpdate.call(this, objectPlan);
@@ -175,6 +236,7 @@ void Scene::clear()
 {
     this->delAllObject(false);
     this->_properties.delAllProperties();
+    this->_netList.clear();
 }
 
 /** Object **/
@@ -194,12 +256,12 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject, fge::ObjectPl
         this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, generatedSid});
     }
 
-    auto it = this->getInsertBeginPositionWithPlan(plan);
+    auto it = this->hash_getInsertionIteratorFromPlanDataMap(plan);
 
     it = this->g_data.insert( it, std::make_shared<fge::ObjectData>(this, std::move(newObject), generatedSid, plan, type) );
     this->g_dataMap[generatedSid] = it;
     (*it)->g_object->_myObjectData = *it;
-    this->refreshPlanDataMap(plan, it, false);
+    this->hash_updatePlanDataMap(plan, it, false);
     if ((this->g_updatedObjectIterator != this->g_data.end()) && (*it)->g_parent.expired())
     {//An object is created inside another object and orphan, make it parent
         (*it)->g_parent = *this->g_updatedObjectIterator;
@@ -231,13 +293,13 @@ fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
 
     objectData->g_sid = generatedSid;
 
-    auto it = this->getInsertBeginPositionWithPlan(objectData->g_plan);
+    auto it = this->hash_getInsertionIteratorFromPlanDataMap(objectData->g_plan);
 
     it = this->g_data.insert( it, objectData );
     this->g_dataMap[generatedSid] = it;
     objectData->g_linkedScene = this;
     objectData->g_object->_myObjectData = objectData;
-    this->refreshPlanDataMap(objectData->g_plan, it, false);
+    this->hash_updatePlanDataMap(objectData->g_plan, it, false);
     if ((this->g_updatedObjectIterator != this->g_data.end()) && objectData->g_parent.expired())
     {//An object is created inside another object and orphan, make it parent
         objectData->g_parent = *this->g_updatedObjectIterator;
@@ -286,7 +348,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
             fge::ObjectDataShared buff = std::move(*it->second);
             buff->g_object->removed(this);
             this->_onRemoveObject.call(this, buff);
-            this->refreshPlanDataMap(buff->g_plan, it->second, true);
+            this->hash_updatePlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
 
@@ -323,7 +385,7 @@ bool Scene::delObject(fge::ObjectSid sid)
         (*it->second)->g_linkedScene = nullptr;
         (*it->second)->g_object->_myObjectData.reset();
         auto objectPlan = (*it->second)->g_plan;
-        this->refreshPlanDataMap(objectPlan, it->second, true);
+        this->hash_updatePlanDataMap(objectPlan, it->second, true);
         this->g_data.erase(it->second);
         this->g_dataMap.erase(it);
 
@@ -357,7 +419,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         this->_onRemoveObject.call(this, *it);
         (*it)->g_linkedScene = nullptr;
         (*it)->g_object->_myObjectData.reset();
-        this->refreshPlanDataMap((*it)->g_plan, it, true);
+        this->hash_updatePlanDataMap((*it)->g_plan, it, true);
 
         this->g_dataMap.erase((*it)->g_sid);
         it = --this->g_data.erase(it);
@@ -439,15 +501,15 @@ bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
 
     if ( it != this->g_dataMap.end() )
     {
-        this->refreshPlanDataMap((*it->second)->g_plan, it->second, true);
+        this->hash_updatePlanDataMap((*it->second)->g_plan, it->second, true);
 
-        auto newPosIt = this->getInsertBeginPositionWithPlan(newPlan);
+        auto newPosIt = this->hash_getInsertionIteratorFromPlanDataMap(newPlan);
 
         auto oldPlan = (*it->second)->g_plan;
         (*it->second)->g_plan = newPlan;
 
         this->g_data.splice(newPosIt, this->g_data, it->second);
-        this->refreshPlanDataMap(newPlan, it->second, false);
+        this->hash_updatePlanDataMap(newPlan, it->second, false);
 
         if (oldPlan != newPlan)
         {
@@ -472,7 +534,7 @@ bool Scene::setObjectPlanTop(fge::ObjectSid sid)
         }
 
         this->g_data.splice(newPosIt->second, this->g_data, it->second);
-        this->refreshPlanDataMap((*it->second)->g_plan, it->second, false);
+        this->hash_updatePlanDataMap((*it->second)->g_plan, it->second, false);
 
         this->_onPlanUpdate.call(this, (*it->second)->g_plan);
         return true;
@@ -494,7 +556,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
         if (it->second == planIt->second)
         {//is on top
             wasOnTop = true;
-            this->refreshPlanDataMap(plan, it->second, true);
+            this->hash_updatePlanDataMap(plan, it->second, true);
         }
 
         if (planItAfter == this->g_planDataMap.end())
@@ -502,7 +564,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
             this->g_data.splice(this->g_data.end(), this->g_data, it->second);
             if (wasOnTop)
             {
-                this->refreshPlanDataMap(plan, it->second, false);
+                this->hash_updatePlanDataMap(plan, it->second, false);
             }
         }
         else
@@ -510,7 +572,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
             this->g_data.splice(planItAfter->second, this->g_data, it->second);
             if (wasOnTop)
             {
-                this->refreshPlanDataMap(plan, it->second, false);
+                this->hash_updatePlanDataMap(plan, it->second, false);
             }
         }
 
@@ -1507,18 +1569,18 @@ fge::ObjectContainer::const_iterator Scene::findPlan(fge::ObjectPlan plan) const
     return (it != this->g_planDataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second) : this->g_data.cend();
 }
 
-///Private
-void Scene::refreshPlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator hintIt, bool isLeaving)
+//Private
+void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator whoIterator, bool isLeaving)
 {
     /*
-     * This function is called when an iterator (hintIt) HAVE BEEN moved in this plan and must be checked
+     * This function is called when an iterator (whoIterator) HAVE BEEN moved in this plan and must be checked
      * or an object IS ABOUT to leave the plan.
      */
 
     if (isLeaving)
     {
         auto it = this->g_planDataMap.find(plan);
-        if (it->second == hintIt)
+        if (it->second == whoIterator)
         {
             ++it->second; //go to the next element and check is plan (or end)
             if (it->second != this->g_data.end())
@@ -1535,30 +1597,30 @@ void Scene::refreshPlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::itera
     }
     else
     {
-        auto pair = this->g_planDataMap.insert(std::make_pair(plan, hintIt));
+        auto pair = this->g_planDataMap.insert(std::make_pair(plan, whoIterator));
         //we try to insert it
         if (!pair.second)
         {//we have to check the object on the left.
             auto itLeft = pair.first->second;
             --itLeft;
-            if (itLeft == hintIt)
+            if (itLeft == whoIterator)
             {//the new object is on the left, so we update the stocked iterator
-                pair.first->second = hintIt;
+                pair.first->second = whoIterator;
             }
         }
     }
 }
-fge::ObjectContainer::iterator Scene::getInsertBeginPositionWithPlan(fge::ObjectPlan plan)
+fge::ObjectContainer::iterator Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan)
 {
     auto it = this->g_planDataMap.find(plan);
 
     if (it == this->g_planDataMap.end())
     {
-        for ( auto itPlan = this->g_planDataMap.begin(); itPlan != this->g_planDataMap.end(); ++itPlan )
+        for (auto& itPlan : this->g_planDataMap)
         {
-            if (plan <= itPlan->first)
+            if (plan <= itPlan.first)
             {
-                return itPlan->second;
+                return itPlan.second;
             }
         }
     }

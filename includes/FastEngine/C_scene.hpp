@@ -401,7 +401,12 @@ public:
 
     Scene();
     explicit Scene(std::string sceneName);
+    Scene(const Scene& r);
+    Scene(Scene&& r) noexcept = delete; //TODO: implement move constructor
     virtual ~Scene() = default;
+
+    Scene& operator=(const Scene& r);
+    Scene& operator=(Scene&& r) noexcept = delete; //TODO: implement move operator
 
     // Scene
     /**
@@ -471,7 +476,10 @@ public:
     /**
      * \brief Clear the Scene.
      *
-     * This method call delAllObject including GUI Object type and PropertyList::delAllProperties.
+     * This method call :
+     * - delAllObject including GUI Object type.
+     * - PropertyList::delAllProperties.
+     * - fge::net::NetworkTypeContainer::clear.
      */
     void clear();
 
@@ -1303,8 +1311,8 @@ public:
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 
 private:
-    void refreshPlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator hintIt, bool isLeaving);
-    fge::ObjectContainer::iterator getInsertBeginPositionWithPlan(fge::ObjectPlan plan);
+    void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator whoIterator, bool isLeaving);
+    fge::ObjectContainer::iterator hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan);
 
     std::string g_name;
 
@@ -1321,7 +1329,7 @@ private:
     fge::ObjectDataMap g_dataMap;
     fge::ObjectPlanDataMap g_planDataMap;
 
-    fge::CallbackContext g_callbackContext{nullptr, nullptr};
+    fge::CallbackContext g_callbackContext;
 };
 
 }//end fge
