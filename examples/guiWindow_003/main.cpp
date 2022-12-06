@@ -43,7 +43,8 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use your mouse to play with a window\n",
+        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use your mouse to play with a window\n"
+                                                                                      "Use space in order to duplicate the window",
                                                                        "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP+1);
         explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::Black);
 
@@ -53,6 +54,8 @@ public:
         objWindow->setTextureMinimize("minimize");
         objWindow->setTextureResize("resize");
         objWindow->getTileSet().setTexture("window");
+        objWindow->setSize({200.0f, 200.0f});
+        objWindow->showExitButton(false);
 
         //Create a text list object
         auto* objTextList = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
@@ -92,6 +95,18 @@ public:
         }} );
 
         fge::GuiElement::setGlobalGuiScale({1.0f,1.0f});
+
+        //Add a callback to duplicate the window
+        event._onKeyPressed.add(new fge::CallbackLambda<const fge::Event&, const sf::Event::KeyEvent&>([&]([[maybe_unused]] const fge::Event& event, const sf::Event::KeyEvent& keyEvent){
+            if (keyEvent.code == sf::Keyboard::Space)
+            {
+                auto newObject = this->duplicateObject(objWindow->_myObjectData.lock()->getSid());
+                newObject->getObject<fge::ObjWindow>()->showExitButton(true);
+                newObject->getObject()->move(20.0f, 20.0f);
+                //TODO: fix object duplication inside of a window
+                //TODO: fix window priority (overlapping window that isn't really user friendly)
+            }
+        }));
 
         //Begin loop
         while (window.isOpen())
