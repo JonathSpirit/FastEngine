@@ -506,7 +506,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         {
             myObjectData->getLinkedScene()->updatePlanDepth(myObjectData->getSid());
         }
-        this->setPriority(myObjectData->getPlanDepth());
+        this->setPriority(myObjectData->getPlan() + myObjectData->getPlanDepth());
     }
 }
 void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, const fge::ObjectDataShared& object)
