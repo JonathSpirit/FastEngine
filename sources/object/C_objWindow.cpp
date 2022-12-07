@@ -418,6 +418,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, 
     {
         auto myObjectData = this->_myObjectData.lock();
         myObjectData->getLinkedScene()->setObjectPlanBot(myObjectData->getSid());
+        myObjectData->getLinkedScene()->updateAllPlanDepth(myObjectData->getPlan());
 
         auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -503,12 +504,9 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
     {
         if (myObjectData->getPlanDepth() == FGE_SCENE_BAD_PLANDEPTH)
         {
-            this->setPriority(FGE_WINDOW_DEFAULT_PRIORITY);
+            myObjectData->getLinkedScene()->updatePlanDepth(myObjectData->getSid());
         }
-        else
-        {
-            this->setPriority(FGE_WINDOW_RANGEMAX_PRIORITY - myObjectData->getPlanDepth());
-        }
+        this->setPriority(myObjectData->getPlanDepth());
     }
 }
 void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared object)

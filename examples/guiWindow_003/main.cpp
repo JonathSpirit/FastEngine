@@ -108,8 +108,6 @@ public:
                 auto* newSlider = newObject->getObject<fge::ObjWindow>()->_windowScene.getFirstObj_ByClass(FGE_OBJSLIDER_CLASSNAME)->getObject<fge::ObjSlider>();
                 auto* newTextList = newObject->getObject<fge::ObjWindow>()->_windowScene.getFirstObj_ByClass(FGE_OBJTEXTLIST_CLASSNAME)->getObject<fge::ObjTextList>();
                 newSlider->_onSlide.add( new fge::CallbackFunctorObject(&fge::ObjTextList::setTextScrollRatio, newTextList), newTextList );
-
-                //TODO: fix window priority (overlapping window that isn't really user friendly)
             }
         }));
 
