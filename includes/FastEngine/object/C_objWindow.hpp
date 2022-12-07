@@ -113,7 +113,7 @@ private:
     void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
 
     void onPlanUpdate(fge::Scene* scene, fge::ObjectPlan plan);
-    void onNewObject(fge::Scene* scene, fge::ObjectDataShared object);
+    void onNewObject(fge::Scene* scene, const fge::ObjectDataShared& object);
 
     void onRefreshGlobalScale(const sf::Vector2f& scale);
 

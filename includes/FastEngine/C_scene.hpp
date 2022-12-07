@@ -1333,8 +1333,8 @@ public:
     // Event
     mutable fge::CallbackHandler<const fge::Scene*, sf::RenderTarget&, const sf::Color&> _onRenderTargetClear;
 
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared> _onNewObject;
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared> _onRemoveObject;
+    mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onNewObject;
+    mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onRemoveObject;
 
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 

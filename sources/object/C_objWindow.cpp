@@ -509,7 +509,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         this->setPriority(myObjectData->getPlanDepth());
     }
 }
-void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared object)
+void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, const fge::ObjectDataShared& object)
 {
     object->setParent(this->_myObjectData.lock());
 }
