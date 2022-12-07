@@ -502,9 +502,14 @@ public:
      * \param plan The plan of the new object
      * \param sid The wanted SID
      * \param type The type of the new Object
+     * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
      * \return An shared pointer of the ObjectData
      */
-    fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject, fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT, fge::ObjectSid sid = FGE_SCENE_BAD_SID, fge::ObjectType type = fge::ObjectType::TYPE_OBJECT);
+    fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject,
+                                    fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT,
+                                    fge::ObjectSid sid = FGE_SCENE_BAD_SID,
+                                    fge::ObjectType type = fge::ObjectType::TYPE_OBJECT,
+                                    bool silent = false);
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -516,9 +521,11 @@ public:
      * If the object is created inside the update() method from a second object, the second object become parent.
      *
      * \param objectData The shared ObjectData
+     * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
      * \return An shared pointer of the ObjectData
      */
-    fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData);
+    fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData,
+                                    bool silent = false);
 
     /**
      * \brief Duplicate the provided Object SID.

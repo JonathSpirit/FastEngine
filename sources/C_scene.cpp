@@ -97,6 +97,7 @@ Scene::Scene(const Scene& r) :
         this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan,
                         objectData->g_sid, objectData->g_type);
     }
+    //TODO: make sure to copy object parent too
 }
 
 Scene& Scene::operator=(const Scene& r)
@@ -123,6 +124,7 @@ Scene& Scene::operator=(const Scene& r)
         this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan,
                         objectData->g_sid, objectData->g_type);
     }
+    //TODO: make sure to copy object parent too
     return *this;
 }
 
@@ -240,7 +242,11 @@ void Scene::clear()
 }
 
 /** Object **/
-fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject, fge::ObjectPlan plan, fge::ObjectSid sid, fge::ObjectType type)
+fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
+                                       fge::ObjectPlan plan,
+                                       fge::ObjectSid sid,
+                                       fge::ObjectType type,
+                                       bool silent)
 {
     if (newObject == nullptr)
     {
@@ -266,10 +272,14 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject, fge::ObjectPl
     {//An object is created inside another object and orphan, make it parent
         (*it)->g_parent = *this->g_updatedObjectIterator;
     }
-    (*it)->g_object->first(this);
+    if (!silent)
+    {
+        (*it)->g_object->first(this);
+    }
 
     if ((*it)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
-        this->g_callbackContext._event != nullptr)
+        this->g_callbackContext._event != nullptr &&
+        !silent)
     {
         (*it)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
     }
@@ -279,7 +289,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject, fge::ObjectPl
 
     return *it;
 }
-fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
+fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData,
+                                       bool silent)
 {
     fge::ObjectSid generatedSid = this->generateSid( objectData->g_sid );
     if (generatedSid == FGE_SCENE_BAD_SID)
@@ -304,10 +315,14 @@ fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData)
     {//An object is created inside another object and orphan, make it parent
         objectData->g_parent = *this->g_updatedObjectIterator;
     }
-    objectData->g_object->first(this);
+    if (!silent)
+    {
+        objectData->g_object->first(this);
+    }
 
     if (objectData->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
-        this->g_callbackContext._event != nullptr)
+        this->g_callbackContext._event != nullptr &&
+        !silent)
     {
         objectData->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
     }
