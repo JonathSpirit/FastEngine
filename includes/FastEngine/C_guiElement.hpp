@@ -24,7 +24,8 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
-#define FGE_GUI_ELEMENT_PRIORITY_LAST std::numeric_limits<fge::GuiElement::Priority>::max()
+#define FGE_GUI_ELEMENT_PRIORITY_LAST 0
+#define FGE_GUI_ELEMENT_PRIORITY_MAX std::numeric_limits<fge::GuiElement::Priority>::max()
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
 
 namespace fge
@@ -188,7 +189,7 @@ public:
         {
             return true;
         }
-        if (this->_g_priority < element->getPriority())
+        if (this->_g_priority > element->getPriority())
         {
             return true;
         }
