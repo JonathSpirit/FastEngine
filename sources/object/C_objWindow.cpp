@@ -38,8 +38,84 @@ namespace fge
 {
 
 ObjWindow::ObjWindow() :
-    fge::GuiElement(FGE_WINDOW_DEFAULT_PRIORITY)
+        fge::GuiElement(FGE_WINDOW_DEFAULT_PRIORITY)
+{}
+ObjWindow::ObjWindow(const ObjWindow& r) :
+        fge::GuiElement(r),
+        fge::Object(r),
+        fge::Subscriber(r),
+
+        g_movingWindowFlag(r.g_movingWindowFlag),
+        g_resizeWindowFlag(r.g_resizeWindowFlag),
+        g_size(r.g_size),
+
+        g_showCloseButton(r.g_showCloseButton),
+        g_makeMovable(r.g_makeMovable),
+        g_makeResizable(r.g_makeResizable),
+
+        g_resizeModeX(r.g_resizeModeX),
+        g_resizeModeY(r.g_resizeModeY),
+
+        g_guiElementHandler(nullptr),
+
+        g_viewCenterOffset(r.g_viewCenterOffset),
+
+        g_textureWindowMinimize(r.g_textureWindowMinimize),
+        g_textureWindowClose(r.g_textureWindowClose),
+        g_textureWindowResize(r.g_textureWindowResize),
+        g_tileSetWindow(r.g_tileSetWindow)
 {
+    this->_windowScene._properties = r._windowScene._properties;
+
+    //                 old sid         new sid
+    std::unordered_map<fge::ObjectSid, fge::ObjectSid> oldSidMap;
+
+    this->_windowScene.delAllObject(false);
+    for (const auto& objectData : r._windowScene)
+    {
+        auto newObject = this->_windowScene.newObject(FGE_NEWOBJECT_PTR(objectData->getObject()->copy()),
+                                     objectData->getPlan(),
+                                     FGE_SCENE_BAD_SID,
+                                     objectData->getType(),
+                                     true);
+        if (newObject)
+        {
+            oldSidMap[objectData->getSid()] = newObject->getSid();
+        }
+    }
+
+    //Moving all anchors successor and anchor target as they don't point anymore to the wanted ones
+    for (const auto& objectData : r._windowScene)
+    {//TODO: Use that code inside of scene copy too ?
+        if (auto oldSuccessor = objectData->getObject()->getAnchorSuccessor().lock())
+        {
+            auto itNewObjectSid = oldSidMap.find(objectData->getSid());
+            auto itNewSuccessorSid = oldSidMap.find(oldSuccessor->getSid());
+
+            if (itNewObjectSid != oldSidMap.end() &&
+                itNewSuccessorSid != oldSidMap.end())
+            {
+                auto newObject = this->_windowScene.getObject(itNewObjectSid->second);
+                auto newSuccessor = this->_windowScene.getObject(itNewSuccessorSid->second);
+
+                newObject->getObject()->setAnchorSuccessor(newSuccessor);
+            }
+        }
+
+        auto oldTargetSid = objectData->getObject()->getAnchorTarget();
+        if (oldTargetSid != FGE_SCENE_BAD_SID)
+        {
+            auto itNewObjectSid = oldSidMap.find(objectData->getSid());
+            auto itNewTargetSid = oldSidMap.find(oldTargetSid);
+
+            if (itNewObjectSid != oldSidMap.end() &&
+                itNewTargetSid != oldSidMap.end())
+            {
+                auto newObject = this->_windowScene.getObject(itNewObjectSid->second);
+                newObject->getObject()->setAnchorTarget(itNewTargetSid->second);
+            }
+        }
+    }
 }
 
 void ObjWindow::first(fge::Scene* scene)
@@ -48,13 +124,21 @@ void ObjWindow::first(fge::Scene* scene)
 
     this->refreshRectBounds();
 
-    this->setPriority(FGE_WINDOW_DEFAULT_PRIORITY);
     this->setScale(fge::GuiElement::getGlobalGuiScale());
 
     this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
     this->_windowScene.setLinkedRenderTarget( scene->getLinkedRenderTarget() );
     this->_windowView.reset(new sf::View{});
     this->_windowScene.setCustomView(this->_windowView);
+
+    //Call "first" on pre-existent objects (copied from another scene)
+    auto myObjectData = this->_myObjectData.lock();
+    for (const auto& objectData : this->_windowScene)
+    {
+        //TODO: Make sure that the scene correctly transfer parent reference when copying
+        objectData->setParent(myObjectData); //Be sure that the parent is set
+        objectData->getObject()->first(scene);
+    }
 }
 void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
@@ -80,6 +164,13 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 
     event._onMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseMoved, this), this);
     event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this), this);
+
+    //Call "callbackRegister" on pre-existent objects (copied from another scene)
+    for (const auto& objectData : this->_windowScene)
+    {
+        objectData->getObject()->callbackRegister(event, &this->_windowHandler);
+        objectData->getObject()->needAnchorUpdate(false);
+    }
 }
 void ObjWindow::removed([[maybe_unused]] fge::Scene* scene)
 {

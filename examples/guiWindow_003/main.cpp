@@ -103,7 +103,12 @@ public:
                 auto newObject = this->duplicateObject(objWindow->_myObjectData.lock()->getSid());
                 newObject->getObject<fge::ObjWindow>()->showExitButton(true);
                 newObject->getObject()->move(20.0f, 20.0f);
-                //TODO: fix object duplication inside of a window
+
+                //Linking the slide ratio with the text list scroll ratio
+                auto* newSlider = newObject->getObject<fge::ObjWindow>()->_windowScene.getFirstObj_ByClass(FGE_OBJSLIDER_CLASSNAME)->getObject<fge::ObjSlider>();
+                auto* newTextList = newObject->getObject<fge::ObjWindow>()->_windowScene.getFirstObj_ByClass(FGE_OBJTEXTLIST_CLASSNAME)->getObject<fge::ObjTextList>();
+                newSlider->_onSlide.add( new fge::CallbackFunctorObject(&fge::ObjTextList::setTextScrollRatio, newTextList), newTextList );
+
                 //TODO: fix window priority (overlapping window that isn't really user friendly)
             }
         }));

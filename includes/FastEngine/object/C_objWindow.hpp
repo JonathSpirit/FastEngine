@@ -48,7 +48,10 @@ public:
     };
 
     ObjWindow();
+    ObjWindow(const ObjWindow& r);
     ~ObjWindow() override = default;
+
+    ObjWindow& operator=(const ObjWindow& r) = delete;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjWindow)
 
