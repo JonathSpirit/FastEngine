@@ -23,12 +23,29 @@ namespace fge
 Anchor::Anchor(fge::Object* parent) :
         _g_objectParent(parent)
 {}
+Anchor::Anchor(fge::Object* parent, const Anchor& anchor) :
+        _g_anchorType(anchor._g_anchorType),
+        _g_anchorShift(anchor._g_anchorShift),
+        _g_anchorTarget(anchor._g_anchorTarget),
+        _g_anchorNeedUpdate(true),
+        _g_objectParent(parent)
+{}
 Anchor::~Anchor()
 {
     if (auto successor = this->_g_anchorSuccessor.lock())
     {
         successor->getObject()->setAnchor(this->_g_anchorType, this->_g_anchorShift, this->_g_anchorTarget);
     }
+}
+
+Anchor& Anchor::operator=(const Anchor& r)
+{
+    this->_g_anchorType = r._g_anchorType;
+    this->_g_anchorShift = r._g_anchorShift;
+    this->_g_anchorTarget = r._g_anchorTarget;
+    this->_g_anchorNeedUpdate = true;
+    this->_g_anchorSuccessor.reset();
+    return *this;
 }
 
 void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
@@ -140,6 +157,11 @@ fge::ObjectSid Anchor::getAnchorTarget() const
     return this->_g_anchorTarget;
 }
 
+void Anchor::setAnchorTarget(fge::ObjectSid target)
+{
+    this->_g_anchorTarget = target;
+    this->_g_anchorNeedUpdate = true;
+}
 void Anchor::setAnchorSuccessor(fge::ObjectDataWeak successor)
 {
     this->_g_anchorSuccessor = std::move(successor);

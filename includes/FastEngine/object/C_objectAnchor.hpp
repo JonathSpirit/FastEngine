@@ -56,7 +56,13 @@ public:
     };
 
     explicit Anchor(fge::Object* parent);
+    Anchor(fge::Object* parent, const Anchor& anchor);
+    Anchor(const Anchor& r) = delete;
+    Anchor(Anchor&& r) noexcept = delete;
     ~Anchor();
+
+    Anchor& operator=(const Anchor& r);
+    Anchor& operator=(Anchor&& r) noexcept = delete;
 
     void updateAnchor(const sf::Vector2f& customTargetSize={0.0f,0.0f});
 
@@ -65,6 +71,7 @@ public:
     [[nodiscard]] fge::Anchor::Types getAnchorType() const;
     [[nodiscard]] fge::ObjectSid getAnchorTarget() const;
 
+    void setAnchorTarget(fge::ObjectSid target);
     void setAnchorSuccessor(fge::ObjectDataWeak successor);
     [[nodiscard]] fge::ObjectDataWeak getAnchorSuccessor() const;
 

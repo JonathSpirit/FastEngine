@@ -29,6 +29,14 @@ namespace fge
 Object::Object() :
         fge::Anchor(this)
 {}
+Object::Object(const Object& r) :
+        sf::Transformable(r),
+        fge::Anchor(this, r)
+{}
+Object::Object(Object&& r) :
+        sf::Transformable(std::move(r)),
+        fge::Anchor(this, r)
+{}
 
 void Object::first([[maybe_unused]] fge::Scene* scene)
 {
