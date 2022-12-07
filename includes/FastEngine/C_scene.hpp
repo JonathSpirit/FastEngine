@@ -474,6 +474,27 @@ public:
 #endif //FGE_DEF_SERVER
 
     /**
+     * \brief update the ObjectPlanDepth for one object
+     *
+     * \param sid The object sid the will be updated
+     * \return The new ObjectPlanDepth
+     */
+    fge::ObjectPlanDepth updatePlanDepth(fge::ObjectSid sid);
+    /**
+     * \brief update the ObjectPlanDepth for every objects inside the same plan
+     *
+     * \param plan The plan
+     */
+    void updateAllPlanDepth(fge::ObjectPlan plan);
+    /**
+     * \brief update the ObjectPlanDepth for every objects
+     *
+     * This method should not really be used as the depth is automatically
+     * calculated inside the draw method.
+     */
+    void updateAllPlanDepth();
+
+    /**
      * \brief Clear the Scene.
      *
      * This method call :

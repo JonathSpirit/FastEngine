@@ -234,6 +234,66 @@ void Scene::draw(sf::RenderTarget& target, bool clear_target, const sf::Color& c
 }
 #endif //FGE_DEF_SERVER
 
+fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
+{
+    auto it = this->g_dataMap.find(sid);
+
+    if (it != this->g_dataMap.end())
+    {
+        auto plan = it->second->get()->g_plan;
+        auto firstPlanObjectIt = this->g_planDataMap.find(plan)->second;
+
+        const fge::ObjectPlanDepth planDepth = std::distance(firstPlanObjectIt, it->second);
+        it->second->get()->g_planDepth = planDepth;
+
+        this->_onPlanUpdate.call(this, plan);
+        return planDepth;
+    }
+    return FGE_SCENE_BAD_PLANDEPTH;
+}
+void Scene::updateAllPlanDepth(fge::ObjectPlan plan)
+{
+    auto it = this->g_planDataMap.find(plan);
+
+    if (it != this->g_planDataMap.end())
+    {
+        fge::ObjectPlanDepth depthCount = 0;
+
+        for (auto objectIt = it->second; objectIt != this->g_data.end(); ++objectIt)
+        {
+            if (objectIt->get()->g_plan != plan)
+            {
+                break;
+            }
+            (*objectIt)->g_planDepth = depthCount++;
+        }
+
+        this->_onPlanUpdate.call(this, plan);
+    }
+}
+void Scene::updateAllPlanDepth()
+{
+    fge::ObjectPlanDepth depthCount = 0;
+    auto planDataMapIt = this->g_planDataMap.begin();
+
+    for (auto objectIt = this->g_data.begin(); objectIt != this->g_data.end(); ++objectIt)
+    {
+        //Check plan depth
+        if (planDataMapIt != this->g_planDataMap.end())
+        {
+            if (objectIt == planDataMapIt->second)
+            {//New plan, we reset depth count
+                depthCount = 0;
+                ++planDataMapIt; //go next plan ...
+            }
+        }
+
+        (*objectIt)->g_planDepth = depthCount++;
+    }
+
+    this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);
+}
+
 void Scene::clear()
 {
     this->delAllObject(false);
