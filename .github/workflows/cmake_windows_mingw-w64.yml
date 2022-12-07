@@ -9,11 +9,11 @@ env:
 jobs:
   build:
     strategy:
-    matrix:
       fail-fast: false
-      include:
-        - { sys: mingw64, env: x86_64 }
-        - { sys: mingw32, env: i686 }
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
     
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
