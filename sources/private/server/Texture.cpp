@@ -27,8 +27,8 @@
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
-#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <cassert>
 
 #define HACK_IMG_PTR(x_) reinterpret_cast<sf::Image*>(x_);
@@ -39,34 +39,32 @@ namespace sf
 
 ////////////////////////////////////////////////////////////
 Texture::Texture() :
-m_size         (0, 0),
-m_actualSize   (0, 0),
-m_texture      (0),
-m_isSmooth     (false),
-m_sRgb         (false),
-m_isRepeated   (false),
-m_pixelsFlipped(false),
-m_fboAttachment(false),
-m_hasMipmap    (false),
-m_cacheId      (0)
-{
-}
+        m_size(0, 0),
+        m_actualSize(0, 0),
+        m_texture(0),
+        m_isSmooth(false),
+        m_sRgb(false),
+        m_isRepeated(false),
+        m_pixelsFlipped(false),
+        m_fboAttachment(false),
+        m_hasMipmap(false),
+        m_cacheId(0)
+{}
 
 
 ////////////////////////////////////////////////////////////
 Texture::Texture(const Texture& copy) :
-m_size         (0, 0),
-m_actualSize   (0, 0),
-m_texture      (0),
-m_isSmooth     (copy.m_isSmooth),
-m_sRgb         (copy.m_sRgb),
-m_isRepeated   (copy.m_isRepeated),
-m_pixelsFlipped(false),
-m_fboAttachment(false),
-m_hasMipmap    (false),
-m_cacheId      (0)
-{
-}
+        m_size(0, 0),
+        m_actualSize(0, 0),
+        m_texture(0),
+        m_isSmooth(copy.m_isSmooth),
+        m_sRgb(copy.m_sRgb),
+        m_isRepeated(copy.m_isRepeated),
+        m_pixelsFlipped(false),
+        m_fboAttachment(false),
+        m_hasMipmap(false),
+        m_cacheId(0)
+{}
 
 
 ////////////////////////////////////////////////////////////
@@ -194,9 +192,9 @@ void Texture::update(const Uint8* pixels, unsigned int width, unsigned int heigh
 
     const auto* colors = reinterpret_cast<const uint32_t*>(pixels);
 
-    for (unsigned int ix=x; ix<width; ++ix)
+    for (unsigned int ix = x; ix < width; ++ix)
     {
-        for (unsigned int iy=y; iy<height; ++iy)
+        for (unsigned int iy = y; iy < height; ++iy)
         {
             ptr->setPixel(ix, iy, sf::Color{*(colors++)});
         }
@@ -237,15 +235,14 @@ void Texture::update(const Image& image, [[maybe_unused]] unsigned int x, [[mayb
 
 
 ////////////////////////////////////////////////////////////
-void Texture::update([[maybe_unused]] const Window& window)
-{
-}
+void Texture::update([[maybe_unused]] const Window& window) {}
 
 
 ////////////////////////////////////////////////////////////
-void Texture::update([[maybe_unused]] const Window& window, [[maybe_unused]] unsigned int x, [[maybe_unused]] unsigned int y)
-{
-}
+void Texture::update([[maybe_unused]] const Window& window,
+                     [[maybe_unused]] unsigned int x,
+                     [[maybe_unused]] unsigned int y)
+{}
 
 
 ////////////////////////////////////////////////////////////
@@ -305,9 +302,7 @@ void Texture::invalidateMipmap()
 
 
 ////////////////////////////////////////////////////////////
-void Texture::bind([[maybe_unused]] const Texture* texture, [[maybe_unused]] CoordinateType coordinateType)
-{
-}
+void Texture::bind([[maybe_unused]] const Texture* texture, [[maybe_unused]] CoordinateType coordinateType) {}
 
 
 ////////////////////////////////////////////////////////////
@@ -318,7 +313,7 @@ unsigned int Texture::getMaximumSize()
 
 
 ////////////////////////////////////////////////////////////
-Texture& Texture::operator =(const Texture& right)
+Texture& Texture::operator=(const Texture& right)
 {
     const auto* ptr = HACK_IMG_CONST_PTR(right.m_cacheId);
     auto* thisPtr = HACK_IMG_PTR(this->m_cacheId);
@@ -360,15 +355,15 @@ Texture& Texture::operator =(const Texture& right)
 ////////////////////////////////////////////////////////////
 void Texture::swap(Texture& right)
 {
-    std::swap(m_size,          right.m_size);
-    std::swap(m_actualSize,    right.m_actualSize);
-    std::swap(m_texture,       right.m_texture);
-    std::swap(m_isSmooth,      right.m_isSmooth);
-    std::swap(m_sRgb,          right.m_sRgb);
-    std::swap(m_isRepeated,    right.m_isRepeated);
+    std::swap(m_size, right.m_size);
+    std::swap(m_actualSize, right.m_actualSize);
+    std::swap(m_texture, right.m_texture);
+    std::swap(m_isSmooth, right.m_isSmooth);
+    std::swap(m_sRgb, right.m_sRgb);
+    std::swap(m_isRepeated, right.m_isRepeated);
     std::swap(m_pixelsFlipped, right.m_pixelsFlipped);
     std::swap(m_fboAttachment, right.m_fboAttachment);
-    std::swap(m_hasMipmap,     right.m_hasMipmap);
+    std::swap(m_hasMipmap, right.m_hasMipmap);
 
     auto cacheCpy = this->m_cacheId;
 
