@@ -18,18 +18,18 @@
 #define _FGE_C_TILELAYER_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_tileset.hpp>
 #include <FastEngine/C_matrix.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
-#include <SFML/Graphics/Transformable.hpp>
+#include <FastEngine/C_tileset.hpp>
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Transformable.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
 #include <json.hpp>
 
 namespace fge
 {
 
 using TileId = int32_t;
-using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
+using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
 
 /**
  * \class TileLayer
@@ -209,6 +209,6 @@ private:
 FGE_API void to_json(nlohmann::json& j, const fge::TileLayer& p);
 FGE_API void from_json(const nlohmann::json& j, fge::TileLayer& p);
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_TILELAYER_HPP_INCLUDED

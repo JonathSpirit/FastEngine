@@ -133,6 +133,6 @@ FGE_API double SwapEndian_d(double n);
  */
 FGE_API bool IsBigEndian();
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_ENDIAN_HPP_INCLUDED_

@@ -19,9 +19,9 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_property.hpp>
+#include <unordered_map>
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 /**
  * \def FGE_CMD_FUNC
@@ -37,7 +37,9 @@ class CommandHandler;
 class Scene;
 class Object;
 
-using CommandFunction = fge::Property (CommandHandler::*) (fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
+using CommandFunction = fge::Property (CommandHandler::*)(fge::Object* caller,
+                                                          const fge::Property& arg,
+                                                          fge::Scene* caller_scene);
 
 /**
  * \class CommandHandler
@@ -108,7 +110,8 @@ public:
      * \param caller_scene The scene that contains the caller
      * \return A Property containing the result of the command
      */
-    fge::Property callCmd(std::string_view name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
+    fge::Property
+    callCmd(std::string_view name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
     /**
      * \brief Call a command by its index
      *
@@ -162,6 +165,6 @@ private:
     std::unordered_map<std::string_view, std::size_t> g_cmdDataMap;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_COMMANDHANDLER_HPP_INCLUDED

@@ -21,96 +21,90 @@ namespace fge
 {
 
 Animation::Animation() :
-    g_data( fge::anim::GetBadAnimation() ),
-    g_name( FGE_ANIM_BAD ),
+        g_data(fge::anim::GetBadAnimation()),
+        g_name(FGE_ANIM_BAD),
 
-    g_groupIndex(0),
-    g_frameIndex(0),
+        g_groupIndex(0),
+        g_frameIndex(0),
 
-    g_loop(false),
-    g_reverse(false)
-{
-}
+        g_loop(false),
+        g_reverse(false)
+{}
 Animation::Animation(const std::string& name, std::size_t frame) :
-    g_data( fge::anim::GetAnimation(name) ),
-    g_name( name ),
+        g_data(fge::anim::GetAnimation(name)),
+        g_name(name),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
-{
-}
+        g_loop(false),
+        g_reverse(false)
+{}
 Animation::Animation(const std::string& name, const std::string& group, std::size_t frame) :
-    g_data( fge::anim::GetAnimation(name) ),
-    g_name( name ),
+        g_data(fge::anim::GetAnimation(name)),
+        g_name(name),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
+        g_loop(false),
+        g_reverse(false)
 {
     this->setGroup(group);
 }
 Animation::Animation(const char* name, std::size_t frame) :
-    g_data( fge::anim::GetAnimation(std::string(name)) ),
-    g_name( name ),
+        g_data(fge::anim::GetAnimation(std::string(name))),
+        g_name(name),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
-{
-
-}
+        g_loop(false),
+        g_reverse(false)
+{}
 Animation::Animation(const char* name, const char* group, std::size_t frame) :
-    g_data( fge::anim::GetAnimation(std::string(name)) ),
-    g_name( name ),
+        g_data(fge::anim::GetAnimation(std::string(name))),
+        g_name(name),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
+        g_loop(false),
+        g_reverse(false)
 {
     this->setGroup(std::string(group));
 }
 Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame) :
-    g_data(data),
-    g_name(FGE_ANIM_BAD),
+        g_data(data),
+        g_name(FGE_ANIM_BAD),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
-{
-
-}
+        g_loop(false),
+        g_reverse(false)
+{}
 Animation::Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame) :
-    g_data(data),
-    g_name(FGE_ANIM_BAD),
+        g_data(data),
+        g_name(FGE_ANIM_BAD),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
+        g_loop(false),
+        g_reverse(false)
 {
     this->setGroup(group);
 }
 Animation::Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame) :
-    g_data(data),
-    g_name(FGE_ANIM_BAD),
+        g_data(data),
+        g_name(FGE_ANIM_BAD),
 
-    g_groupIndex(0),
-    g_frameIndex(frame),
+        g_groupIndex(0),
+        g_frameIndex(frame),
 
-    g_loop(false),
-    g_reverse(false)
+        g_loop(false),
+        g_reverse(false)
 {
     this->setGroup(std::string(group));
 }
@@ -144,17 +138,17 @@ fge::anim::AnimationType Animation::getType() const
 
 bool Animation::setGroup(const std::string& groupName)
 {
-    if ( this->isGroupValid() )
-    {//If same group, we do nothing
-        if ( this->g_data->_groups[this->g_groupIndex]._groupName == groupName )
+    if (this->isGroupValid())
+    { //If same group, we do nothing
+        if (this->g_data->_groups[this->g_groupIndex]._groupName == groupName)
         {
             return false;
         }
     }
 
-    for (std::size_t i=0; i<this->g_data->_groups.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
     {
-        if ( this->g_data->_groups[i]._groupName == groupName )
+        if (this->g_data->_groups[i]._groupName == groupName)
         {
             this->g_groupIndex = i;
             this->g_frameIndex = 0;
@@ -165,12 +159,12 @@ bool Animation::setGroup(const std::string& groupName)
 }
 bool Animation::setGroup(std::size_t groupIndex)
 {
-    if ( this->g_groupIndex == groupIndex )
-    {//If same group, we do nothing
+    if (this->g_groupIndex == groupIndex)
+    { //If same group, we do nothing
         return false;
     }
 
-    if ( groupIndex < this->g_data->_groups.size() )
+    if (groupIndex < this->g_data->_groups.size())
     {
         this->g_groupIndex = groupIndex;
         this->g_frameIndex = 0;
@@ -181,7 +175,7 @@ bool Animation::setGroup(std::size_t groupIndex)
 
 const fge::anim::AnimationGroup* Animation::getGroup() const
 {
-    if ( this->g_groupIndex < this->g_data->_groups.size() )
+    if (this->g_groupIndex < this->g_data->_groups.size())
     {
         return &this->g_data->_groups[this->g_groupIndex];
     }
@@ -189,7 +183,7 @@ const fge::anim::AnimationGroup* Animation::getGroup() const
 }
 fge::anim::AnimationGroup* Animation::getGroup()
 {
-    if ( this->g_groupIndex < this->g_data->_groups.size() )
+    if (this->g_groupIndex < this->g_data->_groups.size())
     {
         return &this->g_data->_groups[this->g_groupIndex];
     }
@@ -197,9 +191,9 @@ fge::anim::AnimationGroup* Animation::getGroup()
 }
 const fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName) const
 {
-    for (std::size_t i=0; i<this->g_data->_groups.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
     {
-        if ( this->g_data->_groups[i]._groupName == groupName )
+        if (this->g_data->_groups[i]._groupName == groupName)
         {
             return &this->g_data->_groups[i];
         }
@@ -208,9 +202,9 @@ const fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupNam
 }
 fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName)
 {
-    for (std::size_t i=0; i<this->g_data->_groups.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
     {
-        if ( this->g_data->_groups[i]._groupName == groupName )
+        if (this->g_data->_groups[i]._groupName == groupName)
         {
             return &this->g_data->_groups[i];
         }
@@ -219,7 +213,7 @@ fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName)
 }
 const fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex) const
 {
-    if ( groupIndex < this->g_data->_groups.size() )
+    if (groupIndex < this->g_data->_groups.size())
     {
         return &this->g_data->_groups[groupIndex];
     }
@@ -227,7 +221,7 @@ const fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex) con
 }
 fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex)
 {
-    if ( groupIndex < this->g_data->_groups.size() )
+    if (groupIndex < this->g_data->_groups.size())
     {
         return &this->g_data->_groups[groupIndex];
     }
@@ -241,15 +235,15 @@ bool Animation::isGroupValid() const
 
 std::size_t Animation::nextFrame()
 {
-    if ( this->isGroupValid() )
+    if (this->isGroupValid())
     {
         if (this->g_reverse)
         {
-            if ( this->g_frameIndex == 0 )
+            if (this->g_frameIndex == 0)
             {
-                if ( this->g_loop )
+                if (this->g_loop)
                 {
-                    this->g_frameIndex = this->g_data->_groups[this->g_groupIndex]._frames.size()-1;
+                    this->g_frameIndex = this->g_data->_groups[this->g_groupIndex]._frames.size() - 1;
                 }
             }
             else
@@ -259,9 +253,9 @@ std::size_t Animation::nextFrame()
         }
         else
         {
-            if ( this->g_frameIndex+1 >= this->g_data->_groups[this->g_groupIndex]._frames.size() )
+            if (this->g_frameIndex + 1 >= this->g_data->_groups[this->g_groupIndex]._frames.size())
             {
-                if ( this->g_loop )
+                if (this->g_loop)
                 {
                     this->g_frameIndex = 0;
                 }
@@ -290,7 +284,7 @@ std::size_t Animation::getGroupIndex() const
 
 const fge::anim::AnimationFrame* Animation::getFrame() const
 {
-    if ( this->isFrameValid() )
+    if (this->isFrameValid())
     {
         return &this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex];
     }
@@ -298,7 +292,7 @@ const fge::anim::AnimationFrame* Animation::getFrame() const
 }
 fge::anim::AnimationFrame* Animation::getFrame()
 {
-    if ( this->isFrameValid() )
+    if (this->isFrameValid())
     {
         return &this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex];
     }
@@ -306,9 +300,9 @@ fge::anim::AnimationFrame* Animation::getFrame()
 }
 const fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex) const
 {
-    if ( this->isGroupValid() )
+    if (this->isGroupValid())
     {
-        if ( frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size() )
+        if (frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
         {
             return &this->g_data->_groups[this->g_groupIndex]._frames[frameIndex];
         }
@@ -317,9 +311,9 @@ const fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex) con
 }
 fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex)
 {
-    if ( this->isGroupValid() )
+    if (this->isGroupValid())
     {
-        if ( frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size() )
+        if (frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
         {
             return &this->g_data->_groups[this->g_groupIndex]._frames[frameIndex];
         }
@@ -329,9 +323,9 @@ fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex)
 
 bool Animation::isFrameValid() const
 {
-    if ( this->isGroupValid() )
+    if (this->isGroupValid())
     {
-        if ( this->g_frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size() )
+        if (this->g_frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
         {
             return true;
         }
@@ -362,19 +356,19 @@ const fge::anim::AnimationDataPtr& Animation::getData() const
     return this->g_data;
 }
 
-fge::Animation& Animation::operator =( const std::string& name )
+fge::Animation& Animation::operator=(const std::string& name)
 {
     this->g_name = name;
     this->g_data = fge::anim::GetAnimation(name);
     return *this;
 }
-fge::Animation& Animation::operator =( const char* name )
+fge::Animation& Animation::operator=(const char* name)
 {
     this->g_name = std::string(name);
     this->g_data = fge::anim::GetAnimation(this->g_name);
     return *this;
 }
-fge::Animation& Animation::operator =( const fge::anim::AnimationDataPtr& data )
+fge::Animation& Animation::operator=(const fge::anim::AnimationDataPtr& data)
 {
     this->g_name = FGE_ANIM_BAD;
     this->g_data = data;
@@ -385,14 +379,14 @@ Animation::operator fge::TextureType*()
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        if ( this->g_data->_valid )
+        if (this->g_data->_valid)
         {
             return this->g_data->_tilesetTexture.get();
         }
     }
     else
     {
-        if ( this->isFrameValid() )
+        if (this->isFrameValid())
         {
             return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
         }
@@ -403,14 +397,14 @@ Animation::operator const fge::TextureType*() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        if ( this->g_data->_valid )
+        if (this->g_data->_valid)
         {
             return this->g_data->_tilesetTexture.get();
         }
     }
     else
     {
-        if ( this->isFrameValid() )
+        if (this->isFrameValid())
         {
             return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture.get();
         }
@@ -422,14 +416,14 @@ Animation::operator fge::TextureType&()
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        if ( this->g_data->_valid )
+        if (this->g_data->_valid)
         {
             return *this->g_data->_tilesetTexture;
         }
     }
     else
     {
-        if ( this->isFrameValid() )
+        if (this->isFrameValid())
         {
             return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
         }
@@ -440,14 +434,14 @@ Animation::operator const fge::TextureType&() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        if ( this->g_data->_valid )
+        if (this->g_data->_valid)
         {
             return *this->g_data->_tilesetTexture;
         }
     }
     else
     {
-        if ( this->isFrameValid() )
+        if (this->isFrameValid())
         {
             return *this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
         }
@@ -468,10 +462,11 @@ Animation::operator sf::IntRect() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        if ( this->isFrameValid() )
+        if (this->isFrameValid())
         {
             auto gridSize = static_cast<sf::Vector2i>(this->g_data->_tilesetGridSize);
-            auto gridPosition = static_cast<sf::Vector2i>(this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
+            auto gridPosition = static_cast<sf::Vector2i>(
+                    this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
             gridPosition.x *= gridSize.x;
             gridPosition.y *= gridSize.y;
             return {gridPosition, gridSize};
@@ -479,13 +474,14 @@ Animation::operator sf::IntRect() const
     }
     else
     {
-        if ( this->isFrameValid() )
+        if (this->isFrameValid())
         {
-            auto gridSize = static_cast<sf::Vector2i>(this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
-            return {{0,0}, gridSize};
+            auto gridSize = static_cast<sf::Vector2i>(
+                    this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
+            return {{0, 0}, gridSize};
         }
     }
-    return {{0,0}, static_cast<sf::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
+    return {{0, 0}, static_cast<sf::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
 }
 
-}//end fge
+} // namespace fge

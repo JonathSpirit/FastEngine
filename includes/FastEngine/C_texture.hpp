@@ -29,7 +29,7 @@ namespace net
 
 class Packet;
 
-}//end net
+} // namespace net
 
 /**
  * \class Texture
@@ -97,14 +97,14 @@ public:
      *
      * \param name The name of the loaded texture
      */
-    fge::Texture& operator =(std::string name);
-    fge::Texture& operator =(const char* name);
+    fge::Texture& operator=(std::string name);
+    fge::Texture& operator=(const char* name);
     /**
      * \brief Copy a custom texture data pointer.
      *
      * \param data The custom texture data pointer
      */
-    fge::Texture& operator =( fge::texture::TextureDataPtr data );
+    fge::Texture& operator=(fge::texture::TextureDataPtr data);
 
     explicit operator fge::TextureType*();
     explicit operator const fge::TextureType*() const;
@@ -122,12 +122,12 @@ private:
     std::string g_name;
 };
 
-FGE_API const fge::net::Packet& operator >>(const fge::net::Packet& pck, fge::Texture& data);
-FGE_API fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Texture& data);
+FGE_API const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Texture& data);
+FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Texture& data);
 
 FGE_API void to_json(nlohmann::json& j, const fge::Texture& p);
 FGE_API void from_json(const nlohmann::json& j, fge::Texture& p);
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_TEXTURE_HPP_INCLUDED

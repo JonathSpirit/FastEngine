@@ -19,29 +19,29 @@ namespace fge
 namespace string
 {
 
-template <class T>
+template<class T>
 std::string ToStr(const std::list<T>& val, char separator)
 {
     std::string result;
-    for (auto it=val.cbegin(); it!=val.cend(); ++it)
+    for (auto it = val.cbegin(); it != val.cend(); ++it)
     {
         result += fge::string::ToStr(*it) + separator;
     }
-    if ( !result.empty() )
+    if (!result.empty())
     {
         result.pop_back();
     }
     return result;
 }
-template <class T>
+template<class T>
 std::string ToStr(const std::vector<T>& val, char separator)
 {
     std::string result;
-    for (auto it=val.cbegin(); it!=val.cend(); ++it)
+    for (auto it = val.cbegin(); it != val.cend(); ++it)
     {
         result += fge::string::ToStr(*it) + separator;
     }
-    if ( !result.empty() )
+    if (!result.empty())
     {
         result.pop_back();
     }
@@ -58,5 +58,5 @@ std::string ToStr(const std::optional<T>& val)
     return "NO_VALUE";
 }
 
-}//end string
-}//end fge
+} // namespace string
+} // namespace fge

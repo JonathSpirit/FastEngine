@@ -32,7 +32,8 @@ namespace fge
 template<std::size_t TNbytes>
 class BitBank
 {
-    static_assert(TNbytes>0, "TNbytes must be greater than 0");
+    static_assert(TNbytes > 0, "TNbytes must be greater than 0");
+
 public:
     BitBank() = default;
     ~BitBank() = default;
@@ -94,7 +95,7 @@ private:
     uint8_t g_data[TNbytes]{0};
 };
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_bitBank.inl>
 

@@ -16,17 +16,17 @@
 
 #include "FastEngine/extra/extra_function.hpp"
 
-#include <cmath>
-#include <vector>
-#include <fstream>
-#include <filesystem>
-#include <iostream>
 #include "SFML/System/Vector2.hpp"
 #include "re2.h"
+#include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
 #endif //_WIN32
 
 namespace fge
@@ -34,45 +34,50 @@ namespace fge
 
 namespace
 {
-    /**CONVEX HULL**/
-    // Implementation of Andrew's monotone chain 2D convex hull algorithm.
-    // Asymptotic complexity: O(n log n).
-    // Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
+/**CONVEX HULL**/
+// Implementation of Andrew's monotone chain 2D convex hull algorithm.
+// Asymptotic complexity: O(n log n).
+// Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 
-    /**
+/**
     Compare function for the vector
     **/
-    bool CompareVector(const sf::Vector2f &a, const sf::Vector2f &b)
-    {
-        return a.x < b.x || (a.x == b.x && a.y < b.y);
-    }
+bool CompareVector(const sf::Vector2f& a, const sf::Vector2f& b)
+{
+    return a.x < b.x || (a.x == b.x && a.y < b.y);
+}
 
-    /**
+/**
     2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
     Returns a positive value, if OAB makes a counter-clockwise turn,
     negative for clockwise turn, and zero if the points are col-linear.
     **/
-    double GetCrossProductVector(const sf::Vector2f &O, const sf::Vector2f &A, const sf::Vector2f &B)
-    {
-        return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
-    }
+double GetCrossProductVector(const sf::Vector2f& O, const sf::Vector2f& A, const sf::Vector2f& B)
+{
+    return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 }
+} // namespace
 
 ///Utility
 
 bool IsEngineBuiltInDebugMode()
 {
-    #ifdef FGE_DEF_DEBUG
-        return true;
-    #else
-        return false;
-    #endif // FGE_DEF_DEBUG
+#ifdef FGE_DEF_DEBUG
+    return true;
+#else
+    return false;
+#endif // FGE_DEF_DEBUG
 }
 
-std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter, bool ignoreDirectory, bool onlyFilename, bool recursive)
+std::size_t GetFilesInFolder(std::list<std::string>& buffer,
+                             const std::filesystem::path& path,
+                             const std::string& regexFilter,
+                             bool ignoreDirectory,
+                             bool onlyFilename,
+                             bool recursive)
 {
     RE2 re(regexFilter);
-    if ( !re.ok() )
+    if (!re.ok())
     {
         return 0;
     }
@@ -80,44 +85,44 @@ std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesyst
     std::size_t actualSize = buffer.size();
     if (recursive)
     {
-        for (const auto & entry : std::filesystem::recursive_directory_iterator(path))
+        for (const auto& entry: std::filesystem::recursive_directory_iterator(path))
         {
             if (ignoreDirectory && entry.is_directory())
             {
                 continue;
             }
 
-            if ( RE2::FullMatch(entry.path().filename().string(), re) )
+            if (RE2::FullMatch(entry.path().filename().string(), re))
             {
                 if (onlyFilename)
                 {
-                    buffer.push_back( entry.path().filename().string() );
+                    buffer.push_back(entry.path().filename().string());
                 }
                 else
                 {
-                    buffer.push_back( entry.path().string() );
+                    buffer.push_back(entry.path().string());
                 }
             }
         }
     }
     else
     {
-        for (const auto & entry : std::filesystem::directory_iterator(path))
+        for (const auto& entry: std::filesystem::directory_iterator(path))
         {
             if (ignoreDirectory && entry.is_directory())
             {
                 continue;
             }
 
-            if ( RE2::FullMatch(entry.path().filename().string(), re) )
+            if (RE2::FullMatch(entry.path().filename().string(), re))
             {
                 if (onlyFilename)
                 {
-                    buffer.push_back( entry.path().filename().string() );
+                    buffer.push_back(entry.path().filename().string());
                 }
                 else
                 {
-                    buffer.push_back( entry.path().string() );
+                    buffer.push_back(entry.path().string());
                 }
             }
         }
@@ -170,7 +175,7 @@ void SetConsoleCmdTitle(const char* title)
         return;
     }
 
-    if ((dwMode&ENABLE_VIRTUAL_TERMINAL_PROCESSING)>0)
+    if ((dwMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) > 0)
     {
         std::cout << "\033]0;" << title << "\007";
     }
@@ -200,24 +205,27 @@ void SetConsoleCmdTitle(const char* title)
 #ifndef FGE_DEF_SERVER
 bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone)
 {
-    return zone.contains( window.mapPixelToCoords( sf::Mouse::getPosition(window) ) );
+    return zone.contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
 }
 bool IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone)
 {
-    return zone.contains( mousePos );
+    return zone.contains(mousePos);
 }
 
 bool IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button)
 {
-    if ( zone.contains( window.mapPixelToCoords( sf::Mouse::getPosition(window) ) ) )
+    if (zone.contains(window.mapPixelToCoords(sf::Mouse::getPosition(window))))
     {
         return sf::Mouse::isButtonPressed(button);
     }
     return false;
 }
-bool IsPressed (const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button)
+bool IsPressed(const fge::Event& evt,
+               const sf::Vector2f& mouse_pos,
+               const sf::FloatRect& zone,
+               sf::Mouse::Button button)
 {
-    if ( zone.contains( mouse_pos ) )
+    if (zone.contains(mouse_pos))
     {
         return evt.isMouseButtonPressed(button);
     }
@@ -229,23 +237,23 @@ bool IsPressed (const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::
 sf::Vector2f ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime)
 {
     float travelDistance = speed * deltaTime;
-    sf::Vector2 direction = fge::NormalizeVector2(target-position);
+    sf::Vector2 direction = fge::NormalizeVector2(target - position);
     float actualDistance = fge::GetDistanceBetween(position, target);
 
     if (travelDistance >= actualDistance)
-    {//We already reached the target
+    { //We already reached the target
         return target;
     }
-    return position + direction*travelDistance;
+    return position + direction * travelDistance;
 }
 float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode)
 {
-    rotation = static_cast<float>( std::fmod(rotation, 360) );
+    rotation = static_cast<float>(std::fmod(rotation, 360));
     if (rotation < 0)
     {
         rotation += 360.0f;
     }
-    target = static_cast<float>( std::fmod(target, 360) );
+    target = static_cast<float>(std::fmod(target, 360));
     if (target < 0)
     {
         target += 360.0f;
@@ -271,48 +279,48 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
         }
         break;
     default:
+    {
+        float antiClockwiseDistance = rotation - target;
+        if (antiClockwiseDistance < 0)
         {
-            float antiClockwiseDistance = rotation - target;
-            if (antiClockwiseDistance < 0)
-            {
-                antiClockwiseDistance += 360.0f;
-            }
-
-            float clockwiseDistance = target - rotation;
-            if (clockwiseDistance < 0)
-            {
-                clockwiseDistance += 360.0f;
-            }
-
-            if ( clockwiseDistance < antiClockwiseDistance )
-            {
-                actualDistance = clockwiseDistance;
-                turnMode = fge::TurnMode::TURN_CLOCKWISE;
-            }
-            else
-            {
-                actualDistance = antiClockwiseDistance;
-                turnMode = fge::TurnMode::TURN_ANTICLOCKWISE;
-            }
+            antiClockwiseDistance += 360.0f;
         }
-        break;
+
+        float clockwiseDistance = target - rotation;
+        if (clockwiseDistance < 0)
+        {
+            clockwiseDistance += 360.0f;
+        }
+
+        if (clockwiseDistance < antiClockwiseDistance)
+        {
+            actualDistance = clockwiseDistance;
+            turnMode = fge::TurnMode::TURN_CLOCKWISE;
+        }
+        else
+        {
+            actualDistance = antiClockwiseDistance;
+            turnMode = fge::TurnMode::TURN_ANTICLOCKWISE;
+        }
+    }
+    break;
     }
 
     if (travelDistance >= actualDistance)
-    {//We already reached the target
+    { //We already reached the target
         return target;
     }
 
     if (turnMode == fge::TurnMode::TURN_ANTICLOCKWISE)
-    {//anti-clockwise
+    { //anti-clockwise
         rotation -= travelDistance;
     }
     else
-    {//clockwise
+    { //clockwise
         rotation += travelDistance;
     }
 
-    rotation = static_cast<float>( std::fmod(rotation, 360) );
+    rotation = static_cast<float>(std::fmod(rotation, 360));
     if (rotation < 0)
     {
         return rotation + 360.0f;
@@ -323,7 +331,7 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
 ///2D Math
 float ConvertRadToDeg(float rad)
 {
-    return static_cast<float>(std::fmod( (rad * 180.0f / static_cast<float>(FGE_MATH_PI)) + 360.0f, 360.0f ));
+    return static_cast<float>(std::fmod((rad * 180.0f / static_cast<float>(FGE_MATH_PI)) + 360.0f, 360.0f));
 }
 float ConvertDegToRad(float deg)
 {
@@ -332,23 +340,23 @@ float ConvertDegToRad(float deg)
 
 float GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2)
 {
-    return vecCol1.x*vecCol2.y - vecCol1.y*vecCol2.x;
+    return vecCol1.x * vecCol2.y - vecCol1.y * vecCol2.x;
 }
 float GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
 {
-    return vec1.x*vec2.x + vec1.y*vec2.y;
+    return vec1.x * vec2.x + vec1.y * vec2.y;
 }
 float GetMagnitude(const sf::Vector2f& vec)
 {
-    return std::sqrt(vec.x*vec.x + vec.y*vec.y);
+    return std::sqrt(vec.x * vec.x + vec.y * vec.y);
 }
 float GetRotation(const sf::Vector2f& vec)
 {
-    return fge::ConvertRadToDeg( std::atan2(vec.y, vec.x) );
+    return fge::ConvertRadToDeg(std::atan2(vec.y, vec.x));
 }
 float GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
 {
-    return fge::ConvertRadToDeg( std::atan2(fge::GetDeterminant(vec1, vec2), fge::GetDotProduct(vec1, vec2)) );
+    return fge::ConvertRadToDeg(std::atan2(fge::GetDeterminant(vec1, vec2), fge::GetDotProduct(vec1, vec2)));
 }
 float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2)
 {
@@ -358,29 +366,29 @@ float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2)
 sf::Vector2f GetForwardVector(float rotation)
 {
     rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return { std::cos(rotation), std::sin(rotation) };
+    return {std::cos(rotation), std::sin(rotation)};
 }
 sf::Vector2f GetBackwardVector(float rotation)
 {
     rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return -sf::Vector2f( std::cos(rotation), std::sin(rotation) );
+    return -sf::Vector2f(std::cos(rotation), std::sin(rotation));
 }
 sf::Vector2f GetLeftVector(float rotation)
 {
-    rotation = (rotation-90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return { std::cos(rotation), std::sin(rotation) };
+    rotation = (rotation - 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
+    return {std::cos(rotation), std::sin(rotation)};
 }
 sf::Vector2f GetRightVector(float rotation)
 {
-    rotation = (rotation+90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return { std::cos(rotation), std::sin(rotation) };
+    rotation = (rotation + 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
+    return {std::cos(rotation), std::sin(rotation)};
 }
 
 void GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output)
 {
     std::size_t n = input.size();
     std::size_t k = 0;
-	if (n <= 3)
+    if (n <= 3)
     {
         output = input;
         return;
@@ -388,78 +396,85 @@ void GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vecto
 
     std::vector<sf::Vector2f> listOfPoint(input);
 
-    output.resize(2*n);
+    output.resize(2 * n);
 
-	// Sort points lexicographically
+    // Sort points lexicographically
     std::sort(listOfPoint.begin(), listOfPoint.end(), CompareVector);
 
-	// Build lower hull
-	for (size_t i = 0; i < n; ++i)
+    // Build lower hull
+    for (size_t i = 0; i < n; ++i)
     {
-		while (k >= 2 && GetCrossProductVector(output[k-2], output[k-1], listOfPoint[i]) <= 0)
+        while (k >= 2 && GetCrossProductVector(output[k - 2], output[k - 1], listOfPoint[i]) <= 0)
         {
             --k;
         }
-		output[k++] = listOfPoint[i];
-	}
+        output[k++] = listOfPoint[i];
+    }
 
-	// Build upper hull
-	for (size_t i = n-1, t = k+1; i > 0; --i)
+    // Build upper hull
+    for (size_t i = n - 1, t = k + 1; i > 0; --i)
     {
-		while (k >= t && GetCrossProductVector(output[k-2], output[k-1], listOfPoint[i-1]) <= 0)
-		{
-		    --k;
-		}
-		output[k++] = listOfPoint[i-1];
-	}
+        while (k >= t && GetCrossProductVector(output[k - 2], output[k - 1], listOfPoint[i - 1]) <= 0)
+        {
+            --k;
+        }
+        output[k++] = listOfPoint[i - 1];
+    }
 
-	output.resize(k-1);
+    output.resize(k - 1);
 }
 
 ///View
 sf::Vector2f GetViewSizePercentage(const sf::View& view, const sf::View& defaultView)
 {
-    return { (view.getSize().x*100.0f) / defaultView.getSize().x, (view.getSize().y*100.0f) / defaultView.getSize().y };
+    return {(view.getSize().x * 100.0f) / defaultView.getSize().x,
+            (view.getSize().y * 100.0f) / defaultView.getSize().y};
 }
 sf::Vector2f SetViewSizePercentage(float percentage, const sf::View& defaultView)
 {
-    return { (percentage*defaultView.getSize().x)/100.0f, (percentage*defaultView.getSize().y)/100.0f };
+    return {(percentage * defaultView.getSize().x) / 100.0f, (percentage * defaultView.getSize().y) / 100.0f};
 }
 sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView)
 {
-    return { (percentage.x*defaultView.getSize().x)/100.0f, (percentage.y*defaultView.getSize().y)/100.0f };
+    return {(percentage.x * defaultView.getSize().x) / 100.0f, (percentage.y * defaultView.getSize().y) / 100.0f};
 }
 
-sf::Vector2f TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView)
+sf::Vector2f
+TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView)
 {
     sf::Vector2f normalized = pointView.getTransform().transformPoint(point);
     return newView.getInverseTransform().transformPoint(normalized);
 }
 
-sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf::FloatRect& worldCoordClipRect, fge::ClipClampModes clampMode)
+sf::View ClipView(const sf::View& view,
+                  const sf::RenderTarget& target,
+                  const sf::FloatRect& worldCoordClipRect,
+                  fge::ClipClampModes clampMode)
 {
     sf::View clippedView = view;
 
     //Compute offset with respect of default view
     auto oldViewPort = view.getViewport();
     auto defaultViewSize = target.getDefaultView().getSize();
-    sf::Vector2f whatCenterShouldBe = {defaultViewSize.x*oldViewPort.left+(defaultViewSize.x*oldViewPort.width)/2.0f,
-                                       defaultViewSize.y*oldViewPort.top+(defaultViewSize.y*oldViewPort.height)/2.0f};
+    sf::Vector2f whatCenterShouldBe = {
+            defaultViewSize.x * oldViewPort.left + (defaultViewSize.x * oldViewPort.width) / 2.0f,
+            defaultViewSize.y * oldViewPort.top + (defaultViewSize.y * oldViewPort.height) / 2.0f};
     sf::Vector2f centerOffset = whatCenterShouldBe - view.getCenter();
 
     //Compute clip view
-    sf::Vector2f clipPositionStart = worldCoordClipRect.getPosition()+centerOffset;
-    sf::Vector2f clipPositionEnd = worldCoordClipRect.getPosition()+centerOffset+worldCoordClipRect.getSize();
+    sf::Vector2f clipPositionStart = worldCoordClipRect.getPosition() + centerOffset;
+    sf::Vector2f clipPositionEnd = worldCoordClipRect.getPosition() + centerOffset + worldCoordClipRect.getSize();
 
-    clipPositionStart.x = clipPositionStart.x/static_cast<float>(target.getDefaultView().getSize().x);
-    clipPositionStart.y = clipPositionStart.y/static_cast<float>(target.getDefaultView().getSize().y);
+    clipPositionStart.x = clipPositionStart.x / static_cast<float>(target.getDefaultView().getSize().x);
+    clipPositionStart.y = clipPositionStart.y / static_cast<float>(target.getDefaultView().getSize().y);
 
-    clipPositionEnd.x = clipPositionEnd.x/static_cast<float>(target.getDefaultView().getSize().x);
-    clipPositionEnd.y = clipPositionEnd.y/static_cast<float>(target.getDefaultView().getSize().y);
+    clipPositionEnd.x = clipPositionEnd.x / static_cast<float>(target.getDefaultView().getSize().x);
+    clipPositionEnd.y = clipPositionEnd.y / static_cast<float>(target.getDefaultView().getSize().y);
 
-    sf::FloatRect viewPort{clipPositionStart, clipPositionEnd-clipPositionStart};
+    sf::FloatRect viewPort{clipPositionStart, clipPositionEnd - clipPositionStart};
     sf::Vector2f viewSize{worldCoordClipRect.getSize()};
-    sf::Vector2f viewCenter{worldCoordClipRect.getPosition()+sf::Vector2f{worldCoordClipRect.width / 2.0f, worldCoordClipRect.height / 2.0f}};
+    sf::Vector2f viewCenter{worldCoordClipRect.getPosition() +
+                            sf::Vector2f{worldCoordClipRect.width / 2.0f, worldCoordClipRect.height / 2.0f}};
 
     //Clamping
     switch (clampMode)
@@ -468,84 +483,90 @@ sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf
     case fge::ClipClampModes::CLIP_CLAMP_NOTHING:
         break;
     case fge::ClipClampModes::CLIP_CLAMP_STRETCH:
-        {
-            viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
-            viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
+    {
+        viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
+        viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
 
-            if (viewPort.left+viewPort.width > oldViewPort.left+oldViewPort.width)
+        if (viewPort.left + viewPort.width > oldViewPort.left + oldViewPort.width)
+        {
+            viewPort.width =
+                    viewPort.width - ((viewPort.left + viewPort.width) - (oldViewPort.left + oldViewPort.width));
+            if (viewPort.width < 0.0f)
             {
-                viewPort.width = viewPort.width-((viewPort.left+viewPort.width)-(oldViewPort.left+oldViewPort.width));
-                if (viewPort.width < 0.0f)
-                {
-                    viewPort.width = 0.0f;
-                }
-            }
-            if (viewPort.top+viewPort.height > oldViewPort.top+oldViewPort.height)
-            {
-                viewPort.height = viewPort.height-((viewPort.top+viewPort.height)-(oldViewPort.top+oldViewPort.height));
-                if (viewPort.height < 0.0f)
-                {
-                    viewPort.height = 0.0f;
-                }
+                viewPort.width = 0.0f;
             }
         }
-        break;
+        if (viewPort.top + viewPort.height > oldViewPort.top + oldViewPort.height)
+        {
+            viewPort.height =
+                    viewPort.height - ((viewPort.top + viewPort.height) - (oldViewPort.top + oldViewPort.height));
+            if (viewPort.height < 0.0f)
+            {
+                viewPort.height = 0.0f;
+            }
+        }
+    }
+    break;
     case fge::ClipClampModes::CLIP_CLAMP_PUSH:
-        {
-            viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
-            viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
+    {
+        viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
+        viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
 
-            if (viewPort.left+viewPort.width > oldViewPort.left+oldViewPort.width)
+        if (viewPort.left + viewPort.width > oldViewPort.left + oldViewPort.width)
+        {
+            float oldWidth = viewPort.width;
+            viewPort.width =
+                    viewPort.width - ((viewPort.left + viewPort.width) - (oldViewPort.left + oldViewPort.width));
+            if (viewPort.width < 0.0f)
             {
-                float oldWidth = viewPort.width;
-                viewPort.width = viewPort.width-((viewPort.left+viewPort.width)-(oldViewPort.left+oldViewPort.width));
-                if (viewPort.width < 0.0f)
-                {
-                    viewPort.width = 0.0f;
-                }
-                viewSize.x *= viewPort.width/oldWidth;
+                viewPort.width = 0.0f;
             }
-            if (viewPort.top+viewPort.height > oldViewPort.top+oldViewPort.height)
-            {
-                float oldHeight = viewPort.height;
-                viewPort.height = viewPort.height-((viewPort.top+viewPort.height)-(oldViewPort.top+oldViewPort.height));
-                if (viewPort.height < 0.0f)
-                {
-                    viewPort.height = 0.0f;
-                }
-                viewSize.y *= viewPort.height/oldHeight;
-            }
+            viewSize.x *= viewPort.width / oldWidth;
         }
-        break;
+        if (viewPort.top + viewPort.height > oldViewPort.top + oldViewPort.height)
+        {
+            float oldHeight = viewPort.height;
+            viewPort.height =
+                    viewPort.height - ((viewPort.top + viewPort.height) - (oldViewPort.top + oldViewPort.height));
+            if (viewPort.height < 0.0f)
+            {
+                viewPort.height = 0.0f;
+            }
+            viewSize.y *= viewPort.height / oldHeight;
+        }
+    }
+    break;
     case fge::ClipClampModes::CLIP_CLAMP_HIDE:
-        {
-            viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
-            viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
+    {
+        viewPort.left = std::clamp(viewPort.left, oldViewPort.left, 1.0f);
+        viewPort.top = std::clamp(viewPort.top, oldViewPort.top, 1.0f);
 
-            if (viewPort.left+viewPort.width > oldViewPort.left+oldViewPort.width)
+        if (viewPort.left + viewPort.width > oldViewPort.left + oldViewPort.width)
+        {
+            float oldWidth = viewPort.width;
+            viewPort.width =
+                    viewPort.width - ((viewPort.left + viewPort.width) - (oldViewPort.left + oldViewPort.width));
+            if (viewPort.width < 0.0f)
             {
-                float oldWidth = viewPort.width;
-                viewPort.width = viewPort.width-((viewPort.left+viewPort.width)-(oldViewPort.left+oldViewPort.width));
-                if (viewPort.width < 0.0f)
-                {
-                    viewPort.width = 0.0f;
-                }
-                viewSize.x *= viewPort.width/oldWidth;
-                viewCenter.x -= (worldCoordClipRect.width-viewSize.x)/2.0f;
+                viewPort.width = 0.0f;
             }
-            if (viewPort.top+viewPort.height > oldViewPort.top+oldViewPort.height)
-            {
-                float oldHeight = viewPort.height;
-                viewPort.height = viewPort.height-((viewPort.top+viewPort.height)-(oldViewPort.top+oldViewPort.height));
-                if (viewPort.height < 0.0f)
-                {
-                    viewPort.height = 0.0f;
-                }
-                viewSize.y *= viewPort.height/oldHeight;
-                viewCenter.y -= (worldCoordClipRect.height-viewSize.y)/2.0f;
-            }
+            viewSize.x *= viewPort.width / oldWidth;
+            viewCenter.x -= (worldCoordClipRect.width - viewSize.x) / 2.0f;
         }
-        break;
+        if (viewPort.top + viewPort.height > oldViewPort.top + oldViewPort.height)
+        {
+            float oldHeight = viewPort.height;
+            viewPort.height =
+                    viewPort.height - ((viewPort.top + viewPort.height) - (oldViewPort.top + oldViewPort.height));
+            if (viewPort.height < 0.0f)
+            {
+                viewPort.height = 0.0f;
+            }
+            viewSize.y *= viewPort.height / oldHeight;
+            viewCenter.y -= (worldCoordClipRect.height - viewSize.y) / 2.0f;
+        }
+    }
+    break;
     }
 
     clippedView.setViewport(viewPort);
@@ -558,74 +579,58 @@ sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf
 ///Render
 sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target)
 {
-    sf::Vector2i positions[4] =
-    {
-        target.mapCoordsToPixel( sf::Vector2f(rect.left, rect.top) ),
-        target.mapCoordsToPixel( sf::Vector2f(rect.left+rect.width, rect.top) ),
-        target.mapCoordsToPixel( sf::Vector2f(rect.left, rect.top+rect.height) ),
-        target.mapCoordsToPixel( sf::Vector2f(rect.left+rect.width, rect.top+rect.height) )
-    };
+    sf::Vector2i positions[4] = {target.mapCoordsToPixel(sf::Vector2f(rect.left, rect.top)),
+                                 target.mapCoordsToPixel(sf::Vector2f(rect.left + rect.width, rect.top)),
+                                 target.mapCoordsToPixel(sf::Vector2f(rect.left, rect.top + rect.height)),
+                                 target.mapCoordsToPixel(sf::Vector2f(rect.left + rect.width, rect.top + rect.height))};
 
     return fge::ToRect(positions, 4);
 }
 sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view)
 {
-    sf::Vector2i positions[4] =
-    {
-        target.mapCoordsToPixel( sf::Vector2f(rect.left, rect.top), view ),
-        target.mapCoordsToPixel( sf::Vector2f(rect.left+rect.width, rect.top), view ),
-        target.mapCoordsToPixel( sf::Vector2f(rect.left, rect.top+rect.height), view ),
-        target.mapCoordsToPixel( sf::Vector2f(rect.left+rect.width, rect.top+rect.height), view )
-    };
+    sf::Vector2i positions[4] = {
+            target.mapCoordsToPixel(sf::Vector2f(rect.left, rect.top), view),
+            target.mapCoordsToPixel(sf::Vector2f(rect.left + rect.width, rect.top), view),
+            target.mapCoordsToPixel(sf::Vector2f(rect.left, rect.top + rect.height), view),
+            target.mapCoordsToPixel(sf::Vector2f(rect.left + rect.width, rect.top + rect.height), view)};
 
     return fge::ToRect(positions, 4);
 }
 sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target)
 {
-    sf::Vector2f positions[4] =
-    {
-        target.mapPixelToCoords( sf::Vector2i(rect.left, rect.top) ),
-        target.mapPixelToCoords( sf::Vector2i(rect.left+rect.width, rect.top) ),
-        target.mapPixelToCoords( sf::Vector2i(rect.left, rect.top+rect.height) ),
-        target.mapPixelToCoords( sf::Vector2i(rect.left+rect.width, rect.top+rect.height) )
-    };
+    sf::Vector2f positions[4] = {target.mapPixelToCoords(sf::Vector2i(rect.left, rect.top)),
+                                 target.mapPixelToCoords(sf::Vector2i(rect.left + rect.width, rect.top)),
+                                 target.mapPixelToCoords(sf::Vector2i(rect.left, rect.top + rect.height)),
+                                 target.mapPixelToCoords(sf::Vector2i(rect.left + rect.width, rect.top + rect.height))};
 
     return fge::ToRect(positions, 4);
 }
 sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target, const sf::View& view)
 {
-    sf::Vector2f positions[4] =
-    {
-        target.mapPixelToCoords( sf::Vector2i(rect.left, rect.top), view ),
-        target.mapPixelToCoords( sf::Vector2i(rect.left+rect.width, rect.top), view ),
-        target.mapPixelToCoords( sf::Vector2i(rect.left, rect.top+rect.height), view ),
-        target.mapPixelToCoords( sf::Vector2i(rect.left+rect.width, rect.top+rect.height), view )
-    };
+    sf::Vector2f positions[4] = {
+            target.mapPixelToCoords(sf::Vector2i(rect.left, rect.top), view),
+            target.mapPixelToCoords(sf::Vector2i(rect.left + rect.width, rect.top), view),
+            target.mapPixelToCoords(sf::Vector2i(rect.left, rect.top + rect.height), view),
+            target.mapPixelToCoords(sf::Vector2i(rect.left + rect.width, rect.top + rect.height), view)};
 
     return fge::ToRect(positions, 4);
 }
 
 sf::FloatRect GetScreenRect(const sf::RenderTarget& target)
 {
-    sf::Vector2f positions[4] =
-    {
-        target.mapPixelToCoords( sf::Vector2i(0,0) ),
-        target.mapPixelToCoords( sf::Vector2i(target.getSize().x,0) ),
-        target.mapPixelToCoords( sf::Vector2i(0,target.getSize().y) ),
-        target.mapPixelToCoords( sf::Vector2i(target.getSize().x,target.getSize().y) )
-    };
+    sf::Vector2f positions[4] = {target.mapPixelToCoords(sf::Vector2i(0, 0)),
+                                 target.mapPixelToCoords(sf::Vector2i(target.getSize().x, 0)),
+                                 target.mapPixelToCoords(sf::Vector2i(0, target.getSize().y)),
+                                 target.mapPixelToCoords(sf::Vector2i(target.getSize().x, target.getSize().y))};
 
     return fge::ToRect(positions, 4);
 }
 sf::FloatRect GetScreenRect(const sf::RenderTarget& target, const sf::View& view)
 {
-    sf::Vector2f positions[4] =
-    {
-        target.mapPixelToCoords( sf::Vector2i(0,0), view ),
-        target.mapPixelToCoords( sf::Vector2i(target.getSize().x,0), view ),
-        target.mapPixelToCoords( sf::Vector2i(0,target.getSize().y), view ),
-        target.mapPixelToCoords( sf::Vector2i(target.getSize().x,target.getSize().y), view )
-    };
+    sf::Vector2f positions[4] = {target.mapPixelToCoords(sf::Vector2i(0, 0), view),
+                                 target.mapPixelToCoords(sf::Vector2i(target.getSize().x, 0), view),
+                                 target.mapPixelToCoords(sf::Vector2i(0, target.getSize().y), view),
+                                 target.mapPixelToCoords(sf::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
 }
@@ -634,7 +639,7 @@ sf::FloatRect GetScreenRect(const sf::RenderTarget& target, const sf::View& view
 bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j)
 {
     std::ifstream file(path);
-    if ( !file )
+    if (!file)
     {
         file.close();
         return false;
@@ -655,7 +660,7 @@ bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j)
 bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth)
 {
     std::ofstream file(path);
-    if ( file )
+    if (file)
     {
         file << std::setw(fieldWidth) << j << std::endl;
         file.close();
@@ -665,4 +670,4 @@ bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, 
     return false;
 }
 
-}//end fge
+} // namespace fge

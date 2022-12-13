@@ -19,10 +19,10 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
+#include "C_objText.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_font.hpp"
-#include "C_objText.hpp"
 
 #define FGE_OBJSELECTBOX_CLASSNAME "FGE:OBJ:SELECTBOX"
 
@@ -98,6 +98,6 @@ private:
     fge::Flag g_flag;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJSELECTBOX_HPP_INCLUDED

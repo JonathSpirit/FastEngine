@@ -16,9 +16,9 @@
 
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
 
 namespace fge::net
 {
@@ -26,7 +26,7 @@ namespace fge::net
 uint32_t GetSceneChecksum(fge::Scene& scene)
 {
     uint32_t result = 0;
-    for (const auto& object : scene)
+    for (const auto& object: scene)
     {
         result += object->getSid();
     }
@@ -62,5 +62,4 @@ bool WriteOnSendPacketDataToFile(fge::net::Packet& pck, const std::string& file)
     return true;
 }
 
-}//end fge::net
-
+} // namespace fge::net

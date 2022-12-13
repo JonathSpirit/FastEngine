@@ -41,7 +41,12 @@ inline char UnicodeToChar(uint32_t unicode);
 
 FGE_API bool IsEngineBuiltInDebugMode();
 
-FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer, const std::filesystem::path& path, const std::string& regexFilter=".+", bool ignoreDirectory=true, bool onlyFilename=true, bool recursive=false);
+FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer,
+                                     const std::filesystem::path& path,
+                                     const std::string& regexFilter = ".+",
+                                     bool ignoreDirectory = true,
+                                     bool onlyFilename = true,
+                                     bool recursive = false);
 
 FGE_API bool SetVirtualTerminalSequenceSupport();
 FGE_API void SetConsoleCmdTitle(const char* title);
@@ -51,15 +56,20 @@ FGE_API void SetConsoleCmdTitle(const char* title);
 FGE_API bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
 FGE_API bool IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone);
 
-FGE_API bool IsPressed(const sf::RenderWindow& window, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
-FGE_API bool IsPressed(const fge::Event& evt, const sf::Vector2f& mouse_pos, const sf::FloatRect& zone, sf::Mouse::Button button=sf::Mouse::Button::Left);
+FGE_API bool IsPressed(const sf::RenderWindow& window,
+                       const sf::FloatRect& zone,
+                       sf::Mouse::Button button = sf::Mouse::Button::Left);
+FGE_API bool IsPressed(const fge::Event& evt,
+                       const sf::Vector2f& mouse_pos,
+                       const sf::FloatRect& zone,
+                       sf::Mouse::Button button = sf::Mouse::Button::Left);
 #endif //FGE_DEF_SERVER
 
 ///Position/Rectangle
 template<typename T>
 sf::Rect<T> ToRect(const sf::Vector2<T>& pos1, const sf::Vector2<T>& pos2);
 template<typename T>
-sf::Rect<T> ToRect(const std::vector<sf::Vector2<T> >& pos);
+sf::Rect<T> ToRect(const std::vector<sf::Vector2<T>>& pos);
 template<typename T>
 sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size);
 
@@ -75,11 +85,12 @@ inline sf::Color&& SetGreen(sf::Color&& color, uint8_t green);
 inline sf::Color&& SetBlue(sf::Color&& color, uint8_t blue);
 
 ///Reach
-FGE_API sf::Vector2f ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime);
+FGE_API sf::Vector2f
+ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime);
 FGE_API float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
 
 template<typename T>
-T ReachValue( T value, T target, T speed, float deltaTime );
+T ReachValue(T value, T target, T speed, float deltaTime);
 
 ///2D Math
 FGE_API float ConvertRadToDeg(float rad);
@@ -115,7 +126,8 @@ FGE_API sf::Vector2f GetViewSizePercentage(const sf::View& view, const sf::View&
 FGE_API sf::Vector2f SetViewSizePercentage(float percentage, const sf::View& defaultView);
 FGE_API sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView);
 
-FGE_API sf::Vector2f TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView);
+FGE_API sf::Vector2f
+TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView);
 
 enum class ClipClampModes
 {
@@ -124,7 +136,10 @@ enum class ClipClampModes
     CLIP_CLAMP_PUSH,
     CLIP_CLAMP_HIDE
 };
-FGE_API sf::View ClipView(const sf::View& view, const sf::RenderTarget& target, const sf::FloatRect& worldCoordClipRect, fge::ClipClampModes clampMode);
+FGE_API sf::View ClipView(const sf::View& view,
+                          const sf::RenderTarget& target,
+                          const sf::FloatRect& worldCoordClipRect,
+                          fge::ClipClampModes clampMode);
 
 ///Render
 FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target);
@@ -141,9 +156,9 @@ inline float DurationToSecondFloat(T duration);
 
 ///Json
 FGE_API bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j);
-FGE_API bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth=2);
+FGE_API bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth = 2);
 
-}//end fge
+} // namespace fge
 
 #include "extra_function.inl"
 

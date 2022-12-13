@@ -18,11 +18,11 @@
 #define _FGE_C_TILESET_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_texture.hpp>
 #include <FastEngine/C_propertyList.hpp>
-#include <set>
-#include <optional>
+#include <FastEngine/C_texture.hpp>
 #include <json.hpp>
+#include <optional>
+#include <set>
 
 namespace fge
 {
@@ -43,9 +43,18 @@ struct TileData
     mutable fge::PropertyList _properties{};
 };
 
-inline bool operator<(const fge::TileData& l, int r) { return l._id < r; }
-inline bool operator<(int l, const fge::TileData& r) { return l < r._id; }
-inline bool operator<(const fge::TileData& l, const fge::TileData& r) { return l._id < r._id; }
+inline bool operator<(const fge::TileData& l, int r)
+{
+    return l._id < r;
+}
+inline bool operator<(int l, const fge::TileData& r)
+{
+    return l < r._id;
+}
+inline bool operator<(const fge::TileData& l, const fge::TileData& r)
+{
+    return l._id < r._id;
+}
 
 /**
  * \class TileSet
@@ -227,7 +236,7 @@ public:
      */
     [[nodiscard]] sf::IntRect computeTextureRect(TileId id) const;
 
-    fge::TileSet& operator =(fge::Texture texture);
+    fge::TileSet& operator=(fge::Texture texture);
 
 private:
     void setTile(fge::TileData tile);
@@ -236,7 +245,7 @@ private:
     std::string g_name;
     fge::Texture g_texture;
     sf::Vector2i g_tileSize;
-    sf::Vector2i g_offset{0,0};
+    sf::Vector2i g_offset{0, 0};
     TileListType g_tiles;
     TileId g_firstGid{1};
     int g_columns{0};
@@ -249,6 +258,6 @@ FGE_API void from_json(const nlohmann::json& j, fge::TileSet& p);
 FGE_API void to_json(nlohmann::json& j, const fge::TileData& p);
 FGE_API void from_json(const nlohmann::json& j, fge::TileData& p);
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_TILESET_HPP_INCLUDED

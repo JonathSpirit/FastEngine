@@ -19,10 +19,10 @@
 
 #include "FastEngine/object/C_objAnim.hpp"
 #include "FastEngine/object/C_objButton.hpp"
-#include "FastEngine/object/C_objSwitch.hpp"
-#include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/object/C_objSelectBox.hpp"
-#include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
+#include "FastEngine/object/C_objSwitch.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_objTextinputbox.hpp"
 
 #endif // _FGE_EXTRA_OBJECTCLASS_HPP_INCLUDED

@@ -28,8 +28,8 @@ struct DataAccessor
     DataAccessor() = default;
 
     DataAccessor(T* directAccessPtr) :
-            _setter([directAccessPtr](T&& r){*directAccessPtr = std::forward<T>(r);}),
-            _getter([directAccessPtr](){return *directAccessPtr;})
+            _setter([directAccessPtr](T&& r) { *directAccessPtr = std::forward<T>(r); }),
+            _getter([directAccessPtr]() { return *directAccessPtr; })
     {}
 
     DataAccessor(std::function<T()> getter, std::function<void(T)> setter) :
@@ -39,11 +39,11 @@ struct DataAccessor
 
     DataAccessor(const T* directAccessPtrGetter, std::function<void(T)> setter) :
             _setter(std::move(setter)),
-            _getter([directAccessPtrGetter](){return *directAccessPtrGetter;})
+            _getter([directAccessPtrGetter]() { return *directAccessPtrGetter; })
     {}
 
     DataAccessor(std::function<T()> getter, T* directAccessPtrSetter) :
-            _setter([directAccessPtrSetter](T&& r){*directAccessPtrSetter = std::forward<T>(r);}),
+            _setter([directAccessPtrSetter](T&& r) { *directAccessPtrSetter = std::forward<T>(r); }),
             _getter(std::move(getter))
     {}
 
@@ -51,6 +51,6 @@ struct DataAccessor
     std::function<T()> _getter;
 };
 
-}//end fge
+} // namespace fge
 
 #endif //_FGE_C_DATAACCESSOR_HPP_INCLUDED

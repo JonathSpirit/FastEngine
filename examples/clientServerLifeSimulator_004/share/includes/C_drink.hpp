@@ -28,6 +28,6 @@ public:
     uint8_t _nutrition{0};
 };
 
-}//end ls
+} // namespace ls
 
 #endif // _EXFGE_C_DRINK_HPP_INCLUDED

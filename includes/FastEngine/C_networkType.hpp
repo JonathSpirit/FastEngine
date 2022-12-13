@@ -18,15 +18,15 @@
 #define _FGE_C_NETWORKTYPE_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include <FastEngine/C_callback.hpp>
+#include <FastEngine/C_dataAccessor.hpp>
+#include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_packet.hpp>
 #include <FastEngine/C_propertyList.hpp>
-#include <FastEngine/C_callback.hpp>
-#include <FastEngine/C_identity.hpp>
-#include <FastEngine/C_dataAccessor.hpp>
-#include <string>
-#include <memory>
-#include <vector>
 #include <unordered_map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace fge
 {
@@ -44,7 +44,8 @@ enum NetworkPerClientConfigByteMasks : NetworkPerClientConfigByte
     CONFIG_BYTE_EXPLICIT_UPDATE = 1 << 1 ///< The client require an explicit update
 };
 
-using NetworkPerClientModificationTable = std::unordered_map<fge::net::Identity, fge::net::NetworkPerClientConfigByte, fge::net::IdentityHash>;
+using NetworkPerClientModificationTable =
+        std::unordered_map<fge::net::Identity, fge::net::NetworkPerClientConfigByte, fge::net::IdentityHash>;
 
 class ClientList;
 
@@ -337,7 +338,7 @@ private:
  *
  * \tparam T The type of the property
  */
-template <class T>
+template<class T>
 class NetworkTypeProperty : public NetworkTypeBase
 {
 public:
@@ -365,7 +366,7 @@ private:
  *
  * \tparam T The type of the property
  */
-template <class T>
+template<class T>
 class NetworkTypePropertyList : public NetworkTypeBase
 {
 public:
@@ -433,7 +434,7 @@ public:
 
     //Copy function that does nothing
     NetworkTypeContainer([[maybe_unused]] const NetworkTypeContainer& n){};
-    NetworkTypeContainer& operator=([[maybe_unused]] const NetworkTypeContainer& n){return *this;};
+    NetworkTypeContainer& operator=([[maybe_unused]] const NetworkTypeContainer& n) { return *this; };
 
     void clear();
 
@@ -448,33 +449,18 @@ public:
     std::size_t packNeededUpdate(fge::net::Packet& pck);
     void unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id);
 
-    [[nodiscard]] inline size_t size() const
-    {
-        return this->g_data.size();
-    }
-    inline fge::net::NetworkTypeBase* at(size_t index)
-    {
-        return this->g_data.at(index).get();
-    }
-    inline fge::net::NetworkTypeBase* operator[](size_t index)
-    {
-        return this->g_data[index].get();
-    }
-    inline fge::net::NetworkTypeBase* back()
-    {
-        return this->g_data.back().get();
-    }
-    inline fge::net::NetworkTypeBase* front()
-    {
-        return this->g_data.front().get();
-    }
+    [[nodiscard]] inline size_t size() const { return this->g_data.size(); }
+    inline fge::net::NetworkTypeBase* at(size_t index) { return this->g_data.at(index).get(); }
+    inline fge::net::NetworkTypeBase* operator[](size_t index) { return this->g_data[index].get(); }
+    inline fge::net::NetworkTypeBase* back() { return this->g_data.back().get(); }
+    inline fge::net::NetworkTypeBase* front() { return this->g_data.front().get(); }
 
 private:
-    std::vector<std::unique_ptr<fge::net::NetworkTypeBase> > g_data;
+    std::vector<std::unique_ptr<fge::net::NetworkTypeBase>> g_data;
 };
 
-}//end net
-}//end fge
+} // namespace net
+} // namespace fge
 
 #include <FastEngine/C_networkType.inl>
 

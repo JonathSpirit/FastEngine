@@ -18,16 +18,16 @@
 #define _FGE_C_SERVER_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_socket.hpp>
 #include <FastEngine/C_clientList.hpp>
 #include <FastEngine/C_packet.hpp>
 #include <FastEngine/C_packetBZ2.hpp>
 #include <FastEngine/C_packetLZ4.hpp>
-#include <queue>
-#include <mutex>
-#include <thread>
-#include <memory>
+#include <FastEngine/C_socket.hpp>
 #include <condition_variable>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
 
 #define FGE_SERVER_DEFAULT_MAXPACKET 200
 
@@ -36,11 +36,25 @@ namespace fge::net
 
 struct FGE_API FluxPacket
 {
-    FluxPacket(const fge::net::Packet& pck, const fge::net::Identity& id, std::size_t fluxIndex=0, std::size_t fluxCount=0) :
-        _pck(pck), _id(id), _timestamp(fge::net::Client::getTimestamp_ms()), _fluxIndex(fluxIndex), _fluxCount(fluxCount)
+    FluxPacket(const fge::net::Packet& pck,
+               const fge::net::Identity& id,
+               std::size_t fluxIndex = 0,
+               std::size_t fluxCount = 0) :
+            _pck(pck),
+            _id(id),
+            _timestamp(fge::net::Client::getTimestamp_ms()),
+            _fluxIndex(fluxIndex),
+            _fluxCount(fluxCount)
     {}
-    FluxPacket(fge::net::Packet&& pck, const fge::net::Identity& id, std::size_t fluxIndex=0, std::size_t fluxCount=0) :
-        _pck(std::move(pck)), _id(id), _timestamp(fge::net::Client::getTimestamp_ms()), _fluxIndex(fluxIndex), _fluxCount(fluxCount)
+    FluxPacket(fge::net::Packet&& pck,
+               const fge::net::Identity& id,
+               std::size_t fluxIndex = 0,
+               std::size_t fluxCount = 0) :
+            _pck(std::move(pck)),
+            _id(id),
+            _timestamp(fge::net::Client::getTimestamp_ms()),
+            _fluxIndex(fluxIndex),
+            _fluxCount(fluxCount)
     {}
 
     fge::net::Packet _pck;
@@ -90,9 +104,9 @@ public:
     ServerUdp();
     ~ServerUdp();
 
-    template<typename Tpacket=fge::net::Packet>
-    bool start(fge::net::Port port, const fge::net::IpAddress& ip=fge::net::IpAddress::Any);
-    template<typename Tpacket=fge::net::Packet>
+    template<typename Tpacket = fge::net::Packet>
+    bool start(fge::net::Port port, const fge::net::IpAddress& ip = fge::net::IpAddress::Any);
+    template<typename Tpacket = fge::net::Packet>
     bool start();
     void stop();
 
@@ -132,7 +146,7 @@ private:
     mutable std::mutex g_mutexSend;
     mutable std::mutex g_mutexServer;
 
-    std::vector<std::unique_ptr<fge::net::ServerFluxUdp> > g_flux;
+    std::vector<std::unique_ptr<fge::net::ServerFluxUdp>> g_flux;
     fge::net::ServerFluxUdp g_defaultFlux;
 
     fge::net::SocketUdp g_socket;
@@ -145,10 +159,12 @@ public:
     ServerClientSideUdp();
     ~ServerClientSideUdp();
 
-    template<typename Tpacket=fge::net::Packet>
-    bool start(fge::net::Port port, const fge::net::IpAddress& ip,
-               const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort);
-    template<typename Tpacket=fge::net::Packet>
+    template<typename Tpacket = fge::net::Packet>
+    bool start(fge::net::Port port,
+               const fge::net::IpAddress& ip,
+               const fge::net::IpAddress& remoteAddress,
+               fge::net::Port remotePort);
+    template<typename Tpacket = fge::net::Packet>
     bool start();
     void stop();
 
@@ -201,7 +217,7 @@ private:
     fge::net::Identity g_clientIdentity;
 };
 
-}//end fge::net
+} // namespace fge::net
 
 #include <FastEngine/C_server.inl>
 

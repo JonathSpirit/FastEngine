@@ -26,7 +26,10 @@ void Event::clear()
     this->g_types = 0;
 
     ///Keyboard
-    this->g_keys[0]=0; this->g_keys[1]=0; this->g_keys[2]=0; this->g_keys[3]=0;
+    this->g_keys[0] = 0;
+    this->g_keys[1] = 0;
+    this->g_keys[2] = 0;
+    this->g_keys[3] = 0;
     this->g_keyUnicode = 0;
 
     ///Mouse
@@ -47,11 +50,11 @@ void Event::start()
     this->g_mouseWheelVerticalDelta = 0;
 }
 #ifndef FGE_DEF_SERVER
-void Event::process( const sf::Event& sfevt )
+void Event::process(const sf::Event& sfevt)
 {
     this->g_types |= (0x80000000 >> sfevt.type);
 
-    switch ( sfevt.type )
+    switch (sfevt.type)
     {
     case sf::Event::EventType::Closed:
         this->_onClosed.call(*this);
@@ -72,21 +75,21 @@ void Event::process( const sf::Event& sfevt )
         this->_onTextEntered.call(*this, sfevt.text);
         break;
     case sf::Event::EventType::KeyPressed:
-        if ( (sfevt.key.code >= 0) && (sfevt.key.code < sf::Keyboard::Key::KeyCount) )
+        if ((sfevt.key.code >= 0) && (sfevt.key.code < sf::Keyboard::Key::KeyCount))
         {
-            this->g_keys[sfevt.key.code/32] |= (0x80000000 >> (sfevt.key.code%32));
+            this->g_keys[sfevt.key.code / 32] |= (0x80000000 >> (sfevt.key.code % 32));
         }
         this->_onKeyPressed.call(*this, sfevt.key);
         break;
     case sf::Event::EventType::KeyReleased:
-        if ( (sfevt.key.code >= 0) && (sfevt.key.code < sf::Keyboard::Key::KeyCount) )
+        if ((sfevt.key.code >= 0) && (sfevt.key.code < sf::Keyboard::Key::KeyCount))
         {
-            this->g_keys[sfevt.key.code/32] &=~ (0x80000000 >> (sfevt.key.code%32));
+            this->g_keys[sfevt.key.code / 32] &= ~(0x80000000 >> (sfevt.key.code % 32));
         }
         this->_onKeyReleased.call(*this, sfevt.key);
         break;
     case sf::Event::EventType::MouseWheelScrolled:
-        this->g_mousePixelPos = sf::Vector2i( sfevt.mouseWheelScroll.x, sfevt.mouseWheelScroll.y );
+        this->g_mousePixelPos = sf::Vector2i(sfevt.mouseWheelScroll.x, sfevt.mouseWheelScroll.y);
         if (sfevt.mouseWheelScroll.wheel == sf::Mouse::Wheel::HorizontalWheel)
         {
             this->g_mouseWheelHorizontalDelta = sfevt.mouseWheelScroll.delta;
@@ -99,16 +102,16 @@ void Event::process( const sf::Event& sfevt )
         break;
     case sf::Event::EventType::MouseButtonPressed:
         this->g_mouseButtons |= (0x80 >> (sfevt.mouseButton.button));
-        this->g_mousePixelPos = sf::Vector2i( sfevt.mouseButton.x, sfevt.mouseButton.y );
+        this->g_mousePixelPos = sf::Vector2i(sfevt.mouseButton.x, sfevt.mouseButton.y);
         this->_onMouseButtonPressed.call(*this, sfevt.mouseButton);
         break;
     case sf::Event::EventType::MouseButtonReleased:
-        this->g_mouseButtons &=~ (0x80 >> (sfevt.mouseButton.button));
-        this->g_mousePixelPos = sf::Vector2i( sfevt.mouseButton.x, sfevt.mouseButton.y );
+        this->g_mouseButtons &= ~(0x80 >> (sfevt.mouseButton.button));
+        this->g_mousePixelPos = sf::Vector2i(sfevt.mouseButton.x, sfevt.mouseButton.y);
         this->_onMouseButtonReleased.call(*this, sfevt.mouseButton);
         break;
     case sf::Event::EventType::MouseMoved:
-        this->g_mousePixelPos = sf::Vector2i( sfevt.mouseMove.x, sfevt.mouseMove.y );
+        this->g_mousePixelPos = sf::Vector2i(sfevt.mouseMove.x, sfevt.mouseMove.y);
         this->_onMouseMoved.call(*this, sfevt.mouseMove);
         break;
     case sf::Event::EventType::MouseEntered:
@@ -148,11 +151,11 @@ void Event::process( const sf::Event& sfevt )
         break;
     }
 }
-void Event::process( sf::Window& sfscreen, unsigned int maxEventCount )
+void Event::process(sf::Window& sfscreen, unsigned int maxEventCount)
 {
     sf::Event evt{};
     this->start();
-    while ( sfscreen.pollEvent(evt) && maxEventCount>0 )
+    while (sfscreen.pollEvent(evt) && maxEventCount > 0)
     {
         this->process(evt);
         --maxEventCount;
@@ -160,9 +163,9 @@ void Event::process( sf::Window& sfscreen, unsigned int maxEventCount )
 }
 #endif //FGE_DEF_SERVER
 
-bool Event::isKeyPressed( sf::Keyboard::Key sfkey ) const
+bool Event::isKeyPressed(sf::Keyboard::Key sfkey) const
 {
-    return static_cast<bool>(this->g_keys[sfkey/32] & (0x80000000 >> (sfkey%32)));
+    return static_cast<bool>(this->g_keys[sfkey / 32] & (0x80000000 >> (sfkey % 32)));
 }
 uint32_t Event::getKeyUnicode() const
 {
@@ -174,16 +177,16 @@ const sf::Vector2u& Event::getWindowSize() const
     return this->g_windowSize;
 }
 
-bool Event::isEventType( sf::Event::EventType evtType ) const
+bool Event::isEventType(sf::Event::EventType evtType) const
 {
-    return static_cast<bool>(this->g_types&(0x80000000 >> evtType));
+    return static_cast<bool>(this->g_types & (0x80000000 >> evtType));
 }
 
 const sf::Vector2i& Event::getMousePixelPos() const
 {
     return this->g_mousePixelPos;
 }
-bool Event::isMouseButtonPressed( sf::Mouse::Button sfmouse ) const
+bool Event::isMouseButtonPressed(sf::Mouse::Button sfmouse) const
 {
     return static_cast<bool>(this->g_mouseButtons & (0x80 >> (sfmouse)));
 }
@@ -197,7 +200,7 @@ float Event::getMouseWheelVerticalDelta() const
     return this->g_mouseWheelVerticalDelta;
 }
 
-fge::net::Packet& Event::pack( fge::net::Packet& pck )
+fge::net::Packet& Event::pack(fge::net::Packet& pck)
 {
     pck << this->g_types;
     pck << this->g_keys[0] << this->g_keys[1] << this->g_keys[2] << this->g_keys[3];
@@ -208,7 +211,7 @@ fge::net::Packet& Event::pack( fge::net::Packet& pck )
     pck << this->g_mouseWheelHorizontalDelta << this->g_mouseWheelVerticalDelta;
     return pck;
 }
-fge::net::Packet& Event::unpack( fge::net::Packet& pck )
+fge::net::Packet& Event::unpack(fge::net::Packet& pck)
 {
     pck >> this->g_types;
     pck >> this->g_keys[0] >> this->g_keys[1] >> this->g_keys[2] >> this->g_keys[3];
@@ -224,9 +227,9 @@ std::string Event::getBinaryKeysString() const
 {
     std::string result;
 
-    for ( unsigned int i = 0; i<4; ++i )
+    for (unsigned int i = 0; i < 4; ++i)
     {
-        for ( unsigned int a = 0; a<32; ++a )
+        for (unsigned int a = 0; a < 32; ++a)
         {
             result += static_cast<bool>(this->g_keys[i] & (0x80000000 >> a)) ? '1' : '0';
         }
@@ -238,7 +241,7 @@ std::string Event::getBinaryTypesString() const
 {
     std::string result;
 
-    for ( unsigned int i = 0; i<32; ++i )
+    for (unsigned int i = 0; i < 32; ++i)
     {
         result += static_cast<bool>(this->g_types & (0x80000000 >> i)) ? '1' : '0';
     }
@@ -248,11 +251,11 @@ std::string Event::getBinaryMouseButtonsString() const
 {
     std::string result;
 
-    for ( unsigned int i = 0; i<8; ++i )
+    for (unsigned int i = 0; i < 8; ++i)
     {
         result += static_cast<bool>(this->g_mouseButtons & (0x80 >> i)) ? '1' : '0';
     }
     return result;
 }
 
-}//end fge
+} // namespace fge

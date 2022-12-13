@@ -32,7 +32,7 @@ void ClientList::clear()
 void ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
-    for (auto & it : this->g_data)
+    for (auto& it: this->g_data)
     {
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
@@ -40,7 +40,7 @@ void ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
 void ClientList::sendToAll(const fge::net::SendQueuePacket& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
-    for (auto & it : this->g_data)
+    for (auto& it: this->g_data)
     {
         it.second->pushPacket(pck);
     }
@@ -64,7 +64,9 @@ void ClientList::remove(const fge::net::Identity& id)
         this->g_events.push_back({fge::net::ClientListEvent::CLEVT_DELCLIENT, id});
     }
 }
-fge::net::ClientList::ClientListData::iterator ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos, const std::unique_lock<std::recursive_mutex>& lock)
+fge::net::ClientList::ClientListData::iterator
+ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos,
+                   const std::unique_lock<std::recursive_mutex>& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -101,7 +103,8 @@ fge::net::ClientList::ClientListData::iterator ClientList::begin(const std::uniq
     }
     return this->g_data.begin();
 }
-fge::net::ClientList::ClientListData::const_iterator ClientList::begin(const std::unique_lock<std::recursive_mutex>& lock) const
+fge::net::ClientList::ClientListData::const_iterator
+ClientList::begin(const std::unique_lock<std::recursive_mutex>& lock) const
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -117,7 +120,8 @@ fge::net::ClientList::ClientListData::iterator ClientList::end(const std::unique
     }
     return this->g_data.end();
 }
-fge::net::ClientList::ClientListData::const_iterator ClientList::end(const std::unique_lock<std::recursive_mutex>& lock) const
+fge::net::ClientList::ClientListData::const_iterator
+ClientList::end(const std::unique_lock<std::recursive_mutex>& lock) const
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -165,4 +169,4 @@ void ClientList::clearClientEvent()
     this->g_events.clear();
 }
 
-}//end fge::net
+} // namespace fge::net

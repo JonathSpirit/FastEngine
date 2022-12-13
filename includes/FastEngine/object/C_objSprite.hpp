@@ -30,8 +30,8 @@ class FGE_API ObjSprite : public fge::Object
 {
 public:
     ObjSprite() = default;
-    explicit ObjSprite(const fge::Texture& texture, const sf::Vector2f& position=sf::Vector2f());
-    ObjSprite(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position=sf::Vector2f());
+    explicit ObjSprite(const fge::Texture& texture, const sf::Vector2f& position = sf::Vector2f());
+    ObjSprite(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSprite)
 
@@ -67,6 +67,6 @@ private:
     sf::IntRect g_textureRect;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJSPRITE_HPP_INCLUDED

@@ -20,17 +20,17 @@ namespace fge
 {
 
 ObjAnimation::ObjAnimation() :
-    g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
+        g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
 
-    g_paused(false)
+        g_paused(false)
 {
     this->setTextureRect(this->g_animation);
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position) :
-    g_animation(animation),
-    g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
+        g_animation(animation),
+        g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
 
-    g_paused(false)
+        g_paused(false)
 {
     this->setPosition(position);
     this->setTextureRect(this->g_animation);
@@ -106,10 +106,10 @@ FGE_OBJ_UPDATE_BODY(ObjAnimation)
     if (!this->g_paused)
     {
         fge::anim::AnimationFrame* frame = this->g_animation.getFrame();
-        if ( frame != nullptr )
+        if (frame != nullptr)
         {
             this->g_nextFrameTime += deltaTime;
-            if ( this->g_nextFrameTime >= std::chrono::milliseconds{this->g_tickDuration*frame->_ticks} )
+            if (this->g_nextFrameTime >= std::chrono::milliseconds{this->g_tickDuration * frame->_ticks})
             {
                 this->g_animation.nextFrame();
                 this->setTextureRect(this->g_animation);
@@ -149,13 +149,14 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->setColor( sf::Color( jsonObject.value<uint32_t>("color", 0) ) );
+    this->setColor(sf::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_animation = jsonObject.value<std::string>("animation", FGE_ANIM_BAD);
-    this->g_animation.setGroup( jsonObject.value<std::size_t>("animationGroup", 0) );
-    this->g_animation.setFrame( jsonObject.value<std::size_t>("animationFrame", 0) );
-    this->g_animation.setLoop( jsonObject.value<bool>("animationLoop", false) );
-    this->g_animation.setReverse( jsonObject.value<bool>("animationReverse", false) );
-    this->g_tickDuration = std::chrono::milliseconds( jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION_MS) );
+    this->g_animation.setGroup(jsonObject.value<std::size_t>("animationGroup", 0));
+    this->g_animation.setFrame(jsonObject.value<std::size_t>("animationFrame", 0));
+    this->g_animation.setLoop(jsonObject.value<bool>("animationLoop", false));
+    this->g_animation.setReverse(jsonObject.value<bool>("animationReverse", false));
+    this->g_tickDuration =
+            std::chrono::milliseconds(jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION_MS));
 
     this->setTextureRect(this->g_animation);
 }
@@ -164,7 +165,8 @@ void ObjAnimation::pack(fge::net::Packet& pck)
     fge::Object::pack(pck);
 
     pck << this->g_vertices[0].color << this->g_animation;
-    pck << static_cast<uint32_t>(this->g_animation.getGroupIndex()) << static_cast<uint32_t>(this->g_animation.getFrameIndex());
+    pck << static_cast<uint32_t>(this->g_animation.getGroupIndex())
+        << static_cast<uint32_t>(this->g_animation.getFrameIndex());
     pck << this->g_animation.isLoop() << this->g_animation.isReverse();
     pck << static_cast<uint16_t>(this->g_tickDuration.count());
 }
@@ -175,8 +177,8 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
     sf::Color color;
     pck >> color >> this->g_animation;
     this->setColor(color);
-    uint32_t group=0, frame=0;
-    bool loop=false, reverse=false;
+    uint32_t group = 0, frame = 0;
+    bool loop = false, reverse = false;
     pck >> group >> frame >> loop >> reverse;
     this->g_animation.setGroup(group);
     this->g_animation.setFrame(frame);
@@ -205,8 +207,8 @@ sf::FloatRect ObjAnimation::getGlobalBounds() const
 }
 sf::FloatRect ObjAnimation::getLocalBounds() const
 {
-    float width = static_cast<float>( std::abs(this->g_textureRect.width) );
-    float height = static_cast<float>( std::abs(this->g_textureRect.height) );
+    float width = static_cast<float>(std::abs(this->g_textureRect.width));
+    float height = static_cast<float>(std::abs(this->g_textureRect.height));
 
     return sf::FloatRect(0.f, 0.f, width, height);
 }
@@ -222,9 +224,9 @@ void ObjAnimation::updatePositions()
 }
 void ObjAnimation::updateTexCoords()
 {
-    float left   = static_cast<float>(this->g_textureRect.left);
-    float right  = left + static_cast<float>(this->g_textureRect.width);
-    float top    = static_cast<float>(this->g_textureRect.top);
+    float left = static_cast<float>(this->g_textureRect.left);
+    float right = left + static_cast<float>(this->g_textureRect.width);
+    float top = static_cast<float>(this->g_textureRect.top);
     float bottom = top + static_cast<float>(this->g_textureRect.height);
 
     this->g_vertices[0].texCoords = sf::Vector2f(left, top);
@@ -233,4 +235,4 @@ void ObjAnimation::updateTexCoords()
     this->g_vertices[3].texCoords = sf::Vector2f(right, bottom);
 }
 
-}//end fge
+} // namespace fge

@@ -19,9 +19,9 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
+#include "FastEngine/object/C_object.hpp"
 #include <memory>
 #include <string>
-#include "FastEngine/object/C_object.hpp"
 
 #define FGE_REG_BADCLASSID std::numeric_limits<fge::reg::ClassId>::max()
 
@@ -39,10 +39,7 @@ public:
     [[nodiscard]] virtual fge::Object* createNew() const = 0;
     [[nodiscard]] virtual fge::Object* duplicate(const fge::Object* obj) const = 0;
 
-    [[nodiscard]] const std::string& getClassName() const
-    {
-        return this->g_className;
-    }
+    [[nodiscard]] const std::string& getClassName() const { return this->g_className; }
 
 protected:
     std::string g_className;
@@ -58,7 +55,10 @@ public:
     }
 
     [[nodiscard]] fge::Object* createNew() const final { return new T(); }
-    [[nodiscard]] fge::Object* duplicate(const fge::Object* obj) const final { return new T(*reinterpret_cast<const T*>(obj)); }
+    [[nodiscard]] fge::Object* duplicate(const fge::Object* obj) const final
+    {
+        return new T(*reinterpret_cast<const T*>(obj));
+    }
 };
 
 FGE_API void ClearAll();
@@ -84,7 +84,7 @@ FGE_API std::string GetClassName(fge::reg::ClassId classId);
 FGE_API fge::reg::BaseStamp* GetStampOf(std::string_view className);
 FGE_API fge::reg::BaseStamp* GetStampOf(fge::reg::ClassId classId);
 
-}//end fge::reg
+} // namespace fge::reg
 
 
 #endif // _FGE_REG_MANAGER_HPP_INCLUDED

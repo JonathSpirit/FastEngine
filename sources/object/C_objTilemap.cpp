@@ -23,7 +23,7 @@ namespace fge
 FGE_OBJ_DRAW_BODY(ObjTileMap)
 {
     states.transform *= this->getTransform();
-    for (std::size_t i=0; i<this->g_layers.size(); ++i)
+    for (std::size_t i = 0; i < this->g_layers.size(); ++i)
     {
         target.draw(*this->g_layers[i], states);
     }
@@ -66,7 +66,7 @@ void ObjTileMap::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* s
     auto& tileSetsArray = jsonObject["tilesets"];
     tileSetsArray = nlohmann::json::array();
 
-    for (auto& tileSet : this->g_tileSets)
+    for (auto& tileSet: this->g_tileSets)
     {
         auto& obj = tileSetsArray.emplace_back(nlohmann::json::object());
         obj = *tileSet;
@@ -75,7 +75,7 @@ void ObjTileMap::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* s
     auto& layersArray = jsonObject["layers"];
     layersArray = nlohmann::json::array();
 
-    for (auto& layer : this->g_layers)
+    for (auto& layer: this->g_layers)
     {
         auto& obj = layersArray.emplace_back(nlohmann::json::object());
         obj = *layer;
@@ -86,7 +86,7 @@ void ObjTileMap::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* s
     const auto& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())
     {
-        for (const auto& tileSet : tileSetsArray)
+        for (const auto& tileSet: tileSetsArray)
         {
             this->g_tileSets.emplace_back(std::make_shared<fge::TileSet>());
             tileSet.get_to(*this->g_tileSets.back());
@@ -96,7 +96,7 @@ void ObjTileMap::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* s
     const auto& layersArray = jsonObject.at("layers");
     if (layersArray.is_array())
     {
-        for (const auto& layer : layersArray)
+        for (const auto& layer: layersArray)
         {
             this->g_layers.emplace_back(std::make_shared<fge::TileLayer>());
             layer.get_to(*this->g_layers.back());
@@ -132,4 +132,4 @@ sf::FloatRect ObjTileMap::getLocalBounds() const
     return {0.f, 0.f, 1.f, 1.f};
 }
 
-}//end fge
+} // namespace fge

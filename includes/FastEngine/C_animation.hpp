@@ -41,7 +41,7 @@ public:
      * \param name The name of the animation
      * \param frame The beginning frame of the animation
      */
-    Animation(const std::string& name, std::size_t frame=0);
+    Animation(const std::string& name, std::size_t frame = 0);
     /**
      * \brief Constructor that takes the name of the animation and the group name
      *
@@ -52,12 +52,12 @@ public:
      * \param group The name of the group
      * \param frame The beginning frame of the animation
      */
-    Animation(const std::string& name, const std::string& group, std::size_t frame=0);
-    Animation(const char* name, std::size_t frame=0);
-    Animation(const char* name, const char* group, std::size_t frame=0);
-    Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame=0);
-    Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame=0);
-    Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame=0);
+    Animation(const std::string& name, const std::string& group, std::size_t frame = 0);
+    Animation(const char* name, std::size_t frame = 0);
+    Animation(const char* name, const char* group, std::size_t frame = 0);
+    Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame = 0);
+    Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame = 0);
+    Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame = 0);
 
     /**
      * \brief Clear the animation
@@ -212,9 +212,9 @@ public:
      */
     [[nodiscard]] const fge::anim::AnimationDataPtr& getData() const;
 
-    fge::Animation& operator =( const std::string& name );
-    fge::Animation& operator =( const char* name );
-    fge::Animation& operator =( const fge::anim::AnimationDataPtr& data );
+    fge::Animation& operator=(const std::string& name);
+    fge::Animation& operator=(const char* name);
+    fge::Animation& operator=(const fge::anim::AnimationDataPtr& data);
 
     /**
      * \brief Get the texture of the actual frame
@@ -248,6 +248,6 @@ private:
     bool g_reverse;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_ANIMATION_HPP_INCLUDED

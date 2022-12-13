@@ -20,11 +20,11 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "SFML/Graphics/Font.hpp"
-#include <string>
 #include <unordered_map>
-#include <mutex>
-#include <memory>
 #include <filesystem>
+#include <memory>
+#include <mutex>
+#include <string>
 
 #define FGE_FONT_DEFAULT FGE_FONT_BAD
 #define FGE_FONT_BAD ""
@@ -63,6 +63,6 @@ FGE_API void UnloadAll();
 
 FGE_API bool Push(std::string_view name, const fge::font::FontDataPtr& data);
 
-}//end fge::font
+} // namespace fge::font
 
 #endif // _FGE_FONT_MANAGER_HPP_INCLUDED

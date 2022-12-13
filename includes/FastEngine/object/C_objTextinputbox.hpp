@@ -18,10 +18,10 @@
 #define _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/object/C_object.hpp"
-#include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_guiElement.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_object.hpp"
 
 #define FGE_OBJTEXTINBOX_CLASSNAME "FGE:OBJ:TEXTINBOX"
 
@@ -36,10 +36,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
-    fge::GuiElement* getGuiElement() override
-    {
-        return this;
-    }
+    fge::GuiElement* getGuiElement() override { return this; }
 
     void setString(tiny_utf8::string string);
     void setCharacterSize(fge::ObjText::CharacterSize size);
@@ -85,7 +82,9 @@ public:
     sf::FloatRect getLocalBounds() const override;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context);
+    void onGuiMouseButtonPressed(const fge::Event& evt,
+                                 const sf::Event::MouseButtonEvent& arg,
+                                 fge::GuiElementContext& context);
 
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
 
@@ -106,6 +105,6 @@ private:
     bool g_statActive = false;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED

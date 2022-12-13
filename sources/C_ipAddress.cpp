@@ -29,13 +29,13 @@
         #undef _WIN32_WINNT
     #endif // _WIN32_WINNT
 
-    #define _WIN32_WINDOWS  _WIN32_WINNT_WINXP
-    #define WINVER          _WIN32_WINNT_WINXP
-    #define _WIN32_WINNT    _WIN32_WINNT_WINXP
+    #define _WIN32_WINDOWS _WIN32_WINNT_WINXP
+    #define WINVER _WIN32_WINNT_WINXP
+    #define _WIN32_WINNT _WIN32_WINNT_WINXP
 
+    #include <iphlpapi.h>
     #include <winsock2.h>
     #include <ws2tcpip.h>
-    #include <iphlpapi.h>
 #else
     #include <arpa/inet.h>
     #include <sys/socket.h>
@@ -61,32 +61,29 @@ const fge::net::IpAddress IpAddress::LocalHost{127, 0, 0, 1};
 const fge::net::IpAddress IpAddress::Broadcast{255, 255, 255, 255};
 
 IpAddress::IpAddress() noexcept :
-    g_address(0),
-    g_valid(false)
-{
-}
+        g_address(0),
+        g_valid(false)
+{}
 IpAddress::IpAddress(const std::string& address) :
-    g_address(0),
-    g_valid(false)
+        g_address(0),
+        g_valid(false)
 {
     this->set(address.c_str());
 }
 IpAddress::IpAddress(const char* address) :
-    g_address(0),
-    g_valid(false)
+        g_address(0),
+        g_valid(false)
 {
     this->set(address);
 }
 IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept :
-    g_address( fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0) ),
-    g_valid(true)
-{
-}
+        g_address(fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0)),
+        g_valid(true)
+{}
 IpAddress::IpAddress(uint32_t address) noexcept :
-    g_address( fge::SwapHostNetEndian_32(address) ),
-    g_valid(true)
-{
-}
+        g_address(fge::SwapHostNetEndian_32(address)),
+        g_valid(true)
+{}
 
 bool IpAddress::set(const std::string& address)
 {
@@ -94,15 +91,15 @@ bool IpAddress::set(const std::string& address)
 }
 bool IpAddress::set(const char* address)
 {
-    if ( std::strcmp(address, "255.255.255.255") == 0 )
-    {//Broadcast
+    if (std::strcmp(address, "255.255.255.255") == 0)
+    { //Broadcast
         this->g_address = INADDR_BROADCAST;
         this->g_valid = true;
         return true;
     }
 
-    if ( std::strcmp(address, "0.0.0.0") == 0 )
-    {//Any
+    if (std::strcmp(address, "0.0.0.0") == 0)
+    { //Any
         this->g_address = INADDR_ANY;
         this->g_valid = true;
         return true;
@@ -123,7 +120,7 @@ bool IpAddress::set(const char* address)
     hints.ai_family = AF_INET;
     addrinfo* result = nullptr;
 
-    if ( getaddrinfo(address, nullptr, &hints, &result) == 0 )
+    if (getaddrinfo(address, nullptr, &hints, &result) == 0)
     {
         if (result != nullptr)
         {
@@ -185,7 +182,7 @@ uint32_t IpAddress::getHostByteOrder() const
 std::string IpAddress::getHostName()
 {
     char name[80];
-    if ( gethostname(name, sizeof(name)) == _FGE_SOCKET_ERROR )
+    if (gethostname(name, sizeof(name)) == _FGE_SOCKET_ERROR)
     {
         return {};
     }
@@ -200,27 +197,25 @@ void IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
     hints.ai_family = AF_INET;
     addrinfo* result = nullptr;
 
-    if ( getaddrinfo("", nullptr, &hints, &result) == 0 )
+    if (getaddrinfo("", nullptr, &hints, &result) == 0)
     {
         if (result != nullptr)
         {
-            addrinfo *ptr = result;
+            addrinfo* ptr = result;
 
-            do
-            {
+            do {
                 fge::net::IpAddress ip;
                 ip.g_address = reinterpret_cast<sockaddr_in*>(ptr->ai_addr)->sin_addr.s_addr;
                 ip.g_valid = true;
 
                 buff.push_back(ip);
 
-                ptr=ptr->ai_next;
-            }
-            while (ptr != nullptr);
+                ptr = ptr->ai_next;
+            } while (ptr != nullptr);
 
             freeaddrinfo(result);
         }
     }
 }
 
-}//end fge::net
+} // namespace fge::net

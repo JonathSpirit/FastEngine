@@ -27,8 +27,8 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_font.hpp"
-#include <vector>
 #include "tinyutf8.h"
+#include <vector>
 
 #define FGE_OBJTEXT_CLASSNAME "FGE:OBJ:TEXT"
 
@@ -44,7 +44,12 @@ public:
     Character(const sf::Color& fillColor, const sf::Color& outlineColor);
 
     void clear();
-    void addLine(bool outlineVertices, float lineLength, float lineTop, float offset, float thickness, float outlineThickness = 0.0f);
+    void addLine(bool outlineVertices,
+                 float lineLength,
+                 float lineTop,
+                 float offset,
+                 float thickness,
+                 float outlineThickness = 0.0f);
     void addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, const sf::Glyph& glyph, float italicShear);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -63,11 +68,11 @@ public:
 private:
     friend ObjText;
 
-    sf::VertexArray g_vertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the fill geometry
+    sf::VertexArray g_vertices{sf::PrimitiveType::Triangles};        /// Vertex array containing the fill geometry
     sf::VertexArray g_outlineVertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the outline geometry
 
-    sf::Color g_fillColor{255,255,255};
-    sf::Color g_outlineColor{0,0,0};
+    sf::Color g_fillColor{255, 255, 255};
+    sf::Color g_outlineColor{0, 0, 0};
 
     uint32_t g_unicodeChar;
 
@@ -81,15 +86,18 @@ public:
 
     enum Style : uint8_t
     {
-        Regular       = 0,      /// Regular characters, no style
-        Bold          = 1 << 0, /// Bold characters
-        Italic        = 1 << 1, /// Italic characters
-        Underlined    = 1 << 2, /// Underlined characters
-        StrikeThrough = 1 << 3  /// Strike through characters
+        Regular = 0,           /// Regular characters, no style
+        Bold = 1 << 0,         /// Bold characters
+        Italic = 1 << 1,       /// Italic characters
+        Underlined = 1 << 2,   /// Underlined characters
+        StrikeThrough = 1 << 3 /// Strike through characters
     };
 
     ObjText() = default;
-    ObjText(tiny_utf8::string string, fge::Font font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    ObjText(tiny_utf8::string string,
+            fge::Font font,
+            const sf::Vector2f& position = {},
+            fge::ObjText::CharacterSize characterSize = 30);
     explicit ObjText(fge::Font font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
@@ -147,22 +155,22 @@ public:
 private:
     void ensureGeometryUpdate() const;
 
-    tiny_utf8::string g_string; /// String to display
-    fge::Font g_font; /// Font used to display the string
-    fge::ObjText::CharacterSize g_characterSize{30}; /// Base size of characters, in pixels
-    float g_letterSpacingFactor{1.0f}; /// Spacing factor between letters
-    float g_lineSpacingFactor{1.0f}; /// Spacing factor between lines
+    tiny_utf8::string g_string;                         /// String to display
+    fge::Font g_font;                                   /// Font used to display the string
+    fge::ObjText::CharacterSize g_characterSize{30};    /// Base size of characters, in pixels
+    float g_letterSpacingFactor{1.0f};                  /// Spacing factor between letters
+    float g_lineSpacingFactor{1.0f};                    /// Spacing factor between lines
     std::underlying_type<Style>::type g_style{Regular}; /// Text style (see Style enum)
-    sf::Color g_fillColor{255,255,255}; /// Text fill color
-    sf::Color g_outlineColor{0,0,0}; /// Text outline color
-    float g_outlineThickness{0.0f}; /// Thickness of the text's outline
+    sf::Color g_fillColor{255, 255, 255};               /// Text fill color
+    sf::Color g_outlineColor{0, 0, 0};                  /// Text outline color
+    float g_outlineThickness{0.0f};                     /// Thickness of the text's outline
 
     mutable std::vector<Character> g_characters;
-    mutable sf::FloatRect g_bounds; /// Bounding rectangle of the text (in local coordinates)
+    mutable sf::FloatRect g_bounds;           /// Bounding rectangle of the text (in local coordinates)
     mutable bool g_geometryNeedUpdate{false}; /// Does the geometry need to be recomputed?
-    mutable uint64_t g_fontTextureId{0}; /// The font texture id
+    mutable uint64_t g_fontTextureId{0};      /// The font texture id
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJTEXT_HPP_INCLUDED

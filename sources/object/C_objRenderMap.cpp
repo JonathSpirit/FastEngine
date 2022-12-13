@@ -20,9 +20,11 @@
 namespace fge
 {
 
-void ObjRenderMap::onClear([[maybe_unused]] const fge::Scene* scene, [[maybe_unused]] sf::RenderTarget& target, [[maybe_unused]] const sf::Color& color)
+void ObjRenderMap::onClear([[maybe_unused]] const fge::Scene* scene,
+                           [[maybe_unused]] sf::RenderTarget& target,
+                           [[maybe_unused]] const sf::Color& color)
 {
-    this->_renderTexture.clear( this->g_colorClear );
+    this->_renderTexture.clear(this->g_colorClear);
 }
 
 void ObjRenderMap::setClearColor(const sf::Color& color)
@@ -38,16 +40,16 @@ void ObjRenderMap::first(fge::Scene* scene)
 {
     if (scene != nullptr)
     {
-        scene->_onRenderTargetClear.add( new CallbackFunctorObject(&fge::ObjRenderMap::onClear, this), this );
+        scene->_onRenderTargetClear.add(new CallbackFunctorObject(&fge::ObjRenderMap::onClear, this), this);
     }
 }
 
 #ifdef FGE_DEF_SERVER
-FGE_OBJ_UPDATE_BODY(ObjRenderMap){}
+FGE_OBJ_UPDATE_BODY(ObjRenderMap) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjRenderMap)
 {
-    if ( screen.getSize() != this->g_windowSize )
+    if (screen.getSize() != this->g_windowSize)
     {
         this->g_windowSize = screen.getSize();
         this->_renderTexture.create(this->g_windowSize.x, this->g_windowSize.y);
@@ -57,7 +59,8 @@ FGE_OBJ_UPDATE_BODY(ObjRenderMap)
 
         this->g_windowView = screen.getDefaultView();
         this->g_windowView.setSize(static_cast<sf::Vector2f>(this->g_windowSize));
-        this->g_windowView.setCenter(static_cast<float>(this->g_windowSize.x)/2.0f, static_cast<float>(this->g_windowSize.y)/2.0f);
+        this->g_windowView.setCenter(static_cast<float>(this->g_windowSize.x) / 2.0f,
+                                     static_cast<float>(this->g_windowSize.y) / 2.0f);
     }
 }
 #endif
@@ -73,7 +76,7 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
     states.texture = &this->_renderTexture.getTexture();
     target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
 
-    target.setView( this->_renderTexture.getView() );
+    target.setView(this->_renderTexture.getView());
 }
 #endif
 
@@ -82,18 +85,10 @@ void ObjRenderMap::removed([[maybe_unused]] fge::Scene* scene)
     this->detachAll();
 }
 
-void ObjRenderMap::save([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
-{
-}
-void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
-{
-}
-void ObjRenderMap::pack([[maybe_unused]] fge::net::Packet& pck)
-{
-}
-void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet& pck)
-{
-}
+void ObjRenderMap::save([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene) {}
+void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene) {}
+void ObjRenderMap::pack([[maybe_unused]] fge::net::Packet& pck) {}
+void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet& pck) {}
 
 const char* ObjRenderMap::getClassName() const
 {
@@ -110,8 +105,8 @@ sf::FloatRect ObjRenderMap::getGlobalBounds() const
 }
 sf::FloatRect ObjRenderMap::getLocalBounds() const
 {
-    float width = static_cast<float>( this->g_windowSize.x );
-    float height = static_cast<float>( this->g_windowSize.y );
+    float width = static_cast<float>(this->g_windowSize.x);
+    float height = static_cast<float>(this->g_windowSize.y);
 
     return {0.f, 0.f, width, height};
 }
@@ -136,4 +131,4 @@ void ObjRenderMap::updateTexCoords()
     this->g_vertices[3].texCoords = sf::Vector2f(bounds.width, bounds.height);
 }
 
-}//end fge
+} // namespace fge

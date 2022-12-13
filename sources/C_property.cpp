@@ -29,7 +29,7 @@ Property::Property(const fge::Property& val) :
     case fge::Property::Types::PTYPE_NULL:
         break;
     case fge::Property::Types::PTYPE_STRING:
-        this->g_data._ptr = new std::string{ *reinterpret_cast<std::string*>(val.g_data._ptr) };
+        this->g_data._ptr = new std::string{*reinterpret_cast<std::string*>(val.g_data._ptr)};
         break;
     case fge::Property::Types::PTYPE_CLASS:
         this->g_data._ptr = reinterpret_cast<fge::PropertyClassWrapper*>(val.g_data._ptr)->copy();
@@ -75,7 +75,7 @@ void Property::clear()
     this->g_type = fge::Property::Types::PTYPE_NULL;
 }
 
-bool Property::operator== (const fge::Property& val) const
+bool Property::operator==(const fge::Property& val) const
 {
     if (this->g_type == val.g_type)
     {
@@ -115,31 +115,33 @@ bool Property::operator== (const fge::Property& val) const
             return this->g_data._d == val.g_data._d;
             break;
         case fge::Property::Types::PTYPE_STRING:
-            return *reinterpret_cast<std::string*>(this->g_data._ptr) == *reinterpret_cast<std::string*>(val.g_data._ptr);
+            return *reinterpret_cast<std::string*>(this->g_data._ptr) ==
+                   *reinterpret_cast<std::string*>(val.g_data._ptr);
             break;
         case fge::Property::Types::PTYPE_POINTER:
             return this->g_data._ptr == val.g_data._ptr;
             break;
         case fge::Property::Types::PTYPE_CLASS:
-            return reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->compare( reinterpret_cast<fge::PropertyClassWrapper*>(val.g_data._ptr) );
+            return reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)
+                    ->compare(reinterpret_cast<fge::PropertyClassWrapper*>(val.g_data._ptr));
             break;
         }
     }
     return false;
 }
 
-fge::Property& Property::operator= (const fge::Property& val)
+fge::Property& Property::operator=(const fge::Property& val)
 {
     this->set(val);
     return *this;
 }
-fge::Property& Property::operator= (fge::Property&& val) noexcept
+fge::Property& Property::operator=(fge::Property&& val) noexcept
 {
     this->set(std::move(val));
     return *this;
 }
 
-fge::Property& Property::operator= (const char* val)
+fge::Property& Property::operator=(const char* val)
 {
     this->set(val);
     return *this;
@@ -235,7 +237,8 @@ bool Property::set(const fge::Property& val)
             this->g_isModified = true;
             break;
         case fge::Property::Types::PTYPE_CLASS:
-            if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->tryToCopy(reinterpret_cast<fge::PropertyClassWrapper*>(val.g_data._ptr)) )
+            if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)
+                        ->tryToCopy(reinterpret_cast<fge::PropertyClassWrapper*>(val.g_data._ptr)))
             {
                 this->g_isModified = true;
             }
@@ -354,28 +357,30 @@ fge::ParrayType& Property::setArrayType()
     {
         this->clear();
         this->g_type = fge::Property::Types::PTYPE_CLASS;
-        this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<fge::ParrayType>());
+        this->g_data._ptr =
+                static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<fge::ParrayType>());
     }
     else
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() != typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() != typeid(fge::ParrayType))
         {
             this->clear();
             this->g_type = fge::Property::Types::PTYPE_CLASS;
-            this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<fge::ParrayType>());
+            this->g_data._ptr =
+                    static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<fge::ParrayType>());
         }
     }
 
-    return reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data;
+    return reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data;
 }
 
 bool Property::resize(std::size_t n)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.resize(n);
+            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data.resize(n);
             return true;
         }
     }
@@ -385,9 +390,9 @@ bool Property::reserve(std::size_t n)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.reserve(n);
+            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data.reserve(n);
             return true;
         }
     }
@@ -398,9 +403,10 @@ bool Property::pushData(const fge::Property& value)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.emplace_back(value);
+            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)
+                    ->_data.emplace_back(value);
             return true;
         }
     }
@@ -410,9 +416,10 @@ bool Property::pushData(fge::Property&& value)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.emplace_back(std::move(value));
+            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)
+                    ->_data.emplace_back(std::move(value));
             return true;
         }
     }
@@ -423,9 +430,9 @@ bool Property::setData(std::size_t index, const fge::Property& value)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data[index] = value;
+            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data[index] = value;
             return true;
         }
     }
@@ -435,9 +442,10 @@ bool Property::setData(std::size_t index, fge::Property&& value)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data[index] = std::move(value);
+            reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data[index] =
+                    std::move(value);
             return true;
         }
     }
@@ -448,11 +456,13 @@ fge::Property* Property::getData(std::size_t index)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            if ( reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.size() > index )
+            if (reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data.size() >
+                index)
             {
-                return &reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data[index];
+                return &reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)
+                                ->_data[index];
             }
         }
     }
@@ -462,11 +472,13 @@ const fge::Property* Property::getData(std::size_t index) const
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            if ( reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.size() > index )
+            if (reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data.size() >
+                index)
             {
-                return &reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data[index];
+                return &reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)
+                                ->_data[index];
             }
         }
     }
@@ -477,19 +489,19 @@ std::size_t Property::getDataSize() const
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
-        if ( reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType) )
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(fge::ParrayType))
         {
-            return reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>* >(this->g_data._ptr)->_data.size();
+            return reinterpret_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->g_data._ptr)->_data.size();
         }
     }
     return 0;
 }
 
-fge::Property* Property::operator[] (std::size_t index)
+fge::Property* Property::operator[](std::size_t index)
 {
     return this->getData(index);
 }
-const fge::Property* Property::operator[] (std::size_t index) const
+const fge::Property* Property::operator[](std::size_t index) const
 {
     return this->getData(index);
 }
@@ -503,4 +515,4 @@ void Property::setModifiedFlag(bool flag)
     this->g_isModified = flag;
 }
 
-}//end fge
+} // namespace fge

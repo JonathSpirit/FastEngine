@@ -19,10 +19,10 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/extra/extra_string.hpp"
-#include <string>
-#include <vector>
-#include <typeinfo>
 #include <optional>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 namespace fge
 {
@@ -69,11 +69,9 @@ public:
     Property(fge::Property&& val) noexcept;
 
     //Copy/Move some type constructor
-    template<class T,
-            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
+    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
     Property(const T& val);
-    template<class T,
-            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
+    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
     Property(T&& val);
 
     //Special string copy constructor
@@ -83,22 +81,20 @@ public:
 
     void clear();
 
-    bool operator== (const fge::Property& val) const;
+    bool operator==(const fge::Property& val) const;
 
     //Copy/Move operator
-    fge::Property& operator= (const fge::Property& val);
-    fge::Property& operator= (fge::Property&& val) noexcept;
+    fge::Property& operator=(const fge::Property& val);
+    fge::Property& operator=(fge::Property&& val) noexcept;
 
     //Copy/Move some type operator
-    template<class T,
-            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    fge::Property& operator= (const T& val);
-    template<class T,
-            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
-    fge::Property& operator= (T&& val);
+    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    fge::Property& operator=(const T& val);
+    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    fge::Property& operator=(T&& val);
 
     //Special string copy operator
-    fge::Property& operator= (const char* val);
+    fge::Property& operator=(const char* val);
 
     template<class T>
     T& setType();
@@ -116,11 +112,9 @@ public:
     bool set(const fge::Property& val);
     bool set(fge::Property&& val);
 
-    template<class T,
-            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
+    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
     bool set(const T& val);
-    template<class T,
-            typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value> >
+    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
     bool set(T&& val);
 
     bool set(const char* val);
@@ -162,8 +156,8 @@ public:
 
     [[nodiscard]] std::size_t getDataSize() const;
 
-    fge::Property* operator[] (std::size_t index);
-    const fge::Property* operator[] (std::size_t index) const;
+    fge::Property* operator[](std::size_t index);
+    const fge::Property* operator[](std::size_t index) const;
 
     [[nodiscard]] bool isModified() const;
     void setModifiedFlag(bool flag);
@@ -194,23 +188,33 @@ public:
 
 namespace comparisonCheck
 {
-    struct No {};
-    template<typename T, typename Arg> No operator== (const T&, const Arg&);
+struct No
+{};
+template<typename T, typename Arg>
+No operator==(const T&, const Arg&);
 
-    template<typename T, typename Arg = T>
-    struct EqualExists
+template<typename T, typename Arg = T>
+struct EqualExists
+{
+    enum
     {
-        enum { value = !std::is_same<decltype(std::declval<T>() == std::declval<Arg>()), No>::value };
+        value = !std::is_same<decltype(std::declval<T>() == std::declval<Arg>()), No>::value
     };
-}
+};
+} // namespace comparisonCheck
 
 template<class T>
 class PropertyClassWrapperType : public PropertyClassWrapper
 {
-    static_assert(std::negation<std::is_base_of<fge::PropertyClassWrapper, T>>::value, "fge::PropertyClassWrapperType<T>, T must not be based on fge::PropertyClassWrapper class type !");
-    static_assert(std::negation<std::is_base_of<fge::Property, T>>::value, "fge::PropertyClassWrapperType<T>, T must not be based on fge::Property class type !");
-    static_assert(std::negation<std::is_pointer<T>>::value, "fge::PropertyClassWrapperType<T>, T must not be a pointer !");
-    static_assert(std::negation<std::is_reference<T>>::value, "fge::PropertyClassWrapperType<T>, T must not be a reference !");
+    static_assert(std::negation<std::is_base_of<fge::PropertyClassWrapper, T>>::value,
+                  "fge::PropertyClassWrapperType<T>, T must not be based on fge::PropertyClassWrapper class type !");
+    static_assert(std::negation<std::is_base_of<fge::Property, T>>::value,
+                  "fge::PropertyClassWrapperType<T>, T must not be based on fge::Property class type !");
+    static_assert(std::negation<std::is_pointer<T>>::value,
+                  "fge::PropertyClassWrapperType<T>, T must not be a pointer !");
+    static_assert(std::negation<std::is_reference<T>>::value,
+                  "fge::PropertyClassWrapperType<T>, T must not be a reference !");
+
 public:
     PropertyClassWrapperType() = default;
     explicit PropertyClassWrapperType(T val);
@@ -229,7 +233,7 @@ public:
     T _data;
 };
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_property.inl>
 

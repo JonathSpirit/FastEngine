@@ -18,8 +18,8 @@
 #define _FGE_TIMER_MANAGER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/C_timer.hpp"
 #include "FastEngine/C_callback.hpp"
+#include "FastEngine/C_timer.hpp"
 #include <memory>
 #include <string>
 
@@ -117,6 +117,6 @@ FGE_API fge::timer::TimerShared Get(const std::string& timerName);
  * @}
  */
 
-}//end fge::timer
+} // namespace fge::timer
 
 #endif // _FGE_TIMER_MANAGER_HPP_INCLUDED

@@ -18,15 +18,15 @@
 #define _FGE_C_RANDOM_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
-#include <SFML/Graphics/Color.hpp>
 
-#include <string>
-#include <random>
 #include <chrono>
-#include <mutex>
 #include <limits>
+#include <mutex>
+#include <random>
+#include <string>
 
 namespace fge
 {
@@ -93,8 +93,7 @@ public:
      * \return A random vector2
      */
     template<typename T>
-    sf::Vector2<T> rangeVec2(T min_x, T max_x,
-                             T min_y, T max_y);
+    sf::Vector2<T> rangeVec2(T min_x, T max_x, T min_y, T max_y);
 
     /**
      * \brief Generate a random vector3 within a range
@@ -109,9 +108,7 @@ public:
      * \return A random vector3
      */
     template<typename T>
-    sf::Vector3<T> rangeVec3(T min_x, T max_x,
-                             T min_y, T max_y,
-                             T min_z, T max_z);
+    sf::Vector3<T> rangeVec3(T min_x, T max_x, T min_y, T max_y, T min_z, T max_z);
 
     /**
      * \brief Generate a random color
@@ -134,10 +131,14 @@ public:
      * \param max_a Maximum alpha value of the range (included)
      * \return A random color
      */
-    sf::Color rangeColor(uint8_t min_r, uint8_t max_r,
-                         uint8_t min_g, uint8_t max_g,
-                         uint8_t min_b, uint8_t max_b,
-                         uint8_t min_a, uint8_t max_a );
+    sf::Color rangeColor(uint8_t min_r,
+                         uint8_t max_r,
+                         uint8_t min_g,
+                         uint8_t max_g,
+                         uint8_t min_b,
+                         uint8_t max_b,
+                         uint8_t min_a,
+                         uint8_t max_a);
 
     /**
      * \brief Generate a random value
@@ -183,7 +184,8 @@ public:
      * \param bucket The bucket of characters to use
      * \return A random character sequence
      */
-    std::string randStr(std::size_t length, const std::string& bucket="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy0123456789");
+    std::string randStr(std::size_t length,
+                        const std::string& bucket = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy0123456789");
 
 private:
     TEngine g_engine;
@@ -199,7 +201,7 @@ private:
  */
 FGE_API extern fge::Random<std::mt19937_64> _random;
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_random.inl>
 

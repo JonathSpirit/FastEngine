@@ -18,9 +18,9 @@
 #define _FGE_C_IPADDRESS_HPP_INCLUDED_
 
 #include <FastEngine/fastengine_extern.hpp>
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 #define FGE_ANYPORT 0
 
@@ -161,6 +161,6 @@ private:
     bool g_valid;
 };
 
-}//end fge::net
+} // namespace fge::net
 
 #endif // _FGE_C_IPADDRESS_HPP_INCLUDED_

@@ -16,20 +16,40 @@
 #define LIFESIM_MAP_SIZE_MINY 50
 
 #define LIFESIM_START_CREATURES_COUNT 20
-#define LIFESIM_TIME_NEW_FOODS std::chrono::milliseconds{10000}
+#define LIFESIM_TIME_NEW_FOODS                                                                                         \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        10000                                                                                                          \
+    }
 #define LIFESIM_NEW_DRINK_COUNT 15
 #define LIFESIM_NEW_FOOD_COUNT 15
-#define LIFESIM_TIME_WORLDTICK std::chrono::milliseconds{20000}
+#define LIFESIM_TIME_WORLDTICK                                                                                         \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        20000                                                                                                          \
+    }
 
 #define LIFESIM_CLIENTDATA_TIMEOUT "timeout"
 #define LIFESIM_SERVER_TICK 20
-#define LIFESIM_TIME_TIMEOUT std::chrono::milliseconds{100}
+#define LIFESIM_TIME_TIMEOUT                                                                                           \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        100                                                                                                            \
+    }
 #define LIFESIM_TIMEOUT_COUNT 30
 
 #define LIFESIM_VIDEOMODE sf::VideoMode(1600, 900)
 #define LIFESIM_FRAMERATE 60
-#define LIFESIM_TIME_CONNECTION_TIMEOUT std::chrono::milliseconds{3000}
-#define LIFESIM_TIME_CLIENT_UPDATE std::chrono::milliseconds{1000}
+#define LIFESIM_TIME_CONNECTION_TIMEOUT                                                                                \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        3000                                                                                                           \
+    }
+#define LIFESIM_TIME_CLIENT_UPDATE                                                                                     \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        1000                                                                                                           \
+    }
 
 namespace ls
 {
@@ -94,6 +114,6 @@ enum ProtocolHeaders : fge::net::PacketHeader
     */
 };
 
-}//end ls
+} // namespace ls
 
 #endif // _EXFGE_DEFINITION_HPP_INCLUDED

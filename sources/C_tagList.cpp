@@ -56,4 +56,4 @@ fge::TagList::TagListType::const_iterator TagList::end() const
     return this->g_tags.end();
 }
 
-}//end fge
+} // namespace fge

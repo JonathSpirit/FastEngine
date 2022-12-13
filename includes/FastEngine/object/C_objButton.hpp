@@ -18,8 +18,8 @@
 #define _FGE_C_OBJBUTTON_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "C_object.hpp"
 #include "C_objSprite.hpp"
+#include "C_object.hpp"
 #include "FastEngine/C_guiElement.hpp"
 
 #define FGE_OBJBUTTON_CLASSNAME "FGE:OBJ:BUTTON"
@@ -31,15 +31,12 @@ class FGE_API ObjButton : public fge::Object, public fge::Subscriber, public fge
 {
 public:
     ObjButton();
-    ObjButton(fge::Texture textureOn, fge::Texture textureOff, const sf::Vector2f& pos=sf::Vector2f());
-    explicit ObjButton(const fge::Texture& texture, const sf::Vector2f& pos=sf::Vector2f());
+    ObjButton(fge::Texture textureOn, fge::Texture textureOff, const sf::Vector2f& pos = sf::Vector2f());
+    explicit ObjButton(const fge::Texture& texture, const sf::Vector2f& pos = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjButton)
 
-    fge::GuiElement* getGuiElement() override
-    {
-        return this;
-    }
+    fge::GuiElement* getGuiElement() override { return this; }
 
     const fge::Texture& getTextureOn() const;
     const fge::Texture& getTextureOff() const;
@@ -69,7 +66,9 @@ public:
     fge::CallbackHandler<fge::ObjButton*> _onButtonPressed;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context);
+    void onGuiMouseButtonPressed(const fge::Event& evt,
+                                 const sf::Event::MouseButtonEvent& arg,
+                                 fge::GuiElementContext& context);
     void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
     void onGuiMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg, fge::GuiElementContext& context);
 
@@ -86,6 +85,6 @@ private:
     bool g_statActive = false;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJBUTTON_HPP_INCLUDED

@@ -18,13 +18,13 @@
 #define _FGE_C_OBJWINDOW_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/object/C_object.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/object/C_object.hpp"
 
+#include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include "FastEngine/C_guiElement.hpp"
 
 #define FGE_WINDOW_DEFAULT_PRIORITY FGE_GUI_ELEMENT_PRIORITY_LAST
 #define FGE_WINDOW_DEFAULT_SIZE_X 120.0f
@@ -54,10 +54,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjWindow)
 
-    fge::GuiElement* getGuiElement() override
-    {
-        return this;
-    }
+    fge::GuiElement* getGuiElement() override { return this; }
 
     void first(fge::Scene* scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
@@ -108,7 +105,9 @@ public:
 private:
     void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
 
-    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context);
+    void onGuiMouseButtonPressed(const fge::Event& evt,
+                                 const sf::Event::MouseButtonEvent& arg,
+                                 fge::GuiElementContext& context);
     void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
     void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
 
@@ -144,10 +143,10 @@ private:
     sf::FloatRect g_windowMinimizeRect;
     sf::FloatRect g_windowCloseRect;
     sf::FloatRect g_windowResizeRect;
-    
+
     mutable fge::ObjSprite g_sprite;
 };
 
-}//end fge
+} // namespace fge
 
 #endif //_FGE_C_OBJWINDOW_HPP_INCLUDED

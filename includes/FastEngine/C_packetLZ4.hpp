@@ -84,7 +84,7 @@ private:
     std::size_t g_lastCompressionSize;
 };
 
-}//end net
-}//end fge
+} // namespace net
+} // namespace fge
 
 #endif // _FGE_C_PACKETLZ4_HPP_INCLUDED

@@ -1,27 +1,29 @@
-#include <definition.hpp>
-#include <FastEngine/C_server.hpp>
-#include <FastEngine/manager/network_manager.hpp>
-#include <FastEngine/manager/reg_manager.hpp>
-#include <FastEngine/C_packetLZ4.hpp>
 #include <FastEngine/C_clock.hpp>
+#include <FastEngine/C_packetLZ4.hpp>
+#include <FastEngine/C_server.hpp>
 #include <FastEngine/extra/extra_function.hpp>
 #include <FastEngine/fastengine_version.hpp>
+#include <FastEngine/manager/network_manager.hpp>
+#include <FastEngine/manager/reg_manager.hpp>
+#include <definition.hpp>
 
 #include <C_creature.hpp>
-#include <C_food.hpp>
 #include <C_drink.hpp>
+#include <C_food.hpp>
 
-#include <iostream>
 #include <csignal>
+#include <iostream>
 
-#define TERMINUS(returnValue_) sf::sleep(sf::seconds(2)); return returnValue_;
+#define TERMINUS(returnValue_)                                                                                         \
+    sf::sleep(sf::seconds(2));                                                                                         \
+    return returnValue_;
 
 namespace
 {
 
 bool gRunning = true;
 
-}//end
+} // namespace
 
 void signalCallbackHandler(int signum)
 {
@@ -34,7 +36,9 @@ void signalCallbackHandler(int signum)
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    std::cout << "Life simulator server, a FastEngine example by Guillaume Guillet - version " << LIFESIM_VERSION << std::endl << std::endl;
+    std::cout << "Life simulator server, a FastEngine example by Guillaume Guillet - version " << LIFESIM_VERSION
+              << std::endl
+              << std::endl;
 
     if (std::signal(SIGINT, signalCallbackHandler) == SIG_ERR)
     {
@@ -48,9 +52,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
 
     //Enable virtual terminal sequence support
-    std::cout << "virtual terminal sequence support : " << std::boolalpha << fge::SetVirtualTerminalSequenceSupport() << std::endl;
+    std::cout << "virtual terminal sequence support : " << std::boolalpha << fge::SetVirtualTerminalSequenceSupport()
+              << std::endl;
 
-    std::string title = "Life simulator server, FastEngine "+std::string{FGE_VERSION_FULL_WITHTAG_STRING};
+    std::string title = "Life simulator server, FastEngine " + std::string{FGE_VERSION_FULL_WITHTAG_STRING};
     fge::SetConsoleCmdTitle(title.c_str());
 
     fge::net::ServerUdp server;
@@ -59,7 +64,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Starting the server with an LZ4 compression
     std::cout << "starting the server on port " << LIFESIM_SERVER_PORT << " ..." << std::endl;
-    if ( !server.start<fge::net::PacketLZ4>(LIFESIM_SERVER_PORT) )
+    if (!server.start<fge::net::PacketLZ4>(LIFESIM_SERVER_PORT))
     {
         std::cout << "can't start the server on this port !" << std::endl;
         TERMINUS(-1)
@@ -75,9 +80,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::cout << "registering all classes ..." << std::endl;
     {
         bool valid = true;
-        valid &= fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Creature>()) );
-        valid &= fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Food>()) );
-        valid &= fge::reg::RegisterNewClass( std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Drink>()) );
+        valid &= fge::reg::RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Creature>()));
+        valid &= fge::reg::RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Food>()));
+        valid &= fge::reg::RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Drink>()));
         if (!valid)
         {
             std::cout << "error during class registrations !" << std::endl;
@@ -93,7 +98,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     mainScene.watchEvent(true);
 
     //Adding some creatures
-    for (std::size_t i=0; i<LIFESIM_START_CREATURES_COUNT; ++i)
+    for (std::size_t i = 0; i < LIFESIM_START_CREATURES_COUNT; ++i)
     {
         mainScene.newObject(FGE_NEWOBJECT(ls::Creature, ls::GetRandomPosition()), FGE_SCENE_PLAN_MIDDLE);
     }
@@ -114,11 +119,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         {
             clockNewFood.restart();
 
-            for (std::size_t i=0; i<LIFESIM_NEW_FOOD_COUNT; ++i)
+            for (std::size_t i = 0; i < LIFESIM_NEW_FOOD_COUNT; ++i)
             {
                 mainScene.newObject(FGE_NEWOBJECT(ls::Food, ls::GetRandomPosition()), FGE_SCENE_PLAN_BACK);
             }
-            for (std::size_t i=0; i<LIFESIM_NEW_DRINK_COUNT; ++i)
+            for (std::size_t i = 0; i < LIFESIM_NEW_DRINK_COUNT; ++i)
             {
                 mainScene.newObject(FGE_NEWOBJECT(ls::Drink, ls::GetRandomPosition()), FGE_SCENE_PLAN_BACK);
             }
@@ -130,21 +135,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             clockWorldUpdate.restart();
 
             std::size_t creatureCount = 0;
-            for (auto it=mainScene.begin(); it!=mainScene.end();)
+            for (auto it = mainScene.begin(); it != mainScene.end();)
             {
                 //Avoid cast on non-CustomObject by only looking for object type
                 if ((*it)->getType() == fge::ObjectType::TYPE_OBJECT)
                 {
                     auto* object = (*it)->getObject<ls::CustomObject>();
-                    if ( object->worldTick() )
-                    {//This object must be destroyed
+                    if (object->worldTick())
+                    { //This object must be destroyed
                         fge::ObjectSid sid = (*it)->getSid();
                         ++it;
                         mainScene.delObject(sid);
                     }
                     else
                     {
-                        if ( std::strcmp(object->getClassName(), "LS:OBJ:CREATURE") == 0 )
+                        if (std::strcmp(object->getClassName(), "LS:OBJ:CREATURE") == 0)
                         {
                             ++creatureCount;
                         }
@@ -158,7 +163,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             {
                 //We destroy everything and add new creatures
                 mainScene.delAllObject(true);
-                for (std::size_t i=0; i<LIFESIM_START_CREATURES_COUNT; ++i)
+                for (std::size_t i = 0; i < LIFESIM_START_CREATURES_COUNT; ++i)
                 {
                     mainScene.newObject(FGE_NEWOBJECT(ls::Creature, ls::GetRandomPosition()), FGE_SCENE_PLAN_MIDDLE);
                 }
@@ -173,7 +178,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             //In order to iterate through all clients, we have to acquire a lock
             auto clientsLock = clients.acquireLock();
 
-            for (auto it=clients.begin(clientsLock); it!=clients.end(clientsLock);)
+            for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock);)
             {
                 auto timeout = (*it).second->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
                 if (timeout >= LIFESIM_TIMEOUT_COUNT)
@@ -183,7 +188,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     auto packet = std::make_shared<fge::net::PacketLZ4>();
 
                     fge::net::SetHeader(*packet, ls::LS_PROTOCOL_ALL_GOODBYE) << "timeout";
-                    server.sendTo(*packet, (*it).first); ///TODO: we have to stop using .sendTo method and let the server thread handle all packets
+                    server.sendTo(
+                            *packet,
+                            (*it).first); ///TODO: we have to stop using .sendTo method and let the server thread handle all packets
 
                     it = clients.remove(it, clientsLock);
                 }
@@ -197,7 +204,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Handling clients packets
         std::size_t pckSize = serverFlux->getPacketsSize();
-        for (std::size_t i=0; i<pckSize; ++i)
+        for (std::size_t i = 0; i < pckSize; ++i)
         {
             //Popping the next packet
             auto fluxPacket = serverFlux->popNextPacket();
@@ -242,70 +249,74 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
+            {
+                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+
+                if (client != nullptr)
                 {
-                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
-
-                    if (client != nullptr)
-                    {
-                        //The client is already connected, so we just send "true"
-                        *packetSend._pck << true;
-                        client->pushPacket(std::move(packetSend));
-                    }
-                    else
-                    {
-                        //The potential client is not connected
-
-                        //We extract 2 "really super secret" strings for validating the connection
-                        std::string connectionText1;
-                        std::string connectionText2;
-
-                        //Before extracting a string from the packet, we must be sure that the string
-                        //will have a valid size range.
-                        FGE_NET_RULES_START
-                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1), {fluxPacket->_pck});
-                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText1,)
-
-                        FGE_NET_RULES_START
-                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2), {fluxPacket->_pck});
-                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText2,)
-
-                        //Check if the packet is still valid after extraction and/or rules
-                        if (fluxPacket->_pck)
-                        {
-                            //Check if those text is respected
-                            if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
-                            {
-                                //The client is valid, we can connect him
-                                *packetSend._pck << true;
-
-                                std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !" << std::endl;
-
-                                //Create the new client with the packet identity
-                                client = std::make_shared<fge::net::Client>();
-                                clients.add(fluxPacket->_id, client);
-
-                                //Pack data required by the LatencyPlanner in order to compute latency
-                                client->_latencyPlanner.pack(packetSend);
-
-                                //Ask the server thread to automatically update the timestamp just before sending it
-                                client->pushPacket(std::move(packetSend));
-
-                                //We will send a full scene update to the client too
-                                packetSend = fge::net::SendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
-                                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
-                                mainScene.pack(*packetSend._pck);
-
-                                client->pushPacket(std::move(packetSend));
-                                break;
-                            }
-                        }
-
-                        //Something is not right, we will send "false" to the potential client
-                        *packetSend._pck << false;
-                        server.sendTo(*packetSend._pck, fluxPacket->_id);
-                    }
+                    //The client is already connected, so we just send "true"
+                    *packetSend._pck << true;
+                    client->pushPacket(std::move(packetSend));
                 }
-                break;
+                else
+                {
+                    //The potential client is not connected
+
+                    //We extract 2 "really super secret" strings for validating the connection
+                    std::string connectionText1;
+                    std::string connectionText2;
+
+                    //Before extracting a string from the packet, we must be sure that the string
+                    //will have a valid size range.
+                    FGE_NET_RULES_START
+                        fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1),
+                                                                     {fluxPacket->_pck});
+                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText1, )
+
+                        FGE_NET_RULES_START
+                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2),
+                                                                         {fluxPacket->_pck});
+                            FGE_NET_RULES_AFFECT_END_ELSE(connectionText2, )
+
+                            //Check if the packet is still valid after extraction and/or rules
+                            if (fluxPacket->_pck)
+                            {
+                                //Check if those text is respected
+                                if (connectionText1 == LIFESIM_CONNECTION_TEXT1 &&
+                                    connectionText2 == LIFESIM_CONNECTION_TEXT2)
+                                {
+                                    //The client is valid, we can connect him
+                                    *packetSend._pck << true;
+
+                                    std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !"
+                                              << std::endl;
+
+                                    //Create the new client with the packet identity
+                                    client = std::make_shared<fge::net::Client>();
+                                    clients.add(fluxPacket->_id, client);
+
+                                    //Pack data required by the LatencyPlanner in order to compute latency
+                                    client->_latencyPlanner.pack(packetSend);
+
+                                    //Ask the server thread to automatically update the timestamp just before sending it
+                                    client->pushPacket(std::move(packetSend));
+
+                                    //We will send a full scene update to the client too
+                                    packetSend = fge::net::SendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
+                                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
+                                    mainScene.pack(*packetSend._pck);
+
+                                    client->pushPacket(std::move(packetSend));
+                                    break;
+                                }
+                            }
+
+                            //Something is not right, we will send "false" to the potential client
+                            *packetSend._pck << false;
+                            server.sendTo(*packetSend._pck, fluxPacket->_id);
+                }
+            }
+            break;
             default:
                 break;
             }
@@ -325,10 +336,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             clients.clearClientEvent();
 
             auto clientsLock = clients.acquireLock();
-            for (auto it=clients.begin(clientsLock); it!=clients.end(clientsLock); ++it)
+            for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
                 //Make sure that the server thread is not busy with another packet
-                if ( !(*it).second->isPendingPacketsEmpty() )
+                if (!(*it).second->isPendingPacketsEmpty())
                 {
                     continue;
                 }
@@ -366,4 +377,3 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     TERMINUS(0)
 }
-

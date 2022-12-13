@@ -20,12 +20,12 @@
     #if __GNUC__ > 8
         #include <bit>
     #else
-        #include <bit>
         #include <type_traits>
+        #include <bit>
     #endif
 #else
-    #include <bit>
     #include <type_traits>
+    #include <bit>
 #endif
 
 namespace fge
@@ -192,4 +192,4 @@ bool IsBigEndian()
     }
 }
 
-}//end fge
+} // namespace fge

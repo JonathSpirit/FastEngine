@@ -18,15 +18,15 @@
 #define _FGE_C_CLIENT_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include <FastEngine/C_event.hpp>
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_propertyList.hpp>
-#include <FastEngine/C_event.hpp>
-#include <queue>
-#include <chrono>
-#include <mutex>
-#include <vector>
-#include <memory>
 #include <array>
+#include <chrono>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <vector>
 
 #define FGE_NET_BAD_SKEY 0
 #define FGE_NET_DEFAULT_LATENCY 50
@@ -44,8 +44,8 @@ namespace fge::net
 
 using Skey = uint32_t; ///< The session key can be used to identify a client when connecting to a server.
 
-using Timestamp = uint16_t; ///< An timestamp represent modulated current time in milliseconds
-using FullTimestamp = uint64_t; ///< An timestamp represent current time in milliseconds
+using Timestamp = uint16_t;          ///< An timestamp represent modulated current time in milliseconds
+using FullTimestamp = uint64_t;      ///< An timestamp represent current time in milliseconds
 using FullTimestampOffset = int64_t; ///< An timestamp offset
 using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
 
@@ -61,9 +61,9 @@ struct SendQueuePacket
      */
     enum class Options : uint8_t
     {
-        NONE = 0, ///< No option, the packet will be sent immediately
-        UPDATE_TIMESTAMP, ///< The timestamp of the packet will be updated when sending
-        UPDATE_FULL_TIMESTAMP, ///< The full timestamp of the packet will be updated when sending
+        NONE = 0,                  ///< No option, the packet will be sent immediately
+        UPDATE_TIMESTAMP,          ///< The timestamp of the packet will be updated when sending
+        UPDATE_FULL_TIMESTAMP,     ///< The full timestamp of the packet will be updated when sending
         UPDATE_CORRECTION_LATENCY, ///< The latency of the packet will be updated with the corrector latency from the Client
 
         ENUM_MAX_COUNT
@@ -71,13 +71,13 @@ struct SendQueuePacket
 
     struct Option
     {
-        inline Option(Options option, std::size_t argument=0) :
-            _option(option),
-            _argument(argument)
+        inline Option(Options option, std::size_t argument = 0) :
+                _option(option),
+                _argument(argument)
         {}
 
         Options _option{Options::NONE}; ///< The option to send the packet with
-        std::size_t _argument{0}; ///< The option argument
+        std::size_t _argument{0};       ///< The option argument
     };
 
     std::shared_ptr<fge::net::Packet> _pck; ///< The data packet to send
@@ -104,7 +104,7 @@ public:
 
     enum Stats : uint8_t
     {
-        HAVE_EXTERNAL_TIMESTAMP = 1<<0
+        HAVE_EXTERNAL_TIMESTAMP = 1 << 0
     };
 
     /**
@@ -360,7 +360,7 @@ public:
      */
     bool isPendingPacketsEmpty();
 
-    fge::Event _event; ///< Optional client-side event that can be synchronized with the server
+    fge::Event _event;       ///< Optional client-side event that can be synchronized with the server
     fge::PropertyList _data; ///< Some user-defined client properties
     fge::net::OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
 
@@ -380,6 +380,6 @@ private:
  * @}
  */
 
-}//end fge::net
+} // namespace fge::net
 
 #endif // _FGE_C_CLIENT_HPP_INCLUDED

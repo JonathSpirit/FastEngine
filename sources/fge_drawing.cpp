@@ -21,10 +21,12 @@ namespace fge
 namespace debug
 {
 
-void DrawCenteredCircle(sf::RenderTarget& target, const sf::Vector2f& position, float radius,
-                                const sf::Color& fillColor,
-                                const sf::Color& outColor,
-                                float outThickness)
+void DrawCenteredCircle(sf::RenderTarget& target,
+                        const sf::Vector2f& position,
+                        float radius,
+                        const sf::Color& fillColor,
+                        const sf::Color& outColor,
+                        float outThickness)
 {
     sf::CircleShape circle(radius);
     circle.setPosition(position);
@@ -35,19 +37,21 @@ void DrawCenteredCircle(sf::RenderTarget& target, const sf::Vector2f& position, 
     target.draw(circle);
 }
 
-void DrawCenteredRect(sf::RenderTarget& target, const sf::Vector2f& position, const sf::Vector2f& size,
-                              const sf::Color& fillColor,
-                              const sf::Color& outColor,
-                              float outThickness)
+void DrawCenteredRect(sf::RenderTarget& target,
+                      const sf::Vector2f& position,
+                      const sf::Vector2f& size,
+                      const sf::Color& fillColor,
+                      const sf::Color& outColor,
+                      float outThickness)
 {
     sf::RectangleShape rect(size);
     rect.setPosition(position);
-    rect.setOrigin(size.x/2.0f, size.y/2.0f);
+    rect.setOrigin(size.x / 2.0f, size.y / 2.0f);
     rect.setFillColor(fillColor);
     rect.setOutlineColor(outColor);
     rect.setOutlineThickness(outThickness);
     target.draw(rect);
 }
 
-}//end debug
-}//end fge
+} // namespace debug
+} // namespace fge

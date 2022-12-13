@@ -19,8 +19,8 @@
 
 namespace
 {
-    std::unordered_map<std::string, std::shared_ptr<sf::RenderWindow> > __dataScreen;
-}
+std::unordered_map<std::string, std::shared_ptr<sf::RenderWindow>> __dataScreen;
+} // namespace
 
 namespace fge
 {
@@ -29,7 +29,7 @@ namespace screen
 
 void Uninit()
 {
-    for ( auto it=__dataScreen.begin(); it!=__dataScreen.end(); ++it )
+    for (auto it = __dataScreen.begin(); it != __dataScreen.end(); ++it)
     {
         it->second->close();
     }
@@ -39,7 +39,7 @@ void Uninit()
 void Close(const std::string& name)
 {
     auto it = __dataScreen.find(name);
-    if ( it != __dataScreen.end() )
+    if (it != __dataScreen.end())
     {
         it->second->close();
         __dataScreen.erase(it);
@@ -64,17 +64,17 @@ bool Check(const std::string& name)
 
 std::shared_ptr<sf::RenderWindow> New(const std::string& name)
 {
-    if ( fge::screen::Check(name) )
+    if (fge::screen::Check(name))
     {
         return nullptr;
     }
 
-    std::shared_ptr<sf::RenderWindow> buffScreen = std::shared_ptr<sf::RenderWindow>( new sf::RenderWindow() );
+    std::shared_ptr<sf::RenderWindow> buffScreen = std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow());
 
     __dataScreen[name] = buffScreen;
 
     return buffScreen;
 }
 
-}//end screen
-}//end fge
+} // namespace screen
+} // namespace fge

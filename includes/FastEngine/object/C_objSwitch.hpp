@@ -18,9 +18,9 @@
 #define _FGE_C_OBJSWITCH_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "C_objSprite.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_flag.hpp"
-#include "C_objSprite.hpp"
 
 #define FGE_OBJSWITCH_CLASSNAME "FGE:OBJ:SWITCH"
 
@@ -31,7 +31,7 @@ class FGE_API ObjSwitch : public fge::Object
 {
 public:
     ObjSwitch();
-    ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos=sf::Vector2f());
+    ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSwitch)
 
@@ -73,6 +73,6 @@ private:
     fge::Flag g_flag = false;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJSWITCH_HPP_INCLUDED

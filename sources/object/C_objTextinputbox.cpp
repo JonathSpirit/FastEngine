@@ -15,9 +15,9 @@
  */
 
 #include "FastEngine/object/C_objTextinputbox.hpp"
-#include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/arbitraryJsonTypes.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
@@ -33,8 +33,8 @@ ObjTextInputBox::ObjTextInputBox()
     this->g_text.setCharacterSize(12);
 }
 ObjTextInputBox::ObjTextInputBox(const fge::Font& font, uint16_t maxLength, const sf::Vector2f& pos) :
-    g_maxLength(maxLength),
-    g_text(font)
+        g_maxLength(maxLength),
+        g_text(font)
 {
     this->g_text.setFillColor(this->g_colorText);
     this->g_box.setFillColor(this->g_colorBox);
@@ -141,52 +141,55 @@ void ObjTextInputBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::
 {
     this->detachAll();
 
-    guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::ObjTextInputBox::onGuiVerify, this), this );
+    guiElementHandlerPtr->_onGuiVerify.add(new fge::CallbackFunctorObject(&fge::ObjTextInputBox::onGuiVerify, this),
+                                           this);
 
-    this->_onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjTextInputBox::onGuiMouseButtonPressed, this), this );
+    this->_onGuiMouseButtonPressed.add(
+            new fge::CallbackFunctorObject(&fge::ObjTextInputBox::onGuiMouseButtonPressed, this), this);
 }
 
 #ifdef FGE_DEF_SERVER
-FGE_OBJ_UPDATE_BODY(ObjTextInputBox){}
+FGE_OBJ_UPDATE_BODY(ObjTextInputBox) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
 {
-    if ( event.isEventType(sf::Event::EventType::KeyPressed) )
+    if (event.isEventType(sf::Event::EventType::KeyPressed))
     {
-        if ( this->g_statActive )
+        if (this->g_statActive)
         {
             uint32_t key = event.getKeyUnicode();
 
-            if ( event.isKeyPressed(sf::Keyboard::Return) )
+            if (event.isKeyPressed(sf::Keyboard::Return))
             {
                 this->g_statActive = false;
                 return;
             }
-            if ( event.isKeyPressed(sf::Keyboard::Left) )
+            if (event.isKeyPressed(sf::Keyboard::Left))
             {
-                this->g_cursor = this->g_cursor ? (this->g_cursor-1) : 0;
+                this->g_cursor = this->g_cursor ? (this->g_cursor - 1) : 0;
                 return;
             }
-            if ( event.isKeyPressed(sf::Keyboard::Right) )
+            if (event.isKeyPressed(sf::Keyboard::Right))
             {
-                this->g_cursor = (this->g_cursor < this->g_string.length()) ? (this->g_cursor+1) : this->g_string.length();
+                this->g_cursor =
+                        (this->g_cursor < this->g_string.length()) ? (this->g_cursor + 1) : this->g_string.length();
                 return;
             }
 
             //BackSpace
             if (key == 8)
             {
-                if ( this->g_string.length()>0 && this->g_cursor>0 )
+                if (this->g_string.length() > 0 && this->g_cursor > 0)
                 {
-                    this->g_string.erase(this->g_cursor-1);
+                    this->g_string.erase(this->g_cursor - 1);
                     --this->g_cursor;
                 }
                 return;
             }
             //Delete
-            if ( event.isKeyPressed(sf::Keyboard::Key::Delete) )
+            if (event.isKeyPressed(sf::Keyboard::Key::Delete))
             {
-                if ( this->g_cursor < this->g_string.length() )
+                if (this->g_cursor < this->g_string.length())
                 {
                     this->g_string.erase(this->g_cursor);
                 }
@@ -194,13 +197,13 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
             }
 
             //Ignore Unicode control char
-            if ( (key < 32) || ((key > 127) && (key < 161)) )
+            if ((key < 32) || ((key > 127) && (key < 161)))
             {
                 return;
             }
 
             //Insert Unicode char
-            if ( this->g_string.length() < this->g_maxLength )
+            if (this->g_string.length() < this->g_maxLength)
             {
                 if (this->g_cursor >= this->g_string.length())
                 {
@@ -222,7 +225,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 {
     tiny_utf8::string tmpString;
 
-    if ( this->g_hide )
+    if (this->g_hide)
     {
         tmpString.assign(this->g_string.length(), '*');
     }
@@ -231,7 +234,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
         tmpString = this->g_string;
     }
 
-    if ( this->g_statActive )
+    if (this->g_statActive)
     {
         if (this->g_cursor >= this->g_string.length())
         {
@@ -245,7 +248,7 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 
     this->g_text.setString(tmpString);
 
-    this->g_box.setFillColor( this->g_statActive ? (this->g_colorBox - sf::Color(50,50,50,0)) : this->g_colorBox );
+    this->g_box.setFillColor(this->g_statActive ? (this->g_colorBox - sf::Color(50, 50, 50, 0)) : this->g_colorBox);
 
     states.transform *= this->getTransform();
     target.draw(this->g_box, states);
@@ -283,9 +286,9 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_maxLength = jsonObject.value<uint16_t>("maxLength", 10);
     this->g_hide = jsonObject.value<bool>("hide", false);
 
-    this->g_colorBox = sf::Color( jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF) );
-    this->g_colorBoxOutline = sf::Color( jsonObject.value<uint32_t>("colorBoxOutline", 0) );
-    this->g_colorText = sf::Color( jsonObject.value<uint32_t>("colorText", 0) );
+    this->g_colorBox = sf::Color(jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF));
+    this->g_colorBoxOutline = sf::Color(jsonObject.value<uint32_t>("colorBoxOutline", 0));
+    this->g_colorText = sf::Color(jsonObject.value<uint32_t>("colorText", 0));
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_text.setFillColor(this->g_colorText);
@@ -293,7 +296,7 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
 
     this->g_text.setCharacterSize(jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12));
-    this->g_text.setFont( jsonObject.value<std::string>("font", FGE_FONT_BAD) );
+    this->g_text.setFont(jsonObject.value<std::string>("font", FGE_FONT_BAD));
 
     this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);
     this->g_boxSize.y = jsonObject.value<float>("boxSizeY", 18);
@@ -331,7 +334,7 @@ void ObjTextInputBox::unpack(fge::net::Packet& pck)
 
     pck >> this->g_string;
 
-    fge::ObjText::CharacterSize tmpCharSize=12;
+    fge::ObjText::CharacterSize tmpCharSize = 12;
     fge::Font tmpFont;
     pck >> tmpCharSize >> tmpFont;
     this->g_text.setCharacterSize(tmpCharSize);
@@ -354,21 +357,25 @@ const char* ObjTextInputBox::getReadableClassName() const
 
 sf::FloatRect ObjTextInputBox::getGlobalBounds() const
 {
-    return this->getTransform().transformRect( this->g_box.getLocalBounds() );
+    return this->getTransform().transformRect(this->g_box.getLocalBounds());
 }
 sf::FloatRect ObjTextInputBox::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
 }
 
-void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg, [[maybe_unused]] fge::GuiElementContext& context)
+void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
+                                              [[maybe_unused]] const sf::Event::MouseButtonEvent& arg,
+                                              [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statActive = true;
 }
 
-void ObjTextInputBox::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context)
+void ObjTextInputBox::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+                                  sf::Event::EventType evtType,
+                                  fge::GuiElementContext& context)
 {
-    if ( this->verifyPriority(context._prioritizedElement) )
+    if (this->verifyPriority(context._prioritizedElement))
     {
         auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -378,14 +385,14 @@ void ObjTextInputBox::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Ev
         sf::Vector2f mousePosition;
         if (customView)
         {
-            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition,*customView);
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
         }
         else
         {
             mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
         }
 
-        if ( scrollRect.contains(mousePosition) )
+        if (scrollRect.contains(mousePosition))
         {
             context._prioritizedElement = this;
         }
@@ -400,4 +407,4 @@ void ObjTextInputBox::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Ev
     }
 }
 
-}//end fge
+} // namespace fge

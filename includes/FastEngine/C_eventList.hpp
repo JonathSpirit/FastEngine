@@ -70,6 +70,6 @@ private:
     std::unordered_map<std::string, fge::Event> g_events;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_EVENTLIST_HPP_INCLUDED

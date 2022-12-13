@@ -15,10 +15,10 @@
  */
 
 #include "FastEngine/object/C_object.hpp"
-#include "FastEngine/extra/extra_string.hpp"
-#include "FastEngine/manager/reg_manager.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/extra/extra_string.hpp"
+#include "FastEngine/manager/reg_manager.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -38,32 +38,27 @@ Object::Object(Object&& r) :
         fge::Anchor(this, r)
 {}
 
-void Object::first([[maybe_unused]] fge::Scene* scene)
-{
-}
-void Object::callbackRegister([[maybe_unused]] fge::Event& event, [[maybe_unused]] fge::GuiElementHandler* guiElementHandlerPtr)
-{
-}
+void Object::first([[maybe_unused]] fge::Scene* scene) {}
+void Object::callbackRegister([[maybe_unused]] fge::Event& event,
+                              [[maybe_unused]] fge::GuiElementHandler* guiElementHandlerPtr)
+{}
 #ifdef FGE_DEF_SERVER
-void Object::update([[maybe_unused]] fge::Event& event, [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
+void Object::update([[maybe_unused]] fge::Event& event,
+                    [[maybe_unused]] const std::chrono::milliseconds& deltaTime,
+                    [[maybe_unused]] fge::Scene* scene)
 #else
-void Object::update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
+void Object::update([[maybe_unused]] sf::RenderWindow& screen,
+                    [[maybe_unused]] fge::Event& event,
+                    [[maybe_unused]] const std::chrono::milliseconds& deltaTime,
+                    [[maybe_unused]] fge::Scene* scene)
 #endif //FGE_DEF_SERVER
-{
-}
+{}
 
 #ifndef FGE_DEF_SERVER
-void Object::draw([[maybe_unused]] sf::RenderTarget& target, [[maybe_unused]] sf::RenderStates states) const
-{
-}
+void Object::draw([[maybe_unused]] sf::RenderTarget& target, [[maybe_unused]] sf::RenderStates states) const {}
 #endif //FGE_DEF_SERVER
-void Object::networkRegister()
-{
-}
-void Object::removed([[maybe_unused]] fge::Scene* scene)
-{
-}
+void Object::networkRegister() {}
+void Object::removed([[maybe_unused]] fge::Scene* scene) {}
 
 fge::Object* Object::copy()
 {
@@ -78,23 +73,23 @@ void Object::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene
     jsonObject["_origin"] = this->getOrigin();
 
     jsonObject["tags"] = nlohmann::json::array();
-    for (const auto& tag : this->_tags)
+    for (const auto& tag: this->_tags)
     {
         jsonObject["tags"] += tag;
     }
 }
 void Object::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
-    this->setPosition( jsonObject["_pos"].get<sf::Vector2f>() );
-    this->setRotation( jsonObject["_rotation"].get<float>() );
-    this->setScale( jsonObject["_scale"].get<sf::Vector2f>() );
-    this->setOrigin( jsonObject["_origin"].get<sf::Vector2f>() );
+    this->setPosition(jsonObject["_pos"].get<sf::Vector2f>());
+    this->setRotation(jsonObject["_rotation"].get<float>());
+    this->setScale(jsonObject["_scale"].get<sf::Vector2f>());
+    this->setOrigin(jsonObject["_origin"].get<sf::Vector2f>());
 
     this->_tags.clear();
 
-    for (auto& it : jsonObject["tags"])
+    for (auto& it: jsonObject["tags"])
     {
-        this->_tags.add( it.get<std::string>() );
+        this->_tags.add(it.get<std::string>());
     }
 }
 
@@ -128,7 +123,7 @@ const char* Object::getReadableClassName() const
 
 sf::FloatRect Object::getGlobalBounds() const
 {
-    return this->getTransform().transformRect( this->getLocalBounds() );
+    return this->getTransform().transformRect(this->getLocalBounds());
 }
 sf::FloatRect Object::getLocalBounds() const
 {
@@ -145,7 +140,7 @@ bool Object::saveInFile(const std::string& path)
     this->save(objJson, FGE_OBJ_NOSCENE);
 
     std::ofstream outFile(path);
-    if ( outFile )
+    if (outFile)
     {
         outFile << std::setw(2) << objNewJson << std::endl;
         outFile.close();
@@ -157,7 +152,7 @@ bool Object::saveInFile(const std::string& path)
 bool Object::loadFromFile(const std::string& path)
 {
     std::ifstream inFile(path);
-    if ( !inFile )
+    if (!inFile)
     {
         inFile.close();
         return false;
@@ -181,7 +176,7 @@ bool Object::loadFromFile(const std::string& path)
 fge::Object* Object::LoadFromFile(const std::string& path)
 {
     std::ifstream inFile(path);
-    if ( !inFile )
+    if (!inFile)
     {
         inFile.close();
         return nullptr;
@@ -190,8 +185,8 @@ fge::Object* Object::LoadFromFile(const std::string& path)
     nlohmann::json inputJson;
     inFile >> inputJson;
 
-    fge::Object* buffObj = fge::reg::GetNewClassOf( inputJson.begin().key() );
-    if ( buffObj != nullptr )
+    fge::Object* buffObj = fge::reg::GetNewClassOf(inputJson.begin().key());
+    if (buffObj != nullptr)
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
@@ -236,4 +231,4 @@ sf::Vector2f Object::getParentsScale() const
     return parentsScale;
 }
 
-}//end fge
+} // namespace fge

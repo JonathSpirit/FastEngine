@@ -16,11 +16,11 @@
 
 #include "FastEngine/manager/log_manager.hpp"
 
-#include <fstream>
-#include <sstream>
-#include <iomanip>
 #include <cstdio>
 #include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 namespace fge
 {
@@ -32,9 +32,9 @@ namespace
 
 std::string _defaultFolder;
 
-}//end
+} // namespace
 
-const std::string& SetDefaultFolder (const std::string& default_folder)
+const std::string& SetDefaultFolder(const std::string& default_folder)
 {
     _defaultFolder = default_folder;
 
@@ -50,56 +50,58 @@ const std::string& SetDefaultFolder (const std::string& default_folder)
     return _defaultFolder;
 }
 
-bool Remove (const std::string& name)
+bool Remove(const std::string& name)
 {
     int return_value;
 
-    return_value = remove( (_defaultFolder + name).c_str() );
-    if ( !return_value )
+    return_value = remove((_defaultFolder + name).c_str());
+    if (!return_value)
     {
         return true;
     }
     return false;
 }
-bool Clean (const std::string& name)
+bool Clean(const std::string& name)
 {
     std::ofstream file_log;
-    file_log.open( (_defaultFolder + name).c_str() );
+    file_log.open((_defaultFolder + name).c_str());
 
-    if ( file_log )
+    if (file_log)
     {
         file_log.close();
         return true;
     }
     return false;
 }
-bool Rename (const std::string& name, const std::string& new_name)
+bool Rename(const std::string& name, const std::string& new_name)
 {
     int return_value;
 
-    return_value = rename((_defaultFolder + name).c_str(), (_defaultFolder + new_name).c_str() );
-    if ( !return_value )
+    return_value = rename((_defaultFolder + name).c_str(), (_defaultFolder + new_name).c_str());
+    if (!return_value)
     {
         return true;
     }
     return false;
 }
-bool Write (const std::string& name, const std::string& text, const std::string& desc)
+bool Write(const std::string& name, const std::string& text, const std::string& desc)
 {
-    time_t t = time(nullptr);   // get time now
-    struct tm * now = localtime( & t );
+    time_t t = time(nullptr); // get time now
+    struct tm* now = localtime(&t);
 
     std::ofstream file_log;
-    file_log.open(_defaultFolder + name, std::ios::app );
+    file_log.open(_defaultFolder + name, std::ios::app);
 
     if (!file_log)
     {
         return false;
     }
 
-    file_log << "[" << std::setw(2) << std::setfill('0') << now->tm_mday << "." << std::setw(2) << std::setfill('0') << now->tm_mon+1 << "." << 1900 + now->tm_year << "]";
-    file_log << "(" << std::setw(2) << std::setfill('0') << now->tm_hour << ":" << std::setw(2) << std::setfill('0') << now->tm_min << ":" << std::setw(2) << std::setfill('0') << now->tm_sec << ") ";
-    if ( !desc.empty() )
+    file_log << "[" << std::setw(2) << std::setfill('0') << now->tm_mday << "." << std::setw(2) << std::setfill('0')
+             << now->tm_mon + 1 << "." << 1900 + now->tm_year << "]";
+    file_log << "(" << std::setw(2) << std::setfill('0') << now->tm_hour << ":" << std::setw(2) << std::setfill('0')
+             << now->tm_min << ":" << std::setw(2) << std::setfill('0') << now->tm_sec << ") ";
+    if (!desc.empty())
     {
         file_log << "[" << desc << "] ";
     }
@@ -108,5 +110,5 @@ bool Write (const std::string& name, const std::string& text, const std::string&
     return true;
 }
 
-}//end log
-}//end fge
+} // namespace log
+} // namespace fge

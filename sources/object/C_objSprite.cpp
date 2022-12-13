@@ -34,9 +34,9 @@ ObjSprite::ObjSprite(const fge::Texture& texture, const sf::IntRect& rectangle, 
 void ObjSprite::setTexture(const fge::Texture& texture, bool resetRect)
 {
     // Recompute the texture area if requested, or if there was no valid texture & rect before
-    if ( resetRect || !this->g_texture.valid() )
+    if (resetRect || !this->g_texture.valid())
     {
-        this->setTextureRect( sf::IntRect(0, 0, texture.getTextureSize().x, texture.getTextureSize().y) );
+        this->setTextureRect(sf::IntRect(0, 0, texture.getTextureSize().x, texture.getTextureSize().y));
     }
 
     // Assign the new texture
@@ -94,7 +94,7 @@ void ObjSprite::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->setColor( sf::Color( jsonObject.value<uint32_t>("color", 0) ) );
+    this->setColor(sf::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
     this->setTexture(this->g_texture, true);
 }
@@ -129,8 +129,8 @@ sf::FloatRect ObjSprite::getGlobalBounds() const
 }
 sf::FloatRect ObjSprite::getLocalBounds() const
 {
-    float width = static_cast<float>( std::abs(this->g_textureRect.width) );
-    float height = static_cast<float>( std::abs(this->g_textureRect.height) );
+    float width = static_cast<float>(std::abs(this->g_textureRect.width));
+    float height = static_cast<float>(std::abs(this->g_textureRect.height));
 
     return {0.f, 0.f, width, height};
 }
@@ -147,9 +147,9 @@ void ObjSprite::updatePositions()
 
 void ObjSprite::updateTexCoords()
 {
-    float left   = static_cast<float>(this->g_textureRect.left);
-    float right  = left + static_cast<float>(this->g_textureRect.width);
-    float top    = static_cast<float>(this->g_textureRect.top);
+    float left = static_cast<float>(this->g_textureRect.left);
+    float right = left + static_cast<float>(this->g_textureRect.width);
+    float top = static_cast<float>(this->g_textureRect.top);
     float bottom = top + static_cast<float>(this->g_textureRect.height);
 
     this->g_vertices[0].texCoords = sf::Vector2f(left, top);
@@ -158,4 +158,4 @@ void ObjSprite::updateTexCoords()
     this->g_vertices[3].texCoords = sf::Vector2f(right, bottom);
 }
 
-}//end fge
+} // namespace fge

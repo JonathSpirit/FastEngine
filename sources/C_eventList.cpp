@@ -36,11 +36,11 @@ fge::Event* EventList::get(const std::string& name)
 {
     auto it = this->g_events.find(name);
 
-    if ( it != this->g_events.end() )
+    if (it != this->g_events.end())
     {
         return &it->second;
     }
     return nullptr;
 }
 
-}//end fge
+} // namespace fge

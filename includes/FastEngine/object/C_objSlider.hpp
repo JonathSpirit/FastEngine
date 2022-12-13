@@ -2,8 +2,8 @@
 #define _FGE_C_OBJSLIDER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/object/C_object.hpp"
 #include "FastEngine/C_guiElement.hpp"
+#include "FastEngine/object/C_object.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
 
@@ -18,10 +18,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSlider)
 
-    fge::GuiElement* getGuiElement() override
-    {
-        return this;
-    }
+    fge::GuiElement* getGuiElement() override { return this; }
 
     void first(fge::Scene* scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
@@ -35,7 +32,7 @@ public:
     bool isScrollPressed() const;
 
     void refreshSize();
-    
+
     void setScrollRectFillColor(sf::Color color);
     void setScrollRectOutlineColor(sf::Color color);
     void setScrollBaseRectFillColor(sf::Color color);
@@ -49,7 +46,9 @@ public:
     fge::CallbackHandler<float> _onSlide;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context);
+    void onGuiMouseButtonPressed(const fge::Event& evt,
+                                 const sf::Event::MouseButtonEvent& arg,
+                                 fge::GuiElementContext& context);
     void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
     void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
 
@@ -72,6 +71,6 @@ private:
     float g_lastMousePositionY{0.0f};
 };
 
-}//end fge
+} // namespace fge
 
 #endif //_FGE_C_OBJSLIDER_HPP_INCLUDED

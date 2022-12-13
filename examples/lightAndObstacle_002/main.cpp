@@ -1,10 +1,10 @@
-#include <FastEngine/C_scene.hpp>
+#include "FastEngine/C_random.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
-#include "FastEngine/C_random.hpp"
-#include <FastEngine/C_clock.hpp>
-#include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objLight.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include <FastEngine/C_clock.hpp>
+#include <FastEngine/C_scene.hpp>
 
 //Create a obstacle class object
 class Obstacle : public fge::Object, public fge::LightObstacle
@@ -32,17 +32,19 @@ public:
         this->setObstacle(this->g_type);
     }
 
-    void update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event,
-                [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene) override
+    void update([[maybe_unused]] sf::RenderWindow& screen,
+                [[maybe_unused]] fge::Event& event,
+                [[maybe_unused]] const std::chrono::milliseconds& deltaTime,
+                [[maybe_unused]] fge::Scene* scene) override
     {
         auto* follow = scene->_properties["follow"].getPtr<std::string>();
         if (follow != nullptr && *follow == "obstacle" && !this->_tags.check("duplicate"))
         {
-            this->setPosition( screen.mapPixelToCoords(event.getMousePixelPos()) );
+            this->setPosition(screen.mapPixelToCoords(event.getMousePixelPos()));
         }
 
         this->_g_myPoints.resize(this->g_vertices.getVertexCount());
-        for (std::size_t i=0; i<this->g_vertices.getVertexCount(); ++i)
+        for (std::size_t i = 0; i < this->g_vertices.getVertexCount(); ++i)
         {
             this->_g_myPoints[i] = this->getTransform().transformPoint(this->g_vertices[i].position);
         }
@@ -64,46 +66,40 @@ public:
         switch (type)
         {
         case ObstacleTypes::OBSTACLE_RECTANGLE:
-            this->g_vertices.append(sf::Vertex{{0.0f,0.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{0.0f,40.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{40.0f,0.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{40.0f,40.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{0.0f, 0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{0.0f, 40.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{40.0f, 0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{40.0f, 40.0f}, sf::Color::Green});
             break;
         case ObstacleTypes::OBSTACLE_TRIANGLE:
-            this->g_vertices.append(sf::Vertex{{0.0f,0.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{40.0f,20.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{0.0f,40.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{0.0f, 0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{40.0f, 20.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{0.0f, 40.0f}, sf::Color::Green});
             break;
         case ObstacleTypes::OBSTACLE_CONVEX:
-            this->g_vertices.append(sf::Vertex{{0.0f,0.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{10.0f,-20.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{20.0f,0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{0.0f, 0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{10.0f, -20.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{20.0f, 0.0f}, sf::Color::Green});
 
-            this->g_vertices.append(sf::Vertex{{30.0f,-20.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{40.0f,0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{30.0f, -20.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{40.0f, 0.0f}, sf::Color::Green});
             break;
         case ObstacleTypes::OBSTACLE_CONCAVE:
-            this->g_vertices.append(sf::Vertex{{0.0f,0.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{10.0f,-20.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{20.0f,0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{0.0f, 0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{10.0f, -20.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{20.0f, 0.0f}, sf::Color::Green});
 
-            this->g_vertices.append(sf::Vertex{{20.0f,10.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{30.0f,10.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{20.0f, 10.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{30.0f, 10.0f}, sf::Color::Green});
 
-            this->g_vertices.append(sf::Vertex{{30.0f,-20.0f}, sf::Color::Green});
-            this->g_vertices.append(sf::Vertex{{40.0f,0.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{30.0f, -20.0f}, sf::Color::Green});
+            this->g_vertices.append(sf::Vertex{{40.0f, 0.0f}, sf::Color::Green});
             break;
         }
     }
 
-    const char* getClassName() const override
-    {
-        return "OBSTACLE";
-    }
-    const char* getReadableClassName() const override
-    {
-        return "obstacle";
-    }
+    const char* getClassName() const override { return "OBSTACLE"; }
+    const char* getReadableClassName() const override { return "obstacle"; }
 
 private:
     ObstacleTypes g_type{ObstacleTypes::OBSTACLE_RECTANGLE};
@@ -114,7 +110,6 @@ private:
 class MainScene : public fge::Scene
 {
 public:
-
     void main()
     {
         sf::RenderWindow window(sf::VideoMode{800, 600}, "example 002: lightAndObstacle");
@@ -135,12 +130,14 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use Q/E to switch between light and obstacle follow up\n"
-                                                                       "Use 1/2/3/4 to change the obstacle form\n"
-                                                                       "Use left mouse click to duplicate the obstacle/light\n"
-                                                                       "Use space to delete all duplicated objects\n"
-                                                                       "Use right click to change the light color\n",
-                                                                       "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP+1);
+        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
+                                                         "Use Q/E to switch between light and obstacle follow up\n"
+                                                         "Use 1/2/3/4 to change the obstacle form\n"
+                                                         "Use left mouse click to duplicate the obstacle/light\n"
+                                                         "Use space to delete all duplicated objects\n"
+                                                         "Use right click to change the light color\n",
+                                                         "base", {}, 18),
+                                           FGE_SCENE_PLAN_HIGH_TOP + 1);
         explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::White);
 
         //Create the light system
@@ -153,10 +150,11 @@ public:
 
         //Create a render map
         auto renderMap = this->newObject(FGE_NEWOBJECT(fge::ObjRenderMap), FGE_SCENE_PLAN_HIGH_TOP);
-        renderMap->getObject<fge::ObjRenderMap>()->setClearColor(sf::Color{10,10,10,240});
+        renderMap->getObject<fge::ObjRenderMap>()->setClearColor(sf::Color{10, 10, 10, 240});
 
         //Create the light
-        auto light = this->newObject(FGE_NEWOBJECT(fge::ObjLight, "light_test", {400.0f, 300.0f}), FGE_SCENE_PLAN_MIDDLE);
+        auto light =
+                this->newObject(FGE_NEWOBJECT(fge::ObjLight, "light_test", {400.0f, 300.0f}), FGE_SCENE_PLAN_MIDDLE);
         light->getObject<fge::ObjLight>()->setColor(sf::Color::Red);
         light->getObject<fge::ObjLight>()->setScale(3.0f, 3.0f);
 
@@ -164,8 +162,8 @@ public:
         this->_properties["follow"] = "obstacle";
 
         //Add a callback for mouse click
-        event._onMouseButtonPressed.add(new fge::CallbackLambda<const fge::Event &, const sf::Event::MouseButtonEvent &>([&](const fge::Event &event, const sf::Event::MouseButtonEvent &mouseEvent)
-        {
+        event._onMouseButtonPressed.add(new fge::CallbackLambda<const fge::Event&, const sf::Event::MouseButtonEvent&>(
+                [&](const fge::Event& event, const sf::Event::MouseButtonEvent& mouseEvent) {
             //If the left button is pressed
             if (mouseEvent.button == sf::Mouse::Left)
             {
@@ -192,8 +190,8 @@ public:
         }));
 
         //Add a callback for key pressed
-        event._onKeyPressed.add(new fge::CallbackLambda<const fge::Event &, const sf::Event::KeyEvent &>([&](const fge::Event &, const sf::Event::KeyEvent &keyEvent)
-        {
+        event._onKeyPressed.add(new fge::CallbackLambda<const fge::Event&, const sf::Event::KeyEvent&>(
+                [&](const fge::Event&, const sf::Event::KeyEvent& keyEvent) {
             //Changing the obstacle type
             if (keyEvent.code == sf::Keyboard::Key::Num1)
             {
@@ -227,7 +225,7 @@ public:
             {
                 fge::ObjectContainer duplicates;
                 this->getAllObj_ByTag("duplicate", duplicates);
-                for (auto& duplicate : duplicates)
+                for (auto& duplicate: duplicates)
                 {
                     this->delObject(duplicate->getSid());
                 }
@@ -254,7 +252,7 @@ public:
             auto* follow = this->_properties["follow"].getPtr<std::string>();
             if (follow != nullptr && *follow == "light")
             {
-                light->getObject()->setPosition( window.mapPixelToCoords(event.getMousePixelPos()) );
+                light->getObject()->setPosition(window.mapPixelToCoords(event.getMousePixelPos()));
             }
 
             //Draw scene
@@ -271,7 +269,7 @@ public:
     }
 };
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     MainScene scene;
     scene.main();

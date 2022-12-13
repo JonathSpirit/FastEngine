@@ -17,9 +17,9 @@
 #include "FastEngine/manager/reg_manager.hpp"
 #include "private/string_hash.hpp"
 
+#include "FastEngine/C_scene.hpp"
 #include <unordered_map>
 #include <vector>
-#include "FastEngine/C_scene.hpp"
 
 namespace fge::reg
 {
@@ -28,12 +28,12 @@ namespace
 {
 
 using ClassNameMapType = std::unordered_map<std::string, fge::reg::ClassId, fge::priv::string_hash, std::equal_to<>>;
-using ClassIdMapType = std::vector<std::unique_ptr<fge::reg::BaseStamp> >;
+using ClassIdMapType = std::vector<std::unique_ptr<fge::reg::BaseStamp>>;
 
 ClassNameMapType _dataClassNameMap;
 ClassIdMapType _dataClassIdMap;
 
-}//end
+} // namespace
 
 void ClearAll()
 {
@@ -43,7 +43,7 @@ void ClearAll()
 
 bool RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp)
 {
-    if ( fge::reg::Check( newStamp->getClassName() ) )
+    if (fge::reg::Check(newStamp->getClassName()))
     {
         return false;
     }
@@ -157,4 +157,4 @@ fge::reg::BaseStamp* GetStampOf(fge::reg::ClassId classId)
     return nullptr;
 }
 
-}//end fge::reg
+} // namespace fge::reg

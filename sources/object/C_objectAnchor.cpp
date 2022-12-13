@@ -57,12 +57,12 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
         return;
     }
     auto parent = this->_g_objectParent->_myObjectData.lock();
-    if ( !fge::ObjectData::isValid(parent) )
+    if (!fge::ObjectData::isValid(parent))
     {
         return;
     }
     auto* scene = parent->getLinkedScene();
-    if ( scene == nullptr )
+    if (scene == nullptr)
     {
         return;
     }
@@ -73,12 +73,12 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
     sf::FloatRect parentGlobalBounds = parent->getObject()->getGlobalBounds();
 
     auto target = scene->getObject(this->_g_anchorTarget);
-    if ( fge::ObjectData::isValid(target) )
-    {//On a target
+    if (fge::ObjectData::isValid(target))
+    { //On a target
         targetGlobalBounds = target->getObject()->getGlobalBounds();
     }
     else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
-    {//On the render target
+    { //On the render target
         if (customTargetSize.x != 0.0f && customTargetSize.y != 0.0f)
         {
             targetGlobalBounds = {{0.0f, 0.0f}, customTargetSize};
@@ -86,7 +86,7 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
         else
         {
             auto* renderTarget = scene->getLinkedRenderTarget();
-            if ( renderTarget != nullptr )
+            if (renderTarget != nullptr)
             {
                 targetGlobalBounds = {{0.0f, 0.0f}, renderTarget->getDefaultView().getSize()};
             }
@@ -106,7 +106,8 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
         anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{0.0f, targetGlobalBounds.height};
         break;
     case fge::Anchor::Types::ANCHOR_DOWNRIGHT_CORNER:
-        anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, targetGlobalBounds.height};
+        anchorPosition =
+                targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, targetGlobalBounds.height};
         break;
     default:
         anchorPosition = {0.0f, 0.0f};
@@ -180,4 +181,4 @@ bool Anchor::isNeedingAnchorUpdate() const
     return this->_g_anchorNeedUpdate;
 }
 
-}//end fge
+} // namespace fge

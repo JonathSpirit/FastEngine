@@ -38,7 +38,7 @@ public:
      * When a clock is created, it set his time point to the current time.
      */
     Clock() :
-        g_lastTimePoint( std::chrono::steady_clock::now() )
+            g_lastTimePoint(std::chrono::steady_clock::now())
     {}
 
     /**
@@ -46,10 +46,7 @@ public:
      *
      * \return The time elapsed since the last time point
      */
-    auto getElapsedTime() const
-    {
-        return std::chrono::steady_clock::now() - this->g_lastTimePoint;
-    }
+    auto getElapsedTime() const { return std::chrono::steady_clock::now() - this->g_lastTimePoint; }
 
     /**
      * \brief Get the time elapsed since the last time point with duration cast to the given type
@@ -88,7 +85,8 @@ public:
     template<typename TD>
     auto restart()
     {
-        auto lastDuration = std::chrono::duration_cast<TD>(std::chrono::steady_clock::now() - this->g_lastTimePoint).count();
+        auto lastDuration =
+                std::chrono::duration_cast<TD>(std::chrono::steady_clock::now() - this->g_lastTimePoint).count();
         this->g_lastTimePoint = std::chrono::steady_clock::now();
         return lastDuration;
     }
@@ -101,13 +99,14 @@ public:
      */
     bool reached(const std::chrono::milliseconds& duration)
     {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - this->g_lastTimePoint) >= duration;
+        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
+                                                                     this->g_lastTimePoint) >= duration;
     }
 
 private:
     std::chrono::steady_clock::time_point g_lastTimePoint;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_CLOCK_HPP_INCLUDED

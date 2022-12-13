@@ -27,8 +27,8 @@
 namespace fge
 {
 
-using TileSetList = std::vector<std::shared_ptr<fge::TileSet> >;
-using TileLayerList = std::vector<std::shared_ptr<fge::TileLayer> >;
+using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
+using TileLayerList = std::vector<std::shared_ptr<fge::TileLayer>>;
 
 class FGE_API ObjTileMap : public fge::Object
 {
@@ -63,6 +63,6 @@ private:
     TileSetList g_tileSets;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJTILEMAP_HPP_INCLUDED

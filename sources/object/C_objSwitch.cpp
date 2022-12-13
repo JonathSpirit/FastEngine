@@ -21,13 +21,12 @@ namespace fge
 {
 
 ObjSwitch::ObjSwitch() :
-    g_color(sf::Color::White)
-{
-}
+        g_color(sf::Color::White)
+{}
 ObjSwitch::ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos) :
-    g_textureOn(t_on),
-    g_textureOff(t_off),
-    g_color(sf::Color::White)
+        g_textureOn(t_on),
+        g_textureOff(t_off),
+        g_color(sf::Color::White)
 {
     this->setPosition(pos);
     this->g_sprite.setTexture(t_off);
@@ -66,15 +65,15 @@ bool ObjSwitch::getActiveStat() const
 }
 
 #ifdef FGE_DEF_SERVER
-FGE_OBJ_UPDATE_BODY(ObjSwitch){}
+FGE_OBJ_UPDATE_BODY(ObjSwitch) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjSwitch)
 {
-    this->g_statMouseOn = fge::IsMouseOn( screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds() );
+    this->g_statMouseOn = fge::IsMouseOn(screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds());
 
-    if ( this->g_flag.check( event.isMouseButtonPressed(sf::Mouse::Left) )  )
+    if (this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left)))
     {
-        if ( this->g_statMouseOn )
+        if (this->g_statMouseOn)
         {
             this->g_statActive = !this->g_statActive;
             this->g_sprite.setTexture(this->g_statActive ? this->g_textureOn : this->g_textureOff);
@@ -87,7 +86,7 @@ FGE_OBJ_UPDATE_BODY(ObjSwitch)
 FGE_OBJ_DRAW_BODY(ObjSwitch)
 {
     states.transform *= this->getTransform();
-    this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - sf::Color(50,50,50,0)) : this->g_color);
+    this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - sf::Color(50, 50, 50, 0)) : this->g_color);
     target.draw(this->g_sprite, states);
 }
 #endif
@@ -108,7 +107,7 @@ void ObjSwitch::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->g_color = sf::Color( jsonObject.value<uint32_t>("color", 0) );
+    this->g_color = sf::Color(jsonObject.value<uint32_t>("color", 0));
 
     this->g_textureOn = jsonObject.value<std::string>("textureOn", FGE_TEXTURE_BAD);
     this->g_textureOff = jsonObject.value<std::string>("textureOff", FGE_TEXTURE_BAD);
@@ -143,11 +142,11 @@ const char* ObjSwitch::getReadableClassName() const
 
 sf::FloatRect ObjSwitch::getGlobalBounds() const
 {
-    return this->getTransform().transformRect( this->g_sprite.getLocalBounds() );
+    return this->getTransform().transformRect(this->g_sprite.getLocalBounds());
 }
 sf::FloatRect ObjSwitch::getLocalBounds() const
 {
     return this->g_sprite.getLocalBounds();
 }
 
-}//end fge
+} // namespace fge

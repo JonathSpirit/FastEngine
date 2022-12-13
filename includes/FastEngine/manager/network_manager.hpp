@@ -18,10 +18,10 @@
 #define _FGE_NETWORK_MANAGER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_client.hpp"
+#include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/object/C_object.hpp"
-#include "FastEngine/C_packet.hpp"
-#include "FastEngine/C_client.hpp"
 #include <optional>
 
 #define FGE_NET_BAD_HEADER 0
@@ -36,7 +36,9 @@
  *
  * This will create a scope and a ChainedArguments variable.
  */
-#define FGE_NET_RULES_START {auto chainedArgs_=
+#define FGE_NET_RULES_START                                                                                            \
+    {                                                                                                                  \
+        auto chainedArgs_ =
 /**
  * \brief Macro that will check extract the ChainedArguments
  *
@@ -46,13 +48,21 @@
 /**
  * \brief Macro that will check is everything is valid and return if not
  */
-#define FGE_NET_RULES_TRY if (!FGE_NET_RULES_CHECK_EXTRACT) {return;}
+#define FGE_NET_RULES_TRY                                                                                              \
+    if (!FGE_NET_RULES_CHECK_EXTRACT)                                                                                  \
+    {                                                                                                                  \
+        return;                                                                                                        \
+    }
 /**
  * \brief Macro that will check is everything is valid and do something else instead
  *
  * \param else_ The code that will be executed when rules is invalid
  */
-#define FGE_NET_RULES_TRY_ELSE(else_) if (!FGE_NET_RULES_CHECK_EXTRACT) {else_}
+#define FGE_NET_RULES_TRY_ELSE(else_)                                                                                  \
+    if (!FGE_NET_RULES_CHECK_EXTRACT)                                                                                  \
+    {                                                                                                                  \
+        else_                                                                                                          \
+    }
 /**
  * \brief Macro that will get the value stored in the ChainedArguments and move it
  */
@@ -69,7 +79,15 @@
  *
  * \param var_ The variable that will receive the valid value
  */
-#define FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = FGE_NET_RULES_RESULT;}else{(var_) = FGE_NET_RULES_RESULT_N;}
+#define FGE_NET_RULES_AFFECT(var_)                                                                                     \
+    FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value)                                 \
+    {                                                                                                                  \
+        (var_) = FGE_NET_RULES_RESULT;                                                                                 \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        (var_) = FGE_NET_RULES_RESULT_N;                                                                               \
+    }
 /**
  * \brief Macro that will made everything in order to affect the ChainedArguments value into the provided function/method
  *
@@ -86,7 +104,15 @@
  * \param var_ The variable that will receive the valid value
  * \param else_ The code that will be executed when rules is invalid
  */
-#define FGE_NET_RULES_AFFECT_ELSE(var_, else_) FGE_NET_RULES_TRY_ELSE(else_) if constexpr (std::is_move_constructible<decltype(var_)>::value){(var_) = FGE_NET_RULES_RESULT;}else{(var_) = FGE_NET_RULES_RESULT_N;}
+#define FGE_NET_RULES_AFFECT_ELSE(var_, else_)                                                                         \
+    FGE_NET_RULES_TRY_ELSE(else_) if constexpr (std::is_move_constructible<decltype(var_)>::value)                     \
+    {                                                                                                                  \
+        (var_) = FGE_NET_RULES_RESULT;                                                                                 \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        (var_) = FGE_NET_RULES_RESULT_N;                                                                               \
+    }
 /**
  * \brief Same as FGE_NET_RULES_SETTER with custom \b else condition
  *
@@ -100,10 +126,18 @@
  * \brief End the rules scope
  */
 #define FGE_NET_RULES_END }
-#define FGE_NET_RULES_AFFECT_END(var_) FGE_NET_RULES_AFFECT(var_) FGE_NET_RULES_END
-#define FGE_NET_RULES_SETTER_END(setter_) FGE_NET_RULES_SETTER(setter_) FGE_NET_RULES_END
-#define FGE_NET_RULES_AFFECT_END_ELSE(var_, else_) FGE_NET_RULES_AFFECT_ELSE(var_, else_) FGE_NET_RULES_END
-#define FGE_NET_RULES_SETTER_END_ELSE(setter_, else_) FGE_NET_RULES_SETTER_ELSE(setter_, else_) FGE_NET_RULES_END
+#define FGE_NET_RULES_AFFECT_END(var_)                                                                                 \
+    FGE_NET_RULES_AFFECT(var_)                                                                                         \
+    FGE_NET_RULES_END
+#define FGE_NET_RULES_SETTER_END(setter_)                                                                              \
+    FGE_NET_RULES_SETTER(setter_)                                                                                      \
+    FGE_NET_RULES_END
+#define FGE_NET_RULES_AFFECT_END_ELSE(var_, else_)                                                                     \
+    FGE_NET_RULES_AFFECT_ELSE(var_, else_)                                                                             \
+    FGE_NET_RULES_END
+#define FGE_NET_RULES_SETTER_END_ELSE(setter_, else_)                                                                  \
+    FGE_NET_RULES_SETTER_ELSE(setter_, else_)                                                                          \
+    FGE_NET_RULES_END
 /**
  * @}
  */
@@ -245,8 +279,9 @@ struct ChainedArguments
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
-fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, bool TInvertResult = false>
+fge::net::rules::ChainedArguments<TValue>
+RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
  * \brief Must equal rule, check if the value is equal to the provided one
@@ -257,7 +292,7 @@ fge::net::rules::ChainedArguments<TValue> RRange(const TValue& min, const TValue
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
+template<class TValue, bool TInvertResult = false>
 fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
@@ -269,7 +304,7 @@ fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
+template<class TValue, bool TInvertResult = false>
 fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
@@ -281,7 +316,7 @@ fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rul
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
+template<class TValue, bool TInvertResult = false>
 fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
@@ -300,8 +335,9 @@ fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::Ch
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
-fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, bool TInvertResult = false>
+fge::net::rules::ChainedArguments<TValue>
+RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
  * \brief Size must equal rule, check if the size is equal to the provided one
@@ -314,8 +350,9 @@ fge::net::rules::ChainedArguments<TValue> RSizeRange(fge::net::SizeType min, fge
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
-fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, bool TInvertResult = false>
+fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
+                                                         fge::net::rules::ChainedArguments<TValue> args);
 
 /**
  * \brief Check if the extracted string is a valid UTF8 string
@@ -328,15 +365,15 @@ fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, f
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult=false>
+template<class TValue, bool TInvertResult = false>
 fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::ChainedArguments<TValue> args);
 
 /**
  * @}
  */
 
-}//end rules
-}//end fge::net
+} // namespace rules
+} // namespace fge::net
 
 #include "network_manager.inl"
 

@@ -31,7 +31,7 @@ namespace net
 
 class Packet;
 
-}//end net
+} // namespace net
 
 /**
  * \class Event
@@ -95,7 +95,7 @@ public:
      *
      * \param sfevt The SFML event
      */
-    void process( const sf::Event& sfevt );
+    void process(const sf::Event& sfevt);
     /**
      * \brief Process automatically all the SFML events
      *
@@ -105,7 +105,7 @@ public:
      * \param sfscreen The SFML window
      * \param maxEventCount The maximum number of processed events par call
      */
-    void process( sf::Window& sfscreen, unsigned int maxEventCount=FGE_EVENT_DEFAULT_MAXEVENTCOUNT );
+    void process(sf::Window& sfscreen, unsigned int maxEventCount = FGE_EVENT_DEFAULT_MAXEVENTCOUNT);
 #endif //FGE_DEF_SERVER
 
     /**
@@ -114,7 +114,7 @@ public:
      * \param sfkey The SFML key
      * \return \b true if the key is pressed, \b false otherwise
      */
-    bool isKeyPressed( sf::Keyboard::Key sfkey ) const;
+    bool isKeyPressed(sf::Keyboard::Key sfkey) const;
     /**
      * \brief Get the unicode of the last key pressed
      *
@@ -135,7 +135,7 @@ public:
      * \param evtType The SFML event type
      * \return \b true if the event is active, \b false otherwise
      */
-    bool isEventType( sf::Event::EventType evtType ) const;
+    bool isEventType(sf::Event::EventType evtType) const;
 
     /**
      * \brief Get the mouse pixel position
@@ -149,7 +149,7 @@ public:
      * \param sfmouse The SFML mouse button
      * \return \b true if the button is pressed, \b false otherwise
      */
-    bool isMouseButtonPressed( sf::Mouse::Button sfmouse ) const;
+    bool isMouseButtonPressed(sf::Mouse::Button sfmouse) const;
 
     /**
      * \brief Get the horizontal mouse wheel delta
@@ -170,14 +170,14 @@ public:
      * \param pck The packet
      * \return The packet
      */
-    fge::net::Packet& pack( fge::net::Packet& pck );
+    fge::net::Packet& pack(fge::net::Packet& pck);
     /**
      * \brief Unpack events data from a network packet
      *
      * \param pck The packet
      * \return The packet
      */
-    fge::net::Packet& unpack( fge::net::Packet& pck );
+    fge::net::Packet& unpack(fge::net::Packet& pck);
 
     /**
      * \brief Get a binary representation of all keys into a string
@@ -200,27 +200,44 @@ public:
 
     //Callbacks
     fge::CallbackHandler<const fge::Event&> _onClosed; ///< Callback called when the window is closed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::SizeEvent&> _onResized; ///< Callback called when the window is resized
-    fge::CallbackHandler<const fge::Event&> _onLostFocus; ///< Callback called when the window lost focus
+    fge::CallbackHandler<const fge::Event&, const sf::Event::SizeEvent&>
+            _onResized;                                     ///< Callback called when the window is resized
+    fge::CallbackHandler<const fge::Event&> _onLostFocus;   ///< Callback called when the window lost focus
     fge::CallbackHandler<const fge::Event&> _onGainedFocus; ///< Callback called when the window gained focus
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TextEvent&> _onTextEntered; ///< Callback called when a text is entered
-    fge::CallbackHandler<const fge::Event&, const sf::Event::KeyEvent&> _onKeyPressed; ///< Callback called when a key is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::KeyEvent&> _onKeyReleased; ///< Callback called when a key is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseWheelScrollEvent&> _onMouseWheelScrolled; ///< Callback called when the mouse wheel is scrolled
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&> _onMouseButtonPressed; ///< Callback called when a mouse button is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&> _onMouseButtonReleased; ///< Callback called when a mouse button is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseMoveEvent&> _onMouseMoved; ///< Callback called when the mouse is moved
+    fge::CallbackHandler<const fge::Event&, const sf::Event::TextEvent&>
+            _onTextEntered; ///< Callback called when a text is entered
+    fge::CallbackHandler<const fge::Event&, const sf::Event::KeyEvent&>
+            _onKeyPressed; ///< Callback called when a key is pressed
+    fge::CallbackHandler<const fge::Event&, const sf::Event::KeyEvent&>
+            _onKeyReleased; ///< Callback called when a key is released
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseWheelScrollEvent&>
+            _onMouseWheelScrolled; ///< Callback called when the mouse wheel is scrolled
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&>
+            _onMouseButtonPressed; ///< Callback called when a mouse button is pressed
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&>
+            _onMouseButtonReleased; ///< Callback called when a mouse button is released
+    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseMoveEvent&>
+            _onMouseMoved;                                   ///< Callback called when the mouse is moved
     fge::CallbackHandler<const fge::Event&> _onMouseEntered; ///< Callback called when the mouse enters the window
-    fge::CallbackHandler<const fge::Event&> _onMouseLeft; ///< Callback called when the mouse leaves the window
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickButtonEvent&> _onJoystickButtonPressed; ///< Callback called when a joystick button is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickButtonEvent&> _onJoystickButtonReleased; ///< Callback called when a joystick button is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickMoveEvent&> _onJoystickMoved; ///< Callback called when a joystick is moved
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickConnectEvent&> _onJoystickConnected; ///< Callback called when a joystick is connected
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickConnectEvent&> _onJoystickDisconnected; ///< Callback called when a joystick is disconnected
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&> _onTouchBegan; ///< Callback called when mouse touch begins
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&> _onTouchMoved; ///< Callback called when the mouse touch is moved
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&> _onTouchEnded; ///< Callback called when the mouse touch is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::SensorEvent&> _onSensorChanged; ///< Callback called when a sensor is changed
+    fge::CallbackHandler<const fge::Event&> _onMouseLeft;    ///< Callback called when the mouse leaves the window
+    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickButtonEvent&>
+            _onJoystickButtonPressed; ///< Callback called when a joystick button is pressed
+    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickButtonEvent&>
+            _onJoystickButtonReleased; ///< Callback called when a joystick button is released
+    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickMoveEvent&>
+            _onJoystickMoved; ///< Callback called when a joystick is moved
+    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickConnectEvent&>
+            _onJoystickConnected; ///< Callback called when a joystick is connected
+    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickConnectEvent&>
+            _onJoystickDisconnected; ///< Callback called when a joystick is disconnected
+    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&>
+            _onTouchBegan; ///< Callback called when mouse touch begins
+    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&>
+            _onTouchMoved; ///< Callback called when the mouse touch is moved
+    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&>
+            _onTouchEnded; ///< Callback called when the mouse touch is released
+    fge::CallbackHandler<const fge::Event&, const sf::Event::SensorEvent&>
+            _onSensorChanged; ///< Callback called when a sensor is changed
 
 private:
     //Event type
@@ -241,6 +258,6 @@ private:
     sf::Vector2u g_windowSize;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_EVENT_HPP_INCLUDED

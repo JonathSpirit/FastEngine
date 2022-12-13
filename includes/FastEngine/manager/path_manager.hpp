@@ -36,7 +36,7 @@ FGE_API bool New(std::string_view name, std::filesystem::path path);
 
 FGE_API bool Replace(std::string_view name, std::filesystem::path path);
 
-}//end fge::path
+} // namespace fge::path
 
 
 #endif // _FGE_PATH_MANAGER_HPP_INCLUDED

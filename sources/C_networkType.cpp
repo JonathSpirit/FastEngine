@@ -15,9 +15,9 @@
  */
 
 #include "FastEngine/C_networkType.hpp"
-#include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_tagList.hpp"
+#include "FastEngine/manager/network_manager.hpp"
 
 namespace fge::net
 {
@@ -27,24 +27,24 @@ namespace fge::net
 bool NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients)
 {
     //Remove/add extra clients
-    for (std::size_t i=0; i<clients.getClientEventSize(); ++i)
+    for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
     {
         const fge::net::ClientListEvent& evt = clients.getClientEvent(i);
         if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
         {
-            this->_g_tableId.erase( evt._id );
+            this->_g_tableId.erase(evt._id);
         }
         else
         {
-            this->_g_tableId.emplace( evt._id, 0 );
+            this->_g_tableId.emplace(evt._id, 0);
         }
     }
 
     //Apply modification flag to clients
     bool buff = this->check();
-    if ( buff )
+    if (buff)
     {
-        for (auto & it : this->_g_tableId)
+        for (auto& it: this->_g_tableId)
         {
             it.second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
         }
@@ -107,10 +107,8 @@ bool NetworkTypeBase::isNeedingUpdate() const
 ///NetworkTypeScene
 
 NetworkTypeScene::NetworkTypeScene(fge::Scene* source) :
-    g_typeSource(source)
-{
-
-}
+        g_typeSource(source)
+{}
 
 const void* NetworkTypeScene::getSource() const
 {
@@ -158,12 +156,8 @@ bool NetworkTypeScene::check() const
 {
     return true;
 }
-void NetworkTypeScene::forceCheck()
-{
-}
-void NetworkTypeScene::forceUncheck()
-{
-}
+void NetworkTypeScene::forceCheck() {}
+void NetworkTypeScene::forceUncheck() {}
 
 ///NetworkTypeSmoothVec2Float
 
@@ -171,8 +165,7 @@ NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::DataAccessor<sf::Vec
         g_typeCopy(source._getter()),
         g_typeSource(std::move(source)),
         g_errorRange(errorRange)
-{
-}
+{}
 
 const void* NetworkTypeSmoothVec2Float::getSource() const
 {
@@ -181,12 +174,12 @@ const void* NetworkTypeSmoothVec2Float::getSource() const
 
 bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet& pck)
 {
-    if ( pck >> this->g_typeCopy )
+    if (pck >> this->g_typeCopy)
     {
         sf::Vector2f source = this->g_typeSource._getter();
         float error = std::abs(this->g_typeCopy.x - source.x) + std::abs(this->g_typeCopy.y - source.y);
-        if ( error >= this->g_errorRange )
-        {//Too much error
+        if (error >= this->g_errorRange)
+        { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
             this->_onApplied.call();
             return true;
@@ -203,7 +196,7 @@ void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, const fge::net:
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
@@ -244,8 +237,7 @@ NetworkTypeSmoothFloat::NetworkTypeSmoothFloat(fge::DataAccessor<float> source, 
         g_typeCopy(source._getter()),
         g_typeSource(std::move(source)),
         g_errorRange(errorRange)
-{
-}
+{}
 
 const void* NetworkTypeSmoothFloat::getSource() const
 {
@@ -254,11 +246,11 @@ const void* NetworkTypeSmoothFloat::getSource() const
 
 bool NetworkTypeSmoothFloat::applyData(fge::net::Packet& pck)
 {
-    if ( pck >> this->g_typeCopy )
+    if (pck >> this->g_typeCopy)
     {
         float error = std::abs(this->g_typeCopy - this->g_typeSource._getter());
-        if ( error >= this->g_errorRange )
-        {//Too much error
+        if (error >= this->g_errorRange)
+        { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
             this->_onApplied.call();
             return true;
@@ -275,7 +267,7 @@ void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, const fge::net::Ide
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)
@@ -313,10 +305,9 @@ float NetworkTypeSmoothFloat::getErrorRange() const
 ///NetworkTypeTag
 
 NetworkTypeTag::NetworkTypeTag(fge::TagList* source, std::string tag) :
-    g_typeSource(source),
-    g_tag(std::move(tag))
-{
-}
+        g_typeSource(source),
+        g_tag(std::move(tag))
+{}
 
 const void* NetworkTypeTag::getSource() const
 {
@@ -353,12 +344,8 @@ bool NetworkTypeTag::check() const
 {
     return true;
 }
-void NetworkTypeTag::forceCheck()
-{
-}
-void NetworkTypeTag::forceUncheck()
-{
-}
+void NetworkTypeTag::forceCheck() {}
+void NetworkTypeTag::forceUncheck() {}
 
 ///NetworkTypeContainer
 
@@ -381,12 +368,12 @@ void NetworkTypeContainer::reserve(size_t n)
 std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
 {
     std::size_t rewritePos = pck.getDataSize();
-    pck.append( sizeof(fge::net::SizeType) ); //Will be rewrited
+    pck.append(sizeof(fge::net::SizeType)); //Will be rewrited
 
     fge::net::SizeType count{0};
-    for ( std::size_t i=0; i<this->g_data.size(); ++i )
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
-        if ( this->g_data[i]->isNeedingUpdate() )
+        if (this->g_data[i]->isNeedingUpdate())
         {
             pck << static_cast<fge::net::SizeType>(i);
             ++count;
@@ -403,7 +390,7 @@ void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, const fge::
     fge::net::SizeType count{0};
     pck >> count;
 
-    for ( fge::net::SizeType i=0; i<count; ++i )
+    for (fge::net::SizeType i = 0; i < count; ++i)
     {
         fge::net::SizeType dataIndex{0};
 
@@ -415,24 +402,24 @@ void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, const fge::
 
 void NetworkTypeContainer::clientsCheckup(const fge::net::ClientList& clients)
 {
-    for ( std::size_t i=0; i<this->g_data.size(); ++i )
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         this->g_data[i]->clientsCheckup(clients);
     }
 }
 void NetworkTypeContainer::forceCheckClient(const fge::net::Identity& id)
 {
-    for ( std::size_t i=0; i<this->g_data.size(); ++i )
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         this->g_data[i]->forceCheckClient(id);
     }
 }
 void NetworkTypeContainer::forceUncheckClient(const fge::net::Identity& id)
 {
-    for ( std::size_t i=0; i<this->g_data.size(); ++i )
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         this->g_data[i]->forceUncheckClient(id);
     }
 }
 
-}//end fge::net
+} // namespace fge::net

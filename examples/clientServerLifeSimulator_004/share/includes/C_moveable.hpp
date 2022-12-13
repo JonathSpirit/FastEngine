@@ -20,6 +20,6 @@ protected:
     bool _g_finish{true};
 };
 
-}//end ls
+} // namespace ls
 
 #endif // _EXFGE_C_MOVEABLE_HPP_INCLUDED

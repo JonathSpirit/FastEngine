@@ -1,6 +1,6 @@
 #include "FastEngine/object/C_objSlider.hpp"
-#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
@@ -9,9 +9,9 @@ void ObjSlider::first([[maybe_unused]] fge::Scene* scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
-    this->g_scrollBaseRect.setFillColor(sf::Color{100,100,100,80});
-    this->g_scrollRect.setFillColor(sf::Color{60,60,60,140});
-    this->g_scrollRect.setOutlineColor(sf::Color{255,255,255,80});
+    this->g_scrollBaseRect.setFillColor(sf::Color{100, 100, 100, 80});
+    this->g_scrollRect.setFillColor(sf::Color{60, 60, 60, 140});
+    this->g_scrollRect.setOutlineColor(sf::Color{255, 255, 255, 80});
 }
 void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
@@ -19,13 +19,15 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
-    guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiVerify, this), this );
+    guiElementHandlerPtr->_onGuiVerify.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiVerify, this), this);
 
-    guiElementHandlerPtr->_onGuiResized.add( new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiResized, this), this );
-    this->_onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiMouseButtonPressed, this), this );
+    guiElementHandlerPtr->_onGuiResized.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiResized, this), this);
+    this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiMouseButtonPressed, this),
+                                       this);
 
     event._onMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseMoved, this), this);
-    event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this), this);
+    event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this),
+                                     this);
 
     this->refreshSize(guiElementHandlerPtr->_lastSize);
 }
@@ -47,19 +49,22 @@ void ObjSlider::setSize(const fge::DynamicSize& size)
 }
 sf::Vector2f ObjSlider::getSize() const
 {
-    return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);;
+    return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
+    ;
 }
 
 void ObjSlider::setCursorRatio(float ratio)
 {
     ratio = std::clamp(ratio, 0.0f, 1.0f);
 
-    this->g_scrollPositionY = ratio * (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y);
+    this->g_scrollPositionY = ratio * (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 float ObjSlider::getCursorRatio() const
 {
-    return std::clamp( std::abs( this->g_scrollPositionY / (this->g_scrollBaseRect.getSize().y-this->g_scrollRect.getSize().y) ), 0.0f, 1.0f);
+    return std::clamp(
+            std::abs(this->g_scrollPositionY / (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y)),
+            0.0f, 1.0f);
 }
 bool ObjSlider::isScrollPressed() const
 {
@@ -86,7 +91,8 @@ void ObjSlider::setScrollBaseRectFillColor(sf::Color color)
 
 void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
 {
-    this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, 0.0f, this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
+    this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, 0.0f,
+                                         this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
 
     auto rectSize = this->g_size.getSize(this->getPosition(), targetSize);
 
@@ -98,22 +104,26 @@ void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
     this->g_scrollBaseRect.setOrigin(0.0f, 0.0f);
     this->g_scrollRect.setOrigin(0.0f, 0.0f);
 
-    this->_onSlide.call( this->getCursorRatio() );
+    this->_onSlide.call(this->getCursorRatio());
 }
 
-void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg, fge::GuiElementContext& context)
+void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
+                                        [[maybe_unused]] const sf::Event::MouseButtonEvent& arg,
+                                        fge::GuiElementContext& context)
 {
-    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords({context._mousePosition.x, context._mousePosition.y},
-                                                                              *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
+    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
+            {context._mousePosition.x, context._mousePosition.y},
+            *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
     this->g_scrollPressed = true;
     this->g_scrollLastPositionY = this->g_scrollPositionY;
     this->g_lastMousePositionY = mousePosition.y;
     this->g_scrollRect.setOutlineThickness(2.0f);
 }
-void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
+void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
+                                      [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
 {
-    if ( this->g_scrollPressed )
+    if (this->g_scrollPressed)
     {
         this->g_scrollPressed = false;
         this->g_scrollRect.setOutlineThickness(0.0f);
@@ -121,14 +131,15 @@ void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, [[
 }
 void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
 {
-    if ( this->g_scrollPressed )
+    if (this->g_scrollPressed)
     {
         const sf::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        sf::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
+        sf::Vector2f mousePos = renderTarget.mapPixelToCoords(
+                {arg.x, arg.y}, *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
         auto scale = this->getParentsScale().y * this->getScale().y;
-        this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y-this->g_lastMousePositionY)/scale;
+        this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y - this->g_lastMousePositionY) / scale;
 
         this->refreshSize(this->g_guiElementHandler->_lastSize);
     }
@@ -140,14 +151,16 @@ void ObjSlider::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& hand
     this->refreshSize(size);
 }
 
-void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context)
+void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+                            sf::Event::EventType evtType,
+                            fge::GuiElementContext& context)
 {
     if (evtType != sf::Event::MouseButtonPressed)
     {
         return;
     }
 
-    if ( this->verifyPriority(context._prioritizedElement) )
+    if (this->verifyPriority(context._prioritizedElement))
     {
         auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -157,14 +170,14 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt, sf::Event::E
         sf::Vector2f mousePosition;
         if (customView)
         {
-            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition,*customView);
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
         }
         else
         {
             mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
         }
 
-        if ( scrollRect.contains(mousePosition) )
+        if (scrollRect.contains(mousePosition))
         {
             context._prioritizedElement = this;
         }
@@ -189,4 +202,4 @@ sf::FloatRect ObjSlider::getLocalBounds() const
     return this->g_scrollBaseRect.getLocalBounds();
 }
 
-}//end fge
+} // namespace fge

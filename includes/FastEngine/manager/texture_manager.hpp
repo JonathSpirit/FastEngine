@@ -20,11 +20,11 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "FastEngine/textureType.hpp"
-#include <string>
 #include <unordered_map>
-#include <mutex>
-#include <memory>
 #include <filesystem>
+#include <memory>
+#include <mutex>
+#include <string>
 
 #define FGE_TEXTURE_DEFAULT FGE_TEXTURE_BAD
 #define FGE_TEXTURE_BAD ""
@@ -172,6 +172,6 @@ FGE_API bool Push(std::string_view name, const fge::texture::TextureDataPtr& dat
  * @}
  */
 
-}//end fge::texture
+} // namespace fge::texture
 
 #endif // _FGE_TEXTURE_MANAGER_HPP_INCLUDED

@@ -27,27 +27,27 @@ fge::texture::TextureDataPtr _dataTextureBad;
 std::unordered_map<std::string, fge::texture::TextureDataPtr, fge::priv::string_hash, std::equal_to<>> _dataTexture;
 std::mutex _dataMutex;
 
-}//end
+} // namespace
 
 void Init()
 {
-    if ( _dataTextureBad == nullptr )
+    if (_dataTextureBad == nullptr)
     {
         sf::Image tmpImage;
 
-        tmpImage.create(32,32, sf::Color::Black);
-        for (unsigned int y=0; y<16; ++y)
+        tmpImage.create(32, 32, sf::Color::Black);
+        for (unsigned int y = 0; y < 16; ++y)
         {
-            for (unsigned int x=0; x<16; ++x)
+            for (unsigned int x = 0; x < 16; ++x)
             {
-                tmpImage.setPixel(x,y, sf::Color::Magenta);
+                tmpImage.setPixel(x, y, sf::Color::Magenta);
             }
         }
-        for (unsigned int y=16; y<32; ++y)
+        for (unsigned int y = 16; y < 32; ++y)
         {
-            for (unsigned int x=16; x<32; ++x)
+            for (unsigned int x = 16; x < 32; ++x)
             {
-                tmpImage.setPixel(x,y, sf::Color::Magenta);
+                tmpImage.setPixel(x, y, sf::Color::Magenta);
             }
         }
 
@@ -152,7 +152,7 @@ bool LoadFromImage(std::string_view name, const sf::Image& image)
 #else
     auto tmpTexture = std::make_shared<fge::TextureType>();
 
-    if ( !tmpTexture->loadFromImage(image) )
+    if (!tmpTexture->loadFromImage(image))
     {
         return false;
     }
@@ -182,7 +182,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
 
     auto tmpTexture = std::make_shared<fge::TextureType>();
 
-    if ( !tmpTexture->loadFromFile(path.string()) )
+    if (!tmpTexture->loadFromFile(path.string()))
     {
         return false;
     }
@@ -219,7 +219,7 @@ void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (auto& data : _dataTexture)
+    for (auto& data: _dataTexture)
     {
         data.second->_valid = false;
         data.second->_texture = _dataTextureBad->_texture;
@@ -235,7 +235,7 @@ bool Push(std::string_view name, const fge::texture::TextureDataPtr& data)
     }
 
     std::lock_guard<std::mutex> lck(_dataMutex);
-    if ( fge::texture::Check(name) )
+    if (fge::texture::Check(name))
     {
         return false;
     }
@@ -244,4 +244,4 @@ bool Push(std::string_view name, const fge::texture::TextureDataPtr& data)
     return true;
 }
 
-}//end fge::texture
+} // namespace fge::texture

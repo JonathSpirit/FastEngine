@@ -20,10 +20,10 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "SFML/System/Vector3.hpp"
-#include <vector>
 #include <list>
-#include <string>
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace fge
 {
@@ -483,8 +483,8 @@ FGE_API std::string ToStr(const fge::Property& val);
  * \param separator The wanted separator between each value
  * \return A string containing all the values of the list
  */
-template <class T>
-std::string ToStr (const std::list<T>& val, char separator=' ');
+template<class T>
+std::string ToStr(const std::list<T>& val, char separator = ' ');
 /**
  * \ingroup extraString
  * \brief Convert a vector of value to a string
@@ -494,8 +494,8 @@ std::string ToStr (const std::list<T>& val, char separator=' ');
  * \param separator The wanted separator between each value
  * \return A string containing all the values of the vector
  */
-template <class T>
-std::string ToStr (const std::vector<T>& val, char separator=' ');
+template<class T>
+std::string ToStr(const std::vector<T>& val, char separator = ' ');
 
 /**
  * \ingroup extraString
@@ -508,8 +508,8 @@ std::string ToStr (const std::vector<T>& val, char separator=' ');
  */
 FGE_API std::size_t Split(const std::string& str, std::vector<std::string>& output, char separator);
 
-}//end string
-}//end fge
+} // namespace string
+} // namespace fge
 
 #include "extra_string.inl"
 

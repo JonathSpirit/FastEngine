@@ -33,7 +33,7 @@ class FGE_API ObjAnimation : public fge::Object
 {
 public:
     ObjAnimation();
-    explicit ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position=sf::Vector2f());
+    explicit ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjAnimation)
 
@@ -71,7 +71,6 @@ public:
     sf::FloatRect getLocalBounds() const override;
 
 private:
-
     void updatePositions();
     void updateTexCoords();
 
@@ -85,6 +84,6 @@ private:
     bool g_paused;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJANIM_HPP_INCLUDED

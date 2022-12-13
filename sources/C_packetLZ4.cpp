@@ -29,16 +29,15 @@ namespace net
 
 uint32_t PacketLZ4::_maxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
-PacketLZ4::PacketLZ4() : fge::net::Packet(),
-    g_lastCompressionSize(0)
-{
-}
+PacketLZ4::PacketLZ4() :
+        fge::net::Packet(),
+        g_lastCompressionSize(0)
+{}
 PacketLZ4::PacketLZ4(fge::net::PacketLZ4&& pck) noexcept :
-    fge::net::Packet(std::move(pck)),
-    g_buffer(std::move(pck.g_buffer)),
-    g_lastCompressionSize(pck.g_lastCompressionSize)
-{
-}
+        fge::net::Packet(std::move(pck)),
+        g_buffer(std::move(pck.g_buffer)),
+        g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
 
 std::size_t PacketLZ4::getLastCompressionSize() const
 {
@@ -49,22 +48,23 @@ void PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     std::size_t dataSrcSize = this->getDataSize();
     int dataDstSize = LZ4_compressBound(dataSrcSize);
-    const char* dataSrc = reinterpret_cast<const char*>( this->_g_data.data() );
+    const char* dataSrc = reinterpret_cast<const char*>(this->_g_data.data());
 
     if (dataDstSize <= 0)
-    {//input size is incorrect (too large or negative)
+    { //input size is incorrect (too large or negative)
         throw std::invalid_argument("input size is too large or negative !");
     }
 
-    buffer.resize(dataDstSize+sizeof(uint32_t) + offset);
+    buffer.resize(dataDstSize + sizeof(uint32_t) + offset);
 
-    int dataCompressedSize = LZ4_compress_default(dataSrc, reinterpret_cast<char*>(buffer.data())+sizeof(uint32_t)+offset, dataSrcSize, dataDstSize);
+    int dataCompressedSize = LZ4_compress_default(
+            dataSrc, reinterpret_cast<char*>(buffer.data()) + sizeof(uint32_t) + offset, dataSrcSize, dataDstSize);
     if (dataCompressedSize <= 0)
     {
         throw std::overflow_error("no enough buffer size or compression error !");
     }
 
-    *reinterpret_cast<uint32_t*>(buffer.data()+offset) = fge::SwapHostNetEndian_32(dataSrcSize);
+    *reinterpret_cast<uint32_t*>(buffer.data() + offset) = fge::SwapHostNetEndian_32(dataSrcSize);
 
     buffer.resize(dataCompressedSize + sizeof(uint32_t) + offset);
     this->g_lastCompressionSize = buffer.size();
@@ -73,24 +73,26 @@ void PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 
 void PacketLZ4::onReceive(void* data, std::size_t dsize)
 {
-    if ( dsize < 4 )
+    if (dsize < 4)
     {
         throw std::invalid_argument("received a bad packet !");
     }
 
-    uint32_t dataUncompressedSize=0;
+    uint32_t dataUncompressedSize = 0;
     const char* dataBuff = static_cast<const char*>(data);
 
-    dataUncompressedSize = fge::SwapHostNetEndian_32( *reinterpret_cast<const uint32_t*>(&dataBuff[0]) );
+    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<const uint32_t*>(&dataBuff[0]));
 
-    if ( (dataUncompressedSize > LZ4_MAX_INPUT_SIZE) || (dataUncompressedSize > fge::net::PacketLZ4::_maxUncompressedReceivedSize) )
+    if ((dataUncompressedSize > LZ4_MAX_INPUT_SIZE) ||
+        (dataUncompressedSize > fge::net::PacketLZ4::_maxUncompressedReceivedSize))
     {
         throw std::range_error("received packet is too big !");
     }
 
     this->g_buffer.resize(dataUncompressedSize + 10);
 
-    int dataUncompressedFinalSize = LZ4_decompress_safe(dataBuff+sizeof(uint32_t), this->g_buffer.data(), dsize-sizeof(uint32_t), this->g_buffer.size());
+    int dataUncompressedFinalSize = LZ4_decompress_safe(dataBuff + sizeof(uint32_t), this->g_buffer.data(),
+                                                        dsize - sizeof(uint32_t), this->g_buffer.size());
 
     if (dataUncompressedFinalSize <= 0)
     {
@@ -104,18 +106,17 @@ void PacketLZ4::onReceive(void* data, std::size_t dsize)
 
 uint32_t PacketLZ4HC::_maxUncompressedReceivedSize = FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
-PacketLZ4HC::PacketLZ4HC() : fge::net::Packet(),
-    g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
-    g_lastCompressionSize(0)
-{
-}
+PacketLZ4HC::PacketLZ4HC() :
+        fge::net::Packet(),
+        g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
+        g_lastCompressionSize(0)
+{}
 PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
         fge::net::Packet(std::move(pck)),
         g_buffer(std::move(pck.g_buffer)),
         g_compressionLevel(pck.g_compressionLevel),
         g_lastCompressionSize(pck.g_lastCompressionSize)
-{
-}
+{}
 
 std::size_t PacketLZ4HC::getLastCompressionSize() const
 {
@@ -126,22 +127,24 @@ void PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     std::size_t dataSrcSize = this->getDataSize();
     int dataDstSize = LZ4_compressBound(dataSrcSize);
-    const char* dataSrc = reinterpret_cast<const char*>( this->_g_data.data() );
+    const char* dataSrc = reinterpret_cast<const char*>(this->_g_data.data());
 
     if (dataDstSize <= 0)
-    {//input size is incorrect (too large or negative)
+    { //input size is incorrect (too large or negative)
         throw std::invalid_argument("input size is too large or negative !");
     }
 
-    buffer.resize(dataDstSize+sizeof(uint32_t) + offset);
+    buffer.resize(dataDstSize + sizeof(uint32_t) + offset);
 
-    int dataCompressedSize = LZ4_compress_HC(dataSrc, reinterpret_cast<char*>(buffer.data())+sizeof(uint32_t)+offset, dataSrcSize, dataDstSize, this->g_compressionLevel);
+    int dataCompressedSize =
+            LZ4_compress_HC(dataSrc, reinterpret_cast<char*>(buffer.data()) + sizeof(uint32_t) + offset, dataSrcSize,
+                            dataDstSize, this->g_compressionLevel);
     if (dataCompressedSize <= 0)
     {
         throw std::overflow_error("no enough buffer size or compression error !");
     }
 
-    *reinterpret_cast<uint32_t*>(buffer.data()+offset) = fge::SwapHostNetEndian_32(dataSrcSize);
+    *reinterpret_cast<uint32_t*>(buffer.data() + offset) = fge::SwapHostNetEndian_32(dataSrcSize);
 
     buffer.resize(dataCompressedSize + sizeof(uint32_t) + offset);
     this->g_lastCompressionSize = buffer.size();
@@ -150,24 +153,26 @@ void PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 
 void PacketLZ4HC::onReceive(void* data, std::size_t dsize)
 {
-    if ( dsize < 4 )
+    if (dsize < 4)
     {
         throw std::invalid_argument("received a bad packet !");
     }
 
-    uint32_t dataUncompressedSize=0;
+    uint32_t dataUncompressedSize = 0;
     const char* dataBuff = static_cast<const char*>(data);
 
-    dataUncompressedSize = fge::SwapHostNetEndian_32( *reinterpret_cast<const uint32_t*>(&dataBuff[0]) );
+    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<const uint32_t*>(&dataBuff[0]));
 
-    if ( (dataUncompressedSize > LZ4_MAX_INPUT_SIZE) || (dataUncompressedSize > fge::net::PacketLZ4HC::_maxUncompressedReceivedSize) )
+    if ((dataUncompressedSize > LZ4_MAX_INPUT_SIZE) ||
+        (dataUncompressedSize > fge::net::PacketLZ4HC::_maxUncompressedReceivedSize))
     {
         throw std::range_error("received packet is too big !");
     }
 
     this->g_buffer.resize(dataUncompressedSize + 10);
 
-    int dataUncompressedFinalSize = LZ4_decompress_safe(dataBuff+sizeof(uint32_t), this->g_buffer.data(), dsize-sizeof(uint32_t), this->g_buffer.size());
+    int dataUncompressedFinalSize = LZ4_decompress_safe(dataBuff + sizeof(uint32_t), this->g_buffer.data(),
+                                                        dsize - sizeof(uint32_t), this->g_buffer.size());
 
     if (dataUncompressedFinalSize <= 0)
     {
@@ -186,5 +191,5 @@ int PacketLZ4HC::getCompressionLevel() const
     return this->g_compressionLevel;
 }
 
-}//end net
-}//end fge
+} // namespace net
+} // namespace fge

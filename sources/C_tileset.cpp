@@ -21,8 +21,7 @@ namespace fge
 
 TileSet::TileSet(fge::Texture texture) :
         g_texture(std::move(texture))
-{
-}
+{}
 TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize)
@@ -119,12 +118,12 @@ void TileSet::pushTile(fge::TileData tile)
 
 TileId TileSet::getLocalId(const sf::Vector2i& position) const
 {
-    if (position.x<0 || position.y<0)
+    if (position.x < 0 || position.y < 0)
     {
         return -1;
     }
-    fge::TileId localId = position.x + (this->g_columns*position.y);
-    return localId<static_cast<fge::TileId>(this->g_tiles.size()) ? localId : -1;
+    fge::TileId localId = position.x + (this->g_columns * position.y);
+    return localId < static_cast<fge::TileId>(this->g_tiles.size()) ? localId : -1;
 }
 TileId TileSet::getLocalId(TileId gid) const
 {
@@ -132,7 +131,7 @@ TileId TileSet::getLocalId(TileId gid) const
 }
 bool TileSet::isGidContained(TileId gid) const
 {
-    return gid >= this->g_firstGid && gid < (this->g_firstGid+static_cast<TileId>(this->g_tiles.size()));
+    return gid >= this->g_firstGid && gid < (this->g_firstGid + static_cast<TileId>(this->g_tiles.size()));
 }
 void TileSet::setFirstGid(TileId gid)
 {
@@ -156,17 +155,17 @@ void TileSet::slice()
 {
     TileId id = 0;
     this->clearTiles();
-    if (this->g_texture.valid() && this->g_tileSize.x>0 && this->g_tileSize.y>0)
+    if (this->g_texture.valid() && this->g_tileSize.x > 0 && this->g_tileSize.y > 0)
     {
         sf::Vector2i size = static_cast<sf::Vector2i>(this->g_texture.getTextureSize());
-        this->g_columns = (static_cast<int>(size.x)-this->g_offset.x)/this->g_tileSize.x;
-        this->g_rows = (static_cast<int>(size.y)-this->g_offset.y)/this->g_tileSize.y;
+        this->g_columns = (static_cast<int>(size.x) - this->g_offset.x) / this->g_tileSize.x;
+        this->g_rows = (static_cast<int>(size.y) - this->g_offset.y) / this->g_tileSize.y;
 
-        for (int y=this->g_offset.y; y<size.y; y+=this->g_tileSize.y)
+        for (int y = this->g_offset.y; y < size.y; y += this->g_tileSize.y)
         {
-            for (int x=this->g_offset.x; x<size.x; x+=this->g_tileSize.x)
+            for (int x = this->g_offset.x; x < size.x; x += this->g_tileSize.x)
             {
-                this->pushTile( fge::TileData{id, sf::IntRect{{x,y}, this->g_tileSize}} );
+                this->pushTile(fge::TileData{id, sf::IntRect{{x, y}, this->g_tileSize}});
                 ++id;
             }
         }
@@ -210,15 +209,15 @@ sf::IntRect TileSet::computeTextureRect(TileId id) const
 
     sf::IntRect result;
 
-    result.left = this->g_tileSize.x * (id%this->g_columns);
-    result.top = this->g_tileSize.y * (id%this->g_rows);
+    result.left = this->g_tileSize.x * (id % this->g_columns);
+    result.top = this->g_tileSize.y * (id % this->g_rows);
     result.width = this->g_tileSize.x;
     result.height = this->g_tileSize.y;
 
     return result;
 }
 
-fge::TileSet& TileSet::operator =(fge::Texture texture)
+fge::TileSet& TileSet::operator=(fge::Texture texture)
 {
     this->g_texture = std::move(texture);
     return *this;
@@ -247,7 +246,7 @@ void to_json(nlohmann::json& j, const fge::TileSet& p)
     j["offset"] = {{"x", p.getOffset().x}, {"y", p.getOffset().y}};
 
     auto& tilesArray = j["tiles"];
-    for (const auto& tile : p)
+    for (const auto& tile: p)
     {
         tilesArray.push_back(tile);
     }
@@ -259,23 +258,17 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     p.setFirstGid(j.value<TileId>("firstgid", 1));
     p.setName(j.value<std::string>("name", {}));
 
-    std::filesystem::path path =  j.at("image").get<std::filesystem::path>();
+    std::filesystem::path path = j.at("image").get<std::filesystem::path>();
     //Retrieve the filename of the path
     std::string filename = path.stem().string();
     p.setTexture(std::move(filename));
 
-    p.setTileSize({
-        j.at("tileheight").get<int>(),
-        j.at("tilewidth").get<int>()
-    });
+    p.setTileSize({j.at("tileheight").get<int>(), j.at("tilewidth").get<int>()});
 
     auto itOffset = j.find("tileoffset");
     if (itOffset != j.end())
     {
-        p.setOffset({
-            itOffset->value<int>("x", 0),
-            itOffset->value<int>("y", 0)
-        });
+        p.setOffset({itOffset->value<int>("x", 0), itOffset->value<int>("y", 0)});
     }
 
     p.slice();
@@ -283,7 +276,7 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     auto itTiles = j.find("tiles");
     if (itTiles != j.end() && itTiles->is_array())
     {
-        for (const auto& tile : *itTiles)
+        for (const auto& tile: *itTiles)
         {
             fge::TileData newTile = tile.get<fge::TileData>();
             const auto* actualTile = p.getTile(newTile._id);
@@ -302,10 +295,10 @@ void to_json(nlohmann::json& j, const fge::TileData& p)
     if (p._properties.getPropertiesSize() != 0)
     {
         auto& propertiesArray = j["properties"];
-        for (auto& property : p._properties)
+        for (auto& property: p._properties)
         {
             switch (property.second.getType())
-            {//TODO: add a bool type for property
+            { //TODO: add a bool type for property
             case fge::Property::Types::PTYPE_INTEGERS:
                 propertiesArray.push_back({{"name", property.first},
                                            {"type", "int"},
@@ -335,7 +328,7 @@ void from_json(const nlohmann::json& j, fge::TileData& p)
     auto itProperties = j.find("properties");
     if (itProperties != j.end() && itProperties->is_array())
     {
-        for (const auto& property : *itProperties)
+        for (const auto& property: *itProperties)
         {
             if (property.is_object())
             {
@@ -372,4 +365,4 @@ void from_json(const nlohmann::json& j, fge::TileData& p)
     }
 }
 
-}//end fge
+} // namespace fge

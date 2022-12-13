@@ -1,8 +1,8 @@
 #ifndef _EXFGE_CUSTOMOBJECT_HPP_INCLUDED
 #define _EXFGE_CUSTOMOBJECT_HPP_INCLUDED
 
-#include <FastEngine/object/C_object.hpp>
 #include <C_moveable.hpp>
+#include <FastEngine/object/C_object.hpp>
 
 namespace ls
 {
@@ -20,6 +20,6 @@ sf::Vector2f ClampToMapLimit(const sf::Vector2f& position);
 sf::Vector2f GetRandomPositionFromCenter(const sf::Vector2f& center, float maxDistance);
 sf::Vector2f GetRandomPosition();
 
-}//end lc
+} // namespace ls
 
 #endif // _EXFGE_CUSTOMOBJECT_HPP_INCLUDED
