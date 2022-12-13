@@ -20,11 +20,11 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "FastEngine/textureType.hpp"
-#include <unordered_map>
 #include <filesystem>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 
 #define FGE_TEXTURE_DEFAULT FGE_TEXTURE_BAD
 #define FGE_TEXTURE_BAD ""

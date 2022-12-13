@@ -80,11 +80,12 @@ MacroBlockEnd: "^FGE_.+_END$"
 IncludeCategories:
   - Regex:           '^["<]?.*(extern).*[">]?$'
     Priority:        0
-    SortPriority:    0
+  - Regex:           '^["<]?winsock2\.h[">]?$'
+    Priority:        1
+  - Regex:           '.*'
+    Priority:        2
   - Regex:           '^((<|")(gtest|gmock|isl|json)/)'
     Priority:        3
   - Regex:           '<[[:alnum:].]+>'
     Priority:        4
-  - Regex:           '.*'
-    Priority:        1
-    SortPriority:    1
+

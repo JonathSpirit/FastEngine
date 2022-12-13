@@ -20,11 +20,11 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "SFML/Graphics/Font.hpp"
-#include <unordered_map>
 #include <filesystem>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 
 #define FGE_FONT_DEFAULT FGE_FONT_BAD
 #define FGE_FONT_BAD ""

@@ -18,9 +18,9 @@
 #define _FGE_C_PROPERTYLIST_HPP_INCLUDED
 
 #include <FastEngine/C_property.hpp>
-#include <unordered_map>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 namespace fge
 {

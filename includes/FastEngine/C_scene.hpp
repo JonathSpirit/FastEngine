@@ -25,10 +25,10 @@
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_propertyList.hpp>
 #include <SFML/Graphics.hpp>
-#include <unordered_map>
 #include <memory>
 #include <queue>
 #include <string>
+#include <unordered_map>
 
 #define FGE_SCENE_PLAN_HIDE_BACK (FGE_SCENE_PLAN_MIDDLE - 4)
 #define FGE_SCENE_PLAN_BACK (FGE_SCENE_PLAN_MIDDLE - 2)

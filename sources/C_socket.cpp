@@ -37,10 +37,10 @@
     #include <ws2tcpip.h>
 #else
     #include <arpa/inet.h>
+    #include <fcntl.h>
     #include <netinet/in.h>
     #include <netinet/tcp.h>
     #include <sys/socket.h>
-    #include <fcntl.h>
     #include <unistd.h>
 #endif // _WIN32
 

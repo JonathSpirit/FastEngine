@@ -20,10 +20,10 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "FastEngine/textureType.hpp"
-#include <unordered_map>
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 #define FGE_ANIM_DEFAULT_TICKS 100

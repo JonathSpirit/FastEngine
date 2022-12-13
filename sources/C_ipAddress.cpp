@@ -33,14 +33,14 @@
     #define WINVER _WIN32_WINNT_WINXP
     #define _WIN32_WINNT _WIN32_WINNT_WINXP
 
-    #include <iphlpapi.h>
     #include <winsock2.h>
+    #include <iphlpapi.h>
     #include <ws2tcpip.h>
 #else
     #include <arpa/inet.h>
+    #include <netdb.h>
     #include <sys/socket.h>
     #include <sys/types.h>
-    #include <netdb.h>
     #include <unistd.h>
 #endif // _WIN32
 

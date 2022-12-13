@@ -21,12 +21,12 @@
     #if __GNUC__ > 8
         #include <bit>
     #else
-        #include <type_traits>
         #include <bit>
+        #include <type_traits>
     #endif
 #else
-    #include <type_traits>
     #include <bit>
+    #include <type_traits>
 #endif
 
 namespace fge::net

@@ -16,8 +16,8 @@
 
 #include "FastEngine/manager/path_manager.hpp"
 #include "private/string_hash.hpp"
-#include <unordered_map>
 #include <mutex>
+#include <unordered_map>
 
 namespace fge::path
 {

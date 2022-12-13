@@ -23,9 +23,9 @@
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_packet.hpp>
 #include <FastEngine/C_propertyList.hpp>
-#include <unordered_map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace fge

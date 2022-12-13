@@ -26,12 +26,12 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "SFML/System/Vector2.hpp"
-#include <unordered_map>
-#include <unordered_set>
 #include <array>
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace fge::AStar
