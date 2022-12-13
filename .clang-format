@@ -1,5 +1,6 @@
 Language: Cpp
-BasedOnStyle: LLVM 
+BasedOnStyle: LLVM
+Cpp11BracedListStyle: true
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 #BinPackArguments: false
@@ -30,7 +31,7 @@ BraceWrapping:
   AfterFunction: true
   AfterNamespace: true
   AfterUnion: true
-  BeforeCatch: false
+  BeforeCatch: true
   BeforeElse: true
   BeforeLambdaBody: false
   IndentBraces: false

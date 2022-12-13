@@ -1,0 +1,18 @@
+name: check_clang-format
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'false'
+      
+    - name: Check format
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: ./verify_clang_format.sh
+    
