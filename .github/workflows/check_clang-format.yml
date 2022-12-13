@@ -10,16 +10,13 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: 'false'
-    
-    - name: Set up Clang
-      uses: egor-tensin/setup-clang@v1
-      with:
-        version: latest
-        platform: x64
-    
-    - name: Check clang-format version
-      run: clang-format --version
-    
+        
+    - name: Updating clang (clang-format)
+      run: |
+        sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' && \
+        sudo apt-get update && sudo apt-get upgrade && sudo apt-get install clang-format-15 && \
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 100
+      
     - name: Check format
       shell: bash
       working-directory: ${{github.workspace}}
