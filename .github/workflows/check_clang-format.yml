@@ -14,7 +14,7 @@ jobs:
     - name: Updating clang (clang-format)
       run: |
         sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' && \
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - \
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && \
         sudo apt-get update && sudo apt-get upgrade && sudo apt-get install clang-format-15 && \
         sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 100
       
