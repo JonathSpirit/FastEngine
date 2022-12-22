@@ -50,7 +50,7 @@
     path = libs/glm
     url = https://github.com/g-truc/glm.git
     ignore = dirty
-    branch = 0.9.9.8
+    branch = master
 [submodule "libs/volk"]
     path = libs/volk
     url = https://github.com/zeux/volk.git
