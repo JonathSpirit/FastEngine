@@ -23,7 +23,7 @@ namespace fge
 ObjTextList::ObjTextList()
 {
     this->g_box.setFillColor(sf::Color::Transparent);
-    this->g_box.setOutlineColor(sf::Color{100,100,100,255});
+    this->g_box.setOutlineColor(sf::Color{100, 100, 100, 255});
     this->g_box.setOutlineThickness(-2.0f);
 }
 
@@ -42,7 +42,8 @@ void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiE
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
-    guiElementHandlerPtr->_onGuiResized.add( new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiResized, this), this );
+    guiElementHandlerPtr->_onGuiResized.add(new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiResized, this),
+                                            this);
 
     this->refreshSize(guiElementHandlerPtr->_lastSize);
 }
@@ -55,8 +56,9 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     target.draw(this->g_box, states);
 
     sf::View backupView = target.getView();
-    sf::View clipView = fge::ClipView(backupView, target, states.transform.transformRect({{0.0f,0.0f}, this->g_box.getSize()}),
-                                      fge::ClipClampModes::CLIP_CLAMP_HIDE);
+    sf::View clipView =
+            fge::ClipView(backupView, target, states.transform.transformRect({{0.0f, 0.0f}, this->g_box.getSize()}),
+                          fge::ClipClampModes::CLIP_CLAMP_HIDE);
 
     target.setView(clipView);
 
@@ -67,9 +69,10 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
 
     float characterHeightOffset = static_cast<float>(this->g_text.getLineSpacing());
 
-    this->g_text.setPosition(4.0f, this->g_box.getSize().y-characterHeightOffset);
-    for (std::size_t i=static_cast<std::size_t>(static_cast<float>(this->g_stringList.size()-1)*
-            this->getTextScrollRatio()); i < this->g_stringList.size(); ++i)
+    this->g_text.setPosition(4.0f, this->g_box.getSize().y - characterHeightOffset);
+    for (std::size_t i = static_cast<std::size_t>(static_cast<float>(this->g_stringList.size() - 1) *
+                                                  this->getTextScrollRatio());
+         i < this->g_stringList.size(); ++i)
     {
         this->g_text.setString(this->g_stringList[i]);
         target.draw(this->g_text, states);
@@ -104,7 +107,7 @@ void ObjTextList::addString(tiny_utf8::string string)
     this->g_stringList.insert(this->g_stringList.begin(), std::move(string));
     if (this->g_stringList.size() > this->g_maxStrings)
     {
-        this->g_stringList.erase(this->g_stringList.end()-1);
+        this->g_stringList.erase(this->g_stringList.end() - 1);
     }
 }
 std::size_t ObjTextList::getStringsSize() const
@@ -172,7 +175,7 @@ void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& ha
 }
 void ObjTextList::refreshSize(const sf::Vector2f& targetSize)
 {
-    this->g_box.setSize( this->g_boxSize.getSize(this->getPosition(), targetSize) );
+    this->g_box.setSize(this->g_boxSize.getSize(this->getPosition(), targetSize));
 }
 
-}//end fge
+} // namespace fge

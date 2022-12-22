@@ -192,4 +192,4 @@ bool IsBigEndian()
     }
 }
 
-}//end fge
+} // namespace fge

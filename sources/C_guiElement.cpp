@@ -28,11 +28,14 @@ sf::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
 void GuiElementHandler::setEventCallback(fge::Event& event)
 {
     this->detachAll();
-    event._onMouseWheelScrolled.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this), this );
-    event._onMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this), this );
-    event._onMouseButtonReleased.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this );
-    event._onMouseMoved.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this );
-    event._onResized.add( new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this );
+    event._onMouseWheelScrolled.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this),
+                                    this);
+    event._onMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this),
+                                    this);
+    event._onMouseButtonReleased.add(
+            new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this);
+    event._onMouseMoved.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this);
+    event._onResized.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this);
     this->onResized(event, {event.getWindowSize().x, event.getWindowSize().y});
 }
 
@@ -40,7 +43,8 @@ void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const sf::Ev
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
-    context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+    context._mouseGuiPosition =
+            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -69,7 +73,8 @@ void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const sf::Ev
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
-    context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+    context._mouseGuiPosition =
+            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -98,7 +103,8 @@ void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const sf::E
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
-    context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+    context._mouseGuiPosition =
+            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -127,7 +133,8 @@ void GuiElementHandler::onMouseMoved(const fge::Event& evt, const sf::Event::Mou
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
-    context._mouseGuiPosition = this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+    context._mouseGuiPosition =
+            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -160,4 +167,4 @@ void GuiElementHandler::onResized([[maybe_unused]] const fge::Event& evt, const 
     this->_lastSize = size;
 }
 
-}//end fge
+} // namespace fge

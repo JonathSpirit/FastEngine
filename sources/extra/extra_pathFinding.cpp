@@ -34,10 +34,7 @@ unsigned int Node::getScore() const
 
 Generator::Generator() :
         g_heuristic(&Heuristic::euclidean),
-        g_directions({{
-            {0, 1}, {1, 0}, {0, -1}, {-1, 0},
-            {-1, -1}, {1, 1}, {-1, 1}, {1, -1}
-        }}),
+        g_directions({{{0, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}}}),
         g_directionsCount(8)
 {
     this->setDiagonalMovement(false);
@@ -108,7 +105,7 @@ CoordinateList Generator::findPath(fge::AStar::Vector2i source, fge::AStar::Vect
         currentCoord = itCurrent->first;
 
         if (currentCoord == target)
-        {//Goal reached
+        { //Goal reached
             validPath = true;
             break;
         }
@@ -174,8 +171,7 @@ bool Generator::detectCollision(fge::AStar::Vector2i coord)
 {
     bool isWall = this->g_walls.find(coord) != this->g_walls.end();
 
-    return isWall || coord.x < 0 || coord.x >= this->g_worldSize.x ||
-                     coord.y < 0 || coord.y >= this->g_worldSize.y;
+    return isWall || coord.x < 0 || coord.x >= this->g_worldSize.x || coord.y < 0 || coord.y >= this->g_worldSize.y;
 }
 
 fge::AStar::Vector2i Heuristic::getDelta(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
@@ -201,4 +197,4 @@ unsigned int Heuristic::octagonal(fge::AStar::Vector2i source, fge::AStar::Vecto
     return 10 * (delta.x + delta.y) + (-6) * std::min(delta.x, delta.y);
 }
 
-}//end fge::AStar
+} // namespace fge::AStar

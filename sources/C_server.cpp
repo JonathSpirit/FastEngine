@@ -16,8 +16,8 @@
 
 #include "FastEngine/C_server.hpp"
 
-#include <memory>
 #include "FastEngine/C_clientList.hpp"
+#include <memory>
 
 namespace fge
 {
@@ -34,7 +34,7 @@ void ServerFluxUdp::clear()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     std::size_t qsize = this->g_packets.size();
-    for (std::size_t i=0; i<qsize; ++i)
+    for (std::size_t i = 0; i < qsize; ++i)
     {
         this->g_packets.pop();
     }
@@ -43,7 +43,7 @@ void ServerFluxUdp::clear()
 bool ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
-    if ( this->g_packets.size() >= this->g_maxPackets )
+    if (this->g_packets.size() >= this->g_maxPackets)
     {
         return false;
     }
@@ -59,7 +59,7 @@ void ServerFluxUdp::forcePushPacket(const FluxPacketSharedPtr& fluxPck)
 FluxPacketSharedPtr ServerFluxUdp::popNextPacket()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
-    if ( !this->g_packets.empty() )
+    if (!this->g_packets.empty())
     {
         FluxPacketSharedPtr tmpPck = this->g_packets.front();
         this->g_packets.pop();
@@ -91,11 +91,10 @@ std::size_t ServerFluxUdp::getMaxPackets() const
 
 ///ServerUdp
 ServerUdp::ServerUdp() :
-    g_threadReception(nullptr),
-    g_threadTransmission(nullptr),
-    g_running(false)
-{
-}
+        g_threadReception(nullptr),
+        g_threadTransmission(nullptr),
+        g_running(false)
+{}
 ServerUdp::~ServerUdp()
 {
     this->stop();
@@ -103,7 +102,7 @@ ServerUdp::~ServerUdp()
 
 void ServerUdp::stop()
 {
-    if ( this->g_running )
+    if (this->g_running)
     {
         this->g_running = false;
 
@@ -124,14 +123,14 @@ fge::net::ServerFluxUdp* ServerUdp::newFlux()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
-    this->g_flux.push_back( std::make_unique<fge::net::ServerFluxUdp>() );
+    this->g_flux.push_back(std::make_unique<fge::net::ServerFluxUdp>());
     return this->g_flux.back().get();
 }
 fge::net::ServerFluxUdp* ServerUdp::getFlux(std::size_t index)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
-    if ( index >= this->g_flux.size() )
+    if (index >= this->g_flux.size())
     {
         return nullptr;
     }
@@ -149,7 +148,7 @@ void ServerUdp::delFlux(fge::net::ServerFluxUdp* flux)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
 
-    for (std::size_t i=0; i<this->g_flux.size(); ++i)
+    for (std::size_t i = 0; i < this->g_flux.size(); ++i)
     {
         if (this->g_flux[i].get() == flux)
         {
@@ -166,12 +165,12 @@ void ServerUdp::delAllFlux()
 
 void ServerUdp::repushPacket(const FluxPacketSharedPtr& fluxPck)
 {
-    if ( (++fluxPck->_fluxCount) >= this->g_flux.size() )
+    if ((++fluxPck->_fluxCount) >= this->g_flux.size())
     {
         this->g_defaultFlux.pushPacket(fluxPck);
         return;
     }
-    fluxPck->_fluxIndex = (fluxPck->_fluxIndex+1) % this->g_flux.size();
+    fluxPck->_fluxIndex = (fluxPck->_fluxIndex + 1) % this->g_flux.size();
     this->g_flux[fluxPck->_fluxIndex]->forcePushPacket(fluxPck);
 }
 
@@ -213,28 +212,28 @@ void ServerUdp::serverThreadTransmission()
 {
     std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
 
-    while ( this->g_running )
+    while (this->g_running)
     {
         this->g_cv.wait_for(lckServer, std::chrono::milliseconds(10));
 
         //Flux
-        for (std::size_t i=0; i<this->g_flux.size(); ++i)
+        for (std::size_t i = 0; i < this->g_flux.size(); ++i)
         {
             fge::net::ClientList& clients = this->g_flux[i]->_clients;
             std::unique_lock<std::recursive_mutex> lck{clients.acquireLock()};
 
-            for (auto itClient=clients.begin(lck); itClient!=clients.end(lck); ++itClient)
+            for (auto itClient = clients.begin(lck); itClient != clients.end(lck); ++itClient)
             {
-                if ( !itClient->second->isPendingPacketsEmpty() )
+                if (!itClient->second->isPendingPacketsEmpty())
                 {
-                    if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
-                    {//Ready to send !
+                    if (itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms())
+                    { //Ready to send !
                         fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
                         if (buffPck._pck)
-                        {//Last verification of the packet
+                        { //Last verification of the packet
 
                             //Applying options
-                            for (const auto& option : buffPck._options)
+                            for (const auto& option: buffPck._options)
                             {
                                 if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                                 {
@@ -246,9 +245,11 @@ void ServerUdp::serverThreadTransmission()
                                     fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
                                     buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
                                 }
-                                else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                                else if (option._option ==
+                                         fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                                 {
-                                    fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                                    fge::net::Latency_ms correctorLatency =
+                                            itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                     buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                                 }
                             }
@@ -264,18 +265,19 @@ void ServerUdp::serverThreadTransmission()
         //Default flux TODO: redundant code
         std::unique_lock<std::recursive_mutex> lck{this->g_defaultFlux._clients.acquireLock()};
 
-        for (auto itClient=this->g_defaultFlux._clients.begin(lck); itClient!=this->g_defaultFlux._clients.end(lck); ++itClient)
+        for (auto itClient = this->g_defaultFlux._clients.begin(lck); itClient != this->g_defaultFlux._clients.end(lck);
+             ++itClient)
         {
-            if ( !itClient->second->isPendingPacketsEmpty() )
+            if (!itClient->second->isPendingPacketsEmpty())
             {
-                if ( itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms() )
-                {//Ready to send !
+                if (itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms())
+                { //Ready to send !
                     fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
                     if (buffPck._pck)
-                    {//Last verification of the packet
+                    { //Last verification of the packet
 
                         //Applying options
-                        for (const auto& option : buffPck._options)
+                        for (const auto& option: buffPck._options)
                         {
                             if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                             {
@@ -289,7 +291,8 @@ void ServerUdp::serverThreadTransmission()
                             }
                             else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                             {
-                                fge::net::Latency_ms correctorLatency = itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                                fge::net::Latency_ms correctorLatency =
+                                        itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                                 buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                             }
                         }
@@ -309,8 +312,7 @@ ServerClientSideUdp::ServerClientSideUdp() :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
         g_running(false)
-{
-}
+{}
 ServerClientSideUdp::~ServerClientSideUdp()
 {
     this->stop();
@@ -318,7 +320,7 @@ ServerClientSideUdp::~ServerClientSideUdp()
 
 void ServerClientSideUdp::stop()
 {
-    if ( this->g_running )
+    if (this->g_running)
     {
         this->g_running = false;
 
@@ -367,7 +369,7 @@ bool ServerClientSideUdp::isRunning() const
 FluxPacketSharedPtr ServerClientSideUdp::popNextPacket()
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
-    if ( !this->g_packets.empty() )
+    if (!this->g_packets.empty())
     {
         FluxPacketSharedPtr tmpPck = this->g_packets.front();
         this->g_packets.pop();
@@ -411,7 +413,7 @@ bool ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds& ms)
     }
     std::unique_lock<std::mutex> lock(this->g_mutexServer);
     this->g_cvReceiveNotifier.wait_for(lock, ms);
-    if ( !this->g_packets.empty() )
+    if (!this->g_packets.empty())
     {
         return true;
     }
@@ -421,7 +423,7 @@ bool ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds& ms)
 bool ServerClientSideUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
-    if ( this->g_packets.size() >= this->g_maxPackets )
+    if (this->g_packets.size() >= this->g_maxPackets)
     {
         return false;
     }
@@ -433,21 +435,21 @@ void ServerClientSideUdp::serverThreadTransmission()
 {
     std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
 
-    while ( this->g_running )
+    while (this->g_running)
     {
         this->g_cv.wait_for(lckServer, std::chrono::milliseconds(10));
 
         //Flux
-        if ( !this->_client.isPendingPacketsEmpty() )
+        if (!this->_client.isPendingPacketsEmpty())
         {
-            if ( this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms() )
-            {//Ready to send !
+            if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
+            { //Ready to send !
                 fge::net::SendQueuePacket buffPck = this->_client.popPacket();
                 if (buffPck._pck)
-                {//Last verification of the packet
+                { //Last verification of the packet
 
                     //Applying options
-                    for (const auto& option : buffPck._options)
+                    for (const auto& option: buffPck._options)
                     {
                         if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                         {
@@ -461,7 +463,8 @@ void ServerClientSideUdp::serverThreadTransmission()
                         }
                         else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
                         {
-                            fge::net::Latency_ms correctorLatency = this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                            fge::net::Latency_ms correctorLatency =
+                                    this->_client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
                             buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                         }
                     }
@@ -475,5 +478,5 @@ void ServerClientSideUdp::serverThreadTransmission()
     }
 }
 
-}//end net
-}//end fge
+} // namespace net
+} // namespace fge

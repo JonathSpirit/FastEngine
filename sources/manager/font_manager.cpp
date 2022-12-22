@@ -27,11 +27,11 @@ fge::font::FontDataPtr _dataFontBad;
 std::unordered_map<std::string, fge::font::FontDataPtr, fge::priv::string_hash, std::equal_to<>> _dataFont;
 std::mutex _dataMutex;
 
-}//end
+} // namespace
 
 void Init()
 {
-    if ( _dataFontBad == nullptr )
+    if (_dataFontBad == nullptr)
     {
         _dataFontBad = std::make_shared<fge::font::FontData>();
         _dataFontBad->_font = std::make_shared<sf::Font>();
@@ -119,7 +119,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
 
     auto tmpFont = std::make_shared<sf::Font>();
 
-    if ( !tmpFont->loadFromFile(path.string()) )
+    if (!tmpFont->loadFromFile(path.string()))
     {
         return false;
     }
@@ -156,7 +156,7 @@ void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (auto & data : _dataFont)
+    for (auto& data: _dataFont)
     {
         data.second->_valid = false;
         data.second->_font = _dataFontBad->_font;
@@ -172,7 +172,7 @@ bool Push(std::string_view name, const fge::font::FontDataPtr& data)
     }
 
     std::lock_guard<std::mutex> lck(_dataMutex);
-    if ( fge::font::Check(name) )
+    if (fge::font::Check(name))
     {
         return false;
     }
@@ -181,4 +181,4 @@ bool Push(std::string_view name, const fge::font::FontDataPtr& data)
     return true;
 }
 
-}//end fge::font
+} // namespace fge::font

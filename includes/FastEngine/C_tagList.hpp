@@ -18,8 +18,8 @@
 #define _FGE_C_TAGLIST_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <string>
 #include <set>
+#include <string>
 
 namespace fge
 {
@@ -48,6 +48,6 @@ private:
     fge::TagList::TagListType g_tags;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_TAGLIST_HPP_INCLUDED

@@ -16,7 +16,7 @@ bool Moveable::updateMoveable(sf::Transformable& transformable, const std::chron
         return true;
     }
     float deltaTimeFloat = fge::DurationToSecondFloat(deltaTime);
-    transformable.setPosition( fge::ReachVector(transformable.getPosition(), this->_g_targetPos, 60.0f, deltaTimeFloat) );
+    transformable.setPosition(fge::ReachVector(transformable.getPosition(), this->_g_targetPos, 60.0f, deltaTimeFloat));
     if (transformable.getPosition() == this->_g_targetPos)
     {
         this->_g_finish = true;
@@ -25,4 +25,4 @@ bool Moveable::updateMoveable(sf::Transformable& transformable, const std::chron
     return false;
 }
 
-}//end ls
+} // namespace ls

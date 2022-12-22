@@ -19,23 +19,27 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 
-#include <SFML/Graphics.hpp>
 #include "FastEngine/object/C_object.hpp"
-#include <FastEngine/C_propertyList.hpp>
-#include <FastEngine/C_commandHandler.hpp>
 #include <FastEngine/C_callback.hpp>
+#include <FastEngine/C_commandHandler.hpp>
 #include <FastEngine/C_identity.hpp>
-#include <string>
-#include <queue>
-#include <unordered_map>
+#include <FastEngine/C_propertyList.hpp>
+#include <SFML/Graphics.hpp>
 #include <memory>
+#include <queue>
+#include <string>
+#include <unordered_map>
 
-#define FGE_SCENE_PLAN_HIDE_BACK (FGE_SCENE_PLAN_MIDDLE-4)
-#define FGE_SCENE_PLAN_BACK (FGE_SCENE_PLAN_MIDDLE-2)
-#define FGE_SCENE_PLAN_MIDDLE fge::ObjectPlan{100}
-#define FGE_SCENE_PLAN_TOP (FGE_SCENE_PLAN_MIDDLE+2)
-#define FGE_SCENE_PLAN_GUI (FGE_SCENE_PLAN_MIDDLE+4)
-#define FGE_SCENE_PLAN_HIGH_TOP (FGE_SCENE_PLAN_MIDDLE+6)
+#define FGE_SCENE_PLAN_HIDE_BACK (FGE_SCENE_PLAN_MIDDLE - 4)
+#define FGE_SCENE_PLAN_BACK (FGE_SCENE_PLAN_MIDDLE - 2)
+#define FGE_SCENE_PLAN_MIDDLE                                                                                          \
+    fge::ObjectPlan                                                                                                    \
+    {                                                                                                                  \
+        100                                                                                                            \
+    }
+#define FGE_SCENE_PLAN_TOP (FGE_SCENE_PLAN_MIDDLE + 2)
+#define FGE_SCENE_PLAN_GUI (FGE_SCENE_PLAN_MIDDLE + 4)
+#define FGE_SCENE_PLAN_HIGH_TOP (FGE_SCENE_PLAN_MIDDLE + 6)
 #define FGE_SCENE_PLAN_DEFAULT FGE_SCENE_PLAN_MIDDLE
 
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
@@ -44,8 +48,19 @@
 
 #define FGE_SCENE_LIMIT_NAMESIZE 200
 
-#define FGE_NEWOBJECT(objectType_, ...) fge::ObjectPtr{new objectType_{__VA_ARGS__}}
-#define FGE_NEWOBJECT_PTR(objectPtr_) fge::ObjectPtr{objectPtr_}
+#define FGE_NEWOBJECT(objectType_, ...)                                                                                \
+    fge::ObjectPtr                                                                                                     \
+    {                                                                                                                  \
+        new objectType_                                                                                                \
+        {                                                                                                              \
+            __VA_ARGS__                                                                                                \
+        }                                                                                                              \
+    }
+#define FGE_NEWOBJECT_PTR(objectPtr_)                                                                                  \
+    fge::ObjectPtr                                                                                                     \
+    {                                                                                                                  \
+        objectPtr_                                                                                                     \
+    }
 
 namespace fge
 {
@@ -55,7 +70,7 @@ namespace net
 
 class ClientList;
 
-}//end net
+} // namespace net
 
 class Scene;
 
@@ -128,28 +143,28 @@ class FGE_API ObjectData
 {
 public:
     ObjectData() :
-        g_linkedScene(nullptr),
+            g_linkedScene(nullptr),
 
-        g_object(nullptr),
-        g_sid(FGE_SCENE_BAD_SID),
-        g_plan(FGE_SCENE_PLAN_DEFAULT),
-        g_type(fge::ObjectType::TYPE_NULL),
+            g_object(nullptr),
+            g_sid(FGE_SCENE_BAD_SID),
+            g_plan(FGE_SCENE_PLAN_DEFAULT),
+            g_type(fge::ObjectType::TYPE_NULL),
 
-        g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
+            g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
     ObjectData(fge::Scene* linkedScene,
                fge::ObjectPtr&& newObj,
-               fge::ObjectSid newSid=FGE_SCENE_BAD_SID,
-               fge::ObjectPlan newPlan=FGE_SCENE_PLAN_DEFAULT,
-               fge::ObjectType newType=fge::ObjectType::TYPE_OBJECT) :
-        g_linkedScene(linkedScene),
+               fge::ObjectSid newSid = FGE_SCENE_BAD_SID,
+               fge::ObjectPlan newPlan = FGE_SCENE_PLAN_DEFAULT,
+               fge::ObjectType newType = fge::ObjectType::TYPE_OBJECT) :
+            g_linkedScene(linkedScene),
 
-        g_object(std::move(newObj)),
-        g_sid(newSid),
-        g_plan(newPlan),
-        g_type(newType),
+            g_object(std::move(newObj)),
+            g_sid(newSid),
+            g_plan(newPlan),
+            g_type(newType),
 
-        g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
+            g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
     {}
 
     /**
@@ -162,29 +177,20 @@ public:
      *
      * \return The pointer of the Object
      */
-    inline fge::Object* releaseObject()
-    {
-        return this->g_object.release();
-    }
+    inline fge::Object* releaseObject() { return this->g_object.release(); }
 
     /**
      * \brief Get the linked Scene.
      *
      * \return The linked Scene pointer or \b nullptr if there is no Scene
      */
-    [[nodiscard]] inline fge::Scene* getLinkedScene() const
-    {
-        return this->g_linkedScene;
-    }
+    [[nodiscard]] inline fge::Scene* getLinkedScene() const { return this->g_linkedScene; }
     /**
      * \brief Get the Object pointer.
      *
      * \return The Object pointer
      */
-    [[nodiscard]] inline fge::Object* getObject() const
-    {
-        return this->g_object.get();
-    }
+    [[nodiscard]] inline fge::Object* getObject() const { return this->g_object.get(); }
     /**
      * \brief Get the Object pointer and cast it.
      *
@@ -203,10 +209,7 @@ public:
      *
      * \return The SID of the object
      */
-    [[nodiscard]] inline fge::ObjectSid getSid() const
-    {
-        return this->g_sid;
-    }
+    [[nodiscard]] inline fge::ObjectSid getSid() const { return this->g_sid; }
     /**
      * \brief Get the plan of the Object.
      *
@@ -215,10 +218,7 @@ public:
      *
      * \return The plan of the Object.
      */
-    [[nodiscard]] inline fge::ObjectPlan getPlan() const
-    {
-        return this->g_plan;
-    }
+    [[nodiscard]] inline fge::ObjectPlan getPlan() const { return this->g_plan; }
     /**
      * \brief Get the type of the Object.
      *
@@ -230,10 +230,7 @@ public:
      *
      * \return The type of the Object.
      */
-    [[nodiscard]] inline fge::ObjectType getType() const
-    {
-        return this->g_type;
-    }
+    [[nodiscard]] inline fge::ObjectType getType() const { return this->g_type; }
 
     /**
      * \brief Set the plan depth of the Object.
@@ -241,10 +238,7 @@ public:
      * \param depth The new depth
      * \see getPlanDepth
      */
-    inline void setPlanDepth(fge::ObjectPlanDepth depth) const
-    {
-        this->g_planDepth = depth;
-    }
+    inline void setPlanDepth(fge::ObjectPlanDepth depth) const { this->g_planDepth = depth; }
     /**
      * \brief Get the plan depth of the Object.
      *
@@ -258,10 +252,7 @@ public:
      *
      * \return The plan depth of the object.
      */
-    [[nodiscard]] inline fge::ObjectPlanDepth getPlanDepth() const
-    {
-        return this->g_planDepth;
-    }
+    [[nodiscard]] inline fge::ObjectPlanDepth getPlanDepth() const { return this->g_planDepth; }
 
     /**
      * \brief Set an parent object
@@ -278,77 +269,53 @@ public:
     /**
      * \brief Clear the parent object
      */
-    inline void clearParent() const
-    {
-        this->g_parent.reset();
-    }
+    inline void clearParent() const { this->g_parent.reset(); }
     /**
      * \brief Get the parent object
      *
      * \return A weak pointer to the parent object
      */
-    [[nodiscard]] inline fge::ObjectDataWeak getParent() const
-    {
-        return this->g_parent;
-    }
+    [[nodiscard]] inline fge::ObjectDataWeak getParent() const { return this->g_parent; }
 
     /**
      * \brief Check if the Object have an linked Scene.
      *
      * \return True if have a linked Scene, False otherwise
      */
-    [[nodiscard]] inline bool isLinked() const
-    {
-        return this->g_linkedScene != nullptr;
-    }
+    [[nodiscard]] inline bool isLinked() const { return this->g_linkedScene != nullptr; }
 
     /**
      * \brief Comparison with another SID
      *
      * \return True if same SID, False otherwise
      */
-    inline bool operator ==(const fge::ObjectSid& sid) const
-    {
-        return this->g_sid == sid;
-    }
+    inline bool operator==(const fge::ObjectSid& sid) const { return this->g_sid == sid; }
     /**
      * \brief Comparison with another object pointer
      *
      * \return True if same address, False otherwise
      */
-    inline bool operator ==(const fge::Object* ptr) const
-    {
-        return this->g_object.get() == ptr;
-    }
+    inline bool operator==(const fge::Object* ptr) const { return this->g_object.get() == ptr; }
 
     /**
      * \brief Get the Object pointer.
      *
      * \return The Object pointer
      */
-    inline operator fge::Object*() const
-    {
-        return this->g_object.get();
-    }
+    inline operator fge::Object*() const { return this->g_object.get(); }
     /**
      * \brief Get the memory managed pointer of the Object.
      *
      * \return The memory managed pointer of the Object
      */
-    inline operator const fge::ObjectPtr&() const
-    {
-        return this->g_object;
-    }
+    inline operator const fge::ObjectPtr&() const { return this->g_object; }
     /**
      * \brief Get the SID of the Object.
      *
      * \return The SID of the object
      * \see getSid
      */
-    inline operator const fge::ObjectSid&() const
-    {
-        return this->g_sid;
-    }
+    inline operator const fge::ObjectSid&() const { return this->g_sid; }
 
     /**
      * \brief check if the provided shared pointer Object is valid.
@@ -397,7 +364,8 @@ using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterat
 class FGE_API Scene : public fge::CommandHandler
 {
 public:
-    using NetworkEventQueuePerClient = std::unordered_map<fge::net::Identity, std::queue<fge::SceneNetEvent>, fge::net::IdentityHash>;
+    using NetworkEventQueuePerClient =
+            std::unordered_map<fge::net::Identity, std::queue<fge::SceneNetEvent>, fge::net::IdentityHash>;
 
     Scene();
     explicit Scene(std::string sceneName);
@@ -414,10 +382,7 @@ public:
      *
      * \return the name of the Scene
      */
-    inline const std::string& getName() const
-    {
-        return this->g_name;
-    }
+    inline const std::string& getName() const { return this->g_name; }
     /**
      * \brief Set the name of the Scene.
      *
@@ -470,7 +435,10 @@ public:
      * \param states The default SFML RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
-    void draw(sf::RenderTarget& target, bool clear_target = true, const sf::Color& clear_color = sf::Color::White, sf::RenderStates states=sf::RenderStates::Default) const;
+    void draw(sf::RenderTarget& target,
+              bool clear_target = true,
+              const sf::Color& clear_color = sf::Color::White,
+              sf::RenderStates states = sf::RenderStates::Default) const;
 #endif //FGE_DEF_SERVER
 
     /**
@@ -545,8 +513,7 @@ public:
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
      * \return An shared pointer of the ObjectData
      */
-    fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData,
-                                    bool silent = false);
+    fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData, bool silent = false);
 
     /**
      * \brief Duplicate the provided Object SID.
@@ -689,10 +656,7 @@ public:
      *
      * \return The size of the Scene.
      */
-    inline std::size_t getObjectSize() const
-    {
-        return this->g_data.size();
-    }
+    inline std::size_t getObjectSize() const { return this->g_data.size(); }
 
     // Search function
     /**
@@ -740,7 +704,9 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByLocalPosition(const sf::Vector2i& pos,
+                                          const sf::RenderTarget& target,
+                                          fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a local zone (or rectangle).
      *
@@ -756,7 +722,8 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    std::size_t
+    getAllObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object with a local position.
      *
@@ -775,7 +742,9 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_FromLocalPosition(const sf::Vector2i& pos,
+                                            const sf::RenderTarget& target,
+                                            fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a local zone (or rectangle).
      *
@@ -794,7 +763,9 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_FromLocalZone(const sf::Rect<int>& zone,
+                                        const sf::RenderTarget& target,
+                                        fge::ObjectContainer& buff) const;
 #endif //FGE_DEF_SERVER
 
     /**
@@ -882,7 +853,7 @@ public:
      * \return The first Object that match the argument
      */
     fge::ObjectDataShared getFirstObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const;
-    /**
+        /**
      * \brief Get the first Object that match a provided class name.
      *
      * \see getAllObj_ByClass
@@ -918,10 +889,7 @@ public:
      * \param sid The Object SID
      * \return \b true if the SID correspond
      */
-    inline bool isValid(fge::ObjectSid sid) const
-    {
-        return this->find(sid) != this->g_data.cend();
-    }
+    inline bool isValid(fge::ObjectSid sid) const { return this->find(sid) != this->g_data.cend(); }
 
     /**
      * \brief Generate an SID based on the provided wanted SID.
@@ -1140,10 +1108,7 @@ public:
     void unpackWatchedEvent(fge::net::Packet& pck);
 
     // Operator
-    inline fge::ObjectDataShared operator[] (fge::ObjectSid sid) const
-    {
-        return this->getObject(sid);
-    }
+    inline fge::ObjectDataShared operator[](fge::ObjectSid sid) const { return this->getObject(sid); }
 
     // Custom view
     /**
@@ -1278,22 +1243,10 @@ public:
     bool loadFromFile(const std::string& path);
 
     // Iterator
-    inline fge::ObjectContainer::const_iterator begin() const
-    {
-        return this->g_data.begin();
-    }
-    inline fge::ObjectContainer::const_iterator end() const
-    {
-        return this->g_data.end();
-    }
-    inline fge::ObjectContainer::const_reverse_iterator rbegin() const
-    {
-        return this->g_data.rbegin();
-    }
-    inline fge::ObjectContainer::const_reverse_iterator rend() const
-    {
-        return this->g_data.rend();
-    }
+    inline fge::ObjectContainer::const_iterator begin() const { return this->g_data.begin(); }
+    inline fge::ObjectContainer::const_iterator end() const { return this->g_data.end(); }
+    inline fge::ObjectContainer::const_reverse_iterator rbegin() const { return this->g_data.rbegin(); }
+    inline fge::ObjectContainer::const_reverse_iterator rend() const { return this->g_data.rend(); }
 
     /**
      * \brief Find an Object with the specified SID.
@@ -1350,7 +1303,7 @@ private:
     std::shared_ptr<sf::View> g_customView;
     sf::RenderTarget* g_linkedRenderTarget;
 
-    bool g_deleteMe; //Delete an object while updating flag
+    bool g_deleteMe;                                        //Delete an object while updating flag
     fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object
 
     fge::ObjectContainer g_data;
@@ -1360,6 +1313,6 @@ private:
     fge::CallbackContext g_callbackContext;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_SCENE_HPP_INCLUDED

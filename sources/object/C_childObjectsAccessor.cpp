@@ -22,7 +22,7 @@ namespace fge
 
 void ChildObjectsAccessor::DataContext::NotHandledObjectDeleter::operator()(fge::ObjectData* data)
 {
-    (void)data->releaseObject();
+    (void) data->releaseObject();
     delete data;
 }
 
@@ -31,48 +31,47 @@ void ChildObjectsAccessor::clear()
     this->g_data.clear();
 }
 
-void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent, fge::Object* object, fge::Scene* linkedScene, std::size_t insertionIndex)
+void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent,
+                                             fge::Object* object,
+                                             fge::Scene* linkedScene,
+                                             std::size_t insertionIndex)
 {
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
-        it = this->g_data.insert(this->g_data.end(),
-                                  {object,
-                                   fge::ObjectDataShared{new fge::ObjectData{
-                                           linkedScene, fge::ObjectPtr{object}
-                                   }, DataContext::NotHandledObjectDeleter{}}});
+        it = this->g_data.insert(
+                this->g_data.end(),
+                {object, fge::ObjectDataShared{new fge::ObjectData{linkedScene, fge::ObjectPtr{object}},
+                                               DataContext::NotHandledObjectDeleter{}}});
     }
     else
     {
-        it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
-                                  {object,
-                                   fge::ObjectDataShared{new fge::ObjectData{
-                                           linkedScene, fge::ObjectPtr{object}
-                                   }, DataContext::NotHandledObjectDeleter{}}});
+        it = this->g_data.insert(
+                this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
+                {object, fge::ObjectDataShared{new fge::ObjectData{linkedScene, fge::ObjectPtr{object}},
+                                               DataContext::NotHandledObjectDeleter{}}});
     }
 
     auto parentPtr = parent.lock();
     it->_objData->setParent(parentPtr);
     it->_objPtr->_myObjectData = it->_objData;
 }
-void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent, fge::ObjectPtr&& newObject, fge::Scene* linkedScene, std::size_t insertionIndex)
+void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent,
+                                        fge::ObjectPtr&& newObject,
+                                        fge::Scene* linkedScene,
+                                        std::size_t insertionIndex)
 {
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
-        it = this->g_data.insert(this->g_data.end(),
-                                  {newObject.get(),
-                                   std::make_shared<fge::ObjectData>(
-                                           linkedScene, std::move(newObject)
-                                   )});
+        it = this->g_data.insert(this->g_data.end(), {newObject.get(), std::make_shared<fge::ObjectData>(
+                                                                               linkedScene, std::move(newObject))});
     }
     else
     {
-        it = this->g_data.insert(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
-                                  {newObject.get(),
-                                   std::make_shared<fge::ObjectData>(
-                                           linkedScene, std::move(newObject)
-                                   )});
+        it = this->g_data.insert(
+                this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
+                {newObject.get(), std::make_shared<fge::ObjectData>(linkedScene, std::move(newObject))});
     }
 
     auto parentPtr = parent.lock();
@@ -101,37 +100,43 @@ void ChildObjectsAccessor::remove(std::size_t index)
 {
     if (index < this->g_data.size())
     {
-        this->g_data.erase(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(index));
+        this->g_data.erase(this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(index));
     }
 }
 void ChildObjectsAccessor::remove(std::size_t first, std::size_t last)
 {
     if (first < this->g_data.size())
     {
-        this->g_data.erase(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(first),
-                           this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(last));
+        this->g_data.erase(this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(first),
+                           this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(last));
     }
 }
 
 #ifdef FGE_DEF_SERVER
 void ChildObjectsAccessor::update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
 {
-    for (this->g_actualIteratedIndex=0; this->g_actualIteratedIndex<this->g_data.size(); ++this->g_actualIteratedIndex)
+    for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
+         ++this->g_actualIteratedIndex)
     {
         this->g_data[this->g_actualIteratedIndex]._objPtr->update(event, deltaTime, scene);
     }
 }
 #else
-void ChildObjectsAccessor::update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+void ChildObjectsAccessor::update(sf::RenderWindow& screen,
+                                  fge::Event& event,
+                                  const std::chrono::milliseconds& deltaTime,
+                                  fge::Scene* scene)
 {
-    for (this->g_actualIteratedIndex=0; this->g_actualIteratedIndex<this->g_data.size(); ++this->g_actualIteratedIndex)
+    for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
+         ++this->g_actualIteratedIndex)
     {
         this->g_data[this->g_actualIteratedIndex]._objPtr->update(screen, event, deltaTime, scene);
     }
 }
 void ChildObjectsAccessor::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    for (this->g_actualIteratedIndex=0; this->g_actualIteratedIndex<this->g_data.size(); ++this->g_actualIteratedIndex)
+    for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
+         ++this->g_actualIteratedIndex)
     {
         this->g_data[this->g_actualIteratedIndex]._objData->setPlanDepth(this->g_actualIteratedIndex);
         this->g_data[this->g_actualIteratedIndex]._objPtr->draw(target, states);
@@ -144,16 +149,16 @@ void ChildObjectsAccessor::putInFront(std::size_t index)
     if (index < this->g_data.size() && index != 0)
     {
         auto data = this->g_data[index];
-        this->g_data.erase(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(index));
+        this->g_data.erase(this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(index));
         this->g_data.insert(this->g_data.begin(), std::move(data));
     }
 }
 void ChildObjectsAccessor::putInBack(std::size_t index)
 {
-    if (index < this->g_data.size() && index != this->g_data.size()-1)
+    if (index < this->g_data.size() && index != this->g_data.size() - 1)
     {
         auto data = this->g_data[index];
-        this->g_data.erase(this->g_data.begin()+static_cast<std::vector<DataContext>::difference_type>(index));
+        this->g_data.erase(this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(index));
         this->g_data.push_back(std::move(data));
     }
 }
@@ -165,7 +170,7 @@ std::size_t ChildObjectsAccessor::getActualIteratedIndex() const
 
 std::size_t ChildObjectsAccessor::getIndex(fge::Object* object) const
 {
-    for (std::size_t i=0; i<this->g_data.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         if (this->g_data[i]._objPtr == object)
         {
@@ -175,4 +180,4 @@ std::size_t ChildObjectsAccessor::getIndex(fge::Object* object) const
     return std::numeric_limits<std::size_t>::max();
 }
 
-}//end fge
+} // namespace fge

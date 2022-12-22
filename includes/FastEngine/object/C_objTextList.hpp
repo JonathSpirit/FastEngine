@@ -18,9 +18,9 @@
 #define _FGE_C_OBJTEXTLIST_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/object/C_object.hpp"
-#include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/C_guiElement.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_object.hpp"
 #include <deque>
 
 #define FGE_OBJTEXTLIST_CLASSNAME "FGE:OBJ:TEXTLIST"
@@ -82,6 +82,6 @@ private:
     std::size_t g_maxStrings{100};
 };
 
-}//end fge
+} // namespace fge
 
 #endif //_FGE_C_OBJTEXTLIST_HPP_INCLUDED

@@ -1,0 +1,30 @@
+name: check_clang-format
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'false'
+    
+    - name: Updating clang (clang-format)
+      shell: bash
+      run: |
+        sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' && \
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && \
+        sudo apt-get update && sudo apt-get upgrade && sudo apt-get install clang-format-15 && \
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 1000
+      
+    - name: Check clang-format version
+      shell: bash
+      run: clang-format --version
+    
+    - name: Check format
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: ./verify_clang_format.sh
+    

@@ -32,32 +32,24 @@
 namespace sf
 {
 ////////////////////////////////////////////////////////////
-GlResource::GlResource()
-{
-}
+GlResource::GlResource() {}
 
 
 ////////////////////////////////////////////////////////////
-GlResource::~GlResource()
-{
-}
+GlResource::~GlResource() {}
 
 
 ////////////////////////////////////////////////////////////
-void GlResource::registerContextDestroyCallback([[maybe_unused]] ContextDestroyCallback callback, [[maybe_unused]] void* arg)
-{
-}
+void GlResource::registerContextDestroyCallback([[maybe_unused]] ContextDestroyCallback callback,
+                                                [[maybe_unused]] void* arg)
+{}
 
 
 ////////////////////////////////////////////////////////////
-GlResource::TransientContextLock::TransientContextLock()
-{
-}
+GlResource::TransientContextLock::TransientContextLock() {}
 
 
 ////////////////////////////////////////////////////////////
-GlResource::TransientContextLock::~TransientContextLock()
-{
-}
+GlResource::TransientContextLock::~TransientContextLock() {}
 
 } // namespace sf

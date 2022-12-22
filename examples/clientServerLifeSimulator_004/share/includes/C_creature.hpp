@@ -5,8 +5,8 @@
 #include <FastEngine/C_animation.hpp>
 #include <FastEngine/C_font.hpp>
 #include <FastEngine/C_packet.hpp>
-#include <queue>
 #include <SFML/Audio.hpp>
+#include <queue>
 
 namespace ls
 {
@@ -98,6 +98,6 @@ public:
     CreatureData _data;
 };
 
-}//end ls
+} // namespace ls
 
 #endif // _EXFGE_C_CREATURE_HPP_INCLUDED

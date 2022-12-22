@@ -20,8 +20,8 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
-#include <memory>
 #include <limits>
+#include <memory>
 
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
 
@@ -64,9 +64,11 @@ public:
     Anchor& operator=(const Anchor& r);
     Anchor& operator=(Anchor&& r) noexcept = delete;
 
-    void updateAnchor(const sf::Vector2f& customTargetSize={0.0f,0.0f});
+    void updateAnchor(const sf::Vector2f& customTargetSize = {0.0f, 0.0f});
 
-    void setAnchor(fge::Anchor::Types type, const sf::Vector2<fge::Anchor::Shifts>& shift, fge::ObjectSid target=FGE_SCENE_BAD_SID);
+    void setAnchor(fge::Anchor::Types type,
+                   const sf::Vector2<fge::Anchor::Shifts>& shift,
+                   fge::ObjectSid target = FGE_SCENE_BAD_SID);
 
     [[nodiscard]] fge::Anchor::Types getAnchorType() const;
     [[nodiscard]] fge::ObjectSid getAnchorTarget() const;
@@ -80,13 +82,13 @@ public:
 
 protected:
     fge::Anchor::Types _g_anchorType{fge::Anchor::Types::ANCHOR_NONE};
-    sf::Vector2<fge::Anchor::Shifts> _g_anchorShift{fge::Anchor::Shifts::SHIFT_NONE,fge::Anchor::Shifts::SHIFT_NONE};
+    sf::Vector2<fge::Anchor::Shifts> _g_anchorShift{fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE};
     fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
     bool _g_anchorNeedUpdate{true};
     fge::ObjectDataWeak _g_anchorSuccessor{};
     fge::Object* _g_objectParent{};
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJECTANCHOR_HPP_INCLUDED

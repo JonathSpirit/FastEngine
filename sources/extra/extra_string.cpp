@@ -42,12 +42,12 @@ bool IsValidUtf8String(const std::string& str)
 {
     uint8_t requiredBytes{0};
 
-    for (char c : str)
+    for (char c: str)
     {
         if ((c & 0xC0) == 0x80)
-        {//Multibyte
+        { //Multibyte
             if (requiredBytes == 0)
-            {//No start sequence
+            { //No start sequence
                 return false;
             }
             --requiredBytes;
@@ -55,7 +55,7 @@ bool IsValidUtf8String(const std::string& str)
         else if ((c & 0xF1) == 0xF0)
         {
             if (requiredBytes != 0)
-            {//Invalid sequence
+            { //Invalid sequence
                 return false;
             }
             requiredBytes = 3;
@@ -63,7 +63,7 @@ bool IsValidUtf8String(const std::string& str)
         else if ((c & 0xF0) == 0xE0)
         {
             if (requiredBytes != 0)
-            {//Invalid sequence
+            { //Invalid sequence
                 return false;
             }
             requiredBytes = 2;
@@ -71,7 +71,7 @@ bool IsValidUtf8String(const std::string& str)
         else if ((c & 0xE0) == 0xC0)
         {
             if (requiredBytes != 0)
-            {//Invalid sequence
+            { //Invalid sequence
                 return false;
             }
             requiredBytes = 1;
@@ -82,101 +82,101 @@ bool IsValidUtf8String(const std::string& str)
 
 uint8_t ToUint8(const std::string& str)
 {
-    uint8_t result=0;
+    uint8_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 uint16_t ToUint16(const std::string& str)
 {
-    uint16_t result=0;
+    uint16_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 uint32_t ToUint32(const std::string& str)
 {
-    uint32_t result=0;
+    uint32_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 uint64_t ToUint64(const std::string& str)
 {
-    uint64_t result=0;
+    uint64_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 int8_t ToInt8(const std::string& str)
 {
-    int8_t result=0;
+    int8_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 int16_t ToInt16(const std::string& str)
 {
-    int16_t result=0;
+    int16_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 int32_t ToInt32(const std::string& str)
 {
-    int32_t result=0;
+    int32_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 int64_t ToInt64(const std::string& str)
 {
-    int64_t result=0;
+    int64_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
 unsigned int ToUint(const std::string& str)
 {
-    unsigned int result=0;
+    unsigned int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 int ToInt(const std::string& str)
 {
-    int result=0;
+    int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
 unsigned long long int ToUlong(const std::string& str)
 {
-    unsigned long long int result=0;
+    unsigned long long int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 long long int ToLong(const std::string& str)
 {
-    long long int result=0;
+    long long int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
 float ToFloat(const std::string& str)
 {
-    float result=0.0f;
+    float result = 0.0f;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 double ToDouble(const std::string& str)
 {
-    double result=0.0;
+    double result = 0.0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 long double ToLongDouble(const std::string& str)
 {
-    long double result=0.0;
+    long double result = 0.0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
 bool ToBool(const std::string& str)
 {
-    bool result=false;
+    bool result = false;
     strtk::string_to_type_converter(str, result);
     return result;
 }
@@ -187,79 +187,80 @@ void* ToPtr(const std::string& str)
     if (str.size() >= 2)
     {
         if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
-        {//Skipping the 0x / 0X
+        { //Skipping the 0x / 0X
             i = 2;
         }
     }
 
     if (str.size() == i)
-    {//Empty hex number, can't convert that
+    { //Empty hex number, can't convert that
         return nullptr;
     }
 
-    if (str.size() > (sizeof(void*)*2 +i))
-    {//Too big hex number, can't convert that
+    if (str.size() > (sizeof(void*) * 2 + i))
+    { //Too big hex number, can't convert that
         return nullptr;
     }
 
     uint64_t result = 0;
-    unsigned int shift = (str.size()-i)*4 - 4;
+    unsigned int shift = (str.size() - i) * 4 - 4;
 
     //Conversion
-    for (; i<str.size(); ++i)
+    for (; i < str.size(); ++i)
     {
         uint64_t n = 0;
 
-        if ( str[i] >= '0' && str[i] <= '9' )
+        if (str[i] >= '0' && str[i] <= '9')
         {
             n = str[i] - '0';
         }
-        else if ( str[i] >= 'A' && str[i] <= 'F' )
+        else if (str[i] >= 'A' && str[i] <= 'F')
         {
             n = str[i] - 'A' + 10;
         }
-        else if ( str[i] >= 'a' && str[i] <= 'f' )
+        else if (str[i] >= 'a' && str[i] <= 'f')
         {
             n = str[i] - 'a' + 10;
         }
         else
-        {//Bad hex value
+        { //Bad hex value
             return nullptr;
         }
 
-        result |= (n<<shift);
+        result |= (n << shift);
         shift -= 4;
     }
 
-    return reinterpret_cast<void*>( result );
+    return reinterpret_cast<void*>(result);
 }
 
 sf::Vector2f ToVec2f(const std::string& str)
 {
     size_t tagpos = str.find(' ');
-    if ( tagpos == std::string::npos )
+    if (tagpos == std::string::npos)
     {
-        return {0.0f,0.0f};
+        return {0.0f, 0.0f};
     }
-    return { fge::string::ToFloat(str.substr(0, tagpos)) , fge::string::ToFloat(str.substr(tagpos+1, std::string::npos)) };
+    return {fge::string::ToFloat(str.substr(0, tagpos)),
+            fge::string::ToFloat(str.substr(tagpos + 1, std::string::npos))};
 }
 sf::Vector2u ToVec2u(const std::string& str)
 {
     size_t tagpos = str.find(' ');
-    if ( tagpos == std::string::npos )
+    if (tagpos == std::string::npos)
     {
-        return {0,0};
+        return {0, 0};
     }
-    return { fge::string::ToUint(str.substr(0, tagpos)) , fge::string::ToUint(str.substr(tagpos+1, std::string::npos)) };
+    return {fge::string::ToUint(str.substr(0, tagpos)), fge::string::ToUint(str.substr(tagpos + 1, std::string::npos))};
 }
 sf::Vector2i ToVec2i(const std::string& str)
 {
     size_t tagpos = str.find(' ');
-    if ( tagpos == std::string::npos )
+    if (tagpos == std::string::npos)
     {
-        return {0,0};
+        return {0, 0};
     }
-    return { fge::string::ToInt(str.substr(0, tagpos)) , fge::string::ToInt(str.substr(tagpos+1, std::string::npos)) };
+    return {fge::string::ToInt(str.substr(0, tagpos)), fge::string::ToInt(str.substr(tagpos + 1, std::string::npos))};
 }
 
 //Arithmetic type
@@ -388,7 +389,7 @@ std::size_t Split(const std::string& str, std::vector<std::string>& output, char
     std::istringstream f(str);
     std::string sres;
 
-    while ( std::getline(f, sres, separator) )
+    while (std::getline(f, sres, separator))
     {
         output.push_back(std::move(sres));
     }
@@ -396,4 +397,4 @@ std::size_t Split(const std::string& str, std::vector<std::string>& output, char
     return output.size();
 }
 
-}//end fge::string
+} // namespace fge::string

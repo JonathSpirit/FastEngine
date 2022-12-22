@@ -20,8 +20,8 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_callback.hpp>
 #include <chrono>
-#include <string>
 #include <mutex>
+#include <string>
 
 namespace fge
 {
@@ -195,6 +195,6 @@ private:
     mutable std::mutex g_mutex;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_TIMER_HPP_INCLUDED

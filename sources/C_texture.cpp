@@ -21,25 +21,21 @@ namespace fge
 {
 
 Texture::Texture() :
-    g_data(fge::texture::GetBadTexture()),
-    g_name(FGE_TEXTURE_BAD)
-{
-}
+        g_data(fge::texture::GetBadTexture()),
+        g_name(FGE_TEXTURE_BAD)
+{}
 Texture::Texture(std::string name) :
-    g_data(fge::texture::GetTexture(name)),
-    g_name(std::move(name))
-{
-}
+        g_data(fge::texture::GetTexture(name)),
+        g_name(std::move(name))
+{}
 Texture::Texture(const char* name) :
-    g_data(fge::texture::GetTexture(name)),
-    g_name(name)
-{
-}
+        g_data(fge::texture::GetTexture(name)),
+        g_name(name)
+{}
 Texture::Texture(fge::texture::TextureDataPtr data) :
-    g_data(std::move(data)),
-    g_name(FGE_TEXTURE_BAD)
-{
-}
+        g_data(std::move(data)),
+        g_name(FGE_TEXTURE_BAD)
+{}
 
 void Texture::clear()
 {
@@ -70,7 +66,7 @@ const std::string& Texture::getName() const
     return this->g_name;
 }
 
-fge::Texture& Texture::operator =(std::string name)
+fge::Texture& Texture::operator=(std::string name)
 {
     if (this->g_name == name)
     {
@@ -81,7 +77,7 @@ fge::Texture& Texture::operator =(std::string name)
     this->g_data = fge::texture::GetTexture(this->g_name);
     return *this;
 }
-fge::Texture& Texture::operator =(const char* name)
+fge::Texture& Texture::operator=(const char* name)
 {
     if (this->g_name == name)
     {
@@ -92,7 +88,7 @@ fge::Texture& Texture::operator =(const char* name)
     this->g_data = fge::texture::GetTexture(this->g_name);
     return *this;
 }
-fge::Texture& Texture::operator =(fge::texture::TextureDataPtr data)
+fge::Texture& Texture::operator=(fge::texture::TextureDataPtr data)
 {
     this->g_name = FGE_TEXTURE_BAD;
     this->g_data = std::move(data);
@@ -117,14 +113,14 @@ Texture::operator const fge::TextureType&() const
     return *this->g_data->_texture;
 }
 
-const fge::net::Packet& operator >>(const fge::net::Packet& pck, fge::Texture& data)
+const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Texture& data)
 {
     std::string textureName;
     pck >> textureName;
     data = std::move(textureName);
     return pck;
 }
-fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Texture& data)
+fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Texture& data)
 {
     return pck << data.getName();
 }
@@ -140,4 +136,4 @@ void from_json(const nlohmann::json& j, fge::Texture& p)
     p = std::move(textureName);
 }
 
-}//end fge
+} // namespace fge

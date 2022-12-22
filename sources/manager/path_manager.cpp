@@ -16,8 +16,8 @@
 
 #include "FastEngine/manager/path_manager.hpp"
 #include "private/string_hash.hpp"
-#include <unordered_map>
 #include <mutex>
+#include <unordered_map>
 
 namespace fge::path
 {
@@ -29,7 +29,7 @@ std::unordered_map<std::string, std::filesystem::path, fge::priv::string_hash, s
 const std::filesystem::path _dataPathBad;
 std::mutex _dataMutex;
 
-}//end
+} // namespace
 
 std::filesystem::path Get(std::string_view name)
 {
@@ -62,7 +62,7 @@ bool Check(std::string_view name)
 
 bool New(std::string_view name, std::filesystem::path path)
 {
-    if ( fge::path::Check(name) )
+    if (fge::path::Check(name))
     {
         return false;
     }
@@ -77,7 +77,7 @@ bool Replace(std::string_view name, std::filesystem::path path)
     std::scoped_lock<std::mutex> lock(_dataMutex);
     auto it = _dataPath.find(name);
 
-    if ( it != _dataPath.end() )
+    if (it != _dataPath.end())
     {
         it->second = std::move(path);
         return true;
@@ -85,4 +85,4 @@ bool Replace(std::string_view name, std::filesystem::path path)
     return false;
 }
 
-}//end fge::path
+} // namespace fge::path

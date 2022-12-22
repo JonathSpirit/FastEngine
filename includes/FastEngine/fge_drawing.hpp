@@ -18,26 +18,30 @@
 #define _FGE_DRAWING_HPP_INCLUDED_
 #ifndef FGE_DEF_SERVER
 
-#include <FastEngine/fastengine_extern.hpp>
-#include <SFML/Graphics.hpp>
+    #include <FastEngine/fastengine_extern.hpp>
+    #include <SFML/Graphics.hpp>
 
 namespace fge
 {
 namespace debug
 {
 
-FGE_API void DrawCenteredCircle(sf::RenderTarget& target, const sf::Vector2f& position, float radius,
+FGE_API void DrawCenteredCircle(sf::RenderTarget& target,
+                                const sf::Vector2f& position,
+                                float radius,
                                 const sf::Color& fillColor,
                                 const sf::Color& outColor,
                                 float outThickness);
 
-FGE_API void DrawCenteredRect(sf::RenderTarget& target, const sf::Vector2f& position, const sf::Vector2f& size,
+FGE_API void DrawCenteredRect(sf::RenderTarget& target,
+                              const sf::Vector2f& position,
+                              const sf::Vector2f& size,
                               const sf::Color& fillColor,
                               const sf::Color& outColor,
                               float outThickness);
 
-}//end debug
-}//end fge
+} // namespace debug
+} // namespace fge
 
 #endif //FGE_DEF_SERVER
 #endif // _FGE_DRAWING_HPP_INCLUDED_

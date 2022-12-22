@@ -20,10 +20,7 @@ namespace sf
 template<class T>
 void to_json(nlohmann::json& j, const sf::Rect<T>& p)
 {
-    j = nlohmann::json{{"x", p.left},
-                       {"y", p.top},
-                       {"w", p.width},
-                       {"h", p.height}};
+    j = nlohmann::json{{"x", p.left}, {"y", p.top}, {"w", p.width}, {"h", p.height}};
 }
 template<class T>
 void from_json(const nlohmann::json& j, sf::Rect<T>& p)
@@ -37,8 +34,7 @@ void from_json(const nlohmann::json& j, sf::Rect<T>& p)
 template<class T>
 void to_json(nlohmann::json& j, const sf::Vector2<T>& p)
 {
-    j = nlohmann::json{{"x", p.x},
-                       {"y", p.y}};
+    j = nlohmann::json{{"x", p.x}, {"y", p.y}};
 }
 template<class T>
 void from_json(const nlohmann::json& j, sf::Vector2<T>& p)
@@ -50,9 +46,7 @@ void from_json(const nlohmann::json& j, sf::Vector2<T>& p)
 template<class T>
 void to_json(nlohmann::json& j, const sf::Vector3<T>& p)
 {
-    j = nlohmann::json{{"x", p.x},
-                       {"y", p.y},
-                       {"z", p.z}};
+    j = nlohmann::json{{"x", p.x}, {"y", p.y}, {"z", p.z}};
 }
 template<class T>
 void from_json(const nlohmann::json& j, sf::Vector3<T>& p)
@@ -73,7 +67,7 @@ inline void from_json(const nlohmann::json& j, sf::Color& p)
     p = sf::Color{color};
 }
 
-}//end sf
+} // namespace sf
 
 namespace tiny_utf8
 {
@@ -89,4 +83,4 @@ inline void from_json(const nlohmann::json& j, tiny_utf8::string& p)
     p = tiny_utf8::string{std::move(str)};
 }
 
-}//end tiny_utf8
+} // namespace tiny_utf8

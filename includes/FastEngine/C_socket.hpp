@@ -26,8 +26,8 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include "C_ipAddress.hpp"
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 #define FGE_SOCKET_MAXDATAGRAMSIZE 65507
 #define FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE 2048
@@ -45,15 +45,15 @@ class Packet;
 class FGE_API Socket
 {
 public:
-    #ifdef _WIN32
-        #if defined(_WIN64)
-            using SocketDescriptor = uint64_t;
-        #else
-            using SocketDescriptor = unsigned int;
-        #endif
+#ifdef _WIN32
+    #if defined(_WIN64)
+    using SocketDescriptor = uint64_t;
     #else
-        using SocketDescriptor = int;
+    using SocketDescriptor = unsigned int;
     #endif
+#else
+    using SocketDescriptor = int;
+#endif
 
     /**
      * \enum Type
@@ -74,7 +74,7 @@ public:
     {
         ERR_NOERROR = 0,
         ERR_SUCCESS = ERR_NOERROR,
-        ERR_DONE    = ERR_NOERROR,
+        ERR_DONE = ERR_NOERROR,
 
         ERR_PARTIAL,
         ERR_NOTREADY,
@@ -100,10 +100,7 @@ public:
      *
      * \return The type of the socket
      */
-    inline fge::net::Socket::Type getType()
-    {
-        return this->g_type;
-    }
+    inline fge::net::Socket::Type getType() { return this->g_type; }
 
     /**
      * \brief Create a new socket
@@ -304,7 +301,8 @@ public:
      * \param remotePort The remote port to send to
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error sendTo(const void* data, std::size_t size, const IpAddress& remoteAddress, fge::net::Port remotePort);
+    fge::net::Socket::Error
+    sendTo(const void* data, std::size_t size, const IpAddress& remoteAddress, fge::net::Port remotePort);
     /**
      * \brief Receive data from an unspecified remote address
      *
@@ -315,7 +313,11 @@ public:
      * \param remotePort The remote port of the sender
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error receiveFrom(void* data, std::size_t size, std::size_t& received, fge::net::IpAddress& remoteAddress, fge::net::Port& remotePort);
+    fge::net::Socket::Error receiveFrom(void* data,
+                                        std::size_t size,
+                                        std::size_t& received,
+                                        fge::net::IpAddress& remoteAddress,
+                                        fge::net::Port& remotePort);
     /**
      * \brief Receive data from the connected remote address
      *
@@ -359,7 +361,8 @@ public:
      * \param remotePort The remote port of the sender
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error receiveFrom(fge::net::Packet& packet, fge::net::IpAddress& remoteAddress, fge::net::Port& remotePort);
+    fge::net::Socket::Error
+    receiveFrom(fge::net::Packet& packet, fge::net::IpAddress& remoteAddress, fge::net::Port& remotePort);
     /**
      * \brief Receive a fge::net::Packet from the connected remote address
      *
@@ -425,7 +428,8 @@ public:
      * \param timeoutms The timeout in milliseconds
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error connect(const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort, uint32_t timeoutms);
+    fge::net::Socket::Error
+    connect(const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort, uint32_t timeoutms);
 
     /**
      * \brief Send data to the connected remote address
@@ -480,7 +484,8 @@ public:
      * \param timeoutms The timeout in milliseconds
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error sendAndReceive(fge::net::Packet& sendPacket, fge::net::Packet& receivePacket, uint32_t timeoutms);
+    fge::net::Socket::Error
+    sendAndReceive(fge::net::Packet& sendPacket, fge::net::Packet& receivePacket, uint32_t timeoutms);
     /**
      * \brief Receive a packet from the connected remote address with a timeout
      *
@@ -524,7 +529,7 @@ public:
      * \param address The address to listen on or fge::net::IpAddress::Any
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error listen(fge::net::Port port, const fge::net::IpAddress& address=fge::net::IpAddress::Any);
+    fge::net::Socket::Error listen(fge::net::Port port, const fge::net::IpAddress& address = fge::net::IpAddress::Any);
     /**
      * \brief Accept a new connection
      *
@@ -536,6 +541,6 @@ public:
     fge::net::SocketListenerTcp& operator=(fge::net::SocketListenerTcp&& r) noexcept;
 };
 
-}//end fge::net
+} // namespace fge::net
 
 #endif // _FGE_C_SOCKET_HPP_INCLUDED_

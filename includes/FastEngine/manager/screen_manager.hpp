@@ -20,8 +20,8 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "SFML/Graphics/RenderWindow.hpp"
-#include <string>
 #include <memory>
+#include <string>
 
 namespace fge
 {
@@ -40,8 +40,8 @@ FGE_API bool Check(const std::string& name);
 
 FGE_API std::shared_ptr<sf::RenderWindow> New(const std::string& name);
 
-}//end screen
-}//end fge
+} // namespace screen
+} // namespace fge
 
 
 #endif // _FGE_SCREEN_MANAGER_HPP_INCLUDED

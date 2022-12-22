@@ -20,8 +20,8 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_subscription.hpp>
 #include <forward_list>
-#include <mutex>
 #include <memory>
+#include <mutex>
 
 namespace fge
 {
@@ -33,13 +33,13 @@ namespace fge
  *
  * \tparam Types The list of arguments types passed to the functor
  */
-template <class ... Types>
+template<class... Types>
 class CallbackFunctorBase
 {
 public:
     virtual ~CallbackFunctorBase() = default;
 
-    virtual void call(Types ... args) = 0;
+    virtual void call(Types... args) = 0;
     virtual bool check(void* ptr) = 0;
 };
 
@@ -50,18 +50,18 @@ public:
  *
  * \tparam Types The list of arguments types passed to the functor
  */
-template <class ... Types>
-class CallbackFunctor : public fge::CallbackFunctorBase<Types ...>
+template<class... Types>
+class CallbackFunctor : public fge::CallbackFunctorBase<Types...>
 {
 public:
-    using CallbackFunction = void (*) (Types ... args);
+    using CallbackFunction = void (*)(Types... args);
 
     /**
      * \brief Constructor
      *
      * \param func The callback function
      */
-    explicit CallbackFunctor(fge::CallbackFunctor<Types ...>::CallbackFunction func);
+    explicit CallbackFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func);
     ~CallbackFunctor() override = default;
 
     /**
@@ -69,7 +69,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types ... args) override;
+    void call(Types... args) override;
     /**
      * \brief Check if the given pointer is the same as the one used to construct the functor
      *
@@ -79,7 +79,7 @@ public:
     inline bool check(void* ptr) override;
 
 protected:
-    fge::CallbackFunctor<Types ...>::CallbackFunction g_function;
+    fge::CallbackFunctor<Types...>::CallbackFunction g_function;
 };
 
 /**
@@ -89,8 +89,8 @@ protected:
  *
  * \tparam Types The list of arguments types passed to the lambda
  */
-template <class ... Types>
-class CallbackLambda : public fge::CallbackFunctorBase<Types ...>
+template<class... Types>
+class CallbackLambda : public fge::CallbackFunctorBase<Types...>
 {
 public:
     /**
@@ -108,7 +108,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types ... args) override;
+    void call(Types... args) override;
     /**
      * \brief Always return false
      *
@@ -119,8 +119,8 @@ public:
 
 protected:
     void* g_lambda;
-    void (*g_executeLambda)(void *, Types...);
-    void (*g_deleteLambda)(void *);
+    void (*g_executeLambda)(void*, Types...);
+    void (*g_deleteLambda)(void*);
 };
 
 /**
@@ -131,11 +131,11 @@ protected:
  * \tparam Types The list of arguments types passed to the functor
  * \tparam TObject The object type
  */
-template <class TObject, class ... Types>
-class CallbackFunctorObject : public fge::CallbackFunctorBase<Types ...>
+template<class TObject, class... Types>
+class CallbackFunctorObject : public fge::CallbackFunctorBase<Types...>
 {
 public:
-    using CallbackFunctionObject = void (TObject::*) (Types ... args);
+    using CallbackFunctionObject = void (TObject::*)(Types... args);
 
     /**
      * \brief Constructor
@@ -143,7 +143,7 @@ public:
      * \param func The callback method of the object
      * \param object The object pointer
      */
-    CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject func, TObject* object);
+    CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func, TObject* object);
     ~CallbackFunctorObject() override = default;
 
     /**
@@ -151,7 +151,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types ... args) override;
+    void call(Types... args) override;
     /**
      * \brief Check if the given object pointer is the same as the one used to construct the functor
      *
@@ -161,7 +161,7 @@ public:
     inline bool check(void* ptr) override;
 
 protected:
-    fge::CallbackFunctorObject<TObject, Types ...>::CallbackFunctionObject g_functionObj;
+    fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject g_functionObj;
     TObject* g_object;
 };
 
@@ -180,7 +180,7 @@ protected:
  *
  * \tparam Types The list of arguments types passed to the callbacks
  */
-template <class ... Types>
+template<class... Types>
 class CallbackHandler : public fge::Subscription
 {
 public:
@@ -190,22 +190,24 @@ public:
     /**
      * \brief Copy constructor that does nothing
      */
-    CallbackHandler([[maybe_unused]] const fge::CallbackHandler<Types ...>& n) :
-            fge::Subscription()
-    {};
+    CallbackHandler([[maybe_unused]] const fge::CallbackHandler<Types...>& n) :
+            fge::Subscription(){};
     /**
      * \brief Move constructor prohibited
      */
-    CallbackHandler(fge::CallbackHandler<Types ...>&& n) = delete;
+    CallbackHandler(fge::CallbackHandler<Types...>&& n) = delete;
 
     /**
      * \brief Copy operator that does nothing
      */
-    fge::CallbackHandler<Types ...>& operator =([[maybe_unused]] const fge::CallbackHandler<Types ...>& n){return *this;};
+    fge::CallbackHandler<Types...>& operator=([[maybe_unused]] const fge::CallbackHandler<Types...>& n)
+    {
+        return *this;
+    };
     /**
      * \brief Move operator prohibited
      */
-    fge::CallbackHandler<Types ...>& operator =(fge::CallbackHandler<Types ...>&& n) = delete;
+    fge::CallbackHandler<Types...>& operator=(fge::CallbackHandler<Types...>&& n) = delete;
 
     /**
      * \brief Clear the list of callbacks
@@ -224,7 +226,7 @@ public:
      * \param callback The new callback to add
      * \param subscriber The subscriber to use to categorize the callback
      */
-    inline void add(fge::CallbackFunctorBase<Types ...>* callback, fge::Subscriber* subscriber = nullptr);
+    inline void add(fge::CallbackFunctorBase<Types...>* callback, fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Remove a callback from the list
      *
@@ -247,7 +249,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types ... args);
+    void call(Types... args);
 
 protected:
     /**
@@ -260,20 +262,20 @@ protected:
     void onDetach(fge::Subscriber* subscriber) override;
 
 private:
-    using CalleePtr = std::unique_ptr<fge::CallbackFunctorBase<Types ...> >;
+    using CalleePtr = std::unique_ptr<fge::CallbackFunctorBase<Types...>>;
     struct CalleeData
     {
-        fge::CallbackHandler<Types ...>::CalleePtr _f;
+        fge::CallbackHandler<Types...>::CalleePtr _f;
         fge::Subscriber* _subscriber = nullptr;
     };
-    using CalleeList = std::forward_list<fge::CallbackHandler<Types ...>::CalleeData>;
+    using CalleeList = std::forward_list<fge::CallbackHandler<Types...>::CalleeData>;
 
-    fge::CallbackHandler<Types ...>::CalleeList g_callees;
+    fge::CallbackHandler<Types...>::CalleeList g_callees;
 
     mutable std::recursive_mutex g_mutex;
 };
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_callback.inl>
 

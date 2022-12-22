@@ -1,6 +1,6 @@
 #include <C_food.hpp>
-#include <FastEngine/extra/extra_function.hpp>
 #include <FastEngine/C_random.hpp>
+#include <FastEngine/extra/extra_function.hpp>
 
 namespace ls
 {
@@ -26,7 +26,7 @@ FGE_OBJ_DRAW_BODY(Food)
     food.setOutlineColor(sf::Color::Black);
     food.setOutlineThickness(1.0f);
     food.setPosition(this->getPosition());
-    food.setOrigin(8,8);
+    food.setOrigin(8, 8);
 
     target.draw(food);
 }
@@ -35,7 +35,8 @@ FGE_OBJ_DRAW_BODY(Food)
 void Food::networkRegister()
 {
     this->_netList.clear();
-    this->_netList.push( new fge::net::NetworkType<sf::Vector2f>({&this->getPosition(), [&](const sf::Vector2f& pos){this->setPosition(pos);}}) );
+    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>(
+            {&this->getPosition(), [&](const sf::Vector2f& pos) { this->setPosition(pos); }}));
 }
 
 void Food::save(nlohmann::json& jsonObject, fge::Scene* scene)
@@ -66,4 +67,4 @@ const char* Food::getReadableClassName() const
     return "food";
 }
 
-}//end ls
+} // namespace ls

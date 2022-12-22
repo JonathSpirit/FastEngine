@@ -26,50 +26,45 @@ namespace net
 
 uint32_t PacketBZ2::_maxUncompressedReceivedSize = FGE_PACKETBZ2_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
-PacketBZ2::PacketBZ2() : fge::net::Packet(),
-    g_blockSize(FGE_PACKETBZ2_DEFAULT_BLOCKSIZE),
-    g_workfactor(FGE_PACKETBZ2_DEFAULT_WORKFACTOR),
-    g_lastCompressionSize(0)
-{
-}
+PacketBZ2::PacketBZ2() :
+        fge::net::Packet(),
+        g_blockSize(FGE_PACKETBZ2_DEFAULT_BLOCKSIZE),
+        g_workfactor(FGE_PACKETBZ2_DEFAULT_WORKFACTOR),
+        g_lastCompressionSize(0)
+{}
 PacketBZ2::PacketBZ2(fge::net::PacketBZ2&& pck) noexcept :
-    fge::net::Packet(std::move(pck)),
-    g_blockSize(pck.g_blockSize),
-    g_workfactor(pck.g_workfactor),
-    g_buffer(std::move(pck.g_buffer)),
-    g_lastCompressionSize(pck.g_lastCompressionSize)
-{
-}
+        fge::net::Packet(std::move(pck)),
+        g_blockSize(pck.g_blockSize),
+        g_workfactor(pck.g_workfactor),
+        g_buffer(std::move(pck.g_buffer)),
+        g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
 
 void PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     uint32_t dataSrcSize = this->getDataSize();
-    uint32_t dataDstSize = ((dataSrcSize + (dataSrcSize/100)) + 608);
+    uint32_t dataDstSize = ((dataSrcSize + (dataSrcSize / 100)) + 608);
 
     buffer.resize(dataDstSize + sizeof(uint32_t) + offset);
 
-    int result = BZ2_bzBuffToBuffCompress( reinterpret_cast<char*>(buffer.data()) + sizeof(uint32_t) + offset,
-                                          &dataDstSize,
-                                          reinterpret_cast<char*>( this->_g_data.data() ),
-                                          dataSrcSize,
-                                          this->g_blockSize,
-                                          0,
-                                          this->g_workfactor );
+    int result = BZ2_bzBuffToBuffCompress(reinterpret_cast<char*>(buffer.data()) + sizeof(uint32_t) + offset,
+                                          &dataDstSize, reinterpret_cast<char*>(this->_g_data.data()), dataSrcSize,
+                                          this->g_blockSize, 0, this->g_workfactor);
 
     switch (result)
     {
-        case BZ_CONFIG_ERROR:
-            throw std::invalid_argument("Config error !");
-            break;
-        case BZ_PARAM_ERROR:
-            throw std::invalid_argument("Parameter error !");
-            break;
-        case BZ_MEM_ERROR:
-            throw std::out_of_range("No enough memory !");
-            break;
-        case BZ_OUTBUFF_FULL:
-            throw std::out_of_range("Data > Buffer");
-            break;
+    case BZ_CONFIG_ERROR:
+        throw std::invalid_argument("Config error !");
+        break;
+    case BZ_PARAM_ERROR:
+        throw std::invalid_argument("Parameter error !");
+        break;
+    case BZ_MEM_ERROR:
+        throw std::out_of_range("No enough memory !");
+        break;
+    case BZ_OUTBUFF_FULL:
+        throw std::out_of_range("Data > Buffer");
+        break;
     }
 
     *reinterpret_cast<uint32_t*>(buffer.data() + offset) = fge::SwapHostNetEndian_32(dataSrcSize);
@@ -81,15 +76,15 @@ void PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 
 void PacketBZ2::onReceive(void* data, std::size_t dsize)
 {
-    if ( dsize < 4 )
+    if (dsize < 4)
     {
         throw std::invalid_argument("Received a bad packet !");
     }
 
-    uint32_t dataUncompressedSize=0;
+    uint32_t dataUncompressedSize = 0;
     char* dataBuff = static_cast<char*>(data);
 
-    dataUncompressedSize = fge::SwapHostNetEndian_32( *reinterpret_cast<const uint32_t*>(&dataBuff[0]) );
+    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<const uint32_t*>(&dataBuff[0]));
 
     if (dataUncompressedSize > fge::net::PacketBZ2::_maxUncompressedReceivedSize)
     {
@@ -100,27 +95,23 @@ void PacketBZ2::onReceive(void* data, std::size_t dsize)
 
     this->g_buffer.resize(dataUncompressedSize);
 
-    int result = BZ2_bzBuffToBuffDecompress( this->g_buffer.data(),
-                                             &dataUncompressedSize,
-                                             dataBuff+sizeof(uint32_t),
-                                             dsize-sizeof(uint32_t),
-                                             0,
-                                             0);
+    int result = BZ2_bzBuffToBuffDecompress(this->g_buffer.data(), &dataUncompressedSize, dataBuff + sizeof(uint32_t),
+                                            dsize - sizeof(uint32_t), 0, 0);
 
     switch (result)
     {
-        case BZ_CONFIG_ERROR:
-            throw std::invalid_argument("PacketBZ2 : Config error !");
-            break;
-        case BZ_PARAM_ERROR:
-            throw std::invalid_argument("PacketBZ2 : Parameter error !");
-            break;
-        case BZ_MEM_ERROR:
-            throw std::out_of_range("PacketBZ2 : No enough memory !");
-            break;
-        case BZ_OUTBUFF_FULL:
-            throw std::out_of_range("PacketBZ2 : Data > Buffer");
-            break;
+    case BZ_CONFIG_ERROR:
+        throw std::invalid_argument("PacketBZ2 : Config error !");
+        break;
+    case BZ_PARAM_ERROR:
+        throw std::invalid_argument("PacketBZ2 : Parameter error !");
+        break;
+    case BZ_MEM_ERROR:
+        throw std::out_of_range("PacketBZ2 : No enough memory !");
+        break;
+    case BZ_OUTBUFF_FULL:
+        throw std::out_of_range("PacketBZ2 : Data > Buffer");
+        break;
     }
 
     this->append(this->g_buffer.data(), dataUncompressedSize);
@@ -148,5 +139,5 @@ std::size_t PacketBZ2::getLastCompressionSize() const
     return this->g_lastCompressionSize;
 }
 
-}//end net
-}//end fge
+} // namespace net
+} // namespace fge

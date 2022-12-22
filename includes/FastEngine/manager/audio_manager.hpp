@@ -20,10 +20,10 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "SFML/Audio/SoundBuffer.hpp"
+#include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
-#include <mutex>
-#include <memory>
 
 #define FGE_AUDIO_DEFAULT FGE_AUDIO_BAD
 #define FGE_AUDIO_BAD ""
@@ -39,8 +39,8 @@ namespace fge::audio
 struct AudioData
 {
     std::shared_ptr<sf::SoundBuffer> _audio; ///< Shared pointer to the SFML sound buffer
-    bool _valid; ///< Indicates if the audio data is valid
-    std::string _path; ///< Path to the audio file
+    bool _valid;                             ///< Indicates if the audio data is valid
+    std::string _path;                       ///< Path to the audio file
 };
 
 using AudioDataPtr = std::shared_ptr<fge::audio::AudioData>;
@@ -152,6 +152,6 @@ FGE_API bool Push(const std::string& name, const fge::audio::AudioDataPtr& data)
  * @}
  */
 
-}//end fge::audio
+} // namespace fge::audio
 
 #endif // _FGE_AUDIO_MANAGER_HPP_INCLUDED

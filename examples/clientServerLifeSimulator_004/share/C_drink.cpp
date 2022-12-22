@@ -1,6 +1,6 @@
 #include <C_drink.hpp>
-#include <FastEngine/extra/extra_function.hpp>
 #include <FastEngine/C_random.hpp>
+#include <FastEngine/extra/extra_function.hpp>
 
 namespace ls
 {
@@ -26,7 +26,7 @@ FGE_OBJ_DRAW_BODY(Drink)
     drink.setOutlineColor(sf::Color::Black);
     drink.setOutlineThickness(1.0f);
     drink.setPosition(this->getPosition());
-    drink.setOrigin(8,8);
+    drink.setOrigin(8, 8);
 
     target.draw(drink);
 }
@@ -35,7 +35,8 @@ FGE_OBJ_DRAW_BODY(Drink)
 void Drink::networkRegister()
 {
     this->_netList.clear();
-    this->_netList.push( new fge::net::NetworkType<sf::Vector2f>({&this->getPosition(), [&](const sf::Vector2f& pos){this->setPosition(pos);}}) );
+    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>(
+            {&this->getPosition(), [&](const sf::Vector2f& pos) { this->setPosition(pos); }}));
 }
 
 void Drink::save(nlohmann::json& jsonObject, fge::Scene* scene)
@@ -66,4 +67,4 @@ const char* Drink::getReadableClassName() const
     return "drink";
 }
 
-}//end ls
+} // namespace ls

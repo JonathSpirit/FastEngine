@@ -18,9 +18,9 @@
 #define _FGE_C_PROPERTYLIST_HPP_INCLUDED
 
 #include <FastEngine/C_property.hpp>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <stdexcept>
 
 namespace fge
 {
@@ -46,16 +46,16 @@ public:
     inline void setProperty(const std::string& key, const fge::Property& value);
     inline void setProperty(const std::string& key, fge::Property&& value);
 
-    template <typename T>
+    template<typename T>
     inline T* getPropertyType(const std::string& key);
-    template <typename T>
+    template<typename T>
     inline const T* getPropertyType(const std::string& key) const;
 
     inline fge::Property& getProperty(const std::string& key);
     inline const fge::Property& getProperty(const std::string& key) const;
 
-    inline fge::Property& operator[] (const std::string& key);
-    inline const fge::Property& operator[] (const std::string& key) const;
+    inline fge::Property& operator[](const std::string& key);
+    inline const fge::Property& operator[](const std::string& key) const;
 
     inline std::size_t getPropertiesSize() const;
 
@@ -74,7 +74,7 @@ private:
     fge::PropertyList::PropertyListType g_data;
 };
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_propertyList.inl>
 

@@ -42,7 +42,7 @@ void from_json(const nlohmann::json& j, sf::Vector3<T>& p);
 inline void to_json(nlohmann::json& j, const sf::Color& p);
 inline void from_json(const nlohmann::json& j, sf::Color& p);
 
-}//end sc
+} // namespace sf
 
 namespace tiny_utf8
 {
@@ -50,7 +50,7 @@ namespace tiny_utf8
 inline void to_json(nlohmann::json& j, const tiny_utf8::string& p);
 inline void from_json(const nlohmann::json& j, tiny_utf8::string& p);
 
-}//end tiny_utf8
+} // namespace tiny_utf8
 
 #include <FastEngine/arbitraryJsonTypes.inl>
 

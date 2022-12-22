@@ -25,14 +25,14 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <functional>
-#include <vector>
-#include <unordered_set>
-#include <unordered_map>
-#include <array>
-#include <optional>
-#include <cstdint>
 #include "SFML/System/Vector2.hpp"
+#include <array>
+#include <cstdint>
+#include <functional>
+#include <optional>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace fge::AStar
 {
@@ -45,9 +45,9 @@ struct Vector2int32Hash
 {
     static_assert(sizeof(fge::AStar::Vector2i) == 8, "bad sf::Vector2<int32_t> size, should be 8 !");
 
-    inline std::size_t operator() (const fge::AStar::Vector2i& coord) const
+    inline std::size_t operator()(const fge::AStar::Vector2i& coord) const
     {
-        return std::hash<uint64_t>()( *reinterpret_cast<const uint64_t*>(&coord) );
+        return std::hash<uint64_t>()(*reinterpret_cast<const uint64_t*>(&coord));
     }
 };
 
@@ -55,7 +55,7 @@ using CoordinateSet = std::unordered_set<fge::AStar::Vector2i, fge::AStar::Vecto
 
 struct FGE_API Node
 {
-    explicit Node(std::optional<fge::AStar::Vector2i> parent=std::nullopt);
+    explicit Node(std::optional<fge::AStar::Vector2i> parent = std::nullopt);
     [[nodiscard]] unsigned int getScore() const;
 
     unsigned int _costScore;
@@ -103,6 +103,6 @@ public:
     static unsigned int octagonal(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
 };
 
-}//end fge::AStar
+} // namespace fge::AStar
 
 #endif //_FGE_EXTRA_PATHFINDING_HPP_INCLUDED

@@ -15,20 +15,19 @@
  */
 
 #include "FastEngine/object/C_objButton.hpp"
-#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
 
 ObjButton::ObjButton() :
-    g_color(sf::Color::White)
-{
-}
+        g_color(sf::Color::White)
+{}
 ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, const sf::Vector2f& pos) :
-    g_textureOn(std::move(textureOn)),
-    g_textureOff(std::move(textureOff)),
-    g_color(sf::Color::White)
+        g_textureOn(std::move(textureOn)),
+        g_textureOff(std::move(textureOff)),
+        g_color(sf::Color::White)
 {
     this->setPosition(pos);
     this->g_sprite.setTexture(this->g_textureOff);
@@ -78,19 +77,21 @@ void ObjButton::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 {
     this->detachAll();
 
-    guiElementHandlerPtr->_onGuiVerify.add( new fge::CallbackFunctorObject(&fge::ObjButton::onGuiVerify, this), this );
+    guiElementHandlerPtr->_onGuiVerify.add(new fge::CallbackFunctorObject(&fge::ObjButton::onGuiVerify, this), this);
 
-    this->_onGuiMouseButtonPressed.add( new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseButtonPressed, this), this );
-    this->_onGuiMouseMoved.add( new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseMoved, this), this );
+    this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseButtonPressed, this),
+                                       this);
+    this->_onGuiMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseMoved, this), this);
 
-    event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjButton::onMouseButtonReleased, this), this);
+    event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjButton::onMouseButtonReleased, this),
+                                     this);
 }
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjButton)
 {
     states.transform *= this->getTransform();
-    this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - sf::Color(50,50,50,0)) : this->g_color);
+    this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - sf::Color(50, 50, 50, 0)) : this->g_color);
     target.draw(this->g_sprite, states);
 }
 #endif
@@ -111,7 +112,7 @@ void ObjButton::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->g_color = sf::Color( jsonObject.value<uint32_t>("color", 0) );
+    this->g_color = sf::Color(jsonObject.value<uint32_t>("color", 0));
 
     this->g_textureOn = jsonObject.value<std::string>("textureOn", FGE_TEXTURE_BAD);
     this->g_textureOff = jsonObject.value<std::string>("textureOff", FGE_TEXTURE_BAD);
@@ -146,32 +147,39 @@ const char* ObjButton::getReadableClassName() const
 
 sf::FloatRect ObjButton::getGlobalBounds() const
 {
-    return this->getTransform().transformRect( this->g_sprite.getLocalBounds() );
+    return this->getTransform().transformRect(this->g_sprite.getLocalBounds());
 }
 sf::FloatRect ObjButton::getLocalBounds() const
 {
     return this->g_sprite.getLocalBounds();
 }
 
-void ObjButton::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,[[maybe_unused]]  const sf::Event::MouseButtonEvent& arg,[[maybe_unused]]  fge::GuiElementContext& context)
+void ObjButton::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
+                                        [[maybe_unused]] const sf::Event::MouseButtonEvent& arg,
+                                        [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statActive = true;
     this->g_sprite.setTexture(this->g_textureOn);
     this->_onButtonPressed.call(this);
 }
-void ObjButton::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,[[maybe_unused]]  const sf::Event::MouseButtonEvent& arg)
+void ObjButton::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
+                                      [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
 {
     this->g_statActive = false;
     this->g_sprite.setTexture(this->g_textureOff);
 }
-void ObjButton::onGuiMouseMoved([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] const sf::Event::MouseMoveEvent& arg, [[maybe_unused]] fge::GuiElementContext& context)
+void ObjButton::onGuiMouseMoved([[maybe_unused]] const fge::Event& evt,
+                                [[maybe_unused]] const sf::Event::MouseMoveEvent& arg,
+                                [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statMouseOn = true;
 }
 
-void ObjButton::onGuiVerify([[maybe_unused]] const fge::Event& evt, [[maybe_unused]] sf::Event::EventType evtType, fge::GuiElementContext& context)
+void ObjButton::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+                            [[maybe_unused]] sf::Event::EventType evtType,
+                            fge::GuiElementContext& context)
 {
-    if ( this->verifyPriority(context._prioritizedElement) )
+    if (this->verifyPriority(context._prioritizedElement))
     {
         auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -181,14 +189,14 @@ void ObjButton::onGuiVerify([[maybe_unused]] const fge::Event& evt, [[maybe_unus
         sf::Vector2f mousePosition;
         if (customView)
         {
-            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition,*customView);
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
         }
         else
         {
             mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
         }
 
-        if ( scrollRect.contains(mousePosition) )
+        if (scrollRect.contains(mousePosition))
         {
             context._prioritizedElement = this;
         }
@@ -203,4 +211,4 @@ void ObjButton::onGuiVerify([[maybe_unused]] const fge::Event& evt, [[maybe_unus
     }
 }
 
-}//end fge
+} // namespace fge

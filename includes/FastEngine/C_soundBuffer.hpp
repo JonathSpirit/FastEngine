@@ -27,9 +27,9 @@ class FGE_API SoundBuffer
 {
 public:
     SoundBuffer();
-    SoundBuffer( const std::string& name );
-    SoundBuffer( const char* name );
-    SoundBuffer( const fge::audio::AudioDataPtr& data );
+    SoundBuffer(const std::string& name);
+    SoundBuffer(const char* name);
+    SoundBuffer(const fge::audio::AudioDataPtr& data);
 
     void clear();
 
@@ -38,9 +38,9 @@ public:
     const fge::audio::AudioDataPtr& getData() const;
     const std::string& getName() const;
 
-    void operator =( const std::string& name );
-    void operator =( const char* name );
-    void operator =( const fge::audio::AudioDataPtr& data );
+    void operator=(const std::string& name);
+    void operator=(const char* name);
+    void operator=(const fge::audio::AudioDataPtr& data);
 
     explicit operator sf::SoundBuffer*();
     explicit operator const sf::SoundBuffer*() const;
@@ -56,6 +56,6 @@ private:
     std::string g_name;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_SOUNDBUFFER_HPP_INCLUDED

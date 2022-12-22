@@ -30,8 +30,8 @@ namespace fge
 class Flag
 {
 public:
-    inline Flag(bool defaultValue=false) :
-        g_flag(defaultValue)
+    inline Flag(bool defaultValue = false) :
+            g_flag(defaultValue)
     {}
 
     /**
@@ -61,19 +61,13 @@ public:
      *
      * \param value The boolean value to set
      */
-    inline void set(bool value)
-    {
-        this->g_flag = value;
-    }
+    inline void set(bool value) { this->g_flag = value; }
     /**
      * \brief Get the flag value
      *
      * \return The flag value
      */
-    [[nodiscard]] inline bool get() const
-    {
-        return this->g_flag;
-    }
+    [[nodiscard]] inline bool get() const { return this->g_flag; }
 
     /**
      * \brief Manually set the flag value operator
@@ -81,25 +75,19 @@ public:
      * \param value The boolean value to set
      * \return The flag value
      */
-    inline bool operator=(bool value)
-    {
-        return this->g_flag = value;
-    }
+    inline bool operator=(bool value) { return this->g_flag = value; }
 
     /**
      * \brief Get the flag value operator
      *
      * \return The flag value
      */
-    inline operator bool() const
-    {
-        return this->g_flag;
-    }
+    inline operator bool() const { return this->g_flag; }
 
 private:
     bool g_flag;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_FLAG_HPP_INCLUDED

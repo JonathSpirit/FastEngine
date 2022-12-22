@@ -20,10 +20,10 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
-#include <vector>
 #include <chrono>
 #include <limits>
 #include <memory>
+#include <vector>
 
 namespace fge
 {
@@ -44,16 +44,22 @@ class FGE_API ChildObjectsAccessor : public sf::Drawable
 {
 public:
     ChildObjectsAccessor() = default;
-    ChildObjectsAccessor([[maybe_unused]]const ChildObjectsAccessor& r){};
-    ChildObjectsAccessor([[maybe_unused]]ChildObjectsAccessor&& r) noexcept {};
+    ChildObjectsAccessor([[maybe_unused]] const ChildObjectsAccessor& r){};
+    ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor&& r) noexcept {};
 
-    ChildObjectsAccessor& operator=([[maybe_unused]]const ChildObjectsAccessor& r){return *this;};
-    ChildObjectsAccessor& operator=([[maybe_unused]]ChildObjectsAccessor&& r) noexcept {return *this;};
+    ChildObjectsAccessor& operator=([[maybe_unused]] const ChildObjectsAccessor& r) { return *this; };
+    ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor&& r) noexcept { return *this; };
 
     void clear();
 
-    void addExistingObject(const fge::ObjectDataWeak& parent, fge::Object* object, fge::Scene* linkedScene, std::size_t insertionIndex=std::numeric_limits<std::size_t>::max());
-    void addNewObject(const fge::ObjectDataWeak& parent, fge::ObjectPtr&& newObject, fge::Scene* linkedScene, std::size_t insertionIndex=std::numeric_limits<std::size_t>::max());
+    void addExistingObject(const fge::ObjectDataWeak& parent,
+                           fge::Object* object,
+                           fge::Scene* linkedScene,
+                           std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
+    void addNewObject(const fge::ObjectDataWeak& parent,
+                      fge::ObjectPtr&& newObject,
+                      fge::Scene* linkedScene,
+                      std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
 
     [[nodiscard]] std::size_t getSize() const;
     [[nodiscard]] const fge::Object* get(std::size_t index) const;
@@ -66,7 +72,8 @@ public:
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
 #else
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+    void
+    update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 #endif //FGE_DEF_SERVER
 
@@ -93,6 +100,6 @@ private:
     mutable std::size_t g_actualIteratedIndex{std::numeric_limits<std::size_t>::max()};
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_CHILDOBJECTSACCESSOR_HPP_INCLUDED

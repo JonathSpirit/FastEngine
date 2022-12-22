@@ -19,10 +19,10 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_client.hpp>
-#include <unordered_map>
+#include <deque>
 #include <memory>
 #include <mutex>
-#include <deque>
+#include <unordered_map>
 
 namespace fge::net
 {
@@ -107,7 +107,8 @@ public:
      * \param lock A unique lock bound to this mutex
      * \return The iterator after the erased element
      */
-    fge::net::ClientList::ClientListData::iterator remove(fge::net::ClientList::ClientListData::const_iterator itPos, const std::unique_lock<std::recursive_mutex>& lock);
+    fge::net::ClientList::ClientListData::iterator remove(fge::net::ClientList::ClientListData::const_iterator itPos,
+                                                          const std::unique_lock<std::recursive_mutex>& lock);
 
     /**
      * \brief Get a client from the list
@@ -141,7 +142,8 @@ public:
      * \return The begin iterator
      */
     fge::net::ClientList::ClientListData::iterator begin(const std::unique_lock<std::recursive_mutex>& lock);
-    fge::net::ClientList::ClientListData::const_iterator begin(const std::unique_lock<std::recursive_mutex>& lock) const;
+    fge::net::ClientList::ClientListData::const_iterator
+    begin(const std::unique_lock<std::recursive_mutex>& lock) const;
     fge::net::ClientList::ClientListData::iterator end(const std::unique_lock<std::recursive_mutex>& lock);
     fge::net::ClientList::ClientListData::const_iterator end(const std::unique_lock<std::recursive_mutex>& lock) const;
 
@@ -200,7 +202,7 @@ private:
     bool g_enableClientEventsFlag = false;
 };
 
-}//end fge::net
+} // namespace fge::net
 
 
 #endif // _FGE_C_CLIENTLIST_HPP_INCLUDED

@@ -17,8 +17,8 @@
 #ifndef _FGE_C_LIGHTOBSTACLE_HPP_INCLUDED
 #define _FGE_C_LIGHTOBSTACLE_HPP_INCLUDED
 
-#include "SFML/System/Vector2.hpp"
 #include "C_lightSystem.hpp"
+#include "SFML/System/Vector2.hpp"
 #include <vector>
 
 namespace fge
@@ -62,6 +62,6 @@ protected:
     friend class fge::ObjLight;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_LIGHTOBSTACLE_HPP_INCLUDED

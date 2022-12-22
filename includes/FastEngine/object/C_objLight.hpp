@@ -18,12 +18,12 @@
 #define _FGE_C_OBJLIGHT_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "C_object.hpp"
-#include "FastEngine/C_scene.hpp"
 #include "C_lightObstacle.hpp"
-#include "FastEngine/C_texture.hpp"
 #include "C_lightSystem.hpp"
 #include "C_objRenderMap.hpp"
+#include "C_object.hpp"
+#include "FastEngine/C_scene.hpp"
+#include "FastEngine/C_texture.hpp"
 
 #define FGE_OBJLIGHT_CLASSNAME "FGE:OBJ:LIGHT"
 
@@ -34,8 +34,8 @@ class FGE_API ObjLight : public fge::Object, public fge::LightComponent
 {
 public:
     ObjLight();
-    explicit ObjLight(const fge::Texture& texture, const sf::Vector2f& position=sf::Vector2f());
-    ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position=sf::Vector2f());
+    explicit ObjLight(const fge::Texture& texture, const sf::Vector2f& position = sf::Vector2f());
+    ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position = sf::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjLight)
 
@@ -86,6 +86,6 @@ private:
     sf::BlendMode g_blendMode;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJLIGHT_HPP_INCLUDED

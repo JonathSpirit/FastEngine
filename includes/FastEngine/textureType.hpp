@@ -26,10 +26,10 @@
 namespace fge
 {
 #ifdef FGE_DEF_SERVER
-    using TextureType = sf::Image;
+using TextureType = sf::Image;
 #else
-    using TextureType = sf::Texture;
+using TextureType = sf::Texture;
 #endif //FGE_DEF_SERVER
-}//end fge
+} // namespace fge
 
 #endif //_FGE_TEXTURETYPE_HPP_INCLUDED

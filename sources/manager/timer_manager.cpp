@@ -16,9 +16,9 @@
 
 #include "FastEngine/manager/timer_manager.hpp"
 
+#include <condition_variable>
 #include <list>
 #include <thread>
-#include <condition_variable>
 
 #include "FastEngine/C_clock.hpp"
 
@@ -55,25 +55,25 @@ void TimerThread()
 
         waitTime = std::chrono::milliseconds(1000);
 
-        std::chrono::milliseconds interval = std::chrono::duration_cast<std::chrono::milliseconds>( clock.restart() );
+        std::chrono::milliseconds interval = std::chrono::duration_cast<std::chrono::milliseconds>(clock.restart());
 
-        for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
+        for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
         {
             auto* timerData = (*it).get();
 
             timerData->addToElapsedTime(interval);
             std::chrono::milliseconds timeLeft = timerData->getTimeLeft();
-            if ( timeLeft.count() <= 0 )
-            {//time reached
+            if (timeLeft.count() <= 0)
+            { //time reached
                 timerData->_onTimeReached.call(*timerData);
 
                 timeLeft = timerData->getTimeLeft();
-                if ( timeLeft.count() <= 0 )
-                {//We recheck if the goal is reached after the call to the callback (if the user restarted the timer, we will not destroy it (loop))
+                if (timeLeft.count() <= 0)
+                { //We recheck if the goal is reached after the call to the callback (if the user restarted the timer, we will not destroy it (loop))
                     it = --_dataTimers.erase(it);
                 }
                 else
-                {//New goal
+                { //New goal
                     if (timeLeft < waitTime)
                     {
                         waitTime = timeLeft;
@@ -91,11 +91,11 @@ void TimerThread()
     }
 }
 
-}//end
+} // namespace
 
 void Init()
 {
-    if (_timerThread == nullptr )
+    if (_timerThread == nullptr)
     {
         _timerThreadRunning = true;
         _timerThread = std::make_unique<std::thread>(TimerThread);
@@ -107,7 +107,7 @@ bool IsInit()
 }
 void Uninit()
 {
-    if (_timerThread != nullptr )
+    if (_timerThread != nullptr)
     {
         _timerThreadRunning = false;
         _dataCv.notify_all();
@@ -129,7 +129,7 @@ void Notify()
 fge::timer::TimerShared Create(fge::timer::TimerShared timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    _dataTimers.push_back( std::move(timer) );
+    _dataTimers.push_back(std::move(timer));
     _dataCv.notify_all();
     return _dataTimers.back();
 }
@@ -137,9 +137,9 @@ fge::timer::TimerShared Create(fge::timer::TimerShared timer)
 bool Destroy(const fge::timer::TimerShared& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
+    for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
-        if ( (*it).get() == timer.get() )
+        if ((*it).get() == timer.get())
         {
             _dataTimers.erase(it);
             _dataCv.notify_all();
@@ -151,9 +151,9 @@ bool Destroy(const fge::timer::TimerShared& timer)
 bool Destroy(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto it=_dataTimers.begin(); it != _dataTimers.end(); ++it)
+    for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
-        if ( (*it)->getName() == timerName )
+        if ((*it)->getName() == timerName)
         {
             _dataTimers.erase(it);
             _dataCv.notify_all();
@@ -173,9 +173,9 @@ void DestroyAll()
 bool Check(const fge::timer::TimerShared& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto& dataTimer : _dataTimers)
+    for (auto& dataTimer: _dataTimers)
     {
-        if ( dataTimer.get() == timer.get() )
+        if (dataTimer.get() == timer.get())
         {
             return true;
         }
@@ -185,9 +185,9 @@ bool Check(const fge::timer::TimerShared& timer)
 bool Check(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto& dataTimer : _dataTimers)
+    for (auto& dataTimer: _dataTimers)
     {
-        if ( dataTimer->getName() == timerName )
+        if (dataTimer->getName() == timerName)
         {
             return true;
         }
@@ -204,9 +204,9 @@ std::size_t GetTimerSize()
 fge::timer::TimerShared Get(const std::string& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
-    for (auto& dataTimer : _dataTimers)
+    for (auto& dataTimer: _dataTimers)
     {
-        if ( dataTimer->getName() == timerName )
+        if (dataTimer->getName() == timerName)
         {
             return dataTimer;
         }
@@ -214,4 +214,4 @@ fge::timer::TimerShared Get(const std::string& timerName)
     return nullptr;
 }
 
-}//end fge::timer
+} // namespace fge::timer

@@ -29,7 +29,7 @@ namespace net
 
 class Packet;
 
-}//end net
+} // namespace net
 
 /**
  * \class Font
@@ -86,14 +86,14 @@ public:
      *
      * \param name The name of the loaded font
      */
-    fge::Font& operator =(std::string name);
-    fge::Font& operator =(const char* name);
+    fge::Font& operator=(std::string name);
+    fge::Font& operator=(const char* name);
     /**
      * \brief Copy a custom font data pointer.
      *
      * \param data The custom font data pointer
      */
-    fge::Font& operator =(fge::font::FontDataPtr data);
+    fge::Font& operator=(fge::font::FontDataPtr data);
 
     explicit operator sf::Font*();
     explicit operator const sf::Font*() const;
@@ -111,12 +111,12 @@ private:
     std::string g_name;
 };
 
-FGE_API const fge::net::Packet& operator >>(const fge::net::Packet& pck, fge::Font& data);
-FGE_API fge::net::Packet& operator <<(fge::net::Packet& pck, const fge::Font& data);
+FGE_API const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Font& data);
+FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Font& data);
 
 FGE_API void to_json(nlohmann::json& j, const fge::Font& p);
 FGE_API void from_json(const nlohmann::json& j, fge::Font& p);
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_FONT_HPP_INCLUDED

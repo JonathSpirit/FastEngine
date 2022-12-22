@@ -18,35 +18,48 @@
 #define _FGE_C_OBJECT_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/C_tagList.hpp"
-#include "FastEngine/C_networkType.hpp"
-#include "FastEngine/C_event.hpp"
-#include "FastEngine/C_packet.hpp"
-#include "FastEngine/object/C_objectAnchor.hpp"
 #include "C_childObjectsAccessor.hpp"
+#include "FastEngine/C_event.hpp"
+#include "FastEngine/C_networkType.hpp"
+#include "FastEngine/C_packet.hpp"
+#include "FastEngine/C_tagList.hpp"
+#include "FastEngine/object/C_objectAnchor.hpp"
 #include "SFML/Graphics.hpp"
 #include "json.hpp"
 
-#include <string>
 #include <chrono>
+#include <string>
 
 #define FGE_OBJ_BADCLASSNAME "NULL"
 #define FGE_OBJ_NOSCENE nullptr
-#define FGE_OBJ_DEFAULT_COPYMETHOD(objClass) fge::Object* copy() override { return new objClass(*this); }
+#define FGE_OBJ_DEFAULT_COPYMETHOD(objClass)                                                                           \
+    fge::Object* copy() override                                                                                       \
+    {                                                                                                                  \
+        return new objClass(*this);                                                                                    \
+    }
 
 #ifdef FGE_DEF_SERVER
-    #define FGE_OBJ_UPDATE_DECLARE void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
+    #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
+        void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
 #else
-    #define FGE_OBJ_UPDATE_DECLARE void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
+    #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
+        void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime,           \
+                    fge::Scene* scene) override;
 #endif //FGE_DEF_SERVER
 
 #ifdef FGE_DEF_SERVER
-    #define FGE_OBJ_UPDATE_BODY(class_) void class_::update([[maybe_unused]] fge::Event& event, [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
+    #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
+        void class_::update([[maybe_unused]] fge::Event& event,                                                        \
+                            [[maybe_unused]] const std::chrono::milliseconds& deltaTime,                               \
+                            [[maybe_unused]] fge::Scene* scene)
 
     #define FGE_OBJ_UPDATE_CALL(object_) object_.update(event, deltaTime, scene)
     #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(event, deltaTime, scene)
 #else
-    #define FGE_OBJ_UPDATE_BODY(class_) void class_::update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event, [[maybe_unused]] const std::chrono::milliseconds& deltaTime, [[maybe_unused]] fge::Scene* scene)
+    #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
+        void class_::update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event,             \
+                            [[maybe_unused]] const std::chrono::milliseconds& deltaTime,                               \
+                            [[maybe_unused]] fge::Scene* scene)
 
     #define FGE_OBJ_UPDATE_CALL(object_) object_.update(screen, event, deltaTime, scene)
     #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(screen, event, deltaTime, scene)
@@ -123,7 +136,8 @@ public:
 #ifdef FGE_DEF_SERVER
     virtual void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
 #else
-    virtual void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+    virtual void
+    update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
 #endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object
@@ -245,7 +259,7 @@ public:
 
     fge::TagList _tags; ///< The tags of the object
 
- 	//Network
+    //Network
 
     fge::net::NetworkTypeContainer _netList; ///< The network types container of the object
 
@@ -261,7 +275,8 @@ public:
 
         DRAW_DEFAULT = DRAW_IF_ON_TARGET
     };
-    fge::Object::DrawModes _drawMode{fge::Object::DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
+    fge::Object::DrawModes _drawMode{
+            fge::Object::DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
 
     enum class CallbackContextModes : uint8_t
     {
@@ -270,13 +285,15 @@ public:
 
         CONTEXT_DEFAULT = CONTEXT_AUTO
     };
-    fge::Object::CallbackContextModes _callbackContextMode{fge::Object::CallbackContextModes::CONTEXT_DEFAULT}; ///< Tell a scene how the callbackRegister must be called
+    fge::Object::CallbackContextModes _callbackContextMode{
+            fge::Object::CallbackContextModes::
+                    CONTEXT_DEFAULT}; ///< Tell a scene how the callbackRegister must be called
 
     //Child objects
 
     fge::ChildObjectsAccessor _children; ///< An access to child objects of this object
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_OBJECT_HPP_INCLUDED

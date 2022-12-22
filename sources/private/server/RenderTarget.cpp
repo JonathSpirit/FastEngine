@@ -27,18 +27,18 @@
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
 namespace sf
 {
 ////////////////////////////////////////////////////////////
 RenderTarget::RenderTarget() :
-m_defaultView(),
-m_view       (),
-m_cache      (),
-m_id         (0)
+        m_defaultView(),
+        m_view(),
+        m_cache(),
+        m_id(0)
 {
     m_cache.glStatesSet = false;
 }
@@ -49,9 +49,7 @@ RenderTarget::~RenderTarget() = default;
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::clear([[maybe_unused]] const Color& color)
-{
-}
+void RenderTarget::clear([[maybe_unused]] const Color& color) {}
 
 
 ////////////////////////////////////////////////////////////
@@ -79,14 +77,12 @@ const View& RenderTarget::getDefaultView() const
 ////////////////////////////////////////////////////////////
 IntRect RenderTarget::getViewport(const View& view) const
 {
-    float width  = static_cast<float>(getSize().x);
+    float width = static_cast<float>(getSize().x);
     float height = static_cast<float>(getSize().y);
     const FloatRect& viewport = view.getViewport();
 
-    return IntRect(static_cast<int>(0.5f + width  * viewport.left),
-                   static_cast<int>(0.5f + height * viewport.top),
-                   static_cast<int>(0.5f + width  * viewport.width),
-                   static_cast<int>(0.5f + height * viewport.height));
+    return IntRect(static_cast<int>(0.5f + width * viewport.left), static_cast<int>(0.5f + height * viewport.top),
+                   static_cast<int>(0.5f + width * viewport.width), static_cast<int>(0.5f + height * viewport.height));
 }
 
 
@@ -104,7 +100,7 @@ Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point, const View& view)
     Vector2f normalized;
     FloatRect viewport = FloatRect(getViewport(view));
     normalized.x = -1.f + 2.f * (static_cast<float>(point.x) - viewport.left) / viewport.width;
-    normalized.y =  1.f - 2.f * (static_cast<float>(point.y) - viewport.top)  / viewport.height;
+    normalized.y = 1.f - 2.f * (static_cast<float>(point.y) - viewport.top) / viewport.height;
 
     // Then transform by the inverse of the view matrix
     return view.getInverseTransform().transformPoint(normalized);
@@ -127,7 +123,7 @@ Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view)
     // Then convert to viewport coordinates
     Vector2i pixel;
     FloatRect viewport = FloatRect(getViewport(view));
-    pixel.x = static_cast<int>(( normalized.x + 1.f) / 2.f * viewport.width  + viewport.left);
+    pixel.x = static_cast<int>((normalized.x + 1.f) / 2.f * viewport.width + viewport.left);
     pixel.y = static_cast<int>((-normalized.y + 1.f) / 2.f * viewport.height + viewport.top);
 
     return pixel;
@@ -135,29 +131,28 @@ Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view)
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw([[maybe_unused]] const Drawable& drawable, [[maybe_unused]] const RenderStates& states)
-{
-}
+void RenderTarget::draw([[maybe_unused]] const Drawable& drawable, [[maybe_unused]] const RenderStates& states) {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw([[maybe_unused]] const Vertex* vertices, [[maybe_unused]] std::size_t vertexCount,
-                        [[maybe_unused]] PrimitiveType type, [[maybe_unused]] const RenderStates& states)
-{
-}
+void RenderTarget::draw([[maybe_unused]] const Vertex* vertices,
+                        [[maybe_unused]] std::size_t vertexCount,
+                        [[maybe_unused]] PrimitiveType type,
+                        [[maybe_unused]] const RenderStates& states)
+{}
 
 
 ////////////////////////////////////////////////////////////
 void RenderTarget::draw([[maybe_unused]] const VertexBuffer& vertexBuffer, [[maybe_unused]] const RenderStates& states)
-{
-}
+{}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::draw([[maybe_unused]] const VertexBuffer& vertexBuffer, [[maybe_unused]] std::size_t firstVertex,
-                        [[maybe_unused]] std::size_t vertexCount, [[maybe_unused]] const RenderStates& states)
-{
-}
+void RenderTarget::draw([[maybe_unused]] const VertexBuffer& vertexBuffer,
+                        [[maybe_unused]] std::size_t firstVertex,
+                        [[maybe_unused]] std::size_t vertexCount,
+                        [[maybe_unused]] const RenderStates& states)
+{}
 
 
 ////////////////////////////////////////////////////////////
@@ -176,75 +171,54 @@ bool RenderTarget::setActive([[maybe_unused]] bool active)
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::pushGLStates()
-{
-}
+void RenderTarget::pushGLStates() {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::popGLStates()
-{
-}
+void RenderTarget::popGLStates() {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::resetGLStates()
-{
-}
+void RenderTarget::resetGLStates() {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::initialize()
-{
-}
+void RenderTarget::initialize() {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyCurrentView()
-{
-}
+void RenderTarget::applyCurrentView() {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyBlendMode([[maybe_unused]] const BlendMode& mode)
-{
-}
+void RenderTarget::applyBlendMode([[maybe_unused]] const BlendMode& mode) {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyTransform([[maybe_unused]] const Transform& transform)
-{
-}
+void RenderTarget::applyTransform([[maybe_unused]] const Transform& transform) {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyTexture([[maybe_unused]] const Texture* texture)
-{
-}
+void RenderTarget::applyTexture([[maybe_unused]] const Texture* texture) {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::applyShader([[maybe_unused]] const Shader* shader)
-{
-}
+void RenderTarget::applyShader([[maybe_unused]] const Shader* shader) {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::setupDraw([[maybe_unused]] bool useVertexCache, [[maybe_unused]] const RenderStates& states)
-{
-}
+void RenderTarget::setupDraw([[maybe_unused]] bool useVertexCache, [[maybe_unused]] const RenderStates& states) {}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::drawPrimitives([[maybe_unused]] PrimitiveType type, [[maybe_unused]] std::size_t firstVertex, [[maybe_unused]] std::size_t vertexCount)
-{
-}
+void RenderTarget::drawPrimitives([[maybe_unused]] PrimitiveType type,
+                                  [[maybe_unused]] std::size_t firstVertex,
+                                  [[maybe_unused]] std::size_t vertexCount)
+{}
 
 
 ////////////////////////////////////////////////////////////
-void RenderTarget::cleanupDraw([[maybe_unused]] const RenderStates& states)
-{
-}
+void RenderTarget::cleanupDraw([[maybe_unused]] const RenderStates& states) {}
 
 } // namespace sf
 

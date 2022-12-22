@@ -22,10 +22,10 @@
 namespace fge
 {
 
-template <class T>
+template<class T>
 class TunnelGate;
 
-template <class T>
+template<class T>
 class Tunnel
 {
 public:
@@ -34,11 +34,11 @@ public:
     Tunnel(fge::Tunnel<T>&& r) noexcept;
     ~Tunnel();
 
-    fge::Tunnel<T>& operator =(fge::Tunnel<T>& r) = delete;
-    fge::Tunnel<T>& operator =(fge::Tunnel<T>&& r) noexcept;
+    fge::Tunnel<T>& operator=(fge::Tunnel<T>& r) = delete;
+    fge::Tunnel<T>& operator=(fge::Tunnel<T>&& r) noexcept;
 
-    bool knock(fge::TunnelGate<T>& gate, bool anonymous=false);
-    bool addGate(fge::TunnelGate<T>& gate, bool anonymous=false);
+    bool knock(fge::TunnelGate<T>& gate, bool anonymous = false);
+    bool addGate(fge::TunnelGate<T>& gate, bool anonymous = false);
 
     bool isAnonymous(const fge::TunnelGate<T>& gate) const;
 
@@ -55,11 +55,11 @@ public:
     T* operator[](std::size_t index) const;
 
 private:
-    std::vector<fge::TunnelGate<T>* > g_gates;
-    std::vector<fge::TunnelGate<T>* > g_anonymousGates;
+    std::vector<fge::TunnelGate<T>*> g_gates;
+    std::vector<fge::TunnelGate<T>*> g_anonymousGates;
 };
 
-template <class T>
+template<class T>
 class TunnelGate
 {
 public:
@@ -72,7 +72,7 @@ public:
     fge::TunnelGate<T>& operator=(const fge::TunnelGate<T>& gate);
     fge::TunnelGate<T>& operator=(fge::TunnelGate<T>&& gate) noexcept;
 
-    bool openTo(fge::Tunnel<T>& tunnel, bool anonymous=false);
+    bool openTo(fge::Tunnel<T>& tunnel, bool anonymous = false);
     void close();
     [[nodiscard]] bool isOpen() const;
 
@@ -93,7 +93,7 @@ private:
     bool g_locked;
 };
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_tunnel.inl>
 

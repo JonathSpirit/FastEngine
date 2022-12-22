@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/object/C_objSelectBox.hpp"
-#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
@@ -32,7 +32,7 @@ ObjSelectBox::ObjSelectBox()
     this->g_text.setCharacterSize(12);
 }
 ObjSelectBox::ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos) :
-    g_text(font)
+        g_text(font)
 {
     this->g_text.setFillColor(this->g_colorText);
     this->g_box.setFillColor(this->g_colorBox);
@@ -130,24 +130,24 @@ const sf::Color& ObjSelectBox::getTextColor() const
 }
 
 #ifdef FGE_DEF_SERVER
-FGE_OBJ_UPDATE_BODY(ObjSelectBox){}
+FGE_OBJ_UPDATE_BODY(ObjSelectBox) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjSelectBox)
 {
     sf::Vector2f mousePosition = screen.mapPixelToCoords(event.getMousePixelPos());
     sf::FloatRect bounds = this->getGlobalBounds();
-    this->g_statMouseOn = fge::IsMouseOn( mousePosition, bounds );
+    this->g_statMouseOn = fge::IsMouseOn(mousePosition, bounds);
 
-    if ( this->g_statActive )
+    if (this->g_statActive)
     {
-        for ( std::size_t i=0; i<this->g_textList.size(); ++i )
+        for (std::size_t i = 0; i < this->g_textList.size(); ++i)
         {
             bounds.top += this->g_boxSize.y;
 
-            if ( fge::IsMouseOn( mousePosition, bounds ) )
+            if (fge::IsMouseOn(mousePosition, bounds))
             {
                 this->g_textCursor = &this->g_textList[i];
-                if ( this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left)) )
+                if (this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left)))
                 {
                     this->g_textSelected = this->g_textList[i];
                     this->g_statActive = false;
@@ -156,16 +156,16 @@ FGE_OBJ_UPDATE_BODY(ObjSelectBox)
             }
         }
 
-        if ( this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left)) )
+        if (this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left)))
         {
             this->g_statActive = false;
         }
     }
     else
     {
-        if ( this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left))  )
+        if (this->g_flag.check(event.isMouseButtonPressed(sf::Mouse::Left)))
         {
-            if ( this->g_statMouseOn )
+            if (this->g_statMouseOn)
             {
                 this->g_statActive = true;
             }
@@ -179,19 +179,21 @@ FGE_OBJ_DRAW_BODY(ObjSelectBox)
 {
     this->g_text.setString(this->g_textSelected);
 
-    this->g_box.setFillColor( this->g_colorBox );
+    this->g_box.setFillColor(this->g_colorBox);
 
     states.transform *= this->getTransform();
     target.draw(this->g_box, states);
     target.draw(this->g_text, states);
 
-    if ( this->g_statActive )
+    if (this->g_statActive)
     {
-        for ( std::size_t i=0; i<this->g_textList.size(); ++i )
+        for (std::size_t i = 0; i < this->g_textList.size(); ++i)
         {
             states.transform.translate(0, this->g_boxSize.y);
 
-            this->g_box.setFillColor( (&this->g_textList[i] == this->g_textCursor) ? this->g_colorBox-sf::Color(100,100,0,0) : this->g_colorBox );
+            this->g_box.setFillColor((&this->g_textList[i] == this->g_textCursor)
+                                             ? this->g_colorBox - sf::Color(100, 100, 0, 0)
+                                             : this->g_colorBox);
 
             target.draw(this->g_box, states);
             this->g_text.setString(this->g_textList[i]);
@@ -225,18 +227,18 @@ void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->g_colorBox = sf::Color( jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF) );
-    this->g_colorBoxOutline = sf::Color( jsonObject.value<uint32_t>("colorBoxOutline", 0) );
-    this->g_colorText = sf::Color( jsonObject.value<uint32_t>("colorText", 0) );
+    this->g_colorBox = sf::Color(jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF));
+    this->g_colorBoxOutline = sf::Color(jsonObject.value<uint32_t>("colorBoxOutline", 0));
+    this->g_colorText = sf::Color(jsonObject.value<uint32_t>("colorText", 0));
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_text.setFillColor(this->g_colorText);
 
     this->g_textSelected = jsonObject.value<tiny_utf8::string>("textSelected", {});
-    this->g_textList = jsonObject.value<std::vector<tiny_utf8::string> >("texts", std::vector<tiny_utf8::string>{});
+    this->g_textList = jsonObject.value<std::vector<tiny_utf8::string>>("texts", std::vector<tiny_utf8::string>{});
 
     this->g_text.setCharacterSize(jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12));
-    this->g_text.setFont( jsonObject.value<fge::Font>("font", FGE_FONT_BAD) );
+    this->g_text.setFont(jsonObject.value<fge::Font>("font", FGE_FONT_BAD));
 
     this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);
     this->g_boxSize.y = jsonObject.value<float>("boxSizeY", 18);
@@ -272,7 +274,7 @@ void ObjSelectBox::unpack(fge::net::Packet& pck)
 
     pck >> this->g_textSelected;
 
-    fge::ObjText::CharacterSize tmpCharSize=12;
+    fge::ObjText::CharacterSize tmpCharSize = 12;
     fge::Font tmpFont;
     pck >> tmpCharSize >> tmpFont;
 
@@ -298,11 +300,11 @@ const char* ObjSelectBox::getReadableClassName() const
 
 sf::FloatRect ObjSelectBox::getGlobalBounds() const
 {
-    return this->getTransform().transformRect( this->g_box.getLocalBounds() );
+    return this->getTransform().transformRect(this->g_box.getLocalBounds());
 }
 sf::FloatRect ObjSelectBox::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
 }
 
-}//end fge
+} // namespace fge

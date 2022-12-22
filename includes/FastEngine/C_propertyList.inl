@@ -40,12 +40,12 @@ void PropertyList::setProperty(const std::string& key, fge::Property&& value)
     this->g_data[key] = std::move(value);
 }
 
-template <typename T>
+template<typename T>
 T* PropertyList::getPropertyType(const std::string& key)
 {
     return this->g_data[key].getPtr<T>();
 }
-template <typename T>
+template<typename T>
 const T* PropertyList::getPropertyType(const std::string& key) const
 {
     auto it = this->g_data.find(key);
@@ -70,11 +70,11 @@ const fge::Property& PropertyList::getProperty(const std::string& key) const
     throw std::logic_error("key not found !");
 }
 
-fge::Property& PropertyList::operator[] (const std::string& key)
+fge::Property& PropertyList::operator[](const std::string& key)
 {
     return this->g_data[key];
 }
-const fge::Property& PropertyList::operator[] (const std::string& key) const
+const fge::Property& PropertyList::operator[](const std::string& key) const
 {
     auto it = this->g_data.find(key);
     if (it != this->g_data.cend())
@@ -117,7 +117,7 @@ fge::PropertyList::PropertyListType::iterator PropertyList::find(const std::stri
 
 void PropertyList::clearAllModificationFlags()
 {
-    for (auto& data : this->g_data)
+    for (auto& data: this->g_data)
     {
         data.second.setModifiedFlag(false);
     }
@@ -126,9 +126,9 @@ std::size_t PropertyList::countAllModificationFlags() const
 {
     std::size_t counter{0};
 
-    for (const auto& data : this->g_data)
+    for (const auto& data: this->g_data)
     {
-        if ( data.second.isModified() )
+        if (data.second.isModified())
         {
             ++counter;
         }
@@ -137,4 +137,4 @@ std::size_t PropertyList::countAllModificationFlags() const
     return counter;
 }
 
-}//end fge
+} // namespace fge

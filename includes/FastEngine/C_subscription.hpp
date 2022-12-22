@@ -18,9 +18,9 @@
 #define _FGE_C_SUBSCRIPTION_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include <cstdint>
 #include <unordered_map>
 #include <unordered_set>
-#include <cstdint>
 
 namespace fge
 {
@@ -58,11 +58,11 @@ public:
     /**
      * \brief When the object is destroyed, it will detach all subscribers
      */
-    virtual inline ~Subscription(){this->detachAll();}
+    virtual inline ~Subscription() { this->detachAll(); }
 
     ///\warning Empty copy operator as it's not permitted (does nothing)
-    fge::Subscription& operator =([[maybe_unused]] const fge::Subscription& r){return *this;};
-    fge::Subscription& operator =(fge::Subscription&& r) noexcept;
+    fge::Subscription& operator=([[maybe_unused]] const fge::Subscription& r) { return *this; };
+    fge::Subscription& operator=(fge::Subscription&& r) noexcept;
 
 protected:
     /**
@@ -159,12 +159,12 @@ public:
     /**
      * \brief When the object is destroyed, it will detach from all subscriptions
      */
-    virtual inline ~Subscriber(){this->detachAll();};
+    virtual inline ~Subscriber() { this->detachAll(); };
 
     ///\warning Empty copy operator as it's not permitted (does nothing)
-    fge::Subscriber& operator =([[maybe_unused]] const fge::Subscriber& n){return *this;};
+    fge::Subscriber& operator=([[maybe_unused]] const fge::Subscriber& n) { return *this; };
     ///\warning Move operator prohibited
-    fge::Subscriber& operator =(fge::Subscriber&& n) noexcept = delete;
+    fge::Subscriber& operator=(fge::Subscriber&& n) noexcept = delete;
 
 protected:
     /**
@@ -172,7 +172,7 @@ protected:
      *
      * \param subscription The subscription that was detached
      */
-    virtual void onDetach([[maybe_unused]] fge::Subscription* subscription){}
+    virtual void onDetach([[maybe_unused]] fge::Subscription* subscription) {}
 
     /**
      * \brief Detach from all subscriptions
@@ -208,6 +208,6 @@ private:
     friend class fge::Subscription;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_C_SUBSCRIPTION_HPP_INCLUDED

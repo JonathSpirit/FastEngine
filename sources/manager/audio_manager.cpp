@@ -28,11 +28,11 @@ fge::audio::AudioDataPtr _dataAudioBad;
 fge::audio::AudioDataType _dataAudio;
 std::mutex _dataMutex;
 
-}//end
+} // namespace
 
 void Init()
 {
-    if ( _dataAudioBad == nullptr )
+    if (_dataAudioBad == nullptr)
     {
         _dataAudioBad = std::make_shared<fge::audio::AudioData>();
         _dataAudioBad->_audio = std::make_shared<sf::SoundBuffer>();
@@ -124,7 +124,7 @@ bool LoadFromFile(const std::string& name, const std::string& path)
 
     sf::SoundBuffer* tmpAudio = new sf::SoundBuffer();
 
-    if ( !tmpAudio->loadFromFile(path) )
+    if (!tmpAudio->loadFromFile(path))
     {
         delete tmpAudio;
         return false;
@@ -162,7 +162,7 @@ void UnloadAll()
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
 
-    for (auto & data : _dataAudio)
+    for (auto& data: _dataAudio)
     {
         data.second->_valid = false;
         data.second->_audio = _dataAudioBad->_audio;
@@ -178,7 +178,7 @@ bool Push(const std::string& name, const fge::audio::AudioDataPtr& data)
     }
 
     std::lock_guard<std::mutex> lck(_dataMutex);
-    if ( fge::audio::Check(name) )
+    if (fge::audio::Check(name))
     {
         return false;
     }
@@ -187,5 +187,5 @@ bool Push(const std::string& name, const fge::audio::AudioDataPtr& data)
     return true;
 }
 
-}//end audio
-}//end fge
+} // namespace audio
+} // namespace fge

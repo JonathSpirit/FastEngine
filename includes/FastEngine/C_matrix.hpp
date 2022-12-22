@@ -21,7 +21,8 @@
 #include <initializer_list>
 #include <json.hpp>
 
-#define FGE_MATRIX_GET(dataType_, data_, sizeY_, px_, py_) (reinterpret_cast<dataType_*>(data_)+(py_)+((px_)*(sizeY_)))
+#define FGE_MATRIX_GET(dataType_, data_, sizeY_, px_, py_)                                                             \
+    (reinterpret_cast<dataType_*>(data_) + (py_) + ((px_) * (sizeY_)))
 
 namespace fge
 {
@@ -37,8 +38,8 @@ template<class T>
 class Matrix
 {
 public:
-    using iterator=T*;
-    using const_iterator=const T*;
+    using iterator = T*;
+    using const_iterator = const T*;
 
     /**
      * \brief Construct a empty matrix
@@ -98,8 +99,8 @@ public:
      */
     void clear();
 
-    fge::Matrix<T>& operator =(const fge::Matrix<T>& m);
-    fge::Matrix<T>& operator =(fge::Matrix<T>&& m) noexcept;
+    fge::Matrix<T>& operator=(const fge::Matrix<T>& m);
+    fge::Matrix<T>& operator=(fge::Matrix<T>&& m) noexcept;
 
     /**
      * \brief Get the specified row
@@ -337,7 +338,7 @@ void to_json(nlohmann::json& j, const fge::Matrix<T>& r);
 template<class T>
 void from_json(const nlohmann::json& j, fge::Matrix<T>& r);
 
-}//end fge
+} // namespace fge
 
 #include <FastEngine/C_matrix.inl>
 
