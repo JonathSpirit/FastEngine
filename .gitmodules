@@ -36,4 +36,23 @@
     url = https://gitlab.freedesktop.org/freetype/freetype.git
     ignore = dirty
     branch = VER-2-12-1
-
+[submodule "libs/SDL"]
+    path = libs/SDL
+    url = https://github.com/libsdl-org/SDL.git
+    ignore = dirty
+    branch = release-2.26.1
+[submodule "libs/SDL_image"]
+    path = libs/SDL_image
+    url = https://github.com/libsdl-org/SDL_image.git
+    ignore = dirty
+    branch = release-2.6.2
+[submodule "libs/glm"]
+    path = libs/glm
+    url = https://github.com/g-truc/glm.git
+    ignore = dirty
+    branch = 0.9.9.8
+[submodule "libs/volk"]
+    path = libs/volk
+    url = https://github.com/zeux/volk.git
+    ignore = dirty
+    branch = 1.3.215
