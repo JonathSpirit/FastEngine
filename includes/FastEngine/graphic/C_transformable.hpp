@@ -17,6 +17,14 @@
 #ifndef _FGE_VULKAN_C_TRANSFORMABLE_HPP_INCLUDED
 #define _FGE_VULKAN_C_TRANSFORMABLE_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
+#include "FastEngine/fastengine_extern.hpp"
 #include "glm/glm.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
@@ -26,7 +34,7 @@
 namespace fge
 {
 
-class Transformable
+class FGE_API Transformable
 {
 public:
     Transformable();

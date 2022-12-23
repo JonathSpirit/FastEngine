@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED
 #define _FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include <vector>
 #include "volk.h"
@@ -29,7 +30,7 @@ class LogicalDevice;
 class PhysicalDevice;
 class Context;
 
-class VertexBuffer
+class FGE_API VertexBuffer
 {
 public:
     enum class Types

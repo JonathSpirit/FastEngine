@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED
 #define _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include <vector>
 #include "volk.h"
 
@@ -34,7 +35,7 @@
 namespace fge::vulkan
 {
 
-class Context
+class FGE_API Context
 {
 public:
     Context();

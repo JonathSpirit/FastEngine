@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_DESCRIPTORSETLAYOUT_HPP_INCLUDED
 #define _FGE_VULKAN_C_DESCRIPTORSETLAYOUT_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
 #include <initializer_list>
@@ -26,7 +27,7 @@ namespace fge::vulkan
 
 class LogicalDevice;
 
-class DescriptorSetLayout
+class FGE_API DescriptorSetLayout
 {
 public:
     struct Layout

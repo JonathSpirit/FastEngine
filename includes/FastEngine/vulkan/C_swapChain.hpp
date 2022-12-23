@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_SWAPCHAIN_HPP_INCLUDED
 #define _FGE_VULKAN_C_SWAPCHAIN_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
 #include <vector>
@@ -28,7 +29,7 @@ class PhysicalDevice;
 class LogicalDevice;
 class Surface;
 
-class SwapChain
+class FGE_API SwapChain
 {
 public:
     SwapChain();

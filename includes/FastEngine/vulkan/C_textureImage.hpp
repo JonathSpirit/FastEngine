@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_TEXTUREIMAGE_HPP_INCLUDED
 #define _FGE_VULKAN_C_TEXTUREIMAGE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include <vector>
 #include "volk.h"
@@ -30,7 +31,7 @@ class LogicalDevice;
 class PhysicalDevice;
 class Context;
 
-class TextureImage
+class FGE_API TextureImage
 {
 public:
     TextureImage();

@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_GRAPHICPIPELINE_HPP_INCLUDED
 #define _FGE_VULKAN_C_GRAPHICPIPELINE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "C_shader.hpp"
 #include "C_viewport.hpp"
 #include "C_vertex.hpp"
@@ -29,7 +30,7 @@ namespace fge::vulkan
 class SwapChain;
 class LogicalDevice;
 
-class GraphicPipeline
+class FGE_API GraphicPipeline
 {
 public:
     GraphicPipeline();

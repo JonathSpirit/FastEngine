@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_SURFACE_HPP_INCLUDED
 #define _FGE_VULKAN_C_SURFACE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
 
@@ -25,7 +26,7 @@ namespace fge::vulkan
 
 class Instance;
 
-class Surface
+class FGE_API Surface
 {
 public:
     Surface();

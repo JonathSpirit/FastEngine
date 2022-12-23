@@ -17,6 +17,13 @@
 #ifndef _FGE_VULKAN_C_DRAWABLE_HPP_INCLUDED
 #define _FGE_VULKAN_C_DRAWABLE_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
 #include <FastEngine/vulkan/C_graphicPipeline.hpp>
 #include <FastEngine/graphic/C_transform.hpp>
 

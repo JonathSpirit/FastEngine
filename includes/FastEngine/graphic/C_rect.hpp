@@ -17,6 +17,13 @@
 #ifndef _FGE_C_RECT_HPP_INCLUDED
 #define _FGE_C_RECT_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
 #include <FastEngine/graphic/C_vector.hpp>
 #include <optional>
 #include <type_traits>

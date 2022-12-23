@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_BLENDMODE_HPP_INCLUDED
 #define _FGE_VULKAN_C_BLENDMODE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
 
 namespace fge::vulkan
@@ -65,12 +66,12 @@ struct BlendMode
     VkBlendOp _alphaBlendOp = VK_BLEND_OP_ADD;
 };
 
-extern const BlendMode BlendAlpha;    //!< Blend source and dest according to dest alpha
-extern const BlendMode BlendAdd;      //!< Add source to dest
-extern const BlendMode BlendMultiply; //!< Multiply source and dest
-extern const BlendMode BlendMin;      //!< Take minimum between source and dest
-extern const BlendMode BlendMax;      //!< Take maximum between source and dest
-extern const BlendMode BlendNone;     //!< Overwrite dest with source
+FGE_API extern const BlendMode BlendAlpha;    //!< Blend source and dest according to dest alpha
+FGE_API extern const BlendMode BlendAdd;      //!< Add source to dest
+FGE_API extern const BlendMode BlendMultiply; //!< Multiply source and dest
+FGE_API extern const BlendMode BlendMin;      //!< Take minimum between source and dest
+FGE_API extern const BlendMode BlendMax;      //!< Take maximum between source and dest
+FGE_API extern const BlendMode BlendNone;     //!< Overwrite dest with source
 
 }//end fge::vulkan
 

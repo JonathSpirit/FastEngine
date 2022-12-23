@@ -17,6 +17,14 @@
 #ifndef _FGE_VULKAN_C_RENDERTARGET_HPP_INCLUDED
 #define _FGE_VULKAN_C_RENDERTARGET_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
+#include "FastEngine/fastengine_extern.hpp"
 #include <SDL_video.h>
 #include <FastEngine/graphic/C_view.hpp>
 #include <glm/glm.hpp>
@@ -34,7 +42,7 @@ namespace fge
 
 class Drawable;
 
-class RenderTarget
+class FGE_API RenderTarget
 {
 protected:
     RenderTarget();

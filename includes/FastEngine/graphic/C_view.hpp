@@ -17,6 +17,14 @@
 #ifndef _FGE_VULKAN_C_VIEW_HPP_INCLUDED
 #define _FGE_VULKAN_C_VIEW_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
+#include "FastEngine/fastengine_extern.hpp"
 #include <glm/glm.hpp>
 #include <FastEngine/graphic/C_vector.hpp>
 #include <FastEngine/vulkan/C_viewport.hpp>
@@ -25,7 +33,7 @@
 namespace fge
 {
 
-class View
+class FGE_API View
 {
 public:
     View();

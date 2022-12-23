@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_PHYSICALDEVICE_HPP_INCLUDED
 #define _FGE_VULKAN_C_PHYSICALDEVICE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include <vector>
 #include <optional>
 #include "SDL_vulkan.h"
@@ -25,7 +26,7 @@
 namespace fge::vulkan
 {
 
-class PhysicalDevice
+class FGE_API PhysicalDevice
 {
 public:
     struct QueueFamilyIndices

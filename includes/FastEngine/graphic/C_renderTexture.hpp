@@ -17,6 +17,14 @@
 #ifndef _FGE_VULKAN_C_RENDERTEXTURE_HPP_INCLUDED
 #define _FGE_VULKAN_C_RENDERTEXTURE_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
+#include "FastEngine/fastengine_extern.hpp"
 #include <FastEngine/graphic/C_renderTarget.hpp>
 #include <FastEngine/vulkan/C_swapChain.hpp>
 #include <FastEngine/vulkan/C_uniformBuffer.hpp>
@@ -35,7 +43,7 @@ class Context;
 
 }//end vulkan
 
-class RenderTexture : public RenderTarget
+class FGE_API RenderTexture : public RenderTarget
 {
 public:
     RenderTexture();

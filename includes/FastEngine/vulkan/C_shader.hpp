@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_SHADER_HPP_INCLUDED
 #define _FGE_VULKAN_C_SHADER_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include <filesystem>
 #include "volk.h"
 
@@ -25,7 +26,7 @@ namespace fge::vulkan
 
 class LogicalDevice;
 
-class Shader
+class FGE_API Shader
 {
 public:
     enum class Type : uint32_t

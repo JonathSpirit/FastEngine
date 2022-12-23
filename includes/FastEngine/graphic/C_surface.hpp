@@ -17,6 +17,7 @@
 #ifndef _FGE_C_SURFACE_HPP_INCLUDED
 #define _FGE_C_SURFACE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include <SDL_render.h>
 #include <glm/glm.hpp>
 #include <filesystem>
@@ -27,7 +28,7 @@
 namespace fge
 {
 
-class Surface
+class FGE_API Surface
 {
 public:
     Surface();

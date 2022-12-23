@@ -17,6 +17,13 @@
 #ifndef _FGE_VULKAN_C_COLOR_HPP_INCLUDED
 #define _FGE_VULKAN_C_COLOR_HPP_INCLUDED
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+
 #include <SDL_pixels.h>
 #include <volk.h>
 
@@ -26,31 +33,31 @@ namespace fge
 class Color
 {
 public:
-    Color() :
+    Color() noexcept :
             _r(0),
             _g(0),
             _b(0),
             _a(255)
     {}
-    explicit Color(const SDL_Color& sdlColor) :
+    explicit Color(const SDL_Color& sdlColor) noexcept :
             _r(sdlColor.r),
             _g(sdlColor.g),
             _b(sdlColor.b),
             _a(sdlColor.a)
     {}
-    explicit Color(const VkClearColorValue& clearColorValue) :
+    explicit Color(const VkClearColorValue& clearColorValue) noexcept :
             _r(static_cast<uint8_t>(clearColorValue.float32[0]*255.0f)),
             _g(static_cast<uint8_t>(clearColorValue.float32[1]*255.0f)),
             _b(static_cast<uint8_t>(clearColorValue.float32[2]*255.0f)),
             _a(static_cast<uint8_t>(clearColorValue.float32[3]*255.0f))
     {}
-    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) :
+    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept :
             _r(red),
             _g(green),
             _b(blue),
             _a(alpha)
     {}
-    explicit Color(uint32_t color) :
+    explicit Color(uint32_t color) noexcept :
             _r(static_cast<uint8_t>((color&0xFF000000)>>24)),
             _g(static_cast<uint8_t>((color&0x00FF0000)>>16)),
             _b(static_cast<uint8_t>((color&0x0000FF00)>>8)),
@@ -66,10 +73,10 @@ public:
     }
     operator VkClearColorValue() const
     {
-        return {static_cast<float>(this->_r)/255.0f,
-                static_cast<float>(this->_g)/255.0f,
-                static_cast<float>(this->_b)/255.0f,
-                static_cast<float>(this->_a)/255.0f};
+        return {{static_cast<float>(this->_r)/255.0f,
+                 static_cast<float>(this->_g)/255.0f,
+                 static_cast<float>(this->_b)/255.0f,
+                 static_cast<float>(this->_a)/255.0f}};
     }
 
     [[nodiscard]] uint32_t toInteger() const
@@ -116,10 +123,10 @@ public:
     }
     Color operator*(const Color& right) const
     {
-        uint16_t red = static_cast<uint16_t>(this->_r) * right._r;
-        uint16_t green = static_cast<uint16_t>(this->_g) * right._g;
-        uint16_t blue = static_cast<uint16_t>(this->_b) * right._b;
-        uint16_t alpha = static_cast<uint16_t>(this->_a) * right._a;
+        const uint16_t red = static_cast<uint16_t>(this->_r) * right._r;
+        const uint16_t green = static_cast<uint16_t>(this->_g) * right._g;
+        const uint16_t blue = static_cast<uint16_t>(this->_b) * right._b;
+        const uint16_t alpha = static_cast<uint16_t>(this->_a) * right._a;
         return {static_cast<uint8_t>(red/255),
                 static_cast<uint8_t>(green/255),
                 static_cast<uint8_t>(blue/255),

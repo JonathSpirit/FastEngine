@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_INSTANCE_HPP_INCLUDED
 #define _FGE_VULKAN_C_INSTANCE_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include <string>
 #include <vector>
 #include "SDL_vulkan.h"
@@ -27,7 +28,7 @@
 namespace fge::vulkan
 {
 
-class Instance
+class FGE_API Instance
 {
 public:
     Instance();

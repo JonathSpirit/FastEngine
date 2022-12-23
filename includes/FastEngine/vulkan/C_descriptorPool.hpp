@@ -17,6 +17,7 @@
 #ifndef _FGE_VULKAN_C_DESCRIPTORPOOL_HPP_INCLUDED
 #define _FGE_VULKAN_C_DESCRIPTORPOOL_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
 #include <vector>
@@ -27,7 +28,7 @@ namespace fge::vulkan
 
 class LogicalDevice;
 
-class DescriptorPool
+class FGE_API DescriptorPool
 {
 public:
     struct Pool

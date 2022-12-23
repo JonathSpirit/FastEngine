@@ -17,12 +17,13 @@
 #ifndef _FGE_VULKAN_C_VIEWPORT_HPP_INCLUDED
 #define _FGE_VULKAN_C_VIEWPORT_HPP_INCLUDED
 
+#include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
 
 namespace fge::vulkan
 {
 
-class Viewport
+class FGE_API Viewport
 {
 public:
     Viewport();
