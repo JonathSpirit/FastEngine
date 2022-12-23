@@ -19,6 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/object/C_object.hpp"
+#include "FastEngine/graphic/C_rect.hpp"
 #include "SFML/Graphics.hpp"
 #include "json.hpp"
 #include <filesystem>
@@ -67,11 +68,11 @@ FGE_API bool IsPressed(const fge::Event& evt,
 
 ///Position/Rectangle
 template<typename T>
-sf::Rect<T> ToRect(const sf::Vector2<T>& pos1, const sf::Vector2<T>& pos2);
+fge::Rect<T> ToRect(const fge::Vector2<T>& pos1, const fge::Vector2<T>& pos2);
 template<typename T>
-sf::Rect<T> ToRect(const std::vector<sf::Vector2<T>>& pos);
+fge::Rect<T> ToRect(const std::vector<fge::Vector2<T>>& pos);
 template<typename T>
-sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size);
+fge::Rect<T> ToRect(const fge::Vector2<T>* pos, std::size_t size);
 
 ///Color
 inline sf::Color SetAlpha(const sf::Color& color, uint8_t alpha);
@@ -142,13 +143,13 @@ FGE_API sf::View ClipView(const sf::View& view,
                           fge::ClipClampModes clampMode);
 
 ///Render
-FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target);
-FGE_API sf::IntRect CoordToPixelRect(const sf::FloatRect& rect, const sf::RenderTarget& target, const sf::View& view);
-FGE_API sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target);
-FGE_API sf::FloatRect PixelToCoordRect(const sf::IntRect& rect, const sf::RenderTarget& target, const sf::View& view);
+FGE_API fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target);
+FGE_API fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target, const fge::View& view);
+FGE_API fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target);
+FGE_API fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target, const fge::View& view);
 
-FGE_API sf::FloatRect GetScreenRect(const sf::RenderTarget& target);
-FGE_API sf::FloatRect GetScreenRect(const sf::RenderTarget& target, const sf::View& view);
+FGE_API fge::RectFloat GetScreenRect(const fge::RenderTarget& target);
+FGE_API fge::RectFloat GetScreenRect(const fge::RenderTarget& target, const fge::View& view);
 
 ///Time
 template<class T>

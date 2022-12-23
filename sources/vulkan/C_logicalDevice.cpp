@@ -1,0 +1,101 @@
+#include "FastEngine/vulkan/C_logicalDevice.hpp"
+#include "FastEngine/vulkan/C_physicalDevice.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include <stdexcept>
+#include <vector>
+#include <set>
+
+namespace fge::vulkan
+{
+
+LogicalDevice::LogicalDevice() :
+        g_device(VK_NULL_HANDLE),
+        g_graphicQueue(VK_NULL_HANDLE),
+        g_presentQueue(VK_NULL_HANDLE)
+{}
+LogicalDevice::LogicalDevice(LogicalDevice&& r) noexcept :
+        g_device(r.g_device),
+        g_graphicQueue(r.g_graphicQueue),
+        g_presentQueue(r.g_presentQueue)
+{
+    r.g_device = VK_NULL_HANDLE;
+    r.g_graphicQueue = VK_NULL_HANDLE;
+    r.g_presentQueue = VK_NULL_HANDLE;
+}
+LogicalDevice::~LogicalDevice()
+{
+    this->destroy();
+}
+
+void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
+{
+    auto indices = physicalDevice.findQueueFamilies(surface);
+
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
+
+    float queuePriority = 1.0f;
+    for (uint32_t queueFamily : uniqueQueueFamilies)
+    {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
+
+    VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+#ifdef NDEBUG
+    createInfo.enabledLayerCount = 0;
+#else
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    createInfo.ppEnabledLayerNames = validationLayers.data();
+#endif
+
+    if (vkCreateDevice(physicalDevice.getDevice(), &createInfo, nullptr, &this->g_device) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create logical device!");
+    }
+
+    vkGetDeviceQueue(this->g_device, indices._graphicsFamily.value(), 0, &this->g_graphicQueue);
+    vkGetDeviceQueue(this->g_device, indices._presentFamily.value(), 0, &this->g_presentQueue);
+}
+void LogicalDevice::destroy()
+{
+    if (this->g_device != VK_NULL_HANDLE)
+    {
+        vkDestroyDevice(this->g_device, nullptr);
+        this->g_device = VK_NULL_HANDLE;
+        this->g_graphicQueue = VK_NULL_HANDLE;
+        this->g_presentQueue = VK_NULL_HANDLE;
+    }
+}
+
+VkDevice LogicalDevice::getDevice() const
+{
+    return this->g_device;
+}
+VkQueue LogicalDevice::getGraphicQueue() const
+{
+    return this->g_graphicQueue;
+}
+VkQueue LogicalDevice::getPresentQueue() const
+{
+    return this->g_presentQueue;
+}
+
+}//end fge::vulkan

@@ -30,11 +30,11 @@ Object::Object() :
         fge::Anchor(this)
 {}
 Object::Object(const Object& r) :
-        sf::Transformable(r),
+        fge::Transformable(r),
         fge::Anchor(this, r)
 {}
 Object::Object(Object&& r) :
-        sf::Transformable(std::move(r)),
+        fge::Transformable(std::move(r)),
         fge::Anchor(this, r)
 {}
 
@@ -55,7 +55,7 @@ void Object::update([[maybe_unused]] sf::RenderWindow& screen,
 {}
 
 #ifndef FGE_DEF_SERVER
-void Object::draw([[maybe_unused]] sf::RenderTarget& target, [[maybe_unused]] sf::RenderStates states) const {}
+void Object::draw([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] const fge::RenderStates& states) const {}
 #endif //FGE_DEF_SERVER
 void Object::networkRegister() {}
 void Object::removed([[maybe_unused]] fge::Scene* scene) {}
@@ -80,10 +80,10 @@ void Object::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene
 }
 void Object::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
-    this->setPosition(jsonObject["_pos"].get<sf::Vector2f>());
+    this->setPosition(jsonObject["_pos"].get<fge::Vector2f>());
     this->setRotation(jsonObject["_rotation"].get<float>());
-    this->setScale(jsonObject["_scale"].get<sf::Vector2f>());
-    this->setOrigin(jsonObject["_origin"].get<sf::Vector2f>());
+    this->setScale(jsonObject["_scale"].get<fge::Vector2f>());
+    this->setOrigin(jsonObject["_origin"].get<fge::Vector2f>());
 
     this->_tags.clear();
 
@@ -99,7 +99,7 @@ void Object::pack(fge::net::Packet& pck)
 }
 void Object::unpack(fge::net::Packet& pck)
 {
-    sf::Vector2f buffVec2f;
+    fge::Vector2f buffVec2f;
     float buffFloat{0.0f};
 
     pck >> buffVec2f;
@@ -121,13 +121,13 @@ const char* Object::getReadableClassName() const
     return FGE_OBJ_BADCLASSNAME;
 }
 
-sf::FloatRect Object::getGlobalBounds() const
+fge::RectFloat Object::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect Object::getLocalBounds() const
+fge::RectFloat Object::getLocalBounds() const
 {
-    return {0.0f, 0.0f, 1.0f, 1.0f};
+    return {{0.0f, 0.0f}, {1.0f, 1.0f}};
 }
 
 bool Object::saveInFile(const std::string& path)
@@ -201,9 +201,9 @@ fge::GuiElement* Object::getGuiElement()
     return nullptr;
 }
 
-sf::Transform Object::getParentsTransform() const
+glm::mat4 Object::getParentsTransform() const
 {
-    sf::Transform parentsTransform = sf::Transform::Identity;
+    glm::mat4 parentsTransform(1.0f);
     if (auto myObject = this->_myObjectData.lock())
     {
         auto parent = myObject->getParent().lock();
@@ -215,9 +215,9 @@ sf::Transform Object::getParentsTransform() const
     }
     return parentsTransform;
 }
-sf::Vector2f Object::getParentsScale() const
+fge::Vector2f Object::getParentsScale() const
 {
-    sf::Vector2f parentsScale{1.0f, 1.0f};
+    fge::Vector2f parentsScale{1.0f, 1.0f};
     if (auto myObject = this->_myObjectData.lock())
     {
         auto parent = myObject->getParent().lock();

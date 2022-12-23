@@ -147,6 +147,10 @@ endif()
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
 add_subdirectory("libs/SFML" EXCLUDE_FROM_ALL)
 
+add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
+set(SDL2IMAGE_INSTALL OFF CACHE BOOL "" FORCE)
+add_subdirectory(libs/SDL_image EXCLUDE_FROM_ALL)
+
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE) #END BUILD_SHARED_LIBS
 
@@ -173,11 +177,34 @@ add_library(${FGE_LIB_NAME} SHARED)
 add_library(${FGE_SERVER_LIB_NAME} SHARED)
 
 #Dependencies
+
+#Checking for Vulkan
+find_package(Vulkan MODULE REQUIRED)
+message(${Vulkan_GLSLC_EXECUTABLE})
+
+set(VOLK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/volk)
+
+if (WIN32)
+    add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
+endif()
+
 if(WIN32)
     add_dependencies(sfml-audio OpenAL_extern)
     add_dependencies(sfml-graphics freetype_extern)
     add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
 endif()
+
+add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image) #SDL
+target_include_directories(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH})
+target_include_directories(${FGE_LIB_NAME} PRIVATE libs/SDL/include)
+target_include_directories(${FGE_LIB_NAME} PRIVATE libs/SDL_image)
+target_include_directories(${FGE_LIB_NAME} PRIVATE libs/glm)
+
+#target_include_directories(vulkanTest PRIVATE ${VOLK_PATH})
+#target_include_directories(vulkanTest PRIVATE SDL/include/)
+#target_include_directories(vulkanTest PRIVATE SDL_image/)
+#target_include_directories(vulkanTest PRIVATE glm/)
+#target_include_directories(vulkanTest PRIVATE includes/)
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
@@ -330,6 +357,36 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Gr
 
 target_sources(${FGE_LIB_NAME} PRIVATE ${FGE_INCLUDES})
 
+target_sources(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.c)
+target_sources(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.h)
+
+target_sources(${FGE_LIB_NAME} PRIVATE
+        sources/vulkan/vulkanGlobal.cpp
+        sources/vulkan/C_instance.cpp
+        sources/vulkan/C_physicalDevice.cpp
+        sources/vulkan/C_logicalDevice.cpp
+        sources/vulkan/C_uniformBuffer.cpp
+        sources/vulkan/C_vertexBuffer.cpp
+        sources/vulkan/C_textureImage.cpp
+        sources/vulkan/C_swapChain.cpp
+        sources/vulkan/C_surface.cpp
+        sources/vulkan/C_shader.cpp
+        sources/vulkan/C_descriptorPool.cpp
+        sources/vulkan/C_descriptorSet.cpp
+        sources/vulkan/C_descriptorSetLayout.cpp
+        sources/vulkan/C_context.cpp
+        sources/vulkan/C_graphicPipeline.cpp
+        sources/vulkan/C_blendMode.cpp
+        sources/vulkan/C_viewport.cpp)
+
+target_sources(${FGE_LIB_NAME} PRIVATE
+        sources/graphic/C_surface.cpp
+        sources/graphic/C_view.cpp
+        sources/graphic/C_transformable.cpp
+        sources/graphic/C_renderWindow.cpp
+        sources/graphic/C_renderTexture.cpp
+        sources/graphic/C_renderTarget.cpp)
+
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_animation.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_event.cpp")
@@ -337,21 +394,21 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -402,6 +459,8 @@ if(WIN32)
     target_link_libraries(${FGE_SERVER_LIB_NAME} user32 ws2_32)
 endif()
 
+target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image)
+
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_LIB_NAME} fmt)
@@ -413,6 +472,21 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
 target_link_libraries(${FGE_SERVER_LIB_NAME} ${FREETYPE_LIBRARY} sfml-system)
 target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
+
+#Compile shaders
+add_custom_target(CompileShaders)
+
+add_custom_command(TARGET CompileShaders PRE_BUILD
+        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+add_custom_command(TARGET CompileShaders PRE_BUILD
+        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+add_custom_command(TARGET CompileShaders PRE_BUILD
+        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+
+add_dependencies(${FGE_LIB_NAME} CompileShaders)
 
 #Install
 install(TARGETS ${FGE_LIB_NAME})
@@ -429,7 +503,7 @@ add_custom_target(FgeExeDeps)
 add_dependencies(FgeExeDeps ${FGE_LIB_NAME} ${FGE_SERVER_LIB_NAME})
 
 if (WIN32)
-    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window)
+    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window SDL2 SDL2_image)
         add_custom_command(TARGET FgeExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>

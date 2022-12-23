@@ -16,6 +16,7 @@
 
 #include "FastEngine/object/C_objectAnchor.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/graphic/C_rect.hpp"
 
 namespace fge
 {
@@ -48,7 +49,7 @@ Anchor& Anchor::operator=(const Anchor& r)
     return *this;
 }
 
-void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
+void Anchor::updateAnchor(const fge::Vector2f& customTargetSize)
 {
     this->_g_anchorNeedUpdate = false;
 
@@ -67,10 +68,10 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
         return;
     }
 
-    sf::Vector2f movePosition;
+    fge::Vector2f movePosition;
 
-    sf::FloatRect targetGlobalBounds;
-    sf::FloatRect parentGlobalBounds = parent->getObject()->getGlobalBounds();
+    fge::RectFloat targetGlobalBounds;
+    fge::RectFloat parentGlobalBounds = parent->getObject()->getGlobalBounds();
 
     auto target = scene->getObject(this->_g_anchorTarget);
     if (fge::ObjectData::isValid(target))
@@ -93,21 +94,21 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
         }
     }
 
-    sf::Vector2f anchorPosition;
+    fge::Vector2f anchorPosition;
     switch (this->_g_anchorType)
     {
     case fge::Anchor::Types::ANCHOR_UPLEFT_CORNER:
         anchorPosition = targetGlobalBounds.getPosition();
         break;
     case fge::Anchor::Types::ANCHOR_UPRIGHT_CORNER:
-        anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, 0.0f};
+        anchorPosition = targetGlobalBounds.getPosition() + fge::Vector2f{targetGlobalBounds._width, 0.0f};
         break;
     case fge::Anchor::Types::ANCHOR_DOWNLEFT_CORNER:
-        anchorPosition = targetGlobalBounds.getPosition() + sf::Vector2f{0.0f, targetGlobalBounds.height};
+        anchorPosition = targetGlobalBounds.getPosition() + fge::Vector2f{0.0f, targetGlobalBounds._height};
         break;
     case fge::Anchor::Types::ANCHOR_DOWNRIGHT_CORNER:
         anchorPosition =
-                targetGlobalBounds.getPosition() + sf::Vector2f{targetGlobalBounds.width, targetGlobalBounds.height};
+                targetGlobalBounds.getPosition() + fge::Vector2f{targetGlobalBounds._width, targetGlobalBounds._height};
         break;
     default:
         anchorPosition = {0.0f, 0.0f};
@@ -119,10 +120,10 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
     case fge::Anchor::Shifts::SHIFT_NONE:
         break;
     case fge::Anchor::Shifts::SHIFT_POSITIVE_BOUNDS:
-        anchorPosition.x += parentGlobalBounds.width;
+        anchorPosition.x += parentGlobalBounds._width;
         break;
     case fge::Anchor::Shifts::SHIFT_NEGATIVE_BOUNDS:
-        anchorPosition.x -= parentGlobalBounds.width;
+        anchorPosition.x -= parentGlobalBounds._width;
         break;
     }
     switch (this->_g_anchorShift.y)
@@ -130,10 +131,10 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
     case fge::Anchor::Shifts::SHIFT_NONE:
         break;
     case fge::Anchor::Shifts::SHIFT_POSITIVE_BOUNDS:
-        anchorPosition.y += parentGlobalBounds.height;
+        anchorPosition.y += parentGlobalBounds._height;
         break;
     case fge::Anchor::Shifts::SHIFT_NEGATIVE_BOUNDS:
-        anchorPosition.y -= parentGlobalBounds.height;
+        anchorPosition.y -= parentGlobalBounds._height;
         break;
     }
 
@@ -141,7 +142,7 @@ void Anchor::updateAnchor(const sf::Vector2f& customTargetSize)
     parent->getObject()->move(movePosition);
 }
 
-void Anchor::setAnchor(fge::Anchor::Types type, const sf::Vector2<fge::Anchor::Shifts>& shift, fge::ObjectSid target)
+void Anchor::setAnchor(fge::Anchor::Types type, const fge::Vector2<fge::Anchor::Shifts>& shift, fge::ObjectSid target)
 {
     this->_g_anchorType = type;
     this->_g_anchorShift = shift;

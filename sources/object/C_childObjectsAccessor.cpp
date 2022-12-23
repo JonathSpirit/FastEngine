@@ -133,7 +133,7 @@ void ChildObjectsAccessor::update(sf::RenderWindow& screen,
         this->g_data[this->g_actualIteratedIndex]._objPtr->update(screen, event, deltaTime, scene);
     }
 }
-void ChildObjectsAccessor::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void ChildObjectsAccessor::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
          ++this->g_actualIteratedIndex)

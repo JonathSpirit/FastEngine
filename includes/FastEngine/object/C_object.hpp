@@ -24,7 +24,9 @@
 #include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_tagList.hpp"
 #include "FastEngine/object/C_objectAnchor.hpp"
-#include "SFML/Graphics.hpp"
+#include "FastEngine/graphic/C_drawable.hpp"
+#include "FastEngine/graphic/C_transformable.hpp"
+#include "FastEngine/graphic/C_rect.hpp"
 #include "json.hpp"
 
 #include <chrono>
@@ -68,10 +70,10 @@
 #ifdef FGE_DEF_SERVER
     #define FGE_OBJ_DRAW_DECLARE
 #else
-    #define FGE_OBJ_DRAW_DECLARE void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    #define FGE_OBJ_DRAW_DECLARE void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
 #endif //FGE_DEF_SERVER
 
-#define FGE_OBJ_DRAW_BODY(class_) void class_::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#define FGE_OBJ_DRAW_BODY(class_) void class_::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 
 namespace fge
 {
@@ -93,7 +95,7 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 #ifdef FGE_DEF_SERVER
 class FGE_API Object : public sf::Transformable, public fge::Anchor
 #else
-class FGE_API Object : public sf::Drawable, public sf::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Drawable, public fge::Transformable, public fge::Anchor
 #endif //FGE_DEF_SERVER
 {
 public:
@@ -146,7 +148,7 @@ public:
      * \param states The SFML render states
      */
 #ifndef FGE_DEF_SERVER
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    virtual void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
 #endif //FGE_DEF_SERVER
     /**
      * \brief Register all network types needed by the object
@@ -205,13 +207,13 @@ public:
      *
      * \return The global bounds of the object
      */
-    virtual sf::FloatRect getGlobalBounds() const;
+    virtual fge::RectFloat getGlobalBounds() const;
     /**
      * \brief Get the local bounds of the object (without any transformations)
      *
      * \return The local bounds of the object
      */
-    virtual sf::FloatRect getLocalBounds() const;
+    virtual fge::RectFloat getLocalBounds() const;
 
     /**
      * \brief Save the object in a file
@@ -247,13 +249,13 @@ public:
      *
      * \return Parents transform
      */
-    sf::Transform getParentsTransform() const;
+    glm::mat4 getParentsTransform() const;
     /**
      * \brief Retrieve recursively all parents scale by combining them
      *
      * \return Parents scale
      */
-    sf::Vector2f getParentsScale() const;
+    fge::Vector2f getParentsScale() const;
 
     //Data
 

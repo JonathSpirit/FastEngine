@@ -1,0 +1,87 @@
+#ifndef _FGE_VULKAN_C_RENDERWINDOW_HPP_INCLUDED
+#define _FGE_VULKAN_C_RENDERWINDOW_HPP_INCLUDED
+
+#include <FastEngine/graphic/C_renderTarget.hpp>
+#include <FastEngine/vulkan/C_swapChain.hpp>
+#include <FastEngine/vulkan/C_uniformBuffer.hpp>
+#include <FastEngine/vulkan/C_textureImage.hpp>
+#include <FastEngine/vulkan/C_descriptorSet.hpp>
+#include <FastEngine/vulkan/C_descriptorSetLayout.hpp>
+#include <string>
+
+namespace fge
+{
+
+namespace vulkan
+{
+
+class Context;
+
+}//end vulkan
+
+class RenderWindow : public RenderTarget
+{
+public:
+    RenderWindow();
+    explicit RenderWindow(const fge::vulkan::Context& context);
+    ~RenderWindow() override;
+
+    void create(const fge::vulkan::Context& context);
+    void destroy();
+
+    [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
+    void beginRenderPass(uint32_t imageIndex) override;
+    void draw(fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) override;
+    void endRenderPass() override;
+    void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) override;
+
+    Vector2u getSize() const override;
+
+    bool isSrgb() const override;
+
+    [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getDescriptorSetLayout() const;
+    [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
+    [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
+
+    void onResize();
+
+private:
+    void init(const fge::vulkan::Context& context);
+
+    void recreateSwapChain();
+
+    void createRenderPass();
+
+    void createFramebuffers();
+
+    void createCommandBuffer();
+    void createCommandPool();
+
+    void createSyncObjects();
+
+    const fge::vulkan::Context* g_context = nullptr;
+
+    fge::vulkan::SwapChain g_swapChain;
+
+    VkRenderPass g_renderPass = VK_NULL_HANDLE;
+
+    std::vector<VkFramebuffer> g_swapChainFramebuffers;
+
+    fge::vulkan::DescriptorSetLayout g_descriptorSetLayout;
+
+    VkCommandPool g_commandPool = VK_NULL_HANDLE;
+    VkCommandBuffer g_commandBuffer = VK_NULL_HANDLE;
+
+    VkSemaphore g_imageAvailableSemaphore = VK_NULL_HANDLE;
+    VkSemaphore g_renderFinishedSemaphore = VK_NULL_HANDLE;
+    VkFence g_inFlightFence = VK_NULL_HANDLE;
+
+    bool g_framebufferResized = false;
+    bool g_forceGraphicPipelineUpdate = false;
+    bool g_isCreated = false;
+};
+
+}// end fge
+
+
+#endif // _FGE_VULKAN_C_RENDERWINDOW_HPP_INCLUDED

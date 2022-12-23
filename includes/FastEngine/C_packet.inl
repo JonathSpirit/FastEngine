@@ -115,6 +115,17 @@ fge::net::Packet& Packet::operator<<(const sf::Vector3<T>& data)
 }
 
 template<typename T>
+fge::net::Packet& Packet::operator<<(const fge::Vector2<T>& data)
+{
+    return *this << data.x << data.y;
+}
+template<typename T>
+fge::net::Packet& Packet::operator<<(const fge::Vector3<T>& data)
+{
+    return *this << data.x << data.y << data.z;
+}
+
+template<typename T>
 fge::net::Packet& Packet::operator<<(const fge::Matrix<T>& data)
 {
     *this << static_cast<fge::net::SizeType>(data.getSizeX()) << static_cast<fge::net::SizeType>(data.getSizeY());
@@ -250,6 +261,17 @@ const fge::net::Packet& Packet::operator>>(sf::Vector2<T>& data) const
 }
 template<typename T>
 const fge::net::Packet& Packet::operator>>(sf::Vector3<T>& data) const
+{
+    return *this >> data.x >> data.y >> data.z;
+}
+
+template<typename T>
+const fge::net::Packet& Packet::operator>>(fge::Vector2<T>& data) const
+{
+    return *this >> data.x >> data.y;
+}
+template<typename T>
+const fge::net::Packet& Packet::operator>>(fge::Vector3<T>& data) const
 {
     return *this >> data.x >> data.y >> data.z;
 }

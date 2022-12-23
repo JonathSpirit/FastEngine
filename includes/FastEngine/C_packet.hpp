@@ -39,6 +39,7 @@
 #include <SFML/System/String.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
+#include <FastEngine/graphic/C_vector.hpp>
 
 #define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 
@@ -138,6 +139,11 @@ public:
     fge::net::Packet& operator<<(const sf::Vector3<T>& data);
 
     template<typename T>
+    fge::net::Packet& operator<<(const fge::Vector2<T>& data);
+    template<typename T>
+    fge::net::Packet& operator<<(const fge::Vector3<T>& data);
+
+    template<typename T>
     fge::net::Packet& operator<<(const fge::Matrix<T>& data);
 
     inline fge::net::Packet& operator<<(const sf::Color& data);
@@ -180,6 +186,11 @@ public:
     const fge::net::Packet& operator>>(sf::Vector2<T>& data) const;
     template<typename T>
     const fge::net::Packet& operator>>(sf::Vector3<T>& data) const;
+
+    template<typename T>
+    const fge::net::Packet& operator>>(fge::Vector2<T>& data) const;
+    template<typename T>
+    const fge::net::Packet& operator>>(fge::Vector3<T>& data) const;
 
     template<typename T>
     const fge::net::Packet& operator>>(fge::Matrix<T>& data) const;

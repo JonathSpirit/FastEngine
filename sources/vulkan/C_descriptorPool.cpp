@@ -1,0 +1,216 @@
+#include "FastEngine/vulkan/C_descriptorPool.hpp"
+#include "FastEngine/vulkan/C_logicalDevice.hpp"
+#include <stdexcept>
+#include <vector>
+
+namespace fge::vulkan
+{
+
+DescriptorPool::DescriptorPool() :
+        g_descriptorPoolSizes(),
+
+        g_maxSetsPerPool(0),
+        g_descriptorPools(),
+        g_isUnique(false),
+        g_isCreated(false),
+
+        g_logicalDevice(nullptr)
+{}
+DescriptorPool::DescriptorPool(DescriptorPool&& r) noexcept :
+        g_descriptorPoolSizes(std::move(r.g_descriptorPoolSizes)),
+
+        g_maxSetsPerPool(r.g_maxSetsPerPool),
+        g_descriptorPools(std::move(r.g_descriptorPools)),
+        g_isUnique(r.g_isUnique),
+        g_isCreated(r.g_isCreated),
+
+        g_logicalDevice(r.g_logicalDevice)
+{
+    r.g_maxSetsPerPool = 0;
+
+    r.g_isUnique = false;
+    r.g_isCreated = false;
+
+    r.g_logicalDevice = nullptr;
+}
+DescriptorPool::~DescriptorPool()
+{
+    this->destroy();
+}
+
+void DescriptorPool::create(const LogicalDevice& logicalDevice,
+                            std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
+                            uint32_t maxSetsPerPool, bool isUnique)
+{
+    this->destroy();
+
+    this->g_logicalDevice = &logicalDevice;
+    this->g_isUnique = isUnique;
+    this->g_maxSetsPerPool = maxSetsPerPool;
+    this->g_descriptorPoolSizes = std::move(descriptorPoolSizes);
+    this->g_isCreated = true;
+
+    this->g_descriptorPools.push_back(this->createPool());
+}
+void DescriptorPool::destroy()
+{
+    if (this->g_isCreated)
+    {
+        for (auto& pool : this->g_descriptorPools)
+        {
+            vkDestroyDescriptorPool(this->g_logicalDevice->getDevice(), pool._pool, nullptr);
+        }
+        this->g_descriptorPools.clear();
+
+        this->g_logicalDevice = nullptr;
+        this->g_isCreated = false;
+        this->g_isUnique = false;
+        this->g_maxSetsPerPool = 0;
+        this->g_descriptorPoolSizes.clear();
+    }
+}
+
+[[nodiscard]] std::pair<VkDescriptorSet, VkDescriptorPool>  DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, uint32_t descriptorSetCount) const
+{
+    if (setLayouts == nullptr || descriptorSetCount == 0 || !this->g_isCreated)
+    {
+        throw std::runtime_error("failed to allocate descriptor sets!");
+    }
+
+    VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorSetCount = descriptorSetCount;
+    allocInfo.pSetLayouts = setLayouts;
+
+    for (auto& pool : this->g_descriptorPools)
+    {
+        allocInfo.descriptorPool = pool._pool;
+
+        auto result = vkAllocateDescriptorSets(this->g_logicalDevice->getDevice(), &allocInfo, &descriptorSet);
+        if (result != VK_SUCCESS)
+        {
+            if (result == VK_ERROR_FRAGMENTED_POOL || result == VK_ERROR_OUT_OF_POOL_MEMORY)
+            {
+                continue;
+            }
+            else
+            {
+                throw std::runtime_error("failed to allocate descriptor sets!");
+            }
+        }
+        else
+        {
+            ++pool._count;
+            descriptorPool = pool._pool;
+            break;
+        }
+    }
+
+    //Try creating a new pool
+    if (descriptorSet == VK_NULL_HANDLE && !this->g_isUnique)
+    {
+        this->g_descriptorPools.push_back(this->createPool());
+        allocInfo.descriptorPool = this->g_descriptorPools.back()._pool;
+        descriptorPool = this->g_descriptorPools.back()._pool;
+        vkAllocateDescriptorSets(this->g_logicalDevice->getDevice(), &allocInfo, &descriptorSet);
+    }
+
+    //Last check for a valid descriptor set
+    if (descriptorSet == VK_NULL_HANDLE)
+    {
+        throw std::runtime_error("failed to allocate descriptor sets!");
+    }
+
+    return {descriptorSet, descriptorPool};
+}
+void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool, bool dontFreeButDecrementCount) const
+{
+    for (auto& pool : this->g_descriptorPools)
+    {
+        if (pool._pool == descriptorPool)
+        {
+            if (dontFreeButDecrementCount)
+            {
+                --pool._count;
+                return;
+            }
+            else if (vkFreeDescriptorSets(this->g_logicalDevice->getDevice(), pool._pool, 1, &descriptorSet) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to free descriptor sets!");
+            }
+
+            --pool._count;
+            return;
+        }
+    }
+
+    throw std::runtime_error("failed to free descriptor sets!");
+}
+void DescriptorPool::resetDescriptorPool(VkDescriptorPool descriptorPool) const
+{
+    for (auto& pool : this->g_descriptorPools)
+    {
+        if (pool._pool == descriptorPool)
+        {
+            if (vkResetDescriptorPool(this->g_logicalDevice->getDevice(), pool._pool, 0) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to reset descriptor pool!");
+            }
+            pool._count = 0;
+            return;
+        }
+    }
+
+    throw std::runtime_error("failed to reset descriptor pool!");
+}
+void DescriptorPool::resetDescriptorPool() const
+{
+    for (auto& pool : this->g_descriptorPools)
+    {
+        if (vkResetDescriptorPool(this->g_logicalDevice->getDevice(), pool._pool, 0) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to reset descriptor pool!");
+        }
+        pool._count = 0;
+    }
+}
+
+uint32_t DescriptorPool::getMaxSetsPerPool() const
+{
+    return this->g_maxSetsPerPool;
+}
+bool DescriptorPool::isUnique() const
+{
+    return this->g_isUnique;
+}
+bool DescriptorPool::isCreated() const
+{
+    return this->g_isCreated;
+}
+const LogicalDevice* DescriptorPool::getLogicalDevice() const
+{
+    return this->g_logicalDevice;
+}
+
+DescriptorPool::Pool DescriptorPool::createPool() const
+{
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(this->g_descriptorPoolSizes.size());
+    poolInfo.pPoolSizes = this->g_descriptorPoolSizes.data();
+    poolInfo.maxSets = this->g_maxSetsPerPool;
+    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+
+    VkDescriptorPool pool;
+    if (vkCreateDescriptorPool(this->g_logicalDevice->getDevice(), &poolInfo, nullptr, &pool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+
+    return {pool, 0};
+}
+
+}//end fge::vulkan

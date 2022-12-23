@@ -1,5 +1,6 @@
 *.dll
 *.exe
+*.spv
 /cmake-build*/
 /installdir/
 /includes/FastEngine/fastengine_version.hpp

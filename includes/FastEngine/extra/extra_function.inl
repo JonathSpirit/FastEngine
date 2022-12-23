@@ -25,14 +25,14 @@ char UnicodeToChar(uint32_t unicode)
 
 ///Position/Rectangle
 template<typename T>
-sf::Rect<T> ToRect(const sf::Vector2<T>& pos1, const sf::Vector2<T>& pos2)
+fge::Rect<T> ToRect(const fge::Vector2<T>& pos1, const fge::Vector2<T>& pos2)
 {
-    return sf::Rect<T>((pos1.x < pos2.x) ? pos1.x : pos2.x, (pos1.y < pos2.y) ? pos1.y : pos2.y,
-                       (pos1.x > pos2.x) ? (pos1.x - pos2.x) : (pos2.x - pos1.x),
-                       (pos1.y > pos2.y) ? (pos1.y - pos2.y) : (pos2.y - pos1.y));
+    return fge::Rect<T>({(pos1.x < pos2.x) ? pos1.x : pos2.x, (pos1.y < pos2.y) ? pos1.y : pos2.y},
+                       {(pos1.x > pos2.x) ? (pos1.x - pos2.x) : (pos2.x - pos1.x),
+                       (pos1.y > pos2.y) ? (pos1.y - pos2.y) : (pos2.y - pos1.y)});
 }
 template<typename T>
-sf::Rect<T> ToRect(const std::vector<sf::Vector2<T>>& pos)
+fge::Rect<T> ToRect(const std::vector<fge::Vector2<T>>& pos)
 {
     float smallestX = std::numeric_limits<float>::max();
     float biggestX = std::numeric_limits<float>::lowest();
@@ -59,10 +59,10 @@ sf::Rect<T> ToRect(const std::vector<sf::Vector2<T>>& pos)
         }
     }
 
-    return sf::Rect<T>(smallestX, smallestY, biggestX - smallestX, biggestY - smallestY);
+    return fge::Rect<T>({smallestX, smallestY}, {biggestX - smallestX, biggestY - smallestY});
 }
 template<typename T>
-sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size)
+fge::Rect<T> ToRect(const fge::Vector2<T>* pos, std::size_t size)
 {
     T smallestX = std::numeric_limits<T>::max();
     T biggestX = std::numeric_limits<T>::lowest();
@@ -89,7 +89,7 @@ sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size)
         }
     }
 
-    return sf::Rect<T>(smallestX, smallestY, biggestX - smallestX, biggestY - smallestY);
+    return fge::Rect<T>({smallestX, smallestY}, {biggestX - smallestX, biggestY - smallestY});
 }
 
 ///Reach
