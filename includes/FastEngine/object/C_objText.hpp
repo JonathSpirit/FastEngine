@@ -37,11 +37,11 @@ namespace fge
 
 class ObjText;
 
-class FGE_API Character : public sf::Transformable, public sf::Drawable
+class FGE_API Character : public fge::Transformable, public fge::Drawable
 {
 public:
     Character() = default;
-    Character(const sf::Color& fillColor, const sf::Color& outlineColor);
+    Character(const fge::Color& fillColor, const fge::Color& outlineColor);
 
     void clear();
     void addLine(bool outlineVertices,
@@ -50,15 +50,16 @@ public:
                  float offset,
                  float thickness,
                  float outlineThickness = 0.0f);
-    void addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, const sf::Glyph& glyph, float italicShear);
+    void addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const sf::Glyph& glyph, float italicShear);
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
+    void drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const;
 
-    void setFillColor(const sf::Color& color);
-    void setOutlineColor(const sf::Color& color);
+    void setFillColor(const fge::Color& color);
+    void setOutlineColor(const fge::Color& color);
 
-    [[nodiscard]] const sf::Color& getFillColor() const;
-    [[nodiscard]] const sf::Color& getOutlineColor() const;
+    [[nodiscard]] const fge::Color& getFillColor() const;
+    [[nodiscard]] const fge::Color& getOutlineColor() const;
 
     void setVisibility(bool visibility);
     [[nodiscard]] bool isVisible() const;
@@ -68,11 +69,13 @@ public:
 private:
     friend ObjText;
 
-    sf::VertexArray g_vertices{sf::PrimitiveType::Triangles};        /// Vertex array containing the fill geometry
-    sf::VertexArray g_outlineVertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the outline geometry
+    fge::vulkan::VertexBuffer g_vertices; /// Vertex array containing the fill geometry
+    fge::vulkan::VertexBuffer g_outlineVertices; /// Vertex array containing the outline geometry
+    //sf::VertexArray g_vertices{sf::PrimitiveType::Triangles};        /// Vertex array containing the fill geometry
+    //sf::VertexArray g_outlineVertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the outline geometry
 
-    sf::Color g_fillColor{255, 255, 255};
-    sf::Color g_outlineColor{0, 0, 0};
+    fge::Color g_fillColor{255, 255, 255};
+    fge::Color g_outlineColor{0, 0, 0};
 
     uint32_t g_unicodeChar;
 
@@ -96,9 +99,9 @@ public:
     ObjText() = default;
     ObjText(tiny_utf8::string string,
             fge::Font font,
-            const sf::Vector2f& position = {},
+            const fge::Vector2f& position = {},
             fge::ObjText::CharacterSize characterSize = 30);
-    explicit ObjText(fge::Font font, const sf::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    explicit ObjText(fge::Font font, const fge::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
@@ -114,8 +117,8 @@ public:
 
     void setStyle(std::underlying_type<Style>::type style);
 
-    void setFillColor(const sf::Color& color);
-    void setOutlineColor(const sf::Color& color);
+    void setFillColor(const fge::Color& color);
+    void setOutlineColor(const fge::Color& color);
 
     void setOutlineThickness(float thickness);
 
@@ -129,12 +132,12 @@ public:
 
     std::underlying_type<Style>::type getStyle() const;
 
-    const sf::Color& getFillColor() const;
-    const sf::Color& getOutlineColor() const;
+    const fge::Color& getFillColor() const;
+    const fge::Color& getOutlineColor() const;
 
     float getOutlineThickness() const;
 
-    sf::Vector2f findCharacterPos(std::size_t index) const;
+    fge::Vector2f findCharacterPos(std::size_t index) const;
 
     std::vector<fge::Character>& getCharacters();
     const std::vector<fge::Character>& getCharacters() const;
@@ -149,8 +152,8 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
     void ensureGeometryUpdate() const;
@@ -161,12 +164,12 @@ private:
     float g_letterSpacingFactor{1.0f};                  /// Spacing factor between letters
     float g_lineSpacingFactor{1.0f};                    /// Spacing factor between lines
     std::underlying_type<Style>::type g_style{Regular}; /// Text style (see Style enum)
-    sf::Color g_fillColor{255, 255, 255};               /// Text fill color
-    sf::Color g_outlineColor{0, 0, 0};                  /// Text outline color
+    fge::Color g_fillColor{255, 255, 255};               /// Text fill color
+    fge::Color g_outlineColor{0, 0, 0};                  /// Text outline color
     float g_outlineThickness{0.0f};                     /// Thickness of the text's outline
 
     mutable std::vector<Character> g_characters;
-    mutable sf::FloatRect g_bounds;           /// Bounding rectangle of the text (in local coordinates)
+    mutable fge::RectFloat g_bounds;           /// Bounding rectangle of the text (in local coordinates)
     mutable bool g_geometryNeedUpdate{false}; /// Does the geometry need to be recomputed?
     mutable uint64_t g_fontTextureId{0};      /// The font texture id
 };

@@ -72,14 +72,14 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
 
 #ifdef NDEBUG
     createInfo.enabledLayerCount = 0;
 #else
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+    createInfo.ppEnabledLayerNames = ValidationLayers.data();
 #endif
 
     if (vkCreateDevice(physicalDevice.getDevice(), &createInfo, nullptr, &this->g_device) != VK_SUCCESS)

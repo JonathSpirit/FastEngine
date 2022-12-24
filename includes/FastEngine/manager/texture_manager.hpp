@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 
 #include "FastEngine/textureType.hpp"
+#include "FastEngine/graphic/C_surface.hpp"
 #include <filesystem>
 #include <memory>
 #include <mutex>
@@ -132,13 +133,13 @@ FGE_API fge::texture::TextureDataPtr GetTexture(std::string_view name);
 FGE_API bool Check(std::string_view name);
 
 /**
- * \brief Load a texture from an image
+ * \brief Load a texture from an surface
  *
  * \param name The name of the texture to load
- * \param image The image to load
+ * \param image The surface to load
  * \return \b true if the texture was loaded, \b false otherwise
  */
-FGE_API bool LoadFromImage(std::string_view name, const sf::Image& image);
+FGE_API bool LoadFromSurface(std::string_view name, const fge::Surface& surface);
 /**
  * \brief Load a texture from a file
  *

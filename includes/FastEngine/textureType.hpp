@@ -18,17 +18,17 @@
 #define _FGE_TEXTURETYPE_HPP_INCLUDED
 
 #ifdef FGE_DEF_SERVER
-    #include <SFML/Graphics/Image.hpp>
+    #include "FastEngine/graphic/C_surface.hpp"
 #else
-    #include <SFML/Graphics/Texture.hpp>
+    #include "FastEngine/vulkan/C_textureImage.hpp"
 #endif //FGE_DEF_SERVER
 
 namespace fge
 {
 #ifdef FGE_DEF_SERVER
-using TextureType = sf::Image;
+using TextureType = fge::Surface;
 #else
-using TextureType = sf::Texture;
+using TextureType = fge::vulkan::TextureImage;
 #endif //FGE_DEF_SERVER
 } // namespace fge
 

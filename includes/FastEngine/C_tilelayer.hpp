@@ -20,9 +20,10 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_matrix.hpp>
 #include <FastEngine/C_tileset.hpp>
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/Transformable.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
+#include <FastEngine/graphic/C_drawable.hpp>
+#include <FastEngine/graphic/C_color.hpp>
+#include <FastEngine/graphic/C_transformable.hpp>
+#include <FastEngine/vulkan/C_vertexBuffer.hpp>
 #include <json.hpp>
 
 namespace fge
@@ -41,7 +42,7 @@ using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
 #ifdef FGE_DEF_SERVER
 class FGE_API TileLayer : public sf::Transformable
 #else
-class FGE_API TileLayer : public sf::Transformable, public sf::Drawable
+class FGE_API TileLayer : public fge::Transformable, public fge::Drawable
 #endif
 {
 public:
@@ -75,26 +76,26 @@ public:
          *
          * \param position The local position of the tile
          */
-        void setPosition(const sf::Vector2f& position);
+        void setPosition(const fge::Vector2f& position);
         /**
          * \brief Get the local position of the tile
          *
          * \return The local position of the tile
          */
-        [[nodiscard]] const sf::Vector2f& getPosition() const;
+        [[nodiscard]] const fge::Vector2f& getPosition() const;
 
         /**
          * \brief Set the color of the tile
          *
          * \param color The color of the tile
          */
-        void setColor(const sf::Color& color);
+        void setColor(const fge::Color& color);
         /**
          * \brief Get the color of the tile
          *
          * \return The color of the tile
          */
-        [[nodiscard]] const sf::Color& getColor() const;
+        [[nodiscard]] fge::Color getColor() const;
 
         /**
          * \brief Set the associated tileset pointer
@@ -117,8 +118,8 @@ public:
 
         TileId g_gid{0};
         std::shared_ptr<fge::TileSet> g_tileSet;
-        sf::Vertex g_vertex[4];
-        sf::Vector2f g_position;
+        fge::vulkan::Vertex g_vertex[4];
+        fge::Vector2f g_position;
 
         friend TileLayer;
     };
@@ -126,7 +127,7 @@ public:
     TileLayer() = default;
 
 #ifndef FGE_DEF_SERVER
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
 #endif
 
     /**

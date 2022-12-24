@@ -143,6 +143,10 @@ fge::net::Packet& Packet::operator<<(const sf::Color& data)
 {
     return *this << static_cast<uint32_t>(data.toInteger());
 }
+fge::net::Packet& Packet::operator<<(const fge::Color& data)
+{
+    return *this << static_cast<uint32_t>(data.toInteger());
+}
 
 fge::net::Packet& Packet::operator<<(const fge::net::IpAddress& data)
 {
@@ -299,6 +303,13 @@ const fge::net::Packet& Packet::operator>>(sf::Color& data) const
     uint32_t buff;
     *this >> buff;
     data = sf::Color(buff);
+    return *this;
+}
+const fge::net::Packet& Packet::operator>>(fge::Color& data) const
+{
+    uint32_t buff;
+    *this >> buff;
+    data = fge::Color(buff);
     return *this;
 }
 

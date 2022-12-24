@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include <vector>
+#include <limits>
 #include "volk.h"
 #include "C_vertex.hpp"
 
@@ -50,41 +51,57 @@ public:
     VertexBuffer& operator=(const VertexBuffer& r) = delete;
     VertexBuffer& operator=(VertexBuffer&& r) noexcept = delete;
 
-    void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, Types type=Types::DEFAULT);
+    void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, Types type=Types::DEFAULT);
+
+    void clear();
+    void resize(std::size_t vertexSize, std::size_t indexSize);
+    void append(const Vertex& vertex);
+    void appendIndex(uint16_t index=std::numeric_limits<uint16_t>::max());
+
     void destroy();
 
     void bind(VkCommandBuffer commandBuffer) const;
 
-    [[nodiscard]] std::vector<Vertex>& getVertices();
-    [[nodiscard]] const std::vector<Vertex>& getVertices() const;
-    void mapVertices(const Context& context);
+    [[nodiscard]] std::size_t getVertexCount() const;
+    [[nodiscard]] std::size_t getIndexCount() const;
 
-    [[nodiscard]] std::vector<uint16_t>& getIndices();
-    [[nodiscard]] const std::vector<uint16_t>& getIndices() const;
-    void mapIndices(const Context& context);
+    [[nodiscard]] Vertex* getVertices();
+    [[nodiscard]] const Vertex* getVertices() const;
+    void mapVertices();
 
-    [[nodiscard]] VkBuffer getBuffer() const;
-    [[nodiscard]] VkDeviceMemory getBufferMemory() const;
-    [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
+    [[nodiscard]] uint16_t* getIndices();
+    [[nodiscard]] const uint16_t* getIndices() const;
+    void mapIndices();
+
+    [[nodiscard]] VkBuffer getVerticesBuffer() const;
+    [[nodiscard]] VkBuffer getIndicesBuffer() const;
+    [[nodiscard]] VkDeviceMemory getVerticesBufferMemory() const;
+    [[nodiscard]] VkDeviceMemory getIndicesBufferMemory() const;
+    [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] Types getType() const;
+    [[nodiscard]] bool isUsingIndexBuffer() const;
 
 private:
-    void createIndexBuffer(const Context& context, std::size_t indicesSize);
+    void cleanBuffers();
+    void updateBuffers();
 
     std::vector<Vertex> g_vertices;
     VkBuffer g_vertexBuffer;
-    VkBuffer g_stagingBuffer;
+    VkBuffer g_vertexStagingBuffer;
     VkDeviceMemory g_vertexBufferMemory;
-    VkDeviceMemory g_stagingBufferMemory;
+    VkDeviceMemory g_vertexStagingBufferMemory;
 
     std::vector<uint16_t> g_indices;
     VkBuffer g_indexBuffer;
+    VkBuffer g_indexStagingBuffer;
     VkDeviceMemory g_indexBufferMemory;
+    VkDeviceMemory g_indexStagingBufferMemory;
 
     Types g_type;
+    bool g_useIndexBuffer;
 
-    const LogicalDevice* g_logicalDevice;
+    const Context* g_context;
 };
 
 }//end fge::vulkan

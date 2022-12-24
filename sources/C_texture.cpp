@@ -52,7 +52,7 @@ bool Texture::valid() const
     return this->g_data->_valid;
 }
 
-sf::Vector2u Texture::getTextureSize() const
+fge::Vector2u Texture::getTextureSize() const
 {
     return this->g_data->_texture->getSize();
 }

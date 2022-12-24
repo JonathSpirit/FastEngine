@@ -67,7 +67,7 @@ void PhysicalDevice::updateDeviceExtensionSupport()
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(this->g_device, nullptr, &extensionCount, availableExtensions.data());
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
 
     for (const auto& extension : availableExtensions)
     {

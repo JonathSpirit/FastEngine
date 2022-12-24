@@ -25,13 +25,11 @@
  */
 
 #include <FastEngine/vulkan/C_graphicPipeline.hpp>
-#include <FastEngine/graphic/C_transform.hpp>
+#include <FastEngine/graphic/C_renderStates.hpp>
+#include <FastEngine/graphic/C_renderTarget.hpp>
 
 namespace fge
 {
-
-class RenderTarget;
-class RenderStates;
 
 class Drawable
 {

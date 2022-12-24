@@ -174,17 +174,16 @@ void Scene::draw(fge::RenderTarget& target,
                  const fge::Color& clear_color,
                  fge::RenderStates states) const
 {
-    ///TODO REDO THE DRAW :(
-    /**
-    if (clear_target)
+    ///TODO: _onRenderTargetClear doesnt work anymore
+    /*if (clear_target)
     {
         target.clear(clear_color);
         this->_onRenderTargetClear.call(this, target, clear_color);
-    }
+    }*/
 
     const fge::RectFloat screenBounds = fge::GetScreenRect(target);
 
-    sf::View backupView = target.getView();
+    fge::View backupView = target.getView();
     if (this->g_customView)
     {
         target.setView(*this->g_customView);
@@ -232,11 +231,11 @@ void Scene::draw(fge::RenderTarget& target,
             }
         }
 
-        sf::RenderStates statesCopy = states;
-        target.draw(*object, statesCopy);
+        //fge::RenderStates statesCopy = states;
+        target.draw(*object, states);
     }
 
-    target.setView(backupView);**/
+    target.setView(backupView);
 }
 #endif //FGE_DEF_SERVER
 

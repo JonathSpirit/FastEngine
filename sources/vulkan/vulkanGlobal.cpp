@@ -17,18 +17,21 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 #include <stdexcept>
 
 namespace fge::vulkan
 {
 
-const std::vector<const char*> validationLayers = {
+const std::vector<const char*> ValidationLayers = {
         "VK_LAYER_KHRONOS_validation"
 };
 
-const std::vector<const char*> deviceExtensions = {
+const std::vector<const char*> DeviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+Context* GlobalContext{nullptr};
 
 void CreateBuffer(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice,
                   VkDeviceSize size,

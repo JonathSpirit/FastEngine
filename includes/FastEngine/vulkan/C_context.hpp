@@ -65,7 +65,8 @@ public:
 
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
-    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const;
+    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, int32_t offsetX=0, int32_t offsetY=0) const;
+    void copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height) const;
 
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getDescriptorSetLayout() const;
     [[nodiscard]] const DescriptorPool& getTextureDescriptorPool() const;

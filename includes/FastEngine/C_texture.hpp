@@ -19,6 +19,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/graphic/C_vector.hpp"
 #include <json.hpp>
 
 namespace fge
@@ -77,7 +78,7 @@ public:
      *
      * \return The texture size
      */
-    [[nodiscard]] sf::Vector2u getTextureSize() const;
+    [[nodiscard]] fge::Vector2u getTextureSize() const;
 
     /**
      * \brief Get the texture data

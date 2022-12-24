@@ -126,7 +126,6 @@ bool Surface::loadFromFile(const std::filesystem::path& filePath)
     }
     return false;
 }
-
 bool Surface::loadFromMemory(const void* data, std::size_t size)
 {
     this->clear();

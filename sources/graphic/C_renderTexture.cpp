@@ -94,10 +94,9 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 
     vkCmdBeginRenderPass(this->g_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
-void RenderTexture::draw(fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states)
+void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states)
 {
-    states._transformable->setViewMatrix(this->getView().getTransform());
-    states._transformable->updateUniformBuffer(*this->g_context);
+    states._transformable->updateUniformBuffer(states._modelTransform, this->getView().getTransform(), *this->g_context);
 
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();

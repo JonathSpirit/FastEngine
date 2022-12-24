@@ -90,7 +90,7 @@ void GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
                                      const VkDescriptorSetLayout* descriptorSetLayouts,
                                      std::size_t descriptorSetLayoutSize,
                                      VkRenderPass renderPass,
-                                     bool force)
+                                     bool force) const
 {
     if (this->g_needUpdate || force)
     {
@@ -334,12 +334,12 @@ void GraphicPipeline::setPrimitiveTopology(VkPrimitiveTopology topology)
     this->g_needUpdate = true;
 }
 
-void GraphicPipeline::setViewport(const VkExtent2D& extent2D)
+void GraphicPipeline::setViewport(const VkExtent2D& extent2D) const
 {
     this->g_viewport.setPosition(0.0f, 0.0f);
     this->g_viewport.setSize(static_cast<float>(extent2D.width), static_cast<float>(extent2D.height));
 }
-void GraphicPipeline::setViewport(const Viewport& viewport)
+void GraphicPipeline::setViewport(const Viewport& viewport) const
 {
     this->g_viewport = viewport;
 }
@@ -348,15 +348,11 @@ const Viewport& GraphicPipeline::getViewport() const
     return this->g_viewport;
 }
 
-void GraphicPipeline::setVertexBuffer(VertexBuffer* vertexBuffer)
+void GraphicPipeline::setVertexBuffer(const VertexBuffer* vertexBuffer) const
 {
     this->g_vertexBuffer = vertexBuffer;
 }
 const VertexBuffer* GraphicPipeline::getVertexBuffer() const
-{
-    return this->g_vertexBuffer;
-}
-VertexBuffer* GraphicPipeline::getVertexBuffer()
 {
     return this->g_vertexBuffer;
 }
@@ -370,7 +366,14 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_
     if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
     {
         this->g_vertexBuffer->bind(commandBuffer);
-        vkCmdDrawIndexed(commandBuffer, this->g_vertexBuffer->getIndices().size(), 1, 0, 0, 0);
+        if (this->g_vertexBuffer->isUsingIndexBuffer())
+        {
+            vkCmdDrawIndexed(commandBuffer, this->g_vertexBuffer->getIndexCount(), 1, 0, 0, 0);
+        }
+        else
+        {
+            vkCmdDraw(commandBuffer, this->g_vertexBuffer->getVertexCount(), 1, 0, 0);
+        }
     }
     else
     {
@@ -396,7 +399,7 @@ const LogicalDevice* GraphicPipeline::getLogicalDevice()
     return this->g_logicalDevice;
 }
 
-void GraphicPipeline::cleanPipeline()
+void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {

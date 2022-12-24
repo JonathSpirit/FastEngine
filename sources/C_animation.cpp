@@ -458,14 +458,14 @@ Animation::operator const std::string&() const
     return this->g_name;
 }
 
-Animation::operator sf::IntRect() const
+Animation::operator fge::RectInt() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
         if (this->isFrameValid())
         {
-            auto gridSize = static_cast<sf::Vector2i>(this->g_data->_tilesetGridSize);
-            auto gridPosition = static_cast<sf::Vector2i>(
+            auto gridSize = static_cast<fge::Vector2i>(this->g_data->_tilesetGridSize);
+            auto gridPosition = static_cast<fge::Vector2i>(
                     this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
             gridPosition.x *= gridSize.x;
             gridPosition.y *= gridSize.y;
@@ -476,12 +476,12 @@ Animation::operator sf::IntRect() const
     {
         if (this->isFrameValid())
         {
-            auto gridSize = static_cast<sf::Vector2i>(
+            auto gridSize = static_cast<fge::Vector2i>(
                     this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
             return {{0, 0}, gridSize};
         }
     }
-    return {{0, 0}, static_cast<sf::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
+    return {{0, 0}, static_cast<fge::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
 }
 
 } // namespace fge

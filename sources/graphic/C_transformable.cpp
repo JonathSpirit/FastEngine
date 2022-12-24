@@ -26,12 +26,11 @@ Transformable::Transformable() :
         g_position                  (0.0f, 0.0f),
         g_rotation                  (0.0f),
         g_scale                     (1.0f, 1.0f),
-        g_transform                 {glm::mat4(1.0f), glm::mat4(1.0f)},
+        g_transform                 (1.0f),
         g_transformNeedUpdate       (true),
         g_inverseTransform          (1.0f),
         g_inverseTransformNeedUpdate(true),
-        g_descriptorSet(),
-        g_uniformBufferNeedUpdate(true)
+        g_descriptorSet()
 {}
 Transformable::~Transformable()
 {
@@ -43,7 +42,6 @@ void Transformable::setPosition(const Vector2f& position)
     this->g_position = position;
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
-    this->g_uniformBufferNeedUpdate = true;
 }
 const Vector2f& Transformable::getPosition() const
 {
@@ -64,7 +62,6 @@ void Transformable::setRotation(float angle)
 
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
-    this->g_uniformBufferNeedUpdate = true;
 }
 float Transformable::getRotation() const
 {
@@ -80,7 +77,6 @@ void Transformable::setScale(const Vector2f& factors)
     this->g_scale = factors;
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
-    this->g_uniformBufferNeedUpdate = true;
 }
 const Vector2f& Transformable::getScale() const
 {
@@ -96,7 +92,6 @@ void Transformable::setOrigin(const Vector2f& origin)
     this->g_origin = origin;
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
-    this->g_uniformBufferNeedUpdate = true;
 }
 const Vector2f& Transformable::getOrigin() const
 {
@@ -107,22 +102,20 @@ const glm::mat4& Transformable::getTransform() const
 {
     if (this->g_transformNeedUpdate)
     {
-        this->g_transform._modelTransform = glm::translate(this->g_transform._modelTransform,
-                                                           glm::vec3(this->g_position, 0.0f));
+        this->g_transform = glm::translate(this->g_transform, glm::vec3(this->g_position, 0.0f));
 
-        this->g_transform._modelTransform = glm::rotate(this->g_transform._modelTransform,
-                                                        glm::radians(this->g_rotation),
-                                                        glm::vec3(0.0f, 0.0f, 1.0f));
+        this->g_transform = glm::rotate(this->g_transform,
+                                        glm::radians(this->g_rotation),
+                                        glm::vec3(0.0f, 0.0f, 1.0f));
 
-        this->g_transform._modelTransform = glm::scale(this->g_transform._modelTransform,
-                                                       glm::vec3(this->g_scale, 1.0f));
+        this->g_transform = glm::scale(this->g_transform, glm::vec3(this->g_scale, 1.0f));
 
-        this->g_transform._modelTransform = glm::translate(this->g_transform._modelTransform, glm::vec3(-this->g_origin, 0.0f));
+        this->g_transform = glm::translate(this->g_transform, glm::vec3(-this->g_origin, 0.0f));
 
         this->g_transformNeedUpdate = false;
     }
 
-    return this->g_transform._modelTransform;
+    return this->g_transform;
 }
 
 const glm::mat4& Transformable::getInverseTransform() const
@@ -142,18 +135,12 @@ void Transformable::destroy()
     this->g_uniformBuffer.destroy();
 }
 
-void Transformable::setViewMatrix(const glm::mat4& viewMatrix) const
-{
-    this->g_transform._viewTransform = viewMatrix;
-    this->g_uniformBufferNeedUpdate = true;
-}
-void Transformable::updateUniformBuffer(const fge::vulkan::Context& context) const
+void Transformable::updateUniformBuffer(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const fge::vulkan::Context& context) const
 {
     if (this->g_descriptorSet.getDescriptorSet() == VK_NULL_HANDLE)
     {
         this->g_descriptorSet.create(context.getLogicalDevice(), &context.getDescriptorSetLayout(),
                                      1, context.getTransformDescriptorPool(), true);
-        this->g_uniformBufferNeedUpdate = true;
     }
 
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE)
@@ -161,15 +148,10 @@ void Transformable::updateUniformBuffer(const fge::vulkan::Context& context) con
         this->g_uniformBuffer.create(context.getLogicalDevice(), context.getPhysicalDevice(), sizeof(fge::Transform));
         const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, 0);
         this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
-        this->g_uniformBufferNeedUpdate = true;
     }
 
-    if (this->g_uniformBufferNeedUpdate)
-    {
-        this->g_transform._modelTransform = this->getTransform();
-        this->g_uniformBuffer.copyData(&this->g_transform, sizeof(this->g_transform));
-        this->g_uniformBufferNeedUpdate = false;
-    }
+    const fge::Transform transform{modelMatrix, viewMatrix};
+    this->g_uniformBuffer.copyData(&transform, sizeof(transform));
 }
 const fge::vulkan::DescriptorSet& Transformable::getDescriptorSet() const
 {

@@ -195,10 +195,10 @@ if(WIN32)
 endif()
 
 add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image) #SDL
-target_include_directories(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH})
-target_include_directories(${FGE_LIB_NAME} PRIVATE libs/SDL/include)
-target_include_directories(${FGE_LIB_NAME} PRIVATE libs/SDL_image)
-target_include_directories(${FGE_LIB_NAME} PRIVATE libs/glm)
+target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH})
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL/include)
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL_image)
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm)
 
 #target_include_directories(vulkanTest PRIVATE ${VOLK_PATH})
 #target_include_directories(vulkanTest PRIVATE SDL/include/)
@@ -499,26 +499,51 @@ install(FILES ${FGE_INCLUDES_PROJECT}
 #Custom target for executables that copy compiled DLLs and symlink the resources folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_custom_target(FgeExeDeps)
-add_dependencies(FgeExeDeps ${FGE_LIB_NAME} ${FGE_SERVER_LIB_NAME})
+add_custom_target(FgeClientExeDeps)
+add_custom_target(FgeServerExeDeps)
+add_custom_target(FgeExeDeps) #TODO REMOVE THAT
+add_dependencies(FgeClientExeDeps ${FGE_LIB_NAME})
+add_dependencies(FgeServerExeDeps ${FGE_SERVER_LIB_NAME})
+add_dependencies(FgeExeDeps ${FGE_LIB_NAME} ${FGE_SERVER_LIB_NAME}) #TODO REMOVE THAT
 
 if (WIN32)
-    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window SDL2 SDL2_image)
-        add_custom_command(TARGET FgeExeDeps PRE_BUILD
+    foreach (DEPENDENCY sfml-system SDL2 SDL2_image)
+        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-    add_custom_command(TARGET FgeExeDeps PRE_BUILD
+
+    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window SDL2 SDL2_image)
+        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:${DEPENDENCY}>
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+    add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
-add_custom_command(TARGET FgeExeDeps PRE_BUILD
+add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E create_symlink
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+
+add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+
+#Set some variables that help exe linking
+if(WIN32)
+    set(FGE_CLIENT_LIBS SDL2 SDL2_image sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
+elseif(APPLE)
+    set(FGE_CLIENT_LIBS SDL2 SDL2_image sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
+else()
+    set(FGE_CLIENT_LIBS SDL2 SDL2_image sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window X11 ${FGE_LIB_NAME})
+endif()
 
 #Tests
 if (FGE_BUILD_TESTS)
@@ -534,3 +559,6 @@ if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/clientServerLifeSimulator_004)
     add_subdirectory(examples/deepText_005)
 endif()
+
+add_executable(testVulkan mainVulkanTest.cpp) #TODO REMOVE THAT
+target_link_libraries(testVulkan SDL2main SDL2 SDL2_image sfml-system ${FGE_LIB_NAME})

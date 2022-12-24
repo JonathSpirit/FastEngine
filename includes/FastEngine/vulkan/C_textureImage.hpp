@@ -27,9 +27,8 @@
 namespace fge::vulkan
 {
 
-class LogicalDevice;
-class PhysicalDevice;
 class Context;
+class PhysicalDevice;
 
 class FGE_API TextureImage
 {
@@ -42,9 +41,13 @@ public:
     TextureImage& operator=(const TextureImage& r) = delete;
     TextureImage& operator=(TextureImage&& r) noexcept = delete;
 
-    void create(const Context& context, const glm::vec<2, int>& size);
-    void create(const Context& context, SDL_Surface* surface);
+    bool create(const Context& context, const glm::vec<2, int>& size);
+    bool create(const Context& context, SDL_Surface* surface);
     void destroy();
+
+    [[nodiscard]] SDL_Surface* copyToSurface() const;
+
+    void update(SDL_Surface* surface, const glm::vec<2, int>& position);
 
     [[nodiscard]] const glm::vec<2, int>& getSize() const;
     [[nodiscard]] VkExtent2D getExtent() const;
@@ -59,7 +62,7 @@ public:
     void setFilter(VkFilter filter);
     [[nodiscard]] VkFilter getFilter() const;
 
-    [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
+    [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
 
@@ -79,8 +82,7 @@ private:
 
     fge::vulkan::DescriptorSet g_textureDescriptorSet;
 
-    const LogicalDevice* g_logicalDevice;
-    const PhysicalDevice* g_physicalDevice;
+    const Context* g_context;
 };
 
 }//end fge::vulkan

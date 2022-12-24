@@ -17,6 +17,7 @@
 #include "FastEngine/manager/anim_manager.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
 
 #include <fstream>
 
@@ -161,16 +162,25 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
         {
             buffAnimData->_tilesetPath = inputJson.value<std::filesystem::path>("tileset", {});
 
-            std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
-            if (buffTexture->loadFromFile(buffAnimData->_tilesetPath.string()))
+            fge::Surface buffSurface;
+            if ( buffSurface.loadFromFile(buffAnimData->_tilesetPath) )
             {
-                buffAnimData->_tilesetTexture = std::move(buffTexture);
+                std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
+                if (buffTexture->create(*vulkan::GlobalContext, buffSurface.get()))
+                {
+                    buffAnimData->_tilesetTexture = std::move(buffTexture);
+                }
+                else
+                {
+                    buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
+                }
             }
             else
             {
                 buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
             }
-            buffAnimData->_tilesetGridSize = inputJson.value<sf::Vector2u>("gridSize", {0, 0});
+
+            buffAnimData->_tilesetGridSize = inputJson.value<fge::Vector2u>("gridSize", {0, 0});
         }
 
         nlohmann::ordered_json& inputJsonDataObject = inputJson["data"];
@@ -205,7 +215,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 switch (animType)
                 {
                 case AnimationType::ANIM_TYPE_TILESET:
-                    tmpFrame._texturePosition = jsonFrame.value<sf::Vector2u>("position", {0, 0});
+                    tmpFrame._texturePosition = jsonFrame.value<fge::Vector2u>("position", {0, 0});
                     tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
                     break;
                 case AnimationType::ANIM_TYPE_SEPARATE_FILES:
@@ -218,10 +228,18 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 //Load texture
                 if (animType != fge::anim::AnimationType::ANIM_TYPE_TILESET)
                 {
-                    std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
-                    if (buffTexture->loadFromFile(tmpFrame._path))
+                    fge::Surface buffSurface;
+                    if ( buffSurface.loadFromFile(tmpFrame._path) )
                     {
-                        tmpFrame._texture = std::move(buffTexture);
+                        std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
+                        if (buffTexture->create(*vulkan::GlobalContext, buffSurface.get()))
+                        {
+                            tmpFrame._texture = std::move(buffTexture);
+                        }
+                        else
+                        {
+                            tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
+                        }
                     }
                     else
                     {

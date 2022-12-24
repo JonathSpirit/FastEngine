@@ -68,7 +68,7 @@ public:
     [[nodiscard]] virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(const Drawable& drawable, const RenderStates& states);
-    virtual void draw(fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) = 0;
+    virtual void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) = 0;
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) = 0;
 

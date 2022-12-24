@@ -20,6 +20,7 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_texture.hpp>
+#include <FastEngine/graphic/C_rect.hpp>
 #include <json.hpp>
 #include <optional>
 #include <set>
@@ -39,7 +40,7 @@ using TileId = int32_t;
 struct TileData
 {
     TileId _id{0};
-    sf::IntRect _rect;
+    fge::RectInt _rect;
     mutable fge::PropertyList _properties{};
 };
 
@@ -70,8 +71,8 @@ public:
 
     TileSet() = default;
     TileSet(fge::Texture texture);
-    TileSet(fge::Texture texture, const sf::Vector2i& tileSize);
-    TileSet(fge::Texture texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset);
+    TileSet(fge::Texture texture, const fge::Vector2i& tileSize);
+    TileSet(fge::Texture texture, const fge::Vector2i& tileSize, const fge::Vector2i& offset);
 
     /**
      * \brief Clear the tiles
@@ -118,7 +119,7 @@ public:
      *
      * \return The tile size of the TileSet
      */
-    [[nodiscard]] const sf::Vector2i& getTileSize() const;
+    [[nodiscard]] const fge::Vector2i& getTileSize() const;
     /**
      * \brief Set the tile size of the TileSet
      *
@@ -126,20 +127,20 @@ public:
      *
      * \param tileSize The tile size of the TileSet
      */
-    void setTileSize(const sf::Vector2i& tileSize);
+    void setTileSize(const fge::Vector2i& tileSize);
 
     /**
      * \brief Get the offset in pixel of the TileSet
      *
      * \return The offset in pixel of the TileSet
      */
-    [[nodiscard]] const sf::Vector2i& getOffset() const;
+    [[nodiscard]] const fge::Vector2i& getOffset() const;
     /**
      * \brief Set the offset in pixel of the TileSet
      *
      * \param offset The offset in pixel of the TileSet
      */
-    void setOffset(const sf::Vector2i& offset);
+    void setOffset(const fge::Vector2i& offset);
 
     /**
      * \brief Get the total number of tiles in the TileSet
@@ -227,14 +228,14 @@ public:
      * \param id The local id of the tile
      * \return The texture rectangle of the tile if found, \b std::nullopt otherwise
      */
-    [[nodiscard]] std::optional<sf::IntRect> getTextureRect(TileId id) const;
+    [[nodiscard]] std::optional<fge::RectInt> getTextureRect(TileId id) const;
     /**
      * \brief Compute the supposed texture rectangle with a local id
      *
      * \param id The local id of the tile
      * \return The supposed texture rectangle of the tile
      */
-    [[nodiscard]] sf::IntRect computeTextureRect(TileId id) const;
+    [[nodiscard]] fge::RectInt computeTextureRect(TileId id) const;
 
     fge::TileSet& operator=(fge::Texture texture);
 
@@ -244,8 +245,8 @@ private:
 
     std::string g_name;
     fge::Texture g_texture;
-    sf::Vector2i g_tileSize;
-    sf::Vector2i g_offset{0, 0};
+    fge::Vector2i g_tileSize;
+    fge::Vector2i g_offset{0, 0};
     TileListType g_tiles;
     TileId g_firstGid{1};
     int g_columns{0};

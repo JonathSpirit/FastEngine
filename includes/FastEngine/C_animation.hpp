@@ -19,6 +19,7 @@
 
 #include <FastEngine/fastengine_extern.hpp>
 #include "FastEngine/manager/anim_manager.hpp"
+#include "FastEngine/graphic/C_rect.hpp"
 
 namespace fge
 {
@@ -235,7 +236,7 @@ public:
      *
      * \return The SFML texture rectangle or {0,0,16,16} if something is invalid
      */
-    operator sf::IntRect() const;
+    operator fge::RectInt() const;
 
 private:
     fge::anim::AnimationDataPtr g_data;

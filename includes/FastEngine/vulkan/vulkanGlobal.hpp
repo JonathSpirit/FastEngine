@@ -26,9 +26,12 @@ namespace fge::vulkan
 
 class LogicalDevice;
 class PhysicalDevice;
+class Context;
 
-extern const std::vector<const char*> validationLayers;
-extern const std::vector<const char*> deviceExtensions;
+FGE_API extern const std::vector<const char*> ValidationLayers;
+FGE_API extern const std::vector<const char*> DeviceExtensions;
+
+FGE_API extern Context* GlobalContext;
 
 FGE_API void CreateBuffer(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice,
                   VkDeviceSize size,

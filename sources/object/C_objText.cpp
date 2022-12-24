@@ -25,7 +25,7 @@
 namespace fge
 {
 
-Character::Character(const sf::Color& fillColor, const sf::Color& outlineColor) :
+Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
 {}
@@ -43,79 +43,101 @@ void Character::addLine(bool outlineVertices,
                         float thickness,
                         float outlineThickness)
 {
-    sf::VertexArray* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
-    sf::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
+    fge::vulkan::VertexBuffer* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
+    fge::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
-    float top = std::floor(lineTop + offset - (thickness / 2.0f) + 0.5f);
-    float bottom = top + std::floor(thickness + 0.5f);
+    const float top = std::floor(lineTop + offset - (thickness / 2.0f) + 0.5f);
+    const float bottom = top + std::floor(thickness + 0.5f);
 
-    vertices->append(sf::Vertex{{-outlineThickness, top - outlineThickness}, color, {1, 1}});
-    vertices->append(sf::Vertex{{lineLength + outlineThickness, top - outlineThickness}, color, {1, 1}});
-    vertices->append(sf::Vertex{{-outlineThickness, bottom + outlineThickness}, color, {1, 1}});
-    vertices->append(sf::Vertex{{-outlineThickness, bottom + outlineThickness}, color, {1, 1}});
-    vertices->append(sf::Vertex{{lineLength + outlineThickness, top - outlineThickness}, color, {1, 1}});
-    vertices->append(sf::Vertex{{lineLength + outlineThickness, bottom + outlineThickness}, color, {1, 1}});
+    vertices->append(fge::vulkan::Vertex{{-outlineThickness, top - outlineThickness}, color, {1, 1}});
+    vertices->append(fge::vulkan::Vertex{{lineLength + outlineThickness, top - outlineThickness}, color, {1, 1}});
+    vertices->append(fge::vulkan::Vertex{{-outlineThickness, bottom + outlineThickness}, color, {1, 1}});
+    vertices->append(fge::vulkan::Vertex{{-outlineThickness, bottom + outlineThickness}, color, {1, 1}});
+    vertices->append(fge::vulkan::Vertex{{lineLength + outlineThickness, top - outlineThickness}, color, {1, 1}});
+    vertices->append(fge::vulkan::Vertex{{lineLength + outlineThickness, bottom + outlineThickness}, color, {1, 1}});
 }
 
 // Add a glyph quad to the vertex array
-void Character::addGlyphQuad(bool outlineVertices, const sf::Vector2f& size, const sf::Glyph& glyph, float italicShear)
+void Character::addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const sf::Glyph& glyph, float italicShear)
 {
-    sf::VertexArray* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
-    sf::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
+    fge::vulkan::VertexBuffer* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
+    fge::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
-    float padding = 1.0f;
+    const float padding = 1.0f;
 
-    float left = glyph.bounds.left - padding;
-    float top = glyph.bounds.top - padding;
-    float right = glyph.bounds.left + glyph.bounds.width + padding;
-    float bottom = glyph.bounds.top + glyph.bounds.height + padding;
+    const float left = glyph.bounds.left - padding;
+    const float top = glyph.bounds.top - padding;
+    const float right = glyph.bounds.left + glyph.bounds.width + padding;
+    const float bottom = glyph.bounds.top + glyph.bounds.height + padding;
 
     float u1 = static_cast<float>(glyph.textureRect.left) - padding;
     float v1 = static_cast<float>(glyph.textureRect.top) - padding;
     float u2 = static_cast<float>(glyph.textureRect.left + glyph.textureRect.width) + padding;
     float v2 = static_cast<float>(glyph.textureRect.top + glyph.textureRect.height) + padding;
 
-    vertices->append(sf::Vertex{{size.x + left - italicShear * top, size.y + top}, color, {u1, v1}});
-    vertices->append(sf::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});
-    vertices->append(sf::Vertex{{size.x + left - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
-    vertices->append(sf::Vertex{{size.x + left - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
-    vertices->append(sf::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});
-    vertices->append(sf::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
+    vertices->append(fge::vulkan::Vertex{{size.x + left - italicShear * top, size.y + top}, color, {u1, v1}});
+    vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});
+    vertices->append(fge::vulkan::Vertex{{size.x + left - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
+    vertices->append(fge::vulkan::Vertex{{size.x + left - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
+    vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});
+    vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
 }
 
-void Character::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Character::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 {
     if (this->g_visibility)
     {
-        states.transform *= this->getTransform();
+        auto copyStates = states.copy(this);
+        copyStates._modelTransform *= this->getTransform();
 
-        target.draw(this->g_outlineVertices, states);
-        target.draw(this->g_vertices, states);
+        this->_g_graphicPipeline.setVertexBuffer(&this->g_outlineVertices);
+        target.draw(this->_g_graphicPipeline, states);
+        this->_g_graphicPipeline.setVertexBuffer(&this->g_vertices);
+        target.draw(this->_g_graphicPipeline, states);
+    }
+}
+void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const
+{
+    if (this->g_visibility)
+    {
+        auto copyStates = states.copy(this);
+        copyStates._modelTransform *= this->getTransform();
+
+        if (outlineVertices)
+        {
+            this->_g_graphicPipeline.setVertexBuffer(&this->g_outlineVertices);
+            target.draw(this->_g_graphicPipeline, states);
+        }
+        else
+        {
+            this->_g_graphicPipeline.setVertexBuffer(&this->g_vertices);
+            target.draw(this->_g_graphicPipeline, states);
+        }
     }
 }
 
-void Character::setFillColor(const sf::Color& color)
+void Character::setFillColor(const fge::Color& color)
 {
     this->g_fillColor = color;
     for (std::size_t i = 0; i < this->g_vertices.getVertexCount(); ++i)
     {
-        this->g_vertices[i].color = color;
+        this->g_vertices.getVertices()[i]._color = color;
     }
 }
-void Character::setOutlineColor(const sf::Color& color)
+void Character::setOutlineColor(const fge::Color& color)
 {
     this->g_outlineColor = color;
     for (std::size_t i = 0; i < this->g_outlineVertices.getVertexCount(); ++i)
     {
-        this->g_outlineVertices[i].color = color;
+        this->g_outlineVertices.getVertices()[i]._color = color;
     }
 }
 
-const sf::Color& Character::getFillColor() const
+const fge::Color& Character::getFillColor() const
 {
     return this->g_fillColor;
 }
-const sf::Color& Character::getOutlineColor() const
+const fge::Color& Character::getOutlineColor() const
 {
     return this->g_outlineColor;
 }
@@ -138,7 +160,7 @@ uint32_t Character::getUnicode() const
 
 ObjText::ObjText(tiny_utf8::string string,
                  fge::Font font,
-                 const sf::Vector2f& position,
+                 const fge::Vector2f& position,
                  fge::ObjText::CharacterSize characterSize) :
         g_font(std::move(font)),
         g_characterSize(characterSize),
@@ -147,7 +169,7 @@ ObjText::ObjText(tiny_utf8::string string,
     this->setString(std::move(string));
     this->setPosition(position);
 }
-ObjText::ObjText(fge::Font font, const sf::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+ObjText::ObjText(fge::Font font, const fge::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
         g_font(std::move(font)),
         g_characterSize(characterSize)
 {
@@ -207,7 +229,7 @@ void ObjText::setStyle(std::underlying_type<Style>::type style)
     }
 }
 
-void ObjText::setFillColor(const sf::Color& color)
+void ObjText::setFillColor(const fge::Color& color)
 {
     if (color != this->g_fillColor)
     {
@@ -224,7 +246,7 @@ void ObjText::setFillColor(const sf::Color& color)
         }
     }
 }
-void ObjText::setOutlineColor(const sf::Color& color)
+void ObjText::setOutlineColor(const fge::Color& color)
 {
     if (color != this->g_outlineColor)
     {
@@ -279,11 +301,11 @@ std::underlying_type<ObjText::Style>::type ObjText::getStyle() const
     return this->g_style;
 }
 
-const sf::Color& ObjText::getFillColor() const
+const fge::Color& ObjText::getFillColor() const
 {
     return this->g_fillColor;
 }
-const sf::Color& ObjText::getOutlineColor() const
+const fge::Color& ObjText::getOutlineColor() const
 {
     return this->g_outlineColor;
 }
@@ -293,7 +315,7 @@ float ObjText::getOutlineThickness() const
     return this->g_outlineThickness;
 }
 
-sf::Vector2f ObjText::findCharacterPos(std::size_t index) const
+fge::Vector2f ObjText::findCharacterPos(std::size_t index) const
 {
     if (this->g_characters.empty())
     {
@@ -306,7 +328,7 @@ sf::Vector2f ObjText::findCharacterPos(std::size_t index) const
         index = this->g_characters.size();
     }
 
-    return this->getTransform().transformPoint(this->g_characters[index].getPosition());
+    return this->getTransform() * this->g_characters[index].getPosition();
 }
 
 std::vector<fge::Character>& ObjText::getCharacters()
@@ -325,32 +347,22 @@ FGE_OBJ_DRAW_BODY(ObjText)
     {
         this->ensureGeometryUpdate();
 
-        states.transform *= getTransform();
-        states.texture = &this->g_font.getData()->_font->getTexture(this->g_characterSize);
+        auto copyStates = states.copy(this);
+
+        copyStates._modelTransform *= getTransform();
+        ///copyStates._textureImage = &this->g_font.getData()->_font->getTexture(this->g_characterSize); TODO
 
         if (this->g_outlineThickness != 0.0f)
         {
             for (const auto& character: this->g_characters)
             {
-                if (character.isVisible())
-                {
-                    sf::RenderStates statesCharacter{states};
-                    statesCharacter.transform *= character.getTransform();
-
-                    target.draw(character.g_outlineVertices, statesCharacter);
-                }
+                character.drawVertices(true, target, copyStates);
             }
         }
 
         for (const auto& character: this->g_characters)
         {
-            if (character.isVisible())
-            {
-                sf::RenderStates statesCharacter{states};
-                statesCharacter.transform *= character.getTransform();
-
-                target.draw(character.g_vertices, statesCharacter);
-            }
+            character.drawVertices(false, target, copyStates);
         }
     }
 }
@@ -380,8 +392,8 @@ void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_letterSpacingFactor = jsonObject.value<float>("letterSpacing", 1.0f);
     this->g_lineSpacingFactor = jsonObject.value<float>("lineSpacing", 1.0f);
     this->g_style = jsonObject.value<std::underlying_type<Style>::type>("style", Regular);
-    this->g_fillColor = sf::Color{jsonObject.value<uint32_t>("fillColor", sf::Color::White.toInteger())};
-    this->g_outlineColor = sf::Color{jsonObject.value<uint32_t>("outlineColor", sf::Color::Black.toInteger())};
+    this->g_fillColor = fge::Color{jsonObject.value<uint32_t>("fillColor", fge::Color::White.toInteger())};
+    this->g_outlineColor = fge::Color{jsonObject.value<uint32_t>("outlineColor", fge::Color::Black.toInteger())};
     this->g_outlineThickness = jsonObject.value<float>("outlineThickness", 0.0f);
 
     this->g_geometryNeedUpdate = true;
@@ -423,11 +435,11 @@ const char* ObjText::getReadableClassName() const
     return "text";
 }
 
-sf::FloatRect ObjText::getGlobalBounds() const
+fge::RectFloat ObjText::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjText::getLocalBounds() const
+fge::RectFloat ObjText::getLocalBounds() const
 {
     this->ensureGeometryUpdate();
     return this->g_bounds;
@@ -457,7 +469,7 @@ void ObjText::ensureGeometryUpdate() const
 
     // Clear the previous geometry
     this->g_characters.clear();
-    this->g_bounds = sf::FloatRect();
+    this->g_bounds = fge::RectFloat();
 
     // No text: nothing to draw
     if (this->g_string.empty())
@@ -663,10 +675,10 @@ void ObjText::ensureGeometryUpdate() const
     }
 
     // Update the bounding rectangle
-    this->g_bounds.left = minX;
-    this->g_bounds.top = minY;
-    this->g_bounds.width = maxX - minX;
-    this->g_bounds.height = maxY - minY;
+    this->g_bounds._x = minX;
+    this->g_bounds._y = minY;
+    this->g_bounds._width = maxX - minX;
+    this->g_bounds._height = maxY - minY;
 }
 
 } // namespace fge

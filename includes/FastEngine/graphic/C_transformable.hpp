@@ -60,8 +60,7 @@ public:
 
     void destroy();
 
-    void setViewMatrix(const glm::mat4& viewMatrix) const;
-    void updateUniformBuffer(const fge::vulkan::Context& context) const;
+    void updateUniformBuffer(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const fge::vulkan::Context& context) const;
     [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
 
 private:
@@ -69,14 +68,13 @@ private:
     Vector2f          g_position;                   //!< Position of the object in the 2D world
     float             g_rotation;                   //!< Orientation of the object, in degrees
     Vector2f          g_scale;                      //!< Scale of the object
-    mutable fge::Transform g_transform;             //!< Combined transformation of the object
+    mutable glm::mat4 g_transform;             //!< Combined transformation of the object
     mutable bool      g_transformNeedUpdate;        //!< Does the transform need to be recomputed?
     mutable glm::mat4 g_inverseTransform;           //!< Combined transformation of the object
     mutable bool      g_inverseTransformNeedUpdate; //!< Does the transform need to be recomputed?
 
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
     mutable fge::vulkan::UniformBuffer g_uniformBuffer;
-    mutable bool g_uniformBufferNeedUpdate;
 };
 
 }//end fge

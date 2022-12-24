@@ -82,8 +82,8 @@ void Instance::create(SDL_Window* window, std::string applicationName, uint16_t 
 #ifdef NDEBUG
     createInfo.enabledLayerCount = 0;
 #else
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+    createInfo.ppEnabledLayerNames = ValidationLayers.data();
 #endif
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &this->g_instance);
@@ -162,7 +162,7 @@ bool Instance::checkValidationLayerSupport()
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const char* layerName : validationLayers)
+    for (const char* layerName : ValidationLayers)
     {
         bool layerFound = false;
 

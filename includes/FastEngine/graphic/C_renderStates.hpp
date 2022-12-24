@@ -52,8 +52,20 @@ public:
             _transformable(transformable),
             _textureImage(textureImage)
     {}
+    RenderStates(const glm::mat4& modelTransform, const fge::Transformable* transformable, const fge::vulkan::TextureImage* textureImage) :
+            _modelTransform(modelTransform),
+            _transformable(transformable),
+            _textureImage(textureImage)
+    {}
 
-    //glm::mat4 _modelTransform{1.0f};
+    [[nodiscard]] RenderStates copy(const fge::Transformable* transformable, const fge::vulkan::TextureImage* textureImage=nullptr) const
+    {
+        return RenderStates{this->_modelTransform, transformable, textureImage};
+    }
+
+    RenderStates& operator=(const RenderStates& r) noexcept = delete;
+
+    glm::mat4 _modelTransform{1.0f};
     const fge::Transformable* _transformable{nullptr};
     const fge::vulkan::TextureImage* _textureImage{nullptr};
 };

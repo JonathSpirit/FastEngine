@@ -17,7 +17,7 @@
 namespace sf
 {
 
-template<class T>
+/**template<class T>
 void to_json(nlohmann::json& j, const sf::Rect<T>& p)
 {
     j = nlohmann::json{{"x", p.left}, {"y", p.top}, {"w", p.width}, {"h", p.height}};
@@ -65,7 +65,7 @@ inline void from_json(const nlohmann::json& j, sf::Color& p)
     uint32_t color{0};
     j.get_to(color);
     p = sf::Color{color};
-}
+}**/
 
 } // namespace sf
 

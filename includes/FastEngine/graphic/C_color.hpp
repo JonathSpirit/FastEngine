@@ -51,6 +51,12 @@ public:
             _b(static_cast<uint8_t>(clearColorValue.float32[2]*255.0f)),
             _a(static_cast<uint8_t>(clearColorValue.float32[3]*255.0f))
     {}
+    explicit Color(const glm::vec3& vec3) noexcept :
+            _r(static_cast<uint8_t>(vec3.r*255.0f)),
+            _g(static_cast<uint8_t>(vec3.g*255.0f)),
+            _b(static_cast<uint8_t>(vec3.b*255.0f)),
+            _a(255)
+    {}
     Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept :
             _r(red),
             _g(green),
@@ -77,6 +83,12 @@ public:
                  static_cast<float>(this->_g)/255.0f,
                  static_cast<float>(this->_b)/255.0f,
                  static_cast<float>(this->_a)/255.0f}};
+    }
+    operator glm::vec3() const
+    {
+        return {static_cast<float>(this->_r)/255.0f,
+                static_cast<float>(this->_g)/255.0f,
+                static_cast<float>(this->_b)/255.0f};
     }
 
     [[nodiscard]] uint32_t toInteger() const

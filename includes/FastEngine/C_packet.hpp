@@ -40,6 +40,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
 #include <FastEngine/graphic/C_vector.hpp>
+#include <FastEngine/graphic/C_color.hpp>
 
 #define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 
@@ -147,6 +148,7 @@ public:
     fge::net::Packet& operator<<(const fge::Matrix<T>& data);
 
     inline fge::net::Packet& operator<<(const sf::Color& data);
+    inline fge::net::Packet& operator<<(const fge::Color& data);
 
     ///
 
@@ -196,6 +198,7 @@ public:
     const fge::net::Packet& operator>>(fge::Matrix<T>& data) const;
 
     inline const fge::net::Packet& operator>>(sf::Color& data) const;
+    inline const fge::net::Packet& operator>>(fge::Color& data) const;
 
     bool operator==(const Packet& right) const = delete;
     bool operator!=(const Packet& right) const = delete;

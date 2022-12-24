@@ -34,8 +34,7 @@ TextureImage::TextureImage() :
 
         g_filter(VK_FILTER_LINEAR),
 
-        g_logicalDevice(nullptr),
-        g_physicalDevice(nullptr)
+        g_context(nullptr)
 {}
 TextureImage::TextureImage(TextureImage&& r) noexcept :
         g_textureImage(r.g_textureImage),
@@ -49,8 +48,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
 
         g_filter(r.g_filter),
 
-        g_logicalDevice(r.g_logicalDevice),
-        g_physicalDevice(r.g_physicalDevice)
+        g_context(r.g_context)
 {
     r.g_textureImage = VK_NULL_HANDLE;
     r.g_textureImageMemory = VK_NULL_HANDLE;
@@ -63,25 +61,23 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
 
     r.g_filter = VK_FILTER_LINEAR;
 
-    r.g_logicalDevice = nullptr;
-    r.g_physicalDevice = nullptr;
+    r.g_context = nullptr;
 }
 TextureImage::~TextureImage()
 {
     this->destroy();
 }
 
-void TextureImage::create(const Context& context, const glm::vec<2, int>& size)
+bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
 {
     this->destroy();
 
     if (size.x == 0 || size.y == 0)
     {
-        return;
+        return false;
     }
 
-    this->g_logicalDevice = &context.getLogicalDevice();
-    this->g_physicalDevice = &context.getPhysicalDevice();
+    this->g_context = &context;
 
     const VkDeviceSize imageSize = static_cast<VkDeviceSize>(size.x) * size.y * 4;
 
@@ -107,7 +103,7 @@ void TextureImage::create(const Context& context, const glm::vec<2, int>& size)
     CreateImage(context.getLogicalDevice(), context.getPhysicalDevice(),
                 size.x, size.y,
                 VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 this->g_textureImage, this->g_textureImageMemory);
 
@@ -119,7 +115,7 @@ void TextureImage::create(const Context& context, const glm::vec<2, int>& size)
     vkDestroyBuffer(context.getLogicalDevice().getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
 
-    this->g_textureImageView = CreateImageView(*this->g_logicalDevice, this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 
     this->createTextureSampler(context.getPhysicalDevice());
 
@@ -129,18 +125,18 @@ void TextureImage::create(const Context& context, const glm::vec<2, int>& size)
 
     const DescriptorSet::Descriptor descriptor(*this, 1);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
+    return true;
 }
-void TextureImage::create(const Context& context, SDL_Surface* surface)
+bool TextureImage::create(const Context& context, SDL_Surface* surface)
 {
     this->destroy();
 
     if (surface == nullptr)
     {
-        return;
+        return false;
     }
 
-    this->g_logicalDevice = &context.getLogicalDevice();
-    this->g_physicalDevice = &context.getPhysicalDevice();
+    this->g_context = &context;
 
     const VkDeviceSize imageSize = static_cast<VkDeviceSize>(surface->w)
             * surface->h
@@ -166,7 +162,7 @@ void TextureImage::create(const Context& context, SDL_Surface* surface)
     CreateImage(context.getLogicalDevice(), context.getPhysicalDevice(),
                 surface->w, surface->h,
                 VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 this->g_textureImage, this->g_textureImageMemory);
 
@@ -180,7 +176,7 @@ void TextureImage::create(const Context& context, SDL_Surface* surface)
     vkDestroyBuffer(context.getLogicalDevice().getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
 
-    this->g_textureImageView = CreateImageView(*this->g_logicalDevice, this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 
     this->createTextureSampler(context.getPhysicalDevice());
 
@@ -190,6 +186,7 @@ void TextureImage::create(const Context& context, SDL_Surface* surface)
 
     const DescriptorSet::Descriptor descriptor(*this, 1);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
+    return true;
 }
 void TextureImage::destroy()
 {
@@ -197,13 +194,13 @@ void TextureImage::destroy()
     {
         this->g_textureDescriptorSet.destroy();
 
-        vkDestroySampler(this->g_logicalDevice->getDevice(), this->g_textureSampler, nullptr);
-        vkDestroyImageView(this->g_logicalDevice->getDevice(), this->g_textureImageView, nullptr);
+        vkDestroySampler(this->g_context->getLogicalDevice().getDevice(), this->g_textureSampler, nullptr);
+        vkDestroyImageView(this->g_context->getLogicalDevice().getDevice(), this->g_textureImageView, nullptr);
 
         this->g_textureImageView = VK_NULL_HANDLE;
 
-        vkDestroyImage(this->g_logicalDevice->getDevice(), this->g_textureImage, nullptr);
-        vkFreeMemory(this->g_logicalDevice->getDevice(), this->g_textureImageMemory, nullptr);
+        vkDestroyImage(this->g_context->getLogicalDevice().getDevice(), this->g_textureImage, nullptr);
+        vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), this->g_textureImageMemory, nullptr);
 
         this->g_textureImage = VK_NULL_HANDLE;
         this->g_textureImageMemory = VK_NULL_HANDLE;
@@ -213,9 +210,93 @@ void TextureImage::destroy()
 
         this->g_filter = VK_FILTER_LINEAR;
 
-        this->g_logicalDevice = nullptr;
-        this->g_physicalDevice = nullptr;
+        this->g_context = nullptr;
     }
+}
+
+SDL_Surface* TextureImage::copyToSurface() const
+{
+    if (this->g_textureImage == VK_NULL_HANDLE)
+    {
+        return nullptr;
+    }
+
+    SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, this->g_textureSize.x, this->g_textureSize.y, 32, SDL_PIXELFORMAT_RGBA32);
+    if (surface == nullptr)
+    {
+        return nullptr;
+    }
+
+    const VkDeviceSize imageSize = static_cast<VkDeviceSize>(this->g_textureSize.x)
+                                   * this->g_textureSize.y
+                                   * this->g_textureBytesPerPixel;
+
+    VkBuffer dstBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory dstBufferMemory = VK_NULL_HANDLE;
+
+    CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
+                 imageSize,
+                 VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 dstBuffer, dstBufferMemory);
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+
+    this->g_context->copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
+
+    void* data = nullptr;
+    vkMapMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory, 0, imageSize, 0, &data);
+        memcpy(surface->pixels, data, static_cast<size_t>(imageSize));
+    vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory);
+
+    vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory, nullptr);
+    vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), dstBuffer, nullptr);
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    return surface;
+}
+
+void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& position)
+{
+    if (surface == nullptr)
+    {
+        return;
+    }
+    if ((surface->w + position.x >= this->g_textureSize.x) ||
+        (surface->h + position.y >= this->g_textureSize.y))
+    {
+        return;
+    }
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    const VkDeviceSize imageSize = static_cast<VkDeviceSize>(surface->w)
+                                   * surface->h
+                                   * surface->format->BytesPerPixel;
+
+    VkBuffer stagingBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+
+    CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
+                 imageSize,
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 stagingBuffer, stagingBufferMemory);
+
+    void* data = nullptr;
+    vkMapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+        memcpy(data, surface->pixels, static_cast<size_t>(imageSize));
+    vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory);
+
+    this->g_context->copyBufferToImage(stagingBuffer, this->g_textureImage,
+                                       surface->w, surface->h,
+                                       position.x, position.y);
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), stagingBuffer, nullptr);
+    vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
 }
 
 const glm::vec<2, int>& TextureImage::getSize() const
@@ -255,8 +336,8 @@ void TextureImage::setFilter(VkFilter filter)
     if (this->g_filter != filter)
     {
         this->g_filter = filter;
-        vkDestroySampler(this->g_logicalDevice->getDevice(), this->g_textureSampler, nullptr);
-        this->createTextureSampler(*this->g_physicalDevice);
+        vkDestroySampler(this->g_context->getLogicalDevice().getDevice(), this->g_textureSampler, nullptr);
+        this->createTextureSampler(this->g_context->getPhysicalDevice());
 
         const DescriptorSet::Descriptor descriptor(*this, 1);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
@@ -267,9 +348,9 @@ VkFilter TextureImage::getFilter() const
     return this->g_filter;
 }
 
-const LogicalDevice* TextureImage::getLogicalDevice() const
+const Context* TextureImage::getContext() const
 {
-    return this->g_logicalDevice;
+    return this->g_context;
 }
 
 const fge::vulkan::DescriptorSet& TextureImage::getDescriptorSet() const
@@ -304,7 +385,7 @@ void TextureImage::createTextureSampler(const PhysicalDevice& physicalDevice)
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    if (vkCreateSampler(this->g_logicalDevice->getDevice(), &samplerInfo, nullptr, &this->g_textureSampler) != VK_SUCCESS)
+    if (vkCreateSampler(this->g_context->getLogicalDevice().getDevice(), &samplerInfo, nullptr, &this->g_textureSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture sampler!");
     }

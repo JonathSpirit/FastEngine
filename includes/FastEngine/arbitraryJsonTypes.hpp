@@ -27,7 +27,7 @@
 namespace sf
 {
 
-template<class T>
+/**template<class T>
 void to_json(nlohmann::json& j, const sf::Rect<T>& p);
 template<class T>
 void from_json(const nlohmann::json& j, sf::Rect<T>& p);
@@ -43,7 +43,7 @@ template<class T>
 void from_json(const nlohmann::json& j, sf::Vector3<T>& p);
 
 inline void to_json(nlohmann::json& j, const sf::Color& p);
-inline void from_json(const nlohmann::json& j, sf::Color& p);
+inline void from_json(const nlohmann::json& j, sf::Color& p);**/
 
 } // namespace sf
 
