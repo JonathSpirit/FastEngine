@@ -34,6 +34,8 @@ TextureImage::TextureImage() :
 
         g_filter(VK_FILTER_LINEAR),
 
+        g_modificationCount(0),
+
         g_context(nullptr)
 {}
 TextureImage::TextureImage(TextureImage&& r) noexcept :
@@ -48,6 +50,8 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
 
         g_filter(r.g_filter),
 
+        g_modificationCount(r.g_modificationCount),
+
         g_context(r.g_context)
 {
     r.g_textureImage = VK_NULL_HANDLE;
@@ -61,6 +65,8 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
 
     r.g_filter = VK_FILTER_LINEAR;
 
+    r.g_modificationCount = 0;
+
     r.g_context = nullptr;
 }
 TextureImage::~TextureImage()
@@ -68,9 +74,47 @@ TextureImage::~TextureImage()
     this->destroy();
 }
 
+TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
+{
+    this->destroy();
+
+    this->g_textureImage = r.g_textureImage;
+    this->g_textureImageMemory = r.g_textureImageMemory;
+
+    this->g_textureImageView = r.g_textureImageView;
+    this->g_textureSampler = r.g_textureSampler;
+
+    this->g_textureSize = r.g_textureSize;
+    this->g_textureBytesPerPixel = r.g_textureBytesPerPixel;
+
+    this->g_filter = r.g_filter;
+
+    ++this->g_modificationCount;
+
+    this->g_context = r.g_context;
+
+    r.g_textureImage = VK_NULL_HANDLE;
+    r.g_textureImageMemory = VK_NULL_HANDLE;
+
+    r.g_textureImageView = VK_NULL_HANDLE;
+    r.g_textureSampler = VK_NULL_HANDLE;
+
+    r.g_textureSize = {0,0};
+    r.g_textureBytesPerPixel = 0;
+
+    r.g_filter = VK_FILTER_LINEAR;
+
+    r.g_modificationCount = 0;
+
+    r.g_context = nullptr;
+    return *this;
+}
+
 bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
 {
     this->destroy();
+
+    ++this->g_modificationCount;
 
     if (size.x == 0 || size.y == 0)
     {
@@ -130,6 +174,8 @@ bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
 bool TextureImage::create(const Context& context, SDL_Surface* surface)
 {
     this->destroy();
+
+    ++this->g_modificationCount;
 
     if (surface == nullptr)
     {
@@ -210,6 +256,8 @@ void TextureImage::destroy()
 
         this->g_filter = VK_FILTER_LINEAR;
 
+        this->g_modificationCount = 0;
+
         this->g_context = nullptr;
     }
 }
@@ -257,17 +305,19 @@ SDL_Surface* TextureImage::copyToSurface() const
     return surface;
 }
 
-void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& position)
+void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
 {
     if (surface == nullptr)
     {
         return;
     }
-    if ((surface->w + position.x >= this->g_textureSize.x) ||
-        (surface->h + position.y >= this->g_textureSize.y))
+    if ((surface->w + offset.x >= this->g_textureSize.x) ||
+        (surface->h + offset.y >= this->g_textureSize.y))
     {
         return;
     }
+
+    ++this->g_modificationCount;
 
     this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -291,7 +341,72 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& position
 
     this->g_context->copyBufferToImage(stagingBuffer, this->g_textureImage,
                                        surface->w, surface->h,
-                                       position.x, position.y);
+                                       offset.x, offset.y);
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), stagingBuffer, nullptr);
+    vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
+}
+void TextureImage::update(const TextureImage& textureImage, const glm::vec<2, int>& offset)
+{
+    if (textureImage.g_textureImage == VK_NULL_HANDLE)
+    {
+        return;
+    }
+    if ((textureImage.g_textureSize.x + offset.x >= this->g_textureSize.x) ||
+        (textureImage.g_textureSize.y + offset.y >= this->g_textureSize.y))
+    {
+        return;
+    }
+
+    ++this->g_modificationCount;
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    this->g_context->transitionImageLayout(textureImage.g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+
+    this->g_context->copyImageToImage(textureImage.g_textureImage, this->g_textureImage,
+                                      textureImage.g_textureSize.x, textureImage.g_textureSize.y,
+                                       offset.x, offset.y);
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    this->g_context->transitionImageLayout(textureImage.g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2, int>& size, const glm::vec<2, int>& offset)
+{
+    if (buffer == nullptr || bufferSize == 0)
+    {
+        return;
+    }
+    if ((size.x + offset.x >= this->g_textureSize.x) ||
+        (size.y + offset.y >= this->g_textureSize.y))
+    {
+        return;
+    }
+
+    ++this->g_modificationCount;
+
+    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    const VkDeviceSize imageSize = bufferSize;
+
+    VkBuffer stagingBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+
+    CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
+                 imageSize,
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 stagingBuffer, stagingBufferMemory);
+
+    void* data = nullptr;
+    vkMapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+        memcpy(data, buffer, bufferSize);
+    vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory);
+
+    this->g_context->copyBufferToImage(stagingBuffer, this->g_textureImage,
+                                       size.x, size.y,
+                                       offset.x, offset.y);
 
     this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
@@ -356,6 +471,11 @@ const Context* TextureImage::getContext() const
 const fge::vulkan::DescriptorSet& TextureImage::getDescriptorSet() const
 {
     return this->g_textureDescriptorSet;
+}
+
+uint32_t TextureImage::getModificationCount() const
+{
+    return this->g_modificationCount;
 }
 
 void TextureImage::createTextureSampler(const PhysicalDevice& physicalDevice)

@@ -26,6 +26,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "C_object.hpp"
+#include "FastEngine/graphic/C_glyph.hpp"
 #include "FastEngine/C_font.hpp"
 #include "tinyutf8.h"
 #include <vector>
@@ -50,7 +51,7 @@ public:
                  float offset,
                  float thickness,
                  float outlineThickness = 0.0f);
-    void addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const sf::Glyph& glyph, float italicShear);
+    void addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const fge::Glyph& glyph, float italicShear);
 
     void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
     void drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const;
@@ -171,7 +172,7 @@ private:
     mutable std::vector<Character> g_characters;
     mutable fge::RectFloat g_bounds;           /// Bounding rectangle of the text (in local coordinates)
     mutable bool g_geometryNeedUpdate{false}; /// Does the geometry need to be recomputed?
-    mutable uint64_t g_fontTextureId{0};      /// The font texture id
+    mutable uint32_t g_fontTextureModificationCount{0};      /// The font texture id
 };
 
 } // namespace fge

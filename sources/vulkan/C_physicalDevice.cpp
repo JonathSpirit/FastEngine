@@ -215,4 +215,11 @@ uint32_t PhysicalDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFla
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
+uint32_t PhysicalDevice::getMaxImageDimension2D() const
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
+    return deviceProperties.limits.maxImageDimension2D;
+}
+
 }//end fge::vulkan

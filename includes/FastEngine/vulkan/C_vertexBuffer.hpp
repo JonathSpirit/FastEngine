@@ -44,12 +44,12 @@ public:
     };
 
     VertexBuffer();
-    VertexBuffer(const VertexBuffer& r) = delete;
+    VertexBuffer(const VertexBuffer& r) = delete; ///TODO: Make it copyable
     VertexBuffer(VertexBuffer&& r) noexcept;
     ~VertexBuffer();
 
-    VertexBuffer& operator=(const VertexBuffer& r) = delete;
-    VertexBuffer& operator=(VertexBuffer&& r) noexcept = delete;
+    VertexBuffer& operator=(const VertexBuffer& r) = delete; ///TODO: Make it copyable
+    VertexBuffer& operator=(VertexBuffer&& r) noexcept = delete; ///TODO: Make it moveable
 
     void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, Types type=Types::DEFAULT);
 

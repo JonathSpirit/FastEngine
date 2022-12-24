@@ -76,20 +76,20 @@ fge::Font& Font::operator=(fge::font::FontDataPtr data)
     return *this;
 }
 
-Font::operator sf::Font*()
+Font::operator fge::FreeTypeFont*()
 {
     return this->g_data->_font.get();
 }
-Font::operator const sf::Font*() const
+Font::operator const fge::FreeTypeFont*() const
 {
     return this->g_data->_font.get();
 }
 
-Font::operator sf::Font&()
+Font::operator fge::FreeTypeFont&()
 {
     return *this->g_data->_font;
 }
-Font::operator const sf::Font&() const
+Font::operator const fge::FreeTypeFont&() const
 {
     return *this->g_data->_font;
 }

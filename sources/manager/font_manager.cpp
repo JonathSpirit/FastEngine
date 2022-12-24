@@ -34,7 +34,7 @@ void Init()
     if (_dataFontBad == nullptr)
     {
         _dataFontBad = std::make_shared<fge::font::FontData>();
-        _dataFontBad->_font = std::make_shared<sf::Font>();
+        _dataFontBad->_font = std::make_shared<fge::FreeTypeFont>();
         _dataFontBad->_valid = false;
     }
 }
@@ -117,7 +117,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
         return false;
     }
 
-    auto tmpFont = std::make_shared<sf::Font>();
+    auto tmpFont = std::make_shared<fge::FreeTypeFont>();
 
     if (!tmpFont->loadFromFile(path.string()))
     {

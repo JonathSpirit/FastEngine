@@ -142,6 +142,7 @@ if(WIN32)
 
 else()
     find_library(FREETYPE NAMES freetype REQUIRED)
+    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
@@ -192,19 +193,14 @@ if(WIN32)
     add_dependencies(sfml-audio OpenAL_extern)
     add_dependencies(sfml-graphics freetype_extern)
     add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
+    add_dependencies(${FGE_LIB_NAME} freetype_extern)
 endif()
 
 add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image) #SDL
-target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH})
+target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH}) #Volk
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL/include)
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL_image)
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm)
-
-#target_include_directories(vulkanTest PRIVATE ${VOLK_PATH})
-#target_include_directories(vulkanTest PRIVATE SDL/include/)
-#target_include_directories(vulkanTest PRIVATE SDL_image/)
-#target_include_directories(vulkanTest PRIVATE glm/)
-#target_include_directories(vulkanTest PRIVATE includes/)
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
@@ -233,6 +229,9 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
 
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
+
+target_include_directories(${FGE_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR}) #FreeType
+target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR})
 
 #Compile options
 target_compile_options(${FGE_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
@@ -330,7 +329,6 @@ target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS 
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE includes/private/server)
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/extlibs/headers/stb_image)
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/src)
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR})
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/RenderTarget.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/GlResource.cpp")
@@ -385,7 +383,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_transformable.cpp
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
-        sources/graphic/C_renderTarget.cpp)
+        sources/graphic/C_renderTarget.cpp
+        sources/graphic/C_ftFont.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_animation.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
@@ -403,7 +402,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
@@ -464,7 +463,7 @@ target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image)
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_LIB_NAME} fmt)
-target_link_libraries(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window)
+target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY} sfml-audio sfml-graphics sfml-system sfml-window)
 target_link_libraries(${FGE_LIB_NAME} re2)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)

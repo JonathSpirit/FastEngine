@@ -318,6 +318,39 @@ void Context::copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, 
 
     endSingleTimeCommands(commandBuffer);
 }
+void Context::copyImageToImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height, int32_t offsetX, int32_t offsetY) const
+{
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+    VkImageCopy region{};
+    region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.srcSubresource.mipLevel = 0;
+    region.srcSubresource.baseArrayLayer = 0;
+    region.srcSubresource.layerCount = 1;
+    region.srcOffset = {offsetX, offsetY, 0};
+
+    region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.dstSubresource.mipLevel = 0;
+    region.dstSubresource.baseArrayLayer = 0;
+    region.dstSubresource.layerCount = 1;
+    region.dstOffset = {0, 0, 0};
+
+    region.extent.width = width;
+    region.extent.height = height;
+    region.extent.depth = 1;
+
+    vkCmdCopyImage(
+            commandBuffer,
+            srcImage,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            dstImage,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &region
+    );
+
+    endSingleTimeCommands(commandBuffer);
+}
 
 const fge::vulkan::DescriptorSetLayout& Context::getDescriptorSetLayout() const
 {

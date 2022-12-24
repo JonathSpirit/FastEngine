@@ -45,10 +45,12 @@ VkShaderModule CreateShaderModule(const std::vector<char>& code, VkDevice device
 
 Shader::Shader() :
         g_shaderModule(VK_NULL_HANDLE),
-        g_pipelineShaderStageCreateInfo({.sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO}),
+        g_pipelineShaderStageCreateInfo(),
         g_type(Shader::Type::SHADER_NONE),
         g_logicalDevice(nullptr)
-{}
+{
+    this->g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+}
 Shader::Shader(Shader&& r) noexcept :
         g_shaderModule(r.g_shaderModule),
         g_pipelineShaderStageCreateInfo(r.g_pipelineShaderStageCreateInfo),
@@ -56,7 +58,8 @@ Shader::Shader(Shader&& r) noexcept :
         g_logicalDevice(r.g_logicalDevice)
 {
     r.g_shaderModule = VK_NULL_HANDLE;
-    r.g_pipelineShaderStageCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
+    r.g_pipelineShaderStageCreateInfo={};
+    r.g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     r.g_type = Shader::Type::SHADER_NONE;
     r.g_logicalDevice = nullptr;
 }
@@ -113,7 +116,8 @@ void Shader::destroy()
     {
         vkDestroyShaderModule(this->g_logicalDevice->getDevice(), this->g_shaderModule, nullptr);
         this->g_shaderModule = VK_NULL_HANDLE;
-        this->g_pipelineShaderStageCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
+        this->g_pipelineShaderStageCreateInfo = {};
+        this->g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         this->g_type = Shader::Type::SHADER_NONE;
         this->g_logicalDevice = nullptr;
     }

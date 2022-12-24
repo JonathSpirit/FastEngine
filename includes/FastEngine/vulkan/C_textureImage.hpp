@@ -39,7 +39,7 @@ public:
     ~TextureImage();
 
     TextureImage& operator=(const TextureImage& r) = delete;
-    TextureImage& operator=(TextureImage&& r) noexcept = delete;
+    TextureImage& operator=(TextureImage&& r) noexcept;
 
     bool create(const Context& context, const glm::vec<2, int>& size);
     bool create(const Context& context, SDL_Surface* surface);
@@ -47,7 +47,9 @@ public:
 
     [[nodiscard]] SDL_Surface* copyToSurface() const;
 
-    void update(SDL_Surface* surface, const glm::vec<2, int>& position);
+    void update(SDL_Surface* surface, const glm::vec<2, int>& offset);
+    void update(const TextureImage& textureImage, const glm::vec<2, int>& offset);
+    void update(void* buffer, std::size_t bufferSize, const glm::vec<2, int>& size, const glm::vec<2, int>& offset);
 
     [[nodiscard]] const glm::vec<2, int>& getSize() const;
     [[nodiscard]] VkExtent2D getExtent() const;
@@ -66,6 +68,8 @@ public:
 
     [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
 
+    [[nodiscard]] uint32_t getModificationCount() const;
+
 private:
     void createTextureSampler(const PhysicalDevice& physicalDevice);
 
@@ -81,6 +85,8 @@ private:
     VkFilter g_filter;
 
     fge::vulkan::DescriptorSet g_textureDescriptorSet;
+
+    uint32_t g_modificationCount;
 
     const Context* g_context;
 };

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-#define private public //TODO: A bit hacky, must be changed in future !
-#include "SFML/Graphics/Texture.hpp"
-#undef private
-
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/graphic/C_ftFont.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
 #include "FastEngine/manager/font_manager.hpp"
-#include "FastEngine/object/C_objText.hpp"
 
 namespace fge
 {
@@ -58,22 +55,22 @@ void Character::addLine(bool outlineVertices,
 }
 
 // Add a glyph quad to the vertex array
-void Character::addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const sf::Glyph& glyph, float italicShear)
+void Character::addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const fge::Glyph& glyph, float italicShear)
 {
     fge::vulkan::VertexBuffer* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
     fge::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
     const float padding = 1.0f;
 
-    const float left = glyph.bounds.left - padding;
-    const float top = glyph.bounds.top - padding;
-    const float right = glyph.bounds.left + glyph.bounds.width + padding;
-    const float bottom = glyph.bounds.top + glyph.bounds.height + padding;
+    const float left = glyph._bounds._x - padding;
+    const float top = glyph._bounds._y - padding;
+    const float right = glyph._bounds._x + glyph._bounds._width + padding;
+    const float bottom = glyph._bounds._y + glyph._bounds._height + padding;
 
-    float u1 = static_cast<float>(glyph.textureRect.left) - padding;
-    float v1 = static_cast<float>(glyph.textureRect.top) - padding;
-    float u2 = static_cast<float>(glyph.textureRect.left + glyph.textureRect.width) + padding;
-    float v2 = static_cast<float>(glyph.textureRect.top + glyph.textureRect.height) + padding;
+    float u1 = static_cast<float>(glyph._textureRect._x) - padding;
+    float v1 = static_cast<float>(glyph._textureRect._y) - padding;
+    float u2 = static_cast<float>(glyph._textureRect._x + glyph._textureRect._width) + padding;
+    float v2 = static_cast<float>(glyph._textureRect._y + glyph._textureRect._height) + padding;
 
     vertices->append(fge::vulkan::Vertex{{size.x + left - italicShear * top, size.y + top}, color, {u1, v1}});
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});
@@ -452,17 +449,17 @@ void ObjText::ensureGeometryUpdate() const
         return;
     }
 
-    const auto* font = static_cast<const sf::Font*>(this->g_font);
+    const auto* font = static_cast<const fge::FreeTypeFont*>(this->g_font);
 
     // Do nothing, if geometry has not changed and the font texture has not changed
     if (!this->g_geometryNeedUpdate &&
-        this->g_font.getData()->_font->getTexture(this->g_characterSize).m_cacheId == this->g_fontTextureId)
+        this->g_font.getData()->_font->getTexture(this->g_characterSize).getModificationCount() == this->g_fontTextureModificationCount)
     {
         return;
     }
 
     // Save the current fonts texture id
-    this->g_fontTextureId = font->getTexture(this->g_characterSize).m_cacheId;
+    this->g_fontTextureModificationCount = font->getTexture(this->g_characterSize).getModificationCount();
 
     // Mark geometry as updated
     this->g_geometryNeedUpdate = false;
@@ -488,16 +485,16 @@ void ObjText::ensureGeometryUpdate() const
     // Compute the location of the strike through dynamically
     // We use the center point of the lowercase 'x' glyph as the reference
     // We reuse the underline thickness as the thickness of the strike through as well
-    sf::FloatRect xBounds = font->getGlyph(U'x', this->g_characterSize, isBold).bounds;
-    float strikeThroughOffset = xBounds.top + xBounds.height / 2.f;
+    fge::RectFloat xBounds = font->getGlyph(U'x', this->g_characterSize, isBold)._bounds;
+    float strikeThroughOffset = xBounds._y + xBounds._height / 2.f;
 
     // Precompute the variables needed by the algorithm
-    float whitespaceWidth = font->getGlyph(U' ', this->g_characterSize, isBold).advance;
+    float whitespaceWidth = font->getGlyph(U' ', this->g_characterSize, isBold)._advance;
     float letterSpacing = (whitespaceWidth / 3.f) * (this->g_letterSpacingFactor - 1.f);
     whitespaceWidth += letterSpacing;
     float lineSpacing = font->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
 
-    sf::Vector2f position{0.0f, 0.0f};
+    fge::Vector2f position{0.0f, 0.0f};
 
     // Create one quad for each character
     float minX = static_cast<float>(this->g_characterSize);
@@ -516,7 +513,7 @@ void ObjText::ensureGeometryUpdate() const
             continue;
         }
 
-        sf::Vector2f size{0.0f, static_cast<float>(this->g_characterSize)};
+        fge::Vector2f size{0.0f, static_cast<float>(this->g_characterSize)};
 
         Character& character = this->g_characters.emplace_back(this->g_fillColor, this->g_outlineColor);
         character.g_unicodeChar = curChar;
@@ -611,20 +608,20 @@ void ObjText::ensureGeometryUpdate() const
         // Apply the outline
         if (this->g_outlineThickness != 0.0f)
         {
-            const sf::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold, this->g_outlineThickness);
+            const fge::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold, this->g_outlineThickness);
 
             // Add the outline glyph to the vertices
             character.addGlyphQuad(true, size, glyph, italicShear);
         }
 
         // Extract the current glyph's description
-        const sf::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold);
+        const fge::Glyph& glyph = font->getGlyph(curChar, this->g_characterSize, isBold);
 
         // Add the glyph to the vertices
         character.addGlyphQuad(false, size, glyph, italicShear);
         character.setPosition(position);
 
-        float characterLength = glyph.advance + letterSpacing;
+        float characterLength = glyph._advance + letterSpacing;
 
         if (isUnderlined && (characterLength > 0.0f))
         {
@@ -650,10 +647,10 @@ void ObjText::ensureGeometryUpdate() const
         }
 
         // Update the current bounds
-        float left = glyph.bounds.left;
-        float top = glyph.bounds.top;
-        float right = glyph.bounds.left + glyph.bounds.width;
-        float bottom = glyph.bounds.top + glyph.bounds.height;
+        float left = glyph._bounds._x;
+        float top = glyph._bounds._y;
+        float right = glyph._bounds._x + glyph._bounds._width;
+        float bottom = glyph._bounds._y + glyph._bounds._height;
 
         minX = std::min(minX, size.x + position.x + left - italicShear * bottom);
         maxX = std::max(maxX, size.x + position.x + right - italicShear * top);
