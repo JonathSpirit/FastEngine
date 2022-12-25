@@ -83,6 +83,26 @@ DescriptorSet& DescriptorSet::operator=([[maybe_unused]] const DescriptorSet& r)
     this->g_logicalDevice = nullptr;
     return *this;
 }
+DescriptorSet& DescriptorSet::operator=(DescriptorSet&& r) noexcept
+{
+    this->destroy();
+
+    this->g_descriptorSet = std::move(r.g_descriptorSet);
+
+    this->g_descriptorPool = r.g_descriptorPool;
+    this->g_freeFromPool = r.g_freeFromPool;
+
+    this->g_logicalDevice = r.g_logicalDevice;
+
+    r.g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+
+    r.g_descriptorPool = nullptr;
+    r.g_freeFromPool = true;
+
+    r.g_logicalDevice = nullptr;
+
+    return *this;
+}
 
 void DescriptorSet::create(const LogicalDevice& logicalDevice,
                            const DescriptorSetLayout* layouts,

@@ -381,6 +381,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_surface.cpp
         sources/graphic/C_view.cpp
         sources/graphic/C_transformable.cpp
+        sources/graphic/C_shape.cpp
+        sources/graphic/C_rectangleShape.cpp
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
@@ -407,7 +409,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -477,13 +479,13 @@ add_custom_target(CompileShaders)
 
 add_custom_command(TARGET CompileShaders PRE_BUILD
         COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 add_custom_command(TARGET CompileShaders PRE_BUILD
         COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 add_custom_command(TARGET CompileShaders PRE_BUILD
         COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 
 add_dependencies(${FGE_LIB_NAME} CompileShaders)
 
@@ -537,11 +539,11 @@ add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
 
 #Set some variables that help exe linking
 if(WIN32)
-    set(FGE_CLIENT_LIBS SDL2 SDL2_image sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-audio sfml-graphics sfml-system sfml-window ${FGE_LIB_NAME})
 elseif(APPLE)
-    set(FGE_CLIENT_LIBS SDL2 SDL2_image sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-audio sfml-graphics sfml-system sfml-window ${FGE_LIB_NAME})
 else()
-    set(FGE_CLIENT_LIBS SDL2 SDL2_image sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window X11 ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-audio sfml-graphics sfml-system sfml-window X11 ${FGE_LIB_NAME})
 endif()
 
 #Tests

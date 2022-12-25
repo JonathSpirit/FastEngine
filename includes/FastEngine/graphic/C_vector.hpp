@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_C_VECTOR_HPP_INCLUDED
-#define _FGE_C_VECTOR_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_VECTOR_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_VECTOR_HPP_INCLUDED
 
 #include <cstdint>
 #define GLM_FORCE_CTOR_INIT
@@ -44,4 +44,4 @@ inline glm::vec2 operator*(const glm::mat4& left, const glm::vec2& right)
 
 }//end fge
 
-#endif //_FGE_C_VECTOR_HPP_INCLUDED
+#endif //_FGE_GRAPHIC_C_VECTOR_HPP_INCLUDED

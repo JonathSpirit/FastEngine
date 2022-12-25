@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_VULKAN_C_TRANSFORM_HPP_INCLUDED
-#define _FGE_VULKAN_C_TRANSFORM_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED
 
 #include <glm/glm.hpp>
 
@@ -30,4 +30,4 @@ struct Transform
 
 }//end fge
 
-#endif // _FGE_VULKAN_C_TRANSFORM_HPP_INCLUDED
+#endif // _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED

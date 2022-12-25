@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/object/C_object.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
 
@@ -41,7 +42,7 @@ public:
     FGE_OBJ_DRAW_DECLARE
 
     void setSize(const fge::DynamicSize& size);
-    sf::Vector2f getSize() const;
+    fge::Vector2f getSize() const;
 
     void setCursorRatio(float ratio);
     float getCursorRatio() const;
@@ -49,15 +50,15 @@ public:
 
     void refreshSize();
 
-    void setScrollRectFillColor(sf::Color color);
-    void setScrollRectOutlineColor(sf::Color color);
-    void setScrollBaseRectFillColor(sf::Color color);
+    void setScrollRectFillColor(fge::Color color);
+    void setScrollRectOutlineColor(fge::Color color);
+    void setScrollBaseRectFillColor(fge::Color color);
 
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
     fge::CallbackHandler<float> _onSlide;
 
@@ -74,8 +75,8 @@ private:
 
     void refreshSize(const sf::Vector2f& targetSize);
 
-    mutable sf::RectangleShape g_scrollRect;
-    mutable sf::RectangleShape g_scrollBaseRect;
+    mutable fge::RectangleShape g_scrollRect;
+    mutable fge::RectangleShape g_scrollBaseRect;
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 

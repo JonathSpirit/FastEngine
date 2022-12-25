@@ -50,6 +50,8 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
 
         g_filter(r.g_filter),
 
+        g_textureDescriptorSet(std::move(r.g_textureDescriptorSet)),
+
         g_modificationCount(r.g_modificationCount),
 
         g_context(r.g_context)
@@ -88,6 +90,8 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     this->g_textureBytesPerPixel = r.g_textureBytesPerPixel;
 
     this->g_filter = r.g_filter;
+
+    this->g_textureDescriptorSet = std::move(r.g_textureDescriptorSet);
 
     ++this->g_modificationCount;
 

@@ -25,9 +25,9 @@ void ObjSlider::first([[maybe_unused]] fge::Scene* scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
-    this->g_scrollBaseRect.setFillColor(sf::Color{100, 100, 100, 80});
-    this->g_scrollRect.setFillColor(sf::Color{60, 60, 60, 140});
-    this->g_scrollRect.setOutlineColor(sf::Color{255, 255, 255, 80});
+    this->g_scrollBaseRect.setFillColor(fge::Color{100, 100, 100, 80});
+    this->g_scrollRect.setFillColor(fge::Color{60, 60, 60, 140});
+    this->g_scrollRect.setOutlineColor(fge::Color{255, 255, 255, 80});
 }
 void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
@@ -51,10 +51,11 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSlider)
 {
-    states.transform *= this->getTransform();
+    auto copyStates = states.copy(this);
+    copyStates._modelTransform *= this->getTransform();
 
-    target.draw(this->g_scrollBaseRect, states);
-    target.draw(this->g_scrollRect, states);
+    target.draw(this->g_scrollBaseRect, copyStates);
+    target.draw(this->g_scrollRect, copyStates);
 }
 #endif
 
@@ -63,10 +64,10 @@ void ObjSlider::setSize(const fge::DynamicSize& size)
     this->g_size = size;
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
-sf::Vector2f ObjSlider::getSize() const
+fge::Vector2f ObjSlider::getSize() const
 {
-    return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
-    ;
+    auto vec = this->g_size.getSize(sf::Vector2f(this->getPosition().x, this->getPosition().y), this->g_guiElementHandler->_lastSize); ///TODO: remove sfml
+    return fge::Vector2f(vec.x, vec.y);
 }
 
 void ObjSlider::setCursorRatio(float ratio)
@@ -92,15 +93,15 @@ void ObjSlider::refreshSize()
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 
-void ObjSlider::setScrollRectFillColor(sf::Color color)
+void ObjSlider::setScrollRectFillColor(fge::Color color)
 {
     this->g_scrollRect.setFillColor(color);
 }
-void ObjSlider::setScrollRectOutlineColor(sf::Color color)
+void ObjSlider::setScrollRectOutlineColor(fge::Color color)
 {
     this->g_scrollRect.setOutlineColor(color);
 }
-void ObjSlider::setScrollBaseRectFillColor(sf::Color color)
+void ObjSlider::setScrollBaseRectFillColor(fge::Color color)
 {
     this->g_scrollBaseRect.setFillColor(color);
 }
@@ -110,15 +111,15 @@ void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
     this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, 0.0f,
                                          this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
 
-    auto rectSize = this->g_size.getSize(this->getPosition(), targetSize);
+    auto rectSize = this->g_size.getSize(sf::Vector2f(this->getPosition().x, this->getPosition().y), targetSize); ///TODO: remove sfml
 
     this->g_scrollRect.setSize({rectSize.x, 30.0f});
     this->g_scrollBaseRect.setSize({rectSize.x, rectSize.y});
     this->g_scrollRect.setPosition({0.0f, this->g_scrollPositionY});
     this->g_scrollBaseRect.setPosition({0.0f, 0.0f});
 
-    this->g_scrollBaseRect.setOrigin(0.0f, 0.0f);
-    this->g_scrollRect.setOrigin(0.0f, 0.0f);
+    this->g_scrollBaseRect.setOrigin({0.0f, 0.0f});
+    this->g_scrollRect.setOrigin({0.0f, 0.0f});
 
     this->_onSlide.call(this->getCursorRatio());
 }
@@ -127,14 +128,14 @@ void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
                                         [[maybe_unused]] const sf::Event::MouseButtonEvent& arg,
                                         fge::GuiElementContext& context)
 {
-    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
+    /**auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
             {context._mousePosition.x, context._mousePosition.y},
             *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
     this->g_scrollPressed = true;
     this->g_scrollLastPositionY = this->g_scrollPositionY;
     this->g_lastMousePositionY = mousePosition.y;
-    this->g_scrollRect.setOutlineThickness(2.0f);
+    this->g_scrollRect.setOutlineThickness(2.0f); TODO **/
 }
 void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
                                       [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
@@ -147,7 +148,7 @@ void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
 }
 void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
 {
-    if (this->g_scrollPressed)
+    /**if (this->g_scrollPressed)
     {
         const sf::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
@@ -158,12 +159,12 @@ void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::E
         this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y - this->g_lastMousePositionY) / scale;
 
         this->refreshSize(this->g_guiElementHandler->_lastSize);
-    }
+    } TODO **/
 }
 
 void ObjSlider::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const sf::Vector2f& size)
 {
-    this->updateAnchor(size);
+    ///this->updateAnchor(size); TODO
     this->refreshSize(size);
 }
 
@@ -171,7 +172,7 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
                             sf::Event::EventType evtType,
                             fge::GuiElementContext& context)
 {
-    if (evtType != sf::Event::MouseButtonPressed)
+    /**if (evtType != sf::Event::MouseButtonPressed)
     {
         return;
     }
@@ -197,7 +198,7 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
         {
             context._prioritizedElement = this;
         }
-    }
+    } TODO **/
 }
 
 const char* ObjSlider::getClassName() const
@@ -209,11 +210,11 @@ const char* ObjSlider::getReadableClassName() const
     return "slider";
 }
 
-sf::FloatRect ObjSlider::getGlobalBounds() const
+fge::RectFloat ObjSlider::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjSlider::getLocalBounds() const
+fge::RectFloat ObjSlider::getLocalBounds() const
 {
     return this->g_scrollBaseRect.getLocalBounds();
 }

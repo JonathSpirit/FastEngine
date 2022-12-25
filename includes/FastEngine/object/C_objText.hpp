@@ -41,7 +41,7 @@ class ObjText;
 class FGE_API Character : public fge::Transformable, public fge::Drawable
 {
 public:
-    Character() = default;
+    Character();
     Character(const fge::Color& fillColor, const fge::Color& outlineColor);
 
     void clear();
@@ -78,7 +78,7 @@ private:
     fge::Color g_fillColor{255, 255, 255};
     fge::Color g_outlineColor{0, 0, 0};
 
-    uint32_t g_unicodeChar;
+    uint32_t g_unicodeChar{0};
 
     bool g_visibility{true};
 };

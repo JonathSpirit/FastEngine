@@ -28,7 +28,7 @@ namespace fge::vulkan
 struct Vertex
 {
     glm::vec2 _position;
-    glm::vec3 _color;
+    glm::vec4 _color;
     glm::vec2 _texCoords;
 
     static VkVertexInputBindingDescription getBindingDescription()
@@ -52,7 +52,7 @@ struct Vertex
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT; //VK_FORMAT_R32G32B32_SFLOAT
         attributeDescriptions[1].offset = offsetof(Vertex, _color);
 
         attributeDescriptions[2].binding = 0;

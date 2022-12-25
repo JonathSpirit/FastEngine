@@ -18,6 +18,7 @@
 #define _FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/graphic/C_rect.hpp"
 #include "SDL_vulkan.h"
 #include <vector>
 #include <limits>
@@ -44,17 +45,17 @@ public:
     };
 
     VertexBuffer();
-    VertexBuffer(const VertexBuffer& r) = delete; ///TODO: Make it copyable
+    VertexBuffer(const VertexBuffer& r);
     VertexBuffer(VertexBuffer&& r) noexcept;
     ~VertexBuffer();
 
-    VertexBuffer& operator=(const VertexBuffer& r) = delete; ///TODO: Make it copyable
-    VertexBuffer& operator=(VertexBuffer&& r) noexcept = delete; ///TODO: Make it moveable
+    VertexBuffer& operator=(const VertexBuffer& r);
+    VertexBuffer& operator=(VertexBuffer&& r) noexcept;
 
     void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, Types type=Types::DEFAULT);
 
     void clear();
-    void resize(std::size_t vertexSize, std::size_t indexSize);
+    void resize(std::size_t vertexSize, std::size_t indexSize=0);
     void append(const Vertex& vertex);
     void appendIndex(uint16_t index=std::numeric_limits<uint16_t>::max());
 
@@ -81,6 +82,8 @@ public:
 
     [[nodiscard]] Types getType() const;
     [[nodiscard]] bool isUsingIndexBuffer() const;
+
+    [[nodiscard]] fge::RectFloat getBounds() const;
 
 private:
     void cleanBuffers();

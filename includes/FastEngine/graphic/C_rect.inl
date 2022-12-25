@@ -124,10 +124,10 @@ inline fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& rig
     // Transform the 4 corners of the rectangle
     const fge::Vector2f points[] =
     {
-        left * glm::vec4(right._x, right._y, 0.0f, 0.0f),
-        left * glm::vec4(right._x, right._y + right._height, 0.0f, 0.0f),
-        left * glm::vec4(right._x + right._width, right._y, 0.0f, 0.0f),
-        left * glm::vec4(right._x + right._width, right._y + right._height, 0.0f, 0.0f)
+        left * glm::vec4(right._x, right._y, 0.0f, 1.0f),
+        left * glm::vec4(right._x, right._y + right._height, 0.0f, 1.0f),
+        left * glm::vec4(right._x + right._width, right._y, 0.0f, 1.0f),
+        left * glm::vec4(right._x + right._width, right._y + right._height, 0.0f, 1.0f)
     };
 
     // Compute the bounding rectangle of the transformed points

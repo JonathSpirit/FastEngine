@@ -39,6 +39,26 @@ VertexBuffer::VertexBuffer() :
 
         g_context(nullptr)
 {}
+VertexBuffer::VertexBuffer(const VertexBuffer& r) :
+        g_vertices(r.g_vertices),
+        g_vertexBuffer(VK_NULL_HANDLE),
+        g_vertexStagingBuffer(VK_NULL_HANDLE),
+        g_vertexBufferMemory(VK_NULL_HANDLE),
+        g_vertexStagingBufferMemory(VK_NULL_HANDLE),
+
+        g_indices(r.g_indices),
+        g_indexBuffer(VK_NULL_HANDLE),
+        g_indexStagingBuffer(VK_NULL_HANDLE),
+        g_indexBufferMemory(VK_NULL_HANDLE),
+        g_indexStagingBufferMemory(VK_NULL_HANDLE),
+
+        g_type(r.g_type),
+        g_useIndexBuffer(r.g_useIndexBuffer),
+
+        g_context(r.g_context)
+{
+    this->updateBuffers();
+}
 VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
         g_vertices(std::move(r.g_vertices)),
         g_vertexBuffer(r.g_vertexBuffer),
@@ -75,6 +95,68 @@ VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
 VertexBuffer::~VertexBuffer()
 {
     this->destroy();
+}
+
+VertexBuffer& VertexBuffer::operator=(const VertexBuffer& r)
+{
+    this->destroy();
+
+    this->g_vertices = r.g_vertices;
+    this->g_vertexBuffer = VK_NULL_HANDLE;
+    this->g_vertexStagingBuffer = VK_NULL_HANDLE;
+    this->g_vertexBufferMemory = VK_NULL_HANDLE;
+    this->g_vertexStagingBufferMemory = VK_NULL_HANDLE;
+
+    this->g_indices = r.g_indices;
+    this->g_indexBuffer = VK_NULL_HANDLE;
+    this->g_indexStagingBuffer = VK_NULL_HANDLE;
+    this->g_indexBufferMemory = VK_NULL_HANDLE;
+    this->g_indexStagingBufferMemory = VK_NULL_HANDLE;
+
+    this->g_type = r.g_type;
+    this->g_useIndexBuffer = r.g_useIndexBuffer;
+
+    this->g_context = r.g_context;
+
+    return *this;
+}
+VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
+{
+    this->destroy();
+
+    this->g_vertices = std::move(r.g_vertices);
+    this->g_vertexBuffer = VK_NULL_HANDLE;
+    this->g_vertexStagingBuffer = VK_NULL_HANDLE;
+    this->g_vertexBufferMemory = VK_NULL_HANDLE;
+    this->g_vertexStagingBufferMemory = VK_NULL_HANDLE;
+
+    this->g_indices = std::move(r.g_indices);
+    this->g_indexBuffer = VK_NULL_HANDLE;
+    this->g_indexStagingBuffer = VK_NULL_HANDLE;
+    this->g_indexBufferMemory = VK_NULL_HANDLE;
+    this->g_indexStagingBufferMemory = VK_NULL_HANDLE;
+
+    this->g_type = r.g_type;
+    this->g_useIndexBuffer = r.g_useIndexBuffer;
+
+    this->g_context = r.g_context;
+
+    r.g_vertexBuffer = VK_NULL_HANDLE;
+    r.g_vertexStagingBuffer = VK_NULL_HANDLE;
+    r.g_vertexBufferMemory = VK_NULL_HANDLE;
+    r.g_vertexStagingBufferMemory = VK_NULL_HANDLE;
+
+    r.g_indexBuffer = VK_NULL_HANDLE;
+    r.g_indexStagingBuffer = VK_NULL_HANDLE;
+    r.g_indexBufferMemory = VK_NULL_HANDLE;
+    r.g_indexStagingBufferMemory = VK_NULL_HANDLE;
+
+    r.g_type = Types::UNINITIALIZED;
+    r.g_useIndexBuffer = true;
+
+    r.g_context = nullptr;
+
+    return *this;
 }
 
 void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, Types type)
@@ -174,6 +256,11 @@ void VertexBuffer::mapVertices()
 {
     const std::size_t size = sizeof(Vertex) * this->g_vertices.size();
 
+    if (size == 0)
+    {
+        return;
+    }
+
     void* data = nullptr;
 
     switch (this->g_type)
@@ -211,6 +298,11 @@ void VertexBuffer::mapIndices()
     }
 
     const std::size_t size = sizeof(uint16_t) * this->g_indices.size();
+
+    if (size == 0)
+    {
+        return;
+    }
 
     void* data = nullptr;
 
@@ -261,6 +353,46 @@ VertexBuffer::Types VertexBuffer::getType() const
 bool VertexBuffer::isUsingIndexBuffer() const
 {
     return this->g_useIndexBuffer;
+}
+
+fge::RectFloat VertexBuffer::getBounds() const
+{
+    if (!this->g_vertices.empty())
+    {
+        float left   = this->g_vertices[0]._position.x;
+        float top    = this->g_vertices[0]._position.y;
+        float right  = this->g_vertices[0]._position.x;
+        float bottom = this->g_vertices[0]._position.y;
+
+        for (std::size_t i = 1; i < this->g_vertices.size(); ++i)
+        {
+            auto position = this->g_vertices[i]._position;
+
+            // Update left and right
+            if (position.x < left)
+            {
+                left = position.x;
+            }
+            else if (position.x > right)
+            {
+                right = position.x;
+            }
+
+            // Update top and bottom
+            if (position.y < top)
+            {
+                top = position.y;
+            }
+            else if (position.y > bottom)
+            {
+                bottom = position.y;
+            }
+        }
+
+        return {{left, top}, {right - left, bottom - top}};
+    }
+    // Array is empty
+    return {};
 }
 
 void VertexBuffer::cleanBuffers()

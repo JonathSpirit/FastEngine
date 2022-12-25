@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_C_RECT_HPP_INCLUDED
-#define _FGE_C_RECT_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_RECT_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_RECT_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -67,4 +67,4 @@ fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& right);
 
 #include <FastEngine/graphic/C_rect.inl>
 
-#endif //_FGE_C_RECT_HPP_INCLUDED
+#endif //_FGE_GRAPHIC_C_RECT_HPP_INCLUDED

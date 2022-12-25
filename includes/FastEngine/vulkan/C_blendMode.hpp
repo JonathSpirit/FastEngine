@@ -25,8 +25,8 @@ namespace fge::vulkan
 
 struct BlendMode
 {
-    BlendMode() = default;
-    BlendMode(VkBlendFactor srcBlendFactor, VkBlendFactor dstBlendFactor, VkBlendOp blendOp = VK_BLEND_OP_ADD) :
+    BlendMode() noexcept = default;
+    BlendMode(VkBlendFactor srcBlendFactor, VkBlendFactor dstBlendFactor, VkBlendOp blendOp = VK_BLEND_OP_ADD) noexcept :
             _srcColorBlendFactor(srcBlendFactor),
             _dstColorBlendFactor(dstBlendFactor),
             _colorBlendOp(blendOp),
@@ -35,7 +35,7 @@ struct BlendMode
             _alphaBlendOp(blendOp)
     {}
     BlendMode(VkBlendFactor srcColorBlendFactor, VkBlendFactor dstColorBlendFactor, VkBlendOp colorBlendOp,
-              VkBlendFactor srcAlphaBlendFactor, VkBlendFactor dstAlphaBlendFactor, VkBlendOp alphaBlendOp) :
+              VkBlendFactor srcAlphaBlendFactor, VkBlendFactor dstAlphaBlendFactor, VkBlendOp alphaBlendOp) noexcept :
             _srcColorBlendFactor(srcColorBlendFactor),
             _dstColorBlendFactor(dstColorBlendFactor),
             _colorBlendOp(colorBlendOp),

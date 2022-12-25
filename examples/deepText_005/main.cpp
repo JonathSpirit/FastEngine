@@ -21,22 +21,24 @@
 #include "FastEngine/object/C_objText.hpp"
 #include <FastEngine/C_clock.hpp>
 #include <FastEngine/C_scene.hpp>
+#include <FastEngine/vulkan/vulkanGlobal.hpp>
+#include <FastEngine/graphic/C_drawable.hpp>
+#include <SDL.h>
 #include <cmath>
+#include <iostream>
 
 //Create the MainScene class
 class MainScene : public fge::Scene
 {
 public:
-    void main()
+    void start(fge::RenderWindow& renderWindow)
     {
-        sf::RenderWindow window(sf::VideoMode{800, 600}, "example 005: deepText");
-        window.setFramerateLimit(60);
-
-        fge::Event event(window);
-        fge::GuiElementHandler guiElementHandler(event, window);
+        SDL_Event evt;
+        fge::Event event;
+        fge::GuiElementHandler guiElementHandler;//(event, window);
         guiElementHandler.setEventCallback(event);
 
-        this->setLinkedRenderTarget(&window);
+        this->setLinkedRenderTarget(&renderWindow);
 
         //Set default callback context
         this->setCallbackContext({&event, &guiElementHandler});
@@ -55,22 +57,22 @@ public:
         auto explainText =
                 this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use the slider to change the frequency", "base", {}, 18),
                                 FGE_SCENE_PLAN_HIGH_TOP + 1);
-        explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::Black);
+        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
 
         //Create a text object that display frequency
         auto* frequencyText =
                 this->newObject(FGE_NEWOBJECT(fge::ObjText, "", "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP + 1)
                         ->getObject<fge::ObjText>();
-        frequencyText->setFillColor(sf::Color::Black);
-        frequencyText->setPosition(40.0f, 300.0f);
+        frequencyText->setFillColor(fge::Color::Black);
+        frequencyText->setPosition({40.0f, 300.0f});
 
         //Add a text with characters that will be moved
         auto* movingText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "hello world, I'm a moving text !\ttab\nnewLine",
                                                          "base", {200.0f, 200.0f}))
                                    ->getObject<fge::ObjText>();
-        movingText->setFillColor(sf::Color::Black);
+        movingText->setFillColor(fge::Color::Black);
         movingText->setOutlineThickness(2.0f);
-        movingText->setOutlineColor(sf::Color::Yellow);
+        movingText->setOutlineColor(fge::Color::Yellow);
         movingText->setStyle(fge::ObjText::Style::Italic | fge::ObjText::Style::StrikeThrough |
                              fge::ObjText::Style::Bold | fge::ObjText::Style::Underlined);
 
@@ -94,33 +96,46 @@ public:
         }});
 
         //Add a rectangle representing the bounds of the moving text
-        sf::RectangleShape rectText;
+        fge::RectangleShape rectText;
 
         auto rect = movingText->getGlobalBounds();
         rectText.setPosition(rect.getPosition());
         rectText.setSize(rect.getSize());
-        rectText.setFillColor(sf::Color::Transparent);
-        rectText.setOutlineColor(sf::Color::Red);
+        rectText.setFillColor(fge::Color::Transparent);
+        rectText.setOutlineColor(fge::Color::Red);
         rectText.setOutlineThickness(2.0f);
+
+        for (const auto& character : movingText->getCharacters())
+        {
+            std::cout << character.getPosition().x << " " << character.getPosition().y << std::endl;
+        }
 
         fge::Clock changeTextColorClock;
 
         //Begin loop
-        while (window.isOpen())
+        bool running = true;
+        while (running)
         {
             //Update event
-            event.process(window);
+            /*event.process(window);
             if (event.isEventType(sf::Event::EventType::Closed))
             {
                 window.close();
+            }*/
+            while (SDL_PollEvent(&evt) != 0)
+            {
+                if (evt.type == SDL_QUIT)
+                {
+                    running = false;
+                }
             }
 
             //Clear window
-            window.clear();
+            ///window.clear();
 
             //Update scene
             auto deltaTick = tick.restart();
-            this->update(window, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
+            ///this->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
             //Update moving text characters
             auto& characters = movingText->getCharacters();
@@ -146,12 +161,29 @@ public:
             }
 
             //Draw scene
-            this->draw(window);
-            window.draw(rectText);
+            ///this->draw(window);
+            ///window.draw(rectText);
 
             //Display window
-            window.display();
+            ///window.display();
+
+            auto imageIndex = renderWindow.prepareNextFrame(nullptr);
+            if (imageIndex != BAD_IMAGE_INDEX)
+            {
+                renderWindow.beginRenderPass(imageIndex);
+
+                this->draw(renderWindow);
+                rectText.draw(renderWindow, {});
+
+                renderWindow.endRenderPass();
+
+                renderWindow.display(imageIndex, nullptr, 0);
+            }
+
+            SDL_Delay(33);
         }
+
+        fge::vulkan::GlobalContext->waitIdle();
 
         //Uninit texture manager
         fge::texture::Uninit();
@@ -162,8 +194,54 @@ public:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    MainScene scene;
-    scene.main();
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    SDL_Window* window = SDL_CreateWindow("example 005: deepText", SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
+                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+
+    // Check that the window was successfully created
+    if (window == nullptr)
+    {
+        // In the case that the window could not be made...
+        std::cout << "Could not create window: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    fge::vulkan::Context vulkanContext{};
+    fge::vulkan::Context::initVolk();
+    fge::vulkan::Context::enumerateExtensions();
+    vulkanContext.initVulkan(window);
+
+    fge::vulkan::GlobalContext = &vulkanContext;
+
+    fge::RenderWindow renderWindow(vulkanContext);
+    renderWindow.setClearColor(fge::Color::White);
+
+    fge::vulkan::Shader vertShader;
+    vertShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/vertex.spv", fge::vulkan::Shader::Type::SHADER_VERTEX);
+    fge::vulkan::Shader fragShader;
+    fragShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/fragmentTexture.spv", fge::vulkan::Shader::Type::SHADER_FRAGMENT);
+    fge::vulkan::Shader fragNoTextureShader;
+    fragNoTextureShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/fragment.spv", fge::vulkan::Shader::Type::SHADER_FRAGMENT);
+
+    fge::vulkan::GraphicPipeline::defaultShaderVertex = &vertShader;
+    fge::vulkan::GraphicPipeline::defaultShaderFragment = &fragShader;
+    fge::vulkan::GraphicPipeline::defaultShaderFragmentNoTexture = &fragNoTextureShader;
+
+    std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
+    scene->start(renderWindow);
+    scene.reset();
+
+    vertShader.destroy();
+    fragShader.destroy();
+    fragNoTextureShader.destroy();
+
+    renderWindow.destroy();
+
+    vulkanContext.destroy();
+
+    SDL_DestroyWindow(window);
+
+    SDL_Quit();
 
     return 0;
 }

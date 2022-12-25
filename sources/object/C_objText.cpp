@@ -22,10 +22,20 @@
 namespace fge
 {
 
+Character::Character()
+{
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false);
+    this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+}
 Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
-{}
+{
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false);
+    this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+}
 
 void Character::clear()
 {
@@ -52,6 +62,8 @@ void Character::addLine(bool outlineVertices,
     vertices->append(fge::vulkan::Vertex{{-outlineThickness, bottom + outlineThickness}, color, {1, 1}});
     vertices->append(fge::vulkan::Vertex{{lineLength + outlineThickness, top - outlineThickness}, color, {1, 1}});
     vertices->append(fge::vulkan::Vertex{{lineLength + outlineThickness, bottom + outlineThickness}, color, {1, 1}});
+
+    vertices->mapVertices();
 }
 
 // Add a glyph quad to the vertex array
@@ -78,13 +90,15 @@ void Character::addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, co
     vertices->append(fge::vulkan::Vertex{{size.x + left - italicShear * bottom, size.y + bottom}, color, {u1, v2}});
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
+
+    vertices->mapVertices();
 }
 
 void Character::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(this);
+        auto copyStates = states.copy(this, states._textureImage);
         copyStates._modelTransform *= this->getTransform();
 
         this->_g_graphicPipeline.setVertexBuffer(&this->g_outlineVertices);
@@ -97,7 +111,7 @@ void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, co
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(this);
+        auto copyStates = states.copy(this, states._textureImage);
         copyStates._modelTransform *= this->getTransform();
 
         if (outlineVertices)
@@ -120,6 +134,7 @@ void Character::setFillColor(const fge::Color& color)
     {
         this->g_vertices.getVertices()[i]._color = color;
     }
+    this->g_vertices.mapVertices();
 }
 void Character::setOutlineColor(const fge::Color& color)
 {
@@ -128,6 +143,7 @@ void Character::setOutlineColor(const fge::Color& color)
     {
         this->g_outlineVertices.getVertices()[i]._color = color;
     }
+    this->g_outlineVertices.mapVertices();
 }
 
 const fge::Color& Character::getFillColor() const
@@ -346,8 +362,8 @@ FGE_OBJ_DRAW_BODY(ObjText)
 
         auto copyStates = states.copy(this);
 
-        copyStates._modelTransform *= getTransform();
-        ///copyStates._textureImage = &this->g_font.getData()->_font->getTexture(this->g_characterSize); TODO
+        copyStates._modelTransform *= this->getTransform();
+        copyStates._textureImage = &this->g_font.getData()->_font->getTexture(this->g_characterSize);
 
         if (this->g_outlineThickness != 0.0f)
         {

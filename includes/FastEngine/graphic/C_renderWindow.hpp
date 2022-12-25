@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_VULKAN_C_RENDERWINDOW_HPP_INCLUDED
-#define _FGE_VULKAN_C_RENDERWINDOW_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_RENDERWINDOW_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_RENDERWINDOW_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -43,7 +43,7 @@ class Context;
 
 }//end vulkan
 
-class FGE_API RenderWindow : public RenderTarget
+class FGE_API RenderWindow : public fge::RenderTarget
 {
 public:
     RenderWindow();
@@ -108,4 +108,4 @@ private:
 }// end fge
 
 
-#endif // _FGE_VULKAN_C_RENDERWINDOW_HPP_INCLUDED
+#endif // _FGE_GRAPHIC_C_RENDERWINDOW_HPP_INCLUDED

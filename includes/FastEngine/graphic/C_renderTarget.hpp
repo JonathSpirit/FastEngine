@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_VULKAN_C_RENDERTARGET_HPP_INCLUDED
-#define _FGE_VULKAN_C_RENDERTARGET_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_RENDERTARGET_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_RENDERTARGET_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -67,8 +67,8 @@ public:
 
     [[nodiscard]] virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
-    void draw(const Drawable& drawable, const RenderStates& states);
-    virtual void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) = 0;
+    void draw(const fge::Drawable& drawable, const fge::RenderStates& states);
+    virtual void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states) = 0;
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) = 0;
 
@@ -86,4 +86,4 @@ protected:
 
 }//end fge
 
-#endif // _FGE_VULKAN_C_RENDERTARGET_HPP_INCLUDED
+#endif // _FGE_GRAPHIC_C_RENDERTARGET_HPP_INCLUDED

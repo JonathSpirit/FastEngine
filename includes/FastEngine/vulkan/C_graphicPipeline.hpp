@@ -23,6 +23,7 @@
 #include "C_vertex.hpp"
 #include "C_vertexBuffer.hpp"
 #include "C_blendMode.hpp"
+#include "vulkanGlobal.hpp"
 
 namespace fge::vulkan
 {
@@ -34,7 +35,7 @@ class FGE_API GraphicPipeline
 {
 public:
     GraphicPipeline();
-    GraphicPipeline(const GraphicPipeline& r) = delete;
+    GraphicPipeline(const GraphicPipeline& r);
     GraphicPipeline(GraphicPipeline&& r) noexcept;
     ~GraphicPipeline();
 
@@ -55,7 +56,8 @@ public:
     void setBlendMode(const BlendMode& blendMode);
     [[nodiscard]] const BlendMode& getBlendMode() const;
 
-    void setPrimitiveTopology(VkPrimitiveTopology topology);
+    void setPrimitiveTopology(VkPrimitiveTopology topology) const;
+    [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
 
     void setViewport(const VkExtent2D& extent2D) const;
     void setViewport(const Viewport& viewport) const;
@@ -73,6 +75,10 @@ public:
 
     void destroy();
 
+    static const Shader* defaultShaderVertex;
+    static const Shader* defaultShaderFragment;
+    static const Shader* defaultShaderFragmentNoTexture;
+
 private:
     void cleanPipeline() const;
 
@@ -85,7 +91,7 @@ private:
 
     mutable const VertexBuffer* g_vertexBuffer;
 
-    VkPipelineInputAssemblyStateCreateInfo g_inputAssembly;
+    mutable VkPrimitiveTopology g_primitiveTopology;
 
     mutable Viewport g_viewport;
     mutable BlendMode g_blendMode;

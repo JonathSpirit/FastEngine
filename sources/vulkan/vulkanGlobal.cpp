@@ -28,7 +28,8 @@ const std::vector<const char*> ValidationLayers = {
 };
 
 const std::vector<const char*> DeviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME
 };
 
 Context* GlobalContext{nullptr};

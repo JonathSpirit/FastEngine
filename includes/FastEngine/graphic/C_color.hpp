@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_VULKAN_C_COLOR_HPP_INCLUDED
-#define _FGE_VULKAN_C_COLOR_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_COLOR_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_COLOR_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -25,6 +25,7 @@
  */
 
 #include <SDL_pixels.h>
+#include <glm/glm.hpp>
 #include <volk.h>
 
 namespace fge
@@ -51,11 +52,11 @@ public:
             _b(static_cast<uint8_t>(clearColorValue.float32[2]*255.0f)),
             _a(static_cast<uint8_t>(clearColorValue.float32[3]*255.0f))
     {}
-    explicit Color(const glm::vec3& vec3) noexcept :
-            _r(static_cast<uint8_t>(vec3.r*255.0f)),
-            _g(static_cast<uint8_t>(vec3.g*255.0f)),
-            _b(static_cast<uint8_t>(vec3.b*255.0f)),
-            _a(255)
+    explicit Color(const glm::vec4& vec4) noexcept :
+            _r(static_cast<uint8_t>(vec4.r*255.0f)),
+            _g(static_cast<uint8_t>(vec4.g*255.0f)),
+            _b(static_cast<uint8_t>(vec4.b*255.0f)),
+            _a(static_cast<uint8_t>(vec4.a*255.0f))
     {}
     Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept :
             _r(red),
@@ -84,11 +85,12 @@ public:
                  static_cast<float>(this->_b)/255.0f,
                  static_cast<float>(this->_a)/255.0f}};
     }
-    operator glm::vec3() const
+    operator glm::vec4() const
     {
         return {static_cast<float>(this->_r)/255.0f,
                 static_cast<float>(this->_g)/255.0f,
-                static_cast<float>(this->_b)/255.0f};
+                static_cast<float>(this->_b)/255.0f,
+                static_cast<float>(this->_a)/255.0f};
     }
 
     [[nodiscard]] uint32_t toInteger() const
@@ -186,4 +188,4 @@ inline const Color Color::Transparent(0, 0, 0, 0);
 
 }//end fge
 
-#endif // _FGE_VULKAN_C_COLOR_HPP_INCLUDED
+#endif // _FGE_GRAPHIC_C_COLOR_HPP_INCLUDED

@@ -18,7 +18,7 @@
 #define _FGE_C_RANDOM_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
-#include <SFML/Graphics/Color.hpp>
+#include <FastEngine/graphic/C_color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
 
@@ -117,7 +117,7 @@ public:
      * \param max Maximum 32-bit value of the range (included)
      * \return A random color
      */
-    sf::Color rangeColor(uint32_t min, uint32_t max);
+    fge::Color rangeColor(uint32_t min, uint32_t max);
     /**
      * \brief Generate a random color
      *
@@ -131,14 +131,14 @@ public:
      * \param max_a Maximum alpha value of the range (included)
      * \return A random color
      */
-    sf::Color rangeColor(uint8_t min_r,
-                         uint8_t max_r,
-                         uint8_t min_g,
-                         uint8_t max_g,
-                         uint8_t min_b,
-                         uint8_t max_b,
-                         uint8_t min_a,
-                         uint8_t max_a);
+    fge::Color rangeColor(uint8_t min_r,
+                          uint8_t max_r,
+                          uint8_t min_g,
+                          uint8_t max_g,
+                          uint8_t min_b,
+                          uint8_t max_b,
+                          uint8_t min_a,
+                          uint8_t max_a);
 
     /**
      * \brief Generate a random value
@@ -172,7 +172,7 @@ public:
      *
      * \return A random color
      */
-    sf::Color randColor();
+    fge::Color randColor();
 
     /**
      * \brief Generate a random character sequence

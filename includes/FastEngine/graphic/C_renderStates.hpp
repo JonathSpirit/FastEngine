@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_VULKAN_C_RENDERSTATES_HPP_INCLUDED
-#define _FGE_VULKAN_C_RENDERSTATES_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -72,4 +72,4 @@ public:
 
 }//end fge
 
-#endif // _FGE_VULKAN_C_RENDERSTATES_HPP_INCLUDED
+#endif // _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED

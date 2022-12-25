@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_C_SURFACE_HPP_INCLUDED
-#define _FGE_C_SURFACE_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_SURFACE_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_SURFACE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
 #include <SDL_render.h>
@@ -73,4 +73,4 @@ private:
 
 }//end fge
 
-#endif //_FGE_C_SURFACE_HPP_INCLUDED
+#endif //_FGE_GRAPHIC_C_SURFACE_HPP_INCLUDED

@@ -148,15 +148,19 @@ void RenderWindow::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
                                          windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
     graphicPipeline.setViewport(viewport);
 
+    const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
+
     VkDescriptorSetLayout layout[] = {this->g_descriptorSetLayout.getLayout(), this->g_context->getDescriptorSetLayout().getLayout()};
     graphicPipeline.updateIfNeeded(this->g_swapChain.getSwapChainExtent(),
                                    this->g_context->getLogicalDevice(),
-                                   layout, 2,
+                                   layout, descriptorSize,
                                    this->g_renderPass,
                                    this->g_forceGraphicPipelineUpdate);
 
-    VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(), states._textureImage->getDescriptorSet().getDescriptorSet()};
-    graphicPipeline.bindDescriptorSets(this->g_commandBuffer, descriptorSets, 2);
+    VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(),
+                                        states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : nullptr};
+    graphicPipeline.bindDescriptorSets(this->g_commandBuffer, descriptorSets, descriptorSize);
+
     graphicPipeline.recordCommandBuffer(this->g_commandBuffer);
 }
 void RenderWindow::endRenderPass()
@@ -324,7 +328,7 @@ void RenderWindow::recreateSwapChain()
     this->createRenderPass();
     this->createFramebuffers();
 
-    this->g_forceGraphicPipelineUpdate = true;
+    ///this->g_forceGraphicPipelineUpdate = true;
 }
 
 void RenderWindow::createRenderPass()

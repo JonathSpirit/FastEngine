@@ -51,7 +51,7 @@ public:
     ~DescriptorSet();
 
     DescriptorSet& operator=(const DescriptorSet& r);
-    DescriptorSet& operator=(DescriptorSet&& r) noexcept = delete;
+    DescriptorSet& operator=(DescriptorSet&& r) noexcept;
 
     void create(const LogicalDevice& logicalDevice,
                 const DescriptorSetLayout* layouts,

@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _FGE_GRAPHIC_C_GLYPH_HPP_INCLUDED
-#define _FGE_GRAPHIC_C_GLYPH_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_C_RECTANGLESHAPE_HPP_INCLUDED
+#define _FGE_GRAPHIC_C_RECTANGLESHAPE_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -24,23 +24,28 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <FastEngine/graphic/C_rect.hpp>
+#include <FastEngine/fastengine_extern.hpp>
+#include <FastEngine/graphic/C_shape.hpp>
 
 namespace fge
 {
 
-class Glyph
+class FGE_API RectangleShape : public Shape
 {
 public:
-    Glyph() : _advance(0.0f) {}
+    explicit RectangleShape(const Vector2f& size = Vector2f(0, 0));
 
-    float     _advance = 0.0f;     //!< Offset to move horizontally to the next character
-    int       _lsbDelta = 0;    //!< Left offset after forced autohint. Internally used by getKerning()
-    int       _rsbDelta = 0;    //!< Right offset after forced autohint. Internally used by getKerning()
-    fge::RectFloat _bounds;      //!< Bounding rectangle of the glyph, in coordinates relative to the baseline
-    fge::RectInt   _textureRect; //!< Texture coordinates of the glyph inside the font's texture
+    void setSize(const Vector2f& size);
+    const Vector2f& getSize() const;
+
+    [[nodiscard]] std::size_t getPointCount() const override;
+
+    [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
+
+private:
+    Vector2f g_size; //!< Size of the rectangle
 };
 
 } // namespace fge
 
-#endif // _FGE_GRAPHIC_C_GLYPH_HPP_INCLUDED
+#endif // _FGE_GRAPHIC_C_RECTANGLESHAPE_HPP_INCLUDED

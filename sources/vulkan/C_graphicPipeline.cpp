@@ -25,13 +25,13 @@ GraphicPipeline::GraphicPipeline() :
         g_needUpdate(true),
 
         g_shaderCompute(nullptr),
-        g_shaderVertex(nullptr),
-        g_shaderFragment(nullptr),
+        g_shaderVertex(GraphicPipeline::defaultShaderVertex),
+        g_shaderFragment(GraphicPipeline::defaultShaderFragment),
         g_shaderGeometry(nullptr),
 
-        g_vertexBuffer(),
+        g_vertexBuffer(nullptr),
 
-        g_inputAssembly(),
+        g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN),
 
         g_viewport(),
         g_blendMode(),
@@ -43,6 +43,26 @@ GraphicPipeline::GraphicPipeline() :
 {
     this->setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
+GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
+        g_needUpdate(true),
+
+        g_shaderCompute(r.g_shaderCompute),
+        g_shaderVertex(r.g_shaderVertex),
+        g_shaderFragment(r.g_shaderFragment),
+        g_shaderGeometry(r.g_shaderGeometry),
+
+        g_vertexBuffer(r.g_vertexBuffer),
+
+        g_primitiveTopology(r.g_primitiveTopology),
+
+        g_viewport(r.g_viewport),
+        g_blendMode(r.g_blendMode),
+
+        g_pipelineLayout(VK_NULL_HANDLE),
+        g_graphicsPipeline(VK_NULL_HANDLE),
+
+        g_logicalDevice(r.g_logicalDevice)
+{}
 GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_needUpdate(r.g_needUpdate),
 
@@ -51,9 +71,9 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_shaderFragment(r.g_shaderFragment),
         g_shaderGeometry(r.g_shaderGeometry),
 
-        g_vertexBuffer(std::move(r.g_vertexBuffer)),
+        g_vertexBuffer(r.g_vertexBuffer),
 
-        g_inputAssembly(r.g_inputAssembly),
+        g_primitiveTopology(r.g_primitiveTopology),
 
         g_viewport(r.g_viewport),
         g_blendMode(r.g_blendMode),
@@ -66,9 +86,11 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_needUpdate = true;
 
     r.g_shaderCompute = nullptr;
-    r.g_shaderVertex = nullptr;
-    r.g_shaderFragment = nullptr;
+    r.g_shaderVertex = GraphicPipeline::defaultShaderVertex;
+    r.g_shaderFragment = GraphicPipeline::defaultShaderFragment;
     r.g_shaderGeometry = nullptr;
+
+    r.g_vertexBuffer = nullptr;
 
     r.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
@@ -124,20 +146,20 @@ void GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
         auto bindingDescription = Vertex::getBindingDescription();
         auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
-        if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
-        {
+        /*if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
+        {*/
             vertexInputInfo.vertexBindingDescriptionCount = 1;
             vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
             vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
             vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-        }
+        /*}
         else
         {
             vertexInputInfo.vertexBindingDescriptionCount = 0;
             vertexInputInfo.pVertexBindingDescriptions = nullptr;
             vertexInputInfo.vertexAttributeDescriptionCount = 0;
             vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-        }
+        }*/
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
@@ -196,7 +218,11 @@ void GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
         std::vector<VkDynamicState> dynamicStates = {
-                VK_DYNAMIC_STATE_VIEWPORT/*,
+                VK_DYNAMIC_STATE_VIEWPORT,
+                VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY
+                //VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE
+
+                /*,
                 VK_DYNAMIC_STATE_LINE_WIDTH,
                 VK_DYNAMIC_STATE_BLEND_CONSTANTS*/
         };
@@ -218,13 +244,19 @@ void GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
             throw std::runtime_error("failed to create pipeline layout!");
         }
 
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
+
+        inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        inputAssemblyStateCreateInfo.topology = this->g_primitiveTopology;
+        inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
+
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = shaderStages.size();
         pipelineInfo.pStages = shaderStages.data();
 
         pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &this->g_inputAssembly;
+        pipelineInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
         pipelineInfo.pViewportState = &viewportState;
         pipelineInfo.pRasterizationState = &rasterizer;
         pipelineInfo.pMultisampleState = &multisampling;
@@ -325,13 +357,13 @@ const BlendMode& GraphicPipeline::getBlendMode() const
     return this->g_blendMode;
 }
 
-void GraphicPipeline::setPrimitiveTopology(VkPrimitiveTopology topology)
+void GraphicPipeline::setPrimitiveTopology(VkPrimitiveTopology topology) const
 {
-    this->g_inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    this->g_inputAssembly.topology = topology;
-    this->g_inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-    this->g_needUpdate = true;
+    this->g_primitiveTopology = topology;
+}
+VkPrimitiveTopology GraphicPipeline::getPrimitiveTopology() const
+{
+    return this->g_primitiveTopology;
 }
 
 void GraphicPipeline::setViewport(const VkExtent2D& extent2D) const
@@ -362,6 +394,7 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
     vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
+    vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_primitiveTopology);
 
     if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
     {
@@ -421,8 +454,8 @@ void GraphicPipeline::destroy()
         this->g_needUpdate = true;
 
         this->g_shaderCompute = nullptr;
-        this->g_shaderVertex = nullptr;
-        this->g_shaderFragment = nullptr;
+        this->g_shaderVertex = GraphicPipeline::defaultShaderVertex;
+        this->g_shaderFragment = GraphicPipeline::defaultShaderFragment;
         this->g_shaderGeometry = nullptr;
 
         this->g_vertexBuffer = nullptr;
@@ -437,5 +470,9 @@ void GraphicPipeline::destroy()
         this->g_logicalDevice = nullptr;
     }
 }
+
+const Shader* GraphicPipeline::defaultShaderVertex;
+const Shader* GraphicPipeline::defaultShaderFragment;
+const Shader* GraphicPipeline::defaultShaderFragmentNoTexture;
 
 }//end fge::vulkan

@@ -99,9 +99,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     SDL_Event evt;
 
     fge::vulkan::Shader vertShader;
-    vertShader.loadFromFile(vulkanContext.getLogicalDevice(), "shaders/vertex.spv", fge::vulkan::Shader::Type::SHADER_VERTEX);
+    vertShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/vertex.spv", fge::vulkan::Shader::Type::SHADER_VERTEX);
     fge::vulkan::Shader fragShader;
-    fragShader.loadFromFile(vulkanContext.getLogicalDevice(), "shaders/fragmentTexture.spv", fge::vulkan::Shader::Type::SHADER_FRAGMENT);
+    fragShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/fragmentTexture.spv", fge::vulkan::Shader::Type::SHADER_FRAGMENT);
 
     const VkExtent2D extent2D{renderWindow.getSize().x, renderWindow.getSize().y};
 
