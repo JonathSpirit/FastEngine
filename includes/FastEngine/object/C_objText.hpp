@@ -51,7 +51,7 @@ public:
                  float offset,
                  float thickness,
                  float outlineThickness = 0.0f);
-    void addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const fge::Glyph& glyph, float italicShear);
+    void addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const fge::Glyph& glyph, const fge::Vector2i& textureSize, float italicShear);
 
     void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
     void drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const;
@@ -67,7 +67,7 @@ public:
 
     [[nodiscard]] uint32_t getUnicode() const;
 
-private:
+public:
     friend ObjText;
 
     fge::vulkan::VertexBuffer g_vertices; /// Vertex array containing the fill geometry

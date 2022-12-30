@@ -61,6 +61,9 @@ public:
     [[nodiscard]] VkImageView getTextureImageView() const;
     [[nodiscard]] VkSampler getTextureSampler() const;
 
+    void setNormalizedCoordinates(bool normalized);
+    [[nodiscard]] bool getNormalizedCoordinates() const;
+
     void setFilter(VkFilter filter);
     [[nodiscard]] VkFilter getFilter() const;
 
@@ -83,6 +86,7 @@ private:
     int g_textureBytesPerPixel;
 
     VkFilter g_filter;
+    bool g_normalizedCoordinates;
 
     fge::vulkan::DescriptorSet g_textureDescriptorSet;
 

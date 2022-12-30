@@ -68,11 +68,9 @@ public:
 
     [[nodiscard]] Vertex* getVertices();
     [[nodiscard]] const Vertex* getVertices() const;
-    void mapVertices();
 
     [[nodiscard]] uint16_t* getIndices();
     [[nodiscard]] const uint16_t* getIndices() const;
-    void mapIndices();
 
     [[nodiscard]] VkBuffer getVerticesBuffer() const;
     [[nodiscard]] VkBuffer getIndicesBuffer() const;
@@ -86,20 +84,29 @@ public:
     [[nodiscard]] fge::RectFloat getBounds() const;
 
 private:
-    void cleanBuffers();
-    void updateBuffers();
+    void mapVertices() const;
+    void mapIndices() const;
+
+    void cleanVertexBuffers() const;
+    void cleanIndexBuffers() const;
+    void updateBuffers() const;
 
     std::vector<Vertex> g_vertices;
-    VkBuffer g_vertexBuffer;
-    VkBuffer g_vertexStagingBuffer;
-    VkDeviceMemory g_vertexBufferMemory;
-    VkDeviceMemory g_vertexStagingBufferMemory;
+    mutable VkBuffer g_vertexBuffer;
+    mutable VkBuffer g_vertexStagingBuffer;
+    mutable VkDeviceMemory g_vertexBufferMemory;
+    mutable VkDeviceMemory g_vertexStagingBufferMemory;
+    mutable std::size_t g_vertexBufferCapacity;
 
     std::vector<uint16_t> g_indices;
-    VkBuffer g_indexBuffer;
-    VkBuffer g_indexStagingBuffer;
-    VkDeviceMemory g_indexBufferMemory;
-    VkDeviceMemory g_indexStagingBufferMemory;
+    mutable VkBuffer g_indexBuffer;
+    mutable VkBuffer g_indexStagingBuffer;
+    mutable VkDeviceMemory g_indexBufferMemory;
+    mutable VkDeviceMemory g_indexStagingBufferMemory;
+    mutable std::size_t g_indexBufferCapacity;
+
+    mutable bool g_vertexNeedUpdate;
+    mutable bool g_indexNeedUpdate;
 
     Types g_type;
     bool g_useIndexBuffer;

@@ -105,12 +105,52 @@ public:
         rectText.setOutlineColor(fge::Color::Red);
         rectText.setOutlineThickness(2.0f);
 
-        for (const auto& character : movingText->getCharacters())
+        const auto& character = movingText->getCharacters().front();
+
+        for (std::size_t i=0; i<character.g_vertices.getVertexCount(); ++i)
         {
-            std::cout << character.getPosition().x << " " << character.getPosition().y << std::endl;
+            std::cout << character.g_vertices.getVertices()[i]._position.x << " "
+                      << character.g_vertices.getVertices()[i]._position.y << " : "
+                      << character.g_vertices.getVertices()[i]._texCoords.x << " "
+                      << character.g_vertices.getVertices()[i]._texCoords.y << std::endl;
         }
 
         fge::Clock changeTextColorClock;
+
+        fge::Transformable test1;
+        fge::vulkan::VertexBuffer vertexBuffer1;
+        vertexBuffer1.create(*fge::vulkan::GlobalContext, 6, 0, false);
+        vertexBuffer1.getVertices()[0] = {{0, 0}, fge::Color::Black, {0,0}};
+        vertexBuffer1.getVertices()[1] = {{256, 0}, fge::Color::Black, {1,0}};
+        vertexBuffer1.getVertices()[2] = {{0, 256}, fge::Color::Black, {0,1}};
+        vertexBuffer1.getVertices()[3] = {{0, 256}, fge::Color::Black, {0,1}};
+        vertexBuffer1.getVertices()[4] = {{256, 0}, fge::Color::Black, {1,0}};
+        vertexBuffer1.getVertices()[5] = {{256, 256}, fge::Color::Black, {1,1}};
+
+        fge::vulkan::GraphicPipeline graphicPipeline;
+        graphicPipeline.setVertexBuffer(&vertexBuffer1);
+        graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+
+        const auto* texture = &fge::font::GetFont("base")->_font->getTexture(18);
+
+        fge::Surface surface(texture->copyToSurface());
+        surface.saveToFile("ahah.png");
+
+        for (const auto& chara : movingText->getCharacters())
+        {
+            if (chara.g_unicodeChar == U' ')
+            {
+                for (std::size_t i=0; i<chara.g_vertices.getVertexCount(); ++i)
+                {
+                    const auto& v = chara.g_vertices.getVertices()[i];
+
+                    std::cout << v._texCoords.x << " " << v._texCoords.y << " : "
+                                << v._position.x << " " << v._position.y << std::endl;
+                }
+
+                std::cout << std::endl;
+            }
+        }
 
         //Begin loop
         bool running = true;
@@ -148,8 +188,7 @@ public:
                     c.setOutlineColor(fge::_random.randColor());
                 }
 
-                c.setOrigin({0.0f,
-                             amp * std::sin(2.0f * static_cast<float>(FGE_MATH_PI) * math_f * (math_t + math_tShift))});
+                c.setOrigin({0.0f, amp * std::sin(2.0f * static_cast<float>(FGE_MATH_PI) * math_f * (math_t + math_tShift))});
                 math_tShift += (1.0f / math_f) / static_cast<float>(characters.size());
             }
             math_t += fge::DurationToSecondFloat(deltaTick);
@@ -174,13 +213,14 @@ public:
 
                 this->draw(renderWindow);
                 rectText.draw(renderWindow, {});
+                renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, texture});
 
                 renderWindow.endRenderPass();
 
                 renderWindow.display(imageIndex, nullptr, 0);
             }
 
-            SDL_Delay(33);
+            SDL_Delay(17);
         }
 
         fge::vulkan::GlobalContext->waitIdle();
@@ -214,7 +254,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::vulkan::GlobalContext = &vulkanContext;
 
     fge::RenderWindow renderWindow(vulkanContext);
-    renderWindow.setClearColor(fge::Color::White);
+    renderWindow.setClearColor(fge::Color(140, 140, 140, 255));
 
     fge::vulkan::Shader vertShader;
     vertShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/vertex.spv", fge::vulkan::Shader::Type::SHADER_VERTEX);

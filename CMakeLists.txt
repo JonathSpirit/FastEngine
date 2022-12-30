@@ -201,6 +201,7 @@ target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH}) #Volk
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL/include)
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL_image)
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
+include_directories(${Vulkan_INCLUDE_DIRS})
 
 add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)

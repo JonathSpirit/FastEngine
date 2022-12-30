@@ -171,9 +171,6 @@ void Shape::update()
 
     // Outline
     this->updateOutline();
-
-    this->g_vertices.mapVertices();
-    this->g_outlineVertices.mapVertices();
 }
 
 void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const

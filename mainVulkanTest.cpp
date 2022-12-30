@@ -24,30 +24,30 @@
 #include "FastEngine/graphic/C_transformable.hpp"
 
 const std::vector<fge::vulkan::Vertex> verticesTexture = {
-        {{0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-        {{512.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-        {{512.0f, 512.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-        {{0.0f, 512.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+        {{0, 0}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{256, 0}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        {{256, 256}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+        {{0, 256}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 };
 const std::vector<uint16_t> indicesTexture = {
         0, 1, 2, 2, 3, 0
 };
 
 const std::vector<fge::vulkan::Vertex> vertices = {
-        {{-50.0f, -50.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{50.0f, -50.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{50.0f, 50.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-50.0f, 50.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+        {{-50.0f, -50.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{50.0f, -50.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        {{50.0f, 50.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-50.0f, 50.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 };
 const std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
 };
 
 const std::vector<fge::vulkan::Vertex> vertices2 = {
-        {{-20.0f, -20.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{20.0f, -20.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{20.0f, 20.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-20.0f, 20.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+        {{-20.0f, -20.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{20.0f, -20.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        {{20.0f, 20.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-20.0f, 20.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 };
 const std::vector<uint16_t> indices2 = {
         0, 1, 2, 2, 3, 0
@@ -77,19 +77,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     fge::RenderWindow renderWindow(vulkanContext);
 
     fge::Surface surface1;
-    surface1.loadFromFile("textures/texture.jpg");
+    surface1.loadFromFile("resources/textures/texture.jpg");
     fge::Surface surface2;
-    surface2.loadFromFile("textures/texture2.jpg");
+    surface2.loadFromFile("resources/textures/texture2.jpg");
+    fge::Surface surface3;
+    assert(surface3.loadFromFile("ahah.png"));
 
     fge::vulkan::TextureImage texture1;
     texture1.create(vulkanContext, surface1.get());
     fge::vulkan::TextureImage texture2;
     texture2.create(vulkanContext, surface2.get());
+    fge::vulkan::TextureImage texture3;
+    assert(texture3.create(vulkanContext, surface3.get()));
 
     fge::Surface testSurface;
     testSurface.create(32, 32, {255,0,0,255});
 
     texture1.update(testSurface.get(), {33,0});
+    texture2.update(texture1, {});
 
     fge::RenderTexture renderTexture;
     renderTexture.create(vulkanContext, {200,200});
@@ -113,8 +118,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     vertexBuffer.create(vulkanContext, vertices.size(), indices.size(), true);
     memcpy(vertexBuffer.getVertices(), vertices.data(), sizeof(fge::vulkan::Vertex)*vertices.size());
     memcpy(vertexBuffer.getIndices(), indices.data(), sizeof(uint16_t)*indices.size());
-    vertexBuffer.mapVertices();
-    vertexBuffer.mapIndices();
     graphicPipeline.setVertexBuffer(&vertexBuffer);
 
     fge::vulkan::GraphicPipeline graphicPipeline2;
@@ -125,8 +128,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     vertexBuffer2.create(vulkanContext, vertices2.size(), indices2.size(), true);
     memcpy(vertexBuffer2.getVertices(), vertices2.data(), sizeof(fge::vulkan::Vertex)*vertices2.size());
     memcpy(vertexBuffer2.getIndices(), indices2.data(), sizeof(uint16_t)*indices2.size());
-    vertexBuffer2.mapVertices();
-    vertexBuffer2.mapIndices();
     graphicPipeline2.setVertexBuffer(&vertexBuffer2);
 
     fge::vulkan::GraphicPipeline graphicPipeline3;
@@ -137,8 +138,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     vertexBuffer3.create(vulkanContext, vertices2.size(), indices2.size(), true);
     memcpy(vertexBuffer3.getVertices(), vertices2.data(), sizeof(fge::vulkan::Vertex)*vertices2.size());
     memcpy(vertexBuffer3.getIndices(), indices2.data(), sizeof(uint16_t)*indices2.size());
-    vertexBuffer3.mapVertices();
-    vertexBuffer3.mapIndices();
     graphicPipeline3.setVertexBuffer(&vertexBuffer3);
 
     fge::vulkan::GraphicPipeline graphicPipeline4;
@@ -149,8 +148,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     vertexBuffer4.create(vulkanContext, verticesTexture.size(), indicesTexture.size(), true);
     memcpy(vertexBuffer4.getVertices(), verticesTexture.data(), sizeof(fge::vulkan::Vertex)*verticesTexture.size());
     memcpy(vertexBuffer4.getIndices(), indicesTexture.data(), sizeof(uint16_t)*indicesTexture.size());
-    vertexBuffer4.mapVertices();
-    vertexBuffer4.mapIndices();
     graphicPipeline4.setVertexBuffer(&vertexBuffer4);
     fge::Transformable transformable4;
     transformable4.setScale({0.3f, 0.2f});
@@ -165,7 +162,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     transformable2.setPosition({200.0f, -200.0f});
     transformable1.setPosition({200.0f, -200.0f});
 
-    fge::Surface testCopySurface(texture1.copyToSurface());
+    fge::Surface testCopySurface(texture3.copyToSurface());
     testCopySurface.saveToFile("myCopiedSurface.png");
 
     float t = 0.0f;
@@ -203,7 +200,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
             renderWindow.draw(graphicPipeline, fge::RenderStates{transformable1.getTransform(), &transformable1, &renderTexture.getTextureImage()});
             renderWindow.draw(graphicPipeline2, fge::RenderStates{transformable2.getTransform(), &transformable2, &texture2});
-            renderWindow.draw(graphicPipeline4, fge::RenderStates{transformable4.getTransform(), &transformable4, &texture1});
+            renderWindow.draw(graphicPipeline4, fge::RenderStates{transformable4.getTransform(), &transformable4, &texture3});
             renderWindow.endRenderPass();
 
             auto extraCommandBuffer = renderTexture.getCommandBuffer();
@@ -222,6 +219,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     texture1.destroy();
     texture2.destroy();
+    texture3.destroy();
 
     transformable1.destroy();
     transformable2.destroy();

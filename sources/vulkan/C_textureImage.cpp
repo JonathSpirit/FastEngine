@@ -33,6 +33,7 @@ TextureImage::TextureImage() :
         g_textureBytesPerPixel(0),
 
         g_filter(VK_FILTER_LINEAR),
+        g_normalizedCoordinates(true),
 
         g_modificationCount(0),
 
@@ -49,6 +50,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
         g_textureBytesPerPixel(r.g_textureBytesPerPixel),
 
         g_filter(r.g_filter),
+        g_normalizedCoordinates(r.g_normalizedCoordinates),
 
         g_textureDescriptorSet(std::move(r.g_textureDescriptorSet)),
 
@@ -66,6 +68,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
     r.g_textureBytesPerPixel = 0;
 
     r.g_filter = VK_FILTER_LINEAR;
+    r.g_normalizedCoordinates = false;
 
     r.g_modificationCount = 0;
 
@@ -90,6 +93,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     this->g_textureBytesPerPixel = r.g_textureBytesPerPixel;
 
     this->g_filter = r.g_filter;
+    this->g_normalizedCoordinates = r.g_normalizedCoordinates;
 
     this->g_textureDescriptorSet = std::move(r.g_textureDescriptorSet);
 
@@ -107,6 +111,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     r.g_textureBytesPerPixel = 0;
 
     r.g_filter = VK_FILTER_LINEAR;
+    r.g_normalizedCoordinates = false;
 
     r.g_modificationCount = 0;
 
@@ -315,8 +320,8 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
     {
         return;
     }
-    if ((surface->w + offset.x >= this->g_textureSize.x) ||
-        (surface->h + offset.y >= this->g_textureSize.y))
+    if ((surface->w + offset.x > this->g_textureSize.x) ||
+        (surface->h + offset.y > this->g_textureSize.y))
     {
         return;
     }
@@ -358,8 +363,8 @@ void TextureImage::update(const TextureImage& textureImage, const glm::vec<2, in
     {
         return;
     }
-    if ((textureImage.g_textureSize.x + offset.x >= this->g_textureSize.x) ||
-        (textureImage.g_textureSize.y + offset.y >= this->g_textureSize.y))
+    if ((textureImage.g_textureSize.x + offset.x > this->g_textureSize.x) ||
+        (textureImage.g_textureSize.y + offset.y > this->g_textureSize.y))
     {
         return;
     }
@@ -382,8 +387,8 @@ void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2
     {
         return;
     }
-    if ((size.x + offset.x >= this->g_textureSize.x) ||
-        (size.y + offset.y >= this->g_textureSize.y))
+    if ((size.x + offset.x > this->g_textureSize.x) ||
+        (size.y + offset.y > this->g_textureSize.y))
     {
         return;
     }
@@ -450,6 +455,23 @@ VkSampler TextureImage::getTextureSampler() const
     return this->g_textureSampler;
 }
 
+void TextureImage::setNormalizedCoordinates(bool normalized)
+{
+    if (this->g_normalizedCoordinates != normalized)
+    {
+        this->g_normalizedCoordinates = normalized;
+        vkDestroySampler(this->g_context->getLogicalDevice().getDevice(), this->g_textureSampler, nullptr);
+        this->createTextureSampler(this->g_context->getPhysicalDevice());
+
+        const DescriptorSet::Descriptor descriptor(*this, 1);
+        this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
+    }
+}
+bool TextureImage::getNormalizedCoordinates() const
+{
+    return this->g_normalizedCoordinates;
+}
+
 void TextureImage::setFilter(VkFilter filter)
 {
     if (this->g_filter != filter)
@@ -499,7 +521,7 @@ void TextureImage::createTextureSampler(const PhysicalDevice& physicalDevice)
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.unnormalizedCoordinates = this->g_normalizedCoordinates ? VK_FALSE : VK_TRUE;
 
     samplerInfo.compareEnable = VK_FALSE;
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
