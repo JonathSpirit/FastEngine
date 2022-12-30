@@ -105,16 +105,6 @@ public:
         rectText.setOutlineColor(fge::Color::Red);
         rectText.setOutlineThickness(2.0f);
 
-        const auto& character = movingText->getCharacters().front();
-
-        for (std::size_t i=0; i<character.g_vertices.getVertexCount(); ++i)
-        {
-            std::cout << character.g_vertices.getVertices()[i]._position.x << " "
-                      << character.g_vertices.getVertices()[i]._position.y << " : "
-                      << character.g_vertices.getVertices()[i]._texCoords.x << " "
-                      << character.g_vertices.getVertices()[i]._texCoords.y << std::endl;
-        }
-
         fge::Clock changeTextColorClock;
 
         fge::Transformable test1;
@@ -135,22 +125,6 @@ public:
 
         fge::Surface surface(texture->copyToSurface());
         surface.saveToFile("ahah.png");
-
-        for (const auto& chara : movingText->getCharacters())
-        {
-            if (chara.g_unicodeChar == U' ')
-            {
-                for (std::size_t i=0; i<chara.g_vertices.getVertexCount(); ++i)
-                {
-                    const auto& v = chara.g_vertices.getVertices()[i];
-
-                    std::cout << v._texCoords.x << " " << v._texCoords.y << " : "
-                                << v._position.x << " " << v._position.y << std::endl;
-                }
-
-                std::cout << std::endl;
-            }
-        }
 
         //Begin loop
         bool running = true;
@@ -212,15 +186,15 @@ public:
                 renderWindow.beginRenderPass(imageIndex);
 
                 this->draw(renderWindow);
-                rectText.draw(renderWindow, {});
-                renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, texture});
+                //rectText.draw(renderWindow, {});
+                //renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, texture});
 
                 renderWindow.endRenderPass();
 
                 renderWindow.display(imageIndex, nullptr, 0);
             }
 
-            SDL_Delay(17);
+            //SDL_Delay(17);
         }
 
         fge::vulkan::GlobalContext->waitIdle();

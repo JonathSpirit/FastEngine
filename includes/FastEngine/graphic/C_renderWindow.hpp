@@ -78,7 +78,7 @@ private:
 
     void createFramebuffers();
 
-    void createCommandBuffer();
+    void createCommandBuffers();
     void createCommandPool();
 
     void createSyncObjects();
@@ -94,11 +94,13 @@ private:
     fge::vulkan::DescriptorSetLayout g_descriptorSetLayout;
 
     VkCommandPool g_commandPool = VK_NULL_HANDLE;
-    VkCommandBuffer g_commandBuffer = VK_NULL_HANDLE;
+    std::vector<VkCommandBuffer> g_commandBuffers;
 
-    VkSemaphore g_imageAvailableSemaphore = VK_NULL_HANDLE;
-    VkSemaphore g_renderFinishedSemaphore = VK_NULL_HANDLE;
-    VkFence g_inFlightFence = VK_NULL_HANDLE;
+    std::vector<VkSemaphore> g_imageAvailableSemaphores;
+    std::vector<VkSemaphore> g_renderFinishedSemaphores;
+    std::vector<VkFence> g_inFlightFences;
+
+    uint32_t g_currentFrame = 0;
 
     bool g_framebufferResized = false;
     bool g_forceGraphicPipelineUpdate = false;

@@ -21,6 +21,8 @@
 #include <vector>
 #include "volk.h"
 
+#define FGE_MAX_FRAMES_IN_FLIGHT 2
+
 namespace fge::vulkan
 {
 

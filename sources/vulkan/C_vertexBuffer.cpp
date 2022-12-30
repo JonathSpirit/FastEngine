@@ -500,7 +500,7 @@ void VertexBuffer::updateBuffers() const
         return;
     }
 
-    if (this->g_vertices.size() >= this->g_vertexBufferCapacity)
+    if (this->g_vertices.size() > this->g_vertexBufferCapacity || this->g_vertexBuffer == VK_NULL_HANDLE)
     {
         this->cleanVertexBuffers();
 
@@ -537,7 +537,8 @@ void VertexBuffer::updateBuffers() const
         this->g_vertexNeedUpdate = true;
     }
 
-    if (this->g_indices.size() >= this->g_indexBufferCapacity && this->g_useIndexBuffer)
+    if ((this->g_indices.size() > this->g_indexBufferCapacity && this->g_useIndexBuffer) ||
+        (this->g_indexBuffer == VK_NULL_HANDLE && this->g_useIndexBuffer))
     {
         this->cleanIndexBuffers();
 

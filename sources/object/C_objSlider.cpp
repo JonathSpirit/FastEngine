@@ -51,6 +51,8 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSlider)
 {
+    return; ///TODO
+
     auto copyStates = states.copy(this);
     copyStates._modelTransform *= this->getTransform();
 

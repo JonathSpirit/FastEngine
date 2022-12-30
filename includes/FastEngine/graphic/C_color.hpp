@@ -25,7 +25,7 @@
  */
 
 #include <SDL_pixels.h>
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 #include <volk.h>
 
 namespace fge

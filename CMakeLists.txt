@@ -540,11 +540,11 @@ add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
 
 #Set some variables that help exe linking
 if(WIN32)
-    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-audio sfml-graphics sfml-system sfml-window ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-system ${FGE_LIB_NAME})
 elseif(APPLE)
-    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-audio sfml-graphics sfml-system sfml-window ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-system ${FGE_LIB_NAME})
 else()
-    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-audio sfml-graphics sfml-system sfml-window X11 ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-system X11 ${FGE_LIB_NAME})
 endif()
 
 #Tests

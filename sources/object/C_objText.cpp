@@ -374,14 +374,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
 
         for (const auto& character: this->g_characters)
         {
-            if (character.g_unicodeChar == U' ')
-            {
-                character.drawVertices(false, target, copyStates);
-            }
-            else
-            {
-                character.drawVertices(false, target, copyStates);
-            }
+            character.drawVertices(false, target, copyStates);
         }
     }
 }
