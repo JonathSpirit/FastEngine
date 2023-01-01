@@ -42,7 +42,7 @@ public:
     GraphicPipeline& operator=(const GraphicPipeline& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
-    void updateIfNeeded(const VkExtent2D& extent2D,
+    bool updateIfNeeded(const VkExtent2D& extent2D,
                         const LogicalDevice& logicalDevice,
                         const VkDescriptorSetLayout* descriptorSetLayouts,
                         std::size_t descriptorSetLayoutSize,

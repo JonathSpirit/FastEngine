@@ -179,7 +179,10 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
     copyStates._modelTransform *= getTransform();
 
     // Render the inside
-    copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
+    if (this->g_texture.valid())
+    {
+        copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
+    }
 
     this->_g_graphicPipeline.setVertexBuffer(&this->g_vertices);
     this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
