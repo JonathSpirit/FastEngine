@@ -63,7 +63,6 @@ public:
 
     bool isSrgb() const override;
 
-    [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getDescriptorSetLayout() const;
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
     [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
 
@@ -84,8 +83,6 @@ private:
     VkRenderPass g_renderPass = VK_NULL_HANDLE;
 
     VkFramebuffer g_framebuffer = VK_NULL_HANDLE;
-
-    fge::vulkan::DescriptorSetLayout g_descriptorSetLayout;
 
     VkCommandPool g_commandPool = VK_NULL_HANDLE;
     VkCommandBuffer g_commandBuffer = VK_NULL_HANDLE;

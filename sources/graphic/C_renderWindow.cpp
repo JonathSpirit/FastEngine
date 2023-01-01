@@ -82,8 +82,6 @@ void RenderWindow::destroy()
 
         vkDestroyRenderPass(logicalDevice, this->g_renderPass, nullptr);
 
-        this->g_descriptorSetLayout.destroy();
-
         this->g_swapChain.destroy();
 
         this->g_isCreated = false;
@@ -151,24 +149,27 @@ void RenderWindow::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
 
     const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
                                          windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
+
     graphicPipeline.setViewport(viewport);
+    graphicPipeline.setScissor({{0, 0}, this->g_swapChain.getSwapChainExtent()});
 
-    const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
+    VkDescriptorSetLayout layout[] = {this->g_context->getTransformLayout().getLayout(),
+                                      this->g_context->getTextureLayout().getLayout()};
 
-    VkDescriptorSetLayout layout[] = {this->g_descriptorSetLayout.getLayout(), this->g_context->getDescriptorSetLayout().getLayout()};
-    if ( graphicPipeline.updateIfNeeded(this->g_swapChain.getSwapChainExtent(),
-                                   this->g_context->getLogicalDevice(),
-                                   layout, descriptorSize,
-                                   this->g_renderPass,
-                                   this->g_forceGraphicPipelineUpdate) )
+    if ( graphicPipeline.updateIfNeeded(this->g_context->getLogicalDevice(),
+                                       layout, 2,
+                                       this->g_renderPass,
+                                       this->g_forceGraphicPipelineUpdate) )
     {
         return;
     }
 
+    const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
+
     VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(),
                                         states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : nullptr};
-    graphicPipeline.bindDescriptorSets(this->g_commandBuffers[this->g_currentFrame], descriptorSets, descriptorSize);
 
+    graphicPipeline.bindDescriptorSets(this->g_commandBuffers[this->g_currentFrame], descriptorSets, descriptorSize);
     graphicPipeline.recordCommandBuffer(this->g_commandBuffers[this->g_currentFrame]);
 }
 void RenderWindow::endRenderPass()
@@ -263,10 +264,6 @@ VkPresentModeKHR RenderWindow::getPresentMode() const
     return this->g_presentMode;
 }
 
-const fge::vulkan::DescriptorSetLayout& RenderWindow::getDescriptorSetLayout() const
-{
-    return this->g_descriptorSetLayout;
-}
 VkCommandBuffer RenderWindow::getCommandBuffer() const
 {
     return this->g_commandBuffers[this->g_currentFrame];
@@ -303,11 +300,6 @@ void RenderWindow::init(const fge::vulkan::Context& context)
                              this->g_presentMode);
 
     this->createRenderPass();
-
-    this->g_descriptorSetLayout.create(this->g_context->getLogicalDevice(), {
-            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT},
-            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT}
-    });
 
     this->createFramebuffers();
 

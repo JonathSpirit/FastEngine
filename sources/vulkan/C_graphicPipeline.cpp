@@ -107,8 +107,7 @@ GraphicPipeline::~GraphicPipeline()
     this->destroy();
 }
 
-bool GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
-                                     const LogicalDevice& logicalDevice,
+bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
                                      const VkDescriptorSetLayout* descriptorSetLayouts,
                                      std::size_t descriptorSetLayoutSize,
                                      VkRenderPass renderPass,
@@ -161,16 +160,12 @@ bool GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
             vertexInputInfo.pVertexAttributeDescriptions = nullptr;
         }
 
-        VkRect2D scissor{};
-        scissor.offset = {0, 0};
-        scissor.extent = extent2D;
-
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewportState.viewportCount = 1;
-        viewportState.pViewports = &this->g_viewport.getViewport();
+        viewportState.pViewports = nullptr;
         viewportState.scissorCount = 1;
-        viewportState.pScissors = &scissor;
+        viewportState.pScissors = nullptr;
 
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -219,9 +214,8 @@ bool GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
 
         std::vector<VkDynamicState> dynamicStates = {
                 VK_DYNAMIC_STATE_VIEWPORT,
-                VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY
-                //VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE
-
+                VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
+                VK_DYNAMIC_STATE_SCISSOR
                 /*,
                 VK_DYNAMIC_STATE_LINE_WIDTH,
                 VK_DYNAMIC_STATE_BLEND_CONSTANTS*/
@@ -382,6 +376,15 @@ const Viewport& GraphicPipeline::getViewport() const
     return this->g_viewport;
 }
 
+void GraphicPipeline::setScissor(const VkRect2D& scissor) const
+{
+    this->g_scissor = scissor;
+}
+const VkRect2D& GraphicPipeline::getScissor() const
+{
+    return this->g_scissor;
+}
+
 void GraphicPipeline::setVertexBuffer(const VertexBuffer* vertexBuffer) const
 {
     this->g_vertexBuffer = vertexBuffer;
@@ -397,6 +400,7 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_
 
     vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
     vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_primitiveTopology);
+    vkCmdSetScissor(commandBuffer, 0, 1, &this->g_scissor);
 
     if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
     {

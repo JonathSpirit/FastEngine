@@ -66,7 +66,6 @@ public:
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
 
-    [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getDescriptorSetLayout() const;
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
     [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
 
@@ -93,8 +92,6 @@ private:
     VkRenderPass g_renderPass = VK_NULL_HANDLE;
 
     std::vector<VkFramebuffer> g_swapChainFramebuffers;
-
-    fge::vulkan::DescriptorSetLayout g_descriptorSetLayout;
 
     VkCommandPool g_commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> g_commandBuffers;

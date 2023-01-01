@@ -186,7 +186,7 @@ void Scene::draw(fge::RenderTarget& target,
     fge::View backupView = target.getView();
     if (this->g_customView)
     {
-        ///target.setView(*this->g_customView);
+        target.setView(*this->g_customView);
     }
 
     fge::ObjectPlanDepth depthCount = 0;
@@ -235,7 +235,7 @@ void Scene::draw(fge::RenderTarget& target,
         target.draw(*object, states);
     }
 
-    ///target.setView(backupView);
+    target.setView(backupView);
 }
 #endif //FGE_DEF_SERVER
 

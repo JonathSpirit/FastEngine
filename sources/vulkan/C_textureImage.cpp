@@ -173,10 +173,10 @@ bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
     this->createTextureSampler(context.getPhysicalDevice());
 
     this->g_textureDescriptorSet.create(context.getLogicalDevice(),
-                                        &context.getDescriptorSetLayout(), 1,
+                                        &context.getTextureLayout(), 1,
                                         context.getTextureDescriptorPool(), false);
 
-    const DescriptorSet::Descriptor descriptor(*this, 1);
+    const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
@@ -236,10 +236,10 @@ bool TextureImage::create(const Context& context, SDL_Surface* surface)
     this->createTextureSampler(context.getPhysicalDevice());
 
     this->g_textureDescriptorSet.create(context.getLogicalDevice(),
-                                        &context.getDescriptorSetLayout(), 1,
+                                        &context.getTextureLayout(), 1,
                                         context.getTextureDescriptorPool(), false);
 
-    const DescriptorSet::Descriptor descriptor(*this, 1);
+    const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
@@ -463,7 +463,7 @@ void TextureImage::setNormalizedCoordinates(bool normalized)
         vkDestroySampler(this->g_context->getLogicalDevice().getDevice(), this->g_textureSampler, nullptr);
         this->createTextureSampler(this->g_context->getPhysicalDevice());
 
-        const DescriptorSet::Descriptor descriptor(*this, 1);
+        const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 }
@@ -480,7 +480,7 @@ void TextureImage::setFilter(VkFilter filter)
         vkDestroySampler(this->g_context->getLogicalDevice().getDevice(), this->g_textureSampler, nullptr);
         this->createTextureSampler(this->g_context->getPhysicalDevice());
 
-        const DescriptorSet::Descriptor descriptor(*this, 1);
+        const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 }

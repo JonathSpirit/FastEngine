@@ -139,14 +139,14 @@ void Transformable::updateUniformBuffer(const glm::mat4& modelMatrix, const glm:
 {
     if (this->g_descriptorSet.getDescriptorSet() == VK_NULL_HANDLE)
     {
-        this->g_descriptorSet.create(context.getLogicalDevice(), &context.getDescriptorSetLayout(),
+        this->g_descriptorSet.create(context.getLogicalDevice(), &context.getTransformLayout(),
                                      1, context.getTransformDescriptorPool(), true);
     }
 
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE)
     {
         this->g_uniformBuffer.create(context.getLogicalDevice(), context.getPhysicalDevice(), sizeof(fge::Transform));
-        const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, 0);
+        const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
         this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 

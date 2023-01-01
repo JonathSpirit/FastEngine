@@ -42,8 +42,7 @@ public:
     GraphicPipeline& operator=(const GraphicPipeline& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
-    bool updateIfNeeded(const VkExtent2D& extent2D,
-                        const LogicalDevice& logicalDevice,
+    bool updateIfNeeded(const LogicalDevice& logicalDevice,
                         const VkDescriptorSetLayout* descriptorSetLayouts,
                         std::size_t descriptorSetLayoutSize,
                         VkRenderPass renderPass,
@@ -62,6 +61,9 @@ public:
     void setViewport(const VkExtent2D& extent2D) const;
     void setViewport(const Viewport& viewport) const;
     [[nodiscard]] const Viewport& getViewport() const;
+
+    void setScissor(const VkRect2D& scissor) const;
+    [[nodiscard]] const VkRect2D& getScissor() const;
 
     void setVertexBuffer(const VertexBuffer* vertexBuffer) const;
     [[nodiscard]] const VertexBuffer* getVertexBuffer() const;
@@ -95,6 +97,7 @@ private:
 
     mutable Viewport g_viewport;
     mutable BlendMode g_blendMode;
+    mutable VkRect2D g_scissor;
 
     mutable VkPipelineLayout g_pipelineLayout;
     mutable VkPipeline g_graphicsPipeline;

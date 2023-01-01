@@ -43,7 +43,8 @@ void Context::destroy()
 {
     if (this->g_isCreated)
     {
-        this->g_descriptorSetLayout.destroy();
+        this->g_transformLayout.destroy();
+        this->g_textureLayout.destroy();
         this->g_textureDescriptorPool.destroy();
         this->g_transformDescriptorPool.destroy();
 
@@ -118,10 +119,13 @@ void Context::initVulkan(SDL_Window* window)
     this->createCommandPool();
     this->createTextureDescriptorPool();
     this->createTransformDescriptorPool();
-    this->g_descriptorSetLayout.create(this->g_logicalDevice,{
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT},
-        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT}
+
+    this->g_transformLayout.create(this->g_logicalDevice,{
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}
     });
+    this->g_textureLayout.create(this->g_logicalDevice,{
+          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, FGE_VULKAN_TEXTURE_BINDING, VK_SHADER_STAGE_FRAGMENT_BIT}
+      });
 }
 void Context::enumerateExtensions()
 {
@@ -352,9 +356,13 @@ void Context::copyImageToImage(VkImage srcImage, VkImage dstImage, uint32_t widt
     endSingleTimeCommands(commandBuffer);
 }
 
-const fge::vulkan::DescriptorSetLayout& Context::getDescriptorSetLayout() const
+const fge::vulkan::DescriptorSetLayout& Context::getTransformLayout() const
 {
-    return this->g_descriptorSetLayout;
+    return this->g_transformLayout;
+}
+const fge::vulkan::DescriptorSetLayout& Context::getTextureLayout() const
+{
+    return this->g_textureLayout;
 }
 const DescriptorPool& Context::getTextureDescriptorPool() const
 {
