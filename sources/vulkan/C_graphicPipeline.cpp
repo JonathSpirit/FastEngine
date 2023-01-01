@@ -147,20 +147,20 @@ void GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
         auto bindingDescription = Vertex::getBindingDescription();
         auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
-        if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
-        {
+        /*if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
+        {*/
             vertexInputInfo.vertexBindingDescriptionCount = 1;
             vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
             vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
             vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-        }
+        /*}
         else
         {
             vertexInputInfo.vertexBindingDescriptionCount = 0;
             vertexInputInfo.pVertexBindingDescriptions = nullptr;
             vertexInputInfo.vertexAttributeDescriptionCount = 0;
             vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-        }
+        }*/
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
@@ -179,7 +179,7 @@ void GraphicPipeline::updateIfNeeded(const VkExtent2D& extent2D,
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.cullMode = VK_CULL_MODE_NONE;
         rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
         //rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 

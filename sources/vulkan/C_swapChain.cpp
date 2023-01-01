@@ -30,6 +30,7 @@ SwapChain::SwapChain() :
         g_swapChain(VK_NULL_HANDLE),
         g_swapChainImageFormat(VK_FORMAT_UNDEFINED),
         g_swapChainExtent(),
+        g_presentMode(VK_PRESENT_MODE_FIFO_KHR),
         g_logicalDevice(nullptr)
 {}
 SwapChain::SwapChain(SwapChain&& r) noexcept :
@@ -38,10 +39,12 @@ SwapChain::SwapChain(SwapChain&& r) noexcept :
         g_swapChainImageFormat(r.g_swapChainImageFormat),
         g_swapChainExtent(r.g_swapChainExtent),
         g_swapChainImageViews(std::move(r.g_swapChainImageViews)),
+        g_presentMode(r.g_presentMode),
         g_logicalDevice(r.g_logicalDevice)
 {
     r.g_swapChain = VK_NULL_HANDLE;
     r.g_swapChainImageFormat = VK_FORMAT_UNDEFINED;
+    r.g_presentMode = VK_PRESENT_MODE_FIFO_KHR;
     r.g_logicalDevice = nullptr;
 }
 SwapChain::~SwapChain()
@@ -49,12 +52,13 @@ SwapChain::~SwapChain()
     this->destroy();
 }
 
-void SwapChain::create(SDL_Window* window, const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, const Surface& surface)
+void SwapChain::create(SDL_Window* window, const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, const Surface& surface,
+                       VkPresentModeKHR wantedPresentMode)
 {
     auto swapChainSupport = physicalDevice.querySwapChainSupport(surface.getSurface());
 
     const VkSurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport._formats);
-    const VkPresentModeKHR presentMode = SwapChain::chooseSwapPresentMode(swapChainSupport._presentModes);
+    this->g_presentMode = SwapChain::chooseSwapPresentMode(swapChainSupport._presentModes, wantedPresentMode);
     const VkExtent2D extent = SwapChain::chooseSwapExtent(swapChainSupport._capabilities, window);
 
     uint32_t imageCount = swapChainSupport._capabilities.minImageCount + 1;
@@ -94,7 +98,7 @@ void SwapChain::create(SDL_Window* window, const LogicalDevice& logicalDevice, c
     createInfo.preTransform = swapChainSupport._capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-    createInfo.presentMode = presentMode;
+    createInfo.presentMode = this->g_presentMode;
     createInfo.clipped = VK_TRUE;
 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
@@ -130,6 +134,8 @@ void SwapChain::destroy()
         this->g_swapChainImageFormat = VK_FORMAT_UNDEFINED;
 
         this->g_swapChainImageViews.clear();
+
+        this->g_presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
         this->g_logicalDevice = nullptr;
     }
@@ -184,11 +190,11 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 
     return availableFormats[0];
 }
-VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, VkPresentModeKHR wantedPresentMode)
 {
     for (const auto& availablePresentMode : availablePresentModes)
     {
-        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+        if (availablePresentMode == wantedPresentMode)
         {
             return availablePresentMode;
         }

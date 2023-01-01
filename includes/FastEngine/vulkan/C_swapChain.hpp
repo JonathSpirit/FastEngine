@@ -40,7 +40,8 @@ public:
     SwapChain& operator=(const SwapChain& r) = delete;
     SwapChain& operator=(SwapChain&& r) noexcept = delete;
 
-    void create(SDL_Window* window, const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, const Surface& surface);
+    void create(SDL_Window* window, const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, const Surface& surface,
+                VkPresentModeKHR wantedPresentMode);
     void destroy();
 
     [[nodiscard]] VkSwapchainKHR getSwapChain() const;
@@ -53,7 +54,7 @@ public:
     [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
 
     static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, VkPresentModeKHR wantedPresentMode);
     static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, SDL_Window* window);
 
 private:
@@ -65,6 +66,8 @@ private:
     VkExtent2D g_swapChainExtent;
 
     std::vector<VkImageView> g_swapChainImageViews;
+
+    VkPresentModeKHR g_presentMode;
 
     const LogicalDevice* g_logicalDevice;
 };

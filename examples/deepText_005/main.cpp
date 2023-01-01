@@ -123,8 +123,8 @@ public:
 
         const auto* texture = &fge::font::GetFont("base")->_font->getTexture(18);
 
-        fge::Surface surface(texture->copyToSurface());
-        surface.saveToFile("ahah.png");
+        //fge::Surface surface(texture->copyToSurface());
+        //surface.saveToFile("ahah.png");
 
         //Begin loop
         bool running = true;
@@ -168,6 +168,8 @@ public:
             math_t += fge::DurationToSecondFloat(deltaTick);
             math_t = fmodf(math_t, 1.0f / math_f);
 
+            //std::cout << 1.0f / fge::DurationToSecondFloat(deltaTick) << std::endl;
+
             if (changeTextColorClock.reached(std::chrono::milliseconds{500}))
             {
                 changeTextColorClock.restart();
@@ -186,7 +188,7 @@ public:
                 renderWindow.beginRenderPass(imageIndex);
 
                 this->draw(renderWindow);
-                //rectText.draw(renderWindow, {});
+                rectText.draw(renderWindow, {});
                 //renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, texture});
 
                 renderWindow.endRenderPass();

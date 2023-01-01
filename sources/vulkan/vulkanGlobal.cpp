@@ -24,7 +24,8 @@ namespace fge::vulkan
 {
 
 const std::vector<const char*> ValidationLayers = {
-        "VK_LAYER_KHRONOS_validation"
+        "VK_LAYER_KHRONOS_validation",
+        "VK_LAYER_LUNARG_monitor"
 };
 
 const std::vector<const char*> DeviceExtensions = {

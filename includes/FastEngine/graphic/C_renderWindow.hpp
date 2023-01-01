@@ -63,6 +63,9 @@ public:
 
     bool isSrgb() const override;
 
+    void setPresentMode(VkPresentModeKHR presentMode);
+    [[nodiscard]] VkPresentModeKHR getPresentMode() const;
+
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getDescriptorSetLayout() const;
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
     [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
@@ -101,6 +104,8 @@ private:
     std::vector<VkFence> g_inFlightFences;
 
     uint32_t g_currentFrame = 0;
+
+    VkPresentModeKHR g_presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
     bool g_framebufferResized = false;
     bool g_forceGraphicPipelineUpdate = false;

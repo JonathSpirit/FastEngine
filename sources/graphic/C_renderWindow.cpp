@@ -250,6 +250,16 @@ bool RenderWindow::isSrgb() const
     return false; ///TODO
 }
 
+void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)
+{
+    this->g_presentMode = presentMode;
+    this->recreateSwapChain();
+}
+VkPresentModeKHR RenderWindow::getPresentMode() const
+{
+    return this->g_presentMode;
+}
+
 const fge::vulkan::DescriptorSetLayout& RenderWindow::getDescriptorSetLayout() const
 {
     return this->g_descriptorSetLayout;
@@ -286,7 +296,8 @@ void RenderWindow::init(const fge::vulkan::Context& context)
     this->g_swapChain.create(context.getInstance().getWindow(),
                              context.getLogicalDevice(),
                              context.getPhysicalDevice(),
-                             context.getSurface());
+                             context.getSurface(),
+                             this->g_presentMode);
 
     this->createRenderPass();
 
@@ -331,7 +342,8 @@ void RenderWindow::recreateSwapChain()
     this->g_swapChain.create(this->g_context->getInstance().getWindow(),
                              this->g_context->getLogicalDevice(),
                              this->g_context->getPhysicalDevice(),
-                             this->g_context->getSurface());
+                             this->g_context->getSurface(),
+                             this->g_presentMode);
     this->createRenderPass();
     this->createFramebuffers();
 
