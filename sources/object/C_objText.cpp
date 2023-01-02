@@ -24,18 +24,16 @@ namespace fge
 
 Character::Character()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false);
-    this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
     this->_g_graphicPipeline.setShader(*fge::vulkan::GraphicPipeline::defaultShaderFragment);
 }
 Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false);
-    this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
     this->_g_graphicPipeline.setShader(*fge::vulkan::GraphicPipeline::defaultShaderFragment);
 }
 
@@ -102,9 +100,9 @@ void Character::draw(fge::RenderTarget& target, const fge::RenderStates& states)
         auto copyStates = states.copy(this, states._textureImage);
         copyStates._modelTransform *= this->getTransform();
 
-        this->_g_graphicPipeline.setVertexBuffer(&this->g_outlineVertices);
+        copyStates._vertexBuffer = &this->g_outlineVertices;
         target.draw(this->_g_graphicPipeline, copyStates);
-        this->_g_graphicPipeline.setVertexBuffer(&this->g_vertices);
+        copyStates._vertexBuffer = &this->g_vertices;
         target.draw(this->_g_graphicPipeline, copyStates);
     }
 }
@@ -117,12 +115,12 @@ void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, co
 
         if (outlineVertices)
         {
-            this->_g_graphicPipeline.setVertexBuffer(&this->g_outlineVertices);
+            copyStates._vertexBuffer = &this->g_outlineVertices;
             target.draw(this->_g_graphicPipeline, copyStates);
         }
         else
         {
-            this->_g_graphicPipeline.setVertexBuffer(&this->g_vertices);
+            copyStates._vertexBuffer = &this->g_vertices;
             target.draw(this->_g_graphicPipeline, copyStates);
         }
     }

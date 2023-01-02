@@ -130,8 +130,8 @@ g_outlineVertices (),
 g_insideBounds    (),
 g_bounds          ()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
     this->_g_graphicPipeline.setShader(*fge::vulkan::GraphicPipeline::defaultShaderFragmentNoTexture);
 }
 
@@ -184,16 +184,14 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
         copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
     }
 
-    this->_g_graphicPipeline.setVertexBuffer(&this->g_vertices);
-    this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+    copyStates._vertexBuffer = &this->g_vertices;
     target.draw(this->_g_graphicPipeline, copyStates);
 
     // Render the outline
     if (this->g_outlineThickness != 0.0f)
     {
         copyStates._textureImage = nullptr;
-        this->_g_graphicPipeline.setVertexBuffer(&this->g_outlineVertices);
-        this->_g_graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+        copyStates._vertexBuffer = &this->g_outlineVertices;
         target.draw(this->_g_graphicPipeline, copyStates);
     }
 }

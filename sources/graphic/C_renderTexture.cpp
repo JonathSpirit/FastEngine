@@ -122,7 +122,7 @@ void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, co
                                         states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : nullptr};
 
     graphicPipeline.bindDescriptorSets(this->g_commandBuffer, descriptorSets, descriptorSize);
-    graphicPipeline.recordCommandBuffer(this->g_commandBuffer);
+    graphicPipeline.recordCommandBuffer(this->g_commandBuffer, states._vertexBuffer);
 }
 void RenderTexture::endRenderPass()
 {

@@ -55,8 +55,10 @@ public:
     void setBlendMode(const BlendMode& blendMode);
     [[nodiscard]] const BlendMode& getBlendMode() const;
 
-    void setPrimitiveTopology(VkPrimitiveTopology topology) const;
-    [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
+    void setDefaultPrimitiveTopology(VkPrimitiveTopology topology) const;
+    [[nodiscard]] VkPrimitiveTopology getDefaultPrimitiveTopology() const;
+    void setDefaultVertexCount(uint32_t count) const;
+    [[nodiscard]] uint32_t getDefaultVertexCount() const;
 
     void setViewport(const VkExtent2D& extent2D) const;
     void setViewport(const Viewport& viewport) const;
@@ -65,10 +67,7 @@ public:
     void setScissor(const VkRect2D& scissor) const;
     [[nodiscard]] const VkRect2D& getScissor() const;
 
-    void setVertexBuffer(const VertexBuffer* vertexBuffer) const;
-    [[nodiscard]] const VertexBuffer* getVertexBuffer() const;
-
-    void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t defaultVertexCount=3) const;
+    void recordCommandBuffer(VkCommandBuffer commandBuffer, const VertexBuffer* vertexBuffer) const;
     void bindDescriptorSets(VkCommandBuffer commandBuffer, const VkDescriptorSet* descriptorSet, uint32_t descriptorCount) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
@@ -91,9 +90,8 @@ private:
     const Shader* g_shaderFragment;
     const Shader* g_shaderGeometry;
 
-    mutable const VertexBuffer* g_vertexBuffer;
-
-    mutable VkPrimitiveTopology g_primitiveTopology;
+    mutable VkPrimitiveTopology g_defaultPrimitiveTopology;
+    mutable uint32_t g_defaultVertexCount;
 
     mutable Viewport g_viewport;
     mutable BlendMode g_blendMode;

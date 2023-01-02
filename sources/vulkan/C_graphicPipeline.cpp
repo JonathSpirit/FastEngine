@@ -29,20 +29,16 @@ GraphicPipeline::GraphicPipeline() :
         g_shaderFragment(GraphicPipeline::defaultShaderFragment),
         g_shaderGeometry(nullptr),
 
-        g_vertexBuffer(nullptr),
+        g_defaultPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+        g_defaultVertexCount(3),
 
-        g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN),
-
-        g_viewport(),
-        g_blendMode(),
+        g_scissor(),
 
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
 
         g_logicalDevice(nullptr)
-{
-    this->setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-}
+{}
 GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_needUpdate(true),
 
@@ -51,12 +47,12 @@ GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_shaderFragment(r.g_shaderFragment),
         g_shaderGeometry(r.g_shaderGeometry),
 
-        g_vertexBuffer(r.g_vertexBuffer),
-
-        g_primitiveTopology(r.g_primitiveTopology),
+        g_defaultPrimitiveTopology(r.g_defaultPrimitiveTopology),
+        g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_viewport(r.g_viewport),
         g_blendMode(r.g_blendMode),
+        g_scissor(r.g_scissor),
 
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
@@ -71,12 +67,12 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_shaderFragment(r.g_shaderFragment),
         g_shaderGeometry(r.g_shaderGeometry),
 
-        g_vertexBuffer(r.g_vertexBuffer),
-
-        g_primitiveTopology(r.g_primitiveTopology),
+        g_defaultPrimitiveTopology(r.g_defaultPrimitiveTopology),
+        g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_viewport(r.g_viewport),
         g_blendMode(r.g_blendMode),
+        g_scissor(r.g_scissor),
 
         g_pipelineLayout(r.g_pipelineLayout),
         g_graphicsPipeline(r.g_graphicsPipeline),
@@ -90,12 +86,12 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_shaderFragment = GraphicPipeline::defaultShaderFragment;
     r.g_shaderGeometry = nullptr;
 
-    r.g_vertexBuffer = nullptr;
-
-    r.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    r.g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    r.g_defaultVertexCount = 3;
 
     r.g_viewport = {};
     r.g_blendMode = {};
+    r.g_scissor = {};
 
     r.g_pipelineLayout = VK_NULL_HANDLE;
     r.g_graphicsPipeline = VK_NULL_HANDLE;
@@ -145,20 +141,10 @@ bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
         auto bindingDescription = Vertex::getBindingDescription();
         auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
-        if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
-        {
-            vertexInputInfo.vertexBindingDescriptionCount = 1;
-            vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-            vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-            vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-        }
-        else
-        {
-            vertexInputInfo.vertexBindingDescriptionCount = 0;
-            vertexInputInfo.pVertexBindingDescriptions = nullptr;
-            vertexInputInfo.vertexAttributeDescriptionCount = 0;
-            vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-        }
+        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -216,9 +202,6 @@ bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
                 VK_DYNAMIC_STATE_VIEWPORT,
                 VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
                 VK_DYNAMIC_STATE_SCISSOR
-                /*,
-                VK_DYNAMIC_STATE_LINE_WIDTH,
-                VK_DYNAMIC_STATE_BLEND_CONSTANTS*/
         };
 
         VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -241,7 +224,7 @@ bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
 
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssemblyStateCreateInfo.topology = this->g_primitiveTopology;
+        inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -353,13 +336,21 @@ const BlendMode& GraphicPipeline::getBlendMode() const
     return this->g_blendMode;
 }
 
-void GraphicPipeline::setPrimitiveTopology(VkPrimitiveTopology topology) const
+void GraphicPipeline::setDefaultPrimitiveTopology(VkPrimitiveTopology topology) const
 {
-    this->g_primitiveTopology = topology;
+    this->g_defaultPrimitiveTopology = topology;
 }
-VkPrimitiveTopology GraphicPipeline::getPrimitiveTopology() const
+VkPrimitiveTopology GraphicPipeline::getDefaultPrimitiveTopology() const
 {
-    return this->g_primitiveTopology;
+    return this->g_defaultPrimitiveTopology;
+}
+void GraphicPipeline::setDefaultVertexCount(uint32_t count) const
+{
+    this->g_defaultVertexCount = count;
+}
+uint32_t GraphicPipeline::getDefaultVertexCount() const
+{
+    return this->g_defaultVertexCount;
 }
 
 void GraphicPipeline::setViewport(const VkExtent2D& extent2D) const
@@ -385,38 +376,31 @@ const VkRect2D& GraphicPipeline::getScissor() const
     return this->g_scissor;
 }
 
-void GraphicPipeline::setVertexBuffer(const VertexBuffer* vertexBuffer) const
-{
-    this->g_vertexBuffer = vertexBuffer;
-}
-const VertexBuffer* GraphicPipeline::getVertexBuffer() const
-{
-    return this->g_vertexBuffer;
-}
-
-void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t defaultVertexCount) const
+void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer, const VertexBuffer* vertexBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
     vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
-    vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_primitiveTopology);
     vkCmdSetScissor(commandBuffer, 0, 1, &this->g_scissor);
 
-    if (this->g_vertexBuffer != nullptr && this->g_vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
+    if (vertexBuffer != nullptr && vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
     {
-        this->g_vertexBuffer->bind(commandBuffer);
-        if (this->g_vertexBuffer->isUsingIndexBuffer())
+        vkCmdSetPrimitiveTopologyEXT(commandBuffer, vertexBuffer->getPrimitiveTopology());
+
+        vertexBuffer->bind(commandBuffer);
+        if (vertexBuffer->isUsingIndexBuffer())
         {
-            vkCmdDrawIndexed(commandBuffer, this->g_vertexBuffer->getIndexCount(), 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffer, vertexBuffer->getIndexCount(), 1, 0, 0, 0);
         }
         else
         {
-            vkCmdDraw(commandBuffer, this->g_vertexBuffer->getVertexCount(), 1, 0, 0);
+            vkCmdDraw(commandBuffer, vertexBuffer->getVertexCount(), 1, 0, 0);
         }
     }
     else
     {
-        vkCmdDraw(commandBuffer, defaultVertexCount, 1, 0, 0);
+        vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_defaultPrimitiveTopology);
+        vkCmdDraw(commandBuffer, this->g_defaultVertexCount, 1, 0, 0);
     }
 }
 void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer, const VkDescriptorSet* descriptorSet, uint32_t descriptorCount) const
@@ -464,9 +448,8 @@ void GraphicPipeline::destroy()
         this->g_shaderFragment = GraphicPipeline::defaultShaderFragment;
         this->g_shaderGeometry = nullptr;
 
-        this->g_vertexBuffer = nullptr;
-
-        this->setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+        this->g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        this->g_defaultVertexCount = 3;
 
         this->g_viewport = {};
 

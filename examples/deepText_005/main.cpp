@@ -109,7 +109,7 @@ public:
 
         fge::Transformable test1;
         fge::vulkan::VertexBuffer vertexBuffer1;
-        vertexBuffer1.create(*fge::vulkan::GlobalContext, 6, 0, false);
+        vertexBuffer1.create(*fge::vulkan::GlobalContext, 6, 0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         vertexBuffer1.getVertices()[0] = {{0, 0}, fge::Color::Black, {0,0}};
         vertexBuffer1.getVertices()[1] = {{256, 0}, fge::Color::Black, {1,0}};
         vertexBuffer1.getVertices()[2] = {{0, 256}, fge::Color::Black, {0,1}};
@@ -118,8 +118,6 @@ public:
         vertexBuffer1.getVertices()[5] = {{256, 256}, fge::Color::Black, {1,1}};
 
         fge::vulkan::GraphicPipeline graphicPipeline;
-        graphicPipeline.setVertexBuffer(&vertexBuffer1);
-        graphicPipeline.setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
         const auto* texture = &fge::font::GetFont("base")->_font->getTexture(18);
 
@@ -189,7 +187,7 @@ public:
 
                 this->draw(renderWindow);
                 rectText.draw(renderWindow, {});
-                //renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, texture});
+                renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, &vertexBuffer1, texture});
 
                 renderWindow.endRenderPass();
 

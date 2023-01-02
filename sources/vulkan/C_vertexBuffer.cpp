@@ -42,6 +42,8 @@ VertexBuffer::VertexBuffer() :
         g_type(Types::UNINITIALIZED),
         g_useIndexBuffer(true),
 
+        g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+
         g_context(nullptr)
 {}
 VertexBuffer::VertexBuffer(const VertexBuffer& r) :
@@ -64,6 +66,8 @@ VertexBuffer::VertexBuffer(const VertexBuffer& r) :
 
         g_type(r.g_type),
         g_useIndexBuffer(r.g_useIndexBuffer),
+
+        g_primitiveTopology(r.g_primitiveTopology),
 
         g_context(r.g_context)
 {}
@@ -88,6 +92,8 @@ VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
         g_type(r.g_type),
         g_useIndexBuffer(r.g_useIndexBuffer),
 
+        g_primitiveTopology(r.g_primitiveTopology),
+
         g_context(r.g_context)
 {
     r.g_vertexBuffer = VK_NULL_HANDLE;
@@ -107,6 +113,8 @@ VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
 
     r.g_type = Types::UNINITIALIZED;
     r.g_useIndexBuffer = true;
+
+    r.g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
     r.g_context = nullptr;
 }
@@ -138,6 +146,7 @@ VertexBuffer& VertexBuffer::operator=(const VertexBuffer& r)
 
     this->g_type = r.g_type;
     this->g_useIndexBuffer = r.g_useIndexBuffer;
+    this->g_primitiveTopology = r.g_primitiveTopology;
 
     this->g_context = r.g_context;
 
@@ -166,6 +175,7 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
 
     this->g_type = r.g_type;
     this->g_useIndexBuffer = r.g_useIndexBuffer;
+    this->g_primitiveTopology = r.g_primitiveTopology;
 
     this->g_context = r.g_context;
 
@@ -186,15 +196,17 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
 
     r.g_type = Types::UNINITIALIZED;
     r.g_useIndexBuffer = true;
+    r.g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
     r.g_context = nullptr;
 
     return *this;
 }
 
-void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, Types type)
+void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, VkPrimitiveTopology topology, Types type)
 {
     this->destroy();
+    this->g_primitiveTopology = topology;
     if (type == Types::UNINITIALIZED)
     {
         return;
@@ -259,6 +271,7 @@ void VertexBuffer::destroy()
 
         this->g_type = Types::UNINITIALIZED;
         this->g_useIndexBuffer = true;
+        this->g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
         this->g_context = nullptr;
     }
@@ -342,6 +355,16 @@ const uint16_t* VertexBuffer::getIndices() const
     this->g_indexNeedUpdate = true; ///TODO
     return this->g_indices.empty() ? nullptr : this->g_indices.data();
 }
+
+void VertexBuffer::setPrimitiveTopology(VkPrimitiveTopology topology)
+{
+    this->g_primitiveTopology = topology;
+}
+VkPrimitiveTopology VertexBuffer::getPrimitiveTopology() const
+{
+    return this->g_primitiveTopology;
+}
+
 void VertexBuffer::mapIndices() const
 {
     if (!this->g_useIndexBuffer || !this->g_indexNeedUpdate)

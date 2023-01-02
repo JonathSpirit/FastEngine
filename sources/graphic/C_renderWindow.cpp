@@ -134,7 +134,7 @@ void RenderWindow::beginRenderPass(uint32_t imageIndex)
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = this->g_swapChain.getSwapChainExtent();
 
-    VkClearValue clearColor = {.color=this->_g_clearColor};
+    const VkClearValue clearColor = {.color=this->_g_clearColor};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
@@ -170,7 +170,7 @@ void RenderWindow::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
                                         states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : nullptr};
 
     graphicPipeline.bindDescriptorSets(this->g_commandBuffers[this->g_currentFrame], descriptorSets, descriptorSize);
-    graphicPipeline.recordCommandBuffer(this->g_commandBuffers[this->g_currentFrame]);
+    graphicPipeline.recordCommandBuffer(this->g_commandBuffers[this->g_currentFrame], states._vertexBuffer);
 }
 void RenderWindow::endRenderPass()
 {

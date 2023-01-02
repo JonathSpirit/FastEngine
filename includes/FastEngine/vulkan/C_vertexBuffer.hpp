@@ -52,7 +52,7 @@ public:
     VertexBuffer& operator=(const VertexBuffer& r);
     VertexBuffer& operator=(VertexBuffer&& r) noexcept;
 
-    void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, Types type=Types::DEFAULT);
+    void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, VkPrimitiveTopology topology, Types type=Types::DEFAULT);
 
     void clear();
     void resize(std::size_t vertexSize, std::size_t indexSize=0);
@@ -71,6 +71,9 @@ public:
 
     [[nodiscard]] uint16_t* getIndices();
     [[nodiscard]] const uint16_t* getIndices() const;
+
+    void setPrimitiveTopology(VkPrimitiveTopology topology);
+    [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
 
     [[nodiscard]] VkBuffer getVerticesBuffer() const;
     [[nodiscard]] VkBuffer getIndicesBuffer() const;
@@ -110,6 +113,8 @@ private:
 
     Types g_type;
     bool g_useIndexBuffer;
+
+    mutable VkPrimitiveTopology g_primitiveTopology;
 
     const Context* g_context;
 };

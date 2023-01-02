@@ -231,7 +231,6 @@ void Scene::draw(fge::RenderTarget& target,
             }
         }
 
-        //fge::RenderStates statesCopy = states;
         target.draw(*object, states);
     }
 
