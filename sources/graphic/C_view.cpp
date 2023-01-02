@@ -151,7 +151,7 @@ const glm::mat4& View::getInverseTransform() const
 {
     if (!this->g_invTransformUpdated)
     {
-        this->g_inverseTransform = glm::inverse(this->g_transform);
+        this->g_inverseTransform = glm::inverse(this->getTransform());
         this->g_invTransformUpdated = true;
     }
 

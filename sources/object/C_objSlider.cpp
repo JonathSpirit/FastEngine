@@ -41,8 +41,8 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
     this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onGuiMouseButtonPressed, this),
                                        this);
 
-    event._onMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseMoved, this), this);
-    event._onMouseButtonReleased.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this),
+    event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseMoved, this), this);
+    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this),
                                      this);
 
     this->refreshSize(guiElementHandlerPtr->_lastSize);
@@ -51,8 +51,6 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSlider)
 {
-    return; ///TODO
-
     auto copyStates = states.copy(this);
     copyStates._modelTransform *= this->getTransform();
 
@@ -68,8 +66,7 @@ void ObjSlider::setSize(const fge::DynamicSize& size)
 }
 fge::Vector2f ObjSlider::getSize() const
 {
-    auto vec = this->g_size.getSize(sf::Vector2f(this->getPosition().x, this->getPosition().y), this->g_guiElementHandler->_lastSize); ///TODO: remove sfml
-    return fge::Vector2f(vec.x, vec.y);
+    return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
 
 void ObjSlider::setCursorRatio(float ratio)
@@ -108,12 +105,12 @@ void ObjSlider::setScrollBaseRectFillColor(fge::Color color)
     this->g_scrollBaseRect.setFillColor(color);
 }
 
-void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
+void ObjSlider::refreshSize(const fge::Vector2f& targetSize)
 {
     this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, 0.0f,
                                          this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
 
-    auto rectSize = this->g_size.getSize(sf::Vector2f(this->getPosition().x, this->getPosition().y), targetSize); ///TODO: remove sfml
+    auto rectSize = this->g_size.getSize(this->getPosition(), targetSize);
 
     this->g_scrollRect.setSize({rectSize.x, 30.0f});
     this->g_scrollBaseRect.setSize({rectSize.x, rectSize.y});
@@ -127,20 +124,20 @@ void ObjSlider::refreshSize(const sf::Vector2f& targetSize)
 }
 
 void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
-                                        [[maybe_unused]] const sf::Event::MouseButtonEvent& arg,
+                                        [[maybe_unused]] const SDL_MouseButtonEvent& arg,
                                         fge::GuiElementContext& context)
 {
-    /**auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
+    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
             {context._mousePosition.x, context._mousePosition.y},
             *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
     this->g_scrollPressed = true;
     this->g_scrollLastPositionY = this->g_scrollPositionY;
     this->g_lastMousePositionY = mousePosition.y;
-    this->g_scrollRect.setOutlineThickness(2.0f); TODO **/
+    this->g_scrollRect.setOutlineThickness(2.0f);
 }
 void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
-                                      [[maybe_unused]] const sf::Event::MouseButtonEvent& arg)
+                                      [[maybe_unused]] const SDL_MouseButtonEvent& arg)
 {
     if (this->g_scrollPressed)
     {
@@ -148,33 +145,33 @@ void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
         this->g_scrollRect.setOutlineThickness(0.0f);
     }
 }
-void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
+void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const SDL_MouseMotionEvent& arg)
 {
-    /**if (this->g_scrollPressed)
+    if (this->g_scrollPressed)
     {
-        const sf::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
+        const fge::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        sf::Vector2f mousePos = renderTarget.mapPixelToCoords(
+        fge::Vector2f mousePos = renderTarget.mapPixelToCoords(
                 {arg.x, arg.y}, *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
         auto scale = this->getParentsScale().y * this->getScale().y;
         this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y - this->g_lastMousePositionY) / scale;
 
         this->refreshSize(this->g_guiElementHandler->_lastSize);
-    } TODO **/
+    }
 }
 
-void ObjSlider::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const sf::Vector2f& size)
+void ObjSlider::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const fge::Vector2f& size)
 {
-    ///this->updateAnchor(size); TODO
+    this->updateAnchor(size);
     this->refreshSize(size);
 }
 
 void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
-                            sf::Event::EventType evtType,
+                            SDL_EventType evtType,
                             fge::GuiElementContext& context)
 {
-    /**if (evtType != sf::Event::MouseButtonPressed)
+    if (evtType != SDL_MOUSEBUTTONDOWN)
     {
         return;
     }
@@ -183,10 +180,10 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
     {
         auto transform = this->getParentsTransform() * this->getTransform();
 
-        auto scrollRect = transform.transformRect(this->g_scrollRect.getGlobalBounds());
+        auto scrollRect = transform * this->g_scrollRect.getGlobalBounds();
 
         auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
-        sf::Vector2f mousePosition;
+        fge::Vector2f mousePosition;
         if (customView)
         {
             mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
@@ -200,7 +197,7 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
         {
             context._prioritizedElement = this;
         }
-    } TODO **/
+    }
 }
 
 const char* ObjSlider::getClassName() const

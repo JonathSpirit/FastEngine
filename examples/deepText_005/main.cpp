@@ -33,9 +33,8 @@ class MainScene : public fge::Scene
 public:
     void start(fge::RenderWindow& renderWindow)
     {
-        SDL_Event evt;
         fge::Event event;
-        fge::GuiElementHandler guiElementHandler;//(event, window);
+        fge::GuiElementHandler guiElementHandler(event, renderWindow);
         guiElementHandler.setEventCallback(event);
 
         this->setLinkedRenderTarget(&renderWindow);
@@ -91,7 +90,7 @@ public:
         objSliderFreq->needAnchorUpdate(false);
 
         objSliderFreq->_onSlide.add(new fge::CallbackLambda<float>{[&](float ratio) {
-            math_f = 3.0f * ratio;
+            math_f = std::clamp(3.0f * ratio, 0.1f, 3.0f);
             frequencyText->setString(fge::string::ToStr(math_f) + "Hz");
         }});
 
@@ -107,39 +106,15 @@ public:
 
         fge::Clock changeTextColorClock;
 
-        fge::Transformable test1;
-        fge::vulkan::VertexBuffer vertexBuffer1;
-        vertexBuffer1.create(*fge::vulkan::GlobalContext, 6, 0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-        vertexBuffer1.getVertices()[0] = {{0, 0}, fge::Color::Black, {0,0}};
-        vertexBuffer1.getVertices()[1] = {{256, 0}, fge::Color::Black, {1,0}};
-        vertexBuffer1.getVertices()[2] = {{0, 256}, fge::Color::Black, {0,1}};
-        vertexBuffer1.getVertices()[3] = {{0, 256}, fge::Color::Black, {0,1}};
-        vertexBuffer1.getVertices()[4] = {{256, 0}, fge::Color::Black, {1,0}};
-        vertexBuffer1.getVertices()[5] = {{256, 256}, fge::Color::Black, {1,1}};
-
-        fge::vulkan::GraphicPipeline graphicPipeline;
-
-        const auto* texture = &fge::font::GetFont("base")->_font->getTexture(18);
-
-        //fge::Surface surface(texture->copyToSurface());
-        //surface.saveToFile("ahah.png");
-
         //Begin loop
         bool running = true;
         while (running)
         {
             //Update event
-            /*event.process(window);
-            if (event.isEventType(sf::Event::EventType::Closed))
+            event.process();
+            if (event.isEventType(SDL_QUIT))
             {
-                window.close();
-            }*/
-            while (SDL_PollEvent(&evt) != 0)
-            {
-                if (evt.type == SDL_QUIT)
-                {
-                    running = false;
-                }
+                running = false;
             }
 
             //Clear window
@@ -187,7 +162,6 @@ public:
 
                 this->draw(renderWindow);
                 rectText.draw(renderWindow, {});
-                renderWindow.draw(graphicPipeline, fge::RenderStates{&test1, &vertexBuffer1, texture});
 
                 renderWindow.endRenderPass();
 

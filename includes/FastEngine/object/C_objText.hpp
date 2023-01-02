@@ -67,13 +67,11 @@ public:
 
     [[nodiscard]] uint32_t getUnicode() const;
 
-public:
+private:
     friend ObjText;
 
     fge::vulkan::VertexBuffer g_vertices; /// Vertex array containing the fill geometry
     fge::vulkan::VertexBuffer g_outlineVertices; /// Vertex array containing the outline geometry
-    //sf::VertexArray g_vertices{sf::PrimitiveType::Triangles};        /// Vertex array containing the fill geometry
-    //sf::VertexArray g_outlineVertices{sf::PrimitiveType::Triangles}; /// Vertex array containing the outline geometry
 
     fge::Color g_fillColor{255, 255, 255};
     fge::Color g_outlineColor{0, 0, 0};

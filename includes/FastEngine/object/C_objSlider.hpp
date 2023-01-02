@@ -64,16 +64,16 @@ public:
 
 private:
     void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const sf::Event::MouseButtonEvent& arg,
+                                 const SDL_MouseButtonEvent& arg,
                                  fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
+    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
+    void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
 
-    void onGuiResized(const fge::GuiElementHandler& handler, const sf::Vector2f& size);
+    void onGuiResized(const fge::GuiElementHandler& handler, const fge::Vector2f& size);
 
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
-    void refreshSize(const sf::Vector2f& targetSize);
+    void refreshSize(const fge::Vector2f& targetSize);
 
     mutable fge::RectangleShape g_scrollRect;
     mutable fge::RectangleShape g_scrollBaseRect;

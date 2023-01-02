@@ -62,10 +62,10 @@ fge::vulkan::Viewport RenderTarget::getViewport(const View& view) const
     auto size = static_cast<Vector2f>(this->getSize());
     const auto& viewport = view.getFactorViewport();
 
-    return {0.5f + size.x * viewport._x,
-            0.5f + size.y * viewport._y,
-            0.5f + size.x * viewport._width,
-            0.5f + size.y * viewport._height};
+    return {size.x * viewport._x,
+            size.y * viewport._y,
+            size.x * viewport._width,
+            size.y * viewport._height};
 }
 
 Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point) const
@@ -83,7 +83,8 @@ Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point, const View& view)
     normalized.w = 1.0f;
 
     // Then transform by the inverse of the view matrix
-    return view.getInverseTransform() * normalized;
+    const fge::Vector2f test = view.getInverseTransform() * normalized;
+    return test;
 }
 Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point) const
 {

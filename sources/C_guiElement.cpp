@@ -20,26 +20,25 @@
 namespace fge
 {
 
-fge::CallbackHandler<const sf::Vector2f&> GuiElement::_onGlobalGuiScaleChange;
-sf::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
+fge::CallbackHandler<const fge::Vector2f&> GuiElement::_onGlobalGuiScaleChange;
+fge::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
 
 //GuiElementHandler
 
 void GuiElementHandler::setEventCallback(fge::Event& event)
 {
     this->detachAll();
-    event._onMouseWheelScrolled.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this),
+    event._onMouseWheel.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this),this);
+    event._onMouseButtonDown.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this),
                                     this);
-    event._onMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this),
-                                    this);
-    event._onMouseButtonReleased.add(
+    event._onMouseButtonUp.add(
             new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this);
-    event._onMouseMoved.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this);
-    event._onResized.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this);
-    this->onResized(event, {event.getWindowSize().x, event.getWindowSize().y});
+    event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this);
+    event._onWindowEvent.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this);
+    this->onResized(event, {.type=SDL_WINDOWEVENT, .event=SDL_WINDOWEVENT_SIZE_CHANGED, .data1=event.getWindowSize().x, .data2=event.getWindowSize().y});
 }
 
-void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg)
+void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const SDL_MouseWheelEvent& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -50,7 +49,7 @@ void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const sf::Ev
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, sf::Event::EventType::MouseWheelScrolled, context);
+    this->_onGuiVerify.call(evt, SDL_MOUSEWHEEL, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -61,7 +60,7 @@ void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const sf::Ev
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, sf::Event::EventType::MouseWheelScrolled, context);
+            element->onGuiVerify(evt, SDL_MOUSEWHEEL, context);
             if (context._prioritizedElement != nullptr)
             {
                 context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
@@ -69,7 +68,7 @@ void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const sf::Ev
         }
     }
 }
-void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
+void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -80,7 +79,7 @@ void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const sf::Ev
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonPressed, context);
+    this->_onGuiVerify.call(evt, SDL_MOUSEBUTTONDOWN, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -91,7 +90,7 @@ void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const sf::Ev
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, sf::Event::EventType::MouseButtonPressed, context);
+            element->onGuiVerify(evt, SDL_MOUSEBUTTONDOWN, context);
             if (context._prioritizedElement != nullptr)
             {
                 context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
@@ -99,7 +98,7 @@ void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const sf::Ev
         }
     }
 }
-void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg)
+void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -110,7 +109,7 @@ void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const sf::E
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, sf::Event::EventType::MouseButtonReleased, context);
+    this->_onGuiVerify.call(evt, SDL_MOUSEBUTTONUP, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -121,7 +120,7 @@ void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const sf::E
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, sf::Event::EventType::MouseButtonReleased, context);
+            element->onGuiVerify(evt, SDL_MOUSEBUTTONUP, context);
             if (context._prioritizedElement != nullptr)
             {
                 context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
@@ -129,7 +128,7 @@ void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const sf::E
         }
     }
 }
-void GuiElementHandler::onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg)
+void GuiElementHandler::onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -140,7 +139,7 @@ void GuiElementHandler::onMouseMoved(const fge::Event& evt, const sf::Event::Mou
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, sf::Event::EventType::MouseMoved, context);
+    this->_onGuiVerify.call(evt, SDL_MOUSEMOTION, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -151,7 +150,7 @@ void GuiElementHandler::onMouseMoved(const fge::Event& evt, const sf::Event::Mou
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, sf::Event::EventType::MouseMoved, context);
+            element->onGuiVerify(evt, SDL_MOUSEMOTION, context);
             if (context._prioritizedElement != nullptr)
             {
                 context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
@@ -160,11 +159,14 @@ void GuiElementHandler::onMouseMoved(const fge::Event& evt, const sf::Event::Mou
     }
 }
 
-void GuiElementHandler::onResized([[maybe_unused]] const fge::Event& evt, const sf::Event::SizeEvent& arg)
+void GuiElementHandler::onResized([[maybe_unused]] const fge::Event& evt, const SDL_WindowEvent& arg)
 {
-    const sf::Vector2f size{static_cast<float>(arg.width), static_cast<float>(arg.height)};
-    this->_onGuiResized.call(*this, size);
-    this->_lastSize = size;
+    if (arg.event == SDL_WINDOWEVENT_RESIZED || arg.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+    {
+        const fge::Vector2f size{static_cast<float>(arg.data1), static_cast<float>(arg.data2)};
+        this->_onGuiResized.call(*this, size);
+        this->_lastSize = size;
+    }
 }
 
 } // namespace fge
