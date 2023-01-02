@@ -74,7 +74,7 @@ public:
     void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
 #else
     void
-    update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+    update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
     void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
 #endif //FGE_DEF_SERVER
 

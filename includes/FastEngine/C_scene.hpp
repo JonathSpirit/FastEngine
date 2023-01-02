@@ -413,7 +413,7 @@ public:
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event, const std::chrono::milliseconds& deltaTime);
 #else
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
+    void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
 #endif
     /**
      * \brief Draw the Scene.

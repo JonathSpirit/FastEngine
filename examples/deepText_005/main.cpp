@@ -147,7 +147,7 @@ public:
 
             //Update scene
             auto deltaTick = tick.restart();
-            ///this->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
+            this->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
             //Update moving text characters
             auto& characters = movingText->getCharacters();

@@ -47,7 +47,7 @@ void Object::update([[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] const std::chrono::milliseconds& deltaTime,
                     [[maybe_unused]] fge::Scene* scene)
 #else
-void Object::update([[maybe_unused]] sf::RenderWindow& screen,
+void Object::update([[maybe_unused]] fge::RenderWindow& screen,
                     [[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] const std::chrono::milliseconds& deltaTime,
                     [[maybe_unused]] fge::Scene* scene)

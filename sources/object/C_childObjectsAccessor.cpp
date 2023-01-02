@@ -122,7 +122,7 @@ void ChildObjectsAccessor::update(fge::Event& event, const std::chrono::millisec
     }
 }
 #else
-void ChildObjectsAccessor::update(sf::RenderWindow& screen,
+void ChildObjectsAccessor::update(fge::RenderWindow& screen,
                                   fge::Event& event,
                                   const std::chrono::milliseconds& deltaTime,
                                   fge::Scene* scene)
