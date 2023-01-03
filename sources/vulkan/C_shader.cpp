@@ -68,6 +68,22 @@ Shader::~Shader()
     this->destroy();
 }
 
+Shader& Shader::operator=(Shader&& r) noexcept
+{
+    this->destroy();
+    this->g_shaderModule = r.g_shaderModule;
+    this->g_pipelineShaderStageCreateInfo = r.g_pipelineShaderStageCreateInfo;
+    this->g_type = r.g_type;
+    this->g_logicalDevice = r.g_logicalDevice;
+
+    r.g_shaderModule = VK_NULL_HANDLE;
+    r.g_pipelineShaderStageCreateInfo={};
+    r.g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    r.g_type = Shader::Type::SHADER_NONE;
+    r.g_logicalDevice = nullptr;
+    return *this;
+}
+
 bool Shader::loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type)
 {
     this->destroy();
