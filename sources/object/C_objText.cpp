@@ -24,17 +24,15 @@ namespace fge
 
 Character::Character()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    this->_g_graphicPipeline.setShader(*fge::vulkan::GraphicPipeline::defaultShaderFragment);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
 }
 Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    this->_g_graphicPipeline.setShader(*fge::vulkan::GraphicPipeline::defaultShaderFragment);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
 }
 
 void Character::clear()
@@ -101,9 +99,9 @@ void Character::draw(fge::RenderTarget& target, const fge::RenderStates& states)
         copyStates._modelTransform *= this->getTransform();
 
         copyStates._vertexBuffer = &this->g_outlineVertices;
-        target.draw(this->_g_graphicPipeline, copyStates);
+        target.draw(copyStates);
         copyStates._vertexBuffer = &this->g_vertices;
-        target.draw(this->_g_graphicPipeline, copyStates);
+        target.draw(copyStates);
     }
 }
 void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const
@@ -116,12 +114,12 @@ void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, co
         if (outlineVertices)
         {
             copyStates._vertexBuffer = &this->g_outlineVertices;
-            target.draw(this->_g_graphicPipeline, copyStates);
+            target.draw(copyStates);
         }
         else
         {
             copyStates._vertexBuffer = &this->g_vertices;
-            target.draw(this->_g_graphicPipeline, copyStates);
+            target.draw(copyStates);
         }
     }
 }
@@ -478,28 +476,31 @@ void ObjText::ensureGeometryUpdate() const
     this->g_geometryNeedUpdate = false;
 
     // Clear the previous geometry
-    this->g_characters.clear();
     this->g_bounds = fge::RectFloat();
 
     // No text: nothing to draw
     if (this->g_string.empty())
     {
+        this->g_characters.clear();
         return;
     }
 
+    this->g_characters.resize(this->g_string.size());
+    std::size_t usedCharacters = 0;
+
     // Compute values related to the text style
-    bool isBold = this->g_style & Bold;
-    bool isUnderlined = this->g_style & Underlined;
-    bool isStrikeThrough = this->g_style & StrikeThrough;
-    float italicShear = (this->g_style & Italic) ? 0.209f : 0.f; // 12 degrees in radians
-    float underlineOffset = font->getUnderlinePosition(this->g_characterSize);
-    float underlineThickness = font->getUnderlineThickness(this->g_characterSize);
+    const bool isBold = static_cast<bool>(this->g_style & Bold);
+    const bool isUnderlined = static_cast<bool>(this->g_style & Underlined);
+    const bool isStrikeThrough = static_cast<bool>(this->g_style & StrikeThrough);
+    const float italicShear = static_cast<bool>(this->g_style & Italic) ? 0.209f : 0.f; // 12 degrees in radians
+    const float underlineOffset = font->getUnderlinePosition(this->g_characterSize);
+    const float underlineThickness = font->getUnderlineThickness(this->g_characterSize);
 
     // Compute the location of the strike through dynamically
     // We use the center point of the lowercase 'x' glyph as the reference
     // We reuse the underline thickness as the thickness of the strike through as well
-    fge::RectFloat xBounds = font->getGlyph(U'x', this->g_characterSize, isBold)._bounds;
-    float strikeThroughOffset = xBounds._y + xBounds._height / 2.f;
+    const fge::RectFloat xBounds = font->getGlyph(U'x', this->g_characterSize, isBold)._bounds;
+    const float strikeThroughOffset = xBounds._y + xBounds._height / 2.f;
 
     // Precompute the variables needed by the algorithm
     float whitespaceWidth = font->getGlyph(U' ', this->g_characterSize, isBold)._advance;
@@ -528,7 +529,10 @@ void ObjText::ensureGeometryUpdate() const
 
         fge::Vector2f size{0.0f, static_cast<float>(this->g_characterSize)};
 
-        Character& character = this->g_characters.emplace_back(this->g_fillColor, this->g_outlineColor);
+        Character& character = this->g_characters[usedCharacters++];
+        character.clear();
+        character.setFillColor(this->g_fillColor);
+        character.setOutlineColor(this->g_outlineColor);
         character.g_unicodeChar = curChar;
 
         // Apply the kerning offset
@@ -673,6 +677,9 @@ void ObjText::ensureGeometryUpdate() const
         // Advance to the next character
         position.x += characterLength;
     }
+
+    // Remove extra characters
+    this->g_characters.resize(usedCharacters);
 
     // If we're using outline, update the current bounds
     if (this->g_outlineThickness != 0.0f)

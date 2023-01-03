@@ -110,7 +110,7 @@ void TileLayer::draw(fge::RenderTarget& target, const fge::RenderStates& states)
         if (data.g_tileSet)
         {
             statesCopy._textureImage = static_cast<const fge::TextureType*>(data.g_tileSet->getTexture());
-            target.draw(this->_g_graphicPipeline, statesCopy); /**TODO: create the graphic pipeline : data.g_vertex, 4, sf::TriangleStrip**/
+            target.draw(statesCopy); /**TODO: create the graphic pipeline : data.g_vertex, 4, sf::TriangleStrip**/
         }
     }
 }

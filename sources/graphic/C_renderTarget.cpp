@@ -18,6 +18,7 @@
 #include <FastEngine/graphic/C_drawable.hpp>
 #include <FastEngine/vulkan/C_textureImage.hpp>
 #include <FastEngine/vulkan/C_context.hpp>
+#include <FastEngine/manager/shader_manager.hpp>
 
 namespace fge
 {
@@ -34,6 +35,11 @@ void RenderTarget::initialize()
                                static_cast<float>(this->getSize().x),
                                static_cast<float>(this->getSize().y)});
     this->g_view = this->g_defaultView;
+
+    this->_g_defaultGraphicPipelineTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+    this->_g_defaultGraphicPipelineNoTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+    this->_g_defaultGraphicPipelineTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    this->_g_defaultGraphicPipelineNoTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
 }
 
 void RenderTarget::setClearColor(const fge::Color& color)
@@ -83,8 +89,7 @@ Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point, const View& view)
     normalized.w = 1.0f;
 
     // Then transform by the inverse of the view matrix
-    const fge::Vector2f test = view.getInverseTransform() * normalized;
-    return test;
+    return view.getInverseTransform() * normalized;
 }
 Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point) const
 {
@@ -110,10 +115,30 @@ void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
 {
     drawable.draw(*this, states);
 }
+void RenderTarget::draw(const fge::RenderStates& states)
+{
+    if (states._textureImage == nullptr)
+    {
+        this->draw(this->_g_defaultGraphicPipelineNoTexture, states);
+    }
+    else
+    {
+        this->draw(this->_g_defaultGraphicPipelineTexture, states);
+    }
+}
 
 bool RenderTarget::isSrgb() const
 {
     return false;
+}
+
+const fge::vulkan::GraphicPipeline& RenderTarget::getDefaultGraphicPipelineNoTexture() const
+{
+    return this->_g_defaultGraphicPipelineNoTexture;
+}
+const fge::vulkan::GraphicPipeline& RenderTarget::getDefaultGraphicPipelineTexture() const
+{
+    return this->_g_defaultGraphicPipelineTexture;
 }
 
 }//end fge

@@ -17,6 +17,7 @@
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include <FastEngine/C_clock.hpp>
@@ -33,7 +34,7 @@ class MainScene : public fge::Scene
 public:
     void start(fge::RenderWindow& renderWindow)
     {
-        fge::Event event;
+        fge::Event event(renderWindow);
         fge::GuiElementHandler guiElementHandler(event, renderWindow);
         guiElementHandler.setEventCallback(event);
 
@@ -201,27 +202,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext = &vulkanContext;
 
+    fge::shader::Init("resources/shaders/vertex.spv",
+                      "resources/shaders/fragment.spv",
+                      "resources/shaders/fragmentTexture.spv");
+
     fge::RenderWindow renderWindow(vulkanContext);
-    renderWindow.setClearColor(fge::Color(140, 140, 140, 255));
-
-    fge::vulkan::Shader vertShader;
-    vertShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/vertex.spv", fge::vulkan::Shader::Type::SHADER_VERTEX);
-    fge::vulkan::Shader fragShader;
-    fragShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/fragmentTexture.spv", fge::vulkan::Shader::Type::SHADER_FRAGMENT);
-    fge::vulkan::Shader fragNoTextureShader;
-    fragNoTextureShader.loadFromFile(vulkanContext.getLogicalDevice(), "resources/shaders/fragment.spv", fge::vulkan::Shader::Type::SHADER_FRAGMENT);
-
-    fge::vulkan::GraphicPipeline::defaultShaderVertex = &vertShader;
-    fge::vulkan::GraphicPipeline::defaultShaderFragment = &fragShader;
-    fge::vulkan::GraphicPipeline::defaultShaderFragmentNoTexture = &fragNoTextureShader;
+    renderWindow.setClearColor(fge::Color::White);
 
     std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
     scene->start(renderWindow);
     scene.reset();
 
-    vertShader.destroy();
-    fragShader.destroy();
-    fragNoTextureShader.destroy();
+    fge::shader::Uninit();
 
     renderWindow.destroy();
 

@@ -35,7 +35,9 @@ void GuiElementHandler::setEventCallback(fge::Event& event)
             new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this);
     event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this);
     event._onWindowEvent.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this);
-    this->onResized(event, {.type=SDL_WINDOWEVENT, .event=SDL_WINDOWEVENT_SIZE_CHANGED, .data1=event.getWindowSize().x, .data2=event.getWindowSize().y});
+
+    const SDL_WindowEvent dummyEvent = {SDL_WINDOWEVENT, 0, 0, SDL_WINDOWEVENT_SIZE_CHANGED, 0,0,0, event.getWindowSize().x, event.getWindowSize().y};
+    this->onResized(event, dummyEvent);
 }
 
 void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const SDL_MouseWheelEvent& arg)
@@ -161,7 +163,7 @@ void GuiElementHandler::onMouseMoved(const fge::Event& evt, const SDL_MouseMotio
 
 void GuiElementHandler::onResized([[maybe_unused]] const fge::Event& evt, const SDL_WindowEvent& arg)
 {
-    if (arg.event == SDL_WINDOWEVENT_RESIZED || arg.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+    if (arg.event == SDL_WINDOWEVENT_SIZE_CHANGED)
     {
         const fge::Vector2f size{static_cast<float>(arg.data1), static_cast<float>(arg.data2)};
         this->_onGuiResized.call(*this, size);

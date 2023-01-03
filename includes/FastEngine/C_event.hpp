@@ -29,6 +29,8 @@
 namespace fge
 {
 
+class RenderWindow;
+
 namespace net
 {
 
@@ -68,6 +70,7 @@ public:
      */
 #ifndef FGE_DEF_SERVER
     explicit Event(SDL_Window* window);
+    explicit Event(const fge::RenderWindow& renderWindow);
 #endif //FGE_DEF_SERVER
     ~Event() = default;
 

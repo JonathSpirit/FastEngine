@@ -65,6 +65,9 @@ void RenderWindow::destroy()
     {
         SDL_DelEventWatch(&ResizeCallback, this);
 
+        this->_g_defaultGraphicPipelineNoTexture.destroy();
+        this->_g_defaultGraphicPipelineTexture.destroy();
+
         VkDevice logicalDevice = this->g_context->getLogicalDevice().getDevice();
 
         for (std::size_t i=0; i<FGE_MAX_FRAMES_IN_FLIGHT; ++i)
@@ -161,7 +164,7 @@ void RenderWindow::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
                                        this->g_renderPass,
                                        this->g_forceGraphicPipelineUpdate) )
     {
-        return;
+        //return;
     }
 
     const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
@@ -276,6 +279,11 @@ VkCommandBufferInheritanceInfo RenderWindow::getInheritanceInfo(uint32_t imageIn
     inheritanceInfo.subpass = 0;
     inheritanceInfo.framebuffer = this->g_swapChainFramebuffers[imageIndex];
     return inheritanceInfo;
+}
+
+const fge::vulkan::Context* RenderWindow::getContext() const
+{
+    return this->g_context;
 }
 
 void RenderWindow::onResize()

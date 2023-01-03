@@ -16,6 +16,8 @@
 
 #include "FastEngine/C_event.hpp"
 #include <FastEngine/C_packet.hpp>
+#include <FastEngine/graphic/C_renderWindow.hpp>
+#include <FastEngine/vulkan/C_context.hpp>
 #include "tinyutf8.h"
 
 namespace fge
@@ -26,6 +28,9 @@ Event::Event(SDL_Window* window)
     SDL_GetWindowSize(window, &this->g_windowSize.x, &this->g_windowSize.y);
     SDL_GetWindowPosition(window, &this->g_windowPosition.x, &this->g_windowPosition.y);
 }
+Event::Event(const fge::RenderWindow& renderWindow) :
+        Event(renderWindow.getContext()->getInstance().getWindow())
+{}
 
 void Event::clear()
 {

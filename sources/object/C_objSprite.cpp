@@ -19,12 +19,14 @@
 namespace fge
 {
 
-ObjSprite::ObjSprite(const fge::Texture& texture, const sf::Vector2f& position)
+ObjSprite::ObjSprite(const fge::Texture& texture, const fge::Vector2f& position)
 {
     this->setTexture(texture);
     this->setPosition(position);
+
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, 0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
-ObjSprite::ObjSprite(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position)
+ObjSprite::ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position)
 {
     this->setTexture(texture);
     this->setTextureRect(rectangle);
@@ -36,13 +38,13 @@ void ObjSprite::setTexture(const fge::Texture& texture, bool resetRect)
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if (resetRect || !this->g_texture.valid())
     {
-        this->setTextureRect(sf::IntRect(0, 0, texture.getTextureSize().x, texture.getTextureSize().y));
+        this->setTextureRect(fge::RectInt({0, 0}, {texture.getTextureSize().x, texture.getTextureSize().y}));
     }
 
     // Assign the new texture
     this->g_texture = texture;
 }
-void ObjSprite::setTextureRect(const sf::IntRect& rectangle)
+void ObjSprite::setTextureRect(const fge::RectInt& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -52,34 +54,37 @@ void ObjSprite::setTextureRect(const sf::IntRect& rectangle)
     }
 }
 
-void ObjSprite::setColor(const sf::Color& color)
+void ObjSprite::setColor(const fge::Color& color)
 {
-    this->g_vertices[0].color = color;
-    this->g_vertices[1].color = color;
-    this->g_vertices[2].color = color;
-    this->g_vertices[3].color = color;
+    this->g_vertices.getVertices()[0]._color = color;
+    this->g_vertices.getVertices()[1]._color = color;
+    this->g_vertices.getVertices()[2]._color = color;
+    this->g_vertices.getVertices()[3]._color = color;
 }
 
 const fge::Texture& ObjSprite::getTexture() const
 {
     return this->g_texture;
 }
-const sf::IntRect& ObjSprite::getTextureRect() const
+const fge::RectInt& ObjSprite::getTextureRect() const
 {
     return this->g_textureRect;
 }
 
-const sf::Color& ObjSprite::getColor() const
+fge::Color ObjSprite::getColor() const
 {
-    return this->g_vertices[0].color;
+    return fge::Color(this->g_vertices.getVertices()[0]._color);
 }
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSprite)
 {
-    states.transform *= this->getTransform();
-    states.texture = static_cast<const sf::Texture*>(this->g_texture);
-    target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
+    auto copyStates = states.copy(this);
+    copyStates._modelTransform *= this->getTransform();
+
+    copyStates._vertexBuffer = &this->g_vertices;
+    copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
+    target.draw(copyStates);
 }
 #endif
 
@@ -87,14 +92,14 @@ void ObjSprite::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::save(jsonObject, scene);
 
-    jsonObject["color"] = this->g_vertices[0].color.toInteger();
+    jsonObject["color"] = fge::Color(this->g_vertices.getVertices()[0]._color).toInteger();
     jsonObject["texture"] = this->g_texture;
 }
 void ObjSprite::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->setColor(sf::Color(jsonObject.value<uint32_t>("color", 0)));
+    this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
     this->setTexture(this->g_texture, true);
 }
@@ -103,13 +108,13 @@ void ObjSprite::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
-    pck << this->g_vertices[0].color << this->g_texture;
+    pck << fge::Color(this->g_vertices.getVertices()[0]._color) << this->g_texture;
 }
 void ObjSprite::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
-    sf::Color color;
+    fge::Color color;
     pck >> color >> this->g_texture;
     this->setColor(color);
 }
@@ -123,39 +128,39 @@ const char* ObjSprite::getReadableClassName() const
     return "sprite";
 }
 
-sf::FloatRect ObjSprite::getGlobalBounds() const
+fge::RectFloat ObjSprite::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjSprite::getLocalBounds() const
+fge::RectFloat ObjSprite::getLocalBounds() const
 {
-    float width = static_cast<float>(std::abs(this->g_textureRect.width));
-    float height = static_cast<float>(std::abs(this->g_textureRect.height));
+    const auto width = static_cast<float>(std::abs(this->g_textureRect._width));
+    const auto height = static_cast<float>(std::abs(this->g_textureRect._height));
 
-    return {0.f, 0.f, width, height};
+    return {{0.f, 0.f}, {width, height}};
 }
 
 void ObjSprite::updatePositions()
 {
-    sf::FloatRect bounds = this->getLocalBounds();
+    const fge::RectFloat bounds = this->getLocalBounds();
 
-    this->g_vertices[0].position = sf::Vector2f(0, 0);
-    this->g_vertices[1].position = sf::Vector2f(0, bounds.height);
-    this->g_vertices[2].position = sf::Vector2f(bounds.width, 0);
-    this->g_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
+    this->g_vertices.getVertices()[0]._position = fge::Vector2f(0, 0);
+    this->g_vertices.getVertices()[1]._position = fge::Vector2f(0, bounds._height);
+    this->g_vertices.getVertices()[2]._position = fge::Vector2f(bounds._width, 0);
+    this->g_vertices.getVertices()[3]._position = fge::Vector2f(bounds._width, bounds._height);
 }
 
 void ObjSprite::updateTexCoords()
 {
-    float left = static_cast<float>(this->g_textureRect.left);
-    float right = left + static_cast<float>(this->g_textureRect.width);
-    float top = static_cast<float>(this->g_textureRect.top);
-    float bottom = top + static_cast<float>(this->g_textureRect.height);
+    const float left = static_cast<float>(this->g_textureRect._x);
+    const float right = left + static_cast<float>(this->g_textureRect._width);
+    const float top = static_cast<float>(this->g_textureRect._y);
+    const float bottom = top + static_cast<float>(this->g_textureRect._height);
 
-    this->g_vertices[0].texCoords = sf::Vector2f(left, top);
-    this->g_vertices[1].texCoords = sf::Vector2f(left, bottom);
-    this->g_vertices[2].texCoords = sf::Vector2f(right, top);
-    this->g_vertices[3].texCoords = sf::Vector2f(right, bottom);
+    this->g_vertices.getVertices()[0]._texCoords = fge::Vector2f(left, top);
+    this->g_vertices.getVertices()[1]._texCoords = fge::Vector2f(left, bottom);
+    this->g_vertices.getVertices()[2]._texCoords = fge::Vector2f(right, top);
+    this->g_vertices.getVertices()[3]._texCoords = fge::Vector2f(right, bottom);
 }
 
 } // namespace fge

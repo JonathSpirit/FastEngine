@@ -132,7 +132,6 @@ g_bounds          ()
 {
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
-    this->_g_graphicPipeline.setShader(*fge::vulkan::GraphicPipeline::defaultShaderFragmentNoTexture);
 }
 
 void Shape::update()
@@ -185,14 +184,14 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
     }
 
     copyStates._vertexBuffer = &this->g_vertices;
-    target.draw(this->_g_graphicPipeline, copyStates);
+    target.draw(copyStates);
 
     // Render the outline
     if (this->g_outlineThickness != 0.0f)
     {
         copyStates._textureImage = nullptr;
         copyStates._vertexBuffer = &this->g_outlineVertices;
-        target.draw(this->_g_graphicPipeline, copyStates);
+        target.draw(copyStates);
     }
 }
 

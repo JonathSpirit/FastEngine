@@ -25,8 +25,8 @@ GraphicPipeline::GraphicPipeline() :
         g_needUpdate(true),
 
         g_shaderCompute(nullptr),
-        g_shaderVertex(GraphicPipeline::defaultShaderVertex),
-        g_shaderFragment(GraphicPipeline::defaultShaderFragment),
+        g_shaderVertex(nullptr),
+        g_shaderFragment(nullptr),
         g_shaderGeometry(nullptr),
 
         g_defaultPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
@@ -82,8 +82,8 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_needUpdate = true;
 
     r.g_shaderCompute = nullptr;
-    r.g_shaderVertex = GraphicPipeline::defaultShaderVertex;
-    r.g_shaderFragment = GraphicPipeline::defaultShaderFragment;
+    r.g_shaderVertex = nullptr;
+    r.g_shaderFragment = nullptr;
     r.g_shaderGeometry = nullptr;
 
     r.g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -199,9 +199,9 @@ bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
         std::vector<VkDynamicState> dynamicStates = {
-                VK_DYNAMIC_STATE_VIEWPORT,
-                VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
-                VK_DYNAMIC_STATE_SCISSOR
+            VK_DYNAMIC_STATE_VIEWPORT,
+            VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
+            VK_DYNAMIC_STATE_SCISSOR
         };
 
         VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -444,8 +444,8 @@ void GraphicPipeline::destroy()
         this->g_needUpdate = true;
 
         this->g_shaderCompute = nullptr;
-        this->g_shaderVertex = GraphicPipeline::defaultShaderVertex;
-        this->g_shaderFragment = GraphicPipeline::defaultShaderFragment;
+        this->g_shaderVertex = nullptr;
+        this->g_shaderFragment = nullptr;
         this->g_shaderGeometry = nullptr;
 
         this->g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -459,9 +459,5 @@ void GraphicPipeline::destroy()
         this->g_logicalDevice = nullptr;
     }
 }
-
-const Shader* GraphicPipeline::defaultShaderVertex;
-const Shader* GraphicPipeline::defaultShaderFragment;
-const Shader* GraphicPipeline::defaultShaderFragmentNoTexture;
 
 }//end fge::vulkan

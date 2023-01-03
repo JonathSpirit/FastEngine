@@ -68,6 +68,7 @@ public:
     [[nodiscard]] virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(const fge::Drawable& drawable, const fge::RenderStates& states);
+    void draw(const fge::RenderStates& states);
     virtual void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states) = 0;
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) = 0;
@@ -76,12 +77,18 @@ public:
 
     virtual bool isSrgb() const;
 
+    [[nodiscard]] const fge::vulkan::GraphicPipeline& getDefaultGraphicPipelineNoTexture() const;
+    [[nodiscard]] const fge::vulkan::GraphicPipeline& getDefaultGraphicPipelineTexture() const;
+
 private:
     View g_defaultView;
     View g_view;
 
 protected:
     VkClearColorValue _g_clearColor;
+
+    fge::vulkan::GraphicPipeline _g_defaultGraphicPipelineNoTexture;
+    fge::vulkan::GraphicPipeline _g_defaultGraphicPipelineTexture;
 };
 
 }//end fge

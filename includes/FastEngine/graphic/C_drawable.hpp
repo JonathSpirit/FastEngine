@@ -38,9 +38,6 @@ public:
     virtual ~Drawable() = default;
 
     virtual void draw(RenderTarget& target, const RenderStates& states) const = 0;
-
-protected:
-    fge::vulkan::GraphicPipeline _g_graphicPipeline;
 };
 
 }//end fge

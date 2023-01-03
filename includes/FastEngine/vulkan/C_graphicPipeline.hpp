@@ -76,10 +76,6 @@ public:
 
     void destroy();
 
-    static const Shader* defaultShaderVertex;
-    static const Shader* defaultShaderFragment;
-    static const Shader* defaultShaderFragmentNoTexture;
-
 private:
     void cleanPipeline() const;
 

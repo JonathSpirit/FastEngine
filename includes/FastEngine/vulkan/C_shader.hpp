@@ -44,7 +44,7 @@ public:
     ~Shader();
 
     Shader& operator=(const Shader& r) = delete;
-    Shader& operator=(Shader&& r) noexcept = delete;
+    Shader& operator=(Shader&& r) noexcept;
 
     bool loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type);
 
