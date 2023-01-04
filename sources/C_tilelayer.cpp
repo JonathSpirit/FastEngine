@@ -20,6 +20,11 @@
 namespace fge
 {
 
+TileLayer::Tile::Tile()
+{
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::VertexBuffer::Types::STAGING_BUFFER);
+}
+
 void TileLayer::Tile::setGid(TileId gid)
 {
     this->g_gid = gid;
@@ -44,12 +49,12 @@ void TileLayer::Tile::setColor(const fge::Color& color)
 {
     for (std::size_t i = 0; i < 4; ++i)
     {
-        this->g_vertex[i]._color = color;
+        this->g_vertexBuffer.getVertices()[i]._color = color;
     }
 }
 fge::Color TileLayer::Tile::getColor() const
 {
-    return fge::Color(this->g_vertex[0]._color);
+    return fge::Color(this->g_vertexBuffer.getVertices()[0]._color);
 }
 
 void TileLayer::Tile::setTileSet(std::shared_ptr<fge::TileSet> tileSet)
@@ -69,10 +74,10 @@ void TileLayer::Tile::updatePositions()
     {
         auto size = static_cast<fge::Vector2f>(this->g_tileSet->getTileSize());
 
-        this->g_vertex[0]._position = fge::Vector2f(this->g_position.x, this->g_position.y);
-        this->g_vertex[1]._position = fge::Vector2f(this->g_position.x, this->g_position.y + size.y);
-        this->g_vertex[2]._position = fge::Vector2f(this->g_position.x + size.x, this->g_position.y);
-        this->g_vertex[3]._position = fge::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(this->g_position.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(this->g_position.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[2]._position = fge::Vector2f(this->g_position.x + size.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[3]._position = fge::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
     }
 }
 
@@ -83,17 +88,12 @@ void TileLayer::Tile::updateTexCoords()
         const auto* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
         if (tile != nullptr)
         {
-            auto rect = tile->_rect;
+            const auto rect = this->g_tileSet->getTexture().getData()->_texture->normalizeTextureRect(tile->_rect);
 
-            const float left = static_cast<float>(rect._x);
-            const float right = left + static_cast<float>(rect._width);
-            const float top = static_cast<float>(rect._y);
-            const float bottom = top + static_cast<float>(rect._height);
-
-            this->g_vertex[0]._texCoords = fge::Vector2f(left, top);
-            this->g_vertex[1]._texCoords = fge::Vector2f(left, bottom);
-            this->g_vertex[2]._texCoords = fge::Vector2f(right, top);
-            this->g_vertex[3]._texCoords = fge::Vector2f(right, bottom);
+            this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
+            this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
+            this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
+            this->g_vertexBuffer.getVertices()[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
         }
     }
 }
@@ -110,7 +110,8 @@ void TileLayer::draw(fge::RenderTarget& target, const fge::RenderStates& states)
         if (data.g_tileSet)
         {
             statesCopy._textureImage = static_cast<const fge::TextureType*>(data.g_tileSet->getTexture());
-            target.draw(statesCopy); /**TODO: create the graphic pipeline : data.g_vertex, 4, sf::TriangleStrip**/
+            statesCopy._vertexBuffer = &data.g_vertexBuffer;
+            target.draw(statesCopy);
         }
     }
 }

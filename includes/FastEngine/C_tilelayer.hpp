@@ -54,7 +54,7 @@ public:
     class FGE_API Tile
     {
     public:
-        Tile() = default;
+        Tile();
 
         /**
          * \brief Set the global id of the tile
@@ -118,7 +118,7 @@ public:
 
         TileId g_gid{0};
         std::shared_ptr<fge::TileSet> g_tileSet;
-        fge::vulkan::Vertex g_vertex[4];
+        fge::vulkan::VertexBuffer g_vertexBuffer;
         fge::Vector2f g_position;
 
         friend TileLayer;

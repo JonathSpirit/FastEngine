@@ -25,6 +25,7 @@ void GarbageCollector::setCurrentFrame(uint32_t frame)
     {
         this->g_currentFrame = frame;
     }
+    this->free();
 }
 uint32_t GarbageCollector::getCurrentFrame() const
 {
@@ -52,6 +53,10 @@ void GarbageCollector::freeAll()
 void GarbageCollector::enable(bool stat)
 {
     this->g_enabled = stat;
+    if (!stat)
+    {
+        this->freeAll();
+    }
 }
 bool GarbageCollector::isEnabled() const
 {

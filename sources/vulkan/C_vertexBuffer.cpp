@@ -219,6 +219,22 @@ void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::s
 
     this->resize(vertexSize, indexSize);
 }
+void VertexBuffer::create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, Types type)
+{
+    this->destroy();
+    this->g_primitiveTopology = topology;
+    if (type == Types::UNINITIALIZED)
+    {
+        return;
+    }
+
+    this->g_useIndexBuffer = false;
+    this->g_type = type;
+
+    this->g_context = &context;
+
+    this->resize(vertexSize, 0);
+}
 
 void VertexBuffer::clear()
 {

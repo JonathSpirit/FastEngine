@@ -17,10 +17,13 @@
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/extra/extra_pathFinding.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTilemap.hpp"
-#include <FastEngine/C_clock.hpp>
-#include <FastEngine/C_scene.hpp>
+#include "FastEngine/graphic/C_circleShape.hpp"
+#include "FastEngine/C_clock.hpp"
+#include "FastEngine/C_scene.hpp"
+#include "SDL.h"
 #include <iostream>
 
 //Create a pathFinder class object
@@ -36,7 +39,7 @@ public:
         this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
     }
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override
     {
         //Draw path circles
         for (const auto& circle: this->g_pathCircles)
@@ -49,7 +52,7 @@ public:
     }
 
     void setWorldSize(const fge::AStar::Vector2i& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }
-    void setTileSize(const sf::Vector2i& tileSize) { this->g_tileSize = tileSize; }
+    void setTileSize(const fge::Vector2i& tileSize) { this->g_tileSize = tileSize; }
     void setObstacle(fge::ObjTileMap* tileMap)
     {
         //Clear the collisions list
@@ -78,7 +81,7 @@ public:
             }
         }
     }
-    void setGoal(const sf::Vector2f& globalPos)
+    void setGoal(const fge::Vector2f& globalPos)
     {
         //Convert the global position to a tile position
         this->g_goal.x = static_cast<int>(globalPos.x) / this->g_tileSize.x;
@@ -91,7 +94,7 @@ public:
         //Generate the path
         this->generatePath();
     }
-    void setStart(const sf::Vector2f& globalPos)
+    void setStart(const fge::Vector2f& globalPos)
     {
         //Convert the global position to a tile position
         this->g_start.x = static_cast<int>(globalPos.x) / this->g_tileSize.x;
@@ -105,10 +108,10 @@ public:
         this->generatePath();
 
         //Set object position in the center of the tile
-        this->setPosition(static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) +
+        this->setPosition({static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) +
                                   static_cast<float>(this->g_tileSize.x) / 2.f,
                           static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) +
-                                  static_cast<float>(this->g_tileSize.y) / 2.f);
+                                  static_cast<float>(this->g_tileSize.y) / 2.f});
     }
 
     void generatePath()
@@ -128,26 +131,26 @@ public:
         this->g_pathCircles.clear();
         for (const auto& pathPoint: this->g_path)
         {
-            sf::CircleShape circle;
+            fge::CircleShape circle;
             circle.setRadius(5.f);
-            circle.setOrigin(5.f, 5.f);
-            circle.setFillColor(sf::Color::Green);
-            circle.setPosition(static_cast<float>(pathPoint.x) * static_cast<float>(this->g_tileSize.x) +
+            circle.setOrigin({5.f, 5.f});
+            circle.setFillColor(fge::Color::Green);
+            circle.setPosition({static_cast<float>(pathPoint.x) * static_cast<float>(this->g_tileSize.x) +
                                        static_cast<float>(this->g_tileSize.x) / 2.f,
                                static_cast<float>(pathPoint.y) * static_cast<float>(this->g_tileSize.y) +
-                                       static_cast<float>(this->g_tileSize.y) / 2.f);
+                                       static_cast<float>(this->g_tileSize.y) / 2.f});
             this->g_pathCircles.push_back(circle);
         }
 
         //Set the start circle
         this->g_startCircle.setRadius(5.f);
-        this->g_startCircle.setOrigin(5.f, 5.f);
-        this->g_startCircle.setFillColor(sf::Color::Transparent);
-        this->g_startCircle.setPosition(static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) +
+        this->g_startCircle.setOrigin({5.f, 5.f});
+        this->g_startCircle.setFillColor(fge::Color::Transparent);
+        this->g_startCircle.setPosition({static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) +
                                                 static_cast<float>(this->g_tileSize.x) / 2.f,
                                         static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) +
-                                                static_cast<float>(this->g_tileSize.y) / 2.f);
-        this->g_startCircle.setOutlineColor(sf::Color::Red);
+                                                static_cast<float>(this->g_tileSize.y) / 2.f});
+        this->g_startCircle.setOutlineColor(fge::Color::Red);
         this->g_startCircle.setOutlineThickness(2.f);
     }
 
@@ -157,22 +160,20 @@ public:
 private:
     fge::AStar::Generator g_pathGenerator;
     fge::AStar::CoordinateList g_path;
-    std::vector<sf::CircleShape> g_pathCircles;
+    std::vector<fge::CircleShape> g_pathCircles;
     fge::AStar::Vector2i g_goal;
     fge::AStar::Vector2i g_start;
-    sf::Vector2i g_tileSize;
-    sf::CircleShape g_startCircle;
+    fge::Vector2i g_tileSize;
+    fge::CircleShape g_startCircle;
 };
 
 //Create the MainScene class
 class MainScene : public fge::Scene
 {
 public:
-    void main()
+    void start(fge::RenderWindow& renderWindow)
     {
-        sf::RenderWindow window(sf::VideoMode{800, 600}, "example 001: tileMapAndPathfinding");
-        window.setFramerateLimit(60);
-        fge::Event event(window);
+        fge::Event event(renderWindow);
 
         //Init texture manager
         fge::texture::Init();
@@ -195,7 +196,7 @@ public:
                                                          "Use the mouse wheel to zoom in and out",
                                                          "base", {}, 18),
                                            FGE_SCENE_PLAN_HIGH_TOP);
-        explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::Black);
+        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
 
         //Create a tileMap object
         auto tileMap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap), FGE_SCENE_PLAN_BACK);
@@ -220,34 +221,34 @@ public:
         pathFinder->getObject<PathFinder>()->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
 
         //Create event callback for moving the view
-        event._onKeyPressed.add(new fge::CallbackLambda<const fge::Event&, const sf::Event::KeyEvent&>{
-                [&](const fge::Event&, const sf::Event::KeyEvent& keyEvent) {
-            auto view = window.getView();
-            if (keyEvent.code == sf::Keyboard::Left || keyEvent.code == sf::Keyboard::A)
+        event._onKeyDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_KeyboardEvent&>{
+                [&](const fge::Event&, const SDL_KeyboardEvent& keyEvent) {
+            auto view = renderWindow.getView();
+            if (keyEvent.keysym.sym == SDLK_LEFT || keyEvent.keysym.sym == SDLK_a)
             {
-                view.move(-10, 0);
+                view.move({-10, 0});
             }
-            else if (keyEvent.code == sf::Keyboard::Right || keyEvent.code == sf::Keyboard::D)
+            else if (keyEvent.keysym.sym == SDLK_RIGHT || keyEvent.keysym.sym == SDLK_d)
             {
-                view.move(10, 0);
+                view.move({10, 0});
             }
-            else if (keyEvent.code == sf::Keyboard::Up || keyEvent.code == sf::Keyboard::W)
+            else if (keyEvent.keysym.sym == SDLK_UP || keyEvent.keysym.sym == SDLK_w)
             {
-                view.move(0, -10);
+                view.move({0, -10});
             }
-            else if (keyEvent.code == sf::Keyboard::Down || keyEvent.code == sf::Keyboard::S)
+            else if (keyEvent.keysym.sym == SDLK_DOWN || keyEvent.keysym.sym == SDLK_s)
             {
-                view.move(0, 10);
+                view.move({0, 10});
             }
-            window.setView(view);
+            renderWindow.setView(view);
         }});
 
         //Create event callback for zooming the view
-        event._onMouseWheelScrolled.add(
-                new fge::CallbackLambda<const fge::Event&, const sf::Event::MouseWheelScrollEvent&>{
-                        [&](const fge::Event&, const sf::Event::MouseWheelScrollEvent& mouseWheelScrollEvent) {
-            auto view = window.getView();
-            if (mouseWheelScrollEvent.delta > 0)
+        event._onMouseWheel.add(
+                new fge::CallbackLambda<const fge::Event&, const SDL_MouseWheelEvent&>{
+                        [&](const fge::Event&, const SDL_MouseWheelEvent& mouseWheelEvent) {
+            auto view = renderWindow.getView();
+            if (mouseWheelEvent.y > 0)
             {
                 view.zoom(0.9f);
             }
@@ -255,50 +256,61 @@ public:
             {
                 view.zoom(1.1f);
             }
-            window.setView(view);
-                }});
+            renderWindow.setView(view);
+        }});
 
         //Create event callback for mouse button pressed
-        event._onMouseButtonPressed.add(new fge::CallbackLambda<const fge::Event&, const sf::Event::MouseButtonEvent&>{
-                [&](const fge::Event&, const sf::Event::MouseButtonEvent& mouseButtonEvent) {
+        event._onMouseButtonDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseButtonEvent&>{
+                [&](const fge::Event&, const SDL_MouseButtonEvent& mouseButtonEvent) {
             //Get the mouse position
-            auto mousePosition = window.mapPixelToCoords(sf::Vector2i{mouseButtonEvent.x, mouseButtonEvent.y});
+            auto mousePosition = renderWindow.mapPixelToCoords(fge::Vector2i{mouseButtonEvent.x, mouseButtonEvent.y});
 
             //Set the pathfinder goal when the left mouse button is pressed
-            if (mouseButtonEvent.button == sf::Mouse::Left)
+            if (mouseButtonEvent.button == SDL_BUTTON_LEFT)
             {
                 pathFinder->getObject<PathFinder>()->setGoal(mousePosition);
             }
             //Set the pathfinder start when the right mouse button is pressed
-            else if (mouseButtonEvent.button == sf::Mouse::Right)
+            else if (mouseButtonEvent.button == SDL_BUTTON_RIGHT)
             {
                 pathFinder->getObject<PathFinder>()->setStart(mousePosition);
             }
         }});
 
         //Begin loop
-        while (window.isOpen())
+        bool running = true;
+        while (running)
         {
             //Update event
-            event.process(window);
-            if (event.isEventType(sf::Event::EventType::Closed))
+            event.process();
+            if (event.isEventType(SDL_QUIT))
             {
-                window.close();
+                running = false;
             }
-
-            //Clear window
-            window.clear();
 
             //Update scene
             auto deltaTick = tick.restart();
-            this->update(window, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
+            this->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
-            //Draw scene
-            this->draw(window);
+            //Drawing
+            auto imageIndex = renderWindow.prepareNextFrame(nullptr);
+            if (imageIndex != BAD_IMAGE_INDEX)
+            {
+                fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
 
-            //Display window
-            window.display();
+                renderWindow.beginRenderPass(imageIndex);
+
+                this->draw(renderWindow);
+
+                renderWindow.endRenderPass();
+
+                renderWindow.display(imageIndex, nullptr, 0);
+            }
         }
+
+        fge::vulkan::GlobalContext->waitIdle();
+
+        fge::vulkan::GlobalContext->_garbageCollector.enable(false);
 
         //Uninit texture manager
         fge::texture::Uninit();
@@ -309,8 +321,47 @@ public:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    MainScene scene;
-    scene.main();
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    SDL_Window* window = SDL_CreateWindow("example 001: tileMapAndPathfinding", SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
+                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+
+    // Check that the window was successfully created
+    if (window == nullptr)
+    {
+        // In the case that the window could not be made...
+        std::cout << "Could not create window: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    fge::vulkan::Context vulkanContext{};
+    fge::vulkan::Context::initVolk();
+    fge::vulkan::Context::enumerateExtensions();
+    vulkanContext.initVulkan(window);
+
+    fge::vulkan::GlobalContext = &vulkanContext;
+
+    fge::vulkan::GlobalContext->_garbageCollector.enable(true);
+
+    fge::shader::Init("resources/shaders/vertex.spv",
+                      "resources/shaders/fragment.spv",
+                      "resources/shaders/fragmentTexture.spv");
+
+    fge::RenderWindow renderWindow(vulkanContext);
+    renderWindow.setClearColor(fge::Color::White);
+
+    std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
+    scene->start(renderWindow);
+    scene.reset();
+
+    fge::shader::Uninit();
+
+    renderWindow.destroy();
+
+    vulkanContext.destroy();
+
+    SDL_DestroyWindow(window);
+
+    SDL_Quit();
 
     return 0;
 }

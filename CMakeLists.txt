@@ -385,6 +385,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_transformable.cpp
         sources/graphic/C_shape.cpp
         sources/graphic/C_rectangleShape.cpp
+        sources/graphic/C_circleShape.cpp
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
@@ -408,7 +409,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp") TODO
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp") TODO
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp") TODO
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")

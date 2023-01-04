@@ -499,6 +499,28 @@ const fge::vulkan::DescriptorSet& TextureImage::getDescriptorSet() const
     return this->g_textureDescriptorSet;
 }
 
+fge::Vector2f TextureImage::normalizeTextureCoords(const fge::Vector2i& coords) const
+{
+    if (this->g_textureSize.x == 0 || this->g_textureSize.y == 0)
+    {
+        return {0.0f,0.0f};
+    }
+    return {static_cast<float>(coords.x)/static_cast<float>(this->g_textureSize.x),
+            static_cast<float>(coords.y)/static_cast<float>(this->g_textureSize.y)};
+}
+fge::RectFloat TextureImage::normalizeTextureRect(const fge::RectInt& rect) const
+{
+    if (this->g_textureSize.x == 0 || this->g_textureSize.y == 0)
+    {
+        return {{0.0f,0.0f}, {0.0f,0.0f}};
+    }
+
+    return {{static_cast<float>(rect._x)/static_cast<float>(this->g_textureSize.x),
+            static_cast<float>(rect._y)/static_cast<float>(this->g_textureSize.y)},
+            {static_cast<float>(rect._width)/static_cast<float>(this->g_textureSize.x),
+             static_cast<float>(rect._height)/static_cast<float>(this->g_textureSize.y)}};
+}
+
 uint32_t TextureImage::getModificationCount() const
 {
     return this->g_modificationCount;

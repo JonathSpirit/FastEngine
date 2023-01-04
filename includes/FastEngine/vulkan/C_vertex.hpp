@@ -28,7 +28,7 @@ namespace fge::vulkan
 struct Vertex
 {
     glm::vec2 _position;
-    glm::vec4 _color;
+    glm::vec4 _color{1.0f};
     glm::vec2 _texCoords;
 
     static VkVertexInputBindingDescription getBindingDescription()

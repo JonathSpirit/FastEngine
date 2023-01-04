@@ -53,6 +53,7 @@ public:
     VertexBuffer& operator=(VertexBuffer&& r) noexcept;
 
     void create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, VkPrimitiveTopology topology, Types type=Types::DEFAULT);
+    void create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, Types type=Types::DEFAULT);
 
     void clear();
     void resize(std::size_t vertexSize, std::size_t indexSize=0);

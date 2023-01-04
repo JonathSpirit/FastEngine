@@ -23,6 +23,8 @@
 #include "volk.h"
 #include "glm/glm.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
+#include "FastEngine/graphic/C_rect.hpp"
+#include "FastEngine/graphic/C_vector.hpp"
 
 namespace fge::vulkan
 {
@@ -70,6 +72,9 @@ public:
     [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
+
+    [[nodiscard]] fge::Vector2f normalizeTextureCoords(const fge::Vector2i& coords) const;
+    [[nodiscard]] fge::RectFloat normalizeTextureRect(const fge::RectInt& rect) const;
 
     [[nodiscard]] uint32_t getModificationCount() const;
 

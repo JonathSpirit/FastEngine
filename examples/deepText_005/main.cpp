@@ -20,11 +20,11 @@
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include <FastEngine/C_clock.hpp>
-#include <FastEngine/C_scene.hpp>
-#include <FastEngine/vulkan/vulkanGlobal.hpp>
-#include <FastEngine/graphic/C_drawable.hpp>
-#include <SDL.h>
+#include "FastEngine/C_clock.hpp"
+#include "FastEngine/C_scene.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "FastEngine/graphic/C_drawable.hpp"
+#include "SDL.h"
 #include <cmath>
 #include <iostream>
 
@@ -107,8 +107,6 @@ public:
 
         fge::Clock changeTextColorClock;
 
-        renderWindow.setPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
-
         //Begin loop
         bool running = true;
         while (running)
@@ -119,9 +117,6 @@ public:
             {
                 running = false;
             }
-
-            //Clear window
-            ///window.clear();
 
             //Update scene
             auto deltaTick = tick.restart();
@@ -151,18 +146,11 @@ public:
                 changeTextColorClock.restart();
             }
 
-            //Draw scene
-            ///this->draw(window);
-            ///window.draw(rectText);
-
-            //Display window
-            ///window.display();
-
+            //Drawing
             auto imageIndex = renderWindow.prepareNextFrame(nullptr);
             if (imageIndex != BAD_IMAGE_INDEX)
             {
                 fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
-                fge::vulkan::GlobalContext->_garbageCollector.free();
 
                 renderWindow.beginRenderPass(imageIndex);
 
@@ -180,7 +168,6 @@ public:
         fge::vulkan::GlobalContext->waitIdle();
 
         fge::vulkan::GlobalContext->_garbageCollector.enable(false);
-        fge::vulkan::GlobalContext->_garbageCollector.freeAll();
 
         //Uninit texture manager
         fge::texture::Uninit();
