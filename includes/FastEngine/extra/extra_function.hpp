@@ -54,16 +54,13 @@ FGE_API void SetConsoleCmdTitle(const char* title);
 
 ///Detection
 #ifndef FGE_DEF_SERVER
-FGE_API bool IsMouseOn(const sf::RenderWindow& window, const sf::FloatRect& zone);
-FGE_API bool IsMouseOn(const sf::Vector2f& mousePos, const sf::FloatRect& zone);
+FGE_API bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone);
+FGE_API bool IsMouseOn(const fge::Vector2f& mousePos, const fge::RectFloat& zone);
 
-FGE_API bool IsPressed(const sf::RenderWindow& window,
-                       const sf::FloatRect& zone,
-                       sf::Mouse::Button button = sf::Mouse::Button::Left);
 FGE_API bool IsPressed(const fge::Event& evt,
-                       const sf::Vector2f& mouse_pos,
-                       const sf::FloatRect& zone,
-                       sf::Mouse::Button button = sf::Mouse::Button::Left);
+                       const fge::Vector2f& mouse_pos,
+                       const fge::RectFloat& zone,
+                       uint8_t button = SDL_BUTTON_LEFT);
 #endif //FGE_DEF_SERVER
 
 ///Position/Rectangle
@@ -120,15 +117,15 @@ Implementation of Andrew's monotone chain 2D convex hull algorithm.
 Asymptotic complexity: O(n log n).
 Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 */
-FGE_API void GetConvexHull(const std::vector<sf::Vector2f>& input, std::vector<sf::Vector2f>& output);
+FGE_API void GetConvexHull(const std::vector<fge::Vector2f>& input, std::vector<fge::Vector2f>& output);
 
 ///View
-FGE_API sf::Vector2f GetViewSizePercentage(const sf::View& view, const sf::View& defaultView);
-FGE_API sf::Vector2f SetViewSizePercentage(float percentage, const sf::View& defaultView);
-FGE_API sf::Vector2f SetViewSizePercentage(const sf::Vector2f& percentage, const sf::View& defaultView);
+FGE_API fge::Vector2f GetViewSizePercentage(const fge::View& view, const fge::View& defaultView);
+FGE_API fge::Vector2f SetViewSizePercentage(float percentage, const fge::View& defaultView);
+FGE_API fge::Vector2f SetViewSizePercentage(const fge::Vector2f& percentage, const fge::View& defaultView);
 
-FGE_API sf::Vector2f
-TransposePointFromAnotherView(const sf::View& pointView, const sf::Vector2f& point, const sf::View& newView);
+FGE_API fge::Vector2f
+TransposePointFromAnotherView(const fge::View& pointView, const fge::Vector2f& point, const fge::View& newView);
 
 enum class ClipClampModes
 {
@@ -137,10 +134,10 @@ enum class ClipClampModes
     CLIP_CLAMP_PUSH,
     CLIP_CLAMP_HIDE
 };
-FGE_API sf::View ClipView(const sf::View& view,
-                          const sf::RenderTarget& target,
-                          const sf::FloatRect& worldCoordClipRect,
-                          fge::ClipClampModes clampMode);
+FGE_API fge::View ClipView(const fge::View& view,
+                           const fge::RenderTarget& target,
+                           const fge::RectFloat& worldCoordClipRect,
+                           fge::ClipClampModes clampMode);
 
 ///Render
 FGE_API fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target);

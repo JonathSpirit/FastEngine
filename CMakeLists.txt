@@ -397,20 +397,20 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp") TODO
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp") TODO
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp") TODO
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp") TODO
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp") TODO
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp") TODO
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
@@ -446,13 +446,13 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/fge_endian.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/anim_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/audio_manager.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/crash_manager.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/crash_manager.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/font_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/log_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/network_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/path_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp")
+#target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
@@ -468,7 +468,7 @@ target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image)
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_LIB_NAME} fmt)
-target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY} sfml-audio sfml-graphics sfml-system sfml-window)
+target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY} sfml-audio sfml-system)
 target_link_libraries(${FGE_LIB_NAME} re2)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)
