@@ -69,6 +69,8 @@ public:
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
     [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
 
+    [[nodiscard]] uint32_t getCurrentFrame() const;
+
     [[nodiscard]] const fge::vulkan::Context* getContext() const;
 
     void onResize();

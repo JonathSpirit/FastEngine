@@ -393,7 +393,7 @@ void Context::createTextureDescriptorPool()
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSizes[0].descriptorCount = 1;
 
-    this->g_textureDescriptorPool.create(this->g_logicalDevice, std::move(poolSizes), 128, false);
+    this->g_textureDescriptorPool.create(*this, std::move(poolSizes), 128, false);
 }
 void Context::createTransformDescriptorPool()
 {
@@ -401,7 +401,7 @@ void Context::createTransformDescriptorPool()
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = 1;
 
-    this->g_transformDescriptorPool.create(this->g_logicalDevice, std::move(poolSizes), 128, false);
+    this->g_transformDescriptorPool.create(*this, std::move(poolSizes), 128, false);
 }
 
 }//end fge::vulkan

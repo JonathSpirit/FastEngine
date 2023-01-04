@@ -107,6 +107,8 @@ public:
 
         fge::Clock changeTextColorClock;
 
+        renderWindow.setPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
+
         //Begin loop
         bool running = true;
         while (running)
@@ -159,6 +161,9 @@ public:
             auto imageIndex = renderWindow.prepareNextFrame(nullptr);
             if (imageIndex != BAD_IMAGE_INDEX)
             {
+                fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
+                fge::vulkan::GlobalContext->_garbageCollector.free();
+
                 renderWindow.beginRenderPass(imageIndex);
 
                 this->draw(renderWindow);
@@ -173,6 +178,9 @@ public:
         }
 
         fge::vulkan::GlobalContext->waitIdle();
+
+        fge::vulkan::GlobalContext->_garbageCollector.enable(false);
+        fge::vulkan::GlobalContext->_garbageCollector.freeAll();
 
         //Uninit texture manager
         fge::texture::Uninit();
@@ -201,6 +209,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     vulkanContext.initVulkan(window);
 
     fge::vulkan::GlobalContext = &vulkanContext;
+
+    fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
     fge::shader::Init("resources/shaders/vertex.spv",
                       "resources/shaders/fragment.spv",

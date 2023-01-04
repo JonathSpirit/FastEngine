@@ -42,7 +42,7 @@ public:
     GraphicPipeline& operator=(const GraphicPipeline& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
-    bool updateIfNeeded(const LogicalDevice& logicalDevice,
+    bool updateIfNeeded(const Context& context,
                         const VkDescriptorSetLayout* descriptorSetLayouts,
                         std::size_t descriptorSetLayoutSize,
                         VkRenderPass renderPass,
@@ -72,7 +72,7 @@ public:
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
-    [[nodiscard]] const LogicalDevice* getLogicalDevice();
+    [[nodiscard]] const Context* getContext();
 
     void destroy();
 
@@ -96,7 +96,7 @@ private:
     mutable VkPipelineLayout g_pipelineLayout;
     mutable VkPipeline g_graphicsPipeline;
 
-    mutable const LogicalDevice* g_logicalDevice;
+    mutable const Context* g_context;
 };
 
 }//end fge::vulkan

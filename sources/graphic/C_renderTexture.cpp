@@ -108,13 +108,10 @@ void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, co
     VkDescriptorSetLayout layout[] = {this->g_context->getTransformLayout().getLayout(),
                                       this->g_context->getTextureLayout().getLayout()};
 
-    if ( graphicPipeline.updateIfNeeded(this->g_context->getLogicalDevice(),
-                                       layout, 2,
-                                       this->g_renderPass,
-                                       this->g_forceGraphicPipelineUpdate) )
-    {
-        return;
-    }
+    graphicPipeline.updateIfNeeded(*this->g_context,
+                                   layout, 2,
+                                   this->g_renderPass,
+                                   this->g_forceGraphicPipelineUpdate);
 
     const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
 

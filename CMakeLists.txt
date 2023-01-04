@@ -373,6 +373,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/vulkan/C_descriptorPool.cpp
         sources/vulkan/C_descriptorSet.cpp
         sources/vulkan/C_descriptorSetLayout.cpp
+        sources/vulkan/C_garbageCollector.cpp
         sources/vulkan/C_context.cpp
         sources/vulkan/C_graphicPipeline.cpp
         sources/vulkan/C_blendMode.cpp

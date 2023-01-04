@@ -16,7 +16,7 @@
 
 #include "Fastengine/vulkan/C_graphicPipeline.hpp"
 #include "Fastengine/vulkan/C_swapChain.hpp"
-#include "Fastengine/vulkan/C_logicalDevice.hpp"
+#include "Fastengine/vulkan/C_context.hpp"
 
 namespace fge::vulkan
 {
@@ -37,7 +37,7 @@ GraphicPipeline::GraphicPipeline() :
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
 
-        g_logicalDevice(nullptr)
+        g_context(nullptr)
 {}
 GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_needUpdate(true),
@@ -57,7 +57,7 @@ GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
 
-        g_logicalDevice(r.g_logicalDevice)
+        g_context(r.g_context)
 {}
 GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_needUpdate(r.g_needUpdate),
@@ -77,7 +77,7 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_pipelineLayout(r.g_pipelineLayout),
         g_graphicsPipeline(r.g_graphicsPipeline),
 
-        g_logicalDevice(r.g_logicalDevice)
+        g_context(r.g_context)
 {
     r.g_needUpdate = true;
 
@@ -96,14 +96,14 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_pipelineLayout = VK_NULL_HANDLE;
     r.g_graphicsPipeline = VK_NULL_HANDLE;
 
-    r.g_logicalDevice = nullptr;
+    r.g_context = nullptr;
 }
 GraphicPipeline::~GraphicPipeline()
 {
     this->destroy();
 }
 
-bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
+bool GraphicPipeline::updateIfNeeded(const Context& context,
                                      const VkDescriptorSetLayout* descriptorSetLayouts,
                                      std::size_t descriptorSetLayoutSize,
                                      VkRenderPass renderPass,
@@ -216,7 +216,7 @@ bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
         pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-        if (vkCreatePipelineLayout(logicalDevice.getDevice(), &pipelineLayoutInfo, nullptr, &this->g_pipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(context.getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr, &this->g_pipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
         }
@@ -249,12 +249,12 @@ bool GraphicPipeline::updateIfNeeded(const LogicalDevice& logicalDevice,
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1; // Optional
 
-        if (vkCreateGraphicsPipelines(logicalDevice.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(context.getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
-        this->g_logicalDevice = &logicalDevice;
+        this->g_context = &context;
         return true;
     }
     return false;
@@ -417,17 +417,16 @@ VkPipeline GraphicPipeline::getPipeline() const
 {
     return this->g_graphicsPipeline;
 }
-const LogicalDevice* GraphicPipeline::getLogicalDevice()
+const Context* GraphicPipeline::getContext()
 {
-    return this->g_logicalDevice;
+    return this->g_context;
 }
 
 void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(this->g_logicalDevice->getDevice(), this->g_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->g_logicalDevice->getDevice(), this->g_pipelineLayout, nullptr);
+        this->g_context->_garbageCollector.push(GarbageCollector::Garbage(this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;
@@ -438,8 +437,8 @@ void GraphicPipeline::destroy()
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(this->g_logicalDevice->getDevice(), this->g_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->g_logicalDevice->getDevice(), this->g_pipelineLayout, nullptr);
+        vkDestroyPipeline(this->g_context->getLogicalDevice().getDevice(), this->g_graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(this->g_context->getLogicalDevice().getDevice(), this->g_pipelineLayout, nullptr);
 
         this->g_needUpdate = true;
 
@@ -456,7 +455,7 @@ void GraphicPipeline::destroy()
         this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;
 
-        this->g_logicalDevice = nullptr;
+        this->g_context = nullptr;
     }
 }
 

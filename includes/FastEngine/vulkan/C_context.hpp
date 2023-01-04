@@ -31,6 +31,7 @@
 #include "FastEngine/vulkan/C_textureImage.hpp"
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
+#include "FastEngine/vulkan/C_garbageCollector.hpp"
 
 #define FGE_VULKAN_TEXTURE_BINDING 0
 #define FGE_VULKAN_TRANSFORM_BINDING 0
@@ -76,6 +77,8 @@ public:
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformLayout() const;
     [[nodiscard]] const DescriptorPool& getTextureDescriptorPool() const;
     [[nodiscard]] const DescriptorPool& getTransformDescriptorPool() const;
+
+    fge::vulkan::GarbageCollector _garbageCollector;
 
 private:
     void createCommandPool();

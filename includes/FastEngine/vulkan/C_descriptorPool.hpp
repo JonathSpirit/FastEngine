@@ -26,7 +26,7 @@
 namespace fge::vulkan
 {
 
-class LogicalDevice;
+class Context;
 
 class FGE_API DescriptorPool
 {
@@ -45,7 +45,7 @@ public:
     DescriptorPool& operator=(const DescriptorPool& r) = delete;
     DescriptorPool& operator=(DescriptorPool&& r) noexcept = delete;
 
-    void create(const LogicalDevice& logicalDevice,
+    void create(const Context& context,
                 std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
                 uint32_t maxSetsPerPool, bool isUnique);
     void destroy();
@@ -58,7 +58,7 @@ public:
     [[nodiscard]] uint32_t getMaxSetsPerPool() const;
     [[nodiscard]] bool isUnique() const;
     [[nodiscard]] bool isCreated() const;
-    [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
+    [[nodiscard]] const Context* getContext() const;
 
 private:
     [[nodiscard]] Pool createPool() const;
@@ -70,7 +70,7 @@ private:
     bool g_isUnique;
     bool g_isCreated;
 
-    const LogicalDevice* g_logicalDevice;
+    const Context* g_context;
 };
 
 }//end fge::vulkan

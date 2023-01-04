@@ -159,13 +159,10 @@ void RenderWindow::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
     VkDescriptorSetLayout layout[] = {this->g_context->getTransformLayout().getLayout(),
                                       this->g_context->getTextureLayout().getLayout()};
 
-    if ( graphicPipeline.updateIfNeeded(this->g_context->getLogicalDevice(),
-                                       layout, 2,
-                                       this->g_renderPass,
-                                       this->g_forceGraphicPipelineUpdate) )
-    {
-        //return;
-    }
+    graphicPipeline.updateIfNeeded(*this->g_context,
+                                   layout, 2,
+                                   this->g_renderPass,
+                                   this->g_forceGraphicPipelineUpdate);
 
     const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
 
@@ -279,6 +276,11 @@ VkCommandBufferInheritanceInfo RenderWindow::getInheritanceInfo(uint32_t imageIn
     inheritanceInfo.subpass = 0;
     inheritanceInfo.framebuffer = this->g_swapChainFramebuffers[imageIndex];
     return inheritanceInfo;
+}
+
+uint32_t RenderWindow::getCurrentFrame() const
+{
+    return this->g_currentFrame;
 }
 
 const fge::vulkan::Context* RenderWindow::getContext() const
