@@ -32,7 +32,7 @@ TextureImage::TextureImage() :
         g_textureSize(0,0),
         g_textureBytesPerPixel(0),
 
-        g_filter(VK_FILTER_LINEAR),
+        g_filter(VK_FILTER_NEAREST),
         g_normalizedCoordinates(true),
 
         g_modificationCount(0),
@@ -67,7 +67,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
     r.g_textureSize = {0,0};
     r.g_textureBytesPerPixel = 0;
 
-    r.g_filter = VK_FILTER_LINEAR;
+    r.g_filter = VK_FILTER_NEAREST;
     r.g_normalizedCoordinates = false;
 
     r.g_modificationCount = 0;
@@ -110,7 +110,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     r.g_textureSize = {0,0};
     r.g_textureBytesPerPixel = 0;
 
-    r.g_filter = VK_FILTER_LINEAR;
+    r.g_filter = VK_FILTER_NEAREST;
     r.g_normalizedCoordinates = false;
 
     r.g_modificationCount = 0;
@@ -263,7 +263,7 @@ void TextureImage::destroy()
         this->g_textureSize = {0,0};
         this->g_textureBytesPerPixel = 0;
 
-        this->g_filter = VK_FILTER_LINEAR;
+        this->g_filter = VK_FILTER_NEAREST;
 
         this->g_modificationCount = 0;
 
