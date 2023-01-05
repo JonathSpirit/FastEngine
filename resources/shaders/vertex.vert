@@ -1,7 +1,7 @@
 #version 450
 
 layout(location = 0) in vec2 inPosition;
-layout(location = 1) in vec4 inColor;
+layout(location = 1) in uvec4 inColor;
 layout(location = 2) in vec2 inTexCoord;
 
 layout(location = 0) out vec4 fragColor;
@@ -18,6 +18,7 @@ void main()
     position[1] *= -1.0;
 
     gl_Position = position;
-    fragColor = inColor;
+
+    fragColor = vec4(float(inColor[3])/255.0, float(inColor[2])/255.0, float(inColor[1])/255.0, float(inColor[0])/255.0);
     fragTexCoord = inTexCoord;
 }

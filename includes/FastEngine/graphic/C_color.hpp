@@ -92,12 +92,16 @@ public:
                 static_cast<float>(this->_b)/255.0f,
                 static_cast<float>(this->_a)/255.0f};
     }
+    operator uint32_t() const
+    {
+        return this->toInteger();
+    }
 
     [[nodiscard]] uint32_t toInteger() const
     {
-        return static_cast<uint32_t>(this->_r)<<24 |
-                static_cast<uint32_t>(this->_g)<<16 |
-                static_cast<uint32_t>(this->_b)<<8 |
+        return (static_cast<uint32_t>(this->_r)<<24) |
+                (static_cast<uint32_t>(this->_g)<<16) |
+               (static_cast<uint32_t>(this->_b)<<8) |
                 static_cast<uint32_t>(this->_a);
     }
 
