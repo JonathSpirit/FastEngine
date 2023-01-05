@@ -140,8 +140,8 @@ void Shape::update()
     const std::size_t count = getPointCount();
     if (count < 3)
     {
-        this->g_vertices.resize(0, 0);
-        this->g_outlineVertices.resize(0, 0);
+        this->g_vertices.clear();
+        this->g_outlineVertices.clear();
         return;
     }
 

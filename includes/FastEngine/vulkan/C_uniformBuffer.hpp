@@ -25,8 +25,7 @@
 namespace fge::vulkan
 {
 
-class LogicalDevice;
-class PhysicalDevice;
+class Context;
 
 class FGE_API UniformBuffer
 {
@@ -39,13 +38,15 @@ public:
     UniformBuffer& operator=(const UniformBuffer& r) = delete;
     UniformBuffer& operator=(UniformBuffer&& r) noexcept = delete;
 
-    void create(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, VkDeviceSize bufferSize);
+    void create(const Context& context, VkDeviceSize bufferSize);
     void destroy();
 
     [[nodiscard]] VkBuffer getBuffer() const;
     [[nodiscard]] VkDeviceMemory getBufferMemory() const;
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
+
+    [[nodiscard]] const Context* getContext() const;
 
     void copyData(const void* data, std::size_t size) const;
 
@@ -55,7 +56,7 @@ private:
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
 
-    const LogicalDevice* g_logicalDevice;
+    const Context* g_context;
 };
 
 }//end fge::vulkan
