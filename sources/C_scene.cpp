@@ -169,7 +169,7 @@ void Scene::update(fge::RenderWindow& screen, fge::Event& event, const std::chro
     }
 }
 #ifndef FGE_DEF_SERVER
-void Scene::draw(fge::RenderTarget& target, fge::RenderStates states) const
+void Scene::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 {
     this->_onDraw.call(this, target);
 

@@ -436,7 +436,7 @@ public:
      * \param states The default SFML RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
-    void draw(fge::RenderTarget& target, fge::RenderStates states = {}) const;
+    void draw(fge::RenderTarget& target, const fge::RenderStates& states = {}) const;
 #endif //FGE_DEF_SERVER
 
     /**
