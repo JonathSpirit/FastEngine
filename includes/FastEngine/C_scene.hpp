@@ -431,8 +431,6 @@ public:
      * \see ObjectData::getPlanDepth
      *
      * \param target A SFML RenderTarget
-     * \param clear_target Set to \b true to let the Scene clear the target
-     * \param clear_color If clear_target is set to \b true, this parameter is used to set the clear color
      * \param states The default SFML RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
