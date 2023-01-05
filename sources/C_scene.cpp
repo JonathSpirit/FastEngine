@@ -169,21 +169,13 @@ void Scene::update(fge::RenderWindow& screen, fge::Event& event, const std::chro
     }
 }
 #ifndef FGE_DEF_SERVER
-void Scene::draw(fge::RenderTarget& target,
-                 bool clear_target,
-                 const fge::Color& clear_color,
-                 fge::RenderStates states) const
+void Scene::draw(fge::RenderTarget& target, fge::RenderStates states) const
 {
-    ///TODO: _onRenderTargetClear doesnt work anymore
-    /*if (clear_target)
-    {
-        target.clear(clear_color);
-        this->_onRenderTargetClear.call(this, target, clear_color);
-    }*/
+    this->_onDraw.call(this, target);
 
     const fge::RectFloat screenBounds = fge::GetScreenRect(target);
 
-    fge::View backupView = target.getView();
+    const fge::View backupView = target.getView();
     if (this->g_customView)
     {
         target.setView(*this->g_customView);

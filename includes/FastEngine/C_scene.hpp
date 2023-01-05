@@ -436,10 +436,7 @@ public:
      * \param states The default SFML RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
-    void draw(fge::RenderTarget& target,
-              bool clear_target = true,
-              const fge::Color& clear_color = fge::Color::White,
-              fge::RenderStates states = {}) const;
+    void draw(fge::RenderTarget& target, fge::RenderStates states = {}) const;
 #endif //FGE_DEF_SERVER
 
     /**
@@ -1285,7 +1282,7 @@ public:
     fge::PropertyList _properties;
 
     // Event
-    mutable fge::CallbackHandler<const fge::Scene*, sf::RenderTarget&, const sf::Color&> _onRenderTargetClear;
+    mutable fge::CallbackHandler<const fge::Scene*, fge::RenderTarget&> _onDraw;
 
     mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onNewObject;
     mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onRemoveObject;
