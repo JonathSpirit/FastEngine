@@ -121,7 +121,7 @@ void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, co
     const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
 
     VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(),
-                                        states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : nullptr};
+                                        states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : VK_NULL_HANDLE};
 
     graphicPipeline.bindDescriptorSets(this->g_commandBuffer, descriptorSets, descriptorSize);
     graphicPipeline.recordCommandBuffer(this->g_commandBuffer, states._vertexBuffer);

@@ -71,9 +71,9 @@ void UniformBuffer::destroy()
     if (this->g_uniformBuffer != VK_NULL_HANDLE)
     {
         vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_uniformBufferMemory);
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::Garbage(this->g_uniformBuffer,
-                                                                                       this->g_uniformBufferMemory,
-                                                                                       this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_uniformBuffer,
+                                                                                             this->g_uniformBufferMemory,
+                                                                                             this->g_context->getLogicalDevice().getDevice()));
 
         this->g_uniformBuffer = VK_NULL_HANDLE;
         this->g_uniformBufferMemory = VK_NULL_HANDLE;
@@ -96,7 +96,7 @@ void* UniformBuffer::getBufferMapped() const
 {
     return this->g_uniformBufferMapped;
 }
-std::size_t UniformBuffer::getBufferSize() const
+VkDeviceSize UniformBuffer::getBufferSize() const
 {
     return this->g_bufferSize;
 }

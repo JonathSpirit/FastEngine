@@ -426,7 +426,7 @@ void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(GarbageCollector::Garbage(this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;

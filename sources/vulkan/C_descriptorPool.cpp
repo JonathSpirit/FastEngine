@@ -154,7 +154,7 @@ void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet, VkDescrip
                 return;
             }
 
-            this->g_context->_garbageCollector.push(GarbageCollector::Garbage(descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
+            this->g_context->_garbageCollector.push(GarbageCollector::GarbageDescriptorSet(descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
             --pool._count;
             return;
         }

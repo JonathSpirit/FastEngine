@@ -57,12 +57,15 @@ void ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if (resetRect || !this->g_texture.valid())
     {
+        this->g_texture = texture;
         this->setTextureRect(fge::RectInt({0, 0},
                                           {texture.getTextureSize().x, texture.getTextureSize().y}));
     }
+    else
+    {
+        this->g_texture = texture;
+    }
 
-    // Assign the new texture
-    this->g_texture = texture;
     this->setOrigin({static_cast<float>(this->g_textureRect._width) / 2.0f,
                     static_cast<float>(this->g_textureRect._height) / 2.0f});
 }

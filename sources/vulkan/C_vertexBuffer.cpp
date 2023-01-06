@@ -492,17 +492,17 @@ void VertexBuffer::cleanVertexBuffers() const
 {
     if (this->g_type != Types::UNINITIALIZED)
     {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::Garbage(this->g_vertexBuffer,
-                                                                                       this->g_vertexBufferMemory,
-                                                                                       this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_vertexBuffer,
+                                                                                             this->g_vertexBufferMemory,
+                                                                                             this->g_context->getLogicalDevice().getDevice()));
         this->g_vertexBuffer = VK_NULL_HANDLE;
         this->g_vertexBufferMemory = VK_NULL_HANDLE;
 
         if (this->g_type == Types::STAGING_BUFFER)
         {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::Garbage(this->g_vertexStagingBuffer,
-                                                                                           this->g_vertexStagingBufferMemory,
-                                                                                           this->g_context->getLogicalDevice().getDevice()));
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_vertexStagingBuffer,
+                                                                                                 this->g_vertexStagingBufferMemory,
+                                                                                                 this->g_context->getLogicalDevice().getDevice()));
 
             this->g_vertexStagingBuffer = VK_NULL_HANDLE;
             this->g_vertexStagingBufferMemory = VK_NULL_HANDLE;
@@ -515,18 +515,18 @@ void VertexBuffer::cleanIndexBuffers() const
 {
     if (this->g_type != Types::UNINITIALIZED && this->g_useIndexBuffer)
     {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::Garbage(this->g_indexBuffer,
-                                                                                       this->g_indexBufferMemory,
-                                                                                       this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_indexBuffer,
+                                                                                             this->g_indexBufferMemory,
+                                                                                             this->g_context->getLogicalDevice().getDevice()));
 
         this->g_indexBuffer = VK_NULL_HANDLE;
         this->g_indexBufferMemory = VK_NULL_HANDLE;
 
         if (this->g_type == Types::STAGING_BUFFER)
         {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::Garbage(this->g_indexStagingBuffer,
-                                                                                           this->g_indexStagingBufferMemory,
-                                                                                           this->g_context->getLogicalDevice().getDevice()));
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_indexStagingBuffer,
+                                                                                                 this->g_indexStagingBufferMemory,
+                                                                                                 this->g_context->getLogicalDevice().getDevice()));
 
             this->g_indexStagingBuffer = VK_NULL_HANDLE;
             this->g_indexStagingBufferMemory = VK_NULL_HANDLE;

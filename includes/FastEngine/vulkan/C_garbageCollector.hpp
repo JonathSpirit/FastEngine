@@ -29,6 +29,61 @@ namespace fge::vulkan
 class FGE_API GarbageCollector
 {
 public:
+    enum class Type
+    {
+        GARBAGE_EMPTY,
+        GARBAGE_DESCRIPTOR_SET,
+        GARBAGE_VERTEX_BUFFER,
+        GARBAGE_GRAPHIC_PIPELINE
+    };
+
+    struct GarbageType
+    {
+        Type _type;
+    };
+    struct GarbageDescriptorSet
+    {
+        GarbageDescriptorSet(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_DESCRIPTOR_SET),
+                _descriptorSet(descriptorSet),
+                _descriptorPool(descriptorPool),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkDescriptorSet _descriptorSet;
+        VkDescriptorPool _descriptorPool;
+        VkDevice _logicalDevice;
+    };
+    struct GarbageBuffer
+    {
+        GarbageBuffer(VkBuffer buffer, VkDeviceMemory bufferMemory, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_VERTEX_BUFFER),
+                _buffer(buffer),
+                _bufferMemory(bufferMemory),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkBuffer _buffer;
+        VkDeviceMemory _bufferMemory;
+        VkDevice _logicalDevice;
+    };
+    struct GarbageGraphicPipeline
+    {
+        GarbageGraphicPipeline(VkPipelineLayout pipelineLayout, VkPipeline pipeline, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_GRAPHIC_PIPELINE),
+                _pipelineLayout(pipelineLayout),
+                _pipeline(pipeline),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkPipelineLayout _pipelineLayout;
+        VkPipeline _pipeline;
+        VkDevice _logicalDevice;
+    };
+
     class Garbage final
     {
     private:
@@ -37,27 +92,15 @@ public:
         {}
 
     public:
-        Garbage(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool, VkDevice logicalDevice) :
-                g_data(Type::GARBAGE_DESCRIPTOR_SET)
-        {
-            this->g_data._descriptorSet._descriptorPool = descriptorPool;
-            this->g_data._descriptorSet._descriptorSet = descriptorSet;
-            this->g_data._descriptorSet._logicalDevice = logicalDevice;
-        }
-        Garbage(VkBuffer buffer, VkDeviceMemory bufferMemory, VkDevice logicalDevice) :
-                g_data(Type::GARBAGE_VERTEX_BUFFER)
-        {
-            this->g_data._buffer._buffer = buffer;
-            this->g_data._buffer._bufferMemory = bufferMemory;
-            this->g_data._buffer._logicalDevice = logicalDevice;
-        }
-        Garbage(VkPipelineLayout pipelineLayout, VkPipeline pipeline, VkDevice logicalDevice) :
-                g_data(Type::GARBAGE_GRAPHIC_PIPELINE)
-        {
-            this->g_data._graphicPipeline._pipelineLayout = pipelineLayout;
-            this->g_data._graphicPipeline._pipeline = pipeline;
-            this->g_data._graphicPipeline._logicalDevice = logicalDevice;
-        }
+        Garbage(const GarbageDescriptorSet& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageBuffer& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageGraphicPipeline& garbage) :
+                g_data(garbage)
+        {}
         Garbage(const Garbage& r) = delete;
         Garbage(Garbage&& r) noexcept :
                 g_data(r.g_data)
@@ -87,44 +130,12 @@ public:
         }
 
     private:
-        enum class Type
-        {
-            GARBAGE_EMPTY,
-            GARBAGE_DESCRIPTOR_SET,
-            GARBAGE_VERTEX_BUFFER,
-            GARBAGE_GRAPHIC_PIPELINE
-        };
-
-        struct GarbageType
-        {
-            Type _type;
-        };
-        struct GarbageDescriptorSet
-        {
-            Type _type;
-            VkDescriptorSet _descriptorSet;
-            VkDescriptorPool _descriptorPool;
-            VkDevice _logicalDevice;
-        };
-        struct GarbageBuffer
-        {
-            Type _type;
-            VkBuffer _buffer;
-            VkDeviceMemory _bufferMemory;
-            VkDevice _logicalDevice;
-        };
-        struct GarbageGraphicPipeline
-        {
-            Type _type;
-            VkPipelineLayout _pipelineLayout;
-            VkPipeline _pipeline;
-            VkDevice _logicalDevice;
-        };
-
         union Data
         {
-            Data(Type type) : _type{type}
-            {}
+            explicit Data(Type type) : _type{type} {}
+            explicit Data(const GarbageDescriptorSet& data) : _descriptorSet{data} {}
+            explicit Data(const GarbageBuffer& data) : _buffer{data} {}
+            explicit Data(const GarbageGraphicPipeline& data) : _graphicPipeline{data} {}
 
             GarbageType _type;
             GarbageDescriptorSet _descriptorSet;
