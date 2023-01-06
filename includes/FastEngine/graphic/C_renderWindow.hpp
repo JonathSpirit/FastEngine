@@ -57,11 +57,14 @@ public:
     void beginRenderPass(uint32_t imageIndex) override;
     void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) override;
     void endRenderPass() override;
-    void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) override;
+    void display(uint32_t imageIndex) override;
 
     Vector2u getSize() const override;
 
     bool isSrgb() const override;
+
+    void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
+    void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
 
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
@@ -99,6 +102,8 @@ private:
 
     VkCommandPool g_commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> g_commandBuffers;
+
+    mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
 
     std::vector<VkSemaphore> g_imageAvailableSemaphores;
     std::vector<VkSemaphore> g_renderFinishedSemaphores;

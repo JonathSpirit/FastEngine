@@ -66,6 +66,7 @@ void RenderTexture::destroy()
 
 uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo)
 {
+    vkQueueWaitIdle(this->g_context->getLogicalDevice().getPresentQueue()); ///TODO clearly not ideal
     vkResetCommandBuffer(this->g_commandBuffer, 0);
 
     VkCommandBufferBeginInfo beginInfo{};
@@ -129,9 +130,7 @@ void RenderTexture::endRenderPass()
 {
     vkCmdEndRenderPass(this->g_commandBuffer);
 }
-void RenderTexture::display([[maybe_unused]] uint32_t imageIndex,
-                            [[maybe_unused]] const VkCommandBuffer* extraCommandBuffer,
-                            [[maybe_unused]] std::size_t extraCommandBufferSize)
+void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
 {
     if (vkEndCommandBuffer(this->g_commandBuffer) != VK_SUCCESS)
     {
@@ -153,9 +152,23 @@ VkCommandBuffer RenderTexture::getCommandBuffer() const
 {
     return this->g_commandBuffer;
 }
+std::vector<VkCommandBuffer> RenderTexture::getCommandBuffers() const
+{
+    this->g_extraCommandBuffers.push_back(this->g_commandBuffer);
+    return std::move(this->g_extraCommandBuffers);
+}
 const fge::vulkan::TextureImage& RenderTexture::getTextureImage() const
 {
     return this->g_textureImage;
+}
+
+void RenderTexture::pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const
+{
+    this->g_extraCommandBuffers.push_back(commandBuffer);
+}
+void RenderTexture::pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const
+{
+    this->g_extraCommandBuffers.insert(this->g_extraCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
 }
 
 void RenderTexture::init(const fge::vulkan::Context& context, const glm::vec<2, int>& size)

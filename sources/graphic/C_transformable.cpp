@@ -104,13 +104,13 @@ const glm::mat4& Transformable::getTransform() const
     {
         this->g_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-this->g_origin, 0.0f));
 
+        this->g_transform = glm::translate(this->g_transform, glm::vec3(this->g_position, 0.0f));
+
         this->g_transform = glm::scale(this->g_transform, glm::vec3(this->g_scale, 1.0f));
 
         this->g_transform = glm::rotate(this->g_transform,
                                         glm::radians(this->g_rotation),
                                         glm::vec3(0.0f, 0.0f, 1.0f));
-
-        this->g_transform = glm::translate(this->g_transform, glm::vec3(this->g_position, 0.0f));
 
         this->g_transformNeedUpdate = false;
     }

@@ -25,7 +25,6 @@
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/graphic/C_renderTarget.hpp>
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <queue>
 #include <string>

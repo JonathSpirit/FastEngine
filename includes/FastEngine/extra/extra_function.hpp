@@ -20,7 +20,6 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include "FastEngine/graphic/C_rect.hpp"
-#include "SFML/Graphics.hpp"
 #include "json.hpp"
 #include <filesystem>
 

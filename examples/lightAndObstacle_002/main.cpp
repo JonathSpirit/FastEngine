@@ -188,7 +188,7 @@ public:
         event._onMouseButtonDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseButtonEvent&>(
                 [&](const fge::Event& event, const SDL_MouseButtonEvent& mouseEvent) {
             //If the left button is pressed
-            if (mouseEvent.button == sf::Mouse::Left)
+            if (mouseEvent.button == SDL_BUTTON_LEFT)
             {
                 //If the obstacle is followed
                 if (this->_properties["follow"] == "obstacle")
@@ -205,7 +205,7 @@ public:
                 }
             }
             //If the right button is pressed
-            if (mouseEvent.button == sf::Mouse::Right)
+            if (mouseEvent.button == SDL_BUTTON_RIGHT)
             {
                 //Change randomly the color of the light
                 light->getObject<fge::ObjLight>()->setColor(fge::_random.randColor());
@@ -288,7 +288,7 @@ public:
 
                 renderWindow.endRenderPass();
 
-                renderWindow.display(imageIndex, nullptr, 0);
+                renderWindow.display(imageIndex);
             }
         }
 

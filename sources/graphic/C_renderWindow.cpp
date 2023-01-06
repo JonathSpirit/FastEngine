@@ -181,7 +181,7 @@ void RenderWindow::endRenderPass()
         this->g_forceGraphicPipelineUpdate = false;
     }
 }
-void RenderWindow::display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize)
+void RenderWindow::display(uint32_t imageIndex)
 {
     if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
     {
@@ -197,15 +197,10 @@ void RenderWindow::display(uint32_t imageIndex, const VkCommandBuffer* extraComm
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
-    std::vector<VkCommandBuffer> commandBuffers(1 + extraCommandBufferSize);
-    for (std::size_t i=0; i<extraCommandBufferSize; ++i)
-    {
-        commandBuffers[i] = extraCommandBuffer[i];
-    }
-    commandBuffers.back() = this->g_commandBuffers[this->g_currentFrame];
+    this->g_extraCommandBuffers.push_back(this->g_commandBuffers[this->g_currentFrame]);
 
-    submitInfo.commandBufferCount = commandBuffers.size();
-    submitInfo.pCommandBuffers = commandBuffers.data();//&this->g_commandBuffer;
+    submitInfo.commandBufferCount = this->g_extraCommandBuffers.size();
+    submitInfo.pCommandBuffers = this->g_extraCommandBuffers.data();
 
     VkSemaphore signalSemaphores[] = {this->g_renderFinishedSemaphores[this->g_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
@@ -215,6 +210,8 @@ void RenderWindow::display(uint32_t imageIndex, const VkCommandBuffer* extraComm
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
+
+    this->g_extraCommandBuffers.clear();
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -252,6 +249,15 @@ Vector2u RenderWindow::getSize() const
 bool RenderWindow::isSrgb() const
 {
     return false; ///TODO
+}
+
+void RenderWindow::pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const
+{
+    this->g_extraCommandBuffers.push_back(commandBuffer);
+}
+void RenderWindow::pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const
+{
+    this->g_extraCommandBuffers.insert(this->g_extraCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
 }
 
 void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)

@@ -183,6 +183,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             fge::GetConvexHull(tmpHull, tmpHull);
 
             fge::vulkan::VertexBuffer polygon;
+            fge::Transformable polygonTransform;
             polygon.create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
             for (std::size_t a = 0; a < tmpHull.size(); ++a)
             {
@@ -190,7 +191,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                 polygon.getVertices()[a]._color = fge::Color(255, 255, 255, 255);
             }
 
-            auto polygonStates = fge::RenderStates(this, &polygon);
+            auto polygonStates = fge::RenderStates(&polygonTransform, &polygon);
             polygonStates._blendMode = noLightBlend;
             this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
         }

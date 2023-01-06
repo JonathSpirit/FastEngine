@@ -152,6 +152,11 @@ void RenderTarget::draw(const fge::RenderStates& states)
     }
 }
 
+void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer commandBuffer) const
+{}
+void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] const std::vector<VkCommandBuffer>& commandBuffers) const
+{}
+
 bool RenderTarget::isSrgb() const
 {
     return false;

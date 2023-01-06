@@ -57,14 +57,18 @@ public:
     void beginRenderPass(uint32_t imageIndex) override;
     void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) override;
     void endRenderPass() override;
-    void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) override;
+    void display(uint32_t imageIndex) override;
 
     Vector2u getSize() const override;
 
     bool isSrgb() const override;
 
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
+    [[nodiscard]] std::vector<VkCommandBuffer> getCommandBuffers() const;
     [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
+
+    void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
+    void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
 
 private:
     void init(const fge::vulkan::Context& context, const glm::vec<2, int>& size);
@@ -86,6 +90,8 @@ private:
 
     VkCommandPool g_commandPool = VK_NULL_HANDLE;
     VkCommandBuffer g_commandBuffer = VK_NULL_HANDLE;
+
+    mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
 
     bool g_forceGraphicPipelineUpdate = false;
     bool g_isCreated = false;

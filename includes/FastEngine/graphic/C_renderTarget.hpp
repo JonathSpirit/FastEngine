@@ -72,7 +72,10 @@ public:
     void draw(const fge::RenderStates& states);
     virtual void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states) = 0;
     virtual void endRenderPass() = 0;
-    virtual void display(uint32_t imageIndex, const VkCommandBuffer* extraCommandBuffer, std::size_t extraCommandBufferSize) = 0;
+    virtual void display(uint32_t imageIndex) = 0;
+
+    virtual void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const;
+    virtual void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const;
 
     virtual Vector2u getSize() const = 0;
 
