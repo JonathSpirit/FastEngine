@@ -269,4 +269,26 @@ SDL_Surface* Surface::get() const
     return this->g_surface;
 }
 
+fge::Vector2f Surface::normalizeTextureCoords(const fge::Vector2i& coords) const
+{
+    if (this->g_surface == nullptr)
+    {
+        return {0.0f,0.0f};
+    }
+    return {static_cast<float>(coords.x)/static_cast<float>(this->g_surface->w),
+            static_cast<float>(coords.y)/static_cast<float>(this->g_surface->h)};
+}
+fge::RectFloat Surface::normalizeTextureRect(const fge::RectInt& rect) const
+{
+    if (this->g_surface == nullptr)
+    {
+        return {{0.0f,0.0f}, {0.0f,0.0f}};
+    }
+
+    return {{static_cast<float>(rect._x)/static_cast<float>(this->g_surface->w),
+             static_cast<float>(rect._y)/static_cast<float>(this->g_surface->h)},
+            {static_cast<float>(rect._width)/static_cast<float>(this->g_surface->w),
+             static_cast<float>(rect._height)/static_cast<float>(this->g_surface->h)}};
+}
+
 }//end fge

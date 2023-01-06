@@ -20,18 +20,37 @@
 namespace fge
 {
 
-void ObjRenderMap::onClear([[maybe_unused]] const fge::Scene* scene,
-                           [[maybe_unused]] sf::RenderTarget& target,
-                           [[maybe_unused]] const sf::Color& color)
+ObjRenderMap::ObjRenderMap()
 {
-    this->_renderTexture.clear(this->g_colorClear);
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+}
+ObjRenderMap::ObjRenderMap(const fge::ObjRenderMap& r) :
+        fge::Object(r),
+        fge::Subscriber(r),
+        g_colorClear(r.g_colorClear)
+{
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+}
+ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
+        fge::Object(r),
+        fge::Subscriber(r),
+        g_colorClear(r.g_colorClear)
+{
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
-void ObjRenderMap::setClearColor(const sf::Color& color)
+void ObjRenderMap::onDraw([[maybe_unused]] const fge::Scene* scene,
+                          [[maybe_unused]] fge::RenderTarget& target)
+{
+    this->_renderTexture.setClearColor(this->g_colorClear);
+    this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));
+}
+
+void ObjRenderMap::setClearColor(const fge::Color& color)
 {
     this->g_colorClear = color;
 }
-const sf::Color& ObjRenderMap::getClearColor() const
+const fge::Color& ObjRenderMap::getClearColor() const
 {
     return this->g_colorClear;
 }
@@ -40,7 +59,7 @@ void ObjRenderMap::first(fge::Scene* scene)
 {
     if (scene != nullptr)
     {
-        scene->_onRenderTargetClear.add(new CallbackFunctorObject(&fge::ObjRenderMap::onClear, this), this);
+        scene->_onDraw.add(new CallbackFunctorObject(&fge::ObjRenderMap::onDraw, this), this);
     }
 }
 
@@ -52,15 +71,15 @@ FGE_OBJ_UPDATE_BODY(ObjRenderMap)
     if (screen.getSize() != this->g_windowSize)
     {
         this->g_windowSize = screen.getSize();
-        this->_renderTexture.create(this->g_windowSize.x, this->g_windowSize.y);
+        this->_renderTexture.create(*fge::vulkan::GlobalContext, {this->g_windowSize.x, this->g_windowSize.y});
 
         this->updatePositions();
         this->updateTexCoords();
 
         this->g_windowView = screen.getDefaultView();
-        this->g_windowView.setSize(static_cast<sf::Vector2f>(this->g_windowSize));
-        this->g_windowView.setCenter(static_cast<float>(this->g_windowSize.x) / 2.0f,
-                                     static_cast<float>(this->g_windowSize.y) / 2.0f);
+        this->g_windowView.setSize(static_cast<fge::Vector2f>(this->g_windowSize));
+        this->g_windowView.setCenter({static_cast<float>(this->g_windowSize.x) / 2.0f,
+                                      static_cast<float>(this->g_windowSize.y) / 2.0f});
     }
 }
 #endif
@@ -69,12 +88,15 @@ FGE_OBJ_UPDATE_BODY(ObjRenderMap)
 FGE_OBJ_DRAW_BODY(ObjRenderMap)
 {
     this->_renderTexture.setView(target.getView());
-    this->_renderTexture.display();
+    this->_renderTexture.endRenderPass();
+    this->_renderTexture.display(BAD_IMAGE_INDEX, nullptr, 0);
 
     target.setView(this->g_windowView);
 
-    states.texture = &this->_renderTexture.getTexture();
-    target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
+    auto copyStates = states.copy(this);
+    copyStates._textureImage = &this->_renderTexture.getTextureImage();
+    copyStates._vertexBuffer = &this->g_vertexBuffer;
+    target.draw(copyStates);
 
     target.setView(this->_renderTexture.getView());
 }
@@ -99,36 +121,34 @@ const char* ObjRenderMap::getReadableClassName() const
     return "render map";
 }
 
-sf::FloatRect ObjRenderMap::getGlobalBounds() const
+fge::RectFloat ObjRenderMap::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjRenderMap::getLocalBounds() const
+fge::RectFloat ObjRenderMap::getLocalBounds() const
 {
-    float width = static_cast<float>(this->g_windowSize.x);
-    float height = static_cast<float>(this->g_windowSize.y);
+    auto width = static_cast<float>(this->g_windowSize.x);
+    auto height = static_cast<float>(this->g_windowSize.y);
 
-    return {0.f, 0.f, width, height};
+    return {{0.f, 0.f}, {width, height}};
 }
 
 void ObjRenderMap::updatePositions()
 {
-    sf::FloatRect bounds = this->getLocalBounds();
+    const fge::RectFloat bounds = this->getLocalBounds();
 
-    this->g_vertices[0].position = sf::Vector2f(0, 0);
-    this->g_vertices[1].position = sf::Vector2f(0, bounds.height);
-    this->g_vertices[2].position = sf::Vector2f(bounds.width, 0);
-    this->g_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
+    this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(0.0f, 0.0f);
+    this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(0.0f, bounds._height);
+    this->g_vertexBuffer.getVertices()[2]._position = fge::Vector2f(bounds._width, 0.0f);
+    this->g_vertexBuffer.getVertices()[3]._position = fge::Vector2f(bounds._width, bounds._height);
 }
 
 void ObjRenderMap::updateTexCoords()
 {
-    sf::FloatRect bounds = this->getLocalBounds();
-
-    this->g_vertices[0].texCoords = sf::Vector2f(0, 0);
-    this->g_vertices[1].texCoords = sf::Vector2f(0, bounds.height);
-    this->g_vertices[2].texCoords = sf::Vector2f(bounds.width, 0);
-    this->g_vertices[3].texCoords = sf::Vector2f(bounds.width, bounds.height);
+    this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(0.0f, 0.0f);
+    this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(0.0f, 1.0f);
+    this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(1.0f, 0.0f);
+    this->g_vertexBuffer.getVertices()[3]._texCoords = fge::Vector2f(1.0f, 1.0f);
 }
 
 } // namespace fge

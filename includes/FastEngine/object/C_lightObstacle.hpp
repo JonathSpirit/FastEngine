@@ -26,7 +26,7 @@ namespace fge
 
 class ObjLight;
 
-using ListOfPoints = std::vector<sf::Vector2f>;
+using ListOfPoints = std::vector<fge::Vector2f>;
 
 /**
  * \class LightObstacle

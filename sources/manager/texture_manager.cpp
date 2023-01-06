@@ -149,7 +149,7 @@ bool LoadFromSurface(std::string_view name, const fge::Surface& surface)
     }
 
 #ifdef FGE_DEF_SERVER
-    auto tmpTexture = std::make_shared<fge::TextureType>(image);
+    auto tmpTexture = std::make_shared<fge::TextureType>(surface);
 #else
     auto tmpTexture = std::make_shared<fge::TextureType>();
 
@@ -190,10 +190,14 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
 
     auto tmpTexture = std::make_shared<fge::TextureType>();
 
+#ifdef FGE_DEF_SERVER
+    *tmpTexture = std::move(tmpSurface);
+#else
     if (!tmpTexture->create(*vulkan::GlobalContext, tmpSurface.get()))
     {
         return false;
     }
+#endif //FGE_DEF_SERVER
 
     fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
     buff->_texture = std::move(tmpTexture);

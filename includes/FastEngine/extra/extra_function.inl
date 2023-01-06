@@ -110,7 +110,7 @@ T ReachValue(T value, T target, T speed, float deltaTime)
 
 ///2D Math
 template<typename T>
-sf::Vector2f NormalizeVector2(const sf::Vector2<T>& vec)
+fge::Vector2f NormalizeVector2(const fge::Vector2<T>& vec)
 {
     return vec / std::sqrt(vec.x * vec.x + vec.y * vec.y);
 }

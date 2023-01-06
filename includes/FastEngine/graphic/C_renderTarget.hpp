@@ -34,6 +34,7 @@
 #include <FastEngine/graphic/C_color.hpp>
 #include <FastEngine/vulkan/C_graphicPipeline.hpp>
 #include <FastEngine/vulkan/C_vertex.hpp>
+#include <unordered_map>
 
 #define BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
 
@@ -77,9 +78,6 @@ public:
 
     virtual bool isSrgb() const;
 
-    [[nodiscard]] const fge::vulkan::GraphicPipeline& getDefaultGraphicPipelineNoTexture() const;
-    [[nodiscard]] const fge::vulkan::GraphicPipeline& getDefaultGraphicPipelineTexture() const;
-
 private:
     View g_defaultView;
     View g_view;
@@ -87,8 +85,8 @@ private:
 protected:
     VkClearColorValue _g_clearColor;
 
-    fge::vulkan::GraphicPipeline _g_defaultGraphicPipelineNoTexture;
-    fge::vulkan::GraphicPipeline _g_defaultGraphicPipelineTexture;
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTexture;
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTexture;
 };
 
 }//end fge

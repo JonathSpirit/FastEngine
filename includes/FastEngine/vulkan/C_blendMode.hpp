@@ -19,6 +19,8 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
+#include <cstdint>
+#include <functional>
 
 namespace fge::vulkan
 {
@@ -72,6 +74,19 @@ FGE_API extern const BlendMode BlendMultiply; //!< Multiply source and dest
 FGE_API extern const BlendMode BlendMin;      //!< Take minimum between source and dest
 FGE_API extern const BlendMode BlendMax;      //!< Take maximum between source and dest
 FGE_API extern const BlendMode BlendNone;     //!< Overwrite dest with source
+
+struct BlendModeHash
+{
+    std::size_t operator()(const BlendMode& k) const
+    {
+        return std::hash<uint32_t>()((static_cast<uint32_t>(k._srcColorBlendFactor)<<25) |
+                                     (static_cast<uint32_t>(k._dstColorBlendFactor)<<20) |
+                                     (static_cast<uint32_t>(k._colorBlendOp)<<15) |
+                                     (static_cast<uint32_t>(k._srcAlphaBlendFactor)<<10) |
+                                     (static_cast<uint32_t>(k._dstAlphaBlendFactor)<<5) |
+                                     (static_cast<uint32_t>(k._alphaBlendOp)));
+    }
+};
 
 }//end fge::vulkan
 

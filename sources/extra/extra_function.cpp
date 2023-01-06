@@ -229,10 +229,10 @@ bool IsPressed(const fge::Event& evt,
 #endif //FGE_DEF_SERVER
 
 ///Reach
-sf::Vector2f ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime)
+fge::Vector2f ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime)
 {
     float travelDistance = speed * deltaTime;
-    sf::Vector2 direction = fge::NormalizeVector2(target - position);
+    fge::Vector2f direction = fge::NormalizeVector2(target - position);
     float actualDistance = fge::GetDistanceBetween(position, target);
 
     if (travelDistance >= actualDistance)
@@ -333,47 +333,47 @@ float ConvertDegToRad(float deg)
     return deg * static_cast<float>(FGE_MATH_PI) / 180.0f;
 }
 
-float GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2)
+float GetDeterminant(const fge::Vector2f& vecCol1, const fge::Vector2f& vecCol2)
 {
     return vecCol1.x * vecCol2.y - vecCol1.y * vecCol2.x;
 }
-float GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
+float GetDotProduct(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
 {
     return vec1.x * vec2.x + vec1.y * vec2.y;
 }
-float GetMagnitude(const sf::Vector2f& vec)
+float GetMagnitude(const fge::Vector2f& vec)
 {
     return std::sqrt(vec.x * vec.x + vec.y * vec.y);
 }
-float GetRotation(const sf::Vector2f& vec)
+float GetRotation(const fge::Vector2f& vec)
 {
     return fge::ConvertRadToDeg(std::atan2(vec.y, vec.x));
 }
-float GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
+float GetRotationBetween(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
 {
     return fge::ConvertRadToDeg(std::atan2(fge::GetDeterminant(vec1, vec2), fge::GetDotProduct(vec1, vec2)));
 }
-float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2)
+float GetDistanceBetween(const fge::Vector2f& pos1, const fge::Vector2f& pos2)
 {
     return fge::GetMagnitude(pos2 - pos1);
 }
 
-sf::Vector2f GetForwardVector(float rotation)
+fge::Vector2f GetForwardVector(float rotation)
 {
     rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
     return {std::cos(rotation), std::sin(rotation)};
 }
-sf::Vector2f GetBackwardVector(float rotation)
+fge::Vector2f GetBackwardVector(float rotation)
 {
     rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return -sf::Vector2f(std::cos(rotation), std::sin(rotation));
+    return -fge::Vector2f(std::cos(rotation), std::sin(rotation));
 }
-sf::Vector2f GetLeftVector(float rotation)
+fge::Vector2f GetLeftVector(float rotation)
 {
     rotation = (rotation - 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
     return {std::cos(rotation), std::sin(rotation)};
 }
-sf::Vector2f GetRightVector(float rotation)
+fge::Vector2f GetRightVector(float rotation)
 {
     rotation = (rotation + 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
     return {std::cos(rotation), std::sin(rotation)};

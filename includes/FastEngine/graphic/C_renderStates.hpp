@@ -54,16 +54,21 @@ public:
             _textureImage(textureImage),
             _vertexBuffer(vertexBuffer)
     {}
-    RenderStates(const glm::mat4& modelTransform, const fge::Transformable* transformable, const fge::vulkan::VertexBuffer* vertexBuffer, const fge::vulkan::TextureImage* textureImage=nullptr) :
+    RenderStates(const glm::mat4& modelTransform,
+                 const fge::Transformable* transformable,
+                 const fge::vulkan::VertexBuffer* vertexBuffer,
+                 const fge::vulkan::TextureImage* textureImage=nullptr,
+                 const fge::vulkan::BlendMode& blendMode={}) :
             _modelTransform(modelTransform),
             _transformable(transformable),
             _textureImage(textureImage),
-            _vertexBuffer(vertexBuffer)
+            _vertexBuffer(vertexBuffer),
+            _blendMode(blendMode)
     {}
 
     [[nodiscard]] RenderStates copy(const fge::Transformable* transformable, const fge::vulkan::TextureImage* textureImage=nullptr) const
     {
-        return RenderStates{this->_modelTransform, transformable, nullptr, textureImage};
+        return RenderStates{this->_modelTransform, transformable, nullptr, textureImage, this->_blendMode};
     }
 
     RenderStates& operator=(const RenderStates& r) = delete;
@@ -73,6 +78,7 @@ public:
     const fge::Transformable* _transformable{nullptr};
     const fge::vulkan::TextureImage* _textureImage{nullptr};
     const fge::vulkan::VertexBuffer* _vertexBuffer{nullptr};
+    fge::vulkan::BlendMode _blendMode{};
 };
 
 }//end fge

@@ -23,6 +23,7 @@
 namespace fge
 {
 
+#ifndef FGE_DEF_SERVER
 Event::Event(SDL_Window* window)
 {
     SDL_GetWindowSize(window, &this->g_windowSize.x, &this->g_windowSize.y);
@@ -31,6 +32,7 @@ Event::Event(SDL_Window* window)
 Event::Event(const fge::RenderWindow& renderWindow) :
         Event(renderWindow.getContext()->getInstance().getWindow())
 {}
+#endif //FGE_DEF_SERVER
 
 void Event::clear()
 {

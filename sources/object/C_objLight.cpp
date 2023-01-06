@@ -26,15 +26,16 @@ namespace fge
 
 ObjLight::ObjLight()
 {
-    this->g_blendMode = sf::BlendAlpha;
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_blendMode = fge::vulkan::BlendAlpha;
 }
-ObjLight::ObjLight(const fge::Texture& texture, const sf::Vector2f& position) :
+ObjLight::ObjLight(const fge::Texture& texture, const fge::Vector2f& position) :
         fge::ObjLight()
 {
     this->setTexture(texture);
     this->setPosition(position);
 }
-ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position) :
+ObjLight::ObjLight(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position) :
         fge::ObjLight()
 {
     this->setTexture(texture);
@@ -42,11 +43,11 @@ ObjLight::ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, co
     this->setPosition(position);
 }
 
-void ObjLight::setBlendMode(const sf::BlendMode& blendMode)
+void ObjLight::setBlendMode(const fge::vulkan::BlendMode& blendMode)
 {
     this->g_blendMode = blendMode;
 }
-const sf::BlendMode& ObjLight::getBlendMode() const
+const fge::vulkan::BlendMode& ObjLight::getBlendMode() const
 {
     return this->g_blendMode;
 }
@@ -56,15 +57,16 @@ void ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if (resetRect || !this->g_texture.valid())
     {
-        this->setTextureRect(sf::IntRect(0, 0, texture.getTextureSize().x, texture.getTextureSize().y));
+        this->setTextureRect(fge::RectInt({0, 0},
+                                          {texture.getTextureSize().x, texture.getTextureSize().y}));
     }
 
     // Assign the new texture
     this->g_texture = texture;
-    this->setOrigin(static_cast<float>(this->g_textureRect.width) / 2.0f,
-                    static_cast<float>(this->g_textureRect.height) / 2.0f);
+    this->setOrigin({static_cast<float>(this->g_textureRect._width) / 2.0f,
+                    static_cast<float>(this->g_textureRect._height) / 2.0f});
 }
-void ObjLight::setTextureRect(const sf::IntRect& rectangle)
+void ObjLight::setTextureRect(const fge::RectInt& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -83,26 +85,26 @@ const fge::ObjectDataShared& ObjLight::getRenderObject() const
     return this->g_renderObject;
 }
 
-void ObjLight::setColor(const sf::Color& color)
+void ObjLight::setColor(const fge::Color& color)
 {
-    this->g_vertices[0].color = color;
-    this->g_vertices[1].color = color;
-    this->g_vertices[2].color = color;
-    this->g_vertices[3].color = color;
+    this->g_vertexBuffer.getVertices()[0]._color = color;
+    this->g_vertexBuffer.getVertices()[1]._color = color;
+    this->g_vertexBuffer.getVertices()[2]._color = color;
+    this->g_vertexBuffer.getVertices()[3]._color = color;
 }
 
 const fge::Texture& ObjLight::getTexture() const
 {
     return this->g_texture;
 }
-const sf::IntRect& ObjLight::getTextureRect() const
+const fge::RectInt& ObjLight::getTextureRect() const
 {
     return this->g_textureRect;
 }
 
-const sf::Color& ObjLight::getColor() const
+fge::Color ObjLight::getColor() const
 {
-    return this->g_vertices[0].color;
+    return fge::Color(this->g_vertexBuffer.getVertices()[0]._color);
 }
 
 void ObjLight::first(fge::Scene* scene)
@@ -127,27 +129,30 @@ FGE_OBJ_UPDATE_BODY(ObjLight)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjLight)
 {
-    this->g_renderMap._renderTexture.clear(sf::Color(0, 0, 0, 0));
+    this->g_renderMap._renderTexture.setClearColor(fge::Color(0,0,0,0));
+    this->g_renderMap._renderTexture.beginRenderPass(this->g_renderMap._renderTexture.prepareNextFrame(nullptr));
 
-    states.transform *= this->getTransform();
-    states.texture = static_cast<const sf::Texture*>(this->g_texture);
-    states.blendMode =
-            sf::BlendMode{sf::BlendMode::Factor::One, sf::BlendMode::Factor::Zero, sf::BlendMode::Equation::Add,
+    auto copyStates = states.copy(this);
+    copyStates._modelTransform *= this->getTransform();
+    copyStates._textureImage = static_cast<const fge::TextureType*>(this->g_texture);
+    copyStates._blendMode =
+            fge::vulkan::BlendMode{VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD,
+                                   VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD};
 
-                          sf::BlendMode::Factor::One, sf::BlendMode::Factor::Zero, sf::BlendMode::Equation::Add};
+    copyStates._vertexBuffer = &this->g_vertexBuffer;
 
-    this->g_renderMap._renderTexture.draw(this->g_vertices, 4, sf::TriangleStrip, states);
+    this->g_renderMap._renderTexture.RenderTarget::draw(copyStates);
 
     if (this->_g_lightSystemGate.isOpen())
     {
         fge::LightSystem* lightSystem = this->_g_lightSystemGate.getTunnel();
 
-        sf::BlendMode noLightBlend =
-                sf::BlendMode(sf::BlendMode::Factor::One, sf::BlendMode::Factor::One, sf::BlendMode::Equation::Add,
-                              sf::BlendMode::Factor::Zero, sf::BlendMode::Factor::Zero, sf::BlendMode::Equation::Add);
+        const fge::vulkan::BlendMode noLightBlend =
+                fge::vulkan::BlendMode(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_ADD,
+                                       VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD);
 
-        sf::FloatRect bounds = this->getGlobalBounds();
-        float range = (bounds.width > bounds.height) ? bounds.width : bounds.height;
+        const fge::RectFloat bounds = this->getGlobalBounds();
+        const float range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
 
         for (std::size_t i = 0; i < lightSystem->getGatesSize(); ++i)
         {
@@ -155,7 +160,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 
             std::size_t passCount = 0;
 
-            static std::vector<sf::Vector2f> tmpHull;
+            static std::vector<fge::Vector2f> tmpHull;
             tmpHull.resize(obstacle->_g_myPoints.size() * 2);
             for (std::size_t a = 0; a < obstacle->_g_myPoints.size(); ++a)
             {
@@ -166,9 +171,9 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                     distance = std::abs(distance) + range;
                 }
 
-                sf::Vector2f direction = fge::NormalizeVector2(obstacle->_g_myPoints[a] - this->getPosition());
-                tmpHull[a] = sf::Vector2f(obstacle->_g_myPoints[a].x + direction.x * distance,
-                                          obstacle->_g_myPoints[a].y + direction.y * distance);
+                fge::Vector2f direction = fge::NormalizeVector2(obstacle->_g_myPoints[a] - this->getPosition());
+                tmpHull[a] = fge::Vector2f(obstacle->_g_myPoints[a].x + direction.x * distance,
+                                           obstacle->_g_myPoints[a].y + direction.y * distance);
                 tmpHull[a + obstacle->_g_myPoints.size()] = obstacle->_g_myPoints[a];
             }
             if (passCount >= obstacle->_g_myPoints.size())
@@ -177,18 +182,21 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             }
             fge::GetConvexHull(tmpHull, tmpHull);
 
-            sf::VertexArray polygon(sf::PrimitiveType::TriangleFan, tmpHull.size());
+            fge::vulkan::VertexBuffer polygon;
+            polygon.create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
             for (std::size_t a = 0; a < tmpHull.size(); ++a)
             {
-                polygon[a].position = tmpHull[a];
-                polygon[a].color = sf::Color(255, 255, 255, 255);
+                polygon.getVertices()[a]._position = tmpHull[a];
+                polygon.getVertices()[a]._color = fge::Color(255, 255, 255, 255);
             }
 
-            this->g_renderMap._renderTexture.draw(polygon, sf::RenderStates(noLightBlend));
+            auto polygonStates = fge::RenderStates(this, &polygon);
+            polygonStates._blendMode = noLightBlend;
+            this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
         }
     }
 
-    sf::RenderTarget* theTarget;
+    fge::RenderTarget* theTarget;
     if (this->g_renderObject)
     {
         theTarget = &reinterpret_cast<fge::ObjRenderMap*>(this->g_renderObject->getObject())->_renderTexture;
@@ -198,7 +206,9 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         theTarget = &target;
     }
 
-    theTarget->draw(this->g_renderMap, sf::RenderStates(this->g_blendMode));
+    auto targetStates = fge::RenderStates(this);
+    targetStates._blendMode = this->g_blendMode;
+    theTarget->draw(this->g_renderMap, targetStates);
 }
 #endif
 
@@ -206,14 +216,14 @@ void ObjLight::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::save(jsonObject, scene);
 
-    jsonObject["color"] = this->g_vertices[0].color.toInteger();
+    jsonObject["color"] = this->g_vertexBuffer.getVertices()[0]._color;
     jsonObject["texture"] = this->g_texture;
 }
 void ObjLight::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->setColor(sf::Color(jsonObject.value<uint32_t>("color", 0)));
+    this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
 }
 
@@ -221,13 +231,13 @@ void ObjLight::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
-    pck << this->g_vertices[0].color << this->g_texture;
+    pck << this->g_vertexBuffer.getVertices()[0]._color << this->g_texture;
 }
 void ObjLight::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
-    sf::Color color;
+    fge::Color color;
     pck >> color >> this->g_texture;
     this->setColor(color);
 }
@@ -241,39 +251,36 @@ const char* ObjLight::getReadableClassName() const
     return "light";
 }
 
-sf::FloatRect ObjLight::getGlobalBounds() const
+fge::RectFloat ObjLight::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjLight::getLocalBounds() const
+fge::RectFloat ObjLight::getLocalBounds() const
 {
-    float width = static_cast<float>(std::abs(this->g_textureRect.width));
-    float height = static_cast<float>(std::abs(this->g_textureRect.height));
+    auto width = static_cast<float>(std::abs(this->g_textureRect._width));
+    auto height = static_cast<float>(std::abs(this->g_textureRect._height));
 
-    return {0.f, 0.f, width, height};
+    return {{0.f, 0.f}, {width, height}};
 }
 
 void ObjLight::updatePositions()
 {
-    sf::FloatRect bounds = this->getLocalBounds();
+    const fge::RectFloat bounds = this->getLocalBounds();
 
-    this->g_vertices[0].position = sf::Vector2f(0, 0);
-    this->g_vertices[1].position = sf::Vector2f(0, bounds.height);
-    this->g_vertices[2].position = sf::Vector2f(bounds.width, 0);
-    this->g_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
+    this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(0, 0);
+    this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(0, bounds._height);
+    this->g_vertexBuffer.getVertices()[2]._position = fge::Vector2f(bounds._width, 0);
+    this->g_vertexBuffer.getVertices()[3]._position = fge::Vector2f(bounds._width, bounds._height);
 }
 
 void ObjLight::updateTexCoords()
 {
-    float left = static_cast<float>(this->g_textureRect.left);
-    float right = left + static_cast<float>(this->g_textureRect.width);
-    float top = static_cast<float>(this->g_textureRect.top);
-    float bottom = top + static_cast<float>(this->g_textureRect.height);
+    auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
 
-    this->g_vertices[0].texCoords = sf::Vector2f(left, top);
-    this->g_vertices[1].texCoords = sf::Vector2f(left, bottom);
-    this->g_vertices[2].texCoords = sf::Vector2f(right, top);
-    this->g_vertices[3].texCoords = sf::Vector2f(right, bottom);
+    this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
+    this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._height);
+    this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._width, rect._y);
+    this->g_vertexBuffer.getVertices()[3]._texCoords = fge::Vector2f(rect._width, rect._height);
 }
 
 } // namespace fge

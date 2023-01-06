@@ -40,7 +40,7 @@ using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
  * This class is compatible with the "Tiled" map editor.
  */
 #ifdef FGE_DEF_SERVER
-class FGE_API TileLayer : public sf::Transformable
+class FGE_API TileLayer : public fge::Transformable
 #else
 class FGE_API TileLayer : public fge::Transformable, public fge::Drawable
 #endif

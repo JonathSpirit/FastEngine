@@ -37,11 +37,16 @@ using Vector3i = Vector3<int32_t>;
 using Vector3u = Vector3<uint32_t>;
 using Vector3f = Vector3<float>;
 
+}//end fge
+
+namespace glm
+{
+
 inline glm::vec2 operator*(const glm::mat4& left, const glm::vec2& right)
 {
-    return left * glm::vec4(right, 0.0f, 0.0f);
+    return left * glm::vec4(right, 0.0f, 1.0f);
 }
 
-}//end fge
+}//end glm
 
 #endif //_FGE_GRAPHIC_C_VECTOR_HPP_INCLUDED

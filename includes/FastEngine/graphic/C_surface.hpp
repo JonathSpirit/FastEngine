@@ -24,6 +24,8 @@
 #include <cstdint>
 #include <optional>
 #include <FastEngine/graphic/C_color.hpp>
+#include <FastEngine/graphic/C_rect.hpp>
+#include <FastEngine/graphic/C_vector.hpp>
 
 namespace fge
 {
@@ -66,6 +68,9 @@ public:
 
     void set(SDL_Surface* surface);
     [[nodiscard]] SDL_Surface* get() const;
+
+    [[nodiscard]] fge::Vector2f normalizeTextureCoords(const fge::Vector2i& coords) const;
+    [[nodiscard]] fge::RectFloat normalizeTextureRect(const fge::RectInt& rect) const;
 
 private:
     SDL_Surface* g_surface;

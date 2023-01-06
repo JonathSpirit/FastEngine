@@ -146,10 +146,17 @@ else()
 endif()
 
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
+set(SFML_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
+set(SFML_BUILD_WINDOW OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/SFML" EXCLUDE_FROM_ALL)
 
+set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
+set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
-set(SDL2IMAGE_INSTALL OFF CACHE BOOL "" FORCE)
+
+set(SDL2IMAGE_INSTALL OFF CACHE BOOL "" FORCE) #SDL_image
+set(SDL2_DIR "libs/SDL" CACHE PATH "" FORCE)
+set(SDL2_MAIN_LIBRARY $<TARGET_LINKER_FILE:SDL2> CACHE FILEPATH "" FORCE)
 add_subdirectory(libs/SDL_image EXCLUDE_FROM_ALL)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -185,25 +192,38 @@ message(${Vulkan_GLSLC_EXECUTABLE})
 
 set(VOLK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/volk)
 
-if (WIN32)
+if(WIN32)
     add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
+elseif(APPLE)
+    add_compile_definitions(VK_USE_PLATFORM_MACOS_MVK)
+else()
+    add_compile_definitions(VK_USE_PLATFORM_XLIB_KHR)
 endif()
 
 if(WIN32)
     add_dependencies(sfml-audio OpenAL_extern)
-    add_dependencies(sfml-graphics freetype_extern)
+    #add_dependencies(sfml-graphics freetype_extern) TODO remove that
     add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
     add_dependencies(${FGE_LIB_NAME} freetype_extern)
 endif()
 
+add_dependencies(SDL2_image SDL2)
+
 add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image) #SDL
-target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH}) #Volk
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL/include)
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL_image)
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
-include_directories(${Vulkan_INCLUDE_DIRS})
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL/include)
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL_image)
 
-add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-graphics sfml-system sfml-window) #SFML
+target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH}) #Volk
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC ${VOLK_PATH})
+
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/glm)
+
+include_directories(${Vulkan_INCLUDE_DIRS}) #Vulkan
+
+add_dependencies(${FGE_LIB_NAME} sfml-audio sfml-system) #SFML
 add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/SFML/include")
@@ -324,33 +344,33 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp
 if(NOT WIN32)
     set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
-set(FGE_SFML_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/SFML)
+set(FGE_SFML_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/SFML) #TODO remove that
 
-target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS SFML_WINDOW_EXPORTS)
+target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS SFML_WINDOW_EXPORTS) #TODO remove all that
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE includes/private/server)
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/extlibs/headers/stb_image)
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/src)
 
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/RenderTarget.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/RenderTarget.cpp") #TODO remove all that
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/GlResource.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/Texture.cpp")
 
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Color.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ImageLoader.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Image.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Vertex.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/VertexArray.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Transform.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Transformable.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/BlendMode.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Shape.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/RectangleShape.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/CircleShape.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ConvexShape.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/View.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/RenderStates.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Font.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Text.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Color.cpp") #TODO remove all that
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ImageLoader.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Image.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Vertex.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/VertexArray.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Transform.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Transformable.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/BlendMode.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Shape.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/RectangleShape.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/CircleShape.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ConvexShape.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/View.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/RenderStates.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Font.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Text.cpp")
 
 #######################
 
@@ -402,8 +422,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp") TODO
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp") TODO
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp") TODO
@@ -465,13 +485,13 @@ if(WIN32)
 endif()
 
 target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image)
-
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_LIB_NAME} fmt)
 target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY} sfml-audio sfml-system)
 target_link_libraries(${FGE_LIB_NAME} re2)
 
+target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
 target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
@@ -519,7 +539,7 @@ if (WIN32)
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 
-    foreach (DEPENDENCY sfml-audio sfml-graphics sfml-system sfml-window SDL2 SDL2_image)
+    foreach (DEPENDENCY sfml-audio sfml-system SDL2 SDL2_image)
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>

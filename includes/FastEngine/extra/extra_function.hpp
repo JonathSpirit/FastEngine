@@ -83,8 +83,8 @@ inline sf::Color&& SetGreen(sf::Color&& color, uint8_t green);
 inline sf::Color&& SetBlue(sf::Color&& color, uint8_t blue);
 
 ///Reach
-FGE_API sf::Vector2f
-ReachVector(const sf::Vector2f& position, const sf::Vector2f& target, float speed, float deltaTime);
+FGE_API fge::Vector2f
+ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime);
 FGE_API float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
 
 template<typename T>
@@ -94,23 +94,23 @@ T ReachValue(T value, T target, T speed, float deltaTime);
 FGE_API float ConvertRadToDeg(float rad);
 FGE_API float ConvertDegToRad(float deg);
 
-FGE_API float GetDeterminant(const sf::Vector2f& vecCol1, const sf::Vector2f& vecCol2);
-FGE_API float GetDotProduct(const sf::Vector2f& vec1, const sf::Vector2f& vec2);
-FGE_API float GetMagnitude(const sf::Vector2f& vec);
-FGE_API float GetRotation(const sf::Vector2f& vec);
-FGE_API float GetRotationBetween(const sf::Vector2f& vec1, const sf::Vector2f& vec2);
-FGE_API float GetDistanceBetween(const sf::Vector2f& pos1, const sf::Vector2f& pos2);
+FGE_API float GetDeterminant(const fge::Vector2f& vecCol1, const fge::Vector2f& vecCol2);
+FGE_API float GetDotProduct(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
+FGE_API float GetMagnitude(const fge::Vector2f& vec);
+FGE_API float GetRotation(const fge::Vector2f& vec);
+FGE_API float GetRotationBetween(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
+FGE_API float GetDistanceBetween(const fge::Vector2f& pos1, const fge::Vector2f& pos2);
 
 template<typename T>
-sf::Vector2f NormalizeVector2(const sf::Vector2<T>& vec);
+fge::Vector2f NormalizeVector2(const fge::Vector2<T>& vec);
 
 template<typename TIterator>
-TIterator GetNearestVector(const sf::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd);
+TIterator GetNearestVector(const fge::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd);
 
-FGE_API sf::Vector2f GetForwardVector(float rotation);
-FGE_API sf::Vector2f GetBackwardVector(float rotation);
-FGE_API sf::Vector2f GetLeftVector(float rotation);
-FGE_API sf::Vector2f GetRightVector(float rotation);
+FGE_API fge::Vector2f GetForwardVector(float rotation);
+FGE_API fge::Vector2f GetBackwardVector(float rotation);
+FGE_API fge::Vector2f GetLeftVector(float rotation);
+FGE_API fge::Vector2f GetRightVector(float rotation);
 
 /*
 Implementation of Andrew's monotone chain 2D convex hull algorithm.

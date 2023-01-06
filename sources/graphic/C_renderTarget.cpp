@@ -35,11 +35,6 @@ void RenderTarget::initialize()
                                static_cast<float>(this->getSize().x),
                                static_cast<float>(this->getSize().y)});
     this->g_view = this->g_defaultView;
-
-    this->_g_defaultGraphicPipelineTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
-    this->_g_defaultGraphicPipelineNoTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
-    this->_g_defaultGraphicPipelineTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-    this->_g_defaultGraphicPipelineNoTexture.setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
 }
 
 void RenderTarget::setClearColor(const fge::Color& color)
@@ -119,26 +114,47 @@ void RenderTarget::draw(const fge::RenderStates& states)
 {
     if (states._textureImage == nullptr)
     {
-        this->draw(this->_g_defaultGraphicPipelineNoTexture, states);
+        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
+
+        auto it = this->_g_defaultGraphicPipelineNoTexture.find(states._blendMode);
+        if (it == this->_g_defaultGraphicPipelineNoTexture.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineNoTexture[states._blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(states._blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+
+        this->draw(*graphicPipeline, states);
     }
     else
     {
-        this->draw(this->_g_defaultGraphicPipelineTexture, states);
+        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
+
+        auto it = this->_g_defaultGraphicPipelineTexture.find(states._blendMode);
+        if (it == this->_g_defaultGraphicPipelineTexture.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineTexture[states._blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(states._blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+
+        this->draw(*graphicPipeline, states);
     }
 }
 
 bool RenderTarget::isSrgb() const
 {
     return false;
-}
-
-const fge::vulkan::GraphicPipeline& RenderTarget::getDefaultGraphicPipelineNoTexture() const
-{
-    return this->_g_defaultGraphicPipelineNoTexture;
-}
-const fge::vulkan::GraphicPipeline& RenderTarget::getDefaultGraphicPipelineTexture() const
-{
-    return this->_g_defaultGraphicPipelineTexture;
 }
 
 }//end fge

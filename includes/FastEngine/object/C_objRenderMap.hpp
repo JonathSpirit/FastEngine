@@ -21,6 +21,7 @@
 #include "C_lightObstacle.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_tunnel.hpp"
+#include "FastEngine/graphic/C_renderTexture.hpp"
 
 #define FGE_OBJLIGHTMAP_CLASSNAME "FGE:OBJ:RENDERMAP"
 
@@ -30,22 +31,16 @@ namespace fge
 class FGE_API ObjRenderMap : public fge::Object, public fge::Subscriber
 {
 public:
-    ObjRenderMap() = default;
-    ObjRenderMap(const fge::ObjRenderMap& r) :
-            fge::Object(r),
-            fge::Subscriber(r),
-            g_colorClear(r.g_colorClear){};
-    ObjRenderMap(fge::ObjRenderMap& r) :
-            fge::Object(r),
-            fge::Subscriber(r),
-            g_colorClear(r.g_colorClear){};
+    ObjRenderMap();
+    ObjRenderMap(const fge::ObjRenderMap& r);
+    ObjRenderMap(fge::ObjRenderMap& r);
 
     fge::Object* copy() override { return new fge::ObjRenderMap(); }
 
-    void onClear(const fge::Scene* scene, sf::RenderTarget& target, const sf::Color& color);
+    void onDraw(const fge::Scene* scene, fge::RenderTarget& target);
 
-    void setClearColor(const sf::Color& color);
-    const sf::Color& getClearColor() const;
+    void setClearColor(const fge::Color& color);
+    const fge::Color& getClearColor() const;
 
     void first(fge::Scene* scene) override;
     FGE_OBJ_UPDATE_DECLARE
@@ -60,20 +55,20 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
-    mutable sf::RenderTexture _renderTexture;
+    mutable fge::RenderTexture _renderTexture;
 
 private:
     void updatePositions();
     void updateTexCoords();
 
-    sf::Color g_colorClear{sf::Color::White};
+    fge::Color g_colorClear{fge::Color::White};
 
-    sf::Vertex g_vertices[4];
-    sf::View g_windowView;
-    sf::Vector2u g_windowSize;
+    fge::vulkan::VertexBuffer g_vertexBuffer;
+    fge::View g_windowView;
+    fge::Vector2u g_windowSize;
 };
 
 } // namespace fge

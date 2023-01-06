@@ -34,26 +34,26 @@ class FGE_API ObjLight : public fge::Object, public fge::LightComponent
 {
 public:
     ObjLight();
-    explicit ObjLight(const fge::Texture& texture, const sf::Vector2f& position = sf::Vector2f());
-    ObjLight(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position = sf::Vector2f());
+    explicit ObjLight(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
+    ObjLight(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjLight)
 
-    void setBlendMode(const sf::BlendMode& blendMode);
-    const sf::BlendMode& getBlendMode() const;
+    void setBlendMode(const fge::vulkan::BlendMode& blendMode);
+    const fge::vulkan::BlendMode& getBlendMode() const;
 
     void setTexture(const fge::Texture& texture, bool resetRect = false);
-    void setTextureRect(const sf::IntRect& rectangle);
+    void setTextureRect(const fge::RectInt& rectangle);
 
     void setRenderObject(const fge::ObjectDataShared& obj);
     const fge::ObjectDataShared& getRenderObject() const;
 
-    void setColor(const sf::Color& color);
+    void setColor(const fge::Color& color);
 
     const fge::Texture& getTexture() const;
-    const sf::IntRect& getTextureRect() const;
+    const fge::RectInt& getTextureRect() const;
 
-    const sf::Color& getColor() const;
+    fge::Color getColor() const;
 
     void first(fge::Scene* scene) override;
     FGE_OBJ_UPDATE_DECLARE
@@ -67,23 +67,23 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
     void updatePositions();
     void updateTexCoords();
 
-    sf::Vertex g_vertices[4];
+    fge::vulkan::VertexBuffer g_vertexBuffer;
     fge::Texture g_texture;
-    sf::IntRect g_textureRect;
+    fge::RectInt g_textureRect;
 
     fge::ObjectDataShared g_renderObject;
 
 #ifndef FGE_DEF_SERVER
     fge::ObjRenderMap g_renderMap;
 #endif //FGE_DEF_SERVER
-    sf::BlendMode g_blendMode;
+    fge::vulkan::BlendMode g_blendMode;
 };
 
 } // namespace fge

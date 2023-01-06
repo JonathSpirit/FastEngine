@@ -39,6 +39,7 @@ RenderTexture::~RenderTexture()
 
 void RenderTexture::create(const fge::vulkan::Context& context, const glm::vec<2, int>& size)
 {
+    this->destroy();
     this->init(context, size);
     this->initialize();
 }
@@ -46,6 +47,9 @@ void RenderTexture::destroy()
 {
     if (this->g_isCreated)
     {
+        this->_g_defaultGraphicPipelineNoTexture.clear();
+        this->_g_defaultGraphicPipelineTexture.clear();
+
         VkDevice logicalDevice = this->g_context->getLogicalDevice().getDevice();
 
         vkDestroyCommandPool(logicalDevice, this->g_commandPool, nullptr);

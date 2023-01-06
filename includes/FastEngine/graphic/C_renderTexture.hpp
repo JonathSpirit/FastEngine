@@ -53,7 +53,7 @@ public:
     void create(const fge::vulkan::Context& context, const glm::vec<2, int>& size);
     void destroy();
 
-    [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
+    uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
     void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) override;
     void endRenderPass() override;

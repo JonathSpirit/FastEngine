@@ -24,6 +24,7 @@
 #include "C_vertexBuffer.hpp"
 #include "C_blendMode.hpp"
 #include "vulkanGlobal.hpp"
+#include "volk.h"
 
 namespace fge::vulkan
 {

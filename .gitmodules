@@ -55,4 +55,4 @@
     path = libs/volk
     url = https://github.com/zeux/volk.git
     ignore = dirty
-    branch = 1.3.215
+    branch = master
