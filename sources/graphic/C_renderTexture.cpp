@@ -65,15 +65,15 @@ void RenderTexture::destroy()
 
 uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo)
 {
-    vkQueueWaitIdle(this->_g_context->getLogicalDevice().getPresentQueue()); ///TODO clearly not ideal
-    vkResetCommandBuffer(this->g_commandBuffer, 0);
+    //vkQueueWaitIdle(this->_g_context->getLogicalDevice().getPresentQueue()); ///TODO clearly not ideal
+    vkResetCommandBuffer(this->g_commandBuffers[this->g_currentFrame], 0);
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
     beginInfo.pInheritanceInfo = inheritanceInfo;
 
-    if (vkBeginCommandBuffer(this->g_commandBuffer, &beginInfo) != VK_SUCCESS)
+    if (vkBeginCommandBuffer(this->g_commandBuffers[this->g_currentFrame], &beginInfo) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to begin recording command buffer!");
     }
@@ -94,26 +94,28 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
-    vkCmdBeginRenderPass(this->g_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(this->g_commandBuffers[this->g_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states)
 {
     this->drawPipeline(this->g_textureImage.getExtent(),
-                       this->g_commandBuffer,
+                       this->g_commandBuffers[this->g_currentFrame],
                        this->g_renderPass,
                        graphicPipeline,
                        states);
 }
 void RenderTexture::endRenderPass()
 {
-    vkCmdEndRenderPass(this->g_commandBuffer);
+    vkCmdEndRenderPass(this->g_commandBuffers[this->g_currentFrame]);
 }
 void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
 {
-    if (vkEndCommandBuffer(this->g_commandBuffer) != VK_SUCCESS)
+    if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to record command buffer!");
     }
+
+    this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
 }
 
 Vector2u RenderTexture::getSize() const
@@ -128,16 +130,21 @@ bool RenderTexture::isSrgb() const
 
 VkCommandBuffer RenderTexture::getCommandBuffer() const
 {
-    return this->g_commandBuffer;
+    return this->g_commandBuffers[this->g_currentFrame];
 }
 std::vector<VkCommandBuffer> RenderTexture::getCommandBuffers() const
 {
-    this->g_extraCommandBuffers.push_back(this->g_commandBuffer);
+    this->g_extraCommandBuffers.push_back(this->g_commandBuffers[this->g_currentFrame]);
     return std::move(this->g_extraCommandBuffers);
 }
 const fge::vulkan::TextureImage& RenderTexture::getTextureImage() const
 {
     return this->g_textureImage;
+}
+
+uint32_t RenderTexture::getCurrentFrame() const
+{
+    return this->g_currentFrame;
 }
 
 void RenderTexture::pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const
@@ -241,13 +248,15 @@ void RenderTexture::createFramebuffer()
 
 void RenderTexture::createCommandBuffer()
 {
+    this->g_commandBuffers.resize(FGE_MAX_FRAMES_IN_FLIGHT);
+
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = this->g_commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
+    allocInfo.commandBufferCount = FGE_MAX_FRAMES_IN_FLIGHT;
 
-    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo, &this->g_commandBuffer) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo, this->g_commandBuffers.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate command buffers!");
     }
