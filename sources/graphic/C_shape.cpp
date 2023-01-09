@@ -180,7 +180,7 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
     // Render the inside
     if (this->g_texture.valid())
     {
-        copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
+        copyStates._textureImage = static_cast<const fge::TextureType *>(this->g_texture);
     }
 
     copyStates._vertexBuffer = &this->g_vertices;

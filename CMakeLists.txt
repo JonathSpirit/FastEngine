@@ -277,6 +277,41 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "${PROJECT_BINARY_DIR}"
 #Source files
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_INCLUDES})
 
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.c)
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.h)
+
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
+        sources/vulkan/vulkanGlobal.cpp
+        sources/vulkan/C_instance.cpp
+        sources/vulkan/C_physicalDevice.cpp
+        sources/vulkan/C_logicalDevice.cpp
+        sources/vulkan/C_uniformBuffer.cpp
+        sources/vulkan/C_vertexBuffer.cpp
+        sources/vulkan/C_textureImage.cpp
+        sources/vulkan/C_swapChain.cpp
+        sources/vulkan/C_surface.cpp
+        sources/vulkan/C_shader.cpp
+        sources/vulkan/C_descriptorPool.cpp
+        sources/vulkan/C_descriptorSet.cpp
+        sources/vulkan/C_descriptorSetLayout.cpp
+        sources/vulkan/C_garbageCollector.cpp
+        sources/vulkan/C_context.cpp
+        sources/vulkan/C_graphicPipeline.cpp
+        sources/vulkan/C_blendMode.cpp
+        sources/vulkan/C_viewport.cpp)
+
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
+        sources/graphic/C_surface.cpp
+        sources/graphic/C_view.cpp
+        sources/graphic/C_transformable.cpp
+        sources/graphic/C_shape.cpp
+        sources/graphic/C_rectangleShape.cpp
+        sources/graphic/C_circleShape.cpp
+        #sources/graphic/C_renderWindow.cpp TODO maybe
+        #sources/graphic/C_renderTexture.cpp
+        #sources/graphic/C_renderTarget.cpp
+        sources/graphic/C_ftFont.cpp)
+
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_animation.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_event.cpp")
@@ -284,21 +319,21 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp") TODO
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp") TODO
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp") TODO
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp") TODO
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp") TODO
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp") TODO
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp") TODO
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp") TODO
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp") TODO
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -346,14 +381,14 @@ if(NOT WIN32)
 endif()
 set(FGE_SFML_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/SFML) #TODO remove that
 
-target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS SFML_WINDOW_EXPORTS) #TODO remove all that
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE includes/private/server)
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/extlibs/headers/stb_image)
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/src)
+#target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS SFML_WINDOW_EXPORTS) #TODO remove all that
+#target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE includes/private/server)
+#target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/extlibs/headers/stb_image)
+#target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/src)
 
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/RenderTarget.cpp") #TODO remove all that
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/GlResource.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/Texture.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/RenderTarget.cpp") #TODO remove all that
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/GlResource.cpp")
+#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/Texture.cpp")
 
 #target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Color.cpp") #TODO remove all that
 #target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ImageLoader.cpp")

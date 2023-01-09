@@ -24,7 +24,8 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
+#include "FastEngine/textureType.hpp"
 
 namespace fge
 {
@@ -45,11 +46,11 @@ public:
     RenderStates() = default;
     RenderStates(const RenderStates& r) = delete;
     RenderStates(RenderStates&& r) noexcept = default;
-    explicit RenderStates(const fge::Transformable* transformable, const fge::vulkan::TextureImage* textureImage=nullptr) :
+    explicit RenderStates(const fge::Transformable* transformable, const fge::TextureType* textureImage=nullptr) :
             _transformable(transformable),
             _textureImage(textureImage)
     {}
-    RenderStates(const fge::Transformable* transformable, const fge::vulkan::VertexBuffer* vertexBuffer, const fge::vulkan::TextureImage* textureImage=nullptr) :
+    RenderStates(const fge::Transformable* transformable, const fge::vulkan::VertexBuffer* vertexBuffer, const fge::TextureType* textureImage=nullptr) :
             _transformable(transformable),
             _textureImage(textureImage),
             _vertexBuffer(vertexBuffer)
@@ -57,7 +58,7 @@ public:
     RenderStates(const glm::mat4& modelTransform,
                  const fge::Transformable* transformable,
                  const fge::vulkan::VertexBuffer* vertexBuffer,
-                 const fge::vulkan::TextureImage* textureImage=nullptr,
+                 const fge::TextureType* textureImage=nullptr,
                  const fge::vulkan::BlendMode& blendMode={}) :
             _modelTransform(modelTransform),
             _transformable(transformable),
@@ -66,7 +67,7 @@ public:
             _blendMode(blendMode)
     {}
 
-    [[nodiscard]] RenderStates copy(const fge::Transformable* transformable, const fge::vulkan::TextureImage* textureImage=nullptr) const
+    [[nodiscard]] RenderStates copy(const fge::Transformable* transformable, const fge::TextureType* textureImage=nullptr) const
     {
         return RenderStates{this->_modelTransform, transformable, nullptr, textureImage, this->_blendMode};
     }
@@ -76,7 +77,7 @@ public:
 
     glm::mat4 _modelTransform{1.0f};
     const fge::Transformable* _transformable{nullptr};
-    const fge::vulkan::TextureImage* _textureImage{nullptr};
+    const fge::TextureType* _textureImage{nullptr};
     const fge::vulkan::VertexBuffer* _vertexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};
 };
