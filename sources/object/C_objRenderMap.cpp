@@ -71,7 +71,7 @@ FGE_OBJ_UPDATE_BODY(ObjRenderMap)
     if (screen.getSize() != this->g_windowSize)
     {
         this->g_windowSize = screen.getSize();
-        this->_renderTexture.create(*fge::vulkan::GlobalContext, {this->g_windowSize.x, this->g_windowSize.y});
+        this->_renderTexture.resize({this->g_windowSize.x, this->g_windowSize.y});
 
         this->updatePositions();
         this->updateTexCoords();

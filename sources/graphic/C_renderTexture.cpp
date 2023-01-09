@@ -24,11 +24,10 @@
 namespace fge
 {
 
-RenderTexture::RenderTexture() = default;
-
-RenderTexture::RenderTexture(const fge::vulkan::Context& context, const glm::vec<2, int>& size)
+RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Context& context) :
+        RenderTarget(context)
 {
-    this->init(context, size);
+    this->init(size);
     this->initialize();
 }
 
@@ -37,10 +36,10 @@ RenderTexture::~RenderTexture()
     this->destroy();
 }
 
-void RenderTexture::create(const fge::vulkan::Context& context, const glm::vec<2, int>& size)
+void RenderTexture::resize(const glm::vec<2, int>& size)
 {
     this->destroy();
-    this->init(context, size);
+    this->init(size);
     this->initialize();
 }
 void RenderTexture::destroy()
@@ -50,7 +49,7 @@ void RenderTexture::destroy()
         this->_g_defaultGraphicPipelineNoTexture.clear();
         this->_g_defaultGraphicPipelineTexture.clear();
 
-        VkDevice logicalDevice = this->g_context->getLogicalDevice().getDevice();
+        VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 
         vkDestroyCommandPool(logicalDevice, this->g_commandPool, nullptr);
 
@@ -66,7 +65,7 @@ void RenderTexture::destroy()
 
 uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo)
 {
-    vkQueueWaitIdle(this->g_context->getLogicalDevice().getPresentQueue()); ///TODO clearly not ideal
+    vkQueueWaitIdle(this->_g_context->getLogicalDevice().getPresentQueue()); ///TODO clearly not ideal
     vkResetCommandBuffer(this->g_commandBuffer, 0);
 
     VkCommandBufferBeginInfo beginInfo{};
@@ -99,32 +98,11 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 }
 void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states)
 {
-    states._transformable->updateUniformBuffer(states._modelTransform, this->getView().getTransform(), *this->g_context);
-
-    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
-    auto factorViewport = this->getView().getFactorViewport();
-
-    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
-                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
-
-    graphicPipeline.setViewport(viewport);
-    graphicPipeline.setScissor({{0, 0}, this->g_textureImage.getExtent()});
-
-    VkDescriptorSetLayout layout[] = {this->g_context->getTransformLayout().getLayout(),
-                                      this->g_context->getTextureLayout().getLayout()};
-
-    graphicPipeline.updateIfNeeded(*this->g_context,
-                                   layout, 2,
-                                   this->g_renderPass,
-                                   this->g_forceGraphicPipelineUpdate);
-
-    const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
-
-    VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(),
-                                        states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : VK_NULL_HANDLE};
-
-    graphicPipeline.bindDescriptorSets(this->g_commandBuffer, descriptorSets, descriptorSize);
-    graphicPipeline.recordCommandBuffer(this->g_commandBuffer, states._vertexBuffer);
+    this->drawPipeline(this->g_textureImage.getExtent(),
+                       this->g_commandBuffer,
+                       this->g_renderPass,
+                       graphicPipeline,
+                       states);
 }
 void RenderTexture::endRenderPass()
 {
@@ -171,7 +149,7 @@ void RenderTexture::pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& c
     this->g_extraCommandBuffers.insert(this->g_extraCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
 }
 
-void RenderTexture::init(const fge::vulkan::Context& context, const glm::vec<2, int>& size)
+void RenderTexture::init(const glm::vec<2, int>& size)
 {
     if (this->g_isCreated)
     {
@@ -179,9 +157,7 @@ void RenderTexture::init(const fge::vulkan::Context& context, const glm::vec<2, 
     }
     this->g_isCreated = true;
 
-    this->g_context = &context;
-
-    this->g_textureImage.create(context, size);
+    this->g_textureImage.create(*this->_g_context, size);
 
     this->createRenderPass();
 
@@ -194,7 +170,7 @@ void RenderTexture::init(const fge::vulkan::Context& context, const glm::vec<2, 
 void RenderTexture::createRenderPass()
 {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = VK_FORMAT_R8G8B8A8_SRGB;
+    colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -236,7 +212,7 @@ void RenderTexture::createRenderPass()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(this->g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr, &this->g_renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr, &this->g_renderPass) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create render pass!");
     }
@@ -257,7 +233,7 @@ void RenderTexture::createFramebuffer()
     framebufferInfo.height = this->g_textureImage.getSize().y;
     framebufferInfo.layers = 1;
 
-    if (vkCreateFramebuffer(this->g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr, &this->g_framebuffer) != VK_SUCCESS)
+    if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr, &this->g_framebuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create framebuffer!");
     }
@@ -271,21 +247,21 @@ void RenderTexture::createCommandBuffer()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = 1;
 
-    if (vkAllocateCommandBuffers(this->g_context->getLogicalDevice().getDevice(), &allocInfo, &this->g_commandBuffer) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo, &this->g_commandBuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
 void RenderTexture::createCommandPool()
 {
-    auto queueFamilyIndices = this->g_context->getPhysicalDevice().findQueueFamilies(this->g_context->getSurface().getSurface());
+    auto queueFamilyIndices = this->_g_context->getPhysicalDevice().findQueueFamilies(this->_g_context->getSurface().getSurface());
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices._graphicsFamily.value();
 
-    if (vkCreateCommandPool(this->g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr, &this->g_commandPool) != VK_SUCCESS)
+    if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr, &this->g_commandPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create command pool!");
     }

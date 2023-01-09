@@ -46,11 +46,9 @@ class Context;
 class FGE_API RenderWindow : public fge::RenderTarget
 {
 public:
-    RenderWindow();
     explicit RenderWindow(const fge::vulkan::Context& context);
     ~RenderWindow() override;
 
-    void create(const fge::vulkan::Context& context);
     void destroy();
 
     [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
@@ -74,12 +72,10 @@ public:
 
     [[nodiscard]] uint32_t getCurrentFrame() const;
 
-    [[nodiscard]] const fge::vulkan::Context* getContext() const;
-
     void onResize();
 
 private:
-    void init(const fge::vulkan::Context& context);
+    void init();
 
     void recreateSwapChain();
 
@@ -91,8 +87,6 @@ private:
     void createCommandPool();
 
     void createSyncObjects();
-
-    const fge::vulkan::Context* g_context = nullptr;
 
     fge::vulkan::SwapChain g_swapChain;
 
@@ -114,7 +108,6 @@ private:
     VkPresentModeKHR g_presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
     bool g_framebufferResized = false;
-    bool g_forceGraphicPipelineUpdate = false;
     bool g_isCreated = false;
 };
 

@@ -304,7 +304,7 @@ public:
 
                 renderWindow.endRenderPass();
 
-                renderWindow.display(imageIndex, nullptr, 0);
+                renderWindow.display(imageIndex);
             }
         }
 

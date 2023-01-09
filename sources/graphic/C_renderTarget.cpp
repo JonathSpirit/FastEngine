@@ -16,6 +16,7 @@
 
 #include <FastEngine/graphic/C_renderTarget.hpp>
 #include <FastEngine/graphic/C_drawable.hpp>
+#include <FastEngine/graphic/C_transformable.hpp>
 #include <FastEngine/vulkan/C_textureImage.hpp>
 #include <FastEngine/vulkan/C_context.hpp>
 #include <FastEngine/manager/shader_manager.hpp>
@@ -23,10 +24,12 @@
 namespace fge
 {
 
-RenderTarget::RenderTarget() :
-    g_defaultView(),
-    g_view(),
-    _g_clearColor()
+RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
+        g_defaultView(),
+        g_view(),
+        _g_clearColor(fge::Color::White),
+        _g_context(&context),
+        _g_forceGraphicPipelineUpdate(false)
 {}
 
 void RenderTarget::initialize()
@@ -157,9 +160,44 @@ void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer comma
 void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] const std::vector<VkCommandBuffer>& commandBuffers) const
 {}
 
+const fge::vulkan::Context* RenderTarget::getContext() const
+{
+    return this->_g_context;
+}
+
 bool RenderTarget::isSrgb() const
 {
     return false;
+}
+
+void RenderTarget::drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer commandBuffer, VkRenderPass renderPass, const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states)
+{
+    states._transformable->updateUniformBuffer(states._modelTransform, this->getView().getTransform(), *this->_g_context);
+
+    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
+    auto factorViewport = this->getView().getFactorViewport();
+
+    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
+                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
+
+    graphicPipeline.setViewport(viewport);
+    graphicPipeline.setScissor({{0, 0}, extent2D});
+
+    VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
+                                      this->_g_context->getTextureLayout().getLayout()};
+
+    graphicPipeline.updateIfNeeded(*this->_g_context,
+                                   layout, 2,
+                                   renderPass,
+                                   this->_g_forceGraphicPipelineUpdate);
+
+    const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
+
+    VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(),
+                                        states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : VK_NULL_HANDLE};
+
+    graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSets, descriptorSize);
+    graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer);
 }
 
 }//end fge

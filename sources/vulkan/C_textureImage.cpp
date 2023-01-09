@@ -19,6 +19,8 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <stdexcept>
 
+#define FGE_VULKAN_TEXTUREIMAGE_FORMAT VK_FORMAT_R8G8B8A8_UNORM
+
 namespace fge::vulkan
 {
 
@@ -155,20 +157,20 @@ bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
 
     CreateImage(context.getLogicalDevice(), context.getPhysicalDevice(),
                 size.x, size.y,
-                VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 this->g_textureImage, this->g_textureImageMemory);
 
-    context.transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     context.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
 
-    context.transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(context.getLogicalDevice().getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
 
-    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT);
 
     this->createTextureSampler(context.getPhysicalDevice());
 
@@ -216,22 +218,22 @@ bool TextureImage::create(const Context& context, SDL_Surface* surface)
 
     CreateImage(context.getLogicalDevice(), context.getPhysicalDevice(),
                 surface->w, surface->h,
-                VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 this->g_textureImage, this->g_textureImageMemory);
 
-    context.transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     context.copyBufferToImage(stagingBuffer, this->g_textureImage,
                               static_cast<uint32_t>(surface->w),
                               static_cast<uint32_t>(surface->h));
 
-    context.transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(context.getLogicalDevice().getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
 
-    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT);
 
     this->createTextureSampler(context.getPhysicalDevice());
 
@@ -297,7 +299,7 @@ SDL_Surface* TextureImage::copyToSurface() const
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  dstBuffer, dstBufferMemory);
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
     this->g_context->copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
 
@@ -309,7 +311,7 @@ SDL_Surface* TextureImage::copyToSurface() const
     vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory, nullptr);
     vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), dstBuffer, nullptr);
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     return surface;
 }
@@ -328,7 +330,7 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
 
     ++this->g_modificationCount;
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     const VkDeviceSize imageSize = static_cast<VkDeviceSize>(surface->w)
                                    * surface->h
@@ -352,7 +354,7 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
                                        surface->w, surface->h,
                                        offset.x, offset.y);
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
@@ -371,15 +373,15 @@ void TextureImage::update(const TextureImage& textureImage, const glm::vec<2, in
 
     ++this->g_modificationCount;
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    this->g_context->transitionImageLayout(textureImage.g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    this->g_context->transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
     this->g_context->copyImageToImage(textureImage.g_textureImage, this->g_textureImage,
                                       textureImage.g_textureSize.x, textureImage.g_textureSize.y,
                                        offset.x, offset.y);
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    this->g_context->transitionImageLayout(textureImage.g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    this->g_context->transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2, int>& size, const glm::vec<2, int>& offset)
 {
@@ -395,7 +397,7 @@ void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2
 
     ++this->g_modificationCount;
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     const VkDeviceSize imageSize = bufferSize;
 
@@ -417,7 +419,7 @@ void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2
                                        size.x, size.y,
                                        offset.x, offset.y);
 
-    this->g_context->transitionImageLayout(this->g_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);

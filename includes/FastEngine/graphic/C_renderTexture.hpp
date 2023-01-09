@@ -46,11 +46,10 @@ class Context;
 class FGE_API RenderTexture : public RenderTarget
 {
 public:
-    RenderTexture();
-    explicit RenderTexture(const fge::vulkan::Context& context, const glm::vec<2, int>& size);
+    explicit RenderTexture(const glm::vec<2, int>& size={1,1}, const fge::vulkan::Context& context=*fge::vulkan::GlobalContext);
     ~RenderTexture() override;
 
-    void create(const fge::vulkan::Context& context, const glm::vec<2, int>& size);
+    void resize(const glm::vec<2, int>& size);
     void destroy();
 
     uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
@@ -71,7 +70,7 @@ public:
     void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
 
 private:
-    void init(const fge::vulkan::Context& context, const glm::vec<2, int>& size);
+    void init(const glm::vec<2, int>& size);
 
     void createRenderPass();
 
@@ -79,8 +78,6 @@ private:
 
     void createCommandBuffer();
     void createCommandPool();
-
-    const fge::vulkan::Context* g_context = nullptr;
 
     fge::vulkan::TextureImage g_textureImage;
 
@@ -93,7 +90,6 @@ private:
 
     mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
 
-    bool g_forceGraphicPipelineUpdate = false;
     bool g_isCreated = false;
 };
 

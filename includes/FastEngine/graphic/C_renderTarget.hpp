@@ -46,7 +46,7 @@ class Drawable;
 class FGE_API RenderTarget
 {
 protected:
-    RenderTarget();
+    explicit RenderTarget(const fge::vulkan::Context& context);
 
     void initialize();
 
@@ -57,16 +57,16 @@ public:
     [[nodiscard]] fge::Color getClearColor() const;
 
     void setView(const View& view);
-    const View& getView() const;
-    const View& getDefaultView() const;
-    fge::vulkan::Viewport getViewport(const View& view) const;
+    [[nodiscard]] const View& getView() const;
+    [[nodiscard]] const View& getDefaultView() const;
+    [[nodiscard]] fge::vulkan::Viewport getViewport(const View& view) const;
 
-    Vector2f mapPixelToCoords(const Vector2i& point) const;
-    Vector2f mapPixelToCoords(const Vector2i& point, const View& view) const;
-    Vector2i mapCoordsToPixel(const Vector2f& point) const;
-    Vector2i mapCoordsToPixel(const Vector2f& point, const View& view) const;
+    [[nodiscard]] Vector2f mapPixelToCoords(const Vector2i& point) const;
+    [[nodiscard]] Vector2f mapPixelToCoords(const Vector2i& point, const View& view) const;
+    [[nodiscard]] Vector2i mapCoordsToPixel(const Vector2f& point) const;
+    [[nodiscard]] Vector2i mapCoordsToPixel(const Vector2f& point, const View& view) const;
 
-    [[nodiscard]] virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
+    virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(const fge::Drawable& drawable, const fge::RenderStates& states);
     void draw(const fge::RenderStates& states);
@@ -79,6 +79,8 @@ public:
 
     virtual Vector2u getSize() const = 0;
 
+    [[nodiscard]] const fge::vulkan::Context* getContext() const;
+
     virtual bool isSrgb() const;
 
 private:
@@ -86,7 +88,13 @@ private:
     View g_view;
 
 protected:
+    void drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer commandBuffer, VkRenderPass renderPass, const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states);
+
     VkClearColorValue _g_clearColor;
+
+    const fge::vulkan::Context* _g_context;
+
+    bool _g_forceGraphicPipelineUpdate;
 
     std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTexture;
     std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTexture;
