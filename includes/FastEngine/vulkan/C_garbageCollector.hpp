@@ -34,7 +34,12 @@ public:
         GARBAGE_EMPTY,
         GARBAGE_DESCRIPTOR_SET,
         GARBAGE_VERTEX_BUFFER,
-        GARBAGE_GRAPHIC_PIPELINE
+        GARBAGE_GRAPHIC_PIPELINE,
+        GARBAGE_COMMAND_POOL,
+        GARBAGE_FRAMEBUFFER,
+        GARBAGE_RENDERPASS,
+        GARBAGE_SAMPLER,
+        GARBAGE_IMAGE
     };
 
     struct GarbageType
@@ -83,6 +88,70 @@ public:
         VkPipeline _pipeline;
         VkDevice _logicalDevice;
     };
+    struct GarbageCommandPool
+    {
+        GarbageCommandPool(VkCommandPool commandPool, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_COMMAND_POOL),
+                _commandPool(commandPool),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkCommandPool _commandPool;
+        VkDevice _logicalDevice;
+    };
+    struct GarbageFramebuffer
+    {
+        GarbageFramebuffer(VkFramebuffer framebuffer, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_FRAMEBUFFER),
+                _framebuffer(framebuffer),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkFramebuffer _framebuffer;
+        VkDevice _logicalDevice;
+    };
+    struct GarbageRenderPass
+    {
+        GarbageRenderPass(VkRenderPass renderPass, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_RENDERPASS),
+                _renderPass(renderPass),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkRenderPass _renderPass;
+        VkDevice _logicalDevice;
+    };
+    struct GarbageSampler
+    {
+        GarbageSampler(VkSampler sampler, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_SAMPLER),
+                _sampler(sampler),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkSampler _sampler;
+        VkDevice _logicalDevice;
+    };
+    struct GarbageImage
+    {
+        GarbageImage(VkImage image, VkDeviceMemory deviceMemory, VkImageView imageView, VkDevice logicalDevice) :
+                _type(Type::GARBAGE_IMAGE),
+                _image(image),
+                _deviceMemory(deviceMemory),
+                _imageView(imageView),
+                _logicalDevice(logicalDevice)
+        {}
+
+        Type _type;
+        VkImage _image;
+        VkDeviceMemory _deviceMemory;
+        VkImageView _imageView;
+        VkDevice _logicalDevice;
+    };
 
     class Garbage final
     {
@@ -99,6 +168,21 @@ public:
                 g_data(garbage)
         {}
         Garbage(const GarbageGraphicPipeline& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageCommandPool& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageFramebuffer& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageRenderPass& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageSampler& garbage) :
+                g_data(garbage)
+        {}
+        Garbage(const GarbageImage& garbage) :
                 g_data(garbage)
         {}
         Garbage(const Garbage& r) = delete;
@@ -124,6 +208,23 @@ public:
                 vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline, nullptr);
                 vkDestroyPipelineLayout(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipelineLayout, nullptr);
                 break;
+            case Type::GARBAGE_COMMAND_POOL:
+                vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool, nullptr);
+                break;
+            case Type::GARBAGE_FRAMEBUFFER:
+                vkDestroyFramebuffer(this->g_data._framebuffer._logicalDevice, this->g_data._framebuffer._framebuffer, nullptr);
+                break;
+            case Type::GARBAGE_RENDERPASS:
+                vkDestroyRenderPass(this->g_data._renderPass._logicalDevice, this->g_data._renderPass._renderPass, nullptr);
+                break;
+            case Type::GARBAGE_SAMPLER:
+                vkDestroySampler(this->g_data._sampler._logicalDevice, this->g_data._sampler._sampler, nullptr);
+                break;
+            case Type::GARBAGE_IMAGE:
+                vkDestroyImageView(this->g_data._image._logicalDevice, this->g_data._image._imageView, nullptr);
+                vkDestroyImage(this->g_data._image._logicalDevice, this->g_data._image._image, nullptr);
+                vkFreeMemory(this->g_data._image._logicalDevice, this->g_data._image._deviceMemory, nullptr);
+                break;
             default:
                 break;
             }
@@ -136,11 +237,21 @@ public:
             explicit Data(const GarbageDescriptorSet& data) : _descriptorSet{data} {}
             explicit Data(const GarbageBuffer& data) : _buffer{data} {}
             explicit Data(const GarbageGraphicPipeline& data) : _graphicPipeline{data} {}
+            explicit Data(const GarbageCommandPool& data) : _commandPool{data} {}
+            explicit Data(const GarbageFramebuffer& data) : _framebuffer{data} {}
+            explicit Data(const GarbageRenderPass& data) : _renderPass{data} {}
+            explicit Data(const GarbageSampler& data) : _sampler{data} {}
+            explicit Data(const GarbageImage& data) : _image{data} {}
 
             GarbageType _type;
             GarbageDescriptorSet _descriptorSet;
             GarbageBuffer _buffer;
             GarbageGraphicPipeline _graphicPipeline;
+            GarbageCommandPool _commandPool;
+            GarbageFramebuffer _framebuffer;
+            GarbageRenderPass _renderPass;
+            GarbageSampler _sampler;
+            GarbageImage _image;
         };
 
         Data g_data;

@@ -426,7 +426,9 @@ void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(this->g_pipelineLayout,
+                                                                                         this->g_graphicsPipeline,
+                                                                                         this->g_context->getLogicalDevice().getDevice()));
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;
@@ -437,8 +439,9 @@ void GraphicPipeline::destroy()
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(this->g_context->getLogicalDevice().getDevice(), this->g_graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(this->g_context->getLogicalDevice().getDevice(), this->g_pipelineLayout, nullptr);
+        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(this->g_pipelineLayout,
+                                                                                         this->g_graphicsPipeline,
+                                                                                         this->g_context->getLogicalDevice().getDevice()));
 
         this->g_needUpdate = true;
 
