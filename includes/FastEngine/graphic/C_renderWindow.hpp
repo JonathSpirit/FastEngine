@@ -98,6 +98,7 @@ private:
     std::vector<VkCommandBuffer> g_commandBuffers;
 
     mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
+    mutable std::vector<VkFence> g_extraFences;
 
     std::vector<VkSemaphore> g_imageAvailableSemaphores;
     std::vector<VkSemaphore> g_renderFinishedSemaphores;

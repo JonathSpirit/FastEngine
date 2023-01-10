@@ -66,6 +66,7 @@ public:
     [[nodiscard]] std::vector<VkCommandBuffer> getCommandBuffers() const;
     [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
 
+    void setCurrentFrame(uint32_t frame) const;
     [[nodiscard]] uint32_t getCurrentFrame() const;
 
     void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
@@ -90,7 +91,9 @@ private:
     VkCommandPool g_commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> g_commandBuffers;
 
-    uint32_t g_currentFrame = 0;
+    std::vector<VkFence> g_inFlightFences;
+
+    mutable uint32_t g_currentFrame = 0;
 
     mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
 

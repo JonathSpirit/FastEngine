@@ -65,7 +65,6 @@ void RenderTexture::destroy()
 
 uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo)
 {
-    //vkQueueWaitIdle(this->_g_context->getLogicalDevice().getPresentQueue()); ///TODO clearly not ideal
     vkResetCommandBuffer(this->g_commandBuffers[this->g_currentFrame], 0);
 
     VkCommandBufferBeginInfo beginInfo{};
@@ -114,8 +113,6 @@ void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
     {
         throw std::runtime_error("failed to record command buffer!");
     }
-
-    this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
 }
 
 Vector2u RenderTexture::getSize() const
@@ -142,6 +139,10 @@ const fge::vulkan::TextureImage& RenderTexture::getTextureImage() const
     return this->g_textureImage;
 }
 
+void RenderTexture::setCurrentFrame(uint32_t frame) const
+{
+    this->g_currentFrame = frame % FGE_MAX_FRAMES_IN_FLIGHT;
+}
 uint32_t RenderTexture::getCurrentFrame() const
 {
     return this->g_currentFrame;
