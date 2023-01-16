@@ -20,7 +20,6 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_renderWindow.hpp"
-#include "SFML/Graphics/RenderWindow.hpp"
 #include <chrono>
 #include <limits>
 #include <memory>

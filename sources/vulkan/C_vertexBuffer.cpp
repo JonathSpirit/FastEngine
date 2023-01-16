@@ -19,6 +19,7 @@
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <stdexcept>
+#include <cstring>
 
 namespace fge::vulkan
 {

@@ -18,7 +18,7 @@
 #include <FastEngine/graphic/C_surface.hpp>
 #include <FastEngine/vulkan/C_context.hpp>
 #include <FastEngine/vulkan/vulkanGlobal.hpp>
-#include <ft2build.h>
+#include "ft2build.h"
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H

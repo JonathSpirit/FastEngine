@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "Fastengine/vulkan/C_graphicPipeline.hpp"
-#include "Fastengine/vulkan/C_swapChain.hpp"
-#include "Fastengine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/C_graphicPipeline.hpp"
+#include "FastEngine/vulkan/C_swapChain.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 
 namespace fge::vulkan
 {

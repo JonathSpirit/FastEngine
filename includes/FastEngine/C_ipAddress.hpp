@@ -22,6 +22,10 @@
 #include <string>
 #include <vector>
 
+#ifndef _WIN32
+    #undef None
+#endif
+
 #define FGE_ANYPORT 0
 
 namespace fge::net

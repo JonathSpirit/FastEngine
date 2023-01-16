@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Fastengine/vulkan/C_blendMode.hpp"
+#include "FastEngine/vulkan/C_blendMode.hpp"
 
 namespace fge::vulkan
 {
