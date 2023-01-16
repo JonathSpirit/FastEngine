@@ -51,7 +51,12 @@ protected:
     void initialize();
 
 public:
+    RenderTarget(const RenderTarget& r);
+    RenderTarget(RenderTarget&& r) noexcept;
     virtual ~RenderTarget() = default;
+
+    RenderTarget& operator=(const RenderTarget& r);
+    RenderTarget& operator=(RenderTarget&& r) noexcept;
 
     void setClearColor(const fge::Color& color);
     [[nodiscard]] fge::Color getClearColor() const;

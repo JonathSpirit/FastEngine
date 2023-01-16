@@ -25,8 +25,6 @@ namespace fge
 {
 
 RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
-        g_defaultView(),
-        g_view(),
         _g_clearColor(fge::Color::White),
         _g_context(&context),
         _g_forceGraphicPipelineUpdate(false)
@@ -38,6 +36,44 @@ void RenderTarget::initialize()
                                static_cast<float>(this->getSize().x),
                                static_cast<float>(this->getSize().y)});
     this->g_view = this->g_defaultView;
+}
+
+RenderTarget::RenderTarget(const RenderTarget& r) :
+        g_defaultView(r.g_defaultView),
+        g_view(r.g_view),
+        _g_clearColor(r._g_clearColor),
+        _g_context(r._g_context),
+        _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate)
+{}
+RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
+        g_defaultView(r.g_defaultView),
+        g_view(r.g_view),
+        _g_clearColor(r._g_clearColor),
+        _g_context(r._g_context),
+        _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate),
+        _g_defaultGraphicPipelineTexture(std::move(r._g_defaultGraphicPipelineTexture)),
+        _g_defaultGraphicPipelineNoTexture(std::move(r._g_defaultGraphicPipelineNoTexture))
+{}
+
+RenderTarget& RenderTarget::operator=(const RenderTarget& r)
+{
+    this->g_defaultView = r.g_defaultView;
+    this->g_view = r.g_view;
+    this->_g_clearColor = r._g_clearColor;
+    this->_g_context = r._g_context;
+    this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
+    return *this;
+}
+RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
+{
+    this->g_defaultView = r.g_defaultView;
+    this->g_view = r.g_view;
+    this->_g_clearColor = r._g_clearColor;
+    this->_g_context = r._g_context;
+    this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
+    this->_g_defaultGraphicPipelineTexture = std::move(r._g_defaultGraphicPipelineTexture);
+    this->_g_defaultGraphicPipelineNoTexture = std::move(r._g_defaultGraphicPipelineNoTexture);
+    return *this;
 }
 
 void RenderTarget::setClearColor(const fge::Color& color)

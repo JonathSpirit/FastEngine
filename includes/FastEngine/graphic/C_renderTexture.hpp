@@ -47,7 +47,12 @@ class FGE_API RenderTexture : public RenderTarget
 {
 public:
     explicit RenderTexture(const glm::vec<2, int>& size={1,1}, const fge::vulkan::Context& context=*fge::vulkan::GlobalContext);
+    RenderTexture(const RenderTexture& r);
+    RenderTexture(RenderTexture&& r) noexcept;
     ~RenderTexture() override;
+
+    RenderTexture& operator=(const RenderTexture& r);
+    RenderTexture& operator=(RenderTexture&& r) noexcept;
 
     void resize(const glm::vec<2, int>& size);
     void destroy();
@@ -84,20 +89,18 @@ private:
 
     fge::vulkan::TextureImage g_textureImage;
 
-    VkRenderPass g_renderPass = VK_NULL_HANDLE;
+    VkRenderPass g_renderPass;
 
-    VkFramebuffer g_framebuffer = VK_NULL_HANDLE;
+    VkFramebuffer g_framebuffer;
 
-    VkCommandPool g_commandPool = VK_NULL_HANDLE;
+    VkCommandPool g_commandPool;
     std::vector<VkCommandBuffer> g_commandBuffers;
 
-    std::vector<VkFence> g_inFlightFences;
-
-    mutable uint32_t g_currentFrame = 0;
+    mutable uint32_t g_currentFrame;
 
     mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
 
-    bool g_isCreated = false;
+    bool g_isCreated;
 };
 
 }// end fge

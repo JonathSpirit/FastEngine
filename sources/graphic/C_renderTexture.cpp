@@ -25,15 +25,74 @@ namespace fge
 {
 
 RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Context& context) :
-        RenderTarget(context)
+        RenderTarget(context),
+        g_renderPass(VK_NULL_HANDLE),
+        g_framebuffer(VK_NULL_HANDLE),
+        g_commandPool(VK_NULL_HANDLE),
+        g_currentFrame(0),
+        g_isCreated(false)
 {
     this->init(size);
     this->initialize();
 }
-
+RenderTexture::RenderTexture(const RenderTexture& r) :
+        RenderTarget(r),
+        g_renderPass(VK_NULL_HANDLE),
+        g_framebuffer(VK_NULL_HANDLE),
+        g_commandPool(VK_NULL_HANDLE),
+        g_currentFrame(0),
+        g_isCreated(false)
+{
+    this->init(r.g_textureImage.getSize());
+    this->initialize();
+}
+RenderTexture::RenderTexture(RenderTexture&& r) noexcept :
+        RenderTarget(std::move(r)),
+        g_textureImage(std::move(r.g_textureImage)),
+        g_renderPass(r.g_renderPass),
+        g_framebuffer(r.g_framebuffer),
+        g_commandPool(r.g_commandPool),
+        g_commandBuffers(std::move(r.g_commandBuffers)),
+        g_currentFrame(r.g_currentFrame),
+        g_extraCommandBuffers(std::move(r.g_extraCommandBuffers)),
+        g_isCreated(r.g_isCreated)
+{
+    r.g_renderPass = VK_NULL_HANDLE;
+    r.g_framebuffer = VK_NULL_HANDLE;
+    r.g_commandPool = VK_NULL_HANDLE;
+    r.g_currentFrame = 0;
+    r.g_isCreated = false;
+}
 RenderTexture::~RenderTexture()
 {
     this->destroy();
+}
+
+RenderTexture& RenderTexture::operator=(const RenderTexture& r)
+{
+    this->destroy();
+    this->init(r.g_textureImage.getSize());
+    this->initialize();
+    return *this;
+}
+RenderTexture& RenderTexture::operator=(RenderTexture&& r) noexcept
+{
+    this->destroy();
+    this->g_textureImage = std::move(r.g_textureImage);
+    this->g_renderPass = r.g_renderPass;
+    this->g_framebuffer = r.g_framebuffer;
+    this->g_commandPool = r.g_commandPool;
+    this->g_commandBuffers = std::move(r.g_commandBuffers);
+    this->g_currentFrame = r.g_currentFrame;
+    this->g_extraCommandBuffers = std::move(r.g_extraCommandBuffers);
+    this->g_isCreated = r.g_isCreated;
+
+    r.g_renderPass = VK_NULL_HANDLE;
+    r.g_framebuffer = VK_NULL_HANDLE;
+    r.g_commandPool = VK_NULL_HANDLE;
+    r.g_currentFrame = 0;
+    r.g_isCreated = false;
+    return *this;
 }
 
 void RenderTexture::resize(const glm::vec<2, int>& size)
@@ -56,6 +115,11 @@ void RenderTexture::destroy()
         this->_g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageRenderPass(this->g_renderPass, logicalDevice));
 
         this->g_textureImage.destroy();
+
+        this->g_renderPass = VK_NULL_HANDLE;
+        this->g_framebuffer = VK_NULL_HANDLE;
+        this->g_commandPool = VK_NULL_HANDLE;
+        this->g_currentFrame = 0;
 
         this->g_isCreated = false;
     }
@@ -205,18 +269,26 @@ void RenderTexture::createRenderPass()
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    VkSubpassDependency dependency{};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
+    std::array<VkSubpassDependency, 2> dependencies{};
 
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = 0;
+    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[0].dstSubpass = 0;
+    dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[1].srcSubpass = 0;
+    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
+    renderPassInfo.dependencyCount = dependencies.size();
+    renderPassInfo.pDependencies = dependencies.data();
 
     if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr, &this->g_renderPass) != VK_SUCCESS)
     {
