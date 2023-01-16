@@ -29,13 +29,8 @@ Transformable::Transformable() :
         g_transform                 (1.0f),
         g_transformNeedUpdate       (true),
         g_inverseTransform          (1.0f),
-        g_inverseTransformNeedUpdate(true),
-        g_descriptorSet()
+        g_inverseTransformNeedUpdate(true)
 {}
-Transformable::~Transformable()
-{
-    this->destroy();
-}
 
 void Transformable::setPosition(const Vector2f& position)
 {
@@ -127,35 +122,6 @@ const glm::mat4& Transformable::getInverseTransform() const
     }
 
     return this->g_inverseTransform;
-}
-
-void Transformable::destroy()
-{
-    this->g_descriptorSet.destroy();
-    this->g_uniformBuffer.destroy();
-}
-
-void Transformable::updateUniformBuffer(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const fge::vulkan::Context& context) const
-{
-    if (this->g_descriptorSet.getDescriptorSet() == VK_NULL_HANDLE)
-    {
-        this->g_descriptorSet.create(context.getLogicalDevice(), &context.getTransformLayout(),
-                                     1, context.getTransformDescriptorPool(), true);
-    }
-
-    if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE)
-    {
-        this->g_uniformBuffer.create(context, sizeof(fge::Transform));
-        const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
-        this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
-    }
-
-    const fge::Transform transform{modelMatrix, viewMatrix};
-    this->g_uniformBuffer.copyData(&transform, sizeof(transform));
-}
-const fge::vulkan::DescriptorSet& Transformable::getDescriptorSet() const
-{
-    return this->g_descriptorSet;
 }
 
 }//end fge

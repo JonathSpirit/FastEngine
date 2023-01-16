@@ -135,8 +135,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
     this->g_renderMap._renderTexture.setClearColor(fge::Color(0,0,0,0));
     this->g_renderMap._renderTexture.beginRenderPass(this->g_renderMap._renderTexture.prepareNextFrame(nullptr));
 
-    auto copyStates = states.copy(this);
-    copyStates._modelTransform *= this->getTransform();
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
     copyStates._textureImage = static_cast<const fge::TextureType*>(this->g_texture);
     copyStates._blendMode =
             fge::vulkan::BlendMode{VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD,
@@ -186,7 +185,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             fge::GetConvexHull(tmpHull, tmpHull);
 
             fge::vulkan::VertexBuffer polygon;
-            fge::Transformable polygonTransform;
+            fge::Transform polygonTransform;
             polygon.create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
             for (std::size_t a = 0; a < tmpHull.size(); ++a)
             {
@@ -210,7 +209,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         theTarget = &target;
     }
 
-    auto targetStates = fge::RenderStates(this);
+    auto targetStates = fge::RenderStates(&this->_transform);
     targetStates._blendMode = this->g_blendMode;
     theTarget->draw(this->g_renderMap, targetStates);
 }

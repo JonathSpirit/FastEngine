@@ -304,6 +304,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/graphic/C_surface.cpp
         sources/graphic/C_view.cpp
         sources/graphic/C_transformable.cpp
+        sources/graphic/C_transform.cpp
         sources/graphic/C_shape.cpp
         sources/graphic/C_rectangleShape.cpp
         sources/graphic/C_circleShape.cpp
@@ -438,6 +439,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_surface.cpp
         sources/graphic/C_view.cpp
         sources/graphic/C_transformable.cpp
+        sources/graphic/C_transform.cpp
         sources/graphic/C_shape.cpp
         sources/graphic/C_rectangleShape.cpp
         sources/graphic/C_circleShape.cpp

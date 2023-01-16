@@ -95,8 +95,7 @@ void Character::draw(fge::RenderTarget& target, const fge::RenderStates& states)
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(this, states._textureImage);
-        copyStates._modelTransform *= this->getTransform();
+        auto copyStates = states.copy(this->_transform.start(*this, states._transform), states._textureImage);
 
         copyStates._vertexBuffer = &this->g_outlineVertices;
         target.draw(copyStates);
@@ -108,8 +107,7 @@ void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, co
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(this, states._textureImage);
-        copyStates._modelTransform *= this->getTransform();
+        auto copyStates = states.copy(this->_transform.start(*this, states._transform), states._textureImage);
 
         if (outlineVertices)
         {
@@ -355,9 +353,8 @@ FGE_OBJ_DRAW_BODY(ObjText)
     {
         this->ensureGeometryUpdate();
 
-        auto copyStates = states.copy(this);
+        auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
-        copyStates._modelTransform *= this->getTransform();
         copyStates._textureImage = &this->g_font.getData()->_font->getTexture(this->g_characterSize);
 
         if (this->g_outlineThickness != 0.0f)

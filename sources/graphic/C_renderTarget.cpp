@@ -172,7 +172,8 @@ bool RenderTarget::isSrgb() const
 
 void RenderTarget::drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer commandBuffer, VkRenderPass renderPass, const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states)
 {
-    states._transformable->updateUniformBuffer(states._modelTransform, this->getView().getTransform(), *this->_g_context);
+    states._transform->_viewTransform = this->getView().getTransform();
+    states._transform->updateUniformBuffer(*this->_g_context);
 
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();
@@ -193,7 +194,7 @@ void RenderTarget::drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer comm
 
     const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
 
-    VkDescriptorSet descriptorSets[] = {states._transformable->getDescriptorSet().getDescriptorSet(),
+    VkDescriptorSet descriptorSets[] = {states._transform->getDescriptorSet().getDescriptorSet(),
                                         states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : VK_NULL_HANDLE};
 
     graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSets, descriptorSize);

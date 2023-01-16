@@ -174,8 +174,7 @@ void Shape::update()
 
 void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
 {
-    auto copyStates = states.copy(this);
-    copyStates._modelTransform *= getTransform();
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
     // Render the inside
     if (this->g_texture.valid())

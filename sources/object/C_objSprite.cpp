@@ -79,8 +79,7 @@ fge::Color ObjSprite::getColor() const
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSprite)
 {
-    auto copyStates = states.copy(this);
-    copyStates._modelTransform *= this->getTransform();
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
     copyStates._vertexBuffer = &this->g_vertices;
     copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);

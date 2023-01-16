@@ -27,6 +27,7 @@
 #include <FastEngine/vulkan/C_graphicPipeline.hpp>
 #include <FastEngine/graphic/C_renderStates.hpp>
 #include <FastEngine/graphic/C_renderTarget.hpp>
+#include "FastEngine/graphic/C_transform.hpp"
 
 namespace fge
 {
@@ -38,6 +39,8 @@ public:
     virtual ~Drawable() = default;
 
     virtual void draw(RenderTarget& target, const RenderStates& states) const = 0;
+
+    fge::Transform _transform;
 };
 
 }//end fge

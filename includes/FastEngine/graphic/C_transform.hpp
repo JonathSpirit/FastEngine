@@ -17,15 +17,40 @@
 #ifndef _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED
 #define _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED
 
-#include <glm/glm.hpp>
+#include "FastEngine/fastengine_extern.hpp"
+#include "glm/glm.hpp"
+#include "FastEngine/vulkan/C_descriptorSet.hpp"
+#include "FastEngine/vulkan/C_uniformBuffer.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 
 namespace fge
 {
 
-struct Transform
+class Transformable;
+
+class FGE_API Transform
 {
-    alignas(16) glm::mat4 _modelTransform{1.0f};
-    alignas(16) glm::mat4 _viewTransform{1.0f};
+public:
+    Transform() = default;
+    ~Transform();
+
+    const Transform* start(const fge::Transformable& transformable, const fge::Transform* parentTransform=nullptr) const;
+    const Transform* start(const fge::Transform* parentTransform) const;
+
+    void destroy();
+
+    void updateUniformBuffer(const fge::vulkan::Context& context) const;
+    [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
+    [[nodiscard]] const fge::vulkan::UniformBuffer& getUniformBuffer() const;
+
+    alignas(16) mutable glm::mat4 _modelTransform{1.0f};
+    alignas(16) mutable glm::mat4 _viewTransform{1.0f};
+
+    constexpr static unsigned int uboSize = sizeof(_modelTransform)+sizeof(_viewTransform);
+
+private:
+    mutable fge::vulkan::DescriptorSet g_descriptorSet;
+    mutable fge::vulkan::UniformBuffer g_uniformBuffer;
 };
 
 }//end fge

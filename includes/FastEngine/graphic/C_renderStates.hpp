@@ -38,7 +38,7 @@ class VertexBuffer;
 
 }//end vulkan
 
-class Transformable;
+class Transform;
 
 class RenderStates
 {
@@ -46,37 +46,29 @@ public:
     RenderStates() = default;
     RenderStates(const RenderStates& r) = delete;
     RenderStates(RenderStates&& r) noexcept = default;
-    explicit RenderStates(const fge::Transformable* transformable, const fge::TextureType* textureImage=nullptr) :
-            _transformable(transformable),
+    explicit RenderStates(const fge::Transform* transform, const fge::TextureType* textureImage=nullptr) :
+            _transform(transform),
             _textureImage(textureImage)
     {}
-    RenderStates(const fge::Transformable* transformable, const fge::vulkan::VertexBuffer* vertexBuffer, const fge::TextureType* textureImage=nullptr) :
-            _transformable(transformable),
-            _textureImage(textureImage),
-            _vertexBuffer(vertexBuffer)
-    {}
-    RenderStates(const glm::mat4& modelTransform,
-                 const fge::Transformable* transformable,
+    RenderStates(const fge::Transform* transform,
                  const fge::vulkan::VertexBuffer* vertexBuffer,
                  const fge::TextureType* textureImage=nullptr,
                  const fge::vulkan::BlendMode& blendMode={}) :
-            _modelTransform(modelTransform),
-            _transformable(transformable),
+            _transform(transform),
             _textureImage(textureImage),
             _vertexBuffer(vertexBuffer),
             _blendMode(blendMode)
     {}
 
-    [[nodiscard]] RenderStates copy(const fge::Transformable* transformable, const fge::TextureType* textureImage=nullptr) const
+    [[nodiscard]] RenderStates copy(const fge::Transform* transform, const fge::TextureType* textureImage=nullptr) const
     {
-        return RenderStates{this->_modelTransform, transformable, nullptr, textureImage, this->_blendMode};
+        return RenderStates{transform, nullptr, textureImage, this->_blendMode};
     }
 
     RenderStates& operator=(const RenderStates& r) = delete;
     RenderStates& operator=(RenderStates&& r) noexcept = default;
 
-    glm::mat4 _modelTransform{1.0f};
-    const fge::Transformable* _transformable{nullptr};
+    const fge::Transform* _transform{nullptr};
     const fge::TextureType* _textureImage{nullptr};
     const fge::vulkan::VertexBuffer* _vertexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};

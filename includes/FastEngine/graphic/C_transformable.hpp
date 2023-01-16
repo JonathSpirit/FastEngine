@@ -26,10 +26,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "glm/glm.hpp"
-#include "FastEngine/vulkan/C_descriptorSet.hpp"
-#include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/graphic/C_vector.hpp"
-#include "FastEngine/graphic/C_transform.hpp"
 
 namespace fge
 {
@@ -38,7 +35,7 @@ class FGE_API Transformable
 {
 public:
     Transformable();
-    virtual ~Transformable();
+    virtual ~Transformable() = default;
 
     void setPosition(const Vector2f& position);
     const Vector2f& getPosition() const;
@@ -58,11 +55,6 @@ public:
     const glm::mat4& getTransform() const;
     const glm::mat4& getInverseTransform() const;
 
-    void destroy();
-
-    void updateUniformBuffer(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const fge::vulkan::Context& context) const;
-    [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
-
 private:
     Vector2f          g_origin;                     //!< Origin of translation/rotation/scaling of the object
     Vector2f          g_position;                   //!< Position of the object in the 2D world
@@ -72,9 +64,6 @@ private:
     mutable bool      g_transformNeedUpdate;        //!< Does the transform need to be recomputed?
     mutable glm::mat4 g_inverseTransform;           //!< Combined transformation of the object
     mutable bool      g_inverseTransformNeedUpdate; //!< Does the transform need to be recomputed?
-
-    mutable fge::vulkan::DescriptorSet g_descriptorSet;
-    mutable fge::vulkan::UniformBuffer g_uniformBuffer;
 };
 
 }//end fge

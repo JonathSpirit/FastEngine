@@ -95,7 +95,7 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
 
     target.setView(this->g_windowView);
 
-    auto copyStates = states.copy(this);
+    auto copyStates = states.copy(this->_transform.start(*this));
     copyStates._textureImage = &this->_renderTexture.getTextureImage();
     copyStates._vertexBuffer = &this->g_vertexBuffer;
     target.draw(copyStates);
