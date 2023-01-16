@@ -156,6 +156,8 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         const fge::RectFloat bounds = this->getGlobalBounds();
         const float range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
 
+        this->g_obstacleHulls.resize(lightSystem->getGatesSize());
+
         for (std::size_t i = 0; i < lightSystem->getGatesSize(); ++i)
         {
             fge::LightObstacle* obstacle = lightSystem->get(i);
@@ -184,16 +186,14 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             }
             fge::GetConvexHull(tmpHull, tmpHull);
 
-            fge::vulkan::VertexBuffer polygon;
-            fge::Transform polygonTransform;
-            polygon.create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+            this->g_obstacleHulls[i].create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
             for (std::size_t a = 0; a < tmpHull.size(); ++a)
             {
-                polygon.getVertices()[a]._position = tmpHull[a];
-                polygon.getVertices()[a]._color = fge::Color(255, 255, 255, 255);
+                this->g_obstacleHulls[i].getVertices()[a]._position = tmpHull[a];
+                this->g_obstacleHulls[i].getVertices()[a]._color = fge::Color(255, 255, 255, 255);
             }
 
-            auto polygonStates = fge::RenderStates(&polygonTransform, &polygon);
+            auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[i]);
             polygonStates._blendMode = noLightBlend;
             this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
         }

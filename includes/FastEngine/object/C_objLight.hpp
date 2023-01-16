@@ -80,6 +80,9 @@ private:
 
     fge::ObjectDataShared g_renderObject;
 
+    fge::Transform g_emptyTransform;
+    mutable std::vector<fge::vulkan::VertexBuffer> g_obstacleHulls;
+
 #ifndef FGE_DEF_SERVER
     fge::ObjRenderMap g_renderMap;
 #endif //FGE_DEF_SERVER

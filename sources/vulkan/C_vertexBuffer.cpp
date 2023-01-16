@@ -205,15 +205,21 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
 
 void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, VkPrimitiveTopology topology, Types type)
 {
-    this->destroy();
     this->g_primitiveTopology = topology;
+
     if (type == Types::UNINITIALIZED)
     {
+        this->destroy();
         return;
     }
 
-    this->g_useIndexBuffer = useIndexBuffer;
-    this->g_type = type;
+    if (type != this->g_type ||
+        useIndexBuffer != this->g_useIndexBuffer)
+    {
+        this->destroy();
+        this->g_useIndexBuffer = useIndexBuffer;
+        this->g_type = type;
+    }
 
     this->g_context = &context;
 
@@ -221,15 +227,21 @@ void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::s
 }
 void VertexBuffer::create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, Types type)
 {
-    this->destroy();
     this->g_primitiveTopology = topology;
+
     if (type == Types::UNINITIALIZED)
     {
+        this->destroy();
         return;
     }
 
-    this->g_useIndexBuffer = false;
-    this->g_type = type;
+    if (type != this->g_type ||
+        this->g_useIndexBuffer)
+    {
+        this->destroy();
+        this->g_useIndexBuffer = false;
+        this->g_type = type;
+    }
 
     this->g_context = &context;
 
