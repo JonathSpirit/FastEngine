@@ -19,14 +19,20 @@
 namespace fge
 {
 
-ObjSprite::ObjSprite(const fge::Texture& texture, const fge::Vector2f& position)
+ObjSprite::ObjSprite()
+{
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::STAGING_BUFFER);
+}
+ObjSprite::ObjSprite(const fge::Texture& texture, const fge::Vector2f& position) :
+        ObjSprite()
 {
     this->setTexture(texture);
     this->setPosition(position);
 
     this->g_vertices.create(*fge::vulkan::GlobalContext, 4, 0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
-ObjSprite::ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position)
+ObjSprite::ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position) :
+        ObjSprite()
 {
     this->setTexture(texture);
     this->setTextureRect(rectangle);

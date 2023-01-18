@@ -29,7 +29,7 @@ namespace fge
 class FGE_API ObjSprite : public fge::Object
 {
 public:
-    ObjSprite() = default;
+    ObjSprite();
     explicit ObjSprite(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
     ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position = fge::Vector2f());
 
