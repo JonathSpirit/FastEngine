@@ -66,13 +66,13 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
     void setHeight(float height);
-    void setSize(const sf::Vector2f& size);
-    const sf::Vector2f& getSize() const;
-    sf::Vector2f getDrawAreaSize() const;
+    void setSize(const fge::Vector2f& size);
+    const fge::Vector2f& getSize() const;
+    fge::Vector2f getDrawAreaSize() const;
 
     void showExitButton(bool enable);
     void makeMovable(bool enable);
@@ -80,8 +80,8 @@ public:
 
     void setResizeMode(ObjWindow::ResizeModes modeX, ObjWindow::ResizeModes modeY);
 
-    void setViewCenterOffset(const sf::Vector2f& offset);
-    const sf::Vector2f& getViewCenterOffset() const;
+    void setViewCenterOffset(const fge::Vector2f& offset);
+    const fge::Vector2f& getViewCenterOffset() const;
 
     static fge::ObjWindow* getWindowObjectFromScene(fge::Scene* scene);
 
@@ -100,27 +100,27 @@ public:
 
     fge::Scene _windowScene;
     fge::GuiElementHandler _windowHandler;
-    mutable std::shared_ptr<sf::View> _windowView;
+    mutable std::shared_ptr<fge::View> _windowView;
 
 private:
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
     void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const sf::Event::MouseButtonEvent& arg,
+                                 const SDL_MouseButtonEvent& arg,
                                  fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
+    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
+    void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
 
     void onPlanUpdate(fge::Scene* scene, fge::ObjectPlan plan);
     void onNewObject(fge::Scene* scene, const fge::ObjectDataShared& object);
 
-    void onRefreshGlobalScale(const sf::Vector2f& scale);
+    void onRefreshGlobalScale(const fge::Vector2f& scale);
 
     bool g_movingWindowFlag{false};
     bool g_resizeWindowFlag{false};
-    sf::Vector2f g_mouseClickLastPosition;
-    sf::Vector2f g_mouseClickLastSize;
-    sf::Vector2f g_size{FGE_WINDOW_DEFAULT_SIZE_X, FGE_WINDOW_DEFAULT_SIZE_Y};
+    fge::Vector2f g_mouseClickLastPosition;
+    fge::Vector2f g_mouseClickLastSize;
+    fge::Vector2f g_size{FGE_WINDOW_DEFAULT_SIZE_X, FGE_WINDOW_DEFAULT_SIZE_Y};
 
     bool g_showCloseButton{true};
     bool g_makeMovable{true};
@@ -131,7 +131,7 @@ private:
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
-    sf::Vector2f g_viewCenterOffset;
+    fge::Vector2f g_viewCenterOffset;
 
     //Textures
     fge::Texture g_textureWindowMinimize{};
@@ -139,10 +139,10 @@ private:
     fge::Texture g_textureWindowResize{};
     fge::TileSet g_tileSetWindow{{}, {FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE}};
 
-    sf::FloatRect g_windowMoveRect;
-    sf::FloatRect g_windowMinimizeRect;
-    sf::FloatRect g_windowCloseRect;
-    sf::FloatRect g_windowResizeRect;
+    fge::RectFloat g_windowMoveRect;
+    fge::RectFloat g_windowMinimizeRect;
+    fge::RectFloat g_windowCloseRect;
+    fge::RectFloat g_windowResizeRect;
 
     mutable fge::ObjSprite g_sprite;
 };
