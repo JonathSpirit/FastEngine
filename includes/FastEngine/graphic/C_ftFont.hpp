@@ -25,13 +25,13 @@
  */
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "FastEngine/C_rect.hpp"
 #include <FastEngine/graphic/C_glyph.hpp>
 #include <FastEngine/vulkan/C_textureImage.hpp>
-#include <FastEngine/graphic/C_rect.hpp>
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 namespace fge
 {

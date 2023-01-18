@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/object/C_objectAnchor.hpp"
+#include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_scene.hpp"
-#include "FastEngine/graphic/C_rect.hpp"
 
 namespace fge
 {

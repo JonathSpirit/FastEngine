@@ -22,11 +22,11 @@
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_networkType.hpp"
 #include "FastEngine/C_packet.hpp"
+#include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_tagList.hpp"
-#include "FastEngine/object/C_objectAnchor.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
-#include "FastEngine/graphic/C_rect.hpp"
+#include "FastEngine/object/C_objectAnchor.hpp"
 #include "json.hpp"
 
 #include <chrono>

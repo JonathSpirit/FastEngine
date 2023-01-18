@@ -18,12 +18,12 @@
 #define _FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/graphic/C_rect.hpp"
-#include "SDL_vulkan.h"
-#include <vector>
-#include <limits>
-#include "volk.h"
 #include "C_vertex.hpp"
+#include "FastEngine/C_rect.hpp"
+#include "SDL_vulkan.h"
+#include "volk.h"
+#include <limits>
+#include <vector>
 
 namespace fge::vulkan
 {

@@ -15,13 +15,13 @@
 #include "SDL_vulkan.h"
 #include "FastEngine/graphic/C_color.hpp"
 
-#include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "FastEngine/vulkan/C_context.hpp"
-#include "FastEngine/graphic/C_surface.hpp"
-#include "FastEngine/graphic/C_rect.hpp"
-#include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/C_rect.hpp"
 #include "FastEngine/graphic/C_renderTexture.hpp"
+#include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/graphic/C_surface.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
 
 const std::vector<fge::vulkan::Vertex> verticesTexture = {
         {{0, 0}, fge::Color(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f}), {0.0f, 0.0f}},

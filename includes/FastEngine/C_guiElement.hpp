@@ -18,9 +18,9 @@
 #define _FGE_C_GUIELEMENT_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_rect.hpp"
 #include <FastEngine/C_event.hpp>
 #include <FastEngine/C_tunnel.hpp>
-#include <FastEngine/graphic/C_rect.hpp>
 #include <FastEngine/graphic/C_renderTarget.hpp>
 #include <cstdint>
 

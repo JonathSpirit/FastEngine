@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Guillaume Guillet
+ * Copyright 2023 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <FastEngine/graphic/C_vector.hpp>
+#include "FastEngine/graphic/C_vector.hpp"
 #include <optional>
 #include <type_traits>
 
@@ -65,6 +65,6 @@ fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& right);
 
 }//end fge
 
-#include <FastEngine/graphic/C_rect.inl>
+#include "C_rect.inl"
 
 #endif //_FGE_GRAPHIC_C_RECT_HPP_INCLUDED

@@ -24,7 +24,7 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <FastEngine/graphic/C_rect.hpp>
+#include "FastEngine/C_rect.hpp"
 
 namespace fge
 {

@@ -18,8 +18,8 @@
 #define _FGE_C_ANIMATION_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_rect.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
-#include "FastEngine/graphic/C_rect.hpp"
 
 namespace fge
 {

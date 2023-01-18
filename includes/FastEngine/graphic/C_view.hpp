@@ -25,10 +25,10 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <glm/glm.hpp>
+#include "FastEngine/C_rect.hpp"
 #include <FastEngine/graphic/C_vector.hpp>
 #include <FastEngine/vulkan/C_viewport.hpp>
-#include <FastEngine/graphic/C_rect.hpp>
+#include <glm/glm.hpp>
 
 namespace fge
 {

@@ -18,9 +18,9 @@
 #define _FGE_C_TILESET_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_rect.hpp"
 #include <FastEngine/C_propertyList.hpp>
 #include <FastEngine/C_texture.hpp>
-#include <FastEngine/graphic/C_rect.hpp>
 #include <json.hpp>
 #include <optional>
 #include <set>

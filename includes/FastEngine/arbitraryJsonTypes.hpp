@@ -17,10 +17,10 @@
 #ifndef _FGE_ARBITRARYJSONTYPES_HPP_INCLUDED
 #define _FGE_ARBITRARYJSONTYPES_HPP_INCLUDED
 
-#include <SFML/System.hpp>
-#include <FastEngine/graphic/C_vector.hpp>
+#include "C_rect.hpp"
 #include <FastEngine/graphic/C_color.hpp>
-#include <FastEngine/graphic/C_rect.hpp>
+#include <FastEngine/graphic/C_vector.hpp>
+#include <SFML/System.hpp>
 #include <json.hpp>
 #include <tinyutf8.h>
 

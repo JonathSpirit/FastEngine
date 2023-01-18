@@ -18,8 +18,8 @@
 #define _FGE_EXTRA_FUNCTION_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_rect.hpp"
 #include "FastEngine/object/C_object.hpp"
-#include "FastEngine/graphic/C_rect.hpp"
 #include "json.hpp"
 #include <filesystem>
 

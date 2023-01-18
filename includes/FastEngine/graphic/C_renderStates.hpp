@@ -26,6 +26,7 @@
 
 #include "glm/glm.hpp"
 #include "FastEngine/textureType.hpp"
+#include "FastEngine/vulkan/C_blendMode.hpp"
 
 namespace fge
 {

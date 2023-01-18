@@ -18,14 +18,14 @@
 #define _FGE_GRAPHIC_C_SURFACE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <SDL_render.h>
-#include <glm/glm.hpp>
-#include <filesystem>
-#include <cstdint>
-#include <optional>
+#include "FastEngine/C_rect.hpp"
 #include <FastEngine/graphic/C_color.hpp>
-#include <FastEngine/graphic/C_rect.hpp>
 #include <FastEngine/graphic/C_vector.hpp>
+#include <SDL_render.h>
+#include <cstdint>
+#include <filesystem>
+#include <glm/glm.hpp>
+#include <optional>
 
 namespace fge
 {
