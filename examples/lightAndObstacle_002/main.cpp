@@ -15,16 +15,16 @@
  */
 
 #include "FastEngine/C_random.hpp"
+#include "FastEngine/C_vector.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
-#include "FastEngine/graphic/C_vector.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objLight.hpp"
 #include "FastEngine/object/C_objText.hpp"
+#include "SDL.h"
 #include <FastEngine/C_clock.hpp>
 #include <FastEngine/C_scene.hpp>
 #include <iostream>
-#include "SDL.h"
 
 //Create a obstacle class object
 class Obstacle : public fge::Object, public fge::LightObstacle

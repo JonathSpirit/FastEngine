@@ -18,8 +18,8 @@
 #define _FGE_C_TEXTURE_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_vector.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
-#include "FastEngine/graphic/C_vector.hpp"
 #include <json.hpp>
 
 namespace fge

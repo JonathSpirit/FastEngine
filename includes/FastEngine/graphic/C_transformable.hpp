@@ -25,8 +25,8 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_vector.hpp"
 #include "glm/glm.hpp"
-#include "FastEngine/graphic/C_vector.hpp"
 
 namespace fge
 {

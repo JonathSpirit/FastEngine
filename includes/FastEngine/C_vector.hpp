@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Guillaume Guillet
+ * Copyright 2023 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include <cstdint>
 #define GLM_FORCE_CTOR_INIT
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 
 namespace fge
 {

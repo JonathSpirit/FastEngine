@@ -24,7 +24,7 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include "FastEngine/graphic/C_vector.hpp"
+#include "C_vector.hpp"
 #include <optional>
 #include <type_traits>
 

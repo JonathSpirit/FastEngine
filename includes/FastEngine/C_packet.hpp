@@ -35,12 +35,12 @@
 #include <tinyutf8.h>
 #include <vector>
 
+#include "C_vector.hpp"
+#include <FastEngine/graphic/C_color.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/String.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector3.hpp>
-#include <FastEngine/graphic/C_vector.hpp>
-#include <FastEngine/graphic/C_color.hpp>
 
 #define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 

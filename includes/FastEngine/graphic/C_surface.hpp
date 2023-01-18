@@ -19,8 +19,8 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_rect.hpp"
+#include "FastEngine/C_vector.hpp"
 #include <FastEngine/graphic/C_color.hpp>
-#include <FastEngine/graphic/C_vector.hpp>
 #include <SDL_render.h>
 #include <cstdint>
 #include <filesystem>
