@@ -457,14 +457,14 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp") TODO
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp") TODO
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp") TODO
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
