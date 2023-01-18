@@ -21,6 +21,7 @@
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 #include <deque>
 
 #define FGE_OBJTEXTLIST_CLASSNAME "FGE:OBJ:TEXTLIST"
@@ -43,8 +44,8 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
     void addString(tiny_utf8::string string);
     std::size_t getStringsSize() const;
@@ -56,7 +57,7 @@ public:
     const fge::Font& getFont() const;
 
     void setBoxSize(const fge::DynamicSize& size);
-    sf::Vector2f getBoxSize() const;
+    fge::Vector2f getBoxSize() const;
 
     void setTextScrollRatio(float ratio);
     float getTextScrollRatio() const;
@@ -67,14 +68,14 @@ public:
     void refreshSize();
 
 private:
-    void onGuiResized(const fge::GuiElementHandler& handler, const sf::Vector2f& size);
-    void refreshSize(const sf::Vector2f& targetSize);
+    void onGuiResized(const fge::GuiElementHandler& handler, const fge::Vector2f& size);
+    void refreshSize(const fge::Vector2f& targetSize);
 
     mutable fge::ObjText g_text;
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
-    mutable sf::RectangleShape g_box{};
+    mutable fge::RectangleShape g_box{};
     float g_textScrollRatio{0.0f};
     fge::DynamicSize g_boxSize;
 

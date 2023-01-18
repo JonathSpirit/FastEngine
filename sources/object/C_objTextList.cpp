@@ -22,8 +22,8 @@ namespace fge
 
 ObjTextList::ObjTextList()
 {
-    this->g_box.setFillColor(sf::Color::Transparent);
-    this->g_box.setOutlineColor(sf::Color{100, 100, 100, 255});
+    this->g_box.setFillColor(fge::Color::Transparent);
+    this->g_box.setOutlineColor(fge::Color{100, 100, 100, 255});
     this->g_box.setOutlineThickness(-2.0f);
 }
 
@@ -32,8 +32,8 @@ void ObjTextList::first([[maybe_unused]] fge::Scene* scene)
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
     this->g_text.setCharacterSize(14);
-    this->g_text.setFillColor(sf::Color::White);
-    this->g_text.setOutlineColor(sf::Color::Black);
+    this->g_text.setFillColor(fge::Color::White);
+    this->g_text.setOutlineColor(fge::Color::Black);
     this->g_text.setOutlineThickness(1.0f);
 }
 void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
@@ -51,13 +51,13 @@ void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTextList)
 {
-    states.transform *= this->getTransform();
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
-    target.draw(this->g_box, states);
+    target.draw(this->g_box, copyStates);
 
-    sf::View backupView = target.getView();
-    sf::View clipView =
-            fge::ClipView(backupView, target, states.transform.transformRect({{0.0f, 0.0f}, this->g_box.getSize()}),
+    const fge::View backupView = target.getView();
+    fge::View clipView =
+            fge::ClipView(backupView, target, copyStates._transform->_modelTransform * fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
                           fge::ClipClampModes::CLIP_CLAMP_HIDE);
 
     target.setView(clipView);
@@ -69,7 +69,7 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
 
     float characterHeightOffset = static_cast<float>(this->g_text.getLineSpacing());
 
-    this->g_text.setPosition(4.0f, this->g_box.getSize().y - characterHeightOffset);
+    this->g_text.setPosition({4.0f, this->g_box.getSize().y - characterHeightOffset});
     for (std::size_t i = static_cast<std::size_t>(static_cast<float>(this->g_stringList.size() - 1) *
                                                   this->getTextScrollRatio());
          i < this->g_stringList.size(); ++i)
@@ -77,7 +77,7 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
         this->g_text.setString(this->g_stringList[i]);
         target.draw(this->g_text, states);
 
-        this->g_text.move(0, -characterHeightOffset);
+        this->g_text.move({0, -characterHeightOffset});
     }
 
     target.setView(backupView);
@@ -93,11 +93,11 @@ const char* ObjTextList::getReadableClassName() const
     return "text list";
 }
 
-sf::FloatRect ObjTextList::getGlobalBounds() const
+fge::RectFloat ObjTextList::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjTextList::getLocalBounds() const
+fge::RectFloat ObjTextList::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
 }
@@ -141,7 +141,7 @@ void ObjTextList::setBoxSize(const fge::DynamicSize& size)
     this->g_boxSize = size;
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
-sf::Vector2f ObjTextList::getBoxSize() const
+fge::Vector2f ObjTextList::getBoxSize() const
 {
     return this->g_boxSize.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
@@ -169,11 +169,11 @@ void ObjTextList::refreshSize()
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 
-void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const sf::Vector2f& size)
+void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const fge::Vector2f& size)
 {
     this->refreshSize(size);
 }
-void ObjTextList::refreshSize(const sf::Vector2f& targetSize)
+void ObjTextList::refreshSize(const fge::Vector2f& targetSize)
 {
     this->g_box.setSize(this->g_boxSize.getSize(this->getPosition(), targetSize));
 }
