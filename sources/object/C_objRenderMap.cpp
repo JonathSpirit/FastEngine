@@ -116,7 +116,7 @@ void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet& pck) {}
 
 const char* ObjRenderMap::getClassName() const
 {
-    return FGE_OBJLIGHTMAP_CLASSNAME;
+    return FGE_OBJRENDERMAP_CLASSNAME;
 }
 const char* ObjRenderMap::getReadableClassName() const
 {

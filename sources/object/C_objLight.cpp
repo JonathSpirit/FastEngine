@@ -114,7 +114,7 @@ void ObjLight::first(fge::Scene* scene)
 {
     if (scene != nullptr && !this->g_renderObject)
     {
-        this->g_renderObject = scene->getFirstObj_ByClass(FGE_OBJLIGHTMAP_CLASSNAME);
+        this->g_renderObject = scene->getFirstObj_ByClass(FGE_OBJRENDERMAP_CLASSNAME);
     }
     if (!this->_g_lightSystemGate.isOpen())
     {

@@ -23,7 +23,7 @@
 #include "FastEngine/C_tunnel.hpp"
 #include "FastEngine/graphic/C_renderTexture.hpp"
 
-#define FGE_OBJLIGHTMAP_CLASSNAME "FGE:OBJ:RENDERMAP"
+#define FGE_OBJRENDERMAP_CLASSNAME "FGE:OBJ:RENDERMAP"
 
 namespace fge
 {
