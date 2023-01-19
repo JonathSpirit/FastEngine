@@ -21,15 +21,13 @@ namespace fge
 
 ObjSprite::ObjSprite()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::STAGING_BUFFER);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
 }
 ObjSprite::ObjSprite(const fge::Texture& texture, const fge::Vector2f& position) :
         ObjSprite()
 {
     this->setTexture(texture);
     this->setPosition(position);
-
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, 0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 ObjSprite::ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position) :
         ObjSprite()
@@ -157,15 +155,12 @@ void ObjSprite::updatePositions()
 
 void ObjSprite::updateTexCoords()
 {
-    const float left = static_cast<float>(this->g_textureRect._x);
-    const float right = left + static_cast<float>(this->g_textureRect._width);
-    const float top = static_cast<float>(this->g_textureRect._y);
-    const float bottom = top + static_cast<float>(this->g_textureRect._height);
+    const auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
 
-    this->g_vertices.getVertices()[0]._texCoords = fge::Vector2f(left, top);
-    this->g_vertices.getVertices()[1]._texCoords = fge::Vector2f(left, bottom);
-    this->g_vertices.getVertices()[2]._texCoords = fge::Vector2f(right, top);
-    this->g_vertices.getVertices()[3]._texCoords = fge::Vector2f(right, bottom);
+    this->g_vertices.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
+    this->g_vertices.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
+    this->g_vertices.getVertices()[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
+    this->g_vertices.getVertices()[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
 }
 
 } // namespace fge

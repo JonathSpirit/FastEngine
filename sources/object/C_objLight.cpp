@@ -281,9 +281,9 @@ void ObjLight::updateTexCoords()
     auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
-    this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._height);
-    this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._width, rect._y);
-    this->g_vertexBuffer.getVertices()[3]._texCoords = fge::Vector2f(rect._width, rect._height);
+    this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
+    this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
+    this->g_vertexBuffer.getVertices()[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
 }
 
 } // namespace fge
