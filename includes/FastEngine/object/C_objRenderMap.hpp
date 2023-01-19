@@ -64,7 +64,7 @@ private:
     void updatePositions();
     void updateTexCoords();
 
-    fge::Color g_colorClear{fge::Color::White};
+    fge::Color g_colorClear;
 
     fge::vulkan::VertexBuffer g_vertexBuffer;
     fge::View g_windowView;
