@@ -42,11 +42,14 @@ void ObjSprite::setTexture(const fge::Texture& texture, bool resetRect)
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if (resetRect || !this->g_texture.valid())
     {
-        this->setTextureRect(fge::RectInt({0, 0}, {texture.getTextureSize().x, texture.getTextureSize().y}));
+        this->g_texture = texture;
+        this->setTextureRect(fge::RectInt({0, 0},
+                                          {texture.getTextureSize().x, texture.getTextureSize().y}));
     }
-
-    // Assign the new texture
-    this->g_texture = texture;
+    else
+    {
+        this->g_texture = texture;
+    }
 }
 void ObjSprite::setTextureRect(const fge::RectInt& rectangle)
 {
