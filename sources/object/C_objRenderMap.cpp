@@ -20,21 +20,25 @@
 namespace fge
 {
 
-ObjRenderMap::ObjRenderMap()
+ObjRenderMap::ObjRenderMap() :
+        g_colorClear(fge::Color::Transparent),
+        g_windowSize(0,0)
 {
     this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 ObjRenderMap::ObjRenderMap(const fge::ObjRenderMap& r) :
         fge::Object(r),
         fge::Subscriber(r),
-        g_colorClear(r.g_colorClear)
+        g_colorClear(r.g_colorClear),
+        g_windowSize(0,0)
 {
     this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
         fge::Object(r),
         fge::Subscriber(r),
-        g_colorClear(r.g_colorClear)
+        g_colorClear(r.g_colorClear),
+        g_windowSize(0,0)
 {
     this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
