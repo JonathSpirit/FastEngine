@@ -22,7 +22,7 @@ namespace fge
 
 TileLayer::Tile::Tile()
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::VertexBuffer::Types::STAGING_BUFFER);
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::HOST);
 }
 
 void TileLayer::Tile::setGid(TileId gid)

@@ -25,48 +25,32 @@ namespace fge::vulkan
 {
 
 VertexBuffer::VertexBuffer() :
-        g_vertexBuffer(VK_NULL_HANDLE),
-        g_vertexStagingBuffer(VK_NULL_HANDLE),
-        g_vertexBufferMemory(VK_NULL_HANDLE),
-        g_vertexStagingBufferMemory(VK_NULL_HANDLE),
-        g_vertexBufferCapacity(0),
+        g_buffer(VK_NULL_HANDLE),
+        g_stagingBuffer(VK_NULL_HANDLE),
+        g_bufferMemory(VK_NULL_HANDLE),
+        g_stagingBufferMemory(VK_NULL_HANDLE),
+        g_bufferCapacity(0),
 
-        g_indexBuffer(VK_NULL_HANDLE),
-        g_indexStagingBuffer(VK_NULL_HANDLE),
-        g_indexBufferMemory(VK_NULL_HANDLE),
-        g_indexStagingBufferMemory(VK_NULL_HANDLE),
-        g_indexBufferCapacity(0),
+        g_needUpdate(true),
 
-        g_vertexNeedUpdate(true),
-        g_indexNeedUpdate(true),
+        g_type(BufferTypes::UNINITIALIZED),
 
-        g_type(Types::UNINITIALIZED),
-        g_useIndexBuffer(true),
-
-        g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+        g_primitiveTopology(FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY),
 
         g_context(nullptr)
 {}
 VertexBuffer::VertexBuffer(const VertexBuffer& r) :
         g_vertices(r.g_vertices),
-        g_vertexBuffer(VK_NULL_HANDLE),
-        g_vertexStagingBuffer(VK_NULL_HANDLE),
-        g_vertexBufferMemory(VK_NULL_HANDLE),
-        g_vertexStagingBufferMemory(VK_NULL_HANDLE),
-        g_vertexBufferCapacity(0),
 
-        g_indices(r.g_indices),
-        g_indexBuffer(VK_NULL_HANDLE),
-        g_indexStagingBuffer(VK_NULL_HANDLE),
-        g_indexBufferMemory(VK_NULL_HANDLE),
-        g_indexStagingBufferMemory(VK_NULL_HANDLE),
-        g_indexBufferCapacity(0),
+        g_buffer(VK_NULL_HANDLE),
+        g_stagingBuffer(VK_NULL_HANDLE),
+        g_bufferMemory(VK_NULL_HANDLE),
+        g_stagingBufferMemory(VK_NULL_HANDLE),
+        g_bufferCapacity(0),
 
-        g_vertexNeedUpdate(true),
-        g_indexNeedUpdate(true),
+        g_needUpdate(true),
 
         g_type(r.g_type),
-        g_useIndexBuffer(r.g_useIndexBuffer),
 
         g_primitiveTopology(r.g_primitiveTopology),
 
@@ -74,48 +58,32 @@ VertexBuffer::VertexBuffer(const VertexBuffer& r) :
 {}
 VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
         g_vertices(std::move(r.g_vertices)),
-        g_vertexBuffer(r.g_vertexBuffer),
-        g_vertexStagingBuffer(r.g_vertexStagingBuffer),
-        g_vertexBufferMemory(r.g_vertexBufferMemory),
-        g_vertexStagingBufferMemory(r.g_vertexStagingBufferMemory),
-        g_vertexBufferCapacity(r.g_vertexBufferCapacity),
 
-        g_indices(std::move(r.g_indices)),
-        g_indexBuffer(r.g_indexBuffer),
-        g_indexStagingBuffer(r.g_indexStagingBuffer),
-        g_indexBufferMemory(r.g_indexBufferMemory),
-        g_indexStagingBufferMemory(r.g_indexStagingBufferMemory),
-        g_indexBufferCapacity(r.g_indexBufferCapacity),
+        g_buffer(r.g_buffer),
+        g_stagingBuffer(r.g_stagingBuffer),
+        g_bufferMemory(r.g_bufferMemory),
+        g_stagingBufferMemory(r.g_stagingBufferMemory),
+        g_bufferCapacity(r.g_bufferCapacity),
 
-        g_vertexNeedUpdate(r.g_vertexNeedUpdate),
-        g_indexNeedUpdate(r.g_indexNeedUpdate),
+        g_needUpdate(r.g_needUpdate),
 
         g_type(r.g_type),
-        g_useIndexBuffer(r.g_useIndexBuffer),
 
         g_primitiveTopology(r.g_primitiveTopology),
 
         g_context(r.g_context)
 {
-    r.g_vertexBuffer = VK_NULL_HANDLE;
-    r.g_vertexStagingBuffer = VK_NULL_HANDLE;
-    r.g_vertexBufferMemory = VK_NULL_HANDLE;
-    r.g_vertexStagingBufferMemory = VK_NULL_HANDLE;
-    r.g_vertexBufferCapacity = 0;
+    r.g_buffer = VK_NULL_HANDLE;
+    r.g_stagingBuffer = VK_NULL_HANDLE;
+    r.g_bufferMemory = VK_NULL_HANDLE;
+    r.g_stagingBufferMemory = VK_NULL_HANDLE;
+    r.g_bufferCapacity = 0;
 
-    r.g_indexBuffer = VK_NULL_HANDLE;
-    r.g_indexStagingBuffer = VK_NULL_HANDLE;
-    r.g_indexBufferMemory = VK_NULL_HANDLE;
-    r.g_indexStagingBufferMemory = VK_NULL_HANDLE;
-    r.g_indexBufferCapacity = 0;
+    r.g_needUpdate = true;
 
-    r.g_vertexNeedUpdate = true;
-    r.g_indexNeedUpdate = true;
+    r.g_type = BufferTypes::UNINITIALIZED;
 
-    r.g_type = Types::UNINITIALIZED;
-    r.g_useIndexBuffer = true;
-
-    r.g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    r.g_primitiveTopology = FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY;
 
     r.g_context = nullptr;
 }
@@ -126,27 +94,18 @@ VertexBuffer::~VertexBuffer()
 
 VertexBuffer& VertexBuffer::operator=(const VertexBuffer& r)
 {
-    this->destroy();
+    if (this->g_type != r.g_type ||
+        this->g_context != r.g_context)
+    {
+        this->destroy();
+    }
 
     this->g_vertices = r.g_vertices;
-    this->g_vertexBuffer = VK_NULL_HANDLE;
-    this->g_vertexStagingBuffer = VK_NULL_HANDLE;
-    this->g_vertexBufferMemory = VK_NULL_HANDLE;
-    this->g_vertexStagingBufferMemory = VK_NULL_HANDLE;
-    this->g_vertexBufferCapacity = 0;
-
-    this->g_indices = r.g_indices;
-    this->g_indexBuffer = VK_NULL_HANDLE;
-    this->g_indexStagingBuffer = VK_NULL_HANDLE;
-    this->g_indexBufferMemory = VK_NULL_HANDLE;
-    this->g_indexStagingBufferMemory = VK_NULL_HANDLE;
-    this->g_indexBufferCapacity = 0;
-
-    this->g_vertexNeedUpdate = true;
-    this->g_indexNeedUpdate = true;
+    
+    this->g_needUpdate = true;
 
     this->g_type = r.g_type;
-    this->g_useIndexBuffer = r.g_useIndexBuffer;
+    
     this->g_primitiveTopology = r.g_primitiveTopology;
 
     this->g_context = r.g_context;
@@ -158,149 +117,95 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
     this->destroy();
 
     this->g_vertices = std::move(r.g_vertices);
-    this->g_vertexBuffer = r.g_vertexBuffer;
-    this->g_vertexStagingBuffer = r.g_vertexStagingBuffer;
-    this->g_vertexBufferMemory = r.g_vertexBufferMemory;
-    this->g_vertexStagingBufferMemory = r.g_vertexStagingBufferMemory;
-    this->g_vertexBufferCapacity = r.g_vertexBufferCapacity;
+    
+    this->g_buffer = r.g_buffer;
+    this->g_stagingBuffer = r.g_stagingBuffer;
+    this->g_bufferMemory = r.g_bufferMemory;
+    this->g_stagingBufferMemory = r.g_stagingBufferMemory;
+    this->g_bufferCapacity = r.g_bufferCapacity;
 
-    this->g_indices = std::move(r.g_indices);
-    this->g_indexBuffer = r.g_indexBuffer;
-    this->g_indexStagingBuffer = r.g_indexStagingBuffer;
-    this->g_indexBufferMemory = r.g_indexBufferMemory;
-    this->g_indexStagingBufferMemory = r.g_indexStagingBufferMemory;
-    this->g_indexBufferCapacity = r.g_indexBufferCapacity;
-
-    this->g_vertexNeedUpdate = r.g_vertexNeedUpdate;
-    this->g_indexNeedUpdate = r.g_indexNeedUpdate;
+    this->g_needUpdate = r.g_needUpdate;
 
     this->g_type = r.g_type;
-    this->g_useIndexBuffer = r.g_useIndexBuffer;
+    
     this->g_primitiveTopology = r.g_primitiveTopology;
 
     this->g_context = r.g_context;
 
-    r.g_vertexBuffer = VK_NULL_HANDLE;
-    r.g_vertexStagingBuffer = VK_NULL_HANDLE;
-    r.g_vertexBufferMemory = VK_NULL_HANDLE;
-    r.g_vertexStagingBufferMemory = VK_NULL_HANDLE;
-    r.g_vertexBufferCapacity = 0;
+    r.g_buffer = VK_NULL_HANDLE;
+    r.g_stagingBuffer = VK_NULL_HANDLE;
+    r.g_bufferMemory = VK_NULL_HANDLE;
+    r.g_stagingBufferMemory = VK_NULL_HANDLE;
+    r.g_bufferCapacity = 0;
 
-    r.g_indexBuffer = VK_NULL_HANDLE;
-    r.g_indexStagingBuffer = VK_NULL_HANDLE;
-    r.g_indexBufferMemory = VK_NULL_HANDLE;
-    r.g_indexStagingBufferMemory = VK_NULL_HANDLE;
-    r.g_indexBufferCapacity = 0;
+    r.g_needUpdate = true;
 
-    r.g_vertexNeedUpdate = true;
-    r.g_indexNeedUpdate = true;
-
-    r.g_type = Types::UNINITIALIZED;
-    r.g_useIndexBuffer = true;
-    r.g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    r.g_type = BufferTypes::UNINITIALIZED;
+    
+    r.g_primitiveTopology = FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY;
 
     r.g_context = nullptr;
 
     return *this;
 }
 
-void VertexBuffer::create(const Context& context, std::size_t vertexSize, std::size_t indexSize, bool useIndexBuffer, VkPrimitiveTopology topology, Types type)
+void VertexBuffer::create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, BufferTypes type)
 {
     this->g_primitiveTopology = topology;
 
-    if (type == Types::UNINITIALIZED)
+    if (type == BufferTypes::UNINITIALIZED)
     {
         this->destroy();
         return;
     }
 
     if (type != this->g_type ||
-        useIndexBuffer != this->g_useIndexBuffer)
+        (this->g_context != nullptr && &context != this->g_context))
     {
         this->destroy();
-        this->g_useIndexBuffer = useIndexBuffer;
         this->g_type = type;
+        this->g_context = &context;
     }
 
-    this->g_context = &context;
-
-    this->resize(vertexSize, indexSize);
-}
-void VertexBuffer::create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, Types type)
-{
-    this->g_primitiveTopology = topology;
-
-    if (type == Types::UNINITIALIZED)
-    {
-        this->destroy();
-        return;
-    }
-
-    if (type != this->g_type ||
-        this->g_useIndexBuffer)
-    {
-        this->destroy();
-        this->g_useIndexBuffer = false;
-        this->g_type = type;
-    }
-
-    this->g_context = &context;
-
-    this->resize(vertexSize, 0);
+    this->resize(vertexSize);
 }
 
 void VertexBuffer::clear()
 {
-    this->resize(0, 0);
+    this->resize(0);
 }
-void VertexBuffer::resize(std::size_t vertexSize, std::size_t indexSize)
+void VertexBuffer::resize(std::size_t vertexSize)
 {
-    if (this->g_type == Types::UNINITIALIZED)
+    if (this->g_type == BufferTypes::UNINITIALIZED)
     {
         return;
     }
-
-    this->g_vertices.resize(vertexSize);
-    if (this->g_useIndexBuffer)
+    
+    if (this->g_vertices.size() != vertexSize)
     {
-        this->g_indices.resize(indexSize);
+        this->g_vertices.resize(vertexSize);
+        this->g_needUpdate = true;
     }
-
-    this->g_vertexNeedUpdate = true;
-    this->g_indexNeedUpdate = true;
 }
 void VertexBuffer::append(const Vertex& vertex)
 {
     this->g_vertices.push_back(vertex);
-
-    this->g_vertexNeedUpdate = true;
-}
-void VertexBuffer::appendIndex(uint16_t index)
-{
-    if (this->g_useIndexBuffer)
-    {
-        this->g_indices.push_back(index>=static_cast<uint16_t>(this->g_vertices.size()) ? static_cast<uint16_t>(this->g_vertices.size()-1) : index);
-
-        this->g_indexNeedUpdate = true;
-    }
+    this->g_needUpdate = true;
 }
 
 void VertexBuffer::destroy()
 {
-    if (this->g_type != Types::UNINITIALIZED)
+    if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        this->cleanVertexBuffers();
-        this->cleanIndexBuffers();
+        this->cleanBuffer();
 
         this->g_vertices.clear();
-        this->g_indices.clear();
 
-        this->g_vertexNeedUpdate = true;
-        this->g_indexNeedUpdate = true;
+        this->g_needUpdate = true;
 
-        this->g_type = Types::UNINITIALIZED;
-        this->g_useIndexBuffer = true;
-        this->g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        this->g_type = BufferTypes::UNINITIALIZED;
+        
+        this->g_primitiveTopology = FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY;
 
         this->g_context = nullptr;
     }
@@ -308,81 +213,40 @@ void VertexBuffer::destroy()
 
 void VertexBuffer::bind(VkCommandBuffer commandBuffer) const
 {
-    this->updateBuffers();
-
-    const VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &this->g_vertexBuffer, offsets);
-    if (this->g_useIndexBuffer)
+    if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        vkCmdBindIndexBuffer(commandBuffer, this->g_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        this->updateBuffer();
+
+        const VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &this->g_buffer, offsets);
     }
 }
 
-std::size_t VertexBuffer::getVertexCount() const
+std::size_t VertexBuffer::getCount() const
 {
     return this->g_vertices.size();
-}
-std::size_t VertexBuffer::getIndexCount() const
-{
-    return this->g_indices.size();
 }
 
 Vertex* VertexBuffer::getVertices()
 {
-    this->g_vertexNeedUpdate = true; ///TODO
+    this->g_needUpdate = true;
     return this->g_vertices.empty() ? nullptr : this->g_vertices.data();
 }
 const Vertex* VertexBuffer::getVertices() const
 {
-    this->g_vertexNeedUpdate = true; ///TODO
+    this->g_needUpdate = true;
     return this->g_vertices.empty() ? nullptr : this->g_vertices.data();
 }
-void VertexBuffer::mapVertices() const
+
+Vertex& VertexBuffer::operator[](std::size_t index)
 {
-    if (!this->g_vertexNeedUpdate)
-    {
-        return;
-    }
-
-    this->g_vertexNeedUpdate = false;
-
-    const std::size_t size = sizeof(Vertex) * this->g_vertices.size();
-
-    if (size == 0)
-    {
-        return;
-    }
-
-    void* data = nullptr;
-
-    switch (this->g_type)
-    {
-    case Types::VERTEX_BUFFER:
-        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_vertexBufferMemory, 0, size, 0, &data);
-            memcpy(data, this->g_vertices.data(), size);
-        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_vertexBufferMemory);
-        break;
-    case Types::STAGING_BUFFER:
-        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_vertexStagingBufferMemory, 0, size, 0, &data);
-            memcpy(data, this->g_vertices.data(), size);
-        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_vertexStagingBufferMemory);
-
-        this->g_context->copyBuffer(this->g_vertexStagingBuffer, this->g_vertexBuffer, size);
-        break;
-    default:
-        throw std::runtime_error("uninitialized vertex buffer !");
-    }
+    this->g_needUpdate = true;
+    return this->g_vertices[index];
 }
-
-uint16_t* VertexBuffer::getIndices()
+const Vertex& VertexBuffer::operator[](std::size_t index) const
 {
-    this->g_indexNeedUpdate = true; ///TODO
-    return this->g_indices.empty() ? nullptr : this->g_indices.data();
-}
-const uint16_t* VertexBuffer::getIndices() const
-{
-    this->g_indexNeedUpdate = true; ///TODO
-    return this->g_indices.empty() ? nullptr : this->g_indices.data();
+    this->g_needUpdate = true;
+    return this->g_vertices[index];
 }
 
 void VertexBuffer::setPrimitiveTopology(VkPrimitiveTopology topology)
@@ -394,71 +258,22 @@ VkPrimitiveTopology VertexBuffer::getPrimitiveTopology() const
     return this->g_primitiveTopology;
 }
 
-void VertexBuffer::mapIndices() const
-{
-    if (!this->g_useIndexBuffer || !this->g_indexNeedUpdate)
-    {
-        return;
-    }
-
-    this->g_indexNeedUpdate = false;
-
-    const std::size_t size = sizeof(uint16_t) * this->g_indices.size();
-
-    if (size == 0)
-    {
-        return;
-    }
-
-    void* data = nullptr;
-
-    switch (this->g_type)
-    {
-    case Types::VERTEX_BUFFER:
-        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_indexBufferMemory, 0, size, 0, &data);
-            memcpy(data, this->g_indices.data(), size);
-        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_indexBufferMemory);
-        break;
-    case Types::STAGING_BUFFER:
-        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_indexStagingBufferMemory, 0, size, 0, &data);
-            memcpy(data, this->g_indices.data(), size);
-        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_indexStagingBufferMemory);
-
-        this->g_context->copyBuffer(this->g_indexStagingBuffer, this->g_indexBuffer, size);
-        break;
-    default:
-        throw std::runtime_error("uninitialized vertex buffer !");
-    }
-}
-
 VkBuffer VertexBuffer::getVerticesBuffer() const
 {
-    return this->g_vertexBuffer;
-}
-VkBuffer VertexBuffer::getIndicesBuffer() const
-{
-    return this->g_indexBuffer;
+    return this->g_buffer;
 }
 VkDeviceMemory VertexBuffer::getVerticesBufferMemory() const
 {
-    return this->g_vertexBufferMemory;
-}
-VkDeviceMemory VertexBuffer::getIndicesBufferMemory() const
-{
-    return this->g_indexBufferMemory;
+    return this->g_bufferMemory;
 }
 const Context* VertexBuffer::getContext() const
 {
     return this->g_context;
 }
 
-VertexBuffer::Types VertexBuffer::getType() const
+BufferTypes VertexBuffer::getType() const
 {
     return this->g_type;
-}
-bool VertexBuffer::isUsingIndexBuffer() const
-{
-    return this->g_useIndexBuffer;
 }
 
 fge::RectFloat VertexBuffer::getBounds() const
@@ -501,137 +316,444 @@ fge::RectFloat VertexBuffer::getBounds() const
     return {};
 }
 
-void VertexBuffer::cleanVertexBuffers() const
+void VertexBuffer::mapBuffer() const
 {
-    if (this->g_type != Types::UNINITIALIZED)
-    {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_vertexBuffer,
-                                                                                             this->g_vertexBufferMemory,
-                                                                                             this->g_context->getLogicalDevice().getDevice()));
-        this->g_vertexBuffer = VK_NULL_HANDLE;
-        this->g_vertexBufferMemory = VK_NULL_HANDLE;
-
-        if (this->g_type == Types::STAGING_BUFFER)
-        {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_vertexStagingBuffer,
-                                                                                                 this->g_vertexStagingBufferMemory,
-                                                                                                 this->g_context->getLogicalDevice().getDevice()));
-
-            this->g_vertexStagingBuffer = VK_NULL_HANDLE;
-            this->g_vertexStagingBufferMemory = VK_NULL_HANDLE;
-        }
-
-        this->g_vertexBufferCapacity = 0;
-    }
-}
-void VertexBuffer::cleanIndexBuffers() const
-{
-    if (this->g_type != Types::UNINITIALIZED && this->g_useIndexBuffer)
-    {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_indexBuffer,
-                                                                                             this->g_indexBufferMemory,
-                                                                                             this->g_context->getLogicalDevice().getDevice()));
-
-        this->g_indexBuffer = VK_NULL_HANDLE;
-        this->g_indexBufferMemory = VK_NULL_HANDLE;
-
-        if (this->g_type == Types::STAGING_BUFFER)
-        {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_indexStagingBuffer,
-                                                                                                 this->g_indexStagingBufferMemory,
-                                                                                                 this->g_context->getLogicalDevice().getDevice()));
-
-            this->g_indexStagingBuffer = VK_NULL_HANDLE;
-            this->g_indexStagingBufferMemory = VK_NULL_HANDLE;
-        }
-
-        this->g_indexBufferCapacity = 0;
-    }
-}
-void VertexBuffer::updateBuffers() const
-{
-    if (this->g_type == Types::UNINITIALIZED)
+    if (!this->g_needUpdate)
     {
         return;
     }
 
-    if (this->g_vertices.size() > this->g_vertexBufferCapacity || this->g_vertexBuffer == VK_NULL_HANDLE)
+    this->g_needUpdate = false;
+
+    const std::size_t size = sizeof(Vertex) * this->g_vertices.size();
+
+    if (size == 0)
     {
-        this->cleanVertexBuffers();
+        return;
+    }
 
-        this->g_vertexBufferCapacity = this->g_vertices.size();
+    void* data = nullptr;
 
-        const std::size_t vertexBufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.size());
+    switch (this->g_type)
+    {
+    case BufferTypes::LOCAL:
+        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_bufferMemory, 0, size, 0, &data);
+        memcpy(data, this->g_vertices.data(), size);
+        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_bufferMemory);
+        break;
+    case BufferTypes::HOST:
+        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory, 0, size, 0, &data);
+        memcpy(data, this->g_vertices.data(), size);
+        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory);
+
+        this->g_context->copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+        break;
+    default:
+        return;
+    }
+}
+void VertexBuffer::cleanBuffer() const
+{
+    if (this->g_type != BufferTypes::UNINITIALIZED)
+    {
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_buffer,
+                                                                                             this->g_bufferMemory,
+                                                                                             this->g_context->getLogicalDevice().getDevice()));
+        this->g_buffer = VK_NULL_HANDLE;
+        this->g_bufferMemory = VK_NULL_HANDLE;
+
+        if (this->g_type == BufferTypes::HOST)
+        {
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_stagingBuffer,
+                                                                                                 this->g_stagingBufferMemory,
+                                                                                                 this->g_context->getLogicalDevice().getDevice()));
+
+            this->g_stagingBuffer = VK_NULL_HANDLE;
+            this->g_stagingBufferMemory = VK_NULL_HANDLE;
+        }
+
+        this->g_bufferCapacity = 0;
+    }
+}
+void VertexBuffer::updateBuffer() const
+{
+    if (this->g_type == BufferTypes::UNINITIALIZED)
+    {
+        return;
+    }
+
+    if (this->g_vertices.size() > this->g_bufferCapacity ||
+        this->g_buffer == VK_NULL_HANDLE)
+    {
+        this->cleanBuffer();
+
+        this->g_bufferCapacity = this->g_vertices.capacity();
+
+        const std::size_t bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.capacity());
 
         switch (this->g_type)
         {
-        case Types::VERTEX_BUFFER:
+        case BufferTypes::LOCAL:
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
-                         vertexBufferSize,
+                         bufferSize,
                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         this->g_vertexBuffer, this->g_vertexBufferMemory);
+                         this->g_buffer, this->g_bufferMemory);
             break;
-        case Types::STAGING_BUFFER:
+        case BufferTypes::HOST:
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
-                         vertexBufferSize,
+                         bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         this->g_vertexStagingBuffer, this->g_vertexStagingBufferMemory);
+                         this->g_stagingBuffer, this->g_stagingBufferMemory);
 
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
-                         vertexBufferSize,
+                         bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                         this->g_vertexBuffer, this->g_vertexBufferMemory);
+                         this->g_buffer, this->g_bufferMemory);
             break;
         default:
             throw std::runtime_error("unexpected code path !");
         }
 
-        this->g_vertexNeedUpdate = true;
+        this->g_needUpdate = true;
     }
 
-    if ((this->g_indices.size() > this->g_indexBufferCapacity && this->g_useIndexBuffer) ||
-        (this->g_indexBuffer == VK_NULL_HANDLE && this->g_useIndexBuffer))
+    this->mapBuffer();
+}
+
+//IndexBuffer
+
+IndexBuffer::IndexBuffer() :
+        g_buffer(VK_NULL_HANDLE),
+        g_stagingBuffer(VK_NULL_HANDLE),
+        g_bufferMemory(VK_NULL_HANDLE),
+        g_stagingBufferMemory(VK_NULL_HANDLE),
+        g_bufferCapacity(0),
+
+        g_needUpdate(true),
+
+        g_type(BufferTypes::UNINITIALIZED),
+
+        g_context(nullptr)
+{}
+IndexBuffer::IndexBuffer(const IndexBuffer& r) :
+        g_indices(r.g_indices),
+
+        g_buffer(VK_NULL_HANDLE),
+        g_stagingBuffer(VK_NULL_HANDLE),
+        g_bufferMemory(VK_NULL_HANDLE),
+        g_stagingBufferMemory(VK_NULL_HANDLE),
+        g_bufferCapacity(0),
+
+        g_needUpdate(true),
+
+        g_type(r.g_type),
+
+        g_context(r.g_context)
+{}
+IndexBuffer::IndexBuffer(IndexBuffer&& r) noexcept :
+        g_indices(std::move(r.g_indices)),
+
+        g_buffer(r.g_buffer),
+        g_stagingBuffer(r.g_stagingBuffer),
+        g_bufferMemory(r.g_bufferMemory),
+        g_stagingBufferMemory(r.g_stagingBufferMemory),
+        g_bufferCapacity(r.g_bufferCapacity),
+
+        g_needUpdate(r.g_needUpdate),
+
+        g_type(r.g_type),
+
+        g_context(r.g_context)
+{
+    r.g_buffer = VK_NULL_HANDLE;
+    r.g_stagingBuffer = VK_NULL_HANDLE;
+    r.g_bufferMemory = VK_NULL_HANDLE;
+    r.g_stagingBufferMemory = VK_NULL_HANDLE;
+    r.g_bufferCapacity = 0;
+
+    r.g_needUpdate = true;
+
+    r.g_type = BufferTypes::UNINITIALIZED;
+
+    r.g_context = nullptr;
+}
+IndexBuffer::~IndexBuffer()
+{
+    this->destroy();
+}
+
+IndexBuffer& IndexBuffer::operator=(const IndexBuffer& r)
+{
+    if (this->g_type != r.g_type ||
+        this->g_context != r.g_context)
     {
-        this->cleanIndexBuffers();
+        this->destroy();
+    }
 
-        this->g_indexBufferCapacity = this->g_indices.size();
+    this->g_indices = r.g_indices;
 
-        const std::size_t indexBufferSize = sizeof(uint16_t) * (this->g_indices.empty() ? 1 : this->g_indices.size());
+    this->g_needUpdate = true;
+
+    this->g_type = r.g_type;
+
+    this->g_context = r.g_context;
+
+    return *this;
+}
+IndexBuffer& IndexBuffer::operator=(IndexBuffer&& r) noexcept
+{
+    this->destroy();
+
+    this->g_indices = std::move(r.g_indices);
+
+    this->g_buffer = r.g_buffer;
+    this->g_stagingBuffer = r.g_stagingBuffer;
+    this->g_bufferMemory = r.g_bufferMemory;
+    this->g_stagingBufferMemory = r.g_stagingBufferMemory;
+    this->g_bufferCapacity = r.g_bufferCapacity;
+
+    this->g_needUpdate = r.g_needUpdate;
+
+    this->g_type = r.g_type;
+
+    this->g_context = r.g_context;
+
+    r.g_buffer = VK_NULL_HANDLE;
+    r.g_stagingBuffer = VK_NULL_HANDLE;
+    r.g_bufferMemory = VK_NULL_HANDLE;
+    r.g_stagingBufferMemory = VK_NULL_HANDLE;
+    r.g_bufferCapacity = 0;
+
+    r.g_needUpdate = true;
+
+    r.g_type = BufferTypes::UNINITIALIZED;
+
+    r.g_context = nullptr;
+
+    return *this;
+}
+
+void IndexBuffer::create(const Context& context, std::size_t indexSize, BufferTypes type)
+{
+    if (type == BufferTypes::UNINITIALIZED)
+    {
+        this->destroy();
+        return;
+    }
+
+    if (type != this->g_type ||
+        (this->g_context != nullptr && &context != this->g_context))
+    {
+        this->destroy();
+        this->g_type = type;
+        this->g_context = &context;
+    }
+
+    this->resize(indexSize);
+}
+
+void IndexBuffer::clear()
+{
+    this->resize(0);
+}
+void IndexBuffer::resize(std::size_t indexSize)
+{
+    if (this->g_type == BufferTypes::UNINITIALIZED)
+    {
+        return;
+    }
+
+    if (this->g_indices.size() != indexSize)
+    {
+        this->g_indices.resize(indexSize);
+        this->g_needUpdate = true;
+    }
+}
+void IndexBuffer::append(uint16_t index)
+{
+    this->g_indices.push_back(index>=static_cast<uint16_t>(this->g_indices.size()) ?
+                             static_cast<uint16_t>(this->g_indices.size()-1) : index);
+    this->g_needUpdate = true;
+}
+
+void IndexBuffer::destroy()
+{
+    if (this->g_type != BufferTypes::UNINITIALIZED)
+    {
+        this->cleanBuffer();
+
+        this->g_indices.clear();
+
+        this->g_needUpdate = true;
+
+        this->g_type = BufferTypes::UNINITIALIZED;
+
+        this->g_context = nullptr;
+    }
+}
+
+void IndexBuffer::bind(VkCommandBuffer commandBuffer) const
+{
+    if (this->g_type != BufferTypes::UNINITIALIZED)
+    {
+        this->updateBuffer();
+        vkCmdBindIndexBuffer(commandBuffer, this->g_buffer, 0, VK_INDEX_TYPE_UINT16);
+    }
+}
+
+std::size_t IndexBuffer::getCount() const
+{
+    return this->g_indices.size();
+}
+
+uint16_t* IndexBuffer::getIndices()
+{
+    this->g_needUpdate = true;
+    return this->g_indices.empty() ? nullptr : this->g_indices.data();
+}
+const uint16_t* IndexBuffer::getIndices() const
+{
+    this->g_needUpdate = true;
+    return this->g_indices.empty() ? nullptr : this->g_indices.data();
+}
+
+uint16_t& IndexBuffer::operator[](std::size_t index)
+{
+    this->g_needUpdate = true;
+    return this->g_indices[index];
+}
+const uint16_t& IndexBuffer::operator[](std::size_t index) const
+{
+    this->g_needUpdate = true;
+    return this->g_indices[index];
+}
+
+VkBuffer IndexBuffer::getIndicesBuffer() const
+{
+    return this->g_buffer;
+}
+VkDeviceMemory IndexBuffer::getIndicesBufferMemory() const
+{
+    return this->g_bufferMemory;
+}
+const Context* IndexBuffer::getContext() const
+{
+    return this->g_context;
+}
+
+BufferTypes IndexBuffer::getType() const
+{
+    return this->g_type;
+}
+
+void IndexBuffer::mapBuffer() const
+{
+    if (!this->g_needUpdate)
+    {
+        return;
+    }
+
+    this->g_needUpdate = false;
+
+    const std::size_t size = sizeof(uint16_t) * this->g_indices.size();
+
+    if (size == 0)
+    {
+        return;
+    }
+
+    void* data = nullptr;
+
+    switch (this->g_type)
+    {
+    case BufferTypes::LOCAL:
+        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_bufferMemory, 0, size, 0, &data);
+        memcpy(data, this->g_indices.data(), size);
+        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_bufferMemory);
+        break;
+    case BufferTypes::HOST:
+        vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory, 0, size, 0, &data);
+        memcpy(data, this->g_indices.data(), size);
+        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory);
+
+        this->g_context->copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+        break;
+    default:
+        return;
+    }
+}
+void IndexBuffer::cleanBuffer() const
+{
+    if (this->g_type != BufferTypes::UNINITIALIZED)
+    {
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_buffer,
+                                                                                             this->g_bufferMemory,
+                                                                                             this->g_context->getLogicalDevice().getDevice()));
+        this->g_buffer = VK_NULL_HANDLE;
+        this->g_bufferMemory = VK_NULL_HANDLE;
+
+        if (this->g_type == BufferTypes::HOST)
+        {
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_stagingBuffer,
+                                                                                                 this->g_stagingBufferMemory,
+                                                                                                 this->g_context->getLogicalDevice().getDevice()));
+
+            this->g_stagingBuffer = VK_NULL_HANDLE;
+            this->g_stagingBufferMemory = VK_NULL_HANDLE;
+        }
+
+        this->g_bufferCapacity = 0;
+    }
+}
+void IndexBuffer::updateBuffer() const
+{
+    if (this->g_type == BufferTypes::UNINITIALIZED)
+    {
+        return;
+    }
+
+    if (this->g_indices.size() > this->g_bufferCapacity ||
+        this->g_buffer == VK_NULL_HANDLE)
+    {
+        this->cleanBuffer();
+
+        this->g_bufferCapacity = this->g_indices.capacity();
+
+        const std::size_t bufferSize = sizeof(uint16_t) * (this->g_indices.empty() ? 1 : this->g_indices.capacity());
 
         switch (this->g_type)
         {
-        case Types::VERTEX_BUFFER:
+        case BufferTypes::LOCAL:
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
-                         indexBufferSize,
+                         bufferSize,
                          VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         this->g_indexBuffer, this->g_indexBufferMemory);
+                         this->g_buffer, this->g_bufferMemory);
             break;
-        case Types::STAGING_BUFFER:
+        case BufferTypes::HOST:
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
-                         indexBufferSize,
+                         bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         this->g_indexStagingBuffer, this->g_indexStagingBufferMemory);
+                         this->g_stagingBuffer, this->g_stagingBufferMemory);
 
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
-                         indexBufferSize,
+                         bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                         this->g_indexBuffer, this->g_indexBufferMemory);
+                         this->g_buffer, this->g_bufferMemory);
             break;
         default:
             throw std::runtime_error("unexpected code path !");
         }
 
-        this->g_indexNeedUpdate = true;
+        this->g_needUpdate = true;
     }
 
-    this->mapVertices();
-    this->mapIndices();
+    this->mapBuffer();
 }
 
 }//end fge::vulkan

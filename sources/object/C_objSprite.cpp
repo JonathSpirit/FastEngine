@@ -21,7 +21,7 @@ namespace fge
 
 ObjSprite::ObjSprite()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }
 ObjSprite::ObjSprite(const fge::Texture& texture, const fge::Vector2f& position) :
         ObjSprite()

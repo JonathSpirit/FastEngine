@@ -234,7 +234,7 @@ void RenderTarget::drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer comm
                                         states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : VK_NULL_HANDLE};
 
     graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSets, descriptorSize);
-    graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer);
+    graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer, states._indexBuffer);
 }
 
 }//end fge

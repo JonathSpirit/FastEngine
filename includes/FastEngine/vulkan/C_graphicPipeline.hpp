@@ -68,7 +68,9 @@ public:
     void setScissor(const VkRect2D& scissor) const;
     [[nodiscard]] const VkRect2D& getScissor() const;
 
-    void recordCommandBuffer(VkCommandBuffer commandBuffer, const VertexBuffer* vertexBuffer) const;
+    void recordCommandBuffer(VkCommandBuffer commandBuffer,
+                             const VertexBuffer* vertexBuffer,
+                             const IndexBuffer* indexBuffer) const;
     void bindDescriptorSets(VkCommandBuffer commandBuffer, const VkDescriptorSet* descriptorSet, uint32_t descriptorCount) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;

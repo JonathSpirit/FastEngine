@@ -40,7 +40,7 @@ public:
 
     Obstacle()
     {
-        this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+        this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
     }
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Obstacle)
@@ -66,10 +66,10 @@ public:
             this->setPosition(screen.mapPixelToCoords(event.getMousePixelPos()));
         }
 
-        this->_g_myPoints.resize(this->g_vertices.getVertexCount());
-        for (std::size_t i = 0; i < this->g_vertices.getVertexCount(); ++i)
+        this->_g_myPoints.resize(this->g_vertices.getCount());
+        for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
         {
-            this->_g_myPoints[i] = this->getTransform() * this->g_vertices.getVertices()[i]._position;
+            this->_g_myPoints[i] = this->getTransform() * this->g_vertices[i]._position;
         }
     }
 

@@ -130,8 +130,8 @@ g_outlineVertices (),
 g_insideBounds    (),
 g_bounds          ()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
 void Shape::update()
@@ -196,9 +196,9 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
 
 void Shape::updateFillColors()
 {
-    for (std::size_t i = 0; i < this->g_vertices.getVertexCount(); ++i)
+    for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
     {
-        this->g_vertices.getVertices()[i]._color = this->g_fillColor;
+        this->g_vertices[i]._color = this->g_fillColor;
     }
 }
 
@@ -206,12 +206,12 @@ void Shape::updateTexCoords()
 {
     auto convertedTextureRect = RectFloat(this->g_textureRect);
 
-    for (std::size_t i = 0; i < this->g_vertices.getVertexCount(); ++i)
+    for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
     {
-        const float xratio = this->g_insideBounds._width > 0 ? (this->g_vertices.getVertices()[i]._position.x - this->g_insideBounds._x) / this->g_insideBounds._width : 0;
-        const float yratio = this->g_insideBounds._height > 0 ? (this->g_vertices.getVertices()[i]._position.y - this->g_insideBounds._y) / this->g_insideBounds._height : 0;
-        this->g_vertices.getVertices()[i]._texCoords.x = convertedTextureRect._x + convertedTextureRect._width * xratio;
-        this->g_vertices.getVertices()[i]._texCoords.y = convertedTextureRect._y + convertedTextureRect._height * yratio;
+        const float xratio = this->g_insideBounds._width > 0 ? (this->g_vertices[i]._position.x - this->g_insideBounds._x) / this->g_insideBounds._width : 0;
+        const float yratio = this->g_insideBounds._height > 0 ? (this->g_vertices[i]._position.y - this->g_insideBounds._y) / this->g_insideBounds._height : 0;
+        this->g_vertices[i]._texCoords.x = convertedTextureRect._x + convertedTextureRect._width * xratio;
+        this->g_vertices[i]._texCoords.y = convertedTextureRect._y + convertedTextureRect._height * yratio;
     }
 }
 
@@ -225,7 +225,7 @@ void Shape::updateOutline()
         return;
     }
 
-    const std::size_t count = this->g_vertices.getVertexCount() - 2;
+    const std::size_t count = this->g_vertices.getCount() - 2;
     this->g_outlineVertices.resize((count + 1) * 2);
 
     for (std::size_t i = 0; i < count; ++i)
@@ -233,9 +233,9 @@ void Shape::updateOutline()
         const std::size_t index = i + 1;
 
         // Get the two segments shared by the current point
-        const fge::Vector2f p0 = (i == 0) ? this->g_vertices.getVertices()[count]._position : this->g_vertices.getVertices()[index - 1]._position;
-        const fge::Vector2f p1 = this->g_vertices.getVertices()[index]._position;
-        const fge::Vector2f p2 = this->g_vertices.getVertices()[index + 1]._position;
+        const fge::Vector2f p0 = (i == 0) ? this->g_vertices[count]._position : this->g_vertices[index - 1]._position;
+        const fge::Vector2f p1 = this->g_vertices[index]._position;
+        const fge::Vector2f p2 = this->g_vertices[index + 1]._position;
 
         // Compute their normal
         fge::Vector2f n1 = computeNormal(p0, p1);
@@ -243,11 +243,11 @@ void Shape::updateOutline()
 
         // Make sure that the normals point towards the outside of the shape
         // (this depends on the order in which the points were defined)
-        if (dotProduct(n1, this->g_vertices.getVertices()[0]._position - p1) > 0)
+        if (dotProduct(n1, this->g_vertices[0]._position - p1) > 0)
         {
             n1 = -n1;
         }
-        if (dotProduct(n2, this->g_vertices.getVertices()[0]._position - p1) > 0)
+        if (dotProduct(n2, this->g_vertices[0]._position - p1) > 0)
         {
             n2 = -n2;
         }
@@ -257,13 +257,13 @@ void Shape::updateOutline()
         const fge::Vector2f normal = (n1 + n2) / factor;
 
         // Update the outline points
-        this->g_outlineVertices.getVertices()[i * 2 + 0]._position = p1;
-        this->g_outlineVertices.getVertices()[i * 2 + 1]._position = p1 + normal * this->g_outlineThickness;
+        this->g_outlineVertices[i * 2 + 0]._position = p1;
+        this->g_outlineVertices[i * 2 + 1]._position = p1 + normal * this->g_outlineThickness;
     }
 
     // Duplicate the first point at the end, to close the outline
-    this->g_outlineVertices.getVertices()[count * 2 + 0]._position = this->g_outlineVertices.getVertices()[0]._position;
-    this->g_outlineVertices.getVertices()[count * 2 + 1]._position = this->g_outlineVertices.getVertices()[1]._position;
+    this->g_outlineVertices[count * 2 + 0]._position = this->g_outlineVertices.getVertices()[0]._position;
+    this->g_outlineVertices[count * 2 + 1]._position = this->g_outlineVertices.getVertices()[1]._position;
 
     // Update outline colors
     updateOutlineColors();
@@ -274,9 +274,9 @@ void Shape::updateOutline()
 
 void Shape::updateOutlineColors()
 {
-    for (std::size_t i = 0; i < this->g_outlineVertices.getVertexCount(); ++i)
+    for (std::size_t i = 0; i < this->g_outlineVertices.getCount(); ++i)
     {
-        this->g_outlineVertices.getVertices()[i]._color = this->g_outlineColor;
+        this->g_outlineVertices[i]._color = this->g_outlineColor;
     }
 }
 

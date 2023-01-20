@@ -186,7 +186,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             }
             fge::GetConvexHull(tmpHull, tmpHull);
 
-            this->g_obstacleHulls[i].create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+            this->g_obstacleHulls[i].create(*fge::vulkan::GlobalContext, tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::BufferTypes::LOCAL);
             for (std::size_t a = 0; a < tmpHull.size(); ++a)
             {
                 this->g_obstacleHulls[i].getVertices()[a]._position = tmpHull[a];

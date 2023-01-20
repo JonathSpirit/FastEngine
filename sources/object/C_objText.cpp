@@ -24,15 +24,15 @@ namespace fge
 
 Character::Character()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
 }
 Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0,0, false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::VertexBuffer::Types::VERTEX_BUFFER);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
 }
 
 void Character::clear()
@@ -125,17 +125,17 @@ void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, co
 void Character::setFillColor(const fge::Color& color)
 {
     this->g_fillColor = color;
-    for (std::size_t i = 0; i < this->g_vertices.getVertexCount(); ++i)
+    for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
     {
-        this->g_vertices.getVertices()[i]._color = color;
+        this->g_vertices[i]._color = color;
     }
 }
 void Character::setOutlineColor(const fge::Color& color)
 {
     this->g_outlineColor = color;
-    for (std::size_t i = 0; i < this->g_outlineVertices.getVertexCount(); ++i)
+    for (std::size_t i = 0; i < this->g_outlineVertices.getCount(); ++i)
     {
-        this->g_outlineVertices.getVertices()[i]._color = color;
+        this->g_outlineVertices[i]._color = color;
     }
 }
 

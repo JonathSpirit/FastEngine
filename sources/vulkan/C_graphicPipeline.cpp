@@ -376,25 +376,28 @@ const VkRect2D& GraphicPipeline::getScissor() const
     return this->g_scissor;
 }
 
-void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer, const VertexBuffer* vertexBuffer) const
+void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
+                                          const VertexBuffer* vertexBuffer,
+                                          const IndexBuffer* indexBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
     vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
     vkCmdSetScissor(commandBuffer, 0, 1, &this->g_scissor);
 
-    if (vertexBuffer != nullptr && vertexBuffer->getType() != VertexBuffer::Types::UNINITIALIZED)
+    if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
     {
         vkCmdSetPrimitiveTopologyEXT(commandBuffer, vertexBuffer->getPrimitiveTopology());
 
         vertexBuffer->bind(commandBuffer);
-        if (vertexBuffer->isUsingIndexBuffer())
+        if (indexBuffer != nullptr && indexBuffer->getType() != BufferTypes::UNINITIALIZED)
         {
-            vkCmdDrawIndexed(commandBuffer, vertexBuffer->getIndexCount(), 1, 0, 0, 0);
+            indexBuffer->bind(commandBuffer);
+            vkCmdDrawIndexed(commandBuffer, indexBuffer->getCount(), 1, 0, 0, 0);
         }
         else
         {
-            vkCmdDraw(commandBuffer, vertexBuffer->getVertexCount(), 1, 0, 0);
+            vkCmdDraw(commandBuffer, vertexBuffer->getCount(), 1, 0, 0);
         }
     }
     else

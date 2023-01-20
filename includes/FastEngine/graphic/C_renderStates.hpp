@@ -36,6 +36,7 @@ namespace vulkan
 
 class TextureImage;
 class VertexBuffer;
+class IndexBuffer;
 
 }//end vulkan
 
@@ -72,6 +73,7 @@ public:
     const fge::Transform* _transform{nullptr};
     const fge::TextureType* _textureImage{nullptr};
     const fge::vulkan::VertexBuffer* _vertexBuffer{nullptr};
+    const fge::vulkan::IndexBuffer* _indexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};
 };
 
