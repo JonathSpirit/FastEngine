@@ -341,7 +341,7 @@ void VertexBuffer::mapBuffer() const
         memcpy(data, this->g_vertices.data(), size);
         vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_bufferMemory);
         break;
-    case BufferTypes::HOST:
+    case BufferTypes::DEVICE:
         vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory, 0, size, 0, &data);
         memcpy(data, this->g_vertices.data(), size);
         vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory);
@@ -362,7 +362,7 @@ void VertexBuffer::cleanBuffer() const
         this->g_buffer = VK_NULL_HANDLE;
         this->g_bufferMemory = VK_NULL_HANDLE;
 
-        if (this->g_type == BufferTypes::HOST)
+        if (this->g_type == BufferTypes::DEVICE)
         {
             this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_stagingBuffer,
                                                                                                  this->g_stagingBufferMemory,
@@ -400,7 +400,7 @@ void VertexBuffer::updateBuffer() const
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          this->g_buffer, this->g_bufferMemory);
             break;
-        case BufferTypes::HOST:
+        case BufferTypes::DEVICE:
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
                          bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -674,7 +674,7 @@ void IndexBuffer::mapBuffer() const
         memcpy(data, this->g_indices.data(), size);
         vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_bufferMemory);
         break;
-    case BufferTypes::HOST:
+    case BufferTypes::DEVICE:
         vkMapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory, 0, size, 0, &data);
         memcpy(data, this->g_indices.data(), size);
         vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_stagingBufferMemory);
@@ -695,7 +695,7 @@ void IndexBuffer::cleanBuffer() const
         this->g_buffer = VK_NULL_HANDLE;
         this->g_bufferMemory = VK_NULL_HANDLE;
 
-        if (this->g_type == BufferTypes::HOST)
+        if (this->g_type == BufferTypes::DEVICE)
         {
             this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_stagingBuffer,
                                                                                                  this->g_stagingBufferMemory,
@@ -733,7 +733,7 @@ void IndexBuffer::updateBuffer() const
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          this->g_buffer, this->g_bufferMemory);
             break;
-        case BufferTypes::HOST:
+        case BufferTypes::DEVICE:
             CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
                          bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,

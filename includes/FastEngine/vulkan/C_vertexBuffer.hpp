@@ -38,7 +38,7 @@ enum class BufferTypes
 {
     UNINITIALIZED,
     LOCAL,
-    HOST,
+    DEVICE,
 
     DEFAULT=LOCAL
 };

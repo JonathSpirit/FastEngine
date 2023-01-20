@@ -88,7 +88,7 @@ void Context::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
     submitInfo.pCommandBuffers = &commandBuffer;
 
     vkQueueSubmit(this->g_logicalDevice.getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(this->g_logicalDevice.getGraphicQueue());
+    vkQueueWaitIdle(this->g_logicalDevice.getGraphicQueue()); ///TODO stop doing that
 
     vkFreeCommandBuffers(this->g_logicalDevice.getDevice(), this->g_commandPool, 1, &commandBuffer);
 }
