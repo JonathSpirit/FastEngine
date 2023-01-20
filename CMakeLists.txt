@@ -252,6 +252,10 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 
+if(NOT WIN32)
+    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
+endif()
+
 target_include_directories(${FGE_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR}) #FreeType
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR})
 
@@ -377,37 +381,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
 #target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
-
-if(NOT WIN32)
-    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
-endif()
-set(FGE_SFML_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/SFML) #TODO remove that
-
-#target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE SFML_GRAPHICS_EXPORTS SFML_WINDOW_EXPORTS) #TODO remove all that
-#target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE includes/private/server)
-#target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/extlibs/headers/stb_image)
-#target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_SFML_DIRECTORY}/src)
-
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/RenderTarget.cpp") #TODO remove all that
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/GlResource.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/private/server/Texture.cpp")
-
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Color.cpp") #TODO remove all that
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ImageLoader.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Image.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Vertex.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/VertexArray.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Transform.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Transformable.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/BlendMode.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Shape.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/RectangleShape.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/CircleShape.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/ConvexShape.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/View.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/RenderStates.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Font.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "${FGE_SFML_DIRECTORY}/src/SFML/Graphics/Text.cpp")
 
 #######################
 
@@ -622,6 +595,3 @@ if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/clientServerLifeSimulator_004)
     add_subdirectory(examples/deepText_005)
 endif()
-
-add_executable(testVulkan mainVulkanTest.cpp) #TODO REMOVE THAT
-target_link_libraries(testVulkan SDL2main SDL2 SDL2_image sfml-system ${FGE_LIB_NAME})
