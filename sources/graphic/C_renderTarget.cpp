@@ -24,6 +24,8 @@
 namespace fge
 {
 
+const fge::vulkan::TextureImage* RenderTarget::gLastTexture = nullptr;
+
 RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
         _g_clearColor(fge::Color::White),
         _g_context(&context),
@@ -206,7 +208,11 @@ bool RenderTarget::isSrgb() const
     return false;
 }
 
-void RenderTarget::drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer commandBuffer, VkRenderPass renderPass, const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states)
+void RenderTarget::drawPipeline(const VkExtent2D& extent2D,
+                                VkCommandBuffer commandBuffer,
+                                VkRenderPass renderPass,
+                                const fge::vulkan::GraphicPipeline& graphicPipeline,
+                                const fge::RenderStates& states)
 {
     states._transform->_viewTransform = this->getView().getTransform();
     states._transform->updateUniformBuffer(*this->_g_context);
@@ -228,12 +234,23 @@ void RenderTarget::drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer comm
                                    renderPass,
                                    this->_g_forceGraphicPipelineUpdate);
 
-    const std::size_t descriptorSize = states._textureImage != nullptr ? 2 : 1;
+    VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().getDescriptorSet()};
+    graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);
 
-    VkDescriptorSet descriptorSets[] = {states._transform->getDescriptorSet().getDescriptorSet(),
-                                        states._textureImage != nullptr ? states._textureImage->getDescriptorSet().getDescriptorSet() : VK_NULL_HANDLE};
+    if (states._textureImage != nullptr)
+    {
+        if (RenderTarget::gLastTexture != states._textureImage)
+        {
+            RenderTarget::gLastTexture = states._textureImage;
+            VkDescriptorSet descriptorSetTexture[] = {states._textureImage->getDescriptorSet().getDescriptorSet()};
+            graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
+        }
+    }
+    else
+    {
+        RenderTarget::gLastTexture = nullptr;
+    }
 
-    graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSets, descriptorSize);
     graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer, states._indexBuffer);
 }
 

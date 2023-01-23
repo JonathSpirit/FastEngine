@@ -93,7 +93,11 @@ private:
     View g_view;
 
 protected:
-    void drawPipeline(const VkExtent2D& extent2D, VkCommandBuffer commandBuffer, VkRenderPass renderPass, const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states);
+    void drawPipeline(const VkExtent2D& extent2D,
+                      VkCommandBuffer commandBuffer,
+                      VkRenderPass renderPass,
+                      const fge::vulkan::GraphicPipeline& graphicPipeline,
+                      const fge::RenderStates& states);
 
     VkClearColorValue _g_clearColor;
 
@@ -103,6 +107,8 @@ protected:
 
     std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTexture;
     std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTexture;
+
+    static const fge::vulkan::TextureImage* gLastTexture;
 };
 
 }//end fge

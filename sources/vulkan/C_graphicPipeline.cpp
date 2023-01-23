@@ -406,10 +406,13 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
         vkCmdDraw(commandBuffer, this->g_defaultVertexCount, 1, 0, 0);
     }
 }
-void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer, const VkDescriptorSet* descriptorSet, uint32_t descriptorCount) const
+void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
+                                         const VkDescriptorSet* descriptorSet,
+                                         uint32_t descriptorCount,
+                                         uint32_t firstSet) const
 {
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            this->g_pipelineLayout, 0, descriptorCount, descriptorSet, 0, nullptr);
+                            this->g_pipelineLayout, firstSet, descriptorCount, descriptorSet, 0, nullptr);
 }
 
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const
