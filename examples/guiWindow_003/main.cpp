@@ -78,10 +78,10 @@ public:
         //Create a text list object
         auto* objTextList =
                 objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
-        objTextList->addString("this is a text");
-        objTextList->addString("hello world");
-        objTextList->addString("good morning");
-        objTextList->addString("yes and no");
+        objTextList->addText("this is a text");
+        objTextList->addText("hello world");
+        objTextList->addText("good morning");
+        objTextList->addText("yes and no");
         objTextList->setFont("base");
         objTextList->move({100.0f, 100.0f});
         objTextList->setTextScrollRatio(0.0f);

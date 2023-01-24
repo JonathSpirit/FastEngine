@@ -22,7 +22,7 @@
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include "FastEngine/graphic/C_rectangleShape.hpp"
-#include <deque>
+#include <vector>
 
 #define FGE_OBJTEXTLIST_CLASSNAME "FGE:OBJ:TEXTLIST"
 
@@ -33,6 +33,7 @@ class FGE_API ObjTextList : public fge::Object, public fge::Subscriber
 {
 public:
     ObjTextList();
+    ObjTextList(const ObjTextList& r);
     ~ObjTextList() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextList)
@@ -47,11 +48,11 @@ public:
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
 
-    void addString(tiny_utf8::string string);
-    std::size_t getStringsSize() const;
-    tiny_utf8::string& getString(std::size_t index);
-    const tiny_utf8::string& getString(std::size_t index) const;
-    void removeAllStrings();
+    void addText(tiny_utf8::string string);
+    std::size_t getTextCount() const;
+    fge::ObjText* getText(std::size_t index);
+    const fge::ObjText* getText(std::size_t index) const;
+    void removeAllTexts();
 
     void setFont(fge::Font font);
     const fge::Font& getFont() const;
@@ -62,8 +63,8 @@ public:
     void setTextScrollRatio(float ratio);
     float getTextScrollRatio() const;
 
-    void setMaxStrings(std::size_t max);
-    std::size_t getMaxStrings() const;
+    void setMaxTextCount(std::size_t max);
+    std::size_t getMaxTextCount() const;
 
     void refreshSize();
 
@@ -71,15 +72,15 @@ private:
     void onGuiResized(const fge::GuiElementHandler& handler, const fge::Vector2f& size);
     void refreshSize(const fge::Vector2f& targetSize);
 
-    mutable fge::ObjText g_text;
-
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
     mutable fge::RectangleShape g_box{};
     float g_textScrollRatio{0.0f};
     fge::DynamicSize g_boxSize;
 
-    std::deque<tiny_utf8::string> g_stringList;
+    fge::Font g_font;
+
+    mutable std::vector<std::unique_ptr<fge::ObjText> > g_textList;
     std::size_t g_maxStrings{100};
 };
 

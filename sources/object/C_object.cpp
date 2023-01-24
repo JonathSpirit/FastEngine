@@ -33,7 +33,7 @@ Object::Object(const Object& r) :
         fge::Transformable(r),
         fge::Anchor(this, r)
 {}
-Object::Object(Object&& r) :
+Object::Object(Object&& r) noexcept :
         fge::Transformable(std::move(r)),
         fge::Anchor(this, r)
 {}

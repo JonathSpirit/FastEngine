@@ -101,7 +101,7 @@ class FGE_API Object : public fge::Drawable, public fge::Transformable, public f
 public:
     Object();
     Object(const Object& r);
-    Object(Object&& r);
+    Object(Object&& r) noexcept;
     ~Object() override = default;
 
     /**
