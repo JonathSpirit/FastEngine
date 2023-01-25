@@ -15,36 +15,10 @@
  */
 
 #include "FastEngine/object/C_objSpriteBatches.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
-
-void* alignedAlloc(size_t size, size_t alignment) ///TODO: move that to extra_function
-{
-    void* data = nullptr;
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    data = _aligned_malloc(size, alignment);
-#else
-    int res = posix_memalign(&data, alignment, size);
-    if (res != 0)
-    {
-        data = nullptr;
-    }
-#endif
-    return data;
-}
-void alignedFree(void* data) ///TODO: move that to extra_function
-{
-    if (data != nullptr)
-    {
-#if	defined(_MSC_VER) || defined(__MINGW32__)
-        _aligned_free(data);
-#else
-        free(data);
-#endif
-    }
-}
 
 ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransformData(nullptr),
@@ -62,7 +36,7 @@ ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
 }
 ObjSpriteBatches::~ObjSpriteBatches()  ///TODO: make it safer
 {
-    alignedFree(this->g_instancesTransformData);
+    fge::AlignedFree(this->g_instancesTransformData);
 }
 
 void ObjSpriteBatches::setTexture(fge::Texture texture)
@@ -240,8 +214,8 @@ void ObjSpriteBatches::updateBuffers() const
 
             this->g_instancesTransform.create(*fge::vulkan::GlobalContext, dynamicAlignment*this->g_spriteCount);
 
-            alignedFree(this->g_instancesTransformData);
-            this->g_instancesTransformData = (TransformData*)alignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment);///.resize(this->g_spriteCount);
+            fge::AlignedFree(this->g_instancesTransformData);
+            this->g_instancesTransformData = (TransformData*)fge::AlignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment);
 
             const fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_instancesTransform,
                                                                     FGE_VULKAN_TRANSFORM_BINDING,

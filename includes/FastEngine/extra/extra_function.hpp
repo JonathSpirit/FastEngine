@@ -51,6 +51,9 @@ FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer,
 FGE_API bool SetVirtualTerminalSequenceSupport();
 FGE_API void SetConsoleCmdTitle(const char* title);
 
+FGE_API void* AlignedAlloc(std::size_t size, std::size_t alignment);
+FGE_API void AlignedFree(void* data);
+
 ///Detection
 #ifndef FGE_DEF_SERVER
 FGE_API bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone);

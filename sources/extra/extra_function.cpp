@@ -201,6 +201,33 @@ void SetConsoleCmdTitle(const char* title)
 #endif //_WIN32
 }
 
+void* AlignedAlloc(std::size_t size, std::size_t alignment)
+{
+    void* data = nullptr;
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    data = _aligned_malloc(size, alignment);
+#else
+    int res = posix_memalign(&data, alignment, size);
+    if (res != 0)
+    {
+        data = nullptr;
+    }
+#endif
+    return data;
+}
+void AlignedFree(void* data)
+{
+    if (data != nullptr)
+    {
+#if	defined(_MSC_VER) || defined(__MINGW32__)
+        _aligned_free(data);
+#else
+        free(data);
+#endif
+    }
+}
+
 ///Detection
 #ifndef FGE_DEF_SERVER
 bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone)
