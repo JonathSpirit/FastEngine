@@ -1,0 +1,91 @@
+/*
+ * Copyright 2022 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef _FGE_C_OBJSPRITEBATCHES_HPP_INCLUDED
+#define _FGE_C_OBJSPRITEBATCHES_HPP_INCLUDED
+
+#include "FastEngine/fastengine_extern.hpp"
+#include "C_object.hpp"
+#include "FastEngine/C_texture.hpp"
+
+#define FGE_OBJSPRITEBATCHES_CLASSNAME "FGE:OBJ:SPRITEBATCHES"
+
+namespace fge
+{
+
+class FGE_API ObjSpriteBatches : public fge::Object
+{
+public:
+    ObjSpriteBatches();
+    explicit ObjSpriteBatches(fge::Texture texture);
+    ~ObjSpriteBatches() override;
+
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSpriteBatches)
+
+    void setTexture(fge::Texture texture);
+
+    fge::Transformable& addSprite(const fge::RectInt& rectangle);
+    void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
+    void setColor(std::size_t index, const fge::Color& color);
+
+    const fge::Texture& getTexture() const;
+    const fge::RectInt& getTextureRect() const;///TODO: add index as parameter
+
+    fge::Color getColor() const;///TODO: add index as parameter
+
+    FGE_OBJ_DRAW_DECLARE
+
+    void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
+    void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
+    void pack(fge::net::Packet& pck) override;
+    void unpack(fge::net::Packet& pck) override;
+
+    const char* getClassName() const override;
+    const char* getReadableClassName() const override;
+
+    fge::RectFloat getGlobalBounds() const override;///TODO: make another method with the index
+    fge::RectFloat getLocalBounds() const override;
+    fge::RectFloat getLocalBounds(std::size_t index) const;
+
+private:
+    void updatePositions(std::size_t index) const;
+    void updateTexCoords(std::size_t index) const;
+    void updateBuffers() const;
+
+    struct TransformData ///TODO: Avoid duplicate with fge::Transform
+    {
+        alignas(16) glm::mat4 _modelTransform{1.0f};
+        alignas(16) glm::mat4 _viewTransform{1.0f};
+    };
+
+    fge::Texture g_texture;
+
+    mutable fge::vulkan::DescriptorSet g_descriptorSet;
+
+    mutable std::vector<fge::Transformable> g_instancesTransformable;
+    mutable TransformData* g_instancesTransformData; ///TODO: make it safer
+    mutable fge::vulkan::UniformBuffer g_instancesTransform; ///TODO: rename that
+    mutable fge::vulkan::VertexBuffer g_instancesVertices;
+    mutable std::vector<fge::RectInt> g_instancesTextureRect;
+
+    std::size_t g_spriteCount;
+
+    mutable bool g_needBuffersUpdate;
+};
+
+} // namespace fge
+
+#endif // _FGE_C_OBJSPRITEBATCHES_HPP_INCLUDED

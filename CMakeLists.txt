@@ -437,6 +437,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSpriteBatches.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
 #target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp") TODO
