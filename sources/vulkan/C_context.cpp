@@ -54,6 +54,8 @@ void Context::destroy()
 
         vkDestroyCommandPool(this->g_logicalDevice.getDevice(), this->g_commandPool, nullptr);
 
+        vmaDestroyAllocator(this->g_allocator);
+
         this->g_surface.destroy();
         this->g_logicalDevice.destroy();
         this->g_instance.destroy();
@@ -119,6 +121,52 @@ void Context::initVulkan(SDL_Window* window)
         throw std::runtime_error("failed to find a suitable GPU!");
     }
     this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface.getSurface());
+
+    VmaVulkanFunctions vulkanFunctions{
+            vkGetInstanceProcAddr,
+            vkGetDeviceProcAddr,
+            vkGetPhysicalDeviceProperties,
+            vkGetPhysicalDeviceMemoryProperties,
+            vkAllocateMemory,
+            vkFreeMemory,
+            vkMapMemory,
+            vkUnmapMemory,
+            vkFlushMappedMemoryRanges,
+            vkInvalidateMappedMemoryRanges,
+            vkBindBufferMemory,
+            vkBindImageMemory,
+            vkGetBufferMemoryRequirements,
+            vkGetImageMemoryRequirements,
+            vkCreateBuffer,
+            vkDestroyBuffer,
+            vkCreateImage,
+            vkDestroyImage,
+            vkCmdCopyBuffer,
+            vkGetBufferMemoryRequirements2,
+            vkGetImageMemoryRequirements2,
+            vkBindBufferMemory2,
+            vkBindImageMemory2,
+            vkGetPhysicalDeviceMemoryProperties2
+    };
+
+    VmaAllocatorCreateInfo allocatorCreateInfo{
+            0,
+            this->g_physicalDevice.getDevice(),
+            this->g_logicalDevice.getDevice(),
+            0,
+            nullptr,
+            nullptr,
+            nullptr,
+            &vulkanFunctions,
+            this->g_instance.getInstance(),
+            VK_API_VERSION_1_1,
+            nullptr
+    };
+
+    if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create allocator!");
+    }
 
     this->createCommandPool();
     this->createTextureDescriptorPool();
@@ -387,6 +435,11 @@ const DescriptorPool& Context::getTransformDescriptorPool() const
 const DescriptorPool& Context::getTransformBatchesDescriptorPool() const
 {
     return this->g_transformBatchesDescriptorPool;
+}
+
+VmaAllocator Context::getAllocator() const
+{
+    return this->g_allocator;
 }
 
 void Context::createCommandPool()

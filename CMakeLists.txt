@@ -219,6 +219,12 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL_image)
 target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH}) #Volk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC ${VOLK_PATH})
 
+add_compile_definitions(VMA_VULKAN_VERSION=1001000)
+add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0)
+add_compile_definitions(VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/VulkanMemoryAllocator/include) #VulkanMemoryAllocator
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/VulkanMemoryAllocator/include)
+
 target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/glm)
 
@@ -286,6 +292,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.c)
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.h)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
+        sources/vulkan/vma.cpp
         sources/vulkan/vulkanGlobal.cpp
         sources/vulkan/C_instance.cpp
         sources/vulkan/C_physicalDevice.cpp
@@ -390,6 +397,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.c)
 target_sources(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.h)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
+        sources/vulkan/vma.cpp
         sources/vulkan/vulkanGlobal.cpp
         sources/vulkan/C_instance.cpp
         sources/vulkan/C_physicalDevice.cpp

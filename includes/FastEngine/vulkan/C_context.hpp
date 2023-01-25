@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include <vector>
 #include "volk.h"
+#include "vk_mem_alloc.h"
 
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "FastEngine/vulkan/C_surface.hpp"
@@ -80,6 +81,8 @@ public:
     [[nodiscard]] const DescriptorPool& getTransformDescriptorPool() const;
     [[nodiscard]] const DescriptorPool& getTransformBatchesDescriptorPool() const;
 
+    [[nodiscard]] VmaAllocator getAllocator() const;
+
     fge::vulkan::GarbageCollector _garbageCollector;
 
 private:
@@ -99,6 +102,8 @@ private:
     DescriptorPool g_textureDescriptorPool;
     DescriptorPool g_transformDescriptorPool;
     DescriptorPool g_transformBatchesDescriptorPool;
+
+    mutable VmaAllocator g_allocator;
 
     VkCommandPool g_commandPool;
     bool g_isCreated;

@@ -56,3 +56,8 @@
     url = https://github.com/zeux/volk.git
     ignore = dirty
     branch = master
+[submodule "libs/VulkanMemoryAllocator"]
+    path = libs/VulkanMemoryAllocator
+    url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+    ignore = dirty
+    branch = v3.0.1

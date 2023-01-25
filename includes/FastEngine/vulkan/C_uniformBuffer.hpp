@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
+#include "vk_mem_alloc.h"
 #include <cstdint>
 
 namespace fge::vulkan
@@ -42,7 +43,7 @@ public:
     void destroy();
 
     [[nodiscard]] VkBuffer getBuffer() const;
-    [[nodiscard]] VkDeviceMemory getBufferMemory() const;
+    [[nodiscard]] VmaAllocation getBufferAllocation() const;
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
 
@@ -52,7 +53,7 @@ public:
 
 private:
     VkBuffer g_uniformBuffer;
-    VkDeviceMemory g_uniformBufferMemory;
+    VmaAllocation g_uniformBufferAllocation;
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
 

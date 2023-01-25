@@ -24,6 +24,7 @@
 #include "SDL_vulkan.h"
 #include "glm/glm.hpp"
 #include "volk.h"
+#include "vk_mem_alloc.h"
 #include <vector>
 
 namespace fge::vulkan
@@ -58,7 +59,7 @@ public:
     [[nodiscard]] int getBytesPerPixel() const;
 
     [[nodiscard]] VkImage getTextureImage() const;
-    [[nodiscard]] VkDeviceMemory getTextureImageMemory() const;
+    [[nodiscard]] VmaAllocation getTextureImageAllocation() const;
 
     [[nodiscard]] VkImageView getTextureImageView() const;
     [[nodiscard]] VkSampler getTextureSampler() const;
@@ -82,7 +83,7 @@ private:
     void createTextureSampler(const PhysicalDevice& physicalDevice);
 
     VkImage g_textureImage;
-    VkDeviceMemory g_textureImageMemory;
+    VmaAllocation g_textureImageAllocation;
 
     VkImageView g_textureImageView;
     VkSampler g_textureSampler;

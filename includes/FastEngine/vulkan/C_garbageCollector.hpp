@@ -62,17 +62,17 @@ public:
     };
     struct GarbageBuffer
     {
-        GarbageBuffer(VkBuffer buffer, VkDeviceMemory bufferMemory, VkDevice logicalDevice) :
+        GarbageBuffer(VkBuffer buffer, VmaAllocation bufferAllocation, VmaAllocator allocator) :
                 _type(Type::GARBAGE_VERTEX_BUFFER),
                 _buffer(buffer),
-                _bufferMemory(bufferMemory),
-                _logicalDevice(logicalDevice)
+                _bufferAllocation(bufferAllocation),
+                _allocator(allocator)
         {}
 
         Type _type;
         VkBuffer _buffer;
-        VkDeviceMemory _bufferMemory;
-        VkDevice _logicalDevice;
+        VmaAllocation _bufferAllocation;
+        VmaAllocator _allocator;
     };
     struct GarbageGraphicPipeline
     {
@@ -138,18 +138,20 @@ public:
     };
     struct GarbageImage
     {
-        GarbageImage(VkImage image, VkDeviceMemory deviceMemory, VkImageView imageView, VkDevice logicalDevice) :
+        GarbageImage(VkImage image, VmaAllocation bufferAllocation, VkImageView imageView, VmaAllocator allocator, VkDevice logicalDevice) :
                 _type(Type::GARBAGE_IMAGE),
                 _image(image),
-                _deviceMemory(deviceMemory),
+                _allocation(bufferAllocation),
                 _imageView(imageView),
+                _allocator(allocator),
                 _logicalDevice(logicalDevice)
         {}
 
         Type _type;
         VkImage _image;
-        VkDeviceMemory _deviceMemory;
+        VmaAllocation _allocation;
         VkImageView _imageView;
+        VmaAllocator _allocator; ///TODO: directly give a context in the GarbageCollector constructor in order to avoid this repetitive data
         VkDevice _logicalDevice;
     };
 
@@ -201,8 +203,7 @@ public:
                                      1, &this->g_data._descriptorSet._descriptorSet);
                 break;
             case Type::GARBAGE_VERTEX_BUFFER:
-                vkDestroyBuffer(this->g_data._buffer._logicalDevice, this->g_data._buffer._buffer, nullptr);
-                vkFreeMemory(this->g_data._buffer._logicalDevice, this->g_data._buffer._bufferMemory, nullptr);
+                vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._buffer, this->g_data._buffer._bufferAllocation);
                 break;
             case Type::GARBAGE_GRAPHIC_PIPELINE:
                 vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline, nullptr);
@@ -222,8 +223,7 @@ public:
                 break;
             case Type::GARBAGE_IMAGE:
                 vkDestroyImageView(this->g_data._image._logicalDevice, this->g_data._image._imageView, nullptr);
-                vkDestroyImage(this->g_data._image._logicalDevice, this->g_data._image._image, nullptr);
-                vkFreeMemory(this->g_data._image._logicalDevice, this->g_data._image._deviceMemory, nullptr);
+                vmaDestroyImage(this->g_data._image._allocator, this->g_data._image._image, this->g_data._image._allocation);
                 break;
             default:
                 break;

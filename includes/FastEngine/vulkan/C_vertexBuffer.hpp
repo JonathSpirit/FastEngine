@@ -22,6 +22,7 @@
 #include "FastEngine/C_rect.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
+#include "vk_mem_alloc.h"
 #include <limits>
 #include <vector>
 
@@ -76,7 +77,7 @@ public:
     [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
 
     [[nodiscard]] VkBuffer getVerticesBuffer() const;
-    [[nodiscard]] VkDeviceMemory getVerticesBufferMemory() const;
+    [[nodiscard]] VmaAllocation getVerticesBufferAllocation() const;
     [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] BufferTypes getType() const;
@@ -92,8 +93,8 @@ private:
 
     mutable VkBuffer g_buffer;
     mutable VkBuffer g_stagingBuffer;
-    mutable VkDeviceMemory g_bufferMemory;
-    mutable VkDeviceMemory g_stagingBufferMemory;
+    mutable VmaAllocation g_bufferAllocation;
+    mutable VmaAllocation g_stagingBufferAllocation;
     mutable std::size_t g_bufferCapacity;
 
     mutable bool g_needUpdate;
@@ -135,7 +136,7 @@ public:
     [[nodiscard]] const uint16_t& operator[](std::size_t index) const;
 
     [[nodiscard]] VkBuffer getIndicesBuffer() const;
-    [[nodiscard]] VkDeviceMemory getIndicesBufferMemory() const;
+    [[nodiscard]] VmaAllocation getIndicesBufferAllocation() const;
     [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] BufferTypes getType() const;
@@ -149,8 +150,8 @@ private:
 
     mutable VkBuffer g_buffer;
     mutable VkBuffer g_stagingBuffer;
-    mutable VkDeviceMemory g_bufferMemory;
-    mutable VkDeviceMemory g_stagingBufferMemory;
+    mutable VmaAllocation g_bufferAllocation;
+    mutable VmaAllocation g_stagingBufferAllocation;
     mutable std::size_t g_bufferCapacity;
 
     mutable bool g_needUpdate;

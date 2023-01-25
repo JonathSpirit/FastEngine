@@ -24,7 +24,7 @@ namespace fge::vulkan
 
 UniformBuffer::UniformBuffer() :
         g_uniformBuffer(VK_NULL_HANDLE),
-        g_uniformBufferMemory(VK_NULL_HANDLE),
+        g_uniformBufferAllocation(VK_NULL_HANDLE),
         g_uniformBufferMapped(nullptr),
         g_bufferSize(0),
 
@@ -35,14 +35,14 @@ UniformBuffer::UniformBuffer([[maybe_unused]] const UniformBuffer& r) : ///TODO:
 {}
 UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
         g_uniformBuffer(r.g_uniformBuffer),
-        g_uniformBufferMemory(r.g_uniformBufferMemory),
+        g_uniformBufferAllocation(r.g_uniformBufferAllocation),
         g_uniformBufferMapped(r.g_uniformBufferMapped),
         g_bufferSize(r.g_bufferSize),
 
         g_context(r.g_context)
 {
     r.g_uniformBuffer = VK_NULL_HANDLE;
-    r.g_uniformBufferMemory = VK_NULL_HANDLE;
+    r.g_uniformBufferAllocation = VK_NULL_HANDLE;
     r.g_uniformBufferMapped = nullptr;
     r.g_bufferSize = 0;
 
@@ -55,28 +55,28 @@ UniformBuffer::~UniformBuffer()
 
 void UniformBuffer::create(const Context& context, VkDeviceSize bufferSize)
 {
-    CreateBuffer(context.getLogicalDevice(), context.getPhysicalDevice(),
+    CreateBuffer(context,
                  bufferSize,
                  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 this->g_uniformBuffer, this->g_uniformBufferMemory);
+                 this->g_uniformBuffer, this->g_uniformBufferAllocation);
 
     this->g_bufferSize = bufferSize;
     this->g_context = &context;
 
-    vkMapMemory(context.getLogicalDevice().getDevice(), this->g_uniformBufferMemory, 0, bufferSize, 0, &this->g_uniformBufferMapped);
+    vmaMapMemory(context.getAllocator(), this->g_uniformBufferAllocation, &this->g_uniformBufferMapped);
 }
 void UniformBuffer::destroy()
 {
     if (this->g_uniformBuffer != VK_NULL_HANDLE)
     {
-        vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), this->g_uniformBufferMemory);
+        vmaUnmapMemory(this->g_context->getAllocator(), this->g_uniformBufferAllocation);
         this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_uniformBuffer,
-                                                                                             this->g_uniformBufferMemory,
-                                                                                             this->g_context->getLogicalDevice().getDevice()));
+                                                                                             this->g_uniformBufferAllocation,
+                                                                                             this->g_context->getAllocator()));
 
         this->g_uniformBuffer = VK_NULL_HANDLE;
-        this->g_uniformBufferMemory = VK_NULL_HANDLE;
+        this->g_uniformBufferAllocation = VK_NULL_HANDLE;
         this->g_uniformBufferMapped = nullptr;
         this->g_bufferSize = 0;
 
@@ -88,9 +88,9 @@ VkBuffer UniformBuffer::getBuffer() const
 {
     return this->g_uniformBuffer;
 }
-VkDeviceMemory UniformBuffer::getBufferMemory() const
+VmaAllocation UniformBuffer::getBufferAllocation() const
 {
-    return this->g_uniformBufferMemory;
+    return this->g_uniformBufferAllocation;
 }
 void* UniformBuffer::getBufferMapped() const
 {

@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include <vector>
 #include "volk.h"
+#include "vk_mem_alloc.h"
 
 #define FGE_MAX_FRAMES_IN_FLIGHT 2
 
@@ -35,16 +36,16 @@ FGE_API extern const std::vector<const char*> DeviceExtensions;
 
 FGE_API extern Context* GlobalContext;
 
-FGE_API void CreateBuffer(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice,
+FGE_API void CreateBuffer(const Context& context,
                   VkDeviceSize size,
                   VkBufferUsageFlags usage,
                   VkMemoryPropertyFlags properties,
-                  VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+                  VkBuffer& buffer, VmaAllocation& allocation);
 
-FGE_API void CreateImage(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice,
+FGE_API void CreateImage(const Context& context,
                  uint32_t width, uint32_t height, VkFormat format,
                  VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                 VkImage& image, VkDeviceMemory& imageMemory);
+                 VkImage& image, VmaAllocation& allocation);
 
 FGE_API VkImageView CreateImageView(const LogicalDevice& logicalDevice, VkImage image, VkFormat format);
 

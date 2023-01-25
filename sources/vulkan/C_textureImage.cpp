@@ -27,7 +27,7 @@ namespace fge::vulkan
 
 TextureImage::TextureImage() :
         g_textureImage(VK_NULL_HANDLE),
-        g_textureImageMemory(VK_NULL_HANDLE),
+        g_textureImageAllocation(VK_NULL_HANDLE),
 
         g_textureImageView(VK_NULL_HANDLE),
         g_textureSampler(VK_NULL_HANDLE),
@@ -44,7 +44,7 @@ TextureImage::TextureImage() :
 {}
 TextureImage::TextureImage(TextureImage&& r) noexcept :
         g_textureImage(r.g_textureImage),
-        g_textureImageMemory(r.g_textureImageMemory),
+        g_textureImageAllocation(r.g_textureImageAllocation),
 
         g_textureImageView(r.g_textureImageView),
         g_textureSampler(r.g_textureSampler),
@@ -62,7 +62,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
         g_context(r.g_context)
 {
     r.g_textureImage = VK_NULL_HANDLE;
-    r.g_textureImageMemory = VK_NULL_HANDLE;
+    r.g_textureImageAllocation = VK_NULL_HANDLE;
 
     r.g_textureImageView = VK_NULL_HANDLE;
     r.g_textureSampler = VK_NULL_HANDLE;
@@ -87,7 +87,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     this->destroy();
 
     this->g_textureImage = r.g_textureImage;
-    this->g_textureImageMemory = r.g_textureImageMemory;
+    this->g_textureImageAllocation = r.g_textureImageAllocation;
 
     this->g_textureImageView = r.g_textureImageView;
     this->g_textureSampler = r.g_textureSampler;
@@ -105,7 +105,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     this->g_context = r.g_context;
 
     r.g_textureImage = VK_NULL_HANDLE;
-    r.g_textureImageMemory = VK_NULL_HANDLE;
+    r.g_textureImageAllocation = VK_NULL_HANDLE;
 
     r.g_textureImageView = VK_NULL_HANDLE;
     r.g_textureSampler = VK_NULL_HANDLE;
@@ -141,35 +141,34 @@ bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
     this->g_textureBytesPerPixel = 4;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
 
-    CreateBuffer(context.getLogicalDevice(), context.getPhysicalDevice(),
+    CreateBuffer(context,
                  imageSize,
                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
+                 stagingBuffer, stagingBufferAllocation);
 
     std::vector<uint8_t> pixels(imageSize, 0);
 
     void* data = nullptr;
-    vkMapMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    vmaMapMemory(this->g_context->getAllocator(), stagingBufferAllocation, &data);
         memcpy(data, pixels.data(), static_cast<size_t>(imageSize));
-    vkUnmapMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory);
+    vmaUnmapMemory(this->g_context->getAllocator(), stagingBufferAllocation);
 
-    CreateImage(context.getLogicalDevice(), context.getPhysicalDevice(),
+    CreateImage(context,
                 size.x, size.y,
                 FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                this->g_textureImage, this->g_textureImageMemory);
+                this->g_textureImage, this->g_textureImageAllocation);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     context.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    vkDestroyBuffer(context.getLogicalDevice().getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
+    vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 
     this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT);
 
@@ -204,25 +203,25 @@ bool TextureImage::create(const Context& context, SDL_Surface* surface)
     this->g_textureBytesPerPixel = surface->format->BytesPerPixel;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
 
-    CreateBuffer(context.getLogicalDevice(), context.getPhysicalDevice(),
+    CreateBuffer(context,
                  imageSize,
                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
+                 stagingBuffer, stagingBufferAllocation);
 
     void* data = nullptr;
-    vkMapMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    vmaMapMemory(this->g_context->getAllocator(), stagingBufferAllocation, &data);
         memcpy(data, surface->pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory);
+    vmaUnmapMemory(this->g_context->getAllocator(), stagingBufferAllocation);
 
-    CreateImage(context.getLogicalDevice(), context.getPhysicalDevice(),
+    CreateImage(context,
                 surface->w, surface->h,
                 FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                this->g_textureImage, this->g_textureImageMemory);
+                this->g_textureImage, this->g_textureImageAllocation);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     context.copyBufferToImage(stagingBuffer, this->g_textureImage,
@@ -231,8 +230,7 @@ bool TextureImage::create(const Context& context, SDL_Surface* surface)
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    vkDestroyBuffer(context.getLogicalDevice().getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(context.getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
+    vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 
     this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT);
 
@@ -256,14 +254,15 @@ void TextureImage::destroy()
                                                                                               this->g_context->getLogicalDevice().getDevice()));
 
         this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageImage(this->g_textureImage,
-                                                                                            this->g_textureImageMemory,
+                                                                                            this->g_textureImageAllocation,
                                                                                             this->g_textureImageView,
+                                                                                            this->g_context->getAllocator(),
                                                                                             this->g_context->getLogicalDevice().getDevice()));
 
         this->g_textureImageView = VK_NULL_HANDLE;
 
         this->g_textureImage = VK_NULL_HANDLE;
-        this->g_textureImageMemory = VK_NULL_HANDLE;
+        this->g_textureImageAllocation = VK_NULL_HANDLE;
 
         this->g_textureSize = {0,0};
         this->g_textureBytesPerPixel = 0;
@@ -294,25 +293,24 @@ SDL_Surface* TextureImage::copyToSurface() const
                                    * this->g_textureBytesPerPixel;
 
     VkBuffer dstBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory dstBufferMemory = VK_NULL_HANDLE;
+    VmaAllocation dstBufferAllocation = VK_NULL_HANDLE;
 
-    CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
+    CreateBuffer(*this->g_context,
                  imageSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 dstBuffer, dstBufferMemory);
+                 dstBuffer, dstBufferAllocation);
 
     this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
     this->g_context->copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
 
     void* data = nullptr;
-    vkMapMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory, 0, imageSize, 0, &data);
+    vmaMapMemory(this->g_context->getAllocator(), dstBufferAllocation, &data);
         memcpy(surface->pixels, data, static_cast<size_t>(imageSize));
-    vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory);
+    vmaUnmapMemory(this->g_context->getAllocator(), dstBufferAllocation);
 
-    vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), dstBufferMemory, nullptr);
-    vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), dstBuffer, nullptr);
+    vmaDestroyBuffer(this->g_context->getAllocator(), dstBuffer, dstBufferAllocation);
 
     this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
@@ -340,18 +338,18 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
                                    * surface->format->BytesPerPixel;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
 
-    CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
+    CreateBuffer(*this->g_context,
                  imageSize,
                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
+                 stagingBuffer, stagingBufferAllocation);
 
     void* data = nullptr;
-    vkMapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    vmaMapMemory(this->g_context->getAllocator(), stagingBufferAllocation, &data);
         memcpy(data, surface->pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory);
+    vmaUnmapMemory(this->g_context->getAllocator(), stagingBufferAllocation);
 
     this->g_context->copyBufferToImage(stagingBuffer, this->g_textureImage,
                                        surface->w, surface->h,
@@ -359,8 +357,7 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
 
     this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
+    vmaDestroyBuffer(this->g_context->getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
 void TextureImage::update(const TextureImage& textureImage, const glm::vec<2, int>& offset)
 {
@@ -405,18 +402,18 @@ void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2
     const VkDeviceSize imageSize = bufferSize;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory stagingBufferMemory = VK_NULL_HANDLE;
+    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
 
-    CreateBuffer(this->g_context->getLogicalDevice(), this->g_context->getPhysicalDevice(),
+    CreateBuffer(*this->g_context,
                  imageSize,
                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
+                 stagingBuffer, stagingBufferAllocation);
 
     void* data = nullptr;
-    vkMapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    vmaMapMemory(this->g_context->getAllocator(), stagingBufferAllocation, &data);
         memcpy(data, buffer, bufferSize);
-    vkUnmapMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory);
+    vmaUnmapMemory(this->g_context->getAllocator(), stagingBufferAllocation);
 
     this->g_context->copyBufferToImage(stagingBuffer, this->g_textureImage,
                                        size.x, size.y,
@@ -424,8 +421,7 @@ void TextureImage::update(void* buffer, std::size_t bufferSize, const glm::vec<2
 
     this->g_context->transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    vkDestroyBuffer(this->g_context->getLogicalDevice().getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(this->g_context->getLogicalDevice().getDevice(), stagingBufferMemory, nullptr);
+    vmaDestroyBuffer(this->g_context->getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
 
 const glm::vec<2, int>& TextureImage::getSize() const
@@ -446,9 +442,9 @@ VkImage TextureImage::getTextureImage() const
 {
     return this->g_textureImage;
 }
-VkDeviceMemory TextureImage::getTextureImageMemory() const
+VmaAllocation TextureImage::getTextureImageAllocation() const
 {
-    return this->g_textureImageMemory;
+    return this->g_textureImageAllocation;
 }
 
 VkImageView TextureImage::getTextureImageView() const

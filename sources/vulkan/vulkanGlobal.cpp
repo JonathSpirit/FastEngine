@@ -41,11 +41,11 @@ const std::vector<const char*> DeviceExtensions = {
 
 Context* GlobalContext{nullptr};
 
-void CreateBuffer(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice,
+void CreateBuffer(const Context& context,
                   VkDeviceSize size,
                   VkBufferUsageFlags usage,
                   VkMemoryPropertyFlags properties,
-                  VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+                  VkBuffer& buffer, VmaAllocation& allocation)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -53,31 +53,27 @@ void CreateBuffer(const LogicalDevice& logicalDevice, const PhysicalDevice& phys
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateBuffer(logicalDevice.getDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+    VmaAllocationCreateInfo allocationCreateInfo{};
+    allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                                 VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    allocationCreateInfo.requiredFlags = properties;
+    allocationCreateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
+
+    auto result = vmaCreateBuffer(context.getAllocator(),
+                                  &bufferInfo,
+                                  &allocationCreateInfo,
+                                  &buffer, &allocation, nullptr);
+
+    if (result != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create buffer!");
     }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(logicalDevice.getDevice(), buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = physicalDevice.findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(logicalDevice.getDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate buffer memory!");
-    }
-
-    vkBindBufferMemory(logicalDevice.getDevice(), buffer, bufferMemory, 0);
 }
 
-void CreateImage(const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice,
+void CreateImage(const Context& context,
                  uint32_t width, uint32_t height, VkFormat format,
                  VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                 VkImage& image, VkDeviceMemory& imageMemory)
+                 VkImage& image, VmaAllocation& allocation)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -98,25 +94,21 @@ void CreateImage(const LogicalDevice& logicalDevice, const PhysicalDevice& physi
 
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateImage(logicalDevice.getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+    VmaAllocationCreateInfo allocationCreateInfo{};
+    allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                                 VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    allocationCreateInfo.requiredFlags = properties;
+    allocationCreateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
+
+    auto result = vmaCreateImage(context.getAllocator(),
+                                  &imageInfo,
+                                  &allocationCreateInfo,
+                                  &image, &allocation, nullptr);
+
+    if (result != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image!");
     }
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(logicalDevice.getDevice(), image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = physicalDevice.findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(logicalDevice.getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate image memory!");
-    }
-
-    vkBindImageMemory(logicalDevice.getDevice(), image, imageMemory, 0);
 }
 
 VkImageView CreateImageView(const LogicalDevice& logicalDevice, VkImage image, VkFormat format)
