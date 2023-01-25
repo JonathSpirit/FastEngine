@@ -68,6 +68,7 @@ public:
     [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
     [[nodiscard]] uint32_t getMaxImageDimension2D() const;
+    [[nodiscard]] uint32_t getMinUniformBufferOffsetAlignment() const;
 
 private:
     void updateDeviceExtensionSupport();

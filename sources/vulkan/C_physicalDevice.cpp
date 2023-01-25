@@ -221,5 +221,11 @@ uint32_t PhysicalDevice::getMaxImageDimension2D() const
     vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
     return deviceProperties.limits.maxImageDimension2D;
 }
+uint32_t PhysicalDevice::getMinUniformBufferOffsetAlignment() const
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
+    return deviceProperties.limits.minUniformBufferOffsetAlignment;
+}
 
 }//end fge::vulkan
