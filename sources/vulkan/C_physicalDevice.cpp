@@ -242,5 +242,11 @@ VkDeviceSize PhysicalDevice::getMaxMemoryAllocationSize() const
     vkGetPhysicalDeviceProperties2(this->g_device, &deviceProperties2);
     return deviceMaintenance3Properties.maxMemoryAllocationSize;
 }
+uint32_t PhysicalDevice::getMaxMemoryAllocationCount() const
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
+    return deviceProperties.limits.maxMemoryAllocationCount;
+}
 
 }//end fge::vulkan

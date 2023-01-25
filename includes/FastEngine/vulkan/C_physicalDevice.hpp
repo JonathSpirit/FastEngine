@@ -70,6 +70,7 @@ public:
     [[nodiscard]] uint32_t getMaxImageDimension2D() const;
     [[nodiscard]] uint32_t getMinUniformBufferOffsetAlignment() const;
     [[nodiscard]] VkDeviceSize getMaxMemoryAllocationSize() const;
+    [[nodiscard]] uint32_t getMaxMemoryAllocationCount() const;
 
 private:
     void updateDeviceExtensionSupport();
