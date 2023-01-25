@@ -53,11 +53,18 @@ void ObjSpriteBatches::setTexture(fge::Texture texture)
 }
 
 fge::Transformable& ObjSpriteBatches::addSprite(const fge::RectInt& rectangle)
-{ ///TODO: make it safer
+{
     this->g_instancesTextureRect.push_back(rectangle);
     ++this->g_spriteCount;
     this->g_needBuffersUpdate = true;
     return this->g_instancesTransformable.emplace_back();
+}
+void ObjSpriteBatches::resize(std::size_t size)
+{
+    this->g_instancesTextureRect.resize(size);
+    this->g_spriteCount = size;
+    this->g_needBuffersUpdate = true;
+    this->g_instancesTransformable.resize(size);
 }
 void ObjSpriteBatches::setTextureRect(std::size_t index, const fge::RectInt& rectangle)
 {
@@ -89,14 +96,22 @@ const fge::Texture& ObjSpriteBatches::getTexture() const
 {
     return this->g_texture;
 }
-const fge::RectInt& ObjSpriteBatches::getTextureRect() const
-{
-    //return this->g_textureRect;
-}
 
-fge::Color ObjSpriteBatches::getColor() const
+std::optional<fge::RectInt> ObjSpriteBatches::getTextureRect(std::size_t index) const
 {
-    //return fge::Color(this->g_vertices.getVertices()[0]._color);
+    if (index < this->g_spriteCount && !this->g_needBuffersUpdate)
+    {
+        return this->g_instancesTextureRect[index];
+    }
+    return std::nullopt;
+}
+std::optional<fge::Color> ObjSpriteBatches::getColor(std::size_t index) const
+{
+    if (index < this->g_spriteCount && !this->g_needBuffersUpdate)
+    {
+        return fge::Color(this->g_instancesVertices[index*4]._color);
+    }
+    return std::nullopt;
 }
 
 #ifndef FGE_DEF_SERVER
@@ -159,27 +174,36 @@ fge::RectFloat ObjSpriteBatches::getGlobalBounds() const
 {
     return this->getTransform() * this->getLocalBounds();
 }
+std::optional<fge::RectFloat> ObjSpriteBatches::getGlobalBounds(std::size_t index) const
+{
+    auto localBounds = this->getLocalBounds(index);
+    if (localBounds && !this->g_needBuffersUpdate)
+    {
+        return this->g_instancesTransformable[index].getTransform() * localBounds.value();
+    }
+    return std::nullopt;
+}
 fge::RectFloat ObjSpriteBatches::getLocalBounds() const
 {
     return fge::Object::getLocalBounds();
 }
-fge::RectFloat ObjSpriteBatches::getLocalBounds(std::size_t index) const
+std::optional<fge::RectFloat> ObjSpriteBatches::getLocalBounds(std::size_t index) const
 {
     if (index < this->g_spriteCount)
     {
         const auto width = static_cast<float>(this->g_instancesTextureRect[index]._width);
         const auto height = static_cast<float>(this->g_instancesTextureRect[index]._height);
 
-        return {{0.f, 0.f}, {width, height}};
+        return fge::RectFloat{{0.f, 0.f}, {width, height}};
     }
-    return {{0.f, 0.f}, {1.0f, 1.0f}};
+    return std::nullopt;
 }
 
 void ObjSpriteBatches::updatePositions(std::size_t index) const
 {
     if (index < this->g_spriteCount)
     {
-        const fge::RectFloat bounds = this->getLocalBounds(index);
+        const fge::RectFloat bounds = this->getLocalBounds(index).value();
         const std::size_t startIndex = index*4;
 
         this->g_instancesVertices[startIndex]._position = fge::Vector2f(0, 0);

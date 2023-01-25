@@ -39,13 +39,14 @@ public:
     void setTexture(fge::Texture texture);
 
     fge::Transformable& addSprite(const fge::RectInt& rectangle);
+    void resize(std::size_t size);
     void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
     void setColor(std::size_t index, const fge::Color& color);
 
     const fge::Texture& getTexture() const;
-    const fge::RectInt& getTextureRect() const;///TODO: add index as parameter
 
-    fge::Color getColor() const;///TODO: add index as parameter
+    [[nodiscard]] std::optional<fge::RectInt> getTextureRect(std::size_t index) const;
+    [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;
 
     FGE_OBJ_DRAW_DECLARE
 
@@ -57,9 +58,10 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    fge::RectFloat getGlobalBounds() const override;///TODO: make another method with the index
-    fge::RectFloat getLocalBounds() const override;
-    fge::RectFloat getLocalBounds(std::size_t index) const;
+    [[nodiscard]] fge::RectFloat getGlobalBounds() const override;
+    [[nodiscard]] std::optional<fge::RectFloat> getGlobalBounds(std::size_t index) const;
+    [[nodiscard]] fge::RectFloat getLocalBounds() const override;
+    [[nodiscard]] std::optional<fge::RectFloat> getLocalBounds(std::size_t index) const;
 
 private:
     void updatePositions(std::size_t index) const;
@@ -78,7 +80,7 @@ private:
 
     mutable std::vector<fge::Transformable> g_instancesTransformable;
     mutable std::unique_ptr<TransformData[], fge::AlignedDeleter> g_instancesTransformData;
-    mutable fge::vulkan::UniformBuffer g_instancesTransform; ///TODO: rename that
+    mutable fge::vulkan::UniformBuffer g_instancesTransform;
     mutable fge::vulkan::VertexBuffer g_instancesVertices;
     mutable std::vector<fge::RectInt> g_instancesTextureRect;
 
