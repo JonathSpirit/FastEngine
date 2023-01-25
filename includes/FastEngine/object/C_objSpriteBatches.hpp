@@ -68,18 +68,12 @@ private:
     void updateTexCoords(std::size_t index) const;
     void updateBuffers() const;
 
-    struct TransformData ///TODO: Avoid duplicate with fge::Transform
-    {
-        alignas(16) glm::mat4 _modelTransform{1.0f};
-        alignas(16) glm::mat4 _viewTransform{1.0f};
-    };
-
     fge::Texture g_texture;
 
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
     mutable std::vector<fge::Transformable> g_instancesTransformable;
-    mutable std::unique_ptr<TransformData[], fge::AlignedDeleter> g_instancesTransformData;
+    mutable std::unique_ptr<fge::TransformUboData[], fge::AlignedDeleter> g_instancesTransformData;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
     mutable fge::vulkan::VertexBuffer g_instancesVertices;
     mutable std::vector<fge::RectInt> g_instancesTextureRect;

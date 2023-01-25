@@ -198,7 +198,7 @@ void RenderTarget::draw(const fge::RenderStates& states)
 }
 void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states)
 {
-    states._transform->_viewTransform = this->getView().getTransform();
+    states._transform->_data._viewTransform = this->getView().getTransform();
     states._transform->updateUniformBuffer(*this->_g_context);
 
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
@@ -336,7 +336,7 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
 
     for (std::size_t i=0; i<instanceCount; ++i)
     {
-        const uint32_t dynamicOffset = fge::Transform::uboSize * i;
+        const uint32_t dynamicOffset = fge::TransformUboData::uboSize * i;
 
         graphicPipeline.bindDynamicDescriptorSets(commandBuffer,
                                                   descriptorSetTransform,

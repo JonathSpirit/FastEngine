@@ -238,7 +238,7 @@ void ObjSpriteBatches::updateBuffers() const
                                              VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 
             const std::size_t minUboAlignment = fge::vulkan::GlobalContext->getPhysicalDevice().getMinUniformBufferOffsetAlignment();
-            std::size_t dynamicAlignment = sizeof(TransformData);
+            std::size_t dynamicAlignment = fge::TransformUboData::uboSize;
             if (minUboAlignment > 0)
             {
                 dynamicAlignment = (dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
@@ -246,12 +246,12 @@ void ObjSpriteBatches::updateBuffers() const
 
             this->g_instancesTransform.create(*fge::vulkan::GlobalContext, dynamicAlignment*this->g_spriteCount);
 
-            this->g_instancesTransformData.reset(reinterpret_cast<TransformData*>(fge::AlignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment)));
+            this->g_instancesTransformData.reset(reinterpret_cast<fge::TransformUboData*>(fge::AlignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment)));
 
             const fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_instancesTransform,
                                                                     FGE_VULKAN_TRANSFORM_BINDING,
                                                                     fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
-                                                                    sizeof(TransformData)};
+                                                                    fge::TransformUboData::uboSize};
             this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
             for (std::size_t i=0; i<this->g_spriteCount; ++i)

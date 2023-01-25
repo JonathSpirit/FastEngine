@@ -292,11 +292,11 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     target.draw(this->g_sprite, copyStates);
 
     //Drawing elements
-    auto worldCoord = copyStates._transform->_modelTransform * fge::RectFloat{fge::Vector2f{0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT},
+    auto worldCoord = copyStates._transform->_data._modelTransform * fge::RectFloat{fge::Vector2f{0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT},
                                                                               this->getDrawAreaSize()};
     *this->_windowView = fge::ClipView(*this->_windowView, target, worldCoord, fge::ClipClampModes::CLIP_CLAMP_NOTHING);
     this->_windowView->setCenter(this->_windowView->getCenter() -
-                                 (worldCoord.getPosition() - copyStates._transform->_modelTransform * fge::Vector2f{}));
+                                 (worldCoord.getPosition() - copyStates._transform->_data._modelTransform * fge::Vector2f{}));
 
     this->_windowScene.draw(target, copyStates);
 

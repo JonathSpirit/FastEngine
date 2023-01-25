@@ -29,11 +29,11 @@ const Transform* Transform::start(const fge::Transformable& transformable, const
 {
     if (parentTransform != nullptr)
     {
-        this->_modelTransform = parentTransform->_modelTransform * transformable.getTransform();
+        this->_data._modelTransform = parentTransform->_data._modelTransform * transformable.getTransform();
     }
     else
     {
-        this->_modelTransform = transformable.getTransform();
+        this->_data._modelTransform = transformable.getTransform();
     }
     return this;
 }
@@ -41,11 +41,11 @@ const Transform* Transform::start(const fge::Transform* parentTransform) const
 {
     if (parentTransform != nullptr)
     {
-        this->_modelTransform = parentTransform->_modelTransform;
+        this->_data._modelTransform = parentTransform->_data._modelTransform;
     }
     else
     {
-        this->_modelTransform = glm::mat4{1.0f};
+        this->_data._modelTransform = glm::mat4{1.0f};
     }
     return this;
 }
@@ -66,12 +66,12 @@ void Transform::updateUniformBuffer(const fge::vulkan::Context& context) const
 
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE)
     {
-        this->g_uniformBuffer.create(context, sizeof(fge::Transform));
+        this->g_uniformBuffer.create(context, fge::TransformUboData::uboSize);
         const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
         this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 
-    this->g_uniformBuffer.copyData(this, fge::Transform::uboSize);
+    this->g_uniformBuffer.copyData(this, fge::TransformUboData::uboSize);
 }
 const fge::vulkan::DescriptorSet& Transform::getDescriptorSet() const
 {

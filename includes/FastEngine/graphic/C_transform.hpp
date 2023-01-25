@@ -28,6 +28,14 @@ namespace fge
 
 class Transformable;
 
+struct TransformUboData
+{
+    alignas(16) mutable glm::mat4 _modelTransform{1.0f};
+    alignas(16) mutable glm::mat4 _viewTransform{1.0f};
+
+    constexpr static unsigned int uboSize = sizeof(_modelTransform)+sizeof(_viewTransform);
+};
+
 class FGE_API Transform
 {
 public:
@@ -43,10 +51,7 @@ public:
     [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
     [[nodiscard]] const fge::vulkan::UniformBuffer& getUniformBuffer() const;
 
-    alignas(16) mutable glm::mat4 _modelTransform{1.0f};
-    alignas(16) mutable glm::mat4 _viewTransform{1.0f};
-
-    constexpr static unsigned int uboSize = sizeof(_modelTransform)+sizeof(_viewTransform);
+    TransformUboData _data;
 
 private:
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
