@@ -27,17 +27,19 @@ namespace fge::vulkan
 
 //Descriptor
 
-DescriptorSet::Descriptor::Descriptor(const UniformBuffer& uniformBuffer, uint32_t binding) :
+DescriptorSet::Descriptor::Descriptor(const UniformBuffer& uniformBuffer, uint32_t binding, BufferTypes type, VkDeviceSize range) :
         _data(VkDescriptorBufferInfo{.buffer=uniformBuffer.getBuffer(),
                                      .offset=0,
-                                     .range=uniformBuffer.getBufferSize()}),
-        _binding(binding)
+                                     .range=type==BufferTypes::STATIC ? uniformBuffer.getBufferSize() : range}),
+        _binding(binding),
+        _bufferType(type)
 {}
 DescriptorSet::Descriptor::Descriptor(const TextureImage& textureImage, uint32_t binding) :
         _data(VkDescriptorImageInfo{.sampler=textureImage.getTextureSampler(),
                                     .imageView=textureImage.getTextureImageView(),
                                     .imageLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}),
-        _binding(binding)
+        _binding(binding),
+        _bufferType()
 {}
 
 //DescriptorSet
@@ -181,7 +183,8 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
 
         if (std::holds_alternative<VkDescriptorBufferInfo>(descriptors[i]._data))
         {
-            descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrites[i].descriptorType =
+                    descriptors[i]._bufferType == DescriptorSet::Descriptor::BufferTypes::STATIC ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 
             descriptorWrites[i].pBufferInfo = &std::get<VkDescriptorBufferInfo>(descriptors[i]._data);
             descriptorWrites[i].pImageInfo = nullptr;

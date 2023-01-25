@@ -37,12 +37,19 @@ class FGE_API DescriptorSet
 public:
     struct Descriptor
     {
+        enum class BufferTypes
+        {
+            STATIC,
+            DYNAMIC
+        };
+
         Descriptor() = default;
-        Descriptor(const UniformBuffer& uniformBuffer, uint32_t binding);
+        Descriptor(const UniformBuffer& uniformBuffer, uint32_t binding, BufferTypes type=BufferTypes::STATIC, VkDeviceSize range=0);
         Descriptor(const TextureImage& textureImage, uint32_t binding);
 
         std::variant<VkDescriptorBufferInfo, VkDescriptorImageInfo> _data;
         uint32_t _binding{0};
+        BufferTypes _bufferType{};
     };
 
     DescriptorSet();
