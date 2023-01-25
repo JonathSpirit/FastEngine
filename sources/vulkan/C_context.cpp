@@ -31,6 +31,7 @@ namespace fge::vulkan
 Context::Context() :
         g_textureDescriptorPool(),
         g_transformDescriptorPool(),
+        g_transformBatchesDescriptorPool(),
         g_commandPool(VK_NULL_HANDLE),
         g_isCreated(false)
 {}
@@ -43,10 +44,13 @@ void Context::destroy()
 {
     if (this->g_isCreated)
     {
-        this->g_transformLayout.destroy();
         this->g_textureLayout.destroy();
+        this->g_transformLayout.destroy();
+        this->g_transformBatchesLayout.destroy();
+
         this->g_textureDescriptorPool.destroy();
         this->g_transformDescriptorPool.destroy();
+        this->g_transformBatchesDescriptorPool.destroy();
 
         vkDestroyCommandPool(this->g_logicalDevice.getDevice(), this->g_commandPool, nullptr);
 
@@ -119,13 +123,17 @@ void Context::initVulkan(SDL_Window* window)
     this->createCommandPool();
     this->createTextureDescriptorPool();
     this->createTransformDescriptorPool();
+    this->createTransformBatchesDescriptorPool();
 
+    this->g_textureLayout.create(this->g_logicalDevice,{
+        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, FGE_VULKAN_TEXTURE_BINDING, VK_SHADER_STAGE_FRAGMENT_BIT}
+    });
     this->g_transformLayout.create(this->g_logicalDevice,{
         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}
     });
-    this->g_textureLayout.create(this->g_logicalDevice,{
-          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, FGE_VULKAN_TEXTURE_BINDING, VK_SHADER_STAGE_FRAGMENT_BIT}
-      });
+    this->g_transformBatchesLayout.create(this->g_logicalDevice,{
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}
+    });
 }
 void Context::enumerateExtensions()
 {
@@ -356,13 +364,17 @@ void Context::copyImageToImage(VkImage srcImage, VkImage dstImage, uint32_t widt
     endSingleTimeCommands(commandBuffer);
 }
 
+const fge::vulkan::DescriptorSetLayout& Context::getTextureLayout() const
+{
+    return this->g_textureLayout;
+}
 const fge::vulkan::DescriptorSetLayout& Context::getTransformLayout() const
 {
     return this->g_transformLayout;
 }
-const fge::vulkan::DescriptorSetLayout& Context::getTextureLayout() const
+const fge::vulkan::DescriptorSetLayout& Context::getTransformBatchesLayout() const
 {
-    return this->g_textureLayout;
+    return this->g_transformBatchesLayout;
 }
 const DescriptorPool& Context::getTextureDescriptorPool() const
 {
@@ -371,6 +383,10 @@ const DescriptorPool& Context::getTextureDescriptorPool() const
 const DescriptorPool& Context::getTransformDescriptorPool() const
 {
     return this->g_transformDescriptorPool;
+}
+const DescriptorPool& Context::getTransformBatchesDescriptorPool() const
+{
+    return this->g_transformBatchesDescriptorPool;
 }
 
 void Context::createCommandPool()
@@ -402,6 +418,14 @@ void Context::createTransformDescriptorPool()
     poolSizes[0].descriptorCount = 1;
 
     this->g_transformDescriptorPool.create(*this, std::move(poolSizes), 128, false);
+}
+void Context::createTransformBatchesDescriptorPool()
+{
+    std::vector<VkDescriptorPoolSize> poolSizes(1);
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    poolSizes[0].descriptorCount = 1;
+
+    this->g_transformBatchesDescriptorPool.create(*this, std::move(poolSizes), 128, false);
 }
 
 }//end fge::vulkan
