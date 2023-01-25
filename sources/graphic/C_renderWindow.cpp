@@ -61,6 +61,8 @@ void RenderWindow::destroy()
 
         this->_g_defaultGraphicPipelineNoTexture.clear();
         this->_g_defaultGraphicPipelineTexture.clear();
+        this->_g_defaultGraphicPipelineNoTextureBatches.clear();
+        this->_g_defaultGraphicPipelineTextureBatches.clear();
 
         VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 
@@ -123,6 +125,8 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferIn
 }
 void RenderWindow::beginRenderPass(uint32_t imageIndex)
 {
+    fge::RenderTarget::gLastTexture = nullptr;
+
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = this->g_renderPass;
@@ -136,14 +140,6 @@ void RenderWindow::beginRenderPass(uint32_t imageIndex)
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(this->g_commandBuffers[this->g_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-}
-void RenderWindow::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states)
-{
-    this->drawPipeline(this->g_swapChain.getSwapChainExtent(),
-                       this->g_commandBuffers[this->g_currentFrame],
-                       this->g_renderPass,
-                       graphicPipeline,
-                       states);
 }
 void RenderWindow::endRenderPass()
 {
@@ -243,10 +239,19 @@ VkPresentModeKHR RenderWindow::getPresentMode() const
     return this->g_presentMode;
 }
 
+VkExtent2D RenderWindow::getExtent2D() const
+{
+    return this->g_swapChain.getSwapChainExtent();
+}
 VkCommandBuffer RenderWindow::getCommandBuffer() const
 {
     return this->g_commandBuffers[this->g_currentFrame];
 }
+VkRenderPass RenderWindow::getRenderPass() const
+{
+    return this->g_renderPass;
+}
+
 VkCommandBufferInheritanceInfo RenderWindow::getInheritanceInfo(uint32_t imageIndex) const
 {
     VkCommandBufferInheritanceInfo inheritanceInfo{};

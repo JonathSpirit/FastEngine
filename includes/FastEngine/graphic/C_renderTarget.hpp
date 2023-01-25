@@ -75,9 +75,22 @@ public:
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(const fge::Drawable& drawable, const fge::RenderStates& states);
     void draw(const fge::RenderStates& states);
-    virtual void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states) = 0;
+    void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states);
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
+
+    void drawBatches(const fge::vulkan::BlendMode& blendMode,
+                     const fge::vulkan::TextureImage* textureImage,
+                     const fge::vulkan::DescriptorSet& transformDescriptorSet,
+                     const fge::vulkan::VertexBuffer* vertexBuffer,
+                     uint32_t vertexCount,
+                     uint32_t instanceCount);
+    void drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeline,
+                     const fge::vulkan::TextureImage* textureImage,
+                     const fge::vulkan::DescriptorSet& transformDescriptorSet,
+                     const fge::vulkan::VertexBuffer* vertexBuffer,
+                     uint32_t vertexCount,
+                     uint32_t instanceCount);
 
     virtual void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const;
     virtual void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const;
@@ -88,17 +101,15 @@ public:
 
     virtual bool isSrgb() const;
 
+    [[nodiscard]] virtual VkExtent2D getExtent2D() const = 0;
+    [[nodiscard]] virtual VkCommandBuffer getCommandBuffer() const = 0;
+    [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
+
 private:
     View g_defaultView;
     View g_view;
 
 protected:
-    void drawPipeline(const VkExtent2D& extent2D,
-                      VkCommandBuffer commandBuffer,
-                      VkRenderPass renderPass,
-                      const fge::vulkan::GraphicPipeline& graphicPipeline,
-                      const fge::RenderStates& states);
-
     VkClearColorValue _g_clearColor;
 
     const fge::vulkan::Context* _g_context;
@@ -107,6 +118,9 @@ protected:
 
     std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTexture;
     std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTexture;
+
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTextureBatches; ///TODO: maybe not have that many maps
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTextureBatches;
 
     static const fge::vulkan::TextureImage* gLastTexture;
 };

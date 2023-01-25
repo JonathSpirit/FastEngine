@@ -53,7 +53,6 @@ public:
 
     [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
-    void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) override;
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;
 
@@ -67,7 +66,10 @@ public:
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
 
-    [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
+    [[nodiscard]] VkExtent2D getExtent2D() const override;
+    [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
+    [[nodiscard]] VkRenderPass getRenderPass() const override;
+
     [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
 
     [[nodiscard]] uint32_t getCurrentFrame() const;

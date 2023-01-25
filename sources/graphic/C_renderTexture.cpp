@@ -107,6 +107,8 @@ void RenderTexture::destroy()
     {
         this->_g_defaultGraphicPipelineNoTexture.clear();
         this->_g_defaultGraphicPipelineTexture.clear();
+        this->_g_defaultGraphicPipelineNoTextureBatches.clear();
+        this->_g_defaultGraphicPipelineTextureBatches.clear();
 
         VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 
@@ -157,14 +159,6 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 
     vkCmdBeginRenderPass(this->g_commandBuffers[this->g_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
-void RenderTexture::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states)
-{
-    this->drawPipeline(this->g_textureImage.getExtent(),
-                       this->g_commandBuffers[this->g_currentFrame],
-                       this->g_renderPass,
-                       graphicPipeline,
-                       states);
-}
 void RenderTexture::endRenderPass()
 {
     vkCmdEndRenderPass(this->g_commandBuffers[this->g_currentFrame]);
@@ -187,10 +181,19 @@ bool RenderTexture::isSrgb() const
     return false; ///TODO
 }
 
+VkExtent2D RenderTexture::getExtent2D() const
+{
+    return this->g_textureImage.getExtent();
+}
 VkCommandBuffer RenderTexture::getCommandBuffer() const
 {
     return this->g_commandBuffers[this->g_currentFrame];
 }
+VkRenderPass RenderTexture::getRenderPass() const
+{
+    return this->g_renderPass;
+}
+
 std::vector<VkCommandBuffer> RenderTexture::getCommandBuffers() const
 {
     this->g_extraCommandBuffers.push_back(this->g_commandBuffers[this->g_currentFrame]);

@@ -54,7 +54,9 @@ RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
         _g_context(r._g_context),
         _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate),
         _g_defaultGraphicPipelineTexture(std::move(r._g_defaultGraphicPipelineTexture)),
-        _g_defaultGraphicPipelineNoTexture(std::move(r._g_defaultGraphicPipelineNoTexture))
+        _g_defaultGraphicPipelineNoTexture(std::move(r._g_defaultGraphicPipelineNoTexture)),
+        _g_defaultGraphicPipelineTextureBatches(std::move(r._g_defaultGraphicPipelineTextureBatches)),
+        _g_defaultGraphicPipelineNoTextureBatches(std::move(r._g_defaultGraphicPipelineNoTextureBatches))
 {}
 
 RenderTarget& RenderTarget::operator=(const RenderTarget& r)
@@ -75,6 +77,8 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
     this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
     this->_g_defaultGraphicPipelineTexture = std::move(r._g_defaultGraphicPipelineTexture);
     this->_g_defaultGraphicPipelineNoTexture = std::move(r._g_defaultGraphicPipelineNoTexture);
+    this->_g_defaultGraphicPipelineTextureBatches = std::move(r._g_defaultGraphicPipelineTextureBatches);
+    this->_g_defaultGraphicPipelineNoTextureBatches = std::move(r._g_defaultGraphicPipelineNoTextureBatches);
     return *this;
 }
 
@@ -192,6 +196,158 @@ void RenderTarget::draw(const fge::RenderStates& states)
         this->draw(*graphicPipeline, states);
     }
 }
+void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states)
+{
+    states._transform->_viewTransform = this->getView().getTransform();
+    states._transform->updateUniformBuffer(*this->_g_context);
+
+    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
+    auto factorViewport = this->getView().getFactorViewport();
+
+    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
+                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
+
+    graphicPipeline.setViewport(viewport);
+    graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
+
+    VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
+                                      this->_g_context->getTextureLayout().getLayout()};
+
+    graphicPipeline.updateIfNeeded(*this->_g_context,
+                                   layout, 2,
+                                   this->getRenderPass(),
+                                   this->_g_forceGraphicPipelineUpdate);
+
+    auto commandBuffer = this->getCommandBuffer();
+
+    if (states._textureImage != nullptr)
+    {
+        if (RenderTarget::gLastTexture != states._textureImage)
+        {
+            RenderTarget::gLastTexture = states._textureImage;
+            VkDescriptorSet descriptorSetTexture[] = {states._textureImage->getDescriptorSet().getDescriptorSet()};
+            graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
+        }
+    }
+
+    VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().getDescriptorSet()};
+    graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);
+
+    graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer, states._indexBuffer);
+}
+
+void RenderTarget::drawBatches(const fge::vulkan::BlendMode& blendMode,
+                               const fge::vulkan::TextureImage* textureImage,
+                               const fge::vulkan::DescriptorSet& transformDescriptorSet,
+                               const fge::vulkan::VertexBuffer* vertexBuffer,
+                               uint32_t vertexCount,
+                               uint32_t instanceCount)
+{
+    if (textureImage == nullptr)
+    {
+        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
+
+        auto it = this->_g_defaultGraphicPipelineNoTextureBatches.find(blendMode);
+        if (it == this->_g_defaultGraphicPipelineNoTextureBatches.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineNoTextureBatches[blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+
+        this->drawBatches(*graphicPipeline,
+                          textureImage,
+                          transformDescriptorSet,
+                          vertexBuffer,
+                          vertexCount,
+                          instanceCount);
+    }
+    else
+    {
+        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
+
+        auto it = this->_g_defaultGraphicPipelineTextureBatches.find(blendMode);
+        if (it == this->_g_defaultGraphicPipelineTextureBatches.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineTextureBatches[blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+
+        this->drawBatches(*graphicPipeline,
+                          textureImage,
+                          transformDescriptorSet,
+                          vertexBuffer,
+                          vertexCount,
+                          instanceCount);
+    }
+}
+void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeline,
+                               const fge::vulkan::TextureImage* textureImage,
+                               const fge::vulkan::DescriptorSet& transformDescriptorSet,
+                               const fge::vulkan::VertexBuffer* vertexBuffer,
+                               uint32_t vertexCount,
+                               uint32_t instanceCount)
+{
+    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
+    auto factorViewport = this->getView().getFactorViewport();
+
+    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
+                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
+
+    graphicPipeline.setViewport(viewport);
+    graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
+
+    VkDescriptorSetLayout layout[] = {this->_g_context->getTransformBatchesLayout().getLayout(),
+                                      this->_g_context->getTextureLayout().getLayout()};
+
+    graphicPipeline.updateIfNeeded(*this->_g_context,
+                                   layout, 2,
+                                   this->getRenderPass(),
+                                   this->_g_forceGraphicPipelineUpdate);
+
+    auto commandBuffer = this->getCommandBuffer();
+
+    if (textureImage != nullptr)
+    {
+        if (RenderTarget::gLastTexture != textureImage)
+        {
+            RenderTarget::gLastTexture = textureImage;
+            VkDescriptorSet descriptorSetTexture[] = {textureImage->getDescriptorSet().getDescriptorSet()};
+            graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
+        }
+    }
+
+    VkDescriptorSet descriptorSetTransform[] = {transformDescriptorSet.getDescriptorSet()};
+
+    graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer,
+                                                   vertexBuffer,
+                                                   nullptr);
+
+    for (std::size_t i=0; i<instanceCount; ++i)
+    {
+        const uint32_t dynamicOffset = fge::Transform::uboSize * i;
+
+        graphicPipeline.bindDynamicDescriptorSets(commandBuffer,
+                                                  descriptorSetTransform,
+                                                  1,
+                                                  1,
+                                                  &dynamicOffset,
+                                                  0);
+
+        vkCmdDraw(commandBuffer, vertexCount, 1, vertexCount*i, 0);
+    }
+}
 
 void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer commandBuffer) const
 {}
@@ -206,52 +362,6 @@ const fge::vulkan::Context* RenderTarget::getContext() const
 bool RenderTarget::isSrgb() const
 {
     return false;
-}
-
-void RenderTarget::drawPipeline(const VkExtent2D& extent2D,
-                                VkCommandBuffer commandBuffer,
-                                VkRenderPass renderPass,
-                                const fge::vulkan::GraphicPipeline& graphicPipeline,
-                                const fge::RenderStates& states)
-{
-    states._transform->_viewTransform = this->getView().getTransform();
-    states._transform->updateUniformBuffer(*this->_g_context);
-
-    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
-    auto factorViewport = this->getView().getFactorViewport();
-
-    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
-                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
-
-    graphicPipeline.setViewport(viewport);
-    graphicPipeline.setScissor({{0, 0}, extent2D});
-
-    VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
-                                      this->_g_context->getTextureLayout().getLayout()};
-
-    graphicPipeline.updateIfNeeded(*this->_g_context,
-                                   layout, 2,
-                                   renderPass,
-                                   this->_g_forceGraphicPipelineUpdate);
-
-    VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().getDescriptorSet()};
-    graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);
-
-    if (states._textureImage != nullptr)
-    {
-        if (RenderTarget::gLastTexture != states._textureImage)
-        {
-            RenderTarget::gLastTexture = states._textureImage;
-            VkDescriptorSet descriptorSetTexture[] = {states._textureImage->getDescriptorSet().getDescriptorSet()};
-            graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
-        }
-    }
-    else
-    {
-        RenderTarget::gLastTexture = nullptr;
-    }
-
-    graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer, states._indexBuffer);
 }
 
 }//end fge

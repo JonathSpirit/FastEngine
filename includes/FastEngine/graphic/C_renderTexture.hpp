@@ -59,7 +59,6 @@ public:
 
     uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
-    void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const RenderStates& states) override;
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;
 
@@ -67,7 +66,10 @@ public:
 
     bool isSrgb() const override;
 
-    [[nodiscard]] VkCommandBuffer getCommandBuffer() const;
+    [[nodiscard]] VkExtent2D getExtent2D() const override;
+    [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
+    [[nodiscard]] VkRenderPass getRenderPass() const override;
+
     [[nodiscard]] std::vector<VkCommandBuffer> getCommandBuffers() const;
     [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
 
