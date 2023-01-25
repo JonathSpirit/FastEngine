@@ -54,6 +54,14 @@ FGE_API void SetConsoleCmdTitle(const char* title);
 FGE_API void* AlignedAlloc(std::size_t size, std::size_t alignment);
 FGE_API void AlignedFree(void* data);
 
+struct AlignedDeleter
+{
+    void operator()(void* p) const
+    {
+        AlignedFree(p);
+    };
+};
+
 ///Detection
 #ifndef FGE_DEF_SERVER
 FGE_API bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone);
