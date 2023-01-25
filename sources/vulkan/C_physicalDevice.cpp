@@ -227,5 +227,20 @@ uint32_t PhysicalDevice::getMinUniformBufferOffsetAlignment() const
     vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
     return deviceProperties.limits.minUniformBufferOffsetAlignment;
 }
+VkDeviceSize PhysicalDevice::getMaxMemoryAllocationSize() const
+{
+    VkPhysicalDeviceMaintenance3Properties deviceMaintenance3Properties{
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES,
+            nullptr,
+            {},{}
+    };
+    VkPhysicalDeviceProperties2 deviceProperties2{
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+            &deviceMaintenance3Properties,
+            {}
+    };
+    vkGetPhysicalDeviceProperties2(this->g_device, &deviceProperties2);
+    return deviceMaintenance3Properties.maxMemoryAllocationSize;
+}
 
 }//end fge::vulkan
