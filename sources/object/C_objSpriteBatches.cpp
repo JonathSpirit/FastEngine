@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/object/C_objSpriteBatches.hpp"
-#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
@@ -29,14 +28,23 @@ ObjSpriteBatches::ObjSpriteBatches() :
                                  &fge::vulkan::GlobalContext->getTransformBatchesLayout(),
                                  1, fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
 }
+ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
+        fge::Object(r),
+        g_texture(r.g_texture),
+        g_instancesTransformable(r.g_instancesTransformable),
+        g_instancesTransformData(nullptr),
+        g_instancesTextureRect(r.g_instancesTextureRect),
+        g_spriteCount(r.g_spriteCount),
+        g_needBuffersUpdate(true)
+{
+    this->g_descriptorSet.create(fge::vulkan::GlobalContext->getLogicalDevice(),
+                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(),
+                                 1, fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
+}
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()
 {
     this->setTexture(std::move(texture));
-}
-ObjSpriteBatches::~ObjSpriteBatches()  ///TODO: make it safer
-{
-    fge::AlignedFree(this->g_instancesTransformData);
 }
 
 void ObjSpriteBatches::setTexture(fge::Texture texture)
@@ -102,7 +110,7 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         this->g_instancesTransformData[i]._viewTransform = target.getView().getTransform();
     }
 
-    this->g_instancesTransform.copyData(this->g_instancesTransformData, this->g_instancesTransform.getBufferSize()/*sizeof(TransformData)*this->g_spriteCount*/);
+    this->g_instancesTransform.copyData(this->g_instancesTransformData.get(), this->g_instancesTransform.getBufferSize());
 
     target.drawBatches(states._blendMode,
                        static_cast<const fge::vulkan::TextureImage*>(this->g_texture),
@@ -214,8 +222,7 @@ void ObjSpriteBatches::updateBuffers() const
 
             this->g_instancesTransform.create(*fge::vulkan::GlobalContext, dynamicAlignment*this->g_spriteCount);
 
-            fge::AlignedFree(this->g_instancesTransformData);
-            this->g_instancesTransformData = (TransformData*)fge::AlignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment);
+            this->g_instancesTransformData.reset(reinterpret_cast<TransformData*>(fge::AlignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment)));
 
             const fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_instancesTransform,
                                                                     FGE_VULKAN_TRANSFORM_BINDING,

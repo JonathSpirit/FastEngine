@@ -18,6 +18,7 @@
 #define _FGE_C_OBJSPRITEBATCHES_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_texture.hpp"
 
@@ -30,8 +31,8 @@ class FGE_API ObjSpriteBatches : public fge::Object
 {
 public:
     ObjSpriteBatches();
+    ObjSpriteBatches(const ObjSpriteBatches& r);
     explicit ObjSpriteBatches(fge::Texture texture);
-    ~ObjSpriteBatches() override;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSpriteBatches)
 
@@ -76,7 +77,7 @@ private:
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
     mutable std::vector<fge::Transformable> g_instancesTransformable;
-    mutable TransformData* g_instancesTransformData; ///TODO: make it safer
+    mutable std::unique_ptr<TransformData[], fge::AlignedDeleter> g_instancesTransformData;
     mutable fge::vulkan::UniformBuffer g_instancesTransform; ///TODO: rename that
     mutable fge::vulkan::VertexBuffer g_instancesVertices;
     mutable std::vector<fge::RectInt> g_instancesTextureRect;
