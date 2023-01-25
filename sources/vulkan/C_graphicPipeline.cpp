@@ -406,6 +406,30 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
         vkCmdDraw(commandBuffer, this->g_defaultVertexCount, 1, 0, 0);
     }
 }
+void GraphicPipeline::recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
+                                                     const VertexBuffer* vertexBuffer,
+                                                     const IndexBuffer* indexBuffer) const
+{
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
+
+    vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
+    vkCmdSetScissor(commandBuffer, 0, 1, &this->g_scissor);
+
+    if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
+    {
+        vkCmdSetPrimitiveTopologyEXT(commandBuffer, vertexBuffer->getPrimitiveTopology());
+
+        vertexBuffer->bind(commandBuffer);
+        if (indexBuffer != nullptr && indexBuffer->getType() != BufferTypes::UNINITIALIZED)
+        {
+            indexBuffer->bind(commandBuffer);
+        }
+    }
+    else
+    {
+        vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_defaultPrimitiveTopology);
+    }
+}
 void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
                                          const VkDescriptorSet* descriptorSet,
                                          uint32_t descriptorCount,
@@ -413,6 +437,16 @@ void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
 {
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             this->g_pipelineLayout, firstSet, descriptorCount, descriptorSet, 0, nullptr);
+}
+void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
+                                                const VkDescriptorSet* descriptorSet,
+                                                uint32_t descriptorCount,
+                                                uint32_t dynamicOffsetCount,
+                                                const uint32_t* pDynamicOffsets,
+                                                uint32_t firstSet) const
+{
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            this->g_pipelineLayout, firstSet, descriptorCount, descriptorSet, dynamicOffsetCount, pDynamicOffsets);
 }
 
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const

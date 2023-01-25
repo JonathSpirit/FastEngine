@@ -71,10 +71,19 @@ public:
     void recordCommandBuffer(VkCommandBuffer commandBuffer,
                              const VertexBuffer* vertexBuffer,
                              const IndexBuffer* indexBuffer) const;
+    void recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
+                                        const VertexBuffer* vertexBuffer,
+                                        const IndexBuffer* indexBuffer) const;
     void bindDescriptorSets(VkCommandBuffer commandBuffer,
                             const VkDescriptorSet* descriptorSet,
                             uint32_t descriptorCount,
                             uint32_t firstSet=0) const;
+    void bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
+                                   const VkDescriptorSet* descriptorSet,
+                                   uint32_t descriptorCount,
+                                   uint32_t dynamicOffsetCount,
+                                   const uint32_t* pDynamicOffsets,
+                                   uint32_t firstSet=0) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
