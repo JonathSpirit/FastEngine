@@ -52,6 +52,13 @@ void ObjSpriteBatches::setTexture(fge::Texture texture)
     this->g_texture = std::move(texture);
 }
 
+void ObjSpriteBatches::clear()
+{
+    this->g_instancesTextureRect.clear();
+    this->g_spriteCount = 0;
+    this->g_needBuffersUpdate = true;
+    this->g_instancesTransformable.clear();
+}
 fge::Transformable& ObjSpriteBatches::addSprite(const fge::RectInt& rectangle)
 {
     this->g_instancesTextureRect.push_back(rectangle);
@@ -73,8 +80,11 @@ void ObjSpriteBatches::setTextureRect(std::size_t index, const fge::RectInt& rec
         if (rectangle != this->g_instancesTextureRect[index])
         {
             this->g_instancesTextureRect[index] = rectangle;
-            this->updatePositions(index);
-            this->updateTexCoords(index);
+            if (!this->g_needBuffersUpdate)
+            {
+                this->updatePositions(index);
+                this->updateTexCoords(index);
+            }
         }
     }
 }
@@ -99,7 +109,7 @@ const fge::Texture& ObjSpriteBatches::getTexture() const
 
 std::optional<fge::RectInt> ObjSpriteBatches::getTextureRect(std::size_t index) const
 {
-    if (index < this->g_spriteCount && !this->g_needBuffersUpdate)
+    if (index < this->g_spriteCount)
     {
         return this->g_instancesTextureRect[index];
     }
@@ -114,14 +124,36 @@ std::optional<fge::Color> ObjSpriteBatches::getColor(std::size_t index) const
     return std::nullopt;
 }
 
+fge::Transformable* ObjSpriteBatches::getTransformable(std::size_t index) const
+{
+    if (index < this->g_spriteCount)
+    {
+        return &this->g_instancesTransformable[index];
+    }
+    return nullptr;
+}
+
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 {
+    if (this->g_spriteCount == 0)
+    {
+        return;
+    }
+
     this->updateBuffers();
 
     for (std::size_t i=0; i<this->g_spriteCount; ++i)
     {
-        this->g_instancesTransformData[i]._modelTransform = this->g_instancesTransformable[i].getTransform();
+        if (states._transform != nullptr)
+        {
+            this->g_instancesTransformData[i]._modelTransform =
+                    states._transform->_data._modelTransform * this->g_instancesTransformable[i].getTransform();
+        }
+        else
+        {
+            this->g_instancesTransformData[i]._modelTransform = this->g_instancesTransformable[i].getTransform();
+        }
         this->g_instancesTransformData[i]._viewTransform = target.getView().getTransform();
     }
 
@@ -232,7 +264,8 @@ void ObjSpriteBatches::updateBuffers() const
     {
         this->g_needBuffersUpdate = false;
 
-        if (this->g_instancesVertices.getCount() != this->g_spriteCount*4)
+        if (this->g_instancesVertices.getCount() != this->g_spriteCount*4 &&
+            this->g_spriteCount != 0)
         {
             this->g_instancesVertices.create(*fge::vulkan::GlobalContext, this->g_spriteCount*4,
                                              VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);

@@ -38,6 +38,7 @@ public:
 
     void setTexture(fge::Texture texture);
 
+    void clear();
     fge::Transformable& addSprite(const fge::RectInt& rectangle);
     void resize(std::size_t size);
     void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
@@ -47,6 +48,8 @@ public:
 
     [[nodiscard]] std::optional<fge::RectInt> getTextureRect(std::size_t index) const;
     [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;
+
+    [[nodiscard]] fge::Transformable* getTransformable(std::size_t index) const;
 
     FGE_OBJ_DRAW_DECLARE
 
