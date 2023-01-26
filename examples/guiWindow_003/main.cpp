@@ -71,7 +71,7 @@ public:
         objWindow->setTextureClose("close");
         objWindow->setTextureMinimize("minimize");
         objWindow->setTextureResize("resize");
-        objWindow->getTileSet().setTexture("window");
+        objWindow->setTexture("window");
         objWindow->setSize({200.0f, 200.0f});
         objWindow->showExitButton(false);
 

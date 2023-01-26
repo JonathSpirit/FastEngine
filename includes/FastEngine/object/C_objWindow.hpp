@@ -24,6 +24,7 @@
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/C_tileset.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
+#include "FastEngine/object/C_objSpriteBatches.hpp"
 #include "FastEngine/object/C_objText.hpp"
 
 #define FGE_WINDOW_DEFAULT_PRIORITY FGE_GUI_ELEMENT_PRIORITY_LAST
@@ -93,10 +94,13 @@ public:
     const fge::Texture& getTextureClose() const;
     const fge::Texture& getTextureResize() const;
 
-    fge::TileSet& getTileSet();
+    void setTexture(fge::Texture texture);
+    void setTileSet(const fge::TileSet& tileSet);
+    void setTileSet(fge::TileSet&& tileSet);
     const fge::TileSet& getTileSet() const;
 
     void refreshRectBounds();
+    void refreshTextures();
 
     fge::Scene _windowScene;
     fge::GuiElementHandler _windowHandler;
@@ -144,7 +148,10 @@ private:
     fge::RectFloat g_windowCloseRect;
     fge::RectFloat g_windowResizeRect;
 
-    mutable fge::ObjSprite g_sprite;
+    mutable fge::ObjSpriteBatches g_spriteBatches;
+    mutable fge::ObjSprite g_spriteResize;
+    mutable fge::ObjSprite g_spriteMinimize;
+    mutable fge::ObjSprite g_spriteClose;
 };
 
 } // namespace fge
