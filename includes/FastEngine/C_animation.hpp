@@ -225,6 +225,9 @@ public:
     explicit operator fge::TextureType*();
     explicit operator const fge::TextureType*() const;
 
+    explicit operator std::shared_ptr<fge::TextureType>&();
+    explicit operator const std::shared_ptr<fge::TextureType>&() const;
+
     operator fge::TextureType&();
     operator const fge::TextureType&() const;
 

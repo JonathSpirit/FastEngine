@@ -10,12 +10,6 @@ target_sources(${PROJECT_NAME} PRIVATE ../share/C_moveable.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ../share/includes)
 
-add_dependencies(${PROJECT_NAME} FgeExeDeps)
+add_dependencies(${PROJECT_NAME} FgeClientExeDeps)
 
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
-elseif(APPLE)
-    target_link_libraries(${PROJECT_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window ${FGE_LIB_NAME})
-else()
-    target_link_libraries(${PROJECT_NAME} sfml-audio sfml-graphics ${FGE_SFML_MAIN} sfml-system sfml-window X11 ${FGE_LIB_NAME})
-endif()
+target_link_libraries(${PROJECT_NAME} ${FGE_CLIENT_LIBS})

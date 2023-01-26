@@ -21,7 +21,7 @@
 namespace ls
 {
 
-Food::Food(const sf::Vector2f& pos)
+Food::Food(const fge::Vector2f& pos)
 {
     this->setPosition(pos);
 }
@@ -32,27 +32,26 @@ void Food::first([[maybe_unused]] fge::Scene* scene)
     this->setOrigin({24, 19});
 
     this->networkRegister();
+
+    this->g_circleShape.setFillColor(fge::Color::Green);
+    this->g_circleShape.setOutlineColor(fge::Color::Black);
+    this->g_circleShape.setOutlineThickness(1.0f);
+    this->g_circleShape.setPosition(this->getPosition());
+    this->g_circleShape.setOrigin({8, 8});
 }
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Food)
 {
-    sf::CircleShape food(8);
-    food.setFillColor(sf::Color::Green);
-    food.setOutlineColor(sf::Color::Black);
-    food.setOutlineThickness(1.0f);
-    food.setPosition(this->getPosition());
-    food.setOrigin(8, 8);
-
-    target.draw(food);
+    target.draw(this->g_circleShape, states);
 }
 #endif
 
 void Food::networkRegister()
 {
     this->_netList.clear();
-    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>(
-            {&this->getPosition(), [&](const sf::Vector2f& pos) { this->setPosition(pos); }}));
+    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>(
+            {&this->getPosition(), [&](const fge::Vector2f& pos) { this->setPosition(pos); }}));
 }
 
 void Food::save(nlohmann::json& jsonObject, fge::Scene* scene)

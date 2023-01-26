@@ -17,10 +17,9 @@
 #ifndef _FGE_C_RANDOM_HPP_INCLUDED
 #define _FGE_C_RANDOM_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/graphic/C_color.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/System/Vector3.hpp>
+#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/graphic/C_color.hpp"
+#include "FastEngine/C_vector.hpp"
 
 #include <chrono>
 #include <limits>
@@ -93,7 +92,7 @@ public:
      * \return A random vector2
      */
     template<typename T>
-    sf::Vector2<T> rangeVec2(T min_x, T max_x, T min_y, T max_y);
+    fge::Vector2<T> rangeVec2(T min_x, T max_x, T min_y, T max_y);
 
     /**
      * \brief Generate a random vector3 within a range
@@ -108,7 +107,7 @@ public:
      * \return A random vector3
      */
     template<typename T>
-    sf::Vector3<T> rangeVec3(T min_x, T max_x, T min_y, T max_y, T min_z, T max_z);
+    fge::Vector3<T> rangeVec3(T min_x, T max_x, T min_y, T max_y, T min_z, T max_z);
 
     /**
      * \brief Generate a random color
@@ -156,7 +155,7 @@ public:
      * \return A random vector2
      */
     template<typename T>
-    sf::Vector2<T> randVec2();
+    fge::Vector2<T> randVec2();
 
     /**
      * \brief Generate a random vector3
@@ -165,7 +164,7 @@ public:
      * \return A random vector3
      */
     template<typename T>
-    sf::Vector3<T> randVec3();
+    fge::Vector3<T> randVec3();
 
     /**
      * \brief Generate a random color

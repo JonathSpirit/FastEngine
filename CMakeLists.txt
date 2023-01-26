@@ -320,9 +320,9 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/graphic/C_shape.cpp
         sources/graphic/C_rectangleShape.cpp
         sources/graphic/C_circleShape.cpp
-        #sources/graphic/C_renderWindow.cpp TODO maybe
-        #sources/graphic/C_renderTexture.cpp
-        #sources/graphic/C_renderTarget.cpp
+        sources/graphic/C_renderWindow.cpp
+        sources/graphic/C_renderTexture.cpp
+        sources/graphic/C_renderTarget.cpp
         sources/graphic/C_ftFont.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_animation.cpp")
@@ -332,21 +332,22 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_property.cpp")
 
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp") TODO
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp") TODO
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_object.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objectAnchor.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp") TODO
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp") TODO
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp") TODO
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLight.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRenderMap.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSelectBox.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSprite.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp") TODO
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSpriteBatches.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSwitch.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objText.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp") TODO
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextinputbox.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTilemap.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp") TODO
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp") TODO
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objWindow.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objTextList.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -387,6 +388,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/path_manager.cpp"
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
 #target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
 
 #######################
@@ -584,10 +586,13 @@ add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
 #Set some variables that help exe linking
 if(WIN32)
     set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-system ${FGE_LIB_NAME})
+    set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
 elseif(APPLE)
     set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-system ${FGE_LIB_NAME})
+    set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
 else()
     set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image sfml-system X11 ${FGE_LIB_NAME})
+    set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system X11 ${FGE_SERVER_LIB_NAME})
 endif()
 
 #Tests

@@ -318,6 +318,7 @@ fge::RectFloat VertexBuffer::getBounds() const
 
 void VertexBuffer::mapBuffer() const
 {
+#ifndef FGE_DEF_SERVER
     if (!this->g_needUpdate)
     {
         return;
@@ -351,9 +352,11 @@ void VertexBuffer::mapBuffer() const
     default:
         return;
     }
+#endif //FGE_DEF_SERVER
 }
 void VertexBuffer::cleanBuffer() const
 {
+#ifndef FGE_DEF_SERVER
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
         this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_buffer,
@@ -374,9 +377,11 @@ void VertexBuffer::cleanBuffer() const
 
         this->g_bufferCapacity = 0;
     }
+#endif //FGE_DEF_SERVER
 }
 void VertexBuffer::updateBuffer() const
 {
+#ifndef FGE_DEF_SERVER
     if (this->g_type == BufferTypes::UNINITIALIZED)
     {
         return;
@@ -421,6 +426,7 @@ void VertexBuffer::updateBuffer() const
     }
 
     this->mapBuffer();
+#endif //FGE_DEF_SERVER
 }
 
 //IndexBuffer

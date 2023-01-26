@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-#include <FastEngine/C_clock.hpp>
-#include <FastEngine/C_packetLZ4.hpp>
-#include <FastEngine/C_server.hpp>
-#include <FastEngine/manager/anim_manager.hpp>
-#include <FastEngine/manager/audio_manager.hpp>
-#include <FastEngine/manager/font_manager.hpp>
-#include <FastEngine/manager/network_manager.hpp>
-#include <FastEngine/manager/reg_manager.hpp>
-#include <FastEngine/manager/texture_manager.hpp>
-#include <FastEngine/object/C_objButton.hpp>
-#include <FastEngine/object/C_objText.hpp>
-#include <FastEngine/object/C_objTextinputbox.hpp>
-#include <FastEngine/object/C_objWindow.hpp>
-#include <definition.hpp>
+#include "FastEngine/C_clock.hpp"
+#include "FastEngine/C_packetLZ4.hpp"
+#include "FastEngine/C_server.hpp"
+#include "FastEngine/manager/anim_manager.hpp"
+#include "FastEngine/manager/audio_manager.hpp"
+#include "FastEngine/manager/font_manager.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
+#include "FastEngine/manager/network_manager.hpp"
+#include "FastEngine/manager/reg_manager.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/object/C_objButton.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_objTextinputbox.hpp"
+#include "FastEngine/object/C_objWindow.hpp"
+#include "definition.hpp"
+#include "SDL.h"
 
-#include <C_creature.hpp>
-#include <C_drink.hpp>
-#include <C_food.hpp>
+#include "C_creature.hpp"
+#include "C_drink.hpp"
+#include "C_food.hpp"
 
 #include <iostream>
 
@@ -43,22 +45,45 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         return -1;
     }
 
-    //Creating the window
-    sf::RenderWindow screen(LIFESIM_VIDEOMODE,
-                            "Life simulator client, a FastEngine example by Guillaume Guillet - version " +
-                                    std::to_string(LIFESIM_VERSION),
-                            sf::Style::Default);
-    screen.setFramerateLimit(LIFESIM_FRAMERATE);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    SDL_Window* window = SDL_CreateWindow(("Life simulator client, a FastEngine example by Guillaume Guillet - version " +
+                                                  std::to_string(LIFESIM_VERSION)).c_str()
+                                                  , SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
+                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+
+    // Check that the window was successfully created
+    if (window == nullptr)
+    {
+        // In the case that the window could not be made...
+        std::cout << "Could not create window: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    fge::vulkan::Context vulkanContext{};
+    fge::vulkan::Context::initVolk();
+    fge::vulkan::Context::enumerateExtensions();
+    vulkanContext.initVulkan(window);
+
+    fge::vulkan::GlobalContext = &vulkanContext;
+
+    fge::vulkan::GlobalContext->_garbageCollector.enable(true);
+
+    fge::shader::Init("resources/shaders/vertex.spv",
+                      "resources/shaders/fragment.spv",
+                      "resources/shaders/fragmentTexture.spv");
+
+    fge::RenderWindow renderWindow(vulkanContext);
+    renderWindow.setClearColor(fge::Color::White);
 
     fge::Event event;
-    fge::GuiElementHandler guiElementHandler{event, screen};
+    fge::GuiElementHandler guiElementHandler{event, renderWindow};
     guiElementHandler.setEventCallback(event);
 
     //Creating the scene
-    fge::Scene mainScene;
+    std::unique_ptr<fge::Scene> mainScene = std::make_unique<fge::Scene>();
 
-    mainScene.setLinkedRenderTarget(&screen);
-    mainScene.setCallbackContext({&event, &guiElementHandler});
+    mainScene->setLinkedRenderTarget(&renderWindow);
+    mainScene->setCallbackContext({&event, &guiElementHandler});
 
     //Creating the client side server
     fge::net::ServerClientSideUdp server;
@@ -110,10 +135,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     char latencyTextBuffer[200];
     const char* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
     auto* latencyText = mainScene
-                                .newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
+                                ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
                                            FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
                                 ->getObject<fge::ObjText>();
-    latencyText->setFillColor(sf::Color::Black);
+    latencyText->setFillColor(fge::Color::Black);
 
     bool connectionValid = false;
     bool connectionTimeoutCheck = false;
@@ -123,15 +148,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     auto createConnectionWindow = [&]() {
         //Creating window
         auto* window = mainScene
-                               .newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID,
+                               ->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID,
                                           fge::ObjectType::TYPE_GUI)
                                ->getObject<fge::ObjWindow>();
         window->setTextureClose("close");
         window->setTextureMinimize("minimize");
         window->setTextureResize("resize");
-        window->getTileSet().setTexture("window");
+        window->setTexture("window");
         window->move({100.0f, 100.0f});
-        window->setSize(window->getSize() + sf::Vector2f{40.0f, 0.0});
+        window->setSize(window->getSize() + fge::Vector2f{40.0f, 0.0});
         window->showExitButton(false);
 
         //Creating a text input box for the IP
@@ -193,13 +218,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     createConnectionWindow();
 
-    while (screen.isOpen())
+    //Begin loop
+    bool running = true;
+    while (running)
     {
         //Process events
-        event.process(screen);
-        if (event.isEventType(sf::Event::Closed))
+        event.process();
+        if (event.isEventType(SDL_QUIT))
         {
-            screen.close();
+            running = false;
         }
 
         //Send an update packet to the server
@@ -247,7 +274,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_ALL_GOODBYE:
                 server.stop();
                 pckSize = 0;
-                mainScene.delAllObject(true);
+                mainScene->delAllObject(true);
                 connectionValid = false;
                 createConnectionWindow();
                 break;
@@ -270,10 +297,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     }
 
                     //We are connected, we can destroy the window
-                    auto windowObject = mainScene.getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME);
+                    auto windowObject = mainScene->getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME);
                     if (windowObject)
                     {
-                        mainScene.delObject(windowObject->getSid());
+                        mainScene->delObject(windowObject->getSid());
                     }
                     connectionValid = true;
                     clockUpdate.restart();
@@ -306,34 +333,60 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene
-                mainScene.unpackModification(fluxPacket->_pck);
+                mainScene->unpackModification(fluxPacket->_pck);
                 //And unpack all watched events
-                mainScene.unpackWatchedEvent(fluxPacket->_pck);
+                mainScene->unpackWatchedEvent(fluxPacket->_pck);
             }
             break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 //Do a full scene update
-                mainScene.unpack(fluxPacket->_pck);
+                mainScene->unpack(fluxPacket->_pck);
                 break;
             default:
                 break;
             }
         }
 
-        //Update the scene
-        mainScene.update(screen, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime.restart()));
+        //Update scene
+        mainScene->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime.restart()));
 
-        //Draw the scene
-        mainScene.draw(screen, true, sf::Color::White);
-        screen.display();
+        //Drawing
+        auto imageIndex = renderWindow.prepareNextFrame(nullptr);
+        if (imageIndex != BAD_IMAGE_INDEX)
+        {
+            fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
+
+            renderWindow.beginRenderPass(imageIndex);
+
+            mainScene->draw(renderWindow);
+
+            renderWindow.endRenderPass();
+
+            renderWindow.display(imageIndex);
+        }
     }
 
+    fge::vulkan::GlobalContext->waitIdle();
+
+    fge::vulkan::GlobalContext->_garbageCollector.enable(false);
+
     fge::audio::Uninit();
+    fge::shader::Uninit();
     fge::font::Uninit();
     fge::anim::Uninit();
     fge::texture::Uninit();
 
+    mainScene.reset();
+
+    renderWindow.destroy();
+
+    vulkanContext.destroy();
+
+    SDL_DestroyWindow(window);
+
     fge::net::Socket::uninitSocket();
+
+    SDL_Quit();
 
     return 0;
 }

@@ -17,10 +17,15 @@
 #ifndef _EXFGE_C_CREATURE_HPP_INCLUDED
 #define _EXFGE_C_CREATURE_HPP_INCLUDED
 
-#include <C_customObject.hpp>
-#include <FastEngine/C_animation.hpp>
-#include <FastEngine/C_font.hpp>
-#include <FastEngine/C_packet.hpp>
+#include "C_customObject.hpp"
+#include "FastEngine/C_animation.hpp"
+#include "FastEngine/C_font.hpp"
+#include "FastEngine/C_packet.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/graphic/C_circleShape.hpp"
+#include "FastEngine/object/C_objSprite.hpp"
+#include "FastEngine/object/C_objTextList.hpp"
 #include <SFML/Audio.hpp>
 #include <queue>
 
@@ -79,7 +84,7 @@ class Creature : public ls::CustomObject, public fge::Subscriber
 {
 public:
     Creature() = default;
-    explicit Creature(const sf::Vector2f& pos);
+    explicit Creature(const fge::Vector2f& pos);
     ~Creature() override = default;
 
     void first(fge::Scene* scene) override;
@@ -96,8 +101,9 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-#ifndef FGE_DEF_SERVER
     fge::Font _font;
+
+#ifndef FGE_DEF_SERVER
 
     sf::Clock _speakClock;
     sf::Sound _speakSound;
@@ -112,6 +118,20 @@ public:
     std::queue<Action> _actionQueue;
 
     CreatureData _data;
+
+private:
+    fge::RectangleShape g_rectInfoBox;
+    fge::RectangleShape g_rectBarLife;
+    fge::RectangleShape g_rectBarHunger;
+    fge::RectangleShape g_rectBarThirst;
+    fge::RectangleShape g_rectBarLibido;
+
+    mutable fge::ObjSprite g_spriteCreature;
+    fge::texture::TextureDataPtr g_animTexture;
+
+    fge::CircleShape g_circleSight;
+
+    fge::ObjText g_txtGender;
 };
 
 } // namespace ls

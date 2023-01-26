@@ -412,6 +412,43 @@ Animation::operator const fge::TextureType*() const
     return fge::texture::GetBadTexture()->_texture.get();
 }
 
+Animation::operator std::shared_ptr<fge::TextureType>&()
+{
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    {
+        if (this->g_data->_valid)
+        {
+            return this->g_data->_tilesetTexture;
+        }
+    }
+    else
+    {
+        if (this->isFrameValid())
+        {
+            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        }
+    }
+    return fge::texture::GetBadTexture()->_texture;
+}
+Animation::operator const std::shared_ptr<fge::TextureType>&() const
+{
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    {
+        if (this->g_data->_valid)
+        {
+            return this->g_data->_tilesetTexture;
+        }
+    }
+    else
+    {
+        if (this->isFrameValid())
+        {
+            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        }
+    }
+    return fge::texture::GetBadTexture()->_texture;
+}
+
 Animation::operator fge::TextureType&()
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)

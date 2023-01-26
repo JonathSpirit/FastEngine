@@ -177,7 +177,7 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
             }
 
             //BackSpace
-            if (key == 8)
+            if (event.isKeyPressed(SDLK_BACKSPACE))
             {
                 if (this->g_string.length() > 0 && this->g_cursor > 0)
                 {

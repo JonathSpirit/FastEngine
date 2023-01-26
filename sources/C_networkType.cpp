@@ -161,7 +161,7 @@ void NetworkTypeScene::forceUncheck() {}
 
 ///NetworkTypeSmoothVec2Float
 
-NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::DataAccessor<sf::Vector2f> source, float errorRange) :
+NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::DataAccessor<fge::Vector2f> source, float errorRange) :
         g_typeCopy(source._getter()),
         g_typeSource(std::move(source)),
         g_errorRange(errorRange)
@@ -176,7 +176,7 @@ bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet& pck)
 {
     if (pck >> this->g_typeCopy)
     {
-        sf::Vector2f source = this->g_typeSource._getter();
+        fge::Vector2f source = this->g_typeSource._getter();
         float error = std::abs(this->g_typeCopy.x - source.x) + std::abs(this->g_typeCopy.y - source.y);
         if (error >= this->g_errorRange)
         { //Too much error
@@ -218,7 +218,7 @@ void NetworkTypeSmoothVec2Float::forceUncheck()
     this->g_typeCopy = this->g_typeSource._getter();
 }
 
-const sf::Vector2f& NetworkTypeSmoothVec2Float::getCache() const
+const fge::Vector2f& NetworkTypeSmoothVec2Float::getCache() const
 {
     return this->g_typeCopy;
 }

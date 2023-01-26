@@ -31,6 +31,7 @@
 #include <FastEngine/graphic/C_view.hpp>
 #include <FastEngine/vulkan/C_blendMode.hpp>
 #include <FastEngine/vulkan/C_graphicPipeline.hpp>
+#include <FastEngine/vulkan/C_descriptorSet.hpp>
 #include <FastEngine/vulkan/C_vertex.hpp>
 #include <SDL_video.h>
 #include <glm/glm.hpp>

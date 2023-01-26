@@ -220,6 +220,7 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
 
     auto commandBuffer = this->getCommandBuffer();
 
+#ifndef FGE_DEF_SERVER
     if (states._textureImage != nullptr)
     {
         if (RenderTarget::gLastTexture != states._textureImage)
@@ -229,6 +230,7 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
             graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
         }
     }
+#endif //FGE_DEF_SERVER
 
     VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().getDescriptorSet()};
     graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);

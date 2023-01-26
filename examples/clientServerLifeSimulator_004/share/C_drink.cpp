@@ -21,7 +21,7 @@
 namespace ls
 {
 
-Drink::Drink(const sf::Vector2f& pos)
+Drink::Drink(const fge::Vector2f& pos)
 {
     this->setPosition(pos);
 }
@@ -32,27 +32,26 @@ void Drink::first([[maybe_unused]] fge::Scene* scene)
     this->setOrigin({24, 19});
 
     this->networkRegister();
+
+    this->g_circleShape.setFillColor(fge::Color::Blue);
+    this->g_circleShape.setOutlineColor(fge::Color::Black);
+    this->g_circleShape.setOutlineThickness(1.0f);
+    this->g_circleShape.setPosition(this->getPosition());
+    this->g_circleShape.setOrigin({8, 8});
 }
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Drink)
 {
-    sf::CircleShape drink(8);
-    drink.setFillColor(sf::Color::Blue);
-    drink.setOutlineColor(sf::Color::Black);
-    drink.setOutlineThickness(1.0f);
-    drink.setPosition(this->getPosition());
-    drink.setOrigin(8, 8);
-
-    target.draw(drink);
+    target.draw(this->g_circleShape, states);
 }
 #endif
 
 void Drink::networkRegister()
 {
     this->_netList.clear();
-    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>(
-            {&this->getPosition(), [&](const sf::Vector2f& pos) { this->setPosition(pos); }}));
+    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>(
+            {&this->getPosition(), [&](const fge::Vector2f& pos) { this->setPosition(pos); }}));
 }
 
 void Drink::save(nlohmann::json& jsonObject, fge::Scene* scene)

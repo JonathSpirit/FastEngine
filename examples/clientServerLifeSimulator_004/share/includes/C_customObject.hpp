@@ -32,9 +32,9 @@ public:
     virtual bool worldTick();
 };
 
-sf::Vector2f ClampToMapLimit(const sf::Vector2f& position);
-sf::Vector2f GetRandomPositionFromCenter(const sf::Vector2f& center, float maxDistance);
-sf::Vector2f GetRandomPosition();
+fge::Vector2f ClampToMapLimit(const fge::Vector2f& position);
+fge::Vector2f GetRandomPositionFromCenter(const fge::Vector2f& center, float maxDistance);
+fge::Vector2f GetRandomPosition();
 
 } // namespace ls
 

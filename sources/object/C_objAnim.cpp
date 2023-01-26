@@ -228,7 +228,7 @@ void ObjAnimation::updatePositions()
 }
 void ObjAnimation::updateTexCoords()
 {
-    const auto rect = static_cast<const fge::vulkan::TextureImage*>(this->g_animation)->normalizeTextureRect(this->g_textureRect);
+    const auto rect = static_cast<const fge::TextureType*>(this->g_animation)->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
     this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
