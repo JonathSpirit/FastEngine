@@ -22,6 +22,7 @@
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 
 #define FGE_OBJTEXTINBOX_CLASSNAME "FGE:OBJ:TEXTINBOX"
 
@@ -32,7 +33,7 @@ class FGE_API ObjTextInputBox : public fge::Object, public fge::Subscriber, publ
 {
 public:
     ObjTextInputBox();
-    explicit ObjTextInputBox(const fge::Font& font, uint16_t maxLength = 10, const sf::Vector2f& pos = sf::Vector2f());
+    explicit ObjTextInputBox(const fge::Font& font, uint16_t maxLength = 10, const fge::Vector2f& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
@@ -45,12 +46,12 @@ public:
 
     void setActiveStat(bool active);
 
-    void setBoxSize(const sf::Vector2f& size);
+    void setBoxSize(const fge::Vector2f& size);
     void setBoxSize(float w, float h);
 
-    void setBoxColor(const sf::Color& color);
-    void setBoxOutlineColor(const sf::Color& color);
-    void setTextColor(const sf::Color& color);
+    void setBoxColor(const fge::Color& color);
+    void setBoxOutlineColor(const fge::Color& color);
+    void setTextColor(const fge::Color& color);
 
     const tiny_utf8::string& getString() const;
     fge::ObjText::CharacterSize getCharacterSize() const;
@@ -59,11 +60,11 @@ public:
 
     bool getActiveStat() const;
 
-    const sf::Vector2f& getBoxSize() const;
+    const fge::Vector2f& getBoxSize() const;
 
-    const sf::Color& getBoxColor() const;
-    const sf::Color& getBoxOutlineColor() const;
-    const sf::Color& getTextColor() const;
+    const fge::Color& getBoxColor() const;
+    const fge::Color& getBoxOutlineColor() const;
+    const fge::Color& getTextColor() const;
 
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
 
@@ -78,29 +79,29 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
     void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const sf::Event::MouseButtonEvent& arg,
+                                 const SDL_MouseButtonEvent& arg,
                                  fge::GuiElementContext& context);
 
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
     uint16_t g_cursor = 0;
     uint16_t g_maxLength = 10;
     bool g_hide = false;
 
-    sf::Color g_colorBox = sf::Color::White;
-    sf::Color g_colorBoxOutline = sf::Color::Black;
-    sf::Color g_colorText = sf::Color::Black;
+    fge::Color g_colorBox = fge::Color::White;
+    fge::Color g_colorBoxOutline = fge::Color::Black;
+    fge::Color g_colorText = fge::Color::Black;
 
     tiny_utf8::string g_string;
     mutable fge::ObjText g_text;
-    mutable sf::RectangleShape g_box;
+    mutable fge::RectangleShape g_box;
 
-    sf::Vector2f g_boxSize = sf::Vector2f(120, 18);
+    fge::Vector2f g_boxSize = fge::Vector2f(120, 18);
 
     bool g_statActive = false;
 };

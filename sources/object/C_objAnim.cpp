@@ -25,8 +25,9 @@ ObjAnimation::ObjAnimation() :
         g_paused(false)
 {
     this->setTextureRect(this->g_animation);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }
-ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position) :
+ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
         g_animation(animation),
         g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
 
@@ -34,6 +35,7 @@ ObjAnimation::ObjAnimation(const fge::Animation& animation, const sf::Vector2f& 
 {
     this->setPosition(position);
     this->setTextureRect(this->g_animation);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }
 
 void ObjAnimation::setAnimation(const fge::Animation& animation)
@@ -41,7 +43,7 @@ void ObjAnimation::setAnimation(const fge::Animation& animation)
     this->g_animation = animation;
     this->setTextureRect(this->g_animation);
 }
-void ObjAnimation::setTextureRect(const sf::IntRect& rectangle)
+void ObjAnimation::setTextureRect(const fge::RectInt& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -51,12 +53,12 @@ void ObjAnimation::setTextureRect(const sf::IntRect& rectangle)
     }
 }
 
-void ObjAnimation::setColor(const sf::Color& color)
+void ObjAnimation::setColor(const fge::Color& color)
 {
-    this->g_vertices[0].color = color;
-    this->g_vertices[1].color = color;
-    this->g_vertices[2].color = color;
-    this->g_vertices[3].color = color;
+    this->g_vertices[0]._color = color;
+    this->g_vertices[1]._color = color;
+    this->g_vertices[2]._color = color;
+    this->g_vertices[3]._color = color;
 }
 
 void ObjAnimation::setPause(bool flag)
@@ -91,14 +93,14 @@ fge::Animation& ObjAnimation::getAnimation()
 {
     return this->g_animation;
 }
-const sf::IntRect& ObjAnimation::getTextureRect() const
+const fge::RectInt& ObjAnimation::getTextureRect() const
 {
     return this->g_textureRect;
 }
 
-const sf::Color& ObjAnimation::getColor() const
+fge::Color ObjAnimation::getColor() const
 {
-    return this->g_vertices[0].color;
+    return fge::Color(this->g_vertices[0]._color);
 }
 
 FGE_OBJ_UPDATE_BODY(ObjAnimation)
@@ -127,9 +129,11 @@ FGE_OBJ_UPDATE_BODY(ObjAnimation)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjAnimation)
 {
-    states.transform *= this->getTransform();
-    states.texture = static_cast<const sf::Texture*>(this->g_animation);
-    target.draw(this->g_vertices, 4, sf::TriangleStrip, states);
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+
+    copyStates._vertexBuffer = &this->g_vertices;
+    copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_animation);
+    target.draw(copyStates);
 }
 #endif
 
@@ -137,7 +141,7 @@ void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::save(jsonObject, scene);
 
-    jsonObject["color"] = this->g_vertices[0].color.toInteger();
+    jsonObject["color"] = fge::Color(this->g_vertices[0]._color).toInteger();
     jsonObject["animation"] = this->g_animation;
     jsonObject["animationGroup"] = this->g_animation.getGroupIndex();
     jsonObject["animationFrame"] = this->g_animation.getFrameIndex();
@@ -149,7 +153,7 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->setColor(sf::Color(jsonObject.value<uint32_t>("color", 0)));
+    this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_animation = jsonObject.value<std::string>("animation", FGE_ANIM_BAD);
     this->g_animation.setGroup(jsonObject.value<std::size_t>("animationGroup", 0));
     this->g_animation.setFrame(jsonObject.value<std::size_t>("animationFrame", 0));
@@ -164,7 +168,7 @@ void ObjAnimation::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 
-    pck << this->g_vertices[0].color << this->g_animation;
+    pck << this->g_vertices[0]._color << this->g_animation;
     pck << static_cast<uint32_t>(this->g_animation.getGroupIndex())
         << static_cast<uint32_t>(this->g_animation.getFrameIndex());
     pck << this->g_animation.isLoop() << this->g_animation.isReverse();
@@ -174,7 +178,7 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
 
-    sf::Color color;
+    fge::Color color;
     pck >> color >> this->g_animation;
     this->setColor(color);
     uint32_t group = 0, frame = 0;
@@ -201,38 +205,35 @@ const char* ObjAnimation::getReadableClassName() const
     return "animation";
 }
 
-sf::FloatRect ObjAnimation::getGlobalBounds() const
+fge::RectFloat ObjAnimation::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjAnimation::getLocalBounds() const
+fge::RectFloat ObjAnimation::getLocalBounds() const
 {
-    float width = static_cast<float>(std::abs(this->g_textureRect.width));
-    float height = static_cast<float>(std::abs(this->g_textureRect.height));
+    const auto width = static_cast<float>(std::abs(this->g_textureRect._width));
+    const auto height = static_cast<float>(std::abs(this->g_textureRect._height));
 
-    return sf::FloatRect(0.f, 0.f, width, height);
+    return {{0.f, 0.f}, {width, height}};
 }
 
 void ObjAnimation::updatePositions()
 {
-    sf::FloatRect bounds = this->getLocalBounds();
+    const fge::RectFloat bounds = this->getLocalBounds();
 
-    this->g_vertices[0].position = sf::Vector2f(0, 0);
-    this->g_vertices[1].position = sf::Vector2f(0, bounds.height);
-    this->g_vertices[2].position = sf::Vector2f(bounds.width, 0);
-    this->g_vertices[3].position = sf::Vector2f(bounds.width, bounds.height);
+    this->g_vertices[0]._position = fge::Vector2f(0, 0);
+    this->g_vertices[1]._position = fge::Vector2f(0, bounds._height);
+    this->g_vertices[2]._position = fge::Vector2f(bounds._width, 0);
+    this->g_vertices[3]._position = fge::Vector2f(bounds._width, bounds._height);
 }
 void ObjAnimation::updateTexCoords()
 {
-    float left = static_cast<float>(this->g_textureRect.left);
-    float right = left + static_cast<float>(this->g_textureRect.width);
-    float top = static_cast<float>(this->g_textureRect.top);
-    float bottom = top + static_cast<float>(this->g_textureRect.height);
+    const auto rect = static_cast<const fge::vulkan::TextureImage*>(this->g_animation)->normalizeTextureRect(this->g_textureRect);
 
-    this->g_vertices[0].texCoords = sf::Vector2f(left, top);
-    this->g_vertices[1].texCoords = sf::Vector2f(left, bottom);
-    this->g_vertices[2].texCoords = sf::Vector2f(right, top);
-    this->g_vertices[3].texCoords = sf::Vector2f(right, bottom);
+    this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
+    this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
+    this->g_vertices[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
+    this->g_vertices[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
 }
 
 } // namespace fge

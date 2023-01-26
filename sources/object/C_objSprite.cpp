@@ -150,20 +150,20 @@ void ObjSprite::updatePositions()
 {
     const fge::RectFloat bounds = this->getLocalBounds();
 
-    this->g_vertices.getVertices()[0]._position = fge::Vector2f(0, 0);
-    this->g_vertices.getVertices()[1]._position = fge::Vector2f(0, bounds._height);
-    this->g_vertices.getVertices()[2]._position = fge::Vector2f(bounds._width, 0);
-    this->g_vertices.getVertices()[3]._position = fge::Vector2f(bounds._width, bounds._height);
+    this->g_vertices[0]._position = fge::Vector2f(0, 0);
+    this->g_vertices[1]._position = fge::Vector2f(0, bounds._height);
+    this->g_vertices[2]._position = fge::Vector2f(bounds._width, 0);
+    this->g_vertices[3]._position = fge::Vector2f(bounds._width, bounds._height);
 }
 
 void ObjSprite::updateTexCoords()
 {
     const auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
 
-    this->g_vertices.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
-    this->g_vertices.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
-    this->g_vertices.getVertices()[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
-    this->g_vertices.getVertices()[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
+    this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
+    this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
+    this->g_vertices[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
+    this->g_vertices[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
 }
 
 } // namespace fge
