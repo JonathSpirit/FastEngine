@@ -516,6 +516,8 @@ if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
         set(GLSLC_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc.exe")
     else()
         set(GLSLC_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc")
+        file(TOUCH ${GLSLC_EXECUTABLE})
+        file(COPY ${GLSLC_EXECUTABLE} DESTINATION ${GLSLC_EXECUTABLE} FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
     endif()
 
     add_dependencies(CompileShaders shaderc)
