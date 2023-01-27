@@ -22,11 +22,6 @@
     url = https://github.com/SFML/SFML.git
     ignore = dirty
     branch = 2.6.x
-[submodule "libs/openal-soft"]
-    path = libs/openal-soft
-    url = https://github.com/kcat/openal-soft.git
-    ignore = dirty
-    branch = 1.22.2
 [submodule "libs/strtk"]
     path = libs/strtk
     url = https://github.com/ArashPartow/strtk.git

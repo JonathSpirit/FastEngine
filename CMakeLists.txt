@@ -27,9 +27,9 @@ else()
 endif()
 
 if(NOT WIN32)
-    set(FGE_SFML_MAIN "")
+    set(FGE_SDL_MAIN "")
 else()
-    set(FGE_SFML_MAIN "sfml-main")
+    set(FGE_SDL_MAIN "SDL2main")
 endif()
 
 #Getting all *.h/*.inl files
@@ -101,28 +101,6 @@ set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE) #BEGIN BUILD_SHARED_LIBS
 set(BUILD_STATIC_LIBS OFF CACHE BOOL "" FORCE)
 
 if(WIN32)
-    ExternalProject_Add(OpenAL_extern #OpenAL-soft
-            URL "${PROJECT_SOURCE_DIR}/libs/openal-soft"
-            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern
-            CMAKE_ARGS -DALSOFT_UTILS=OFF -DALSOFT_EXAMPLES=OFF -DALSOFT_RTKIT=OFF -DCMAKE_BUILD_TYPE=Release
-            INSTALL_COMMAND ""
-            TEST_COMMAND ""
-            DOWNLOAD_COMMAND ""
-            SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/openal-soft
-            EXCLUDE_FROM_ALL
-            )
-
-    set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/openal-soft/include/AL" CACHE PATH "" FORCE)
-    set(OPENAL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll.a" CACHE FILEPATH "" FORCE)
-
-    # In order to set IMPORTED_LOCATION, SFML check if the filepath exist.
-    # But if it's the first time that the user configure with cmake, the file will not be created yet.
-    # SFML see that and try to populate IMPORTED_LIBNAME that doesn't accept filepath anymore.
-    # In order to fix that, we create a dummy but valid file at the required path.
-    if (NOT EXISTS ${OPENAL_LIBRARY})
-        file(TOUCH ${OPENAL_LIBRARY})
-    endif()
-
     ExternalProject_Add(freetype_extern #freetype
             URL "${PROJECT_SOURCE_DIR}/libs/freetype"
             PREFIX ${CMAKE_CURRENT_BINARY_DIR}/freetype_extern
@@ -207,8 +185,6 @@ else()
 endif()
 
 if(WIN32)
-    #add_dependencies(sfml-audio OpenAL_extern)
-    #add_dependencies(sfml-graphics freetype_extern) TODO remove that
     add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
     add_dependencies(${FGE_LIB_NAME} freetype_extern)
 endif()
@@ -557,10 +533,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_custom_target(FgeClientExeDeps)
 add_custom_target(FgeServerExeDeps)
-add_custom_target(FgeExeDeps) #TODO REMOVE THAT
 add_dependencies(FgeClientExeDeps ${FGE_LIB_NAME})
 add_dependencies(FgeServerExeDeps ${FGE_SERVER_LIB_NAME})
-add_dependencies(FgeExeDeps ${FGE_LIB_NAME} ${FGE_SERVER_LIB_NAME}) #TODO REMOVE THAT
 
 if (WIN32)
     foreach (DEPENDENCY sfml-system SDL2 SDL2_image)
@@ -576,10 +550,6 @@ if (WIN32)
                 $<TARGET_FILE:${DEPENDENCY}>
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-    add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_CURRENT_BINARY_DIR}/OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
 add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
@@ -594,13 +564,13 @@ add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
 
 #Set some variables that help exe linking
 if(WIN32)
-    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
     set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
 elseif(APPLE)
-    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
     set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
 else()
-    set(FGE_CLIENT_LIBS SDL2main SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
+    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
     set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
 endif()
 

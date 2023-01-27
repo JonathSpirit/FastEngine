@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <doctest/doctest.h>
-#include <FastEngine/C_matrix.hpp>
+#include "doctest/doctest.h"
+#include "FastEngine/C_matrix.hpp"
 
 TEST_CASE("testing matrix<int>")
 {

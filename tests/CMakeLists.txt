@@ -5,7 +5,7 @@ function(fge_add_test TARGET SOURCES DEPENDS)
     target_link_libraries(${TARGET} PRIVATE ${DEPENDS} fgeDoctestMain)
     add_test(NAME ${TARGET} COMMAND ${TARGET} WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-    add_dependencies(${TARGET} FgeExeDeps)
+    add_dependencies(${TARGET} FgeClientExeDeps)
 endfunction()
 
 set(DOCTEST_NO_INSTALL ON)
@@ -19,11 +19,10 @@ add_library(fgeDoctestMain STATIC doctestMain.cpp)
 target_link_libraries(fgeDoctestMain PUBLIC doctest::doctest)
 
 set(TESTS_DEPENDENCIES
-    sfml-graphics
-    ${FGE_SFML_MAIN}
+    SDL2
+    SDL2_image
+    SDL2_mixer
     sfml-system
-    sfml-window
-    sfml-audio
     ${FGE_LIB_NAME}
 )
 

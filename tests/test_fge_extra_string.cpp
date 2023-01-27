@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <doctest/doctest.h>
-#include <FastEngine/extra/extra_string.hpp>
+#include "doctest/doctest.h"
+#include "FastEngine/extra/extra_string.hpp"
 #include <utility>
 
 TEST_CASE("testing IsValidUtf8String")
