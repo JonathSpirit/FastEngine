@@ -513,9 +513,9 @@ if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
             DEPENDEES patch DEPENDERS configure
             COMMAND python ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc/utils/git-sync-deps)
     if(WIN32)
-        set(GLSLC_EXECUTABLE ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc.exe)
+        set(GLSLC_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc.exe")
     else()
-        set(GLSLC_EXECUTABLE ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc)
+        set(GLSLC_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc")
     endif()
 
     add_dependencies(CompileShaders shaderc)
