@@ -511,7 +511,7 @@ if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
     ExternalProject_Add_Step(shaderc gitSyncDeps
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDEES patch DEPENDERS configure
-            COMMAND python shaderc/src/shaderc/utils/git-sync-deps)
+            COMMAND python ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc/utils/git-sync-deps)
     if(WIN32)
         set(GLSLC_EXECUTABLE ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc.exe)
     else()
