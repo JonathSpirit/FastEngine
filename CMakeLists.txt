@@ -130,7 +130,7 @@ add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
 
 set(SDL2IMAGE_INSTALL OFF CACHE BOOL "" FORCE) #SDL_image
 set(SDL2_DIR "libs/SDL" CACHE PATH "" FORCE)
-set(SDL2_MAIN_LIBRARY $<TARGET_LINKER_FILE:SDL2> CACHE FILEPATH "" FORCE)
+set(SDL2_MAIN_LIBRARY SDL2main CACHE STRING "" FORCE)
 add_subdirectory(libs/SDL_image EXCLUDE_FROM_ALL)
 
 set(SDL2MIXER_INSTALL OFF CACHE BOOL "" FORCE) #SDL_mixer
@@ -166,7 +166,8 @@ add_library(${FGE_SERVER_LIB_NAME} SHARED)
 
 #Checking for Vulkan
 find_package(Vulkan MODULE REQUIRED)
-message(${Vulkan_GLSLC_EXECUTABLE})
+
+set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
 
 set(VOLK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/volk)
 
@@ -497,14 +498,39 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
 #Compile shaders
 add_custom_target(CompileShaders)
 
+if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
+    ExternalProject_Add(shaderc
+            GIT_REPOSITORY https://github.com/google/shaderc.git
+            GIT_TAG origin/main
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/shaderc
+            CMAKE_ARGS -DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
+            INSTALL_COMMAND ""
+            TEST_COMMAND ""
+            EXCLUDE_FROM_ALL
+            )
+    ExternalProject_Add_Step(shaderc gitSyncDeps
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            DEPENDEES patch DEPENDERS configure
+            COMMAND python shaderc/src/shaderc/utils/git-sync-deps)
+    if(WIN32)
+        set(GLSLC_EXECUTABLE ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc.exe)
+    else()
+        set(GLSLC_EXECUTABLE ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc)
+    endif()
+
+    add_dependencies(CompileShaders shaderc)
+else()
+    set(GLSLC_EXECUTABLE ${Vulkan_GLSLC_EXECUTABLE})
+endif()
+
 add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
+        COMMAND ${GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
+        COMMAND ${GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
+        COMMAND ${GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 
 add_dependencies(${FGE_LIB_NAME} CompileShaders)
