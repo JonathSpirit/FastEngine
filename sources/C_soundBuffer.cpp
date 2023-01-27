@@ -72,22 +72,13 @@ void SoundBuffer::operator=(const fge::audio::AudioDataPtr& data)
     this->g_data = data;
 }
 
-SoundBuffer::operator sf::SoundBuffer*()
+SoundBuffer::operator Mix_Chunk*()
 {
     return this->g_data->_audio.get();
 }
-SoundBuffer::operator const sf::SoundBuffer*() const
+SoundBuffer::operator const Mix_Chunk*() const
 {
     return this->g_data->_audio.get();
-}
-
-SoundBuffer::operator sf::SoundBuffer&()
-{
-    return *this->g_data->_audio;
-}
-SoundBuffer::operator const sf::SoundBuffer&() const
-{
-    return *this->g_data->_audio;
 }
 
 SoundBuffer::operator std::string&()

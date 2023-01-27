@@ -46,6 +46,11 @@
     url = https://github.com/libsdl-org/SDL_image.git
     ignore = dirty
     branch = release-2.6.2
+[submodule "libs/SDL_mixer"]
+    path = libs/SDL_mixer
+    url = https://github.com/libsdl-org/SDL_mixer.git
+    ignore = dirty
+    branch = release-2.6.2
 [submodule "libs/glm"]
     path = libs/glm
     url = https://github.com/g-truc/glm.git

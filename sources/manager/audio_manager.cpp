@@ -16,9 +16,7 @@
 
 #include "FastEngine/manager/audio_manager.hpp"
 
-namespace fge
-{
-namespace audio
+namespace fge::audio
 {
 
 namespace
@@ -34,8 +32,24 @@ void Init()
 {
     if (_dataAudioBad == nullptr)
     {
+        Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID | MIX_INIT_OPUS);
+
+        Mix_OpenAudioDevice(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS,
+                            2048, nullptr,
+                            SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+
+        //Taken from https://cable.ayra.ch/empty/
+        uint8_t emptyWaveFile[] =
+        {
+            0x52, 0x49, 0x46, 0x46, 0x25, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56,
+            0x45, 0x66, 0x6D, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, 0x01, 0x00,
+            0x01, 0x00, 0x44, 0xAC, 0x00, 0x00, 0x88, 0x58, 0x01, 0x00, 0x02,
+            0x00, 0x10, 0x00, 0x64, 0x61, 0x74, 0x61, 0x74, 0x00, 0x00, 0x00,
+            0x00
+        };
+
         _dataAudioBad = std::make_shared<fge::audio::AudioData>();
-        _dataAudioBad->_audio = std::make_shared<sf::SoundBuffer>();
+        _dataAudioBad->_audio = std::shared_ptr<Mix_Chunk>(Mix_QuickLoad_WAV(emptyWaveFile), MixerChunkDeleter());
         _dataAudioBad->_valid = false;
     }
 }
@@ -47,6 +61,9 @@ void Uninit()
 {
     _dataAudio.clear();
     _dataAudioBad = nullptr;
+
+    Mix_CloseAudio();
+    Mix_Quit();
 }
 
 std::size_t GetAudioSize()
@@ -122,16 +139,15 @@ bool LoadFromFile(const std::string& name, const std::string& path)
         return false;
     }
 
-    sf::SoundBuffer* tmpAudio = new sf::SoundBuffer();
+    Mix_Chunk* tmpAudio = Mix_LoadWAV(path.c_str());
 
-    if (!tmpAudio->loadFromFile(path))
+    if (tmpAudio == nullptr)
     {
-        delete tmpAudio;
         return false;
     }
 
     fge::audio::AudioDataPtr buff = std::make_shared<fge::audio::AudioData>();
-    buff->_audio = std::shared_ptr<sf::SoundBuffer>(tmpAudio);
+    buff->_audio = std::shared_ptr<Mix_Chunk>(tmpAudio, MixerChunkDeleter());
     buff->_valid = true;
     buff->_path = path;
 
@@ -187,5 +203,4 @@ bool Push(const std::string& name, const fge::audio::AudioDataPtr& data)
     return true;
 }
 
-} // namespace audio
-} // namespace fge
+} // namespace fge::audio

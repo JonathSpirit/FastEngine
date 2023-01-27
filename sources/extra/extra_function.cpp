@@ -228,6 +228,49 @@ void AlignedFree(void* data)
     }
 }
 
+/*
+ * Original from : https://github.com/SFML/SFML
+ * Copyright (C) 2007-2022 Laurent Gomila
+ *
+ * Altered/Modified by Guillaume Guillet
+ */
+void Sleep(std::chrono::microseconds time)
+{
+    if (time == std::chrono::microseconds{0})
+    {
+        return;
+    }
+
+#ifdef _WIN32
+    // Get the supported timer resolutions on this system
+    TIMECAPS tc;
+    timeGetDevCaps(&tc, sizeof(TIMECAPS));
+
+    // Set the timer resolution to the minimum for the Sleep call
+    timeBeginPeriod(tc.wPeriodMin);
+
+    // Wait...
+    ::Sleep(static_cast<DWORD>( std::chrono::duration_cast<std::chrono::milliseconds>(time).count() ));
+
+    // Reset the timer resolution back to the system default
+    timeEndPeriod(tc.wPeriodMin);
+#else
+    int64_t usecs = time.count();
+
+    // Construct the time to wait
+    timespec ti;
+    ti.tv_nsec = static_cast<long>((usecs % 1000000) * 1000);
+    ti.tv_sec = static_cast<time_t>(usecs / 1000000);
+
+    // Wait...
+    // If nanosleep returns -1, we check errno. If it is EINTR
+    // nanosleep was interrupted and has set ti to the remaining
+    // duration. We continue sleeping until the complete duration
+    // has passed. We stop sleeping if it was due to an error.
+    while ((nanosleep(&ti, &ti) == -1) && (errno == EINTR)) {}
+#endif
+}
+
 ///Detection
 #ifndef FGE_DEF_SERVER
 bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone)

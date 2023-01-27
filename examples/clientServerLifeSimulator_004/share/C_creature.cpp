@@ -88,8 +88,8 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
     this->_font = "default";
-    _speakSound.setBuffer(*fge::audio::GetAudio("ugandan1")->_audio);
-    this->_speakDelay = sf::milliseconds(fge::_random.range<int>(6000, 20000));
+    this->_speakSound = "ugandan1";
+    this->_speakDelay = std::chrono::milliseconds(fge::_random.range<int>(6000, 20000));
 #endif // FGE_DEF_SERVER
 
     this->setOrigin({24, 19});
@@ -356,10 +356,10 @@ FGE_OBJ_UPDATE_BODY(Creature)
     if (this->_speakClock.getElapsedTime() >= this->_speakDelay)
     {
         this->_speakClock.restart();
-        this->_speakDelay = sf::milliseconds(fge::_random.range(6000, 50000));
-        _speakSound.setBuffer(*fge::audio::GetAudio("ugandan" + fge::string::ToStr(fge::_random.range(1, 2)))->_audio);
+        this->_speakDelay = std::chrono::milliseconds(fge::_random.range(6000, 50000));
+        this->_speakSound = "ugandan" + fge::string::ToStr(fge::_random.range(1, 2));
 
-        this->_speakSound.play();
+        Mix_PlayChannel(-1, this->_speakSound, 0);
     }
 
     this->updateMoveable(*this, deltaTime);

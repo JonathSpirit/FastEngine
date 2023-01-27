@@ -26,7 +26,8 @@
 #include "FastEngine/graphic/C_circleShape.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
 #include "FastEngine/object/C_objTextList.hpp"
-#include <SFML/Audio.hpp>
+#include "FastEngine/C_soundBuffer.hpp"
+#include "FastEngine/C_clock.hpp"
 #include <queue>
 
 namespace ls
@@ -104,10 +105,9 @@ public:
     fge::Font _font;
 
 #ifndef FGE_DEF_SERVER
-
-    sf::Clock _speakClock;
-    sf::Sound _speakSound;
-    sf::Time _speakDelay;
+    fge::Clock _speakClock;
+    fge::SoundBuffer _speakSound;
+    std::chrono::milliseconds _speakDelay;
 
     fge::Animation _anim;
 #endif // FGE_DEF_SERVER

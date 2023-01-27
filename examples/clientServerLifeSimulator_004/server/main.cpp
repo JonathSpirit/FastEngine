@@ -31,7 +31,7 @@
 #include <iostream>
 
 #define TERMINUS(returnValue_)                                                                                         \
-    sf::sleep(sf::seconds(2));                                                                                         \
+    fge::Sleep(std::chrono::seconds(2));                                                                               \
     return returnValue_;
 
 namespace
@@ -380,7 +380,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Server tick
-        sf::sleep(sf::milliseconds(LIFESIM_SERVER_TICK));
+        fge::Sleep(std::chrono::milliseconds(LIFESIM_SERVER_TICK));
     }
 
     std::cout << "shutdown ..." << std::endl;

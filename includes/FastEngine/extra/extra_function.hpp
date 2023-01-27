@@ -54,6 +54,8 @@ FGE_API void SetConsoleCmdTitle(const char* title);
 FGE_API void* AlignedAlloc(std::size_t size, std::size_t alignment);
 FGE_API void AlignedFree(void* data);
 
+FGE_API void Sleep(std::chrono::microseconds time);
+
 struct AlignedDeleter
 {
     void operator()(void* p) const

@@ -19,7 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
-#include "SFML/Audio/SoundBuffer.hpp"
+#include "SDL_mixer.h"
 #include <memory>
 #include <mutex>
 #include <string>
@@ -31,16 +31,24 @@
 namespace fge::audio
 {
 
+struct MixerChunkDeleter
+{
+    void operator()(Mix_Chunk* chunk) const
+    {
+        Mix_FreeChunk(chunk);
+    }
+};
+
 /**
  * \struct AudioData
  * \ingroup audio
- * \brief Structure containing the shared data of an SFML sound buffer
+ * \brief Structure containing the shared data of an SDL chunk
  */
 struct AudioData
 {
-    std::shared_ptr<sf::SoundBuffer> _audio; ///< Shared pointer to the SFML sound buffer
-    bool _valid;                             ///< Indicates if the audio data is valid
-    std::string _path;                       ///< Path to the audio file
+    std::shared_ptr<Mix_Chunk> _audio; ///< Shared pointer to the SFML sound buffer
+    bool _valid;                       ///< Indicates if the audio data is valid
+    std::string _path;                 ///< Path to the audio file
 };
 
 using AudioDataPtr = std::shared_ptr<fge::audio::AudioData>;
