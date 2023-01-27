@@ -17,7 +17,7 @@
 #ifndef _FGE_C_MATRIX_HPP_INCLUDED
 #define _FGE_C_MATRIX_HPP_INCLUDED
 
-#include <SFML/System/Vector2.hpp>
+#include "FastEngine/C_vector.hpp"
 #include <initializer_list>
 #include <json.hpp>
 
@@ -62,7 +62,7 @@ public:
      * \param msize The size of the matrix
      */
     template<class Tvec>
-    explicit Matrix(const sf::Vector2<Tvec>& msize);
+    explicit Matrix(const fge::Vector2<Tvec>& msize);
     /**
      * \brief Construct a matrix with a certain size
      *
@@ -79,7 +79,7 @@ public:
      * \param defaultValue The value to fill the matrix with
      */
     template<class Tvec>
-    Matrix(const sf::Vector2<Tvec>& msize, const T& defaultValue);
+    Matrix(const fge::Vector2<Tvec>& msize, const T& defaultValue);
     /**
      * \brief Construct a matrix with a certain size and a default value
      *
@@ -127,10 +127,10 @@ public:
      * \return A reference to the value
      */
     template<class Tvec>
-    inline const T& get(const sf::Vector2<Tvec>& coord) const;
+    inline const T& get(const fge::Vector2<Tvec>& coord) const;
     inline T& get(std::size_t x, std::size_t y);
     template<class Tvec>
-    inline T& get(const sf::Vector2<Tvec>& coord);
+    inline T& get(const fge::Vector2<Tvec>& coord);
 
     /**
      * \brief Get the specified value without throwing an exception
@@ -150,7 +150,7 @@ public:
      * \return \b true if the value was found, \b false otherwise
      */
     template<class Tvec>
-    bool get(const sf::Vector2<Tvec>& coord, T& buff) const;
+    bool get(const fge::Vector2<Tvec>& coord, T& buff) const;
 
     /**
      * \brief Get the specified value as a pointer
@@ -168,10 +168,10 @@ public:
      * \return A pointer to the value or \b nullptr if the value was not found
      */
     template<class Tvec>
-    T* getPtr(const sf::Vector2<Tvec>& coord);
+    T* getPtr(const fge::Vector2<Tvec>& coord);
     const T* getPtr(std::size_t x, std::size_t y) const;
     template<class Tvec>
-    const T* getPtr(const sf::Vector2<Tvec>& coord) const;
+    const T* getPtr(const fge::Vector2<Tvec>& coord) const;
 
     /**
      * \brief Set the specified value by moving it
@@ -189,7 +189,7 @@ public:
      * \param value The value to move
      */
     template<class Tvec>
-    void set(const sf::Vector2<Tvec>& coord, T&& value);
+    void set(const fge::Vector2<Tvec>& coord, T&& value);
     /**
      * \brief Set the specified value by copying it
      *
@@ -206,7 +206,7 @@ public:
      * \param value The value to copy
      */
     template<class Tvec>
-    void set(const sf::Vector2<Tvec>& coord, const T& value);
+    void set(const fge::Vector2<Tvec>& coord, const T& value);
 
     /**
      * \brief Set values with a initializer list
@@ -228,7 +228,7 @@ public:
      *
      * \return The size of the matrix as a vector2
      */
-    [[nodiscard]] inline const sf::Vector2<std::size_t>& getSize() const;
+    [[nodiscard]] inline const fge::Vector2<std::size_t>& getSize() const;
     /**
      * \brief Get the x size of the matrix
      *
@@ -262,7 +262,7 @@ public:
      * \param msize The size of the matrix
      */
     template<class Tvec>
-    void setSize(const sf::Vector2<Tvec>& msize);
+    void setSize(const fge::Vector2<Tvec>& msize);
     /**
      * \brief Set the size of the matrix
      *
@@ -316,7 +316,7 @@ public:
 
 private:
     std::unique_ptr<T[]> g_mdata;
-    sf::Vector2<std::size_t> g_msize;
+    fge::Vector2<std::size_t> g_msize;
 };
 
 /**

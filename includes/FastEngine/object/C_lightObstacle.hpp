@@ -18,7 +18,6 @@
 #define _FGE_C_LIGHTOBSTACLE_HPP_INCLUDED
 
 #include "C_lightSystem.hpp"
-#include "SFML/System/Vector2.hpp"
 #include <vector>
 
 namespace fge

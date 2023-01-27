@@ -76,7 +76,7 @@ public:
                                        .value_or(false))
                 {
                     this->g_pathGenerator.addCollision(
-                            static_cast<fge::AStar::Vector2i>(sf::Vector2<std::size_t>{x, y}));
+                            static_cast<fge::AStar::Vector2i>(fge::Vector2<std::size_t>{x, y}));
                 }
             }
         }

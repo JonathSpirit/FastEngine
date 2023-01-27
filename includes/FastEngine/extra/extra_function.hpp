@@ -84,15 +84,15 @@ template<typename T>
 fge::Rect<T> ToRect(const fge::Vector2<T>* pos, std::size_t size);
 
 ///Color
-inline sf::Color SetAlpha(const sf::Color& color, uint8_t alpha);
-inline sf::Color SetRed(const sf::Color& color, uint8_t red);
-inline sf::Color SetGreen(const sf::Color& color, uint8_t green);
-inline sf::Color SetBlue(const sf::Color& color, uint8_t blue);
+inline fge::Color SetAlpha(const fge::Color& color, uint8_t alpha);
+inline fge::Color SetRed(const fge::Color& color, uint8_t red);
+inline fge::Color SetGreen(const fge::Color& color, uint8_t green);
+inline fge::Color SetBlue(const fge::Color& color, uint8_t blue);
 
-inline sf::Color&& SetAlpha(sf::Color&& color, uint8_t alpha);
-inline sf::Color&& SetRed(sf::Color&& color, uint8_t red);
-inline sf::Color&& SetGreen(sf::Color&& color, uint8_t green);
-inline sf::Color&& SetBlue(sf::Color&& color, uint8_t blue);
+inline fge::Color&& SetAlpha(fge::Color&& color, uint8_t alpha);
+inline fge::Color&& SetRed(fge::Color&& color, uint8_t red);
+inline fge::Color&& SetGreen(fge::Color&& color, uint8_t green);
+inline fge::Color&& SetBlue(fge::Color&& color, uint8_t blue);
 
 ///Reach
 FGE_API fge::Vector2f

@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/C_tilelayer.hpp"
-#include <SFML/Graphics/RenderTarget.hpp>
 
 namespace fge
 {

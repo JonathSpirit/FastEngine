@@ -163,7 +163,7 @@ public:
      * \param position The grid position of the tile
      * \return The local id of the tile if found, \b -1 otherwise
      */
-    [[nodiscard]] TileId getLocalId(const sf::Vector2i& position) const;
+    [[nodiscard]] TileId getLocalId(const fge::Vector2i& position) const;
     /**
      * \brief Get the local id of a tile by its global id
      *

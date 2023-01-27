@@ -234,7 +234,7 @@ void* ToPtr(const std::string& str)
     return reinterpret_cast<void*>(result);
 }
 
-sf::Vector2f ToVec2f(const std::string& str)
+fge::Vector2f ToVec2f(const std::string& str)
 {
     size_t tagpos = str.find(' ');
     if (tagpos == std::string::npos)
@@ -244,7 +244,7 @@ sf::Vector2f ToVec2f(const std::string& str)
     return {fge::string::ToFloat(str.substr(0, tagpos)),
             fge::string::ToFloat(str.substr(tagpos + 1, std::string::npos))};
 }
-sf::Vector2u ToVec2u(const std::string& str)
+fge::Vector2u ToVec2u(const std::string& str)
 {
     size_t tagpos = str.find(' ');
     if (tagpos == std::string::npos)
@@ -253,7 +253,7 @@ sf::Vector2u ToVec2u(const std::string& str)
     }
     return {fge::string::ToUint(str.substr(0, tagpos)), fge::string::ToUint(str.substr(tagpos + 1, std::string::npos))};
 }
-sf::Vector2i ToVec2i(const std::string& str)
+fge::Vector2i ToVec2i(const std::string& str)
 {
     size_t tagpos = str.find(' ');
     if (tagpos == std::string::npos)
@@ -354,24 +354,24 @@ std::string ToStr(const void* val)
 
 //Classes
 
-std::string ToStr(const sf::Vector2f& val)
+std::string ToStr(const fge::Vector2f& val)
 {
     return fmt::format(FMT_COMPILE("{} {}"), val.x, val.y);
 }
-std::string ToStr(const sf::Vector2u& val)
+std::string ToStr(const fge::Vector2u& val)
 {
     return fmt::format(FMT_COMPILE("{} {}"), val.x, val.y);
 }
-std::string ToStr(const sf::Vector2i& val)
+std::string ToStr(const fge::Vector2i& val)
 {
     return fmt::format(FMT_COMPILE("{} {}"), val.x, val.y);
 }
 
-std::string ToStr(const sf::Vector3f& val)
+std::string ToStr(const fge::Vector3f& val)
 {
     return fmt::format(FMT_COMPILE("{} {} {}"), val.x, val.y, val.z);
 }
-std::string ToStr(const sf::Vector3i& val)
+std::string ToStr(const fge::Vector3i& val)
 {
     return fmt::format(FMT_COMPILE("{} {} {}"), val.x, val.y, val.z);
 }

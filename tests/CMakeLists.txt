@@ -22,7 +22,6 @@ set(TESTS_DEPENDENCIES
     SDL2
     SDL2_image
     SDL2_mixer
-    sfml-system
     ${FGE_LIB_NAME}
 )
 

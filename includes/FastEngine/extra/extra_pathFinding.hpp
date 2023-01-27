@@ -25,7 +25,7 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "SFML/System/Vector2.hpp"
+#include "FastEngine/C_vector.hpp"
 #include <array>
 #include <cstdint>
 #include <functional>
@@ -37,7 +37,7 @@
 namespace fge::AStar
 {
 
-using Vector2i = sf::Vector2<int32_t>;
+using Vector2i = fge::Vector2<int32_t>;
 using HeuristicFunction = std::function<unsigned int(fge::AStar::Vector2i, fge::AStar::Vector2i)>;
 using CoordinateList = std::vector<fge::AStar::Vector2i>;
 

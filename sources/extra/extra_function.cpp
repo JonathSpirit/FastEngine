@@ -16,7 +16,6 @@
 
 #include "FastEngine/extra/extra_function.hpp"
 
-#include "SFML/System/Vector2.hpp"
 #include "re2.h"
 #include <cmath>
 #include <filesystem>

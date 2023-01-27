@@ -30,7 +30,7 @@ Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> data)
 
 template<class T>
 template<class Tvec>
-Matrix<T>::Matrix(const sf::Vector2<Tvec>& msize)
+Matrix<T>::Matrix(const fge::Vector2<Tvec>& msize)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     this->setSize(static_cast<std::size_t>(msize.x), static_cast<std::size_t>(msize.y));
@@ -43,7 +43,7 @@ Matrix<T>::Matrix(std::size_t sizex, std::size_t sizey)
 
 template<class T>
 template<class Tvec>
-Matrix<T>::Matrix(const sf::Vector2<Tvec>& msize, const T& defaultValue)
+Matrix<T>::Matrix(const fge::Vector2<Tvec>& msize, const T& defaultValue)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     this->setSize(static_cast<std::size_t>(msize.x), static_cast<std::size_t>(msize.y));
@@ -120,7 +120,7 @@ const T& Matrix<T>::get(std::size_t x, std::size_t y) const
 }
 template<class T>
 template<class Tvec>
-const T& Matrix<T>::get(const sf::Vector2<Tvec>& coord) const
+const T& Matrix<T>::get(const fge::Vector2<Tvec>& coord) const
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     return *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x),
@@ -133,7 +133,7 @@ T& Matrix<T>::get(std::size_t x, std::size_t y)
 }
 template<class T>
 template<class Tvec>
-T& Matrix<T>::get(const sf::Vector2<Tvec>& coord)
+T& Matrix<T>::get(const fge::Vector2<Tvec>& coord)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     return *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x),
@@ -152,7 +152,7 @@ bool Matrix<T>::get(std::size_t x, std::size_t y, T& buff) const
 }
 template<class T>
 template<class Tvec>
-bool Matrix<T>::get(const sf::Vector2<Tvec>& coord, T& buff) const
+bool Matrix<T>::get(const fge::Vector2<Tvec>& coord, T& buff) const
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     return this->get(static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y), buff);
@@ -169,7 +169,7 @@ T* Matrix<T>::getPtr(std::size_t x, std::size_t y)
 }
 template<class T>
 template<class Tvec>
-T* Matrix<T>::getPtr(const sf::Vector2<Tvec>& coord)
+T* Matrix<T>::getPtr(const fge::Vector2<Tvec>& coord)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     return this->getPtr(static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y));
@@ -185,7 +185,7 @@ const T* Matrix<T>::getPtr(std::size_t x, std::size_t y) const
 }
 template<class T>
 template<class Tvec>
-const T* Matrix<T>::getPtr(const sf::Vector2<Tvec>& coord) const
+const T* Matrix<T>::getPtr(const fge::Vector2<Tvec>& coord) const
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     return this->getPtr(static_cast<std::size_t>(coord.x), static_cast<std::size_t>(coord.y));
@@ -198,7 +198,7 @@ void Matrix<T>::set(std::size_t x, std::size_t y, T&& value)
 }
 template<class T>
 template<class Tvec>
-void Matrix<T>::set(const sf::Vector2<Tvec>& coord, T&& value)
+void Matrix<T>::set(const fge::Vector2<Tvec>& coord, T&& value)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x),
@@ -211,7 +211,7 @@ void Matrix<T>::set(std::size_t x, std::size_t y, const T& value)
 }
 template<class T>
 template<class Tvec>
-void Matrix<T>::set(const sf::Vector2<Tvec>& coord, const T& value)
+void Matrix<T>::set(const fge::Vector2<Tvec>& coord, const T& value)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     *FGE_MATRIX_GET(T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x),
@@ -257,7 +257,7 @@ inline std::size_t Matrix<T>::getTotalSize() const
     return this->g_msize.x * this->g_msize.y;
 }
 template<class T>
-const sf::Vector2<std::size_t>& Matrix<T>::getSize() const
+const fge::Vector2<std::size_t>& Matrix<T>::getSize() const
 {
     return this->g_msize;
 }
@@ -306,7 +306,7 @@ typename Matrix<T>::const_iterator Matrix<T>::end() const
 
 template<class T>
 template<class Tvec>
-void Matrix<T>::setSize(const sf::Vector2<Tvec>& msize)
+void Matrix<T>::setSize(const fge::Vector2<Tvec>& msize)
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
     this->setSize(static_cast<std::size_t>(msize.x), static_cast<std::size_t>(msize.y));

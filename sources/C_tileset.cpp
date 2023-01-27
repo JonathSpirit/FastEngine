@@ -116,7 +116,7 @@ void TileSet::pushTile(fge::TileData tile)
     }
 }
 
-TileId TileSet::getLocalId(const sf::Vector2i& position) const
+TileId TileSet::getLocalId(const fge::Vector2i& position) const
 {
     if (position.x < 0 || position.y < 0)
     {

@@ -124,12 +124,6 @@ else()
     set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
 
-set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE) #SFML
-set(SFML_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
-set(SFML_BUILD_WINDOW OFF CACHE BOOL "" FORCE)
-set(SFML_BUILD_AUDIO OFF CACHE BOOL "" FORCE)
-add_subdirectory("libs/SFML" EXCLUDE_FROM_ALL)
-
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
@@ -214,11 +208,6 @@ target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/glm)
 
 include_directories(${Vulkan_INCLUDE_DIRS}) #Vulkan
-
-add_dependencies(${FGE_LIB_NAME} sfml-system) #SFML
-add_dependencies(${FGE_SERVER_LIB_NAME} sfml-system)
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/SFML/include")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/SFML/include")
 
 add_dependencies(${FGE_LIB_NAME} lz4_static) #Lz4
 add_dependencies(${FGE_SERVER_LIB_NAME} lz4_static)
@@ -495,14 +484,14 @@ target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer)
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_LIB_NAME} fmt)
-target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY} sfml-system)
+target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY})
 target_link_libraries(${FGE_LIB_NAME} re2)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
 target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
-target_link_libraries(${FGE_SERVER_LIB_NAME} ${FREETYPE_LIBRARY} sfml-system)
+target_link_libraries(${FGE_SERVER_LIB_NAME} ${FREETYPE_LIBRARY})
 target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
 
 #Compile shaders
@@ -537,14 +526,14 @@ add_dependencies(FgeClientExeDeps ${FGE_LIB_NAME})
 add_dependencies(FgeServerExeDeps ${FGE_SERVER_LIB_NAME})
 
 if (WIN32)
-    foreach (DEPENDENCY sfml-system SDL2 SDL2_image)
+    foreach (DEPENDENCY SDL2 SDL2_image)
         add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 
-    foreach (DEPENDENCY sfml-system SDL2 SDL2_image SDL2_mixer)
+    foreach (DEPENDENCY SDL2 SDL2_image SDL2_mixer)
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>
@@ -564,14 +553,14 @@ add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
 
 #Set some variables that help exe linking
 if(WIN32)
-    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
-    set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
+    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer ${FGE_LIB_NAME})
+    set(FGE_SERVER_LIBS SDL2 SDL2_image ${FGE_SERVER_LIB_NAME})
 elseif(APPLE)
-    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
-    set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
+    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer ${FGE_LIB_NAME})
+    set(FGE_SERVER_LIBS SDL2 SDL2_image ${FGE_SERVER_LIB_NAME})
 else()
-    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer sfml-system ${FGE_LIB_NAME})
-    set(FGE_SERVER_LIBS SDL2 SDL2_image sfml-system ${FGE_SERVER_LIB_NAME})
+    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer ${FGE_LIB_NAME})
+    set(FGE_SERVER_LIBS SDL2 SDL2_image ${FGE_SERVER_LIB_NAME})
 endif()
 
 #Tests
