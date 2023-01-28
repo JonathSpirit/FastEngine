@@ -137,7 +137,7 @@ Shape::Shape() :
 void Shape::update()
 {
     // Get the total number of points of the shape
-    const std::size_t count = getPointCount();
+    const std::size_t count = this->getPointCount();
     if (count < 3)
     {
         this->g_vertices.clear();

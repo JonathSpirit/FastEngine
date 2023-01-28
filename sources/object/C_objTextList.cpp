@@ -38,6 +38,10 @@ ObjTextList::ObjTextList(const ObjTextList& r) :
 
         g_maxStrings(r.g_maxStrings)
 {
+    this->g_box.setFillColor(fge::Color::Transparent);
+    this->g_box.setOutlineColor(fge::Color{100, 100, 100, 255});
+    this->g_box.setOutlineThickness(-2.0f);
+
     this->g_textList.resize(r.g_textList.size());
 
     for (std::size_t i = 0; i < r.g_textList.size(); ++i)
