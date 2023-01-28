@@ -16,12 +16,12 @@
 
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <vector>
 #include <cstring>
-#include <stdexcept>
 #include <iostream>
 #include <map>
 #include <set>
+#include <stdexcept>
+#include <vector>
 
 namespace fge::vulkan
 {
@@ -44,9 +44,13 @@ Instance::~Instance()
     this->destroy();
 }
 
-void Instance::create(SDL_Window* window, std::string applicationName, uint16_t versionMajor, uint16_t versionMinor, uint16_t versionPatch)
+void Instance::create(SDL_Window* window,
+                      std::string applicationName,
+                      uint16_t versionMajor,
+                      uint16_t versionMinor,
+                      uint16_t versionPatch)
 {
-    if ( this->g_instance != VK_NULL_HANDLE )
+    if (this->g_instance != VK_NULL_HANDLE)
     {
         throw std::runtime_error{"instance already created !"};
     }
@@ -61,7 +65,7 @@ void Instance::create(SDL_Window* window, std::string applicationName, uint16_t 
     appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_1;
 
-    if ( !Instance::checkValidationLayerSupport() )
+    if (!Instance::checkValidationLayerSupport())
     {
         throw std::runtime_error{"validation layers requested, but not available !"};
     }
@@ -140,7 +144,7 @@ PhysicalDevice Instance::pickPhysicalDevice(VkSurfaceKHR surface)
     // Use an ordered map to automatically sort candidates by increasing score
     std::multimap<int, PhysicalDevice> candidates;
 
-    for (const auto& device : this->g_physicalDevices)
+    for (const auto& device: this->g_physicalDevices)
     {
         unsigned int score = device.rateDeviceSuitability(surface);
         candidates.insert(std::make_pair(score, device));
@@ -156,17 +160,17 @@ PhysicalDevice Instance::pickPhysicalDevice(VkSurfaceKHR surface)
 
 bool Instance::checkValidationLayerSupport()
 {
-    uint32_t layerCount=0;
+    uint32_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const char* layerName : ValidationLayers)
+    for (const char* layerName: ValidationLayers)
     {
         bool layerFound = false;
 
-        for (const auto& layerProperties : availableLayers)
+        for (const auto& layerProperties: availableLayers)
         {
             if (std::strcmp(layerName, layerProperties.layerName) == 0)
             {
@@ -200,10 +204,10 @@ void Instance::enumeratePhysicalDevices()
 
     this->g_physicalDevices.clear();
     this->g_physicalDevices.resize(deviceCount);
-    for (std::size_t i=0; i<deviceCount; ++i)
+    for (std::size_t i = 0; i < deviceCount; ++i)
     {
         this->g_physicalDevices[i] = PhysicalDevice(physicalDevices[i]);
     }
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

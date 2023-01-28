@@ -41,7 +41,7 @@ VkShaderModule CreateShaderModule(const std::vector<char>& code, VkDevice device
     return shaderModule;
 }
 
-}//end
+} // namespace
 
 Shader::Shader() :
         g_shaderModule(VK_NULL_HANDLE),
@@ -58,7 +58,7 @@ Shader::Shader(Shader&& r) noexcept :
         g_logicalDevice(r.g_logicalDevice)
 {
     r.g_shaderModule = VK_NULL_HANDLE;
-    r.g_pipelineShaderStageCreateInfo={};
+    r.g_pipelineShaderStageCreateInfo = {};
     r.g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     r.g_type = Shader::Type::SHADER_NONE;
     r.g_logicalDevice = nullptr;
@@ -77,7 +77,7 @@ Shader& Shader::operator=(Shader&& r) noexcept
     this->g_logicalDevice = r.g_logicalDevice;
 
     r.g_shaderModule = VK_NULL_HANDLE;
-    r.g_pipelineShaderStageCreateInfo={};
+    r.g_pipelineShaderStageCreateInfo = {};
     r.g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     r.g_type = Shader::Type::SHADER_NONE;
     r.g_logicalDevice = nullptr;
@@ -152,4 +152,4 @@ Shader::Type Shader::getType() const
     return this->g_type;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

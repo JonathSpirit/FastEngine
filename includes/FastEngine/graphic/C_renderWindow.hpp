@@ -26,11 +26,11 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include <FastEngine/graphic/C_renderTarget.hpp>
-#include <FastEngine/vulkan/C_swapChain.hpp>
-#include <FastEngine/vulkan/C_uniformBuffer.hpp>
-#include <FastEngine/vulkan/C_textureImage.hpp>
 #include <FastEngine/vulkan/C_descriptorSet.hpp>
 #include <FastEngine/vulkan/C_descriptorSetLayout.hpp>
+#include <FastEngine/vulkan/C_swapChain.hpp>
+#include <FastEngine/vulkan/C_textureImage.hpp>
+#include <FastEngine/vulkan/C_uniformBuffer.hpp>
 #include <string>
 
 namespace fge
@@ -41,7 +41,7 @@ namespace vulkan
 
 class Context;
 
-}//end vulkan
+} // namespace vulkan
 
 class FGE_API RenderWindow : public fge::RenderTarget
 {
@@ -114,7 +114,7 @@ private:
     bool g_isCreated = false;
 };
 
-}// end fge
+} // namespace fge
 
 
 #endif // _FGE_GRAPHIC_C_RENDERWINDOW_HPP_INCLUDED

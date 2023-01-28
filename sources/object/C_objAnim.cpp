@@ -25,7 +25,8 @@ ObjAnimation::ObjAnimation() :
         g_paused(false)
 {
     this->setTextureRect(this->g_animation);
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+                            fge::vulkan::BufferTypes::LOCAL);
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
         g_animation(animation),
@@ -35,7 +36,8 @@ ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f&
 {
     this->setPosition(position);
     this->setTextureRect(this->g_animation);
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+                            fge::vulkan::BufferTypes::LOCAL);
 }
 
 void ObjAnimation::setAnimation(const fge::Animation& animation)
@@ -228,12 +230,13 @@ void ObjAnimation::updatePositions()
 }
 void ObjAnimation::updateTexCoords()
 {
-    const auto rect = static_cast<const fge::TextureType*>(this->g_animation)->normalizeTextureRect(this->g_textureRect);
+    const auto rect =
+            static_cast<const fge::TextureType*>(this->g_animation)->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
-    this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
-    this->g_vertices[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
-    this->g_vertices[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
+    this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
+    this->g_vertices[2]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y);
+    this->g_vertices[3]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y + rect._height);
 }
 
 } // namespace fge

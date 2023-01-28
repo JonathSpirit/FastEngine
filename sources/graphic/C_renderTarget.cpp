@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include <FastEngine/graphic/C_renderTarget.hpp>
 #include <FastEngine/graphic/C_drawable.hpp>
+#include <FastEngine/graphic/C_renderTarget.hpp>
 #include <FastEngine/graphic/C_transformable.hpp>
-#include <FastEngine/vulkan/C_textureImage.hpp>
-#include <FastEngine/vulkan/C_context.hpp>
 #include <FastEngine/manager/shader_manager.hpp>
+#include <FastEngine/vulkan/C_context.hpp>
+#include <FastEngine/vulkan/C_textureImage.hpp>
 
 namespace fge
 {
@@ -34,9 +34,8 @@ RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
 
 void RenderTarget::initialize()
 {
-    this->g_defaultView.reset({0.0f, 0.0f,
-                               static_cast<float>(this->getSize().x),
-                               static_cast<float>(this->getSize().y)});
+    this->g_defaultView.reset(
+            {0.0f, 0.0f, static_cast<float>(this->getSize().x), static_cast<float>(this->getSize().y)});
     this->g_view = this->g_defaultView;
 }
 
@@ -108,10 +107,7 @@ fge::vulkan::Viewport RenderTarget::getViewport(const View& view) const
     auto size = static_cast<Vector2f>(this->getSize());
     const auto& viewport = view.getFactorViewport();
 
-    return {size.x * viewport._x,
-            size.y * viewport._y,
-            size.x * viewport._width,
-            size.y * viewport._height};
+    return {size.x * viewport._x, size.y * viewport._y, size.x * viewport._width, size.y * viewport._height};
 }
 
 Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point) const
@@ -124,7 +120,7 @@ Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point, const View& view)
     glm::vec4 normalized;
     auto viewport = this->getViewport(view);
     normalized.x = -1.f + 2.f * (static_cast<float>(point.x) - viewport.getPositionX()) / viewport.getWidth();
-    normalized.y =  1.f - 2.f * (static_cast<float>(point.y) - viewport.getPositionY())  / viewport.getHeight();
+    normalized.y = 1.f - 2.f * (static_cast<float>(point.y) - viewport.getPositionY()) / viewport.getHeight();
     normalized.z = 0.0f;
     normalized.w = 1.0f;
 
@@ -145,7 +141,7 @@ Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view)
     // Then convert to viewport coordinates
     Vector2i pixel;
     auto viewport = this->getViewport(view);
-    pixel.x = static_cast<int>(( normalized.x + 1.f) / 2.f * viewport.getWidth()  + viewport.getPositionX());
+    pixel.x = static_cast<int>((normalized.x + 1.f) / 2.f * viewport.getWidth() + viewport.getPositionX());
     pixel.y = static_cast<int>((-normalized.y + 1.f) / 2.f * viewport.getHeight() + viewport.getPositionY());
 
     return pixel;
@@ -204,8 +200,8 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();
 
-    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
-                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
+    const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
+                                         windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
     graphicPipeline.setViewport(viewport);
     graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
@@ -213,9 +209,7 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
     VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
                                       this->_g_context->getTextureLayout().getLayout()};
 
-    graphicPipeline.updateIfNeeded(*this->_g_context,
-                                   layout, 2,
-                                   this->getRenderPass(),
+    graphicPipeline.updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
                                    this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
@@ -262,11 +256,7 @@ void RenderTarget::drawBatches(const fge::vulkan::BlendMode& blendMode,
             graphicPipeline = &it->second;
         }
 
-        this->drawBatches(*graphicPipeline,
-                          textureImage,
-                          transformDescriptorSet,
-                          vertexBuffer,
-                          vertexCount,
+        this->drawBatches(*graphicPipeline, textureImage, transformDescriptorSet, vertexBuffer, vertexCount,
                           instanceCount);
     }
     else
@@ -286,11 +276,7 @@ void RenderTarget::drawBatches(const fge::vulkan::BlendMode& blendMode,
             graphicPipeline = &it->second;
         }
 
-        this->drawBatches(*graphicPipeline,
-                          textureImage,
-                          transformDescriptorSet,
-                          vertexBuffer,
-                          vertexCount,
+        this->drawBatches(*graphicPipeline, textureImage, transformDescriptorSet, vertexBuffer, vertexCount,
                           instanceCount);
     }
 }
@@ -304,8 +290,8 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();
 
-    const fge::vulkan::Viewport viewport(windowSize.x*factorViewport._x, windowSize.y*factorViewport._y,
-                                         windowSize.x*factorViewport._width,windowSize.y*factorViewport._height);
+    const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
+                                         windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
     graphicPipeline.setViewport(viewport);
     graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
@@ -313,9 +299,7 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
     VkDescriptorSetLayout layout[] = {this->_g_context->getTransformBatchesLayout().getLayout(),
                                       this->_g_context->getTextureLayout().getLayout()};
 
-    graphicPipeline.updateIfNeeded(*this->_g_context,
-                                   layout, 2,
-                                   this->getRenderPass(),
+    graphicPipeline.updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
                                    this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
@@ -332,29 +316,20 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
 
     VkDescriptorSet descriptorSetTransform[] = {transformDescriptorSet.getDescriptorSet()};
 
-    graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer,
-                                                   vertexBuffer,
-                                                   nullptr);
+    graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer, vertexBuffer, nullptr);
 
-    for (std::size_t i=0; i<instanceCount; ++i)
+    for (std::size_t i = 0; i < instanceCount; ++i)
     {
         const uint32_t dynamicOffset = fge::TransformUboData::uboSize * i;
 
-        graphicPipeline.bindDynamicDescriptorSets(commandBuffer,
-                                                  descriptorSetTransform,
-                                                  1,
-                                                  1,
-                                                  &dynamicOffset,
-                                                  0);
+        graphicPipeline.bindDynamicDescriptorSets(commandBuffer, descriptorSetTransform, 1, 1, &dynamicOffset, 0);
 
-        vkCmdDraw(commandBuffer, vertexCount, 1, vertexCount*i, 0);
+        vkCmdDraw(commandBuffer, vertexCount, 1, vertexCount * i, 0);
     }
 }
 
-void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer commandBuffer) const
-{}
-void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] const std::vector<VkCommandBuffer>& commandBuffers) const
-{}
+void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer commandBuffer) const {}
+void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] const std::vector<VkCommandBuffer>& commandBuffers) const {}
 
 const fge::vulkan::Context* RenderTarget::getContext() const
 {
@@ -366,4 +341,4 @@ bool RenderTarget::isSrgb() const
     return false;
 }
 
-}//end fge
+} // namespace fge

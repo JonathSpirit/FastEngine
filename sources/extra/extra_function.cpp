@@ -219,7 +219,7 @@ void AlignedFree(void* data)
 {
     if (data != nullptr)
     {
-#if	defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(__MINGW32__)
         _aligned_free(data);
 #else
         free(data);
@@ -249,7 +249,7 @@ void Sleep(std::chrono::microseconds time)
     timeBeginPeriod(tc.wPeriodMin);
 
     // Wait...
-    ::Sleep(static_cast<DWORD>( std::chrono::duration_cast<std::chrono::milliseconds>(time).count() ));
+    ::Sleep(static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(time).count()));
 
     // Reset the timer resolution back to the system default
     timeEndPeriod(tc.wPeriodMin);
@@ -266,7 +266,8 @@ void Sleep(std::chrono::microseconds time)
     // nanosleep was interrupted and has set ti to the remaining
     // duration. We continue sleeping until the complete duration
     // has passed. We stop sleeping if it was due to an error.
-    while ((nanosleep(&ti, &ti) == -1) && (errno == EINTR)) {}
+    while ((nanosleep(&ti, &ti) == -1) && (errno == EINTR))
+    {}
 #endif
 }
 
@@ -277,17 +278,14 @@ bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone)
     int x = 0;
     int y = 0;
     SDL_GetMouseState(&x, &y);
-    return zone.contains(window.mapPixelToCoords({x,y}));
+    return zone.contains(window.mapPixelToCoords({x, y}));
 }
 bool IsMouseOn(const fge::Vector2f& mousePos, const fge::RectFloat& zone)
 {
     return zone.contains(mousePos);
 }
 
-bool IsPressed(const fge::Event& evt,
-               const fge::Vector2f& mouse_pos,
-               const fge::RectFloat& zone,
-               uint8_t button)
+bool IsPressed(const fge::Event& evt, const fge::Vector2f& mouse_pos, const fge::RectFloat& zone, uint8_t button)
 {
     if (zone.contains(mouse_pos))
     {
@@ -511,9 +509,9 @@ TransposePointFromAnotherView(const fge::View& pointView, const fge::Vector2f& p
 }
 
 fge::View ClipView(const fge::View& view,
-                  const fge::RenderTarget& target,
-                  const fge::RectFloat& worldCoordClipRect,
-                  fge::ClipClampModes clampMode)
+                   const fge::RenderTarget& target,
+                   const fge::RectFloat& worldCoordClipRect,
+                   fge::ClipClampModes clampMode)
 {
     fge::View clippedView = view;
 
@@ -643,10 +641,11 @@ fge::View ClipView(const fge::View& view,
 ///Render
 fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target)
 {
-    fge::Vector2i positions[4] = {target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y)),
-                                 target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y)),
-                                 target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y + rect._height)),
-                                 target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y + rect._height))};
+    fge::Vector2i positions[4] = {
+            target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y)),
+            target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y)),
+            target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y + rect._height)),
+            target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y + rect._height))};
 
     return fge::ToRect(positions, 4);
 }
@@ -662,10 +661,11 @@ fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarge
 }
 fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target)
 {
-    fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y)),
-                                 target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y)),
-                                 target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y + rect._height)),
-                                 target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y + rect._height))};
+    fge::Vector2f positions[4] = {
+            target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y)),
+            target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y)),
+            target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y + rect._height)),
+            target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y + rect._height))};
 
     return fge::ToRect(positions, 4);
 }
@@ -683,18 +683,18 @@ fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarge
 fge::RectFloat GetScreenRect(const fge::RenderTarget& target)
 {
     fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(0, 0)),
-                                 target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0)),
-                                 target.mapPixelToCoords(fge::Vector2i(0, target.getSize().y)),
-                                 target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y))};
+                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0)),
+                                  target.mapPixelToCoords(fge::Vector2i(0, target.getSize().y)),
+                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y))};
 
     return fge::ToRect(positions, 4);
 }
 fge::RectFloat GetScreenRect(const fge::RenderTarget& target, const fge::View& view)
 {
     fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(0, 0), view),
-                                 target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0), view),
-                                 target.mapPixelToCoords(fge::Vector2i(0, target.getSize().y), view),
-                                 target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
+                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0), view),
+                                  target.mapPixelToCoords(fge::Vector2i(0, target.getSize().y), view),
+                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
 }

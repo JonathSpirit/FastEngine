@@ -14,19 +14,19 @@
 * limitations under the License.
 */
 
+#include "ft2build.h"
 #include <FastEngine/graphic/C_ftFont.hpp>
 #include <FastEngine/graphic/C_surface.hpp>
 #include <FastEngine/vulkan/C_context.hpp>
 #include <FastEngine/vulkan/vulkanGlobal.hpp>
-#include "ft2build.h"
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #include FT_BITMAP_H
 #include FT_STROKER_H
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
 
 namespace fge
 {
@@ -35,7 +35,7 @@ namespace
 {
 
 // Helper to intepret memory as a specific type
-template <typename T, typename U>
+template<typename T, typename U>
 inline T Reinterpret(const U& input)
 {
     T output;
@@ -46,18 +46,19 @@ inline T Reinterpret(const U& input)
 // Combine outline thickness, boldness and font glyph index into a single 64-bit key
 uint64_t Combine(float outlineThickness, bool bold, uint32_t index)
 {
-    return (static_cast<uint64_t>(Reinterpret<uint32_t>(outlineThickness)) << 32) | (static_cast<uint64_t>(bold) << 31) | index;
+    return (static_cast<uint64_t>(Reinterpret<uint32_t>(outlineThickness)) << 32) |
+           (static_cast<uint64_t>(bold) << 31) | index;
 }
 
-}//end namespace
+} //end namespace
 
 FreeTypeFont::FreeTypeFont() :
-g_library  (nullptr),
-g_face     (nullptr),
-g_streamRec(nullptr),
-g_stroker  (nullptr),
-g_isSmooth (true),
-g_info     ()
+        g_library(nullptr),
+        g_face(nullptr),
+        g_streamRec(nullptr),
+        g_stroker(nullptr),
+        g_isSmooth(true),
+        g_info()
 {}
 FreeTypeFont::~FreeTypeFont()
 {
@@ -107,7 +108,7 @@ bool FreeTypeFont::loadFromFile(const std::filesystem::path& filePath)
     g_face = face;
 
     // Store the font information
-    g_info.family = face->family_name!=nullptr ? face->family_name : std::string();
+    g_info.family = face->family_name != nullptr ? face->family_name : std::string();
 
     return true;
 }
@@ -129,7 +130,8 @@ bool FreeTypeFont::loadFromMemory(const void* data, std::size_t sizeInBytes)
 
     // Load the new font face from the specified file
     FT_Face face;
-    if (FT_New_Memory_Face(static_cast<FT_Library>(g_library), reinterpret_cast<const FT_Byte*>(data), static_cast<FT_Long>(sizeInBytes), 0, &face) != 0)
+    if (FT_New_Memory_Face(static_cast<FT_Library>(g_library), reinterpret_cast<const FT_Byte*>(data),
+                           static_cast<FT_Long>(sizeInBytes), 0, &face) != 0)
     {
         return false;
     }
@@ -155,7 +157,7 @@ bool FreeTypeFont::loadFromMemory(const void* data, std::size_t sizeInBytes)
     g_face = face;
 
     // Store the font information
-    g_info.family = face->family_name!=nullptr ? face->family_name : std::string();
+    g_info.family = face->family_name != nullptr ? face->family_name : std::string();
 
     return true;
 }
@@ -165,7 +167,8 @@ const FreeTypeFont::Info& FreeTypeFont::getInfo() const
     return g_info;
 }
 
-const Glyph& FreeTypeFont::getGlyph(Uint32 codePoint, unsigned int characterSize, bool bold, float outlineThickness) const
+const Glyph&
+FreeTypeFont::getGlyph(Uint32 codePoint, unsigned int characterSize, bool bold, float outlineThickness) const
 {
     // Get the page corresponding to the character size
     GlyphTable& glyphs = loadPage(characterSize)._glyphs;
@@ -193,8 +196,7 @@ bool FreeTypeFont::hasGlyph(Uint32 codePoint) const
 float FreeTypeFont::getKerning(Uint32 first, Uint32 second, unsigned int characterSize, bool bold) const
 {
     // Special case where first or second is 0 (null character)
-    if (first == 0 || second == 0)
-        return 0.f;
+    if (first == 0 || second == 0) return 0.f;
 
     FT_Face face = static_cast<FT_Face>(g_face);
 
@@ -211,16 +213,15 @@ float FreeTypeFont::getKerning(Uint32 first, Uint32 second, unsigned int charact
         // Get the kerning vector if present
         FT_Vector kerning;
         kerning.x = kerning.y = 0;
-        if (FT_HAS_KERNING(face))
-            FT_Get_Kerning(face, index1, index2, FT_KERNING_UNFITTED, &kerning);
+        if (FT_HAS_KERNING(face)) FT_Get_Kerning(face, index1, index2, FT_KERNING_UNFITTED, &kerning);
 
         // X advance is already in pixels for bitmap fonts
-        if (!FT_IS_SCALABLE(face))
-            return static_cast<float>(kerning.x);
+        if (!FT_IS_SCALABLE(face)) return static_cast<float>(kerning.x);
 
         // Combine kerning with compensation deltas and return the X advance
         // Flooring is required as we use FT_KERNING_UNFITTED flag which is not quantized in 64 based grid
-        return std::floor((secondLsbDelta - firstRsbDelta + static_cast<float>(kerning.x) + 32) / static_cast<float>(1 << 6));
+        return std::floor((secondLsbDelta - firstRsbDelta + static_cast<float>(kerning.x) + 32) /
+                          static_cast<float>(1 << 6));
     }
     else
     {
@@ -250,10 +251,10 @@ float FreeTypeFont::getUnderlinePosition(unsigned int characterSize) const
     if (face && setCurrentSize(characterSize))
     {
         // Return a fixed position if font is a bitmap font
-        if (!FT_IS_SCALABLE(face))
-            return static_cast<float>(characterSize) / 10.f;
+        if (!FT_IS_SCALABLE(face)) return static_cast<float>(characterSize) / 10.f;
 
-        return -static_cast<float>(FT_MulFix(face->underline_position, face->size->metrics.y_scale)) / static_cast<float>(1 << 6);
+        return -static_cast<float>(FT_MulFix(face->underline_position, face->size->metrics.y_scale)) /
+               static_cast<float>(1 << 6);
     }
     else
     {
@@ -268,10 +269,10 @@ float FreeTypeFont::getUnderlineThickness(unsigned int characterSize) const
     if (face && setCurrentSize(characterSize))
     {
         // Return a fixed thickness if font is a bitmap font
-        if (!FT_IS_SCALABLE(face))
-            return static_cast<float>(characterSize) / 14.f;
+        if (!FT_IS_SCALABLE(face)) return static_cast<float>(characterSize) / 14.f;
 
-        return static_cast<float>(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)) / static_cast<float>(1 << 6);
+        return static_cast<float>(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)) /
+               static_cast<float>(1 << 6);
     }
     else
     {
@@ -329,9 +330,9 @@ void FreeTypeFont::cleanup()
     }
 
     // Reset members
-    g_library   = nullptr;
-    g_face      = nullptr;
-    g_stroker   = nullptr;
+    g_library = nullptr;
+    g_face = nullptr;
+    g_stroker = nullptr;
     g_streamRec = nullptr;
     g_pages.clear();
     std::vector<Uint8>().swap(g_pixelBuffer);
@@ -349,24 +350,19 @@ Glyph FreeTypeFont::loadGlyph(Uint32 codePoint, unsigned int characterSize, bool
 
     // First, transform our ugly void* to a FT_Face
     FT_Face face = static_cast<FT_Face>(g_face);
-    if (!face)
-        return glyph;
+    if (!face) return glyph;
 
     // Set the character size
-    if (!setCurrentSize(characterSize))
-        return glyph;
+    if (!setCurrentSize(characterSize)) return glyph;
 
     // Load the glyph corresponding to the code point
     FT_Int32 flags = FT_LOAD_TARGET_NORMAL | FT_LOAD_FORCE_AUTOHINT;
-    if (outlineThickness != 0)
-        flags |= FT_LOAD_NO_BITMAP;
-    if (FT_Load_Char(face, codePoint, flags) != 0)
-        return glyph;
+    if (outlineThickness != 0) flags |= FT_LOAD_NO_BITMAP;
+    if (FT_Load_Char(face, codePoint, flags) != 0) return glyph;
 
     // Retrieve the glyph
     FT_Glyph glyphDesc;
-    if (FT_Get_Glyph(face->glyph, &glyphDesc) != 0)
-        return glyph;
+    if (FT_Get_Glyph(face->glyph, &glyphDesc) != 0) return glyph;
 
     // Apply bold and outline (there is no fallback for outline) if necessary -- first technique using outline (highest quality)
     FT_Pos weight = 1 << 6;
@@ -383,7 +379,8 @@ Glyph FreeTypeFont::loadGlyph(Uint32 codePoint, unsigned int characterSize, bool
         {
             FT_Stroker stroker = static_cast<FT_Stroker>(g_stroker);
 
-            FT_Stroker_Set(stroker, static_cast<FT_Fixed>(outlineThickness * static_cast<float>(1 << 6)), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+            FT_Stroker_Set(stroker, static_cast<FT_Fixed>(outlineThickness * static_cast<float>(1 << 6)),
+                           FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
             FT_Glyph_Stroke(&glyphDesc, stroker, 1);
         }
     }
@@ -398,19 +395,17 @@ Glyph FreeTypeFont::loadGlyph(Uint32 codePoint, unsigned int characterSize, bool
     // Apply bold if necessary -- fallback technique using bitmap (lower quality)
     if (!outline)
     {
-        if (bold)
-            FT_Bitmap_Embolden(static_cast<FT_Library>(g_library), &bitmap, weight, weight);
+        if (bold) FT_Bitmap_Embolden(static_cast<FT_Library>(g_library), &bitmap, weight, weight);
     }
 
     // Compute the glyph's advance offset
     glyph._advance = static_cast<float>(bitmapGlyph->root.advance.x >> 16);
-    if (bold)
-        glyph._advance += static_cast<float>(weight) / static_cast<float>(1 << 6);
+    if (bold) glyph._advance += static_cast<float>(weight) / static_cast<float>(1 << 6);
 
     glyph._lsbDelta = static_cast<int>(face->glyph->lsb_delta);
     glyph._rsbDelta = static_cast<int>(face->glyph->rsb_delta);
 
-    unsigned int width  = bitmap.width;
+    unsigned int width = bitmap.width;
     unsigned int height = bitmap.rows;
 
     if ((width > 0) && (height > 0))
@@ -430,16 +425,16 @@ Glyph FreeTypeFont::loadGlyph(Uint32 codePoint, unsigned int characterSize, bool
 
         // Make sure the texture data is positioned in the center
         // of the allocated texture rectangle
-        glyph._textureRect._x   += static_cast<int>(padding);
-        glyph._textureRect._y    += static_cast<int>(padding);
-        glyph._textureRect._width  -= static_cast<int>(2 * padding);
+        glyph._textureRect._x += static_cast<int>(padding);
+        glyph._textureRect._y += static_cast<int>(padding);
+        glyph._textureRect._width -= static_cast<int>(2 * padding);
         glyph._textureRect._height -= static_cast<int>(2 * padding);
 
         // Compute the glyph's bounding box
-        glyph._bounds._x   = static_cast<float>( bitmapGlyph->left);
-        glyph._bounds._y    = static_cast<float>(-bitmapGlyph->top);
-        glyph._bounds._width  = static_cast<float>( bitmap.width);
-        glyph._bounds._height = static_cast<float>( bitmap.rows);
+        glyph._bounds._x = static_cast<float>(bitmapGlyph->left);
+        glyph._bounds._y = static_cast<float>(-bitmapGlyph->top);
+        glyph._bounds._width = static_cast<float>(bitmap.width);
+        glyph._bounds._height = static_cast<float>(bitmap.rows);
 
         // Resize the pixel buffer to the new size and fill it with transparent white pixels
         g_pixelBuffer.resize(width * height * 4);
@@ -466,7 +461,8 @@ Glyph FreeTypeFont::loadGlyph(Uint32 codePoint, unsigned int characterSize, bool
                 {
                     // The color channels remain white, just fill the alpha channel
                     std::size_t index = x + y * width;
-                    g_pixelBuffer[index * 4 + 3] = ((pixels[(x - padding) / 8]) & (1 << (7 - ((x - padding) % 8)))) ? 255 : 0;
+                    g_pixelBuffer[index * 4 + 3] =
+                            ((pixels[(x - padding) / 8]) & (1 << (7 - ((x - padding) % 8)))) ? 255 : 0;
                 }
                 pixels += bitmap.pitch;
             }
@@ -511,16 +507,13 @@ fge::RectInt FreeTypeFont::findGlyphRect(Page& page, unsigned int width, unsigne
         float ratio = static_cast<float>(height) / static_cast<float>(it->_height);
 
         // Ignore rows that are either too small or too high
-        if ((ratio < 0.7f) || (ratio > 1.f))
-            continue;
+        if ((ratio < 0.7f) || (ratio > 1.f)) continue;
 
         // Check if there's enough horizontal space left in the row
-        if (width > page._texture.getSize().x - it->_width)
-            continue;
+        if (width > page._texture.getSize().x - it->_width) continue;
 
         // Make sure that this new row is the best found so far
-        if (ratio < bestRatio)
-            continue;
+        if (ratio < bestRatio) continue;
 
         // The current row passed all the tests: we can select it
         row = &*it;
@@ -531,10 +524,11 @@ fge::RectInt FreeTypeFont::findGlyphRect(Page& page, unsigned int width, unsigne
     if (!row)
     {
         unsigned int rowHeight = height + height / 10;
-        while ((page._nextRow + rowHeight >= static_cast<unsigned int>(page._texture.getSize().y)) || (width >= static_cast<unsigned int>(page._texture.getSize().x)))
+        while ((page._nextRow + rowHeight >= static_cast<unsigned int>(page._texture.getSize().y)) ||
+               (width >= static_cast<unsigned int>(page._texture.getSize().x)))
         {
             // Not enough space: resize the texture if possible
-            unsigned int textureWidth  = page._texture.getSize().x;
+            unsigned int textureWidth = page._texture.getSize().x;
             unsigned int textureHeight = page._texture.getSize().y;
 
             auto maxImageDimension = page._texture.getContext()->getPhysicalDevice().getMaxImageDimension2D();
@@ -545,7 +539,7 @@ fge::RectInt FreeTypeFont::findGlyphRect(Page& page, unsigned int width, unsigne
                 fge::vulkan::TextureImage newTexture;
                 newTexture.create(*page._texture.getContext(), {textureWidth * 2, textureHeight * 2});
                 newTexture.setFilter(g_isSmooth ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
-                newTexture.update(page._texture, {0,0});
+                newTexture.update(page._texture, {0, 0});
                 page._texture = std::move(newTexture);
             }
             else
@@ -598,11 +592,11 @@ bool FreeTypeFont::setCurrentSize(unsigned int characterSize) const
         return result == FT_Err_Ok;
     }
 
-     return true;
+    return true;
 }
 
 FreeTypeFont::Page::Page(bool smooth) :
-_nextRow(3)
+        _nextRow(3)
 {
     // Make sure that the texture is initialized by default
     fge::Surface surface;
@@ -622,4 +616,4 @@ _nextRow(3)
     this->_texture.setFilter(smooth ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
 }
 
-} // namespace sf
+} // namespace fge

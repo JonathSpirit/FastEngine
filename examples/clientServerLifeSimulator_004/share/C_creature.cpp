@@ -113,8 +113,9 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->g_circleSight.setOrigin({this->_data._sightRadius, this->_data._sightRadius});
 
     //Gender
-    this->g_txtGender.setString(std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
-                                (this->_data._pregnant ? " pregnant" : ""));
+    this->g_txtGender.setString(
+            std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
+            (this->_data._pregnant ? " pregnant" : ""));
     this->g_txtGender.setFont(this->_font);
     this->g_txtGender.setCharacterSize(12);
     this->g_txtGender.setPosition({-20, 30});
@@ -123,7 +124,7 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->g_txtGender.setFillColor(fge::Color::White);
 
     //Stat
-    this->g_rectInfoBox.setSize({100,20});
+    this->g_rectInfoBox.setSize({100, 20});
     this->g_rectInfoBox.setPosition({-20, -40});
     this->g_rectInfoBox.setOutlineThickness(1.0f);
     this->g_rectInfoBox.setOutlineColor(fge::Color::Black);

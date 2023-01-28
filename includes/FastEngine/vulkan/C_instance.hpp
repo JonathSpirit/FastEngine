@@ -18,12 +18,12 @@
 #define _FGE_VULKAN_C_INSTANCE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <string>
-#include <vector>
+#include "C_physicalDevice.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
 #include <glm/glm.hpp>
-#include "C_physicalDevice.hpp"
+#include <string>
+#include <vector>
 
 namespace fge::vulkan
 {
@@ -39,7 +39,11 @@ public:
     Instance& operator=(const Instance& r) = delete;
     Instance& operator=(Instance&& r) noexcept = delete;
 
-    void create(SDL_Window* window, std::string applicationName, uint16_t versionMajor=1, uint16_t versionMinor=0, uint16_t versionPatch=0);
+    void create(SDL_Window* window,
+                std::string applicationName,
+                uint16_t versionMajor = 1,
+                uint16_t versionMinor = 0,
+                uint16_t versionPatch = 0);
     void destroy();
 
     [[nodiscard]] const std::string& getApplicationName() const;
@@ -65,6 +69,6 @@ private:
     std::vector<PhysicalDevice> g_physicalDevices;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_INSTANCE_HPP_INCLUDED

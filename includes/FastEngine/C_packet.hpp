@@ -36,8 +36,8 @@
 #include <vector>
 
 #include "C_vector.hpp"
-#include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/C_vector.hpp"
+#include "FastEngine/graphic/C_color.hpp"
 
 #define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 

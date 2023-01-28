@@ -15,11 +15,11 @@
  */
 
 #include "FastEngine/vulkan/C_vertexBuffer.hpp"
-#include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <stdexcept>
 #include <cstring>
+#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -94,18 +94,17 @@ VertexBuffer::~VertexBuffer()
 
 VertexBuffer& VertexBuffer::operator=(const VertexBuffer& r)
 {
-    if (this->g_type != r.g_type ||
-        this->g_context != r.g_context)
+    if (this->g_type != r.g_type || this->g_context != r.g_context)
     {
         this->destroy();
     }
 
     this->g_vertices = r.g_vertices;
-    
+
     this->g_needUpdate = true;
 
     this->g_type = r.g_type;
-    
+
     this->g_primitiveTopology = r.g_primitiveTopology;
 
     this->g_context = r.g_context;
@@ -117,7 +116,7 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
     this->destroy();
 
     this->g_vertices = std::move(r.g_vertices);
-    
+
     this->g_buffer = r.g_buffer;
     this->g_stagingBuffer = r.g_stagingBuffer;
     this->g_bufferAllocation = r.g_bufferAllocation;
@@ -127,7 +126,7 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
     this->g_needUpdate = r.g_needUpdate;
 
     this->g_type = r.g_type;
-    
+
     this->g_primitiveTopology = r.g_primitiveTopology;
 
     this->g_context = r.g_context;
@@ -141,7 +140,7 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
     r.g_needUpdate = true;
 
     r.g_type = BufferTypes::UNINITIALIZED;
-    
+
     r.g_primitiveTopology = FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY;
 
     r.g_context = nullptr;
@@ -149,7 +148,10 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
     return *this;
 }
 
-void VertexBuffer::create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, BufferTypes type)
+void VertexBuffer::create(const Context& context,
+                          std::size_t vertexSize,
+                          VkPrimitiveTopology topology,
+                          BufferTypes type)
 {
     this->g_primitiveTopology = topology;
 
@@ -159,8 +161,7 @@ void VertexBuffer::create(const Context& context, std::size_t vertexSize, VkPrim
         return;
     }
 
-    if (type != this->g_type ||
-        (this->g_context != nullptr && &context != this->g_context))
+    if (type != this->g_type || (this->g_context != nullptr && &context != this->g_context))
     {
         this->destroy();
         this->g_type = type;
@@ -180,7 +181,7 @@ void VertexBuffer::resize(std::size_t vertexSize)
     {
         return;
     }
-    
+
     if (this->g_vertices.size() != vertexSize)
     {
         this->g_vertices.resize(vertexSize);
@@ -204,7 +205,7 @@ void VertexBuffer::destroy()
         this->g_needUpdate = true;
 
         this->g_type = BufferTypes::UNINITIALIZED;
-        
+
         this->g_primitiveTopology = FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY;
 
         this->g_context = nullptr;
@@ -280,9 +281,9 @@ fge::RectFloat VertexBuffer::getBounds() const
 {
     if (!this->g_vertices.empty())
     {
-        float left   = this->g_vertices[0]._position.x;
-        float top    = this->g_vertices[0]._position.y;
-        float right  = this->g_vertices[0]._position.x;
+        float left = this->g_vertices[0]._position.x;
+        float top = this->g_vertices[0]._position.y;
+        float right = this->g_vertices[0]._position.x;
         float bottom = this->g_vertices[0]._position.y;
 
         for (std::size_t i = 1; i < this->g_vertices.size(); ++i)
@@ -359,17 +360,15 @@ void VertexBuffer::cleanBuffer() const
 #ifndef FGE_DEF_SERVER
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_buffer,
-                                                                                             this->g_bufferAllocation,
-                                                                                             this->g_context->getAllocator()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+                this->g_buffer, this->g_bufferAllocation, this->g_context->getAllocator()));
         this->g_buffer = VK_NULL_HANDLE;
         this->g_bufferAllocation = VK_NULL_HANDLE;
 
         if (this->g_type == BufferTypes::DEVICE)
         {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_stagingBuffer,
-                                                                                                 this->g_stagingBufferAllocation,
-                                                                                                 this->g_context->getAllocator()));
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+                    this->g_stagingBuffer, this->g_stagingBufferAllocation, this->g_context->getAllocator()));
 
             this->g_stagingBuffer = VK_NULL_HANDLE;
             this->g_stagingBufferAllocation = VK_NULL_HANDLE;
@@ -387,8 +386,7 @@ void VertexBuffer::updateBuffer() const
         return;
     }
 
-    if (this->g_vertices.size() > this->g_bufferCapacity ||
-        this->g_buffer == VK_NULL_HANDLE)
+    if (this->g_vertices.size() > this->g_bufferCapacity || this->g_buffer == VK_NULL_HANDLE)
     {
         this->cleanBuffer();
 
@@ -399,24 +397,18 @@ void VertexBuffer::updateBuffer() const
         switch (this->g_type)
         {
         case BufferTypes::LOCAL:
-            CreateBuffer(*this->g_context,
-                         bufferSize,
-                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         this->g_buffer, this->g_bufferAllocation);
+            CreateBuffer(*this->g_context, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->g_buffer,
+                         this->g_bufferAllocation);
             break;
         case BufferTypes::DEVICE:
-            CreateBuffer(*this->g_context,
-                         bufferSize,
-                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            CreateBuffer(*this->g_context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          this->g_stagingBuffer, this->g_stagingBufferAllocation);
 
-            CreateBuffer(*this->g_context,
-                         bufferSize,
+            CreateBuffer(*this->g_context, bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                         this->g_buffer, this->g_bufferAllocation);
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_buffer, this->g_bufferAllocation);
             break;
         default:
             throw std::runtime_error("unexpected code path !");
@@ -493,8 +485,7 @@ IndexBuffer::~IndexBuffer()
 
 IndexBuffer& IndexBuffer::operator=(const IndexBuffer& r)
 {
-    if (this->g_type != r.g_type ||
-        this->g_context != r.g_context)
+    if (this->g_type != r.g_type || this->g_context != r.g_context)
     {
         this->destroy();
     }
@@ -550,8 +541,7 @@ void IndexBuffer::create(const Context& context, std::size_t indexSize, BufferTy
         return;
     }
 
-    if (type != this->g_type ||
-        (this->g_context != nullptr && &context != this->g_context))
+    if (type != this->g_type || (this->g_context != nullptr && &context != this->g_context))
     {
         this->destroy();
         this->g_type = type;
@@ -580,8 +570,9 @@ void IndexBuffer::resize(std::size_t indexSize)
 }
 void IndexBuffer::append(uint16_t index)
 {
-    this->g_indices.push_back(index>=static_cast<uint16_t>(this->g_indices.size()) ?
-                             static_cast<uint16_t>(this->g_indices.size()-1) : index);
+    this->g_indices.push_back(index >= static_cast<uint16_t>(this->g_indices.size())
+                                      ? static_cast<uint16_t>(this->g_indices.size() - 1)
+                                      : index);
     this->g_needUpdate = true;
 }
 
@@ -695,17 +686,15 @@ void IndexBuffer::cleanBuffer() const
 {
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_buffer,
-                                                                                             this->g_bufferAllocation,
-                                                                                             this->g_context->getAllocator()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+                this->g_buffer, this->g_bufferAllocation, this->g_context->getAllocator()));
         this->g_buffer = VK_NULL_HANDLE;
         this->g_bufferAllocation = VK_NULL_HANDLE;
 
         if (this->g_type == BufferTypes::DEVICE)
         {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_stagingBuffer,
-                                                                                                 this->g_stagingBufferAllocation,
-                                                                                                 this->g_context->getAllocator()));
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+                    this->g_stagingBuffer, this->g_stagingBufferAllocation, this->g_context->getAllocator()));
 
             this->g_stagingBuffer = VK_NULL_HANDLE;
             this->g_stagingBufferAllocation = VK_NULL_HANDLE;
@@ -721,8 +710,7 @@ void IndexBuffer::updateBuffer() const
         return;
     }
 
-    if (this->g_indices.size() > this->g_bufferCapacity ||
-        this->g_buffer == VK_NULL_HANDLE)
+    if (this->g_indices.size() > this->g_bufferCapacity || this->g_buffer == VK_NULL_HANDLE)
     {
         this->cleanBuffer();
 
@@ -733,24 +721,18 @@ void IndexBuffer::updateBuffer() const
         switch (this->g_type)
         {
         case BufferTypes::LOCAL:
-            CreateBuffer(*this->g_context,
-                         bufferSize,
-                         VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         this->g_buffer, this->g_bufferAllocation);
+            CreateBuffer(*this->g_context, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->g_buffer,
+                         this->g_bufferAllocation);
             break;
         case BufferTypes::DEVICE:
-            CreateBuffer(*this->g_context,
-                         bufferSize,
-                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            CreateBuffer(*this->g_context, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          this->g_stagingBuffer, this->g_stagingBufferAllocation);
 
-            CreateBuffer(*this->g_context,
-                         bufferSize,
+            CreateBuffer(*this->g_context, bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                         this->g_buffer, this->g_bufferAllocation);
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_buffer, this->g_bufferAllocation);
             break;
         default:
             throw std::runtime_error("unexpected code path !");
@@ -762,4 +744,4 @@ void IndexBuffer::updateBuffer() const
     this->mapBuffer();
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

@@ -44,7 +44,7 @@ public:
     [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
 
 private:
-    float       g_radius;     //!< Radius of the circle
+    float g_radius;           //!< Radius of the circle
     std::size_t g_pointCount; //!< Number of points composing the circle
 };
 

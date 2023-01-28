@@ -20,10 +20,15 @@ namespace fge::vulkan
 {
 
 Viewport::Viewport() :
-        g_viewport{.x=0.0f, .y=0.0f, .width=0.01f, .height=0.01f, .minDepth=0.0f, .maxDepth=1.0f}
+        g_viewport{.x = 0.0f, .y = 0.0f, .width = 0.01f, .height = 0.01f, .minDepth = 0.0f, .maxDepth = 1.0f}
 {}
 Viewport::Viewport(float x, float y, float width, float height) :
-        g_viewport{.x=x, .y=y, .width=width == 0.0f ? 0.01f : width, .height=height == 0.0f ? 0.01f : height, .minDepth=0.0f, .maxDepth=1.0f}
+        g_viewport{.x = x,
+                   .y = y,
+                   .width = width == 0.0f ? 0.01f : width,
+                   .height = height == 0.0f ? 0.01f : height,
+                   .minDepth = 0.0f,
+                   .maxDepth = 1.0f}
 {}
 
 void Viewport::setPosition(float x, float y)
@@ -60,4 +65,4 @@ const VkViewport& Viewport::getViewport() const
     return this->g_viewport;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

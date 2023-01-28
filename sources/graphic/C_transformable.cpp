@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
+#include "glm/ext/matrix_transform.hpp"
 #include <FastEngine/graphic/C_transformable.hpp>
 #include <cmath>
-#include "glm/ext/matrix_transform.hpp"
 
 namespace fge
 {
 
 Transformable::Transformable() :
-        g_origin                    (0.0f, 0.0f),
-        g_position                  (0.0f, 0.0f),
-        g_rotation                  (0.0f),
-        g_scale                     (1.0f, 1.0f),
-        g_transform                 (1.0f),
-        g_transformNeedUpdate       (true),
-        g_inverseTransform          (1.0f),
+        g_origin(0.0f, 0.0f),
+        g_position(0.0f, 0.0f),
+        g_rotation(0.0f),
+        g_scale(1.0f, 1.0f),
+        g_transform(1.0f),
+        g_transformNeedUpdate(true),
+        g_inverseTransform(1.0f),
         g_inverseTransformNeedUpdate(true)
 {}
 
@@ -103,9 +103,7 @@ const glm::mat4& Transformable::getTransform() const
 
         this->g_transform = glm::translate(this->g_transform, glm::vec3(-this->g_origin, 0.0f));
 
-        this->g_transform = glm::rotate(this->g_transform,
-                                        glm::radians(this->g_rotation),
-                                        glm::vec3(0.0f, 0.0f, 1.0f));
+        this->g_transform = glm::rotate(this->g_transform, glm::radians(this->g_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
         this->g_transformNeedUpdate = false;
     }
@@ -124,4 +122,4 @@ const glm::mat4& Transformable::getInverseTransform() const
     return this->g_inverseTransform;
 }
 
-}//end fge
+} // namespace fge

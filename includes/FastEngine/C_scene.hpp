@@ -837,7 +837,8 @@ public:
      * \param target The SFML RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_FromLocalPosition(const fge::Vector2i& pos, const fge::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_FromLocalPosition(const fge::Vector2i& pos,
+                                                        const fge::RenderTarget& target) const;
     /**
      * \brief Get the first Object within a local zone.
      *

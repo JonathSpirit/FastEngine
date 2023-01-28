@@ -103,13 +103,13 @@ fge::Color Random<TEngine>::rangeColor(uint32_t min, uint32_t max)
 }
 template<typename TEngine>
 fge::Color Random<TEngine>::rangeColor(uint8_t min_r,
-                                      uint8_t max_r,
-                                      uint8_t min_g,
-                                      uint8_t max_g,
-                                      uint8_t min_b,
-                                      uint8_t max_b,
-                                      uint8_t min_a,
-                                      uint8_t max_a)
+                                       uint8_t max_r,
+                                       uint8_t min_g,
+                                       uint8_t max_g,
+                                       uint8_t min_b,
+                                       uint8_t max_b,
+                                       uint8_t min_a,
+                                       uint8_t max_a)
 {
     return fge::Color(this->range<uint8_t>(min_r, max_r), this->range<uint8_t>(min_g, max_g),
                       this->range<uint8_t>(min_b, max_b), this->range<uint8_t>(min_a, max_a));

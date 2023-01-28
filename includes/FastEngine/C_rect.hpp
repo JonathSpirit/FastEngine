@@ -31,15 +31,16 @@
 namespace fge
 {
 
-template <class T>
+template<class T>
 class Rect
 {
     static_assert(std::is_arithmetic_v<T>, "T must be arithmetic !");
+
 public:
     Rect();
     Rect(const Vector2<T>& position, const Vector2<T>& size);
 
-    template <class U>
+    template<class U>
     explicit Rect(const Rect<U>& rectangle);
 
     [[nodiscard]] bool operator==(const Rect<T>& right) const;
@@ -63,7 +64,7 @@ using RectFloat = Rect<float>;
 
 fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& right);
 
-}//end fge
+} // namespace fge
 
 #include "C_rect.inl"
 

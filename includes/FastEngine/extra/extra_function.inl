@@ -28,8 +28,8 @@ template<typename T>
 fge::Rect<T> ToRect(const fge::Vector2<T>& pos1, const fge::Vector2<T>& pos2)
 {
     return fge::Rect<T>({(pos1.x < pos2.x) ? pos1.x : pos2.x, (pos1.y < pos2.y) ? pos1.y : pos2.y},
-                       {(pos1.x > pos2.x) ? (pos1.x - pos2.x) : (pos2.x - pos1.x),
-                       (pos1.y > pos2.y) ? (pos1.y - pos2.y) : (pos2.y - pos1.y)});
+                        {(pos1.x > pos2.x) ? (pos1.x - pos2.x) : (pos2.x - pos1.x),
+                         (pos1.y > pos2.y) ? (pos1.y - pos2.y) : (pos2.y - pos1.y)});
 }
 template<typename T>
 fge::Rect<T> ToRect(const std::vector<fge::Vector2<T>>& pos)

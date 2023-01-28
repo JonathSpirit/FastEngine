@@ -56,17 +56,17 @@ public:
     const glm::mat4& getInverseTransform() const;
 
 private:
-    Vector2f          g_origin;                     //!< Origin of translation/rotation/scaling of the object
-    Vector2f          g_position;                   //!< Position of the object in the 2D world
-    float             g_rotation;                   //!< Orientation of the object, in degrees
-    Vector2f          g_scale;                      //!< Scale of the object
+    Vector2f g_origin;                         //!< Origin of translation/rotation/scaling of the object
+    Vector2f g_position;                       //!< Position of the object in the 2D world
+    float g_rotation;                          //!< Orientation of the object, in degrees
+    Vector2f g_scale;                          //!< Scale of the object
     mutable glm::mat4 g_transform;             //!< Combined transformation of the object
-    mutable bool      g_transformNeedUpdate;        //!< Does the transform need to be recomputed?
-    mutable glm::mat4 g_inverseTransform;           //!< Combined transformation of the object
-    mutable bool      g_inverseTransformNeedUpdate; //!< Does the transform need to be recomputed?
+    mutable bool g_transformNeedUpdate;        //!< Does the transform need to be recomputed?
+    mutable glm::mat4 g_inverseTransform;      //!< Combined transformation of the object
+    mutable bool g_inverseTransformNeedUpdate; //!< Does the transform need to be recomputed?
 };
 
-}//end fge
+} // namespace fge
 
 
 #endif // _FGE_GRAPHIC_C_TRANSFORMABLE_HPP_INCLUDED

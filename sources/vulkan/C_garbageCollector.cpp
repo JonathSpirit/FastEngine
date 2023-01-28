@@ -44,7 +44,7 @@ void GarbageCollector::free()
 }
 void GarbageCollector::freeAll()
 {
-    for (unsigned int i=0; i<FGE_MAX_FRAMES_IN_FLIGHT; ++i)
+    for (unsigned int i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
     {
         this->g_containers[i].clear();
     }
@@ -63,4 +63,4 @@ bool GarbageCollector::isEnabled() const
     return this->g_enabled;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

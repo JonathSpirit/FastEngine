@@ -16,9 +16,9 @@
 
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <stdexcept>
-#include <set>
 #include <iostream>
+#include <set>
+#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -69,7 +69,7 @@ void PhysicalDevice::updateDeviceExtensionSupport()
 
     std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
 
-    for (const auto& extension : availableExtensions)
+    for (const auto& extension: availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
     }
@@ -107,12 +107,12 @@ unsigned int PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
     }
 
     QueueFamilyIndices indices = this->findQueueFamilies(surface);
-    if ( !indices.isComplete() )
+    if (!indices.isComplete())
     {
         return 0;
     }
 
-    if ( !this->checkDeviceExtensionSupport() )
+    if (!this->checkDeviceExtensionSupport())
     {
         return 0;
     }
@@ -138,7 +138,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
     vkGetPhysicalDeviceQueueFamilyProperties(this->g_device, &queueFamilyCount, queueFamilies.data());
 
     int i = 0;
-    for (const auto& queueFamily : queueFamilies)
+    for (const auto& queueFamily: queueFamilies)
     {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
@@ -173,17 +173,19 @@ PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(Vk
         vkGetPhysicalDeviceSurfaceFormatsKHR(this->g_device, surface, &formatCount, details._formats.data());
 
         std::cout << "Available formats: " << std::endl;
-        for (uint32_t i=0; i<formatCount; ++i)
+        for (uint32_t i = 0; i < formatCount; ++i)
         {
-            std::cout << "\tSurface format: color space = "<<details._formats[i].colorSpace<<", pixel format = "<<details._formats[i].format<<std::endl;
+            std::cout << "\tSurface format: color space = " << details._formats[i].colorSpace
+                      << ", pixel format = " << details._formats[i].format << std::endl;
 
             VkFormatProperties2 formatProperties2{VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2, nullptr, {}};
             vkGetPhysicalDeviceFormatProperties2(this->g_device, details._formats[i].format, &formatProperties2);
             details._formatProperties[i] = formatProperties2.formatProperties;
 
-            std::cout << "\t\tSurface properties: linearTilingFeatures = " << formatProperties2.formatProperties.linearTilingFeatures
-                << ", optimalTilingFeatures = " << formatProperties2.formatProperties.optimalTilingFeatures
-                << ", bufferFeatures = " << formatProperties2.formatProperties.bufferFeatures << std::endl;
+            std::cout << "\t\tSurface properties: linearTilingFeatures = "
+                      << formatProperties2.formatProperties.linearTilingFeatures
+                      << ", optimalTilingFeatures = " << formatProperties2.formatProperties.optimalTilingFeatures
+                      << ", bufferFeatures = " << formatProperties2.formatProperties.bufferFeatures << std::endl;
         }
     }
 
@@ -193,7 +195,8 @@ PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(Vk
     if (presentModeCount != 0)
     {
         details._presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(this->g_device, surface, &presentModeCount, details._presentModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(this->g_device, surface, &presentModeCount,
+                                                  details._presentModes.data());
     }
 
     return details;
@@ -232,13 +235,11 @@ VkDeviceSize PhysicalDevice::getMaxMemoryAllocationSize() const
     VkPhysicalDeviceMaintenance3Properties deviceMaintenance3Properties{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES,
             nullptr,
-            {},{}
-    };
-    VkPhysicalDeviceProperties2 deviceProperties2{
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-            &deviceMaintenance3Properties,
-            {}
-    };
+            {},
+            {}};
+    VkPhysicalDeviceProperties2 deviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+                                                  &deviceMaintenance3Properties,
+                                                  {}};
     vkGetPhysicalDeviceProperties2(this->g_device, &deviceProperties2);
     return deviceMaintenance3Properties.maxMemoryAllocationSize;
 }
@@ -249,4 +250,4 @@ uint32_t PhysicalDevice::getMaxMemoryAllocationCount() const
     return deviceProperties.limits.maxMemoryAllocationCount;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

@@ -19,9 +19,9 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "volk.h"
 #include <array>
 #include <deque>
-#include "volk.h"
 
 namespace fge::vulkan
 {
@@ -138,7 +138,11 @@ public:
     };
     struct GarbageImage
     {
-        GarbageImage(VkImage image, VmaAllocation bufferAllocation, VkImageView imageView, VmaAllocator allocator, VkDevice logicalDevice) :
+        GarbageImage(VkImage image,
+                     VmaAllocation bufferAllocation,
+                     VkImageView imageView,
+                     VmaAllocator allocator,
+                     VkDevice logicalDevice) :
                 _type(Type::GARBAGE_IMAGE),
                 _image(image),
                 _allocation(bufferAllocation),
@@ -151,7 +155,8 @@ public:
         VkImage _image;
         VmaAllocation _allocation;
         VkImageView _imageView;
-        VmaAllocator _allocator; ///TODO: directly give a context in the GarbageCollector constructor in order to avoid this repetitive data
+        VmaAllocator
+                _allocator; ///TODO: directly give a context in the GarbageCollector constructor in order to avoid this repetitive data
         VkDevice _logicalDevice;
     };
 
@@ -199,31 +204,38 @@ public:
             {
             case Type::GARBAGE_DESCRIPTOR_SET:
                 vkFreeDescriptorSets(this->g_data._descriptorSet._logicalDevice,
-                                     this->g_data._descriptorSet._descriptorPool,
-                                     1, &this->g_data._descriptorSet._descriptorSet);
+                                     this->g_data._descriptorSet._descriptorPool, 1,
+                                     &this->g_data._descriptorSet._descriptorSet);
                 break;
             case Type::GARBAGE_VERTEX_BUFFER:
-                vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._buffer, this->g_data._buffer._bufferAllocation);
+                vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._buffer,
+                                 this->g_data._buffer._bufferAllocation);
                 break;
             case Type::GARBAGE_GRAPHIC_PIPELINE:
-                vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline, nullptr);
-                vkDestroyPipelineLayout(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipelineLayout, nullptr);
+                vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline,
+                                  nullptr);
+                vkDestroyPipelineLayout(this->g_data._graphicPipeline._logicalDevice,
+                                        this->g_data._graphicPipeline._pipelineLayout, nullptr);
                 break;
             case Type::GARBAGE_COMMAND_POOL:
-                vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool, nullptr);
+                vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool,
+                                     nullptr);
                 break;
             case Type::GARBAGE_FRAMEBUFFER:
-                vkDestroyFramebuffer(this->g_data._framebuffer._logicalDevice, this->g_data._framebuffer._framebuffer, nullptr);
+                vkDestroyFramebuffer(this->g_data._framebuffer._logicalDevice, this->g_data._framebuffer._framebuffer,
+                                     nullptr);
                 break;
             case Type::GARBAGE_RENDERPASS:
-                vkDestroyRenderPass(this->g_data._renderPass._logicalDevice, this->g_data._renderPass._renderPass, nullptr);
+                vkDestroyRenderPass(this->g_data._renderPass._logicalDevice, this->g_data._renderPass._renderPass,
+                                    nullptr);
                 break;
             case Type::GARBAGE_SAMPLER:
                 vkDestroySampler(this->g_data._sampler._logicalDevice, this->g_data._sampler._sampler, nullptr);
                 break;
             case Type::GARBAGE_IMAGE:
                 vkDestroyImageView(this->g_data._image._logicalDevice, this->g_data._image._imageView, nullptr);
-                vmaDestroyImage(this->g_data._image._allocator, this->g_data._image._image, this->g_data._image._allocation);
+                vmaDestroyImage(this->g_data._image._allocator, this->g_data._image._image,
+                                this->g_data._image._allocation);
                 break;
             default:
                 break;
@@ -233,15 +245,33 @@ public:
     private:
         union Data
         {
-            explicit Data(Type type) : _type{type} {}
-            explicit Data(const GarbageDescriptorSet& data) : _descriptorSet{data} {}
-            explicit Data(const GarbageBuffer& data) : _buffer{data} {}
-            explicit Data(const GarbageGraphicPipeline& data) : _graphicPipeline{data} {}
-            explicit Data(const GarbageCommandPool& data) : _commandPool{data} {}
-            explicit Data(const GarbageFramebuffer& data) : _framebuffer{data} {}
-            explicit Data(const GarbageRenderPass& data) : _renderPass{data} {}
-            explicit Data(const GarbageSampler& data) : _sampler{data} {}
-            explicit Data(const GarbageImage& data) : _image{data} {}
+            explicit Data(Type type) :
+                    _type{type}
+            {}
+            explicit Data(const GarbageDescriptorSet& data) :
+                    _descriptorSet{data}
+            {}
+            explicit Data(const GarbageBuffer& data) :
+                    _buffer{data}
+            {}
+            explicit Data(const GarbageGraphicPipeline& data) :
+                    _graphicPipeline{data}
+            {}
+            explicit Data(const GarbageCommandPool& data) :
+                    _commandPool{data}
+            {}
+            explicit Data(const GarbageFramebuffer& data) :
+                    _framebuffer{data}
+            {}
+            explicit Data(const GarbageRenderPass& data) :
+                    _renderPass{data}
+            {}
+            explicit Data(const GarbageSampler& data) :
+                    _sampler{data}
+            {}
+            explicit Data(const GarbageImage& data) :
+                    _image{data}
+            {}
 
             GarbageType _type;
             GarbageDescriptorSet _descriptorSet;
@@ -282,6 +312,6 @@ private:
     bool g_enabled = false;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_GARBAGECOLLECTOR_HPP_INCLUDED

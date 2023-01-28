@@ -18,8 +18,8 @@
 #define _FGE_C_RANDOM_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/C_vector.hpp"
+#include "FastEngine/graphic/C_color.hpp"
 
 #include <chrono>
 #include <limits>

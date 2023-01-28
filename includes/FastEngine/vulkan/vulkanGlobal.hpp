@@ -18,9 +18,9 @@
 #define _FGE_VULKAN_VULKANGLOBAL_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <vector>
-#include "volk.h"
 #include "vk_mem_alloc.h"
+#include "volk.h"
+#include <vector>
 
 #define FGE_MAX_FRAMES_IN_FLIGHT 2
 
@@ -37,18 +37,24 @@ FGE_API extern const std::vector<const char*> DeviceExtensions;
 FGE_API extern Context* GlobalContext;
 
 FGE_API void CreateBuffer(const Context& context,
-                  VkDeviceSize size,
-                  VkBufferUsageFlags usage,
-                  VkMemoryPropertyFlags properties,
-                  VkBuffer& buffer, VmaAllocation& allocation);
+                          VkDeviceSize size,
+                          VkBufferUsageFlags usage,
+                          VkMemoryPropertyFlags properties,
+                          VkBuffer& buffer,
+                          VmaAllocation& allocation);
 
 FGE_API void CreateImage(const Context& context,
-                 uint32_t width, uint32_t height, VkFormat format,
-                 VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                 VkImage& image, VmaAllocation& allocation);
+                         uint32_t width,
+                         uint32_t height,
+                         VkFormat format,
+                         VkImageTiling tiling,
+                         VkImageUsageFlags usage,
+                         VkMemoryPropertyFlags properties,
+                         VkImage& image,
+                         VmaAllocation& allocation);
 
 FGE_API VkImageView CreateImageView(const LogicalDevice& logicalDevice, VkImage image, VkFormat format);
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_VULKANGLOBAL_HPP_INCLUDED

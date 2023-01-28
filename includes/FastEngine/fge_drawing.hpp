@@ -18,7 +18,7 @@
 #define _FGE_DRAWING_HPP_INCLUDED_
 #ifndef FGE_DEF_SERVER
 
-#include <FastEngine/fastengine_extern.hpp>
+    #include <FastEngine/fastengine_extern.hpp>
 //#include <SFML/Graphics.hpp>
 
 namespace fge

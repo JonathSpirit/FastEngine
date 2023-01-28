@@ -26,11 +26,11 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include <FastEngine/graphic/C_renderTarget.hpp>
-#include <FastEngine/vulkan/C_swapChain.hpp>
-#include <FastEngine/vulkan/C_uniformBuffer.hpp>
-#include <FastEngine/vulkan/C_textureImage.hpp>
 #include <FastEngine/vulkan/C_descriptorSet.hpp>
 #include <FastEngine/vulkan/C_descriptorSetLayout.hpp>
+#include <FastEngine/vulkan/C_swapChain.hpp>
+#include <FastEngine/vulkan/C_textureImage.hpp>
+#include <FastEngine/vulkan/C_uniformBuffer.hpp>
 #include <string>
 
 namespace fge
@@ -41,12 +41,13 @@ namespace vulkan
 
 class Context;
 
-}//end vulkan
+} // namespace vulkan
 
 class FGE_API RenderTexture : public RenderTarget
 {
 public:
-    explicit RenderTexture(const glm::vec<2, int>& size={1,1}, const fge::vulkan::Context& context=*fge::vulkan::GlobalContext);
+    explicit RenderTexture(const glm::vec<2, int>& size = {1, 1},
+                           const fge::vulkan::Context& context = *fge::vulkan::GlobalContext);
     RenderTexture(const RenderTexture& r);
     RenderTexture(RenderTexture&& r) noexcept;
     ~RenderTexture() override;
@@ -105,7 +106,7 @@ private:
     bool g_isCreated;
 };
 
-}// end fge
+} // namespace fge
 
 
 #endif // _FGE_GRAPHIC_C_RENDERTEXTURE_HPP_INCLUDED

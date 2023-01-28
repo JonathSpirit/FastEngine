@@ -19,8 +19,8 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_guiElement.hpp"
-#include "FastEngine/object/C_object.hpp"
 #include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/object/C_object.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
 
@@ -63,9 +63,8 @@ public:
     fge::CallbackHandler<float> _onSlide;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const SDL_MouseButtonEvent& arg,
-                                 fge::GuiElementContext& context);
+    void
+    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
     void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
     void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
 

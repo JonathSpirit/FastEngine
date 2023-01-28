@@ -45,10 +45,14 @@ Vector2f RectangleShape::getPoint(std::size_t index) const
     switch (index)
     {
     default:
-    case 0: return {0.0f, 0.0f};
-    case 1: return {this->g_size.x, 0.0f};
-    case 2: return {this->g_size.x, this->g_size.y};
-    case 3: return {0.0f, this->g_size.y};
+    case 0:
+        return {0.0f, 0.0f};
+    case 1:
+        return {this->g_size.x, 0.0f};
+    case 2:
+        return {this->g_size.x, this->g_size.y};
+    case 3:
+        return {0.0f, this->g_size.y};
     }
 }
 

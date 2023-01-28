@@ -48,7 +48,7 @@ public:
     FreeTypeFont(const FreeTypeFont& r) = delete;
     ~FreeTypeFont();
 
-    FreeTypeFont& operator =(const FreeTypeFont& r) = delete;
+    FreeTypeFont& operator=(const FreeTypeFont& r) = delete;
 
     bool loadFromFile(const std::filesystem::path& filePath);
     bool loadFromMemory(const void* data, std::size_t size);
@@ -71,7 +71,11 @@ public:
 private:
     struct Row
     {
-        Row(unsigned int rowTop, unsigned int rowHeight) : _width(0), _top(rowTop), _height(rowHeight) {}
+        Row(unsigned int rowTop, unsigned int rowHeight) :
+                _width(0),
+                _top(rowTop),
+                _height(rowHeight)
+        {}
 
         unsigned int _width;  //!< Current width of the row
         unsigned int _top;    //!< Y position of the row into the texture
@@ -84,10 +88,10 @@ private:
     {
         explicit Page(bool smooth);
 
-        GlyphTable       _glyphs;  //!< Table mapping code points to their corresponding glyph
-        fge::vulkan::TextureImage          _texture; //!< Texture containing the pixels of the glyphs
-        unsigned int     _nextRow; //!< Y position of the next new row in the texture
-        std::vector<Row> _rows;    //!< List containing the position of all the existing rows
+        GlyphTable _glyphs;                 //!< Table mapping code points to their corresponding glyph
+        fge::vulkan::TextureImage _texture; //!< Texture containing the pixels of the glyphs
+        unsigned int _nextRow;              //!< Y position of the next new row in the texture
+        std::vector<Row> _rows;             //!< List containing the position of all the existing rows
     };
 
     using PageTable = std::map<unsigned int, Page>; //!< Table mapping a character size to its page (texture)
@@ -140,14 +144,15 @@ private:
     bool setCurrentSize(unsigned int characterSize) const;
 
 
-    void*                      g_library;     //!< Pointer to the internal library interface (it is typeless to avoid exposing implementation details)
-    void*                      g_face;        //!< Pointer to the internal font face (it is typeless to avoid exposing implementation details)
-    void*                      g_streamRec;   //!< Pointer to the stream rec instance (it is typeless to avoid exposing implementation details)
-    void*                      g_stroker;     //!< Pointer to the stroker (it is typeless to avoid exposing implementation details)
-    bool                       g_isSmooth;    //!< Status of the smooth filter
-    Info                       g_info;        //!< Information about the font
-    mutable PageTable          g_pages;       //!< Table containing the glyphs pages by character size
-    mutable std::vector<uint8_t> g_pixelBuffer; //!< Pixel buffer holding a glyph's pixels before being written to the texture
+    void* g_library; //!< Pointer to the internal library interface (it is typeless to avoid exposing implementation details)
+    void* g_face;      //!< Pointer to the internal font face (it is typeless to avoid exposing implementation details)
+    void* g_streamRec; //!< Pointer to the stream rec instance (it is typeless to avoid exposing implementation details)
+    void* g_stroker;   //!< Pointer to the stroker (it is typeless to avoid exposing implementation details)
+    bool g_isSmooth;   //!< Status of the smooth filter
+    Info g_info;       //!< Information about the font
+    mutable PageTable g_pages; //!< Table containing the glyphs pages by character size
+    mutable std::vector<uint8_t>
+            g_pixelBuffer; //!< Pixel buffer holding a glyph's pixels before being written to the texture
 };
 
 } // namespace fge

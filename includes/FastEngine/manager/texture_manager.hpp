@@ -19,8 +19,8 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
-#include "FastEngine/textureType.hpp"
 #include "FastEngine/graphic/C_surface.hpp"
+#include "FastEngine/textureType.hpp"
 #include <filesystem>
 #include <memory>
 #include <mutex>

@@ -17,9 +17,9 @@
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include <set>
 #include <stdexcept>
 #include <vector>
-#include <set>
 
 namespace fge::vulkan
 {
@@ -51,7 +51,7 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
 
     float queuePriority = 1.0f;
-    for (uint32_t queueFamily : uniqueQueueFamilies)
+    for (uint32_t queueFamily: uniqueQueueFamilies)
     {
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -82,7 +82,8 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     createInfo.ppEnabledLayerNames = ValidationLayers.data();
 #endif
 
-    const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT dynamicStateFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT, nullptr, VK_TRUE};
+    const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT dynamicStateFeatures{
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT, nullptr, VK_TRUE};
 
     createInfo.pNext = &dynamicStateFeatures;
 
@@ -118,4 +119,4 @@ VkQueue LogicalDevice::getPresentQueue() const
     return this->g_presentQueue;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

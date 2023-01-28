@@ -19,9 +19,9 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_guiElement.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
 #include <vector>
 
 #define FGE_OBJTEXTLIST_CLASSNAME "FGE:OBJ:TEXTLIST"
@@ -80,7 +80,7 @@ private:
 
     fge::Font g_font;
 
-    mutable std::vector<std::unique_ptr<fge::ObjText> > g_textList;
+    mutable std::vector<std::unique_ptr<fge::ObjText>> g_textList;
     std::size_t g_maxStrings{100};
 };
 

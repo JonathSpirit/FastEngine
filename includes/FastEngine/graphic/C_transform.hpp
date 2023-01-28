@@ -18,10 +18,10 @@
 #define _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "glm/glm.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_uniformBuffer.hpp"
-#include "FastEngine/vulkan/C_context.hpp"
+#include "glm/glm.hpp"
 
 namespace fge
 {
@@ -33,7 +33,7 @@ struct TransformUboData
     alignas(16) mutable glm::mat4 _modelTransform{1.0f};
     alignas(16) mutable glm::mat4 _viewTransform{1.0f};
 
-    constexpr static unsigned int uboSize = sizeof(_modelTransform)+sizeof(_viewTransform);
+    constexpr static unsigned int uboSize = sizeof(_modelTransform) + sizeof(_viewTransform);
 };
 
 class FGE_API Transform
@@ -42,7 +42,8 @@ public:
     Transform() = default;
     ~Transform();
 
-    const Transform* start(const fge::Transformable& transformable, const fge::Transform* parentTransform=nullptr) const;
+    const Transform* start(const fge::Transformable& transformable,
+                           const fge::Transform* parentTransform = nullptr) const;
     const Transform* start(const fge::Transform* parentTransform) const;
 
     void destroy();
@@ -58,6 +59,6 @@ private:
     mutable fge::vulkan::UniformBuffer g_uniformBuffer;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED

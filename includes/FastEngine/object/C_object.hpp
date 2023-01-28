@@ -45,7 +45,7 @@
         void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
 #else
     #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
-        void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime,           \
+        void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime,          \
                     fge::Scene* scene) override;
 #endif //FGE_DEF_SERVER
 
@@ -59,7 +59,7 @@
     #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(event, deltaTime, scene)
 #else
     #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
-        void class_::update([[maybe_unused]] fge::RenderWindow& screen, [[maybe_unused]] fge::Event& event,             \
+        void class_::update([[maybe_unused]] fge::RenderWindow& screen, [[maybe_unused]] fge::Event& event,            \
                             [[maybe_unused]] const std::chrono::milliseconds& deltaTime,                               \
                             [[maybe_unused]] fge::Scene* scene)
 

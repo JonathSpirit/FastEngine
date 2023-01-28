@@ -61,17 +61,17 @@ public:
     const glm::mat4& getInverseTransform() const;
 
 private:
-    Vector2f g_center;              //!< Center of the view, in scene coordinates
-    Vector2f g_size;                //!< Size of the view, in scene coordinates
-    float g_rotation;            //!< Angle of rotation of the view rectangle, in degrees
-    fge::RectFloat g_factorViewport;            //!< Viewport rectangle, expressed as a factor of the render-target's size
-    mutable glm::mat4 g_transform;           //!< Precomputed projection transform corresponding to the view
-    mutable glm::mat4 g_inverseTransform;    //!< Precomputed inverse projection transform corresponding to the view
-    mutable bool g_transformUpdated;    //!< Internal state telling if the transform needs to be updated
-    mutable bool g_invTransformUpdated; //!< Internal state telling if the inverse transform needs to be updated
+    Vector2f g_center;                    //!< Center of the view, in scene coordinates
+    Vector2f g_size;                      //!< Size of the view, in scene coordinates
+    float g_rotation;                     //!< Angle of rotation of the view rectangle, in degrees
+    fge::RectFloat g_factorViewport;      //!< Viewport rectangle, expressed as a factor of the render-target's size
+    mutable glm::mat4 g_transform;        //!< Precomputed projection transform corresponding to the view
+    mutable glm::mat4 g_inverseTransform; //!< Precomputed inverse projection transform corresponding to the view
+    mutable bool g_transformUpdated;      //!< Internal state telling if the transform needs to be updated
+    mutable bool g_invTransformUpdated;   //!< Internal state telling if the inverse transform needs to be updated
 };
 
-}//end fge
+} // namespace fge
 
 
 #endif //_FGE_GRAPHIC_C_VIEW_HPP_INCLUDED

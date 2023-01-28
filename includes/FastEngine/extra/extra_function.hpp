@@ -58,10 +58,7 @@ FGE_API void Sleep(std::chrono::microseconds time);
 
 struct AlignedDeleter
 {
-    void operator()(void* p) const
-    {
-        AlignedFree(p);
-    };
+    void operator()(void* p) const { AlignedFree(p); };
 };
 
 ///Detection
@@ -153,9 +150,11 @@ FGE_API fge::View ClipView(const fge::View& view,
 
 ///Render
 FGE_API fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target);
-FGE_API fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target, const fge::View& view);
+FGE_API fge::RectInt
+CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target, const fge::View& view);
 FGE_API fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target);
-FGE_API fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target, const fge::View& view);
+FGE_API fge::RectFloat
+PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target, const fge::View& view);
 
 FGE_API fge::RectFloat GetScreenRect(const fge::RenderTarget& target);
 FGE_API fge::RectFloat GetScreenRect(const fge::RenderTarget& target, const fge::View& view);

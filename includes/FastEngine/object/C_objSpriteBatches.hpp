@@ -18,9 +18,9 @@
 #define _FGE_C_OBJSPRITEBATCHES_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/extra/extra_function.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_texture.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 #define FGE_OBJSPRITEBATCHES_CLASSNAME "FGE:OBJ:SPRITEBATCHES"
 

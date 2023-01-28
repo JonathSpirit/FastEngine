@@ -20,16 +20,16 @@
 #include "FastEngine/manager/anim_manager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 #include "FastEngine/manager/font_manager.hpp"
-#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objButton.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/object/C_objWindow.hpp"
-#include "definition.hpp"
 #include "SDL.h"
+#include "definition.hpp"
 
 #include "C_creature.hpp"
 #include "C_drink.hpp"
@@ -46,10 +46,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_Window* window = SDL_CreateWindow(("Life simulator client, a FastEngine example by Guillaume Guillet - version " +
-                                                  std::to_string(LIFESIM_VERSION)).c_str()
-                                                  , SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
-                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window =
+            SDL_CreateWindow(("Life simulator client, a FastEngine example by Guillaume Guillet - version " +
+                              std::to_string(LIFESIM_VERSION))
+                                     .c_str(),
+                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+                             SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (window == nullptr)
@@ -68,8 +70,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.spv",
-                      "resources/shaders/fragment.spv",
+    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
                       "resources/shaders/fragmentTexture.spv");
 
     fge::RenderWindow renderWindow(vulkanContext);
@@ -136,7 +137,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     const char* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
     auto* latencyText = mainScene
                                 ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
-                                           FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
+                                            FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
                                 ->getObject<fge::ObjText>();
     latencyText->setFillColor(fge::Color::Black);
 
@@ -149,7 +150,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         //Creating window
         auto* window = mainScene
                                ->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID,
-                                          fge::ObjectType::TYPE_GUI)
+                                           fge::ObjectType::TYPE_GUI)
                                ->getObject<fge::ObjWindow>();
         window->setTextureClose("close");
         window->setTextureMinimize("minimize");
@@ -348,7 +349,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Update scene
-        mainScene->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime.restart()));
+        mainScene->update(renderWindow, event,
+                          std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime.restart()));
 
         //Drawing
         auto imageIndex = renderWindow.prepareNextFrame(nullptr);

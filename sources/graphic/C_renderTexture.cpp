@@ -15,9 +15,9 @@
  */
 
 #include <FastEngine/graphic/C_renderTexture.hpp>
-#include <FastEngine/vulkan/C_context.hpp>
 #include <FastEngine/graphic/C_transform.hpp>
 #include <FastEngine/graphic/C_transformable.hpp>
+#include <FastEngine/vulkan/C_context.hpp>
 #include <SDL_events.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -112,9 +112,12 @@ void RenderTexture::destroy()
 
         VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 
-        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageCommandPool(this->g_commandPool, logicalDevice));
-        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
-        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageRenderPass(this->g_renderPass, logicalDevice));
+        this->_g_context->_garbageCollector.push(
+                fge::vulkan::GarbageCollector::GarbageCommandPool(this->g_commandPool, logicalDevice));
+        this->_g_context->_garbageCollector.push(
+                fge::vulkan::GarbageCollector::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
+        this->_g_context->_garbageCollector.push(
+                fge::vulkan::GarbageCollector::GarbageRenderPass(this->g_renderPass, logicalDevice));
 
         this->g_textureImage.destroy();
 
@@ -153,7 +156,7 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = this->g_textureImage.getExtent();
 
-    const VkClearValue clearColor = {.color=this->_g_clearColor};
+    const VkClearValue clearColor = {.color = this->_g_clearColor};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
@@ -293,7 +296,8 @@ void RenderTexture::createRenderPass()
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
 
-    if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr, &this->g_renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
+                           &this->g_renderPass) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create render pass!");
     }
@@ -301,9 +305,7 @@ void RenderTexture::createRenderPass()
 
 void RenderTexture::createFramebuffer()
 {
-    VkImageView attachments[] = {
-            this->g_textureImage.getTextureImageView()
-    };
+    VkImageView attachments[] = {this->g_textureImage.getTextureImageView()};
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -314,7 +316,8 @@ void RenderTexture::createFramebuffer()
     framebufferInfo.height = this->g_textureImage.getSize().y;
     framebufferInfo.layers = 1;
 
-    if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr, &this->g_framebuffer) != VK_SUCCESS)
+    if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
+                            &this->g_framebuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create framebuffer!");
     }
@@ -330,24 +333,27 @@ void RenderTexture::createCommandBuffer()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = FGE_MAX_FRAMES_IN_FLIGHT;
 
-    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo, this->g_commandBuffers.data()) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo,
+                                 this->g_commandBuffers.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
 void RenderTexture::createCommandPool()
 {
-    auto queueFamilyIndices = this->_g_context->getPhysicalDevice().findQueueFamilies(this->_g_context->getSurface().getSurface());
+    auto queueFamilyIndices =
+            this->_g_context->getPhysicalDevice().findQueueFamilies(this->_g_context->getSurface().getSurface());
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices._graphicsFamily.value();
 
-    if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr, &this->g_commandPool) != VK_SUCCESS)
+    if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr,
+                            &this->g_commandPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create command pool!");
     }
 }
 
-}//end fge
+} // namespace fge

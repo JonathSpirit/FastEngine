@@ -18,8 +18,8 @@
 #define _FGE_VULKAN_C_SHADER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <filesystem>
 #include "volk.h"
+#include <filesystem>
 
 namespace fge::vulkan
 {
@@ -31,9 +31,9 @@ class FGE_API Shader
 public:
     enum class Type : uint32_t
     {
-        SHADER_NONE     = 0,
-        SHADER_COMPUTE  = VK_SHADER_STAGE_COMPUTE_BIT,
-        SHADER_VERTEX   = VK_SHADER_STAGE_VERTEX_BIT,
+        SHADER_NONE = 0,
+        SHADER_COMPUTE = VK_SHADER_STAGE_COMPUTE_BIT,
+        SHADER_VERTEX = VK_SHADER_STAGE_VERTEX_BIT,
         SHADER_FRAGMENT = VK_SHADER_STAGE_FRAGMENT_BIT,
         SHADER_GEOMETRY = VK_SHADER_STAGE_GEOMETRY_BIT
     };
@@ -62,6 +62,6 @@ private:
     const LogicalDevice* g_logicalDevice;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_SHADER_HPP_INCLUDED

@@ -35,7 +35,9 @@ class FGE_API ObjLight : public fge::Object, public fge::LightComponent
 public:
     ObjLight();
     explicit ObjLight(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
-    ObjLight(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position = fge::Vector2f());
+    ObjLight(const fge::Texture& texture,
+             const fge::RectInt& rectangle,
+             const fge::Vector2f& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjLight)
 

@@ -285,8 +285,8 @@ private:
     uint32_t g_keyUnicode = 0;
 
     //Mouse
-    fge::Vector2i g_mouseRelativeMotion = {0,0};
-    fge::Vector2i g_mousePixelPosition = {0,0};
+    fge::Vector2i g_mouseRelativeMotion = {0, 0};
+    fge::Vector2i g_mousePixelPosition = {0, 0};
     uint8_t g_mouseButtons = 0;
 
     int g_mouseWheelHorizontalDelta = 0;

@@ -19,15 +19,15 @@
 
 #include "C_customObject.hpp"
 #include "FastEngine/C_animation.hpp"
+#include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_font.hpp"
 #include "FastEngine/C_packet.hpp"
-#include "FastEngine/manager/texture_manager.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/C_soundBuffer.hpp"
 #include "FastEngine/graphic/C_circleShape.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
 #include "FastEngine/object/C_objTextList.hpp"
-#include "FastEngine/C_soundBuffer.hpp"
-#include "FastEngine/C_clock.hpp"
 #include <queue>
 
 namespace ls

@@ -21,7 +21,7 @@ namespace fge
 {
 
 CircleShape::CircleShape(float radius, std::size_t pointCount) :
-        g_radius    (radius),
+        g_radius(radius),
         g_pointCount(pointCount)
 {
     this->update();

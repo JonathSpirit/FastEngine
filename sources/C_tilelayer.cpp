@@ -21,7 +21,8 @@ namespace fge
 
 TileLayer::Tile::Tile()
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::DEVICE);
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+                                fge::vulkan::BufferTypes::DEVICE);
 }
 
 void TileLayer::Tile::setGid(TileId gid)
@@ -74,9 +75,12 @@ void TileLayer::Tile::updatePositions()
         auto size = static_cast<fge::Vector2f>(this->g_tileSet->getTileSize());
 
         this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(this->g_position.x, this->g_position.y);
-        this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(this->g_position.x, this->g_position.y + size.y);
-        this->g_vertexBuffer.getVertices()[2]._position = fge::Vector2f(this->g_position.x + size.x, this->g_position.y);
-        this->g_vertexBuffer.getVertices()[3]._position = fge::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[1]._position =
+                fge::Vector2f(this->g_position.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[2]._position =
+                fge::Vector2f(this->g_position.x + size.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[3]._position =
+                fge::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
     }
 }
 
@@ -90,9 +94,10 @@ void TileLayer::Tile::updateTexCoords()
             const auto rect = this->g_tileSet->getTexture().getData()->_texture->normalizeTextureRect(tile->_rect);
 
             this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
-            this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
-            this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
-            this->g_vertexBuffer.getVertices()[3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
+            this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
+            this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y);
+            this->g_vertexBuffer.getVertices()[3]._texCoords =
+                    fge::Vector2f(rect._x + rect._width, rect._y + rect._height);
         }
     }
 }

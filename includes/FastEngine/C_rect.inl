@@ -45,8 +45,8 @@ Rect<T>::Rect(const Rect<U>& rectangle) :
 template<class T>
 bool Rect<T>::operator==(const Rect<T>& right) const
 {
-    return (this->_x == right._x) && (this->_width == right._width) &&
-            (this->_y == right._y) && (this->_height == right._height);
+    return (this->_x == right._x) && (this->_width == right._width) && (this->_y == right._y) &&
+           (this->_height == right._height);
 }
 
 template<class T>
@@ -107,13 +107,13 @@ std::optional<Rect<T>> Rect<T>::findIntersection(const Rect<T>& rectangle) const
     return std::nullopt;
 }
 
-template <class T>
+template<class T>
 Vector2<T> Rect<T>::getPosition() const
 {
     return Vector2<T>(this->_x, this->_y);
 }
 
-template <class T>
+template<class T>
 Vector2<T> Rect<T>::getSize() const
 {
     return Vector2<T>(this->_width, this->_height);
@@ -122,13 +122,10 @@ Vector2<T> Rect<T>::getSize() const
 inline fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& right)
 {
     // Transform the 4 corners of the rectangle
-    const fge::Vector2f points[] =
-    {
-        left * glm::vec4(right._x, right._y, 0.0f, 1.0f),
-        left * glm::vec4(right._x, right._y + right._height, 0.0f, 1.0f),
-        left * glm::vec4(right._x + right._width, right._y, 0.0f, 1.0f),
-        left * glm::vec4(right._x + right._width, right._y + right._height, 0.0f, 1.0f)
-    };
+    const fge::Vector2f points[] = {left * glm::vec4(right._x, right._y, 0.0f, 1.0f),
+                                    left * glm::vec4(right._x, right._y + right._height, 0.0f, 1.0f),
+                                    left * glm::vec4(right._x + right._width, right._y, 0.0f, 1.0f),
+                                    left * glm::vec4(right._x + right._width, right._y + right._height, 0.0f, 1.0f)};
 
     // Compute the bounding rectangle of the transformed points
     float posLeft = points[0].x;
@@ -137,13 +134,25 @@ inline fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& rig
     float posBottom = points[0].y;
     for (int i = 1; i < 4; ++i)
     {
-        if      (points[i].x < posLeft)   {posLeft = points[i].x;}
-        else if (points[i].x > posRight)  {posRight = points[i].x;}
-        if      (points[i].y < posTop)    {posTop = points[i].y;}
-        else if (points[i].y > posBottom) {posBottom = points[i].y;}
+        if (points[i].x < posLeft)
+        {
+            posLeft = points[i].x;
+        }
+        else if (points[i].x > posRight)
+        {
+            posRight = points[i].x;
+        }
+        if (points[i].y < posTop)
+        {
+            posTop = points[i].y;
+        }
+        else if (points[i].y > posBottom)
+        {
+            posBottom = points[i].y;
+        }
     }
 
     return fge::RectFloat({posLeft, posTop}, {posRight - posLeft, posBottom - posTop});
 }
 
-}//end fge
+} // namespace fge

@@ -62,7 +62,7 @@ struct DynamicSize
 
     fge::Vector2f _fixedSize{0.0f, 0.0f};
     fge::Vector2<fge::DynamicSize::SizeModes> _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT,
-                                                       fge::DynamicSize::SizeModes::SIZE_DEFAULT};
+                                                        fge::DynamicSize::SizeModes::SIZE_DEFAULT};
     fge::Vector2f _offset{0.0f, 0.0f};
 
     [[nodiscard]] inline fge::Vector2f getSize(const fge::Vector2f& position, const fge::Vector2f& targetSize) const
@@ -194,7 +194,7 @@ public:
      */
     virtual void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) = 0;
 
-    fge::CallbackHandler<const fge::Event&,  const SDL_MouseWheelEvent&, fge::GuiElementContext&>
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseWheelEvent&, fge::GuiElementContext&>
             _onGuiMouseWheelScrolled; ///< Callback called when the element is verified and the mouse wheel is scrolled
     fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&, fge::GuiElementContext&>
             _onGuiMouseButtonPressed; ///< Callback called when the element is verified and the mouse is pressed
@@ -289,7 +289,7 @@ public:
         if (this->verifyPriority(context._prioritizedElement))
         {
             fge::RectFloat rect{this->g_rect.getPosition(),
-                               {this->g_rect._width * this->_g_scale.x, this->g_rect._height * this->_g_scale.y}};
+                                {this->g_rect._width * this->_g_scale.x, this->g_rect._height * this->_g_scale.y}};
             if (rect.contains(context._mouseGuiPosition))
             {
                 context._prioritizedElement = this;

@@ -20,9 +20,9 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_guiElement.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
 
 #define FGE_OBJTEXTINBOX_CLASSNAME "FGE:OBJ:TEXTINBOX"
 
@@ -33,7 +33,9 @@ class FGE_API ObjTextInputBox : public fge::Object, public fge::Subscriber, publ
 {
 public:
     ObjTextInputBox();
-    explicit ObjTextInputBox(const fge::Font& font, uint16_t maxLength = 10, const fge::Vector2f& pos = fge::Vector2f());
+    explicit ObjTextInputBox(const fge::Font& font,
+                             uint16_t maxLength = 10,
+                             const fge::Vector2f& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
@@ -83,9 +85,8 @@ public:
     fge::RectFloat getLocalBounds() const override;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const SDL_MouseButtonEvent& arg,
-                                 fge::GuiElementContext& context);
+    void
+    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
 
     void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 

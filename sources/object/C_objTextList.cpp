@@ -40,9 +40,9 @@ ObjTextList::ObjTextList(const ObjTextList& r) :
 {
     this->g_textList.resize(r.g_textList.size());
 
-    for (std::size_t i=0; i<r.g_textList.size(); ++i)
+    for (std::size_t i = 0; i < r.g_textList.size(); ++i)
     {
-        this->g_textList[i].reset( reinterpret_cast<fge::ObjText*>(r.g_textList[i]->copy()) );
+        this->g_textList[i].reset(reinterpret_cast<fge::ObjText*>(r.g_textList[i]->copy()));
     }
 }
 
@@ -70,9 +70,10 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     target.draw(this->g_box, copyStates);
 
     const fge::View backupView = target.getView();
-    fge::View clipView =
-            fge::ClipView(backupView, target, copyStates._transform->_data._modelTransform * fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
-                          fge::ClipClampModes::CLIP_CLAMP_HIDE);
+    fge::View clipView = fge::ClipView(backupView, target,
+                                       copyStates._transform->_data._modelTransform *
+                                               fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
+                                       fge::ClipClampModes::CLIP_CLAMP_HIDE);
 
     target.setView(clipView);
 
@@ -84,8 +85,8 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     float characterHeightOffset = static_cast<float>(this->g_textList.begin()->get()->getLineSpacing());
     fge::Vector2f textPosition = {4.0f, this->g_box.getSize().y - characterHeightOffset};
 
-    for (std::size_t i = static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) *
-                                                  this->getTextScrollRatio());
+    for (std::size_t i =
+                 static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) * this->getTextScrollRatio());
          i < this->g_textList.size(); ++i)
     {
         this->g_textList[i]->setPosition(textPosition);
@@ -119,7 +120,8 @@ fge::RectFloat ObjTextList::getLocalBounds() const
 
 void ObjTextList::addText(tiny_utf8::string string)
 {
-    auto& ref = this->g_textList.emplace_back(std::make_unique<fge::ObjText>(std::move(string), this->g_font, fge::Vector2f{}, 14));
+    auto& ref = this->g_textList.emplace_back(
+            std::make_unique<fge::ObjText>(std::move(string), this->g_font, fge::Vector2f{}, 14));
     ref->setFillColor(fge::Color::White);
     ref->setOutlineColor(fge::Color::Black);
     ref->setOutlineThickness(1.0f);
@@ -150,7 +152,7 @@ void ObjTextList::setFont(fge::Font font)
 {
     this->g_font = std::move(font);
 
-    for (auto& text : this->g_textList)
+    for (auto& text: this->g_textList)
     {
         text->setFont(this->g_font);
     }

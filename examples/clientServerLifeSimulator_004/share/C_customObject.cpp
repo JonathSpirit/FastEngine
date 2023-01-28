@@ -42,7 +42,7 @@ fge::Vector2f GetRandomPositionFromCenter(const fge::Vector2f& center, float max
 fge::Vector2f GetRandomPosition()
 {
     fge::Vector2f position(fge::_random.rangeVec2(LIFESIM_MAP_SIZE_MINX, LIFESIM_MAP_SIZE_MAXX, LIFESIM_MAP_SIZE_MINY,
-                                                 LIFESIM_MAP_SIZE_MAXY));
+                                                  LIFESIM_MAP_SIZE_MAXY));
 
     return position;
 }

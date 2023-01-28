@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/object/C_objText.hpp"
-#include "FastEngine/graphic/C_ftFont.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/graphic/C_ftFont.hpp"
 #include "FastEngine/manager/font_manager.hpp"
 
 namespace fge
@@ -24,15 +24,19 @@ namespace fge
 
 Character::Character()
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                            fge::vulkan::BufferTypes::LOCAL);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                                   fge::vulkan::BufferTypes::LOCAL);
 }
 Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
+    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                            fge::vulkan::BufferTypes::LOCAL);
+    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                                   fge::vulkan::BufferTypes::LOCAL);
 }
 
 void Character::clear()
@@ -66,7 +70,11 @@ void Character::addLine(bool outlineVertices,
 }
 
 // Add a glyph quad to the vertex array
-void Character::addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const fge::Glyph& glyph, const fge::Vector2i& textureSize, float italicShear)
+void Character::addGlyphQuad(bool outlineVertices,
+                             const fge::Vector2f& size,
+                             const fge::Glyph& glyph,
+                             const fge::Vector2i& textureSize,
+                             float italicShear)
 {
     fge::vulkan::VertexBuffer* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
     const fge::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
@@ -80,8 +88,10 @@ void Character::addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, co
 
     float u1 = (static_cast<float>(glyph._textureRect._x) - padding) / static_cast<float>(textureSize.x);
     float v1 = (static_cast<float>(glyph._textureRect._y) - padding) / static_cast<float>(textureSize.y);
-    float u2 = (static_cast<float>(glyph._textureRect._x + glyph._textureRect._width) + padding) / static_cast<float>(textureSize.x);
-    float v2 = (static_cast<float>(glyph._textureRect._y + glyph._textureRect._height) + padding) / static_cast<float>(textureSize.y);
+    float u2 = (static_cast<float>(glyph._textureRect._x + glyph._textureRect._width) + padding) /
+               static_cast<float>(textureSize.x);
+    float v2 = (static_cast<float>(glyph._textureRect._y + glyph._textureRect._height) + padding) /
+               static_cast<float>(textureSize.y);
 
     vertices->append(fge::vulkan::Vertex{{size.x + left - italicShear * top, size.y + top}, color, {u1, v1}});
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * top, size.y + top}, color, {u2, v1}});

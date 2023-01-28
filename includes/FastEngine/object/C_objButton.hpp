@@ -66,9 +66,8 @@ public:
     fge::CallbackHandler<fge::ObjButton*> _onButtonPressed;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const SDL_MouseButtonEvent& arg,
-                                 fge::GuiElementContext& context);
+    void
+    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
     void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
     void onGuiMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg, fge::GuiElementContext& context);
 

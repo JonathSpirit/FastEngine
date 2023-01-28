@@ -32,13 +32,15 @@ namespace fge
 class Glyph
 {
 public:
-    Glyph() : _advance(0.0f) {}
+    Glyph() :
+            _advance(0.0f)
+    {}
 
-    float     _advance = 0.0f;     //!< Offset to move horizontally to the next character
-    int       _lsbDelta = 0;    //!< Left offset after forced autohint. Internally used by getKerning()
-    int       _rsbDelta = 0;    //!< Right offset after forced autohint. Internally used by getKerning()
-    fge::RectFloat _bounds;      //!< Bounding rectangle of the glyph, in coordinates relative to the baseline
-    fge::RectInt   _textureRect; //!< Texture coordinates of the glyph inside the font's texture
+    float _advance = 0.0f;     //!< Offset to move horizontally to the next character
+    int _lsbDelta = 0;         //!< Left offset after forced autohint. Internally used by getKerning()
+    int _rsbDelta = 0;         //!< Right offset after forced autohint. Internally used by getKerning()
+    fge::RectFloat _bounds;    //!< Bounding rectangle of the glyph, in coordinates relative to the baseline
+    fge::RectInt _textureRect; //!< Texture coordinates of the glyph inside the font's texture
 };
 
 } // namespace fge

@@ -64,7 +64,8 @@ using ShaderDataType = std::unordered_map<std::string, fge::shader::ShaderDataPt
  * \param NoTextureFragmentPath The default fragment shader with no texture attached
  * \param fragmentPath The default fragment shader
  */
-FGE_API bool Init(std::filesystem::path vertexPath, std::filesystem::path NoTextureFragmentPath, std::filesystem::path fragmentPath);
+FGE_API bool
+Init(std::filesystem::path vertexPath, std::filesystem::path NoTextureFragmentPath, std::filesystem::path fragmentPath);
 /**
  * \brief Check if the shader manager is initialized
  *

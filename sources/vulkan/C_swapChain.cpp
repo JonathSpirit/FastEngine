@@ -15,13 +15,13 @@
  */
 
 #include "FastEngine/vulkan/C_swapChain.hpp"
-#include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
+#include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/C_surface.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <stdexcept>
 #include <algorithm>
 #include <limits>
+#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -52,7 +52,10 @@ SwapChain::~SwapChain()
     this->destroy();
 }
 
-void SwapChain::create(SDL_Window* window, const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, const Surface& surface,
+void SwapChain::create(SDL_Window* window,
+                       const LogicalDevice& logicalDevice,
+                       const PhysicalDevice& physicalDevice,
+                       const Surface& surface,
                        VkPresentModeKHR wantedPresentMode)
 {
     auto swapChainSupport = physicalDevice.querySwapChainSupport(surface.getSurface());
@@ -91,7 +94,7 @@ void SwapChain::create(SDL_Window* window, const LogicalDevice& logicalDevice, c
     else
     {
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount = 0; // Optional
+        createInfo.queueFamilyIndexCount = 0;     // Optional
         createInfo.pQueueFamilyIndices = nullptr; // Optional
     }
 
@@ -123,7 +126,7 @@ void SwapChain::destroy()
 {
     if (this->g_swapChain != VK_NULL_HANDLE)
     {
-        for (auto imageView : this->g_swapChainImageViews)
+        for (auto imageView: this->g_swapChainImageViews)
         {
             vkDestroyImageView(this->g_logicalDevice->getDevice(), imageView, nullptr);
         }
@@ -174,15 +177,17 @@ void SwapChain::createImageViews()
 
     for (size_t i = 0; i < this->g_swapChainImages.size(); i++)
     {
-        this->g_swapChainImageViews[i] = CreateImageView(*this->g_logicalDevice, this->g_swapChainImages[i], this->g_swapChainImageFormat);
+        this->g_swapChainImageViews[i] =
+                CreateImageView(*this->g_logicalDevice, this->g_swapChainImages[i], this->g_swapChainImageFormat);
     }
 }
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
-    for (const auto& availableFormat : availableFormats)
+    for (const auto& availableFormat: availableFormats)
     {
-        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
+            availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             return availableFormat;
         }
@@ -190,9 +195,10 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 
     return availableFormats[0];
 }
-VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, VkPresentModeKHR wantedPresentMode)
+VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes,
+                                                  VkPresentModeKHR wantedPresentMode)
 {
-    for (const auto& availablePresentMode : availablePresentModes)
+    for (const auto& availablePresentMode: availablePresentModes)
     {
         if (availablePresentMode == wantedPresentMode)
         {
@@ -210,20 +216,19 @@ VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     }
     else
     {
-        int width=0;
-        int height=0;
+        int width = 0;
+        int height = 0;
         SDL_GetWindowSize(window, &width, &height);
 
-        VkExtent2D actualExtent = {
-                static_cast<uint32_t>(width),
-                static_cast<uint32_t>(height)
-        };
+        VkExtent2D actualExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 
-        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+        actualExtent.width =
+                std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+        actualExtent.height =
+                std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
         return actualExtent;
     }
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

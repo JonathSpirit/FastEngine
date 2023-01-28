@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
-#include "FastEngine/vulkan/C_swapChain.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/C_swapChain.hpp"
 
 namespace fge::vulkan
 {
@@ -165,20 +165,21 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
 
         rasterizer.depthBiasEnable = VK_FALSE;
         rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-        rasterizer.depthBiasClamp = 0.0f; // Optional
-        rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+        rasterizer.depthBiasClamp = 0.0f;          // Optional
+        rasterizer.depthBiasSlopeFactor = 0.0f;    // Optional
 
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampling.sampleShadingEnable = VK_FALSE;
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        multisampling.minSampleShading = 1.0f; // Optional
-        multisampling.pSampleMask = nullptr; // Optional
+        multisampling.minSampleShading = 1.0f;          // Optional
+        multisampling.pSampleMask = nullptr;            // Optional
         multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-        multisampling.alphaToOneEnable = VK_FALSE; // Optional
+        multisampling.alphaToOneEnable = VK_FALSE;      // Optional
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = VK_TRUE;
         colorBlendAttachment.srcColorBlendFactor = this->g_blendMode._srcColorBlendFactor;
         colorBlendAttachment.dstColorBlendFactor = this->g_blendMode._dstColorBlendFactor;
@@ -198,11 +199,8 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
         colorBlending.blendConstants[2] = 0.0f; // Optional
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
-        std::vector<VkDynamicState> dynamicStates = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
-            VK_DYNAMIC_STATE_SCISSOR
-        };
+        std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
+                                                     VK_DYNAMIC_STATE_SCISSOR};
 
         VkPipelineDynamicStateCreateInfo dynamicState{};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -213,10 +211,11 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = descriptorSetLayoutSize;
         pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+        pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-        if (vkCreatePipelineLayout(context.getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr, &this->g_pipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(context.getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
+                                   &this->g_pipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
         }
@@ -247,9 +246,10 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
         pipelineInfo.subpass = 0;
 
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-        pipelineInfo.basePipelineIndex = -1; // Optional
+        pipelineInfo.basePipelineIndex = -1;              // Optional
 
-        if (vkCreateGraphicsPipelines(context.getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(context.getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+                                      &this->g_graphicsPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
@@ -435,8 +435,8 @@ void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
                                          uint32_t descriptorCount,
                                          uint32_t firstSet) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            this->g_pipelineLayout, firstSet, descriptorCount, descriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
+                            descriptorCount, descriptorSet, 0, nullptr);
 }
 void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
                                                 const VkDescriptorSet* descriptorSet,
@@ -445,8 +445,8 @@ void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
                                                 const uint32_t* pDynamicOffsets,
                                                 uint32_t firstSet) const
 {
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            this->g_pipelineLayout, firstSet, descriptorCount, descriptorSet, dynamicOffsetCount, pDynamicOffsets);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
+                            descriptorCount, descriptorSet, dynamicOffsetCount, pDynamicOffsets);
 }
 
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const
@@ -466,9 +466,8 @@ void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(this->g_pipelineLayout,
-                                                                                         this->g_graphicsPipeline,
-                                                                                         this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(
+                this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;
@@ -479,9 +478,8 @@ void GraphicPipeline::destroy()
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(this->g_pipelineLayout,
-                                                                                         this->g_graphicsPipeline,
-                                                                                         this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(GarbageCollector::GarbageGraphicPipeline(
+                this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
 
         this->g_needUpdate = true;
 
@@ -502,4 +500,4 @@ void GraphicPipeline::destroy()
     }
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

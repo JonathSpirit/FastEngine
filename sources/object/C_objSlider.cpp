@@ -42,8 +42,7 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
                                        this);
 
     event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseMoved, this), this);
-    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this),
-                                     this);
+    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this), this);
 
     this->refreshSize(guiElementHandlerPtr->_lastSize);
 }

@@ -25,8 +25,8 @@ ObjSpriteBatches::ObjSpriteBatches() :
         g_needBuffersUpdate(true)
 {
     this->g_descriptorSet.create(fge::vulkan::GlobalContext->getLogicalDevice(),
-                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(),
-                                 1, fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
+                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(), 1,
+                                 fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
 }
 ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         fge::Object(r),
@@ -38,8 +38,8 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         g_needBuffersUpdate(true)
 {
     this->g_descriptorSet.create(fge::vulkan::GlobalContext->getLogicalDevice(),
-                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(),
-                                 1, fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
+                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(), 1,
+                                 fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
 }
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()
@@ -93,12 +93,12 @@ void ObjSpriteBatches::setColor(std::size_t index, const fge::Color& color)
 {
     if (index < this->g_spriteCount && !this->g_needBuffersUpdate)
     {
-        const std::size_t startIndex = index*4;
+        const std::size_t startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._color = color;
-        this->g_instancesVertices[startIndex+1]._color = color;
-        this->g_instancesVertices[startIndex+2]._color = color;
-        this->g_instancesVertices[startIndex+3]._color = color;
+        this->g_instancesVertices[startIndex + 1]._color = color;
+        this->g_instancesVertices[startIndex + 2]._color = color;
+        this->g_instancesVertices[startIndex + 3]._color = color;
     }
 }
 
@@ -119,7 +119,7 @@ std::optional<fge::Color> ObjSpriteBatches::getColor(std::size_t index) const
 {
     if (index < this->g_spriteCount && !this->g_needBuffersUpdate)
     {
-        return fge::Color(this->g_instancesVertices[index*4]._color);
+        return fge::Color(this->g_instancesVertices[index * 4]._color);
     }
     return std::nullopt;
 }
@@ -143,7 +143,7 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     this->updateBuffers();
 
-    for (std::size_t i=0; i<this->g_spriteCount; ++i)
+    for (std::size_t i = 0; i < this->g_spriteCount; ++i)
     {
         if (states._transform != nullptr)
         {
@@ -157,13 +157,11 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         this->g_instancesTransformData[i]._viewTransform = target.getView().getTransform();
     }
 
-    this->g_instancesTransform.copyData(this->g_instancesTransformData.get(), this->g_instancesTransform.getBufferSize());
+    this->g_instancesTransform.copyData(this->g_instancesTransformData.get(),
+                                        this->g_instancesTransform.getBufferSize());
 
-    target.drawBatches(states._blendMode,
-                       static_cast<const fge::vulkan::TextureImage*>(this->g_texture),
-                       this->g_descriptorSet,
-                       &this->g_instancesVertices,
-                       4, this->g_spriteCount);
+    target.drawBatches(states._blendMode, static_cast<const fge::vulkan::TextureImage*>(this->g_texture),
+                       this->g_descriptorSet, &this->g_instancesVertices, 4, this->g_spriteCount);
 }
 #endif
 
@@ -236,12 +234,12 @@ void ObjSpriteBatches::updatePositions(std::size_t index) const
     if (index < this->g_spriteCount)
     {
         const fge::RectFloat bounds = this->getLocalBounds(index).value();
-        const std::size_t startIndex = index*4;
+        const std::size_t startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._position = fge::Vector2f(0, 0);
-        this->g_instancesVertices[startIndex+1]._position = fge::Vector2f(0, bounds._height);
-        this->g_instancesVertices[startIndex+2]._position = fge::Vector2f(bounds._width, 0);
-        this->g_instancesVertices[startIndex+3]._position = fge::Vector2f(bounds._width, bounds._height);
+        this->g_instancesVertices[startIndex + 1]._position = fge::Vector2f(0, bounds._height);
+        this->g_instancesVertices[startIndex + 2]._position = fge::Vector2f(bounds._width, 0);
+        this->g_instancesVertices[startIndex + 3]._position = fge::Vector2f(bounds._width, bounds._height);
     }
 }
 
@@ -249,13 +247,15 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index) const
 {
     if (index < this->g_spriteCount)
     {
-        const auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_instancesTextureRect[index]);
-        const std::size_t startIndex = index*4;
+        const auto rect =
+                this->g_texture.getData()->_texture->normalizeTextureRect(this->g_instancesTextureRect[index]);
+        const std::size_t startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);
-        this->g_instancesVertices[startIndex+1]._texCoords = fge::Vector2f(rect._x, rect._y+rect._height);
-        this->g_instancesVertices[startIndex+2]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y);
-        this->g_instancesVertices[startIndex+3]._texCoords = fge::Vector2f(rect._x+rect._width, rect._y+rect._height);
+        this->g_instancesVertices[startIndex + 1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
+        this->g_instancesVertices[startIndex + 2]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y);
+        this->g_instancesVertices[startIndex + 3]._texCoords =
+                fge::Vector2f(rect._x + rect._width, rect._y + rect._height);
     }
 }
 void ObjSpriteBatches::updateBuffers() const
@@ -264,30 +264,30 @@ void ObjSpriteBatches::updateBuffers() const
     {
         this->g_needBuffersUpdate = false;
 
-        if (this->g_instancesVertices.getCount() != this->g_spriteCount*4 &&
-            this->g_spriteCount != 0)
+        if (this->g_instancesVertices.getCount() != this->g_spriteCount * 4 && this->g_spriteCount != 0)
         {
-            this->g_instancesVertices.create(*fge::vulkan::GlobalContext, this->g_spriteCount*4,
+            this->g_instancesVertices.create(*fge::vulkan::GlobalContext, this->g_spriteCount * 4,
                                              VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 
-            const std::size_t minUboAlignment = fge::vulkan::GlobalContext->getPhysicalDevice().getMinUniformBufferOffsetAlignment();
+            const std::size_t minUboAlignment =
+                    fge::vulkan::GlobalContext->getPhysicalDevice().getMinUniformBufferOffsetAlignment();
             std::size_t dynamicAlignment = fge::TransformUboData::uboSize;
             if (minUboAlignment > 0)
             {
                 dynamicAlignment = (dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
             }
 
-            this->g_instancesTransform.create(*fge::vulkan::GlobalContext, dynamicAlignment*this->g_spriteCount);
+            this->g_instancesTransform.create(*fge::vulkan::GlobalContext, dynamicAlignment * this->g_spriteCount);
 
-            this->g_instancesTransformData.reset(reinterpret_cast<fge::TransformUboData*>(fge::AlignedAlloc(dynamicAlignment*this->g_spriteCount, dynamicAlignment)));
+            this->g_instancesTransformData.reset(reinterpret_cast<fge::TransformUboData*>(
+                    fge::AlignedAlloc(dynamicAlignment * this->g_spriteCount, dynamicAlignment)));
 
-            const fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_instancesTransform,
-                                                                    FGE_VULKAN_TRANSFORM_BINDING,
-                                                                    fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
-                                                                    fge::TransformUboData::uboSize};
+            const fge::vulkan::DescriptorSet::Descriptor descriptor{
+                    this->g_instancesTransform, FGE_VULKAN_TRANSFORM_BINDING,
+                    fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC, fge::TransformUboData::uboSize};
             this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
-            for (std::size_t i=0; i<this->g_spriteCount; ++i)
+            for (std::size_t i = 0; i < this->g_spriteCount; ++i)
             {
                 this->updatePositions(i);
                 this->updateTexCoords(i);

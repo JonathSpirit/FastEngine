@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/manager/shader_manager.hpp"
-#include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "private/string_hash.hpp"
 
 namespace fge::shader
@@ -31,22 +31,27 @@ std::mutex _dataMutex;
 
 } // namespace
 
-bool Init(std::filesystem::path vertexPath, std::filesystem::path NoTextureFragmentPath, std::filesystem::path fragmentPath)
+bool Init(std::filesystem::path vertexPath,
+          std::filesystem::path NoTextureFragmentPath,
+          std::filesystem::path fragmentPath)
 {
     if (_dataShaderBad == nullptr)
     {
         _dataShaderBad = std::make_shared<fge::shader::ShaderData>();
         _dataShaderBad->_valid = false;
 
-        if ( !fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_VERTEX, std::move(vertexPath), fge::vulkan::Shader::Type::SHADER_VERTEX) )
+        if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_VERTEX, std::move(vertexPath),
+                                       fge::vulkan::Shader::Type::SHADER_VERTEX))
         {
             return false;
         }
-        if ( !fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, std::move(NoTextureFragmentPath), fge::vulkan::Shader::Type::SHADER_FRAGMENT) )
+        if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, std::move(NoTextureFragmentPath),
+                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT))
         {
             return false;
         }
-        if ( !fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_FRAGMENT, std::move(fragmentPath), fge::vulkan::Shader::Type::SHADER_FRAGMENT) )
+        if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_FRAGMENT, std::move(fragmentPath),
+                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT))
         {
             return false;
         }
@@ -159,10 +164,8 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path, fge::vulkan
 
 bool Unload(std::string_view name)
 {
-    if (name == FGE_SHADER_BAD ||
-        name == FGE_SHADER_DEFAULT_FRAGMENT ||
-        name == FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT ||
-        name == FGE_SHADER_DEFAULT_VERTEX)
+    if (name == FGE_SHADER_BAD || name == FGE_SHADER_DEFAULT_FRAGMENT ||
+        name == FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT || name == FGE_SHADER_DEFAULT_VERTEX)
     {
         return false;
     }

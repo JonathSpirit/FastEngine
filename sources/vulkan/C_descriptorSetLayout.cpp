@@ -56,7 +56,7 @@ void DescriptorSetLayout::create(const LogicalDevice& logicalDevice, std::initia
     std::vector<VkDescriptorSetLayoutBinding> bindings(layouts.size());
     std::size_t index = 0;
 
-    for (const auto& layout : layouts)
+    for (const auto& layout: layouts)
     {
         bindings[index].binding = layout._binding;
         bindings[index].descriptorType = layout._type;
@@ -73,7 +73,8 @@ void DescriptorSetLayout::create(const LogicalDevice& logicalDevice, std::initia
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(logicalDevice.getDevice(), &layoutInfo, nullptr, &this->g_descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(logicalDevice.getDevice(), &layoutInfo, nullptr, &this->g_descriptorSetLayout) !=
+        VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
@@ -102,4 +103,4 @@ const LogicalDevice* DescriptorSetLayout::getLogicalDevice() const
     return this->g_logicalDevice;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

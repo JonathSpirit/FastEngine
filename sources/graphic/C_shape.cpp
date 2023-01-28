@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#include <FastEngine/graphic/C_shape.hpp>
 #include <FastEngine/graphic/C_renderTarget.hpp>
+#include <FastEngine/graphic/C_shape.hpp>
 #include <FastEngine/vulkan/vulkanGlobal.hpp>
 #include <cmath>
 
@@ -43,7 +43,7 @@ float dotProduct(const fge::Vector2f& p1, const fge::Vector2f& p2)
     return p1.x * p2.x + p1.y * p2.y;
 }
 
-}//end namespace
+} //end namespace
 
 void Shape::setTexture(const Texture& texture, bool resetRect)
 {
@@ -120,15 +120,15 @@ RectFloat Shape::getGlobalBounds() const
 }
 
 Shape::Shape() :
-g_texture         (),
-g_textureRect     (),
-g_fillColor       (255, 255, 255),
-g_outlineColor    (255, 255, 255),
-g_outlineThickness(0),
-g_vertices        (),
-g_outlineVertices (),
-g_insideBounds    (),
-g_bounds          ()
+        g_texture(),
+        g_textureRect(),
+        g_fillColor(255, 255, 255),
+        g_outlineColor(255, 255, 255),
+        g_outlineThickness(0),
+        g_vertices(),
+        g_outlineVertices(),
+        g_insideBounds(),
+        g_bounds()
 {
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
@@ -155,7 +155,8 @@ void Shape::update()
     this->g_vertices.getVertices()[count + 1]._position = this->g_vertices.getVertices()[1]._position;
 
     // Update the bounding rectangle
-    this->g_vertices.getVertices()[0] = this->g_vertices.getVertices()[1]; // so that the result of getBounds() is correct
+    this->g_vertices.getVertices()[0] =
+            this->g_vertices.getVertices()[1]; // so that the result of getBounds() is correct
     this->g_insideBounds = this->g_vertices.getBounds();
 
     // Compute the center and make it the first vertex
@@ -179,7 +180,7 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
     // Render the inside
     if (this->g_texture.valid())
     {
-        copyStates._textureImage = static_cast<const fge::TextureType *>(this->g_texture);
+        copyStates._textureImage = static_cast<const fge::TextureType*>(this->g_texture);
     }
 
     copyStates._vertexBuffer = &this->g_vertices;
@@ -208,8 +209,14 @@ void Shape::updateTexCoords()
 
     for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
     {
-        const float xratio = this->g_insideBounds._width > 0 ? (this->g_vertices[i]._position.x - this->g_insideBounds._x) / this->g_insideBounds._width : 0;
-        const float yratio = this->g_insideBounds._height > 0 ? (this->g_vertices[i]._position.y - this->g_insideBounds._y) / this->g_insideBounds._height : 0;
+        const float xratio =
+                this->g_insideBounds._width > 0
+                        ? (this->g_vertices[i]._position.x - this->g_insideBounds._x) / this->g_insideBounds._width
+                        : 0;
+        const float yratio =
+                this->g_insideBounds._height > 0
+                        ? (this->g_vertices[i]._position.y - this->g_insideBounds._y) / this->g_insideBounds._height
+                        : 0;
         this->g_vertices[i]._texCoords.x = convertedTextureRect._x + convertedTextureRect._width * xratio;
         this->g_vertices[i]._texCoords.y = convertedTextureRect._y + convertedTextureRect._height * yratio;
     }

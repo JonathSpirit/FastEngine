@@ -59,6 +59,6 @@ private:
     const LogicalDevice* g_logicalDevice;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_DESCRIPTORSETLAYOUT_HPP_INCLUDED

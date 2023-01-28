@@ -64,6 +64,6 @@ struct Vertex
     }
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_VERTEX_HPP_INCLUDED

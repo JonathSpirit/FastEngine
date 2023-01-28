@@ -50,6 +50,6 @@ private:
     VkQueue g_presentQueue;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_LOGICALDEVICE_HPP_INCLUDED

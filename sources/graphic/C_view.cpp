@@ -133,13 +133,13 @@ const glm::mat4& View::getTransform() const
 {
     if (!this->g_transformUpdated)
     {
-        this->g_transform = glm::ortho<float>(0.0f, this->g_size.x,
-                                              this->g_size.y, 0.0f);
+        this->g_transform = glm::ortho<float>(0.0f, this->g_size.x, this->g_size.y, 0.0f);
 
-        this->g_transform = glm::translate(this->g_transform, glm::vec3{this->g_size/2.0f-this->g_center, 0.0f});
+        this->g_transform = glm::translate(this->g_transform, glm::vec3{this->g_size / 2.0f - this->g_center, 0.0f});
 
         this->g_transform = glm::translate(this->g_transform, glm::vec3{this->g_center, 0.0f});
-        this->g_transform = glm::rotate(this->g_transform, glm::radians(this->g_rotation), glm::vec3(0.0f,0.0f,-1.0f));
+        this->g_transform =
+                glm::rotate(this->g_transform, glm::radians(this->g_rotation), glm::vec3(0.0f, 0.0f, -1.0f));
         this->g_transform = glm::translate(this->g_transform, glm::vec3{-this->g_center, 0.0f});
 
         this->g_transformUpdated = true;
@@ -158,4 +158,4 @@ const glm::mat4& View::getInverseTransform() const
     return this->g_inverseTransform;
 }
 
-}//end fge
+} // namespace fge

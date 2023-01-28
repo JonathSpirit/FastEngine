@@ -109,9 +109,8 @@ public:
 private:
     void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
-    void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const SDL_MouseButtonEvent& arg,
-                                 fge::GuiElementContext& context);
+    void
+    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
     void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
     void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
 

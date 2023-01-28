@@ -166,8 +166,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
                                        this);
 
     event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseMoved, this), this);
-    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this),
-                                     this);
+    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this), this);
 
     //Call "callbackRegister" on pre-existent objects (copied from another scene)
     for (const auto& objectData: this->_windowScene)
@@ -214,11 +213,13 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     target.draw(this->g_spriteMinimize, copyStates);
 
     //Drawing elements
-    auto worldCoord = copyStates._transform->_data._modelTransform * fge::RectFloat{fge::Vector2f{0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT},
-                                                                              this->getDrawAreaSize()};
+    auto worldCoord =
+            copyStates._transform->_data._modelTransform *
+            fge::RectFloat{fge::Vector2f{0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}, this->getDrawAreaSize()};
     *this->_windowView = fge::ClipView(*this->_windowView, target, worldCoord, fge::ClipClampModes::CLIP_CLAMP_NOTHING);
-    this->_windowView->setCenter(this->_windowView->getCenter() -
-                                 (worldCoord.getPosition() - copyStates._transform->_data._modelTransform * fge::Vector2f{}));
+    this->_windowView->setCenter(
+            this->_windowView->getCenter() -
+            (worldCoord.getPosition() - copyStates._transform->_data._modelTransform * fge::Vector2f{}));
 
     this->_windowScene.draw(target, copyStates);
 
@@ -438,11 +439,11 @@ void ObjWindow::onMouseMoved([[maybe_unused]] const fge::Event& evt, const SDL_M
         fge::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, renderTarget.getDefaultView());
 
         fge::Vector2f mouseDiff{this->g_resizeModeX == ObjWindow::ResizeModes::MODE_FREE
-                                       ? (mousePos.x - this->g_mouseClickLastPosition.x) / this->getScale().x
-                                       : 0.0f,
-                               this->g_resizeModeY == ObjWindow::ResizeModes::MODE_FREE
-                                       ? (mousePos.y - this->g_mouseClickLastPosition.y) / this->getScale().y
-                                       : 0.0f};
+                                        ? (mousePos.x - this->g_mouseClickLastPosition.x) / this->getScale().x
+                                        : 0.0f,
+                                this->g_resizeModeY == ObjWindow::ResizeModes::MODE_FREE
+                                        ? (mousePos.y - this->g_mouseClickLastPosition.y) / this->getScale().y
+                                        : 0.0f};
 
         this->setSize(this->g_mouseClickLastSize + mouseDiff);
     }
@@ -529,14 +530,14 @@ void ObjWindow::refreshRectBounds()
     this->g_windowMoveRect._height = FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT;
 
     this->g_windowResizeRect._x = this->g_size.x - static_cast<float>(this->g_textureWindowResize.getTextureSize().x +
-                                                                        FGE_WINDOW_DRAW_RESIZE_TEXTURE_OFFSET);
+                                                                      FGE_WINDOW_DRAW_RESIZE_TEXTURE_OFFSET);
     this->g_windowResizeRect._y = this->g_size.y - static_cast<float>(this->g_textureWindowResize.getTextureSize().y +
-                                                                       FGE_WINDOW_DRAW_RESIZE_TEXTURE_OFFSET);
+                                                                      FGE_WINDOW_DRAW_RESIZE_TEXTURE_OFFSET);
     this->g_windowResizeRect._width = static_cast<float>(this->g_textureWindowResize.getTextureSize().x);
     this->g_windowResizeRect._height = static_cast<float>(this->g_textureWindowResize.getTextureSize().y);
 
     this->g_windowCloseRect._x = this->g_size.x - static_cast<float>(this->g_textureWindowClose.getTextureSize().x +
-                                                                       FGE_WINDOW_DRAW_CLOSE_TEXTURE_OFFSET);
+                                                                     FGE_WINDOW_DRAW_CLOSE_TEXTURE_OFFSET);
     this->g_windowCloseRect._y = FGE_WINDOW_DRAW_CLOSE_TEXTURE_OFFSET;
     this->g_windowCloseRect._width = static_cast<float>(this->g_textureWindowClose.getTextureSize().x);
     this->g_windowCloseRect._height = static_cast<float>(this->g_textureWindowClose.getTextureSize().y);
@@ -560,60 +561,75 @@ void ObjWindow::refreshTextures()
     fge::Transformable* transformable = nullptr;
 
     //Fill
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_FILL).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_FILL).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({(this->g_size.x - FGE_WINDOW_PIXEL_SIZE / 2.0f) / FGE_WINDOW_PIXEL_SIZE,
                              (this->g_size.y - FGE_WINDOW_PIXEL_SIZE / 2.0f) / FGE_WINDOW_PIXEL_SIZE});
     transformable->setPosition({FGE_WINDOW_PIXEL_SIZE / 2.0f, FGE_WINDOW_PIXEL_SIZE / 2.0f});
 
     //Limit
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_LIMIT).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_LIMIT).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({this->g_size.x / FGE_WINDOW_PIXEL_SIZE, 1.0f});
     transformable->setPosition({0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT - FGE_WINDOW_PIXEL_SIZE});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_LIMIT).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_LIMIT).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({this->g_size.x / FGE_WINDOW_PIXEL_SIZE, 1.0f});
     transformable->setPosition({0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT});
 
     //Frame
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_LEFT_CORNER_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_LEFT_CORNER_FRAME)
+                           .value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({1.0f, 1.0f});
     transformable->setPosition({0.0f, 0.0f});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_FRAME).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({(this->g_size.x - FGE_WINDOW_PIXEL_SIZE * 2) / FGE_WINDOW_PIXEL_SIZE, 1.0f});
     transformable->setPosition({FGE_WINDOW_PIXEL_SIZE, 0.0f});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_RIGHT_CORNER_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_UP_RIGHT_CORNER_FRAME)
+                           .value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({1.0f, 1.0f});
     transformable->setPosition({this->g_size.x - FGE_WINDOW_PIXEL_SIZE, 0.0f});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_LEFT_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_LEFT_FRAME).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({1.0f, (this->g_size.y - FGE_WINDOW_PIXEL_SIZE * 2) / FGE_WINDOW_PIXEL_SIZE});
     transformable->setPosition({0.0f, FGE_WINDOW_PIXEL_SIZE});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_LEFT_CORNER_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_LEFT_CORNER_FRAME)
+                           .value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({1.0f, 1.0f});
     transformable->setPosition({0, this->g_size.y - FGE_WINDOW_PIXEL_SIZE});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_FRAME).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({(this->g_size.x - FGE_WINDOW_PIXEL_SIZE * 2) / FGE_WINDOW_PIXEL_SIZE, 1.0f});
     transformable->setPosition({FGE_WINDOW_PIXEL_SIZE, this->g_size.y - FGE_WINDOW_PIXEL_SIZE});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_RIGHT_CORNER_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_DOWN_RIGHT_CORNER_FRAME)
+                           .value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({1.0f, 1.0f});
     transformable->setPosition({this->g_size.x - FGE_WINDOW_PIXEL_SIZE, this->g_size.y - FGE_WINDOW_PIXEL_SIZE});
 
-    this->g_spriteBatches.setTextureRect(index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_RIGHT_FRAME).value_or(fge::RectInt{}));
+    this->g_spriteBatches.setTextureRect(
+            index, this->g_tileSetWindow.getTextureRect(FGE_WINDOW_DRAW_TILESET_RIGHT_FRAME).value_or(fge::RectInt{}));
     transformable = this->g_spriteBatches.getTransformable(index++);
     transformable->setScale({1.0f, (this->g_size.y - FGE_WINDOW_PIXEL_SIZE * 2) / FGE_WINDOW_PIXEL_SIZE});
     transformable->setPosition({this->g_size.x - FGE_WINDOW_PIXEL_SIZE, FGE_WINDOW_PIXEL_SIZE});

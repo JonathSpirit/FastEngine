@@ -15,11 +15,11 @@
  */
 
 #include "FastEngine/vulkan/C_context.hpp"
-#include <iostream>
-#include <vector>
-#include <optional>
-#include <algorithm>
 #include "SDL_events.h"
+#include <algorithm>
+#include <iostream>
+#include <optional>
+#include <vector>
 
 //https://docs.tizen.org/application/native/guides/graphics/vulkan/
 
@@ -122,46 +122,42 @@ void Context::initVulkan(SDL_Window* window)
     }
     this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface.getSurface());
 
-    VmaVulkanFunctions vulkanFunctions{
-            vkGetInstanceProcAddr,
-            vkGetDeviceProcAddr,
-            vkGetPhysicalDeviceProperties,
-            vkGetPhysicalDeviceMemoryProperties,
-            vkAllocateMemory,
-            vkFreeMemory,
-            vkMapMemory,
-            vkUnmapMemory,
-            vkFlushMappedMemoryRanges,
-            vkInvalidateMappedMemoryRanges,
-            vkBindBufferMemory,
-            vkBindImageMemory,
-            vkGetBufferMemoryRequirements,
-            vkGetImageMemoryRequirements,
-            vkCreateBuffer,
-            vkDestroyBuffer,
-            vkCreateImage,
-            vkDestroyImage,
-            vkCmdCopyBuffer,
-            vkGetBufferMemoryRequirements2,
-            vkGetImageMemoryRequirements2,
-            vkBindBufferMemory2,
-            vkBindImageMemory2,
-            vkGetPhysicalDeviceMemoryProperties2
-    };
+    VmaVulkanFunctions vulkanFunctions{vkGetInstanceProcAddr,
+                                       vkGetDeviceProcAddr,
+                                       vkGetPhysicalDeviceProperties,
+                                       vkGetPhysicalDeviceMemoryProperties,
+                                       vkAllocateMemory,
+                                       vkFreeMemory,
+                                       vkMapMemory,
+                                       vkUnmapMemory,
+                                       vkFlushMappedMemoryRanges,
+                                       vkInvalidateMappedMemoryRanges,
+                                       vkBindBufferMemory,
+                                       vkBindImageMemory,
+                                       vkGetBufferMemoryRequirements,
+                                       vkGetImageMemoryRequirements,
+                                       vkCreateBuffer,
+                                       vkDestroyBuffer,
+                                       vkCreateImage,
+                                       vkDestroyImage,
+                                       vkCmdCopyBuffer,
+                                       vkGetBufferMemoryRequirements2,
+                                       vkGetImageMemoryRequirements2,
+                                       vkBindBufferMemory2,
+                                       vkBindImageMemory2,
+                                       vkGetPhysicalDeviceMemoryProperties2};
 
-    VmaAllocatorCreateInfo allocatorCreateInfo{
-            0,
-            this->g_physicalDevice.getDevice(),
-            this->g_logicalDevice.getDevice(),
-            0,
-            nullptr,
-            nullptr,
-            nullptr,
-            &vulkanFunctions,
-            this->g_instance.getInstance(),
-            VK_API_VERSION_1_1,
-            nullptr
-    };
+    VmaAllocatorCreateInfo allocatorCreateInfo{0,
+                                               this->g_physicalDevice.getDevice(),
+                                               this->g_logicalDevice.getDevice(),
+                                               0,
+                                               nullptr,
+                                               nullptr,
+                                               nullptr,
+                                               &vulkanFunctions,
+                                               this->g_instance.getInstance(),
+                                               VK_API_VERSION_1_1,
+                                               nullptr};
 
     if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
     {
@@ -173,15 +169,13 @@ void Context::initVulkan(SDL_Window* window)
     this->createTransformDescriptorPool();
     this->createTransformBatchesDescriptorPool();
 
-    this->g_textureLayout.create(this->g_logicalDevice,{
-        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, FGE_VULKAN_TEXTURE_BINDING, VK_SHADER_STAGE_FRAGMENT_BIT}
-    });
-    this->g_transformLayout.create(this->g_logicalDevice,{
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}
-    });
-    this->g_transformBatchesLayout.create(this->g_logicalDevice,{
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}
-    });
+    this->g_textureLayout.create(this->g_logicalDevice, {{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                          FGE_VULKAN_TEXTURE_BINDING, VK_SHADER_STAGE_FRAGMENT_BIT}});
+    this->g_transformLayout.create(this->g_logicalDevice, {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                                            FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}});
+    this->g_transformBatchesLayout.create(
+            this->g_logicalDevice,
+            {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}});
 }
 void Context::enumerateExtensions()
 {
@@ -193,7 +187,7 @@ void Context::enumerateExtensions()
 
     std::cout << "available extensions:\n";
 
-    for (const auto& extension : extensions)
+    for (const auto& extension: extensions)
     {
         std::cout << '\t' << extension.extensionName << '\n';
     }
@@ -235,8 +229,11 @@ void Context::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize si
     this->endSingleTimeCommands(commandBuffer);
 }
 
-void Context::transitionImageLayout(VkImage image, [[maybe_unused]] VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const
-{///TODO: format
+void Context::transitionImageLayout(VkImage image,
+                                    [[maybe_unused]] VkFormat format,
+                                    VkImageLayout oldLayout,
+                                    VkImageLayout newLayout) const
+{ ///TODO: format
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier{};
@@ -302,19 +299,17 @@ void Context::transitionImageLayout(VkImage image, [[maybe_unused]] VkFormat for
         throw std::invalid_argument("unsupported layout transition!");
     }
 
-    vkCmdPipelineBarrier(
-        commandBuffer,
-        sourceStage, destinationStage,
-        0,
-        0, nullptr,
-        0, nullptr,
-        1, &barrier
-    );
+    vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
     endSingleTimeCommands(commandBuffer);
 }
 
-void Context::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, int32_t offsetX, int32_t offsetY) const
+void Context::copyBufferToImage(VkBuffer buffer,
+                                VkImage image,
+                                uint32_t width,
+                                uint32_t height,
+                                int32_t offsetX,
+                                int32_t offsetY) const
 {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -329,20 +324,9 @@ void Context::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, 
     region.imageSubresource.layerCount = 1;
 
     region.imageOffset = {offsetX, offsetY, 0};
-    region.imageExtent = {
-        width,
-        height,
-        1
-    };
+    region.imageExtent = {width, height, 1};
 
-    vkCmdCopyBufferToImage(
-        commandBuffer,
-        buffer,
-        image,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        1,
-        &region
-    );
+    vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     endSingleTimeCommands(commandBuffer);
 }
@@ -361,24 +345,18 @@ void Context::copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, 
     region.imageSubresource.layerCount = 1;
 
     region.imageOffset = {0, 0, 0};
-    region.imageExtent = {
-            width,
-            height,
-            1
-    };
+    region.imageExtent = {width, height, 1};
 
-    vkCmdCopyImageToBuffer(
-            commandBuffer,
-            image,
-            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            buffer,
-            1,
-            &region
-    );
+    vkCmdCopyImageToBuffer(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer, 1, &region);
 
     endSingleTimeCommands(commandBuffer);
 }
-void Context::copyImageToImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height, int32_t offsetX, int32_t offsetY) const
+void Context::copyImageToImage(VkImage srcImage,
+                               VkImage dstImage,
+                               uint32_t width,
+                               uint32_t height,
+                               int32_t offsetX,
+                               int32_t offsetY) const
 {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -399,15 +377,8 @@ void Context::copyImageToImage(VkImage srcImage, VkImage dstImage, uint32_t widt
     region.extent.height = height;
     region.extent.depth = 1;
 
-    vkCmdCopyImage(
-            commandBuffer,
-            srcImage,
-            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            dstImage,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            1,
-            &region
-    );
+    vkCmdCopyImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage,
+                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     endSingleTimeCommands(commandBuffer);
 }
@@ -481,4 +452,4 @@ void Context::createTransformBatchesDescriptorPool()
     this->g_transformBatchesDescriptorPool.create(*this, std::move(poolSizes), 128, false);
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

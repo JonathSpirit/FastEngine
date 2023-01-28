@@ -21,8 +21,8 @@
 #include "C_vertex.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "SDL_vulkan.h"
-#include "volk.h"
 #include "vk_mem_alloc.h"
+#include "volk.h"
 #include <limits>
 #include <vector>
 
@@ -41,7 +41,7 @@ enum class BufferTypes
     LOCAL,
     DEVICE,
 
-    DEFAULT=LOCAL
+    DEFAULT = LOCAL
 };
 
 class FGE_API VertexBuffer
@@ -55,7 +55,10 @@ public:
     VertexBuffer& operator=(const VertexBuffer& r);
     VertexBuffer& operator=(VertexBuffer&& r) noexcept;
 
-    void create(const Context& context, std::size_t vertexSize, VkPrimitiveTopology topology, BufferTypes type=BufferTypes::DEFAULT);
+    void create(const Context& context,
+                std::size_t vertexSize,
+                VkPrimitiveTopology topology,
+                BufferTypes type = BufferTypes::DEFAULT);
 
     void clear();
     void resize(std::size_t vertexSize);
@@ -117,11 +120,11 @@ public:
     IndexBuffer& operator=(const IndexBuffer& r);
     IndexBuffer& operator=(IndexBuffer&& r) noexcept;
 
-    void create(const Context& context, std::size_t indexSize, BufferTypes type=BufferTypes::DEFAULT);
+    void create(const Context& context, std::size_t indexSize, BufferTypes type = BufferTypes::DEFAULT);
 
     void clear();
     void resize(std::size_t indexSize);
-    void append(uint16_t index=std::numeric_limits<uint16_t>::max());
+    void append(uint16_t index = std::numeric_limits<uint16_t>::max());
 
     void destroy();
 
@@ -161,6 +164,6 @@ private:
     const Context* g_context;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED

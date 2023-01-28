@@ -83,8 +83,7 @@ void ObjButton::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
                                        this);
     this->_onGuiMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjButton::onGuiMouseMoved, this), this);
 
-    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjButton::onMouseButtonReleased, this),
-                                     this);
+    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjButton::onMouseButtonReleased, this), this);
 }
 
 #ifndef FGE_DEF_SERVER

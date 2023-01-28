@@ -38,10 +38,7 @@ public:
         OBSTACLE_CONCAVE
     };
 
-    Obstacle()
-    {
-        this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
-    }
+    Obstacle() { this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP); }
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Obstacle)
 
@@ -305,8 +302,9 @@ public:
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_Window* window = SDL_CreateWindow("example 002: lightAndObstacle", SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
-                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window =
+            SDL_CreateWindow("example 002: lightAndObstacle", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+                             SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (window == nullptr)
@@ -325,8 +323,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.spv",
-                      "resources/shaders/fragment.spv",
+    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
                       "resources/shaders/fragmentTexture.spv");
 
     fge::RenderWindow renderWindow(vulkanContext);

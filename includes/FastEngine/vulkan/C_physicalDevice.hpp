@@ -18,10 +18,10 @@
 #define _FGE_VULKAN_C_PHYSICALDEVICE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <vector>
-#include <optional>
 #include "SDL_vulkan.h"
 #include "volk.h"
+#include <optional>
+#include <vector>
 
 namespace fge::vulkan
 {
@@ -49,7 +49,7 @@ public:
         std::vector<VkPresentModeKHR> _presentModes;
     };
 
-    explicit PhysicalDevice(VkPhysicalDevice device=VK_NULL_HANDLE);
+    explicit PhysicalDevice(VkPhysicalDevice device = VK_NULL_HANDLE);
     PhysicalDevice(const PhysicalDevice& r) = default;
     PhysicalDevice(PhysicalDevice&& r) noexcept;
     ~PhysicalDevice() = default;
@@ -79,6 +79,6 @@ private:
     bool g_extensionSupport{false};
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_PHYSICALDEVICE_HPP_INCLUDED

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
+#include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_random.hpp"
+#include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objTextList.hpp"
 #include "FastEngine/object/C_objWindow.hpp"
-#include "FastEngine/C_clock.hpp"
-#include "FastEngine/C_scene.hpp"
 #include "SDL.h"
 #include <iostream>
 
@@ -183,8 +183,8 @@ public:
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_Window* window = SDL_CreateWindow("example 003: guiWindow", SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
-                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("example 003: guiWindow", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
+                                          600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (window == nullptr)
@@ -203,8 +203,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.spv",
-                      "resources/shaders/fragment.spv",
+    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
                       "resources/shaders/fragmentTexture.spv");
 
     fge::RenderWindow renderWindow(vulkanContext);

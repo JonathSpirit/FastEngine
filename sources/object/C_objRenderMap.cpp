@@ -22,7 +22,7 @@ namespace fge
 
 ObjRenderMap::ObjRenderMap() :
         g_colorClear(fge::Color::Transparent),
-        g_windowSize(0,0)
+        g_windowSize(0, 0)
 {
     this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
@@ -30,7 +30,7 @@ ObjRenderMap::ObjRenderMap(const fge::ObjRenderMap& r) :
         fge::Object(r),
         fge::Subscriber(r),
         g_colorClear(r.g_colorClear),
-        g_windowSize(0,0)
+        g_windowSize(0, 0)
 {
     this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
@@ -38,13 +38,12 @@ ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
         fge::Object(r),
         fge::Subscriber(r),
         g_colorClear(r.g_colorClear),
-        g_windowSize(0,0)
+        g_windowSize(0, 0)
 {
     this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
-void ObjRenderMap::onDraw([[maybe_unused]] const fge::Scene* scene,
-                          [[maybe_unused]] fge::RenderTarget& target)
+void ObjRenderMap::onDraw([[maybe_unused]] const fge::Scene* scene, [[maybe_unused]] fge::RenderTarget& target)
 {
     this->_renderTexture.setClearColor(this->g_colorClear);
     this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));
@@ -82,8 +81,8 @@ FGE_OBJ_UPDATE_BODY(ObjRenderMap)
 
         this->g_windowView = screen.getDefaultView();
         this->g_windowView.setSize(static_cast<fge::Vector2f>(this->g_windowSize));
-        this->g_windowView.setCenter({static_cast<float>(this->g_windowSize.x) / 2.0f,
-                                      static_cast<float>(this->g_windowSize.y) / 2.0f});
+        this->g_windowView.setCenter(
+                {static_cast<float>(this->g_windowSize.x) / 2.0f, static_cast<float>(this->g_windowSize.y) / 2.0f});
     }
 }
 #endif
@@ -95,7 +94,7 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
     this->_renderTexture.endRenderPass();
     this->_renderTexture.display(BAD_IMAGE_INDEX);
     target.pushExtraCommandBuffer(this->_renderTexture.getCommandBuffers());
-    this->_renderTexture.setCurrentFrame(this->_renderTexture.getCurrentFrame()+1);
+    this->_renderTexture.setCurrentFrame(this->_renderTexture.getCurrentFrame() + 1);
 
     target.setView(this->g_windowView);
 

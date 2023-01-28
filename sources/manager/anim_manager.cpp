@@ -163,7 +163,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
             buffAnimData->_tilesetPath = inputJson.value<std::filesystem::path>("tileset", {});
 
             fge::Surface buffSurface;
-            if ( buffSurface.loadFromFile(buffAnimData->_tilesetPath) )
+            if (buffSurface.loadFromFile(buffAnimData->_tilesetPath))
             {
 #ifdef FGE_DEF_SERVER
                 std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{std::move(buffSurface)}};
@@ -234,7 +234,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 if (animType != fge::anim::AnimationType::ANIM_TYPE_TILESET)
                 {
                     fge::Surface buffSurface;
-                    if ( buffSurface.loadFromFile(tmpFrame._path) )
+                    if (buffSurface.loadFromFile(tmpFrame._path))
                     {
 #ifdef FGE_DEF_SERVER
                         std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{std::move(buffSurface)}};

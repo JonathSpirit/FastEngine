@@ -26,8 +26,8 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "C_object.hpp"
-#include "FastEngine/graphic/C_glyph.hpp"
 #include "FastEngine/C_font.hpp"
+#include "FastEngine/graphic/C_glyph.hpp"
 #include "tinyutf8.h"
 #include <vector>
 
@@ -51,7 +51,11 @@ public:
                  float offset,
                  float thickness,
                  float outlineThickness = 0.0f);
-    void addGlyphQuad(bool outlineVertices, const fge::Vector2f& size, const fge::Glyph& glyph, const fge::Vector2i& textureSize, float italicShear);
+    void addGlyphQuad(bool outlineVertices,
+                      const fge::Vector2f& size,
+                      const fge::Glyph& glyph,
+                      const fge::Vector2i& textureSize,
+                      float italicShear);
 
     void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
     void drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const;
@@ -70,7 +74,7 @@ public:
 private:
     friend ObjText;
 
-    fge::vulkan::VertexBuffer g_vertices; /// Vertex array containing the fill geometry
+    fge::vulkan::VertexBuffer g_vertices;        /// Vertex array containing the fill geometry
     fge::vulkan::VertexBuffer g_outlineVertices; /// Vertex array containing the outline geometry
 
     fge::Color g_fillColor{255, 255, 255};
@@ -100,7 +104,9 @@ public:
             fge::Font font,
             const fge::Vector2f& position = {},
             fge::ObjText::CharacterSize characterSize = 30);
-    explicit ObjText(fge::Font font, const fge::Vector2f& position = {}, fge::ObjText::CharacterSize characterSize = 30);
+    explicit ObjText(fge::Font font,
+                     const fge::Vector2f& position = {},
+                     fge::ObjText::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
@@ -163,14 +169,14 @@ private:
     float g_letterSpacingFactor{1.0f};                  /// Spacing factor between letters
     float g_lineSpacingFactor{1.0f};                    /// Spacing factor between lines
     std::underlying_type<Style>::type g_style{Regular}; /// Text style (see Style enum)
-    fge::Color g_fillColor{255, 255, 255};               /// Text fill color
-    fge::Color g_outlineColor{0, 0, 0};                  /// Text outline color
+    fge::Color g_fillColor{255, 255, 255};              /// Text fill color
+    fge::Color g_outlineColor{0, 0, 0};                 /// Text outline color
     float g_outlineThickness{0.0f};                     /// Thickness of the text's outline
 
     mutable std::vector<Character> g_characters;
-    mutable fge::RectFloat g_bounds;           /// Bounding rectangle of the text (in local coordinates)
-    mutable bool g_geometryNeedUpdate{false}; /// Does the geometry need to be recomputed?
-    mutable uint32_t g_fontTextureModificationCount{0};      /// The font texture id
+    mutable fge::RectFloat g_bounds;                    /// Bounding rectangle of the text (in local coordinates)
+    mutable bool g_geometryNeedUpdate{false};           /// Does the geometry need to be recomputed?
+    mutable uint32_t g_fontTextureModificationCount{0}; /// The font texture id
 };
 
 } // namespace fge

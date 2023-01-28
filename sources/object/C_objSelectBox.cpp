@@ -190,7 +190,8 @@ FGE_OBJ_DRAW_BODY(ObjSelectBox)
     {
         for (std::size_t i = 0; i < this->g_textList.size(); ++i)
         {
-            copyStates._transform->_data._modelTransform = glm::translate(copyStates._transform->_data._modelTransform, {0.0f, this->g_boxSize.y, 0.0f});
+            copyStates._transform->_data._modelTransform =
+                    glm::translate(copyStates._transform->_data._modelTransform, {0.0f, this->g_boxSize.y, 0.0f});
 
             this->g_box.setFillColor((&this->g_textList[i] == this->g_textCursor)
                                              ? this->g_colorBox - fge::Color(100, 100, 0, 0)

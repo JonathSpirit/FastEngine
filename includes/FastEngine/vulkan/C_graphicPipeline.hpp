@@ -18,13 +18,13 @@
 #define _FGE_VULKAN_C_GRAPHICPIPELINE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "C_blendMode.hpp"
 #include "C_shader.hpp"
-#include "C_viewport.hpp"
 #include "C_vertex.hpp"
 #include "C_vertexBuffer.hpp"
-#include "C_blendMode.hpp"
-#include "vulkanGlobal.hpp"
+#include "C_viewport.hpp"
 #include "volk.h"
+#include "vulkanGlobal.hpp"
 
 namespace fge::vulkan
 {
@@ -47,11 +47,11 @@ public:
                         const VkDescriptorSetLayout* descriptorSetLayouts,
                         std::size_t descriptorSetLayoutSize,
                         VkRenderPass renderPass,
-                        bool force=false) const;
+                        bool force = false) const;
 
-    void clearShader(Shader::Type type=Shader::Type::SHADER_NONE);
+    void clearShader(Shader::Type type = Shader::Type::SHADER_NONE);
     void setShader(const Shader& shader);
-    [[nodiscard]] const Shader* getShader(Shader::Type type=Shader::Type::SHADER_NONE) const;
+    [[nodiscard]] const Shader* getShader(Shader::Type type = Shader::Type::SHADER_NONE) const;
 
     void setBlendMode(const BlendMode& blendMode);
     [[nodiscard]] const BlendMode& getBlendMode() const;
@@ -77,13 +77,13 @@ public:
     void bindDescriptorSets(VkCommandBuffer commandBuffer,
                             const VkDescriptorSet* descriptorSet,
                             uint32_t descriptorCount,
-                            uint32_t firstSet=0) const;
+                            uint32_t firstSet = 0) const;
     void bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
                                    const VkDescriptorSet* descriptorSet,
                                    uint32_t descriptorCount,
                                    uint32_t dynamicOffsetCount,
                                    const uint32_t* pDynamicOffsets,
-                                   uint32_t firstSet=0) const;
+                                   uint32_t firstSet = 0) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
@@ -114,6 +114,6 @@ private:
     mutable const Context* g_context;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_GRAPHICPIPELINE_HPP_INCLUDED

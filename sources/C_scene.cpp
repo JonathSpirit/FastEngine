@@ -823,7 +823,8 @@ fge::ObjectDataShared Scene::getFirstObj_ByZone(const fge::RectFloat& zone) cons
 }
 
 #ifndef FGE_DEF_SERVER
-fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(const fge::Vector2i& pos, const fge::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(const fge::Vector2i& pos,
+                                                         const fge::RenderTarget& target) const
 {
     return this->getFirstObj_ByPosition(
             target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()));
@@ -840,7 +841,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(const fge::Vector2i& 
     {
         const fge::ObjectPtr& buffObj = data->g_object;
         auto objBounds = fge::CoordToPixelRect(buffObj->getGlobalBounds(), target,
-                                                      this->g_customView ? *this->g_customView : target.getView());
+                                               this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.contains(pos))
         {
             return data;
@@ -854,7 +855,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(const fge::RectInt& zone,
     {
         const fge::ObjectPtr& buffObj = data->g_object;
         auto objBounds = fge::CoordToPixelRect(buffObj->getGlobalBounds(), target,
-                                                      this->g_customView ? *this->g_customView : target.getView());
+                                               this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.findIntersection(zone))
         {
             return data;

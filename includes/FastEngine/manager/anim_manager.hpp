@@ -83,7 +83,7 @@ struct AnimationData
     std::filesystem::path _path;                    ///< The file path of the animation
 
     fge::anim::AnimationType _type; ///< The type of the animation
-    fge::Vector2u _tilesetGridSize;  ///< The tileset grid size, only useful if the type is ANIM_TYPE_TILESET
+    fge::Vector2u _tilesetGridSize; ///< The tileset grid size, only useful if the type is ANIM_TYPE_TILESET
     std::shared_ptr<fge::TextureType>
             _tilesetTexture;            ///< The tileset texture, only useful if the type is ANIM_TYPE_TILESET
     std::filesystem::path _tilesetPath; ///< The tileset texture path, only useful if the type is ANIM_TYPE_TILESET

@@ -75,4 +75,4 @@ const Instance& Surface::getInstance() const
     return *this->g_instance;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

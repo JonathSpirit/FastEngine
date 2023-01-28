@@ -60,8 +60,8 @@ void Transform::updateUniformBuffer(const fge::vulkan::Context& context) const
 {
     if (this->g_descriptorSet.getDescriptorSet() == VK_NULL_HANDLE)
     {
-        this->g_descriptorSet.create(context.getLogicalDevice(), &context.getTransformLayout(),
-                                     1, context.getTransformDescriptorPool(), true);
+        this->g_descriptorSet.create(context.getLogicalDevice(), &context.getTransformLayout(), 1,
+                                     context.getTransformDescriptorPool(), true);
     }
 
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE)
@@ -82,4 +82,4 @@ const fge::vulkan::UniformBuffer& Transform::getUniformBuffer() const
     return this->g_uniformBuffer;
 }
 
-}//end fge
+} // namespace fge

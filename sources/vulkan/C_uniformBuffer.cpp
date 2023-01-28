@@ -55,11 +55,9 @@ UniformBuffer::~UniformBuffer()
 
 void UniformBuffer::create(const Context& context, VkDeviceSize bufferSize)
 {
-    CreateBuffer(context,
-                 bufferSize,
-                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 this->g_uniformBuffer, this->g_uniformBufferAllocation);
+    CreateBuffer(context, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->g_uniformBuffer,
+                 this->g_uniformBufferAllocation);
 
     this->g_bufferSize = bufferSize;
     this->g_context = &context;
@@ -71,9 +69,8 @@ void UniformBuffer::destroy()
     if (this->g_uniformBuffer != VK_NULL_HANDLE)
     {
         vmaUnmapMemory(this->g_context->getAllocator(), this->g_uniformBufferAllocation);
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(this->g_uniformBuffer,
-                                                                                             this->g_uniformBufferAllocation,
-                                                                                             this->g_context->getAllocator()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+                this->g_uniformBuffer, this->g_uniformBufferAllocation, this->g_context->getAllocator()));
 
         this->g_uniformBuffer = VK_NULL_HANDLE;
         this->g_uniformBufferAllocation = VK_NULL_HANDLE;
@@ -111,4 +108,4 @@ void UniformBuffer::copyData(const void* data, std::size_t size) const
     memcpy(this->g_uniformBufferMapped, data, size);
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

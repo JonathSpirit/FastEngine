@@ -15,10 +15,10 @@
  */
 
 #include "FastEngine/C_event.hpp"
+#include "tinyutf8.h"
 #include <FastEngine/C_packet.hpp>
 #include <FastEngine/graphic/C_renderWindow.hpp>
 #include <FastEngine/vulkan/C_context.hpp>
-#include "tinyutf8.h"
 
 namespace fge
 {
@@ -40,7 +40,7 @@ void Event::clear()
     this->g_types = 0;
 
     //Keyboard
-    for (auto& keyCode : this->g_keyCodes)
+    for (auto& keyCode: this->g_keyCodes)
     {
         keyCode = 0;
     }
@@ -126,14 +126,14 @@ void Event::process(const SDL_Event& evt)
     case SDL_KEYDOWN:
     {
         const std::size_t index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
-        this->g_keyCodes[index/32] |= (0x80000000 >> (index%32));
+        this->g_keyCodes[index / 32] |= (0x80000000 >> (index % 32));
     }
         this->_onKeyDown.call(*this, evt.key);
         break;
     case SDL_KEYUP:
     {
         const std::size_t index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
-        this->g_keyCodes[index/32] &=~ (0x80000000 >> (index%32));
+        this->g_keyCodes[index / 32] &= ~(0x80000000 >> (index % 32));
     }
         this->_onKeyUp.call(*this, evt.key);
         break;
@@ -164,7 +164,7 @@ void Event::process(const SDL_Event& evt)
         this->_onMouseButtonDown.call(*this, evt.button);
         break;
     case SDL_MOUSEBUTTONUP:
-        this->g_mouseButtons &=~ SDL_BUTTON(evt.button.button);
+        this->g_mouseButtons &= ~SDL_BUTTON(evt.button.button);
         this->g_mousePixelPosition.x = evt.button.x;
         this->g_mousePixelPosition.y = evt.button.y;
         this->_onMouseButtonUp.call(*this, evt.button);
@@ -295,13 +295,13 @@ void Event::pushType(SDL_EventType type)
 }
 void Event::popType(SDL_EventType type)
 {
-    this->g_types &=~ fge::Event::EventTypeToBitMask(type);
+    this->g_types &= ~fge::Event::EventTypeToBitMask(type);
 }
 
 bool Event::isKeyPressed(uint32_t keycode) const
 {
     const std::size_t index = fge::Event::KeycodeToBitIndex(keycode);
-    return static_cast<bool>(this->g_keyCodes[index/32] & (0x80000000 >> (index%32)));
+    return static_cast<bool>(this->g_keyCodes[index / 32] & (0x80000000 >> (index % 32)));
 }
 uint32_t Event::getKeyUnicode() const
 {
@@ -343,7 +343,7 @@ int Event::getMouseWheelVerticalDelta() const
 fge::net::Packet& Event::pack(fge::net::Packet& pck)
 {
     pck << this->g_types;
-    for (auto keyCode : this->g_keyCodes)
+    for (auto keyCode: this->g_keyCodes)
     {
         pck << keyCode;
     }
@@ -363,7 +363,7 @@ fge::net::Packet& Event::pack(fge::net::Packet& pck)
 fge::net::Packet& Event::unpack(fge::net::Packet& pck)
 {
     pck >> this->g_types;
-    for (auto& keyCode : this->g_keyCodes)
+    for (auto& keyCode: this->g_keyCodes)
     {
         pck >> keyCode;
     }
@@ -385,9 +385,9 @@ std::string Event::getBinaryKeysString() const
 {
     std::string result;
 
-    for (std::size_t i = 0; i<FGE_EVENT_KEYCODES_SIZE; ++i)
+    for (std::size_t i = 0; i < FGE_EVENT_KEYCODES_SIZE; ++i)
     {
-        for (std::size_t a = 0; a<32; ++a)
+        for (std::size_t a = 0; a < 32; ++a)
         {
             result += static_cast<bool>(this->g_keyCodes[i] & (0x80000000 >> a)) ? '1' : '0';
         }
@@ -399,7 +399,7 @@ std::string Event::getBinaryTypesString() const
 {
     std::string result;
 
-    for (unsigned int i = 0; i<64; ++i)
+    for (unsigned int i = 0; i < 64; ++i)
     {
         result += static_cast<bool>(this->g_types & (0x8000000000000000 >> i)) ? '1' : '0';
     }
@@ -409,7 +409,7 @@ std::string Event::getBinaryMouseButtonsString() const
 {
     std::string result;
 
-    for (unsigned int i = 0; i<8; ++i)
+    for (unsigned int i = 0; i < 8; ++i)
     {
         result += static_cast<bool>(this->g_mouseButtons & (0x80 >> i)) ? '1' : '0';
     }
@@ -477,8 +477,7 @@ uint64_t Event::EventTypeToBitMask(uint32_t type)
      * Then we can map a bit entry point on a 64bits value with the key :
     **/
 
-    static const uint8_t sdlEventCategoryBitEntryPoint[14] =
-    {
+    static const uint8_t sdlEventCategoryBitEntryPoint[14] = {
             0,  //Display events => size 1, key 0
             1,  //Application events => size 8, key 1
             9,  //Window events => size 2, key 2
@@ -496,10 +495,10 @@ uint64_t Event::EventTypeToBitMask(uint32_t type)
     };
 
     //Transform the type into a key
-    uint8_t key = static_cast<uint8_t>(type>>8) - (static_cast<bool>(type&0x000000F0) ? 1 : 0);
+    uint8_t key = static_cast<uint8_t>(type >> 8) - (static_cast<bool>(type & 0x000000F0) ? 1 : 0);
     if (key > 9)
     {
-        key = (key&0x0F) + 10 + (static_cast<bool>(key&0x10) ? 1 : 0);
+        key = (key & 0x0F) + 10 + (static_cast<bool>(key & 0x10) ? 1 : 0);
     }
     const auto index = static_cast<uint8_t>(type);
 
@@ -508,8 +507,8 @@ uint64_t Event::EventTypeToBitMask(uint32_t type)
 std::size_t Event::KeycodeToBitIndex(uint32_t keyCode)
 {
     if (static_cast<bool>(keyCode & SDLK_SCANCODE_MASK))
-    {//Scancode
-        return (keyCode &~ SDLK_SCANCODE_MASK) - 57 + 128;
+    { //Scancode
+        return (keyCode & ~SDLK_SCANCODE_MASK) - 57 + 128;
     }
     return keyCode;
 }

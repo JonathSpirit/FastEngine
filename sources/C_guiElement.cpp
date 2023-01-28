@@ -28,15 +28,17 @@ fge::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
 void GuiElementHandler::setEventCallback(fge::Event& event)
 {
     this->detachAll();
-    event._onMouseWheel.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this),this);
+    event._onMouseWheel.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseWheelScrolled, this), this);
     event._onMouseButtonDown.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonPressed, this),
-                                    this);
-    event._onMouseButtonUp.add(
-            new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this), this);
+                                 this);
+    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseButtonReleased, this),
+                               this);
     event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this);
     event._onWindowEvent.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this);
 
-    const SDL_WindowEvent dummyEvent = {SDL_WINDOWEVENT, 0, 0, SDL_WINDOWEVENT_SIZE_CHANGED, 0,0,0, event.getWindowSize().x, event.getWindowSize().y};
+    const SDL_WindowEvent dummyEvent = {
+            SDL_WINDOWEVENT,        0, 0, SDL_WINDOWEVENT_SIZE_CHANGED, 0, 0, 0, event.getWindowSize().x,
+            event.getWindowSize().y};
     this->onResized(event, dummyEvent);
 }
 

@@ -23,8 +23,8 @@
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "SDL_vulkan.h"
 #include "glm/glm.hpp"
-#include "volk.h"
 #include "vk_mem_alloc.h"
+#include "volk.h"
 #include <vector>
 
 namespace fge::vulkan
@@ -101,6 +101,6 @@ private:
     const Context* g_context;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_TEXTUREIMAGE_HPP_INCLUDED

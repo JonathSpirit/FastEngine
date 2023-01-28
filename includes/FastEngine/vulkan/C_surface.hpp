@@ -50,6 +50,6 @@ private:
     Instance* g_instance;
 };
 
-}//end vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_SURFACE_HPP_INCLUDED

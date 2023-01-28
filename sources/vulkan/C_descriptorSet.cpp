@@ -15,11 +15,11 @@
  */
 
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
-#include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
+#include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
-#include "FastEngine/vulkan/C_uniformBuffer.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
+#include "FastEngine/vulkan/C_uniformBuffer.hpp"
 #include <vector>
 
 namespace fge::vulkan
@@ -27,17 +27,20 @@ namespace fge::vulkan
 
 //Descriptor
 
-DescriptorSet::Descriptor::Descriptor(const UniformBuffer& uniformBuffer, uint32_t binding, BufferTypes type, VkDeviceSize range) :
-        _data(VkDescriptorBufferInfo{.buffer=uniformBuffer.getBuffer(),
-                                     .offset=0,
-                                     .range=type==BufferTypes::STATIC ? uniformBuffer.getBufferSize() : range}),
+DescriptorSet::Descriptor::Descriptor(const UniformBuffer& uniformBuffer,
+                                      uint32_t binding,
+                                      BufferTypes type,
+                                      VkDeviceSize range) :
+        _data(VkDescriptorBufferInfo{.buffer = uniformBuffer.getBuffer(),
+                                     .offset = 0,
+                                     .range = type == BufferTypes::STATIC ? uniformBuffer.getBufferSize() : range}),
         _binding(binding),
         _bufferType(type)
 {}
 DescriptorSet::Descriptor::Descriptor(const TextureImage& textureImage, uint32_t binding) :
-        _data(VkDescriptorImageInfo{.sampler=textureImage.getTextureSampler(),
-                                    .imageView=textureImage.getTextureImageView(),
-                                    .imageLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}),
+        _data(VkDescriptorImageInfo{.sampler = textureImage.getTextureSampler(),
+                                    .imageView = textureImage.getTextureImageView(),
+                                    .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}),
         _binding(binding),
         _bufferType()
 {}
@@ -76,7 +79,7 @@ DescriptorSet::~DescriptorSet()
 }
 
 DescriptorSet& DescriptorSet::operator=([[maybe_unused]] const DescriptorSet& r)
-{///TODO: better copy
+{ ///TODO: better copy
     this->g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
 
     this->g_descriptorPool = nullptr;
@@ -122,7 +125,7 @@ void DescriptorSet::create(const LogicalDevice& logicalDevice,
     this->g_logicalDevice = &logicalDevice;
 
     std::vector<VkDescriptorSetLayout> vulkanLayouts(layoutSize);
-    for (std::size_t i=0; i<layoutSize; ++i)
+    for (std::size_t i = 0; i < layoutSize; ++i)
     {
         vulkanLayouts[i] = layouts[i].getLayout();
     }
@@ -133,8 +136,7 @@ void DescriptorSet::destroy()
 {
     if (this->g_descriptorSet.first != VK_NULL_HANDLE)
     {
-        this->g_descriptorPool->freeDescriptorSets(this->g_descriptorSet.first,
-                                                   this->g_descriptorSet.second,
+        this->g_descriptorPool->freeDescriptorSets(this->g_descriptorSet.first, this->g_descriptorSet.second,
                                                    !this->g_freeFromPool);
 
         this->g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
@@ -170,7 +172,7 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
 
     std::vector<VkWriteDescriptorSet> descriptorWrites(descriptorSize);
 
-    for (std::size_t i=0; i<descriptorSize; ++i)
+    for (std::size_t i = 0; i < descriptorSize; ++i)
     {
         descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[i].dstSet = this->g_descriptorSet.first;
@@ -184,13 +186,15 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
         if (std::holds_alternative<VkDescriptorBufferInfo>(descriptors[i]._data))
         {
             descriptorWrites[i].descriptorType =
-                    descriptors[i]._bufferType == DescriptorSet::Descriptor::BufferTypes::STATIC ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+                    descriptors[i]._bufferType == DescriptorSet::Descriptor::BufferTypes::STATIC
+                            ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+                            : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 
             descriptorWrites[i].pBufferInfo = &std::get<VkDescriptorBufferInfo>(descriptors[i]._data);
             descriptorWrites[i].pImageInfo = nullptr;
         }
         else
-        {//TextureImage
+        { //TextureImage
             descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
             descriptorWrites[i].pBufferInfo = nullptr;
@@ -198,7 +202,8 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
         }
     }
 
-    vkUpdateDescriptorSets(this->g_logicalDevice->getDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    vkUpdateDescriptorSets(this->g_logicalDevice->getDevice(), descriptorWrites.size(), descriptorWrites.data(), 0,
+                           nullptr);
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

@@ -40,7 +40,10 @@ public:
     SwapChain& operator=(const SwapChain& r) = delete;
     SwapChain& operator=(SwapChain&& r) noexcept = delete;
 
-    void create(SDL_Window* window, const LogicalDevice& logicalDevice, const PhysicalDevice& physicalDevice, const Surface& surface,
+    void create(SDL_Window* window,
+                const LogicalDevice& logicalDevice,
+                const PhysicalDevice& physicalDevice,
+                const Surface& surface,
                 VkPresentModeKHR wantedPresentMode);
     void destroy();
 
@@ -54,7 +57,8 @@ public:
     [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
 
     static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, VkPresentModeKHR wantedPresentMode);
+    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes,
+                                                  VkPresentModeKHR wantedPresentMode);
     static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, SDL_Window* window);
 
 private:
@@ -72,6 +76,6 @@ private:
     const LogicalDevice* g_logicalDevice;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_SWAPCHAIN_HPP_INCLUDED

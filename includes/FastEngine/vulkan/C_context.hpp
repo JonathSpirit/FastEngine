@@ -18,21 +18,21 @@
 #define _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include <vector>
-#include "volk.h"
 #include "vk_mem_alloc.h"
+#include "volk.h"
+#include <vector>
 
-#include "FastEngine/vulkan/C_instance.hpp"
-#include "FastEngine/vulkan/C_surface.hpp"
-#include "FastEngine/vulkan/C_physicalDevice.hpp"
-#include "FastEngine/vulkan/C_logicalDevice.hpp"
-#include "FastEngine/vulkan/C_swapChain.hpp"
-#include "FastEngine/vulkan/C_graphicPipeline.hpp"
-#include "FastEngine/vulkan/C_uniformBuffer.hpp"
-#include "FastEngine/vulkan/C_textureImage.hpp"
-#include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
+#include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_garbageCollector.hpp"
+#include "FastEngine/vulkan/C_graphicPipeline.hpp"
+#include "FastEngine/vulkan/C_instance.hpp"
+#include "FastEngine/vulkan/C_logicalDevice.hpp"
+#include "FastEngine/vulkan/C_physicalDevice.hpp"
+#include "FastEngine/vulkan/C_surface.hpp"
+#include "FastEngine/vulkan/C_swapChain.hpp"
+#include "FastEngine/vulkan/C_textureImage.hpp"
+#include "FastEngine/vulkan/C_uniformBuffer.hpp"
 
 #define FGE_VULKAN_TEXTURE_BINDING 0
 #define FGE_VULKAN_TRANSFORM_BINDING 0
@@ -70,9 +70,19 @@ public:
 
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
-    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, int32_t offsetX=0, int32_t offsetY=0) const;
+    void copyBufferToImage(VkBuffer buffer,
+                           VkImage image,
+                           uint32_t width,
+                           uint32_t height,
+                           int32_t offsetX = 0,
+                           int32_t offsetY = 0) const;
     void copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height) const;
-    void copyImageToImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height, int32_t offsetX=0, int32_t offsetY=0) const;
+    void copyImageToImage(VkImage srcImage,
+                          VkImage dstImage,
+                          uint32_t width,
+                          uint32_t height,
+                          int32_t offsetX = 0,
+                          int32_t offsetY = 0) const;
 
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTextureLayout() const;
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformLayout() const;
@@ -109,6 +119,6 @@ private:
     bool g_isCreated;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_CONTEXT_HPP_INCLUDED

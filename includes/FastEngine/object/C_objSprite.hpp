@@ -31,7 +31,9 @@ class FGE_API ObjSprite : public fge::Object
 public:
     ObjSprite();
     explicit ObjSprite(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
-    ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position = fge::Vector2f());
+    ObjSprite(const fge::Texture& texture,
+              const fge::RectInt& rectangle,
+              const fge::Vector2f& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSprite)
 

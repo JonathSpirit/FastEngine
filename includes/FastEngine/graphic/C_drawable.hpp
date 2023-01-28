@@ -24,10 +24,10 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <FastEngine/vulkan/C_graphicPipeline.hpp>
+#include "FastEngine/graphic/C_transform.hpp"
 #include <FastEngine/graphic/C_renderStates.hpp>
 #include <FastEngine/graphic/C_renderTarget.hpp>
-#include "FastEngine/graphic/C_transform.hpp"
+#include <FastEngine/vulkan/C_graphicPipeline.hpp>
 
 namespace fge
 {
@@ -43,7 +43,7 @@ public:
     fge::Transform _transform;
 };
 
-}//end fge
+} // namespace fge
 
 
 #endif // _FGE_GRAPHIC_C_DRAWABLE_HPP_INCLUDED

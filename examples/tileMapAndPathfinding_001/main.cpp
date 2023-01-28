@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/extra/extra_pathFinding.hpp"
-#include "FastEngine/manager/texture_manager.hpp"
-#include "FastEngine/manager/shader_manager.hpp"
-#include "FastEngine/object/C_objText.hpp"
-#include "FastEngine/object/C_objTilemap.hpp"
-#include "FastEngine/graphic/C_circleShape.hpp"
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/extra/extra_pathFinding.hpp"
+#include "FastEngine/graphic/C_circleShape.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
+#include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_objTilemap.hpp"
 #include "SDL.h"
 #include <iostream>
 
@@ -109,9 +109,9 @@ public:
 
         //Set object position in the center of the tile
         this->setPosition({static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) +
-                                  static_cast<float>(this->g_tileSize.x) / 2.f,
-                          static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) +
-                                  static_cast<float>(this->g_tileSize.y) / 2.f});
+                                   static_cast<float>(this->g_tileSize.x) / 2.f,
+                           static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) +
+                                   static_cast<float>(this->g_tileSize.y) / 2.f});
     }
 
     void generatePath()
@@ -136,9 +136,9 @@ public:
             circle.setOrigin({5.f, 5.f});
             circle.setFillColor(fge::Color::Green);
             circle.setPosition({static_cast<float>(pathPoint.x) * static_cast<float>(this->g_tileSize.x) +
-                                       static_cast<float>(this->g_tileSize.x) / 2.f,
-                               static_cast<float>(pathPoint.y) * static_cast<float>(this->g_tileSize.y) +
-                                       static_cast<float>(this->g_tileSize.y) / 2.f});
+                                        static_cast<float>(this->g_tileSize.x) / 2.f,
+                                static_cast<float>(pathPoint.y) * static_cast<float>(this->g_tileSize.y) +
+                                        static_cast<float>(this->g_tileSize.y) / 2.f});
             this->g_pathCircles.push_back(circle);
         }
 
@@ -147,9 +147,9 @@ public:
         this->g_startCircle.setOrigin({5.f, 5.f});
         this->g_startCircle.setFillColor(fge::Color::Transparent);
         this->g_startCircle.setPosition({static_cast<float>(this->g_start.x) * static_cast<float>(this->g_tileSize.x) +
-                                                static_cast<float>(this->g_tileSize.x) / 2.f,
-                                        static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) +
-                                                static_cast<float>(this->g_tileSize.y) / 2.f});
+                                                 static_cast<float>(this->g_tileSize.x) / 2.f,
+                                         static_cast<float>(this->g_start.y) * static_cast<float>(this->g_tileSize.y) +
+                                                 static_cast<float>(this->g_tileSize.y) / 2.f});
         this->g_startCircle.setOutlineColor(fge::Color::Red);
         this->g_startCircle.setOutlineThickness(2.f);
     }
@@ -244,9 +244,8 @@ public:
         }});
 
         //Create event callback for zooming the view
-        event._onMouseWheel.add(
-                new fge::CallbackLambda<const fge::Event&, const SDL_MouseWheelEvent&>{
-                        [&](const fge::Event&, const SDL_MouseWheelEvent& mouseWheelEvent) {
+        event._onMouseWheel.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseWheelEvent&>{
+                [&](const fge::Event&, const SDL_MouseWheelEvent& mouseWheelEvent) {
             auto view = renderWindow.getView();
             if (mouseWheelEvent.y > 0)
             {
@@ -322,8 +321,9 @@ public:
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_Window* window = SDL_CreateWindow("example 001: tileMapAndPathfinding", SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED,
-                                          800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window =
+            SDL_CreateWindow("example 001: tileMapAndPathfinding", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
+                             600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (window == nullptr)
@@ -342,8 +342,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.spv",
-                      "resources/shaders/fragment.spv",
+    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
                       "resources/shaders/fragmentTexture.spv");
 
     fge::RenderWindow renderWindow(vulkanContext);

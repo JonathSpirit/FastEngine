@@ -56,7 +56,8 @@ DescriptorPool::~DescriptorPool()
 
 void DescriptorPool::create(const Context& context,
                             std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
-                            uint32_t maxSetsPerPool, bool isUnique)
+                            uint32_t maxSetsPerPool,
+                            bool isUnique)
 {
     this->destroy();
 
@@ -72,7 +73,7 @@ void DescriptorPool::destroy()
 {
     if (this->g_isCreated)
     {
-        for (auto& pool : this->g_descriptorPools)
+        for (auto& pool: this->g_descriptorPools)
         {
             vkDestroyDescriptorPool(this->g_context->getLogicalDevice().getDevice(), pool._pool, nullptr);
         }
@@ -86,7 +87,8 @@ void DescriptorPool::destroy()
     }
 }
 
-[[nodiscard]] std::pair<VkDescriptorSet, VkDescriptorPool>  DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, uint32_t descriptorSetCount) const
+[[nodiscard]] std::pair<VkDescriptorSet, VkDescriptorPool>
+DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, uint32_t descriptorSetCount) const
 {
     if (setLayouts == nullptr || descriptorSetCount == 0 || !this->g_isCreated)
     {
@@ -101,11 +103,12 @@ void DescriptorPool::destroy()
     allocInfo.descriptorSetCount = descriptorSetCount;
     allocInfo.pSetLayouts = setLayouts;
 
-    for (auto& pool : this->g_descriptorPools)
+    for (auto& pool: this->g_descriptorPools)
     {
         allocInfo.descriptorPool = pool._pool;
 
-        auto result = vkAllocateDescriptorSets(this->g_context->getLogicalDevice().getDevice(), &allocInfo, &descriptorSet);
+        auto result =
+                vkAllocateDescriptorSets(this->g_context->getLogicalDevice().getDevice(), &allocInfo, &descriptorSet);
         if (result != VK_SUCCESS)
         {
             if (result == VK_ERROR_FRAGMENTED_POOL || result == VK_ERROR_OUT_OF_POOL_MEMORY)
@@ -142,9 +145,11 @@ void DescriptorPool::destroy()
 
     return {descriptorSet, descriptorPool};
 }
-void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool, bool dontFreeButDecrementCount) const
+void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet,
+                                        VkDescriptorPool descriptorPool,
+                                        bool dontFreeButDecrementCount) const
 {
-    for (auto& pool : this->g_descriptorPools)
+    for (auto& pool: this->g_descriptorPools)
     {
         if (pool._pool == descriptorPool)
         {
@@ -154,7 +159,8 @@ void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet, VkDescrip
                 return;
             }
 
-            this->g_context->_garbageCollector.push(GarbageCollector::GarbageDescriptorSet(descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
+            this->g_context->_garbageCollector.push(GarbageCollector::GarbageDescriptorSet(
+                    descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
             --pool._count;
             return;
         }
@@ -164,7 +170,7 @@ void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet, VkDescrip
 }
 void DescriptorPool::resetDescriptorPool(VkDescriptorPool descriptorPool) const
 {
-    for (auto& pool : this->g_descriptorPools)
+    for (auto& pool: this->g_descriptorPools)
     {
         if (pool._pool == descriptorPool)
         {
@@ -181,7 +187,7 @@ void DescriptorPool::resetDescriptorPool(VkDescriptorPool descriptorPool) const
 }
 void DescriptorPool::resetDescriptorPool() const
 {
-    for (auto& pool : this->g_descriptorPools)
+    for (auto& pool: this->g_descriptorPools)
     {
         if (vkResetDescriptorPool(this->g_context->getLogicalDevice().getDevice(), pool._pool, 0) != VK_SUCCESS)
         {
@@ -218,7 +224,8 @@ DescriptorPool::Pool DescriptorPool::createPool() const
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
     VkDescriptorPool pool;
-    if (vkCreateDescriptorPool(this->g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr, &pool) != VK_SUCCESS)
+    if (vkCreateDescriptorPool(this->g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr, &pool) !=
+        VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -226,4 +233,4 @@ DescriptorPool::Pool DescriptorPool::createPool() const
     return {pool, 0};
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

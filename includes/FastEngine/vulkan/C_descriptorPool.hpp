@@ -20,8 +20,8 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace fge::vulkan
 {
@@ -47,11 +47,15 @@ public:
 
     void create(const Context& context,
                 std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
-                uint32_t maxSetsPerPool, bool isUnique);
+                uint32_t maxSetsPerPool,
+                bool isUnique);
     void destroy();
 
-    [[nodiscard]] std::pair<VkDescriptorSet, VkDescriptorPool> allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, uint32_t descriptorSetCount) const;
-    void freeDescriptorSets(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool, bool dontFreeButDecrementCount) const;
+    [[nodiscard]] std::pair<VkDescriptorSet, VkDescriptorPool>
+    allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, uint32_t descriptorSetCount) const;
+    void freeDescriptorSets(VkDescriptorSet descriptorSet,
+                            VkDescriptorPool descriptorPool,
+                            bool dontFreeButDecrementCount) const;
     void resetDescriptorPool(VkDescriptorPool descriptorPool) const;
     void resetDescriptorPool() const;
 
@@ -73,6 +77,6 @@ private:
     const Context* g_context;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_DESCRIPTORPOOL_HPP_INCLUDED

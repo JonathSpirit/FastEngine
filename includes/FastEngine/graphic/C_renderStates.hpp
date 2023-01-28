@@ -24,9 +24,9 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include "glm/glm.hpp"
 #include "FastEngine/textureType.hpp"
 #include "FastEngine/vulkan/C_blendMode.hpp"
+#include "glm/glm.hpp"
 
 namespace fge
 {
@@ -38,7 +38,7 @@ class TextureImage;
 class VertexBuffer;
 class IndexBuffer;
 
-}//end vulkan
+} // namespace vulkan
 
 class Transform;
 
@@ -48,21 +48,22 @@ public:
     RenderStates() = default;
     RenderStates(const RenderStates& r) = delete;
     RenderStates(RenderStates&& r) noexcept = default;
-    explicit RenderStates(const fge::Transform* transform, const fge::TextureType* textureImage=nullptr) :
+    explicit RenderStates(const fge::Transform* transform, const fge::TextureType* textureImage = nullptr) :
             _transform(transform),
             _textureImage(textureImage)
     {}
     RenderStates(const fge::Transform* transform,
                  const fge::vulkan::VertexBuffer* vertexBuffer,
-                 const fge::TextureType* textureImage=nullptr,
-                 const fge::vulkan::BlendMode& blendMode={}) :
+                 const fge::TextureType* textureImage = nullptr,
+                 const fge::vulkan::BlendMode& blendMode = {}) :
             _transform(transform),
             _textureImage(textureImage),
             _vertexBuffer(vertexBuffer),
             _blendMode(blendMode)
     {}
 
-    [[nodiscard]] RenderStates copy(const fge::Transform* transform, const fge::TextureType* textureImage=nullptr) const
+    [[nodiscard]] RenderStates copy(const fge::Transform* transform,
+                                    const fge::TextureType* textureImage = nullptr) const
     {
         return RenderStates{transform, nullptr, textureImage, this->_blendMode};
     }
@@ -77,6 +78,6 @@ public:
     fge::vulkan::BlendMode _blendMode{};
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED

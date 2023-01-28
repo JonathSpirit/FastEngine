@@ -15,29 +15,22 @@
  */
 
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
-#include "FastEngine/vulkan/C_context.hpp"
 #include <stdexcept>
 
 namespace fge::vulkan
 {
 
 #ifndef _WIN32
-const std::vector<const char*> ValidationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-};
+const std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
 #else
-const std::vector<const char*> ValidationLayers = {
-        "VK_LAYER_KHRONOS_validation",
-        "VK_LAYER_LUNARG_monitor"
-};
+const std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
 #endif
 
-const std::vector<const char*> DeviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME
-};
+const std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                                   VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME};
 
 Context* GlobalContext{nullptr};
 
@@ -45,7 +38,8 @@ void CreateBuffer(const Context& context,
                   VkDeviceSize size,
                   VkBufferUsageFlags usage,
                   VkMemoryPropertyFlags properties,
-                  VkBuffer& buffer, VmaAllocation& allocation)
+                  VkBuffer& buffer,
+                  VmaAllocation& allocation)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -54,15 +48,13 @@ void CreateBuffer(const Context& context,
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     VmaAllocationCreateInfo allocationCreateInfo{};
-    allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-                                 VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    allocationCreateInfo.flags =
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
     allocationCreateInfo.requiredFlags = properties;
     allocationCreateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
 
-    auto result = vmaCreateBuffer(context.getAllocator(),
-                                  &bufferInfo,
-                                  &allocationCreateInfo,
-                                  &buffer, &allocation, nullptr);
+    auto result =
+            vmaCreateBuffer(context.getAllocator(), &bufferInfo, &allocationCreateInfo, &buffer, &allocation, nullptr);
 
     if (result != VK_SUCCESS)
     {
@@ -71,9 +63,14 @@ void CreateBuffer(const Context& context,
 }
 
 void CreateImage(const Context& context,
-                 uint32_t width, uint32_t height, VkFormat format,
-                 VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                 VkImage& image, VmaAllocation& allocation)
+                 uint32_t width,
+                 uint32_t height,
+                 VkFormat format,
+                 VkImageTiling tiling,
+                 VkImageUsageFlags usage,
+                 VkMemoryPropertyFlags properties,
+                 VkImage& image,
+                 VmaAllocation& allocation)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -95,15 +92,13 @@ void CreateImage(const Context& context,
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     VmaAllocationCreateInfo allocationCreateInfo{};
-    allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-                                 VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    allocationCreateInfo.flags =
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
     allocationCreateInfo.requiredFlags = properties;
     allocationCreateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
 
-    auto result = vmaCreateImage(context.getAllocator(),
-                                  &imageInfo,
-                                  &allocationCreateInfo,
-                                  &image, &allocation, nullptr);
+    auto result =
+            vmaCreateImage(context.getAllocator(), &imageInfo, &allocationCreateInfo, &image, &allocation, nullptr);
 
     if (result != VK_SUCCESS)
     {
@@ -133,4 +128,4 @@ VkImageView CreateImageView(const LogicalDevice& logicalDevice, VkImage image, V
     return imageView;
 }
 
-}//end fge::vulkan
+} // namespace fge::vulkan

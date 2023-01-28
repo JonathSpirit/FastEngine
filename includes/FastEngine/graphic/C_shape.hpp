@@ -78,15 +78,15 @@ private:
 
     void updateOutlineColors();
 
-    Texture g_texture;          //!< Texture of the shape
-    RectInt        g_textureRect;      //!< Rectangle defining the area of the source texture to display
-    Color          g_fillColor;        //!< Fill color
-    Color          g_outlineColor;     //!< Outline color
-    float          g_outlineThickness; //!< Thickness of the shape's outline
-    fge::vulkan::VertexBuffer    g_vertices;         //!< Vertex array containing the fill geometry
-    fge::vulkan::VertexBuffer    g_outlineVertices;  //!< Vertex array containing the outline geometry
-    RectFloat     g_insideBounds;     //!< Bounding rectangle of the inside (fill)
-    RectFloat      g_bounds;           //!< Bounding rectangle of the whole shape (outline + fill)
+    Texture g_texture;                           //!< Texture of the shape
+    RectInt g_textureRect;                       //!< Rectangle defining the area of the source texture to display
+    Color g_fillColor;                           //!< Fill color
+    Color g_outlineColor;                        //!< Outline color
+    float g_outlineThickness;                    //!< Thickness of the shape's outline
+    fge::vulkan::VertexBuffer g_vertices;        //!< Vertex array containing the fill geometry
+    fge::vulkan::VertexBuffer g_outlineVertices; //!< Vertex array containing the outline geometry
+    RectFloat g_insideBounds;                    //!< Bounding rectangle of the inside (fill)
+    RectFloat g_bounds;                          //!< Bounding rectangle of the whole shape (outline + fill)
 };
 
 } // namespace fge

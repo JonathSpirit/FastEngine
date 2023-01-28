@@ -20,8 +20,8 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
 #include "volk.h"
-#include <variant>
 #include <utility>
+#include <variant>
 
 namespace fge::vulkan
 {
@@ -44,7 +44,10 @@ public:
         };
 
         Descriptor() = default;
-        Descriptor(const UniformBuffer& uniformBuffer, uint32_t binding, BufferTypes type=BufferTypes::STATIC, VkDeviceSize range=0);
+        Descriptor(const UniformBuffer& uniformBuffer,
+                   uint32_t binding,
+                   BufferTypes type = BufferTypes::STATIC,
+                   VkDeviceSize range = 0);
         Descriptor(const TextureImage& textureImage, uint32_t binding);
 
         std::variant<VkDescriptorBufferInfo, VkDescriptorImageInfo> _data;
@@ -64,7 +67,7 @@ public:
                 const DescriptorSetLayout* layouts,
                 std::size_t layoutSize,
                 const DescriptorPool& pool,
-                bool freeFromPool=true);
+                bool freeFromPool = true);
     void destroy();
 
     [[nodiscard]] VkDescriptorSet getDescriptorSet() const;
@@ -83,6 +86,6 @@ private:
     const LogicalDevice* g_logicalDevice;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_DESCRIPTORSET_HPP_INCLUDED

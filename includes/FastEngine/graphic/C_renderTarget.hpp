@@ -30,8 +30,8 @@
 #include <FastEngine/graphic/C_renderStates.hpp>
 #include <FastEngine/graphic/C_view.hpp>
 #include <FastEngine/vulkan/C_blendMode.hpp>
-#include <FastEngine/vulkan/C_graphicPipeline.hpp>
 #include <FastEngine/vulkan/C_descriptorSet.hpp>
+#include <FastEngine/vulkan/C_graphicPipeline.hpp>
 #include <FastEngine/vulkan/C_vertex.hpp>
 #include <SDL_video.h>
 #include <glm/glm.hpp>
@@ -117,15 +117,19 @@ protected:
 
     bool _g_forceGraphicPipelineUpdate;
 
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTexture;
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTexture;
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
+            _g_defaultGraphicPipelineTexture;
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
+            _g_defaultGraphicPipelineNoTexture;
 
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineTextureBatches; ///TODO: maybe not have that many maps
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash> _g_defaultGraphicPipelineNoTextureBatches;
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
+            _g_defaultGraphicPipelineTextureBatches; ///TODO: maybe not have that many maps
+    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
+            _g_defaultGraphicPipelineNoTextureBatches;
 
     static const fge::vulkan::TextureImage* gLastTexture;
 };
 
-}//end fge
+} // namespace fge
 
 #endif // _FGE_GRAPHIC_C_RENDERTARGET_HPP_INCLUDED

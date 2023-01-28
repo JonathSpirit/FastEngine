@@ -19,8 +19,8 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "SDL_vulkan.h"
-#include "volk.h"
 #include "vk_mem_alloc.h"
+#include "volk.h"
 #include <cstdint>
 
 namespace fge::vulkan
@@ -60,6 +60,6 @@ private:
     const Context* g_context;
 };
 
-}//end fge::vulkan
+} // namespace fge::vulkan
 
 #endif //_FGE_VULKAN_C_UNIFORMBUFFER_HPP_INCLUDED

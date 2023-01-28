@@ -33,10 +33,7 @@ namespace fge::audio
 
 struct MixerChunkDeleter
 {
-    void operator()(Mix_Chunk* chunk) const
-    {
-        Mix_FreeChunk(chunk);
-    }
+    void operator()(Mix_Chunk* chunk) const { Mix_FreeChunk(chunk); }
 };
 
 /**
