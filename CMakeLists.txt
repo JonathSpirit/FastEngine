@@ -499,10 +499,20 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
 add_custom_target(CompileShaders)
 
 if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
+
+    if(WIN32)
+        set(GLSLC_COMPILED_EXECUTABLE "shaderc/src/shaderc-build/glslc/glslc.exe")
+        set(GLSLC_EXECUTABLE "glslc.exe")
+    else()
+        set(GLSLC_COMPILED_EXECUTABLE "shaderc/src/shaderc-build/glslc/glslc")
+        set(GLSLC_EXECUTABLE "glslc")
+    endif()
+
     ExternalProject_Add(shaderc
             GIT_REPOSITORY https://github.com/google/shaderc.git
             GIT_TAG origin/main
             PREFIX ${CMAKE_CURRENT_BINARY_DIR}/shaderc
+            CMAKE_ARGS -DENABLE_CTEST=OFF -DENABLE_GLSLANG_BINARIES=OFF -DBUILD_TESTING=OFF
             CMAKE_ARGS -DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
             INSTALL_COMMAND ""
             TEST_COMMAND ""
@@ -512,12 +522,15 @@ if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDEES patch DEPENDERS configure
             COMMAND python ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc/utils/git-sync-deps)
-    if(WIN32)
-        set(GLSLC_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc.exe")
-    else()
-        set(GLSLC_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc-build/glslc")
-        file(TOUCH ${GLSLC_EXECUTABLE})
-        file(COPY ${GLSLC_EXECUTABLE} DESTINATION ${GLSLC_EXECUTABLE} FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    ExternalProject_Add_Step(shaderc copyExe
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            DEPENDEES build
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GLSLC_COMPILED_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders/${GLSLC_EXECUTABLE}")
+    if(NOT WIN32)
+        ExternalProject_Add_Step(shaderc setPermission
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                DEPENDEES copyExe
+                COMMAND chmod +x resources/shaders/${GLSLC_EXECUTABLE})
     endif()
 
     add_dependencies(CompileShaders shaderc)
