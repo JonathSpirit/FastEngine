@@ -82,6 +82,8 @@ IncludeCategories:
     Priority:        0
   - Regex:           '^["<]?winsock2\.h[">]?$'
     Priority:        1
+  - Regex:           '^["<]?volk\.h[">]?$'
+    Priority:        1
   - Regex:           '.*'
     Priority:        2
   - Regex:           '^((<|")(gtest|gmock|isl|json)/)'

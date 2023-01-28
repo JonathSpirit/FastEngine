@@ -18,8 +18,8 @@
 #define _FGE_VULKAN_C_GARBAGECOLLECTOR_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "volk.h"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <array>
 #include <deque>
 

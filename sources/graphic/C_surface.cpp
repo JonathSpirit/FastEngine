@@ -15,26 +15,10 @@
  */
 
 #include "FastEngine/graphic/C_surface.hpp"
-#include <SDL_image.h>
+#include "SDL_image.h"
 
 namespace fge
 {
-
-namespace
-{
-
-struct IMGInitializer
-{
-    IMGInitializer()
-    {
-        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
-    }
-    ~IMGInitializer() { IMG_Quit(); }
-};
-
-const IMGInitializer gIMGInitializer{};
-
-} // namespace
 
 Surface::Surface() :
         g_surface(nullptr)

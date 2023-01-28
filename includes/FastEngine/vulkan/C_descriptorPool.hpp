@@ -18,8 +18,8 @@
 #define _FGE_VULKAN_C_DESCRIPTORPOOL_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "SDL_vulkan.h"
 #include "volk.h"
+#include "SDL_vulkan.h"
 #include <utility>
 #include <vector>
 

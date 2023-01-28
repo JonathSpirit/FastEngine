@@ -18,9 +18,9 @@
 #define _FGE_VULKAN_C_INSTANCE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "volk.h"
 #include "C_physicalDevice.hpp"
 #include "SDL_vulkan.h"
-#include "volk.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>

@@ -18,8 +18,8 @@
 #define _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "vk_mem_alloc.h"
 #include "volk.h"
+#include "vk_mem_alloc.h"
 #include <vector>
 
 #include "FastEngine/vulkan/C_descriptorPool.hpp"

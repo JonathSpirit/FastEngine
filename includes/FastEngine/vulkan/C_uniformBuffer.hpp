@@ -18,9 +18,9 @@
 #define _FGE_VULKAN_C_UNIFORMBUFFER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "volk.h"
 #include "SDL_vulkan.h"
 #include "vk_mem_alloc.h"
-#include "volk.h"
 #include <cstdint>
 
 namespace fge::vulkan

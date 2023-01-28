@@ -18,12 +18,12 @@
 #define _FGE_VULKAN_C_GRAPHICPIPELINE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "volk.h"
 #include "C_blendMode.hpp"
 #include "C_shader.hpp"
 #include "C_vertex.hpp"
 #include "C_vertexBuffer.hpp"
 #include "C_viewport.hpp"
-#include "volk.h"
 #include "vulkanGlobal.hpp"
 
 namespace fge::vulkan

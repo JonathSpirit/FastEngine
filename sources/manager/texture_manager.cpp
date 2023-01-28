@@ -16,6 +16,7 @@
 
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "SDL_image.h"
 #include "private/string_hash.hpp"
 
 namespace fge::texture
@@ -34,6 +35,8 @@ void Init()
 {
     if (_dataTextureBad == nullptr)
     {
+        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
+
         fge::Surface tmpSurface;
 
         tmpSurface.create(32, 32, fge::Color::Black);
@@ -70,6 +73,8 @@ void Uninit()
 {
     _dataTexture.clear();
     _dataTextureBad = nullptr;
+
+    IMG_Quit();
 }
 
 std::size_t GetTextureSize()

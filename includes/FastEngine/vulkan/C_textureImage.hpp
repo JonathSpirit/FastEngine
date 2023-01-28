@@ -18,13 +18,13 @@
 #define _FGE_VULKAN_C_TEXTUREIMAGE_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "volk.h"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "SDL_vulkan.h"
 #include "glm/glm.hpp"
 #include "vk_mem_alloc.h"
-#include "volk.h"
 #include <vector>
 
 namespace fge::vulkan

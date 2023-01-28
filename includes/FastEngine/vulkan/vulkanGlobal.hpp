@@ -18,8 +18,8 @@
 #define _FGE_VULKAN_VULKANGLOBAL_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "vk_mem_alloc.h"
 #include "volk.h"
+#include "vk_mem_alloc.h"
 #include <vector>
 
 #define FGE_MAX_FRAMES_IN_FLIGHT 2
