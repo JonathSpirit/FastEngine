@@ -162,10 +162,6 @@ add_library(${FGE_SERVER_LIB_NAME} SHARED)
 #Checking for Vulkan
 find_package(Vulkan MODULE REQUIRED)
 
-set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
-
-set(VOLK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/volk)
-
 if(WIN32)
     add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
 elseif(APPLE)
@@ -191,8 +187,8 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL/include)
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL_image)
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL_mixer/include)
 
-target_include_directories(${FGE_LIB_NAME} PUBLIC ${VOLK_PATH}) #Volk
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC ${VOLK_PATH})
+target_include_directories(${FGE_LIB_NAME} PUBLIC libs/volk) #Volk
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/volk)
 
 add_compile_definitions(VMA_VULKAN_VERSION=1001000)
 add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0)
@@ -228,10 +224,6 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
 target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
 target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
 
-if(NOT WIN32)
-    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
-endif()
-
 target_include_directories(${FGE_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR}) #FreeType
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR})
 
@@ -258,8 +250,8 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "${PROJECT_BINARY_DIR}"
 #Source files
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_INCLUDES})
 
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.c)
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.h)
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE libs/volk/volk.c)
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE libs/volk/volk.h)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/vulkan/vma.cpp
@@ -365,8 +357,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp
 
 target_sources(${FGE_LIB_NAME} PRIVATE ${FGE_INCLUDES})
 
-target_sources(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.c)
-target_sources(${FGE_LIB_NAME} PRIVATE ${VOLK_PATH}/volk.h)
+target_sources(${FGE_LIB_NAME} PRIVATE libs/volk/volk.c)
+target_sources(${FGE_LIB_NAME} PRIVATE libs/volk/volk.h)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/vulkan/vma.cpp
