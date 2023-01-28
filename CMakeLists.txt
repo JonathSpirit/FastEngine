@@ -503,9 +503,11 @@ if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
     if(WIN32)
         set(GLSLC_COMPILED_EXECUTABLE "shaderc/src/shaderc-build/glslc/glslc.exe")
         set(GLSLC_EXECUTABLE "glslc.exe")
+        set(GLSLC_COMMAND "")
     else()
         set(GLSLC_COMPILED_EXECUTABLE "shaderc/src/shaderc-build/glslc/glslc")
         set(GLSLC_EXECUTABLE "glslc")
+        set(GLSLC_COMMAND "./")
     endif()
 
     ExternalProject_Add(shaderc
@@ -536,16 +538,17 @@ if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
     add_dependencies(CompileShaders shaderc)
 else()
     set(GLSLC_EXECUTABLE ${Vulkan_GLSLC_EXECUTABLE})
+    set(GLSLC_COMMAND "")
 endif()
 
 add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
+        COMMAND ${GLSLC_COMMAND}${GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
+        COMMAND ${GLSLC_COMMAND}${GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
+        COMMAND ${GLSLC_COMMAND}${GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
 
 add_dependencies(${FGE_LIB_NAME} CompileShaders)
