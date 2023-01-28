@@ -4,11 +4,6 @@ project(FastEngine)
 include(ExternalProject)
 include(FindFreetype)
 
-#Flags
-if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wno-error=stringop-overflow=) #Fix compile error with minimp3
-endif()
-
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(FGE_ARCH 64)
