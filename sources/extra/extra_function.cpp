@@ -75,7 +75,7 @@ bool SetSystemCursor(SDL_SystemCursor id)
         void operator()(SDL_Cursor* cursor) const { SDL_FreeCursor(cursor); };
     };
 
-    static std::unordered_map<SDL_SystemCursor, std::unique_ptr<SDL_Cursor, CursorDeleter> > cursors;
+    static std::unordered_map<SDL_SystemCursor, std::unique_ptr<SDL_Cursor, CursorDeleter>> cursors;
 
     auto it = cursors.find(id);
     if (it != cursors.end())
