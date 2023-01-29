@@ -41,6 +41,8 @@ inline char UnicodeToChar(uint32_t unicode);
 
 FGE_API bool IsEngineBuiltInDebugMode();
 
+FGE_API bool SetSystemCursor(SDL_SystemCursor id);
+
 FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer,
                                      const std::filesystem::path& path,
                                      const std::string& regexFilter = ".+",

@@ -68,6 +68,36 @@ bool IsEngineBuiltInDebugMode()
 #endif // FGE_DEF_DEBUG
 }
 
+bool SetSystemCursor(SDL_SystemCursor id)
+{
+    struct CursorDeleter
+    {
+        void operator()(SDL_Cursor* cursor) const { SDL_FreeCursor(cursor); };
+    };
+
+    static std::unordered_map<SDL_SystemCursor, std::unique_ptr<SDL_Cursor, CursorDeleter> > cursors;
+
+    auto it = cursors.find(id);
+    if (it != cursors.end())
+    {
+        SDL_SetCursor(it->second.get());
+        return true;
+    }
+
+    SDL_Cursor* newCursor = SDL_CreateSystemCursor(id);
+    if (newCursor == nullptr)
+    {
+        SDL_SetCursor(SDL_GetDefaultCursor());
+    }
+    else
+    {
+        cursors[id].reset(newCursor);
+        SDL_SetCursor(newCursor);
+        return true;
+    }
+    return false;
+}
+
 std::size_t GetFilesInFolder(std::list<std::string>& buffer,
                              const std::filesystem::path& path,
                              const std::string& regexFilter,

@@ -383,8 +383,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
             {
                 this->g_movingWindowFlag = true;
                 this->g_mouseClickLastPosition = this->getPosition() - context._mouseGuiPosition;
-                myObjectData->getLinkedScene()->callCmd("setCursor", this, SDL_SYSTEM_CURSOR_SIZEALL, nullptr);
-                ///TODO: add a function (in extra_function ?) to change cursor, or just use SDL idk
+                fge::SetSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
                 return;
             }
         }
@@ -397,7 +396,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
                 this->g_resizeWindowFlag = true;
                 this->g_mouseClickLastPosition = context._mouseGuiPosition;
                 this->g_mouseClickLastSize = this->g_size;
-                myObjectData->getLinkedScene()->callCmd("setCursor", this, SDL_SYSTEM_CURSOR_SIZEWE, nullptr);
+                fge::SetSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
                 return;
             }
         }
@@ -411,7 +410,7 @@ void ObjWindow::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, co
         {
             this->g_movingWindowFlag = false;
             this->g_resizeWindowFlag = false;
-            this->_myObjectData.lock()->getLinkedScene()->callCmd("setCursor", this, SDL_SYSTEM_CURSOR_ARROW, nullptr);
+            fge::SetSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
         }
     }
 }
