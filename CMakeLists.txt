@@ -271,7 +271,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/vulkan/C_garbageCollector.cpp
         sources/vulkan/C_context.cpp
         sources/vulkan/C_graphicPipeline.cpp
-        sources/vulkan/C_blendMode.cpp
         sources/vulkan/C_viewport.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
@@ -378,7 +377,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/vulkan/C_garbageCollector.cpp
         sources/vulkan/C_context.cpp
         sources/vulkan/C_graphicPipeline.cpp
-        sources/vulkan/C_blendMode.cpp
         sources/vulkan/C_viewport.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE

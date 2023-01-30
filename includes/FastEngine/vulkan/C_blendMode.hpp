@@ -27,9 +27,10 @@ namespace fge::vulkan
 
 struct BlendMode
 {
-    BlendMode() noexcept = default;
-    BlendMode(VkBlendFactor srcBlendFactor, VkBlendFactor dstBlendFactor, VkBlendOp blendOp = VK_BLEND_OP_ADD) noexcept
-            :
+    constexpr BlendMode() noexcept = default;
+    constexpr BlendMode(VkBlendFactor srcBlendFactor,
+                        VkBlendFactor dstBlendFactor,
+                        VkBlendOp blendOp = VK_BLEND_OP_ADD) noexcept :
             _srcColorBlendFactor(srcBlendFactor),
             _dstColorBlendFactor(dstBlendFactor),
             _colorBlendOp(blendOp),
@@ -37,12 +38,12 @@ struct BlendMode
             _dstAlphaBlendFactor(dstBlendFactor),
             _alphaBlendOp(blendOp)
     {}
-    BlendMode(VkBlendFactor srcColorBlendFactor,
-              VkBlendFactor dstColorBlendFactor,
-              VkBlendOp colorBlendOp,
-              VkBlendFactor srcAlphaBlendFactor,
-              VkBlendFactor dstAlphaBlendFactor,
-              VkBlendOp alphaBlendOp) noexcept :
+    constexpr BlendMode(VkBlendFactor srcColorBlendFactor,
+                        VkBlendFactor dstColorBlendFactor,
+                        VkBlendOp colorBlendOp,
+                        VkBlendFactor srcAlphaBlendFactor,
+                        VkBlendFactor dstAlphaBlendFactor,
+                        VkBlendOp alphaBlendOp) noexcept :
             _srcColorBlendFactor(srcColorBlendFactor),
             _dstColorBlendFactor(dstColorBlendFactor),
             _colorBlendOp(colorBlendOp),
@@ -68,12 +69,26 @@ struct BlendMode
     VkBlendOp _alphaBlendOp = VK_BLEND_OP_ADD;
 };
 
-FGE_API extern const BlendMode BlendAlpha;    //!< Blend source and dest according to dest alpha
-FGE_API extern const BlendMode BlendAdd;      //!< Add source to dest
-FGE_API extern const BlendMode BlendMultiply; //!< Multiply source and dest
-FGE_API extern const BlendMode BlendMin;      //!< Take minimum between source and dest
-FGE_API extern const BlendMode BlendMax;      //!< Take maximum between source and dest
-FGE_API extern const BlendMode BlendNone;     //!< Overwrite dest with source
+constexpr BlendMode BlendAlpha(VK_BLEND_FACTOR_SRC_ALPHA,
+                               VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+                               VK_BLEND_OP_ADD,
+                               VK_BLEND_FACTOR_ONE,
+                               VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+                               VK_BLEND_OP_ADD); //!< Blend source and dest according to dest alpha
+constexpr BlendMode BlendAdd(VK_BLEND_FACTOR_SRC_ALPHA,
+                             VK_BLEND_FACTOR_ONE,
+                             VK_BLEND_OP_ADD,
+                             VK_BLEND_FACTOR_ONE,
+                             VK_BLEND_FACTOR_ONE,
+                             VK_BLEND_OP_ADD); //!< Add source to dest
+constexpr BlendMode
+        BlendMultiply(VK_BLEND_FACTOR_DST_COLOR, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD); //!< Multiply source and dest
+constexpr BlendMode
+        BlendMin(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_MIN); //!< Take minimum between source and dest
+constexpr BlendMode
+        BlendMax(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_MAX); //!< Take maximum between source and dest
+constexpr BlendMode
+        BlendNone(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD); //!< Overwrite dest with source
 
 struct BlendModeHash
 {
