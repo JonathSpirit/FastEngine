@@ -174,8 +174,8 @@ bool TextureImage::create(const Context& context, const glm::vec<2, int>& size)
 
     this->createTextureSampler(context.getPhysicalDevice());
 
-    this->g_textureDescriptorSet.create(context.getLogicalDevice(), &context.getTextureLayout(), 1,
-                                        context.getTextureDescriptorPool(), false);
+    this->g_textureDescriptorSet =
+            context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
 
     const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
@@ -231,8 +231,8 @@ bool TextureImage::create(const Context& context, SDL_Surface* surface)
 
     this->createTextureSampler(context.getPhysicalDevice());
 
-    this->g_textureDescriptorSet.create(context.getLogicalDevice(), &context.getTextureLayout(), 1,
-                                        context.getTextureDescriptorPool(), false);
+    this->g_textureDescriptorSet =
+            context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
 
     const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);

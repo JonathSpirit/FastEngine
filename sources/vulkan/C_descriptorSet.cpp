@@ -15,12 +15,8 @@
  */
 
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
-#include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
-#include "FastEngine/vulkan/C_logicalDevice.hpp"
-#include "FastEngine/vulkan/C_textureImage.hpp"
-#include "FastEngine/vulkan/C_uniformBuffer.hpp"
-#include <vector>
 
 namespace fge::vulkan
 {
@@ -48,124 +44,92 @@ DescriptorSet::Descriptor::Descriptor(const TextureImage& textureImage, uint32_t
 //DescriptorSet
 
 DescriptorSet::DescriptorSet() :
-        g_descriptorSet(VK_NULL_HANDLE, VK_NULL_HANDLE),
-
-        g_descriptorPool(VK_NULL_HANDLE),
-        g_freeFromPool(true),
-
-        g_logicalDevice(nullptr)
+        g_descriptorSet(VK_NULL_HANDLE),
+        g_pool(nullptr),
+        g_poolKey(VK_NULL_HANDLE)
+{}
+DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet,
+                             const DescriptorPool* pool,
+                             VkDescriptorPool descriptorPool) :
+        g_descriptorSet(descriptorSet),
+        g_pool(pool),
+        g_poolKey(descriptorPool)
 {}
 DescriptorSet::DescriptorSet([[maybe_unused]] const DescriptorSet& r) :
         DescriptorSet() ///TODO: better copy
 {}
 DescriptorSet::DescriptorSet(DescriptorSet&& r) noexcept :
-        g_descriptorSet(std::move(r.g_descriptorSet)),
-
-        g_descriptorPool(r.g_descriptorPool),
-        g_freeFromPool(r.g_freeFromPool),
-
-        g_logicalDevice(r.g_logicalDevice)
+        g_descriptorSet(r.g_descriptorSet),
+        g_pool(r.g_pool),
+        g_poolKey(r.g_poolKey)
 {
-    r.g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
-
-    r.g_descriptorPool = nullptr;
-    r.g_freeFromPool = true;
-
-    r.g_logicalDevice = nullptr;
+    r.g_descriptorSet = VK_NULL_HANDLE;
+    r.g_pool = nullptr;
+    r.g_poolKey = VK_NULL_HANDLE;
 }
 DescriptorSet::~DescriptorSet()
 {
     this->destroy();
 }
 
+void DescriptorSet::destroy()
+{
+    if (this->g_descriptorSet != VK_NULL_HANDLE)
+    {
+        this->g_pool->freeDescriptorSet(this->g_descriptorSet, this->g_poolKey);
+
+        this->g_descriptorSet = VK_NULL_HANDLE;
+        this->g_pool = nullptr;
+        this->g_poolKey = VK_NULL_HANDLE;
+    }
+}
+
 DescriptorSet& DescriptorSet::operator=([[maybe_unused]] const DescriptorSet& r)
 { ///TODO: better copy
-    this->g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+    this->g_descriptorSet = VK_NULL_HANDLE;
+    this->g_pool = nullptr;
+    this->g_poolKey = VK_NULL_HANDLE;
 
-    this->g_descriptorPool = nullptr;
-    this->g_freeFromPool = true;
-
-    this->g_logicalDevice = nullptr;
     return *this;
 }
 DescriptorSet& DescriptorSet::operator=(DescriptorSet&& r) noexcept
 {
-    this->destroy();
+    if (this != &r)
+    {
+        this->destroy();
 
-    this->g_descriptorSet = std::move(r.g_descriptorSet);
+        this->g_descriptorSet = r.g_descriptorSet;
+        this->g_pool = r.g_pool;
+        this->g_poolKey = r.g_poolKey;
 
-    this->g_descriptorPool = r.g_descriptorPool;
-    this->g_freeFromPool = r.g_freeFromPool;
-
-    this->g_logicalDevice = r.g_logicalDevice;
-
-    r.g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
-
-    r.g_descriptorPool = nullptr;
-    r.g_freeFromPool = true;
-
-    r.g_logicalDevice = nullptr;
+        r.g_descriptorSet = VK_NULL_HANDLE;
+        r.g_pool = nullptr;
+        r.g_poolKey = VK_NULL_HANDLE;
+    }
 
     return *this;
 }
 
-void DescriptorSet::create(const LogicalDevice& logicalDevice,
-                           const DescriptorSetLayout* layouts,
-                           std::size_t layoutSize,
-                           const DescriptorPool& pool,
-                           bool freeFromPool)
+[[nodiscard]] VkDescriptorSet DescriptorSet::get() const
 {
-    if (layoutSize == 0)
+    return this->g_descriptorSet;
+}
+[[nodiscard]] const DescriptorPool* DescriptorSet::getPool() const
+{
+    return this->g_pool;
+}
+[[nodiscard]] const Context* DescriptorSet::getContext() const
+{
+    if (this->g_pool != nullptr)
     {
-        return;
+        return this->g_pool->getContext();
     }
-
-    this->g_descriptorPool = &pool;
-    this->g_freeFromPool = freeFromPool;
-    this->g_logicalDevice = &logicalDevice;
-
-    std::vector<VkDescriptorSetLayout> vulkanLayouts(layoutSize);
-    for (std::size_t i = 0; i < layoutSize; ++i)
-    {
-        vulkanLayouts[i] = layouts[i].getLayout();
-    }
-
-    this->g_descriptorSet = pool.allocateDescriptorSets(vulkanLayouts.data(), layoutSize);
-}
-void DescriptorSet::destroy()
-{
-    if (this->g_descriptorSet.first != VK_NULL_HANDLE)
-    {
-        this->g_descriptorPool->freeDescriptorSets(this->g_descriptorSet.first, this->g_descriptorSet.second,
-                                                   !this->g_freeFromPool);
-
-        this->g_descriptorSet = {VK_NULL_HANDLE, VK_NULL_HANDLE};
-        this->g_descriptorPool = nullptr;
-        this->g_freeFromPool = true;
-        this->g_logicalDevice = nullptr;
-    }
-}
-
-VkDescriptorSet DescriptorSet::getDescriptorSet() const
-{
-    return this->g_descriptorSet.first;
-}
-const DescriptorPool* DescriptorSet::getDescriptorPool() const
-{
-    return this->g_descriptorPool;
-}
-bool DescriptorSet::isFreeFromPool() const
-{
-    return this->g_freeFromPool;
-}
-const LogicalDevice* DescriptorSet::getLogicalDevice() const
-{
-    return this->g_logicalDevice;
+    return nullptr;
 }
 
 void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size_t descriptorSize)
 {
-    if (descriptors == nullptr || descriptorSize == 0)
+    if (descriptors == nullptr || descriptorSize == 0 || this->g_descriptorSet == VK_NULL_HANDLE)
     {
         return;
     }
@@ -175,7 +139,7 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
     for (std::size_t i = 0; i < descriptorSize; ++i)
     {
         descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[i].dstSet = this->g_descriptorSet.first;
+        descriptorWrites[i].dstSet = this->g_descriptorSet;
         descriptorWrites[i].dstBinding = descriptors[i]._binding;
         descriptorWrites[i].dstArrayElement = 0;
 
@@ -202,8 +166,8 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
         }
     }
 
-    vkUpdateDescriptorSets(this->g_logicalDevice->getDevice(), descriptorWrites.size(), descriptorWrites.data(), 0,
-                           nullptr);
+    vkUpdateDescriptorSets(this->g_pool->getContext()->getLogicalDevice().getDevice(), descriptorWrites.size(),
+                           descriptorWrites.data(), 0, nullptr);
 }
 
 } // namespace fge::vulkan

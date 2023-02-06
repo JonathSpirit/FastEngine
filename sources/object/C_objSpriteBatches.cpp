@@ -24,9 +24,10 @@ ObjSpriteBatches::ObjSpriteBatches() :
         g_spriteCount(0),
         g_needBuffersUpdate(true)
 {
-    this->g_descriptorSet.create(fge::vulkan::GlobalContext->getLogicalDevice(),
-                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(), 1,
-                                 fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
+    this->g_descriptorSet =
+            fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool()
+                    .allocateDescriptorSet(fge::vulkan::GlobalContext->getTransformBatchesLayout().getLayout())
+                    .value();
 }
 ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         fge::Object(r),
@@ -37,9 +38,10 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         g_spriteCount(r.g_spriteCount),
         g_needBuffersUpdate(true)
 {
-    this->g_descriptorSet.create(fge::vulkan::GlobalContext->getLogicalDevice(),
-                                 &fge::vulkan::GlobalContext->getTransformBatchesLayout(), 1,
-                                 fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool(), true);
+    this->g_descriptorSet =
+            fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool()
+                    .allocateDescriptorSet(fge::vulkan::GlobalContext->getTransformBatchesLayout().getLayout())
+                    .value();
 }
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()

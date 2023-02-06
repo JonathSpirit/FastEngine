@@ -58,10 +58,11 @@ void Transform::destroy()
 
 void Transform::updateUniformBuffer(const fge::vulkan::Context& context) const
 {
-    if (this->g_descriptorSet.getDescriptorSet() == VK_NULL_HANDLE)
+    if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
-        this->g_descriptorSet.create(context.getLogicalDevice(), &context.getTransformLayout(), 1,
-                                     context.getTransformDescriptorPool(), true);
+        this->g_descriptorSet = context.getTransformDescriptorPool()
+                                        .allocateDescriptorSet(context.getTransformLayout().getLayout())
+                                        .value();
     }
 
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE)

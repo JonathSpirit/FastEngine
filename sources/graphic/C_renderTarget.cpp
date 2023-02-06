@@ -220,13 +220,13 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
         if (RenderTarget::gLastTexture != states._textureImage)
         {
             RenderTarget::gLastTexture = states._textureImage;
-            VkDescriptorSet descriptorSetTexture[] = {states._textureImage->getDescriptorSet().getDescriptorSet()};
+            VkDescriptorSet descriptorSetTexture[] = {states._textureImage->getDescriptorSet().get()};
             graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
         }
     }
 #endif //FGE_DEF_SERVER
 
-    VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().getDescriptorSet()};
+    VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().get()};
     graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);
 
     graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer, states._indexBuffer);
@@ -309,12 +309,12 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
         if (RenderTarget::gLastTexture != textureImage)
         {
             RenderTarget::gLastTexture = textureImage;
-            VkDescriptorSet descriptorSetTexture[] = {textureImage->getDescriptorSet().getDescriptorSet()};
+            VkDescriptorSet descriptorSetTexture[] = {textureImage->getDescriptorSet().get()};
             graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
         }
     }
 
-    VkDescriptorSet descriptorSetTransform[] = {transformDescriptorSet.getDescriptorSet()};
+    VkDescriptorSet descriptorSetTransform[] = {transformDescriptorSet.get()};
 
     graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer, vertexBuffer, nullptr);
 

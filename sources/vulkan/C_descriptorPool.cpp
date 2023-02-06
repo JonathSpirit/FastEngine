@@ -16,19 +16,17 @@
 
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include <stdexcept>
-#include <vector>
 
 namespace fge::vulkan
 {
 
 DescriptorPool::DescriptorPool() :
-        g_descriptorPoolSizes(),
-
         g_maxSetsPerPool(0),
-        g_descriptorPools(),
         g_isUnique(false),
         g_isCreated(false),
+        g_individuallyFree(true),
 
         g_context(nullptr)
 {}
@@ -39,13 +37,14 @@ DescriptorPool::DescriptorPool(DescriptorPool&& r) noexcept :
         g_descriptorPools(std::move(r.g_descriptorPools)),
         g_isUnique(r.g_isUnique),
         g_isCreated(r.g_isCreated),
+        g_individuallyFree(r.g_individuallyFree),
 
         g_context(r.g_context)
 {
     r.g_maxSetsPerPool = 0;
-
     r.g_isUnique = false;
     r.g_isCreated = false;
+    r.g_individuallyFree = true;
 
     r.g_context = nullptr;
 }
@@ -57,42 +56,48 @@ DescriptorPool::~DescriptorPool()
 void DescriptorPool::create(const Context& context,
                             std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
                             uint32_t maxSetsPerPool,
-                            bool isUnique)
+                            bool isUnique,
+                            bool individuallyFree)
 {
     this->destroy();
 
-    this->g_context = &context;
-    this->g_isUnique = isUnique;
     this->g_maxSetsPerPool = maxSetsPerPool;
-    this->g_descriptorPoolSizes = std::move(descriptorPoolSizes);
+    this->g_isUnique = isUnique;
     this->g_isCreated = true;
+    this->g_individuallyFree = individuallyFree;
+    ///TODO: if false, need to reset pools when they reach count=0
 
+    this->g_context = &context;
+
+    this->g_descriptorPoolSizes = std::move(descriptorPoolSizes);
     this->g_descriptorPools.push_back(this->createPool());
 }
 void DescriptorPool::destroy()
 {
     if (this->g_isCreated)
     {
+        this->g_descriptorPoolSizes.clear();
+
         for (auto& pool: this->g_descriptorPools)
         {
             vkDestroyDescriptorPool(this->g_context->getLogicalDevice().getDevice(), pool._pool, nullptr);
         }
         this->g_descriptorPools.clear();
 
-        this->g_context = nullptr;
-        this->g_isCreated = false;
-        this->g_isUnique = false;
         this->g_maxSetsPerPool = 0;
-        this->g_descriptorPoolSizes.clear();
+        this->g_isUnique = false;
+        this->g_isCreated = false;
+        this->g_individuallyFree = true;
+
+        this->g_context = nullptr;
     }
 }
 
-[[nodiscard]] std::pair<VkDescriptorSet, VkDescriptorPool>
-DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, uint32_t descriptorSetCount) const
+[[nodiscard]] std::optional<DescriptorSet> DescriptorPool::allocateDescriptorSet(VkDescriptorSetLayout layout) const
 {
-    if (setLayouts == nullptr || descriptorSetCount == 0 || !this->g_isCreated)
+    if (layout == VK_NULL_HANDLE || !this->g_isCreated)
     {
-        throw std::runtime_error("failed to allocate descriptor sets!");
+        return std::nullopt;
     }
 
     VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
@@ -100,8 +105,8 @@ DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, 
 
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorSetCount = descriptorSetCount;
-    allocInfo.pSetLayouts = setLayouts;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts = &layout;
 
     for (auto& pool: this->g_descriptorPools)
     {
@@ -115,17 +120,12 @@ DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, 
             {
                 continue;
             }
-            else
-            {
-                throw std::runtime_error("failed to allocate descriptor sets!");
-            }
+            return std::nullopt;
         }
-        else
-        {
-            ++pool._count;
-            descriptorPool = pool._pool;
-            break;
-        }
+
+        ++pool._count;
+        descriptorPool = pool._pool;
+        break;
     }
 
     //Try creating a new pool
@@ -140,20 +140,23 @@ DescriptorPool::allocateDescriptorSets(const VkDescriptorSetLayout* setLayouts, 
     //Last check for a valid descriptor set
     if (descriptorSet == VK_NULL_HANDLE)
     {
-        throw std::runtime_error("failed to allocate descriptor sets!");
+        return std::nullopt;
     }
 
-    return {descriptorSet, descriptorPool};
+    return DescriptorSet{descriptorSet, this, descriptorPool};
 }
-void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet,
-                                        VkDescriptorPool descriptorPool,
-                                        bool dontFreeButDecrementCount) const
+void DescriptorPool::freeDescriptorSet(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool) const
 {
+    if (descriptorSet == VK_NULL_HANDLE || descriptorPool == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
     for (auto& pool: this->g_descriptorPools)
     {
         if (pool._pool == descriptorPool)
         {
-            if (dontFreeButDecrementCount)
+            if (!this->g_individuallyFree)
             {
                 --pool._count;
                 return;
@@ -166,26 +169,11 @@ void DescriptorPool::freeDescriptorSets(VkDescriptorSet descriptorSet,
         }
     }
 
-    throw std::runtime_error("failed to free descriptor sets!");
+    //Should never happen, but in order to avoid memory leaks, we free the descriptor set anyway
+    this->g_context->_garbageCollector.push(GarbageCollector::GarbageDescriptorSet(
+            descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
 }
-void DescriptorPool::resetDescriptorPool(VkDescriptorPool descriptorPool) const
-{
-    for (auto& pool: this->g_descriptorPools)
-    {
-        if (pool._pool == descriptorPool)
-        {
-            if (vkResetDescriptorPool(this->g_context->getLogicalDevice().getDevice(), pool._pool, 0) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to reset descriptor pool!");
-            }
-            pool._count = 0;
-            return;
-        }
-    }
-
-    throw std::runtime_error("failed to reset descriptor pool!");
-}
-void DescriptorPool::resetDescriptorPool() const
+void DescriptorPool::resetPools() const
 {
     for (auto& pool: this->g_descriptorPools)
     {

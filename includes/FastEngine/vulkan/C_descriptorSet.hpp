@@ -20,21 +20,35 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
 #include "SDL_vulkan.h"
-#include <utility>
 #include <variant>
 
 namespace fge::vulkan
 {
 
-class LogicalDevice;
+class Context;
 class DescriptorSetLayout;
 class DescriptorPool;
 class UniformBuffer;
 class TextureImage;
 
+/**
+ * \class DescriptorSet
+ * \ingroup vulkan
+ * \brief This class abstract the vulkan descriptor set for easier use
+ *
+ * In order to instanciate a descriptor set, you need to allocate it from a DescriptorPool.
+ */
 class FGE_API DescriptorSet
 {
 public:
+    /**
+     * \struct Descriptor
+     * \ingroup vulkan
+     * \brief This struct is used to describe a descriptor
+     *
+     * Every descriptor must have a binding. The binding is used to link the descriptor
+     * to the descriptor set layout.
+     */
     struct Descriptor
     {
         enum class BufferTypes
@@ -56,6 +70,7 @@ public:
     };
 
     DescriptorSet();
+    DescriptorSet(VkDescriptorSet descriptorSet, const DescriptorPool* pool, VkDescriptorPool descriptorPool);
     DescriptorSet(const DescriptorSet& r);
     DescriptorSet(DescriptorSet&& r) noexcept;
     ~DescriptorSet();
@@ -63,27 +78,26 @@ public:
     DescriptorSet& operator=(const DescriptorSet& r);
     DescriptorSet& operator=(DescriptorSet&& r) noexcept;
 
-    void create(const LogicalDevice& logicalDevice,
-                const DescriptorSetLayout* layouts,
-                std::size_t layoutSize,
-                const DescriptorPool& pool,
-                bool freeFromPool = true);
     void destroy();
 
-    [[nodiscard]] VkDescriptorSet getDescriptorSet() const;
-    [[nodiscard]] const DescriptorPool* getDescriptorPool() const;
-    [[nodiscard]] bool isFreeFromPool() const;
-    [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
+    [[nodiscard]] VkDescriptorSet get() const;
+    [[nodiscard]] const DescriptorPool* getPool() const;
+    [[nodiscard]] const Context* getContext() const;
 
+    /**
+     * \brief Update the descriptor set
+     *
+     * This function update the descriptor set with the given descriptors.
+     *
+     * @param descriptors An array of descriptors
+     * @param descriptorSize The size of the array
+     */
     void updateDescriptorSet(const Descriptor* descriptors, std::size_t descriptorSize);
 
 private:
-    std::pair<VkDescriptorSet, VkDescriptorPool> g_descriptorSet;
-
-    const DescriptorPool* g_descriptorPool;
-    bool g_freeFromPool;
-
-    const LogicalDevice* g_logicalDevice;
+    VkDescriptorSet g_descriptorSet;
+    const DescriptorPool* g_pool;
+    VkDescriptorPool g_poolKey;
 };
 
 } // namespace fge::vulkan
