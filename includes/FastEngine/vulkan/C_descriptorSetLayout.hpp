@@ -28,19 +28,32 @@ namespace fge::vulkan
 
 class Context;
 
-constexpr VkDescriptorSetLayoutBinding CreateSimpleLayoutBinding(uint32_t binding,
-                                                                 VkDescriptorType type,
-                                                                 VkShaderStageFlags stageFlags)
+/**
+ * \ingroup vulkan
+ * \brief Function to create a simple VkDescriptorSetLayoutBinding.
+ *
+ * \param binding The binding number that this descriptor uses in the shader
+ * \param type The type of descriptor
+ * \param stageFlags Which shader stage(s) will use this descriptor
+ */
+constexpr VkDescriptorSetLayoutBinding
+CreateSimpleLayoutBinding(uint32_t binding, VkDescriptorType type, VkShaderStageFlags stageFlags)
 {
-    return {
-        .binding = binding,
-        .descriptorType = type,
-        .descriptorCount = 1,
-        .stageFlags = stageFlags,
-        .pImmutableSamplers = nullptr
-    };
+    return {.binding = binding,
+            .descriptorType = type,
+            .descriptorCount = 1,
+            .stageFlags = stageFlags,
+            .pImmutableSamplers = nullptr};
 }
 
+/**
+ * \class DescriptorSetLayout
+ * \ingroup vulkan
+ * \brief This class abstract the vulkan descriptor set layout for easier use
+ *
+ * Essentially, this class abstract creation and destruction of the descriptor set layout.
+ * It also enable copy and move semantics.
+ */
 class FGE_API DescriptorSetLayout
 {
 public:

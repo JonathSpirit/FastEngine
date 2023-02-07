@@ -98,7 +98,8 @@ void DescriptorSetLayout::destroy()
 {
     if (this->g_descriptorSetLayout != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), this->g_descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), this->g_descriptorSetLayout,
+                                     nullptr);
         this->g_descriptorSetLayout = VK_NULL_HANDLE;
         this->g_layouts.clear();
         this->g_context = nullptr;
@@ -129,8 +130,8 @@ void DescriptorSetLayout::createDescriptorSetLayout()
     layoutInfo.bindingCount = static_cast<uint32_t>(this->g_layouts.size());
     layoutInfo.pBindings = this->g_layouts.data();
 
-    if (vkCreateDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), &layoutInfo, nullptr, &this->g_descriptorSetLayout) !=
-        VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), &layoutInfo, nullptr,
+                                    &this->g_descriptorSetLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
