@@ -136,7 +136,7 @@ FGE_API bool Check(std::string_view name);
  * \brief Load a texture from an surface
  *
  * \param name The name of the texture to load
- * \param image The surface to load
+ * \param surface The surface to load
  * \return \b true if the texture was loaded, \b false otherwise
  */
 FGE_API bool LoadFromSurface(std::string_view name, const fge::Surface& surface);
