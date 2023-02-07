@@ -162,7 +162,7 @@ void DescriptorPool::freeDescriptorSet(VkDescriptorSet descriptorSet, VkDescript
                 return;
             }
 
-            this->g_context->_garbageCollector.push(GarbageCollector::GarbageDescriptorSet(
+            this->g_context->_garbageCollector.push(GarbageDescriptorSet(
                     descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
             --pool._count;
             return;
@@ -170,8 +170,8 @@ void DescriptorPool::freeDescriptorSet(VkDescriptorSet descriptorSet, VkDescript
     }
 
     //Should never happen, but in order to avoid memory leaks, we free the descriptor set anyway
-    this->g_context->_garbageCollector.push(GarbageCollector::GarbageDescriptorSet(
-            descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
+    this->g_context->_garbageCollector.push(
+            GarbageDescriptorSet(descriptorSet, descriptorPool, this->g_context->getLogicalDevice().getDevice()));
 }
 void DescriptorPool::resetPools() const
 {

@@ -360,14 +360,14 @@ void VertexBuffer::cleanBuffer() const
 #ifndef FGE_DEF_SERVER
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
-                this->g_buffer, this->g_bufferAllocation, this->g_context->getAllocator()));
+        this->g_context->_garbageCollector.push(
+                fge::vulkan::GarbageBuffer(this->g_buffer, this->g_bufferAllocation, this->g_context->getAllocator()));
         this->g_buffer = VK_NULL_HANDLE;
         this->g_bufferAllocation = VK_NULL_HANDLE;
 
         if (this->g_type == BufferTypes::DEVICE)
         {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageBuffer(
                     this->g_stagingBuffer, this->g_stagingBufferAllocation, this->g_context->getAllocator()));
 
             this->g_stagingBuffer = VK_NULL_HANDLE;
@@ -686,14 +686,14 @@ void IndexBuffer::cleanBuffer() const
 {
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
-                this->g_buffer, this->g_bufferAllocation, this->g_context->getAllocator()));
+        this->g_context->_garbageCollector.push(
+                fge::vulkan::GarbageBuffer(this->g_buffer, this->g_bufferAllocation, this->g_context->getAllocator()));
         this->g_buffer = VK_NULL_HANDLE;
         this->g_bufferAllocation = VK_NULL_HANDLE;
 
         if (this->g_type == BufferTypes::DEVICE)
         {
-            this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+            this->g_context->_garbageCollector.push(fge::vulkan::GarbageBuffer(
                     this->g_stagingBuffer, this->g_stagingBufferAllocation, this->g_context->getAllocator()));
 
             this->g_stagingBuffer = VK_NULL_HANDLE;

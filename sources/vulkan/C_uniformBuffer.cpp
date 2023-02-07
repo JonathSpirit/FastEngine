@@ -69,7 +69,7 @@ void UniformBuffer::destroy()
     if (this->g_uniformBuffer != VK_NULL_HANDLE)
     {
         vmaUnmapMemory(this->g_context->getAllocator(), this->g_uniformBufferAllocation);
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageBuffer(
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageBuffer(
                 this->g_uniformBuffer, this->g_uniformBufferAllocation, this->g_context->getAllocator()));
 
         this->g_uniformBuffer = VK_NULL_HANDLE;

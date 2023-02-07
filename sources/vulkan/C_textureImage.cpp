@@ -244,12 +244,11 @@ void TextureImage::destroy()
     {
         this->g_textureDescriptorSet.destroy();
 
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageSampler(
-                this->g_textureSampler, this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(
+                fge::vulkan::GarbageSampler(this->g_textureSampler, this->g_context->getLogicalDevice().getDevice()));
 
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageImage(
-                this->g_textureImage, this->g_textureImageAllocation, this->g_textureImageView,
-                this->g_context->getAllocator(), this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(fge::vulkan::GarbageImage(
+                this->g_textureImage, this->g_textureImageAllocation, this->g_textureImageView, this->g_context));
 
         this->g_textureImageView = VK_NULL_HANDLE;
 
@@ -460,8 +459,8 @@ void TextureImage::setNormalizedCoordinates(bool normalized)
     if (this->g_normalizedCoordinates != normalized)
     {
         this->g_normalizedCoordinates = normalized;
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageSampler(
-                this->g_textureSampler, this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(
+                fge::vulkan::GarbageSampler(this->g_textureSampler, this->g_context->getLogicalDevice().getDevice()));
         this->createTextureSampler(this->g_context->getPhysicalDevice());
 
         const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
@@ -478,8 +477,8 @@ void TextureImage::setFilter(VkFilter filter)
     if (this->g_filter != filter)
     {
         this->g_filter = filter;
-        this->g_context->_garbageCollector.push(fge::vulkan::GarbageCollector::GarbageSampler(
-                this->g_textureSampler, this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(
+                fge::vulkan::GarbageSampler(this->g_textureSampler, this->g_context->getLogicalDevice().getDevice()));
         this->createTextureSampler(this->g_context->getPhysicalDevice());
 
         const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);

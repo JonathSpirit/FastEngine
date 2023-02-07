@@ -112,12 +112,9 @@ void RenderTexture::destroy()
 
         VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 
-        this->_g_context->_garbageCollector.push(
-                fge::vulkan::GarbageCollector::GarbageCommandPool(this->g_commandPool, logicalDevice));
-        this->_g_context->_garbageCollector.push(
-                fge::vulkan::GarbageCollector::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
-        this->_g_context->_garbageCollector.push(
-                fge::vulkan::GarbageCollector::GarbageRenderPass(this->g_renderPass, logicalDevice));
+        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageCommandPool(this->g_commandPool, logicalDevice));
+        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
+        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageRenderPass(this->g_renderPass, logicalDevice));
 
         this->g_textureImage.destroy();
 

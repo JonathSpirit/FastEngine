@@ -15,9 +15,55 @@
  */
 
 #include "FastEngine/vulkan/C_garbageCollector.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 
 namespace fge::vulkan
 {
+
+//Garbage
+
+Garbage::~Garbage()
+{
+    switch (this->g_data._generic._type)
+    {
+    case GarbageType::GARBAGE_DESCRIPTOR_SET:
+        vkFreeDescriptorSets(this->g_data._descriptorSet._logicalDevice, this->g_data._descriptorSet._descriptorPool, 1,
+                             &this->g_data._descriptorSet._descriptorSet);
+        break;
+    case GarbageType::GARBAGE_VERTEX_BUFFER:
+        vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._buffer,
+                         this->g_data._buffer._bufferAllocation);
+        break;
+    case GarbageType::GARBAGE_GRAPHIC_PIPELINE:
+        vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline,
+                          nullptr);
+        vkDestroyPipelineLayout(this->g_data._graphicPipeline._logicalDevice,
+                                this->g_data._graphicPipeline._pipelineLayout, nullptr);
+        break;
+    case GarbageType::GARBAGE_COMMAND_POOL:
+        vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool, nullptr);
+        break;
+    case GarbageType::GARBAGE_FRAMEBUFFER:
+        vkDestroyFramebuffer(this->g_data._framebuffer._logicalDevice, this->g_data._framebuffer._framebuffer, nullptr);
+        break;
+    case GarbageType::GARBAGE_RENDERPASS:
+        vkDestroyRenderPass(this->g_data._renderPass._logicalDevice, this->g_data._renderPass._renderPass, nullptr);
+        break;
+    case GarbageType::GARBAGE_SAMPLER:
+        vkDestroySampler(this->g_data._sampler._logicalDevice, this->g_data._sampler._sampler, nullptr);
+        break;
+    case GarbageType::GARBAGE_IMAGE:
+        vkDestroyImageView(this->g_data._image._context->getLogicalDevice().getDevice(), this->g_data._image._imageView,
+                           nullptr);
+        vmaDestroyImage(this->g_data._image._context->getAllocator(), this->g_data._image._image,
+                        this->g_data._image._allocation);
+        break;
+    default:
+        break;
+    }
+}
+
+//GarbageCollector
 
 void GarbageCollector::setCurrentFrame(uint32_t frame)
 {

@@ -21,272 +21,234 @@
 #include "volk.h"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <array>
-#include <deque>
+#include <vector>
 
 namespace fge::vulkan
 {
 
+class Context;
+
+enum class GarbageType
+{
+    GARBAGE_EMPTY,
+
+    GARBAGE_DESCRIPTOR_SET,
+    GARBAGE_VERTEX_BUFFER,
+    GARBAGE_GRAPHIC_PIPELINE,
+    GARBAGE_COMMAND_POOL,
+    GARBAGE_FRAMEBUFFER,
+    GARBAGE_RENDERPASS,
+    GARBAGE_SAMPLER,
+    GARBAGE_IMAGE
+};
+
+struct GarbageGeneric
+{
+    GarbageType _type;
+};
+struct GarbageDescriptorSet
+{
+    constexpr GarbageDescriptorSet(VkDescriptorSet descriptorSet,
+                                   VkDescriptorPool descriptorPool,
+                                   VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_DESCRIPTOR_SET),
+            _descriptorSet(descriptorSet),
+            _descriptorPool(descriptorPool),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkDescriptorSet _descriptorSet;
+    VkDescriptorPool _descriptorPool;
+    VkDevice _logicalDevice;
+};
+struct GarbageBuffer
+{
+    constexpr GarbageBuffer(VkBuffer buffer, VmaAllocation bufferAllocation, VmaAllocator allocator) :
+            _type(GarbageType::GARBAGE_VERTEX_BUFFER),
+            _buffer(buffer),
+            _bufferAllocation(bufferAllocation),
+            _allocator(allocator)
+    {}
+
+    GarbageType _type;
+    VkBuffer _buffer;
+    VmaAllocation _bufferAllocation;
+    VmaAllocator _allocator;
+};
+struct GarbageGraphicPipeline
+{
+    constexpr GarbageGraphicPipeline(VkPipelineLayout pipelineLayout, VkPipeline pipeline, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_GRAPHIC_PIPELINE),
+            _pipelineLayout(pipelineLayout),
+            _pipeline(pipeline),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkPipelineLayout _pipelineLayout;
+    VkPipeline _pipeline;
+    VkDevice _logicalDevice;
+};
+struct GarbageCommandPool
+{
+    constexpr GarbageCommandPool(VkCommandPool commandPool, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_COMMAND_POOL),
+            _commandPool(commandPool),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkCommandPool _commandPool;
+    VkDevice _logicalDevice;
+};
+struct GarbageFramebuffer
+{
+    constexpr GarbageFramebuffer(VkFramebuffer framebuffer, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_FRAMEBUFFER),
+            _framebuffer(framebuffer),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkFramebuffer _framebuffer;
+    VkDevice _logicalDevice;
+};
+struct GarbageRenderPass
+{
+    constexpr GarbageRenderPass(VkRenderPass renderPass, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_RENDERPASS),
+            _renderPass(renderPass),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkRenderPass _renderPass;
+    VkDevice _logicalDevice;
+};
+struct GarbageSampler
+{
+    constexpr GarbageSampler(VkSampler sampler, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_SAMPLER),
+            _sampler(sampler),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkSampler _sampler;
+    VkDevice _logicalDevice;
+};
+struct GarbageImage
+{
+    constexpr GarbageImage(VkImage image,
+                           VmaAllocation bufferAllocation,
+                           VkImageView imageView,
+                           const Context* context) :
+            _type(GarbageType::GARBAGE_IMAGE),
+            _image(image),
+            _allocation(bufferAllocation),
+            _imageView(imageView),
+            _context(context)
+    {}
+
+    GarbageType _type;
+    VkImage _image;
+    VmaAllocation _allocation;
+    VkImageView _imageView;
+    const Context* _context;
+};
+
+class FGE_API Garbage final
+{
+private:
+    constexpr Garbage() :
+            g_data(GarbageType::GARBAGE_EMPTY)
+    {}
+
+public:
+    constexpr Garbage(const GarbageDescriptorSet& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageBuffer& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageGraphicPipeline& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageCommandPool& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageFramebuffer& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageRenderPass& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageSampler& garbage) :
+            g_data(garbage)
+    {}
+    constexpr Garbage(const GarbageImage& garbage) :
+            g_data(garbage)
+    {}
+    Garbage(const Garbage& r) = delete;
+    Garbage(Garbage&& r) noexcept :
+            g_data(r.g_data)
+    {
+        r.g_data._generic._type = GarbageType::GARBAGE_EMPTY;
+    }
+    ~Garbage();
+
+    Garbage& operator=(const Garbage& r) = delete;
+    Garbage& operator=(Garbage&& r) noexcept = delete;
+
+private:
+    union Data
+    {
+        explicit constexpr Data(GarbageType type) :
+                _generic{type}
+        {}
+        explicit constexpr Data(const GarbageDescriptorSet& data) :
+                _descriptorSet{data}
+        {}
+        explicit constexpr Data(const GarbageBuffer& data) :
+                _buffer{data}
+        {}
+        explicit constexpr Data(const GarbageGraphicPipeline& data) :
+                _graphicPipeline{data}
+        {}
+        explicit constexpr Data(const GarbageCommandPool& data) :
+                _commandPool{data}
+        {}
+        explicit constexpr Data(const GarbageFramebuffer& data) :
+                _framebuffer{data}
+        {}
+        explicit constexpr Data(const GarbageRenderPass& data) :
+                _renderPass{data}
+        {}
+        explicit constexpr Data(const GarbageSampler& data) :
+                _sampler{data}
+        {}
+        explicit constexpr Data(const GarbageImage& data) :
+                _image{data}
+        {}
+
+        GarbageGeneric _generic;
+        GarbageDescriptorSet _descriptorSet;
+        GarbageBuffer _buffer;
+        GarbageGraphicPipeline _graphicPipeline;
+        GarbageCommandPool _commandPool;
+        GarbageFramebuffer _framebuffer;
+        GarbageRenderPass _renderPass;
+        GarbageSampler _sampler;
+        GarbageImage _image;
+    };
+
+    Data g_data;
+};
+
 class FGE_API GarbageCollector
 {
 public:
-    enum class Type
-    {
-        GARBAGE_EMPTY,
-        GARBAGE_DESCRIPTOR_SET,
-        GARBAGE_VERTEX_BUFFER,
-        GARBAGE_GRAPHIC_PIPELINE,
-        GARBAGE_COMMAND_POOL,
-        GARBAGE_FRAMEBUFFER,
-        GARBAGE_RENDERPASS,
-        GARBAGE_SAMPLER,
-        GARBAGE_IMAGE
-    };
-
-    struct GarbageType
-    {
-        Type _type;
-    };
-    struct GarbageDescriptorSet
-    {
-        GarbageDescriptorSet(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool, VkDevice logicalDevice) :
-                _type(Type::GARBAGE_DESCRIPTOR_SET),
-                _descriptorSet(descriptorSet),
-                _descriptorPool(descriptorPool),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkDescriptorSet _descriptorSet;
-        VkDescriptorPool _descriptorPool;
-        VkDevice _logicalDevice;
-    };
-    struct GarbageBuffer
-    {
-        GarbageBuffer(VkBuffer buffer, VmaAllocation bufferAllocation, VmaAllocator allocator) :
-                _type(Type::GARBAGE_VERTEX_BUFFER),
-                _buffer(buffer),
-                _bufferAllocation(bufferAllocation),
-                _allocator(allocator)
-        {}
-
-        Type _type;
-        VkBuffer _buffer;
-        VmaAllocation _bufferAllocation;
-        VmaAllocator _allocator;
-    };
-    struct GarbageGraphicPipeline
-    {
-        GarbageGraphicPipeline(VkPipelineLayout pipelineLayout, VkPipeline pipeline, VkDevice logicalDevice) :
-                _type(Type::GARBAGE_GRAPHIC_PIPELINE),
-                _pipelineLayout(pipelineLayout),
-                _pipeline(pipeline),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkPipelineLayout _pipelineLayout;
-        VkPipeline _pipeline;
-        VkDevice _logicalDevice;
-    };
-    struct GarbageCommandPool
-    {
-        GarbageCommandPool(VkCommandPool commandPool, VkDevice logicalDevice) :
-                _type(Type::GARBAGE_COMMAND_POOL),
-                _commandPool(commandPool),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkCommandPool _commandPool;
-        VkDevice _logicalDevice;
-    };
-    struct GarbageFramebuffer
-    {
-        GarbageFramebuffer(VkFramebuffer framebuffer, VkDevice logicalDevice) :
-                _type(Type::GARBAGE_FRAMEBUFFER),
-                _framebuffer(framebuffer),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkFramebuffer _framebuffer;
-        VkDevice _logicalDevice;
-    };
-    struct GarbageRenderPass
-    {
-        GarbageRenderPass(VkRenderPass renderPass, VkDevice logicalDevice) :
-                _type(Type::GARBAGE_RENDERPASS),
-                _renderPass(renderPass),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkRenderPass _renderPass;
-        VkDevice _logicalDevice;
-    };
-    struct GarbageSampler
-    {
-        GarbageSampler(VkSampler sampler, VkDevice logicalDevice) :
-                _type(Type::GARBAGE_SAMPLER),
-                _sampler(sampler),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkSampler _sampler;
-        VkDevice _logicalDevice;
-    };
-    struct GarbageImage
-    {
-        GarbageImage(VkImage image,
-                     VmaAllocation bufferAllocation,
-                     VkImageView imageView,
-                     VmaAllocator allocator,
-                     VkDevice logicalDevice) :
-                _type(Type::GARBAGE_IMAGE),
-                _image(image),
-                _allocation(bufferAllocation),
-                _imageView(imageView),
-                _allocator(allocator),
-                _logicalDevice(logicalDevice)
-        {}
-
-        Type _type;
-        VkImage _image;
-        VmaAllocation _allocation;
-        VkImageView _imageView;
-        VmaAllocator
-                _allocator; ///TODO: directly give a context in the GarbageCollector constructor in order to avoid this repetitive data
-        VkDevice _logicalDevice;
-    };
-
-    class Garbage final
-    {
-    private:
-        Garbage() :
-                g_data(Type::GARBAGE_EMPTY)
-        {}
-
-    public:
-        Garbage(const GarbageDescriptorSet& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageBuffer& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageGraphicPipeline& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageCommandPool& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageFramebuffer& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageRenderPass& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageSampler& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const GarbageImage& garbage) :
-                g_data(garbage)
-        {}
-        Garbage(const Garbage& r) = delete;
-        Garbage(Garbage&& r) noexcept :
-                g_data(r.g_data)
-        {
-            r.g_data._type._type = Type::GARBAGE_EMPTY;
-        }
-        ~Garbage()
-        {
-            switch (this->g_data._type._type)
-            {
-            case Type::GARBAGE_DESCRIPTOR_SET:
-                vkFreeDescriptorSets(this->g_data._descriptorSet._logicalDevice,
-                                     this->g_data._descriptorSet._descriptorPool, 1,
-                                     &this->g_data._descriptorSet._descriptorSet);
-                break;
-            case Type::GARBAGE_VERTEX_BUFFER:
-                vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._buffer,
-                                 this->g_data._buffer._bufferAllocation);
-                break;
-            case Type::GARBAGE_GRAPHIC_PIPELINE:
-                vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline,
-                                  nullptr);
-                vkDestroyPipelineLayout(this->g_data._graphicPipeline._logicalDevice,
-                                        this->g_data._graphicPipeline._pipelineLayout, nullptr);
-                break;
-            case Type::GARBAGE_COMMAND_POOL:
-                vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool,
-                                     nullptr);
-                break;
-            case Type::GARBAGE_FRAMEBUFFER:
-                vkDestroyFramebuffer(this->g_data._framebuffer._logicalDevice, this->g_data._framebuffer._framebuffer,
-                                     nullptr);
-                break;
-            case Type::GARBAGE_RENDERPASS:
-                vkDestroyRenderPass(this->g_data._renderPass._logicalDevice, this->g_data._renderPass._renderPass,
-                                    nullptr);
-                break;
-            case Type::GARBAGE_SAMPLER:
-                vkDestroySampler(this->g_data._sampler._logicalDevice, this->g_data._sampler._sampler, nullptr);
-                break;
-            case Type::GARBAGE_IMAGE:
-                vkDestroyImageView(this->g_data._image._logicalDevice, this->g_data._image._imageView, nullptr);
-                vmaDestroyImage(this->g_data._image._allocator, this->g_data._image._image,
-                                this->g_data._image._allocation);
-                break;
-            default:
-                break;
-            }
-        }
-
-    private:
-        union Data
-        {
-            explicit Data(Type type) :
-                    _type{type}
-            {}
-            explicit Data(const GarbageDescriptorSet& data) :
-                    _descriptorSet{data}
-            {}
-            explicit Data(const GarbageBuffer& data) :
-                    _buffer{data}
-            {}
-            explicit Data(const GarbageGraphicPipeline& data) :
-                    _graphicPipeline{data}
-            {}
-            explicit Data(const GarbageCommandPool& data) :
-                    _commandPool{data}
-            {}
-            explicit Data(const GarbageFramebuffer& data) :
-                    _framebuffer{data}
-            {}
-            explicit Data(const GarbageRenderPass& data) :
-                    _renderPass{data}
-            {}
-            explicit Data(const GarbageSampler& data) :
-                    _sampler{data}
-            {}
-            explicit Data(const GarbageImage& data) :
-                    _image{data}
-            {}
-
-            GarbageType _type;
-            GarbageDescriptorSet _descriptorSet;
-            GarbageBuffer _buffer;
-            GarbageGraphicPipeline _graphicPipeline;
-            GarbageCommandPool _commandPool;
-            GarbageFramebuffer _framebuffer;
-            GarbageRenderPass _renderPass;
-            GarbageSampler _sampler;
-            GarbageImage _image;
-        };
-
-        Data g_data;
-    };
-
     using ContainerType = std::vector<Garbage>;
 
     GarbageCollector() = default;
