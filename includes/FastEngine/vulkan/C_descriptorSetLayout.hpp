@@ -21,42 +21,52 @@
 #include "volk.h"
 #include "SDL_vulkan.h"
 #include <initializer_list>
+#include <vector>
 
 namespace fge::vulkan
 {
 
-class LogicalDevice;
+class Context;
+
+constexpr VkDescriptorSetLayoutBinding CreateSimpleLayoutBinding(uint32_t binding,
+                                                                 VkDescriptorType type,
+                                                                 VkShaderStageFlags stageFlags)
+{
+    return {
+        .binding = binding,
+        .descriptorType = type,
+        .descriptorCount = 1,
+        .stageFlags = stageFlags,
+        .pImmutableSamplers = nullptr
+    };
+}
 
 class FGE_API DescriptorSetLayout
 {
 public:
-    struct Layout
-    {
-        VkDescriptorType _type;
-        uint32_t _binding;
-        VkShaderStageFlags _stage;
-    };
-
     DescriptorSetLayout();
-    DescriptorSetLayout(const DescriptorSetLayout& r) = delete;
+    DescriptorSetLayout(const DescriptorSetLayout& r);
     DescriptorSetLayout(DescriptorSetLayout&& r) noexcept;
     ~DescriptorSetLayout();
 
-    DescriptorSetLayout& operator=(const DescriptorSetLayout& r) = delete;
-    DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept = delete;
+    DescriptorSetLayout& operator=(const DescriptorSetLayout& r);
+    DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept;
 
-    void create(const LogicalDevice& logicalDevice, std::initializer_list<Layout> layouts);
+    void create(const Context& context, std::initializer_list<VkDescriptorSetLayoutBinding> layouts);
     void destroy();
 
     [[nodiscard]] VkDescriptorSetLayout getLayout() const;
+    [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& getLayouts() const;
     [[nodiscard]] std::size_t getLayoutSize() const;
-    [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
+    [[nodiscard]] const Context* getContext() const;
 
 private:
-    VkDescriptorSetLayout g_descriptorSetLayout;
-    std::size_t g_layoutSize;
+    void createDescriptorSetLayout();
 
-    const LogicalDevice* g_logicalDevice;
+    VkDescriptorSetLayout g_descriptorSetLayout;
+    std::vector<VkDescriptorSetLayoutBinding> g_layouts;
+
+    const Context* g_context;
 };
 
 } // namespace fge::vulkan

@@ -169,13 +169,15 @@ void Context::initVulkan(SDL_Window* window)
     this->createTransformDescriptorPool();
     this->createTransformBatchesDescriptorPool();
 
-    this->g_textureLayout.create(this->g_logicalDevice, {{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                          FGE_VULKAN_TEXTURE_BINDING, VK_SHADER_STAGE_FRAGMENT_BIT}});
-    this->g_transformLayout.create(this->g_logicalDevice, {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                                            FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}});
+    this->g_textureLayout.create(*this, {fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TEXTURE_BINDING,
+                                                                                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
+    this->g_transformLayout.create(*this, {fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
+                                                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
     this->g_transformBatchesLayout.create(
-            this->g_logicalDevice,
-            {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, FGE_VULKAN_TRANSFORM_BINDING, VK_SHADER_STAGE_VERTEX_BIT}});
+            *this, {fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
+                                                           VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                                           VK_SHADER_STAGE_VERTEX_BIT)});
 }
 void Context::enumerateExtensions()
 {
