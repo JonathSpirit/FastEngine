@@ -158,6 +158,13 @@ struct GarbageImage
     const Context* _context;
 };
 
+/**
+ * \class Garbage
+ * \ingroup vulkan
+ * \brief A class that holds a garbage object
+ *
+ * \see GarbageCollector
+ */
 class FGE_API Garbage final
 {
 private:
@@ -246,6 +253,15 @@ private:
     Data g_data;
 };
 
+/**
+ * \class GarbageCollector
+ * \ingroup vulkan
+ * \brief A garbage collector for Vulkan objects
+ *
+ * In Vulkan when recording a command buffer, you can't destroy a resource that is used by it.
+ * In order to address this problem, a garbage collector is used. It will collect all the unused
+ * resources and free them when the command buffer is done.
+ */
 class FGE_API GarbageCollector
 {
 public:
@@ -259,12 +275,53 @@ public:
     GarbageCollector& operator=(const GarbageCollector& r) = delete;
     GarbageCollector& operator=(GarbageCollector&& r) noexcept = delete;
 
+    /**
+     * \brief Set the current frame
+     *
+     * Set the current frame respecting the maximum number of frames in flight.
+     * When switching to a new frame, the garbage collector will free all the
+     * resources that were collected previously.
+     *
+     * @param frame The current frame
+     */
     void setCurrentFrame(uint32_t frame);
     [[nodiscard]] uint32_t getCurrentFrame() const;
+    /**
+     * \brief Push a garbage object
+     *
+     * Push a garbage object associated with the current frame.
+     * The garbage will be freed when switching to a new frame.
+     *
+     * @param garbage The garbage object
+     */
     void push(Garbage garbage) const;
+    /**
+     * \brief Free all the garbage objects in the current frame
+     *
+     * This method should not be called manually for normal use.
+     */
     void free();
+    /**
+     * \brief Free all the garbage objects
+     *
+     * This method should be only called when the application is closing
+     * just after the scene has been destroyed.
+     */
     void freeAll();
 
+    /**
+     * \brief Enable or disable the garbage collector
+     *
+     * When the garbage collector is disabled, all the garbage objects
+     * will be freed immediately.
+     *
+     * By default, the garbage collector is disabled.
+     *
+     * When the user disable the garbage collector, the freeAll() method
+     * is called automatically.
+     *
+     * @param stat \b false to disable the garbage collector, \b true to enable it
+     */
     void enable(bool stat);
     [[nodiscard]] bool isEnabled() const;
 
