@@ -17,7 +17,6 @@
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <set>
 #include <stdexcept>
 #include <vector>
 
@@ -47,11 +46,11 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 {
     auto indices = physicalDevice.findQueueFamilies(surface);
 
+    const std::vector<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
 
-    float queuePriority = 1.0f;
-    for (uint32_t queueFamily: uniqueQueueFamilies)
+    const float queuePriority = 1.0f;
+    for (auto queueFamily : uniqueQueueFamilies)
     {
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
