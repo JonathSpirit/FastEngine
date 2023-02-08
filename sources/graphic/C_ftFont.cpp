@@ -14,11 +14,12 @@
 * limitations under the License.
 */
 
+#include "FastEngine/graphic/C_ftFont.hpp"
+#include "FastEngine/graphic/C_surface.hpp"
+#include "FastEngine/manager/font_manager.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "ft2build.h"
-#include <FastEngine/graphic/C_ftFont.hpp>
-#include <FastEngine/graphic/C_surface.hpp>
-#include <FastEngine/vulkan/C_context.hpp>
-#include <FastEngine/vulkan/vulkanGlobal.hpp>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
@@ -53,7 +54,6 @@ uint64_t Combine(float outlineThickness, bool bold, uint32_t index)
 } //end namespace
 
 FreeTypeFont::FreeTypeFont() :
-        g_library(nullptr),
         g_face(nullptr),
         g_streamRec(nullptr),
         g_stroker(nullptr),
@@ -70,26 +70,18 @@ bool FreeTypeFont::loadFromFile(const std::filesystem::path& filePath)
     // Cleanup the previous resources
     cleanup();
 
-    // Initialize FreeType
-    // Note: we initialize FreeType for every font instance in order to avoid having a single
-    // global manager that would create a lot of issues regarding creation and destruction order.
-    FT_Library library;
-    if (FT_Init_FreeType(&library) != 0)
-    {
-        return false;
-    }
-    g_library = library;
+    FT_Library library = static_cast<FT_Library>(fge::font::GetFreetypeLibrary());
 
     // Load the new font face from the specified file
     FT_Face face;
-    if (FT_New_Face(static_cast<FT_Library>(g_library), filePath.string().c_str(), 0, &face) != 0)
+    if (FT_New_Face(library, filePath.string().c_str(), 0, &face) != 0)
     {
         return false;
     }
 
     // Load the stroker that will be used to outline the font
     FT_Stroker stroker;
-    if (FT_Stroker_New(static_cast<FT_Library>(g_library), &stroker) != 0)
+    if (FT_Stroker_New(library, &stroker) != 0)
     {
         FT_Done_Face(face);
         return false;
@@ -118,27 +110,19 @@ bool FreeTypeFont::loadFromMemory(const void* data, std::size_t sizeInBytes)
     // Cleanup the previous resources
     cleanup();
 
-    // Initialize FreeType
-    // Note: we initialize FreeType for every font instance in order to avoid having a single
-    // global manager that would create a lot of issues regarding creation and destruction order.
-    FT_Library library;
-    if (FT_Init_FreeType(&library) != 0)
-    {
-        return false;
-    }
-    g_library = library;
+    FT_Library library = static_cast<FT_Library>(fge::font::GetFreetypeLibrary());
 
     // Load the new font face from the specified file
     FT_Face face;
-    if (FT_New_Memory_Face(static_cast<FT_Library>(g_library), reinterpret_cast<const FT_Byte*>(data),
-                           static_cast<FT_Long>(sizeInBytes), 0, &face) != 0)
+    if (FT_New_Memory_Face(library, reinterpret_cast<const FT_Byte*>(data), static_cast<FT_Long>(sizeInBytes), 0,
+                           &face) != 0)
     {
         return false;
     }
 
     // Load the stroker that will be used to outline the font
     FT_Stroker stroker;
-    if (FT_Stroker_New(static_cast<FT_Library>(g_library), &stroker) != 0)
+    if (FT_Stroker_New(library, &stroker) != 0)
     {
         FT_Done_Face(face);
         return false;
@@ -323,14 +307,7 @@ void FreeTypeFont::cleanup()
         delete static_cast<FT_StreamRec*>(g_streamRec);
     }
 
-    // Close the library
-    if (g_library != nullptr)
-    {
-        FT_Done_FreeType(static_cast<FT_Library>(g_library));
-    }
-
     // Reset members
-    g_library = nullptr;
     g_face = nullptr;
     g_stroker = nullptr;
     g_streamRec = nullptr;
@@ -395,7 +372,10 @@ Glyph FreeTypeFont::loadGlyph(Uint32 codePoint, unsigned int characterSize, bool
     // Apply bold if necessary -- fallback technique using bitmap (lower quality)
     if (!outline)
     {
-        if (bold) FT_Bitmap_Embolden(static_cast<FT_Library>(g_library), &bitmap, weight, weight);
+        if (bold)
+        {
+            FT_Bitmap_Embolden(static_cast<FT_Library>(fge::font::GetFreetypeLibrary()), &bitmap, weight, weight);
+        }
     }
 
     // Compute the glyph's advance offset

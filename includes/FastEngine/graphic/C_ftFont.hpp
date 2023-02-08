@@ -144,7 +144,6 @@ private:
     bool setCurrentSize(unsigned int characterSize) const;
 
 
-    void* g_library; //!< Pointer to the internal library interface (it is typeless to avoid exposing implementation details)
     void* g_face;      //!< Pointer to the internal font face (it is typeless to avoid exposing implementation details)
     void* g_streamRec; //!< Pointer to the stream rec instance (it is typeless to avoid exposing implementation details)
     void* g_stroker;   //!< Pointer to the stroker (it is typeless to avoid exposing implementation details)

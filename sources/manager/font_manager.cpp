@@ -17,6 +17,9 @@
 #include "FastEngine/manager/font_manager.hpp"
 #include "private/string_hash.hpp"
 
+#include "ft2build.h"
+#include FT_FREETYPE_H
+
 namespace fge::font
 {
 
@@ -27,16 +30,24 @@ fge::font::FontDataPtr _dataFontBad;
 std::unordered_map<std::string, fge::font::FontDataPtr, fge::priv::string_hash, std::equal_to<>> _dataFont;
 std::mutex _dataMutex;
 
+FT_Library _freetypeLibrary = nullptr;
+
 } // namespace
 
-void Init()
+bool Init()
 {
     if (_dataFontBad == nullptr)
     {
+        if (FT_Init_FreeType(&_freetypeLibrary) != 0)
+        {
+            return false;
+        }
+
         _dataFontBad = std::make_shared<fge::font::FontData>();
         _dataFontBad->_font = std::make_shared<fge::FreeTypeFont>();
         _dataFontBad->_valid = false;
     }
+    return true;
 }
 bool IsInit()
 {
@@ -46,6 +57,16 @@ void Uninit()
 {
     _dataFont.clear();
     _dataFontBad = nullptr;
+
+    if (_freetypeLibrary != nullptr)
+    {
+        FT_Done_FreeType(_freetypeLibrary);
+    }
+}
+
+void* GetFreetypeLibrary()
+{
+    return _freetypeLibrary;
 }
 
 std::size_t GetFontSize()

@@ -169,11 +169,6 @@ public:
         fge::vulkan::GlobalContext->waitIdle();
 
         fge::vulkan::GlobalContext->_garbageCollector.enable(false);
-
-        //Uninit texture manager
-        fge::texture::Uninit();
-        //Uninit font manager
-        fge::font::Uninit();
     }
 };
 
@@ -210,6 +205,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderWindow);
     scene.reset();
 
+    fge::texture::Uninit();
+    fge::font::Uninit();
     fge::shader::Uninit();
 
     renderWindow.destroy();

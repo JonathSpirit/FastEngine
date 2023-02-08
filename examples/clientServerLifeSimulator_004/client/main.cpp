@@ -372,13 +372,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(false);
 
+    mainScene.reset();
+
     fge::audio::Uninit();
     fge::shader::Uninit();
     fge::font::Uninit();
     fge::anim::Uninit();
     fge::texture::Uninit();
-
-    mainScene.reset();
 
     renderWindow.destroy();
 

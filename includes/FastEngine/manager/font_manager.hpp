@@ -42,9 +42,11 @@ struct FontData
 using FontDataPtr = std::shared_ptr<fge::font::FontData>;
 using FontDataType = std::unordered_map<std::string, fge::font::FontDataPtr>;
 
-FGE_API void Init();
+FGE_API bool Init();
 FGE_API bool IsInit();
 FGE_API void Uninit();
+
+FGE_API void* GetFreetypeLibrary();
 
 FGE_API std::size_t GetFontSize();
 
