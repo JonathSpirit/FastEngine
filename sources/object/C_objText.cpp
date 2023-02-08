@@ -43,6 +43,7 @@ void Character::clear()
 {
     this->g_vertices.clear();
     this->g_outlineVertices.clear();
+    this->g_unicodeChar = 0;
 }
 // Add an underline or strikethrough line to the vertex array
 void Character::addLine(bool outlineVertices,
@@ -492,7 +493,7 @@ void ObjText::ensureGeometryUpdate() const
         return;
     }
 
-    this->g_characters.resize(this->g_string.size());
+    this->g_characters.resize(this->g_string.length());
     std::size_t usedCharacters = 0;
 
     // Compute values related to the text style

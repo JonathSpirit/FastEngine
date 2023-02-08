@@ -173,7 +173,16 @@ void VertexBuffer::create(const Context& context,
 
 void VertexBuffer::clear()
 {
-    this->resize(0);
+    if (this->g_type == BufferTypes::UNINITIALIZED)
+    {
+        return;
+    }
+
+    if (!this->g_vertices.empty())
+    {
+        this->g_vertices.clear();
+        this->g_needUpdate = true;
+    }
 }
 void VertexBuffer::resize(std::size_t vertexSize)
 {
@@ -390,9 +399,9 @@ void VertexBuffer::updateBuffer() const
     {
         this->cleanBuffer();
 
-        this->g_bufferCapacity = this->g_vertices.capacity();
+        this->g_bufferCapacity = this->g_vertices.size()*2;
 
-        const std::size_t bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.capacity());
+        const std::size_t bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.size()*2);
 
         switch (this->g_type)
         {
