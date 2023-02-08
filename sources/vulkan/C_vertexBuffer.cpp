@@ -399,9 +399,9 @@ void VertexBuffer::updateBuffer() const
     {
         this->cleanBuffer();
 
-        this->g_bufferCapacity = this->g_vertices.size()*2;
+        this->g_bufferCapacity = this->g_vertices.size() * 2;
 
-        const std::size_t bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.size()*2);
+        const std::size_t bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.size() * 2);
 
         switch (this->g_type)
         {

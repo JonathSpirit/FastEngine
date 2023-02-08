@@ -66,9 +66,9 @@ Garbage::~Garbage()
 //GarbageCollector
 
 GarbageCollector::GarbageCollector(GarbageCollector&& r) noexcept :
-    g_containers(std::move(r.g_containers)),
-    g_currentFrame(r.g_currentFrame),
-    g_enabled(r.g_enabled)
+        g_containers(std::move(r.g_containers)),
+        g_currentFrame(r.g_currentFrame),
+        g_enabled(r.g_enabled)
 {
     r.g_currentFrame = 0;
     r.g_enabled = false;
