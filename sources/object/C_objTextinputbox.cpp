@@ -51,7 +51,7 @@ void ObjTextInputBox::setString(tiny_utf8::string string)
 {
     this->g_string = std::move(string);
 }
-void ObjTextInputBox::setCharacterSize(fge::ObjText::CharacterSize size)
+void ObjTextInputBox::setCharacterSize(fge::CharacterSize size)
 {
     this->g_text.setCharacterSize(size);
 }
@@ -101,7 +101,7 @@ const tiny_utf8::string& ObjTextInputBox::getString() const
 {
     return this->g_string;
 }
-fge::ObjText::CharacterSize ObjTextInputBox::getCharacterSize() const
+fge::CharacterSize ObjTextInputBox::getCharacterSize() const
 {
     return this->g_text.getCharacterSize();
 }
@@ -295,7 +295,7 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
 
     this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
 
-    this->g_text.setCharacterSize(jsonObject.value<fge::ObjText::CharacterSize>("characterSize", 12));
+    this->g_text.setCharacterSize(jsonObject.value<fge::CharacterSize>("characterSize", 12));
     this->g_text.setFont(jsonObject.value<std::string>("font", FGE_FONT_BAD));
 
     this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);
@@ -334,7 +334,7 @@ void ObjTextInputBox::unpack(fge::net::Packet& pck)
 
     pck >> this->g_string;
 
-    fge::ObjText::CharacterSize tmpCharSize = 12;
+    fge::CharacterSize tmpCharSize = 12;
     fge::Font tmpFont;
     pck >> tmpCharSize >> tmpFont;
     this->g_text.setCharacterSize(tmpCharSize);

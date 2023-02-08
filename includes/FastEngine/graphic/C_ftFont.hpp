@@ -28,20 +28,23 @@
 #include "FastEngine/C_rect.hpp"
 #include <FastEngine/graphic/C_glyph.hpp>
 #include <FastEngine/vulkan/C_textureImage.hpp>
+#include <FastEngine/graphic/C_surface.hpp>
 #include <filesystem>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
 namespace fge
 {
 
+using CharacterSize = uint16_t;
+
 class FGE_API FreeTypeFont
 {
 public:
     struct Info
     {
-        std::string family; //!< The font family
+        std::string family;
     };
 
     FreeTypeFont();
@@ -55,18 +58,20 @@ public:
 
     const Info& getInfo() const;
 
-    const Glyph& getGlyph(Uint32 codePoint, unsigned int characterSize, bool bold, float outlineThickness = 0) const;
-    bool hasGlyph(Uint32 codePoint) const;
+    const Glyph& getGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness = 0) const;
+    bool hasGlyph(uint32_t codePoint) const;
 
-    float getKerning(Uint32 first, Uint32 second, unsigned int characterSize, bool bold = false) const;
-    float getLineSpacing(unsigned int characterSize) const;
-    float getUnderlinePosition(unsigned int characterSize) const;
-    float getUnderlineThickness(unsigned int characterSize) const;
+    float getKerning(uint32_t first, uint32_t second, fge::CharacterSize characterSize, bool bold = false) const;
+    float getLineSpacing(fge::CharacterSize characterSize) const;
+    float getUnderlinePosition(fge::CharacterSize characterSize) const;
+    float getUnderlineThickness(fge::CharacterSize characterSize) const;
 
-    const fge::vulkan::TextureImage& getTexture(unsigned int characterSize) const;
+    const fge::vulkan::TextureImage& getTexture(fge::CharacterSize characterSize) const;
 
     void setSmooth(bool smooth);
     bool isSmooth() const;
+
+    [[nodiscard]] std::vector<long> getAvailableSize() const;
 
 private:
     struct Row
@@ -82,7 +87,7 @@ private:
         unsigned int _height; //!< Height of the row
     };
 
-    using GlyphTable = std::map<Uint64, Glyph>; //!< Table mapping a codepoint to its glyph
+    using GlyphTable = std::unordered_map<uint64_t, Glyph>; //!< Table mapping a codepoint to its glyph
 
     struct Page
     {
@@ -94,55 +99,16 @@ private:
         std::vector<Row> _rows;             //!< List containing the position of all the existing rows
     };
 
-    using PageTable = std::map<unsigned int, Page>; //!< Table mapping a character size to its page (texture)
+    using PageTable = std::unordered_map<fge::CharacterSize, Page>; //!< Table mapping a character size to its page (texture)
 
     void cleanup();
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Find or create the glyphs page corresponding to the given character size
-    ///
-    /// \param characterSize Reference character size
-    ///
-    /// \return The glyphs page corresponding to \a characterSize
-    ///
-    ////////////////////////////////////////////////////////////
-    Page& loadPage(unsigned int characterSize) const;
+    Page& loadPage(fge::CharacterSize characterSize) const;
+    Glyph loadGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness) const;
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Load a new glyph and store it in the cache
-    ///
-    /// \param codePoint        Unicode code point of the character to load
-    /// \param characterSize    Reference character size
-    /// \param bold             Retrieve the bold version or the regular one?
-    /// \param outlineThickness Thickness of outline (when != 0 the glyph will not be filled)
-    ///
-    /// \return The glyph corresponding to \a codePoint and \a characterSize
-    ///
-    ////////////////////////////////////////////////////////////
-    Glyph loadGlyph(Uint32 codePoint, unsigned int characterSize, bool bold, float outlineThickness) const;
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Find a suitable rectangle within the texture for a glyph
-    ///
-    /// \param page   Page of glyphs to search in
-    /// \param width  Width of the rectangle
-    /// \param height Height of the rectangle
-    ///
-    /// \return Found rectangle within the texture
-    ///
-    ////////////////////////////////////////////////////////////
     fge::RectInt findGlyphRect(Page& page, unsigned int width, unsigned int height) const;
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Make sure that the given size is the current one
-    ///
-    /// \param characterSize Reference character size
-    ///
-    /// \return True on success, false if any error happened
-    ///
-    ////////////////////////////////////////////////////////////
-    bool setCurrentSize(unsigned int characterSize) const;
-
+    bool setCurrentSize(fge::CharacterSize characterSize) const;
 
     void* g_face;      //!< Pointer to the internal font face (it is typeless to avoid exposing implementation details)
     void* g_streamRec; //!< Pointer to the stream rec instance (it is typeless to avoid exposing implementation details)
@@ -150,8 +116,7 @@ private:
     bool g_isSmooth;   //!< Status of the smooth filter
     Info g_info;       //!< Information about the font
     mutable PageTable g_pages; //!< Table containing the glyphs pages by character size
-    mutable std::vector<uint8_t>
-            g_pixelBuffer; //!< Pixel buffer holding a glyph's pixels before being written to the texture
+    mutable fge::Surface g_surfaceBuffer; //!< Surface holding a glyph's pixels before being written to the texture
 };
 
 } // namespace fge

@@ -44,7 +44,7 @@ public:
     void setSelectedText(tiny_utf8::string string);
     const tiny_utf8::string& getSelectedText() const;
 
-    void setCharacterSize(fge::ObjText::CharacterSize size);
+    void setCharacterSize(fge::CharacterSize size);
 
     void setActiveStat(bool active);
 
@@ -55,7 +55,7 @@ public:
     void setBoxOutlineColor(const fge::Color& color);
     void setTextColor(const fge::Color& color);
 
-    fge::ObjText::CharacterSize getCharacterSize() const;
+    fge::CharacterSize getCharacterSize() const;
 
     bool getActiveStat() const;
 

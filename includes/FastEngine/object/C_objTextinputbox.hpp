@@ -42,7 +42,7 @@ public:
     fge::GuiElement* getGuiElement() override { return this; }
 
     void setString(tiny_utf8::string string);
-    void setCharacterSize(fge::ObjText::CharacterSize size);
+    void setCharacterSize(fge::CharacterSize size);
     void setHideTextFlag(bool flag);
     void setMaxLength(uint16_t length);
 
@@ -56,7 +56,7 @@ public:
     void setTextColor(const fge::Color& color);
 
     const tiny_utf8::string& getString() const;
-    fge::ObjText::CharacterSize getCharacterSize() const;
+    fge::CharacterSize getCharacterSize() const;
     bool isTextHide() const;
     uint16_t getMaxLength() const;
 

@@ -178,7 +178,7 @@ uint32_t Character::getUnicode() const
 ObjText::ObjText(tiny_utf8::string string,
                  fge::Font font,
                  const fge::Vector2f& position,
-                 fge::ObjText::CharacterSize characterSize) :
+                 fge::CharacterSize characterSize) :
         g_font(std::move(font)),
         g_characterSize(characterSize),
         g_geometryNeedUpdate(true)
@@ -186,7 +186,7 @@ ObjText::ObjText(tiny_utf8::string string,
     this->setString(std::move(string));
     this->setPosition(position);
 }
-ObjText::ObjText(fge::Font font, const fge::Vector2f& position, fge::ObjText::CharacterSize characterSize) :
+ObjText::ObjText(fge::Font font, const fge::Vector2f& position, fge::CharacterSize characterSize) :
         g_font(std::move(font)),
         g_characterSize(characterSize)
 {
@@ -211,7 +211,7 @@ void ObjText::setString(tiny_utf8::string string)
     }
 }
 
-void ObjText::setCharacterSize(fge::ObjText::CharacterSize size)
+void ObjText::setCharacterSize(fge::CharacterSize size)
 {
     if (this->g_characterSize != size)
     {
@@ -295,7 +295,7 @@ const tiny_utf8::string& ObjText::getString() const
     return this->g_string;
 }
 
-fge::ObjText::CharacterSize ObjText::getCharacterSize() const
+fge::CharacterSize ObjText::getCharacterSize() const
 {
     return this->g_characterSize;
 }

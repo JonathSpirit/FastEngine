@@ -88,8 +88,6 @@ private:
 class FGE_API ObjText : public fge::Object
 {
 public:
-    using CharacterSize = uint16_t;
-
     enum Style : uint8_t
     {
         Regular = 0,           /// Regular characters, no style
@@ -103,10 +101,10 @@ public:
     ObjText(tiny_utf8::string string,
             fge::Font font,
             const fge::Vector2f& position = {},
-            fge::ObjText::CharacterSize characterSize = 30);
+            fge::CharacterSize characterSize = 30);
     explicit ObjText(fge::Font font,
                      const fge::Vector2f& position = {},
-                     fge::ObjText::CharacterSize characterSize = 30);
+                     fge::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
@@ -115,7 +113,7 @@ public:
 
     void setString(tiny_utf8::string string);
 
-    void setCharacterSize(fge::ObjText::CharacterSize size);
+    void setCharacterSize(fge::CharacterSize size);
 
     void setLineSpacingFactor(float spacingFactor);
     void setLetterSpacingFactor(float spacingFactor);
@@ -129,7 +127,7 @@ public:
 
     const tiny_utf8::string& getString() const;
 
-    fge::ObjText::CharacterSize getCharacterSize() const;
+    fge::CharacterSize getCharacterSize() const;
 
     float getLetterSpacingFactor() const;
     float getLineSpacingFactor() const;
@@ -165,7 +163,7 @@ private:
 
     tiny_utf8::string g_string;                         /// String to display
     fge::Font g_font;                                   /// Font used to display the string
-    fge::ObjText::CharacterSize g_characterSize{30};    /// Base size of characters, in pixels
+    fge::CharacterSize g_characterSize{30};             /// Base size of characters, in pixels
     float g_letterSpacingFactor{1.0f};                  /// Spacing factor between letters
     float g_lineSpacingFactor{1.0f};                    /// Spacing factor between lines
     std::underlying_type<Style>::type g_style{Regular}; /// Text style (see Style enum)
