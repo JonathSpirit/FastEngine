@@ -25,6 +25,14 @@ namespace fge::vulkan
 
 class PhysicalDevice;
 
+/**
+ * \class LogicalDevice
+ * \ingroup Vulkan
+ * \brief Logical device abstraction
+ *
+ * This class is used to create a Vulkan logical device and get the
+ * graphic and present queues.
+ */
 class FGE_API LogicalDevice
 {
 public:

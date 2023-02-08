@@ -50,7 +50,7 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     const float queuePriority = 1.0f;
-    for (auto queueFamily : uniqueQueueFamilies)
+    for (auto queueFamily: uniqueQueueFamilies)
     {
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
