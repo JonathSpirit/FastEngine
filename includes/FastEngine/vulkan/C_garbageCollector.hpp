@@ -269,7 +269,7 @@ public:
 
     GarbageCollector() = default;
     GarbageCollector(const GarbageCollector& r) = delete;
-    GarbageCollector(GarbageCollector&& r) noexcept = delete;
+    GarbageCollector(GarbageCollector&& r) noexcept;
     ~GarbageCollector() = default;
 
     GarbageCollector& operator=(const GarbageCollector& r) = delete;
