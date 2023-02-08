@@ -30,6 +30,8 @@ public:
     explicit Drink(const fge::Vector2f& pos);
     ~Drink() override = default;
 
+    FGE_OBJ_DEFAULT_COPYMETHOD(Drink)
+
     void first(fge::Scene* scene) override;
     FGE_OBJ_DRAW_DECLARE
     void networkRegister() override;

@@ -33,17 +33,18 @@ void Drink::first([[maybe_unused]] fge::Scene* scene)
 
     this->networkRegister();
 
+    this->g_circleShape.setRadius(8.0f);
     this->g_circleShape.setFillColor(fge::Color::Blue);
     this->g_circleShape.setOutlineColor(fge::Color::Black);
     this->g_circleShape.setOutlineThickness(1.0f);
-    this->g_circleShape.setPosition(this->getPosition());
     this->g_circleShape.setOrigin({8, 8});
 }
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Drink)
 {
-    target.draw(this->g_circleShape, states);
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+    target.draw(this->g_circleShape, copyStates);
 }
 #endif
 
