@@ -42,8 +42,7 @@ uint64_t BuildGlyphKey(float outlineThickness, bool bold, uint32_t index)
         uint32_t _out;
     } data{._in = outlineThickness};
 
-    return (static_cast<uint64_t>(data._out) << 32) |
-           (static_cast<uint64_t>(bold) << 31) | index;
+    return (static_cast<uint64_t>(data._out) << 32) | (static_cast<uint64_t>(bold) << 31) | index;
 }
 
 } //end namespace
@@ -172,7 +171,7 @@ bool FreeTypeFont::hasGlyph(uint32_t codePoint) const
 float FreeTypeFont::getKerning(uint32_t first, uint32_t second, fge::CharacterSize characterSize, bool bold) const
 {
     // Special case where first or second is 0 (null character)
-    if (first == 0 || second == 0) 
+    if (first == 0 || second == 0)
     {
         return 0.0f;
     }
@@ -208,7 +207,7 @@ float FreeTypeFont::getKerning(uint32_t first, uint32_t second, fge::CharacterSi
         return std::floor((secondLsbDelta - firstRsbDelta + static_cast<float>(kerning.x) + 32) /
                           static_cast<float>(1 << 6));
     }
-    
+
     // Invalid font
     return 0.0f;
 }
@@ -249,7 +248,7 @@ float FreeTypeFont::getUnderlineThickness(fge::CharacterSize characterSize) cons
     if (face != nullptr && setCurrentSize(characterSize))
     {
         // Return a fixed thickness if font is a bitmap font
-        if (!FT_IS_SCALABLE(face)) 
+        if (!FT_IS_SCALABLE(face))
         {
             return static_cast<float>(characterSize) / 14.0f;
         }
@@ -271,7 +270,7 @@ void FreeTypeFont::setSmooth(bool smooth)
     {
         this->g_isSmooth = smooth;
 
-        for (auto& page : this->g_pages)
+        for (auto& page: this->g_pages)
         {
             page.second._texture.setFilter(this->g_isSmooth ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
         }
@@ -339,7 +338,10 @@ FreeTypeFont::Page& FreeTypeFont::loadPage(fge::CharacterSize characterSize) con
     return this->g_pages.try_emplace(characterSize, this->g_isSmooth).first->second;
 }
 
-Glyph FreeTypeFont::loadGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness) const
+Glyph FreeTypeFont::loadGlyph(uint32_t codePoint,
+                              fge::CharacterSize characterSize,
+                              bool bold,
+                              float outlineThickness) const
 {
     // The glyph to return
     Glyph glyph;
@@ -454,7 +456,7 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint, fge::CharacterSize characterSi
         glyph._bounds._height = static_cast<float>(bitmap.rows);
 
         // Resize the pixel buffer to the new size and fill it with transparent white pixels
-        this->g_surfaceBuffer.create(width, height, fge::Color(255,255,255,0));
+        this->g_surfaceBuffer.create(width, height, fge::Color(255, 255, 255, 0));
 
         // Extract the glyph's pixels from the bitmap
         const uint8_t* pixels = bitmap.buffer;
@@ -465,7 +467,7 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint, fge::CharacterSize characterSi
             {
                 for (unsigned int x = padding; x < width - padding; ++x)
                 {
-                    if ( (pixels[(x - padding) / 8] & (1 << (7 - ((x - padding) % 8)))) > 0 )
+                    if ((pixels[(x - padding) / 8] & (1 << (7 - ((x - padding) % 8)))) > 0)
                     {
                         this->g_surfaceBuffer.setPixel(x, y, fge::Color::White);
                     }
@@ -480,7 +482,7 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint, fge::CharacterSize characterSi
             {
                 for (unsigned int x = padding; x < width - padding; ++x)
                 {
-                    this->g_surfaceBuffer.setPixel(x, y, fge::Color(255,255,255, pixels[x - padding]));
+                    this->g_surfaceBuffer.setPixel(x, y, fge::Color(255, 255, 255, pixels[x - padding]));
                 }
                 pixels += bitmap.pitch;
             }

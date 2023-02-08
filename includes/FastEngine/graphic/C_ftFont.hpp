@@ -27,11 +27,11 @@
 #include <FastEngine/fastengine_extern.hpp>
 #include "FastEngine/C_rect.hpp"
 #include <FastEngine/graphic/C_glyph.hpp>
-#include <FastEngine/vulkan/C_textureImage.hpp>
 #include <FastEngine/graphic/C_surface.hpp>
+#include <FastEngine/vulkan/C_textureImage.hpp>
 #include <filesystem>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace fge
@@ -58,7 +58,8 @@ public:
 
     const Info& getInfo() const;
 
-    const Glyph& getGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness = 0) const;
+    const Glyph&
+    getGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness = 0) const;
     bool hasGlyph(uint32_t codePoint) const;
 
     float getKerning(uint32_t first, uint32_t second, fge::CharacterSize characterSize, bool bold = false) const;
@@ -99,7 +100,8 @@ private:
         std::vector<Row> _rows;             //!< List containing the position of all the existing rows
     };
 
-    using PageTable = std::unordered_map<fge::CharacterSize, Page>; //!< Table mapping a character size to its page (texture)
+    using PageTable =
+            std::unordered_map<fge::CharacterSize, Page>; //!< Table mapping a character size to its page (texture)
 
     void cleanup();
 
@@ -115,7 +117,7 @@ private:
     void* g_stroker;   //!< Pointer to the stroker (it is typeless to avoid exposing implementation details)
     bool g_isSmooth;   //!< Status of the smooth filter
     Info g_info;       //!< Information about the font
-    mutable PageTable g_pages; //!< Table containing the glyphs pages by character size
+    mutable PageTable g_pages;            //!< Table containing the glyphs pages by character size
     mutable fge::Surface g_surfaceBuffer; //!< Surface holding a glyph's pixels before being written to the texture
 };
 

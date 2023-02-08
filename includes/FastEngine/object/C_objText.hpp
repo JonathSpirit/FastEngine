@@ -102,9 +102,7 @@ public:
             fge::Font font,
             const fge::Vector2f& position = {},
             fge::CharacterSize characterSize = 30);
-    explicit ObjText(fge::Font font,
-                     const fge::Vector2f& position = {},
-                     fge::CharacterSize characterSize = 30);
+    explicit ObjText(fge::Font font, const fge::Vector2f& position = {}, fge::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
