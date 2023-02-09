@@ -65,4 +65,9 @@ const VkViewport& Viewport::getViewport() const
     return this->g_viewport;
 }
 
+void Viewport::cmdSetViewport(VkCommandBuffer commandBuffer) const
+{
+    vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport);
+}
+
 } // namespace fge::vulkan

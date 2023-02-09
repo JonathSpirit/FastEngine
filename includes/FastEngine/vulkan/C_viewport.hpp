@@ -48,6 +48,8 @@ public:
 
     [[nodiscard]] const VkViewport& getViewport() const;
 
+    void cmdSetViewport(VkCommandBuffer commandBuffer) const;
+
 private:
     VkViewport g_viewport;
 };
