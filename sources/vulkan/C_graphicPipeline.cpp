@@ -50,7 +50,6 @@ GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_defaultPrimitiveTopology(r.g_defaultPrimitiveTopology),
         g_defaultVertexCount(r.g_defaultVertexCount),
 
-        g_viewport(r.g_viewport),
         g_blendMode(r.g_blendMode),
         g_scissor(r.g_scissor),
 
@@ -70,7 +69,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_defaultPrimitiveTopology(r.g_defaultPrimitiveTopology),
         g_defaultVertexCount(r.g_defaultVertexCount),
 
-        g_viewport(r.g_viewport),
         g_blendMode(r.g_blendMode),
         g_scissor(r.g_scissor),
 
@@ -89,7 +87,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     r.g_defaultVertexCount = 3;
 
-    r.g_viewport = {};
     r.g_blendMode = {};
     r.g_scissor = {};
 
@@ -353,20 +350,6 @@ uint32_t GraphicPipeline::getDefaultVertexCount() const
     return this->g_defaultVertexCount;
 }
 
-void GraphicPipeline::setViewport(const VkExtent2D& extent2D) const
-{
-    this->g_viewport.setPosition(0.0f, 0.0f);
-    this->g_viewport.setSize(static_cast<float>(extent2D.width), static_cast<float>(extent2D.height));
-}
-void GraphicPipeline::setViewport(const Viewport& viewport) const
-{
-    this->g_viewport = viewport;
-}
-const Viewport& GraphicPipeline::getViewport() const
-{
-    return this->g_viewport;
-}
-
 void GraphicPipeline::setScissor(const VkRect2D& scissor) const
 {
     this->g_scissor = scissor;
@@ -377,12 +360,13 @@ const VkRect2D& GraphicPipeline::getScissor() const
 }
 
 void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
+                                          const Viewport& viewport,
                                           const VertexBuffer* vertexBuffer,
                                           const IndexBuffer* indexBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
-    vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
+    viewport.cmdSetViewport(commandBuffer);
     vkCmdSetScissor(commandBuffer, 0, 1, &this->g_scissor);
 
     if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
@@ -407,12 +391,13 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
     }
 }
 void GraphicPipeline::recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
+                                                     const Viewport& viewport,
                                                      const VertexBuffer* vertexBuffer,
                                                      const IndexBuffer* indexBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
-    vkCmdSetViewport(commandBuffer, 0, 1, &this->g_viewport.getViewport());
+    viewport.cmdSetViewport(commandBuffer);
     vkCmdSetScissor(commandBuffer, 0, 1, &this->g_scissor);
 
     if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
@@ -490,8 +475,6 @@ void GraphicPipeline::destroy()
 
         this->g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         this->g_defaultVertexCount = 3;
-
-        this->g_viewport = {};
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;

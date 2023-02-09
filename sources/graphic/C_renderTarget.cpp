@@ -203,7 +203,6 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
     const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
                                          windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
-    graphicPipeline.setViewport(viewport);
     graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
 
     VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
@@ -229,7 +228,7 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
     VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().get()};
     graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);
 
-    graphicPipeline.recordCommandBuffer(commandBuffer, states._vertexBuffer, states._indexBuffer);
+    graphicPipeline.recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 }
 
 void RenderTarget::drawBatches(const fge::vulkan::BlendMode& blendMode,
@@ -293,7 +292,6 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
     const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
                                          windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
-    graphicPipeline.setViewport(viewport);
     graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
 
     VkDescriptorSetLayout layout[] = {this->_g_context->getTransformBatchesLayout().getLayout(),
@@ -316,7 +314,7 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeli
 
     VkDescriptorSet descriptorSetTransform[] = {transformDescriptorSet.get()};
 
-    graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer, vertexBuffer, nullptr);
+    graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer, viewport, vertexBuffer, nullptr);
 
     for (std::size_t i = 0; i < instanceCount; ++i)
     {

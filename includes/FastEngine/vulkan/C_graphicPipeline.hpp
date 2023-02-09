@@ -61,17 +61,15 @@ public:
     void setDefaultVertexCount(uint32_t count) const;
     [[nodiscard]] uint32_t getDefaultVertexCount() const;
 
-    void setViewport(const VkExtent2D& extent2D) const;
-    void setViewport(const Viewport& viewport) const;
-    [[nodiscard]] const Viewport& getViewport() const;
-
     void setScissor(const VkRect2D& scissor) const;
     [[nodiscard]] const VkRect2D& getScissor() const;
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer,
+                             const Viewport& viewport,
                              const VertexBuffer* vertexBuffer,
                              const IndexBuffer* indexBuffer) const;
     void recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
+                                        const Viewport& viewport,
                                         const VertexBuffer* vertexBuffer,
                                         const IndexBuffer* indexBuffer) const;
     void bindDescriptorSets(VkCommandBuffer commandBuffer,
@@ -104,7 +102,6 @@ private:
     mutable VkPrimitiveTopology g_defaultPrimitiveTopology;
     mutable uint32_t g_defaultVertexCount;
 
-    mutable Viewport g_viewport;
     mutable BlendMode g_blendMode;
     mutable VkRect2D g_scissor;
 
