@@ -28,6 +28,13 @@
 namespace fge::vulkan
 {
 
+/**
+ * \class Instance
+ * \ingroup vulkan
+ * \brief Vulkan instance abstraction
+ *
+ * This class is used to create a Vulkan instance and get the physical devices.
+ */
 class FGE_API Instance
 {
 public:
@@ -39,6 +46,15 @@ public:
     Instance& operator=(const Instance& r) = delete;
     Instance& operator=(Instance&& r) noexcept = delete;
 
+    /**
+     * \brief Create the instance
+     *
+     * \param window The SDL window
+     * \param applicationName The application name
+     * \param versionMajor The application version major
+     * \param versionMinor The application version minor
+     * \param versionPatch The application version patch
+     */
     void create(SDL_Window* window,
                 std::string applicationName,
                 uint16_t versionMajor = 1,
@@ -51,9 +67,30 @@ public:
     [[nodiscard]] VkInstance getInstance() const;
     [[nodiscard]] SDL_Window* getWindow() const;
 
+    /**
+     * \brief Helper to get the SDL window size
+     *
+     * \return The window size
+     */
     [[nodiscard]] glm::vec<2, int> getWindowSize() const;
 
+    /**
+     * \brief Get a list of physical devices
+     *
+     * You have to create the instance before calling this function.
+     *
+     * \return The list of physical devices
+     */
     [[nodiscard]] const std::vector<PhysicalDevice>& getPhysicalDevices() const;
+    /**
+     * \brief Pick a physical device
+     *
+     * Pick a physical device that support the surface based on a score.
+     * It will prioritize discrete GPU over integrated GPU.
+     *
+     * \param surface The surface
+     * \return The physical device or VK_NULL_HANDLE if no physical device is found
+     */
     [[nodiscard]] PhysicalDevice pickPhysicalDevice(VkSurfaceKHR surface);
 
 private:

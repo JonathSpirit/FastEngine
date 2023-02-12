@@ -282,7 +282,7 @@ public:
      * When switching to a new frame, the garbage collector will free all the
      * resources that were collected previously.
      *
-     * @param frame The current frame
+     * \param frame The current frame
      */
     void setCurrentFrame(uint32_t frame);
     [[nodiscard]] uint32_t getCurrentFrame() const;
@@ -292,7 +292,7 @@ public:
      * Push a garbage object associated with the current frame.
      * The garbage will be freed when switching to a new frame.
      *
-     * @param garbage The garbage object
+     * \param garbage The garbage object
      */
     void push(Garbage garbage) const;
     /**
@@ -320,7 +320,7 @@ public:
      * When the user disable the garbage collector, the freeAll() method
      * is called automatically.
      *
-     * @param stat \b false to disable the garbage collector, \b true to enable it
+     * \param stat \b false to disable the garbage collector, \b true to enable it
      */
     void enable(bool stat);
     [[nodiscard]] bool isEnabled() const;

@@ -55,11 +55,11 @@ public:
      * When the number of descriptor sets allocated reach the maxSetsPerPool,
      * a new pool is created.
      *
-     * @param context The context
-     * @param descriptorPoolSizes A vector of VkDescriptorPoolSize
-     * @param maxSetsPerPool The max number of descriptor sets per pool
-     * @param isUnique If \b true, only one pool is created and will fail if the maxSetsPerPool is reached
-     * @param individuallyFree If \b true, the descriptor sets are individually freed
+     * \param context The context
+     * \param descriptorPoolSizes A vector of VkDescriptorPoolSize
+     * \param maxSetsPerPool The max number of descriptor sets per pool
+     * \param isUnique If \b true, only one pool is created and will fail if the maxSetsPerPool is reached
+     * \param individuallyFree If \b true, the descriptor sets are individually freed
      */
     void create(const Context& context,
                 std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
@@ -71,8 +71,8 @@ public:
     /**
      * \brief Allocate a descriptor set
      *
-     * @param layout The descriptor set layout
-     * @return The descriptor set or std::nullopt if the allocation failed
+     * \param layout The descriptor set layout
+     * \return The descriptor set or std::nullopt if the allocation failed
      */
     [[nodiscard]] std::optional<DescriptorSet> allocateDescriptorSet(VkDescriptorSetLayout layout) const;
 
@@ -81,8 +81,8 @@ public:
      *
      * This function should not be directly called, DescriptorSet::destroy() should be used instead.
      *
-     * @param descriptorSet The descriptor set
-     * @param descriptorPool The descriptor pool that the descriptor set was allocated from
+     * \param descriptorSet The descriptor set
+     * \param descriptorPool The descriptor pool that the descriptor set was allocated from
      */
     void freeDescriptorSet(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool) const;
     /**

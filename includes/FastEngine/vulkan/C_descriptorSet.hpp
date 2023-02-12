@@ -89,8 +89,8 @@ public:
      *
      * This function update the descriptor set with the given descriptors.
      *
-     * @param descriptors An array of descriptors
-     * @param descriptorSize The size of the array
+     * \param descriptors An array of descriptors
+     * \param descriptorSize The size of the array
      */
     void updateDescriptorSet(const Descriptor* descriptors, std::size_t descriptorSize);
 
