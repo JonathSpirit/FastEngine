@@ -15,13 +15,11 @@
  */
 
 #include "FastEngine/vulkan/C_instance.hpp"
+#include "FastEngine/fastengine_version.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <cstring>
 #include <iostream>
 #include <map>
-#include <set>
 #include <stdexcept>
-#include <vector>
 
 namespace fge::vulkan
 {
@@ -62,13 +60,25 @@ void Instance::create(SDL_Window* window,
     appInfo.pApplicationName = this->g_applicationName.c_str();
     appInfo.applicationVersion = VK_MAKE_API_VERSION(0, versionMajor, versionMinor, versionPatch);
     appInfo.pEngineName = "FastEngine";
-    appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
+    appInfo.engineVersion = VK_MAKE_API_VERSION(0, FGE_VERSION_MAJOR, FGE_VERSION_MINOR, FGE_VERSION_REVISION);
     appInfo.apiVersion = VK_API_VERSION_1_1;
 
-    if (!Instance::checkValidationLayerSupport())
+#ifdef FGE_ENABLE_VALIDATION_LAYERS
+    std::vector<const char*> validValidationLayers;
+    validValidationLayers.reserve(ValidationLayers.size());
+
+    for (const char* layerName: ValidationLayers)
     {
-        throw std::runtime_error{"validation layers requested, but not available !"};
+        if (!CheckValidationLayerSupport(layerName))
+        {
+            std::cout << "validation layer \"" << layerName << "\" requested, but not available (will be ignored) !\n";
+        }
+        else
+        {
+            validValidationLayers.push_back(layerName);
+        }
     }
+#endif
 
     uint32_t enabled_extension_count = 0;
     SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, nullptr);
@@ -83,14 +93,14 @@ void Instance::create(SDL_Window* window,
     createInfo.enabledExtensionCount = enabled_extension_count;
     createInfo.ppEnabledExtensionNames = reinterpret_cast<const char* const*>(extensions.data());
 
-#ifdef NDEBUG
+#ifndef FGE_ENABLE_VALIDATION_LAYERS
     createInfo.enabledLayerCount = 0;
 #else
-    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-    createInfo.ppEnabledLayerNames = ValidationLayers.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validValidationLayers.size());
+    createInfo.ppEnabledLayerNames = validValidationLayers.data();
 #endif
 
-    VkResult result = vkCreateInstance(&createInfo, nullptr, &this->g_instance);
+    const VkResult result = vkCreateInstance(&createInfo, nullptr, &this->g_instance);
 
     if (result != VK_SUCCESS)
     {
@@ -146,7 +156,7 @@ PhysicalDevice Instance::pickPhysicalDevice(VkSurfaceKHR surface)
 
     for (const auto& device: this->g_physicalDevices)
     {
-        unsigned int score = device.rateDeviceSuitability(surface);
+        const auto score = device.rateDeviceSuitability(surface);
         candidates.insert(std::make_pair(score, device));
     }
 
@@ -158,41 +168,12 @@ PhysicalDevice Instance::pickPhysicalDevice(VkSurfaceKHR surface)
     return PhysicalDevice(VK_NULL_HANDLE);
 }
 
-bool Instance::checkValidationLayerSupport()
-{
-    uint32_t layerCount = 0;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-    for (const char* layerName: ValidationLayers)
-    {
-        bool layerFound = false;
-
-        for (const auto& layerProperties: availableLayers)
-        {
-            if (std::strcmp(layerName, layerProperties.layerName) == 0)
-            {
-                layerFound = true;
-                break;
-            }
-        }
-
-        if (!layerFound)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 void Instance::enumeratePhysicalDevices()
 {
+    this->g_physicalDevices.clear();
+
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(this->g_instance, &deviceCount, nullptr);
-
-    std::cout << "Number of graphics cards : " << deviceCount << "\n";
 
     if (deviceCount == 0)
     {
@@ -202,7 +183,6 @@ void Instance::enumeratePhysicalDevices()
     std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
     vkEnumeratePhysicalDevices(this->g_instance, &deviceCount, physicalDevices.data());
 
-    this->g_physicalDevices.clear();
     this->g_physicalDevices.resize(deviceCount);
     for (std::size_t i = 0; i < deviceCount; ++i)
     {

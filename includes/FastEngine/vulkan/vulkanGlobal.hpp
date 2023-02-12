@@ -36,6 +36,8 @@ FGE_API extern const std::vector<const char*> DeviceExtensions;
 
 FGE_API extern Context* GlobalContext;
 
+FGE_API bool CheckValidationLayerSupport(const char* layerName);
+
 FGE_API void CreateBuffer(const Context& context,
                           VkDeviceSize size,
                           VkBufferUsageFlags usage,

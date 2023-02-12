@@ -11,14 +11,16 @@ else()
     set(FGE_ARCH 32)
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
+if(CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
     set(FGE_LIB_NAME "${PROJECT_NAME}${FGE_ARCH}_d")
     set(FGE_SERVER_LIB_NAME "${PROJECT_NAME}Server${FGE_ARCH}_d")
     set(FGE_DEBUG ON)
+    set(FGE_ENABLE_VALIDATION_LAYERS ON CACHE BOOL "enable/disable Vulkan validation layers")
 else()
     set(FGE_LIB_NAME "${PROJECT_NAME}${FGE_ARCH}")
     set(FGE_SERVER_LIB_NAME "${PROJECT_NAME}Server${FGE_ARCH}")
     set(FGE_DEBUG OFF)
+    set(FGE_ENABLE_VALIDATION_LAYERS OFF CACHE BOOL "enable/disable Vulkan validation layers")
 endif()
 
 if(NOT WIN32)
@@ -56,7 +58,7 @@ set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp)
 include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
 #Options
-if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
+if (NOT ${FGE_DEBUG})
     option(FGE_BUILD_DOC "Build documentation" ON)
 else()
     option(FGE_BUILD_DOC "Build documentation" OFF)
@@ -234,10 +236,17 @@ target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
 #Definition
 target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
-if(FGE_DEBUG)
+
+if (${FGE_DEBUG})
     target_compile_definitions(${FGE_LIB_NAME} PRIVATE FGE_DEF_DEBUG)
     target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_DEF_DEBUG)
 endif()
+
+if (${FGE_ENABLE_VALIDATION_LAYERS})
+    target_compile_definitions(${FGE_LIB_NAME} PRIVATE FGE_ENABLE_VALIDATION_LAYERS)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_ENABLE_VALIDATION_LAYERS)
+endif()
+
 target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_DEF_SERVER)
 
 #Includes path

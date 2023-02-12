@@ -21,7 +21,7 @@
 #include "volk.h"
 #include "C_physicalDevice.hpp"
 #include "SDL_vulkan.h"
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 #include <string>
 #include <vector>
 
@@ -55,8 +55,6 @@ public:
 
     [[nodiscard]] const std::vector<PhysicalDevice>& getPhysicalDevices() const;
     [[nodiscard]] PhysicalDevice pickPhysicalDevice(VkSurfaceKHR surface);
-
-    static bool checkValidationLayerSupport();
 
 private:
     void enumeratePhysicalDevices();

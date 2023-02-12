@@ -18,21 +18,45 @@
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
+#include <cstring>
 #include <stdexcept>
 
 namespace fge::vulkan
 {
 
-#ifndef _WIN32
-const std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
-#else
+#ifdef FGE_ENABLE_VALIDATION_LAYERS
 const std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
+#else
+const std::vector<const char*> ValidationLayers = {};
 #endif
 
 const std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                                    VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME};
 
 Context* GlobalContext{nullptr};
+
+bool CheckValidationLayerSupport(const char* layerName)
+{
+    static std::vector<VkLayerProperties> availableLayers;
+
+    if (availableLayers.empty())
+    {
+        uint32_t layerCount = 0;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        availableLayers.resize(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    }
+
+    for (const auto& layerProperties: availableLayers)
+    {
+        if (std::strcmp(layerName, layerProperties.layerName) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 void CreateBuffer(const Context& context,
                   VkDeviceSize size,
