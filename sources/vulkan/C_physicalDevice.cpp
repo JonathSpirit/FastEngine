@@ -16,7 +16,9 @@
 
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <iostream>
+#ifdef FGE_DEF_DEBUG
+    #include <iostream>
+#endif
 #include <set>
 #include <stdexcept>
 
@@ -172,20 +174,26 @@ PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(Vk
         details._formatProperties.resize(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(this->g_device, surface, &formatCount, details._formats.data());
 
+#ifdef FGE_DEF_DEBUG
         std::cout << "Available formats: " << std::endl;
+#endif
         for (uint32_t i = 0; i < formatCount; ++i)
         {
+#ifdef FGE_DEF_DEBUG
             std::cout << "\tSurface format: color space = " << details._formats[i].colorSpace
                       << ", pixel format = " << details._formats[i].format << std::endl;
+#endif
 
             VkFormatProperties2 formatProperties2{VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2, nullptr, {}};
             vkGetPhysicalDeviceFormatProperties2(this->g_device, details._formats[i].format, &formatProperties2);
             details._formatProperties[i] = formatProperties2.formatProperties;
 
+#ifdef FGE_DEF_DEBUG
             std::cout << "\t\tSurface properties: linearTilingFeatures = "
                       << formatProperties2.formatProperties.linearTilingFeatures
                       << ", optimalTilingFeatures = " << formatProperties2.formatProperties.optimalTilingFeatures
                       << ", bufferFeatures = " << formatProperties2.formatProperties.bufferFeatures << std::endl;
+#endif
         }
     }
 
