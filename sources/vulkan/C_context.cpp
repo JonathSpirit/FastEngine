@@ -16,7 +16,6 @@
 
 #include "FastEngine/vulkan/C_context.hpp"
 #include "SDL_events.h"
-#include <algorithm>
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -182,6 +181,7 @@ void Context::initVulkan(SDL_Window* window)
 }
 void Context::enumerateExtensions()
 {
+#ifdef FGE_DEF_DEBUG
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -195,6 +195,7 @@ void Context::enumerateExtensions()
         std::cout << '\t' << extension.extensionName << '\n';
     }
     std::cout << std::endl;
+#endif
 }
 
 void Context::waitIdle()
