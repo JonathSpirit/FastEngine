@@ -21,6 +21,7 @@
 #endif
 #include <set>
 #include <stdexcept>
+#include <string>
 
 namespace fge::vulkan
 {
