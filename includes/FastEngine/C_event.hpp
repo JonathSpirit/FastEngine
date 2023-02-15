@@ -41,9 +41,9 @@ class Packet;
 /**
  * \class Event
  * \ingroup objectControl
- * \brief This class is a wrapper for SFML events
+ * \brief This class is a wrapper for SDL events
  *
- * This class regroups all the SFML events in a single class.
+ * This class regroups all the SDL events in a single class.
  * It also provides a way to send events to the server.
  * All events can be monitored with callbacks.
  *
@@ -200,7 +200,7 @@ public:
      */
     std::string getBinaryKeysString() const;
     /**
-     * \brief Get a binary representation of all SFML event types into a string
+     * \brief Get a binary representation of all SDL event types into a string
      *
      * \return The string
      */

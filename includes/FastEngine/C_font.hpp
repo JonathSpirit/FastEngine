@@ -99,9 +99,9 @@ public:
     explicit operator const fge::FreeTypeFont*() const;
 
     /**
-     * \brief Directly get the SFML font
+     * \brief Directly get the font
      *
-     * \return The SFML font
+     * \return The font
      */
     operator fge::FreeTypeFont&();
     operator const fge::FreeTypeFont&() const;

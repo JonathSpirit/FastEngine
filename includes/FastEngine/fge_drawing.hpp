@@ -19,7 +19,6 @@
 #ifndef FGE_DEF_SERVER
 
     #include <FastEngine/fastengine_extern.hpp>
-//#include <SFML/Graphics.hpp>
 
 namespace fge
 {

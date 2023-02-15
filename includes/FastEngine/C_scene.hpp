@@ -405,7 +405,7 @@ public:
      * the delUpdatedObject and not any others delete methode that will cause
      * undefined behaviour.
      *
-     * \param screen A SFML RenderWindow
+     * \param screen A RenderWindow
      * \param event The FastEngine Event class
      * \param deltaTime The time in milliseconds between two updates
      */
@@ -429,8 +429,8 @@ public:
      * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.
      * \see ObjectData::getPlanDepth
      *
-     * \param target A SFML RenderTarget
-     * \param states The default SFML RenderStates to be used for every drawn Object
+     * \param target A RenderTarget
+     * \param states The default RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
     void draw(fge::RenderTarget& target, const fge::RenderStates& states = {}) const;
@@ -695,7 +695,7 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param pos The local position
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
@@ -713,7 +713,7 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param zone The local zone
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
@@ -733,7 +733,7 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param pos The local position
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
@@ -754,7 +754,7 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param zone The local zone
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
@@ -814,7 +814,7 @@ public:
      * \see getAllObj_ByLocalPosition
      *
      * \param pos The local position
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
     fge::ObjectDataShared getFirstObj_ByLocalPosition(const fge::Vector2i& pos, const fge::RenderTarget& target) const;
@@ -824,7 +824,7 @@ public:
      * \see getAllObj_ByLocalZone
      *
      * \param zone The local zone
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
     fge::ObjectDataShared getFirstObj_ByLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const;
@@ -834,7 +834,7 @@ public:
      * \see getAllObj_FromLocalPosition
      *
      * \param pos The position
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
     fge::ObjectDataShared getFirstObj_FromLocalPosition(const fge::Vector2i& pos,
@@ -845,7 +845,7 @@ public:
      * \see getAllObj_FromLocalZone
      *
      * \param zone The local zone
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
     fge::ObjectDataShared getFirstObj_FromLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const;
@@ -1112,7 +1112,7 @@ public:
      *
      * This is useful if you need to draw a Scene in another place in the screen.
      *
-     * \param customView The shared pointer of a SFML view
+     * \param customView The shared pointer of a view
      */
     void setCustomView(std::shared_ptr<fge::View> customView);
     /**
@@ -1120,7 +1120,7 @@ public:
      *
      * \see setCustomView
      *
-     * \return The shared point of the SFML view
+     * \return The shared point of the view
      */
     const std::shared_ptr<fge::View>& getCustomView() const;
     /**
@@ -1132,11 +1132,11 @@ public:
 
     // Linked renderTarget
     /**
-     * \brief Link a SFML RenderTarget to the Scene.
+     * \brief Link a RenderTarget to the Scene.
      *
      * This is useful for any Object that required an RenderTarget in its method.
      *
-     * \param target The SFML RenderTarget (can be \b nullptr)
+     * \param target The RenderTarget (can be \b nullptr)
      */
     void setLinkedRenderTarget(fge::RenderTarget* target);
     /**

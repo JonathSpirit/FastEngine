@@ -189,7 +189,7 @@ public:
      * provided pointer reference \b element with the element itself.
      *
      * \param evt An fge::Event
-     * \param evtType The type of the SFML event called
+     * \param evtType The type of the SDL event called
      * \param context The GuiElement context
      */
     virtual void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) = 0;

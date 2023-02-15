@@ -111,9 +111,9 @@ public:
     explicit operator const fge::TextureType*() const;
 
     /**
-     * \brief Directly get the SFML texture
+     * \brief Directly get the texture
      *
-     * \return The SFML texture
+     * \return The texture
      */
     operator fge::TextureType&();
     operator const fge::TextureType&() const;

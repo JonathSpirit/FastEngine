@@ -145,7 +145,7 @@ public:
      * \brief Method called every frame to draw the object
      *
      * \param target The target where the object is drawn
-     * \param states The SFML render states
+     * \param states The render states
      */
 #ifndef FGE_DEF_SERVER
     virtual void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;

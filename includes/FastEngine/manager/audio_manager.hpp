@@ -43,7 +43,7 @@ struct MixerChunkDeleter
  */
 struct AudioData
 {
-    std::shared_ptr<Mix_Chunk> _audio; ///< Shared pointer to the SFML sound buffer
+    std::shared_ptr<Mix_Chunk> _audio; ///< Shared pointer to the SDL chunk
     bool _valid;                       ///< Indicates if the audio data is valid
     std::string _path;                 ///< Path to the audio file
 };
@@ -60,7 +60,7 @@ using AudioDataType = std::unordered_map<std::string, fge::audio::AudioDataPtr>;
  * \brief Initializes the audio manager
  *
  * This function must be called before any other function of the audio manager.
- * The audio manager is global thread safe storage for SFML sound buffers.
+ * The audio manager is global thread safe storage for SDL chunks.
  */
 FGE_API void Init();
 /**
