@@ -18,13 +18,18 @@
 #define _FGE_C_EVENT_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_vector.hpp"
 #include <FastEngine/C_callback.hpp>
-#include <SFML/Window.hpp>
+#include <SDL_events.h>
+#include <SDL_video.h>
 
+#define FGE_EVENT_KEYCODES_SIZE 12
 #define FGE_EVENT_DEFAULT_MAXEVENTCOUNT 20
 
 namespace fge
 {
+
+class RenderWindow;
 
 namespace net
 {
@@ -36,9 +41,9 @@ class Packet;
 /**
  * \class Event
  * \ingroup objectControl
- * \brief This class is a wrapper for SFML events
+ * \brief This class is a wrapper for SDL events
  *
- * This class regroups all the SFML events in a single class.
+ * This class regroups all the SDL events in a single class.
  * It also provides a way to send events to the server.
  * All events can be monitored with callbacks.
  *
@@ -49,12 +54,14 @@ class FGE_API Event
 public:
     Event() = default;
     /**
-     * \brief Constructor to apply to size of the window
+     * \brief Constructor to apply to size of the window and the position
      *
      * \param windowSize The size of the window
+     * \param windowPosition The position of the window
      */
-    explicit Event(const sf::Vector2u& windowSize) :
-            g_windowSize(windowSize)
+    explicit Event(const fge::Vector2i& windowSize, const fge::Vector2i& windowPosition) :
+            g_windowSize(windowSize),
+            g_windowPosition(windowPosition)
     {}
     /**
      * \brief Constructor to apply window data
@@ -62,9 +69,8 @@ public:
      * \param window The window
      */
 #ifndef FGE_DEF_SERVER
-    explicit Event(const sf::Window& window) :
-            g_windowSize(window.getSize())
-    {}
+    explicit Event(SDL_Window* window);
+    explicit Event(const fge::RenderWindow& renderWindow);
 #endif //FGE_DEF_SERVER
     ~Event() = default;
 
@@ -87,34 +93,36 @@ public:
     void start();
 #ifndef FGE_DEF_SERVER
     /**
-     * \brief Process an SFML event
+     * \brief Process an SDL event
      *
      * Before any attempt to call this function, you should call start.
      *
      * \see start
      *
-     * \param sfevt The SFML event
+     * \param evt The SDL event
      */
-    void process(const sf::Event& sfevt);
+    void process(const SDL_Event& evt);
     /**
-     * \brief Process automatically all the SFML events
+     * \brief Process automatically SDL events
      *
      * This function loop through all available events and call process. The
      * start function is called by this function.
      *
-     * \param sfscreen The SFML window
      * \param maxEventCount The maximum number of processed events par call
      */
-    void process(sf::Window& sfscreen, unsigned int maxEventCount = FGE_EVENT_DEFAULT_MAXEVENTCOUNT);
+    void process(unsigned int maxEventCount = FGE_EVENT_DEFAULT_MAXEVENTCOUNT);
 #endif //FGE_DEF_SERVER
+
+    void pushType(SDL_EventType type); ///TODO: add comments
+    void popType(SDL_EventType type);
 
     /**
      * \brief Check if a key is pressed
      *
-     * \param sfkey The SFML key
+     * \param keycode The SDL key code
      * \return \b true if the key is pressed, \b false otherwise
      */
-    bool isKeyPressed(sf::Keyboard::Key sfkey) const;
+    bool isKeyPressed(uint32_t keycode) const;
     /**
      * \brief Get the unicode of the last key pressed
      *
@@ -127,42 +135,48 @@ public:
      *
      * \return The window size
      */
-    const sf::Vector2u& getWindowSize() const;
+    const fge::Vector2i& getWindowSize() const;
+    /**
+     * \brief Get the window position
+     *
+     * \return The window position
+     */
+    const fge::Vector2i& getWindowPos() const;
 
     /**
-     * \brief Check if the specified SFML event is active
+     * \brief Check if the specified SDL event is active
      *
-     * \param evtType The SFML event type
+     * \param type The SDL event type
      * \return \b true if the event is active, \b false otherwise
      */
-    bool isEventType(sf::Event::EventType evtType) const;
+    bool isEventType(uint32_t type) const;
 
     /**
      * \brief Get the mouse pixel position
      *
      * \return The mouse pixel position
      */
-    const sf::Vector2i& getMousePixelPos() const;
+    const fge::Vector2i& getMousePixelPos() const;
     /**
      * \brief Check if the specified mouse button is pressed
      *
-     * \param sfmouse The SFML mouse button
+     * \param mouseButton The SDL mouse button
      * \return \b true if the button is pressed, \b false otherwise
      */
-    bool isMouseButtonPressed(sf::Mouse::Button sfmouse) const;
+    bool isMouseButtonPressed(uint8_t mouseButton) const;
 
     /**
      * \brief Get the horizontal mouse wheel delta
      *
      * \return The horizontal mouse wheel delta
      */
-    float getMouseWheelHorizontalDelta() const;
+    int getMouseWheelHorizontalDelta() const;
     /**
      * \brief Get the vertical mouse wheel delta
      *
      * \return The vertical mouse wheel delta
      */
-    float getMouseWheelVerticalDelta() const;
+    int getMouseWheelVerticalDelta() const;
 
     /**
      * \brief Pack events data into a network packet
@@ -186,7 +200,7 @@ public:
      */
     std::string getBinaryKeysString() const;
     /**
-     * \brief Get a binary representation of all SFML event types into a string
+     * \brief Get a binary representation of all SDL event types into a string
      *
      * \return The string
      */
@@ -199,63 +213,88 @@ public:
     std::string getBinaryMouseButtonsString() const;
 
     //Callbacks
-    fge::CallbackHandler<const fge::Event&> _onClosed; ///< Callback called when the window is closed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::SizeEvent&>
-            _onResized;                                     ///< Callback called when the window is resized
-    fge::CallbackHandler<const fge::Event&> _onLostFocus;   ///< Callback called when the window lost focus
-    fge::CallbackHandler<const fge::Event&> _onGainedFocus; ///< Callback called when the window gained focus
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TextEvent&>
-            _onTextEntered; ///< Callback called when a text is entered
-    fge::CallbackHandler<const fge::Event&, const sf::Event::KeyEvent&>
-            _onKeyPressed; ///< Callback called when a key is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::KeyEvent&>
-            _onKeyReleased; ///< Callback called when a key is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseWheelScrollEvent&>
-            _onMouseWheelScrolled; ///< Callback called when the mouse wheel is scrolled
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&>
-            _onMouseButtonPressed; ///< Callback called when a mouse button is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&>
-            _onMouseButtonReleased; ///< Callback called when a mouse button is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseMoveEvent&>
-            _onMouseMoved;                                   ///< Callback called when the mouse is moved
-    fge::CallbackHandler<const fge::Event&> _onMouseEntered; ///< Callback called when the mouse enters the window
-    fge::CallbackHandler<const fge::Event&> _onMouseLeft;    ///< Callback called when the mouse leaves the window
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickButtonEvent&>
-            _onJoystickButtonPressed; ///< Callback called when a joystick button is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickButtonEvent&>
-            _onJoystickButtonReleased; ///< Callback called when a joystick button is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickMoveEvent&>
-            _onJoystickMoved; ///< Callback called when a joystick is moved
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickConnectEvent&>
-            _onJoystickConnected; ///< Callback called when a joystick is connected
-    fge::CallbackHandler<const fge::Event&, const sf::Event::JoystickConnectEvent&>
-            _onJoystickDisconnected; ///< Callback called when a joystick is disconnected
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&>
-            _onTouchBegan; ///< Callback called when mouse touch begins
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&>
-            _onTouchMoved; ///< Callback called when the mouse touch is moved
-    fge::CallbackHandler<const fge::Event&, const sf::Event::TouchEvent&>
-            _onTouchEnded; ///< Callback called when the mouse touch is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::SensorEvent&>
-            _onSensorChanged; ///< Callback called when a sensor is changed
+    fge::CallbackHandler<const fge::Event&, const SDL_QuitEvent&> _onQuit;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppTerminating;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppLowMemory;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppWillEnterBackground;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppDidEnterBackground;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppWillEnterForeground;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppDidEnterForeground;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_WindowEvent&> _onWindowEvent;
+    fge::CallbackHandler<const fge::Event&, const SDL_SysWMEvent&> _onSyswmEvent;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_KeyboardEvent&> _onKeyDown;
+    fge::CallbackHandler<const fge::Event&, const SDL_KeyboardEvent&> _onKeyUp;
+    fge::CallbackHandler<const fge::Event&, const SDL_TextEditingEvent&> _onTextEditing;
+    fge::CallbackHandler<const fge::Event&, const SDL_TextInputEvent&> _onTextInput;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onKeymapChanged;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseMotionEvent&> _onMouseMotion;
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&> _onMouseButtonDown;
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&> _onMouseButtonUp;
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseWheelEvent&> _onMouseWheel;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyAxisEvent&> _onJoyAxisMotion;
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyBallEvent&> _onJoyBallMotion;
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyHatEvent&> _onJoyHatMotion;
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyButtonEvent&> _onJoyButtonDown;
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyButtonEvent&> _onJoyButtonUp;
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyDeviceEvent&> _onJoyDeviceAdded;
+    fge::CallbackHandler<const fge::Event&, const SDL_JoyDeviceEvent&> _onJoyDeviceRemoved;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_ControllerAxisEvent&> _onControllerAxisMotion;
+    fge::CallbackHandler<const fge::Event&, const SDL_ControllerButtonEvent&> _onControllerButtonDown;
+    fge::CallbackHandler<const fge::Event&, const SDL_ControllerButtonEvent&> _onControllerButtonUp;
+    fge::CallbackHandler<const fge::Event&, const SDL_ControllerDeviceEvent&> _onControllerDeviceAdded;
+    fge::CallbackHandler<const fge::Event&, const SDL_ControllerDeviceEvent&> _onControllerDeviceRemoved;
+    fge::CallbackHandler<const fge::Event&, const SDL_ControllerDeviceEvent&> _onControllerDeviceRemapped;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_TouchFingerEvent&> _onFingerDown;
+    fge::CallbackHandler<const fge::Event&, const SDL_TouchFingerEvent&> _onFingerUp;
+    fge::CallbackHandler<const fge::Event&, const SDL_TouchFingerEvent&> _onFingerMotion;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_DollarGestureEvent&> _onDollarGesture;
+    fge::CallbackHandler<const fge::Event&, const SDL_DollarGestureEvent&> _onDollarRecord;
+    fge::CallbackHandler<const fge::Event&, const SDL_MultiGestureEvent&> _onMultiGesture;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onClipboardUpdate;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropFile;
+    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropText;
+    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropBegin;
+    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropComplete;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_AudioDeviceEvent&> _onAudioDeviceAdded;
+    fge::CallbackHandler<const fge::Event&, const SDL_AudioDeviceEvent&> _onAudioDeviceRemoved;
+
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onRenderTargetReset;
+    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onRenderDeviceReset;
 
 private:
+    static uint64_t EventTypeToBitMask(uint32_t type);
+    static std::size_t KeycodeToBitIndex(uint32_t keyCode);
+    static uint32_t UTF8ToUTF32(const char* utf8);
+
     //Event type
-    uint32_t g_types = 0;
+    uint64_t g_types = 0;
 
     //Keyboard
-    uint32_t g_keys[4] = {0, 0, 0, 0};
+    uint32_t g_keyCodes[FGE_EVENT_KEYCODES_SIZE] = {0};
     uint32_t g_keyUnicode = 0;
 
     //Mouse
-    sf::Vector2i g_mousePixelPos;
+    fge::Vector2i g_mouseRelativeMotion = {0, 0};
+    fge::Vector2i g_mousePixelPosition = {0, 0};
     uint8_t g_mouseButtons = 0;
 
-    float g_mouseWheelHorizontalDelta = 0;
-    float g_mouseWheelVerticalDelta = 0;
+    int g_mouseWheelHorizontalDelta = 0;
+    int g_mouseWheelVerticalDelta = 0;
 
     //Window size
-    sf::Vector2u g_windowSize;
+    fge::Vector2i g_windowSize;
+    fge::Vector2i g_windowPosition;
 };
 
 } // namespace fge

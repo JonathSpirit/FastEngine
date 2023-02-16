@@ -84,55 +84,55 @@ T Random<TEngine>::rand()
 
 template<typename TEngine>
 template<typename T>
-sf::Vector2<T> Random<TEngine>::rangeVec2(T min_x, T max_x, T min_y, T max_y)
+fge::Vector2<T> Random<TEngine>::rangeVec2(T min_x, T max_x, T min_y, T max_y)
 {
-    return sf::Vector2<T>(this->range<T>(min_x, max_x), this->range<T>(min_y, max_y));
+    return fge::Vector2<T>(this->range<T>(min_x, max_x), this->range<T>(min_y, max_y));
 }
 
 template<typename TEngine>
 template<typename T>
-sf::Vector3<T> Random<TEngine>::rangeVec3(T min_x, T max_x, T min_y, T max_y, T min_z, T max_z)
+fge::Vector3<T> Random<TEngine>::rangeVec3(T min_x, T max_x, T min_y, T max_y, T min_z, T max_z)
 {
-    return sf::Vector3<T>(this->range<T>(min_x, max_x), this->range<T>(min_y, max_y), this->range<T>(min_z, max_z));
+    return fge::Vector3<T>(this->range<T>(min_x, max_x), this->range<T>(min_y, max_y), this->range<T>(min_z, max_z));
 }
 
 template<typename TEngine>
-sf::Color Random<TEngine>::rangeColor(uint32_t min, uint32_t max)
+fge::Color Random<TEngine>::rangeColor(uint32_t min, uint32_t max)
 {
-    return sf::Color(this->range<uint32_t>(min, max));
+    return fge::Color(this->range<uint32_t>(min, max));
 }
 template<typename TEngine>
-sf::Color Random<TEngine>::rangeColor(uint8_t min_r,
-                                      uint8_t max_r,
-                                      uint8_t min_g,
-                                      uint8_t max_g,
-                                      uint8_t min_b,
-                                      uint8_t max_b,
-                                      uint8_t min_a,
-                                      uint8_t max_a)
+fge::Color Random<TEngine>::rangeColor(uint8_t min_r,
+                                       uint8_t max_r,
+                                       uint8_t min_g,
+                                       uint8_t max_g,
+                                       uint8_t min_b,
+                                       uint8_t max_b,
+                                       uint8_t min_a,
+                                       uint8_t max_a)
 {
-    return sf::Color(this->range<uint8_t>(min_r, max_r), this->range<uint8_t>(min_g, max_g),
-                     this->range<uint8_t>(min_b, max_b), this->range<uint8_t>(min_a, max_a));
-}
-
-template<typename TEngine>
-template<typename T>
-sf::Vector2<T> Random<TEngine>::randVec2()
-{
-    return sf::Vector2<T>(this->rand<T>(), this->rand<T>());
+    return fge::Color(this->range<uint8_t>(min_r, max_r), this->range<uint8_t>(min_g, max_g),
+                      this->range<uint8_t>(min_b, max_b), this->range<uint8_t>(min_a, max_a));
 }
 
 template<typename TEngine>
 template<typename T>
-sf::Vector3<T> Random<TEngine>::randVec3()
+fge::Vector2<T> Random<TEngine>::randVec2()
 {
-    return sf::Vector3<T>(this->rand<T>(), this->rand<T>(), this->rand<T>());
+    return fge::Vector2<T>(this->rand<T>(), this->rand<T>());
 }
 
 template<typename TEngine>
-sf::Color Random<TEngine>::randColor()
+template<typename T>
+fge::Vector3<T> Random<TEngine>::randVec3()
 {
-    return sf::Color(this->rand<uint32_t>());
+    return fge::Vector3<T>(this->rand<T>(), this->rand<T>(), this->rand<T>());
+}
+
+template<typename TEngine>
+fge::Color Random<TEngine>::randColor()
+{
+    return fge::Color(this->rand<uint32_t>());
 }
 
 template<typename TEngine>

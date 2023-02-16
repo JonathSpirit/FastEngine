@@ -412,6 +412,43 @@ Animation::operator const fge::TextureType*() const
     return fge::texture::GetBadTexture()->_texture.get();
 }
 
+Animation::operator std::shared_ptr<fge::TextureType>&()
+{
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    {
+        if (this->g_data->_valid)
+        {
+            return this->g_data->_tilesetTexture;
+        }
+    }
+    else
+    {
+        if (this->isFrameValid())
+        {
+            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        }
+    }
+    return fge::texture::GetBadTexture()->_texture;
+}
+Animation::operator const std::shared_ptr<fge::TextureType>&() const
+{
+    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    {
+        if (this->g_data->_valid)
+        {
+            return this->g_data->_tilesetTexture;
+        }
+    }
+    else
+    {
+        if (this->isFrameValid())
+        {
+            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+        }
+    }
+    return fge::texture::GetBadTexture()->_texture;
+}
+
 Animation::operator fge::TextureType&()
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
@@ -458,14 +495,14 @@ Animation::operator const std::string&() const
     return this->g_name;
 }
 
-Animation::operator sf::IntRect() const
+Animation::operator fge::RectInt() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
         if (this->isFrameValid())
         {
-            auto gridSize = static_cast<sf::Vector2i>(this->g_data->_tilesetGridSize);
-            auto gridPosition = static_cast<sf::Vector2i>(
+            auto gridSize = static_cast<fge::Vector2i>(this->g_data->_tilesetGridSize);
+            auto gridPosition = static_cast<fge::Vector2i>(
                     this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
             gridPosition.x *= gridSize.x;
             gridPosition.y *= gridSize.y;
@@ -476,12 +513,12 @@ Animation::operator sf::IntRect() const
     {
         if (this->isFrameValid())
         {
-            auto gridSize = static_cast<sf::Vector2i>(
+            auto gridSize = static_cast<fge::Vector2i>(
                     this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
             return {{0, 0}, gridSize};
         }
     }
-    return {{0, 0}, static_cast<sf::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
+    return {{0, 0}, static_cast<fge::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
 }
 
 } // namespace fge

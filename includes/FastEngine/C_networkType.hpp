@@ -278,7 +278,7 @@ private:
 class FGE_API NetworkTypeSmoothVec2Float : public NetworkTypeBase
 {
 public:
-    NetworkTypeSmoothVec2Float(fge::DataAccessor<sf::Vector2f> source, float errorRange);
+    NetworkTypeSmoothVec2Float(fge::DataAccessor<fge::Vector2f> source, float errorRange);
     ~NetworkTypeSmoothVec2Float() override = default;
 
     const void* getSource() const override;
@@ -291,13 +291,13 @@ public:
     void forceCheck() override;
     void forceUncheck() override;
 
-    const sf::Vector2f& getCache() const;
+    const fge::Vector2f& getCache() const;
     void setErrorRange(float range);
     float getErrorRange() const;
 
 private:
-    sf::Vector2f g_typeCopy;
-    fge::DataAccessor<sf::Vector2f> g_typeSource;
+    fge::Vector2f g_typeCopy;
+    fge::DataAccessor<fge::Vector2f> g_typeSource;
     float g_errorRange;
 };
 /**

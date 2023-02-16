@@ -31,7 +31,7 @@ class FGE_API ObjSwitch : public fge::Object
 {
 public:
     ObjSwitch();
-    ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const sf::Vector2f& pos = sf::Vector2f());
+    ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const fge::Vector2f& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSwitch)
 
@@ -40,7 +40,7 @@ public:
     void setTextureOn(const fge::Texture& t_on);
     void setTextureOff(const fge::Texture& t_off);
 
-    void setColor(const sf::Color& color);
+    void setColor(const fge::Color& color);
 
     void setActiveStat(bool active);
     bool getActiveStat() const;
@@ -56,8 +56,8 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
     mutable fge::ObjSprite g_sprite;
@@ -65,7 +65,7 @@ private:
     fge::Texture g_textureOn;
     fge::Texture g_textureOff;
 
-    sf::Color g_color;
+    fge::Color g_color;
 
     bool g_statMouseOn = false;
     bool g_statActive = false;

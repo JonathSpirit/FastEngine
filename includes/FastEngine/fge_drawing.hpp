@@ -19,13 +19,13 @@
 #ifndef FGE_DEF_SERVER
 
     #include <FastEngine/fastengine_extern.hpp>
-    #include <SFML/Graphics.hpp>
 
 namespace fge
 {
 namespace debug
 {
 
+/** TODO
 FGE_API void DrawCenteredCircle(sf::RenderTarget& target,
                                 const sf::Vector2f& position,
                                 float radius,
@@ -39,6 +39,7 @@ FGE_API void DrawCenteredRect(sf::RenderTarget& target,
                               const sf::Color& fillColor,
                               const sf::Color& outColor,
                               float outThickness);
+**/
 
 } // namespace debug
 } // namespace fge

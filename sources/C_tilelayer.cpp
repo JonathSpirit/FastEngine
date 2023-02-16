@@ -15,10 +15,15 @@
  */
 
 #include "FastEngine/C_tilelayer.hpp"
-#include <SFML/Graphics/RenderTarget.hpp>
 
 namespace fge
 {
+
+TileLayer::Tile::Tile()
+{
+    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+                                fge::vulkan::BufferTypes::DEVICE);
+}
 
 void TileLayer::Tile::setGid(TileId gid)
 {
@@ -30,26 +35,26 @@ TileId TileLayer::Tile::getGid() const
     return this->g_gid;
 }
 
-void TileLayer::Tile::setPosition(const sf::Vector2f& position)
+void TileLayer::Tile::setPosition(const fge::Vector2f& position)
 {
     this->g_position = position;
     this->updatePositions();
 }
-const sf::Vector2f& TileLayer::Tile::getPosition() const
+const fge::Vector2f& TileLayer::Tile::getPosition() const
 {
     return this->g_position;
 }
 
-void TileLayer::Tile::setColor(const sf::Color& color)
+void TileLayer::Tile::setColor(const fge::Color& color)
 {
     for (std::size_t i = 0; i < 4; ++i)
     {
-        this->g_vertex[i].color = color;
+        this->g_vertexBuffer.getVertices()[i]._color = color;
     }
 }
-const sf::Color& TileLayer::Tile::getColor() const
+fge::Color TileLayer::Tile::getColor() const
 {
-    return this->g_vertex[0].color;
+    return fge::Color(this->g_vertexBuffer.getVertices()[0]._color);
 }
 
 void TileLayer::Tile::setTileSet(std::shared_ptr<fge::TileSet> tileSet)
@@ -67,12 +72,15 @@ void TileLayer::Tile::updatePositions()
 {
     if (this->g_tileSet)
     {
-        auto size = static_cast<sf::Vector2f>(this->g_tileSet->getTileSize());
+        auto size = static_cast<fge::Vector2f>(this->g_tileSet->getTileSize());
 
-        this->g_vertex[0].position = sf::Vector2f(this->g_position.x, this->g_position.y);
-        this->g_vertex[1].position = sf::Vector2f(this->g_position.x, this->g_position.y + size.y);
-        this->g_vertex[2].position = sf::Vector2f(this->g_position.x + size.x, this->g_position.y);
-        this->g_vertex[3].position = sf::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(this->g_position.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[1]._position =
+                fge::Vector2f(this->g_position.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[2]._position =
+                fge::Vector2f(this->g_position.x + size.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[3]._position =
+                fge::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
     }
 }
 
@@ -83,32 +91,29 @@ void TileLayer::Tile::updateTexCoords()
         const auto* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
         if (tile != nullptr)
         {
-            auto rect = tile->_rect;
+            const auto rect = this->g_tileSet->getTexture().getData()->_texture->normalizeTextureRect(tile->_rect);
 
-            float left = static_cast<float>(rect.left);
-            float right = left + static_cast<float>(rect.width);
-            float top = static_cast<float>(rect.top);
-            float bottom = top + static_cast<float>(rect.height);
-
-            this->g_vertex[0].texCoords = sf::Vector2f(left, top);
-            this->g_vertex[1].texCoords = sf::Vector2f(left, bottom);
-            this->g_vertex[2].texCoords = sf::Vector2f(right, top);
-            this->g_vertex[3].texCoords = sf::Vector2f(right, bottom);
+            this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
+            this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
+            this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y);
+            this->g_vertexBuffer.getVertices()[3]._texCoords =
+                    fge::Vector2f(rect._x + rect._width, rect._y + rect._height);
         }
     }
 }
 
 #ifndef FGE_DEF_SERVER
-void TileLayer::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void TileLayer::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 {
-    states.transform *= this->getTransform();
+    auto statesCopy = states.copy(this->_transform.start(*this, states._transform));
 
     for (const auto& data: this->g_data)
     {
         if (data.g_tileSet)
         {
-            states.texture = static_cast<const sf::Texture*>(data.g_tileSet->getTexture());
-            target.draw(data.g_vertex, 4, sf::TriangleStrip, states);
+            statesCopy._textureImage = static_cast<const fge::TextureType*>(data.g_tileSet->getTexture());
+            statesCopy._vertexBuffer = &data.g_vertexBuffer;
+            target.draw(statesCopy);
         }
     }
 }

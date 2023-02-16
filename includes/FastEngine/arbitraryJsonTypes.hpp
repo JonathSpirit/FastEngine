@@ -17,32 +17,49 @@
 #ifndef _FGE_ARBITRARYJSONTYPES_HPP_INCLUDED
 #define _FGE_ARBITRARYJSONTYPES_HPP_INCLUDED
 
-#include <SFML/System.hpp>
-#include <json.hpp>
-#include <tinyutf8.h>
+#include "C_rect.hpp"
+#include "C_vector.hpp"
+#include "FastEngine/graphic/C_color.hpp"
+#include "json.hpp"
+#include "tinyutf8.h"
 
-namespace sf
+namespace fge
 {
 
 template<class T>
-void to_json(nlohmann::json& j, const sf::Rect<T>& p);
+void to_json(nlohmann::json& j, const fge::Rect<T>& p);
 template<class T>
-void from_json(const nlohmann::json& j, sf::Rect<T>& p);
+void from_json(const nlohmann::json& j, fge::Rect<T>& p);
 
 template<class T>
-void to_json(nlohmann::json& j, const sf::Vector2<T>& p);
+void to_json(nlohmann::json& j, const fge::Vector2<T>& p);
 template<class T>
-void from_json(const nlohmann::json& j, sf::Vector2<T>& p);
+void from_json(const nlohmann::json& j, fge::Vector2<T>& p);
 
 template<class T>
-void to_json(nlohmann::json& j, const sf::Vector3<T>& p);
+void to_json(nlohmann::json& j, const fge::Vector3<T>& p);
 template<class T>
-void from_json(const nlohmann::json& j, sf::Vector3<T>& p);
+void from_json(const nlohmann::json& j, fge::Vector3<T>& p);
 
-inline void to_json(nlohmann::json& j, const sf::Color& p);
-inline void from_json(const nlohmann::json& j, sf::Color& p);
+inline void to_json(nlohmann::json& j, const fge::Color& p);
+inline void from_json(const nlohmann::json& j, fge::Color& p);
 
-} // namespace sf
+} // namespace fge
+
+namespace glm
+{
+
+template<class T>
+void to_json(nlohmann::json& j, const glm::vec<2, T>& p);
+template<class T>
+void from_json(const nlohmann::json& j, glm::vec<2, T>& p);
+
+template<class T>
+void to_json(nlohmann::json& j, const glm::vec<3, T>& p);
+template<class T>
+void from_json(const nlohmann::json& j, glm::vec<3, T>& p);
+
+} // namespace glm
 
 namespace tiny_utf8
 {

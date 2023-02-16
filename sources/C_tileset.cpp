@@ -22,13 +22,13 @@ namespace fge
 TileSet::TileSet(fge::Texture texture) :
         g_texture(std::move(texture))
 {}
-TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize) :
+TileSet::TileSet(fge::Texture texture, const fge::Vector2i& tileSize) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize)
 {
     this->slice();
 }
-TileSet::TileSet(fge::Texture texture, const sf::Vector2i& tileSize, const sf::Vector2i& offset) :
+TileSet::TileSet(fge::Texture texture, const fge::Vector2i& tileSize, const fge::Vector2i& offset) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize),
         g_offset(offset)
@@ -67,21 +67,21 @@ void TileSet::setTexture(fge::Texture texture)
     this->slice();
 }
 
-const sf::Vector2i& TileSet::getTileSize() const
+const fge::Vector2i& TileSet::getTileSize() const
 {
     return this->g_tileSize;
 }
-void TileSet::setTileSize(const sf::Vector2i& tileSize)
+void TileSet::setTileSize(const fge::Vector2i& tileSize)
 {
     this->g_tileSize = tileSize;
     this->slice();
 }
 
-const sf::Vector2i& TileSet::getOffset() const
+const fge::Vector2i& TileSet::getOffset() const
 {
     return this->g_offset;
 }
-void TileSet::setOffset(const sf::Vector2i& offset)
+void TileSet::setOffset(const fge::Vector2i& offset)
 {
     this->g_offset = offset;
     this->slice();
@@ -116,7 +116,7 @@ void TileSet::pushTile(fge::TileData tile)
     }
 }
 
-TileId TileSet::getLocalId(const sf::Vector2i& position) const
+TileId TileSet::getLocalId(const fge::Vector2i& position) const
 {
     if (position.x < 0 || position.y < 0)
     {
@@ -157,7 +157,7 @@ void TileSet::slice()
     this->clearTiles();
     if (this->g_texture.valid() && this->g_tileSize.x > 0 && this->g_tileSize.y > 0)
     {
-        sf::Vector2i size = static_cast<sf::Vector2i>(this->g_texture.getTextureSize());
+        const fge::Vector2i size = static_cast<fge::Vector2i>(this->g_texture.getTextureSize());
         this->g_columns = (static_cast<int>(size.x) - this->g_offset.x) / this->g_tileSize.x;
         this->g_rows = (static_cast<int>(size.y) - this->g_offset.y) / this->g_tileSize.y;
 
@@ -165,7 +165,7 @@ void TileSet::slice()
         {
             for (int x = this->g_offset.x; x < size.x; x += this->g_tileSize.x)
             {
-                this->pushTile(fge::TileData{id, sf::IntRect{{x, y}, this->g_tileSize}});
+                this->pushTile(fge::TileData{id, fge::RectInt{{x, y}, this->g_tileSize}});
                 ++id;
             }
         }
@@ -181,7 +181,7 @@ int TileSet::getRows() const
     return this->g_rows;
 }
 
-std::optional<sf::IntRect> TileSet::getTextureRect(TileId id) const
+std::optional<fge::RectInt> TileSet::getTextureRect(TileId id) const
 {
     auto it = this->g_tiles.find(id);
     if (it != this->g_tiles.end())
@@ -190,7 +190,7 @@ std::optional<sf::IntRect> TileSet::getTextureRect(TileId id) const
     }
     return std::nullopt;
 }
-sf::IntRect TileSet::computeTextureRect(TileId id) const
+fge::RectInt TileSet::computeTextureRect(TileId id) const
 {
     if (id < 0)
     {
@@ -207,12 +207,12 @@ sf::IntRect TileSet::computeTextureRect(TileId id) const
         return {};
     }
 
-    sf::IntRect result;
+    fge::RectInt result;
 
-    result.left = this->g_tileSize.x * (id % this->g_columns);
-    result.top = this->g_tileSize.y * (id % this->g_rows);
-    result.width = this->g_tileSize.x;
-    result.height = this->g_tileSize.y;
+    result._x = this->g_tileSize.x * (id % this->g_columns);
+    result._y = this->g_tileSize.y * (id % this->g_rows);
+    result._width = this->g_tileSize.x;
+    result._height = this->g_tileSize.y;
 
     return result;
 }

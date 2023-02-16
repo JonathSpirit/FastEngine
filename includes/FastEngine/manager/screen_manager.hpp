@@ -19,7 +19,6 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
-#include "SFML/Graphics/RenderWindow.hpp"
 #include <memory>
 #include <string>
 

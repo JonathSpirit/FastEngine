@@ -33,7 +33,7 @@ jobs:
       with:
         msystem: ${{matrix.sys}}
         update: true
-        install: git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-cmake mingw-w64-${{matrix.env}}-make
+        install: git mingw-w64-${{matrix.env}}-python mingw-w64-${{matrix.env}}-vulkan-devel mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-cmake mingw-w64-${{matrix.env}}-make
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory

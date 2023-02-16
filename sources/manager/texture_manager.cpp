@@ -15,6 +15,8 @@
  */
 
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "SDL_image.h"
 #include "private/string_hash.hpp"
 
 namespace fge::texture
@@ -33,30 +35,32 @@ void Init()
 {
     if (_dataTextureBad == nullptr)
     {
-        sf::Image tmpImage;
+        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
 
-        tmpImage.create(32, 32, sf::Color::Black);
-        for (unsigned int y = 0; y < 16; ++y)
+        fge::Surface tmpSurface;
+
+        tmpSurface.create(32, 32, fge::Color::Black);
+        for (int y = 0; y < 16; ++y)
         {
-            for (unsigned int x = 0; x < 16; ++x)
+            for (int x = 0; x < 16; ++x)
             {
-                tmpImage.setPixel(x, y, sf::Color::Magenta);
+                tmpSurface.setPixel(x, y, fge::Color::Magenta);
             }
         }
-        for (unsigned int y = 16; y < 32; ++y)
+        for (int y = 16; y < 32; ++y)
         {
-            for (unsigned int x = 16; x < 32; ++x)
+            for (int x = 16; x < 32; ++x)
             {
-                tmpImage.setPixel(x, y, sf::Color::Magenta);
+                tmpSurface.setPixel(x, y, fge::Color::Magenta);
             }
         }
 
         _dataTextureBad = std::make_shared<fge::texture::TextureData>();
 #ifdef FGE_DEF_SERVER
-        _dataTextureBad->_texture = std::make_shared<fge::TextureType>(tmpImage);
+        _dataTextureBad->_texture = std::make_shared<fge::TextureType>(tmpSurface);
 #else
         _dataTextureBad->_texture = std::make_shared<fge::TextureType>();
-        _dataTextureBad->_texture->loadFromImage(tmpImage);
+        _dataTextureBad->_texture->create(*vulkan::GlobalContext, tmpSurface.get());
 #endif //FGE_DEF_SERVER
         _dataTextureBad->_valid = false;
     }
@@ -69,6 +73,8 @@ void Uninit()
 {
     _dataTexture.clear();
     _dataTextureBad = nullptr;
+
+    IMG_Quit();
 }
 
 std::size_t GetTextureSize()
@@ -132,7 +138,7 @@ bool Check(std::string_view name)
     return it != _dataTexture.end();
 }
 
-bool LoadFromImage(std::string_view name, const sf::Image& image)
+bool LoadFromSurface(std::string_view name, const fge::Surface& surface)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -148,11 +154,11 @@ bool LoadFromImage(std::string_view name, const sf::Image& image)
     }
 
 #ifdef FGE_DEF_SERVER
-    auto tmpTexture = std::make_shared<fge::TextureType>(image);
+    auto tmpTexture = std::make_shared<fge::TextureType>(surface);
 #else
     auto tmpTexture = std::make_shared<fge::TextureType>();
 
-    if (!tmpTexture->loadFromImage(image))
+    if (!tmpTexture->create(*vulkan::GlobalContext, surface.get()))
     {
         return false;
     }
@@ -180,12 +186,23 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
         return false;
     }
 
-    auto tmpTexture = std::make_shared<fge::TextureType>();
+    fge::Surface tmpSurface;
 
-    if (!tmpTexture->loadFromFile(path.string()))
+    if (!tmpSurface.loadFromFile(path))
     {
         return false;
     }
+
+    auto tmpTexture = std::make_shared<fge::TextureType>();
+
+#ifdef FGE_DEF_SERVER
+    *tmpTexture = std::move(tmpSurface);
+#else
+    if (!tmpTexture->create(*vulkan::GlobalContext, tmpSurface.get()))
+    {
+        return false;
+    }
+#endif //FGE_DEF_SERVER
 
     fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
     buff->_texture = std::move(tmpTexture);

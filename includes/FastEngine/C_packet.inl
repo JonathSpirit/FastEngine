@@ -104,12 +104,12 @@ fge::net::Packet& Packet::operator<<(const std::vector<T>& data)
 }
 
 template<typename T>
-fge::net::Packet& Packet::operator<<(const sf::Vector2<T>& data)
+fge::net::Packet& Packet::operator<<(const fge::Vector2<T>& data)
 {
     return *this << data.x << data.y;
 }
 template<typename T>
-fge::net::Packet& Packet::operator<<(const sf::Vector3<T>& data)
+fge::net::Packet& Packet::operator<<(const fge::Vector3<T>& data)
 {
     return *this << data.x << data.y << data.z;
 }
@@ -128,7 +128,7 @@ fge::net::Packet& Packet::operator<<(const fge::Matrix<T>& data)
     return *this;
 }
 
-fge::net::Packet& Packet::operator<<(const sf::Color& data)
+fge::net::Packet& Packet::operator<<(const fge::Color& data)
 {
     return *this << static_cast<uint32_t>(data.toInteger());
 }
@@ -244,12 +244,12 @@ const fge::net::Packet& Packet::operator>>(std::vector<T>& data) const
 }
 
 template<typename T>
-const fge::net::Packet& Packet::operator>>(sf::Vector2<T>& data) const
+const fge::net::Packet& Packet::operator>>(fge::Vector2<T>& data) const
 {
     return *this >> data.x >> data.y;
 }
 template<typename T>
-const fge::net::Packet& Packet::operator>>(sf::Vector3<T>& data) const
+const fge::net::Packet& Packet::operator>>(fge::Vector3<T>& data) const
 {
     return *this >> data.x >> data.y >> data.z;
 }
@@ -272,11 +272,11 @@ const fge::net::Packet& Packet::operator>>(fge::Matrix<T>& data) const
     return *this;
 }
 
-const fge::net::Packet& Packet::operator>>(sf::Color& data) const
+const fge::net::Packet& Packet::operator>>(fge::Color& data) const
 {
     uint32_t buff;
     *this >> buff;
-    data = sf::Color(buff);
+    data = fge::Color(buff);
     return *this;
 }
 

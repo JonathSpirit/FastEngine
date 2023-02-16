@@ -63,6 +63,10 @@
     #endif
 #endif
 
+#ifndef _WIN32
+    #undef None
+#endif
+
 namespace fge::net
 {
 

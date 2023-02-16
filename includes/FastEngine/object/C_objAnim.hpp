@@ -33,14 +33,14 @@ class FGE_API ObjAnimation : public fge::Object
 {
 public:
     ObjAnimation();
-    explicit ObjAnimation(const fge::Animation& animation, const sf::Vector2f& position = sf::Vector2f());
+    explicit ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjAnimation)
 
     void setAnimation(const fge::Animation& animation);
-    void setTextureRect(const sf::IntRect& rectangle);
+    void setTextureRect(const fge::RectInt& rectangle);
 
-    void setColor(const sf::Color& color);
+    void setColor(const fge::Color& color);
 
     void setPause(bool flag);
     bool isPaused() const;
@@ -52,9 +52,9 @@ public:
 
     const fge::Animation& getAnimation() const;
     fge::Animation& getAnimation();
-    const sf::IntRect& getTextureRect() const;
+    const fge::RectInt& getTextureRect() const;
 
-    const sf::Color& getColor() const;
+    fge::Color getColor() const;
 
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
@@ -67,16 +67,16 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
     void updatePositions();
     void updateTexCoords();
 
-    sf::Vertex g_vertices[4];
+    fge::vulkan::VertexBuffer g_vertices;
     fge::Animation g_animation;
-    sf::IntRect g_textureRect;
+    fge::RectInt g_textureRect;
 
     std::chrono::milliseconds g_tickDuration;
     std::chrono::milliseconds g_nextFrameTime;

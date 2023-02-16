@@ -18,6 +18,7 @@
 #define _FGE_C_ANIMATION_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_rect.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
 
 namespace fge
@@ -219,10 +220,13 @@ public:
     /**
      * \brief Get the texture of the actual frame
      *
-     * \return The SFML texture or texture::GetBadTexture if something is invalid
+     * \return The texture or texture::GetBadTexture if something is invalid
      */
     explicit operator fge::TextureType*();
     explicit operator const fge::TextureType*() const;
+
+    explicit operator std::shared_ptr<fge::TextureType>&();
+    explicit operator const std::shared_ptr<fge::TextureType>&() const;
 
     operator fge::TextureType&();
     operator const fge::TextureType&() const;
@@ -233,9 +237,9 @@ public:
     /**
      * \brief Get the texture rectangle if the type of the animation is fge::anim::ANIM_TYPE_TILESET of the actual frame
      *
-     * \return The SFML texture rectangle or {0,0,16,16} if something is invalid
+     * \return The texture rectangle or {0,0,16,16} if something is invalid
      */
-    operator sf::IntRect() const;
+    operator fge::RectInt() const;
 
 private:
     fge::anim::AnimationDataPtr g_data;

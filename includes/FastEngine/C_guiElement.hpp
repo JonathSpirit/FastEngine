@@ -18,10 +18,10 @@
 #define _FGE_C_GUIELEMENT_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_rect.hpp"
 #include <FastEngine/C_event.hpp>
 #include <FastEngine/C_tunnel.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
+#include <FastEngine/graphic/C_renderTarget.hpp>
 #include <cstdint>
 
 #define FGE_GUI_ELEMENT_PRIORITY_LAST 0
@@ -45,8 +45,8 @@ struct GuiElementContext
     fge::GuiElement* _prioritizedElement{nullptr};
     bool _recursive{false};
     std::size_t _index{0};
-    sf::Vector2f _mouseGuiPosition;
-    sf::Vector2i _mousePosition;
+    fge::Vector2f _mouseGuiPosition;
+    fge::Vector2i _mousePosition;
     fge::GuiElementHandler* _handler{nullptr};
     std::vector<fge::ObjectDataShared>* _keepAliveObject{nullptr};
 };
@@ -60,14 +60,14 @@ struct DynamicSize
         SIZE_DEFAULT = SIZE_AUTO
     };
 
-    sf::Vector2f _fixedSize{0.0f, 0.0f};
-    sf::Vector2<fge::DynamicSize::SizeModes> _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT,
-                                                       fge::DynamicSize::SizeModes::SIZE_DEFAULT};
-    sf::Vector2f _offset{0.0f, 0.0f};
+    fge::Vector2f _fixedSize{0.0f, 0.0f};
+    fge::Vector2<fge::DynamicSize::SizeModes> _sizeMode{fge::DynamicSize::SizeModes::SIZE_DEFAULT,
+                                                        fge::DynamicSize::SizeModes::SIZE_DEFAULT};
+    fge::Vector2f _offset{0.0f, 0.0f};
 
-    [[nodiscard]] inline sf::Vector2f getSize(const sf::Vector2f& position, const sf::Vector2f& targetSize) const
+    [[nodiscard]] inline fge::Vector2f getSize(const fge::Vector2f& position, const fge::Vector2f& targetSize) const
     {
-        sf::Vector2f size{};
+        fge::Vector2f size{};
 
         switch (this->_sizeMode.x)
         {
@@ -139,13 +139,13 @@ public:
      *
      * \param scale The scale of the element
      */
-    void setGuiScale(const sf::Vector2f& scale) { this->_g_scale = scale; }
+    void setGuiScale(const fge::Vector2f& scale) { this->_g_scale = scale; }
     /**
      * \brief Get the scale of the element
      *
      * \return The scale of the element
      */
-    [[nodiscard]] const sf::Vector2f& getGuiScale() const { return this->_g_scale; }
+    [[nodiscard]] const fge::Vector2f& getGuiScale() const { return this->_g_scale; }
     /**
      * \brief Set the priority of the element
      *
@@ -189,34 +189,34 @@ public:
      * provided pointer reference \b element with the element itself.
      *
      * \param evt An fge::Event
-     * \param evtType The type of the SFML event called
+     * \param evtType The type of the SDL event called
      * \param context The GuiElement context
      */
-    virtual void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) = 0;
+    virtual void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) = 0;
 
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseWheelScrollEvent&, fge::GuiElementContext&>
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseWheelEvent&, fge::GuiElementContext&>
             _onGuiMouseWheelScrolled; ///< Callback called when the element is verified and the mouse wheel is scrolled
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, fge::GuiElementContext&>
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&, fge::GuiElementContext&>
             _onGuiMouseButtonPressed; ///< Callback called when the element is verified and the mouse is pressed
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseButtonEvent&, fge::GuiElementContext&>
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&, fge::GuiElementContext&>
             _onGuiMouseButtonReleased; ///< Callback called when the element is verified and a mouse button is released
-    fge::CallbackHandler<const fge::Event&, const sf::Event::MouseMoveEvent&, fge::GuiElementContext&>
+    fge::CallbackHandler<const fge::Event&, const SDL_MouseMotionEvent&, fge::GuiElementContext&>
             _onGuiMouseMoved; ///< Callback called when the element is verified and the mouse is moved
 
-    static fge::CallbackHandler<const sf::Vector2f&> _onGlobalGuiScaleChange;
-    inline static void setGlobalGuiScale(const sf::Vector2f& scale)
+    static fge::CallbackHandler<const fge::Vector2f&> _onGlobalGuiScaleChange;
+    inline static void setGlobalGuiScale(const fge::Vector2f& scale)
     {
         fge::GuiElement::_GlobalGuiScale = scale;
         fge::GuiElement::_onGlobalGuiScaleChange.call(scale);
     }
-    inline static const sf::Vector2f& getGlobalGuiScale() { return fge::GuiElement::_GlobalGuiScale; }
+    inline static const fge::Vector2f& getGlobalGuiScale() { return fge::GuiElement::_GlobalGuiScale; }
 
 protected:
     mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
-    sf::Vector2f _g_scale{1.0f, 1.0f};
+    fge::Vector2f _g_scale{1.0f, 1.0f};
 
 private:
-    static sf::Vector2f _GlobalGuiScale;
+    static fge::Vector2f _GlobalGuiScale;
 };
 
 class GuiElementRecursive : public virtual fge::GuiElement
@@ -234,7 +234,7 @@ class FGE_API GuiElementHandler : public fge::Subscriber
 {
 public:
     GuiElementHandler() = default;
-    GuiElementHandler(fge::Event& event, const sf::RenderTarget& target) :
+    GuiElementHandler(fge::Event& event, const fge::RenderTarget& target) :
             g_event(&event),
             g_target(&target)
     {}
@@ -243,25 +243,25 @@ public:
     inline void setEvent(fge::Event& event) { this->g_event = &event; }
     [[nodiscard]] inline fge::Event& getEvent() { return *this->g_event; }
     [[nodiscard]] inline const fge::Event& getEvent() const { return *this->g_event; }
-    inline void setRenderTarget(const sf::RenderTarget& target) { this->g_target = &target; }
-    [[nodiscard]] inline const sf::RenderTarget& getRenderTarget() const { return *this->g_target; }
+    inline void setRenderTarget(const fge::RenderTarget& target) { this->g_target = &target; }
+    [[nodiscard]] inline const fge::RenderTarget& getRenderTarget() const { return *this->g_target; }
 
     void setEventCallback(fge::Event& event);
 
-    void onMouseWheelScrolled(const fge::Event& evt, const sf::Event::MouseWheelScrollEvent& arg);
-    void onMouseButtonPressed(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
-    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
+    void onMouseWheelScrolled(const fge::Event& evt, const SDL_MouseWheelEvent& arg);
+    void onMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
+    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
+    void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
 
-    void onResized(const fge::Event& evt, const sf::Event::SizeEvent& arg);
+    void onResized(const fge::Event& evt, const SDL_WindowEvent& arg);
 
-    fge::CallbackHandler<const fge::Event&, sf::Event::EventType, fge::GuiElementContext&> _onGuiVerify;
-    fge::CallbackHandler<const fge::GuiElementHandler&, const sf::Vector2f&> _onGuiResized;
-    sf::Vector2f _lastSize{0.0f, 0.0f};
+    fge::CallbackHandler<const fge::Event&, SDL_EventType, fge::GuiElementContext&> _onGuiVerify;
+    fge::CallbackHandler<const fge::GuiElementHandler&, const fge::Vector2f&> _onGuiResized;
+    fge::Vector2f _lastSize{0.0f, 0.0f};
 
 private:
     fge::Event* g_event{nullptr};
-    const sf::RenderTarget* g_target{nullptr};
+    const fge::RenderTarget* g_target{nullptr};
 };
 
 /**
@@ -273,7 +273,7 @@ class GuiElementRectangle : public fge::GuiElement
 {
 public:
     GuiElementRectangle() = default;
-    GuiElementRectangle(const sf::FloatRect& rect, fge::GuiElement::Priority priority) :
+    GuiElementRectangle(const fge::RectFloat& rect, fge::GuiElement::Priority priority) :
             fge::GuiElement(priority),
             g_rect(rect)
     {}
@@ -283,13 +283,13 @@ public:
     ~GuiElementRectangle() override = default;
 
     void onGuiVerify([[maybe_unused]] const fge::Event& evt,
-                     [[maybe_unused]] sf::Event::EventType evtType,
+                     [[maybe_unused]] SDL_EventType evtType,
                      fge::GuiElementContext& context) override
     {
         if (this->verifyPriority(context._prioritizedElement))
         {
-            sf::FloatRect rect{this->g_rect.getPosition(),
-                               {this->g_rect.width * this->_g_scale.x, this->g_rect.height * this->_g_scale.y}};
+            fge::RectFloat rect{this->g_rect.getPosition(),
+                                {this->g_rect._width * this->_g_scale.x, this->g_rect._height * this->_g_scale.y}};
             if (rect.contains(context._mouseGuiPosition))
             {
                 context._prioritizedElement = this;
@@ -297,11 +297,11 @@ public:
         }
     }
 
-    void setRectangle(const sf::FloatRect& rect) { this->g_rect = rect; }
-    const sf::FloatRect& getRectangle() const { return this->g_rect; }
+    void setRectangle(const fge::RectFloat& rect) { this->g_rect = rect; }
+    const fge::RectFloat& getRectangle() const { return this->g_rect; }
 
 private:
-    sf::FloatRect g_rect;
+    fge::RectFloat g_rect;
 };
 
 /**
@@ -319,7 +319,7 @@ public:
     ~GuiElementDefault() override = default;
 
     void onGuiVerify([[maybe_unused]] const fge::Event& evt,
-                     [[maybe_unused]] sf::Event::EventType evtType,
+                     [[maybe_unused]] SDL_EventType evtType,
                      fge::GuiElementContext& context) override
     {
         if (this->verifyPriority(context._prioritizedElement))
@@ -343,7 +343,7 @@ public:
     {}
     ~GuiElementArray() override = default;
 
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override
+    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override
     {
         if (context._recursive)
         {
@@ -361,7 +361,7 @@ public:
     fge::Tunnel<fge::GuiElement> _elements;
 
 protected:
-    void verifyRecursively(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) const
+    void verifyRecursively(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) const
     {
         fge::GuiElementContext context2{};
         context2._mouseGuiPosition = context._mouseGuiPosition;

@@ -19,7 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
-#include "SFML/Graphics/Font.hpp"
+#include "FastEngine/graphic/C_ftFont.hpp"
 #include <filesystem>
 #include <memory>
 #include <mutex>
@@ -34,7 +34,7 @@ namespace fge::font
 
 struct FontData
 {
-    std::shared_ptr<sf::Font> _font;
+    std::shared_ptr<fge::FreeTypeFont> _font;
     bool _valid;
     std::filesystem::path _path;
 };
@@ -42,9 +42,11 @@ struct FontData
 using FontDataPtr = std::shared_ptr<fge::font::FontData>;
 using FontDataType = std::unordered_map<std::string, fge::font::FontDataPtr>;
 
-FGE_API void Init();
+FGE_API bool Init();
 FGE_API bool IsInit();
 FGE_API void Uninit();
+
+FGE_API void* GetFreetypeLibrary();
 
 FGE_API std::size_t GetFontSize();
 

@@ -35,10 +35,9 @@
 #include <tinyutf8.h>
 #include <vector>
 
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/String.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/System/Vector3.hpp>
+#include "C_vector.hpp"
+#include "FastEngine/C_vector.hpp"
+#include "FastEngine/graphic/C_color.hpp"
 
 #define FGE_PACKET_DEFAULT_RESERVESIZE 4096
 
@@ -121,7 +120,6 @@ public:
     fge::net::Packet& operator<<(const tiny_utf8::string& data);
     fge::net::Packet& operator<<(const wchar_t* data);
     fge::net::Packet& operator<<(const std::wstring& data);
-    fge::net::Packet& operator<<(const sf::String& data);
 
     inline fge::net::Packet& operator<<(const fge::net::IpAddress& data);
 
@@ -133,14 +131,14 @@ public:
     fge::net::Packet& operator<<(const std::vector<T>& data);
 
     template<typename T>
-    fge::net::Packet& operator<<(const sf::Vector2<T>& data);
+    fge::net::Packet& operator<<(const fge::Vector2<T>& data);
     template<typename T>
-    fge::net::Packet& operator<<(const sf::Vector3<T>& data);
+    fge::net::Packet& operator<<(const fge::Vector3<T>& data);
 
     template<typename T>
     fge::net::Packet& operator<<(const fge::Matrix<T>& data);
 
-    inline fge::net::Packet& operator<<(const sf::Color& data);
+    inline fge::net::Packet& operator<<(const fge::Color& data);
 
     ///
 
@@ -165,7 +163,6 @@ public:
     const fge::net::Packet& operator>>(tiny_utf8::string& data) const;
     const fge::net::Packet& operator>>(wchar_t* data) const;
     const fge::net::Packet& operator>>(std::wstring& data) const;
-    const fge::net::Packet& operator>>(sf::String& data) const;
 
     inline const fge::net::Packet& operator>>(fge::net::IpAddress& data) const;
 
@@ -177,14 +174,14 @@ public:
     const fge::net::Packet& operator>>(std::vector<T>& data) const;
 
     template<typename T>
-    const fge::net::Packet& operator>>(sf::Vector2<T>& data) const;
+    const fge::net::Packet& operator>>(fge::Vector2<T>& data) const;
     template<typename T>
-    const fge::net::Packet& operator>>(sf::Vector3<T>& data) const;
+    const fge::net::Packet& operator>>(fge::Vector3<T>& data) const;
 
     template<typename T>
     const fge::net::Packet& operator>>(fge::Matrix<T>& data) const;
 
-    inline const fge::net::Packet& operator>>(sf::Color& data) const;
+    inline const fge::net::Packet& operator>>(fge::Color& data) const;
 
     bool operator==(const Packet& right) const = delete;
     bool operator!=(const Packet& right) const = delete;

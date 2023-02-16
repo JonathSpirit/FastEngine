@@ -18,7 +18,6 @@
 #define _FGE_C_LIGHTOBSTACLE_HPP_INCLUDED
 
 #include "C_lightSystem.hpp"
-#include "SFML/System/Vector2.hpp"
 #include <vector>
 
 namespace fge
@@ -26,7 +25,7 @@ namespace fge
 
 class ObjLight;
 
-using ListOfPoints = std::vector<sf::Vector2f>;
+using ListOfPoints = std::vector<fge::Vector2f>;
 
 /**
  * \class LightObstacle

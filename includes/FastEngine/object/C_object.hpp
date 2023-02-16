@@ -22,9 +22,11 @@
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_networkType.hpp"
 #include "FastEngine/C_packet.hpp"
+#include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_tagList.hpp"
+#include "FastEngine/graphic/C_drawable.hpp"
+#include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/object/C_objectAnchor.hpp"
-#include "SFML/Graphics.hpp"
 #include "json.hpp"
 
 #include <chrono>
@@ -43,7 +45,7 @@
         void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene) override;
 #else
     #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
-        void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime,           \
+        void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime,          \
                     fge::Scene* scene) override;
 #endif //FGE_DEF_SERVER
 
@@ -57,7 +59,7 @@
     #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(event, deltaTime, scene)
 #else
     #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
-        void class_::update([[maybe_unused]] sf::RenderWindow& screen, [[maybe_unused]] fge::Event& event,             \
+        void class_::update([[maybe_unused]] fge::RenderWindow& screen, [[maybe_unused]] fge::Event& event,            \
                             [[maybe_unused]] const std::chrono::milliseconds& deltaTime,                               \
                             [[maybe_unused]] fge::Scene* scene)
 
@@ -68,10 +70,10 @@
 #ifdef FGE_DEF_SERVER
     #define FGE_OBJ_DRAW_DECLARE
 #else
-    #define FGE_OBJ_DRAW_DECLARE void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    #define FGE_OBJ_DRAW_DECLARE void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
 #endif //FGE_DEF_SERVER
 
-#define FGE_OBJ_DRAW_BODY(class_) void class_::draw(sf::RenderTarget& target, sf::RenderStates states) const
+#define FGE_OBJ_DRAW_BODY(class_) void class_::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 
 namespace fge
 {
@@ -91,15 +93,15 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
  * \brief The Object class is the base class for all objects in the engine.
  */
 #ifdef FGE_DEF_SERVER
-class FGE_API Object : public sf::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Transformable, public fge::Anchor
 #else
-class FGE_API Object : public sf::Drawable, public sf::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Drawable, public fge::Transformable, public fge::Anchor
 #endif //FGE_DEF_SERVER
 {
 public:
     Object();
     Object(const Object& r);
-    Object(Object&& r);
+    Object(Object&& r) noexcept;
     ~Object() override = default;
 
     /**
@@ -137,16 +139,16 @@ public:
     virtual void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
 #else
     virtual void
-    update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+    update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
 #endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object
      *
      * \param target The target where the object is drawn
-     * \param states The SFML render states
+     * \param states The render states
      */
 #ifndef FGE_DEF_SERVER
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    virtual void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
 #endif //FGE_DEF_SERVER
     /**
      * \brief Register all network types needed by the object
@@ -205,13 +207,13 @@ public:
      *
      * \return The global bounds of the object
      */
-    virtual sf::FloatRect getGlobalBounds() const;
+    virtual fge::RectFloat getGlobalBounds() const;
     /**
      * \brief Get the local bounds of the object (without any transformations)
      *
      * \return The local bounds of the object
      */
-    virtual sf::FloatRect getLocalBounds() const;
+    virtual fge::RectFloat getLocalBounds() const;
 
     /**
      * \brief Save the object in a file
@@ -247,13 +249,13 @@ public:
      *
      * \return Parents transform
      */
-    sf::Transform getParentsTransform() const;
+    glm::mat4 getParentsTransform() const;
     /**
      * \brief Retrieve recursively all parents scale by combining them
      *
      * \return Parents scale
      */
-    sf::Vector2f getParentsScale() const;
+    fge::Vector2f getParentsScale() const;
 
     //Data
 

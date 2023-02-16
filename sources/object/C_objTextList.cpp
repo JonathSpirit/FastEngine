@@ -22,19 +22,37 @@ namespace fge
 
 ObjTextList::ObjTextList()
 {
-    this->g_box.setFillColor(sf::Color::Transparent);
-    this->g_box.setOutlineColor(sf::Color{100, 100, 100, 255});
+    this->g_box.setFillColor(fge::Color::Transparent);
+    this->g_box.setOutlineColor(fge::Color{100, 100, 100, 255});
     this->g_box.setOutlineThickness(-2.0f);
+}
+ObjTextList::ObjTextList(const ObjTextList& r) :
+        fge::Object(r),
+        fge::Subscriber(r),
+
+        g_guiElementHandler{nullptr},
+        g_textScrollRatio{r.g_textScrollRatio},
+        g_boxSize(r.g_boxSize),
+
+        g_font(r.g_font),
+
+        g_maxStrings(r.g_maxStrings)
+{
+    this->g_box.setFillColor(fge::Color::Transparent);
+    this->g_box.setOutlineColor(fge::Color{100, 100, 100, 255});
+    this->g_box.setOutlineThickness(-2.0f);
+
+    this->g_textList.resize(r.g_textList.size());
+
+    for (std::size_t i = 0; i < r.g_textList.size(); ++i)
+    {
+        this->g_textList[i].reset(reinterpret_cast<fge::ObjText*>(r.g_textList[i]->copy()));
+    }
 }
 
 void ObjTextList::first([[maybe_unused]] fge::Scene* scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
-
-    this->g_text.setCharacterSize(14);
-    this->g_text.setFillColor(sf::Color::White);
-    this->g_text.setOutlineColor(sf::Color::Black);
-    this->g_text.setOutlineThickness(1.0f);
 }
 void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
@@ -51,33 +69,35 @@ void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTextList)
 {
-    states.transform *= this->getTransform();
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
-    target.draw(this->g_box, states);
+    target.draw(this->g_box, copyStates);
 
-    sf::View backupView = target.getView();
-    sf::View clipView =
-            fge::ClipView(backupView, target, states.transform.transformRect({{0.0f, 0.0f}, this->g_box.getSize()}),
-                          fge::ClipClampModes::CLIP_CLAMP_HIDE);
+    const fge::View backupView = target.getView();
+    fge::View clipView = fge::ClipView(backupView, target,
+                                       copyStates._transform->_data._modelTransform *
+                                               fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
+                                       fge::ClipClampModes::CLIP_CLAMP_HIDE);
 
     target.setView(clipView);
 
-    if (this->g_stringList.empty())
+    if (this->g_textList.empty())
     {
         return;
     }
 
-    float characterHeightOffset = static_cast<float>(this->g_text.getLineSpacing());
+    float characterHeightOffset = static_cast<float>(this->g_textList.begin()->get()->getLineSpacing());
+    fge::Vector2f textPosition = {4.0f, this->g_box.getSize().y - characterHeightOffset};
 
-    this->g_text.setPosition(4.0f, this->g_box.getSize().y - characterHeightOffset);
-    for (std::size_t i = static_cast<std::size_t>(static_cast<float>(this->g_stringList.size() - 1) *
-                                                  this->getTextScrollRatio());
-         i < this->g_stringList.size(); ++i)
+    for (std::size_t i =
+                 static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) * this->getTextScrollRatio());
+         i < this->g_textList.size(); ++i)
     {
-        this->g_text.setString(this->g_stringList[i]);
-        target.draw(this->g_text, states);
+        this->g_textList[i]->setPosition(textPosition);
+        target.draw(*this->g_textList[i], copyStates);
 
-        this->g_text.move(0, -characterHeightOffset);
+        textPosition.y -= characterHeightOffset;
+        characterHeightOffset = static_cast<float>(this->g_textList[i]->getLineSpacing());
     }
 
     target.setView(backupView);
@@ -93,47 +113,57 @@ const char* ObjTextList::getReadableClassName() const
     return "text list";
 }
 
-sf::FloatRect ObjTextList::getGlobalBounds() const
+fge::RectFloat ObjTextList::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjTextList::getLocalBounds() const
+fge::RectFloat ObjTextList::getLocalBounds() const
 {
     return this->g_box.getLocalBounds();
 }
 
-void ObjTextList::addString(tiny_utf8::string string)
+void ObjTextList::addText(tiny_utf8::string string)
 {
-    this->g_stringList.insert(this->g_stringList.begin(), std::move(string));
-    if (this->g_stringList.size() > this->g_maxStrings)
+    auto& ref = this->g_textList.emplace_back(
+            std::make_unique<fge::ObjText>(std::move(string), this->g_font, fge::Vector2f{}, 14));
+    ref->setFillColor(fge::Color::White);
+    ref->setOutlineColor(fge::Color::Black);
+    ref->setOutlineThickness(1.0f);
+
+    if (this->g_textList.size() > this->g_maxStrings)
     {
-        this->g_stringList.erase(this->g_stringList.end() - 1);
+        this->g_textList.erase(this->g_textList.end() - 1);
     }
 }
-std::size_t ObjTextList::getStringsSize() const
+std::size_t ObjTextList::getTextCount() const
 {
-    return this->g_stringList.size();
+    return this->g_textList.size();
 }
-tiny_utf8::string& ObjTextList::getString(std::size_t index)
+fge::ObjText* ObjTextList::getText(std::size_t index)
 {
-    return this->g_stringList[index];
+    return this->g_textList[index].get();
 }
-const tiny_utf8::string& ObjTextList::getString(std::size_t index) const
+const fge::ObjText* ObjTextList::getText(std::size_t index) const
 {
-    return this->g_stringList[index];
+    return this->g_textList[index].get();
 }
-void ObjTextList::removeAllStrings()
+void ObjTextList::removeAllTexts()
 {
-    this->g_stringList.clear();
+    this->g_textList.clear();
 }
 
 void ObjTextList::setFont(fge::Font font)
 {
-    this->g_text.setFont(std::move(font));
+    this->g_font = std::move(font);
+
+    for (auto& text: this->g_textList)
+    {
+        text->setFont(this->g_font);
+    }
 }
 const fge::Font& ObjTextList::getFont() const
 {
-    return this->g_text.getFont();
+    return this->g_font;
 }
 
 void ObjTextList::setBoxSize(const fge::DynamicSize& size)
@@ -141,7 +171,7 @@ void ObjTextList::setBoxSize(const fge::DynamicSize& size)
     this->g_boxSize = size;
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
-sf::Vector2f ObjTextList::getBoxSize() const
+fge::Vector2f ObjTextList::getBoxSize() const
 {
     return this->g_boxSize.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
@@ -155,11 +185,11 @@ float ObjTextList::getTextScrollRatio() const
     return this->g_textScrollRatio;
 }
 
-void ObjTextList::setMaxStrings(std::size_t max)
+void ObjTextList::setMaxTextCount(std::size_t max)
 {
     this->g_maxStrings = max;
 }
-std::size_t ObjTextList::getMaxStrings() const
+std::size_t ObjTextList::getMaxTextCount() const
 {
     return this->g_maxStrings;
 }
@@ -169,11 +199,11 @@ void ObjTextList::refreshSize()
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 
-void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const sf::Vector2f& size)
+void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const fge::Vector2f& size)
 {
     this->refreshSize(size);
 }
-void ObjTextList::refreshSize(const sf::Vector2f& targetSize)
+void ObjTextList::refreshSize(const fge::Vector2f& targetSize)
 {
     this->g_box.setSize(this->g_boxSize.getSize(this->getPosition(), targetSize));
 }

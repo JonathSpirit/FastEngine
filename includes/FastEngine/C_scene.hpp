@@ -24,7 +24,7 @@
 #include <FastEngine/C_commandHandler.hpp>
 #include <FastEngine/C_identity.hpp>
 #include <FastEngine/C_propertyList.hpp>
-#include <SFML/Graphics.hpp>
+#include <FastEngine/graphic/C_renderTarget.hpp>
 #include <memory>
 #include <queue>
 #include <string>
@@ -405,14 +405,14 @@ public:
      * the delUpdatedObject and not any others delete methode that will cause
      * undefined behaviour.
      *
-     * \param screen A SFML RenderWindow
+     * \param screen A RenderWindow
      * \param event The FastEngine Event class
      * \param deltaTime The time in milliseconds between two updates
      */
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event, const std::chrono::milliseconds& deltaTime);
 #else
-    void update(sf::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
+    void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
 #endif
     /**
      * \brief Draw the Scene.
@@ -429,16 +429,11 @@ public:
      * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.
      * \see ObjectData::getPlanDepth
      *
-     * \param target A SFML RenderTarget
-     * \param clear_target Set to \b true to let the Scene clear the target
-     * \param clear_color If clear_target is set to \b true, this parameter is used to set the clear color
-     * \param states The default SFML RenderStates to be used for every drawn Object
+     * \param target A RenderTarget
+     * \param states The default RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
-    void draw(sf::RenderTarget& target,
-              bool clear_target = true,
-              const sf::Color& clear_color = sf::Color::White,
-              sf::RenderStates states = sf::RenderStates::Default) const;
+    void draw(fge::RenderTarget& target, const fge::RenderStates& states = {}) const;
 #endif //FGE_DEF_SERVER
 
     /**
@@ -671,7 +666,7 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByPosition(const sf::Vector2f& pos, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByPosition(const fge::Vector2f& pos, fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a zone (or rectangle).
      *
@@ -684,7 +679,7 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByZone(const sf::Rect<float>& zone, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByZone(const fge::RectFloat& zone, fge::ObjectContainer& buff) const;
 
 #ifndef FGE_DEF_SERVER
     /**
@@ -700,12 +695,12 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param pos The local position
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByLocalPosition(const sf::Vector2i& pos,
-                                          const sf::RenderTarget& target,
+    std::size_t getAllObj_ByLocalPosition(const fge::Vector2i& pos,
+                                          const fge::RenderTarget& target,
                                           fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a local zone (or rectangle).
@@ -718,12 +713,12 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param zone The local zone
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
     std::size_t
-    getAllObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target, fge::ObjectContainer& buff) const;
+    getAllObj_ByLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target, fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object with a local position.
      *
@@ -738,12 +733,12 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param pos The local position
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_FromLocalPosition(const sf::Vector2i& pos,
-                                            const sf::RenderTarget& target,
+    std::size_t getAllObj_FromLocalPosition(const fge::Vector2i& pos,
+                                            const fge::RenderTarget& target,
                                             fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a local zone (or rectangle).
@@ -759,12 +754,12 @@ public:
      * \warning This function do not clear data in the ObjectContainer.
      *
      * \param zone The local zone
-     * \param target An SFML RenderTarget
+     * \param target An RenderTarget
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_FromLocalZone(const sf::Rect<int>& zone,
-                                        const sf::RenderTarget& target,
+    std::size_t getAllObj_FromLocalZone(const fge::RectInt& zone,
+                                        const fge::RenderTarget& target,
                                         fge::ObjectContainer& buff) const;
 #endif //FGE_DEF_SERVER
 
@@ -801,7 +796,7 @@ public:
      * \param pos The position
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByPosition(const sf::Vector2f& pos) const;
+    fge::ObjectDataShared getFirstObj_ByPosition(const fge::Vector2f& pos) const;
     /**
      * \brief Get the first Object within a zone.
      *
@@ -810,7 +805,7 @@ public:
      * \param zone The zone
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByZone(const sf::Rect<float>& zone) const;
+    fge::ObjectDataShared getFirstObj_ByZone(const fge::RectFloat& zone) const;
 
 #ifndef FGE_DEF_SERVER
     /**
@@ -819,40 +814,41 @@ public:
      * \see getAllObj_ByLocalPosition
      *
      * \param pos The local position
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_ByLocalPosition(const fge::Vector2i& pos, const fge::RenderTarget& target) const;
     /**
      * \brief Get the first Object within a local zone.
      *
      * \see getAllObj_ByLocalZone
      *
      * \param zone The local zone
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_ByLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const;
     /**
      * \brief Get the first Object with a local position position.
      *
      * \see getAllObj_FromLocalPosition
      *
      * \param pos The position
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_FromLocalPosition(const sf::Vector2i& pos, const sf::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_FromLocalPosition(const fge::Vector2i& pos,
+                                                        const fge::RenderTarget& target) const;
     /**
      * \brief Get the first Object within a local zone.
      *
      * \see getAllObj_FromLocalZone
      *
      * \param zone The local zone
-     * \param target The SFML RenderTarget
+     * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_FromLocalZone(const sf::Rect<int>& zone, const sf::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_FromLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const;
         /**
      * \brief Get the first Object that match a provided class name.
      *
@@ -1116,17 +1112,17 @@ public:
      *
      * This is useful if you need to draw a Scene in another place in the screen.
      *
-     * \param customView The shared pointer of a SFML view
+     * \param customView The shared pointer of a view
      */
-    void setCustomView(std::shared_ptr<sf::View> customView);
+    void setCustomView(std::shared_ptr<fge::View> customView);
     /**
      * \brief Get the custom shared view if there is one.
      *
      * \see setCustomView
      *
-     * \return The shared point of the SFML view
+     * \return The shared point of the view
      */
-    const std::shared_ptr<sf::View>& getCustomView() const;
+    const std::shared_ptr<fge::View>& getCustomView() const;
     /**
      * \brief Remove the actual custom view.
      *
@@ -1136,13 +1132,13 @@ public:
 
     // Linked renderTarget
     /**
-     * \brief Link a SFML RenderTarget to the Scene.
+     * \brief Link a RenderTarget to the Scene.
      *
      * This is useful for any Object that required an RenderTarget in its method.
      *
-     * \param target The SFML RenderTarget (can be \b nullptr)
+     * \param target The RenderTarget (can be \b nullptr)
      */
-    void setLinkedRenderTarget(sf::RenderTarget* target);
+    void setLinkedRenderTarget(fge::RenderTarget* target);
     /**
      * \brief Get the RenderTarget linked to this Scene.
      *
@@ -1150,7 +1146,7 @@ public:
      *
      * \return The linked RenderTarget or \b nullptr if there is none
      */
-    const sf::RenderTarget* getLinkedRenderTarget() const;
+    const fge::RenderTarget* getLinkedRenderTarget() const;
     /**
      * \brief Get the RenderTarget linked to this Scene (non-const).
      *
@@ -1158,7 +1154,7 @@ public:
      *
      * \return The linked RenderTarget or \b nullptr if there is none
      */
-    sf::RenderTarget* getLinkedRenderTarget();
+    fge::RenderTarget* getLinkedRenderTarget();
 
     /**
      * \brief Get the related view of the scene.
@@ -1171,7 +1167,7 @@ public:
      *
      * \return The related view pointer or \b nullptr if there is none
      */
-    [[nodiscard]] const sf::View* getRelatedView() const;
+    [[nodiscard]] const fge::View* getRelatedView() const;
 
     /**
      * \brief Set the callback context of this Scene.
@@ -1284,7 +1280,7 @@ public:
     fge::PropertyList _properties;
 
     // Event
-    mutable fge::CallbackHandler<const fge::Scene*, sf::RenderTarget&, const sf::Color&> _onRenderTargetClear;
+    mutable fge::CallbackHandler<const fge::Scene*, fge::RenderTarget&> _onDraw;
 
     mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onNewObject;
     mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onRemoveObject;
@@ -1300,8 +1296,8 @@ private:
     fge::Scene::NetworkEventQueuePerClient g_networkEvents;
     bool g_enableNetworkEventsFlag;
 
-    std::shared_ptr<sf::View> g_customView;
-    sf::RenderTarget* g_linkedRenderTarget;
+    std::shared_ptr<fge::View> g_customView;
+    fge::RenderTarget* g_linkedRenderTarget;
 
     bool g_deleteMe;                                        //Delete an object while updating flag
     fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object

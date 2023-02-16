@@ -18,8 +18,7 @@
 #define _FGE_EXTRA_STRING_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "SFML/System/Vector2.hpp"
-#include "SFML/System/Vector3.hpp"
+#include "FastEngine/C_vector.hpp"
 #include <list>
 #include <optional>
 #include <string>
@@ -197,7 +196,7 @@ FGE_API void* ToPtr(const std::string& str);
  * \param str The string to convert
  * \return The converted vector or a vector with 0,0 if there is an error
  */
-FGE_API sf::Vector2f ToVec2f(const std::string& str);
+FGE_API fge::Vector2f ToVec2f(const std::string& str);
 /**
  * \ingroup extraString
  * \brief Convert a string to a vector2<unsigned int>
@@ -207,7 +206,7 @@ FGE_API sf::Vector2f ToVec2f(const std::string& str);
  * \param str The string to convert
  * \return The converted vector or a vector with 0,0 if there is an error
  */
-FGE_API sf::Vector2u ToVec2u(const std::string& str);
+FGE_API fge::Vector2u ToVec2u(const std::string& str);
 /**
  * \ingroup extraString
  * \brief Convert a string to a vector2<int>
@@ -217,7 +216,7 @@ FGE_API sf::Vector2u ToVec2u(const std::string& str);
  * \param str The string to convert
  * \return The converted vector or a vector with 0,0 if there is an error
  */
-FGE_API sf::Vector2i ToVec2i(const std::string& str);
+FGE_API fge::Vector2i ToVec2i(const std::string& str);
 
 //Arithmetic type
 
@@ -420,7 +419,7 @@ std::string ToStr(const std::optional<T>& val);
  * \param val The vector2 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const sf::Vector2f& val);
+FGE_API std::string ToStr(const fge::Vector2f& val);
 /**
  * \ingroup extraString
  * \brief Convert a vector2<unsigned int> to a string
@@ -430,7 +429,7 @@ FGE_API std::string ToStr(const sf::Vector2f& val);
  * \param val The vector2 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const sf::Vector2u& val);
+FGE_API std::string ToStr(const fge::Vector2u& val);
 /**
  * \ingroup extraString
  * \brief Convert a vector2<int> to a string
@@ -440,7 +439,7 @@ FGE_API std::string ToStr(const sf::Vector2u& val);
  * \param val The vector2 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const sf::Vector2i& val);
+FGE_API std::string ToStr(const fge::Vector2i& val);
 
 /**
  * \ingroup extraString
@@ -451,7 +450,7 @@ FGE_API std::string ToStr(const sf::Vector2i& val);
  * \param val The vector3 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const sf::Vector3f& val);
+FGE_API std::string ToStr(const fge::Vector3f& val);
 /**
  * \ingroup extraString
  * \brief Convert a vector3<int> to a string
@@ -461,7 +460,7 @@ FGE_API std::string ToStr(const sf::Vector3f& val);
  * \param val The vector3 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const sf::Vector3i& val);
+FGE_API std::string ToStr(const fge::Vector3i& val);
 
 /**
  * \ingroup extraString

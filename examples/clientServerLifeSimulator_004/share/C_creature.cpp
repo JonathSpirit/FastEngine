@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <C_creature.hpp>
 #include <C_drink.hpp>
 #include <C_food.hpp>
@@ -55,13 +71,16 @@ const fge::net::Packet& operator>>(const fge::net::Packet& pck, CreatureData& da
            data._muscularMass >> data._bodyFat >> data._sightRadius;
 }
 
-Creature::Creature(const sf::Vector2f& pos)
+Creature::Creature(const fge::Vector2f& pos)
 {
     this->setPosition(pos);
 }
 
 void Creature::first([[maybe_unused]] fge::Scene* scene)
 {
+    this->g_animTexture.reset(new fge::texture::TextureData);
+    this->g_animTexture->_valid = true;
+
 #ifndef FGE_DEF_SERVER
     this->_anim = "ugandan";
     this->_anim.setGroup("speak");
@@ -69,12 +88,63 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
     this->_font = "default";
-    _speakSound.setBuffer(*fge::audio::GetAudio("ugandan1")->_audio);
-    this->_speakDelay = sf::milliseconds(fge::_random.range<int>(6000, 20000));
+    this->_speakSound = "ugandan1";
+    this->_speakDelay = std::chrono::milliseconds(fge::_random.range<int>(6000, 20000));
 #endif // FGE_DEF_SERVER
 
     this->setOrigin({24, 19});
     this->networkRegister();
+
+    //creature
+    /*
+    100|val
+    ---|---
+    2.0| ?
+    */
+    const float scale = (2.0f * static_cast<float>(this->_data._height)) / 100.0f;
+    this->g_spriteCreature.setScale({scale, scale});
+    this->g_spriteCreature.setOrigin({24, 19});
+
+    //sightRadius
+    this->g_circleSight.setRadius(this->_data._sightRadius);
+    this->g_circleSight.setOutlineThickness(1.0f);
+    this->g_circleSight.setOutlineColor(fge::Color(120, 120, 120, 180));
+    this->g_circleSight.setFillColor(fge::Color::Transparent);
+    this->g_circleSight.setOrigin({this->_data._sightRadius, this->_data._sightRadius});
+
+    //Gender
+    this->g_txtGender.setString(
+            std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
+            (this->_data._pregnant ? " pregnant" : ""));
+    this->g_txtGender.setFont(this->_font);
+    this->g_txtGender.setCharacterSize(12);
+    this->g_txtGender.setPosition({-20, 30});
+    this->g_txtGender.setOutlineThickness(1.0f);
+    this->g_txtGender.setOutlineColor(fge::Color::Black);
+    this->g_txtGender.setFillColor(fge::Color::White);
+
+    //Stat
+    this->g_rectInfoBox.setSize({100, 20});
+    this->g_rectInfoBox.setPosition({-20, -40});
+    this->g_rectInfoBox.setOutlineThickness(1.0f);
+    this->g_rectInfoBox.setOutlineColor(fge::Color::Black);
+    this->g_rectInfoBox.setFillColor(fge::Color(100, 100, 100));
+
+    this->g_rectBarLife.setSize({this->_data._lifePoint, 5});
+    this->g_rectBarLife.setPosition({-20, -40});
+    this->g_rectBarLife.setFillColor(fge::Color::Red);
+
+    this->g_rectBarHunger.setSize({this->_data._hunger, 5});
+    this->g_rectBarHunger.setPosition({-20, -35});
+    this->g_rectBarHunger.setFillColor(fge::Color(255, 154, 29));
+
+    this->g_rectBarThirst.setSize({this->_data._thirst, 5});
+    this->g_rectBarThirst.setPosition({-20, -30});
+    this->g_rectBarThirst.setFillColor(fge::Color::Blue);
+
+    this->g_rectBarLibido.setSize({this->_data._libido, 5});
+    this->g_rectBarLibido.setPosition({-20, -25});
+    this->g_rectBarLibido.setFillColor(fge::Color(228, 0, 255));
 }
 bool Creature::worldTick()
 {
@@ -287,10 +357,10 @@ FGE_OBJ_UPDATE_BODY(Creature)
     if (this->_speakClock.getElapsedTime() >= this->_speakDelay)
     {
         this->_speakClock.restart();
-        this->_speakDelay = sf::milliseconds(fge::_random.range(6000, 50000));
-        _speakSound.setBuffer(*fge::audio::GetAudio("ugandan" + fge::string::ToStr(fge::_random.range(1, 2)))->_audio);
+        this->_speakDelay = std::chrono::milliseconds(fge::_random.range(6000, 50000));
+        this->_speakSound = "ugandan" + fge::string::ToStr(fge::_random.range(1, 2));
 
-        this->_speakSound.play();
+        Mix_PlayChannel(-1, this->_speakSound, 0);
     }
 
     this->updateMoveable(*this, deltaTime);
@@ -300,72 +370,22 @@ FGE_OBJ_UPDATE_BODY(Creature)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Creature)
 {
-    //creature
-    sf::Sprite creature;
-    creature.setPosition(this->getPosition());
-    creature.setOrigin(this->getOrigin());
-    /*
-    100|val
-    ---|---
-    2.0| ?
-    */
-    float scale = (2.0f * this->_data._height) / 100;
-    creature.setScale(scale, scale);
-    creature.setTexture(this->_anim);
+    this->g_animTexture->_texture = static_cast<std::shared_ptr<fge::TextureType>>(this->_anim);
+    this->g_spriteCreature.setTexture(this->g_animTexture);
 
-    //sightRadius
-    sf::CircleShape sight(this->_data._sightRadius);
-    sight.setOutlineThickness(1.0f);
-    sight.setOutlineColor(sf::Color(120, 120, 120, 180));
-    sight.setFillColor(sf::Color::Transparent);
-    sight.setPosition(this->getPosition());
-    sight.setOrigin(this->_data._sightRadius, this->_data._sightRadius);
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
-    //Gender
-    sf::Text txtGender(std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
-                               (this->_data._pregnant ? " pregnant" : ""),
-                       this->_font, 12);
-    txtGender.setPosition(this->getPosition().x - 20, this->getPosition().y + 30);
-    txtGender.setOutlineThickness(1.0f);
-    txtGender.setOutlineColor(sf::Color::Black);
-    txtGender.setFillColor(sf::Color::White);
+    target.draw(this->g_circleSight, copyStates);
 
-    //Stat
-    /*
-    unsigned char _lifePoint;
-    unsigned char _hunger;
-    unsigned char _thirst;
-    unsigned char _libido;
-    */
-    sf::RectangleShape infoBox(sf::Vector2f(100, 20));
-    infoBox.setPosition(this->getPosition() + sf::Vector2f(-20, -40));
-    infoBox.setOutlineThickness(1.0f);
-    infoBox.setOutlineColor(sf::Color::Black);
-    infoBox.setFillColor(sf::Color(100, 100, 100));
-    sf::RectangleShape barLife(sf::Vector2f(this->_data._lifePoint, 5));
-    barLife.setPosition(this->getPosition() + sf::Vector2f(-20, -40));
-    barLife.setFillColor(sf::Color::Red);
-    sf::RectangleShape barHunger(sf::Vector2f(this->_data._hunger, 5));
-    barHunger.setPosition(this->getPosition() + sf::Vector2f(-20, -35));
-    barHunger.setFillColor(sf::Color(255, 154, 29));
-    sf::RectangleShape barThirst(sf::Vector2f(this->_data._thirst, 5));
-    barThirst.setPosition(this->getPosition() + sf::Vector2f(-20, -30));
-    barThirst.setFillColor(sf::Color::Blue);
-    sf::RectangleShape barLibido(sf::Vector2f(this->_data._libido, 5));
-    barLibido.setPosition(this->getPosition() + sf::Vector2f(-20, -25));
-    barLibido.setFillColor(sf::Color(228, 0, 255));
+    target.draw(this->g_txtGender, copyStates);
 
-    target.draw(sight);
+    target.draw(this->g_rectInfoBox, copyStates);
+    target.draw(this->g_rectBarLife, copyStates);
+    target.draw(this->g_rectBarHunger, copyStates);
+    target.draw(this->g_rectBarThirst, copyStates);
+    target.draw(this->g_rectBarLibido, copyStates);
 
-    target.draw(txtGender);
-
-    target.draw(infoBox);
-    target.draw(barLife);
-    target.draw(barHunger);
-    target.draw(barThirst);
-    target.draw(barLibido);
-
-    target.draw(creature);
+    target.draw(this->g_spriteCreature, copyStates);
 }
 #endif
 
@@ -374,9 +394,9 @@ void Creature::networkRegister()
     this->_netList.clear();
 
     this->_netList.push(new fge::net::NetworkTypeSmoothVec2Float{
-            {&this->getPosition(), [&](const sf::Vector2f& pos) { this->setPosition(pos); }},
+            {&this->getPosition(), [&](const fge::Vector2f& pos) { this->setPosition(pos); }},
             100.0f});
-    this->_netList.push(new fge::net::NetworkType<sf::Vector2f>{&this->_g_targetPos})
+    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>{&this->_g_targetPos})
             ->_onApplied.add(
                     new fge::CallbackLambda<>{[&]() { this->_g_finish = this->getPosition() == this->_g_targetPos; }},
                     this);

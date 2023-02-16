@@ -62,4 +62,7 @@
  *
  * \defgroup graphics Graphics utility/tools
  * \brief Everything related to graphics
+ *
+ * \defgroup vulkan Vulkan abstraction
+ * \brief Everything related to the Vulkan abstraction
  */

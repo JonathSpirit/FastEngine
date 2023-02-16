@@ -18,6 +18,7 @@
 #define _FGE_C_TEXTURE_HPP_INCLUDED
 
 #include <FastEngine/fastengine_extern.hpp>
+#include "C_vector.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include <json.hpp>
 
@@ -77,7 +78,7 @@ public:
      *
      * \return The texture size
      */
-    [[nodiscard]] sf::Vector2u getTextureSize() const;
+    [[nodiscard]] fge::Vector2u getTextureSize() const;
 
     /**
      * \brief Get the texture data
@@ -110,9 +111,9 @@ public:
     explicit operator const fge::TextureType*() const;
 
     /**
-     * \brief Directly get the SFML texture
+     * \brief Directly get the texture
      *
-     * \return The SFML texture
+     * \return The texture
      */
     operator fge::TextureType&();
     operator const fge::TextureType&() const;

@@ -25,14 +25,14 @@ char UnicodeToChar(uint32_t unicode)
 
 ///Position/Rectangle
 template<typename T>
-sf::Rect<T> ToRect(const sf::Vector2<T>& pos1, const sf::Vector2<T>& pos2)
+fge::Rect<T> ToRect(const fge::Vector2<T>& pos1, const fge::Vector2<T>& pos2)
 {
-    return sf::Rect<T>((pos1.x < pos2.x) ? pos1.x : pos2.x, (pos1.y < pos2.y) ? pos1.y : pos2.y,
-                       (pos1.x > pos2.x) ? (pos1.x - pos2.x) : (pos2.x - pos1.x),
-                       (pos1.y > pos2.y) ? (pos1.y - pos2.y) : (pos2.y - pos1.y));
+    return fge::Rect<T>({(pos1.x < pos2.x) ? pos1.x : pos2.x, (pos1.y < pos2.y) ? pos1.y : pos2.y},
+                        {(pos1.x > pos2.x) ? (pos1.x - pos2.x) : (pos2.x - pos1.x),
+                         (pos1.y > pos2.y) ? (pos1.y - pos2.y) : (pos2.y - pos1.y)});
 }
 template<typename T>
-sf::Rect<T> ToRect(const std::vector<sf::Vector2<T>>& pos)
+fge::Rect<T> ToRect(const std::vector<fge::Vector2<T>>& pos)
 {
     float smallestX = std::numeric_limits<float>::max();
     float biggestX = std::numeric_limits<float>::lowest();
@@ -59,10 +59,10 @@ sf::Rect<T> ToRect(const std::vector<sf::Vector2<T>>& pos)
         }
     }
 
-    return sf::Rect<T>(smallestX, smallestY, biggestX - smallestX, biggestY - smallestY);
+    return fge::Rect<T>({smallestX, smallestY}, {biggestX - smallestX, biggestY - smallestY});
 }
 template<typename T>
-sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size)
+fge::Rect<T> ToRect(const fge::Vector2<T>* pos, std::size_t size)
 {
     T smallestX = std::numeric_limits<T>::max();
     T biggestX = std::numeric_limits<T>::lowest();
@@ -89,7 +89,7 @@ sf::Rect<T> ToRect(const sf::Vector2<T>* pos, std::size_t size)
         }
     }
 
-    return sf::Rect<T>(smallestX, smallestY, biggestX - smallestX, biggestY - smallestY);
+    return fge::Rect<T>({smallestX, smallestY}, {biggestX - smallestX, biggestY - smallestY});
 }
 
 ///Reach
@@ -110,13 +110,13 @@ T ReachValue(T value, T target, T speed, float deltaTime)
 
 ///2D Math
 template<typename T>
-sf::Vector2f NormalizeVector2(const sf::Vector2<T>& vec)
+fge::Vector2f NormalizeVector2(const fge::Vector2<T>& vec)
 {
     return vec / std::sqrt(vec.x * vec.x + vec.y * vec.y);
 }
 
 template<typename TIterator>
-TIterator GetNearestVector(const sf::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd)
+TIterator GetNearestVector(const fge::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd)
 {
     TIterator bestNearestPoint = pointsEnd;
     float bestNearestDistance;
@@ -143,49 +143,49 @@ TIterator GetNearestVector(const sf::Vector2f& vec, const TIterator& pointsBegin
 }
 
 ///Color
-sf::Color SetAlpha(const sf::Color& color, uint8_t alpha)
+fge::Color SetAlpha(const fge::Color& color, uint8_t alpha)
 {
-    sf::Color buff(color);
-    buff.a = alpha;
+    fge::Color buff(color);
+    buff._a = alpha;
     return buff;
 }
-sf::Color SetRed(const sf::Color& color, uint8_t red)
+fge::Color SetRed(const fge::Color& color, uint8_t red)
 {
-    sf::Color buff(color);
-    buff.r = red;
+    fge::Color buff(color);
+    buff._r = red;
     return buff;
 }
-sf::Color SetGreen(const sf::Color& color, uint8_t green)
+fge::Color SetGreen(const fge::Color& color, uint8_t green)
 {
-    sf::Color buff(color);
-    buff.g = green;
+    fge::Color buff(color);
+    buff._g = green;
     return buff;
 }
-sf::Color SetBlue(const sf::Color& color, uint8_t blue)
+fge::Color SetBlue(const fge::Color& color, uint8_t blue)
 {
-    sf::Color buff(color);
-    buff.b = blue;
+    fge::Color buff(color);
+    buff._b = blue;
     return buff;
 }
 
-sf::Color&& SetAlpha(sf::Color&& color, uint8_t alpha)
+fge::Color&& SetAlpha(fge::Color&& color, uint8_t alpha)
 {
-    color.a = alpha;
+    color._a = alpha;
     return std::move(color);
 }
-sf::Color&& SetRed(sf::Color&& color, uint8_t red)
+fge::Color&& SetRed(fge::Color&& color, uint8_t red)
 {
-    color.r = red;
+    color._r = red;
     return std::move(color);
 }
-sf::Color&& SetGreen(sf::Color&& color, uint8_t green)
+fge::Color&& SetGreen(fge::Color&& color, uint8_t green)
 {
-    color.g = green;
+    color._g = green;
     return std::move(color);
 }
-sf::Color&& SetBlue(sf::Color&& color, uint8_t blue)
+fge::Color&& SetBlue(fge::Color&& color, uint8_t blue)
 {
-    color.b = blue;
+    color._b = blue;
     return std::move(color);
 }
 

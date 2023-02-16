@@ -25,7 +25,7 @@ limitations under the License.
 </table>
 
 ## Description
-![logo](https://github.com/JonathSpirit/FastEngine/blob/master/logo.png?raw=true) FastEngine is a multiplayer oriented framework-ish on top of the [SFML](https://www.sfml-dev.org/) library. It brings a lot of tools and classes that can help mostly game development.
+![logo](https://github.com/JonathSpirit/FastEngine/blob/master/logo.png?raw=true) FastEngine is a multiplayer oriented framework-ish on top of [Vulkan](https://www.vulkan.org/) library. It brings a lot of tools and classes that can help mostly game development.
 
 ### Tools support
 FastEngine must be built using a C++20 compatible compiler :
@@ -45,10 +45,9 @@ Working/supported architecture :
 FastEngine is built under C++20 but game/software that link to this library can be C++17 minimum
 
 ### Documentation
-You can find latest Doxygen docs here : https://jonathspirit.github.io/FastEngine/
+You can find the latest Doxygen docs here : https://jonathspirit.github.io/FastEngine/
 
-You can find SFML documentation here : https://www.sfml-dev.org/documentation/
-and the repository : https://github.com/SFML/SFML
+Vulkan specification here : https://registry.khronos.org/vulkan/specs/1.3-extensions/html/index.html
 
 Note that this is a young project that need a ton of works for examples, documentations, tutorials ...
 
@@ -97,7 +96,7 @@ This is the default target, it will build **FastEngine_test** **FastEngine** and
 - **FastEngine##&&**
 This will build the client (audio, graphics, window, ...) shared library.
 - **FastEngineServer##&&**
-This will build the server (no audio, graphics or window dependencies) shared library. Note that the server library will manually build bits of **SFML** sources in order to retain nice features like *sf::View* or *sf::Transform* but remove drawing capacity and OpenGL stuff.
+This will build the server (no audio, graphics or window dependencies) shared library.
 - **install**
 The install target is not supported **for now** and should not be used. In order to install the library please see go to the *Installing* section.
 
@@ -122,9 +121,9 @@ I recommand to a add a little bit of power in the build with multicore argument 
 Please install GCC-11 or higher in order to correctly compile :
 
     sudo apt update && sudo apt install gcc-11 g++-11
-You should install [SFML](https://www.sfml-dev.org/faq.php#grl-dependencies) dependencies too :
+You should install Vulkan dependencies too :
 
-    sudo apt-get install libfreetype-dev libx11-dev libxrandr-dev libudev-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libflac-dev libogg-dev libvorbis-dev libopenal-dev libxcursor-dev
+    sudo apt-get install libvulkan-dev
 And then use CMake :
 
     cmake .. -G"Unix Makefiles" -DCMAKE_C_COMPILER=gcc-11 -DCMAKE_CXX_COMPILER=g++-11

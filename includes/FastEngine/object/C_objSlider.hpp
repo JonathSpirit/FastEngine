@@ -1,8 +1,25 @@
+/*
+ * Copyright 2022 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef _FGE_C_OBJSLIDER_HPP_INCLUDED
 #define _FGE_C_OBJSLIDER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_guiElement.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 #include "FastEngine/object/C_object.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
@@ -25,7 +42,7 @@ public:
     FGE_OBJ_DRAW_DECLARE
 
     void setSize(const fge::DynamicSize& size);
-    sf::Vector2f getSize() const;
+    fge::Vector2f getSize() const;
 
     void setCursorRatio(float ratio);
     float getCursorRatio() const;
@@ -33,33 +50,32 @@ public:
 
     void refreshSize();
 
-    void setScrollRectFillColor(sf::Color color);
-    void setScrollRectOutlineColor(sf::Color color);
-    void setScrollBaseRectFillColor(sf::Color color);
+    void setScrollRectFillColor(fge::Color color);
+    void setScrollRectOutlineColor(fge::Color color);
+    void setScrollBaseRectFillColor(fge::Color color);
 
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
     fge::CallbackHandler<float> _onSlide;
 
 private:
-    void onGuiMouseButtonPressed(const fge::Event& evt,
-                                 const sf::Event::MouseButtonEvent& arg,
-                                 fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const sf::Event::MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const sf::Event::MouseMoveEvent& arg);
+    void
+    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
+    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
+    void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
 
-    void onGuiResized(const fge::GuiElementHandler& handler, const sf::Vector2f& size);
+    void onGuiResized(const fge::GuiElementHandler& handler, const fge::Vector2f& size);
 
-    void onGuiVerify(const fge::Event& evt, sf::Event::EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
-    void refreshSize(const sf::Vector2f& targetSize);
+    void refreshSize(const fge::Vector2f& targetSize);
 
-    mutable sf::RectangleShape g_scrollRect;
-    mutable sf::RectangleShape g_scrollBaseRect;
+    mutable fge::RectangleShape g_scrollRect;
+    mutable fge::RectangleShape g_scrollBaseRect;
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 

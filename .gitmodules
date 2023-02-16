@@ -16,17 +16,7 @@
     path = libs/re2
     url = https://github.com/google/re2.git
     ignore = dirty
-    branch = 2022-06-01
-[submodule "libs/SFML"]
-    path = libs/SFML
-    url = https://github.com/SFML/SFML.git
-    ignore = dirty
-    branch = 2.6.x
-[submodule "libs/openal-soft"]
-    path = libs/openal-soft
-    url = https://github.com/kcat/openal-soft.git
-    ignore = dirty
-    branch = 1.22.2
+    branch = 2022-12-01
 [submodule "libs/strtk"]
     path = libs/strtk
     url = https://github.com/ArashPartow/strtk.git
@@ -36,4 +26,33 @@
     url = https://gitlab.freedesktop.org/freetype/freetype.git
     ignore = dirty
     branch = VER-2-12-1
-
+[submodule "libs/SDL"]
+    path = libs/SDL
+    url = https://github.com/libsdl-org/SDL.git
+    ignore = dirty
+    branch = release-2.26.2
+[submodule "libs/SDL_image"]
+    path = libs/SDL_image
+    url = https://github.com/libsdl-org/SDL_image.git
+    ignore = dirty
+    branch = release-2.6.2
+[submodule "libs/SDL_mixer"]
+    path = libs/SDL_mixer
+    url = https://github.com/libsdl-org/SDL_mixer.git
+    ignore = dirty
+    branch = release-2.6.2
+[submodule "libs/glm"]
+    path = libs/glm
+    url = https://github.com/g-truc/glm.git
+    ignore = dirty
+    branch = master
+[submodule "libs/volk"]
+    path = libs/volk
+    url = https://github.com/zeux/volk.git
+    ignore = dirty
+    branch = master
+[submodule "libs/VulkanMemoryAllocator"]
+    path = libs/VulkanMemoryAllocator
+    url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+    ignore = dirty
+    branch = v3.0.1

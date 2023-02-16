@@ -22,10 +22,10 @@ namespace fge
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTileMap)
 {
-    states.transform *= this->getTransform();
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
     for (std::size_t i = 0; i < this->g_layers.size(); ++i)
     {
-        target.draw(*this->g_layers[i], states);
+        target.draw(*this->g_layers[i], copyStates);
     }
 }
 #endif
@@ -123,13 +123,13 @@ const char* ObjTileMap::getReadableClassName() const
     return "tileMap";
 }
 
-sf::FloatRect ObjTileMap::getGlobalBounds() const
+fge::RectFloat ObjTileMap::getGlobalBounds() const
 {
-    return this->getTransform().transformRect(this->getLocalBounds());
+    return this->getTransform() * this->getLocalBounds();
 }
-sf::FloatRect ObjTileMap::getLocalBounds() const
+fge::RectFloat ObjTileMap::getLocalBounds() const
 {
-    return {0.f, 0.f, 1.f, 1.f};
+    return {{0.f, 0.f}, {1.f, 1.f}};
 }
 
 } // namespace fge

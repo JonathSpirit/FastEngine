@@ -95,16 +95,16 @@ public:
      */
     fge::Font& operator=(fge::font::FontDataPtr data);
 
-    explicit operator sf::Font*();
-    explicit operator const sf::Font*() const;
+    explicit operator fge::FreeTypeFont*();
+    explicit operator const fge::FreeTypeFont*() const;
 
     /**
-     * \brief Directly get the SFML font
+     * \brief Directly get the font
      *
-     * \return The SFML font
+     * \return The font
      */
-    operator sf::Font&();
-    operator const sf::Font&() const;
+    operator fge::FreeTypeFont&();
+    operator const fge::FreeTypeFont&() const;
 
 private:
     fge::font::FontDataPtr g_data;

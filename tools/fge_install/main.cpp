@@ -391,76 +391,77 @@ int main()
     installFiles.emplace_back(false, FTYPE_FILE, "LICENSE", FARCH_ALL, FBUILD_ALL);
     installFiles.emplace_back(false, FTYPE_FILE, "IMAGE_AUDIO_LOGO_LICENSE", FARCH_ALL, FBUILD_ALL);
 
-    //sfml
+    //sdl
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-d-2.dll", FARCH_32, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2d.dll", FARCH_32, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_imaged.dll", FARCH_32, FBUILD_DEBUG, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixerd.dll", FARCH_32, FBUILD_DEBUG, "libsdl_mixer");
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-d-2.dll", FARCH_64, FBUILD_DEBUG, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2d.dll", FARCH_64, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_imaged.dll", FARCH_64, FBUILD_DEBUG, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixerd.dll", FARCH_64, FBUILD_DEBUG, "libsdl_mixer");
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-2.dll", FARCH_32, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2.dll", FARCH_32, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_image.dll", FARCH_32, FBUILD_RELEASE, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixer.dll", FARCH_32, FBUILD_RELEASE, "libsdl_mixer");
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-audio-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-graphics-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-system-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SFML/lib/sfml-window-2.dll", FARCH_64, FBUILD_RELEASE, "libsfml");
-#endif //_WIN32
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-audio-d", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-graphics-d", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-system-d", FARCH_32, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-window-d", FARCH_32, FBUILD_DEBUG, "libsfml");
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-main-d", FARCH_32, FBUILD_DEBUG, "libsfml");
-#endif //_WIN32
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-audio-d", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-graphics-d", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-system-d", FARCH_64, FBUILD_DEBUG, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-window-d", FARCH_64, FBUILD_DEBUG, "libsfml");
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-main-d", FARCH_64, FBUILD_DEBUG, "libsfml");
-#endif //_WIN32
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-audio", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-graphics", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-system", FARCH_32, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-window", FARCH_32, FBUILD_RELEASE, "libsfml");
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-main", FARCH_32, FBUILD_RELEASE, "libsfml");
-#endif //_WIN32
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-audio", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-graphics", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-system", FARCH_64, FBUILD_RELEASE, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-window", FARCH_64, FBUILD_RELEASE, "libsfml");
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SFML/lib/libsfml-main", FARCH_64, FBUILD_RELEASE, "libsfml");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2.dll", FARCH_64, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_image.dll", FARCH_64, FBUILD_RELEASE, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixer.dll", FARCH_64, FBUILD_RELEASE, "libsdl_mixer");
 #endif //_WIN32
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_32, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "OpenAL_extern/src/OpenAL_extern-build/OpenAL32.dll", FARCH_64, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll", FARCH_32, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "OpenAL_extern/src/OpenAL_extern-build/libOpenAL32.dll", FARCH_64, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/openal-soft/include/AL", FARCH_ALL, FBUILD_ALL, "libopenal");
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/openal-soft/COPYING", FARCH_ALL, FBUILD_ALL, "libopenal");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/openal-soft/README.md", FARCH_ALL, FBUILD_ALL, "libopenal");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2maind", FARCH_32, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_32, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_32, FBUILD_DEBUG, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_32, FBUILD_DEBUG, "libsdl_mixer");
+#else
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_32, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_32, FBUILD_DEBUG, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_32, FBUILD_DEBUG, "libsdl_mixer");
 #endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SFML/include/SFML", FARCH_ALL, FBUILD_ALL, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2maind", FARCH_64, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_64, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_64, FBUILD_DEBUG, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_64, FBUILD_DEBUG, "libsdl_mixer");
+#else
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_64, FBUILD_DEBUG, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_64, FBUILD_DEBUG, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_64, FBUILD_DEBUG, "libsdl_mixer");
+#endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SFML/license.md", FARCH_ALL, FBUILD_ALL, "libsfml");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SFML/readme.md", FARCH_ALL, FBUILD_ALL, "libsfml");
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2main", FARCH_32, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_32, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_32, FBUILD_RELEASE, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_32, FBUILD_RELEASE, "libsdl_mixer");
+#else
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_32, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_32, FBUILD_RELEASE, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_32, FBUILD_RELEASE, "libsdl_mixer");
+#endif //_WIN32
+
+#ifdef _WIN32
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2main", FARCH_64, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_64, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_64, FBUILD_RELEASE, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_64, FBUILD_RELEASE, "libsdl_mixer");
+#else
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_64, FBUILD_RELEASE, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_64, FBUILD_RELEASE, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_64, FBUILD_RELEASE, "libsdl_mixer");
+#endif //_WIN32
+
+    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SDL/include", FARCH_ALL, FBUILD_ALL, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SDL_image/SDL_image.h", FARCH_ALL, FBUILD_ALL, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SDL_mixer/include/SDL_mixer.h", FARCH_ALL, FBUILD_ALL, "libsdl_mixer");
+
+    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL/CREDITS.txt", FARCH_ALL, FBUILD_ALL, "libsdl");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL_image/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libsdl_image");
+    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL_mixer/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libsdl_mixer");
 
     //Ignoring un-built files and prefix path to the built ones
     for (auto itFile=installFiles.begin(); itFile!=installFiles.end(); ++itFile)

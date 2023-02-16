@@ -42,11 +42,8 @@ public:
     void operator=(const char* name);
     void operator=(const fge::audio::AudioDataPtr& data);
 
-    explicit operator sf::SoundBuffer*();
-    explicit operator const sf::SoundBuffer*() const;
-
-    operator sf::SoundBuffer&();
-    operator const sf::SoundBuffer&() const;
+    operator Mix_Chunk*();
+    operator const Mix_Chunk*() const;
 
     operator std::string&();
     operator const std::string&() const;

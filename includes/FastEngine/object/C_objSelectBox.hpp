@@ -23,6 +23,7 @@
 #include "C_object.hpp"
 #include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_font.hpp"
+#include "FastEngine/graphic/C_rectangleShape.hpp"
 
 #define FGE_OBJSELECTBOX_CLASSNAME "FGE:OBJ:SELECTBOX"
 
@@ -33,7 +34,7 @@ class FGE_API ObjSelectBox : public fge::Object
 {
 public:
     ObjSelectBox();
-    explicit ObjSelectBox(const fge::Font& font, const sf::Vector2f& pos = sf::Vector2f());
+    explicit ObjSelectBox(const fge::Font& font, const fge::Vector2f& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSelectBox)
 
@@ -43,26 +44,26 @@ public:
     void setSelectedText(tiny_utf8::string string);
     const tiny_utf8::string& getSelectedText() const;
 
-    void setCharacterSize(fge::ObjText::CharacterSize size);
+    void setCharacterSize(fge::CharacterSize size);
 
     void setActiveStat(bool active);
 
-    void setBoxSize(const sf::Vector2f& size);
+    void setBoxSize(const fge::Vector2f& size);
     void setBoxSize(float w, float h);
 
-    void setBoxColor(const sf::Color& color);
-    void setBoxOutlineColor(const sf::Color& color);
-    void setTextColor(const sf::Color& color);
+    void setBoxColor(const fge::Color& color);
+    void setBoxOutlineColor(const fge::Color& color);
+    void setTextColor(const fge::Color& color);
 
-    fge::ObjText::CharacterSize getCharacterSize() const;
+    fge::CharacterSize getCharacterSize() const;
 
     bool getActiveStat() const;
 
-    const sf::Vector2f& getBoxSize() const;
+    const fge::Vector2f& getBoxSize() const;
 
-    const sf::Color& getBoxColor() const;
-    const sf::Color& getBoxOutlineColor() const;
-    const sf::Color& getTextColor() const;
+    const fge::Color& getBoxColor() const;
+    const fge::Color& getBoxOutlineColor() const;
+    const fge::Color& getTextColor() const;
 
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
@@ -75,22 +76,22 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
-    sf::Color g_colorBox = sf::Color::White;
-    sf::Color g_colorBoxOutline = sf::Color::Black;
-    sf::Color g_colorText = sf::Color::Black;
+    fge::Color g_colorBox = fge::Color::White;
+    fge::Color g_colorBoxOutline = fge::Color::Black;
+    fge::Color g_colorText = fge::Color::Black;
 
     std::vector<tiny_utf8::string> g_textList;
     tiny_utf8::string g_textSelected;
     tiny_utf8::string* g_textCursor;
 
     mutable fge::ObjText g_text;
-    mutable sf::RectangleShape g_box;
+    mutable fge::RectangleShape g_box;
 
-    sf::Vector2f g_boxSize = sf::Vector2f(120, 18);
+    fge::Vector2f g_boxSize = fge::Vector2f(120, 18);
 
     bool g_statMouseOn = false;
     bool g_statActive = false;

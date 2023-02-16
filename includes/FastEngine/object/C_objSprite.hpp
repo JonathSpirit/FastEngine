@@ -29,21 +29,23 @@ namespace fge
 class FGE_API ObjSprite : public fge::Object
 {
 public:
-    ObjSprite() = default;
-    explicit ObjSprite(const fge::Texture& texture, const sf::Vector2f& position = sf::Vector2f());
-    ObjSprite(const fge::Texture& texture, const sf::IntRect& rectangle, const sf::Vector2f& position = sf::Vector2f());
+    ObjSprite();
+    explicit ObjSprite(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
+    ObjSprite(const fge::Texture& texture,
+              const fge::RectInt& rectangle,
+              const fge::Vector2f& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSprite)
 
     void setTexture(const fge::Texture& texture, bool resetRect = false);
-    void setTextureRect(const sf::IntRect& rectangle);
+    void setTextureRect(const fge::RectInt& rectangle);
 
-    void setColor(const sf::Color& color);
+    void setColor(const fge::Color& color);
 
     const fge::Texture& getTexture() const;
-    const sf::IntRect& getTextureRect() const;
+    const fge::RectInt& getTextureRect() const;
 
-    const sf::Color& getColor() const;
+    fge::Color getColor() const;
 
     FGE_OBJ_DRAW_DECLARE
 
@@ -55,16 +57,16 @@ public:
     const char* getClassName() const override;
     const char* getReadableClassName() const override;
 
-    sf::FloatRect getGlobalBounds() const override;
-    sf::FloatRect getLocalBounds() const override;
+    fge::RectFloat getGlobalBounds() const override;
+    fge::RectFloat getLocalBounds() const override;
 
 private:
     void updatePositions();
     void updateTexCoords();
 
-    sf::Vertex g_vertices[4];
+    fge::vulkan::VertexBuffer g_vertices;
     fge::Texture g_texture;
-    sf::IntRect g_textureRect;
+    fge::RectInt g_textureRect;
 };
 
 } // namespace fge

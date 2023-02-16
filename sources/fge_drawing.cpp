@@ -21,6 +21,7 @@ namespace fge
 namespace debug
 {
 
+/** TODO
 void DrawCenteredCircle(sf::RenderTarget& target,
                         const sf::Vector2f& position,
                         float radius,
@@ -51,7 +52,7 @@ void DrawCenteredRect(sf::RenderTarget& target,
     rect.setOutlineColor(outColor);
     rect.setOutlineThickness(outThickness);
     target.draw(rect);
-}
+}**/
 
 } // namespace debug
 } // namespace fge

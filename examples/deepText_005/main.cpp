@@ -1,26 +1,44 @@
+/*
+ * Copyright 2022 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_random.hpp"
+#include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/graphic/C_drawable.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include <FastEngine/C_clock.hpp>
-#include <FastEngine/C_scene.hpp>
+#include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "SDL.h"
 #include <cmath>
+#include <iostream>
 
 //Create the MainScene class
 class MainScene : public fge::Scene
 {
 public:
-    void main()
+    void start(fge::RenderWindow& renderWindow)
     {
-        sf::RenderWindow window(sf::VideoMode{800, 600}, "example 005: deepText");
-        window.setFramerateLimit(60);
-
-        fge::Event event(window);
-        fge::GuiElementHandler guiElementHandler(event, window);
+        fge::Event event(renderWindow);
+        fge::GuiElementHandler guiElementHandler(event, renderWindow);
         guiElementHandler.setEventCallback(event);
 
-        this->setLinkedRenderTarget(&window);
+        this->setLinkedRenderTarget(&renderWindow);
 
         //Set default callback context
         this->setCallbackContext({&event, &guiElementHandler});
@@ -39,22 +57,22 @@ public:
         auto explainText =
                 this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use the slider to change the frequency", "base", {}, 18),
                                 FGE_SCENE_PLAN_HIGH_TOP + 1);
-        explainText->getObject<fge::ObjText>()->setFillColor(sf::Color::Black);
+        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
 
         //Create a text object that display frequency
         auto* frequencyText =
                 this->newObject(FGE_NEWOBJECT(fge::ObjText, "", "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP + 1)
                         ->getObject<fge::ObjText>();
-        frequencyText->setFillColor(sf::Color::Black);
-        frequencyText->setPosition(40.0f, 300.0f);
+        frequencyText->setFillColor(fge::Color::Black);
+        frequencyText->setPosition({40.0f, 300.0f});
 
         //Add a text with characters that will be moved
         auto* movingText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "hello world, I'm a moving text !\ttab\nnewLine",
                                                          "base", {200.0f, 200.0f}))
                                    ->getObject<fge::ObjText>();
-        movingText->setFillColor(sf::Color::Black);
+        movingText->setFillColor(fge::Color::Black);
         movingText->setOutlineThickness(2.0f);
-        movingText->setOutlineColor(sf::Color::Yellow);
+        movingText->setOutlineColor(fge::Color::Yellow);
         movingText->setStyle(fge::ObjText::Style::Italic | fge::ObjText::Style::StrikeThrough |
                              fge::ObjText::Style::Bold | fge::ObjText::Style::Underlined);
 
@@ -73,38 +91,36 @@ public:
         objSliderFreq->needAnchorUpdate(false);
 
         objSliderFreq->_onSlide.add(new fge::CallbackLambda<float>{[&](float ratio) {
-            math_f = 3.0f * ratio;
+            math_f = std::clamp(3.0f * ratio, 0.1f, 3.0f);
             frequencyText->setString(fge::string::ToStr(math_f) + "Hz");
         }});
 
         //Add a rectangle representing the bounds of the moving text
-        sf::RectangleShape rectText;
+        fge::RectangleShape rectText;
 
         auto rect = movingText->getGlobalBounds();
         rectText.setPosition(rect.getPosition());
         rectText.setSize(rect.getSize());
-        rectText.setFillColor(sf::Color::Transparent);
-        rectText.setOutlineColor(sf::Color::Red);
+        rectText.setFillColor(fge::Color::Transparent);
+        rectText.setOutlineColor(fge::Color::Red);
         rectText.setOutlineThickness(2.0f);
 
         fge::Clock changeTextColorClock;
 
         //Begin loop
-        while (window.isOpen())
+        bool running = true;
+        while (running)
         {
             //Update event
-            event.process(window);
-            if (event.isEventType(sf::Event::EventType::Closed))
+            event.process();
+            if (event.isEventType(SDL_QUIT))
             {
-                window.close();
+                running = false;
             }
-
-            //Clear window
-            window.clear();
 
             //Update scene
             auto deltaTick = tick.restart();
-            this->update(window, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
+            this->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
             //Update moving text characters
             auto& characters = movingText->getCharacters();
@@ -124,30 +140,82 @@ public:
             math_t += fge::DurationToSecondFloat(deltaTick);
             math_t = fmodf(math_t, 1.0f / math_f);
 
+            //std::cout << 1.0f / fge::DurationToSecondFloat(deltaTick) << std::endl;
+
             if (changeTextColorClock.reached(std::chrono::milliseconds{500}))
             {
                 changeTextColorClock.restart();
             }
 
-            //Draw scene
-            this->draw(window);
-            window.draw(rectText);
+            //Drawing
+            auto imageIndex = renderWindow.prepareNextFrame(nullptr);
+            if (imageIndex != BAD_IMAGE_INDEX)
+            {
+                fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
 
-            //Display window
-            window.display();
+                renderWindow.beginRenderPass(imageIndex);
+
+                this->draw(renderWindow);
+                rectText.draw(renderWindow, {});
+
+                renderWindow.endRenderPass();
+
+                renderWindow.display(imageIndex);
+            }
+
+            //SDL_Delay(17);
         }
 
-        //Uninit texture manager
-        fge::texture::Uninit();
-        //Uninit font manager
-        fge::font::Uninit();
+        fge::vulkan::GlobalContext->waitIdle();
+
+        fge::vulkan::GlobalContext->_garbageCollector.enable(false);
     }
 };
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    MainScene scene;
-    scene.main();
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    SDL_Window* window = SDL_CreateWindow("example 005: deepText", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
+                                          600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+
+    // Check that the window was successfully created
+    if (window == nullptr)
+    {
+        // In the case that the window could not be made...
+        std::cout << "Could not create window: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    fge::vulkan::Context vulkanContext{};
+    fge::vulkan::Context::initVolk();
+    fge::vulkan::Context::enumerateExtensions();
+    vulkanContext.initVulkan(window);
+
+    fge::vulkan::GlobalContext = &vulkanContext;
+
+    fge::vulkan::GlobalContext->_garbageCollector.enable(true);
+
+    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
+                      "resources/shaders/fragmentTexture.spv");
+
+    fge::RenderWindow renderWindow(vulkanContext);
+    renderWindow.setClearColor(fge::Color::White);
+
+    std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
+    scene->start(renderWindow);
+    scene.reset();
+
+    fge::texture::Uninit();
+    fge::font::Uninit();
+    fge::shader::Uninit();
+
+    renderWindow.destroy();
+
+    vulkanContext.destroy();
+
+    SDL_DestroyWindow(window);
+
+    SDL_Quit();
 
     return 0;
 }
