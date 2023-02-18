@@ -17,8 +17,8 @@
 #ifndef _FGE_C_CLIENTLIST_HPP_INCLUDED
 #define _FGE_C_CLIENTLIST_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_client.hpp>
+#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_client.hpp"
 #include <deque>
 #include <memory>
 #include <mutex>

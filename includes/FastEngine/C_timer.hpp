@@ -17,8 +17,8 @@
 #ifndef _FGE_C_TIMER_HPP_INCLUDED
 #define _FGE_C_TIMER_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_callback.hpp>
+#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_callback.hpp"
 #include <chrono>
 #include <mutex>
 #include <string>

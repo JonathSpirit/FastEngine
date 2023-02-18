@@ -24,8 +24,8 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/graphic/C_shape.hpp>
+#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/graphic/C_shape.hpp"
 
 namespace fge
 {

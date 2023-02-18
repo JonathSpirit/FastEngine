@@ -17,14 +17,14 @@
 #ifndef _FGE_C_SCENE_HPP_INCLUDED
 #define _FGE_C_SCENE_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
+#include "FastEngine/fastengine_extern.hpp"
 
+#include "FastEngine/C_callback.hpp"
+#include "FastEngine/C_commandHandler.hpp"
+#include "FastEngine/C_identity.hpp"
+#include "FastEngine/C_propertyList.hpp"
+#include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/object/C_object.hpp"
-#include <FastEngine/C_callback.hpp>
-#include <FastEngine/C_commandHandler.hpp>
-#include <FastEngine/C_identity.hpp>
-#include <FastEngine/C_propertyList.hpp>
-#include <FastEngine/graphic/C_renderTarget.hpp>
 #include <memory>
 #include <queue>
 #include <string>

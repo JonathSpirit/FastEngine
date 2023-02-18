@@ -24,11 +24,11 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <FastEngine/fastengine_extern.hpp>
+#include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_rect.hpp"
-#include <FastEngine/graphic/C_glyph.hpp>
-#include <FastEngine/graphic/C_surface.hpp>
-#include <FastEngine/vulkan/C_textureImage.hpp>
+#include "FastEngine/graphic/C_glyph.hpp"
+#include "FastEngine/graphic/C_surface.hpp"
+#include "FastEngine/vulkan/C_textureImage.hpp"
 #include <filesystem>
 #include <string>
 #include <unordered_map>

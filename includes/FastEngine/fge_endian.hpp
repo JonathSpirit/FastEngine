@@ -17,7 +17,7 @@
 #ifndef _FGE_ENDIAN_HPP_INCLUDED_
 #define _FGE_ENDIAN_HPP_INCLUDED_
 
-#include <FastEngine/fastengine_extern.hpp>
+#include "FastEngine/fastengine_extern.hpp"
 #include <cstdint>
 
 namespace fge

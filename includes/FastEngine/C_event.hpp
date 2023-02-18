@@ -17,11 +17,11 @@
 #ifndef _FGE_C_EVENT_HPP_INCLUDED
 #define _FGE_C_EVENT_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
+#include "FastEngine/fastengine_extern.hpp"
 #include "C_vector.hpp"
-#include <FastEngine/C_callback.hpp>
-#include <SDL_events.h>
-#include <SDL_video.h>
+#include "FastEngine/C_callback.hpp"
+#include "SDL_events.h"
+#include "SDL_video.h"
 
 #define FGE_EVENT_KEYCODES_SIZE 12
 #define FGE_EVENT_DEFAULT_MAXEVENTCOUNT 20

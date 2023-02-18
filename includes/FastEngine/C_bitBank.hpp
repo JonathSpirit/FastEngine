@@ -17,7 +17,7 @@
 #ifndef _FGE_C_BITBANK_HPP_INCLUDED
 #define _FGE_C_BITBANK_HPP_INCLUDED
 
-#include <FastEngine/C_packet.hpp>
+#include "FastEngine/C_packet.hpp"
 
 namespace fge
 {

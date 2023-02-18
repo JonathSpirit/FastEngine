@@ -17,11 +17,11 @@
 #ifndef _FGE_C_GUIELEMENT_HPP_INCLUDED
 #define _FGE_C_GUIELEMENT_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
+#include "FastEngine/fastengine_extern.hpp"
 #include "C_rect.hpp"
-#include <FastEngine/C_event.hpp>
-#include <FastEngine/C_tunnel.hpp>
-#include <FastEngine/graphic/C_renderTarget.hpp>
+#include "FastEngine/C_event.hpp"
+#include "FastEngine/C_tunnel.hpp"
+#include "FastEngine/graphic/C_renderTarget.hpp"
 #include <cstdint>
 
 #define FGE_GUI_ELEMENT_PRIORITY_LAST 0

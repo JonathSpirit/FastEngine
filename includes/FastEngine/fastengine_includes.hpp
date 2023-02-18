@@ -17,7 +17,7 @@
 #ifndef _FGE_FASTENGINE_INCLUDES_HPP_INCLUDED
 #define _FGE_FASTENGINE_INCLUDES_HPP_INCLUDED
 
-#include <FastEngine/fastengine_version.hpp>
+#include "FastEngine/fastengine_version.hpp"
 
 #include "FastEngine/manager/audio_manager.hpp"
 #include "FastEngine/manager/font_manager.hpp"
@@ -25,11 +25,11 @@
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/manager/timer_manager.hpp"
 
+#include "FastEngine/C_random.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/extra/extra_objectclass.hpp"
 #include "FastEngine/extra/extra_string.hpp"
-#include <FastEngine/C_random.hpp>
 
-#include <FastEngine/C_scene.hpp>
+#include "FastEngine/C_scene.hpp"
 
 #endif // _FGE_FASTENGINE_INCLUDES_HPP_INCLUDED

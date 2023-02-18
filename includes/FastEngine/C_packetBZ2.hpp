@@ -17,8 +17,8 @@
 #ifndef _FGE_C_PACKETBZ2_HPP_INCLUDED
 #define _FGE_C_PACKETBZ2_HPP_INCLUDED
 
-#include <FastEngine/fastengine_extern.hpp>
-#include <FastEngine/C_packet.hpp>
+#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_packet.hpp"
 
 /*
  * This file is using the library :

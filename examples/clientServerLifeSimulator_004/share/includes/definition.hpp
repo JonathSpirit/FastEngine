@@ -17,7 +17,7 @@
 #ifndef _EXFGE_DEFINITION_HPP_INCLUDED
 #define _EXFGE_DEFINITION_HPP_INCLUDED
 
-#include <FastEngine/manager/network_manager.hpp>
+#include "FastEngine/manager/network_manager.hpp"
 
 #define LIFESIM_VERSION 1
 #define LIFESIM_CLIENT_PORT 42047

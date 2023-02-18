@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <FastEngine/graphic/C_view.hpp>
+#include "FastEngine/graphic/C_view.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include <cmath>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace fge
 {

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include <C_creature.hpp>
-#include <C_drink.hpp>
-#include <C_food.hpp>
-#include <FastEngine/C_random.hpp>
-#include <FastEngine/C_scene.hpp>
-#include <FastEngine/extra/extra_function.hpp>
-#include <FastEngine/manager/audio_manager.hpp>
+#include "C_creature.hpp"
+#include "C_drink.hpp"
+#include "C_food.hpp"
+#include "FastEngine/C_random.hpp"
+#include "FastEngine/C_scene.hpp"
+#include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/manager/audio_manager.hpp"
 
 namespace ls
 {

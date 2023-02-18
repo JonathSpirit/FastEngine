@@ -24,9 +24,9 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include <volk.h>
+#include "volk.h"
+#include "SDL_pixels.h"
 #include "glm/glm.hpp"
-#include <SDL_pixels.h>
 
 namespace fge
 {

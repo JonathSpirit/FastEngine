@@ -16,8 +16,8 @@
 
 #include "FastEngine/C_packetLZ4.hpp"
 #include "FastEngine/fge_endian.hpp"
-#include <lz4.h>
-#include <lz4hc.h>
+#include "lz4.h"
+#include "lz4hc.h"
 #include <stdexcept>
 
 namespace fge

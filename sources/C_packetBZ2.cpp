@@ -16,7 +16,7 @@
 
 #include "FastEngine/C_packetBZ2.hpp"
 #include "FastEngine/fge_endian.hpp"
-#include <bzlib.h>
+#include "bzlib.h"
 #include <stdexcept>
 
 namespace fge

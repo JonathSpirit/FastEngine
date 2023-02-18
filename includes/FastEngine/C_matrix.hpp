@@ -18,8 +18,8 @@
 #define _FGE_C_MATRIX_HPP_INCLUDED
 
 #include "FastEngine/C_vector.hpp"
+#include "json.hpp"
 #include <initializer_list>
-#include <json.hpp>
 
 #define FGE_MATRIX_GET(dataType_, data_, sizeY_, px_, py_)                                                             \
     (reinterpret_cast<dataType_*>(data_) + (py_) + ((px_) * (sizeY_)))
