@@ -9,13 +9,14 @@ var searchData=
   ['objselectbox_6',['ObjSelectBox',['../classfge_1_1ObjSelectBox.html',1,'fge']]],
   ['objslider_7',['ObjSlider',['../classfge_1_1ObjSlider.html',1,'fge']]],
   ['objsprite_8',['ObjSprite',['../classfge_1_1ObjSprite.html',1,'fge']]],
-  ['objswitch_9',['ObjSwitch',['../classfge_1_1ObjSwitch.html',1,'fge']]],
-  ['objtext_10',['ObjText',['../classfge_1_1ObjText.html',1,'fge']]],
-  ['objtextinputbox_11',['ObjTextInputBox',['../classfge_1_1ObjTextInputBox.html',1,'fge']]],
-  ['objtextlist_12',['ObjTextList',['../classfge_1_1ObjTextList.html',1,'fge']]],
-  ['objtilemap_13',['ObjTileMap',['../classfge_1_1ObjTileMap.html',1,'fge']]],
-  ['objwindow_14',['ObjWindow',['../classfge_1_1ObjWindow.html',1,'fge']]],
-  ['obstaclecomponent_15',['ObstacleComponent',['../classfge_1_1ObstacleComponent.html',1,'fge']]],
-  ['onewaylatencyplanner_16',['OneWayLatencyPlanner',['../classfge_1_1net_1_1OneWayLatencyPlanner.html',1,'fge::net']]],
-  ['option_17',['Option',['../structfge_1_1net_1_1SendQueuePacket_1_1Option.html',1,'fge::net::SendQueuePacket']]]
+  ['objspritebatches_9',['ObjSpriteBatches',['../classfge_1_1ObjSpriteBatches.html',1,'fge']]],
+  ['objswitch_10',['ObjSwitch',['../classfge_1_1ObjSwitch.html',1,'fge']]],
+  ['objtext_11',['ObjText',['../classfge_1_1ObjText.html',1,'fge']]],
+  ['objtextinputbox_12',['ObjTextInputBox',['../classfge_1_1ObjTextInputBox.html',1,'fge']]],
+  ['objtextlist_13',['ObjTextList',['../classfge_1_1ObjTextList.html',1,'fge']]],
+  ['objtilemap_14',['ObjTileMap',['../classfge_1_1ObjTileMap.html',1,'fge']]],
+  ['objwindow_15',['ObjWindow',['../classfge_1_1ObjWindow.html',1,'fge']]],
+  ['obstaclecomponent_16',['ObstacleComponent',['../classfge_1_1ObstacleComponent.html',1,'fge']]],
+  ['onewaylatencyplanner_17',['OneWayLatencyPlanner',['../classfge_1_1net_1_1OneWayLatencyPlanner.html',1,'fge::net']]],
+  ['option_18',['Option',['../structfge_1_1net_1_1SendQueuePacket_1_1Option.html',1,'fge::net::SendQueuePacket']]]
 ];

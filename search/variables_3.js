@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['localhost_0',['LocalHost',['../classfge_1_1net_1_1IpAddress.html#a6fb9bdc8f3535c4c3852da451df9da32',1,'fge::net::IpAddress']]]
+  ['cyan_0',['Cyan',['../classfge_1_1Color.html#a584f2fc73b2b24eb781f396f6692081d',1,'fge::Color']]]
 ];

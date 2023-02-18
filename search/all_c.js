@@ -15,12 +15,12 @@ var searchData=
   ['networktypesmoothfloat_12',['NetworkTypeSmoothFloat',['../classfge_1_1net_1_1NetworkTypeSmoothFloat.html',1,'fge::net']]],
   ['networktypesmoothvec2float_13',['NetworkTypeSmoothVec2Float',['../classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html',1,'fge::net']]],
   ['networktypetag_14',['NetworkTypeTag',['../classfge_1_1net_1_1NetworkTypeTag.html',1,'fge::net']]],
-  ['newobject_15',['newObject',['../classfge_1_1Scene.html#abde21073a03efaa3c90959550ff910e1',1,'fge::Scene::newObject(fge::ObjectPtr &amp;&amp;newObject, fge::ObjectPlan plan=fge::ObjectPlan{100}, fge::ObjectSid sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectType type=fge::ObjectType::TYPE_OBJECT)'],['../classfge_1_1Scene.html#ae0d1abbd93bde3b759f326a75966e3c5',1,'fge::Scene::newObject(const fge::ObjectDataShared &amp;objectData)']]],
+  ['newobject_15',['newObject',['../classfge_1_1Scene.html#a9ccfa1288c2909a7b1e9bea3c4ae12cd',1,'fge::Scene::newObject(fge::ObjectPtr &amp;&amp;newObject, fge::ObjectPlan plan=fge::ObjectPlan { 100 }, fge::ObjectSid sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectType type=fge::ObjectType::TYPE_OBJECT, bool silent=false)'],['../classfge_1_1Scene.html#a50aed503025309be400cdbe8e93525ef',1,'fge::Scene::newObject(const fge::ObjectDataShared &amp;objectData, bool silent=false)']]],
   ['nextframe_16',['nextFrame',['../classfge_1_1Animation.html#a1e66674134654deee4b36501e36aa3ea',1,'fge::Animation']]],
   ['no_17',['No',['../structfge_1_1comparisonCheck_1_1No.html',1,'fge::comparisonCheck']]],
   ['node_18',['Node',['../structfge_1_1AStar_1_1Node.html',1,'fge::AStar']]],
-  ['none_19',['None',['../classfge_1_1net_1_1IpAddress.html#af59280af9128b8ab3e2d08809befb5ea',1,'fge::net::IpAddress']]],
-  ['none_20',['NONE',['../structfge_1_1net_1_1SendQueuePacket.html#abfc2f40d1872d1bb0196653980f4bc5bab50339a10e1de285ac99d4c3990b8693',1,'fge::net::SendQueuePacket']]],
+  ['none_19',['NONE',['../structfge_1_1net_1_1SendQueuePacket.html#abfc2f40d1872d1bb0196653980f4bc5bab50339a10e1de285ac99d4c3990b8693',1,'fge::net::SendQueuePacket']]],
+  ['none_20',['None',['../classfge_1_1net_1_1IpAddress.html#af59280af9128b8ab3e2d08809befb5ea',1,'fge::net::IpAddress']]],
   ['nothandledobjectdeleter_21',['NotHandledObjectDeleter',['../structfge_1_1ChildObjectsAccessor_1_1DataContext_1_1NotHandledObjectDeleter.html',1,'fge::ChildObjectsAccessor::DataContext']]],
   ['notify_22',['Notify',['../group__time.html#ga12e90004953aa1af2b1a5a7e73bfd5d6',1,'fge::timer']]]
 ];

@@ -1,18 +1,12 @@
 var searchData=
 [
-  ['scene_0',['Scene',['../classfge_1_1Scene.html',1,'fge']]],
-  ['scenenetevent_1',['SceneNetEvent',['../structfge_1_1SceneNetEvent.html',1,'fge']]],
-  ['sendqueuepacket_2',['SendQueuePacket',['../structfge_1_1net_1_1SendQueuePacket.html',1,'fge::net']]],
-  ['serverclientsideudp_3',['ServerClientSideUdp',['../classfge_1_1net_1_1ServerClientSideUdp.html',1,'fge::net']]],
-  ['serverfluxudp_4',['ServerFluxUdp',['../classfge_1_1net_1_1ServerFluxUdp.html',1,'fge::net']]],
-  ['serverudp_5',['ServerUdp',['../classfge_1_1net_1_1ServerUdp.html',1,'fge::net']]],
-  ['socket_6',['Socket',['../classfge_1_1net_1_1Socket.html',1,'fge::net']]],
-  ['socketlistenertcp_7',['SocketListenerTcp',['../classfge_1_1net_1_1SocketListenerTcp.html',1,'fge::net']]],
-  ['sockettcp_8',['SocketTcp',['../classfge_1_1net_1_1SocketTcp.html',1,'fge::net']]],
-  ['socketudp_9',['SocketUdp',['../classfge_1_1net_1_1SocketUdp.html',1,'fge::net']]],
-  ['soundbuffer_10',['SoundBuffer',['../classfge_1_1SoundBuffer.html',1,'fge']]],
-  ['stamp_11',['Stamp',['../classfge_1_1reg_1_1Stamp.html',1,'fge::reg']]],
-  ['string_5fhash_12',['string_hash',['../structfge_1_1priv_1_1string__hash.html',1,'fge::priv']]],
-  ['subscriber_13',['Subscriber',['../classfge_1_1Subscriber.html',1,'fge']]],
-  ['subscription_14',['Subscription',['../classfge_1_1Subscription.html',1,'fge']]]
+  ['random_0',['Random',['../classfge_1_1Random.html',1,'fge']]],
+  ['rect_1',['Rect',['../classfge_1_1Rect.html',1,'fge']]],
+  ['rect_3c_20float_20_3e_2',['Rect&lt; float &gt;',['../classfge_1_1Rect.html',1,'fge']]],
+  ['rect_3c_20int32_5ft_20_3e_3',['Rect&lt; int32_t &gt;',['../classfge_1_1Rect.html',1,'fge']]],
+  ['rectangleshape_4',['RectangleShape',['../classfge_1_1RectangleShape.html',1,'fge']]],
+  ['renderstates_5',['RenderStates',['../classfge_1_1RenderStates.html',1,'fge']]],
+  ['rendertarget_6',['RenderTarget',['../classfge_1_1RenderTarget.html',1,'fge']]],
+  ['rendertexture_7',['RenderTexture',['../classfge_1_1RenderTexture.html',1,'fge']]],
+  ['renderwindow_8',['RenderWindow',['../classfge_1_1RenderWindow.html',1,'fge']]]
 ];

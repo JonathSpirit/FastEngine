@@ -6,7 +6,7 @@ var searchData=
   ['networktypemanual_3',['NetworkTypeManual',['../classfge_1_1net_1_1NetworkTypeManual.html#a581f79f6612633b72df2defb773bcc7d',1,'fge::net::NetworkTypeManual']]],
   ['networktypeproperty_4',['NetworkTypeProperty',['../classfge_1_1net_1_1NetworkTypeProperty.html#ae458ef78a9123ef3c3d069c175a9f7ae',1,'fge::net::NetworkTypeProperty']]],
   ['networktypepropertylist_5',['NetworkTypePropertyList',['../classfge_1_1net_1_1NetworkTypePropertyList.html#a15a3bb7f504c8ca03b8a94825c1a4254',1,'fge::net::NetworkTypePropertyList']]],
-  ['newobject_6',['newObject',['../classfge_1_1Scene.html#abde21073a03efaa3c90959550ff910e1',1,'fge::Scene::newObject(fge::ObjectPtr &amp;&amp;newObject, fge::ObjectPlan plan=fge::ObjectPlan{100}, fge::ObjectSid sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectType type=fge::ObjectType::TYPE_OBJECT)'],['../classfge_1_1Scene.html#ae0d1abbd93bde3b759f326a75966e3c5',1,'fge::Scene::newObject(const fge::ObjectDataShared &amp;objectData)']]],
+  ['newobject_6',['newObject',['../classfge_1_1Scene.html#a9ccfa1288c2909a7b1e9bea3c4ae12cd',1,'fge::Scene::newObject(fge::ObjectPtr &amp;&amp;newObject, fge::ObjectPlan plan=fge::ObjectPlan { 100 }, fge::ObjectSid sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectType type=fge::ObjectType::TYPE_OBJECT, bool silent=false)'],['../classfge_1_1Scene.html#a50aed503025309be400cdbe8e93525ef',1,'fge::Scene::newObject(const fge::ObjectDataShared &amp;objectData, bool silent=false)']]],
   ['nextframe_7',['nextFrame',['../classfge_1_1Animation.html#a1e66674134654deee4b36501e36aa3ea',1,'fge::Animation']]],
   ['notify_8',['Notify',['../group__time.html#ga12e90004953aa1af2b1a5a7e73bfd5d6',1,'fge::timer']]]
 ];
