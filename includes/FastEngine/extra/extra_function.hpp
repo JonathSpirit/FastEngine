@@ -18,10 +18,15 @@
 #define _FGE_EXTRA_FUNCTION_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_event.hpp"
 #include "FastEngine/C_rect.hpp"
-#include "FastEngine/object/C_object.hpp"
+#include "FastEngine/graphic/C_color.hpp"
+#include "FastEngine/graphic/C_renderTarget.hpp"
+#include "FastEngine/graphic/C_view.hpp"
+#include "SDL_mouse.h"
 #include "json.hpp"
 #include <filesystem>
+#include <list>
 
 #define FGE_MATH_PI 3.14159265358979323846
 
@@ -63,9 +68,16 @@ struct AlignedDeleter
     void operator()(void* p) const { AlignedFree(p); };
 };
 
+/*
+Implementation of Austin Appleby MurmurHash2 algorithm.
+https://sites.google.com/site/murmurhash/
+public domain
+*/
+FGE_API std::size_t Hash(const void* key, std::size_t len, std::size_t seed = 0xc70f6907UL);
+
 ///Detection
 #ifndef FGE_DEF_SERVER
-FGE_API bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone);
+FGE_API bool IsMouseOn(const fge::RenderTarget& target, const fge::RectFloat& zone);
 FGE_API bool IsMouseOn(const fge::Vector2f& mousePos, const fge::RectFloat& zone);
 
 FGE_API bool IsPressed(const fge::Event& evt,

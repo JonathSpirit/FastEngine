@@ -33,28 +33,17 @@ namespace fge
 
 namespace
 {
-/**CONVEX HULL**/
-// Implementation of Andrew's monotone chain 2D convex hull algorithm.
-// Asymptotic complexity: O(n log n).
-// Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 
-/**
-    Compare function for the vector
-    **/
 bool CompareVector(const fge::Vector2f& a, const fge::Vector2f& b)
 {
     return a.x < b.x || (a.x == b.x && a.y < b.y);
 }
 
-/**
-    2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
-    Returns a positive value, if OAB makes a counter-clockwise turn,
-    negative for clockwise turn, and zero if the points are col-linear.
-    **/
 double GetCrossProductVector(const fge::Vector2f& O, const fge::Vector2f& A, const fge::Vector2f& B)
 {
     return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 }
+
 } // namespace
 
 ///Utility
@@ -301,14 +290,130 @@ void Sleep(std::chrono::microseconds time)
 #endif
 }
 
+#if SIZE_MAX == UINT64_MAX
+// MurmurHash2, 64-bit versions, by Austin Appleby
+std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
+{
+    constexpr std::size_t m = 0xc6a4a7935bd1e995;
+    constexpr int32_t r = 47;
+
+    std::size_t h = seed ^ (len * m);
+
+    const uint8_t* data = static_cast<const uint8_t*>(key);
+
+    while (len >= 8)
+    {
+        std::size_t k = *reinterpret_cast<const std::size_t*>(data);
+
+        k *= m;
+        k ^= k >> r;
+        k *= m;
+
+        h ^= k;
+        h *= m;
+
+        data += 8;
+        len -= 8;
+    }
+
+    switch (len)
+    {
+    case 7:
+        h ^= static_cast<std::size_t>(data[6]) << 48;
+        [[fallthrough]];
+    case 6:
+        h ^= static_cast<std::size_t>(data[5]) << 40;
+        [[fallthrough]];
+    case 5:
+        h ^= static_cast<std::size_t>(data[4]) << 32;
+        [[fallthrough]];
+    case 4:
+        h ^= static_cast<std::size_t>(data[3]) << 24;
+        [[fallthrough]];
+    case 3:
+        h ^= static_cast<std::size_t>(data[2]) << 16;
+        [[fallthrough]];
+    case 2:
+        h ^= static_cast<std::size_t>(data[1]) << 8;
+        [[fallthrough]];
+    case 1:
+        h ^= static_cast<std::size_t>(data[0]);
+        h *= m;
+    };
+
+    h ^= h >> r;
+    h *= m;
+    h ^= h >> r;
+
+    return h;
+}
+#else
+// MurmurHash2, 32-bit versions, by Austin Appleby
+std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
+{
+    // 'm' and 'r' are mixing constants generated offline.
+    // They're not really 'magic', they just happen to work well.
+
+    constexpr std::size_t m = 0x5bd1e995;
+    constexpr int32_t r = 24;
+
+    // Initialize the hash to a 'random' value
+
+    std::size_t h = seed ^ len;
+
+    // Mix 4 bytes at a time into the hash
+
+    const uint8_t* data = static_cast<const uint8_t*>(key);
+
+    while (len >= 4)
+    {
+        std::size_t k = *reinterpret_cast<const std::size_t*>(data);
+
+        k *= m;
+        k ^= k >> r;
+        k *= m;
+
+        h *= m;
+        h ^= k;
+
+        data += 4;
+        len -= 4;
+    }
+
+    // Handle the last few bytes of the input array
+
+    switch (len)
+    {
+    case 3:
+        h ^= static_cast<std::size_t>(data[2]) << 16;
+        [[fallthrough]];
+    case 2:
+        h ^= static_cast<std::size_t>(data[1]) << 8;
+        [[fallthrough]];
+    case 1:
+        h ^= static_cast<std::size_t>(data[0]);
+        h *= m;
+    };
+
+    // Do a few final mixes of the hash to ensure the last few
+    // bytes are well-incorporated.
+
+    h ^= h >> 13;
+    h *= m;
+    h ^= h >> 15;
+
+    return h;
+}
+#endif
+
 ///Detection
 #ifndef FGE_DEF_SERVER
-bool IsMouseOn(const fge::RenderWindow& window, const fge::RectFloat& zone)
+bool IsMouseOn(const fge::RenderTarget& target, const fge::RectFloat& zone)
 {
     int x = 0;
     int y = 0;
     SDL_GetMouseState(&x, &y);
-    return zone.contains(window.mapPixelToCoords({x, y}));
+    return zone.contains(target.mapPixelToCoords({x, y}));
 }
 bool IsMouseOn(const fge::Vector2f& mousePos, const fge::RectFloat& zone)
 {
