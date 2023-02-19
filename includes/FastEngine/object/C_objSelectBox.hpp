@@ -23,7 +23,7 @@
 #include "C_object.hpp"
 #include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_font.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/object/C_objRectangleShape.hpp"
 
 #define FGE_OBJSELECTBOX_CLASSNAME "FGE:OBJ:SELECTBOX"
 
@@ -89,7 +89,7 @@ private:
     tiny_utf8::string* g_textCursor;
 
     mutable fge::ObjText g_text;
-    mutable fge::RectangleShape g_box;
+    mutable fge::ObjRectangleShape g_box;
 
     fge::Vector2f g_boxSize = fge::Vector2f(120, 18);
 

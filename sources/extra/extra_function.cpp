@@ -547,6 +547,11 @@ float GetMagnitude(const fge::Vector2f& vec)
 {
     return std::sqrt(vec.x * vec.x + vec.y * vec.y);
 }
+fge::Vector2f GetNormal(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
+{
+    const fge::Vector2f normal(vec1.y - vec2.y, vec2.x - vec1.x);
+    return normal / std::sqrt(normal.x * normal.x + normal.y * normal.y);
+}
 float GetRotation(const fge::Vector2f& vec)
 {
     return fge::ConvertRadToDeg(std::atan2(vec.y, vec.x));

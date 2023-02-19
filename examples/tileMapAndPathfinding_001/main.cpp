@@ -18,9 +18,9 @@
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/extra/extra_pathFinding.hpp"
-#include "FastEngine/graphic/C_circleShape.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/object/C_objCircleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTilemap.hpp"
 #include "SDL.h"
@@ -131,7 +131,7 @@ public:
         this->g_pathCircles.clear();
         for (const auto& pathPoint: this->g_path)
         {
-            fge::CircleShape circle;
+            fge::ObjCircleShape circle;
             circle.setRadius(5.f);
             circle.setOrigin({5.f, 5.f});
             circle.setFillColor(fge::Color::Green);
@@ -139,7 +139,7 @@ public:
                                         static_cast<float>(this->g_tileSize.x) / 2.f,
                                 static_cast<float>(pathPoint.y) * static_cast<float>(this->g_tileSize.y) +
                                         static_cast<float>(this->g_tileSize.y) / 2.f});
-            this->g_pathCircles.push_back(circle);
+            this->g_pathCircles.push_back(std::move(circle));
         }
 
         //Set the start circle
@@ -160,11 +160,11 @@ public:
 private:
     fge::AStar::Generator g_pathGenerator;
     fge::AStar::CoordinateList g_path;
-    std::vector<fge::CircleShape> g_pathCircles;
+    std::vector<fge::ObjCircleShape> g_pathCircles;
     fge::AStar::Vector2i g_goal;
     fge::AStar::Vector2i g_start;
     fge::Vector2i g_tileSize;
-    fge::CircleShape g_startCircle;
+    fge::ObjCircleShape g_startCircle;
 };
 
 //Create the MainScene class

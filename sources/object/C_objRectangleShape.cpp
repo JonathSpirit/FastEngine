@@ -14,33 +14,32 @@
 * limitations under the License.
 */
 
-#include "FastEngine/graphic/C_rectangleShape.hpp"
-#include <cmath>
+#include "FastEngine/object/C_objRectangleShape.hpp"
 
 namespace fge
 {
 
-RectangleShape::RectangleShape(const Vector2f& size)
+ObjRectangleShape::ObjRectangleShape(const Vector2f& size)
 {
     this->setSize(size);
 }
 
-void RectangleShape::setSize(const Vector2f& size)
+void ObjRectangleShape::setSize(const Vector2f& size)
 {
     this->g_size = size;
-    this->update();
+    this->updateShape();
 }
-const Vector2f& RectangleShape::getSize() const
+const Vector2f& ObjRectangleShape::getSize() const
 {
     return this->g_size;
 }
 
-std::size_t RectangleShape::getPointCount() const
+std::size_t ObjRectangleShape::getPointCount() const
 {
     return 4;
 }
 
-Vector2f RectangleShape::getPoint(std::size_t index) const
+Vector2f ObjRectangleShape::getPoint(std::size_t index) const
 {
     switch (index)
     {
@@ -54,6 +53,15 @@ Vector2f RectangleShape::getPoint(std::size_t index) const
     case 3:
         return {0.0f, this->g_size.y};
     }
+}
+
+const char* ObjRectangleShape::getClassName() const
+{
+    return FGE_OBJRECTANGLESHAPE_CLASSNAME;
+}
+const char* ObjRectangleShape::getReadableClassName() const
+{
+    return "rectangle shape";
 }
 
 } // namespace fge

@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _FGE_GRAPHIC_C_RECTANGLESHAPE_HPP_INCLUDED
-#define _FGE_GRAPHIC_C_RECTANGLESHAPE_HPP_INCLUDED
+#ifndef _FGE_C_OBJRECTANGLESHAPE_HPP_INCLUDED
+#define _FGE_C_OBJRECTANGLESHAPE_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -25,15 +25,20 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/graphic/C_shape.hpp"
+#include "FastEngine/object/C_objShape.hpp"
+
+#define FGE_OBJRECTANGLESHAPE_CLASSNAME "FGE:OBJ:RECTANGLESHAPE"
 
 namespace fge
 {
 
-class FGE_API RectangleShape : public Shape
+class FGE_API ObjRectangleShape : public fge::ObjShape
 {
 public:
-    explicit RectangleShape(const Vector2f& size = Vector2f(0, 0));
+    explicit ObjRectangleShape(const Vector2f& size = Vector2f(0, 0));
+    ~ObjRectangleShape() override = default;
+
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjRectangleShape)
 
     void setSize(const Vector2f& size);
     const Vector2f& getSize() const;
@@ -42,10 +47,13 @@ public:
 
     [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
 
+    const char* getClassName() const override;
+    const char* getReadableClassName() const override;
+
 private:
-    Vector2f g_size; //!< Size of the rectangle
+    Vector2f g_size;
 };
 
 } // namespace fge
 
-#endif // _FGE_GRAPHIC_C_RECTANGLESHAPE_HPP_INCLUDED
+#endif // _FGE_C_OBJRECTANGLESHAPE_HPP_INCLUDED

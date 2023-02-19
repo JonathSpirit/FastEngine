@@ -14,38 +14,13 @@
 * limitations under the License.
 */
 
-#include "FastEngine/graphic/C_shape.hpp"
-#include "FastEngine/graphic/C_renderTarget.hpp"
-#include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <cmath>
+#include "FastEngine/object/C_objShape.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
 
-namespace
-{
-
-// Compute the normal of a segment
-fge::Vector2f computeNormal(const fge::Vector2f& p1, const fge::Vector2f& p2)
-{
-    fge::Vector2f normal(p1.y - p2.y, p2.x - p1.x);
-    const float length = std::sqrt(normal.x * normal.x + normal.y * normal.y);
-    if (length != 0.f)
-    {
-        normal /= length;
-    }
-    return normal;
-}
-
-// Compute the dot product of two vectors
-float dotProduct(const fge::Vector2f& p1, const fge::Vector2f& p2)
-{
-    return p1.x * p2.x + p1.y * p2.y;
-}
-
-} //end namespace
-
-void Shape::setTexture(const Texture& texture, bool resetRect)
+void ObjShape::setTexture(const Texture& texture, bool resetRect)
 {
     if (texture.valid())
     {
@@ -60,66 +35,66 @@ void Shape::setTexture(const Texture& texture, bool resetRect)
     this->g_texture = texture;
 }
 
-const Texture& Shape::getTexture() const
+const Texture& ObjShape::getTexture() const
 {
     return this->g_texture;
 }
 
-void Shape::setTextureRect(const RectInt& rect)
+void ObjShape::setTextureRect(const RectInt& rect)
 {
     this->g_textureRect = rect;
     this->updateTexCoords();
 }
 
-const RectInt& Shape::getTextureRect() const
+const RectInt& ObjShape::getTextureRect() const
 {
     return this->g_textureRect;
 }
 
-void Shape::setFillColor(const Color& color)
+void ObjShape::setFillColor(const Color& color)
 {
     this->g_fillColor = color;
     this->updateFillColors();
 }
 
-const Color& Shape::getFillColor() const
+const Color& ObjShape::getFillColor() const
 {
     return this->g_fillColor;
 }
 
-void Shape::setOutlineColor(const Color& color)
+void ObjShape::setOutlineColor(const Color& color)
 {
     this->g_outlineColor = color;
     this->updateOutlineColors();
 }
 
-const Color& Shape::getOutlineColor() const
+const Color& ObjShape::getOutlineColor() const
 {
     return this->g_outlineColor;
 }
 
-void Shape::setOutlineThickness(float thickness)
+void ObjShape::setOutlineThickness(float thickness)
 {
     this->g_outlineThickness = thickness;
-    this->update(); // recompute everything because the whole shape must be offset
+    this->updateShape(); // recompute everything because the whole shape must be offset
 }
 
-float Shape::getOutlineThickness() const
+float ObjShape::getOutlineThickness() const
 {
     return this->g_outlineThickness;
 }
 
-RectFloat Shape::getLocalBounds() const
+RectFloat ObjShape::getLocalBounds() const
 {
     return this->g_bounds;
 }
 
-RectFloat Shape::getGlobalBounds() const
+RectFloat ObjShape::getGlobalBounds() const
 {
     return this->getTransform() * this->getLocalBounds();
 }
 
-Shape::Shape() :
+ObjShape::ObjShape() :
         g_texture(),
         g_textureRect(),
         g_fillColor(255, 255, 255),
@@ -133,8 +108,7 @@ Shape::Shape() :
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
-
-void Shape::update()
+void ObjShape::updateShape()
 {
     // Get the total number of points of the shape
     const std::size_t count = this->getPointCount();
@@ -173,7 +147,8 @@ void Shape::update()
     this->updateOutline();
 }
 
-void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
+#ifndef FGE_DEF_SERVER
+FGE_OBJ_DRAW_BODY(ObjShape)
 {
     auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
@@ -194,8 +169,9 @@ void Shape::draw(RenderTarget& target, const fge::RenderStates& states) const
         target.draw(copyStates);
     }
 }
+#endif
 
-void Shape::updateFillColors()
+void ObjShape::updateFillColors()
 {
     for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
     {
@@ -203,7 +179,7 @@ void Shape::updateFillColors()
     }
 }
 
-void Shape::updateTexCoords()
+void ObjShape::updateTexCoords()
 {
     auto convertedTextureRect = RectFloat(this->g_textureRect);
 
@@ -222,7 +198,7 @@ void Shape::updateTexCoords()
     }
 }
 
-void Shape::updateOutline()
+void ObjShape::updateOutline()
 {
     // Return if there is no outline
     if (this->g_outlineThickness == 0.0f)
@@ -245,16 +221,16 @@ void Shape::updateOutline()
         const fge::Vector2f p2 = this->g_vertices[index + 1]._position;
 
         // Compute their normal
-        fge::Vector2f n1 = computeNormal(p0, p1);
-        fge::Vector2f n2 = computeNormal(p1, p2);
+        fge::Vector2f n1 = fge::GetNormal(p0, p1);
+        fge::Vector2f n2 = fge::GetNormal(p1, p2);
 
         // Make sure that the normals point towards the outside of the shape
         // (this depends on the order in which the points were defined)
-        if (dotProduct(n1, this->g_vertices[0]._position - p1) > 0)
+        if (fge::GetDotProduct(n1, this->g_vertices[0]._position - p1) > 0)
         {
             n1 = -n1;
         }
-        if (dotProduct(n2, this->g_vertices[0]._position - p1) > 0)
+        if (fge::GetDotProduct(n2, this->g_vertices[0]._position - p1) > 0)
         {
             n2 = -n2;
         }
@@ -273,13 +249,13 @@ void Shape::updateOutline()
     this->g_outlineVertices[count * 2 + 1]._position = this->g_outlineVertices.getVertices()[1]._position;
 
     // Update outline colors
-    updateOutlineColors();
+    this->updateOutlineColors();
 
     // Update the shape's bounds
     this->g_bounds = this->g_outlineVertices.getBounds();
 }
 
-void Shape::updateOutlineColors()
+void ObjShape::updateOutlineColors()
 {
     for (std::size_t i = 0; i < this->g_outlineVertices.getCount(); ++i)
     {

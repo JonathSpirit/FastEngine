@@ -18,7 +18,7 @@
 #define _EXFGE_C_DRINK_HPP_INCLUDED
 
 #include "C_customObject.hpp"
-#include "FastEngine/graphic/C_circleShape.hpp"
+#include "FastEngine/object/C_objCircleShape.hpp"
 
 namespace ls
 {
@@ -47,7 +47,7 @@ public:
     uint8_t _nutrition{0};
 
 private:
-    fge::CircleShape g_circleShape;
+    fge::ObjCircleShape g_circleShape;
 };
 
 } // namespace ls

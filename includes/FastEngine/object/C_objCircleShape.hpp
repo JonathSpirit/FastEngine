@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _FGE_GRAPHIC_C_CIRCLESHAPE_HPP_INCLUDED
-#define _FGE_GRAPHIC_C_CIRCLESHAPE_HPP_INCLUDED
+#ifndef _FGE_C_OBJCIRCLESHAPE_HPP_INCLUDED
+#define _FGE_C_OBJCIRCLESHAPE_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -25,15 +25,20 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/graphic/C_shape.hpp"
+#include "FastEngine/object/C_objShape.hpp"
+
+#define FGE_OBJCIRCLESHAPE_CLASSNAME "FGE:OBJ:CIRCLESHAPE"
 
 namespace fge
 {
 
-class FGE_API CircleShape : public Shape
+class FGE_API ObjCircleShape : public fge::ObjShape
 {
 public:
-    explicit CircleShape(float radius = 0, std::size_t pointCount = 30);
+    explicit ObjCircleShape(float radius = 0, std::size_t pointCount = 30);
+    ~ObjCircleShape() override = default;
+
+    FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjCircleShape)
 
     void setRadius(float radius);
     float getRadius() const;
@@ -43,11 +48,14 @@ public:
 
     [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
 
+    const char* getClassName() const override;
+    const char* getReadableClassName() const override;
+
 private:
-    float g_radius;           //!< Radius of the circle
-    std::size_t g_pointCount; //!< Number of points composing the circle
+    float g_radius;
+    std::size_t g_pointCount;
 };
 
 } // namespace fge
 
-#endif // _FGE_GRAPHIC_C_CIRCLESHAPE_HPP_INCLUDED
+#endif // _FGE_C_OBJCIRCLESHAPE_HPP_INCLUDED

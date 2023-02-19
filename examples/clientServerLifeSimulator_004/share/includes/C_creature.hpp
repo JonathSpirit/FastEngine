@@ -23,9 +23,9 @@
 #include "FastEngine/C_font.hpp"
 #include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_soundBuffer.hpp"
-#include "FastEngine/graphic/C_circleShape.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/object/C_objCircleShape.hpp"
+#include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
 #include "FastEngine/object/C_objTextList.hpp"
 #include <queue>
@@ -120,16 +120,16 @@ public:
     CreatureData _data;
 
 private:
-    fge::RectangleShape g_rectInfoBox;
-    fge::RectangleShape g_rectBarLife;
-    fge::RectangleShape g_rectBarHunger;
-    fge::RectangleShape g_rectBarThirst;
-    fge::RectangleShape g_rectBarLibido;
+    fge::ObjRectangleShape g_rectInfoBox;
+    fge::ObjRectangleShape g_rectBarLife;
+    fge::ObjRectangleShape g_rectBarHunger;
+    fge::ObjRectangleShape g_rectBarThirst;
+    fge::ObjRectangleShape g_rectBarLibido;
 
     mutable fge::ObjSprite g_spriteCreature;
     fge::texture::TextureDataPtr g_animTexture;
 
-    fge::CircleShape g_circleSight;
+    fge::ObjCircleShape g_circleSight;
 
     fge::ObjText g_txtGender;
 };

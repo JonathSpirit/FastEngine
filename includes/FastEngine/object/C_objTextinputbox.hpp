@@ -20,7 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_guiElement.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
 
@@ -100,7 +100,7 @@ private:
 
     tiny_utf8::string g_string;
     mutable fge::ObjText g_text;
-    mutable fge::RectangleShape g_box;
+    mutable fge::ObjRectangleShape g_box;
 
     fge::Vector2f g_boxSize = fge::Vector2f(120, 18);
 

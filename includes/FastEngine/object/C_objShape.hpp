@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef _FGE_GRAPHIC_C_SHAPE_HPP_INCLUDED
-#define _FGE_GRAPHIC_C_SHAPE_HPP_INCLUDED
+#ifndef _FGE_C_OBJSHAPE_HPP_INCLUDED
+#define _FGE_C_OBJSHAPE_HPP_INCLUDED
 
 /*
  * Original from : https://github.com/SFML/SFML
@@ -25,19 +25,16 @@
  */
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "C_object.hpp"
 #include "FastEngine/C_texture.hpp"
-#include "FastEngine/C_vector.hpp"
-#include "FastEngine/graphic/C_drawable.hpp"
-#include "FastEngine/graphic/C_transformable.hpp"
-#include "FastEngine/vulkan/C_vertexBuffer.hpp"
 
 namespace fge
 {
 
-class FGE_API Shape : public fge::Drawable, public fge::Transformable
+class FGE_API ObjShape : public fge::Object
 {
 public:
-    ~Shape() override = default;
+    ~ObjShape() override = default;
 
     void setTexture(const Texture& texture, bool resetRect = false);
     void setTextureRect(const fge::RectInt& rect);
@@ -59,37 +56,37 @@ public:
     [[nodiscard]] virtual std::size_t getPointCount() const = 0;
     [[nodiscard]] virtual Vector2f getPoint(std::size_t index) const = 0;
 
-    [[nodiscard]] RectFloat getLocalBounds() const;
-    [[nodiscard]] RectFloat getGlobalBounds() const;
+    FGE_OBJ_DRAW_DECLARE
 
-    void draw(RenderTarget& target, const fge::RenderStates& states) const override;
+    [[nodiscard]] fge::RectFloat getLocalBounds() const override;
+    [[nodiscard]] fge::RectFloat getGlobalBounds() const override;
 
 protected:
-    Shape();
-
-    void update();
+    ObjShape();
+    void updateShape();
 
 private:
     void updateFillColors();
-
     void updateTexCoords();
-
     void updateOutline();
-
     void updateOutlineColors();
 
-    fge::Texture g_texture;                      //!< Texture of the shape
-    fge::RectInt g_textureRect;                  //!< Rectangle defining the area of the source texture to display
-    fge::Color g_fillColor;                      //!< Fill color
-    fge::Color g_outlineColor;                   //!< Outline color
-    float g_outlineThickness;                    //!< Thickness of the shape's outline
-    fge::vulkan::VertexBuffer g_vertices;        //!< Vertex array containing the fill geometry
-    fge::vulkan::VertexBuffer g_outlineVertices; //!< Vertex array containing the outline geometry
-    fge::RectFloat g_insideBounds;               //!< Bounding rectangle of the inside (fill)
-    fge::RectFloat g_bounds;                     //!< Bounding rectangle of the whole shape (outline + fill)
+    fge::Texture g_texture;
+    fge::RectInt g_textureRect;
+
+    fge::Color g_fillColor;
+    fge::Color g_outlineColor;
+
+    float g_outlineThickness;
+
+    fge::vulkan::VertexBuffer g_vertices;
+    fge::vulkan::VertexBuffer g_outlineVertices;
+
+    fge::RectFloat g_insideBounds;
+    fge::RectFloat g_bounds;
 };
 
 } // namespace fge
 
 
-#endif // _FGE_GRAPHIC_C_SHAPE_HPP_INCLUDED
+#endif // _FGE_C_OBJSHAPE_HPP_INCLUDED

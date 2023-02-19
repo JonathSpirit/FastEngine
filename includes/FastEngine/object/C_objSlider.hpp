@@ -19,7 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_guiElement.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_object.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
@@ -74,8 +74,8 @@ private:
 
     void refreshSize(const fge::Vector2f& targetSize);
 
-    mutable fge::RectangleShape g_scrollRect;
-    mutable fge::RectangleShape g_scrollBaseRect;
+    mutable fge::ObjRectangleShape g_scrollRect;
+    mutable fge::ObjRectangleShape g_scrollBaseRect;
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 

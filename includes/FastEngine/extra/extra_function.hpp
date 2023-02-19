@@ -120,6 +120,7 @@ FGE_API float ConvertDegToRad(float deg);
 FGE_API float GetDeterminant(const fge::Vector2f& vecCol1, const fge::Vector2f& vecCol2);
 FGE_API float GetDotProduct(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
 FGE_API float GetMagnitude(const fge::Vector2f& vec);
+FGE_API fge::Vector2f GetNormal(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
 FGE_API float GetRotation(const fge::Vector2f& vec);
 FGE_API float GetRotationBetween(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
 FGE_API float GetDistanceBetween(const fge::Vector2f& pos1, const fge::Vector2f& pos2);

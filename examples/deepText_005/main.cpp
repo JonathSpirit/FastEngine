@@ -21,6 +21,7 @@
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
@@ -96,14 +97,14 @@ public:
         }});
 
         //Add a rectangle representing the bounds of the moving text
-        fge::RectangleShape rectText;
+        auto* rectText = this->newObject(FGE_NEWOBJECT(fge::ObjRectangleShape))->getObject<fge::ObjRectangleShape>();
 
         auto rect = movingText->getGlobalBounds();
-        rectText.setPosition(rect.getPosition());
-        rectText.setSize(rect.getSize());
-        rectText.setFillColor(fge::Color::Transparent);
-        rectText.setOutlineColor(fge::Color::Red);
-        rectText.setOutlineThickness(2.0f);
+        rectText->setPosition(rect.getPosition());
+        rectText->setSize(rect.getSize());
+        rectText->setFillColor(fge::Color::Transparent);
+        rectText->setOutlineColor(fge::Color::Red);
+        rectText->setOutlineThickness(2.0f);
 
         fge::Clock changeTextColorClock;
 
@@ -156,7 +157,6 @@ public:
                 renderWindow.beginRenderPass(imageIndex);
 
                 this->draw(renderWindow);
-                rectText.draw(renderWindow, {});
 
                 renderWindow.endRenderPass();
 

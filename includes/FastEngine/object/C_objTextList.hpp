@@ -19,7 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_guiElement.hpp"
-#include "FastEngine/graphic/C_rectangleShape.hpp"
+#include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include <vector>
@@ -74,7 +74,7 @@ private:
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 
-    mutable fge::RectangleShape g_box{};
+    mutable fge::ObjRectangleShape g_box{};
     float g_textScrollRatio{0.0f};
     fge::DynamicSize g_boxSize;
 
