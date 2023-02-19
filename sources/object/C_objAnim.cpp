@@ -24,9 +24,9 @@ ObjAnimation::ObjAnimation() :
 
         g_paused(false)
 {
-    this->setTextureRect(this->g_animation);
     this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
                             fge::vulkan::BufferTypes::LOCAL);
+    this->setTextureRect(this->g_animation);
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
         g_animation(animation),
@@ -34,10 +34,10 @@ ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f&
 
         g_paused(false)
 {
-    this->setPosition(position);
-    this->setTextureRect(this->g_animation);
     this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
                             fge::vulkan::BufferTypes::LOCAL);
+    this->setPosition(position);
+    this->setTextureRect(this->g_animation);
 }
 
 void ObjAnimation::setAnimation(const fge::Animation& animation)
