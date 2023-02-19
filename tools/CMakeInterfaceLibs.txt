@@ -1,0 +1,64 @@
+#Check for architecture
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(FGE_ARCH 64)
+else()
+    set(FGE_ARCH 32)
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
+    set(FGE_DEBUG ON)
+else()
+    set(FGE_DEBUG OFF)
+endif()
+
+add_library(FastEngine INTERFACE)
+add_library(FastEngineServer INTERFACE)
+
+#Includes path
+target_include_directories(FastEngine INTERFACE FastEngine/include)
+target_include_directories(FastEngine INTERFACE FastEngine/require/lib/glm/include)
+target_include_directories(FastEngine INTERFACE FastEngine/require/lib/libsdl/include/include)
+target_include_directories(FastEngine INTERFACE FastEngine/require/lib/libsdl_image/include)
+target_include_directories(FastEngine INTERFACE FastEngine/require/lib/libsdl_mixer/include)
+target_include_directories(FastEngine INTERFACE FastEngine/require/lib/vma/include)
+target_include_directories(FastEngine INTERFACE FastEngine/require/lib/volk/include)
+
+target_include_directories(FastEngineServer INTERFACE FastEngine/include)
+target_include_directories(FastEngineServer INTERFACE FastEngine/require/lib/glm/include)
+target_include_directories(FastEngineServer INTERFACE FastEngine/require/lib/libsdl/include/include)
+target_include_directories(FastEngineServer INTERFACE FastEngine/require/lib/libsdl_image/include)
+target_include_directories(FastEngineServer INTERFACE FastEngine/require/lib/libsdl_mixer/include)
+target_include_directories(FastEngineServer INTERFACE FastEngine/require/lib/vma/include)
+target_include_directories(FastEngineServer INTERFACE FastEngine/require/lib/volk/include)
+
+if(FGE_DEBUG)
+    set(FGE_DEBUG_SUFFIX "_d")
+    set(FGE_SDL_DEBUG_SUFFIX "d")
+else()
+    set(FGE_DEBUG_SUFFIX "")
+    set(FGE_SDL_DEBUG_SUFFIX "")
+endif()
+
+set(FGE_DLL_DEPS
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/bin${FGE_ARCH}/libFastEngine${FGE_ARCH}${FGE_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/bin/SDL2${FGE_SDL_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_image${FGE_DEBUG_SUFFIX}/bin/SDL2_image${FGE_SDL_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_mixer${FGE_DEBUG_SUFFIX}/bin/SDL2_mixer${FGE_SDL_DEBUG_SUFFIX}.dll"
+        )
+
+set(FGE_SERVER_DLL_DEPS
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/bin${FGE_ARCH}/libFastEngineServer${FGE_ARCH}${FGE_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/bin/SDL2${FGE_SDL_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_image${FGE_DEBUG_SUFFIX}/bin/SDL2_image${FGE_SDL_DEBUG_SUFFIX}.dll"
+        )
+
+target_link_libraries(FastEngine INTERFACE mingw32)
+target_link_libraries(FastEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/lib/libSDL2main${FGE_SDL_DEBUG_SUFFIX}.a")
+target_link_libraries(FastEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/lib/libSDL2${FGE_SDL_DEBUG_SUFFIX}.dll.a")
+target_link_libraries(FastEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_image${FGE_DEBUG_SUFFIX}/lib/libSDL2_image${FGE_SDL_DEBUG_SUFFIX}.dll.a")
+target_link_libraries(FastEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_mixer${FGE_DEBUG_SUFFIX}/lib/libSDL2_mixer${FGE_SDL_DEBUG_SUFFIX}.dll.a")
+target_link_libraries(FastEngine INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/lib${FGE_ARCH}/libFastEngine${FGE_ARCH}${FGE_DEBUG_SUFFIX}.dll.a")
+
+target_link_libraries(FastEngineServer INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/lib/libSDL2${FGE_SDL_DEBUG_SUFFIX}.dll.a")
+target_link_libraries(FastEngineServer INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_image${FGE_DEBUG_SUFFIX}/lib/libSDL2_image${FGE_SDL_DEBUG_SUFFIX}.dll.a")
+target_link_libraries(FastEngineServer INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/lib${FGE_ARCH}/libFastEngineServer${FGE_ARCH}${FGE_DEBUG_SUFFIX}.dll.a")

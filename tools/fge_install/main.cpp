@@ -452,6 +452,7 @@ int main()
     installFiles.push_back({FTYPE_FILE, "fge_changelog.txt", {}, {}});
     installFiles.push_back({FTYPE_FILE, "LICENSE", {}, {}});
     installFiles.push_back({FTYPE_FILE, "IMAGE_AUDIO_LOGO_LICENSE", {}, {}});
+    installFiles.push_back({FTYPE_FILE, "tools/CMakeInterfaceLibs.txt", {}, {}});
 
     //sdl
 #ifdef _WIN32
