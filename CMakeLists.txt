@@ -322,6 +322,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objShape.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRectangleShape.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objCircleShape.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLineShape.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -428,6 +429,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objSlider.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objShape.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRectangleShape.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objCircleShape.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLineShape.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
