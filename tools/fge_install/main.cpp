@@ -22,9 +22,10 @@
 #include <list>
 #include <utility>
 #include <unordered_set>
+#include <initializer_list>
 #include "re2.h"
 
-enum InstallFileType : uint8_t
+enum InstallFileType
 {
     FTYPE_HEADER,
     FTYPE_DLL,
@@ -36,13 +37,13 @@ enum InstallFileType : uint8_t
     FTYPE_REQUIRE_LIB,
     FTYPE_REQUIRE_FILE
 };
-enum InstallFileArch : uint8_t
+enum InstallFileArch
 {
     FARCH_32,
     FARCH_64,
-    FARCH_ALL
+    FARCH_UNSPECIFIED
 };
-enum InstallFileBuild : uint8_t
+enum InstallFileBuild
 {
     FBUILD_DEBUG,
     FBUILD_RELEASE,
@@ -57,8 +58,8 @@ std::optional<std::string> EnumToString(InstallFileArch e)
         return "32";
     case FARCH_64:
         return "64";
-    case FARCH_ALL:
-        return "all";
+    case FARCH_UNSPECIFIED:
+        return "unspecified";
     }
     return std::nullopt;
 }
@@ -76,6 +77,17 @@ std::optional<std::string> EnumToString(InstallFileBuild e)
     return std::nullopt;
 }
 
+void ReplaceStringWords(std::string& string, const std::string& oldWord, const std::string& newWord)
+{
+    std::size_t pos = 0;
+
+    while ((pos = string.find(oldWord, pos)) != std::string::npos)
+    {
+        string.replace(pos, oldWord.length(), newWord);
+        pos += newWord.length();
+    }
+}
+
 struct BuildDirectory
 {
     std::filesystem::path _path;
@@ -83,27 +95,87 @@ struct BuildDirectory
     InstallFileBuild _build;
 };
 
-struct InstallFile
+class InstallFile
 {
-    InstallFile(bool ignored, InstallFileType type, std::filesystem::path path, InstallFileArch arch, InstallFileBuild build) :
-            _ignored(ignored),
+public:
+    InstallFile(InstallFileType type, std::filesystem::path path,
+                std::initializer_list<InstallFileArch> arch,
+                std::initializer_list<InstallFileBuild> build) :
+            _ignored(false),
             _type(type),
-            _path(std::move(path)),
             _arch(arch),
-            _build(build)
+            _build(build),
+            g_path(std::move(path))
     {
         this->applyExtension();
     }
 
-    InstallFile(bool ignored, InstallFileType type, std::filesystem::path path, InstallFileArch arch, InstallFileBuild build, std::string baseName) :
-            _ignored(ignored),
+    InstallFile(InstallFileType type, std::filesystem::path path,
+                std::initializer_list<InstallFileArch> arch,
+                std::initializer_list<InstallFileBuild> build, std::string baseName) :
+            _ignored(false),
             _type(type),
-            _path(std::move(path)),
             _arch(arch),
             _build(build),
-            _baseName(std::move(baseName))
+            _baseName(std::move(baseName)),
+            g_path(std::move(path))
     {
         this->applyExtension();
+    }
+
+    [[nodiscard]] std::filesystem::path getPath(InstallFileArch targetArch, InstallFileBuild targetBuild) const
+    {
+        std::string pathString = this->g_path.string();
+
+        std::string archString;
+        switch (targetArch)
+        {
+        case FARCH_32:
+            archString = "32";
+            break;
+        case FARCH_64:
+            archString = "64";
+            break;
+        default:
+            archString = "";
+            break;
+        }
+
+        std::string buildString;
+        switch (targetBuild)
+        {
+        case FBUILD_DEBUG:
+            buildString = "_d";
+            break;
+        default:
+            buildString = "";
+            break;
+        }
+
+        ReplaceStringWords(pathString, "%ARCH%", archString);
+        ReplaceStringWords(pathString, "%BUILD%", buildString);
+
+        return pathString;
+    }
+
+    [[nodiscard]] bool checkBuildType(InstallFileArch arch, InstallFileBuild build) const
+    {
+        return (std::find(this->_arch.begin(), this->_arch.end(), arch) != this->_arch.end() || this->_arch.empty()) &&
+               (std::find(this->_build.begin(), this->_build.end(), build) != this->_build.end() || this->_build.empty());
+    }
+
+    [[nodiscard]] bool applyBuildDirPath(std::filesystem::path& path, std::filesystem::path buildDirPath) const
+    {
+        if (this->_type != InstallFileType::FTYPE_HEADER &&
+            this->_type != InstallFileType::FTYPE_REQUIRE_HEADER &&
+            this->_type != InstallFileType::FTYPE_FILE &&
+            this->_type != InstallFileType::FTYPE_REQUIRE_FILE)
+        {
+            buildDirPath /= path;
+            path = std::move(buildDirPath);
+            return true;
+        }
+        return false;
     }
 
     void applyExtension()
@@ -112,23 +184,23 @@ struct InstallFile
         {
         case FTYPE_LIB:
 #ifdef __linux__
-            this->_path += ".so";
+            this->g_path += ".so";
 #else
 #ifdef __APPLE__
-            this->_path += ".dylib";
+            this->g_path += ".dylib";
 #else
-            this->_path += ".dll.a";
+            this->g_path += ".dll.a";
 #endif //__APPLE__
 #endif //__linux__
             break;
         case FTYPE_REQUIRE_LIB:
 #ifdef __linux__
-            this->_path += ".so";
+            this->g_path += ".so";
 #else
     #ifdef __APPLE__
-            this->_path += ".dylib";
+            this->g_path += ".dylib";
     #else
-            this->_path += ".a";
+            this->g_path += ".a";
     #endif //__APPLE__
 #endif //__linux__
             break;
@@ -139,15 +211,17 @@ struct InstallFile
 
     bool _ignored;
     InstallFileType _type;
-    std::filesystem::path _path;
-    InstallFileArch _arch;
-    InstallFileBuild _build;
+    std::vector<InstallFileArch> _arch;
+    std::vector<InstallFileBuild> _build;
     std::string _baseName;
+
+private:
+    std::filesystem::path g_path;
 };
 
 std::optional<InstallFileBuild> FindBuildDirectoryBuildType(const std::filesystem::path& buildPath)
 {
-    RE2 re("libFastEngine(?:32|64)(_d)?\\.(?:dll|so|dylib)");
+    const RE2 re("libFastEngine(?:32|64)(_d)?\\.(?:dll|so|dylib)");
     if (!re.ok())
     {
         throw std::runtime_error(re.error());
@@ -175,7 +249,7 @@ std::optional<InstallFileBuild> FindBuildDirectoryBuildType(const std::filesyste
 }
 std::optional<InstallFileArch> FindBuildDirectoryArchitecture(const std::filesystem::path& buildPath)
 {
-    RE2 re("libFastEngine(32|64)(?:_d)?\\.(?:dll|so|dylib)");
+    const RE2 re("libFastEngine(32|64)(?:_d)?\\.(?:dll|so|dylib)");
     if (!re.ok())
     {
         throw std::runtime_error(re.error());
@@ -240,8 +314,8 @@ std::vector<BuildDirectory> GetPossibleBuildDirectory()
             buildDirectory._arch = arch.value();
             std::cout << "["<<EnumToString(buildDirectory._arch).value_or("-")<<"]";
 
-            uint32_t key = static_cast<uint32_t>(buildDirectory._build) |
-                    (static_cast<uint32_t>(buildDirectory._arch)<<8);
+            const uint32_t key = static_cast<uint32_t>(buildDirectory._build) |
+                                 (static_cast<uint32_t>(buildDirectory._arch)<<8);
 
             if (!founded.insert(key).second)
             {
@@ -363,267 +437,218 @@ int main()
     std::list<InstallFile> installFiles;
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine32_d.dll", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine64_d.dll", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer32_d.dll", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer64_d.dll", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine32.dll", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngine64.dll", FARCH_64, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer32.dll", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_DLL, "libFastEngineServer64.dll", FARCH_64, FBUILD_RELEASE);
+    installFiles.push_back({FTYPE_DLL, "libFastEngine%ARCH%%BUILD%.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG, FBUILD_RELEASE}});
+    installFiles.push_back({FTYPE_DLL, "libFastEngineServer%ARCH%%BUILD%.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG, FBUILD_RELEASE}});
 #endif //_WIN32
 
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngine32_d", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngine64_d", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngineServer32_d", FARCH_32, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngineServer64_d", FARCH_64, FBUILD_DEBUG);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngine32", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngine64", FARCH_64, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngineServer32", FARCH_32, FBUILD_RELEASE);
-    installFiles.emplace_back(false, FTYPE_LIB, "libFastEngineServer64", FARCH_64, FBUILD_RELEASE);
+    installFiles.push_back({FTYPE_LIB, "libFastEngine%ARCH%%BUILD%", {FARCH_32, FARCH_64}, {FBUILD_DEBUG, FBUILD_RELEASE}});
+    installFiles.push_back({FTYPE_LIB, "libFastEngineServer%ARCH%%BUILD%", {FARCH_32, FARCH_64}, {FBUILD_DEBUG, FBUILD_RELEASE}});
 
-    installFiles.emplace_back(false, FTYPE_HEADER, "includes/FastEngine", FARCH_ALL, FBUILD_ALL);
-    installFiles.emplace_back(false, FTYPE_HEADER, "includes/json.hpp", FARCH_ALL, FBUILD_ALL);
-    installFiles.emplace_back(false, FTYPE_HEADER, "includes/tinyutf8.h", FARCH_ALL, FBUILD_ALL);
+    installFiles.push_back({FTYPE_HEADER, "includes/FastEngine", {}, {}});
+    installFiles.push_back({FTYPE_HEADER, "includes/json.hpp", {}, {}});
+    installFiles.push_back({FTYPE_HEADER, "includes/tinyutf8.h", {}, {}});
 
-    installFiles.emplace_back(false, FTYPE_FILE, "logo.png", FARCH_ALL, FBUILD_ALL);
-    installFiles.emplace_back(false, FTYPE_FILE, "fge_changelog.txt", FARCH_ALL, FBUILD_ALL);
-    installFiles.emplace_back(false, FTYPE_FILE, "LICENSE", FARCH_ALL, FBUILD_ALL);
-    installFiles.emplace_back(false, FTYPE_FILE, "IMAGE_AUDIO_LOGO_LICENSE", FARCH_ALL, FBUILD_ALL);
+    installFiles.push_back({FTYPE_FILE, "logo.png", {}, {}});
+    installFiles.push_back({FTYPE_FILE, "fge_changelog.txt", {}, {}});
+    installFiles.push_back({FTYPE_FILE, "LICENSE", {}, {}});
+    installFiles.push_back({FTYPE_FILE, "IMAGE_AUDIO_LOGO_LICENSE", {}, {}});
 
     //sdl
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2d.dll", FARCH_32, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_imaged.dll", FARCH_32, FBUILD_DEBUG, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixerd.dll", FARCH_32, FBUILD_DEBUG, "libsdl_mixer");
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/SDL/SDL2d.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_imaged.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixerd.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl_mixer"});
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2d.dll", FARCH_64, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_imaged.dll", FARCH_64, FBUILD_DEBUG, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixerd.dll", FARCH_64, FBUILD_DEBUG, "libsdl_mixer");
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2.dll", FARCH_32, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_image.dll", FARCH_32, FBUILD_RELEASE, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixer.dll", FARCH_32, FBUILD_RELEASE, "libsdl_mixer");
-
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL/SDL2.dll", FARCH_64, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_image.dll", FARCH_64, FBUILD_RELEASE, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixer.dll", FARCH_64, FBUILD_RELEASE, "libsdl_mixer");
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/SDL/SDL2.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/SDL_image/SDL2_image.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/SDL_mixer/SDL2_mixer.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl_mixer"});
 #endif //_WIN32
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2maind", FARCH_32, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_32, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_32, FBUILD_DEBUG, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_32, FBUILD_DEBUG, "libsdl_mixer");
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2maind", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl_mixer"});
 #else
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_32, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_32, FBUILD_DEBUG, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_32, FBUILD_DEBUG, "libsdl_mixer");
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd", {FARCH_32, FARCH_64}, {FBUILD_DEBUG}, "libsdl_mixer"});
 #endif //_WIN32
 
 #ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2maind", FARCH_64, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_64, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_64, FBUILD_DEBUG, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_64, FBUILD_DEBUG, "libsdl_mixer");
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2main", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl_mixer"});
 #else
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2d.dll", FARCH_64, FBUILD_DEBUG, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_imaged.dll", FARCH_64, FBUILD_DEBUG, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixerd.dll", FARCH_64, FBUILD_DEBUG, "libsdl_mixer");
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "libsdl_mixer"});
 #endif //_WIN32
 
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2main", FARCH_32, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_32, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_32, FBUILD_RELEASE, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_32, FBUILD_RELEASE, "libsdl_mixer");
-#else
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_32, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_32, FBUILD_RELEASE, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_32, FBUILD_RELEASE, "libsdl_mixer");
-#endif //_WIN32
+    installFiles.push_back({FTYPE_REQUIRE_HEADER, "libs/SDL/include", {}, {}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_HEADER, "libs/SDL_image/SDL_image.h", {}, {}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_HEADER, "libs/SDL_mixer/include/SDL_mixer.h", {}, {}, "libsdl_mixer"});
 
-#ifdef _WIN32
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2main", FARCH_64, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_64, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_64, FBUILD_RELEASE, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_64, FBUILD_RELEASE, "libsdl_mixer");
-#else
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL/libSDL2.dll", FARCH_64, FBUILD_RELEASE, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_image/libSDL2_image.dll", FARCH_64, FBUILD_RELEASE, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_LIB, "libs/SDL_mixer/libSDL2_mixer.dll", FARCH_64, FBUILD_RELEASE, "libsdl_mixer");
-#endif //_WIN32
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/SDL/LICENSE.txt", {}, {}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/SDL/CREDITS.txt", {}, {}, "libsdl"});
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/SDL_image/LICENSE.txt", {}, {}, "libsdl_image"});
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/SDL_mixer/LICENSE.txt", {}, {}, "libsdl_mixer"});
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SDL/include", FARCH_ALL, FBUILD_ALL, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SDL_image/SDL_image.h", FARCH_ALL, FBUILD_ALL, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_HEADER, "libs/SDL_mixer/include/SDL_mixer.h", FARCH_ALL, FBUILD_ALL, "libsdl_mixer");
+    //volk
+    installFiles.push_back({FTYPE_REQUIRE_HEADER, "libs/volk/volk.h", {}, {}, "volk"});
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/volk/LICENSE.md", {}, {}, "volk"});
 
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL/CREDITS.txt", FARCH_ALL, FBUILD_ALL, "libsdl");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL_image/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libsdl_image");
-    installFiles.emplace_back(false, FTYPE_REQUIRE_FILE, "libs/SDL_mixer/LICENSE.txt", FARCH_ALL, FBUILD_ALL, "libsdl_mixer");
+    //VulkanMemoryAllocator
+    installFiles.push_back({FTYPE_REQUIRE_HEADER, "libs/VulkanMemoryAllocator/include/vk_mem_alloc.h", {}, {}, "vma"});
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/VulkanMemoryAllocator/LICENSE.txt", {}, {}, "vma"});
 
-    //Ignoring un-built files and prefix path to the built ones
-    for (auto itFile=installFiles.begin(); itFile!=installFiles.end(); ++itFile)
-    {
-        auto& file = *itFile;
+    //glm
+    installFiles.push_back({FTYPE_REQUIRE_HEADER, "libs/glm/glm", {}, {}, "glm"});
+    installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/glm/copying.txt", {}, {}, "glm"});
 
-        bool ok = false;
-        for (const auto& buildDir : fgeBuildDir)
-        {
-            if ( (buildDir._arch == file._arch || file._arch == InstallFileArch::FARCH_ALL) &&
-                (buildDir._build == file._build || file._build == InstallFileBuild::FBUILD_ALL) )
-            {
-                ok = true;
-                if (file._type != InstallFileType::FTYPE_HEADER &&
-                    file._type != InstallFileType::FTYPE_REQUIRE_HEADER &&
-                    file._type != InstallFileType::FTYPE_FILE &&
-                    file._type != InstallFileType::FTYPE_REQUIRE_FILE)
-                {
-                    std::filesystem::path newPath = buildDir._path;
-                    newPath /= file._path;
-                    file._path = std::move(newPath);
-                }
-                break;
-            }
-        }
-        if (!ok)
-        {
-            itFile = --installFiles.erase(itFile);
-        }
-    }
+    //Starting installation
 
     std::cout << "Checking for required files ..." << std::endl;
 
-    for (auto itFile=installFiles.begin(); itFile!=installFiles.end(); ++itFile)
+    for (auto& file : installFiles)
     {
-        auto& file = *itFile;
-
-        std::cout << "\tChecking " << file._path << "... ";
-        if ( !std::filesystem::is_regular_file(file._path) && !std::filesystem::is_directory(file._path) )
-        {//Is a file or directory
-            if (file._ignored)
+        for (const auto& buildDir : fgeBuildDir)
+        {
+            if (!file.checkBuildType(buildDir._arch, buildDir._build))
             {
-                std::cout << "not ok !, but can be ignored !" << std::endl;
-                itFile = --installFiles.erase(itFile);
                 continue;
             }
-            std::cout << "not ok !, not found ! (not a file or directory)" << std::endl;
-            return -1;
+
+            auto filePath = file.getPath(buildDir._arch, buildDir._build);
+
+            bool isUnique = false;
+            if (!file.applyBuildDirPath(filePath, buildDir._path))
+            {//unique file
+                isUnique = true;
+            }
+
+            std::cout << "\tChecking " << filePath << "... ";
+            if ( !std::filesystem::is_regular_file(filePath) && !std::filesystem::is_directory(filePath) )
+            {//Is a file or directory
+                if (file._ignored)
+                {
+                    std::cout << "not ok !, but can be ignored !" << std::endl;
+                    continue;
+                }
+                std::cout << "not ok !, not found ! (not a file or directory)" << std::endl;
+                return -1;
+            }
+            std::cout << "ok !" << std::endl;
+
+            if (isUnique)
+            {
+                break;
+            }
         }
-        std::cout << "ok !" << std::endl;
     }
 
     for (const auto& file : installFiles)
     {
-        std::cout << "\tInstalling " << file._path << "... ";
-
-        std::string baseName = file._baseName + ((file._build==FBUILD_DEBUG) ? "_d" : "");
-
-        std::filesystem::path fileFolderPath = installPath;
-        switch (file._type)
+        for (const auto& buildDir : fgeBuildDir)
         {
-        case FTYPE_HEADER:
-            fileFolderPath /= "include/";
-            break;
-        case FTYPE_DLL:
-            switch (file._arch)
+            if (!file.checkBuildType(buildDir._arch, buildDir._build))
             {
-            case FARCH_32:
-                fileFolderPath /= "bin32/";
-                break;
-            case FARCH_64:
-                fileFolderPath /= "bin64/";
-                break;
-            case FARCH_ALL:
-                fileFolderPath /= "bin/";
-                break;
+                continue;
             }
-            break;
-        case FTYPE_LIB:
-            switch (file._arch)
-            {
-            case FARCH_32:
-                fileFolderPath /= "lib32/";
-                break;
-            case FARCH_64:
-                fileFolderPath /= "lib64/";
-                break;
-            case FARCH_ALL:
-                fileFolderPath /= "lib/";
-                break;
-            }
-            break;
-        case FTYPE_FILE:
-            break;
 
-        case FTYPE_REQUIRE_HEADER:
-            fileFolderPath /= "require/lib/" + baseName + "/" + "include/";
-            break;
-        case FTYPE_REQUIRE_DLL:
-            switch (file._arch)
+            auto filePath = file.getPath(buildDir._arch, buildDir._build);
+
+            bool isUnique = false;
+            if (!file.applyBuildDirPath(filePath, buildDir._path))
+            {//unique file
+                isUnique = true;
+            }
+
+            std::cout << "\tInstalling " << filePath << "... ";
+
+            std::string baseName = file._baseName;
+            if (std::find(file._build.begin(), file._build.end(), FBUILD_DEBUG) != file._build.end())
             {
-            case FARCH_32:
-                fileFolderPath /= "require/lib32/" + baseName + "/" + "bin/";
+                baseName += "_d";
+            }
+
+            std::string archString;
+            if (file._arch.empty())
+            { //Unspecified arch
+                archString = "/";
+            }
+            else
+            {
+                switch (buildDir._arch)
+                {
+                case FARCH_32:
+                    archString = "32/";
+                    break;
+                case FARCH_64:
+                    archString = "64/";
+                    break;
+                default:
+                    archString = "/";
+                    break;
+                }
+            }
+
+            std::filesystem::path fileFolderPath = installPath;
+            switch (file._type)
+            {
+            case FTYPE_HEADER:
+                fileFolderPath /= "include/";
                 break;
-            case FARCH_64:
-                fileFolderPath /= "require/lib64/" + baseName + "/" + "bin/";
+            case FTYPE_DLL:
+                fileFolderPath /= "bin"+archString;
                 break;
-            case FARCH_ALL:
-                fileFolderPath /= "require/lib/" + baseName + "/" + "bin/";
+            case FTYPE_LIB:
+                fileFolderPath /= "lib"+archString;
+                break;
+            case FTYPE_FILE:
+                break;
+
+            case FTYPE_REQUIRE_HEADER:
+                fileFolderPath /= "require/lib/" + baseName + "/" + "include/";
+                break;
+            case FTYPE_REQUIRE_DLL:
+                fileFolderPath /= "require/lib" + archString + baseName + "/" + "bin/";
+                break;
+            case FTYPE_REQUIRE_LIB:
+                fileFolderPath /= "require/lib" + archString + baseName + "/" + "lib/";
+                break;
+            case FTYPE_REQUIRE_FILE:
+                fileFolderPath /= "require/lib" + archString + baseName + "/";
                 break;
             }
-            break;
-        case FTYPE_REQUIRE_LIB:
-            switch (file._arch)
+
+            fileFolderPath += filePath.filename();
+
+            std::error_code err;
+            const auto options = std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive;
+
+            std::filesystem::create_directories(fileFolderPath.parent_path(), err);
+            if (err)
             {
-            case FARCH_32:
-                fileFolderPath /= "require/lib32/" + baseName + "/" + "lib/";
-                break;
-            case FARCH_64:
-                fileFolderPath /= "require/lib64/" + baseName + "/" + "lib/";
-                break;
-            case FARCH_ALL:
-                fileFolderPath /= "require/lib/" + baseName + "/" + "lib/";
+                std::cout << "not ok !, " << err.message() << std::endl;
+                std::cout << "target: " << fileFolderPath << std::endl;
+                return -1;
+            }
+            std::filesystem::copy(filePath, fileFolderPath, options, err);
+            if (err)
+            {
+                std::cout << "not ok !, " << err.message() << std::endl;
+                std::cout << "target: " << fileFolderPath << std::endl;
+                return -2;
+            }
+            std::cout << "ok !" << std::endl;
+
+            if (isUnique)
+            {
                 break;
             }
-            break;
-        case FTYPE_REQUIRE_FILE:
-            switch (file._arch)
-            {
-            case FARCH_32:
-                fileFolderPath /= "require/lib32/" + baseName + "/";
-                break;
-            case FARCH_64:
-                fileFolderPath /= "require/lib64/" + baseName + "/";
-                break;
-            case FARCH_ALL:
-                fileFolderPath /= "require/lib/" + baseName + "/";
-                break;
-            }
-            break;
         }
-
-        fileFolderPath += file._path.filename();
-
-        std::error_code err;
-        const auto options = std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive;
-
-        std::filesystem::create_directories(fileFolderPath.parent_path(), err);
-        if (err)
-        {
-            std::cout << "not ok !, " << err.message() << std::endl;
-            std::cout << "target: " << fileFolderPath << std::endl;
-            return -1;
-        }
-        std::filesystem::copy(file._path, fileFolderPath, options, err);
-        if (err)
-        {
-            std::cout << "not ok !, " << err.message() << std::endl;
-            std::cout << "target: " << fileFolderPath << std::endl;
-            return -2;
-        }
-        std::cout << "ok !" << std::endl;
     }
 
     std::cout << "everything is good !" << std::endl;
