@@ -18,7 +18,7 @@
 #define _FGE_C_CHILDOBJECTSACCESSOR_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
-#include "FastEngine/graphic/C_drawable.hpp"
+#include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_renderWindow.hpp"
 #include <chrono>
 #include <limits>
@@ -36,11 +36,7 @@ using ObjectPtr = std::unique_ptr<fge::Object>;
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 
-#ifdef FGE_DEF_SERVER
 class FGE_API ChildObjectsAccessor
-#else
-class FGE_API ChildObjectsAccessor : public fge::Drawable
-#endif //FGE_DEF_SERVER
 {
 public:
     ChildObjectsAccessor() = default;
@@ -74,7 +70,7 @@ public:
 #else
     void
     update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
+    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const;
 #endif //FGE_DEF_SERVER
 
     void putInFront(std::size_t index);
