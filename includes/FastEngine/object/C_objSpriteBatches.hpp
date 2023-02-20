@@ -71,15 +71,25 @@ private:
     void updateTexCoords(std::size_t index) const;
     void updateBuffers() const;
 
+    struct InstanceData
+    {
+        InstanceData() = default;
+        explicit InstanceData(const fge::RectInt& textureRect) :
+                _textureRect(textureRect)
+        {}
+
+        fge::Transformable _transformable;
+        fge::RectInt _textureRect;
+    };
+
     fge::Texture g_texture;
 
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
-    mutable std::vector<fge::Transformable> g_instancesTransformable;
+    mutable std::vector<InstanceData> g_instancesData;
     mutable std::unique_ptr<fge::TransformUboData[], fge::AlignedDeleter> g_instancesTransformData;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
     mutable fge::vulkan::VertexBuffer g_instancesVertices;
-    mutable std::vector<fge::RectInt> g_instancesTextureRect;
 
     std::size_t g_spriteCount;
 

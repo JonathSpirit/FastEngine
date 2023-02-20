@@ -32,9 +32,8 @@ ObjSpriteBatches::ObjSpriteBatches() :
 ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         fge::Object(r),
         g_texture(r.g_texture),
-        g_instancesTransformable(r.g_instancesTransformable),
+        g_instancesData(r.g_instancesData),
         g_instancesTransformData(nullptr),
-        g_instancesTextureRect(r.g_instancesTextureRect),
         g_spriteCount(r.g_spriteCount),
         g_needBuffersUpdate(true)
 {
@@ -56,32 +55,29 @@ void ObjSpriteBatches::setTexture(fge::Texture texture)
 
 void ObjSpriteBatches::clear()
 {
-    this->g_instancesTextureRect.clear();
+    this->g_instancesData.clear();
     this->g_spriteCount = 0;
     this->g_needBuffersUpdate = true;
-    this->g_instancesTransformable.clear();
 }
 fge::Transformable& ObjSpriteBatches::addSprite(const fge::RectInt& rectangle)
 {
-    this->g_instancesTextureRect.push_back(rectangle);
     ++this->g_spriteCount;
     this->g_needBuffersUpdate = true;
-    return this->g_instancesTransformable.emplace_back();
+    return this->g_instancesData.emplace_back(rectangle)._transformable;
 }
 void ObjSpriteBatches::resize(std::size_t size)
 {
-    this->g_instancesTextureRect.resize(size);
+    this->g_instancesData.resize(size);
     this->g_spriteCount = size;
     this->g_needBuffersUpdate = true;
-    this->g_instancesTransformable.resize(size);
 }
 void ObjSpriteBatches::setTextureRect(std::size_t index, const fge::RectInt& rectangle)
 {
     if (index < this->g_spriteCount)
     {
-        if (rectangle != this->g_instancesTextureRect[index])
+        if (rectangle != this->g_instancesData[index]._textureRect)
         {
-            this->g_instancesTextureRect[index] = rectangle;
+            this->g_instancesData[index]._textureRect = rectangle;
             if (!this->g_needBuffersUpdate)
             {
                 this->updatePositions(index);
@@ -113,7 +109,7 @@ std::optional<fge::RectInt> ObjSpriteBatches::getTextureRect(std::size_t index) 
 {
     if (index < this->g_spriteCount)
     {
-        return this->g_instancesTextureRect[index];
+        return this->g_instancesData[index]._textureRect;
     }
     return std::nullopt;
 }
@@ -130,7 +126,7 @@ fge::Transformable* ObjSpriteBatches::getTransformable(std::size_t index) const
 {
     if (index < this->g_spriteCount)
     {
-        return &this->g_instancesTransformable[index];
+        return &this->g_instancesData[index]._transformable;
     }
     return nullptr;
 }
@@ -150,11 +146,11 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         if (states._transform != nullptr)
         {
             this->g_instancesTransformData[i]._modelTransform =
-                    states._transform->_data._modelTransform * this->g_instancesTransformable[i].getTransform();
+                    states._transform->_data._modelTransform * this->g_instancesData[i]._transformable.getTransform();
         }
         else
         {
-            this->g_instancesTransformData[i]._modelTransform = this->g_instancesTransformable[i].getTransform();
+            this->g_instancesTransformData[i]._modelTransform = this->g_instancesData[i]._transformable.getTransform();
         }
         this->g_instancesTransformData[i]._viewTransform = target.getView().getTransform();
     }
@@ -211,7 +207,7 @@ std::optional<fge::RectFloat> ObjSpriteBatches::getGlobalBounds(std::size_t inde
     auto localBounds = this->getLocalBounds(index);
     if (localBounds && !this->g_needBuffersUpdate)
     {
-        return this->g_instancesTransformable[index].getTransform() * localBounds.value();
+        return this->g_instancesData[index]._transformable.getTransform() * localBounds.value();
     }
     return std::nullopt;
 }
@@ -223,8 +219,8 @@ std::optional<fge::RectFloat> ObjSpriteBatches::getLocalBounds(std::size_t index
 {
     if (index < this->g_spriteCount)
     {
-        const auto width = static_cast<float>(this->g_instancesTextureRect[index]._width);
-        const auto height = static_cast<float>(this->g_instancesTextureRect[index]._height);
+        const auto width = static_cast<float>(this->g_instancesData[index]._textureRect._width);
+        const auto height = static_cast<float>(this->g_instancesData[index]._textureRect._height);
 
         return fge::RectFloat{{0.f, 0.f}, {width, height}};
     }
@@ -250,7 +246,7 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index) const
     if (index < this->g_spriteCount)
     {
         const auto rect =
-                this->g_texture.getData()->_texture->normalizeTextureRect(this->g_instancesTextureRect[index]);
+                this->g_texture.getData()->_texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
         const std::size_t startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);
