@@ -45,8 +45,8 @@ ObjWindow::ObjWindow(const ObjWindow& r) :
         fge::Object(r),
         fge::Subscriber(r),
 
-        g_movingWindowFlag(r.g_movingWindowFlag),
-        g_resizeWindowFlag(r.g_resizeWindowFlag),
+        g_movingWindowFlag(false),
+        g_resizeWindowFlag(false),
         g_size(r.g_size),
 
         g_showCloseButton(r.g_showCloseButton),
