@@ -55,6 +55,8 @@ UniformBuffer::~UniformBuffer()
 
 void UniformBuffer::create(const Context& context, VkDeviceSize bufferSize)
 {
+    this->destroy();
+
     CreateBuffer(context, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->g_uniformBuffer,
                  this->g_uniformBufferAllocation);
