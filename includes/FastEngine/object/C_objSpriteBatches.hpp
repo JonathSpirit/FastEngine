@@ -36,15 +36,19 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSpriteBatches)
 
+    void addTexture(fge::Texture texture);
+    void setTexture(std::size_t index, fge::Texture texture);
     void setTexture(fge::Texture texture);
+    const fge::Texture& getTexture(std::size_t index) const;
+    std::size_t getTextureCount() const;
+    void clearTexture();
 
     void clear();
-    fge::Transformable& addSprite(const fge::RectInt& rectangle);
+    fge::Transformable& addSprite(const fge::RectInt& rectangle, uint32_t textureIndex = 0);
     void resize(std::size_t size);
     void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
     void setColor(std::size_t index, const fge::Color& color);
-
-    const fge::Texture& getTexture() const;
+    void setSpriteTexture(std::size_t spriteIndex, uint32_t textureIndex);
 
     [[nodiscard]] std::optional<fge::RectInt> getTextureRect(std::size_t index) const;
     [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;
@@ -83,10 +87,11 @@ private:
         fge::RectInt _textureRect;
     };
 
-    fge::Texture g_texture;
+    std::vector<fge::Texture> g_textures;
 
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
+    std::vector<uint32_t> g_instancesTextureIndex;
     std::vector<InstanceData> g_instancesData;
     mutable std::size_t g_instancesTransformDataCapacity;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;

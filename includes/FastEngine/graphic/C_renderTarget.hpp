@@ -42,6 +42,7 @@
 namespace fge
 {
 
+class Texture;
 class Drawable;
 
 class FGE_API RenderTarget
@@ -75,23 +76,19 @@ public:
     virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(const fge::Drawable& drawable, const fge::RenderStates& states);
-    void draw(const fge::RenderStates& states);
-    void draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states);
+    void draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline = nullptr);
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
 
-    void drawBatches(const fge::vulkan::BlendMode& blendMode,
-                     const fge::vulkan::TextureImage* textureImage,
+    void drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeline,
+                     const fge::vulkan::BlendMode& blendMode,
+                     const fge::Texture* textures,
+                     uint32_t texturesCount,
                      const fge::vulkan::DescriptorSet& transformDescriptorSet,
                      const fge::vulkan::VertexBuffer* vertexBuffer,
                      uint32_t vertexCount,
-                     uint32_t instanceCount);
-    void drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeline,
-                     const fge::vulkan::TextureImage* textureImage,
-                     const fge::vulkan::DescriptorSet& transformDescriptorSet,
-                     const fge::vulkan::VertexBuffer* vertexBuffer,
-                     uint32_t vertexCount,
-                     uint32_t instanceCount);
+                     uint32_t instanceCount,
+                     const uint32_t* instanceTextureIndices);
 
     virtual void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const;
     virtual void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const;
@@ -111,6 +108,11 @@ private:
     View g_view;
 
 protected:
+    fge::vulkan::GraphicPipeline* getDefaultGraphicPipeline(const fge::vulkan::BlendMode& blendMode,
+                                                            bool textureFragmentShader);
+    fge::vulkan::GraphicPipeline* getBatchesDefaultGraphicPipeline(const fge::vulkan::BlendMode& blendMode,
+                                                                   bool textureFragmentShader);
+
     VkClearColorValue _g_clearColor;
 
     const fge::vulkan::Context* _g_context;

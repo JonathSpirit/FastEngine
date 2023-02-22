@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/graphic/C_renderTarget.hpp"
+#include "FastEngine/C_texture.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
@@ -151,49 +152,15 @@ void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
 {
     drawable.draw(*this, states);
 }
-void RenderTarget::draw(const fge::RenderStates& states)
+void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline)
 {
-    if (states._textureImage == nullptr)
+    const bool haveTexture = states._textureImage != nullptr;
+
+    if (graphicPipeline == nullptr)
     {
-        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
-
-        auto it = this->_g_defaultGraphicPipelineNoTexture.find(states._blendMode);
-        if (it == this->_g_defaultGraphicPipelineNoTexture.end())
-        {
-            graphicPipeline = &this->_g_defaultGraphicPipelineNoTexture[states._blendMode];
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-            graphicPipeline->setBlendMode(states._blendMode);
-        }
-        else
-        {
-            graphicPipeline = &it->second;
-        }
-
-        this->draw(*graphicPipeline, states);
+        graphicPipeline = this->getDefaultGraphicPipeline(states._blendMode, haveTexture);
     }
-    else
-    {
-        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
 
-        auto it = this->_g_defaultGraphicPipelineTexture.find(states._blendMode);
-        if (it == this->_g_defaultGraphicPipelineTexture.end())
-        {
-            graphicPipeline = &this->_g_defaultGraphicPipelineTexture[states._blendMode];
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-            graphicPipeline->setBlendMode(states._blendMode);
-        }
-        else
-        {
-            graphicPipeline = &it->second;
-        }
-
-        this->draw(*graphicPipeline, states);
-    }
-}
-void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, const fge::RenderStates& states)
-{
     states._transform->_data._viewTransform = this->getView().getTransform();
     states._transform->updateUniformBuffer(*this->_g_context);
 
@@ -203,124 +170,99 @@ void RenderTarget::draw(const fge::vulkan::GraphicPipeline& graphicPipeline, con
     const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
                                          windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
-    graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
+    graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
     VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
                                       this->_g_context->getTextureLayout().getLayout()};
 
-    graphicPipeline.updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
-                                   this->_g_forceGraphicPipelineUpdate);
+    graphicPipeline->updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
+                                    this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
 
 #ifndef FGE_DEF_SERVER
-    if (states._textureImage != nullptr)
+    if (haveTexture)
     {
         if (RenderTarget::gLastTexture != states._textureImage)
         {
             RenderTarget::gLastTexture = states._textureImage;
-            VkDescriptorSet descriptorSetTexture[] = {states._textureImage->getDescriptorSet().get()};
-            graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
+            auto descriptorSetTexture = states._textureImage->getDescriptorSet().get();
+            graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1, 1);
         }
     }
 #endif //FGE_DEF_SERVER
 
-    VkDescriptorSet descriptorSetTransform[] = {states._transform->getDescriptorSet().get()};
-    graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTransform, 1, 0);
+    auto descriptorSetTransform = states._transform->getDescriptorSet().get();
+    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTransform, 1, 0);
 
-    graphicPipeline.recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
+    graphicPipeline->recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 }
 
-void RenderTarget::drawBatches(const fge::vulkan::BlendMode& blendMode,
-                               const fge::vulkan::TextureImage* textureImage,
+void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeline,
+                               const fge::vulkan::BlendMode& blendMode,
+                               const fge::Texture* textures,
+                               uint32_t texturesCount,
                                const fge::vulkan::DescriptorSet& transformDescriptorSet,
                                const fge::vulkan::VertexBuffer* vertexBuffer,
                                uint32_t vertexCount,
-                               uint32_t instanceCount)
+                               uint32_t instanceCount,
+                               const uint32_t* instanceTextureIndices)
 {
-    if (textureImage == nullptr)
+    const bool haveTexture = textures != nullptr && texturesCount != 0 && instanceTextureIndices != nullptr;
+
+    if (graphicPipeline == nullptr)
     {
-        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
-
-        auto it = this->_g_defaultGraphicPipelineNoTextureBatches.find(blendMode);
-        if (it == this->_g_defaultGraphicPipelineNoTextureBatches.end())
-        {
-            graphicPipeline = &this->_g_defaultGraphicPipelineNoTextureBatches[blendMode];
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-            graphicPipeline->setBlendMode(blendMode);
-        }
-        else
-        {
-            graphicPipeline = &it->second;
-        }
-
-        this->drawBatches(*graphicPipeline, textureImage, transformDescriptorSet, vertexBuffer, vertexCount,
-                          instanceCount);
+        graphicPipeline = this->getBatchesDefaultGraphicPipeline(blendMode, haveTexture);
     }
-    else
-    {
-        fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
 
-        auto it = this->_g_defaultGraphicPipelineTextureBatches.find(blendMode);
-        if (it == this->_g_defaultGraphicPipelineTextureBatches.end())
-        {
-            graphicPipeline = &this->_g_defaultGraphicPipelineTextureBatches[blendMode];
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
-            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-            graphicPipeline->setBlendMode(blendMode);
-        }
-        else
-        {
-            graphicPipeline = &it->second;
-        }
-
-        this->drawBatches(*graphicPipeline, textureImage, transformDescriptorSet, vertexBuffer, vertexCount,
-                          instanceCount);
-    }
-}
-void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline& graphicPipeline,
-                               const fge::vulkan::TextureImage* textureImage,
-                               const fge::vulkan::DescriptorSet& transformDescriptorSet,
-                               const fge::vulkan::VertexBuffer* vertexBuffer,
-                               uint32_t vertexCount,
-                               uint32_t instanceCount)
-{
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();
 
     const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
                                          windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
-    graphicPipeline.setScissor({{0, 0}, this->getExtent2D()});
+    graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
     VkDescriptorSetLayout layout[] = {this->_g_context->getTransformBatchesLayout().getLayout(),
                                       this->_g_context->getTextureLayout().getLayout()};
 
-    graphicPipeline.updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
-                                   this->_g_forceGraphicPipelineUpdate);
+    graphicPipeline->updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
+                                    this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
 
-    if (textureImage != nullptr)
-    {
-        if (RenderTarget::gLastTexture != textureImage)
-        {
-            RenderTarget::gLastTexture = textureImage;
-            VkDescriptorSet descriptorSetTexture[] = {textureImage->getDescriptorSet().get()};
-            graphicPipeline.bindDescriptorSets(commandBuffer, descriptorSetTexture, 1, 1);
-        }
-    }
+    auto descriptorSetTransform = transformDescriptorSet.get();
 
-    VkDescriptorSet descriptorSetTransform[] = {transformDescriptorSet.get()};
-
-    graphicPipeline.recordCommandBufferWithoutDraw(commandBuffer, viewport, vertexBuffer, nullptr);
+    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer, viewport, vertexBuffer, nullptr);
 
     for (std::size_t i = 0; i < instanceCount; ++i)
     {
         const uint32_t dynamicOffset = fge::TransformUboData::uboSize * i;
 
-        graphicPipeline.bindDynamicDescriptorSets(commandBuffer, descriptorSetTransform, 1, 1, &dynamicOffset, 0);
+#ifndef FGE_DEF_SERVER
+        if (haveTexture)
+        {
+            fge::vulkan::TextureImage* textureImage = nullptr;
+            if (instanceTextureIndices[i] < texturesCount)
+            {
+                textureImage = textures[instanceTextureIndices[i]].getData()->_texture.get();
+            }
+            else
+            {
+                textureImage = fge::texture::GetBadTexture()->_texture.get();
+            }
+
+            if (RenderTarget::gLastTexture != textureImage)
+            {
+                RenderTarget::gLastTexture = textureImage;
+
+                auto descriptorSet = textureImage->getDescriptorSet().get();
+                graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSet, 1, 1);
+            }
+        }
+#endif //FGE_DEF_SERVER
+
+        graphicPipeline->bindDynamicDescriptorSets(commandBuffer, &descriptorSetTransform, 1, 1, &dynamicOffset, 0);
 
         vkCmdDraw(commandBuffer, vertexCount, 1, vertexCount * i, 0);
     }
@@ -337,6 +279,81 @@ const fge::vulkan::Context* RenderTarget::getContext() const
 bool RenderTarget::isSrgb() const
 {
     return false;
+}
+
+fge::vulkan::GraphicPipeline* RenderTarget::getDefaultGraphicPipeline(const fge::vulkan::BlendMode& blendMode,
+                                                                      bool textureFragmentShader)
+{
+    fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
+
+    if (!textureFragmentShader)
+    {
+        auto it = this->_g_defaultGraphicPipelineNoTexture.find(blendMode);
+        if (it == this->_g_defaultGraphicPipelineNoTexture.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineNoTexture[blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+    }
+    else
+    {
+        auto it = this->_g_defaultGraphicPipelineTexture.find(blendMode);
+        if (it == this->_g_defaultGraphicPipelineTexture.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineTexture[blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+    }
+    return graphicPipeline;
+}
+fge::vulkan::GraphicPipeline* RenderTarget::getBatchesDefaultGraphicPipeline(const fge::vulkan::BlendMode& blendMode,
+                                                                             bool textureFragmentShader)
+{
+    fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
+
+    if (!textureFragmentShader)
+    {
+        auto it = this->_g_defaultGraphicPipelineNoTextureBatches.find(blendMode);
+        if (it == this->_g_defaultGraphicPipelineNoTextureBatches.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineNoTextureBatches[blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+    }
+    else
+    {
+        auto it = this->_g_defaultGraphicPipelineTextureBatches.find(blendMode);
+        if (it == this->_g_defaultGraphicPipelineTextureBatches.end())
+        {
+            graphicPipeline = &this->_g_defaultGraphicPipelineTextureBatches[blendMode];
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+            graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+            graphicPipeline->setBlendMode(blendMode);
+        }
+        else
+        {
+            graphicPipeline = &it->second;
+        }
+    }
+    return graphicPipeline;
 }
 
 } // namespace fge

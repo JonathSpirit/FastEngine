@@ -43,7 +43,8 @@ ObjSpriteBatches::ObjSpriteBatches() :
 }
 ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         fge::Object(r),
-        g_texture(r.g_texture),
+        g_textures(r.g_textures),
+        g_instancesTextureIndex(r.g_instancesTextureIndex),
         g_instancesData(r.g_instancesData),
         g_instancesTransformDataCapacity(0),
         g_instancesVertices(r.g_instancesVertices),
@@ -58,22 +59,48 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()
 {
-    this->setTexture(std::move(texture));
+    this->addTexture(std::move(texture));
 }
 
+void ObjSpriteBatches::addTexture(fge::Texture texture)
+{
+    this->g_textures.push_back(std::move(texture));
+}
+void ObjSpriteBatches::setTexture(std::size_t index, fge::Texture texture)
+{
+    if (index < this->g_textures.size())
+    {
+        this->g_textures[index] = std::move(texture);
+    }
+}
 void ObjSpriteBatches::setTexture(fge::Texture texture)
 {
-    this->g_texture = std::move(texture);
+    this->g_textures.resize(1);
+    this->g_textures.front() = std::move(texture);
+}
+const fge::Texture& ObjSpriteBatches::getTexture(std::size_t index) const
+{
+    return this->g_textures[index];
+}
+std::size_t ObjSpriteBatches::getTextureCount() const
+{
+    return this->g_textures.size();
+}
+void ObjSpriteBatches::clearTexture()
+{
+    this->g_textures.clear();
 }
 
 void ObjSpriteBatches::clear()
 {
+    this->g_instancesTextureIndex.clear();
     this->g_instancesData.clear();
     this->g_instancesVertices.clear();
     this->g_needBuffersUpdate = true;
 }
-fge::Transformable& ObjSpriteBatches::addSprite(const fge::RectInt& rectangle)
+fge::Transformable& ObjSpriteBatches::addSprite(const fge::RectInt& rectangle, uint32_t textureIndex)
 {
+    this->g_instancesTextureIndex.push_back(textureIndex);
     auto& transformable = this->g_instancesData.emplace_back(rectangle)._transformable;
     this->g_instancesVertices.resize(this->g_instancesVertices.getCount() + 4);
     this->updatePositions(this->g_instancesData.size() - 1);
@@ -85,6 +112,7 @@ void ObjSpriteBatches::resize(std::size_t size)
 {
     const std::size_t oldSize = this->g_instancesData.size();
 
+    this->g_instancesTextureIndex.resize(size, 0);
     this->g_instancesData.resize(size);
     this->g_instancesVertices.resize(size * 4);
 
@@ -123,9 +151,13 @@ void ObjSpriteBatches::setColor(std::size_t index, const fge::Color& color)
     }
 }
 
-const fge::Texture& ObjSpriteBatches::getTexture() const
+void ObjSpriteBatches::setSpriteTexture(std::size_t spriteIndex, uint32_t textureIndex)
 {
-    return this->g_texture;
+    if (spriteIndex < this->g_instancesData.size())
+    {
+        this->g_instancesTextureIndex[spriteIndex] = textureIndex;
+        this->updateTexCoords(spriteIndex);
+    }
 }
 
 std::optional<fge::RectInt> ObjSpriteBatches::getTextureRect(std::size_t index) const
@@ -189,35 +221,28 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         uboData->_viewTransform = target.getView().getTransform();
     }
 
-    target.drawBatches(states._blendMode, static_cast<const fge::vulkan::TextureImage*>(this->g_texture),
-                       this->g_descriptorSet, &this->g_instancesVertices, 4, this->g_instancesData.size());
+    target.drawBatches(nullptr, states._blendMode, this->g_textures.data(), this->g_textures.size(),
+                       this->g_descriptorSet, &this->g_instancesVertices, 4, this->g_instancesData.size(),
+                       this->g_instancesTextureIndex.data());
 }
 #endif
 
 void ObjSpriteBatches::save(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::save(jsonObject, scene);
-
-    jsonObject["texture"] = this->g_texture;
 }
 void ObjSpriteBatches::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
-
-    this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
 }
 
 void ObjSpriteBatches::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
-
-    pck << this->g_texture;
 }
 void ObjSpriteBatches::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
-
-    pck >> this->g_texture;
 }
 
 const char* ObjSpriteBatches::getClassName() const
@@ -276,8 +301,18 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {
-        const auto rect =
-                this->g_texture.getData()->_texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
+        const auto textureIndex = this->g_instancesTextureIndex[index];
+        const fge::TextureType* texture = nullptr;
+        if (textureIndex < this->g_textures.size())
+        {
+            texture = this->g_textures[textureIndex].getData()->_texture.get();
+        }
+        else
+        {
+            texture = fge::texture::GetBadTexture()->_texture.get();
+        }
+
+        const auto rect = texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
         const std::size_t startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);
