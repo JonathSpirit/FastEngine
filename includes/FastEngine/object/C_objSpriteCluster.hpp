@@ -67,9 +67,8 @@ public:
     [[nodiscard]] std::optional<fge::RectFloat> getLocalBounds(std::size_t index) const;
 
 private:
-    void updatePositions(std::size_t index) const;
-    void updateTexCoords(std::size_t index) const;
-    void updateBuffers() const;
+    void updatePositions(std::size_t index);
+    void updateTexCoords(std::size_t index);
 
     struct InstanceData
     {
@@ -86,9 +85,7 @@ private:
     fge::Texture g_texture;
 
     std::vector<InstanceData> g_instancesData;
-    mutable fge::vulkan::VertexBuffer g_instancesVertices;
-
-    mutable bool g_needBuffersUpdate;
+    fge::vulkan::VertexBuffer g_instancesVertices;
 };
 
 } // namespace fge

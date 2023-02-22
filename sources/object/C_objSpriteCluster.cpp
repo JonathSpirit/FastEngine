@@ -19,8 +19,7 @@
 namespace fge
 {
 
-ObjSpriteCluster::ObjSpriteCluster() :
-        g_needBuffersUpdate(true)
+ObjSpriteCluster::ObjSpriteCluster()
 {
     this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
                                      fge::vulkan::BufferTypes::LOCAL);
@@ -29,11 +28,8 @@ ObjSpriteCluster::ObjSpriteCluster(const ObjSpriteCluster& r) :
         fge::Object(r),
         g_texture(r.g_texture),
         g_instancesData(r.g_instancesData),
-        g_needBuffersUpdate(true)
-{
-    this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                                     fge::vulkan::BufferTypes::LOCAL);
-}
+        g_instancesVertices(r.g_instancesVertices)
+{}
 ObjSpriteCluster::ObjSpriteCluster(fge::Texture texture) :
         ObjSpriteCluster()
 {
@@ -48,7 +44,7 @@ void ObjSpriteCluster::setTexture(fge::Texture texture)
 void ObjSpriteCluster::clear()
 {
     this->g_instancesData.clear();
-    this->g_needBuffersUpdate = true;
+    this->g_instancesVertices.clear();
 }
 void ObjSpriteCluster::addSprite(const fge::RectInt& rectangle, const fge::Vector2f& offset)
 {
@@ -59,8 +55,19 @@ void ObjSpriteCluster::addSprite(const fge::RectInt& rectangle, const fge::Vecto
 }
 void ObjSpriteCluster::resize(std::size_t size)
 {
+    const std::size_t oldSize = this->g_instancesData.size();
+
     this->g_instancesData.resize(size);
-    this->g_needBuffersUpdate = true;
+    this->g_instancesVertices.resize(size * 6);
+
+    if (size > oldSize)
+    {
+        for (std::size_t i = oldSize; i < size; ++i)
+        {
+            this->updatePositions(i);
+            this->updateTexCoords(i);
+        }
+    }
 }
 void ObjSpriteCluster::setTextureRect(std::size_t index, const fge::RectInt& rectangle)
 {
@@ -69,17 +76,14 @@ void ObjSpriteCluster::setTextureRect(std::size_t index, const fge::RectInt& rec
         if (rectangle != this->g_instancesData[index]._textureRect)
         {
             this->g_instancesData[index]._textureRect = rectangle;
-            if (!this->g_needBuffersUpdate)
-            {
-                this->updatePositions(index);
-                this->updateTexCoords(index);
-            }
+            this->updatePositions(index);
+            this->updateTexCoords(index);
         }
     }
 }
 void ObjSpriteCluster::setColor(std::size_t index, const fge::Color& color)
 {
-    if (index < this->g_instancesData.size() && !this->g_needBuffersUpdate)
+    if (index < this->g_instancesData.size())
     {
         const std::size_t startIndex = index * 6;
 
@@ -98,11 +102,7 @@ void ObjSpriteCluster::setOffset(std::size_t index, const fge::Vector2f& offset)
         if (offset != this->g_instancesData[index]._offset)
         {
             this->g_instancesData[index]._offset = offset;
-            if (!this->g_needBuffersUpdate)
-            {
-                this->updatePositions(index);
-                this->updateTexCoords(index);
-            }
+            this->updatePositions(index);
         }
     }
 }
@@ -122,7 +122,7 @@ std::optional<fge::RectInt> ObjSpriteCluster::getTextureRect(std::size_t index) 
 }
 std::optional<fge::Color> ObjSpriteCluster::getColor(std::size_t index) const
 {
-    if (index < this->g_instancesData.size() && !this->g_needBuffersUpdate)
+    if (index < this->g_instancesData.size())
     {
         return fge::Color(this->g_instancesVertices[index * 6]._color);
     }
@@ -144,8 +144,6 @@ FGE_OBJ_DRAW_BODY(ObjSpriteCluster)
     {
         return;
     }
-
-    this->updateBuffers();
 
     auto copyStates = states.copy(this->_transform.start(*this, states._transform));
     copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
@@ -219,7 +217,7 @@ std::optional<fge::RectFloat> ObjSpriteCluster::getLocalBounds(std::size_t index
     return std::nullopt;
 }
 
-void ObjSpriteCluster::updatePositions(std::size_t index) const
+void ObjSpriteCluster::updatePositions(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {
@@ -236,7 +234,7 @@ void ObjSpriteCluster::updatePositions(std::size_t index) const
     }
 }
 
-void ObjSpriteCluster::updateTexCoords(std::size_t index) const
+void ObjSpriteCluster::updateTexCoords(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {
@@ -251,24 +249,6 @@ void ObjSpriteCluster::updateTexCoords(std::size_t index) const
                 fge::Vector2f(rect._x + rect._width, rect._y + rect._height);
         this->g_instancesVertices[startIndex + 4]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
         this->g_instancesVertices[startIndex + 5]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y);
-    }
-}
-void ObjSpriteCluster::updateBuffers() const
-{
-    if (this->g_needBuffersUpdate)
-    {
-        this->g_needBuffersUpdate = false;
-
-        if (this->g_instancesVertices.getCount() != this->g_instancesData.size() * 6 && !this->g_instancesData.empty())
-        {
-            this->g_instancesVertices.resize(this->g_instancesData.size() * 6);
-
-            for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
-            {
-                this->updatePositions(i);
-                this->updateTexCoords(i);
-            }
-        }
     }
 }
 
