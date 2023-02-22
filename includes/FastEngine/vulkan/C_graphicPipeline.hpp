@@ -64,6 +64,9 @@ public:
     void setScissor(const VkRect2D& scissor) const;
     [[nodiscard]] const VkRect2D& getScissor() const;
 
+    [[nodiscard]] const std::vector<VkPushConstantRange>& getPushConstantRanges() const;
+    [[nodiscard]] std::vector<VkPushConstantRange>& getPushConstantRanges();
+
     void recordCommandBuffer(VkCommandBuffer commandBuffer,
                              const Viewport& viewport,
                              const VertexBuffer* vertexBuffer,
@@ -82,6 +85,12 @@ public:
                                    uint32_t dynamicOffsetCount,
                                    const uint32_t* pDynamicOffsets,
                                    uint32_t firstSet = 0) const;
+
+    void pushConstants(VkCommandBuffer commandBuffer,
+                       VkShaderStageFlags stageFlags,
+                       uint32_t offset,
+                       uint32_t size,
+                       const void* pValues) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
@@ -107,6 +116,8 @@ private:
 
     mutable VkPipelineLayout g_pipelineLayout;
     mutable VkPipeline g_graphicsPipeline;
+
+    std::vector<VkPushConstantRange> g_pushConstantRanges;
 
     mutable const Context* g_context;
 };

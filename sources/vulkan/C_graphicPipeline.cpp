@@ -208,8 +208,8 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = descriptorSetLayoutSize;
         pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+        pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
+        pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
 
         if (vkCreatePipelineLayout(context.getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
                                    &this->g_pipelineLayout) != VK_SUCCESS)
@@ -359,6 +359,15 @@ const VkRect2D& GraphicPipeline::getScissor() const
     return this->g_scissor;
 }
 
+const std::vector<VkPushConstantRange>& GraphicPipeline::getPushConstantRanges() const
+{
+    return this->g_pushConstantRanges;
+}
+std::vector<VkPushConstantRange>& GraphicPipeline::getPushConstantRanges()
+{
+    return this->g_pushConstantRanges;
+}
+
 void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
                                           const Viewport& viewport,
                                           const VertexBuffer* vertexBuffer,
@@ -432,6 +441,15 @@ void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
 {
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
                             descriptorCount, descriptorSet, dynamicOffsetCount, pDynamicOffsets);
+}
+
+void GraphicPipeline::pushConstants(VkCommandBuffer commandBuffer,
+                                    VkShaderStageFlags stageFlags,
+                                    uint32_t offset,
+                                    uint32_t size,
+                                    const void* pValues) const
+{
+    vkCmdPushConstants(commandBuffer, this->g_pipelineLayout, stageFlags, offset, size, pValues);
 }
 
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const
