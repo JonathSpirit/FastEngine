@@ -276,6 +276,7 @@ fge::Vector2f ObjWindow::getDrawAreaSize() const
 void ObjWindow::showExitButton(bool enable)
 {
     this->g_showCloseButton = enable;
+    this->g_spriteClose.setColor(enable ? fge::Color::White : fge::Color(100, 100, 100, 200));
 }
 void ObjWindow::makeMovable(bool enable)
 {
