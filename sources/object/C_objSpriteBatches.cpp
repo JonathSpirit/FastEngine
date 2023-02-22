@@ -46,6 +46,7 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         g_texture(r.g_texture),
         g_instancesData(r.g_instancesData),
         g_instancesTransformDataCapacity(0),
+        g_instancesVertices(r.g_instancesVertices),
         g_needBuffersUpdate(true),
         g_dynamicAlignment(r.g_dynamicAlignment)
 {
@@ -53,9 +54,6 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
             fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool()
                     .allocateDescriptorSet(fge::vulkan::GlobalContext->getTransformBatchesLayout().getLayout())
                     .value();
-
-    this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-                                     fge::vulkan::BufferTypes::LOCAL);
 }
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()
@@ -147,7 +145,15 @@ std::optional<fge::Color> ObjSpriteBatches::getColor(std::size_t index) const
     return std::nullopt;
 }
 
-fge::Transformable* ObjSpriteBatches::getTransformable(std::size_t index) const
+fge::Transformable* ObjSpriteBatches::getTransformable(std::size_t index)
+{
+    if (index < this->g_instancesData.size())
+    {
+        return &this->g_instancesData[index]._transformable;
+    }
+    return nullptr;
+}
+const fge::Transformable* ObjSpriteBatches::getTransformable(std::size_t index) const
 {
     if (index < this->g_instancesData.size())
     {
@@ -252,7 +258,7 @@ std::optional<fge::RectFloat> ObjSpriteBatches::getLocalBounds(std::size_t index
     return std::nullopt;
 }
 
-void ObjSpriteBatches::updatePositions(std::size_t index) const
+void ObjSpriteBatches::updatePositions(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {
@@ -266,7 +272,7 @@ void ObjSpriteBatches::updatePositions(std::size_t index) const
     }
 }
 
-void ObjSpriteBatches::updateTexCoords(std::size_t index) const
+void ObjSpriteBatches::updateTexCoords(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {

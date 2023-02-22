@@ -49,7 +49,8 @@ public:
     [[nodiscard]] std::optional<fge::RectInt> getTextureRect(std::size_t index) const;
     [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;
 
-    [[nodiscard]] fge::Transformable* getTransformable(std::size_t index) const;
+    [[nodiscard]] fge::Transformable* getTransformable(std::size_t index);
+    [[nodiscard]] const fge::Transformable* getTransformable(std::size_t index) const;
 
     FGE_OBJ_DRAW_DECLARE
 
@@ -67,8 +68,8 @@ public:
     [[nodiscard]] std::optional<fge::RectFloat> getLocalBounds(std::size_t index) const;
 
 private:
-    void updatePositions(std::size_t index) const;
-    void updateTexCoords(std::size_t index) const;
+    void updatePositions(std::size_t index);
+    void updateTexCoords(std::size_t index);
     void updateBuffers() const;
 
     struct InstanceData
@@ -86,10 +87,10 @@ private:
 
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
-    mutable std::vector<InstanceData> g_instancesData;
+    std::vector<InstanceData> g_instancesData;
     mutable std::size_t g_instancesTransformDataCapacity;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
-    mutable fge::vulkan::VertexBuffer g_instancesVertices;
+    fge::vulkan::VertexBuffer g_instancesVertices;
 
     mutable bool g_needBuffersUpdate;
 
