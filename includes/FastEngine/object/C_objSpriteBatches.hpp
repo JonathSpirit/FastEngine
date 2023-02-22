@@ -87,13 +87,13 @@ private:
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
     mutable std::vector<InstanceData> g_instancesData;
-    mutable std::unique_ptr<fge::TransformUboData[], fge::AlignedDeleter> g_instancesTransformData;
+    mutable std::size_t g_instancesTransformDataCapacity;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
     mutable fge::vulkan::VertexBuffer g_instancesVertices;
 
-    std::size_t g_spriteCount;
-
     mutable bool g_needBuffersUpdate;
+
+    std::size_t g_dynamicAlignment;
 };
 
 } // namespace fge
