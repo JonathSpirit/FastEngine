@@ -52,14 +52,14 @@ struct BlendMode
             _alphaBlendOp(alphaBlendOp)
     {}
 
-    [[nodiscard]] bool operator==(const BlendMode& right) const
+    [[nodiscard]] constexpr bool operator==(const BlendMode& right) const
     {
         return this->_srcColorBlendFactor == right._srcColorBlendFactor &&
                this->_dstColorBlendFactor == right._dstColorBlendFactor && this->_colorBlendOp == right._colorBlendOp &&
                this->_srcAlphaBlendFactor == right._srcAlphaBlendFactor &&
                this->_dstAlphaBlendFactor == right._dstAlphaBlendFactor && this->_alphaBlendOp == right._alphaBlendOp;
     }
-    [[nodiscard]] bool operator!=(const BlendMode& right) const { return !this->operator==(right); }
+    [[nodiscard]] constexpr bool operator!=(const BlendMode& right) const { return !this->operator==(right); }
 
     VkBlendFactor _srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
     VkBlendFactor _dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -89,18 +89,6 @@ constexpr BlendMode
         BlendMax(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_MAX); //!< Take maximum between source and dest
 constexpr BlendMode
         BlendNone(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD); //!< Overwrite dest with source
-
-struct BlendModeHash
-{
-    std::size_t operator()(const BlendMode& k) const
-    {
-        return std::hash<uint32_t>()(
-                (static_cast<uint32_t>(k._srcColorBlendFactor) << 25) |
-                (static_cast<uint32_t>(k._dstColorBlendFactor) << 20) | (static_cast<uint32_t>(k._colorBlendOp) << 15) |
-                (static_cast<uint32_t>(k._srcAlphaBlendFactor) << 10) |
-                (static_cast<uint32_t>(k._dstAlphaBlendFactor) << 5) | (static_cast<uint32_t>(k._alphaBlendOp)));
-    }
-};
 
 } // namespace fge::vulkan
 

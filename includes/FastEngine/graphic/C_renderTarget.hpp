@@ -108,10 +108,31 @@ private:
     View g_view;
 
 protected:
-    fge::vulkan::GraphicPipeline* getDefaultGraphicPipeline(const fge::vulkan::BlendMode& blendMode,
-                                                            bool textureFragmentShader);
-    fge::vulkan::GraphicPipeline* getBatchesDefaultGraphicPipeline(const fge::vulkan::BlendMode& blendMode,
-                                                                   bool textureFragmentShader);
+    struct GraphicPipelineKey
+    {
+        std::size_t operator()(const GraphicPipelineKey& k) const
+        {
+            return std::hash<uint32_t>()((static_cast<uint32_t>(k._isBatches) << 31) |
+                                         (static_cast<uint32_t>(k._haveTexture) << 30) |
+                                         (static_cast<uint32_t>(k._blendMode._srcColorBlendFactor) << 25) |
+                                         (static_cast<uint32_t>(k._blendMode._dstColorBlendFactor) << 20) |
+                                         (static_cast<uint32_t>(k._blendMode._colorBlendOp) << 15) |
+                                         (static_cast<uint32_t>(k._blendMode._srcAlphaBlendFactor) << 10) |
+                                         (static_cast<uint32_t>(k._blendMode._dstAlphaBlendFactor) << 5) |
+                                         (static_cast<uint32_t>(k._blendMode._alphaBlendOp)));
+        }
+        constexpr bool operator==(const GraphicPipelineKey& k) const
+        {
+            return this->_blendMode == k._blendMode && this->_haveTexture == k._haveTexture &&
+                   this->_isBatches == k._isBatches;
+        }
+
+        fge::vulkan::BlendMode _blendMode;
+        bool _haveTexture;
+        bool _isBatches;
+    };
+
+    [[nodiscard]] fge::vulkan::GraphicPipeline* getDefaultGraphicPipeline(const GraphicPipelineKey& key);
 
     VkClearColorValue _g_clearColor;
 
@@ -119,15 +140,7 @@ protected:
 
     bool _g_forceGraphicPipelineUpdate;
 
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
-            _g_defaultGraphicPipelineTexture;
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
-            _g_defaultGraphicPipelineNoTexture;
-
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
-            _g_defaultGraphicPipelineTextureBatches; ///TODO: maybe not have that many maps
-    std::unordered_map<fge::vulkan::BlendMode, fge::vulkan::GraphicPipeline, fge::vulkan::BlendModeHash>
-            _g_defaultGraphicPipelineNoTextureBatches;
+    std::unordered_map<GraphicPipelineKey, fge::vulkan::GraphicPipeline, GraphicPipelineKey> _g_defaultGraphicPipeline;
 
     static const fge::vulkan::TextureImage* gLastTexture;
 };

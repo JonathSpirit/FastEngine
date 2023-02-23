@@ -59,10 +59,7 @@ void RenderWindow::destroy()
     {
         SDL_DelEventWatch(&ResizeCallback, this);
 
-        this->_g_defaultGraphicPipelineNoTexture.clear();
-        this->_g_defaultGraphicPipelineTexture.clear();
-        this->_g_defaultGraphicPipelineNoTextureBatches.clear();
-        this->_g_defaultGraphicPipelineTextureBatches.clear();
+        this->_g_defaultGraphicPipeline.clear();
 
         VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 
