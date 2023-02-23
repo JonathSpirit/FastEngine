@@ -352,7 +352,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra/extra_function.cpp"
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra/extra_string.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra/extra_pathFinding.cpp")
 
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/fge_drawing.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/fge_endian.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/anim_manager.cpp")
@@ -461,7 +460,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/extra/extra_function.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/extra/extra_string.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/extra/extra_pathFinding.cpp")
 
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/fge_drawing.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/fge_endian.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/anim_manager.cpp")
