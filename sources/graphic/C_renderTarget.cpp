@@ -155,8 +155,7 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
         graphicPipeline = this->getDefaultGraphicPipeline(graphicPipelineKey);
     }
 
-    states._transform->_data._viewTransform = this->getView().getTransform();
-    states._transform->updateUniformBuffer(*this->_g_context);
+    states._transform->getData()._viewTransform = this->getView().getTransform();
 
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();

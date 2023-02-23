@@ -211,8 +211,8 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
         if (states._transform != nullptr)
         {
-            uboData->_modelTransform =
-                    states._transform->_data._modelTransform * this->g_instancesData[i]._transformable.getTransform();
+            uboData->_modelTransform = states._transform->getData()._modelTransform *
+                                       this->g_instancesData[i]._transformable.getTransform();
         }
         else
         {
