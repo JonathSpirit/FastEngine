@@ -128,10 +128,10 @@ Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point) const
 }
 Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view) const
 {
-    glm::vec4 pointVec4(point, 0.0f, 0.0f);
+    const glm::vec4 pointVec4(point, 0.0f, 1.0f);
 
     // First, transform the point by the view matrix
-    glm::vec4 normalized = view.getTransform() * pointVec4;
+    const glm::vec4 normalized = view.getTransform() * pointVec4;
 
     // Then convert to viewport coordinates
     Vector2i pixel;
