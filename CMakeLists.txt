@@ -114,10 +114,16 @@ if(WIN32)
             )
 
     set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
-    set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
+    if (MSVC)
+        set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/$<CONFIG>/freetype$<$<CONFIG:Debug>:d>.lib" CACHE FILEPATH "" FORCE)
+    else()
+        set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
+    endif()
 
-    if (NOT EXISTS ${FREETYPE_LIBRARY})
-        file(TOUCH ${FREETYPE_LIBRARY})
+    if(NOT MSVC)
+        if (NOT EXISTS ${FREETYPE_LIBRARY})
+            file(TOUCH ${FREETYPE_LIBRARY})
+        endif()
     endif()
 
 else()
@@ -234,8 +240,13 @@ target_include_directories(${FGE_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR}) #Fre
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR})
 
 #Compile options
-target_compile_options(${FGE_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
-target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
+if (MSVC)
+    target_compile_options(${FGE_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275)
+    target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275)
+else()
+    target_compile_options(${FGE_LIB_NAME} PUBLIC -Wpedantic -Wall -Wextra)
+    target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC -Wpedantic -Wall -Wextra)
+endif()
 
 #Definition
 target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
@@ -563,7 +574,11 @@ install(FILES ${FGE_INCLUDES_PROJECT}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/FastEngine)
 
 #Custom target for executables that copy compiled DLLs and symlink the resources folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+if (MSVC)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<CONFIG>)
+else()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
 
 add_custom_target(FgeClientExeDeps)
 add_custom_target(FgeServerExeDeps)

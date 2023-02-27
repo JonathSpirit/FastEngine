@@ -24,6 +24,8 @@
 #endif //__GNUC__
 
 #define VMA_IMPLEMENTATION
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include "vk_mem_alloc.h"
 
 #ifdef __GNUC__

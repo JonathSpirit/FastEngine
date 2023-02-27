@@ -225,8 +225,8 @@ TunnelGate<T>::TunnelGate(fge::TunnelGate<T>&& gate) noexcept :
 {
     if (gate.g_tunnel)
     {
-        gate.g_tunnel->addGate(this, gate.g_tunnel->isAnonymous(&gate));
-        gate.g_tunnel->closeGate(&gate);
+        gate.g_tunnel->addGate(*this, gate.g_tunnel->isAnonymous(gate));
+        gate.g_tunnel->closeGate(gate);
     }
 }
 template<class T>

@@ -19,7 +19,13 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
+
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+    #define NOMINMAX
+#endif
 #include "vk_mem_alloc.h"
+
 #include <vector>
 
 #define FGE_MAX_FRAMES_IN_FLIGHT 2
