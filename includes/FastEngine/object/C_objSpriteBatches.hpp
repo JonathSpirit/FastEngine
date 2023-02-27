@@ -49,6 +49,7 @@ public:
     void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
     void setColor(std::size_t index, const fge::Color& color);
     void setSpriteTexture(std::size_t spriteIndex, uint32_t textureIndex);
+    [[nodiscard]] std::size_t getSpriteCount() const;
 
     [[nodiscard]] std::optional<fge::RectInt> getTextureRect(std::size_t index) const;
     [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;

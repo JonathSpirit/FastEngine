@@ -160,6 +160,11 @@ void ObjSpriteBatches::setSpriteTexture(std::size_t spriteIndex, uint32_t textur
     }
 }
 
+std::size_t ObjSpriteBatches::getSpriteCount() const
+{
+    return this->g_instancesData.size();
+}
+
 std::optional<fge::RectInt> ObjSpriteBatches::getTextureRect(std::size_t index) const
 {
     if (index < this->g_instancesData.size())
