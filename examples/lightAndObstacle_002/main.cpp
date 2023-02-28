@@ -182,7 +182,7 @@ public:
 
         //Add a callback for mouse click
         event._onMouseButtonDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseButtonEvent&>(
-                [&](const fge::Event& event, const SDL_MouseButtonEvent& mouseEvent) {
+                [&]([[maybe_unused]] const fge::Event& event, const SDL_MouseButtonEvent& mouseEvent) {
             //If the left button is pressed
             if (mouseEvent.button == SDL_BUTTON_LEFT)
             {

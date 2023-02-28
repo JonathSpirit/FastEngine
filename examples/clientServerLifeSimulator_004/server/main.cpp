@@ -75,7 +75,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::SetConsoleCmdTitle(title.c_str());
 
     fge::net::ServerUdp server;
-    ///TODO: fge::net::ServerUdp should have a function to create a packet for us. \
+    ///TODO: fge::net::ServerUdp should have a function to create a packet for us.
     /// This will save some time if the user want to re-change the packet type.
 
     //Starting the server with an LZ4 compression
