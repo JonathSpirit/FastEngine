@@ -4,7 +4,7 @@
 /cmake-build*/
 /installdir/
 /includes/FastEngine/fastengine_version.hpp
-/build/
+/build*/
 
 .idea/deployment.xml
 .idea/encodings.xml

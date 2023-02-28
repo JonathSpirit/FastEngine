@@ -629,9 +629,17 @@ if (FGE_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
+function(setMSVCDefaultWorkingDir TARGET)
+    set_target_properties(
+        ${TARGET}
+        PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endfunction()
+
 #Examples
 if (FGE_BUILD_EXAMPLES)
-    add_subdirectory(examples/tileMapAndPathfinding_001)
+    add_subdirectory(examples/tileMapAndPathFinding_001)
     add_subdirectory(examples/lightAndObstacle_002)
     add_subdirectory(examples/guiWindow_003)
     add_subdirectory(examples/clientServerLifeSimulator_004)

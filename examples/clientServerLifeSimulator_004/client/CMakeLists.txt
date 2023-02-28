@@ -13,3 +13,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ../share/includes)
 add_dependencies(${PROJECT_NAME} FgeClientExeDeps)
 
 target_link_libraries(${PROJECT_NAME} ${FGE_CLIENT_LIBS})
+
+setMSVCDefaultWorkingDir(${PROJECT_NAME})

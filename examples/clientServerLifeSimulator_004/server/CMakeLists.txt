@@ -14,3 +14,5 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE FGE_DEF_SERVER)
 add_dependencies(${PROJECT_NAME} FgeServerExeDeps)
 
 target_link_libraries(${PROJECT_NAME} ${FGE_SERVER_LIBS})
+
+setMSVCDefaultWorkingDir(${PROJECT_NAME})
