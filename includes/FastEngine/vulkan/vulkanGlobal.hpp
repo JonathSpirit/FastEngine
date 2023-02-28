@@ -37,8 +37,8 @@ class LogicalDevice;
 class PhysicalDevice;
 class Context;
 
-FGE_API extern const std::vector<const char*> ValidationLayers;
-FGE_API extern const std::vector<const char*> DeviceExtensions;
+FGE_API extern std::vector<const char*> ValidationLayers;
+FGE_API extern std::vector<const char*> DeviceExtensions;
 
 FGE_API extern Context* GlobalContext;
 

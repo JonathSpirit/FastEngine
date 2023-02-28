@@ -25,13 +25,13 @@ namespace fge::vulkan
 {
 
 #ifdef FGE_ENABLE_VALIDATION_LAYERS
-const std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
+std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
 #else
-const std::vector<const char*> ValidationLayers = {};
+std::vector<const char*> ValidationLayers = {};
 #endif
 
-const std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                                   VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME};
+std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                             VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME};
 
 Context* GlobalContext{nullptr};
 
