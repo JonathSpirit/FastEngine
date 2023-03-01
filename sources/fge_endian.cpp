@@ -96,7 +96,7 @@ float SwapHostNetEndian_f(float n)
         static_cast<uint8_t*>(static_cast<void*>(&r))[1] = static_cast<uint8_t*>(static_cast<void*>(&n))[2];
         static_cast<uint8_t*>(static_cast<void*>(&r))[2] = static_cast<uint8_t*>(static_cast<void*>(&n))[1];
         static_cast<uint8_t*>(static_cast<void*>(&r))[3] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
-        return r;
+        return *reinterpret_cast<float*>(&r);
     }
 }
 double SwapHostNetEndian_d(double n)
@@ -118,7 +118,7 @@ double SwapHostNetEndian_d(double n)
         static_cast<uint8_t*>(static_cast<void*>(&r))[5] = static_cast<uint8_t*>(static_cast<void*>(&n))[2];
         static_cast<uint8_t*>(static_cast<void*>(&r))[6] = static_cast<uint8_t*>(static_cast<void*>(&n))[1];
         static_cast<uint8_t*>(static_cast<void*>(&r))[7] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
-        return r;
+        return *reinterpret_cast<double*>(&r);
     }
 }
 
@@ -162,7 +162,7 @@ float SwapEndian_f(float n)
     static_cast<uint8_t*>(static_cast<void*>(&r))[1] = static_cast<uint8_t*>(static_cast<void*>(&n))[2];
     static_cast<uint8_t*>(static_cast<void*>(&r))[2] = static_cast<uint8_t*>(static_cast<void*>(&n))[1];
     static_cast<uint8_t*>(static_cast<void*>(&r))[3] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
-    return r;
+    return *reinterpret_cast<float*>(&r);
 }
 double SwapEndian_d(double n)
 {
@@ -177,7 +177,7 @@ double SwapEndian_d(double n)
     static_cast<uint8_t*>(static_cast<void*>(&r))[5] = static_cast<uint8_t*>(static_cast<void*>(&n))[2];
     static_cast<uint8_t*>(static_cast<void*>(&r))[6] = static_cast<uint8_t*>(static_cast<void*>(&n))[1];
     static_cast<uint8_t*>(static_cast<void*>(&r))[7] = static_cast<uint8_t*>(static_cast<void*>(&n))[0];
-    return r;
+    return *reinterpret_cast<double*>(&r);
 }
 
 bool IsBigEndian()
