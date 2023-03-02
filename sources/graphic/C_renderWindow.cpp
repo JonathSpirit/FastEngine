@@ -96,7 +96,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferIn
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         this->recreateSwapChain();
-        return BAD_IMAGE_INDEX;
+        return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {

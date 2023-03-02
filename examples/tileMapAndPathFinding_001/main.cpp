@@ -293,7 +293,7 @@ public:
 
             //Drawing
             auto imageIndex = renderWindow.prepareNextFrame(nullptr);
-            if (imageIndex != BAD_IMAGE_INDEX)
+            if (imageIndex != FGE_RENDERTARGET_BAD_IMAGE_INDEX)
             {
                 fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
 

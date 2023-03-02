@@ -138,7 +138,7 @@ uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* i
         throw std::runtime_error("failed to begin recording command buffer!");
     }
 
-    return BAD_IMAGE_INDEX;
+    return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
 }
 void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 {

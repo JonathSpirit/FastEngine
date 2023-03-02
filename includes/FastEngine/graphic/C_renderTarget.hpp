@@ -38,7 +38,7 @@
 #include <map>
 #include <unordered_map>
 
-#define BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
+#define FGE_RENDERTARGET_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
 #define FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME ""
 #define FGE_RENDERTARGET_DEFAULT_ID_BATCHES 0x01
 #define FGE_RENDERTARGET_DEFAULT_ID_TEXTURE 0x02

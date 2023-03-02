@@ -354,7 +354,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Drawing
         auto imageIndex = renderWindow.prepareNextFrame(nullptr);
-        if (imageIndex != BAD_IMAGE_INDEX)
+        if (imageIndex != FGE_RENDERTARGET_BAD_IMAGE_INDEX)
         {
             fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
 
