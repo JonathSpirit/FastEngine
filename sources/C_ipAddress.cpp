@@ -29,9 +29,9 @@
         #undef _WIN32_WINNT
     #endif // _WIN32_WINNT
 
-    #define _WIN32_WINDOWS _WIN32_WINNT_WINXP
-    #define WINVER _WIN32_WINNT_WINXP
-    #define _WIN32_WINNT _WIN32_WINNT_WINXP
+    #define _WIN32_WINDOWS _WIN32_WINNT_VISTA
+    #define WINVER _WIN32_WINNT_VISTA
+    #define _WIN32_WINNT _WIN32_WINNT_VISTA
 
     #include <winsock2.h>
     #include <iphlpapi.h>
@@ -106,11 +106,11 @@ bool IpAddress::set(const char* address)
     }
 
     //IP as string xxx.xxx.xxx.xxx
-    uint32_t ip = inet_addr(address);
+    in_addr outIp;
 
-    if (ip != INADDR_NONE)
+    if (inet_pton(AF_INET, address, &outIp) == 1)
     {
-        this->g_address = ip;
+        this->g_address = outIp.S_un.S_addr;
         this->g_valid = true;
         return true;
     }
@@ -124,7 +124,7 @@ bool IpAddress::set(const char* address)
     {
         if (result != nullptr)
         {
-            ip = reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr.s_addr;
+            uint32_t ip = reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr.s_addr;
             freeaddrinfo(result);
 
             this->g_address = ip;
@@ -164,10 +164,16 @@ bool IpAddress::operator==(const fge::net::IpAddress& r) const
 
 std::string IpAddress::toString() const
 {
-    in_addr address{};
-    address.s_addr = this->g_address;
+    std::string result(16, '\0');
 
-    return {inet_ntoa(address)};
+    in_addr address{};
+    address.S_un.S_addr = this->g_address;
+
+    if (inet_ntop(AF_INET, &address, result.data(), result.size()) != nullptr)
+    {
+        return result;
+    }
+    return {};
 }
 
 uint32_t IpAddress::getNetworkByteOrder() const
