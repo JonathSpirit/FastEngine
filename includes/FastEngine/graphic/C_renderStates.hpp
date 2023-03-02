@@ -17,13 +17,6 @@
 #ifndef _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
 #define _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
 
-/*
- * Original from : https://github.com/SFML/SFML
- * Copyright (C) 2007-2022 Laurent Gomila
- *
- * Altered/Modified by Guillaume Guillet
- */
-
 #include "FastEngine/textureType.hpp"
 #include "FastEngine/vulkan/C_blendMode.hpp"
 #include "glm/glm.hpp"
