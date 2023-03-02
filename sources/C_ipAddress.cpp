@@ -110,7 +110,7 @@ bool IpAddress::set(const char* address)
 
     if (inet_pton(AF_INET, address, &outIp) == 1)
     {
-        this->g_address = outIp.S_un.S_addr;
+        this->g_address = outIp.s_addr;
         this->g_valid = true;
         return true;
     }
@@ -167,7 +167,7 @@ std::string IpAddress::toString() const
     std::string result(16, '\0');
 
     in_addr address{};
-    address.S_un.S_addr = this->g_address;
+    address.s_addr = this->g_address;
 
     if (inet_ntop(AF_INET, &address, result.data(), result.size()) != nullptr)
     {
