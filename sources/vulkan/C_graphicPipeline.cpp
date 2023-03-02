@@ -56,6 +56,9 @@ GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
 
+        g_pushConstantRanges(r.g_pushConstantRanges),
+        g_descriptorSetLayouts(r.g_descriptorSetLayouts),
+
         g_context(r.g_context)
 {}
 GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
@@ -74,6 +77,9 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
 
         g_pipelineLayout(r.g_pipelineLayout),
         g_graphicsPipeline(r.g_graphicsPipeline),
+
+        g_pushConstantRanges(std::move(r.g_pushConstantRanges)),
+        g_descriptorSetLayouts(std::move(r.g_descriptorSetLayouts)),
 
         g_context(r.g_context)
 {
@@ -100,11 +106,7 @@ GraphicPipeline::~GraphicPipeline()
     this->destroy();
 }
 
-bool GraphicPipeline::updateIfNeeded(const Context& context,
-                                     const VkDescriptorSetLayout* descriptorSetLayouts,
-                                     std::size_t descriptorSetLayoutSize,
-                                     VkRenderPass renderPass,
-                                     bool force) const
+bool GraphicPipeline::updateIfNeeded(const Context& context, VkRenderPass renderPass, bool force) const
 {
     if (this->g_needUpdate || force)
     {
@@ -112,24 +114,24 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
 
         this->g_needUpdate = false;
 
-        std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-        shaderStages.reserve(4);
+        VkPipelineShaderStageCreateInfo shaderStages[4];
+        std::size_t shaderStagesCount = 0;
 
         if (this->g_shaderCompute != nullptr)
         {
-            shaderStages.push_back(this->g_shaderCompute->getPipelineShaderStageCreateInfo());
+            shaderStages[shaderStagesCount++] = this->g_shaderCompute->getPipelineShaderStageCreateInfo();
         }
         if (this->g_shaderFragment != nullptr)
         {
-            shaderStages.push_back(this->g_shaderFragment->getPipelineShaderStageCreateInfo());
+            shaderStages[shaderStagesCount++] = this->g_shaderFragment->getPipelineShaderStageCreateInfo();
         }
         if (this->g_shaderGeometry != nullptr)
         {
-            shaderStages.push_back(this->g_shaderGeometry->getPipelineShaderStageCreateInfo());
+            shaderStages[shaderStagesCount++] = this->g_shaderGeometry->getPipelineShaderStageCreateInfo();
         }
         if (this->g_shaderVertex != nullptr)
         {
-            shaderStages.push_back(this->g_shaderVertex->getPipelineShaderStageCreateInfo());
+            shaderStages[shaderStagesCount++] = this->g_shaderVertex->getPipelineShaderStageCreateInfo();
         }
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -206,8 +208,8 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = descriptorSetLayoutSize;
-        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
+        pipelineLayoutInfo.setLayoutCount = this->g_descriptorSetLayouts.size();
+        pipelineLayoutInfo.pSetLayouts = this->g_descriptorSetLayouts.data();
         pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
         pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
 
@@ -225,8 +227,8 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = shaderStages.size();
-        pipelineInfo.pStages = shaderStages.data();
+        pipelineInfo.stageCount = shaderStagesCount;
+        pipelineInfo.pStages = shaderStages;
 
         pipelineInfo.pVertexInputState = &vertexInputInfo;
         pipelineInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
@@ -255,6 +257,16 @@ bool GraphicPipeline::updateIfNeeded(const Context& context,
         return true;
     }
     return false;
+}
+
+void GraphicPipeline::setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts)
+{
+    this->g_descriptorSetLayouts = descriptorSetLayouts;
+    this->g_needUpdate = true;
+}
+const std::vector<VkDescriptorSetLayout>& GraphicPipeline::getDescriptorSetLayouts() const
+{
+    return this->g_descriptorSetLayouts;
 }
 
 void GraphicPipeline::clearShader(Shader::Type type)
@@ -359,11 +371,12 @@ const VkRect2D& GraphicPipeline::getScissor() const
     return this->g_scissor;
 }
 
-const std::vector<VkPushConstantRange>& GraphicPipeline::getPushConstantRanges() const
+void GraphicPipeline::setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges)
 {
-    return this->g_pushConstantRanges;
+    this->g_pushConstantRanges = pushConstantRanges;
+    this->g_needUpdate = true;
 }
-std::vector<VkPushConstantRange>& GraphicPipeline::getPushConstantRanges()
+const std::vector<VkPushConstantRange>& GraphicPipeline::getPushConstantRanges() const
 {
     return this->g_pushConstantRanges;
 }

@@ -25,6 +25,7 @@
 #include "C_vertexBuffer.hpp"
 #include "C_viewport.hpp"
 #include "vulkanGlobal.hpp"
+#include <initializer_list>
 
 namespace fge::vulkan
 {
@@ -43,11 +44,10 @@ public:
     GraphicPipeline& operator=(const GraphicPipeline& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
-    bool updateIfNeeded(const Context& context,
-                        const VkDescriptorSetLayout* descriptorSetLayouts,
-                        std::size_t descriptorSetLayoutSize,
-                        VkRenderPass renderPass,
-                        bool force = false) const;
+    bool updateIfNeeded(const Context& context, VkRenderPass renderPass, bool force = false) const;
+
+    void setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts);
+    [[nodiscard]] const std::vector<VkDescriptorSetLayout>& getDescriptorSetLayouts() const;
 
     void clearShader(Shader::Type type = Shader::Type::SHADER_NONE);
     void setShader(const Shader& shader);
@@ -64,8 +64,8 @@ public:
     void setScissor(const VkRect2D& scissor) const;
     [[nodiscard]] const VkRect2D& getScissor() const;
 
+    void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
     [[nodiscard]] const std::vector<VkPushConstantRange>& getPushConstantRanges() const;
-    [[nodiscard]] std::vector<VkPushConstantRange>& getPushConstantRanges();
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer,
                              const Viewport& viewport,
@@ -118,6 +118,7 @@ private:
     mutable VkPipeline g_graphicsPipeline;
 
     std::vector<VkPushConstantRange> g_pushConstantRanges;
+    std::vector<VkDescriptorSetLayout> g_descriptorSetLayouts;
 
     mutable const Context* g_context;
 };
