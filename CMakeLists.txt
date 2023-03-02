@@ -241,8 +241,8 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR
 
 #Compile options
 if (MSVC)
-    target_compile_options(${FGE_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275)
-    target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275)
+    target_compile_options(${FGE_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275 /wd26812)
+    target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275 /wd26812)
 else()
     target_compile_options(${FGE_LIB_NAME} PUBLIC -Wpedantic -Wall -Wextra)
     target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC -Wpedantic -Wall -Wextra)
