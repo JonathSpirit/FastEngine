@@ -35,9 +35,13 @@
 #include "FastEngine/vulkan/C_vertex.hpp"
 #include "SDL_video.h"
 #include "glm/glm.hpp"
+#include <map>
 #include <unordered_map>
 
 #define BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
+#define FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME ""
+#define FGE_RENDERTARGET_DEFAULT_ID_BATCHES 0x01
+#define FGE_RENDERTARGET_DEFAULT_ID_TEXTURE 0x02
 
 namespace fge
 {
@@ -53,6 +57,36 @@ protected:
     void initialize();
 
 public:
+    struct GraphicPipelineKey
+    {
+        [[nodiscard]] inline std::size_t operator()(const GraphicPipelineKey& k) const
+        {
+            const uint64_t val = (static_cast<uint64_t>(k._id) << 32) |
+                                 (static_cast<uint64_t>(k._blendMode._srcColorBlendFactor) << 25) |
+                                 (static_cast<uint64_t>(k._blendMode._dstColorBlendFactor) << 20) |
+                                 (static_cast<uint64_t>(k._blendMode._colorBlendOp) << 15) |
+                                 (static_cast<uint64_t>(k._blendMode._srcAlphaBlendFactor) << 10) |
+                                 (static_cast<uint64_t>(k._blendMode._dstAlphaBlendFactor) << 5) |
+                                 (static_cast<uint64_t>(k._blendMode._alphaBlendOp));
+            return std::hash<uint64_t>{}(val);
+        }
+        [[nodiscard]] inline bool operator==(const GraphicPipelineKey& k) const
+        {
+            return this->_blendMode == k._blendMode && this->_id == k._id;
+        }
+
+        fge::vulkan::BlendMode _blendMode;
+        uint8_t _id{0};
+    };
+
+    using GraphicPipelineCache =
+            std::map<std::string,
+                     std::unordered_map<GraphicPipelineKey, fge::vulkan::GraphicPipeline, GraphicPipelineKey>,
+                     std::less<>>;
+    using GraphicPipelineConstructor = void (*)(const fge::vulkan::Context*,
+                                                const GraphicPipelineKey&,
+                                                fge::vulkan::GraphicPipeline*);
+
     RenderTarget(const RenderTarget& r);
     RenderTarget(RenderTarget&& r) noexcept;
     virtual ~RenderTarget() = default;
@@ -103,44 +137,23 @@ public:
     [[nodiscard]] virtual VkCommandBuffer getCommandBuffer() const = 0;
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
 
+    [[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
+                                                                   const GraphicPipelineKey& key,
+                                                                   GraphicPipelineConstructor constructor) const;
+    void clearGraphicPipelineCache();
+
 private:
     View g_defaultView;
     View g_view;
 
 protected:
-    struct GraphicPipelineKey
-    {
-        std::size_t operator()(const GraphicPipelineKey& k) const
-        {
-            return std::hash<uint32_t>()((static_cast<uint32_t>(k._isBatches) << 31) |
-                                         (static_cast<uint32_t>(k._haveTexture) << 30) |
-                                         (static_cast<uint32_t>(k._blendMode._srcColorBlendFactor) << 25) |
-                                         (static_cast<uint32_t>(k._blendMode._dstColorBlendFactor) << 20) |
-                                         (static_cast<uint32_t>(k._blendMode._colorBlendOp) << 15) |
-                                         (static_cast<uint32_t>(k._blendMode._srcAlphaBlendFactor) << 10) |
-                                         (static_cast<uint32_t>(k._blendMode._dstAlphaBlendFactor) << 5) |
-                                         (static_cast<uint32_t>(k._blendMode._alphaBlendOp)));
-        }
-        constexpr bool operator==(const GraphicPipelineKey& k) const
-        {
-            return this->_blendMode == k._blendMode && this->_haveTexture == k._haveTexture &&
-                   this->_isBatches == k._isBatches;
-        }
-
-        fge::vulkan::BlendMode _blendMode;
-        bool _haveTexture;
-        bool _isBatches;
-    };
-
-    [[nodiscard]] fge::vulkan::GraphicPipeline* getDefaultGraphicPipeline(const GraphicPipelineKey& key);
-
     VkClearColorValue _g_clearColor;
 
     const fge::vulkan::Context* _g_context;
 
     bool _g_forceGraphicPipelineUpdate;
 
-    std::unordered_map<GraphicPipelineKey, fge::vulkan::GraphicPipeline, GraphicPipelineKey> _g_defaultGraphicPipeline;
+    mutable GraphicPipelineCache _g_graphicPipelineCache;
 
     static const fge::vulkan::TextureImage* gLastTexture;
 };

@@ -105,7 +105,7 @@ void RenderTexture::destroy()
 {
     if (this->g_isCreated)
     {
-        this->_g_defaultGraphicPipeline.clear();
+        this->clearGraphicPipelineCache();
 
         VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
 

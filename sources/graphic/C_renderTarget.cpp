@@ -25,6 +25,54 @@
 namespace fge
 {
 
+namespace
+{
+
+void DefaultGraphicPipelineWithTexture_constructor(const fge::vulkan::Context* context,
+                                                   const fge::RenderTarget::GraphicPipelineKey& key,
+                                                   fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setDescriptorSetLayouts(
+            {context->getTransformLayout().getLayout(), context->getTextureLayout().getLayout()});
+}
+void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Context* context,
+                                                          const fge::RenderTarget::GraphicPipelineKey& key,
+                                                          fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setDescriptorSetLayouts(
+            {context->getTransformBatchesLayout().getLayout(), context->getTextureLayout().getLayout()});
+}
+void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
+                                        const fge::RenderTarget::GraphicPipelineKey& key,
+                                        fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
+}
+void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* context,
+                                               const fge::RenderTarget::GraphicPipelineKey& key,
+                                               fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setDescriptorSetLayouts({context->getTransformBatchesLayout().getLayout()});
+}
+
+} // end namespace
+
 const fge::vulkan::TextureImage* RenderTarget::gLastTexture = nullptr;
 
 RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
@@ -53,7 +101,7 @@ RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
         _g_clearColor(r._g_clearColor),
         _g_context(r._g_context),
         _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate),
-        _g_defaultGraphicPipeline(std::move(r._g_defaultGraphicPipeline))
+        _g_graphicPipelineCache(std::move(r._g_graphicPipelineCache))
 {}
 
 RenderTarget& RenderTarget::operator=(const RenderTarget& r)
@@ -72,7 +120,7 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
     this->_g_clearColor = r._g_clearColor;
     this->_g_context = r._g_context;
     this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
-    this->_g_defaultGraphicPipeline = std::move(r._g_defaultGraphicPipeline);
+    this->_g_graphicPipelineCache = std::move(r._g_graphicPipelineCache);
     return *this;
 }
 
@@ -148,11 +196,16 @@ void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
 }
 void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline)
 {
-    const GraphicPipelineKey graphicPipelineKey{states._blendMode, states._textureImage != nullptr, false};
+    const bool haveTexture = states._textureImage != nullptr;
 
     if (graphicPipeline == nullptr)
     {
-        graphicPipeline = this->getDefaultGraphicPipeline(graphicPipelineKey);
+        const GraphicPipelineKey graphicPipelineKey{states._blendMode,
+                                                    uint8_t(haveTexture ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : 0x00)};
+
+        graphicPipeline = this->getGraphicPipeline(FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
+                                                   haveTexture ? DefaultGraphicPipelineWithTexture_constructor
+                                                               : DefaultGraphicPipeline_constructor);
     }
 
     states._transform->getData()._viewTransform = this->getView().getTransform();
@@ -165,16 +218,12 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
 
     graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
-    VkDescriptorSetLayout layout[] = {this->_g_context->getTransformLayout().getLayout(),
-                                      this->_g_context->getTextureLayout().getLayout()};
-
-    graphicPipeline->updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
-                                    this->_g_forceGraphicPipelineUpdate);
+    graphicPipeline->updateIfNeeded(*this->_g_context, this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
 
 #ifndef FGE_DEF_SERVER
-    if (graphicPipelineKey._haveTexture)
+    if (haveTexture)
     {
         if (RenderTarget::gLastTexture != states._textureImage)
         {
@@ -201,12 +250,17 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeli
                                uint32_t instanceCount,
                                const uint32_t* instanceTextureIndices)
 {
-    const GraphicPipelineKey graphicPipelineKey{
-            blendMode, textures != nullptr && texturesCount != 0 && instanceTextureIndices != nullptr, true};
+    const bool haveTexture = textures != nullptr && texturesCount != 0 && instanceTextureIndices != nullptr;
 
     if (graphicPipeline == nullptr)
     {
-        graphicPipeline = this->getDefaultGraphicPipeline(graphicPipelineKey);
+        const GraphicPipelineKey graphicPipelineKey{blendMode,
+                                                    uint8_t((haveTexture ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : 0x00) |
+                                                            FGE_RENDERTARGET_DEFAULT_ID_BATCHES)};
+
+        graphicPipeline = this->getGraphicPipeline(FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
+                                                   haveTexture ? DefaultGraphicPipelineBatchesWithTexture_constructor
+                                                               : DefaultGraphicPipelineBatches_constructor);
     }
 
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
@@ -217,11 +271,7 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeli
 
     graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
-    VkDescriptorSetLayout layout[] = {this->_g_context->getTransformBatchesLayout().getLayout(),
-                                      this->_g_context->getTextureLayout().getLayout()};
-
-    graphicPipeline->updateIfNeeded(*this->_g_context, layout, 2, this->getRenderPass(),
-                                    this->_g_forceGraphicPipelineUpdate);
+    graphicPipeline->updateIfNeeded(*this->_g_context, this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
 
@@ -234,7 +284,7 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeli
         const uint32_t dynamicOffset = fge::TransformUboData::uboSize * i;
 
 #ifndef FGE_DEF_SERVER
-        if (graphicPipelineKey._haveTexture)
+        if (haveTexture)
         {
             fge::vulkan::TextureImage* textureImage = nullptr;
             if (instanceTextureIndices[i] < texturesCount)
@@ -275,25 +325,38 @@ bool RenderTarget::isSrgb() const
     return false;
 }
 
-fge::vulkan::GraphicPipeline* RenderTarget::getDefaultGraphicPipeline(const GraphicPipelineKey& key)
+fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view name,
+                                                               const GraphicPipelineKey& key,
+                                                               GraphicPipelineConstructor constructor) const
 {
     fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
 
-    auto it = this->_g_defaultGraphicPipeline.find(key);
-    if (it == this->_g_defaultGraphicPipeline.end())
+    auto itName = this->_g_graphicPipelineCache.find(name);
+    if (itName == this->_g_graphicPipelineCache.end())
     {
-        graphicPipeline = &this->_g_defaultGraphicPipeline[key];
-        graphicPipeline->setShader(fge::shader::GetShader(key._haveTexture ? FGE_SHADER_DEFAULT_FRAGMENT
-                                                                           : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
-                                           ->_shader);
-        graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-        graphicPipeline->setBlendMode(key._blendMode);
+        itName = this->_g_graphicPipelineCache.insert({std::string(name), {}}).first;
+    }
+
+    auto itPipeline = itName->second.find(key);
+    if (itPipeline != itName->second.end())
+    {
+        graphicPipeline = &itPipeline->second;
     }
     else
     {
-        graphicPipeline = &it->second;
+        graphicPipeline = &itName->second[key];
+
+        if (constructor != nullptr)
+        {
+            constructor(this->_g_context, key, graphicPipeline);
+        }
     }
+
     return graphicPipeline;
+}
+void RenderTarget::clearGraphicPipelineCache()
+{
+    this->_g_graphicPipelineCache.clear();
 }
 
 } // namespace fge
