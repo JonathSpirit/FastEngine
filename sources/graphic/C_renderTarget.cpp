@@ -218,7 +218,7 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
 
     graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
-    graphicPipeline->updateIfNeeded(*this->_g_context, this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
+    graphicPipeline->updateIfNeeded(this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
 
@@ -271,7 +271,7 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeli
 
     graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
-    graphicPipeline->updateIfNeeded(*this->_g_context, this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
+    graphicPipeline->updateIfNeeded(this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
 
     auto commandBuffer = this->getCommandBuffer();
 
@@ -344,7 +344,8 @@ fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view 
     }
     else
     {
-        graphicPipeline = &itName->second[key];
+        graphicPipeline = &itName->second.emplace(std::make_pair(key, fge::vulkan::GraphicPipeline{*this->_g_context}))
+                                   .first->second;
 
         if (constructor != nullptr)
         {
