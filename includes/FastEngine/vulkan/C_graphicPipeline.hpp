@@ -36,7 +36,7 @@ class LogicalDevice;
 class FGE_API GraphicPipeline
 {
 public:
-    GraphicPipeline();
+    explicit GraphicPipeline(const Context& context);
     GraphicPipeline(const GraphicPipeline& r);
     GraphicPipeline(GraphicPipeline&& r) noexcept;
     ~GraphicPipeline();
@@ -44,7 +44,7 @@ public:
     GraphicPipeline& operator=(const GraphicPipeline& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
-    bool updateIfNeeded(const Context& context, VkRenderPass renderPass, bool force = false) const;
+    bool updateIfNeeded(VkRenderPass renderPass, bool force = false) const;
 
     void setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts);
     [[nodiscard]] const std::vector<VkDescriptorSetLayout>& getDescriptorSetLayouts() const;
@@ -99,6 +99,8 @@ public:
     void destroy();
 
 private:
+    void updatePipelineLayout() const;
+    void cleanPipelineLayout() const;
     void cleanPipeline() const;
 
     mutable bool g_needUpdate;

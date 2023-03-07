@@ -21,7 +21,7 @@
 namespace fge::vulkan
 {
 
-GraphicPipeline::GraphicPipeline() :
+GraphicPipeline::GraphicPipeline(const Context& context) :
         g_needUpdate(true),
 
         g_shaderCompute(nullptr),
@@ -37,7 +37,7 @@ GraphicPipeline::GraphicPipeline() :
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
 
-        g_context(nullptr)
+        g_context(&context)
 {}
 GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_needUpdate(true),
@@ -106,7 +106,7 @@ GraphicPipeline::~GraphicPipeline()
     this->destroy();
 }
 
-bool GraphicPipeline::updateIfNeeded(const Context& context, VkRenderPass renderPass, bool force) const
+bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
 {
     if (this->g_needUpdate || force)
     {
@@ -206,18 +206,7 @@ bool GraphicPipeline::updateIfNeeded(const Context& context, VkRenderPass render
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
 
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = this->g_descriptorSetLayouts.size();
-        pipelineLayoutInfo.pSetLayouts = this->g_descriptorSetLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
-        pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
-
-        if (vkCreatePipelineLayout(context.getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
-                                   &this->g_pipelineLayout) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
+        this->updatePipelineLayout();
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
 
@@ -247,13 +236,12 @@ bool GraphicPipeline::updateIfNeeded(const Context& context, VkRenderPass render
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1;              // Optional
 
-        if (vkCreateGraphicsPipelines(context.getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
-                                      &this->g_graphicsPipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(this->g_context->getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo,
+                                      nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
-        this->g_context = &context;
         return true;
     }
     return false;
@@ -261,6 +249,7 @@ bool GraphicPipeline::updateIfNeeded(const Context& context, VkRenderPass render
 
 void GraphicPipeline::setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts)
 {
+    this->cleanPipelineLayout();
     this->g_descriptorSetLayouts = descriptorSetLayouts;
     this->g_needUpdate = true;
 }
@@ -373,6 +362,7 @@ const VkRect2D& GraphicPipeline::getScissor() const
 
 void GraphicPipeline::setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges)
 {
+    this->cleanPipelineLayout();
     this->g_pushConstantRanges = pushConstantRanges;
     this->g_needUpdate = true;
 }
@@ -442,6 +432,7 @@ void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
                                          uint32_t descriptorCount,
                                          uint32_t firstSet) const
 {
+    this->updatePipelineLayout();
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
                             descriptorCount, descriptorSet, 0, nullptr);
 }
@@ -452,6 +443,7 @@ void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
                                                 const uint32_t* pDynamicOffsets,
                                                 uint32_t firstSet) const
 {
+    this->updatePipelineLayout();
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
                             descriptorCount, descriptorSet, dynamicOffsetCount, pDynamicOffsets);
 }
@@ -462,6 +454,7 @@ void GraphicPipeline::pushConstants(VkCommandBuffer commandBuffer,
                                     uint32_t size,
                                     const void* pValues) const
 {
+    this->updatePipelineLayout();
     vkCmdPushConstants(commandBuffer, this->g_pipelineLayout, stageFlags, offset, size, pValues);
 }
 
@@ -478,40 +471,60 @@ const Context* GraphicPipeline::getContext()
     return this->g_context;
 }
 
+void GraphicPipeline::updatePipelineLayout() const
+{
+    if (this->g_pipelineLayout == VK_NULL_HANDLE)
+    {
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = this->g_descriptorSetLayouts.size();
+        pipelineLayoutInfo.pSetLayouts = this->g_descriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
+        pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
+
+        if (vkCreatePipelineLayout(this->g_context->getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
+                                   &this->g_pipelineLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create pipeline layout!");
+        }
+    }
+}
+
+void GraphicPipeline::cleanPipelineLayout() const
+{
+    if (this->g_pipelineLayout != VK_NULL_HANDLE)
+    {
+        this->g_context->_garbageCollector.push(
+                GarbagePipelineLayout(this->g_pipelineLayout, this->g_context->getLogicalDevice().getDevice()));
+
+        this->g_pipelineLayout = VK_NULL_HANDLE;
+    }
+}
 void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(GarbageGraphicPipeline(
-                this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
+        this->g_context->_garbageCollector.push(
+                GarbageGraphicPipeline(this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
 
-        this->g_pipelineLayout = VK_NULL_HANDLE;
         this->g_graphicsPipeline = VK_NULL_HANDLE;
     }
 }
 
 void GraphicPipeline::destroy()
 {
-    if (this->g_graphicsPipeline != VK_NULL_HANDLE)
-    {
-        this->g_context->_garbageCollector.push(GarbageGraphicPipeline(
-                this->g_pipelineLayout, this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
+    this->cleanPipeline();
+    this->cleanPipelineLayout();
 
-        this->g_needUpdate = true;
+    this->g_needUpdate = true;
 
-        this->g_shaderCompute = nullptr;
-        this->g_shaderVertex = nullptr;
-        this->g_shaderFragment = nullptr;
-        this->g_shaderGeometry = nullptr;
+    this->g_shaderCompute = nullptr;
+    this->g_shaderVertex = nullptr;
+    this->g_shaderFragment = nullptr;
+    this->g_shaderGeometry = nullptr;
 
-        this->g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        this->g_defaultVertexCount = 3;
-
-        this->g_pipelineLayout = VK_NULL_HANDLE;
-        this->g_graphicsPipeline = VK_NULL_HANDLE;
-
-        this->g_context = nullptr;
-    }
+    this->g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    this->g_defaultVertexCount = 3;
 }
 
 } // namespace fge::vulkan
