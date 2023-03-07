@@ -35,6 +35,7 @@ enum class GarbageType
     GARBAGE_DESCRIPTOR_SET,
     GARBAGE_VERTEX_BUFFER,
     GARBAGE_GRAPHIC_PIPELINE,
+    GARBAGE_PIPELINE_LAYOUT,
     GARBAGE_COMMAND_POOL,
     GARBAGE_FRAMEBUFFER,
     GARBAGE_RENDERPASS,
@@ -78,16 +79,26 @@ struct GarbageBuffer
 };
 struct GarbageGraphicPipeline
 {
-    constexpr GarbageGraphicPipeline(VkPipelineLayout pipelineLayout, VkPipeline pipeline, VkDevice logicalDevice) :
+    constexpr GarbageGraphicPipeline(VkPipeline pipeline, VkDevice logicalDevice) :
             _type(GarbageType::GARBAGE_GRAPHIC_PIPELINE),
-            _pipelineLayout(pipelineLayout),
             _pipeline(pipeline),
             _logicalDevice(logicalDevice)
     {}
 
     GarbageType _type;
-    VkPipelineLayout _pipelineLayout;
     VkPipeline _pipeline;
+    VkDevice _logicalDevice;
+};
+struct GarbagePipelineLayout
+{
+    constexpr GarbagePipelineLayout(VkPipelineLayout pipelineLayout, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_PIPELINE_LAYOUT),
+            _pipelineLayout(pipelineLayout),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkPipelineLayout _pipelineLayout;
     VkDevice _logicalDevice;
 };
 struct GarbageCommandPool
@@ -182,6 +193,9 @@ public:
     constexpr Garbage(const GarbageGraphicPipeline& garbage) :
             g_data(garbage)
     {}
+    constexpr Garbage(const GarbagePipelineLayout& garbage) :
+            g_data(garbage)
+    {}
     constexpr Garbage(const GarbageCommandPool& garbage) :
             g_data(garbage)
     {}
@@ -223,6 +237,9 @@ private:
         explicit constexpr Data(const GarbageGraphicPipeline& data) :
                 _graphicPipeline{data}
         {}
+        explicit constexpr Data(const GarbagePipelineLayout& data) :
+                _pipelineLayout{data}
+        {}
         explicit constexpr Data(const GarbageCommandPool& data) :
                 _commandPool{data}
         {}
@@ -243,6 +260,7 @@ private:
         GarbageDescriptorSet _descriptorSet;
         GarbageBuffer _buffer;
         GarbageGraphicPipeline _graphicPipeline;
+        GarbagePipelineLayout _pipelineLayout;
         GarbageCommandPool _commandPool;
         GarbageFramebuffer _framebuffer;
         GarbageRenderPass _renderPass;

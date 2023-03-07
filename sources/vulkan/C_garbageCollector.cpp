@@ -37,8 +37,10 @@ Garbage::~Garbage()
     case GarbageType::GARBAGE_GRAPHIC_PIPELINE:
         vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline,
                           nullptr);
-        vkDestroyPipelineLayout(this->g_data._graphicPipeline._logicalDevice,
-                                this->g_data._graphicPipeline._pipelineLayout, nullptr);
+        break;
+    case GarbageType::GARBAGE_PIPELINE_LAYOUT:
+        vkDestroyPipelineLayout(this->g_data._pipelineLayout._logicalDevice,
+                                this->g_data._pipelineLayout._pipelineLayout, nullptr);
         break;
     case GarbageType::GARBAGE_COMMAND_POOL:
         vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool, nullptr);
