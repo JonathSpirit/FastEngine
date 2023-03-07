@@ -82,6 +82,7 @@ public:
         return {static_cast<float>(this->_r) / 255.0f, static_cast<float>(this->_g) / 255.0f,
                 static_cast<float>(this->_b) / 255.0f, static_cast<float>(this->_a) / 255.0f};
     }
+    operator glm::uvec4() const { return {this->_r, this->_g, this->_b, this->_a}; }
     operator uint32_t() const { return this->toInteger(); }
 
     [[nodiscard]] uint32_t toInteger() const
