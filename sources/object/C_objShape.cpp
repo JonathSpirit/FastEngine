@@ -20,6 +20,25 @@
 namespace fge
 {
 
+namespace
+{
+
+void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
+                                      const fge::RenderTarget::GraphicPipelineKey& key,
+                                      fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setPushConstantRanges(
+            {VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ObjShape::InstancePushData)}});
+
+    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
+}
+
+} //end namespace
+
 void ObjShape::setTexture(const Texture& texture, bool resetRect)
 {
     if (texture.valid())
@@ -51,26 +70,59 @@ const RectInt& ObjShape::getTextureRect() const
     return this->g_textureRect;
 }
 
-void ObjShape::setFillColor(const Color& color)
+void ObjShape::setFillColor(Color color, std::size_t instance)
 {
-    this->g_fillColor = color;
-    this->updateFillColors();
+    if (instance < this->g_instances.size())
+    {
+        this->g_instances[instance]._fillColor = color;
+    }
+}
+void ObjShape::setOutlineColor(Color color, std::size_t instance)
+{
+    if (instance < this->g_instances.size())
+    {
+        this->g_instances[instance]._outlineColor = color;
+    }
+}
+void ObjShape::setOffset(const fge::Vector2f& offset, std::size_t instance)
+{
+    if (instance < this->g_instances.size())
+    {
+        this->g_instances[instance]._offset = offset;
+    }
+}
+void ObjShape::setInstancesCount(std::size_t count)
+{
+    if (count == 0)
+    {
+        count = 1;
+    }
+    this->g_instances.resize(count);
+}
+void ObjShape::addInstance(Color fillColor, Color outlineColor, const fge::Vector2f& offset)
+{
+    this->g_instances.push_back({fillColor, outlineColor, offset});
+}
+std::size_t ObjShape::getInstancesCount() const
+{
+    return this->g_instances.size();
+}
+void ObjShape::clearInstances()
+{
+    this->g_instances.resize(1);
 }
 
-const Color& ObjShape::getFillColor() const
+Color ObjShape::getFillColor(std::size_t instance) const
 {
-    return this->g_fillColor;
+    return this->g_instances[instance]._fillColor;
 }
-
-void ObjShape::setOutlineColor(const Color& color)
+Color ObjShape::getOutlineColor(std::size_t instance) const
 {
-    this->g_outlineColor = color;
-    this->updateOutlineColors();
+    return this->g_instances[instance]._outlineColor;
 }
-
-const Color& ObjShape::getOutlineColor() const
+const fge::Vector2f& ObjShape::getOffset(std::size_t instance) const
 {
-    return this->g_outlineColor;
+    return this->g_instances[instance]._offset;
 }
 
 void ObjShape::setOutlineThickness(float thickness)
@@ -97,8 +149,6 @@ RectFloat ObjShape::getGlobalBounds() const
 ObjShape::ObjShape() :
         g_texture(),
         g_textureRect(),
-        g_fillColor(255, 255, 255),
-        g_outlineColor(255, 255, 255),
         g_outlineThickness(0),
         g_vertices(),
         g_outlineVertices(),
@@ -107,6 +157,8 @@ ObjShape::ObjShape() :
 {
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+
+    this->g_instances.push_back({fge::Color::White, fge::Color::White, {0.0f, 0.0f}});
 }
 void ObjShape::updateShape()
 {
@@ -137,9 +189,6 @@ void ObjShape::updateShape()
     this->g_vertices.getVertices()[0]._position.x = this->g_insideBounds._x + this->g_insideBounds._width / 2;
     this->g_vertices.getVertices()[0]._position.y = this->g_insideBounds._y + this->g_insideBounds._height / 2;
 
-    // Color
-    this->updateFillColors();
-
     // Texture coordinates
     this->updateTexCoords();
 
@@ -150,34 +199,46 @@ void ObjShape::updateShape()
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjShape)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
-
-    // Render the inside
-    if (this->g_texture.valid())
+    if (this->g_instances.empty())
     {
-        copyStates._textureImage = static_cast<const fge::TextureType*>(this->g_texture);
+        return;
     }
 
-    copyStates._vertexBuffer = &this->g_vertices;
-    target.draw(copyStates);
+    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
 
-    // Render the outline
-    if (this->g_outlineThickness != 0.0f)
+    const fge::TextureType* const texture =
+            this->g_texture.valid() ? static_cast<const fge::TextureType*>(this->g_texture) : nullptr;
+
+    const fge::RenderTarget::GraphicPipelineKey key{copyStates._blendMode, 0};
+    auto* graphicPipeline =
+            target.getGraphicPipeline(typeid(fge::ObjShape).name(), key, &InstanceVertexShader_constructor);
+
+    for (const auto& instance: this->g_instances)
     {
-        copyStates._textureImage = nullptr;
-        copyStates._vertexBuffer = &this->g_outlineVertices;
-        target.draw(copyStates);
+        InstancePushData instancePushData{instance._fillColor, instance._offset};
+
+        // Render the inside
+        copyStates._textureImage = texture;
+        copyStates._vertexBuffer = &this->g_vertices;
+
+        graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0,
+                                       sizeof(InstancePushData), &instancePushData);
+        target.draw(copyStates, graphicPipeline);
+
+        // Render the outline
+        if (this->g_outlineThickness != 0.0f)
+        {
+            copyStates._textureImage = nullptr;
+            copyStates._vertexBuffer = &this->g_outlineVertices;
+
+            instancePushData._color = instance._outlineColor;
+            graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0,
+                                           sizeof(InstancePushData), &instancePushData);
+            target.draw(copyStates, graphicPipeline);
+        }
     }
 }
 #endif
-
-void ObjShape::updateFillColors()
-{
-    for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
-    {
-        this->g_vertices[i]._color = this->g_fillColor;
-    }
-}
 
 void ObjShape::updateTexCoords()
 {
@@ -248,19 +309,8 @@ void ObjShape::updateOutline()
     this->g_outlineVertices[count * 2 + 0]._position = this->g_outlineVertices.getVertices()[0]._position;
     this->g_outlineVertices[count * 2 + 1]._position = this->g_outlineVertices.getVertices()[1]._position;
 
-    // Update outline colors
-    this->updateOutlineColors();
-
     // Update the shape's bounds
     this->g_bounds = this->g_outlineVertices.getBounds();
-}
-
-void ObjShape::updateOutlineColors()
-{
-    for (std::size_t i = 0; i < this->g_outlineVertices.getCount(); ++i)
-    {
-        this->g_outlineVertices[i]._color = this->g_outlineColor;
-    }
 }
 
 } // namespace fge

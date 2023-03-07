@@ -27,6 +27,9 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_texture.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
+
+#define FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX "FGE:OBJSHAPE:VERTEX"
 
 namespace fge
 {
@@ -34,13 +37,30 @@ namespace fge
 class FGE_API ObjShape : public fge::Object
 {
 public:
+    struct Instance
+    {
+        fge::Color _fillColor{fge::Color::White};
+        fge::Color _outlineColor{fge::Color::White};
+        fge::Vector2f _offset{0.0f, 0.0f};
+    };
+    struct InstancePushData
+    {
+        alignas(16) glm::uvec4 _color;
+        alignas(16) glm::vec2 _offset;
+    };
+
     ~ObjShape() override = default;
 
     void setTexture(const Texture& texture, bool resetRect = false);
     void setTextureRect(const fge::RectInt& rect);
 
-    void setFillColor(const Color& color);
-    void setOutlineColor(const Color& color);
+    void setFillColor(Color color, std::size_t instance = 0);
+    void setOutlineColor(Color color, std::size_t instance = 0);
+    void setOffset(const fge::Vector2f& offset, std::size_t instance = 0);
+    void setInstancesCount(std::size_t count);
+    void addInstance(Color fillColor, Color outlineColor, const fge::Vector2f& offset);
+    [[nodiscard]] std::size_t getInstancesCount() const;
+    void clearInstances();
 
     void setOutlineThickness(float thickness);
 
@@ -48,8 +68,9 @@ public:
 
     [[nodiscard]] const RectInt& getTextureRect() const;
 
-    [[nodiscard]] const Color& getFillColor() const;
-    [[nodiscard]] const Color& getOutlineColor() const;
+    [[nodiscard]] Color getFillColor(std::size_t instance = 0) const;
+    [[nodiscard]] Color getOutlineColor(std::size_t instance = 0) const;
+    [[nodiscard]] const fge::Vector2f& getOffset(std::size_t instance = 0) const;
 
     [[nodiscard]] float getOutlineThickness() const;
 
@@ -66,21 +87,17 @@ protected:
     void updateShape();
 
 private:
-    void updateFillColors();
     void updateTexCoords();
     void updateOutline();
-    void updateOutlineColors();
 
     fge::Texture g_texture;
     fge::RectInt g_textureRect;
-
-    fge::Color g_fillColor;
-    fge::Color g_outlineColor;
 
     float g_outlineThickness;
 
     fge::vulkan::VertexBuffer g_vertices;
     fge::vulkan::VertexBuffer g_outlineVertices;
+    std::vector<Instance> g_instances;
 
     fge::RectFloat g_insideBounds;
     fge::RectFloat g_bounds;
