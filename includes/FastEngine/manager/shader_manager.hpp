@@ -67,12 +67,15 @@ enum class ShaderInputTypes
  * A bad shader is created with this function, it is used when a shader is not found.
  * You also have to provide a default vertex and fragments shaders.
  *
- * \param vertexPath The default vertex shader
- * \param NoTextureFragmentPath The default fragment shader with no texture attached
- * \param fragmentPath The default fragment shader
+ * 3 default shaders are created :
+ * FGE_SHADER_DEFAULT_VERTEX : The default vertex shader (in shaderResources.hpp gDefaultVertexShader)
+ * FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT : The default fragment shader with no texture attached (in shaderResources.hpp gDefaultFragmentShader)
+ * FGE_SHADER_DEFAULT_FRAGMENT : The default fragment shader (in shaderResources.hpp gDefaultFragmentTextureShader)
+ *
+ * \param dontLoadDefaultShaders if \b true, default shaders is not loaded (should not really be used)
+ * \return \b true if the shader manager is correctly initialized, \b false otherwise
  */
-FGE_API bool
-Init(std::filesystem::path vertexPath, std::filesystem::path NoTextureFragmentPath, std::filesystem::path fragmentPath);
+FGE_API bool Init(bool dontLoadDefaultShaders = false);
 /**
  * \brief Check if the shader manager is initialized
  *

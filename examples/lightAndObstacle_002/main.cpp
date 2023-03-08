@@ -318,8 +318,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
-                      "resources/shaders/fragmentTexture.spv");
+    fge::shader::Init();
 
     fge::RenderWindow renderWindow(vulkanContext);
     renderWindow.setClearColor(fge::Color::White);

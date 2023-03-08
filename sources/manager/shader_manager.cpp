@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/manager/shader_manager.hpp"
+#include "FastEngine/graphic/shaderResources.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "private/string_hash.hpp"
@@ -232,9 +233,7 @@ bool SaveSpirVToBinaryFile(const std::vector<uint32_t>& spirv, const std::filesy
     return true;
 }
 
-bool Init(std::filesystem::path vertexPath,
-          std::filesystem::path NoTextureFragmentPath,
-          std::filesystem::path fragmentPath)
+bool Init(bool dontLoadDefaultShaders)
 {
     if (_dataShaderBad == nullptr)
     {
@@ -248,23 +247,29 @@ bool Init(std::filesystem::path vertexPath,
         _dataShaderBad = std::make_shared<fge::shader::ShaderData>();
         _dataShaderBad->_valid = false;
 
-        if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_VERTEX, std::move(vertexPath),
-                                       fge::vulkan::Shader::Type::SHADER_VERTEX, ShaderInputTypes::SHADER_GLSL))
+        if (!dontLoadDefaultShaders)
         {
-            _dataShaderBad.reset();
-            return false;
-        }
-        if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, std::move(NoTextureFragmentPath),
-                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
-        {
-            _dataShaderBad.reset();
-            return false;
-        }
-        if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_FRAGMENT, std::move(fragmentPath),
-                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
-        {
-            _dataShaderBad.reset();
-            return false;
+            if (!fge::shader::LoadFromMemory(FGE_SHADER_DEFAULT_VERTEX, fge::res::gDefaultVertexShader,
+                                             static_cast<int>(fge::res::gDefaultVertexShaderSize),
+                                             fge::vulkan::Shader::Type::SHADER_VERTEX, ShaderInputTypes::SHADER_GLSL))
+            {
+                Uninit();
+                return false;
+            }
+            if (!fge::shader::LoadFromMemory(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, fge::res::gDefaultFragmentShader,
+                                             static_cast<int>(fge::res::gDefaultFragmentShaderSize),
+                                             fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
+            {
+                Uninit();
+                return false;
+            }
+            if (!fge::shader::LoadFromMemory(FGE_SHADER_DEFAULT_FRAGMENT, fge::res::gDefaultFragmentTextureShader,
+                                             static_cast<int>(fge::res::gDefaultFragmentTextureShaderSize),
+                                             fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
+            {
+                Uninit();
+                return false;
+            }
         }
 
         return true;
@@ -285,7 +290,7 @@ void Uninit()
 
 std::size_t GetShaderSize()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
     return _dataShader.size();
 }
 
@@ -321,7 +326,7 @@ fge::shader::ShaderDataPtr GetShader(std::string_view name)
         return _dataShaderBad;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -338,7 +343,7 @@ bool Check(std::string_view name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     return it != _dataShader.end();
@@ -539,7 +544,7 @@ bool Unload(std::string_view name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -553,7 +558,7 @@ bool Unload(std::string_view name)
 }
 void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
 
     for (auto& data: _dataShader)
     {
@@ -570,7 +575,7 @@ bool Push(std::string_view name, const fge::shader::ShaderDataPtr& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
     if (fge::shader::Check(name))
     {
         return false;

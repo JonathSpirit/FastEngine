@@ -337,8 +337,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.vert", "resources/shaders/fragment.frag",
-                      "resources/shaders/fragmentTexture.frag");
+    fge::shader::Init();
     fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.spv",
                               fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_SPIRV);
 
