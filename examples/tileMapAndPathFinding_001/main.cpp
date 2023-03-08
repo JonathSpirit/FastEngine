@@ -343,7 +343,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::RenderWindow renderWindow(vulkanContext);
     renderWindow.setClearColor(fge::Color::White);
-    renderWindow.setPresentMode(VK_PRESENT_MODE_IMMEDIATE_KHR);
 
     std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
     scene->start(renderWindow);
