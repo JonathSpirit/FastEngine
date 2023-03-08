@@ -142,13 +142,22 @@ ExternalProject_Add(glslang #glslang
         )
 ExternalProject_Get_Property(glslang BINARY_DIR)
 
+if(WIN32)
+    set(GLSLANG_EXTENSION ".dll.a")
+
+    set(GLSLANG_DLL ${BINARY_DIR}/glslang/glslang.dll)
+    set(GLSLANG_RES_DLL ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits.dll)
+    set(GLSLANG_SPIRV_DLL ${BINARY_DIR}/SPIRV/SPIRV.dll)
+elseif(APPLE)
+    set(GLSLANG_EXTENSION ".so")
+else()
+    set(GLSLANG_EXTENSION ".dylib")
+endif()
+
 set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang/glslang/Public)
-set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang.dll.a)
-set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits.dll.a)
-set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV.dll.a)
-set(GLSLANG_DLL ${BINARY_DIR}/glslang/glslang.dll)
-set(GLSLANG_RES_DLL ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits.dll)
-set(GLSLANG_SPIRV_DLL ${BINARY_DIR}/SPIRV/SPIRV.dll)
+set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
+set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits${GLSLANG_EXTENSION})
+set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
 
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
