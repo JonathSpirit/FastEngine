@@ -21,9 +21,9 @@
 #include "private/string_hash.hpp"
 
 #define GLSLANG_IS_SHARED_LIBRARY
-#include "../../libs/glslang/SPIRV/GlslangToSpv.h"
-#include "ResourceLimits.h"
-#include "ShaderLang.h"
+#include "SPIRV/GlslangToSpv.h"
+#include "glslang/Public/ResourceLimits.h"
+#include "glslang/Public/ShaderLang.h"
 
 #ifdef FGE_DEF_DEBUG
     #include <iostream>
