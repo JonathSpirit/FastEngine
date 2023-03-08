@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
 #include <filesystem>
+#include <vector>
 
 namespace fge::vulkan
 {
@@ -46,6 +47,8 @@ public:
     Shader& operator=(const Shader& r) = delete;
     Shader& operator=(Shader&& r) noexcept;
 
+    bool
+    loadFromSpirVBuffer(const LogicalDevice& logicalDevice, const std::vector<uint32_t>& buffer, Shader::Type type);
     bool loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type);
 
     void destroy();
