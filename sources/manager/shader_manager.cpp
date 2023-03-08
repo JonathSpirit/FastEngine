@@ -19,6 +19,16 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "private/string_hash.hpp"
 
+#define GLSLANG_IS_SHARED_LIBRARY
+#include "../../libs/glslang/SPIRV/GlslangToSpv.h"
+#include "ResourceLimits.h"
+#include "ShaderLang.h"
+
+#ifdef FGE_DEF_DEBUG
+    #include <iostream>
+#endif
+#include <fstream>
+
 namespace fge::shader
 {
 
@@ -29,7 +39,198 @@ fge::shader::ShaderDataPtr _dataShaderBad;
 std::unordered_map<std::string, fge::shader::ShaderDataPtr, fge::priv::string_hash, std::equal_to<>> _dataShader;
 std::mutex _dataMutex;
 
+#ifdef FGE_DEF_DEBUG
+bool IsInfoLogEmpty(const char* infoLog)
+{
+    if (infoLog == nullptr)
+    {
+        return true;
+    }
+    return *infoLog == '\0';
+}
+#endif
+
+bool CompileAndLinkShader(EShLanguage stage,
+                          const char* shaderIn,
+                          int shaderInSize,
+                          std::vector<uint32_t>& shaderOut,
+                          const char* shaderName,
+                          const char* entryPointName,
+                          bool debugBuild,
+                          bool isHlsl)
+{
+    if (shaderIn == nullptr || shaderInSize <= 0 || shaderName == nullptr || entryPointName == nullptr)
+    {
+        return false;
+    }
+
+    glslang::TShader shader(stage); //Must respect this order
+    glslang::TProgram program;
+
+    shader.setStringsWithLengthsAndNames(&shaderIn, &shaderInSize, &shaderName, 1);
+    shader.setEntryPoint(entryPointName);
+
+    const int defaultVersion = 110;
+
+    if (isHlsl)
+    {
+        shader.setEnvInput(glslang::EShSourceHlsl, stage, glslang::EShClientVulkan, defaultVersion);
+    }
+    else
+    {
+        shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, defaultVersion);
+    }
+    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_1);
+    shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
+
+    if (!shader.parse(GetResources(), defaultVersion, false, EShMsgDefault))
+    {
+#ifdef FGE_DEF_DEBUG
+        std::cout << "Can't parse shader <" << shaderName << "> !" << std::endl;
+        if (!IsInfoLogEmpty(shader.getInfoLog()))
+        {
+            std::cout << "\t[Info log]\n" << shader.getInfoLog() << std::endl;
+        }
+        if (!IsInfoLogEmpty(shader.getInfoDebugLog()))
+        {
+            std::cout << "\t[Info debug log]\n" << shader.getInfoDebugLog() << std::endl;
+        }
+#endif
+        return false;
+    }
+
+    program.addShader(&shader);
+
+#ifdef FGE_DEF_DEBUG
+    if (!IsInfoLogEmpty(shader.getInfoLog()))
+    {
+        std::cout << "\t[Info log] for <" << shaderName << ">\n" << shader.getInfoLog() << std::endl;
+    }
+    if (!IsInfoLogEmpty(shader.getInfoDebugLog()))
+    {
+        std::cout << "\t[Info debug log] for <" << shaderName << ">\n" << shader.getInfoDebugLog() << std::endl;
+    }
+#endif
+
+    // Link
+    if (!program.link(EShMsgDefault))
+    {
+#ifdef FGE_DEF_DEBUG
+        std::cout << "Can't link shader <" << shaderName << "> !" << std::endl;
+        if (!IsInfoLogEmpty(program.getInfoLog()))
+        {
+            std::cout << "\t[Program info log]\n" << program.getInfoLog() << std::endl;
+        }
+        if (!IsInfoLogEmpty(program.getInfoDebugLog()))
+        {
+            std::cout << "\t[Program info debug log]\n" << program.getInfoDebugLog() << std::endl;
+        }
+#endif
+        return false;
+    }
+
+#ifdef FGE_DEF_DEBUG
+    if (!IsInfoLogEmpty(program.getInfoLog()))
+    {
+        std::cout << "\t[Program info log] for <" << shaderName << ">\n" << program.getInfoLog() << std::endl;
+    }
+    if (!IsInfoLogEmpty(program.getInfoDebugLog()))
+    {
+        std::cout << "\t[Program info debug log] for <" << shaderName << ">\n"
+                  << program.getInfoDebugLog() << std::endl;
+    }
+#endif
+
+    // Dump SPIR-V
+    auto* intermediate = program.getIntermediate(stage);
+    if (intermediate == nullptr)
+    {
+        return false;
+    }
+
+    spv::SpvBuildLogger logger;
+    glslang::SpvOptions spvOptions;
+
+    spvOptions.validate = true;
+
+    if (debugBuild)
+    {
+        spvOptions.generateDebugInfo = true;
+        spvOptions.disableOptimizer = true;
+        spvOptions.stripDebugInfo = false;
+    }
+    else
+    {
+        spvOptions.generateDebugInfo = false;
+        spvOptions.disableOptimizer = false;
+        spvOptions.stripDebugInfo = true;
+    }
+
+    glslang::GlslangToSpv(*intermediate, shaderOut, &logger, &spvOptions);
+
+#ifdef FGE_DEF_DEBUG
+    auto loggerMessage = logger.getAllMessages();
+    if (!IsInfoLogEmpty(loggerMessage.c_str()))
+    {
+        std::cout << "\t[Logger output] for <" << shaderName << ">\n" << loggerMessage << std::endl;
+    }
+#endif
+
+    return true;
+}
+
 } // namespace
+
+bool CompileAndLinkShader(fge::vulkan::Shader::Type type,
+                          const char* shaderIn,
+                          int shaderInSize,
+                          std::vector<uint32_t>& shaderOut,
+                          const char* shaderName,
+                          const char* entryPointName,
+                          bool debugBuild,
+                          bool isHlsl)
+{ //Public API of CompileAndLinkShader
+    EShLanguage stage{};
+
+    switch (type)
+    {
+    case vulkan::Shader::Type::SHADER_NONE:
+        return false;
+    case vulkan::Shader::Type::SHADER_COMPUTE:
+        stage = EShLanguage::EShLangCompute;
+        break;
+    case vulkan::Shader::Type::SHADER_VERTEX:
+        stage = EShLanguage::EShLangVertex;
+        break;
+    case vulkan::Shader::Type::SHADER_FRAGMENT:
+        stage = EShLanguage::EShLangFragment;
+        break;
+    case vulkan::Shader::Type::SHADER_GEOMETRY:
+        stage = EShLanguage::EShLangGeometry;
+        break;
+    }
+
+    return CompileAndLinkShader(stage, shaderIn, shaderInSize, shaderOut, shaderName, entryPointName, debugBuild,
+                                isHlsl);
+}
+
+bool SaveSpirVToBinaryFile(const std::vector<uint32_t>& spirv, const std::filesystem::path& path)
+{
+    std::ofstream file(path, std::ios::binary | std::ios::out);
+
+    if (!file)
+    {
+        return false;
+    }
+
+    for (std::size_t i = 0; i < spirv.size(); ++i)
+    {
+        uint32_t word = spirv[i];
+        file.write((const char*) &word, 4);
+    }
+    file.close();
+    return true;
+}
 
 bool Init(std::filesystem::path vertexPath,
           std::filesystem::path NoTextureFragmentPath,
@@ -37,22 +238,32 @@ bool Init(std::filesystem::path vertexPath,
 {
     if (_dataShaderBad == nullptr)
     {
+        if (!glslang::InitializeProcess())
+        {
+            return false;
+        }
+
+        *GetResources() = *GetDefaultResources();
+
         _dataShaderBad = std::make_shared<fge::shader::ShaderData>();
         _dataShaderBad->_valid = false;
 
         if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_VERTEX, std::move(vertexPath),
-                                       fge::vulkan::Shader::Type::SHADER_VERTEX))
+                                       fge::vulkan::Shader::Type::SHADER_VERTEX, ShaderInputTypes::SHADER_GLSL))
         {
+            _dataShaderBad.reset();
             return false;
         }
         if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, std::move(NoTextureFragmentPath),
-                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT))
+                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
         {
+            _dataShaderBad.reset();
             return false;
         }
         if (!fge::shader::LoadFromFile(FGE_SHADER_DEFAULT_FRAGMENT, std::move(fragmentPath),
-                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT))
+                                       fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
         {
+            _dataShaderBad.reset();
             return false;
         }
 
@@ -68,6 +279,8 @@ void Uninit()
 {
     _dataShader.clear();
     _dataShaderBad = nullptr;
+
+    glslang::FinalizeProcess();
 }
 
 std::size_t GetShaderSize()
@@ -131,14 +344,19 @@ bool Check(std::string_view name)
     return it != _dataShader.end();
 }
 
-bool LoadFromFile(std::string_view name, std::filesystem::path path, fge::vulkan::Shader::Type type)
+FGE_API bool LoadFromMemory(std::string_view name,
+                            const void* data,
+                            int size,
+                            fge::vulkan::Shader::Type type,
+                            ShaderInputTypes input,
+                            bool debugBuild)
 {
-    if (name == FGE_SHADER_BAD)
+    if (name == FGE_SHADER_BAD || size <= 0 || data == nullptr)
     {
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    const std::lock_guard<std::mutex> lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -146,11 +364,162 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path, fge::vulkan
         return false;
     }
 
-    fge::vulkan::Shader tmpShader;
+    EShLanguage stage{};
 
-    if (!tmpShader.loadFromFile(fge::vulkan::GlobalContext->getLogicalDevice(), path, type))
+    switch (type)
+    {
+    case vulkan::Shader::Type::SHADER_NONE:
+        return false;
+    case vulkan::Shader::Type::SHADER_COMPUTE:
+        stage = EShLanguage::EShLangCompute;
+        break;
+    case vulkan::Shader::Type::SHADER_VERTEX:
+        stage = EShLanguage::EShLangVertex;
+        break;
+    case vulkan::Shader::Type::SHADER_FRAGMENT:
+        stage = EShLanguage::EShLangFragment;
+        break;
+    case vulkan::Shader::Type::SHADER_GEOMETRY:
+        stage = EShLanguage::EShLangGeometry;
+        break;
+    }
+
+    fge::vulkan::Shader tmpShader;
+    std::string shaderName(name);
+    bool isHlsl = false;
+
+    switch (input)
+    {
+    case ShaderInputTypes::SHADER_HLSL:
+        isHlsl = true;
+        [[fallthrough]];
+    case ShaderInputTypes::SHADER_GLSL:
+    {
+        std::vector<uint32_t> shaderOut;
+
+        if (!CompileAndLinkShader(stage, reinterpret_cast<const char*>(data), size, shaderOut, shaderName.c_str(),
+                                  "main", debugBuild, isHlsl))
+        {
+            return false;
+        }
+
+        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GlobalContext->getLogicalDevice(), shaderOut, type))
+        {
+            return false;
+        }
+    }
+    break;
+    case ShaderInputTypes::SHADER_SPIRV:
+    {
+        if (size % sizeof(uint32_t) != 0)
+        {
+            return false;
+        }
+
+        const std::vector<uint32_t> shader(reinterpret_cast<const uint32_t*>(data),
+                                           reinterpret_cast<const uint32_t*>(data) + size / 4);
+
+        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GlobalContext->getLogicalDevice(), shader, type))
+        {
+            return false;
+        }
+    }
+    break;
+    }
+
+    fge::shader::ShaderDataPtr buff = std::make_shared<fge::shader::ShaderData>();
+    buff->_shader = std::move(tmpShader);
+    buff->_valid = true;
+
+    _dataShader[std::move(shaderName)] = std::move(buff);
+    return true;
+}
+bool LoadFromFile(std::string_view name,
+                  std::filesystem::path path,
+                  fge::vulkan::Shader::Type type,
+                  ShaderInputTypes input,
+                  bool debugBuild)
+{
+    if (name == FGE_SHADER_BAD)
     {
         return false;
+    }
+
+    const std::lock_guard<std::mutex> lck(_dataMutex);
+    auto it = _dataShader.find(name);
+
+    if (it != _dataShader.end())
+    {
+        return false;
+    }
+
+    EShLanguage stage{};
+
+    switch (type)
+    {
+    case vulkan::Shader::Type::SHADER_NONE:
+        return false;
+    case vulkan::Shader::Type::SHADER_COMPUTE:
+        stage = EShLanguage::EShLangCompute;
+        break;
+    case vulkan::Shader::Type::SHADER_VERTEX:
+        stage = EShLanguage::EShLangVertex;
+        break;
+    case vulkan::Shader::Type::SHADER_FRAGMENT:
+        stage = EShLanguage::EShLangFragment;
+        break;
+    case vulkan::Shader::Type::SHADER_GEOMETRY:
+        stage = EShLanguage::EShLangGeometry;
+        break;
+    }
+
+    fge::vulkan::Shader tmpShader;
+    std::string shaderName(name);
+    bool isHlsl = false;
+
+    switch (input)
+    {
+    case ShaderInputTypes::SHADER_HLSL:
+        isHlsl = true;
+        [[fallthrough]];
+    case ShaderInputTypes::SHADER_GLSL:
+    {
+        std::ifstream test(path, std::ios_base::binary);
+
+        if (!test)
+        {
+            return false;
+        }
+
+        test.seekg(0, std::ios::end);
+        const int size = static_cast<int>(test.tellg());
+
+        std::vector<char> buffer(size);
+
+        test.seekg(0);
+        test.read(buffer.data(), static_cast<std::streamsize>(size));
+        test.close();
+
+        std::vector<uint32_t> shaderOut;
+
+        if (!CompileAndLinkShader(stage, buffer.data(), size, shaderOut, shaderName.c_str(), "main", debugBuild,
+                                  isHlsl))
+        {
+            return false;
+        }
+
+        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GlobalContext->getLogicalDevice(), shaderOut, type))
+        {
+            return false;
+        }
+    }
+    break;
+    case ShaderInputTypes::SHADER_SPIRV:
+        if (!tmpShader.loadFromFile(fge::vulkan::GlobalContext->getLogicalDevice(), path, type))
+        {
+            return false;
+        }
+        break;
     }
 
     fge::shader::ShaderDataPtr buff = std::make_shared<fge::shader::ShaderData>();
@@ -158,7 +527,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path, fge::vulkan
     buff->_valid = true;
     buff->_path = std::move(path);
 
-    _dataShader[std::string{name}] = std::move(buff);
+    _dataShader[std::move(shaderName)] = std::move(buff);
     return true;
 }
 

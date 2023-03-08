@@ -49,6 +49,13 @@ struct ShaderData
 using ShaderDataPtr = std::shared_ptr<fge::shader::ShaderData>;
 using ShaderDataType = std::unordered_map<std::string, fge::shader::ShaderDataPtr>;
 
+enum class ShaderInputTypes
+{
+    SHADER_HLSL,
+    SHADER_GLSL,
+    SHADER_SPIRV
+};
+
 /**
  * \ingroup graphics
  * @{
@@ -140,14 +147,40 @@ FGE_API fge::shader::ShaderDataPtr GetShader(std::string_view name);
 FGE_API bool Check(std::string_view name);
 
 /**
+ * \brief Load a shader from the memory
+ *
+ * \warning if you pass a SPIR-V binary data, the size must
+ * be a multiple of 4.
+ *
+ * \param name The name of the shader to load
+ * \param data The data address to load
+ * \param size The data size to load
+ * \param type The shader type
+ * \param input The input file type
+ * \param debugBuild If the input must be compiled into SPIR-V, then it will be compiled with debug symbols
+ * \return \b true if the shader was loaded, \b false otherwise
+ */
+FGE_API bool LoadFromMemory(std::string_view name,
+                            const void* data,
+                            int size,
+                            fge::vulkan::Shader::Type type,
+                            ShaderInputTypes input,
+                            bool debugBuild = false);
+/**
  * \brief Load a shader from a file
  *
  * \param name The name of the shader to load
  * \param path The path of the file to load
  * \param type The shader type
+ * \param input The input file type
+ * \param debugBuild If the input must be compiled into SPIR-V, then it will be compiled with debug symbols
  * \return \b true if the shader was loaded, \b false otherwise
  */
-FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path path, fge::vulkan::Shader::Type type);
+FGE_API bool LoadFromFile(std::string_view name,
+                          std::filesystem::path path,
+                          fge::vulkan::Shader::Type type,
+                          ShaderInputTypes input,
+                          bool debugBuild = false);
 /**
  * \brief Unload the shader with the given name
  *
@@ -168,6 +201,30 @@ FGE_API void UnloadAll();
  * \return \b true if the shader was added, \b false otherwise
  */
 FGE_API bool Push(std::string_view name, const fge::shader::ShaderDataPtr& data);
+
+/**
+ * \brief Public API access to glslang
+ *
+ * \param type The shader type
+ * \param shaderIn The shader input
+ * \param shaderInSize The shader input size
+ * \param shaderOut The shader output (SPIR-V)
+ * \param shaderName The shader name
+ * \param entryPointName The entry point name
+ * \param debugBuild If the shader must be compiled with debug symbols
+ * \param isHlsl If the shader is in HLSL language or \b false for GLSL
+ * \return \b true if the shader was successfully compiled, \b false otherwise
+ */
+FGE_API bool CompileAndLinkShader(fge::vulkan::Shader::Type type,
+                                  const char* shaderIn,
+                                  int shaderInSize,
+                                  std::vector<uint32_t>& shaderOut,
+                                  const char* shaderName,
+                                  const char* entryPointName,
+                                  bool debugBuild,
+                                  bool isHlsl);
+
+FGE_API bool SaveSpirVToBinaryFile(const std::vector<uint32_t>& spirv, const std::filesystem::path& path);
 
 /**
  * @}

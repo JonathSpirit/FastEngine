@@ -337,13 +337,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::vulkan::GlobalContext->_garbageCollector.enable(true);
 
-    fge::shader::Init("resources/shaders/vertex.spv", "resources/shaders/fragment.spv",
-                      "resources/shaders/fragmentTexture.spv");
+    fge::shader::Init("resources/shaders/vertex.vert", "resources/shaders/fragment.frag",
+                      "resources/shaders/fragmentTexture.frag");
     fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.spv",
-                              fge::vulkan::Shader::Type::SHADER_VERTEX);
+                              fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_SPIRV);
 
     fge::RenderWindow renderWindow(vulkanContext);
     renderWindow.setClearColor(fge::Color::White);
+    renderWindow.setPresentMode(VK_PRESENT_MODE_IMMEDIATE_KHR);
 
     std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
     scene->start(renderWindow);
