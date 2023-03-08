@@ -329,6 +329,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
+        sources/graphic/shaderResources.cpp
         sources/graphic/C_ftFont.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_animation.cpp")
@@ -436,6 +437,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
+        sources/graphic/shaderResources.cpp
         sources/graphic/C_ftFont.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_animation.cpp")
