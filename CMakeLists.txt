@@ -131,6 +131,25 @@ else()
     set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
 
+ExternalProject_Add(glslang #glslang
+        URL "${PROJECT_SOURCE_DIR}/libs/glslang"
+        CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+        DOWNLOAD_COMMAND ""
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang
+        EXCLUDE_FROM_ALL
+        )
+ExternalProject_Get_Property(glslang BINARY_DIR)
+
+set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang/glslang/Public)
+set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang.dll.a)
+set(GLSLANG_RES_LIB ${BINARY_DIR}/glslang/libglslang-default-resource-limits.dll.a)
+set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV.dll.a)
+set(GLSLANG_DLL ${BINARY_DIR}/glslang/glslang.dll)
+set(GLSLANG_RES_DLL ${BINARY_DIR}/glslang/libglslang-default-resource-limits.dll)
+set(GLSLANG_SPIRV_DLL ${BINARY_DIR}/SPIRV/SPIRV.dll)
+
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
@@ -189,6 +208,11 @@ endif()
 
 add_dependencies(SDL2_image SDL2)
 add_dependencies(SDL2_mixer SDL2)
+
+add_dependencies(${FGE_LIB_NAME} glslang) #glslang
+add_dependencies(${FGE_SERVER_LIB_NAME} glslang)
+target_include_directories(${FGE_LIB_NAME} PRIVATE ${GLSLANG_INCLUDE_DIR})
+target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${GLSLANG_INCLUDE_DIR})
 
 add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer) #SDL
 add_dependencies(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
@@ -492,6 +516,7 @@ if(WIN32)
     target_link_libraries(${FGE_SERVER_LIB_NAME} user32 ws2_32 winmm)
 endif()
 
+target_link_libraries(${FGE_LIB_NAME} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB} ${GLSLANG_LIB})
 target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer)
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
@@ -499,6 +524,7 @@ target_link_libraries(${FGE_LIB_NAME} fmt)
 target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY})
 target_link_libraries(${FGE_LIB_NAME} re2)
 
+target_link_libraries(${FGE_SERVER_LIB_NAME} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB} ${GLSLANG_LIB})
 target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
 target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} lz4_static)
@@ -592,11 +618,23 @@ if (WIN32)
                 $<TARGET_FILE:${DEPENDENCY}>
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-
     foreach (DEPENDENCY SDL2 SDL2_image SDL2_mixer)
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+
+    foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
+        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+    foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
+        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 endif()
