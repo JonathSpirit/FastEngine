@@ -597,8 +597,6 @@ if (WIN32)
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 elseif(APPLE)
-    set(GLSLANG_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang)
-
     foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
