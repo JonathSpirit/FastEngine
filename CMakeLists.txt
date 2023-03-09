@@ -158,7 +158,8 @@ endif()
 
 set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang)
 if (APPLE)
-    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang.12.0.0${GLSLANG_EXTENSION})
+    set(GLSLANG_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang)
+    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
 else()
     set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
 endif()
@@ -596,13 +597,15 @@ if (WIN32)
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 elseif(APPLE)
-    foreach (FILE ${GLSLANG_LIB} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+    set(GLSLANG_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang)
+
+    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${FILE}
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-    foreach (FILE ${GLSLANG_LIB} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
         add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${FILE}
