@@ -161,6 +161,12 @@ set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
 set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits${GLSLANG_EXTENSION})
 set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
 
+if(APPLE)
+    add_link_options(-dylib_file ${GLSLANG_LIB})
+    add_link_options(-dylib_file ${GLSLANG_RES_LIB})
+    add_link_options(-dylib_file ${GLSLANG_SPIRV_LIB})
+endif()
+
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
