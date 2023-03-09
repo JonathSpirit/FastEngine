@@ -131,6 +131,41 @@ else()
     set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
 endif()
 
+ExternalProject_Add(glslang #glslang
+        URL "${PROJECT_SOURCE_DIR}/libs/glslang"
+        CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF
+        PREFIX ${CMAKE_BINARY_DIR}/libs/glslang
+        BINARY_DIR ${CMAKE_BINARY_DIR}/libs/glslang
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+        DOWNLOAD_COMMAND ""
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang
+        EXCLUDE_FROM_ALL
+        )
+ExternalProject_Get_Property(glslang BINARY_DIR)
+
+if(WIN32)
+    set(GLSLANG_EXTENSION ".dll.a")
+
+    set(GLSLANG_DLL ${BINARY_DIR}/glslang/glslang.dll)
+    set(GLSLANG_RES_DLL ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits.dll)
+    set(GLSLANG_SPIRV_DLL ${BINARY_DIR}/SPIRV/SPIRV.dll)
+elseif(APPLE)
+    set(GLSLANG_EXTENSION ".dylib")
+else()
+    set(GLSLANG_EXTENSION ".so")
+endif()
+
+set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang)
+if (APPLE)
+    set(GLSLANG_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang)
+    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
+else()
+    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
+endif()
+set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits${GLSLANG_EXTENSION})
+set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
+
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
@@ -189,6 +224,11 @@ endif()
 
 add_dependencies(SDL2_image SDL2)
 add_dependencies(SDL2_mixer SDL2)
+
+add_dependencies(${FGE_LIB_NAME} glslang) #glslang
+add_dependencies(${FGE_SERVER_LIB_NAME} glslang)
+target_include_directories(${FGE_LIB_NAME} PRIVATE ${GLSLANG_INCLUDE_DIR})
+target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${GLSLANG_INCLUDE_DIR})
 
 add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer) #SDL
 add_dependencies(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
@@ -305,6 +345,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
+        sources/graphic/shaderResources.cpp
         sources/graphic/C_ftFont.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_animation.cpp")
@@ -412,6 +453,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
+        sources/graphic/shaderResources.cpp
         sources/graphic/C_ftFont.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_animation.cpp")
@@ -492,6 +534,7 @@ if(WIN32)
     target_link_libraries(${FGE_SERVER_LIB_NAME} user32 ws2_32 winmm)
 endif()
 
+target_link_libraries(${FGE_LIB_NAME} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB} ${GLSLANG_LIB})
 target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer)
 target_link_libraries(${FGE_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_LIB_NAME} lz4_static)
@@ -499,71 +542,13 @@ target_link_libraries(${FGE_LIB_NAME} fmt)
 target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY})
 target_link_libraries(${FGE_LIB_NAME} re2)
 
+target_link_libraries(${FGE_SERVER_LIB_NAME} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB} ${GLSLANG_LIB})
 target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
 target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} lz4_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
 target_link_libraries(${FGE_SERVER_LIB_NAME} ${FREETYPE_LIBRARY})
 target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
-
-#Compile shaders
-add_custom_target(CompileShaders)
-
-if(Vulkan_GLSLC_EXECUTABLE STREQUAL "Vulkan_GLSLC_EXECUTABLE-NOTFOUND")
-
-    if(WIN32)
-        set(GLSLC_COMPILED_EXECUTABLE "shaderc/src/shaderc-build/glslc/glslc.exe")
-        set(GLSLC_EXECUTABLE "glslc.exe")
-        set(GLSLC_COMMAND "")
-    else()
-        set(GLSLC_COMPILED_EXECUTABLE "shaderc/src/shaderc-build/glslc/glslc")
-        set(GLSLC_EXECUTABLE "glslc")
-        set(GLSLC_COMMAND "./")
-    endif()
-
-    ExternalProject_Add(shaderc
-            GIT_REPOSITORY https://github.com/google/shaderc.git
-            GIT_TAG origin/main
-            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/shaderc
-            CMAKE_ARGS -DENABLE_CTEST=OFF -DENABLE_GLSLANG_BINARIES=OFF -DBUILD_TESTING=OFF
-            CMAKE_ARGS -DSHADERC_SKIP_INSTALL=ON -DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
-            INSTALL_COMMAND ""
-            BUILD_COMMAND ${CMAKE_COMMAND} --build . -t glslc_exe
-            TEST_COMMAND ""
-            EXCLUDE_FROM_ALL
-            )
-    ExternalProject_Add_Step(shaderc gitSyncDeps
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            DEPENDEES patch DEPENDERS configure
-            COMMAND python ${CMAKE_CURRENT_BINARY_DIR}/shaderc/src/shaderc/utils/git-sync-deps)
-    ExternalProject_Add_Step(shaderc copyExe
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            DEPENDEES build
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GLSLC_COMPILED_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders/${GLSLC_EXECUTABLE}")
-    if(NOT WIN32)
-        ExternalProject_Add_Step(shaderc setPermission
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                DEPENDEES copyExe
-                COMMAND chmod +x resources/shaders/${GLSLC_EXECUTABLE})
-    endif()
-
-    add_dependencies(CompileShaders shaderc)
-else()
-    set(GLSLC_EXECUTABLE ${Vulkan_GLSLC_EXECUTABLE})
-    set(GLSLC_COMMAND "")
-endif()
-
-add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${GLSLC_COMMAND}${GLSLC_EXECUTABLE} ARGS vertex.vert -o vertex.spv
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
-add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${GLSLC_COMMAND}${GLSLC_EXECUTABLE} ARGS fragmentTexture.frag -o fragmentTexture.spv
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
-add_custom_command(TARGET CompileShaders PRE_BUILD
-        COMMAND ${GLSLC_COMMAND}${GLSLC_EXECUTABLE} ARGS fragment.frag -o fragment.spv
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders)
-
-add_dependencies(${FGE_LIB_NAME} CompileShaders)
 
 #Install
 install(TARGETS ${FGE_LIB_NAME})
@@ -592,11 +577,36 @@ if (WIN32)
                 $<TARGET_FILE:${DEPENDENCY}>
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-
     foreach (DEPENDENCY SDL2 SDL2_image SDL2_mixer)
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 $<TARGET_FILE:${DEPENDENCY}>
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+
+    foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
+        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+    foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
+        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+elseif(APPLE)
+    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 endif()

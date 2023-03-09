@@ -44,12 +44,18 @@ set(FGE_DLL_DEPS
         "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/bin/SDL2${FGE_SDL_DEBUG_SUFFIX}.dll"
         "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_image${FGE_DEBUG_SUFFIX}/bin/SDL2_image${FGE_SDL_DEBUG_SUFFIX}.dll"
         "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_mixer${FGE_DEBUG_SUFFIX}/bin/SDL2_mixer${FGE_SDL_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/glslang/bin/glslang.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/glslang/bin/libglslang-default-resource-limits.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/glslang/bin/SPIRV.dll"
         )
 
 set(FGE_SERVER_DLL_DEPS
         "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/bin${FGE_ARCH}/libFastEngineServer${FGE_ARCH}${FGE_DEBUG_SUFFIX}.dll"
         "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl${FGE_DEBUG_SUFFIX}/bin/SDL2${FGE_SDL_DEBUG_SUFFIX}.dll"
         "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/libsdl_image${FGE_DEBUG_SUFFIX}/bin/SDL2_image${FGE_SDL_DEBUG_SUFFIX}.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/glslang/bin/glslang.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/glslang/bin/libglslang-default-resource-limits.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/FastEngine/require/lib${FGE_ARCH}/glslang/bin/SPIRV.dll"
         )
 
 target_link_libraries(FastEngine INTERFACE mingw32)

@@ -25,17 +25,17 @@ namespace fge::vulkan
 namespace
 {
 
-VkShaderModule CreateShaderModule(const std::vector<char>& code, VkDevice device)
+VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code, VkDevice device)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+    createInfo.codeSize = code.size() * sizeof(uint32_t);
+    createInfo.pCode = code.data();
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create shader module!");
+        return VK_NULL_HANDLE;
     }
 
     return shaderModule;
@@ -84,7 +84,9 @@ Shader& Shader::operator=(Shader&& r) noexcept
     return *this;
 }
 
-bool Shader::loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type)
+bool Shader::loadFromSpirVBuffer(const LogicalDevice& logicalDevice,
+                                 const std::vector<uint32_t>& buffer,
+                                 Shader::Type type)
 {
     this->destroy();
 
@@ -93,19 +95,10 @@ bool Shader::loadFromFile(const LogicalDevice& logicalDevice, const std::filesys
         return false;
     }
 
-    std::ifstream file(filepath, std::ios::ate | std::ios::binary);
-
-    if (!file)
+    if (buffer.empty())
     {
         return false;
     }
-
-    std::size_t fileSize = static_cast<std::size_t>(file.tellg());
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), static_cast<std::streamsize>(fileSize));
-    file.close();
 
     this->g_shaderModule = CreateShaderModule(buffer, logicalDevice.getDevice());
     if (this->g_shaderModule == VK_NULL_HANDLE)
@@ -124,6 +117,35 @@ bool Shader::loadFromFile(const LogicalDevice& logicalDevice, const std::filesys
     this->g_logicalDevice = &logicalDevice;
 
     return true;
+}
+bool Shader::loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type)
+{
+    if (type == Shader::Type::SHADER_NONE)
+    {
+        return false;
+    }
+
+    std::ifstream file(filepath, std::ios::ate | std::ios::binary);
+
+    if (!file)
+    {
+        return false;
+    }
+
+    const std::size_t fileSize = static_cast<std::size_t>(file.tellg());
+    if (fileSize % sizeof(uint32_t) != 0)
+    { //File should be a multiple of sizeof(uint32_t)
+        file.close();
+        return false;
+    }
+
+    std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
+
+    file.seekg(0);
+    file.read(reinterpret_cast<char*>(buffer.data()), static_cast<std::streamsize>(fileSize));
+    file.close();
+
+    return this->loadFromSpirVBuffer(logicalDevice, buffer, type);
 }
 
 void Shader::destroy()
