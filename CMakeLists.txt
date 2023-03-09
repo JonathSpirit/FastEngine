@@ -157,7 +157,11 @@ else()
 endif()
 
 set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang)
-set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
+if (APPLE)
+    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang.12.0.0${GLSLANG_EXTENSION})
+else()
+    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
+endif()
 set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits${GLSLANG_EXTENSION})
 set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
 
