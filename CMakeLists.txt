@@ -134,6 +134,8 @@ endif()
 ExternalProject_Add(glslang #glslang
         URL "${PROJECT_SOURCE_DIR}/libs/glslang"
         CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF
+        PREFIX ${CMAKE_BINARY_DIR}/libs/glslang
+        BINARY_DIR ${CMAKE_BINARY_DIR}/libs/glslang
         INSTALL_COMMAND ""
         TEST_COMMAND ""
         DOWNLOAD_COMMAND ""
