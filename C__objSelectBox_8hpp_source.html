@@ -79,7 +79,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright 2022 Guillaume Guillet</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright 2023 Guillaume Guillet</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> * you may not use this file except in compliance with the License.</span></div>
@@ -103,7 +103,7 @@ $(function() {
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;C_object.hpp&quot;</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;FastEngine/C_flag.hpp&quot;</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;FastEngine/C_font.hpp&quot;</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;FastEngine/graphic/C_rectangleShape.hpp&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;FastEngine/object/C_objRectangleShape.hpp&quot;</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#define FGE_OBJSELECTBOX_CLASSNAME &quot;FGE:OBJ:SELECTBOX&quot;</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
@@ -169,7 +169,7 @@ $(function() {
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    tiny_utf8::string* g_textCursor;</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1ObjText.html">fge::ObjText</a> g_text;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1RectangleShape.html">fge::RectangleShape</a> g_box;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1ObjRectangleShape.html">fge::ObjRectangleShape</a> g_box;</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    fge::Vector2f g_boxSize = fge::Vector2f(120, 18);</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
@@ -183,10 +183,11 @@ $(function() {
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJSELECTBOX_HPP_INCLUDED</span></div>
 <div class="ttc" id="aclassfge_1_1Color_html"><div class="ttname"><a href="classfge_1_1Color.html">fge::Color</a></div><div class="ttdef"><b>Definition:</b> C_color.hpp:35</div></div>
-<div class="ttc" id="aclassfge_1_1Color_html_a1345826a20cec09e0f111a32ce3fd29a"><div class="ttname"><a href="classfge_1_1Color.html#a1345826a20cec09e0f111a32ce3fd29a">fge::Color::Black</a></div><div class="ttdeci">static const Color Black</div><div class="ttdoc">Black predefined color.</div><div class="ttdef"><b>Definition:</b> C_color.hpp:139</div></div>
-<div class="ttc" id="aclassfge_1_1Color_html_a58a126c0dd54f097a3dd2c3c7d0316d8"><div class="ttname"><a href="classfge_1_1Color.html#a58a126c0dd54f097a3dd2c3c7d0316d8">fge::Color::White</a></div><div class="ttdeci">static const Color White</div><div class="ttdoc">White predefined color.</div><div class="ttdef"><b>Definition:</b> C_color.hpp:140</div></div>
+<div class="ttc" id="aclassfge_1_1Color_html_a1345826a20cec09e0f111a32ce3fd29a"><div class="ttname"><a href="classfge_1_1Color.html#a1345826a20cec09e0f111a32ce3fd29a">fge::Color::Black</a></div><div class="ttdeci">static const Color Black</div><div class="ttdoc">Black predefined color.</div><div class="ttdef"><b>Definition:</b> C_color.hpp:140</div></div>
+<div class="ttc" id="aclassfge_1_1Color_html_a58a126c0dd54f097a3dd2c3c7d0316d8"><div class="ttname"><a href="classfge_1_1Color.html#a58a126c0dd54f097a3dd2c3c7d0316d8">fge::Color::White</a></div><div class="ttdeci">static const Color White</div><div class="ttdoc">White predefined color.</div><div class="ttdef"><b>Definition:</b> C_color.hpp:141</div></div>
 <div class="ttc" id="aclassfge_1_1Flag_html"><div class="ttname"><a href="classfge_1_1Flag.html">fge::Flag</a></div><div class="ttdoc">A class to handle flags.</div><div class="ttdef"><b>Definition:</b> C_flag.hpp:31</div></div>
 <div class="ttc" id="aclassfge_1_1Font_html"><div class="ttname"><a href="classfge_1_1Font.html">fge::Font</a></div><div class="ttdoc">This class is a wrapper for the font manger to allow easy manipulation.</div><div class="ttdef"><b>Definition:</b> C_font.hpp:40</div></div>
+<div class="ttc" id="aclassfge_1_1ObjRectangleShape_html"><div class="ttname"><a href="classfge_1_1ObjRectangleShape.html">fge::ObjRectangleShape</a></div><div class="ttdef"><b>Definition:</b> C_objRectangleShape.hpp:36</div></div>
 <div class="ttc" id="aclassfge_1_1ObjSelectBox_html"><div class="ttname"><a href="classfge_1_1ObjSelectBox.html">fge::ObjSelectBox</a></div><div class="ttdef"><b>Definition:</b> C_objSelectBox.hpp:34</div></div>
 <div class="ttc" id="aclassfge_1_1ObjSelectBox_html_a128536f32af35768dac547edcd550ae3"><div class="ttname"><a href="classfge_1_1ObjSelectBox.html#a128536f32af35768dac547edcd550ae3">fge::ObjSelectBox::save</a></div><div class="ttdeci">void save(nlohmann::json &amp;jsonObject, fge::Scene *scene) override</div><div class="ttdoc">Save the object to a json object.</div></div>
 <div class="ttc" id="aclassfge_1_1ObjSelectBox_html_a2e6f469225b6a59bbef40e835cc3e08d"><div class="ttname"><a href="classfge_1_1ObjSelectBox.html#a2e6f469225b6a59bbef40e835cc3e08d">fge::ObjSelectBox::unpack</a></div><div class="ttdeci">void unpack(fge::net::Packet &amp;pck) override</div><div class="ttdoc">Unpack the object from a packet.</div></div>
@@ -199,7 +200,6 @@ $(function() {
 <div class="ttc" id="aclassfge_1_1ObjText_html"><div class="ttname"><a href="classfge_1_1ObjText.html">fge::ObjText</a></div><div class="ttdef"><b>Definition:</b> C_objText.hpp:89</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html"><div class="ttname"><a href="classfge_1_1Object.html">fge::Object</a></div><div class="ttdoc">The Object class is the base class for all objects in the engine.</div><div class="ttdef"><b>Definition:</b> C_object.hpp:100</div></div>
 <div class="ttc" id="aclassfge_1_1Rect_html"><div class="ttname"><a href="classfge_1_1Rect.html">fge::Rect&lt; float &gt;</a></div></div>
-<div class="ttc" id="aclassfge_1_1RectangleShape_html"><div class="ttname"><a href="classfge_1_1RectangleShape.html">fge::RectangleShape</a></div><div class="ttdef"><b>Definition:</b> C_rectangleShape.hpp:34</div></div>
 <div class="ttc" id="aclassfge_1_1Scene_html"><div class="ttname"><a href="classfge_1_1Scene.html">fge::Scene</a></div><div class="ttdoc">A scene contain a collection of object and handle them.</div><div class="ttdef"><b>Definition:</b> C_scene.hpp:365</div></div>
 <div class="ttc" id="aclassfge_1_1net_1_1Packet_html"><div class="ttname"><a href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a></div><div class="ttdef"><b>Definition:</b> C_packet.hpp:53</div></div>
 </div><!-- fragment --></div><!-- contents -->

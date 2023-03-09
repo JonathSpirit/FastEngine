@@ -77,7 +77,6 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classfge_1_1Transform-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::Transform Class Reference</div></div>
 </div><!--header-->
@@ -85,6 +84,21 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a3aec1056c05adb270c163dcdada8834d"><td class="memItemLeft" align="right" valign="top"><a id="a3aec1056c05adb270c163dcdada8834d" name="a3aec1056c05adb270c163dcdada8834d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Transform</b> (const <a class="el" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a> &amp;context= *fge::vulkan::GlobalContext)</td></tr>
+<tr class="separator:a3aec1056c05adb270c163dcdada8834d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70e7b88cae492b0e146300ae5d5502ef"><td class="memItemLeft" align="right" valign="top"><a id="a70e7b88cae492b0e146300ae5d5502ef" name="a70e7b88cae492b0e146300ae5d5502ef"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Transform</b> (const <a class="el" href="classfge_1_1Transform.html">Transform</a> &amp;r)</td></tr>
+<tr class="separator:a70e7b88cae492b0e146300ae5d5502ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a303bd04f42553a646cf7db767ca8ee5d"><td class="memItemLeft" align="right" valign="top"><a id="a303bd04f42553a646cf7db767ca8ee5d" name="a303bd04f42553a646cf7db767ca8ee5d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Transform</b> (<a class="el" href="classfge_1_1Transform.html">Transform</a> &amp;&amp;r) noexcept=default</td></tr>
+<tr class="separator:a303bd04f42553a646cf7db767ca8ee5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9df2c3fb54c9aadcab4c7cc48ece81f"><td class="memItemLeft" align="right" valign="top"><a id="af9df2c3fb54c9aadcab4c7cc48ece81f" name="af9df2c3fb54c9aadcab4c7cc48ece81f"></a>
+<a class="el" href="classfge_1_1Transform.html">Transform</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classfge_1_1Transform.html">Transform</a> &amp;r)</td></tr>
+<tr class="separator:af9df2c3fb54c9aadcab4c7cc48ece81f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacbfcebcb6f71061cb67bc36a837abed"><td class="memItemLeft" align="right" valign="top"><a id="aacbfcebcb6f71061cb67bc36a837abed" name="aacbfcebcb6f71061cb67bc36a837abed"></a>
+<a class="el" href="classfge_1_1Transform.html">Transform</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1Transform.html">Transform</a> &amp;&amp;r) noexcept=default</td></tr>
+<tr class="separator:aacbfcebcb6f71061cb67bc36a837abed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc28a8d61eaa8dccd763f72f192c16d8"><td class="memItemLeft" align="right" valign="top"><a id="abc28a8d61eaa8dccd763f72f192c16d8" name="abc28a8d61eaa8dccd763f72f192c16d8"></a>
 const <a class="el" href="classfge_1_1Transform.html">Transform</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>start</b> (const <a class="el" href="classfge_1_1Transformable.html">fge::Transformable</a> &amp;transformable, const <a class="el" href="classfge_1_1Transform.html">fge::Transform</a> *parentTransform=nullptr) const</td></tr>
 <tr class="separator:abc28a8d61eaa8dccd763f72f192c16d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -94,21 +108,18 @@ const <a class="el" href="classfge_1_1Transform.html">Transform</a> *&#160;</td>
 <tr class="memitem:a37263e974fae8d9959580769db64f511"><td class="memItemLeft" align="right" valign="top"><a id="a37263e974fae8d9959580769db64f511" name="a37263e974fae8d9959580769db64f511"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>destroy</b> ()</td></tr>
 <tr class="separator:a37263e974fae8d9959580769db64f511"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59f1d43274b9277456f00380150666a0"><td class="memItemLeft" align="right" valign="top"><a id="a59f1d43274b9277456f00380150666a0" name="a59f1d43274b9277456f00380150666a0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateUniformBuffer</b> (const <a class="el" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a> &amp;context) const</td></tr>
-<tr class="separator:a59f1d43274b9277456f00380150666a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73b31ffb1360ac1ecd2cfc8d6d57c851"><td class="memItemLeft" align="right" valign="top"><a id="a73b31ffb1360ac1ecd2cfc8d6d57c851" name="a73b31ffb1360ac1ecd2cfc8d6d57c851"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>recreateUniformBuffer</b> (const <a class="el" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a> &amp;context)</td></tr>
+<tr class="separator:a73b31ffb1360ac1ecd2cfc8d6d57c851"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc49a5e0328c7ec89e11d273544e861c"><td class="memItemLeft" align="right" valign="top"><a id="acc49a5e0328c7ec89e11d273544e861c" name="acc49a5e0328c7ec89e11d273544e861c"></a>
 const <a class="el" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getDescriptorSet</b> () const</td></tr>
 <tr class="separator:acc49a5e0328c7ec89e11d273544e861c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bf4f23851bd3bd99b152ec67f2d95b9"><td class="memItemLeft" align="right" valign="top"><a id="a5bf4f23851bd3bd99b152ec67f2d95b9" name="a5bf4f23851bd3bd99b152ec67f2d95b9"></a>
 const <a class="el" href="classfge_1_1vulkan_1_1UniformBuffer.html">fge::vulkan::UniformBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getUniformBuffer</b> () const</td></tr>
 <tr class="separator:a5bf4f23851bd3bd99b152ec67f2d95b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ac57f72e94cfa99b7fd8587f3c76a2d6f"><td class="memItemLeft" align="right" valign="top"><a id="ac57f72e94cfa99b7fd8587f3c76a2d6f" name="ac57f72e94cfa99b7fd8587f3c76a2d6f"></a>
-<a class="el" href="structfge_1_1TransformUboData.html">TransformUboData</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_data</b></td></tr>
-<tr class="separator:ac57f72e94cfa99b7fd8587f3c76a2d6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b67269a1bf771536cc861c81d4f35ac"><td class="memItemLeft" align="right" valign="top"><a id="a5b67269a1bf771536cc861c81d4f35ac" name="a5b67269a1bf771536cc861c81d4f35ac"></a>
+<a class="el" href="structfge_1_1TransformUboData.html">TransformUboData</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getData</b> () const</td></tr>
+<tr class="separator:a5b67269a1bf771536cc861c81d4f35ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="C__transform_8hpp_source.html">C_transform.hpp</a></li>

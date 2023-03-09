@@ -76,6 +76,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
@@ -94,6 +95,15 @@ Inheritance diagram for fge::RenderWindow:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:af134276d0ee3b17d29da84351e595c6d"><td class="memItemLeft" align="right" valign="top"><a id="af134276d0ee3b17d29da84351e595c6d" name="af134276d0ee3b17d29da84351e595c6d"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>GraphicPipelineCache</b> = std::map&lt; std::string, std::unordered_map&lt; <a class="el" href="structfge_1_1RenderTarget_1_1GraphicPipelineKey.html">GraphicPipelineKey</a>, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>, <a class="el" href="structfge_1_1RenderTarget_1_1GraphicPipelineKey.html">GraphicPipelineKey</a> &gt;, std::less&lt;&gt; &gt;</td></tr>
+<tr class="separator:af134276d0ee3b17d29da84351e595c6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57d5d31b1f83c817539f3441a41d1ded"><td class="memItemLeft" align="right" valign="top"><a id="a57d5d31b1f83c817539f3441a41d1ded" name="a57d5d31b1f83c817539f3441a41d1ded"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>GraphicPipelineConstructor</b> = void(*)(const <a class="el" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a> *, const <a class="el" href="structfge_1_1RenderTarget_1_1GraphicPipelineKey.html">GraphicPipelineKey</a> &amp;, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a> *)</td></tr>
+<tr class="separator:a57d5d31b1f83c817539f3441a41d1ded"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a16e41e658a05e4061bbf7b2a3058e1fd"><td class="memItemLeft" align="right" valign="top"><a id="a16e41e658a05e4061bbf7b2a3058e1fd" name="a16e41e658a05e4061bbf7b2a3058e1fd"></a>
@@ -172,21 +182,21 @@ Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapCoordsToPixel<
 <tr class="memitem:ab75e082e156a7f64fc89b8bc769cb626"><td class="memItemLeft" align="right" valign="top"><a id="ab75e082e156a7f64fc89b8bc769cb626" name="ab75e082e156a7f64fc89b8bc769cb626"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> (const <a class="el" href="classfge_1_1Drawable.html">fge::Drawable</a> &amp;drawable, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states)</td></tr>
 <tr class="separator:ab75e082e156a7f64fc89b8bc769cb626"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1818065e432ccff57a7fc16d39a8634f"><td class="memItemLeft" align="right" valign="top"><a id="a1818065e432ccff57a7fc16d39a8634f" name="a1818065e432ccff57a7fc16d39a8634f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> (const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states)</td></tr>
-<tr class="separator:a1818065e432ccff57a7fc16d39a8634f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9835b86951f8dd6f0b8ce8a7a716a44d"><td class="memItemLeft" align="right" valign="top"><a id="a9835b86951f8dd6f0b8ce8a7a716a44d" name="a9835b86951f8dd6f0b8ce8a7a716a44d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> (const <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a> &amp;graphicPipeline, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states)</td></tr>
-<tr class="separator:a9835b86951f8dd6f0b8ce8a7a716a44d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa227f7f042e436da68b98ab3471fb419"><td class="memItemLeft" align="right" valign="top"><a id="aa227f7f042e436da68b98ab3471fb419" name="aa227f7f042e436da68b98ab3471fb419"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawBatches</b> (const <a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a> &amp;blendMode, const <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::vulkan::TextureImage</a> *textureImage, const <a class="el" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> &amp;transformDescriptorSet, const <a class="el" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> *vertexBuffer, uint32_t vertexCount, uint32_t instanceCount)</td></tr>
-<tr class="separator:aa227f7f042e436da68b98ab3471fb419"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18aeaefe2b7eac191c3c09beafa9e559"><td class="memItemLeft" align="right" valign="top"><a id="a18aeaefe2b7eac191c3c09beafa9e559" name="a18aeaefe2b7eac191c3c09beafa9e559"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawBatches</b> (const <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a> &amp;graphicPipeline, const <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::vulkan::TextureImage</a> *textureImage, const <a class="el" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> &amp;transformDescriptorSet, const <a class="el" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> *vertexBuffer, uint32_t vertexCount, uint32_t instanceCount)</td></tr>
-<tr class="separator:a18aeaefe2b7eac191c3c09beafa9e559"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7f7972e3a0fc5688f9dafd70c71c135"><td class="memItemLeft" align="right" valign="top"><a id="aa7f7972e3a0fc5688f9dafd70c71c135" name="aa7f7972e3a0fc5688f9dafd70c71c135"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> (const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states, const <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a> *graphicPipeline=nullptr)</td></tr>
+<tr class="separator:aa7f7972e3a0fc5688f9dafd70c71c135"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a301f8973b117d6289731dd9fd6f7c104"><td class="memItemLeft" align="right" valign="top"><a id="a301f8973b117d6289731dd9fd6f7c104" name="a301f8973b117d6289731dd9fd6f7c104"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>drawBatches</b> (const <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a> *graphicPipeline, const <a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a> &amp;blendMode, const <a class="el" href="classfge_1_1Texture.html">fge::Texture</a> *textures, uint32_t texturesCount, const <a class="el" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> &amp;transformDescriptorSet, const <a class="el" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> *vertexBuffer, uint32_t vertexCount, uint32_t instanceCount, const uint32_t *instanceTextureIndices)</td></tr>
+<tr class="separator:a301f8973b117d6289731dd9fd6f7c104"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae004c73d06faa92be78f18c076868f1d"><td class="memItemLeft" align="right" valign="top"><a id="ae004c73d06faa92be78f18c076868f1d" name="ae004c73d06faa92be78f18c076868f1d"></a>
 const <a class="el" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getContext</b> () const</td></tr>
 <tr class="separator:ae004c73d06faa92be78f18c076868f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6dd7601bbdbf81cf4261e1047daab6ac"><td class="memItemLeft" align="right" valign="top"><a id="a6dd7601bbdbf81cf4261e1047daab6ac" name="a6dd7601bbdbf81cf4261e1047daab6ac"></a>
+<a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGraphicPipeline</b> (std::string_view name, const <a class="el" href="structfge_1_1RenderTarget_1_1GraphicPipelineKey.html">GraphicPipelineKey</a> &amp;key, GraphicPipelineConstructor constructor) const</td></tr>
+<tr class="separator:a6dd7601bbdbf81cf4261e1047daab6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7c43d921e149d15e4db34d8ecce99fe"><td class="memItemLeft" align="right" valign="top"><a id="af7c43d921e149d15e4db34d8ecce99fe" name="af7c43d921e149d15e4db34d8ecce99fe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clearGraphicPipelineCache</b> ()</td></tr>
+<tr class="separator:af7c43d921e149d15e4db34d8ecce99fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -205,18 +215,9 @@ const <a class="el" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Conte
 <tr class="memitem:a00bb00920079d523215615cf43a3ac9d"><td class="memItemLeft" align="right" valign="top"><a id="a00bb00920079d523215615cf43a3ac9d" name="a00bb00920079d523215615cf43a3ac9d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_forceGraphicPipelineUpdate</b></td></tr>
 <tr class="separator:a00bb00920079d523215615cf43a3ac9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25cd95eb7cfe242cf7855f4166f0cf76"><td class="memItemLeft" align="right" valign="top"><a id="a25cd95eb7cfe242cf7855f4166f0cf76" name="a25cd95eb7cfe242cf7855f4166f0cf76"></a>
-std::unordered_map&lt; <a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a>, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>, <a class="el" href="structfge_1_1vulkan_1_1BlendModeHash.html">fge::vulkan::BlendModeHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_g_defaultGraphicPipelineTexture</b></td></tr>
-<tr class="separator:a25cd95eb7cfe242cf7855f4166f0cf76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f39e89bd82acb19bf9f9646516de9f5"><td class="memItemLeft" align="right" valign="top"><a id="a8f39e89bd82acb19bf9f9646516de9f5" name="a8f39e89bd82acb19bf9f9646516de9f5"></a>
-std::unordered_map&lt; <a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a>, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>, <a class="el" href="structfge_1_1vulkan_1_1BlendModeHash.html">fge::vulkan::BlendModeHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_g_defaultGraphicPipelineNoTexture</b></td></tr>
-<tr class="separator:a8f39e89bd82acb19bf9f9646516de9f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac15a3c515ceb22e901e5ea38a83b2ea8"><td class="memItemLeft" align="right" valign="top"><a id="ac15a3c515ceb22e901e5ea38a83b2ea8" name="ac15a3c515ceb22e901e5ea38a83b2ea8"></a>
-std::unordered_map&lt; <a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a>, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>, <a class="el" href="structfge_1_1vulkan_1_1BlendModeHash.html">fge::vulkan::BlendModeHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_g_defaultGraphicPipelineTextureBatches</b></td></tr>
-<tr class="separator:ac15a3c515ceb22e901e5ea38a83b2ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83595016e59a213a2f6129b8d0a26c6e"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; <a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a>, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>, <a class="el" href="structfge_1_1vulkan_1_1BlendModeHash.html">fge::vulkan::BlendModeHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1RenderTarget.html#a83595016e59a213a2f6129b8d0a26c6e">_g_defaultGraphicPipelineNoTextureBatches</a></td></tr>
-<tr class="memdesc:a83595016e59a213a2f6129b8d0a26c6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">TODO: maybe not have that many maps.  <br /></td></tr>
-<tr class="separator:a83595016e59a213a2f6129b8d0a26c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42fed6239e8853f7fac17a19982b8435"><td class="memItemLeft" align="right" valign="top"><a id="a42fed6239e8853f7fac17a19982b8435" name="a42fed6239e8853f7fac17a19982b8435"></a>
+GraphicPipelineCache&#160;</td><td class="memItemRight" valign="bottom"><b>_g_graphicPipelineCache</b></td></tr>
+<tr class="separator:a42fed6239e8853f7fac17a19982b8435"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-attribs" name="pro-static-attribs"></a>
 Static Protected Attributes</h2></td></tr>
@@ -524,31 +525,6 @@ static const <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::v
 </div><div class="memdoc">
 
 <p>Reimplemented from <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a>.</p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="a83595016e59a213a2f6129b8d0a26c6e" name="a83595016e59a213a2f6129b8d0a26c6e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a83595016e59a213a2f6129b8d0a26c6e">&#9670;&#160;</a></span>_g_defaultGraphicPipelineNoTextureBatches</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::unordered_map&lt;<a class="el" href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a>, <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>, <a class="el" href="structfge_1_1vulkan_1_1BlendModeHash.html">fge::vulkan::BlendModeHash</a>&gt; fge::RenderTarget::_g_defaultGraphicPipelineNoTextureBatches</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>TODO: maybe not have that many maps. </p>
 
 </div>
 </div>

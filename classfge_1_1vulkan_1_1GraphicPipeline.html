@@ -84,6 +84,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a45cc2929fae4384b088b5b9686641b37"><td class="memItemLeft" align="right" valign="top"><a id="a45cc2929fae4384b088b5b9686641b37" name="a45cc2929fae4384b088b5b9686641b37"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>GraphicPipeline</b> (const <a class="el" href="classfge_1_1vulkan_1_1Context.html">Context</a> &amp;context)</td></tr>
+<tr class="separator:a45cc2929fae4384b088b5b9686641b37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55015e6448d8d18501941aaddc1d87ea"><td class="memItemLeft" align="right" valign="top"><a id="a55015e6448d8d18501941aaddc1d87ea" name="a55015e6448d8d18501941aaddc1d87ea"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>GraphicPipeline</b> (const <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">GraphicPipeline</a> &amp;r)</td></tr>
 <tr class="separator:a55015e6448d8d18501941aaddc1d87ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -96,9 +99,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a59bd1eba0f88e51ea37a7f1a21512cf9"><td class="memItemLeft" align="right" valign="top"><a id="a59bd1eba0f88e51ea37a7f1a21512cf9" name="a59bd1eba0f88e51ea37a7f1a21512cf9"></a>
 <a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">GraphicPipeline</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1vulkan_1_1GraphicPipeline.html">GraphicPipeline</a> &amp;&amp;r) noexcept=delete</td></tr>
 <tr class="separator:a59bd1eba0f88e51ea37a7f1a21512cf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51d75f579a7a73aa3c756e399a5a50d2"><td class="memItemLeft" align="right" valign="top"><a id="a51d75f579a7a73aa3c756e399a5a50d2" name="a51d75f579a7a73aa3c756e399a5a50d2"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>updateIfNeeded</b> (const <a class="el" href="classfge_1_1vulkan_1_1Context.html">Context</a> &amp;context, const VkDescriptorSetLayout *descriptorSetLayouts, std::size_t descriptorSetLayoutSize, VkRenderPass renderPass, bool force=false) const</td></tr>
-<tr class="separator:a51d75f579a7a73aa3c756e399a5a50d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a309966d90d60ba5397ebbcd56571c7bb"><td class="memItemLeft" align="right" valign="top"><a id="a309966d90d60ba5397ebbcd56571c7bb" name="a309966d90d60ba5397ebbcd56571c7bb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>updateIfNeeded</b> (VkRenderPass renderPass, bool force=false) const</td></tr>
+<tr class="separator:a309966d90d60ba5397ebbcd56571c7bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b6508444785a3b4153aae1b8e4d8907"><td class="memItemLeft" align="right" valign="top"><a id="a9b6508444785a3b4153aae1b8e4d8907" name="a9b6508444785a3b4153aae1b8e4d8907"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setDescriptorSetLayouts</b> (std::initializer_list&lt; VkDescriptorSetLayout &gt; descriptorSetLayouts)</td></tr>
+<tr class="separator:a9b6508444785a3b4153aae1b8e4d8907"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3fb904dba291e9806207f3aa9a67e32"><td class="memItemLeft" align="right" valign="top"><a id="af3fb904dba291e9806207f3aa9a67e32" name="af3fb904dba291e9806207f3aa9a67e32"></a>
+const std::vector&lt; VkDescriptorSetLayout &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getDescriptorSetLayouts</b> () const</td></tr>
+<tr class="separator:af3fb904dba291e9806207f3aa9a67e32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab47c46135122e103d06f2c0acc4b4ff6"><td class="memItemLeft" align="right" valign="top"><a id="ab47c46135122e103d06f2c0acc4b4ff6" name="ab47c46135122e103d06f2c0acc4b4ff6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clearShader</b> (Shader::Type type=Shader::Type::SHADER_NONE)</td></tr>
 <tr class="separator:ab47c46135122e103d06f2c0acc4b4ff6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,6 +141,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setScissor</b> (const
 <tr class="memitem:a002734ee6487fe12fe8ea23266afd06b"><td class="memItemLeft" align="right" valign="top"><a id="a002734ee6487fe12fe8ea23266afd06b" name="a002734ee6487fe12fe8ea23266afd06b"></a>
 const VkRect2D &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getScissor</b> () const</td></tr>
 <tr class="separator:a002734ee6487fe12fe8ea23266afd06b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a013969da51708f5625cbc518b7792b3c"><td class="memItemLeft" align="right" valign="top"><a id="a013969da51708f5625cbc518b7792b3c" name="a013969da51708f5625cbc518b7792b3c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setPushConstantRanges</b> (std::initializer_list&lt; VkPushConstantRange &gt; pushConstantRanges)</td></tr>
+<tr class="separator:a013969da51708f5625cbc518b7792b3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6c844af625b46bf62932b2a0c7dae74"><td class="memItemLeft" align="right" valign="top"><a id="ac6c844af625b46bf62932b2a0c7dae74" name="ac6c844af625b46bf62932b2a0c7dae74"></a>
+const std::vector&lt; VkPushConstantRange &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getPushConstantRanges</b> () const</td></tr>
+<tr class="separator:ac6c844af625b46bf62932b2a0c7dae74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2fd09d8bd1f73a895bf3f922eee26c14"><td class="memItemLeft" align="right" valign="top"><a id="a2fd09d8bd1f73a895bf3f922eee26c14" name="a2fd09d8bd1f73a895bf3f922eee26c14"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>recordCommandBuffer</b> (VkCommandBuffer commandBuffer, const <a class="el" href="classfge_1_1vulkan_1_1Viewport.html">Viewport</a> &amp;viewport, const <a class="el" href="classfge_1_1vulkan_1_1VertexBuffer.html">VertexBuffer</a> *vertexBuffer, const <a class="el" href="classfge_1_1vulkan_1_1IndexBuffer.html">IndexBuffer</a> *indexBuffer) const</td></tr>
 <tr class="separator:a2fd09d8bd1f73a895bf3f922eee26c14"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,6 +159,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>bindDescriptorSets</b
 <tr class="memitem:a5814dfbe6b161f438b98b76beadabf4a"><td class="memItemLeft" align="right" valign="top"><a id="a5814dfbe6b161f438b98b76beadabf4a" name="a5814dfbe6b161f438b98b76beadabf4a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>bindDynamicDescriptorSets</b> (VkCommandBuffer commandBuffer, const VkDescriptorSet *descriptorSet, uint32_t descriptorCount, uint32_t dynamicOffsetCount, const uint32_t *pDynamicOffsets, uint32_t firstSet=0) const</td></tr>
 <tr class="separator:a5814dfbe6b161f438b98b76beadabf4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b768a02f70a57592bcb761c0c98c9ec"><td class="memItemLeft" align="right" valign="top"><a id="a5b768a02f70a57592bcb761c0c98c9ec" name="a5b768a02f70a57592bcb761c0c98c9ec"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>pushConstants</b> (VkCommandBuffer commandBuffer, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void *pValues) const</td></tr>
+<tr class="separator:a5b768a02f70a57592bcb761c0c98c9ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad77897ac6280a7b4b1767f75e0ae72b6"><td class="memItemLeft" align="right" valign="top"><a id="ad77897ac6280a7b4b1767f75e0ae72b6" name="ad77897ac6280a7b4b1767f75e0ae72b6"></a>
 VkPipelineLayout&#160;</td><td class="memItemRight" valign="bottom"><b>getPipelineLayout</b> () const</td></tr>
 <tr class="separator:ad77897ac6280a7b4b1767f75e0ae72b6"><td class="memSeparator" colspan="2">&#160;</td></tr>

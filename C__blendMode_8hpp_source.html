@@ -79,7 +79,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright 2022 Guillaume Guillet</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright 2023 Guillaume Guillet</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> * you may not use this file except in compliance with the License.</span></div>
@@ -132,14 +132,14 @@ $(function() {
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>            _alphaBlendOp(alphaBlendOp)</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    {}</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; right)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; right)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keyword">    </span>{</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">return</span> this-&gt;_srcColorBlendFactor == right._srcColorBlendFactor &amp;&amp;</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>               this-&gt;_dstColorBlendFactor == right._dstColorBlendFactor &amp;&amp; this-&gt;_colorBlendOp == right._colorBlendOp &amp;&amp;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>               this-&gt;_srcAlphaBlendFactor == right._srcAlphaBlendFactor &amp;&amp;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>               this-&gt;_dstAlphaBlendFactor == right._dstAlphaBlendFactor &amp;&amp; this-&gt;_alphaBlendOp == right._alphaBlendOp;</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    }</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    [[nodiscard]] <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; right)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !this-&gt;operator==(right); }</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    [[nodiscard]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; right)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !this-&gt;operator==(right); }</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    VkBlendFactor _srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    VkBlendFactor _dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;</div>
@@ -170,22 +170,9 @@ $(function() {
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keyword">constexpr</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a></div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        BlendNone(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD); </div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno"><a class="line" href="structfge_1_1vulkan_1_1BlendModeHash.html">   93</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendModeHash.html">BlendModeHash</a></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>{</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    std::size_t operator()(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; k)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keywordflow">return</span> std::hash&lt;uint32_t&gt;()(</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>                (<span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(k._srcColorBlendFactor) &lt;&lt; 25) |</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                (<span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(k._dstColorBlendFactor) &lt;&lt; 20) | (<span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(k._colorBlendOp) &lt;&lt; 15) |</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>                (<span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(k._srcAlphaBlendFactor) &lt;&lt; 10) |</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>                (<span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(k._dstAlphaBlendFactor) &lt;&lt; 5) | (<span class="keyword">static_cast&lt;</span>uint32_t<span class="keyword">&gt;</span>(k._alphaBlendOp)));</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    }</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>};</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>} <span class="comment">// namespace fge::vulkan</span></div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_VULKAN_C_BLENDMODE_HPP_INCLUDED</span></div>
-<div class="ttc" id="astructfge_1_1vulkan_1_1BlendModeHash_html"><div class="ttname"><a href="structfge_1_1vulkan_1_1BlendModeHash.html">fge::vulkan::BlendModeHash</a></div><div class="ttdef"><b>Definition:</b> C_blendMode.hpp:94</div></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>} <span class="comment">// namespace fge::vulkan</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_VULKAN_C_BLENDMODE_HPP_INCLUDED</span></div>
 <div class="ttc" id="astructfge_1_1vulkan_1_1BlendMode_html"><div class="ttname"><a href="structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a></div><div class="ttdef"><b>Definition:</b> C_blendMode.hpp:29</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

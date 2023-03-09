@@ -79,7 +79,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright 2022 Guillaume Guillet</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright 2023 Guillaume Guillet</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> * you may not use this file except in compliance with the License.</span></div>
@@ -98,114 +98,113 @@ $(function() {
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;volk.h&quot;</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;vk_mem_alloc.h&quot;</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_descriptorPool.hpp&quot;</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_descriptorSetLayout.hpp&quot;</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_garbageCollector.hpp&quot;</span></div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_graphicPipeline.hpp&quot;</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_instance.hpp&quot;</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_logicalDevice.hpp&quot;</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_physicalDevice.hpp&quot;</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_surface.hpp&quot;</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_swapChain.hpp&quot;</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_textureImage.hpp&quot;</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_uniformBuffer.hpp&quot;</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#define FGE_VULKAN_TEXTURE_BINDING 0</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#define FGE_VULKAN_TRANSFORM_BINDING 0</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">namespace </span>fge::vulkan</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>{</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="classfge_1_1vulkan_1_1Context.html">   43</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>{</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>();</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; r) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>(<a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">~Context</a>();</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; operator=(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; r) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span> destroy();</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">void</span> endSingleTimeCommands(VkCommandBuffer commandBuffer) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> initVolk();</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">void</span> initVulkan(SDL_Window* window);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> enumerateExtensions();</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordtype">void</span> waitIdle();</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Instance.html">Instance</a>&amp; getInstance() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Surface.html">Surface</a>&amp; getSurface() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a>&amp; getLogicalDevice() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a>&amp; getPhysicalDevice() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordtype">void</span> copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">void</span> transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordtype">void</span> copyBufferToImage(VkBuffer buffer,</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>                           VkImage image,</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>                           uint32_t width,</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>                           uint32_t height,</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                           int32_t offsetX = 0,</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>                           int32_t offsetY = 0) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">void</span> copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordtype">void</span> copyImageToImage(VkImage srcImage,</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>                          VkImage dstImage,</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>                          uint32_t width,</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                          uint32_t height,</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                          int32_t offsetX = 0,</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>                          int32_t offsetY = 0) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a>&amp; getTextureLayout() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a>&amp; getTransformLayout() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a>&amp; getTransformBatchesLayout() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a>&amp; getTextureDescriptorPool() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a>&amp; getTransformDescriptorPool() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a>&amp; getTransformBatchesDescriptorPool() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    [[nodiscard]] VmaAllocator getAllocator() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1GarbageCollector.html">fge::vulkan::GarbageCollector</a> _garbageCollector;</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordtype">void</span> createCommandPool();</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordtype">void</span> createTextureDescriptorPool();</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordtype">void</span> createTransformDescriptorPool();</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">void</span> createTransformBatchesDescriptorPool();</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Instance.html">Instance</a> g_instance;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> g_physicalDevice;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a> g_logicalDevice;</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Surface.html">Surface</a> g_surface;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a> g_textureLayout;</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a> g_transformLayout;</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a> g_transformBatchesLayout;</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a> g_textureDescriptorPool;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a> g_transformDescriptorPool;</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a> g_transformBatchesDescriptorPool;</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keyword">mutable</span> VmaAllocator g_allocator;</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    VkCommandPool g_commandPool;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordtype">bool</span> g_isCreated;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>};</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>} <span class="comment">// namespace fge::vulkan</span></div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_VULKAN_C_CONTEXT_HPP_INCLUDED</span></div>
-<div class="ttc" id="aclassfge_1_1vulkan_1_1Context_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a></div><div class="ttdef"><b>Definition:</b> C_context.hpp:44</div></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;FastEngine/vulkan/vulkanGlobal.hpp&quot;</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_descriptorPool.hpp&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_descriptorSetLayout.hpp&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_garbageCollector.hpp&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_graphicPipeline.hpp&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_instance.hpp&quot;</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_logicalDevice.hpp&quot;</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_physicalDevice.hpp&quot;</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_surface.hpp&quot;</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_swapChain.hpp&quot;</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_textureImage.hpp&quot;</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#include &quot;FastEngine/vulkan/C_uniformBuffer.hpp&quot;</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#define FGE_VULKAN_TEXTURE_BINDING 0</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#define FGE_VULKAN_TRANSFORM_BINDING 0</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">namespace </span>fge::vulkan</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>{</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="classfge_1_1vulkan_1_1Context.html">   42</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>{</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>();</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; r) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>(<a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">~Context</a>();</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; operator=(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; r) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">Context</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">void</span> destroy();</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">void</span> endSingleTimeCommands(VkCommandBuffer commandBuffer) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> initVolk();</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">void</span> initVulkan(SDL_Window* window);</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> enumerateExtensions();</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">void</span> waitIdle();</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Instance.html">Instance</a>&amp; getInstance() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Surface.html">Surface</a>&amp; getSurface() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a>&amp; getLogicalDevice() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a>&amp; getPhysicalDevice() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordtype">void</span> copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordtype">void</span> transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">void</span> copyBufferToImage(VkBuffer buffer,</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>                           VkImage image,</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>                           uint32_t width,</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>                           uint32_t height,</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>                           int32_t offsetX = 0,</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                           int32_t offsetY = 0) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">void</span> copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">void</span> copyImageToImage(VkImage srcImage,</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>                          VkImage dstImage,</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>                          uint32_t width,</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>                          uint32_t height,</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                          int32_t offsetX = 0,</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                          int32_t offsetY = 0) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a>&amp; getTextureLayout() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a>&amp; getTransformLayout() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a>&amp; getTransformBatchesLayout() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a>&amp; getTextureDescriptorPool() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a>&amp; getTransformDescriptorPool() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a>&amp; getTransformBatchesDescriptorPool() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    [[nodiscard]] VmaAllocator getAllocator() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1GarbageCollector.html">fge::vulkan::GarbageCollector</a> _garbageCollector;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordtype">void</span> createCommandPool();</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordtype">void</span> createTextureDescriptorPool();</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordtype">void</span> createTransformDescriptorPool();</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordtype">void</span> createTransformBatchesDescriptorPool();</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Instance.html">Instance</a> g_instance;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> g_physicalDevice;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a> g_logicalDevice;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1Surface.html">Surface</a> g_surface;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a> g_textureLayout;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a> g_transformLayout;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a> g_transformBatchesLayout;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a> g_textureDescriptorPool;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a> g_transformDescriptorPool;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorPool.html">DescriptorPool</a> g_transformBatchesDescriptorPool;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keyword">mutable</span> VmaAllocator g_allocator;</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    VkCommandPool g_commandPool;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordtype">bool</span> g_isCreated;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>};</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>} <span class="comment">// namespace fge::vulkan</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_VULKAN_C_CONTEXT_HPP_INCLUDED</span></div>
+<div class="ttc" id="aclassfge_1_1vulkan_1_1Context_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a></div><div class="ttdef"><b>Definition:</b> C_context.hpp:43</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1DescriptorPool_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1DescriptorPool.html">fge::vulkan::DescriptorPool</a></div><div class="ttdoc">This class abstract the vulkan descriptor pool for easier use.</div><div class="ttdef"><b>Definition:</b> C_descriptorPool.hpp:42</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1DescriptorSetLayout_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1DescriptorSetLayout.html">fge::vulkan::DescriptorSetLayout</a></div><div class="ttdoc">This class abstract the vulkan descriptor set layout for easier use.</div><div class="ttdef"><b>Definition:</b> C_descriptorSetLayout.hpp:58</div></div>
-<div class="ttc" id="aclassfge_1_1vulkan_1_1GarbageCollector_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1GarbageCollector.html">fge::vulkan::GarbageCollector</a></div><div class="ttdoc">A garbage collector for Vulkan objects.</div><div class="ttdef"><b>Definition:</b> C_garbageCollector.hpp:266</div></div>
+<div class="ttc" id="aclassfge_1_1vulkan_1_1GarbageCollector_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1GarbageCollector.html">fge::vulkan::GarbageCollector</a></div><div class="ttdoc">A garbage collector for Vulkan objects.</div><div class="ttdef"><b>Definition:</b> C_garbageCollector.hpp:284</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1Instance_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Instance.html">fge::vulkan::Instance</a></div><div class="ttdoc">Vulkan instance abstraction.</div><div class="ttdef"><b>Definition:</b> C_instance.hpp:39</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1LogicalDevice_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1LogicalDevice.html">fge::vulkan::LogicalDevice</a></div><div class="ttdoc">Logical device abstraction.</div><div class="ttdef"><b>Definition:</b> C_logicalDevice.hpp:37</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1PhysicalDevice_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1PhysicalDevice.html">fge::vulkan::PhysicalDevice</a></div><div class="ttdoc">Vulkan physical device abstraction.</div><div class="ttdef"><b>Definition:</b> C_physicalDevice.hpp:35</div></div>

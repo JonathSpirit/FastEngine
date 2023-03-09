@@ -78,20 +78,10 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classfge_1_1ChildObjectsAccessor-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::ChildObjectsAccessor Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="dynheader">
-Inheritance diagram for fge::ChildObjectsAccessor:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="classfge_1_1ChildObjectsAccessor.png" usemap="#fge::ChildObjectsAccessor_map" alt=""/>
-  <map id="fge::ChildObjectsAccessor_map" name="fge::ChildObjectsAccessor_map">
-<area href="classfge_1_1Drawable.html" alt="fge::Drawable" shape="rect" coords="0,0,162,24"/>
-  </map>
-</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -137,8 +127,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>remove</b> (std::size
 <tr class="memitem:a85410ef4ed1c319756d15472d51a8e38"><td class="memItemLeft" align="right" valign="top"><a id="a85410ef4ed1c319756d15472d51a8e38" name="a85410ef4ed1c319756d15472d51a8e38"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::milliseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
 <tr class="separator:a85410ef4ed1c319756d15472d51a8e38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a388a27b78a37880a1fbee1181adf9bf2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ChildObjectsAccessor.html#a388a27b78a37880a1fbee1181adf9bf2">draw</a> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const override</td></tr>
-<tr class="separator:a388a27b78a37880a1fbee1181adf9bf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c5bf6a04ac63d528e13a412d6159062"><td class="memItemLeft" align="right" valign="top"><a id="a7c5bf6a04ac63d528e13a412d6159062" name="a7c5bf6a04ac63d528e13a412d6159062"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const</td></tr>
+<tr class="separator:a7c5bf6a04ac63d528e13a412d6159062"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00d8402ed2b1ab85db121d431fd346c4"><td class="memItemLeft" align="right" valign="top"><a id="a00d8402ed2b1ab85db121d431fd346c4" name="a00d8402ed2b1ab85db121d431fd346c4"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>putInFront</b> (std::size_t index)</td></tr>
 <tr class="separator:a00d8402ed2b1ab85db121d431fd346c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -151,52 +142,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>getActualItera
 <tr class="memitem:a963411557a88db3d01f1d61160d13a37"><td class="memItemLeft" align="right" valign="top"><a id="a963411557a88db3d01f1d61160d13a37" name="a963411557a88db3d01f1d61160d13a37"></a>
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>getIndex</b> (<a class="el" href="classfge_1_1Object.html">fge::Object</a> *object) const</td></tr>
 <tr class="separator:a963411557a88db3d01f1d61160d13a37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ae3dce3b1be2ca57d9ae8a201607ec920"><td class="memItemLeft" align="right" valign="top"><a id="ae3dce3b1be2ca57d9ae8a201607ec920" name="ae3dce3b1be2ca57d9ae8a201607ec920"></a>
-<a class="el" href="classfge_1_1Transform.html">fge::Transform</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_transform</b></td></tr>
-<tr class="separator:ae3dce3b1be2ca57d9ae8a201607ec920"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a388a27b78a37880a1fbee1181adf9bf2" name="a388a27b78a37880a1fbee1181adf9bf2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a388a27b78a37880a1fbee1181adf9bf2">&#9670;&#160;</a></span>draw()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::ChildObjectsAccessor::draw </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;&#160;</td>
-          <td class="paramname"><em>target</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;&#160;</td>
-          <td class="paramname"><em>states</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Implements <a class="el" href="classfge_1_1Drawable.html">fge::Drawable</a>.</p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="C__childObjectsAccessor_8hpp_source.html">C_childObjectsAccessor.hpp</a></li>
 </ul>
