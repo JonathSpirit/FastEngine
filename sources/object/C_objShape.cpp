@@ -23,6 +23,7 @@ namespace fge
 namespace
 {
 
+#ifndef FGE_DEF_SERVER
 void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
                                       const fge::RenderTarget::GraphicPipelineKey& key,
                                       fge::vulkan::GraphicPipeline* graphicPipeline)
@@ -36,6 +37,7 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
 
     graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
 }
+#endif
 
 } //end namespace
 

@@ -161,12 +161,6 @@ set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
 set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits${GLSLANG_EXTENSION})
 set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
 
-if(APPLE)
-    add_link_options(-dylib_file ${GLSLANG_LIB})
-    add_link_options(-dylib_file ${GLSLANG_RES_LIB})
-    add_link_options(-dylib_file ${GLSLANG_SPIRV_LIB})
-endif()
-
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
@@ -592,6 +586,19 @@ if (WIN32)
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
     foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
+        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+elseif(APPLE)
+    foreach (FILE ${GLSLANG_LIB} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${FILE}
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
+    foreach (FILE ${GLSLANG_LIB} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
         add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${FILE}
