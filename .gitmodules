@@ -25,7 +25,7 @@
     path = libs/freetype
     url = https://gitlab.freedesktop.org/freetype/freetype.git
     ignore = dirty
-    branch = VER-2-12-1
+    branch = VER-2-13-0
 [submodule "libs/SDL"]
     path = libs/SDL
     url = https://github.com/libsdl-org/SDL.git
