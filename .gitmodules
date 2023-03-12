@@ -30,7 +30,7 @@
     path = libs/SDL
     url = https://github.com/libsdl-org/SDL.git
     ignore = dirty
-    branch = release-2.26.2
+    branch = release-2.26.4
 [submodule "libs/SDL_image"]
     path = libs/SDL_image
     url = https://github.com/libsdl-org/SDL_image.git
