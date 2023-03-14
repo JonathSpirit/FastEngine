@@ -20,7 +20,7 @@ namespace fge
 {
 
 ObjAnimation::ObjAnimation() :
-        g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
+        g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
 
         g_paused(false)
 {
@@ -30,7 +30,7 @@ ObjAnimation::ObjAnimation() :
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
         g_animation(animation),
-        g_tickDuration(FGE_OBJANIM_DEFAULT_TICKDURATION_MS),
+        g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
 
         g_paused(false)
 {
@@ -82,7 +82,7 @@ void ObjAnimation::setTickDuration(const std::chrono::milliseconds& tms)
 {
     this->g_tickDuration = tms;
 }
-const std::chrono::milliseconds& ObjAnimation::getTickDuration() const
+const std::chrono::microseconds& ObjAnimation::getTickDuration() const
 {
     return this->g_tickDuration;
 }
@@ -113,7 +113,7 @@ FGE_OBJ_UPDATE_BODY(ObjAnimation)
         if (frame != nullptr)
         {
             this->g_nextFrameTime += deltaTime;
-            if (this->g_nextFrameTime >= std::chrono::milliseconds{this->g_tickDuration * frame->_ticks})
+            if (this->g_nextFrameTime >= std::chrono::microseconds{this->g_tickDuration * frame->_ticks})
             {
                 this->g_animation.nextFrame();
                 this->setTextureRect(this->g_animation);

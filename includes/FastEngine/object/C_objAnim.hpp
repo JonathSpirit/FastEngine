@@ -48,7 +48,7 @@ public:
     void refresh();
 
     void setTickDuration(const std::chrono::milliseconds& tms);
-    const std::chrono::milliseconds& getTickDuration() const;
+    const std::chrono::microseconds& getTickDuration() const;
 
     const fge::Animation& getAnimation() const;
     fge::Animation& getAnimation();
@@ -78,8 +78,8 @@ private:
     fge::Animation g_animation;
     fge::RectInt g_textureRect;
 
-    std::chrono::milliseconds g_tickDuration;
-    std::chrono::milliseconds g_nextFrameTime;
+    std::chrono::microseconds g_tickDuration;
+    std::chrono::microseconds g_nextFrameTime;
 
     bool g_paused;
 };

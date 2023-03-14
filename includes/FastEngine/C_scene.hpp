@@ -407,12 +407,12 @@ public:
      *
      * \param screen A RenderWindow
      * \param event The FastEngine Event class
-     * \param deltaTime The time in milliseconds between two updates
+     * \param deltaTime The time in microseconds between two updates
      */
 #ifdef FGE_DEF_SERVER
-    void update(fge::Event& event, const std::chrono::milliseconds& deltaTime);
+    void update(fge::Event& event, const std::chrono::microseconds& deltaTime);
 #else
-    void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime);
+    void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::microseconds& deltaTime);
 #endif
     /**
      * \brief Draw the Scene.

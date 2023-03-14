@@ -130,9 +130,9 @@ Scene& Scene::operator=(const Scene& r)
 
 /** Scene **/
 #ifdef FGE_DEF_SERVER
-void Scene::update(fge::Event& event, const std::chrono::milliseconds& deltaTime)
+void Scene::update(fge::Event& event, const std::chrono::microseconds& deltaTime)
 #else
-void Scene::update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime)
+void Scene::update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::microseconds& deltaTime)
 #endif //FGE_DEF_SERVER
 {
     for (this->g_updatedObjectIterator = this->g_data.begin(); this->g_updatedObjectIterator != this->g_data.end();

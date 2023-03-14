@@ -112,9 +112,9 @@ public:
     fge::Animation _anim;
 #endif // FGE_DEF_SERVER
 
-    std::chrono::milliseconds _timeAnimation{0};
-    std::chrono::milliseconds _timeRandomMove{0};
-    std::chrono::milliseconds _timePregnant{0};
+    std::chrono::microseconds _timeAnimation{0};
+    std::chrono::microseconds _timeRandomMove{0};
+    std::chrono::microseconds _timePregnant{0};
     std::queue<Action> _actionQueue;
 
     CreatureData _data;

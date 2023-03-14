@@ -90,10 +90,11 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     float characterHeightOffset = static_cast<float>(this->g_textList.begin()->getLineSpacing());
     fge::Vector2f textPosition = {4.0f, this->g_box.getSize().y - characterHeightOffset};
 
-    std::size_t indexStart = static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) * this->getTextScrollRatio());
+    std::size_t indexStart =
+            static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) * this->getTextScrollRatio());
     if (indexStart >= this->g_textList.size())
     {
-        indexStart = this->g_textList.size()-1;
+        indexStart = this->g_textList.size() - 1;
     }
 
     for (auto it = std::next(this->g_textList.begin(), indexStart); it != this->g_textList.end(); ++it)

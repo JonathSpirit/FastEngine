@@ -29,7 +29,7 @@ public:
     ~Moveable() = default;
 
     void setTargetPos(const fge::Vector2f& pos);
-    bool updateMoveable(fge::Transformable& transformable, const std::chrono::milliseconds& deltaTime);
+    bool updateMoveable(fge::Transformable& transformable, const std::chrono::microseconds& deltaTime);
 
 protected:
     fge::Vector2f _g_targetPos;
