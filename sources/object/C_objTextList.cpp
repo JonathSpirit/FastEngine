@@ -36,18 +36,19 @@ ObjTextList::ObjTextList(const ObjTextList& r) :
 
         g_font(r.g_font),
 
+        g_textList(r.g_textList),
         g_maxStrings(r.g_maxStrings)
 {
     this->g_box.setFillColor(fge::Color::Transparent);
     this->g_box.setOutlineColor(fge::Color{100, 100, 100, 255});
     this->g_box.setOutlineThickness(-2.0f);
 
-    this->g_textList.resize(r.g_textList.size());
+    /*this->g_textList.resize(r.g_textList.size());
 
     for (std::size_t i = 0; i < r.g_textList.size(); ++i)
     {
         this->g_textList[i].reset(reinterpret_cast<fge::ObjText*>(r.g_textList[i]->copy()));
-    }
+    }*/
 }
 
 void ObjTextList::first([[maybe_unused]] fge::Scene* scene)
@@ -86,18 +87,22 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
         return;
     }
 
-    float characterHeightOffset = static_cast<float>(this->g_textList.begin()->get()->getLineSpacing());
+    float characterHeightOffset = static_cast<float>(this->g_textList.begin()->getLineSpacing());
     fge::Vector2f textPosition = {4.0f, this->g_box.getSize().y - characterHeightOffset};
 
-    for (std::size_t i =
-                 static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) * this->getTextScrollRatio());
-         i < this->g_textList.size(); ++i)
+    std::size_t indexStart = static_cast<std::size_t>(static_cast<float>(this->g_textList.size() - 1) * this->getTextScrollRatio());
+    if (indexStart >= this->g_textList.size())
     {
-        this->g_textList[i]->setPosition(textPosition);
-        target.draw(*this->g_textList[i], copyStates);
+        indexStart = this->g_textList.size()-1;
+    }
+
+    for (auto it = std::next(this->g_textList.begin(), indexStart); it != this->g_textList.end(); ++it)
+    {
+        it->setPosition(textPosition);
+        it->draw(target, copyStates);
 
         textPosition.y -= characterHeightOffset;
-        characterHeightOffset = static_cast<float>(this->g_textList[i]->getLineSpacing());
+        characterHeightOffset = static_cast<float>(it->getLineSpacing());
     }
 
     target.setView(backupView);
@@ -124,15 +129,14 @@ fge::RectFloat ObjTextList::getLocalBounds() const
 
 void ObjTextList::addText(tiny_utf8::string string)
 {
-    auto& ref = this->g_textList.emplace_back(
-            std::make_unique<fge::ObjText>(std::move(string), this->g_font, fge::Vector2f{}, 14));
-    ref->setFillColor(fge::Color::White);
-    ref->setOutlineColor(fge::Color::Black);
-    ref->setOutlineThickness(1.0f);
+    auto& ref = this->g_textList.emplace_front(std::move(string), this->g_font, fge::Vector2f{}, 14);
+    ref.setFillColor(fge::Color::White);
+    ref.setOutlineColor(fge::Color::Black);
+    ref.setOutlineThickness(1.0f);
 
     if (this->g_textList.size() > this->g_maxStrings)
     {
-        this->g_textList.erase(this->g_textList.end() - 1);
+        this->g_textList.pop_back();
     }
 }
 std::size_t ObjTextList::getTextCount() const
@@ -141,11 +145,13 @@ std::size_t ObjTextList::getTextCount() const
 }
 fge::ObjText* ObjTextList::getText(std::size_t index)
 {
-    return this->g_textList[index].get();
+    auto it = std::next(this->g_textList.begin(), index);
+    return it == this->g_textList.end() ? nullptr : &(*it);
 }
 const fge::ObjText* ObjTextList::getText(std::size_t index) const
 {
-    return this->g_textList[index].get();
+    auto it = std::next(this->g_textList.begin(), index);
+    return it == this->g_textList.end() ? nullptr : &(*it);
 }
 void ObjTextList::removeAllTexts()
 {
@@ -158,7 +164,7 @@ void ObjTextList::setFont(fge::Font font)
 
     for (auto& text: this->g_textList)
     {
-        text->setFont(this->g_font);
+        text.setFont(this->g_font);
     }
 }
 const fge::Font& ObjTextList::getFont() const
