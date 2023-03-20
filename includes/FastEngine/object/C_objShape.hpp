@@ -30,22 +30,23 @@
 #include "FastEngine/manager/shader_manager.hpp"
 
 #define FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX "FGE:OBJSHAPE:VERTEX"
+#define FGE_OBJSHAPE_INSTANCES_LAYOUT "FGE:OBJSHAPE:LAYOUT"
+#define FGE_OBJSHAPE_INDEX_FILLCOLOR 0
+#define FGE_OBJSHAPE_INDEX_OUTLINECOLOR 1
 
 namespace fge
 {
 
 class FGE_API ObjShape : public fge::Object
 {
+protected:
+    ObjShape();
+    ObjShape(const ObjShape& r);
+
 public:
-    struct Instance
+    struct InstanceData
     {
-        fge::Color _fillColor{fge::Color::White};
-        fge::Color _outlineColor{fge::Color::White};
-        fge::Vector2f _offset{0.0f, 0.0f};
-    };
-    struct InstancePushData
-    {
-        alignas(16) glm::uvec4 _color;
+        alignas(16) glm::uvec4 _color[2];
         alignas(16) glm::vec2 _offset;
     };
 
@@ -77,18 +78,22 @@ public:
     [[nodiscard]] virtual std::size_t getPointCount() const = 0;
     [[nodiscard]] virtual Vector2f getPoint(std::size_t index) const = 0;
 
+    void first(fge::Scene* scene) override;
+
     FGE_OBJ_DRAW_DECLARE
 
     [[nodiscard]] fge::RectFloat getLocalBounds() const override;
     [[nodiscard]] fge::RectFloat getGlobalBounds() const override;
 
 protected:
-    ObjShape();
     void updateShape();
 
 private:
     void updateTexCoords();
     void updateOutline();
+    void resizeBuffer(std::size_t size) const;
+
+    inline InstanceData* retrieveInstance(std::size_t index) const;
 
     fge::Texture g_texture;
     fge::RectInt g_textureRect;
@@ -97,10 +102,16 @@ private:
 
     fge::vulkan::VertexBuffer g_vertices;
     fge::vulkan::VertexBuffer g_outlineVertices;
-    std::vector<Instance> g_instances;
+
+    mutable std::size_t g_instancesCount;
+    mutable std::size_t g_instancesCapacity;
+    mutable fge::vulkan::UniformBuffer g_instances;
+    mutable fge::vulkan::DescriptorSet g_descriptorSet;
 
     fge::RectFloat g_insideBounds;
     fge::RectFloat g_bounds;
+
+    uint32_t g_dynamicAlignment;
 };
 
 } // namespace fge

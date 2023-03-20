@@ -373,7 +373,7 @@ FGE_OBJ_DRAW_BODY(Creature)
     this->g_animTexture->_texture = static_cast<std::shared_ptr<fge::TextureType>>(this->_anim);
     this->g_spriteCreature.setTexture(this->g_animTexture);
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
     target.draw(this->g_circleSight, copyStates);
 

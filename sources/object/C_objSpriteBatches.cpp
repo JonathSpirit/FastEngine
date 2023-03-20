@@ -15,9 +15,39 @@
  */
 
 #include "FastEngine/object/C_objSpriteBatches.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 
 namespace fge
 {
+
+namespace
+{
+
+#ifndef FGE_DEF_SERVER
+void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Context* context,
+                                                          const fge::RenderTarget::GraphicPipelineKey& key,
+                                                          fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setDescriptorSetLayouts(
+            {context->getTransformBatchesLayout().getLayout(), context->getTextureLayout().getLayout()});
+}
+void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* context,
+                                               const fge::RenderTarget::GraphicPipelineKey& key,
+                                               fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+
+    graphicPipeline->setDescriptorSetLayouts({context->getTransformBatchesLayout().getLayout()});
+}
+#endif //FGE_DEF_SERVER
+
+} // end namespace
 
 ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransformDataCapacity(0),
@@ -214,9 +244,9 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         auto* uboData = reinterpret_cast<fge::TransformUboData*>(
                 static_cast<uint8_t*>(this->g_instancesTransform.getBufferMapped()) + i * this->g_dynamicAlignment);
 
-        if (states._transform != nullptr)
+        if (states._resTransform.get() != nullptr)
         {
-            uboData->_modelTransform = states._transform->getData()._modelTransform *
+            uboData->_modelTransform = states._resTransform.get()->getData()._modelTransform *
                                        this->g_instancesData[i]._transformable.getTransform();
         }
         else
@@ -226,9 +256,32 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         uboData->_viewTransform = target.getView().getTransform();
     }
 
-    target.drawBatches(nullptr, states._blendMode, this->g_textures.data(), this->g_textures.size(),
-                       this->g_descriptorSet, &this->g_instancesVertices, 4, this->g_instancesData.size(),
-                       this->g_instancesTextureIndex.data());
+    auto copyStates = states.copy(nullptr, nullptr);
+
+    copyStates._blendMode = states._blendMode;
+
+    copyStates._resInstances.setInstancesCount(this->g_instancesData.size());
+    copyStates._resInstances.setVertexCount(4);
+
+    uint32_t const dynamicSets[] = {FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM};
+    copyStates._resInstances.setDynamicDescriptors(&this->g_descriptorSet, &fge::TransformUboData::uboSize, dynamicSets,
+                                                   1);
+    copyStates._resInstances.setTextureIndices(this->g_instancesTextureIndex.data());
+
+    copyStates._vertexBuffer = &this->g_instancesVertices;
+
+    copyStates._resTextures.set(this->g_textures.data(), this->g_textures.size());
+
+    const bool haveTexture = this->g_textures.size() > 0;
+
+    const fge::RenderTarget::GraphicPipelineKey graphicPipelineKey{
+            copyStates._blendMode, uint8_t(haveTexture ? FGE_OBJSPRITEBATCHES_ID_TEXTURE : FGE_OBJSPRITEBATCHES_ID)};
+
+    auto* graphicPipeline = target.getGraphicPipeline(FGE_OBJSPRITEBATCHES_PIPELINE_CACHE_NAME, graphicPipelineKey,
+                                                      haveTexture ? DefaultGraphicPipelineBatchesWithTexture_constructor
+                                                                  : DefaultGraphicPipelineBatches_constructor);
+
+    target.draw(copyStates, graphicPipeline);
 }
 #endif
 

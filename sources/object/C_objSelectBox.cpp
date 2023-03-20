@@ -15,191 +15,180 @@
  */
 
 #include "FastEngine/object/C_objSelectBox.hpp"
+#include "FastEngine/C_scene.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+
+#define FGE_OBJSELECTBOX_SELECT_COLOR fge::Color(100, 100, 0, 0)
 
 namespace fge
 {
 
 ObjSelectBox::ObjSelectBox()
 {
-    this->g_text.setFillColor(this->g_colorText);
+    this->g_textSelected.setFillColor(this->g_colorText);
+    this->g_textSelected.setCharacterSize(12);
+
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_box.setOutlineThickness(1.0f);
-    this->g_box.setSize(this->g_boxSize);
-
-    this->g_text.setCharacterSize(12);
+    this->g_box.setSize({120.0f, 18.0f});
 }
-ObjSelectBox::ObjSelectBox(const fge::Font& font, const fge::Vector2f& pos) :
-        g_text(font)
+ObjSelectBox::ObjSelectBox(fge::Font font, const fge::Vector2f& pos) :
+        ObjSelectBox()
 {
-    this->g_text.setFillColor(this->g_colorText);
-    this->g_box.setFillColor(this->g_colorBox);
-    this->g_box.setOutlineColor(this->g_colorBoxOutline);
-    this->g_box.setOutlineThickness(1.0f);
-    this->g_box.setSize(this->g_boxSize);
-
-    this->g_text.setCharacterSize(12);
-
+    this->g_textSelected.setFont(std::move(font));
     this->setPosition(pos);
 }
 
-std::vector<tiny_utf8::string>& ObjSelectBox::getTextList()
+std::size_t ObjSelectBox::getItemCount() const
 {
-    return this->g_textList;
+    return this->g_textList.size();
 }
-const std::vector<tiny_utf8::string>& ObjSelectBox::getTextList() const
+const tiny_utf8::string* ObjSelectBox::getItem(std::size_t index) const
 {
-    return this->g_textList;
+    if (index < this->g_textList.size())
+    {
+        return &this->g_textList[index].getString();
+    }
+    return nullptr;
+}
+bool ObjSelectBox::setItem(std::size_t index, tiny_utf8::string text)
+{
+    if (index < this->g_textList.size())
+    {
+        this->g_textList[index].setString(std::move(text));
+        return true;
+    }
+    return false;
+}
+void ObjSelectBox::addItem(tiny_utf8::string text)
+{
+    this->g_textList.emplace_back(std::move(text), this->g_textSelected.getFont(), fge::Vector2f{},
+                                  this->g_textSelected.getCharacterSize());
+    this->g_textList.back().setFillColor(this->g_colorText);
+    this->g_textList.back().setPosition({0.0f, (this->g_box.getSize().y + this->g_box.getOutlineThickness() * 2.0f) *
+                                                       static_cast<float>(this->g_textList.size())});
+    this->updateBoxInstances();
+}
+void ObjSelectBox::clearItems()
+{
+    this->g_textList.clear();
+    this->updateBoxInstances();
 }
 
 void ObjSelectBox::setSelectedText(tiny_utf8::string string)
 {
-    this->g_textSelected = std::move(string);
+    this->g_textSelected.setString(std::move(string));
 }
 const tiny_utf8::string& ObjSelectBox::getSelectedText() const
 {
-    return this->g_textSelected;
+    return this->g_textSelected.getString();
+}
+void ObjSelectBox::clearSelectedText()
+{
+    this->g_textSelected.setString({});
 }
 
 void ObjSelectBox::setCharacterSize(fge::CharacterSize size)
 {
-    this->g_text.setCharacterSize(size);
+    this->g_textSelected.setCharacterSize(size);
+    for (auto& item: this->g_textList)
+    {
+        item.setCharacterSize(size);
+    }
 }
 
 void ObjSelectBox::setActiveStat(bool active)
 {
     this->g_statActive = active;
+    if (!active)
+    {
+        this->g_cursor = std::numeric_limits<std::size_t>::max();
+    }
+    this->updateBoxInstances();
 }
-
-void ObjSelectBox::setBoxSize(const fge::Vector2f& size)
-{
-    this->g_boxSize = size;
-    this->g_box.setSize(this->g_boxSize);
-}
-void ObjSelectBox::setBoxSize(float w, float h)
-{
-    this->g_boxSize.x = w;
-    this->g_boxSize.y = h;
-    this->g_box.setSize(this->g_boxSize);
-}
-
-void ObjSelectBox::setBoxColor(const fge::Color& color)
-{
-    this->g_colorBox = color;
-    this->g_box.setFillColor(color);
-}
-void ObjSelectBox::setBoxOutlineColor(const fge::Color& color)
-{
-    this->g_colorBoxOutline = color;
-    this->g_box.setOutlineColor(color);
-}
-void ObjSelectBox::setTextColor(const fge::Color& color)
-{
-    this->g_colorText = color;
-    this->g_text.setFillColor(color);
-}
-
-fge::CharacterSize ObjSelectBox::getCharacterSize() const
-{
-    return this->g_text.getCharacterSize();
-}
-
 bool ObjSelectBox::getActiveStat() const
 {
     return this->g_statActive;
 }
 
-const fge::Vector2f& ObjSelectBox::getBoxSize() const
+void ObjSelectBox::setBoxSize(const fge::Vector2f& size)
 {
-    return this->g_boxSize;
+    this->g_box.setSize(size);
+    for (std::size_t i = 0; i < this->g_textList.size(); ++i)
+    {
+        this->g_textList[i].setPosition({0.0f, size.y * static_cast<float>(i + 1)});
+    }
+    this->updateBoxInstances();
+}
+void ObjSelectBox::setBoxColor(fge::Color color)
+{
+    this->g_colorBox = color;
+    this->g_box.setFillColor(color);
+}
+void ObjSelectBox::setBoxOutlineColor(fge::Color color)
+{
+    this->g_colorBoxOutline = color;
+    this->g_box.setOutlineColor(color);
+}
+void ObjSelectBox::setTextColor(fge::Color color)
+{
+    this->g_colorText = color;
+    this->g_textSelected.setFillColor(color);
+    for (auto& item: this->g_textList)
+    {
+        item.setFillColor(color);
+    }
 }
 
-const fge::Color& ObjSelectBox::getBoxColor() const
+fge::CharacterSize ObjSelectBox::getCharacterSize() const
+{
+    return this->g_textSelected.getCharacterSize();
+}
+
+const fge::Vector2f& ObjSelectBox::getBoxSize() const
+{
+    return this->g_box.getSize();
+}
+fge::Color ObjSelectBox::getBoxColor() const
 {
     return this->g_colorBox;
 }
-const fge::Color& ObjSelectBox::getBoxOutlineColor() const
+fge::Color ObjSelectBox::getBoxOutlineColor() const
 {
     return this->g_colorBoxOutline;
 }
-const fge::Color& ObjSelectBox::getTextColor() const
+fge::Color ObjSelectBox::getTextColor() const
 {
     return this->g_colorText;
 }
 
-#ifdef FGE_DEF_SERVER
-FGE_OBJ_UPDATE_BODY(ObjSelectBox) {}
-#else
-FGE_OBJ_UPDATE_BODY(ObjSelectBox)
+void ObjSelectBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
-    fge::Vector2f mousePosition = screen.mapPixelToCoords(event.getMousePixelPos());
-    auto bounds = this->getGlobalBounds();
-    this->g_statMouseOn = fge::IsMouseOn(mousePosition, bounds);
+    this->detachAll();
 
-    if (this->g_statActive)
-    {
-        for (std::size_t i = 0; i < this->g_textList.size(); ++i)
-        {
-            bounds._y += this->g_boxSize.y;
+    guiElementHandlerPtr->_onGuiVerify.add(new fge::CallbackFunctorObject(&fge::ObjSelectBox::onGuiVerify, this), this);
 
-            if (fge::IsMouseOn(mousePosition, bounds))
-            {
-                this->g_textCursor = &this->g_textList[i];
-                if (this->g_flag.check(event.isMouseButtonPressed(SDL_BUTTON_LEFT)))
-                {
-                    this->g_textSelected = this->g_textList[i];
-                    this->g_statActive = false;
-                }
-                break;
-            }
-        }
-
-        if (this->g_flag.check(event.isMouseButtonPressed(SDL_BUTTON_LEFT)))
-        {
-            this->g_statActive = false;
-        }
-    }
-    else
-    {
-        if (this->g_flag.check(event.isMouseButtonPressed(SDL_BUTTON_LEFT)))
-        {
-            if (this->g_statMouseOn)
-            {
-                this->g_statActive = true;
-            }
-        }
-    }
+    this->_onGuiMouseButtonPressed.add(
+            new fge::CallbackFunctorObject(&fge::ObjSelectBox::onGuiMouseButtonPressed, this), this);
+    this->_onGuiMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjSelectBox::onGuiMouseMotion, this), this);
 }
-#endif
 
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSelectBox)
 {
-    this->g_text.setString(this->g_textSelected);
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
-    this->g_box.setFillColor(this->g_colorBox);
-
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
-    target.draw(this->g_box, copyStates);
-    target.draw(this->g_text, copyStates);
+    this->g_box.draw(target, copyStates);
+    this->g_textSelected.draw(target, copyStates);
 
     if (this->g_statActive)
     {
-        for (std::size_t i = 0; i < this->g_textList.size(); ++i)
+        for (const auto& item: this->g_textList)
         {
-            copyStates._transform->getData()._modelTransform =
-                    glm::translate(copyStates._transform->getData()._modelTransform, {0.0f, this->g_boxSize.y, 0.0f});
-
-            this->g_box.setFillColor((&this->g_textList[i] == this->g_textCursor)
-                                             ? this->g_colorBox - fge::Color(100, 100, 0, 0)
-                                             : this->g_colorBox);
-
-            target.draw(this->g_box, copyStates);
-            this->g_text.setString(this->g_textList[i]);
-            target.draw(this->g_text, copyStates);
+            item.draw(target, copyStates);
         }
     }
 }
@@ -213,14 +202,20 @@ void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["colorBoxOutline"] = this->g_colorBoxOutline.toInteger();
     jsonObject["colorText"] = this->g_colorText.toInteger();
 
-    jsonObject["textSelected"] = this->g_textSelected;
-    jsonObject["texts"] = this->g_textList;
+    auto& jsonItemArray = jsonObject["texts"];
+    jsonItemArray = nlohmann::json::array();
 
-    jsonObject["characterSize"] = this->g_text.getCharacterSize();
-    jsonObject["font"] = this->g_text.getFont();
+    for (auto& item: this->g_textList)
+    {
+        jsonItemArray.push_back(item.getString());
+    }
+    jsonObject["textSelected"] = this->g_textSelected.getString();
 
-    jsonObject["boxSizeX"] = this->g_boxSize.x;
-    jsonObject["boxSizeY"] = this->g_boxSize.y;
+    jsonObject["characterSize"] = this->g_textSelected.getCharacterSize();
+    jsonObject["font"] = this->g_textSelected.getFont();
+
+    jsonObject["boxSizeX"] = this->g_box.getSize().x;
+    jsonObject["boxSizeY"] = this->g_box.getSize().y;
 
     jsonObject["statActive"] = this->g_statActive;
     jsonObject["statMouseOn"] = this->g_statMouseOn;
@@ -234,20 +229,27 @@ void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_colorText = fge::Color(jsonObject.value<uint32_t>("colorText", 0));
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
-    this->g_text.setFillColor(this->g_colorText);
+    this->g_textSelected.setFillColor(this->g_colorText);
 
-    this->g_textSelected = jsonObject.value<tiny_utf8::string>("textSelected", {});
-    this->g_textList = jsonObject.value<std::vector<tiny_utf8::string>>("texts", std::vector<tiny_utf8::string>{});
+    this->g_textList.clear();
+    for (auto& it: jsonObject.at("texts"))
+    {
+        this->addItem(it.get<tiny_utf8::string>());
+    }
+    this->g_textSelected.setString(jsonObject.value<tiny_utf8::string>("textSelected", {}));
 
-    this->g_text.setCharacterSize(jsonObject.value<fge::CharacterSize>("characterSize", 12));
-    this->g_text.setFont(jsonObject.value<fge::Font>("font", FGE_FONT_BAD));
+    this->g_textSelected.setCharacterSize(jsonObject.value<fge::CharacterSize>("characterSize", 12));
+    this->g_textSelected.setFont(jsonObject.value<fge::Font>("font", FGE_FONT_BAD));
 
-    this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);
-    this->g_boxSize.y = jsonObject.value<float>("boxSizeY", 18);
-    this->g_box.setSize(this->g_boxSize);
+    fge::Vector2f boxSize;
+    boxSize.x = jsonObject.value<float>("boxSizeX", 120);
+    boxSize.y = jsonObject.value<float>("boxSizeY", 18);
+    this->g_box.setSize(boxSize);
 
     this->g_statActive = jsonObject.value<bool>("statActive", false);
     this->g_statMouseOn = jsonObject.value<bool>("statMouseOn", false);
+
+    this->updateBoxInstances();
 }
 
 void ObjSelectBox::pack(fge::net::Packet& pck)
@@ -256,13 +258,15 @@ void ObjSelectBox::pack(fge::net::Packet& pck)
 
     pck << this->g_colorBox << this->g_colorBoxOutline << this->g_colorText;
 
-    pck << this->g_textSelected;
+    pck << static_cast<fge::net::SizeType>(this->g_textList.size());
+    for (auto& item: this->g_textList)
+    {
+        item.pack(pck);
+    }
 
-    pck << this->g_text.getCharacterSize() << this->g_text.getFont();
-    pck << this->g_textList;
+    this->g_textSelected.pack(pck);
 
-    pck << this->g_boxSize;
-
+    pck << this->g_box.getSize();
     pck << this->g_statActive << this->g_statMouseOn;
 }
 void ObjSelectBox::unpack(fge::net::Packet& pck)
@@ -272,23 +276,23 @@ void ObjSelectBox::unpack(fge::net::Packet& pck)
     pck >> this->g_colorBox >> this->g_colorBoxOutline >> this->g_colorText;
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
-    this->g_text.setFillColor(this->g_colorText);
 
-    pck >> this->g_textSelected;
+    this->g_textList.clear();
+    fge::net::SizeType itemCount = 0;
+    pck >> itemCount;
+    for (fge::net::SizeType i = 0; i < itemCount; ++i)
+    {
+        this->g_textList.emplace_back().unpack(pck);
+    }
 
-    fge::CharacterSize tmpCharSize = 12;
-    fge::Font tmpFont;
-    pck >> tmpCharSize >> tmpFont;
+    this->g_textSelected.unpack(pck);
 
-    this->g_text.setCharacterSize(tmpCharSize);
-    this->g_text.setFont(tmpFont);
-
-    pck >> this->g_textList;
-
-    pck >> this->g_boxSize;
-    this->g_box.setSize(this->g_boxSize);
-
+    fge::Vector2f boxSize;
+    pck >> boxSize;
+    this->g_box.setSize(boxSize);
     pck >> this->g_statActive >> this->g_statMouseOn;
+
+    this->updateBoxInstances();
 }
 
 const char* ObjSelectBox::getClassName() const
@@ -302,11 +306,137 @@ const char* ObjSelectBox::getReadableClassName() const
 
 fge::RectFloat ObjSelectBox::getGlobalBounds() const
 {
-    return this->getTransform() * this->g_box.getLocalBounds();
+    return this->getTransform() * this->getLocalBounds();
 }
 fge::RectFloat ObjSelectBox::getLocalBounds() const
 {
+    if (this->g_statActive)
+    {
+        auto rect = this->g_box.getLocalBounds();
+        rect._height += rect._height * static_cast<float>(this->g_textList.size());
+        return rect;
+    }
     return this->g_box.getLocalBounds();
+}
+
+void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] const fge::Event& evt,
+                                    [[maybe_unused]] const SDL_MouseMotionEvent& arg,
+                                    [[maybe_unused]] fge::GuiElementContext& context)
+{
+    if (!this->g_statActive)
+    {
+        return;
+    }
+
+    auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+    fge::Vector2f mousePosition;
+    if (customView)
+    {
+        mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
+    }
+    else
+    {
+        mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
+    }
+
+    auto transform = this->getParentsTransform() * this->getTransform();
+
+    auto boxRect = transform * this->getLocalBounds();
+
+    const float individualBoxHeight = boxRect._height / static_cast<float>(this->g_textList.size() + 1);
+
+    auto cursor = static_cast<std::size_t>((mousePosition.y - boxRect._y) / individualBoxHeight);
+    if (cursor != 0)
+    {
+        cursor -= 1;
+
+        if (cursor < this->g_textList.size())
+        {
+            if (this->g_cursor < this->g_textList.size())
+            {
+                this->g_box.setFillColor(this->g_colorBox, this->g_cursor + 1);
+            }
+            this->g_box.setFillColor(this->g_colorBox - FGE_OBJSELECTBOX_SELECT_COLOR, cursor + 1);
+            this->g_cursor = cursor;
+        }
+    }
+}
+void ObjSelectBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
+                                           [[maybe_unused]] const SDL_MouseButtonEvent& arg,
+                                           [[maybe_unused]] fge::GuiElementContext& context)
+{
+    if (this->g_statActive)
+    {
+        if (this->g_cursor < this->g_textList.size())
+        {
+            this->g_textSelected.setString(this->g_textList[this->g_cursor].getString());
+            this->_onSelect.call(*this, this->g_cursor);
+            this->setActiveStat(false);
+        }
+    }
+    else
+    {
+        this->setActiveStat(true);
+    }
+}
+
+void ObjSelectBox::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+                               SDL_EventType evtType,
+                               fge::GuiElementContext& context)
+{
+    if (this->verifyPriority(context._prioritizedElement))
+    {
+        auto transform = this->getParentsTransform() * this->getTransform();
+
+        auto boxRect = transform * this->getLocalBounds();
+
+        auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+        fge::Vector2f mousePosition;
+        if (customView)
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
+        }
+        else
+        {
+            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
+        }
+
+        if (boxRect.contains(mousePosition))
+        {
+            context._prioritizedElement = this;
+        }
+        else if (evtType == SDL_MOUSEBUTTONDOWN)
+        {
+            this->setActiveStat(false);
+        }
+    }
+    else if (evtType == SDL_MOUSEBUTTONDOWN)
+    {
+        this->setActiveStat(false);
+    }
+}
+
+void ObjSelectBox::updateBoxInstances()
+{
+    if (this->g_statActive)
+    {
+        this->g_box.setInstancesCount(this->g_textList.size() + 1);
+        for (std::size_t i = 0; i < this->g_textList.size(); ++i)
+        {
+            this->g_box.setOffset({0.0f, (this->g_box.getSize().y + this->g_box.getOutlineThickness() * 2.0f) *
+                                                 static_cast<float>(i + 1)},
+                                  i + 1);
+
+            this->g_box.setFillColor((i == this->g_cursor) ? this->g_colorBox - FGE_OBJSELECTBOX_SELECT_COLOR
+                                                           : this->g_colorBox);
+
+            this->g_box.setOutlineColor(this->g_colorBoxOutline, i + 1);
+        }
+    }
+    else
+    {
+        this->g_box.setInstancesCount(1);
+    }
 }
 
 } // namespace fge

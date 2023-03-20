@@ -43,10 +43,12 @@ void Context::destroy()
 {
     if (this->g_isCreated)
     {
+        this->g_cacheLayouts.clear();
         this->g_textureLayout.destroy();
         this->g_transformLayout.destroy();
         this->g_transformBatchesLayout.destroy();
 
+        this->g_multiUseDescriptorPool.destroy();
         this->g_textureDescriptorPool.destroy();
         this->g_transformDescriptorPool.destroy();
         this->g_transformBatchesDescriptorPool.destroy();
@@ -164,6 +166,7 @@ void Context::initVulkan(SDL_Window* window)
     }
 
     this->createCommandPool();
+    this->createMultiUseDescriptorPool();
     this->createTextureDescriptorPool();
     this->createTransformDescriptorPool();
     this->createTransformBatchesDescriptorPool();
@@ -387,6 +390,20 @@ void Context::copyImageToImage(VkImage srcImage,
     endSingleTimeCommands(commandBuffer);
 }
 
+fge::vulkan::DescriptorSetLayout& Context::getCacheLayout(std::string_view key) const
+{
+    auto it = this->g_cacheLayouts.find(key);
+    if (it != this->g_cacheLayouts.end())
+    {
+        return it->second;
+    }
+    return this->g_cacheLayouts[std::string(key)];
+}
+const DescriptorPool& Context::getMultiUseDescriptorPool() const
+{
+    return this->g_multiUseDescriptorPool;
+}
+
 const fge::vulkan::DescriptorSetLayout& Context::getTextureLayout() const
 {
     return this->g_textureLayout;
@@ -430,6 +447,20 @@ void Context::createCommandPool()
     {
         throw std::runtime_error("failed to create command pool!");
     }
+}
+void Context::createMultiUseDescriptorPool()
+{
+    std::vector<VkDescriptorPoolSize> poolSizes(3);
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[0].descriptorCount = 1;
+
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[1].descriptorCount = 1;
+
+    poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    poolSizes[2].descriptorCount = 1;
+
+    this->g_multiUseDescriptorPool.create(*this, std::move(poolSizes), 128, false, true);
 }
 void Context::createTextureDescriptorPool()
 {

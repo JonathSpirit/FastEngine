@@ -22,7 +22,7 @@ namespace fge
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTileMap)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
     for (std::size_t i = 0; i < this->g_layers.size(); ++i)
     {
         target.draw(*this->g_layers[i], copyStates);

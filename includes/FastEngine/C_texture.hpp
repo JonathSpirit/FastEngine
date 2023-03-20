@@ -107,16 +107,17 @@ public:
      */
     fge::Texture& operator=(fge::texture::TextureDataPtr data);
 
-    explicit operator fge::TextureType*();
-    explicit operator const fge::TextureType*() const;
-
     /**
-     * \brief Directly get the texture
+     * \brief Retrieve the internal texture type pointer
      *
-     * \return The texture
+     * \warning Will never be \b nullptr if the texture manager was correctly initialized.
+     *
+     * \see fge::TextureType
+     *
+     * \return The texture type pointer
      */
-    operator fge::TextureType&();
-    operator const fge::TextureType&() const;
+    [[nodiscard]] fge::TextureType* retrieve();
+    [[nodiscard]] const fge::TextureType* retrieve() const;
 
 private:
     fge::texture::TextureDataPtr g_data;

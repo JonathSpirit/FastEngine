@@ -12,10 +12,14 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 viewTransform;
 } uboTransform;
 
-layout(push_constant) uniform InstancePushData {
-    uvec4 color;
+layout(set = 1, binding = 0) uniform UBOInstanceData {
+    uvec4 color[2];
     vec2 offset;
 } instance;
+
+layout(push_constant) uniform ConstColorSelect {
+    uint index;
+} colorSelect;
 
 void main()
 {
@@ -24,9 +28,9 @@ void main()
 
     gl_Position = position;
 
-    fragColor = vec4(float(instance.color[0])/255.0,
-                     float(instance.color[1])/255.0,
-                     float(instance.color[2])/255.0,
-                     float(instance.color[3])/255.0);
+    fragColor = vec4(float(instance.color[colorSelect.index][0])/255.0,
+                     float(instance.color[colorSelect.index][1])/255.0,
+                     float(instance.color[colorSelect.index][2])/255.0,
+                     float(instance.color[colorSelect.index][3])/255.0);
     fragTexCoord = inTexCoord;
 }

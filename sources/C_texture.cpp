@@ -95,22 +95,13 @@ fge::Texture& Texture::operator=(fge::texture::TextureDataPtr data)
     return *this;
 }
 
-Texture::operator fge::TextureType*()
+fge::TextureType* Texture::retrieve()
 {
     return this->g_data->_texture.get();
 }
-Texture::operator const fge::TextureType*() const
+const fge::TextureType* Texture::retrieve() const
 {
     return this->g_data->_texture.get();
-}
-
-Texture::operator fge::TextureType&()
-{
-    return *this->g_data->_texture;
-}
-Texture::operator const fge::TextureType&() const
-{
-    return *this->g_data->_texture;
 }
 
 const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Texture& data)

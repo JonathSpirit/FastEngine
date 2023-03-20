@@ -19,53 +19,56 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 
-#include "C_objText.hpp"
-#include "C_object.hpp"
-#include "FastEngine/C_flag.hpp"
-#include "FastEngine/C_font.hpp"
+#include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/object/C_objRectangleShape.hpp"
+#include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_object.hpp"
+#include <limits>
 
 #define FGE_OBJSELECTBOX_CLASSNAME "FGE:OBJ:SELECTBOX"
 
 namespace fge
 {
 
-class FGE_API ObjSelectBox : public fge::Object
+class FGE_API ObjSelectBox : public fge::Object, public fge::Subscriber, public fge::GuiElement
 {
 public:
     ObjSelectBox();
-    explicit ObjSelectBox(const fge::Font& font, const fge::Vector2f& pos = fge::Vector2f());
+    explicit ObjSelectBox(fge::Font font, const fge::Vector2f& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSelectBox)
 
-    std::vector<tiny_utf8::string>& getTextList();
-    const std::vector<tiny_utf8::string>& getTextList() const;
+    fge::GuiElement* getGuiElement() override { return this; }
+
+    std::size_t getItemCount() const;
+    const tiny_utf8::string* getItem(std::size_t index) const;
+    bool setItem(std::size_t index, tiny_utf8::string text);
+    void addItem(tiny_utf8::string text);
+    void clearItems();
 
     void setSelectedText(tiny_utf8::string string);
     const tiny_utf8::string& getSelectedText() const;
+    void clearSelectedText();
 
     void setCharacterSize(fge::CharacterSize size);
 
     void setActiveStat(bool active);
+    bool getActiveStat() const;
 
     void setBoxSize(const fge::Vector2f& size);
-    void setBoxSize(float w, float h);
-
-    void setBoxColor(const fge::Color& color);
-    void setBoxOutlineColor(const fge::Color& color);
-    void setTextColor(const fge::Color& color);
+    void setBoxColor(fge::Color color);
+    void setBoxOutlineColor(fge::Color color);
+    void setTextColor(fge::Color color);
 
     fge::CharacterSize getCharacterSize() const;
 
-    bool getActiveStat() const;
-
     const fge::Vector2f& getBoxSize() const;
+    fge::Color getBoxColor() const;
+    fge::Color getBoxOutlineColor() const;
+    fge::Color getTextColor() const;
 
-    const fge::Color& getBoxColor() const;
-    const fge::Color& getBoxOutlineColor() const;
-    const fge::Color& getTextColor() const;
+    void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
 
-    FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
 
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
@@ -79,24 +82,29 @@ public:
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
 
+    fge::CallbackHandler<fge::ObjSelectBox&, std::size_t> _onSelect;
+
 private:
+    void
+    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
+    void onGuiMouseMotion(const fge::Event& evt, const SDL_MouseMotionEvent& arg, fge::GuiElementContext& context);
+
+    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
+
+    void updateBoxInstances();
+
     fge::Color g_colorBox = fge::Color::White;
     fge::Color g_colorBoxOutline = fge::Color::Black;
     fge::Color g_colorText = fge::Color::Black;
 
-    std::vector<tiny_utf8::string> g_textList;
-    tiny_utf8::string g_textSelected;
-    tiny_utf8::string* g_textCursor;
-
-    mutable fge::ObjText g_text;
+    mutable std::vector<fge::ObjText> g_textList;
+    mutable fge::ObjText g_textSelected;
     mutable fge::ObjRectangleShape g_box;
 
-    fge::Vector2f g_boxSize = fge::Vector2f(120, 18);
+    std::size_t g_cursor = std::numeric_limits<std::size_t>::max();
 
     bool g_statMouseOn = false;
     bool g_statActive = false;
-
-    fge::Flag g_flag;
 };
 
 } // namespace fge

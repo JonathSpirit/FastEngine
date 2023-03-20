@@ -19,6 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include <map>
 #include <vector>
 
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
@@ -83,6 +84,9 @@ public:
                           int32_t offsetX = 0,
                           int32_t offsetY = 0) const;
 
+    [[nodiscard]] fge::vulkan::DescriptorSetLayout& getCacheLayout(std::string_view key) const;
+    [[nodiscard]] const DescriptorPool& getMultiUseDescriptorPool() const;
+
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTextureLayout() const;
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformLayout() const;
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformBatchesLayout() const;
@@ -96,6 +100,7 @@ public:
 
 private:
     void createCommandPool();
+    void createMultiUseDescriptorPool();
     void createTextureDescriptorPool();
     void createTransformDescriptorPool();
     void createTransformBatchesDescriptorPool();
@@ -104,6 +109,9 @@ private:
     PhysicalDevice g_physicalDevice;
     LogicalDevice g_logicalDevice;
     Surface g_surface;
+
+    mutable std::map<std::string, fge::vulkan::DescriptorSetLayout, std::less<>> g_cacheLayouts;
+    DescriptorPool g_multiUseDescriptorPool;
 
     fge::vulkan::DescriptorSetLayout g_textureLayout;
     fge::vulkan::DescriptorSetLayout g_transformLayout;

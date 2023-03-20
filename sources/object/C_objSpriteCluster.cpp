@@ -145,8 +145,8 @@ FGE_OBJ_DRAW_BODY(ObjSpriteCluster)
         return;
     }
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
-    copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_texture);
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    copyStates._resTextures.set(this->g_texture.retrieve(), 1);
     copyStates._vertexBuffer = &this->g_instancesVertices;
 
     target.draw(copyStates);

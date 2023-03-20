@@ -131,10 +131,10 @@ FGE_OBJ_UPDATE_BODY(ObjAnimation)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjAnimation)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
     copyStates._vertexBuffer = &this->g_vertices;
-    copyStates._textureImage = static_cast<const fge::vulkan::TextureImage*>(this->g_animation);
+    copyStates._resTextures.set(static_cast<fge::vulkan::TextureImage const*>(this->g_animation), 1);
     target.draw(copyStates);
 }
 #endif

@@ -32,10 +32,16 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
     graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
 
-    graphicPipeline->setPushConstantRanges(
-            {VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ObjShape::InstancePushData)}});
+    graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint)}});
 
-    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
+    auto& layout = context->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+    if (layout.getLayout() == VK_NULL_HANDLE)
+    {
+        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+    }
+
+    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout(), layout.getLayout()});
 }
 #endif
 
@@ -74,23 +80,23 @@ const RectInt& ObjShape::getTextureRect() const
 
 void ObjShape::setFillColor(Color color, std::size_t instance)
 {
-    if (instance < this->g_instances.size())
+    if (instance < this->g_instancesCount)
     {
-        this->g_instances[instance]._fillColor = color;
+        this->retrieveInstance(instance)->_color[FGE_OBJSHAPE_INDEX_FILLCOLOR] = color;
     }
 }
 void ObjShape::setOutlineColor(Color color, std::size_t instance)
 {
-    if (instance < this->g_instances.size())
+    if (instance < this->g_instancesCount)
     {
-        this->g_instances[instance]._outlineColor = color;
+        this->retrieveInstance(instance)->_color[FGE_OBJSHAPE_INDEX_OUTLINECOLOR] = color;
     }
 }
 void ObjShape::setOffset(const fge::Vector2f& offset, std::size_t instance)
 {
-    if (instance < this->g_instances.size())
+    if (instance < this->g_instancesCount)
     {
-        this->g_instances[instance]._offset = offset;
+        this->retrieveInstance(instance)->_offset = offset;
     }
 }
 void ObjShape::setInstancesCount(std::size_t count)
@@ -99,32 +105,33 @@ void ObjShape::setInstancesCount(std::size_t count)
     {
         count = 1;
     }
-    this->g_instances.resize(count);
+    this->resizeBuffer(count);
 }
 void ObjShape::addInstance(Color fillColor, Color outlineColor, const fge::Vector2f& offset)
 {
-    this->g_instances.push_back({fillColor, outlineColor, offset});
+    this->resizeBuffer(this->g_instancesCount + 1);
+    *this->retrieveInstance(this->g_instancesCount - 1) = {{fillColor, outlineColor}, offset};
 }
 std::size_t ObjShape::getInstancesCount() const
 {
-    return this->g_instances.size();
+    return this->g_instancesCount;
 }
 void ObjShape::clearInstances()
 {
-    this->g_instances.resize(1);
+    this->resizeBuffer(1);
 }
 
 Color ObjShape::getFillColor(std::size_t instance) const
 {
-    return this->g_instances[instance]._fillColor;
+    return fge::Color(this->retrieveInstance(instance)->_color[FGE_OBJSHAPE_INDEX_FILLCOLOR]);
 }
 Color ObjShape::getOutlineColor(std::size_t instance) const
 {
-    return this->g_instances[instance]._outlineColor;
+    return fge::Color(this->retrieveInstance(instance)->_color[FGE_OBJSHAPE_INDEX_OUTLINECOLOR]);
 }
 const fge::Vector2f& ObjShape::getOffset(std::size_t instance) const
 {
-    return this->g_instances[instance]._offset;
+    return this->retrieveInstance(instance)->_offset;
 }
 
 void ObjShape::setOutlineThickness(float thickness)
@@ -149,18 +156,43 @@ RectFloat ObjShape::getGlobalBounds() const
 }
 
 ObjShape::ObjShape() :
-        g_texture(),
-        g_textureRect(),
-        g_outlineThickness(0),
-        g_vertices(),
-        g_outlineVertices(),
-        g_insideBounds(),
-        g_bounds()
+        g_outlineThickness(0.0f),
+        g_instancesCount(0),
+        g_instancesCapacity(0)
 {
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 
-    this->g_instances.push_back({fge::Color::White, fge::Color::White, {0.0f, 0.0f}});
+    const std::size_t minUboAlignment =
+            fge::vulkan::GlobalContext->getPhysicalDevice().getMinUniformBufferOffsetAlignment();
+
+    this->g_dynamicAlignment = sizeof(InstanceData);
+    if (minUboAlignment > 0)
+    {
+        this->g_dynamicAlignment = (this->g_dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
+    }
+
+    this->resizeBuffer(1);
+    *this->retrieveInstance(0) = {{fge::Color::White, fge::Color::White}, {0.0f, 0.0f}};
+}
+ObjShape::ObjShape(const ObjShape& r) :
+        fge::Object(r),
+        g_texture(r.g_texture),
+        g_textureRect(r.g_textureRect),
+        g_outlineThickness(r.g_outlineThickness),
+        g_vertices(r.g_vertices),
+        g_outlineVertices(r.g_outlineVertices),
+        g_instancesCount(0),
+        g_instancesCapacity(0),
+        g_insideBounds(r.g_insideBounds),
+        g_bounds(r.g_bounds),
+        g_dynamicAlignment(r.g_dynamicAlignment)
+{
+    this->resizeBuffer(r.g_instancesCount);
+    for (std::size_t i = 0; i < r.g_instancesCount; ++i)
+    {
+        *this->retrieveInstance(i) = *r.retrieveInstance(i);
+    }
 }
 void ObjShape::updateShape()
 {
@@ -198,47 +230,50 @@ void ObjShape::updateShape()
     this->updateOutline();
 }
 
+void ObjShape::first([[maybe_unused]] fge::Scene* scene)
+{
+    this->updateShape();
+}
+
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjShape)
 {
-    if (this->g_instances.empty())
+    if (this->g_instancesCount == 0)
     {
         return;
     }
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
-    const fge::TextureType* const texture =
-            this->g_texture.valid() ? static_cast<const fge::TextureType*>(this->g_texture) : nullptr;
+    fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
     const fge::RenderTarget::GraphicPipelineKey key{copyStates._blendMode, 0};
     auto* graphicPipeline =
             target.getGraphicPipeline(typeid(fge::ObjShape).name(), key, &InstanceVertexShader_constructor);
 
-    for (const auto& instance: this->g_instances)
-    {
-        InstancePushData instancePushData{instance._fillColor, instance._offset};
+    //Drawing inline
+    copyStates._resTextures.set(texture, texture == nullptr ? 0 : 1);
+    copyStates._vertexBuffer = &this->g_vertices;
 
-        // Render the inside
-        copyStates._textureImage = texture;
-        copyStates._vertexBuffer = &this->g_vertices;
+    glm::uint colorIndex = FGE_OBJSHAPE_INDEX_FILLCOLOR;
+    graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
+                                   &colorIndex);
 
-        graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                                       sizeof(InstancePushData), &instancePushData);
-        target.draw(copyStates, graphicPipeline);
+    copyStates._resInstances.setInstancesCount(this->g_instancesCount);
+    const uint32_t dynamicBufferSizes[] = {this->g_dynamicAlignment};
+    const uint32_t dynamicBufferSets[] = {1};
+    copyStates._resInstances.setDynamicDescriptors(&this->g_descriptorSet, dynamicBufferSizes, dynamicBufferSets, 1);
 
-        // Render the outline
-        if (this->g_outlineThickness != 0.0f)
-        {
-            copyStates._textureImage = nullptr;
-            copyStates._vertexBuffer = &this->g_outlineVertices;
+    target.draw(copyStates, graphicPipeline);
 
-            instancePushData._color = instance._outlineColor;
-            graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                                           sizeof(InstancePushData), &instancePushData);
-            target.draw(copyStates, graphicPipeline);
-        }
-    }
+    colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
+    graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
+                                   &colorIndex);
+
+    copyStates._resTextures.set<std::nullptr_t>(nullptr, 0);
+    copyStates._vertexBuffer = &this->g_outlineVertices;
+
+    target.draw(copyStates, graphicPipeline);
 }
 #endif
 
@@ -313,6 +348,74 @@ void ObjShape::updateOutline()
 
     // Update the shape's bounds
     this->g_bounds = this->g_outlineVertices.getBounds();
+}
+
+void ObjShape::resizeBuffer(std::size_t size) const
+{
+    if (size <= this->g_instancesCount)
+    {
+        this->g_instancesCount = size;
+        return;
+    }
+
+    if (size < this->g_instancesCapacity)
+    {
+        InstanceData* defaultInstanceData = reinterpret_cast<InstanceData*>(this->g_instances.getBufferMapped());
+
+        for (std::size_t i = this->g_instancesCount; i < size; ++i)
+        {
+            new (this->retrieveInstance(i)) InstanceData(*defaultInstanceData);
+        }
+
+        this->g_instancesCount = size;
+    }
+
+    InstanceData defaultInstanceData;
+    if (this->g_instancesCount == 0)
+    {
+        defaultInstanceData._offset = {0.0f, 0.0f};
+        defaultInstanceData._color[FGE_OBJSHAPE_INDEX_FILLCOLOR] = fge::Color::White;
+        defaultInstanceData._color[FGE_OBJSHAPE_INDEX_OUTLINECOLOR] = fge::Color::White;
+    }
+    else
+    {
+        defaultInstanceData = *this->retrieveInstance(0);
+    }
+
+    this->g_instancesCount = size;
+    this->g_instancesCapacity = size;
+    this->g_instances.create(*fge::vulkan::GlobalContext, this->g_instancesCapacity * this->g_dynamicAlignment);
+
+    if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
+    {
+        auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+        if (layout.getLayout() == VK_NULL_HANDLE)
+        {
+            layout.create(*fge::vulkan::GlobalContext,
+                          {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
+        }
+
+        this->g_descriptorSet = fge::vulkan::GlobalContext->getMultiUseDescriptorPool()
+                                        .allocateDescriptorSet(layout.getLayout())
+                                        .value();
+    }
+
+    const fge::vulkan::DescriptorSet::Descriptor descriptor{
+            this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
+            fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC, sizeof(InstanceData)};
+    this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
+
+    for (std::size_t i = 0; i < size; ++i)
+    {
+        new (this->retrieveInstance(i)) InstanceData(defaultInstanceData);
+    }
+}
+
+ObjShape::InstanceData* ObjShape::retrieveInstance(std::size_t index) const
+{
+    return reinterpret_cast<InstanceData*>(reinterpret_cast<uint8_t*>(this->g_instances.getBufferMapped()) +
+                                           this->g_dynamicAlignment * index);
 }
 
 } // namespace fge

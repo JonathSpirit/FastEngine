@@ -105,13 +105,13 @@ void TileLayer::Tile::updateTexCoords()
 #ifndef FGE_DEF_SERVER
 void TileLayer::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 {
-    auto statesCopy = states.copy(this->_transform.start(*this, states._transform));
+    auto statesCopy = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
     for (const auto& data: this->g_data)
     {
         if (data.g_tileSet)
         {
-            statesCopy._textureImage = static_cast<const fge::TextureType*>(data.g_tileSet->getTexture());
+            statesCopy._resTextures.set(data.g_tileSet->getTexture().retrieve(), 1);
             statesCopy._vertexBuffer = &data.g_vertexBuffer;
             target.draw(statesCopy);
         }

@@ -40,8 +40,11 @@
 
 #define FGE_RENDERTARGET_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
 #define FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME ""
-#define FGE_RENDERTARGET_DEFAULT_ID_BATCHES 0x01
-#define FGE_RENDERTARGET_DEFAULT_ID_TEXTURE 0x02
+#define FGE_RENDERTARGET_DEFAULT_ID 0
+#define FGE_RENDERTARGET_DEFAULT_ID_TEXTURE 1
+
+#define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
+#define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
 
 namespace fge
 {
@@ -113,16 +116,6 @@ public:
     void draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline = nullptr);
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
-
-    void drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeline,
-                     const fge::vulkan::BlendMode& blendMode,
-                     const fge::Texture* textures,
-                     uint32_t texturesCount,
-                     const fge::vulkan::DescriptorSet& transformDescriptorSet,
-                     const fge::vulkan::VertexBuffer* vertexBuffer,
-                     uint32_t vertexCount,
-                     uint32_t instanceCount,
-                     const uint32_t* instanceTextureIndices);
 
     virtual void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const;
     virtual void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const;

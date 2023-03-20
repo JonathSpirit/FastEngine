@@ -73,7 +73,7 @@ public:
     void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override
     {
         //Draw vertices
-        auto copyStates = states.copy(this->_transform.start(*this, states._transform));
+        auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
         copyStates._vertexBuffer = &this->g_vertices;
 
         target.draw(copyStates);

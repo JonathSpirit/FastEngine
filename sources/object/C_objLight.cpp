@@ -134,8 +134,8 @@ FGE_OBJ_DRAW_BODY(ObjLight)
     this->g_renderMap._renderTexture.setClearColor(fge::Color(0, 0, 0, 0));
     this->g_renderMap._renderTexture.beginRenderPass(this->g_renderMap._renderTexture.prepareNextFrame(nullptr));
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._transform));
-    copyStates._textureImage = static_cast<const fge::TextureType*>(this->g_texture);
+    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    copyStates._resTextures.set(this->g_texture.retrieve(), 1);
     copyStates._blendMode = fge::vulkan::BlendMode{VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD,
                                                    VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD};
 

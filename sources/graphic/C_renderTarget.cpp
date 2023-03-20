@@ -39,17 +39,6 @@ void DefaultGraphicPipelineWithTexture_constructor(const fge::vulkan::Context* c
     graphicPipeline->setDescriptorSetLayouts(
             {context->getTransformLayout().getLayout(), context->getTextureLayout().getLayout()});
 }
-void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Context* context,
-                                                          const fge::RenderTarget::GraphicPipelineKey& key,
-                                                          fge::vulkan::GraphicPipeline* graphicPipeline)
-{
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-    graphicPipeline->setBlendMode(key._blendMode);
-
-    graphicPipeline->setDescriptorSetLayouts(
-            {context->getTransformBatchesLayout().getLayout(), context->getTextureLayout().getLayout()});
-}
 void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
                                         const fge::RenderTarget::GraphicPipelineKey& key,
                                         fge::vulkan::GraphicPipeline* graphicPipeline)
@@ -59,16 +48,6 @@ void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
     graphicPipeline->setBlendMode(key._blendMode);
 
     graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
-}
-void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* context,
-                                               const fge::RenderTarget::GraphicPipelineKey& key,
-                                               fge::vulkan::GraphicPipeline* graphicPipeline)
-{
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-    graphicPipeline->setBlendMode(key._blendMode);
-
-    graphicPipeline->setDescriptorSetLayouts({context->getTransformBatchesLayout().getLayout()});
 }
 
 } // end namespace
@@ -196,73 +175,41 @@ void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
 }
 void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline)
 {
-    const bool haveTexture = states._textureImage != nullptr;
+    const bool haveTextures = states._resTextures.getCount() != 0;
 
+    //See if we can set a default graphicPipeline for this rendering call
     if (graphicPipeline == nullptr)
     {
-        const GraphicPipelineKey graphicPipelineKey{states._blendMode,
-                                                    uint8_t(haveTexture ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : 0x00)};
+        if (states._resInstances.getInstancesCount() == 1 && states._resTransform.get() != nullptr &&
+            states._resDescriptors.getCount() == 0)
+        { //Simple rendering: There must be 1 instance, a transform, no descriptors
+            if (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0)
+            { //1 or no texture
+                const GraphicPipelineKey graphicPipelineKey{
+                        states._blendMode,
+                        uint8_t(haveTextures ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : FGE_RENDERTARGET_DEFAULT_ID)};
 
-        graphicPipeline = this->getGraphicPipeline(FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
-                                                   haveTexture ? DefaultGraphicPipelineWithTexture_constructor
-                                                               : DefaultGraphicPipeline_constructor);
-    }
-
-    states._transform->getData()._viewTransform = this->getView().getTransform();
-
-    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
-    auto factorViewport = this->getView().getFactorViewport();
-
-    const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
-                                         windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
-
-    graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
-
-    graphicPipeline->updateIfNeeded(this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
-
-    auto commandBuffer = this->getCommandBuffer();
-
-#ifndef FGE_DEF_SERVER
-    if (haveTexture)
-    {
-        if (RenderTarget::gLastTexture != states._textureImage)
-        {
-            RenderTarget::gLastTexture = states._textureImage;
-            auto descriptorSetTexture = states._textureImage->getDescriptorSet().get();
-            graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1, 1);
+                graphicPipeline =
+                        this->getGraphicPipeline(FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
+                                                 haveTextures ? DefaultGraphicPipelineWithTexture_constructor
+                                                              : DefaultGraphicPipeline_constructor);
+            }
         }
     }
-#endif //FGE_DEF_SERVER
 
-    auto descriptorSetTransform = states._transform->getDescriptorSet().get();
-    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTransform, 1, 0);
-
-    graphicPipeline->recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
-}
-
-void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeline,
-                               const fge::vulkan::BlendMode& blendMode,
-                               const fge::Texture* textures,
-                               uint32_t texturesCount,
-                               const fge::vulkan::DescriptorSet& transformDescriptorSet,
-                               const fge::vulkan::VertexBuffer* vertexBuffer,
-                               uint32_t vertexCount,
-                               uint32_t instanceCount,
-                               const uint32_t* instanceTextureIndices)
-{
-    const bool haveTexture = textures != nullptr && texturesCount != 0 && instanceTextureIndices != nullptr;
-
+    //If we still don't have any graphicPipeline
     if (graphicPipeline == nullptr)
     {
-        const GraphicPipelineKey graphicPipelineKey{blendMode,
-                                                    uint8_t((haveTexture ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : 0x00) |
-                                                            FGE_RENDERTARGET_DEFAULT_ID_BATCHES)};
-
-        graphicPipeline = this->getGraphicPipeline(FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
-                                                   haveTexture ? DefaultGraphicPipelineBatchesWithTexture_constructor
-                                                               : DefaultGraphicPipelineBatches_constructor);
+        return; ///TODO: error handling
     }
 
+    //Apply view transform
+    if (states._resTransform.get() != nullptr)
+    {
+        states._resTransform.get()->getData()._viewTransform = this->getView().getTransform();
+    }
+
+    //Updating graphicPipeline
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();
 
@@ -275,40 +222,135 @@ void RenderTarget::drawBatches(const fge::vulkan::GraphicPipeline* graphicPipeli
 
     auto commandBuffer = this->getCommandBuffer();
 
-    auto descriptorSetTransform = transformDescriptorSet.get();
-
-    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer, viewport, vertexBuffer, nullptr);
-
-    for (std::size_t i = 0; i < instanceCount; ++i)
+    if (states._resDescriptors.getCount() > 0)
     {
-        const uint32_t dynamicOffset = fge::TransformUboData::uboSize * i;
-
-#ifndef FGE_DEF_SERVER
-        if (haveTexture)
+        ///TODO: test that
+        for (uint32_t i = 0; i < states._resDescriptors.getCount(); ++i)
         {
-            fge::vulkan::TextureImage* textureImage = nullptr;
-            if (instanceTextureIndices[i] < texturesCount)
-            {
-                textureImage = textures[instanceTextureIndices[i]].getData()->_texture.get();
+            auto descriptor = states._resDescriptors.getDescriptorSet(i)->get();
+            graphicPipeline->bindDescriptorSets(commandBuffer, &descriptor, 1, states._resDescriptors.getSet(i));
+        }
+    }
+
+    // Apply "global" textures
+#ifndef FGE_DEF_SERVER
+    if (haveTextures)
+    {
+        if (states._resInstances.getTextureIndices() == nullptr)
+        { //Instances don't have any texture index
+            if (states._resTextures.getCount() > 1)
+            { //Instance have multiple textures
+                ///TODO: test that
+                for (uint32_t i = 0; i < states._resTextures.getCount(); ++i)
+                {
+                    fge::vulkan::TextureImage const* textureImage = nullptr;
+                    switch (states._resTextures.getPointerType())
+                    {
+                    case RenderResourceTextures::PtrTypes::TEXTURE:
+                        textureImage =
+                                states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE>(i);
+                        break;
+                    case RenderResourceTextures::PtrTypes::TEXTURE_IMAGE:
+                        textureImage =
+                                states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE_IMAGE>(i);
+                        break;
+                    }
+                    auto descriptorSetTexture = textureImage->getDescriptorSet().get();
+                    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1,
+                                                        FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE + i);
+                }
             }
             else
-            {
-                textureImage = fge::texture::GetBadTexture()->_texture.get();
+            { //Instance have 1
+                fge::vulkan::TextureImage const* textureImage = nullptr;
+                switch (states._resTextures.getPointerType())
+                {
+                case RenderResourceTextures::PtrTypes::TEXTURE:
+                    textureImage = states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE>(0);
+                    break;
+                case RenderResourceTextures::PtrTypes::TEXTURE_IMAGE:
+                    textureImage =
+                            states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE_IMAGE>(0);
+                    break;
+                }
+                if (RenderTarget::gLastTexture != textureImage)
+                {
+                    RenderTarget::gLastTexture = textureImage;
+                    auto descriptorSetTexture = textureImage->getDescriptorSet().get();
+                    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1,
+                                                        FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
+                }
             }
+        }
+    }
+#endif //FGE_DEF_SERVER
 
-            if (RenderTarget::gLastTexture != textureImage)
-            {
-                RenderTarget::gLastTexture = textureImage;
+    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 
-                auto descriptorSet = textureImage->getDescriptorSet().get();
-                graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSet, 1, 1);
+    //Binding default transform
+    if (states._resTransform.get() != nullptr)
+    {
+        auto descriptorSetTransform = states._resTransform.get()->getDescriptorSet().get();
+        graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTransform, 1,
+                                            FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
+    }
+
+    //Check instances
+    for (uint32_t iInstance = 0; iInstance < states._resInstances.getInstancesCount(); ++iInstance)
+    {
+#ifndef FGE_DEF_SERVER
+        if (haveTextures)
+        {
+            if (states._resInstances.getTextureIndices() != nullptr)
+            { //Instance have a texture index
+                fge::vulkan::TextureImage const* textureImage = nullptr;
+                uint32_t const textureIndex = states._resInstances.getTextureIndices(iInstance);
+                if (textureIndex < states._resTextures.getCount())
+                {
+                    switch (states._resTextures.getPointerType())
+                    {
+                    case RenderResourceTextures::PtrTypes::TEXTURE:
+                        textureImage = states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE>(
+                                textureIndex);
+                        break;
+                    case RenderResourceTextures::PtrTypes::TEXTURE_IMAGE:
+                        textureImage =
+                                states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE_IMAGE>(
+                                        textureIndex);
+                        break;
+                    }
+                }
+                else
+                {
+                    textureImage = fge::texture::GetBadTexture()->_texture.get();
+                }
+
+                if (RenderTarget::gLastTexture != textureImage)
+                {
+                    RenderTarget::gLastTexture = textureImage;
+                    auto descriptorSet = textureImage->getDescriptorSet().get();
+                    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSet, 1,
+                                                        FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
+                }
             }
         }
 #endif //FGE_DEF_SERVER
 
-        graphicPipeline->bindDynamicDescriptorSets(commandBuffer, &descriptorSetTransform, 1, 1, &dynamicOffset, 0);
+        //Binding dynamic descriptors
+        for (uint32_t i = 0; i < states._resInstances.getDynamicCount(); ++i)
+        {
+            const uint32_t dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance;
+            auto descriptorSet = states._resInstances.getDynamicDescriptors(i)->get();
+            graphicPipeline->bindDynamicDescriptorSets(commandBuffer, &descriptorSet, 1, 1, &dynamicOffset,
+                                                       states._resInstances.getDynamicSets(i));
+        }
 
-        vkCmdDraw(commandBuffer, vertexCount, 1, vertexCount * i, 0);
+        const uint32_t vertexCount = states._resInstances.getVertexCount() == 0 ? states._vertexBuffer->getCount()
+                                                                                : states._resInstances.getVertexCount();
+        const uint32_t vertexOffset = states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance;
+
+        ///TODO: have in graphicPipeline, a draw method
+        vkCmdDraw(commandBuffer, vertexCount, 1, vertexOffset, 0);
     }
 }
 
@@ -344,8 +386,7 @@ fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view 
     }
     else
     {
-        graphicPipeline = &itName->second.emplace(std::make_pair(key, fge::vulkan::GraphicPipeline{*this->_g_context}))
-                                   .first->second;
+        graphicPipeline = &itName->second.emplace(key, fge::vulkan::GraphicPipeline{*this->_g_context}).first->second;
 
         if (constructor != nullptr)
         {

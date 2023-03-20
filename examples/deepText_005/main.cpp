@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/C_clock.hpp"
+#include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
