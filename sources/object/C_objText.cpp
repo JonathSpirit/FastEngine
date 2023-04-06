@@ -470,7 +470,7 @@ void ObjText::ensureGeometryUpdate() const
         return;
     }
 
-    const auto* font = static_cast<const fge::FreeTypeFont*>(this->g_font);
+    const auto* font = this->g_font.retrieve();
     const auto& fontTexture = font->getTexture(this->g_characterSize);
 
     // Do nothing, if geometry has not changed and the font texture has not changed

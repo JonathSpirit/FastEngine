@@ -76,22 +76,13 @@ fge::Font& Font::operator=(fge::font::FontDataPtr data)
     return *this;
 }
 
-Font::operator fge::FreeTypeFont*()
+fge::FreeTypeFont* Font::retrieve()
 {
     return this->g_data->_font.get();
 }
-Font::operator const fge::FreeTypeFont*() const
+fge::FreeTypeFont const* Font::retrieve() const
 {
     return this->g_data->_font.get();
-}
-
-Font::operator fge::FreeTypeFont&()
-{
-    return *this->g_data->_font;
-}
-Font::operator const fge::FreeTypeFont&() const
-{
-    return *this->g_data->_font;
 }
 
 const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Font& data)

@@ -95,16 +95,15 @@ public:
      */
     fge::Font& operator=(fge::font::FontDataPtr data);
 
-    explicit operator fge::FreeTypeFont*();
-    explicit operator const fge::FreeTypeFont*() const;
-
     /**
-     * \brief Directly get the font
+     * \brief Retrieve the internal FreeType font pointer
      *
-     * \return The font
+     * \warning Will never be \b nullptr if the font manager was correctly initialized.
+     *
+     * \return The FreeType font pointer
      */
-    operator fge::FreeTypeFont&();
-    operator const fge::FreeTypeFont&() const;
+    [[nodiscard]] fge::FreeTypeFont* retrieve();
+    [[nodiscard]] fge::FreeTypeFont const* retrieve() const;
 
 private:
     fge::font::FontDataPtr g_data;
