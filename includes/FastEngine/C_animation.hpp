@@ -207,7 +207,7 @@ public:
     [[nodiscard]] bool isReverse() const;
 
     /**
-     * \brief Get the load animation data
+     * \brief Get the animation data
      *
      * \return The animation data
      */
@@ -218,18 +218,11 @@ public:
     fge::Animation& operator=(const fge::anim::AnimationDataPtr& data);
 
     /**
-     * \brief Get the texture of the actual frame
+     * \brief Retrieve the texture of the actual frame
      *
      * \return The texture or texture::GetBadTexture if something is invalid
      */
-    explicit operator fge::TextureType*();
-    explicit operator const fge::TextureType*() const;
-
-    explicit operator std::shared_ptr<fge::TextureType>&();
-    explicit operator const std::shared_ptr<fge::TextureType>&() const;
-
-    operator fge::TextureType&();
-    operator const fge::TextureType&() const;
+    [[nodiscard]] std::shared_ptr<fge::TextureType> const& retrieveTexture() const;
 
     operator std::string&();
     operator const std::string&() const;

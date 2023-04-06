@@ -134,7 +134,7 @@ FGE_OBJ_DRAW_BODY(ObjAnimation)
     auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
     copyStates._vertexBuffer = &this->g_vertices;
-    copyStates._resTextures.set(static_cast<fge::vulkan::TextureImage const*>(this->g_animation), 1);
+    copyStates._resTextures.set(this->g_animation.retrieveTexture().get(), 1);
     target.draw(copyStates);
 }
 #endif
@@ -230,8 +230,7 @@ void ObjAnimation::updatePositions()
 }
 void ObjAnimation::updateTexCoords()
 {
-    const auto rect =
-            static_cast<const fge::TextureType*>(this->g_animation)->normalizeTextureRect(this->g_textureRect);
+    const auto rect = this->g_animation.retrieveTexture()->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
     this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
