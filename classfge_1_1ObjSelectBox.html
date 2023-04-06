@@ -80,6 +80,8 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classfge_1_1ObjSelectBox-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::ObjSelectBox Class Reference</div></div>
@@ -92,6 +94,8 @@ Inheritance diagram for fge::ObjSelectBox:</div>
   <img src="classfge_1_1ObjSelectBox.png" usemap="#fge::ObjSelectBox_map" alt=""/>
   <map id="fge::ObjSelectBox_map" name="fge::ObjSelectBox_map">
 <area href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine." alt="fge::Object" shape="rect" coords="127,56,244,80"/>
+<area href="classfge_1_1Subscriber.html" title="This class is a useful utility to &quot;link&quot; multiple objects around." alt="fge::Subscriber" shape="rect" coords="254,56,371,80"/>
+<area href="classfge_1_1GuiElement.html" title="A base class for all GUI elements." alt="fge::GuiElement" shape="rect" coords="381,56,498,80"/>
 <area href="classfge_1_1Drawable.html" alt="fge::Drawable" shape="rect" coords="0,0,117,24"/>
 <area href="classfge_1_1Transformable.html" alt="fge::Transformable" shape="rect" coords="127,0,244,24"/>
 <area href="classfge_1_1Anchor.html" alt="fge::Anchor" shape="rect" coords="254,0,371,24"/>
@@ -126,75 +130,84 @@ Public Types</h2></td></tr>
 , <b>SHIFT_NEGATIVE_BOUNDS</b>
  }</td></tr>
 <tr class="separator:ae23a611d1b2ca0ba459ee2285a6f3af9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51dcc0b9ec36ed91ccf48b882d07c256"><td class="memItemLeft" align="right" valign="top"><a id="a51dcc0b9ec36ed91ccf48b882d07c256" name="a51dcc0b9ec36ed91ccf48b882d07c256"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Priority</b> = uint8_t</td></tr>
+<tr class="separator:a51dcc0b9ec36ed91ccf48b882d07c256"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3a471e24a24db5814b7e82cdd488bf1e"><td class="memItemLeft" align="right" valign="top"><a id="a3a471e24a24db5814b7e82cdd488bf1e" name="a3a471e24a24db5814b7e82cdd488bf1e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ObjSelectBox</b> (const <a class="el" href="classfge_1_1Font.html">fge::Font</a> &amp;font, const fge::Vector2f &amp;pos=fge::Vector2f())</td></tr>
-<tr class="separator:a3a471e24a24db5814b7e82cdd488bf1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d27a46b9c8e5c1a3976e7de36454c27"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a3d27a46b9c8e5c1a3976e7de36454c27">copy</a> () override</td></tr>
-<tr class="memdesc:a3d27a46b9c8e5c1a3976e7de36454c27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Duplicate the object.  <br /></td></tr>
-<tr class="separator:a3d27a46b9c8e5c1a3976e7de36454c27"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94567cfe68c2a0fc72fc64d30664d1fc"><td class="memItemLeft" align="right" valign="top"><a id="a94567cfe68c2a0fc72fc64d30664d1fc" name="a94567cfe68c2a0fc72fc64d30664d1fc"></a>
-std::vector&lt; tiny_utf8::string &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getTextList</b> ()</td></tr>
-<tr class="separator:a94567cfe68c2a0fc72fc64d30664d1fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a97e8d71ae5ef2ee384a0f43001c251"><td class="memItemLeft" align="right" valign="top"><a id="a8a97e8d71ae5ef2ee384a0f43001c251" name="a8a97e8d71ae5ef2ee384a0f43001c251"></a>
-const std::vector&lt; tiny_utf8::string &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getTextList</b> () const</td></tr>
-<tr class="separator:a8a97e8d71ae5ef2ee384a0f43001c251"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a834c76170b344011f033b33169aef58d"><td class="memItemLeft" align="right" valign="top"><a id="a834c76170b344011f033b33169aef58d" name="a834c76170b344011f033b33169aef58d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ObjSelectBox</b> (<a class="el" href="classfge_1_1Font.html">fge::Font</a> font, const fge::Vector2f &amp;pos=fge::Vector2f())</td></tr>
+<tr class="separator:a834c76170b344011f033b33169aef58d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4698faf7a642627c46f18bd01fc505ce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a4698faf7a642627c46f18bd01fc505ce">getGuiElement</a> () override</td></tr>
+<tr class="memdesc:a4698faf7a642627c46f18bd01fc505ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> attached to this object if there is one.  <br /></td></tr>
+<tr class="separator:a4698faf7a642627c46f18bd01fc505ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe87bfd72627b64c7ea5ac6965fac3ae"><td class="memItemLeft" align="right" valign="top"><a id="afe87bfd72627b64c7ea5ac6965fac3ae" name="afe87bfd72627b64c7ea5ac6965fac3ae"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>getItemCount</b> () const</td></tr>
+<tr class="separator:afe87bfd72627b64c7ea5ac6965fac3ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f52f28a6c44ebbef2106eee69a44369"><td class="memItemLeft" align="right" valign="top"><a id="a2f52f28a6c44ebbef2106eee69a44369" name="a2f52f28a6c44ebbef2106eee69a44369"></a>
+const tiny_utf8::string *&#160;</td><td class="memItemRight" valign="bottom"><b>getItem</b> (std::size_t index) const</td></tr>
+<tr class="separator:a2f52f28a6c44ebbef2106eee69a44369"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8327c4b914e90886f42b4dd1817bb28"><td class="memItemLeft" align="right" valign="top"><a id="af8327c4b914e90886f42b4dd1817bb28" name="af8327c4b914e90886f42b4dd1817bb28"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>setItem</b> (std::size_t index, tiny_utf8::string text)</td></tr>
+<tr class="separator:af8327c4b914e90886f42b4dd1817bb28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48bbba5729f8f8c8665a96050d686d4f"><td class="memItemLeft" align="right" valign="top"><a id="a48bbba5729f8f8c8665a96050d686d4f" name="a48bbba5729f8f8c8665a96050d686d4f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addItem</b> (tiny_utf8::string text)</td></tr>
+<tr class="separator:a48bbba5729f8f8c8665a96050d686d4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dc3276748d224f654cbc9c907ce5958"><td class="memItemLeft" align="right" valign="top"><a id="a1dc3276748d224f654cbc9c907ce5958" name="a1dc3276748d224f654cbc9c907ce5958"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clearItems</b> ()</td></tr>
+<tr class="separator:a1dc3276748d224f654cbc9c907ce5958"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a899763d6042f371e461c9fca7375cd6a"><td class="memItemLeft" align="right" valign="top"><a id="a899763d6042f371e461c9fca7375cd6a" name="a899763d6042f371e461c9fca7375cd6a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setSelectedText</b> (tiny_utf8::string string)</td></tr>
 <tr class="separator:a899763d6042f371e461c9fca7375cd6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c791ddff96caac280df13996993930c"><td class="memItemLeft" align="right" valign="top"><a id="a1c791ddff96caac280df13996993930c" name="a1c791ddff96caac280df13996993930c"></a>
 const tiny_utf8::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getSelectedText</b> () const</td></tr>
 <tr class="separator:a1c791ddff96caac280df13996993930c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad49de37444849bd9025ce5724639d883"><td class="memItemLeft" align="right" valign="top"><a id="ad49de37444849bd9025ce5724639d883" name="ad49de37444849bd9025ce5724639d883"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clearSelectedText</b> ()</td></tr>
+<tr class="separator:ad49de37444849bd9025ce5724639d883"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ad9ec7e9094b62c54005006e4682a50"><td class="memItemLeft" align="right" valign="top"><a id="a8ad9ec7e9094b62c54005006e4682a50" name="a8ad9ec7e9094b62c54005006e4682a50"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setCharacterSize</b> (fge::CharacterSize size)</td></tr>
 <tr class="separator:a8ad9ec7e9094b62c54005006e4682a50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc53bf4bc17762256a2aaade8bf0b253"><td class="memItemLeft" align="right" valign="top"><a id="adc53bf4bc17762256a2aaade8bf0b253" name="adc53bf4bc17762256a2aaade8bf0b253"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setActiveStat</b> (bool active)</td></tr>
 <tr class="separator:adc53bf4bc17762256a2aaade8bf0b253"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac60be641046dcf81108280f884dbe80d"><td class="memItemLeft" align="right" valign="top"><a id="ac60be641046dcf81108280f884dbe80d" name="ac60be641046dcf81108280f884dbe80d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxSize</b> (const fge::Vector2f &amp;size)</td></tr>
-<tr class="separator:ac60be641046dcf81108280f884dbe80d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95948f2cdff79c0443b04809cc1e42f9"><td class="memItemLeft" align="right" valign="top"><a id="a95948f2cdff79c0443b04809cc1e42f9" name="a95948f2cdff79c0443b04809cc1e42f9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxSize</b> (float w, float h)</td></tr>
-<tr class="separator:a95948f2cdff79c0443b04809cc1e42f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af263546e179305930d73285df1a77eee"><td class="memItemLeft" align="right" valign="top"><a id="af263546e179305930d73285df1a77eee" name="af263546e179305930d73285df1a77eee"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxColor</b> (const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;color)</td></tr>
-<tr class="separator:af263546e179305930d73285df1a77eee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7255ea3d8bd8eee05364b9ac667e403"><td class="memItemLeft" align="right" valign="top"><a id="aa7255ea3d8bd8eee05364b9ac667e403" name="aa7255ea3d8bd8eee05364b9ac667e403"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxOutlineColor</b> (const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;color)</td></tr>
-<tr class="separator:aa7255ea3d8bd8eee05364b9ac667e403"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3363f41d7572d42187026e2d3204557f"><td class="memItemLeft" align="right" valign="top"><a id="a3363f41d7572d42187026e2d3204557f" name="a3363f41d7572d42187026e2d3204557f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setTextColor</b> (const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;color)</td></tr>
-<tr class="separator:a3363f41d7572d42187026e2d3204557f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12c77d7e0038d2abd2ed9ffdabd32d1f"><td class="memItemLeft" align="right" valign="top"><a id="a12c77d7e0038d2abd2ed9ffdabd32d1f" name="a12c77d7e0038d2abd2ed9ffdabd32d1f"></a>
-fge::CharacterSize&#160;</td><td class="memItemRight" valign="bottom"><b>getCharacterSize</b> () const</td></tr>
-<tr class="separator:a12c77d7e0038d2abd2ed9ffdabd32d1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8df0b7d7f406733f5fd6e22df33502e2"><td class="memItemLeft" align="right" valign="top"><a id="a8df0b7d7f406733f5fd6e22df33502e2" name="a8df0b7d7f406733f5fd6e22df33502e2"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>getActiveStat</b> () const</td></tr>
 <tr class="separator:a8df0b7d7f406733f5fd6e22df33502e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac60be641046dcf81108280f884dbe80d"><td class="memItemLeft" align="right" valign="top"><a id="ac60be641046dcf81108280f884dbe80d" name="ac60be641046dcf81108280f884dbe80d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxSize</b> (const fge::Vector2f &amp;size)</td></tr>
+<tr class="separator:ac60be641046dcf81108280f884dbe80d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fabffe42cbbca55b86952fbb9fa7fcd"><td class="memItemLeft" align="right" valign="top"><a id="a1fabffe42cbbca55b86952fbb9fa7fcd" name="a1fabffe42cbbca55b86952fbb9fa7fcd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxColor</b> (<a class="el" href="classfge_1_1Color.html">fge::Color</a> color)</td></tr>
+<tr class="separator:a1fabffe42cbbca55b86952fbb9fa7fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55285317e2eb4fd1019fb1bf604f64ad"><td class="memItemLeft" align="right" valign="top"><a id="a55285317e2eb4fd1019fb1bf604f64ad" name="a55285317e2eb4fd1019fb1bf604f64ad"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoxOutlineColor</b> (<a class="el" href="classfge_1_1Color.html">fge::Color</a> color)</td></tr>
+<tr class="separator:a55285317e2eb4fd1019fb1bf604f64ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad5edf7ddb71c8def8c31afdf8a52a91"><td class="memItemLeft" align="right" valign="top"><a id="aad5edf7ddb71c8def8c31afdf8a52a91" name="aad5edf7ddb71c8def8c31afdf8a52a91"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setTextColor</b> (<a class="el" href="classfge_1_1Color.html">fge::Color</a> color)</td></tr>
+<tr class="separator:aad5edf7ddb71c8def8c31afdf8a52a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12c77d7e0038d2abd2ed9ffdabd32d1f"><td class="memItemLeft" align="right" valign="top"><a id="a12c77d7e0038d2abd2ed9ffdabd32d1f" name="a12c77d7e0038d2abd2ed9ffdabd32d1f"></a>
+fge::CharacterSize&#160;</td><td class="memItemRight" valign="bottom"><b>getCharacterSize</b> () const</td></tr>
+<tr class="separator:a12c77d7e0038d2abd2ed9ffdabd32d1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60a10dc825d98cb2574ed9c636a710ac"><td class="memItemLeft" align="right" valign="top"><a id="a60a10dc825d98cb2574ed9c636a710ac" name="a60a10dc825d98cb2574ed9c636a710ac"></a>
 const fge::Vector2f &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getBoxSize</b> () const</td></tr>
 <tr class="separator:a60a10dc825d98cb2574ed9c636a710ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeb5b509ca75e35a4dd4403a7a4ae22fa"><td class="memItemLeft" align="right" valign="top"><a id="aeb5b509ca75e35a4dd4403a7a4ae22fa" name="aeb5b509ca75e35a4dd4403a7a4ae22fa"></a>
-const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getBoxColor</b> () const</td></tr>
-<tr class="separator:aeb5b509ca75e35a4dd4403a7a4ae22fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ab72fc8c4300f701a27ab067d601e31"><td class="memItemLeft" align="right" valign="top"><a id="a3ab72fc8c4300f701a27ab067d601e31" name="a3ab72fc8c4300f701a27ab067d601e31"></a>
-const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getBoxOutlineColor</b> () const</td></tr>
-<tr class="separator:a3ab72fc8c4300f701a27ab067d601e31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada6af42ca68010caee07ea2224e3fc6b"><td class="memItemLeft" align="right" valign="top"><a id="ada6af42ca68010caee07ea2224e3fc6b" name="ada6af42ca68010caee07ea2224e3fc6b"></a>
-const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getTextColor</b> () const</td></tr>
-<tr class="separator:ada6af42ca68010caee07ea2224e3fc6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3daada9e2fdf4ec0d69d7c2ced3e70d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a3daada9e2fdf4ec0d69d7c2ced3e70d8">update</a> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::milliseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene) override</td></tr>
-<tr class="memdesc:a3daada9e2fdf4ec0d69d7c2ced3e70d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main method called every frame.  <br /></td></tr>
-<tr class="separator:a3daada9e2fdf4ec0d69d7c2ced3e70d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a153bf2887927d6f791b69a566d0bac28"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a153bf2887927d6f791b69a566d0bac28">draw</a> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const override</td></tr>
-<tr class="memdesc:a153bf2887927d6f791b69a566d0bac28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called every frame to draw the object.  <br /></td></tr>
-<tr class="separator:a153bf2887927d6f791b69a566d0bac28"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a128536f32af35768dac547edcd550ae3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a128536f32af35768dac547edcd550ae3">save</a> (nlohmann::json &amp;jsonObject, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene) override</td></tr>
-<tr class="memdesc:a128536f32af35768dac547edcd550ae3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the object to a json object.  <br /></td></tr>
-<tr class="separator:a128536f32af35768dac547edcd550ae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30fa7c60fe6408c80cec8f901f950150"><td class="memItemLeft" align="right" valign="top"><a id="a30fa7c60fe6408c80cec8f901f950150" name="a30fa7c60fe6408c80cec8f901f950150"></a>
+<a class="el" href="classfge_1_1Color.html">fge::Color</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getBoxColor</b> () const</td></tr>
+<tr class="separator:a30fa7c60fe6408c80cec8f901f950150"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79d0beeeb8832ee7b64a13cff54dbd76"><td class="memItemLeft" align="right" valign="top"><a id="a79d0beeeb8832ee7b64a13cff54dbd76" name="a79d0beeeb8832ee7b64a13cff54dbd76"></a>
+<a class="el" href="classfge_1_1Color.html">fge::Color</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getBoxOutlineColor</b> () const</td></tr>
+<tr class="separator:a79d0beeeb8832ee7b64a13cff54dbd76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd7376710731c5242643a388f73ce9be"><td class="memItemLeft" align="right" valign="top"><a id="abd7376710731c5242643a388f73ce9be" name="abd7376710731c5242643a388f73ce9be"></a>
+<a class="el" href="classfge_1_1Color.html">fge::Color</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getTextColor</b> () const</td></tr>
+<tr class="separator:abd7376710731c5242643a388f73ce9be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a48d8e9fae00c934fcc7fe2d0d8b558"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a7a48d8e9fae00c934fcc7fe2d0d8b558">callbackRegister</a> (<a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, <a class="el" href="classfge_1_1GuiElementHandler.html">fge::GuiElementHandler</a> *guiElementHandlerPtr) override</td></tr>
+<tr class="memdesc:a7a48d8e9fae00c934fcc7fe2d0d8b558"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ask the object to register all callbacks it needs to receive events.  <br /></td></tr>
+<tr class="separator:a7a48d8e9fae00c934fcc7fe2d0d8b558"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8202f9c0d403b029cefe1ec0fc6b424e"><td class="memItemLeft" align="right" valign="top">FGE_OBJ_DRAW_DECLARE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a8202f9c0d403b029cefe1ec0fc6b424e">save</a> (nlohmann::json &amp;jsonObject, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene) override</td></tr>
+<tr class="memdesc:a8202f9c0d403b029cefe1ec0fc6b424e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the object to a json object.  <br /></td></tr>
+<tr class="separator:a8202f9c0d403b029cefe1ec0fc6b424e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b7832824fe37b752a05cedca4ea59ad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a6b7832824fe37b752a05cedca4ea59ad">load</a> (nlohmann::json &amp;jsonObject, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene) override</td></tr>
 <tr class="memdesc:a6b7832824fe37b752a05cedca4ea59ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the object from a json object.  <br /></td></tr>
 <tr class="separator:a6b7832824fe37b752a05cedca4ea59ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,12 +229,18 @@ const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;&#160;</td
 <tr class="memitem:a9a0eb23d64c64407927558584d97bc63"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Rect.html">fge::RectFloat</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1ObjSelectBox.html#a9a0eb23d64c64407927558584d97bc63">getLocalBounds</a> () const override</td></tr>
 <tr class="memdesc:a9a0eb23d64c64407927558584d97bc63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the local bounds of the object (without any transformations)  <br /></td></tr>
 <tr class="separator:a9a0eb23d64c64407927558584d97bc63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21fc497a76f297207f92a54523cb0a0c"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a21fc497a76f297207f92a54523cb0a0c">copy</a> ()</td></tr>
+<tr class="memdesc:a21fc497a76f297207f92a54523cb0a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Duplicate the object.  <br /></td></tr>
+<tr class="separator:a21fc497a76f297207f92a54523cb0a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84cd084ae66696cf0f33f0c3e1f68cf1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a84cd084ae66696cf0f33f0c3e1f68cf1">first</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
 <tr class="memdesc:a84cd084ae66696cf0f33f0c3e1f68cf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is added to a scene for initialization purposes.  <br /></td></tr>
 <tr class="separator:a84cd084ae66696cf0f33f0c3e1f68cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9f531a05d43d09501849905d1e2f00c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c">callbackRegister</a> (<a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, <a class="el" href="classfge_1_1GuiElementHandler.html">fge::GuiElementHandler</a> *guiElementHandlerPtr)</td></tr>
-<tr class="memdesc:ae9f531a05d43d09501849905d1e2f00c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ask the object to register all callbacks it needs to receive events.  <br /></td></tr>
-<tr class="separator:ae9f531a05d43d09501849905d1e2f00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7dbf5bbb2c42636d2f75d4b56bb73d4"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ab7dbf5bbb2c42636d2f75d4b56bb73d4">update</a> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::microseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
+<tr class="memdesc:ab7dbf5bbb2c42636d2f75d4b56bb73d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main method called every frame.  <br /></td></tr>
+<tr class="separator:ab7dbf5bbb2c42636d2f75d4b56bb73d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d89ef9ef8e289af3bddbb84973cc049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a2d89ef9ef8e289af3bddbb84973cc049">draw</a> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const override</td></tr>
+<tr class="memdesc:a2d89ef9ef8e289af3bddbb84973cc049"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called every frame to draw the object.  <br /></td></tr>
+<tr class="separator:a2d89ef9ef8e289af3bddbb84973cc049"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e53c92df956b49ff7bf9b6986520f3c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a8e53c92df956b49ff7bf9b6986520f3c">networkRegister</a> ()</td></tr>
 <tr class="memdesc:a8e53c92df956b49ff7bf9b6986520f3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register all network types needed by the object.  <br /></td></tr>
 <tr class="separator:a8e53c92df956b49ff7bf9b6986520f3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -234,9 +253,6 @@ const <a class="el" href="classfge_1_1Color.html">fge::Color</a> &amp;&#160;</td
 <tr class="memitem:a78cfade6f59ed9cd4b2c7c32a8cd914d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a78cfade6f59ed9cd4b2c7c32a8cd914d">loadFromFile</a> (const std::string &amp;path)</td></tr>
 <tr class="memdesc:a78cfade6f59ed9cd4b2c7c32a8cd914d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the object from a file.  <br /></td></tr>
 <tr class="separator:a78cfade6f59ed9cd4b2c7c32a8cd914d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbffc05479a125d8d55cdafaaa085a13"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#abbffc05479a125d8d55cdafaaa085a13">getGuiElement</a> ()</td></tr>
-<tr class="memdesc:abbffc05479a125d8d55cdafaaa085a13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> attached to this object if there is one.  <br /></td></tr>
-<tr class="separator:abbffc05479a125d8d55cdafaaa085a13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af80f7814f28d09f87d7083a2eb0344d2"><td class="memItemLeft" align="right" valign="top">glm::mat4&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#af80f7814f28d09f87d7083a2eb0344d2">getParentsTransform</a> () const</td></tr>
 <tr class="memdesc:af80f7814f28d09f87d7083a2eb0344d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve recursively all parents transform by combining them.  <br /></td></tr>
 <tr class="separator:af80f7814f28d09f87d7083a2eb0344d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -309,15 +325,42 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>needAnchorUpdate</b> 
 <tr class="memitem:a00822e5b6bb42b1336857dbe092c9beb"><td class="memItemLeft" align="right" valign="top"><a id="a00822e5b6bb42b1336857dbe092c9beb" name="a00822e5b6bb42b1336857dbe092c9beb"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>isNeedingAnchorUpdate</b> () const</td></tr>
 <tr class="separator:a00822e5b6bb42b1336857dbe092c9beb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab89ef891d28966cbdf3b306ba4b89cc"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#aab89ef891d28966cbdf3b306ba4b89cc">isRecursive</a> () const</td></tr>
+<tr class="memdesc:aab89ef891d28966cbdf3b306ba4b89cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if this <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> is recursive.  <br /></td></tr>
+<tr class="separator:aab89ef891d28966cbdf3b306ba4b89cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3717523b3a054e1a491974e18508f5d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#a3717523b3a054e1a491974e18508f5d4">setGuiScale</a> (const fge::Vector2f &amp;scale)</td></tr>
+<tr class="memdesc:a3717523b3a054e1a491974e18508f5d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the scale of the element.  <br /></td></tr>
+<tr class="separator:a3717523b3a054e1a491974e18508f5d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb8c0514c89953350424043b66e40e7d"><td class="memItemLeft" align="right" valign="top">const fge::Vector2f &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#adb8c0514c89953350424043b66e40e7d">getGuiScale</a> () const</td></tr>
+<tr class="memdesc:adb8c0514c89953350424043b66e40e7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the scale of the element.  <br /></td></tr>
+<tr class="separator:adb8c0514c89953350424043b66e40e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3848b0b2920043656328f8938d3957f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#ab3848b0b2920043656328f8938d3957f">setPriority</a> (fge::GuiElement::Priority priority) const</td></tr>
+<tr class="memdesc:ab3848b0b2920043656328f8938d3957f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the priority of the element.  <br /></td></tr>
+<tr class="separator:ab3848b0b2920043656328f8938d3957f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbbe3a27867bc5239a53b9e7ac791488"><td class="memItemLeft" align="right" valign="top">fge::GuiElement::Priority&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#afbbe3a27867bc5239a53b9e7ac791488">getPriority</a> () const</td></tr>
+<tr class="memdesc:afbbe3a27867bc5239a53b9e7ac791488"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the priority of the element.  <br /></td></tr>
+<tr class="separator:afbbe3a27867bc5239a53b9e7ac791488"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9f41a5aec961e94dc3e00480877eb2a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#ab9f41a5aec961e94dc3e00480877eb2a">verifyPriority</a> (<a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> *element) const</td></tr>
+<tr class="memdesc:ab9f41a5aec961e94dc3e00480877eb2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify if the priority of the element is higher than the given element.  <br /></td></tr>
+<tr class="separator:ab9f41a5aec961e94dc3e00480877eb2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a400995a769989f79e1b55280a05a6a54"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a400995a769989f79e1b55280a05a6a54">LoadFromFile</a> (const std::string &amp;path)</td></tr>
 <tr class="memdesc:a400995a769989f79e1b55280a05a6a54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static form of the loadFromFile method.  <br /></td></tr>
 <tr class="separator:a400995a769989f79e1b55280a05a6a54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaec41929a47397845d5ddb1b5e7aa2df"><td class="memItemLeft" align="right" valign="top"><a id="aaec41929a47397845d5ddb1b5e7aa2df" name="aaec41929a47397845d5ddb1b5e7aa2df"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>setGlobalGuiScale</b> (const fge::Vector2f &amp;scale)</td></tr>
+<tr class="separator:aaec41929a47397845d5ddb1b5e7aa2df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a023be7ea7afdcb57bfb0dc59c13974c4"><td class="memItemLeft" align="right" valign="top"><a id="a023be7ea7afdcb57bfb0dc59c13974c4" name="a023be7ea7afdcb57bfb0dc59c13974c4"></a>
+static const fge::Vector2f &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getGlobalGuiScale</b> ()</td></tr>
+<tr class="separator:a023be7ea7afdcb57bfb0dc59c13974c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a8bf49d69d45cfbaa5871051458daefcf"><td class="memItemLeft" align="right" valign="top"><a id="a8bf49d69d45cfbaa5871051458daefcf" name="a8bf49d69d45cfbaa5871051458daefcf"></a>
+<a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1ObjSelectBox.html">fge::ObjSelectBox</a> &amp;, std::size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_onSelect</b></td></tr>
+<tr class="separator:a8bf49d69d45cfbaa5871051458daefcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a13676654aff0efb72186d540351a37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1TagList.html">fge::TagList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37">_tags</a></td></tr>
 <tr class="memdesc:a2a13676654aff0efb72186d540351a37"><td class="mdescLeft">&#160;</td><td class="mdescRight">The tags of the object.  <br /></td></tr>
 <tr class="separator:a2a13676654aff0efb72186d540351a37"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -339,6 +382,36 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ae3dce3b1be2ca57d9ae8a201607ec920"><td class="memItemLeft" align="right" valign="top"><a id="ae3dce3b1be2ca57d9ae8a201607ec920" name="ae3dce3b1be2ca57d9ae8a201607ec920"></a>
 <a class="el" href="classfge_1_1Transform.html">fge::Transform</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_transform</b></td></tr>
 <tr class="separator:ae3dce3b1be2ca57d9ae8a201607ec920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8240dd737382d6f467e3fc7b7c4c4a3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; const <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;, const SDL_MouseWheelEvent &amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#a8240dd737382d6f467e3fc7b7c4c4a3d">_onGuiMouseWheelScrolled</a></td></tr>
+<tr class="memdesc:a8240dd737382d6f467e3fc7b7c4c4a3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when the element is verified and the mouse wheel is scrolled.  <br /></td></tr>
+<tr class="separator:a8240dd737382d6f467e3fc7b7c4c4a3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2696234feffef8937165d68d97bf6444"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; const <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;, const SDL_MouseButtonEvent &amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#a2696234feffef8937165d68d97bf6444">_onGuiMouseButtonPressed</a></td></tr>
+<tr class="memdesc:a2696234feffef8937165d68d97bf6444"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when the element is verified and the mouse is pressed.  <br /></td></tr>
+<tr class="separator:a2696234feffef8937165d68d97bf6444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf9048cde10fc90fd49198c10de1d5cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; const <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;, const SDL_MouseButtonEvent &amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#abf9048cde10fc90fd49198c10de1d5cb">_onGuiMouseButtonReleased</a></td></tr>
+<tr class="memdesc:abf9048cde10fc90fd49198c10de1d5cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when the element is verified and a mouse button is released.  <br /></td></tr>
+<tr class="separator:abf9048cde10fc90fd49198c10de1d5cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1885abb78ec75225baae9af86073422"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; const <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;, const SDL_MouseMotionEvent &amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1GuiElement.html#ac1885abb78ec75225baae9af86073422">_onGuiMouseMoved</a></td></tr>
+<tr class="memdesc:ac1885abb78ec75225baae9af86073422"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when the element is verified and the mouse is moved.  <br /></td></tr>
+<tr class="separator:ac1885abb78ec75225baae9af86073422"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a144e551b84af6a03ca33ba06c36d28ba"><td class="memItemLeft" align="right" valign="top"><a id="a144e551b84af6a03ca33ba06c36d28ba" name="a144e551b84af6a03ca33ba06c36d28ba"></a>
+static <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; const fge::Vector2f &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_onGlobalGuiScaleChange</b></td></tr>
+<tr class="separator:a144e551b84af6a03ca33ba06c36d28ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a637c402f14121e1c1615d9a567a9b9ea"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscriber.html#a637c402f14121e1c1615d9a567a9b9ea">onDetach</a> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> *subscription)</td></tr>
+<tr class="memdesc:a637c402f14121e1c1615d9a567a9b9ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when a subscription is detached.  <br /></td></tr>
+<tr class="separator:a637c402f14121e1c1615d9a567a9b9ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e1372c85fa9bfdbd4ca2855660149d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscriber.html#a6e1372c85fa9bfdbd4ca2855660149d6">detachAll</a> ()</td></tr>
+<tr class="memdesc:a6e1372c85fa9bfdbd4ca2855660149d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach from all subscriptions.  <br /></td></tr>
+<tr class="separator:a6e1372c85fa9bfdbd4ca2855660149d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac0718c7adac75fa7f8969d8f61dfa15"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Subscriber.html#aac0718c7adac75fa7f8969d8f61dfa15">detach</a> (<a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> *subscription)</td></tr>
+<tr class="memdesc:aac0718c7adac75fa7f8969d8f61dfa15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach from a specific subscription.  <br /></td></tr>
+<tr class="separator:aac0718c7adac75fa7f8969d8f61dfa15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -360,10 +433,16 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <tr class="memitem:aff7bdf831f54789e4420cc2cff712a72"><td class="memItemLeft" align="right" valign="top"><a id="aff7bdf831f54789e4420cc2cff712a72" name="aff7bdf831f54789e4420cc2cff712a72"></a>
 <a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_g_objectParent</b> {}</td></tr>
 <tr class="separator:aff7bdf831f54789e4420cc2cff712a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abed08c5d228951737e899785ce787d52"><td class="memItemLeft" align="right" valign="top"><a id="abed08c5d228951737e899785ce787d52" name="abed08c5d228951737e899785ce787d52"></a>
+fge::GuiElement::Priority&#160;</td><td class="memItemRight" valign="bottom"><b>_g_priority</b> { 0 }</td></tr>
+<tr class="separator:abed08c5d228951737e899785ce787d52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf421a7e380095c7b19d82b599409944"><td class="memItemLeft" align="right" valign="top"><a id="acf421a7e380095c7b19d82b599409944" name="acf421a7e380095c7b19d82b599409944"></a>
+fge::Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>_g_scale</b> {1.0f, 1.0f}</td></tr>
+<tr class="separator:acf421a7e380095c7b19d82b599409944"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ae9f531a05d43d09501849905d1e2f00c" name="ae9f531a05d43d09501849905d1e2f00c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9f531a05d43d09501849905d1e2f00c">&#9670;&#160;</a></span>callbackRegister()</h2>
+<a id="a7a48d8e9fae00c934fcc7fe2d0d8b558" name="a7a48d8e9fae00c934fcc7fe2d0d8b558"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a48d8e9fae00c934fcc7fe2d0d8b558">&#9670;&#160;</a></span>callbackRegister()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -372,7 +451,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void fge::Object::callbackRegister </td>
+          <td class="memname">void fge::ObjSelectBox::callbackRegister </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;&#160;</td>
           <td class="paramname"><em>event</em>, </td>
@@ -391,7 +470,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -405,12 +484,12 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjButton.html#a34a199a05dc5f1015d06e1ad920a3869">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjSlider.html#a385ce55ba5b01e8b20ce37ab9e3a788b">fge::ObjSlider</a>, <a class="el" href="classfge_1_1ObjTextInputBox.html#a7540ce7a97195b66c533b833782971e8">fge::ObjTextInputBox</a>, <a class="el" href="classfge_1_1ObjTextList.html#adba259af8d0ea8fca23cc56d1616000a">fge::ObjTextList</a>, and <a class="el" href="classfge_1_1ObjWindow.html#af3cac2cc2cf0c014a1763b37e2c9d43b">fge::ObjWindow</a>.</p>
+<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c">fge::Object</a>.</p>
 
 </div>
 </div>
-<a id="a3d27a46b9c8e5c1a3976e7de36454c27" name="a3d27a46b9c8e5c1a3976e7de36454c27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d27a46b9c8e5c1a3976e7de36454c27">&#9670;&#160;</a></span>copy()</h2>
+<a id="a21fc497a76f297207f92a54523cb0a0c" name="a21fc497a76f297207f92a54523cb0a0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21fc497a76f297207f92a54523cb0a0c">&#9670;&#160;</a></span>copy()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -419,7 +498,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1Object.html">fge::Object</a> * fge::ObjSelectBox::copy </td>
+          <td class="memname">virtual <a class="el" href="classfge_1_1Object.html">fge::Object</a> * fge::Object::copy </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -427,7 +506,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -436,12 +515,12 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <p>By default, if the copy method is not overridden, the object is duplicated with the help of the register manager (and the object class have to be registered).</p>
 <dl class="section return"><dt>Returns</dt><dd>A allocated pointer to the duplicated object </dd></dl>
 
-<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#a21fc497a76f297207f92a54523cb0a0c">fge::Object</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#ae45d679fb4a4e44d0cf30c9bac1bd2b2">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#a3039e70050f6af4779f1ab039a5dbe01">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#a2323300067285005815f0b8e6a577aac">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a9a504a992d8d04ccc5eea70cc8162a33">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSprite.html#a96b59c33638708400a0477cd3e982bdc">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#a452e9f32ad2605ab371068d42471e77f">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#af0c1b6e0d4ae7b960e50e7827089c1b5">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#ab213991a8b09bd5181afde8088c698ff">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#aa7ba59ffc0112e2274b1c7ea579e96ab">fge::ObjText</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a5a7af45e7c830295715f1c9006d9f02d">fge::ObjTileMap</a>.</p>
 
 </div>
 </div>
-<a id="a153bf2887927d6f791b69a566d0bac28" name="a153bf2887927d6f791b69a566d0bac28"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a153bf2887927d6f791b69a566d0bac28">&#9670;&#160;</a></span>draw()</h2>
+<a id="aac0718c7adac75fa7f8969d8f61dfa15" name="aac0718c7adac75fa7f8969d8f61dfa15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac0718c7adac75fa7f8969d8f61dfa15">&#9670;&#160;</a></span>detach()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -450,7 +529,68 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::ObjSelectBox::draw </td>
+          <td class="memname">void fge::Subscriber::detach </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> *&#160;</td>
+          <td class="paramname"><em>subscription</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detach from a specific subscription. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscription</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a6e1372c85fa9bfdbd4ca2855660149d6" name="a6e1372c85fa9bfdbd4ca2855660149d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e1372c85fa9bfdbd4ca2855660149d6">&#9670;&#160;</a></span>detachAll()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::Subscriber::detachAll </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detach from all subscriptions. </p>
+
+</div>
+</div>
+<a id="a2d89ef9ef8e289af3bddbb84973cc049" name="a2d89ef9ef8e289af3bddbb84973cc049"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d89ef9ef8e289af3bddbb84973cc049">&#9670;&#160;</a></span>draw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void fge::Object::draw </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;&#160;</td>
           <td class="paramname"><em>target</em>, </td>
@@ -469,7 +609,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -483,7 +623,9 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#a2d89ef9ef8e289af3bddbb84973cc049">fge::Object</a>.</p>
+<p>Implements <a class="el" href="classfge_1_1Drawable.html">fge::Drawable</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#aa648de3ddc83a2a7b242ca0fbee1d5b6">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#a7b8c50424cd4a279afe97d045d1732d8">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#aa4d21448a110877a9b0100b284e19788">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a7abf70a38a5ad97d2b42b4f6d5e2363c">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjShape.html#ae9e68b10df57a33d890830490753ec31">fge::ObjShape</a>, <a class="el" href="classfge_1_1ObjSprite.html#a7b6ab379bbbc0a8ff43b9fdabf1ea49e">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#abf95fdb174b7080ae0b77d45721ade04">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#ad870d4d577471a5cd845900e5327d296">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#a78f80b965abeac4c91da4e991c690221">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#acf8daa90829a50a26167b91dec72ca60">fge::ObjText</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a41dfc8c85d8800fa1282504c9a932a1c">fge::ObjTileMap</a>.</p>
 
 </div>
 </div>
@@ -519,7 +661,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjLight.html#a53de80dc8a42d3b9354d31f60f99620d">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#aafe68217a005fc0ba55d83e28a9f8b4b">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSlider.html#ac73e11a5e869bfa0ba4b0537f75b3d17">fge::ObjSlider</a>, <a class="el" href="classfge_1_1ObjTextList.html#a7e3178e6b494f523e1c2d317ded43f7a">fge::ObjTextList</a>, and <a class="el" href="classfge_1_1ObjWindow.html#ae733d1d260cbb847b31f7e7c372f0e91">fge::ObjWindow</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjLight.html#a53de80dc8a42d3b9354d31f60f99620d">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#aafe68217a005fc0ba55d83e28a9f8b4b">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjShape.html#ab9b832b3664c40347466e59ae8f3b6f4">fge::ObjShape</a>, <a class="el" href="classfge_1_1ObjSlider.html#ac73e11a5e869bfa0ba4b0537f75b3d17">fge::ObjSlider</a>, <a class="el" href="classfge_1_1ObjTextList.html#a7e3178e6b494f523e1c2d317ded43f7a">fge::ObjTextList</a>, and <a class="el" href="classfge_1_1ObjWindow.html#ae733d1d260cbb847b31f7e7c372f0e91">fge::ObjWindow</a>.</p>
 
 </div>
 </div>
@@ -583,8 +725,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="abbffc05479a125d8d55cdafaaa085a13" name="abbffc05479a125d8d55cdafaaa085a13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abbffc05479a125d8d55cdafaaa085a13">&#9670;&#160;</a></span>getGuiElement()</h2>
+<a id="a4698faf7a642627c46f18bd01fc505ce" name="a4698faf7a642627c46f18bd01fc505ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4698faf7a642627c46f18bd01fc505ce">&#9670;&#160;</a></span>getGuiElement()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -593,7 +735,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> * fge::Object::getGuiElement </td>
+          <td class="memname"><a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> * fge::ObjSelectBox::getGuiElement </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -601,7 +743,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -609,7 +751,35 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <p>Get the <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> attached to this object if there is one. </p>
 <dl class="section return"><dt>Returns</dt><dd>The <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> pointer or <b>nullptr</b> </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjButton.html#a2e0e983ef8e3caf11a2c52864b3c53d0">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjSlider.html#a157f4b58e101c85bd65dfad91656433c">fge::ObjSlider</a>, <a class="el" href="classfge_1_1ObjTextInputBox.html#ad09ce50ddc883399bbeb859462796c8e">fge::ObjTextInputBox</a>, and <a class="el" href="classfge_1_1ObjWindow.html#a7e9087d1b679ca3ef1387732d4798945">fge::ObjWindow</a>.</p>
+<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#abbffc05479a125d8d55cdafaaa085a13">fge::Object</a>.</p>
+
+</div>
+</div>
+<a id="adb8c0514c89953350424043b66e40e7d" name="adb8c0514c89953350424043b66e40e7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb8c0514c89953350424043b66e40e7d">&#9670;&#160;</a></span>getGuiScale()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const fge::Vector2f &amp; fge::GuiElement::getGuiScale </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the scale of the element. </p>
+<dl class="section return"><dt>Returns</dt><dd>The scale of the element </dd></dl>
 
 </div>
 </div>
@@ -699,6 +869,34 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
+<a id="afbbe3a27867bc5239a53b9e7ac791488" name="afbbe3a27867bc5239a53b9e7ac791488"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbbe3a27867bc5239a53b9e7ac791488">&#9670;&#160;</a></span>getPriority()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::GuiElement::Priority fge::GuiElement::getPriority </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the priority of the element. </p>
+<dl class="section return"><dt>Returns</dt><dd>The priority of the element </dd></dl>
+
+</div>
+</div>
 <a id="a6a4968ccb9258f2d6bf9c7af8e0579d7" name="a6a4968ccb9258f2d6bf9c7af8e0579d7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6a4968ccb9258f2d6bf9c7af8e0579d7">&#9670;&#160;</a></span>getReadableClassName()</h2>
 
@@ -726,6 +924,37 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <dl class="section return"><dt>Returns</dt><dd>A readable version of the class name </dd></dl>
 
 <p>Reimplemented from <a class="el" href="classfge_1_1Object.html#a2d15cdae2325951da8036e6551a7fd7c">fge::Object</a>.</p>
+
+</div>
+</div>
+<a id="aab89ef891d28966cbdf3b306ba4b89cc" name="aab89ef891d28966cbdf3b306ba4b89cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab89ef891d28966cbdf3b306ba4b89cc">&#9670;&#160;</a></span>isRecursive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool fge::GuiElement::isRecursive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if this <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> is recursive. </p>
+<p>A gui element is recursive if it handle others GuiElements.</p>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if it is recursive, <b>false</b> otherwise </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classfge_1_1GuiElementRecursive.html#a388be26cac8ad10c874e5cea498df7a8">fge::GuiElementRecursive</a>.</p>
 
 </div>
 </div>
@@ -873,6 +1102,40 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
+<a id="a637c402f14121e1c1615d9a567a9b9ea" name="a637c402f14121e1c1615d9a567a9b9ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a637c402f14121e1c1615d9a567a9b9ea">&#9670;&#160;</a></span>onDetach()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void fge::Subscriber::onDetach </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscription.html">fge::Subscription</a> *&#160;</td>
+          <td class="paramname"><em>subscription</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback called when a subscription is detached. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscription</td><td>The subscription that was detached </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="aa6ede31447296c0364b66c187a3f4c06" name="aa6ede31447296c0364b66c187a3f4c06"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa6ede31447296c0364b66c187a3f4c06">&#9670;&#160;</a></span>pack()</h2>
 
@@ -945,8 +1208,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="a128536f32af35768dac547edcd550ae3" name="a128536f32af35768dac547edcd550ae3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a128536f32af35768dac547edcd550ae3">&#9670;&#160;</a></span>save()</h2>
+<a id="a8202f9c0d403b029cefe1ec0fc6b424e" name="a8202f9c0d403b029cefe1ec0fc6b424e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8202f9c0d403b029cefe1ec0fc6b424e">&#9670;&#160;</a></span>save()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -955,7 +1218,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::ObjSelectBox::save </td>
+          <td class="memname">FGE_OBJ_DRAW_DECLARE void fge::ObjSelectBox::save </td>
           <td>(</td>
           <td class="paramtype">nlohmann::json &amp;&#160;</td>
           <td class="paramname"><em>jsonObject</em>, </td>
@@ -1027,6 +1290,75 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
+<a id="a3717523b3a054e1a491974e18508f5d4" name="a3717523b3a054e1a491974e18508f5d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3717523b3a054e1a491974e18508f5d4">&#9670;&#160;</a></span>setGuiScale()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::GuiElement::setGuiScale </td>
+          <td>(</td>
+          <td class="paramtype">const fge::Vector2f &amp;&#160;</td>
+          <td class="paramname"><em>scale</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the scale of the element. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">scale</td><td>The scale of the element </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab3848b0b2920043656328f8938d3957f" name="ab3848b0b2920043656328f8938d3957f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3848b0b2920043656328f8938d3957f">&#9670;&#160;</a></span>setPriority()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::GuiElement::setPriority </td>
+          <td>(</td>
+          <td class="paramtype">fge::GuiElement::Priority&#160;</td>
+          <td class="paramname"><em>priority</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the priority of the element. </p>
+<p>The priority value can be used with the scene DepthPlan.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">priority</td><td>The priority of the element </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a2e6f469225b6a59bbef40e835cc3e08d" name="a2e6f469225b6a59bbef40e835cc3e08d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2e6f469225b6a59bbef40e835cc3e08d">&#9670;&#160;</a></span>unpack()</h2>
 
@@ -1063,8 +1395,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="a3daada9e2fdf4ec0d69d7c2ced3e70d8" name="a3daada9e2fdf4ec0d69d7c2ced3e70d8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3daada9e2fdf4ec0d69d7c2ced3e70d8">&#9670;&#160;</a></span>update()</h2>
+<a id="ab7dbf5bbb2c42636d2f75d4b56bb73d4" name="ab7dbf5bbb2c42636d2f75d4b56bb73d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7dbf5bbb2c42636d2f75d4b56bb73d4">&#9670;&#160;</a></span>update()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1073,7 +1405,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::ObjSelectBox::update </td>
+          <td class="memname">virtual void fge::Object::update </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;&#160;</td>
           <td class="paramname"><em>screen</em>, </td>
@@ -1087,7 +1419,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::chrono::milliseconds &amp;&#160;</td>
+          <td class="paramtype">const std::chrono::microseconds &amp;&#160;</td>
           <td class="paramname"><em>deltaTime</em>, </td>
         </tr>
         <tr>
@@ -1104,7 +1436,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -1120,7 +1452,43 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#ac0452075250bc82a7029466399cb91c0">fge::Object</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#a1c941f0c733c59ba091472ebea707362">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjLight.html#acd143060b44bee285b269b8732b7bf5b">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#aa44e5b8df237a9dc3bfa6f083d6a087d">fge::ObjRenderMap</a>, and <a class="el" href="classfge_1_1ObjSwitch.html#a7134cb6814dc0ff753e3689401eb5989">fge::ObjSwitch</a>.</p>
+
+</div>
+</div>
+<a id="ab9f41a5aec961e94dc3e00480877eb2a" name="ab9f41a5aec961e94dc3e00480877eb2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9f41a5aec961e94dc3e00480877eb2a">&#9670;&#160;</a></span>verifyPriority()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::GuiElement::verifyPriority </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1GuiElement.html">fge::GuiElement</a> *&#160;</td>
+          <td class="paramname"><em>element</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Verify if the priority of the element is higher than the given element. </p>
+<p>If the provided element is null, the function will assume that the element is the highest priority.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">element</td><td>The element to compare with </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the priority of the element is higher than the given element, <b>false</b> otherwise </dd></dl>
 
 </div>
 </div>
@@ -1247,6 +1615,102 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 </div><div class="memdoc">
 
 <p>The network types container of the object. </p>
+
+</div>
+</div>
+<a id="a2696234feffef8937165d68d97bf6444" name="a2696234feffef8937165d68d97bf6444"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2696234feffef8937165d68d97bf6444">&#9670;&#160;</a></span>_onGuiMouseButtonPressed</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;const <a class="el" href="classfge_1_1Event.html">fge::Event</a>&amp;, const SDL_MouseButtonEvent&amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a>&amp;&gt; fge::GuiElement::_onGuiMouseButtonPressed</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback called when the element is verified and the mouse is pressed. </p>
+
+</div>
+</div>
+<a id="abf9048cde10fc90fd49198c10de1d5cb" name="abf9048cde10fc90fd49198c10de1d5cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf9048cde10fc90fd49198c10de1d5cb">&#9670;&#160;</a></span>_onGuiMouseButtonReleased</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;const <a class="el" href="classfge_1_1Event.html">fge::Event</a>&amp;, const SDL_MouseButtonEvent&amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a>&amp;&gt; fge::GuiElement::_onGuiMouseButtonReleased</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback called when the element is verified and a mouse button is released. </p>
+
+</div>
+</div>
+<a id="ac1885abb78ec75225baae9af86073422" name="ac1885abb78ec75225baae9af86073422"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1885abb78ec75225baae9af86073422">&#9670;&#160;</a></span>_onGuiMouseMoved</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;const <a class="el" href="classfge_1_1Event.html">fge::Event</a>&amp;, const SDL_MouseMotionEvent&amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a>&amp;&gt; fge::GuiElement::_onGuiMouseMoved</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback called when the element is verified and the mouse is moved. </p>
+
+</div>
+</div>
+<a id="a8240dd737382d6f467e3fc7b7c4c4a3d" name="a8240dd737382d6f467e3fc7b7c4c4a3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8240dd737382d6f467e3fc7b7c4c4a3d">&#9670;&#160;</a></span>_onGuiMouseWheelScrolled</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;const <a class="el" href="classfge_1_1Event.html">fge::Event</a>&amp;, const SDL_MouseWheelEvent&amp;, <a class="el" href="structfge_1_1GuiElementContext.html">fge::GuiElementContext</a>&amp;&gt; fge::GuiElement::_onGuiMouseWheelScrolled</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback called when the element is verified and the mouse wheel is scrolled. </p>
 
 </div>
 </div>

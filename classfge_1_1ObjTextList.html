@@ -197,9 +197,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>refreshSize</b> ()</t
 <tr class="memitem:a21fc497a76f297207f92a54523cb0a0c"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a21fc497a76f297207f92a54523cb0a0c">copy</a> ()</td></tr>
 <tr class="memdesc:a21fc497a76f297207f92a54523cb0a0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Duplicate the object.  <br /></td></tr>
 <tr class="separator:a21fc497a76f297207f92a54523cb0a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0452075250bc82a7029466399cb91c0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ac0452075250bc82a7029466399cb91c0">update</a> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::milliseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
-<tr class="memdesc:ac0452075250bc82a7029466399cb91c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main method called every frame.  <br /></td></tr>
-<tr class="separator:ac0452075250bc82a7029466399cb91c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7dbf5bbb2c42636d2f75d4b56bb73d4"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ab7dbf5bbb2c42636d2f75d4b56bb73d4">update</a> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::microseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
+<tr class="memdesc:ab7dbf5bbb2c42636d2f75d4b56bb73d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main method called every frame.  <br /></td></tr>
+<tr class="separator:ab7dbf5bbb2c42636d2f75d4b56bb73d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d89ef9ef8e289af3bddbb84973cc049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a2d89ef9ef8e289af3bddbb84973cc049">draw</a> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const override</td></tr>
 <tr class="memdesc:a2d89ef9ef8e289af3bddbb84973cc049"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called every frame to draw the object.  <br /></td></tr>
 <tr class="separator:a2d89ef9ef8e289af3bddbb84973cc049"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -441,7 +441,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <p>By default, if the copy method is not overridden, the object is duplicated with the help of the register manager (and the object class have to be registered).</p>
 <dl class="section return"><dt>Returns</dt><dd>A allocated pointer to the duplicated object </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#ae45d679fb4a4e44d0cf30c9bac1bd2b2">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#a3039e70050f6af4779f1ab039a5dbe01">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#a2323300067285005815f0b8e6a577aac">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a9a504a992d8d04ccc5eea70cc8162a33">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSelectBox.html#a3d27a46b9c8e5c1a3976e7de36454c27">fge::ObjSelectBox</a>, <a class="el" href="classfge_1_1ObjSprite.html#a96b59c33638708400a0477cd3e982bdc">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#a452e9f32ad2605ab371068d42471e77f">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#af0c1b6e0d4ae7b960e50e7827089c1b5">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#ab213991a8b09bd5181afde8088c698ff">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#aa7ba59ffc0112e2274b1c7ea579e96ab">fge::ObjText</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a5a7af45e7c830295715f1c9006d9f02d">fge::ObjTileMap</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#ae45d679fb4a4e44d0cf30c9bac1bd2b2">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#a3039e70050f6af4779f1ab039a5dbe01">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#a2323300067285005815f0b8e6a577aac">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a9a504a992d8d04ccc5eea70cc8162a33">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSprite.html#a96b59c33638708400a0477cd3e982bdc">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#a452e9f32ad2605ab371068d42471e77f">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#af0c1b6e0d4ae7b960e50e7827089c1b5">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#ab213991a8b09bd5181afde8088c698ff">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#aa7ba59ffc0112e2274b1c7ea579e96ab">fge::ObjText</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a5a7af45e7c830295715f1c9006d9f02d">fge::ObjTileMap</a>.</p>
 
 </div>
 </div>
@@ -551,7 +551,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 <p>Implements <a class="el" href="classfge_1_1Drawable.html">fge::Drawable</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#aa648de3ddc83a2a7b242ca0fbee1d5b6">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#a7b8c50424cd4a279afe97d045d1732d8">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#aa4d21448a110877a9b0100b284e19788">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a7abf70a38a5ad97d2b42b4f6d5e2363c">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSelectBox.html#a153bf2887927d6f791b69a566d0bac28">fge::ObjSelectBox</a>, <a class="el" href="classfge_1_1ObjShape.html#ae9e68b10df57a33d890830490753ec31">fge::ObjShape</a>, <a class="el" href="classfge_1_1ObjSprite.html#a7b6ab379bbbc0a8ff43b9fdabf1ea49e">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#abf95fdb174b7080ae0b77d45721ade04">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#ad870d4d577471a5cd845900e5327d296">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#a78f80b965abeac4c91da4e991c690221">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#acf8daa90829a50a26167b91dec72ca60">fge::ObjText</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a41dfc8c85d8800fa1282504c9a932a1c">fge::ObjTileMap</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#aa648de3ddc83a2a7b242ca0fbee1d5b6">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#a7b8c50424cd4a279afe97d045d1732d8">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#aa4d21448a110877a9b0100b284e19788">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a7abf70a38a5ad97d2b42b4f6d5e2363c">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjShape.html#ae9e68b10df57a33d890830490753ec31">fge::ObjShape</a>, <a class="el" href="classfge_1_1ObjSprite.html#a7b6ab379bbbc0a8ff43b9fdabf1ea49e">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#abf95fdb174b7080ae0b77d45721ade04">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#ad870d4d577471a5cd845900e5327d296">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#a78f80b965abeac4c91da4e991c690221">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#acf8daa90829a50a26167b91dec72ca60">fge::ObjText</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a41dfc8c85d8800fa1282504c9a932a1c">fge::ObjTileMap</a>.</p>
 
 </div>
 </div>
@@ -677,7 +677,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <p>Get the <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> attached to this object if there is one. </p>
 <dl class="section return"><dt>Returns</dt><dd>The <a class="el" href="classfge_1_1GuiElement.html" title="A base class for all GUI elements.">GuiElement</a> pointer or <b>nullptr</b> </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjButton.html#a2e0e983ef8e3caf11a2c52864b3c53d0">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjSlider.html#a157f4b58e101c85bd65dfad91656433c">fge::ObjSlider</a>, <a class="el" href="classfge_1_1ObjTextInputBox.html#ad09ce50ddc883399bbeb859462796c8e">fge::ObjTextInputBox</a>, and <a class="el" href="classfge_1_1ObjWindow.html#a7e9087d1b679ca3ef1387732d4798945">fge::ObjWindow</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjButton.html#a2e0e983ef8e3caf11a2c52864b3c53d0">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjSelectBox.html#a4698faf7a642627c46f18bd01fc505ce">fge::ObjSelectBox</a>, <a class="el" href="classfge_1_1ObjSlider.html#a157f4b58e101c85bd65dfad91656433c">fge::ObjSlider</a>, <a class="el" href="classfge_1_1ObjTextInputBox.html#ad09ce50ddc883399bbeb859462796c8e">fge::ObjTextInputBox</a>, and <a class="el" href="classfge_1_1ObjWindow.html#a7e9087d1b679ca3ef1387732d4798945">fge::ObjWindow</a>.</p>
 
 </div>
 </div>
@@ -1090,7 +1090,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#a6069f8306babee13068c77e6b7eb5e92">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#adfc34887862c9b2891f62d6b60f42840">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#aa99d7ea76b86972d4b7f7923340560d7">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a9a8f4676a71876934175fca1c8e44c71">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSelectBox.html#a128536f32af35768dac547edcd550ae3">fge::ObjSelectBox</a>, <a class="el" href="classfge_1_1ObjSprite.html#a438b05b4976588dd1fdb95b1ce0c7c06">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#a4a7d6fb2d42c735847e4ba76b51460f8">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#a814a2e520376e82f2e011c8164ce9222">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#a82bcba4a2b7f40c8d2d1aa9397e38197">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#ac28f133d9c82f181191d3cda8e790992">fge::ObjText</a>, <a class="el" href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">fge::ObjTextInputBox</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a0b11748486b79080a1f0f10189ea94ad">fge::ObjTileMap</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#a6069f8306babee13068c77e6b7eb5e92">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjButton.html#adfc34887862c9b2891f62d6b60f42840">fge::ObjButton</a>, <a class="el" href="classfge_1_1ObjLight.html#aa99d7ea76b86972d4b7f7923340560d7">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a9a8f4676a71876934175fca1c8e44c71">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSelectBox.html#a8202f9c0d403b029cefe1ec0fc6b424e">fge::ObjSelectBox</a>, <a class="el" href="classfge_1_1ObjSprite.html#a438b05b4976588dd1fdb95b1ce0c7c06">fge::ObjSprite</a>, <a class="el" href="classfge_1_1ObjSpriteBatches.html#a4a7d6fb2d42c735847e4ba76b51460f8">fge::ObjSpriteBatches</a>, <a class="el" href="classfge_1_1ObjSpriteCluster.html#a814a2e520376e82f2e011c8164ce9222">fge::ObjSpriteCluster</a>, <a class="el" href="classfge_1_1ObjSwitch.html#a82bcba4a2b7f40c8d2d1aa9397e38197">fge::ObjSwitch</a>, <a class="el" href="classfge_1_1ObjText.html#ac28f133d9c82f181191d3cda8e790992">fge::ObjText</a>, <a class="el" href="classfge_1_1ObjTextInputBox.html#ab4efa12cfeb64052aed2f67247d0adfa">fge::ObjTextInputBox</a>, and <a class="el" href="classfge_1_1ObjTileMap.html#a0b11748486b79080a1f0f10189ea94ad">fge::ObjTileMap</a>.</p>
 
 </div>
 </div>
@@ -1165,8 +1165,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="ac0452075250bc82a7029466399cb91c0" name="ac0452075250bc82a7029466399cb91c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0452075250bc82a7029466399cb91c0">&#9670;&#160;</a></span>update()</h2>
+<a id="ab7dbf5bbb2c42636d2f75d4b56bb73d4" name="ab7dbf5bbb2c42636d2f75d4b56bb73d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7dbf5bbb2c42636d2f75d4b56bb73d4">&#9670;&#160;</a></span>update()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1189,7 +1189,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::chrono::milliseconds &amp;&#160;</td>
+          <td class="paramtype">const std::chrono::microseconds &amp;&#160;</td>
           <td class="paramname"><em>deltaTime</em>, </td>
         </tr>
         <tr>
@@ -1222,7 +1222,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#a5c0758f5019a3826233dc4e1a5f0338c">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjLight.html#a2556e84006ea947dadcd9c04e6a63892">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#a089d5c50ad9328c6fe718b34a8d5bd94">fge::ObjRenderMap</a>, <a class="el" href="classfge_1_1ObjSelectBox.html#a3daada9e2fdf4ec0d69d7c2ced3e70d8">fge::ObjSelectBox</a>, and <a class="el" href="classfge_1_1ObjSwitch.html#a7f3e2ab26edfe5bd682ba5e47b0bba00">fge::ObjSwitch</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjAnimation.html#a1c941f0c733c59ba091472ebea707362">fge::ObjAnimation</a>, <a class="el" href="classfge_1_1ObjLight.html#acd143060b44bee285b269b8732b7bf5b">fge::ObjLight</a>, <a class="el" href="classfge_1_1ObjRenderMap.html#aa44e5b8df237a9dc3bfa6f083d6a087d">fge::ObjRenderMap</a>, and <a class="el" href="classfge_1_1ObjSwitch.html#a7134cb6814dc0ff753e3689401eb5989">fge::ObjSwitch</a>.</p>
 
 </div>
 </div>

@@ -189,7 +189,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a7b17b266590bca0f8a086dc4ebe3aa5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the reverse mode is active.  <br /></td></tr>
 <tr class="separator:a7b17b266590bca0f8a086dc4ebe3aa5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0d0e8f9b71054ff7440220d029c86b9"><td class="memItemLeft" align="right" valign="top">const fge::anim::AnimationDataPtr &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Animation.html#ad0d0e8f9b71054ff7440220d029c86b9">getData</a> () const</td></tr>
-<tr class="memdesc:ad0d0e8f9b71054ff7440220d029c86b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the load animation data.  <br /></td></tr>
+<tr class="memdesc:ad0d0e8f9b71054ff7440220d029c86b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the animation data.  <br /></td></tr>
 <tr class="separator:ad0d0e8f9b71054ff7440220d029c86b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8a68104a927a8c87196ae43c261e99e"><td class="memItemLeft" align="right" valign="top"><a id="ad8a68104a927a8c87196ae43c261e99e" name="ad8a68104a927a8c87196ae43c261e99e"></a>
 <a class="el" href="classfge_1_1Animation.html">fge::Animation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const std::string &amp;name)</td></tr>
@@ -200,24 +200,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae3de82019a906d08a837491245a68e2f"><td class="memItemLeft" align="right" valign="top"><a id="ae3de82019a906d08a837491245a68e2f" name="ae3de82019a906d08a837491245a68e2f"></a>
 <a class="el" href="classfge_1_1Animation.html">fge::Animation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const fge::anim::AnimationDataPtr &amp;data)</td></tr>
 <tr class="separator:ae3de82019a906d08a837491245a68e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc97b44cab7032ab64cdd4c821e911cf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Animation.html#abc97b44cab7032ab64cdd4c821e911cf">operator fge::TextureType *</a> ()</td></tr>
-<tr class="memdesc:abc97b44cab7032ab64cdd4c821e911cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the texture of the actual frame.  <br /></td></tr>
-<tr class="separator:abc97b44cab7032ab64cdd4c821e911cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7bbbb9dfbad114030213205ae76acd3"><td class="memItemLeft" align="right" valign="top"><a id="ae7bbbb9dfbad114030213205ae76acd3" name="ae7bbbb9dfbad114030213205ae76acd3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator const fge::TextureType *</b> () const</td></tr>
-<tr class="separator:ae7bbbb9dfbad114030213205ae76acd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ff8858d36920cd0bb6cbd538f5a75c5"><td class="memItemLeft" align="right" valign="top"><a id="a2ff8858d36920cd0bb6cbd538f5a75c5" name="a2ff8858d36920cd0bb6cbd538f5a75c5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator std::shared_ptr&lt; fge::TextureType &gt; &amp;</b> ()</td></tr>
-<tr class="separator:a2ff8858d36920cd0bb6cbd538f5a75c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0aad500b1f9834d05d21a3f655b4cc86"><td class="memItemLeft" align="right" valign="top"><a id="a0aad500b1f9834d05d21a3f655b4cc86" name="a0aad500b1f9834d05d21a3f655b4cc86"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator const std::shared_ptr&lt; fge::TextureType &gt; &amp;</b> () const</td></tr>
-<tr class="separator:a0aad500b1f9834d05d21a3f655b4cc86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1bde1c4b08a38ea01b42f3b1fe8bb30"><td class="memItemLeft" align="right" valign="top"><a id="ad1bde1c4b08a38ea01b42f3b1fe8bb30" name="ad1bde1c4b08a38ea01b42f3b1fe8bb30"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator fge::TextureType &amp;</b> ()</td></tr>
-<tr class="separator:ad1bde1c4b08a38ea01b42f3b1fe8bb30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21276c695925d386de99ff3fa1029627"><td class="memItemLeft" align="right" valign="top"><a id="a21276c695925d386de99ff3fa1029627" name="a21276c695925d386de99ff3fa1029627"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator const fge::TextureType &amp;</b> () const</td></tr>
-<tr class="separator:a21276c695925d386de99ff3fa1029627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6e188423c03a5861c3a76d07329ec3c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::TextureType</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Animation.html#ae6e188423c03a5861c3a76d07329ec3c">retrieveTexture</a> () const</td></tr>
+<tr class="memdesc:ae6e188423c03a5861c3a76d07329ec3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the texture of the actual frame.  <br /></td></tr>
+<tr class="separator:ae6e188423c03a5861c3a76d07329ec3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac1a3ee80e7b39d3b82660feeff128782"><td class="memItemLeft" align="right" valign="top"><a id="ac1a3ee80e7b39d3b82660feeff128782" name="ac1a3ee80e7b39d3b82660feeff128782"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>operator std::string &amp;</b> ()</td></tr>
 <tr class="separator:ac1a3ee80e7b39d3b82660feeff128782"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -349,7 +334,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get the load animation data. </p>
+<p>Get the animation data. </p>
 <dl class="section return"><dt>Returns</dt><dd>The animation data </dd></dl>
 
 </div>
@@ -669,30 +654,22 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="abc97b44cab7032ab64cdd4c821e911cf" name="abc97b44cab7032ab64cdd4c821e911cf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abc97b44cab7032ab64cdd4c821e911cf">&#9670;&#160;</a></span>operator fge::TextureType *()</h2>
+<a id="ae6e188423c03a5861c3a76d07329ec3c" name="ae6e188423c03a5861c3a76d07329ec3c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6e188423c03a5861c3a76d07329ec3c">&#9670;&#160;</a></span>retrieveTexture()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">fge::Animation::operator <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::TextureType</a> * </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::TextureType</a> &gt; const  &amp; fge::Animation::retrieveTexture </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">explicit</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p>Get the texture of the actual frame. </p>
+<p>Retrieve the texture of the actual frame. </p>
 <dl class="section return"><dt>Returns</dt><dd>The texture or <a class="el" href="group__graphics.html#gac303b170789c1fa8e1f3d7a26dc7aa36" title="Get the bad texture.">texture::GetBadTexture</a> if something is invalid </dd></dl>
 
 </div>

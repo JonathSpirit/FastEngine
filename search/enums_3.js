@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['style_0',['Style',['../classfge_1_1ObjText.html#a74bc37969a615a28cff428895e3477cb',1,'fge::ObjText']]]
+  ['ptrtypes_0',['PtrTypes',['../classfge_1_1RenderResourceTextures.html#a7a5e0adbb32c67bc2bb1f48c983eb381',1,'fge::RenderResourceTextures']]]
 ];
