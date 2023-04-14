@@ -56,8 +56,9 @@ public:
     void setBlendMode(const BlendMode& blendMode);
     [[nodiscard]] const BlendMode& getBlendMode() const;
 
-    void setDefaultPrimitiveTopology(VkPrimitiveTopology topology) const;
-    [[nodiscard]] VkPrimitiveTopology getDefaultPrimitiveTopology() const;
+    void setPrimitiveTopology(VkPrimitiveTopology topology) const;
+    [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
+
     void setDefaultVertexCount(uint32_t count) const;
     [[nodiscard]] uint32_t getDefaultVertexCount() const;
 
@@ -110,7 +111,7 @@ private:
     const Shader* g_shaderFragment;
     const Shader* g_shaderGeometry;
 
-    mutable VkPrimitiveTopology g_defaultPrimitiveTopology;
+    mutable VkPrimitiveTopology g_primitiveTopology;
     mutable uint32_t g_defaultVertexCount;
 
     mutable BlendMode g_blendMode;

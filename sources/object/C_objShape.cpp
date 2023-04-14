@@ -31,6 +31,7 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
+    graphicPipeline->setPrimitiveTopology(key._topology);
 
     graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint)}});
 
@@ -247,8 +248,11 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
-    const fge::RenderTarget::GraphicPipelineKey key{copyStates._blendMode, 0};
+    fge::RenderTarget::GraphicPipelineKey key{this->g_vertices.getPrimitiveTopology(), copyStates._blendMode, 0};
     auto* graphicPipeline =
+            target.getGraphicPipeline(typeid(fge::ObjShape).name(), key, &InstanceVertexShader_constructor);
+    key._topology = this->g_outlineVertices.getPrimitiveTopology();
+    auto* graphicPipelineOutline =
             target.getGraphicPipeline(typeid(fge::ObjShape).name(), key, &InstanceVertexShader_constructor);
 
     //Drawing inline
@@ -267,13 +271,13 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     target.draw(copyStates, graphicPipeline);
 
     colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
-    graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
-                                   &colorIndex);
+    graphicPipelineOutline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
+                                          &colorIndex);
 
     copyStates._resTextures.set<std::nullptr_t>(nullptr, 0);
     copyStates._vertexBuffer = &this->g_outlineVertices;
 
-    target.draw(copyStates, graphicPipeline);
+    target.draw(copyStates, graphicPipelineOutline);
 }
 #endif
 

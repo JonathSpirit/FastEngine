@@ -31,6 +31,7 @@ void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Con
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
+    graphicPipeline->setPrimitiveTopology(key._topology);
 
     graphicPipeline->setDescriptorSetLayouts(
             {context->getTransformBatchesLayout().getLayout(), context->getTextureLayout().getLayout()});
@@ -42,6 +43,7 @@ void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* conte
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
+    graphicPipeline->setPrimitiveTopology(key._topology);
 
     graphicPipeline->setDescriptorSetLayouts({context->getTransformBatchesLayout().getLayout()});
 }
@@ -275,7 +277,8 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
     const bool haveTexture = this->g_textures.size() > 0;
 
     const fge::RenderTarget::GraphicPipelineKey graphicPipelineKey{
-            copyStates._blendMode, uint8_t(haveTexture ? FGE_OBJSPRITEBATCHES_ID_TEXTURE : FGE_OBJSPRITEBATCHES_ID)};
+            this->g_instancesVertices.getPrimitiveTopology(), copyStates._blendMode,
+            uint8_t(haveTexture ? FGE_OBJSPRITEBATCHES_ID_TEXTURE : FGE_OBJSPRITEBATCHES_ID)};
 
     auto* graphicPipeline = target.getGraphicPipeline(FGE_OBJSPRITEBATCHES_PIPELINE_CACHE_NAME, graphicPipelineKey,
                                                       haveTexture ? DefaultGraphicPipelineBatchesWithTexture_constructor

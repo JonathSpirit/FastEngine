@@ -64,7 +64,7 @@ public:
     {
         [[nodiscard]] inline std::size_t operator()(const GraphicPipelineKey& k) const
         {
-            const uint64_t val = (static_cast<uint64_t>(k._id) << 32) |
+            const uint64_t val = (static_cast<uint64_t>(k._topology) << 38) | (static_cast<uint64_t>(k._id) << 30) |
                                  (static_cast<uint64_t>(k._blendMode._srcColorBlendFactor) << 25) |
                                  (static_cast<uint64_t>(k._blendMode._dstColorBlendFactor) << 20) |
                                  (static_cast<uint64_t>(k._blendMode._colorBlendOp) << 15) |
@@ -78,6 +78,7 @@ public:
             return this->_blendMode == k._blendMode && this->_id == k._id;
         }
 
+        VkPrimitiveTopology _topology;
         fge::vulkan::BlendMode _blendMode;
         uint8_t _id{0};
     };

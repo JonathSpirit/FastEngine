@@ -81,10 +81,9 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     createInfo.ppEnabledLayerNames = ValidationLayers.data();
 #endif
 
-    const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT dynamicStateFeatures{
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT, nullptr, VK_TRUE};
+    // Extended features goes here
 
-    createInfo.pNext = &dynamicStateFeatures;
+    createInfo.pNext = nullptr;
 
     if (vkCreateDevice(physicalDevice.getDevice(), &createInfo, nullptr, &this->g_device) != VK_SUCCESS)
     {

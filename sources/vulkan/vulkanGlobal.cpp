@@ -30,8 +30,7 @@ std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_
 std::vector<const char*> ValidationLayers = {};
 #endif
 
-std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                             VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME};
+std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 Context* GlobalContext{nullptr};
 

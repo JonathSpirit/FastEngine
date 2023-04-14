@@ -29,7 +29,7 @@ GraphicPipeline::GraphicPipeline(const Context& context) :
         g_shaderFragment(nullptr),
         g_shaderGeometry(nullptr),
 
-        g_defaultPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+        g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
         g_defaultVertexCount(3),
 
         g_scissor(),
@@ -47,7 +47,7 @@ GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_shaderFragment(r.g_shaderFragment),
         g_shaderGeometry(r.g_shaderGeometry),
 
-        g_defaultPrimitiveTopology(r.g_defaultPrimitiveTopology),
+        g_primitiveTopology(r.g_primitiveTopology),
         g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_blendMode(r.g_blendMode),
@@ -69,7 +69,7 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_shaderFragment(r.g_shaderFragment),
         g_shaderGeometry(r.g_shaderGeometry),
 
-        g_defaultPrimitiveTopology(r.g_defaultPrimitiveTopology),
+        g_primitiveTopology(r.g_primitiveTopology),
         g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_blendMode(r.g_blendMode),
@@ -90,7 +90,7 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_shaderFragment = nullptr;
     r.g_shaderGeometry = nullptr;
 
-    r.g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    r.g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     r.g_defaultVertexCount = 3;
 
     r.g_blendMode = {};
@@ -198,8 +198,7 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         colorBlending.blendConstants[2] = 0.0f; // Optional
         colorBlending.blendConstants[3] = 0.0f; // Optional
 
-        std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
-                                                     VK_DYNAMIC_STATE_SCISSOR};
+        std::array<VkDynamicState, 2> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
         VkPipelineDynamicStateCreateInfo dynamicState{};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -211,7 +210,7 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
 
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssemblyStateCreateInfo.topology = this->g_primitiveTopology;
         inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -334,14 +333,16 @@ const BlendMode& GraphicPipeline::getBlendMode() const
     return this->g_blendMode;
 }
 
-void GraphicPipeline::setDefaultPrimitiveTopology(VkPrimitiveTopology topology) const
+void GraphicPipeline::setPrimitiveTopology(VkPrimitiveTopology topology) const
 {
-    this->g_defaultPrimitiveTopology = topology;
+    this->g_primitiveTopology = topology;
+    this->g_needUpdate = true;
 }
-VkPrimitiveTopology GraphicPipeline::getDefaultPrimitiveTopology() const
+[[nodiscard]] VkPrimitiveTopology GraphicPipeline::getPrimitiveTopology() const
 {
-    return this->g_defaultPrimitiveTopology;
+    return this->g_primitiveTopology;
 }
+
 void GraphicPipeline::setDefaultVertexCount(uint32_t count) const
 {
     this->g_defaultVertexCount = count;
@@ -383,8 +384,6 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
 
     if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
     {
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer, vertexBuffer->getPrimitiveTopology());
-
         vertexBuffer->bind(commandBuffer);
         if (indexBuffer != nullptr && indexBuffer->getType() != BufferTypes::UNINITIALIZED)
         {
@@ -398,7 +397,6 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
     }
     else
     {
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_defaultPrimitiveTopology);
         vkCmdDraw(commandBuffer, this->g_defaultVertexCount, 1, 0, 0);
     }
 }
@@ -414,17 +412,11 @@ void GraphicPipeline::recordCommandBufferWithoutDraw(VkCommandBuffer commandBuff
 
     if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
     {
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer, vertexBuffer->getPrimitiveTopology());
-
         vertexBuffer->bind(commandBuffer);
         if (indexBuffer != nullptr && indexBuffer->getType() != BufferTypes::UNINITIALIZED)
         {
             indexBuffer->bind(commandBuffer);
         }
-    }
-    else
-    {
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer, this->g_defaultPrimitiveTopology);
     }
 }
 void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
@@ -523,7 +515,6 @@ void GraphicPipeline::destroy()
     this->g_shaderFragment = nullptr;
     this->g_shaderGeometry = nullptr;
 
-    this->g_defaultPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     this->g_defaultVertexCount = 3;
 }
 

@@ -35,6 +35,7 @@ void DefaultGraphicPipelineWithTexture_constructor(const fge::vulkan::Context* c
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
+    graphicPipeline->setPrimitiveTopology(key._topology);
 
     graphicPipeline->setDescriptorSetLayouts(
             {context->getTransformLayout().getLayout(), context->getTextureLayout().getLayout()});
@@ -46,6 +47,7 @@ void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
+    graphicPipeline->setPrimitiveTopology(key._topology);
 
     graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
 }
@@ -181,12 +183,12 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
     if (graphicPipeline == nullptr)
     {
         if (states._resInstances.getInstancesCount() == 1 && states._resTransform.get() != nullptr &&
-            states._resDescriptors.getCount() == 0)
+            states._resDescriptors.getCount() == 0 && states._vertexBuffer != nullptr)
         { //Simple rendering: There must be 1 instance, a transform, no descriptors
             if (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0)
             { //1 or no texture
                 const GraphicPipelineKey graphicPipelineKey{
-                        states._blendMode,
+                        states._vertexBuffer->getPrimitiveTopology(), states._blendMode,
                         uint8_t(haveTextures ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : FGE_RENDERTARGET_DEFAULT_ID)};
 
                 graphicPipeline =
