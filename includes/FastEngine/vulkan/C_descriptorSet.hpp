@@ -54,7 +54,8 @@ public:
         enum class BufferTypes
         {
             STATIC,
-            DYNAMIC
+            DYNAMIC,
+            STORAGE
         };
 
         Descriptor() = default;

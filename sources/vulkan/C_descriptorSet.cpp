@@ -149,10 +149,18 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
 
         if (std::holds_alternative<VkDescriptorBufferInfo>(descriptors[i]._data))
         {
-            descriptorWrites[i].descriptorType =
-                    descriptors[i]._bufferType == DescriptorSet::Descriptor::BufferTypes::STATIC
-                            ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
-                            : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+            switch (descriptors[i]._bufferType)
+            {
+            case Descriptor::BufferTypes::STATIC:
+                descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                break;
+            case Descriptor::BufferTypes::DYNAMIC:
+                descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+                break;
+            case Descriptor::BufferTypes::STORAGE:
+                descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                break;
+            }
 
             descriptorWrites[i].pBufferInfo = &std::get<VkDescriptorBufferInfo>(descriptors[i]._data);
             descriptorWrites[i].pImageInfo = nullptr;
