@@ -82,7 +82,11 @@ class RenderResourceInstances
 public:
     constexpr RenderResourceInstances() = default;
 
-    constexpr void setInstancesCount(uint32_t count) { this->g_count = count; }
+    constexpr void setInstancesCount(uint32_t count, bool uniqueDrawCall)
+    {
+        this->g_count = count;
+        this->g_uniqueDrawCall = uniqueDrawCall;
+    }
 
     constexpr void setTextureIndices(uint32_t const* textureIndices) { this->g_textureIndices = textureIndices; }
 
@@ -104,6 +108,7 @@ public:
     constexpr void setVertexCount(uint32_t count) { this->g_vertexCount = count; }
 
     [[nodiscard]] constexpr uint32_t getInstancesCount() const { return this->g_count; }
+    [[nodiscard]] constexpr bool hasUniqueDrawCall() const { return this->g_uniqueDrawCall; }
 
     [[nodiscard]] constexpr uint32_t const* getTextureIndices() const { return this->g_textureIndices; }
     [[nodiscard]] constexpr uint32_t getTextureIndices(uint32_t index) const { return this->g_textureIndices[index]; }
@@ -136,6 +141,7 @@ private:
     uint32_t const* g_dynamicSets{nullptr};
 
     uint32_t g_vertexCount{0};
+    bool g_uniqueDrawCall{false};
 };
 /**
  * \class RenderResourceTextures

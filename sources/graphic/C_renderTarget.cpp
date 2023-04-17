@@ -352,6 +352,11 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
         const uint32_t vertexOffset = states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance;
 
         ///TODO: have in graphicPipeline, a draw method
+        if (states._resInstances.hasUniqueDrawCall())
+        {
+            vkCmdDraw(commandBuffer, vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
+            break;
+        }
         vkCmdDraw(commandBuffer, vertexCount, 1, vertexOffset, 0);
     }
 }
