@@ -38,7 +38,7 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
     auto& layout = context->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                                         VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
@@ -164,15 +164,6 @@ ObjShape::ObjShape() :
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 
-    const std::size_t minUboAlignment =
-            fge::vulkan::GlobalContext->getPhysicalDevice().getMinUniformBufferOffsetAlignment();
-
-    this->g_dynamicAlignment = sizeof(InstanceData);
-    if (minUboAlignment > 0)
-    {
-        this->g_dynamicAlignment = (this->g_dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
-    }
-
     this->resizeBuffer(1);
     *this->retrieveInstance(0) = {{fge::Color::White, fge::Color::White}, {0.0f, 0.0f}};
 }
@@ -186,8 +177,7 @@ ObjShape::ObjShape(const ObjShape& r) :
         g_instancesCount(0),
         g_instancesCapacity(0),
         g_insideBounds(r.g_insideBounds),
-        g_bounds(r.g_bounds),
-        g_dynamicAlignment(r.g_dynamicAlignment)
+        g_bounds(r.g_bounds)
 {
     this->resizeBuffer(r.g_instancesCount);
     for (std::size_t i = 0; i < r.g_instancesCount; ++i)
@@ -263,10 +253,9 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
                                    &colorIndex);
 
-    copyStates._resInstances.setInstancesCount(this->g_instancesCount);
-    const uint32_t dynamicBufferSizes[] = {this->g_dynamicAlignment};
-    const uint32_t dynamicBufferSets[] = {1};
-    copyStates._resInstances.setDynamicDescriptors(&this->g_descriptorSet, dynamicBufferSizes, dynamicBufferSets, 1);
+    copyStates._resInstances.setInstancesCount(this->g_instancesCount, true);
+    const uint32_t sets[] = {1};
+    copyStates._resDescriptors.set(&this->g_descriptorSet, sets, 1);
 
     target.draw(copyStates, graphicPipeline);
 
@@ -388,7 +377,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
     this->g_instancesCapacity = size;
-    this->g_instances.create(*fge::vulkan::GlobalContext, this->g_instancesCapacity * this->g_dynamicAlignment);
+    this->g_instances.create(*fge::vulkan::GlobalContext, this->g_instancesCapacity * sizeof(InstanceData), true);
 
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
@@ -396,7 +385,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
         if (layout.getLayout() == VK_NULL_HANDLE)
         {
             layout.create(*fge::vulkan::GlobalContext,
-                          {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                          {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                                   VK_SHADER_STAGE_VERTEX_BIT)});
         }
 
@@ -407,7 +396,8 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     const fge::vulkan::DescriptorSet::Descriptor descriptor{
             this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
-            fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC, sizeof(InstanceData)};
+            fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
+            this->g_instancesCapacity * sizeof(InstanceData)};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     for (std::size_t i = 0; i < size; ++i)
@@ -419,7 +409,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 ObjShape::InstanceData* ObjShape::retrieveInstance(std::size_t index) const
 {
     return reinterpret_cast<InstanceData*>(reinterpret_cast<uint8_t*>(this->g_instances.getBufferMapped()) +
-                                           this->g_dynamicAlignment * index);
+                                           sizeof(InstanceData) * index);
 }
 
 } // namespace fge

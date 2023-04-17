@@ -262,7 +262,7 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     copyStates._blendMode = states._blendMode;
 
-    copyStates._resInstances.setInstancesCount(this->g_instancesData.size());
+    copyStates._resInstances.setInstancesCount(this->g_instancesData.size(), false);
     copyStates._resInstances.setVertexCount(4);
 
     uint32_t const dynamicSets[] = {FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM};

@@ -12,10 +12,14 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 viewTransform;
 } uboTransform;
 
-layout(set = 1, binding = 0) uniform UBOInstanceData {
+struct InstanceData {
     uvec4 color[2];
     vec2 offset;
-} instance;
+};
+
+layout(set = 1, binding = 0) buffer BufferInstanceData {
+    InstanceData data[];
+} instances;
 
 layout(push_constant) uniform ConstColorSelect {
     uint index;
@@ -23,6 +27,7 @@ layout(push_constant) uniform ConstColorSelect {
 
 void main()
 {
+    InstanceData instance = instances.data[gl_InstanceIndex];
     vec4 position = uboTransform.viewTransform * uboTransform.modelTransform * vec4(inPosition+instance.offset, 0.0, 1.0);
     position[1] *= -1.0;
 

@@ -110,8 +110,6 @@ private:
 
     fge::RectFloat g_insideBounds;
     fge::RectFloat g_bounds;
-
-    uint32_t g_dynamicAlignment;
 };
 
 } // namespace fge
