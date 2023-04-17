@@ -38,7 +38,7 @@ public:
     UniformBuffer& operator=(const UniformBuffer& r) = delete;
     UniformBuffer& operator=(UniformBuffer&& r) noexcept = delete;
 
-    void create(const Context& context, VkDeviceSize bufferSize);
+    void create(const Context& context, VkDeviceSize bufferSize, bool isStorageBuffer = false);
     void destroy();
 
     [[nodiscard]] VkBuffer getBuffer() const;
