@@ -23,7 +23,6 @@
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_vulkan.h"
-#include "glm/glm.hpp"
 #include <vector>
 
 namespace fge::vulkan

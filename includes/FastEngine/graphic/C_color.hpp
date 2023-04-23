@@ -25,8 +25,8 @@
  */
 
 #include "volk.h"
+#include "FastEngine/C_vector.hpp"
 #include "SDL_pixels.h"
-#include "glm/glm.hpp"
 
 namespace fge
 {

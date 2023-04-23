@@ -22,7 +22,6 @@
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/graphic/C_color.hpp"
 #include "SDL_render.h"
-#include "glm/glm.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <optional>

@@ -18,10 +18,10 @@
 #define _FGE_GRAPHIC_C_TRANSFORM_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/C_vector.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_uniformBuffer.hpp"
-#include "glm/glm.hpp"
 
 namespace fge
 {

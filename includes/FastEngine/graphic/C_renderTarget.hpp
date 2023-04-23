@@ -26,6 +26,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_rect.hpp"
+#include "FastEngine/C_vector.hpp"
 #include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_view.hpp"
@@ -34,7 +35,6 @@
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
 #include "FastEngine/vulkan/C_vertex.hpp"
 #include "SDL_video.h"
-#include "glm/glm.hpp"
 #include <map>
 #include <unordered_map>
 

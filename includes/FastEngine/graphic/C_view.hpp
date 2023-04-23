@@ -28,7 +28,6 @@
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/vulkan/C_viewport.hpp"
-#include "glm/glm.hpp"
 
 namespace fge
 {

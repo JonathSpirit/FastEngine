@@ -18,10 +18,10 @@
 #define _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
 
 #include "FastEngine/C_texture.hpp"
+#include "FastEngine/C_vector.hpp"
 #include "FastEngine/textureType.hpp"
 #include "FastEngine/vulkan/C_blendMode.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
-#include "glm/glm.hpp"
 
 namespace fge
 {

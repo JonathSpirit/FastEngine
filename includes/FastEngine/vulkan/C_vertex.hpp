@@ -20,7 +20,7 @@
 #include "volk.h"
 #include <array>
 
-#include "glm/glm.hpp"
+#include "FastEngine/C_vector.hpp"
 
 namespace fge::vulkan
 {
