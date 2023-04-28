@@ -25,21 +25,9 @@ DescriptorSetLayout::DescriptorSetLayout() :
         g_descriptorSetLayout(VK_NULL_HANDLE),
         g_context(nullptr)
 {}
-DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayout& r) :
-        g_descriptorSetLayout(r.g_descriptorSetLayout),
-        g_layouts(r.g_layouts),
-        g_context(r.g_context)
-{
-    if (this->g_layouts.empty())
-    {
-        return;
-    }
-
-    this->createDescriptorSetLayout();
-}
 DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& r) noexcept :
         g_descriptorSetLayout(r.g_descriptorSetLayout),
-        g_layouts(std::move(r.g_layouts)),
+        g_bindings(std::move(r.g_bindings)),
         g_context(r.g_context)
 {
     r.g_descriptorSetLayout = VK_NULL_HANDLE;
@@ -50,27 +38,11 @@ DescriptorSetLayout::~DescriptorSetLayout()
     this->destroy();
 }
 
-DescriptorSetLayout& DescriptorSetLayout::operator=(const DescriptorSetLayout& r)
-{
-    this->destroy();
-
-    if (r.g_layouts.empty())
-    {
-        return *this;
-    }
-
-    this->g_layouts = r.g_layouts;
-    this->g_context = r.g_context;
-
-    this->createDescriptorSetLayout();
-
-    return *this;
-}
 DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& r) noexcept
 {
     this->destroy();
 
-    this->g_layouts = std::move(r.g_layouts);
+    this->g_bindings = std::move(r.g_bindings);
     this->g_context = r.g_context;
     this->g_descriptorSetLayout = r.g_descriptorSetLayout;
 
@@ -80,19 +52,40 @@ DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& r) noe
     return *this;
 }
 
-void DescriptorSetLayout::create(const Context& context, std::initializer_list<VkDescriptorSetLayoutBinding> layouts)
+void DescriptorSetLayout::create(const Context& context,
+                                 std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
+                                 VkDescriptorBindingFlagsEXT const* bindingFlags)
 {
     this->destroy();
 
-    if (layouts.size() == 0)
+    if (bindings.size() == 0)
     {
         return;
     }
 
-    this->g_layouts = layouts;
+    this->g_bindings = bindings;
     this->g_context = &context;
 
-    this->createDescriptorSetLayout();
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = static_cast<uint32_t>(this->g_bindings.size());
+    layoutInfo.pBindings = this->g_bindings.data();
+    layoutInfo.pNext = nullptr;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo{};
+    if (bindingFlags != nullptr)
+    {
+        bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+        bindingFlagsInfo.bindingCount = static_cast<uint32_t>(this->g_bindings.size());
+        bindingFlagsInfo.pBindingFlags = bindingFlags;
+        layoutInfo.pNext = &bindingFlagsInfo;
+    }
+
+    if (vkCreateDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), &layoutInfo, nullptr,
+                                    &this->g_descriptorSetLayout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor set layout!");
+    }
 }
 void DescriptorSetLayout::destroy()
 {
@@ -101,7 +94,7 @@ void DescriptorSetLayout::destroy()
         vkDestroyDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), this->g_descriptorSetLayout,
                                      nullptr);
         this->g_descriptorSetLayout = VK_NULL_HANDLE;
-        this->g_layouts.clear();
+        this->g_bindings.clear();
         this->g_context = nullptr;
     }
 }
@@ -110,31 +103,17 @@ VkDescriptorSetLayout DescriptorSetLayout::getLayout() const
 {
     return this->g_descriptorSetLayout;
 }
-const std::vector<VkDescriptorSetLayoutBinding>& DescriptorSetLayout::getLayouts() const
+const std::vector<VkDescriptorSetLayoutBinding>& DescriptorSetLayout::getBindings() const
 {
-    return this->g_layouts;
+    return this->g_bindings;
 }
-std::size_t DescriptorSetLayout::getLayoutSize() const
+std::size_t DescriptorSetLayout::getBindingsCount() const
 {
-    return this->g_layouts.size();
+    return this->g_bindings.size();
 }
 const Context* DescriptorSetLayout::getContext() const
 {
     return this->g_context;
-}
-
-void DescriptorSetLayout::createDescriptorSetLayout()
-{
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(this->g_layouts.size());
-    layoutInfo.pBindings = this->g_layouts.data();
-
-    if (vkCreateDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), &layoutInfo, nullptr,
-                                    &this->g_descriptorSetLayout) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
 }
 
 } // namespace fge::vulkan

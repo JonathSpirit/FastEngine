@@ -58,26 +58,26 @@ class FGE_API DescriptorSetLayout
 {
 public:
     DescriptorSetLayout();
-    DescriptorSetLayout(const DescriptorSetLayout& r);
+    DescriptorSetLayout(const DescriptorSetLayout& r) = delete; ///TODO
     DescriptorSetLayout(DescriptorSetLayout&& r) noexcept;
     ~DescriptorSetLayout();
 
-    DescriptorSetLayout& operator=(const DescriptorSetLayout& r);
+    DescriptorSetLayout& operator=(const DescriptorSetLayout& r) = delete; ///TODO
     DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept;
 
-    void create(const Context& context, std::initializer_list<VkDescriptorSetLayoutBinding> layouts);
+    void create(const Context& context,
+                std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
+                VkDescriptorBindingFlagsEXT const* bindingFlags = nullptr);
     void destroy();
 
     [[nodiscard]] VkDescriptorSetLayout getLayout() const;
-    [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& getLayouts() const;
-    [[nodiscard]] std::size_t getLayoutSize() const;
+    [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const;
+    [[nodiscard]] std::size_t getBindingsCount() const;
     [[nodiscard]] const Context* getContext() const;
 
 private:
-    void createDescriptorSetLayout();
-
     VkDescriptorSetLayout g_descriptorSetLayout;
-    std::vector<VkDescriptorSetLayoutBinding> g_layouts;
+    std::vector<VkDescriptorSetLayoutBinding> g_bindings;
 
     const Context* g_context;
 };
