@@ -83,7 +83,31 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 
     // Extended features goes here
 
-    createInfo.pNext = nullptr;
+    VkPhysicalDeviceDescriptorIndexingFeaturesEXT const descriptorIndexingFeatures{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT,
+            .pNext = nullptr,
+            .shaderInputAttachmentArrayDynamicIndexing = VK_FALSE,
+            .shaderUniformTexelBufferArrayDynamicIndexing = VK_FALSE,
+            .shaderStorageTexelBufferArrayDynamicIndexing = VK_FALSE,
+            .shaderUniformBufferArrayNonUniformIndexing = VK_FALSE,
+            .shaderSampledImageArrayNonUniformIndexing = VK_FALSE,
+            .shaderStorageBufferArrayNonUniformIndexing = VK_FALSE,
+            .shaderStorageImageArrayNonUniformIndexing = VK_FALSE,
+            .shaderInputAttachmentArrayNonUniformIndexing = VK_FALSE,
+            .shaderUniformTexelBufferArrayNonUniformIndexing = VK_FALSE,
+            .shaderStorageTexelBufferArrayNonUniformIndexing = VK_FALSE,
+            .descriptorBindingUniformBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingSampledImageUpdateAfterBind = VK_FALSE,
+            .descriptorBindingStorageImageUpdateAfterBind = VK_FALSE,
+            .descriptorBindingStorageBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingUniformTexelBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingStorageTexelBufferUpdateAfterBind = VK_FALSE,
+            .descriptorBindingUpdateUnusedWhilePending = VK_FALSE,
+            .descriptorBindingPartiallyBound = VK_FALSE,
+            .descriptorBindingVariableDescriptorCount = VK_TRUE,
+            .runtimeDescriptorArray = VK_TRUE};
+
+    createInfo.pNext = &descriptorIndexingFeatures;
 
     if (vkCreateDevice(physicalDevice.getDevice(), &createInfo, nullptr, &this->g_device) != VK_SUCCESS)
     {
