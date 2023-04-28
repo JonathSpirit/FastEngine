@@ -17,6 +17,9 @@
 #include "FastEngine/object/C_objSpriteBatches.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 
+#define FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES 0
+#define FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES 1
+
 namespace fge
 {
 
@@ -28,24 +31,50 @@ void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Con
                                                           const fge::RenderTarget::GraphicPipelineKey& key,
                                                           fge::vulkan::GraphicPipeline* graphicPipeline)
 {
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
 
-    graphicPipeline->setDescriptorSetLayouts(
-            {context->getTransformBatchesLayout().getLayout(), context->getTextureLayout().getLayout()});
+    auto& layout = context->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
+    if (layout.getLayout() == VK_NULL_HANDLE)
+    {
+        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+    }
+
+    auto& textureLayout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES);
+    if (textureLayout.getLayout() == VK_NULL_HANDLE)
+    {
+        VkDescriptorBindingFlagsEXT const bindingFlags[] = {VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+        textureLayout.create(*fge::vulkan::GlobalContext,
+                             {VkDescriptorSetLayoutBinding{.binding = 0,
+                                                           .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                           .descriptorCount = FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES,
+                                                           .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+                                                           .pImmutableSamplers = nullptr}},
+                             bindingFlags);
+    }
+
+    graphicPipeline->setDescriptorSetLayouts({layout.getLayout(), textureLayout.getLayout()});
 }
 void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* context,
                                                const fge::RenderTarget::GraphicPipelineKey& key,
                                                fge::vulkan::GraphicPipeline* graphicPipeline)
 {
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader); ///TODO
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
 
-    graphicPipeline->setDescriptorSetLayouts({context->getTransformBatchesLayout().getLayout()});
+    auto& layout = context->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
+    if (layout.getLayout() == VK_NULL_HANDLE)
+    {
+        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+    }
+
+    graphicPipeline->setDescriptorSetLayouts({layout.getLayout()});
 }
 #endif //FGE_DEF_SERVER
 
@@ -53,41 +82,19 @@ void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* conte
 
 ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransformDataCapacity(0),
-        g_needBuffersUpdate(true),
-        g_dynamicAlignment(0)
+        g_needBuffersUpdate(true)
 {
-    this->g_descriptorSet =
-            fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool()
-                    .allocateDescriptorSet(fge::vulkan::GlobalContext->getTransformBatchesLayout().getLayout())
-                    .value();
-
     this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
                                      fge::vulkan::BufferTypes::LOCAL);
-
-    const std::size_t minUboAlignment =
-            fge::vulkan::GlobalContext->getPhysicalDevice().getMinUniformBufferOffsetAlignment();
-
-    this->g_dynamicAlignment = fge::TransformUboData::uboSize;
-    if (minUboAlignment > 0)
-    {
-        this->g_dynamicAlignment = (this->g_dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
-    }
 }
 ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         fge::Object(r),
         g_textures(r.g_textures),
-        g_instancesTextureIndex(r.g_instancesTextureIndex),
         g_instancesData(r.g_instancesData),
         g_instancesTransformDataCapacity(0),
         g_instancesVertices(r.g_instancesVertices),
-        g_needBuffersUpdate(true),
-        g_dynamicAlignment(r.g_dynamicAlignment)
-{
-    this->g_descriptorSet =
-            fge::vulkan::GlobalContext->getTransformBatchesDescriptorPool()
-                    .allocateDescriptorSet(fge::vulkan::GlobalContext->getTransformBatchesLayout().getLayout())
-                    .value();
-}
+        g_needBuffersUpdate(true)
+{}
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()
 {
@@ -97,18 +104,22 @@ ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
 void ObjSpriteBatches::addTexture(fge::Texture texture)
 {
     this->g_textures.push_back(std::move(texture));
+    this->updateTextures(true);
 }
 void ObjSpriteBatches::setTexture(std::size_t index, fge::Texture texture)
 {
     if (index < this->g_textures.size())
     {
         this->g_textures[index] = std::move(texture);
+        this->updateTextures(false);
     }
 }
 void ObjSpriteBatches::setTexture(fge::Texture texture)
 {
+    bool sizeChanged = this->g_textures.size() != 1;
     this->g_textures.resize(1);
     this->g_textures.front() = std::move(texture);
+    this->updateTextures(sizeChanged);
 }
 const fge::Texture& ObjSpriteBatches::getTexture(std::size_t index) const
 {
@@ -125,15 +136,13 @@ void ObjSpriteBatches::clearTexture()
 
 void ObjSpriteBatches::clear()
 {
-    this->g_instancesTextureIndex.clear();
     this->g_instancesData.clear();
     this->g_instancesVertices.clear();
     this->g_needBuffersUpdate = true;
 }
 fge::Transformable& ObjSpriteBatches::addSprite(const fge::RectInt& rectangle, uint32_t textureIndex)
 {
-    this->g_instancesTextureIndex.push_back(textureIndex);
-    auto& transformable = this->g_instancesData.emplace_back(rectangle)._transformable;
+    auto& transformable = this->g_instancesData.emplace_back(rectangle, textureIndex)._transformable;
     this->g_instancesVertices.resize(this->g_instancesVertices.getCount() + 4);
     this->updatePositions(this->g_instancesData.size() - 1);
     this->updateTexCoords(this->g_instancesData.size() - 1);
@@ -144,7 +153,6 @@ void ObjSpriteBatches::resize(std::size_t size)
 {
     const std::size_t oldSize = this->g_instancesData.size();
 
-    this->g_instancesTextureIndex.resize(size, 0);
     this->g_instancesData.resize(size);
     this->g_instancesVertices.resize(size * 4);
 
@@ -187,7 +195,7 @@ void ObjSpriteBatches::setSpriteTexture(std::size_t spriteIndex, uint32_t textur
 {
     if (spriteIndex < this->g_instancesData.size())
     {
-        this->g_instancesTextureIndex[spriteIndex] = textureIndex;
+        this->g_instancesData[spriteIndex]._textureIndex = textureIndex;
         this->updateTexCoords(spriteIndex);
     }
 }
@@ -241,21 +249,25 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     this->updateBuffers();
 
+    //Update the view matrix (always the first element of the buffer)
+    auto* view = static_cast<InstanceDataBuffer*>(this->g_instancesTransform.getBufferMapped());
+    view->_transform = target.getView().getTransform();
+
+    //Update all model matrices
     for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
     {
-        auto* uboData = reinterpret_cast<fge::TransformUboData*>(
-                static_cast<uint8_t*>(this->g_instancesTransform.getBufferMapped()) + i * this->g_dynamicAlignment);
+        auto* instance = static_cast<InstanceDataBuffer*>(this->g_instancesTransform.getBufferMapped()) + i + 1;
 
+        instance->_textureIndex = this->g_instancesData[i]._textureIndex;
         if (states._resTransform.get() != nullptr)
         {
-            uboData->_modelTransform = states._resTransform.get()->getData()._modelTransform *
-                                       this->g_instancesData[i]._transformable.getTransform();
+            instance->_transform = states._resTransform.get()->getData()._modelTransform *
+                                   this->g_instancesData[i]._transformable.getTransform();
         }
         else
         {
-            uboData->_modelTransform = this->g_instancesData[i]._transformable.getTransform();
+            instance->_transform = this->g_instancesData[i]._transformable.getTransform();
         }
-        uboData->_viewTransform = target.getView().getTransform();
     }
 
     auto copyStates = states.copy(nullptr, nullptr);
@@ -265,16 +277,14 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
     copyStates._resInstances.setInstancesCount(this->g_instancesData.size(), false);
     copyStates._resInstances.setVertexCount(4);
 
-    uint32_t const dynamicSets[] = {FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM};
-    copyStates._resInstances.setDynamicDescriptors(&this->g_descriptorSet, &fge::TransformUboData::uboSize, dynamicSets,
-                                                   1);
-    copyStates._resInstances.setTextureIndices(this->g_instancesTextureIndex.data());
+    const uint32_t sets[] = {0, 1};
+    copyStates._resDescriptors.set(this->g_descriptorSets, sets, 2);
 
     copyStates._vertexBuffer = &this->g_instancesVertices;
 
-    copyStates._resTextures.set(this->g_textures.data(), this->g_textures.size());
+    //copyStates._resTextures.set(this->g_textures.data(), this->g_textures.size());
 
-    const bool haveTexture = this->g_textures.size() > 0;
+    const bool haveTexture = !this->g_textures.empty();
 
     const fge::RenderTarget::GraphicPipelineKey graphicPipelineKey{
             this->g_instancesVertices.getPrimitiveTopology(), copyStates._blendMode,
@@ -362,15 +372,11 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {
-        const auto textureIndex = this->g_instancesTextureIndex[index];
-        const fge::TextureType* texture = nullptr;
+        const auto textureIndex = this->g_instancesData[index]._textureIndex;
+        const fge::TextureType* texture = fge::texture::GetBadTexture()->_texture.get();
         if (textureIndex < this->g_textures.size())
         {
             texture = this->g_textures[textureIndex].getData()->_texture.get();
-        }
-        else
-        {
-            texture = fge::texture::GetBadTexture()->_texture.get();
         }
 
         const auto rect = texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
@@ -389,19 +395,72 @@ void ObjSpriteBatches::updateBuffers() const
     {
         this->g_needBuffersUpdate = false;
 
+        if (this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].get() == VK_NULL_HANDLE)
+        {
+            auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
+            if (layout.getLayout() == VK_NULL_HANDLE)
+            {
+                layout.create(*fge::vulkan::GlobalContext,
+                              {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                                      VK_SHADER_STAGE_VERTEX_BIT)});
+            }
+
+            this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES] =
+                    fge::vulkan::GlobalContext->getMultiUseDescriptorPool()
+                            .allocateDescriptorSet(layout.getLayout())
+                            .value();
+        }
+
         if (!this->g_instancesData.empty() && this->g_instancesData.size() > this->g_instancesTransformDataCapacity)
         {
             this->g_instancesTransformDataCapacity = this->g_instancesData.size();
 
             this->g_instancesTransform.create(*fge::vulkan::GlobalContext,
-                                              this->g_dynamicAlignment * this->g_instancesData.size());
+                                              sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1), true);
 
             const fge::vulkan::DescriptorSet::Descriptor descriptor{
-                    this->g_instancesTransform, FGE_VULKAN_TRANSFORM_BINDING,
-                    fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC, fge::TransformUboData::uboSize};
-            this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
+                    this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
+                    this->g_instancesTransform.getBufferSize()};
+            this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].updateDescriptorSet(&descriptor, 1);
         }
     }
+}
+void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
+{
+    if (sizeHasChanged || this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES].get() == VK_NULL_HANDLE)
+    {
+        auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES);
+        if (layout.getLayout() == VK_NULL_HANDLE)
+        {
+            VkDescriptorBindingFlagsEXT const bindingFlags[] = {
+                    VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+            layout.create(*fge::vulkan::GlobalContext,
+                          {VkDescriptorSetLayoutBinding{.binding = 0,
+                                                        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                        .descriptorCount = FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES,
+                                                        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+                                                        .pImmutableSamplers = nullptr}},
+                          bindingFlags);
+        }
+
+        this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES] =
+                fge::vulkan::GlobalContext->getMultiUseDescriptorPool()
+                        .allocateDescriptorSet(layout.getLayout(), this->g_textures.size())
+                        .value();
+    }
+
+#ifndef FGE_DEF_SERVER
+    std::vector<fge::vulkan::DescriptorSet::Descriptor> descriptors;
+    descriptors.reserve(this->g_textures.size());
+    for (std::size_t i = 0; i < this->g_textures.size(); ++i)
+    {
+        descriptors.emplace_back(*this->g_textures[i].getData()->_texture, 0);
+        descriptors.back()._dstArrayElement = i;
+    }
+
+    this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES].updateDescriptorSet(descriptors.data(),
+                                                                                            descriptors.size());
+#endif //FGE_DEF_SERVER
 }
 
 } // namespace fge

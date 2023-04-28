@@ -27,6 +27,12 @@
 #define FGE_OBJSPRITEBATCHES_PIPELINE_CACHE_NAME FGE_OBJSPRITEBATCHES_CLASSNAME
 #define FGE_OBJSPRITEBATCHES_ID 0
 #define FGE_OBJSPRITEBATCHES_ID_TEXTURE 1
+#define FGE_OBJSPRITEBATCHES_SHADER_VERTEX "FGE:OBJ:SPRITEBATCHES:VERTEX"
+#define FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT "FGE:OBJ:SPRITEBATCHES:FRAGMENT"
+#define FGE_OBJSPRITEBATCHES_LAYOUT "FGE:OBJ:SPRITEBATCHES:LAYOUT"
+#define FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES "FGE:OBJ:SPRITEBATCHES:LAYOUTTEXTURES"
+
+#define FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES 64
 
 namespace fge
 {
@@ -80,31 +86,35 @@ private:
     void updatePositions(std::size_t index);
     void updateTexCoords(std::size_t index);
     void updateBuffers() const;
+    void updateTextures(bool sizeHasChanged);
 
     struct InstanceData
     {
         InstanceData() = default;
-        explicit InstanceData(const fge::RectInt& textureRect) :
-                _textureRect(textureRect)
+        explicit InstanceData(const fge::RectInt& textureRect, glm::uint textureIndex) :
+                _textureRect(textureRect),
+                _textureIndex(textureIndex)
         {}
 
         fge::Transformable _transformable;
         fge::RectInt _textureRect;
+        glm::uint _textureIndex{0};
+    };
+    struct InstanceDataBuffer
+    {
+        alignas(16) glm::mat4 _transform;
+        alignas(16) glm::uint _textureIndex{0};
     };
 
     std::vector<fge::Texture> g_textures;
 
-    mutable fge::vulkan::DescriptorSet g_descriptorSet;
-
-    std::vector<uint32_t> g_instancesTextureIndex;
     std::vector<InstanceData> g_instancesData;
     mutable std::size_t g_instancesTransformDataCapacity;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
+    mutable fge::vulkan::DescriptorSet g_descriptorSets[2];
     fge::vulkan::VertexBuffer g_instancesVertices;
 
     mutable bool g_needBuffersUpdate;
-
-    std::size_t g_dynamicAlignment;
 };
 
 } // namespace fge
