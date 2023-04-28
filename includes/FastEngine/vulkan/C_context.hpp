@@ -89,10 +89,8 @@ public:
 
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTextureLayout() const;
     [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformLayout() const;
-    [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformBatchesLayout() const;
     [[nodiscard]] const DescriptorPool& getTextureDescriptorPool() const;
     [[nodiscard]] const DescriptorPool& getTransformDescriptorPool() const;
-    [[nodiscard]] const DescriptorPool& getTransformBatchesDescriptorPool() const;
 
     [[nodiscard]] VmaAllocator getAllocator() const;
 
@@ -103,7 +101,6 @@ private:
     void createMultiUseDescriptorPool();
     void createTextureDescriptorPool();
     void createTransformDescriptorPool();
-    void createTransformBatchesDescriptorPool();
 
     Instance g_instance;
     PhysicalDevice g_physicalDevice;
@@ -115,10 +112,8 @@ private:
 
     fge::vulkan::DescriptorSetLayout g_textureLayout;
     fge::vulkan::DescriptorSetLayout g_transformLayout;
-    fge::vulkan::DescriptorSetLayout g_transformBatchesLayout;
     DescriptorPool g_textureDescriptorPool;
     DescriptorPool g_transformDescriptorPool;
-    DescriptorPool g_transformBatchesDescriptorPool;
 
     mutable VmaAllocator g_allocator;
 
