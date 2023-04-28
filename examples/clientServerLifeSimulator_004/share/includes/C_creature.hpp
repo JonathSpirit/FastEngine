@@ -39,11 +39,13 @@ enum class CreatureGender : uint8_t
     GENDER_FEMALE
 };
 
+class Creature;
+
 struct CreatureData
 {
     CreatureData();
 
-    void networkRegister(fge::net::NetworkTypeContainer& netList);
+    void networkRegister(fge::net::NetworkTypeContainer& netList, Creature* creature, void (Creature::*callback)());
 
     uint8_t _lifePoint;
 
@@ -125,6 +127,8 @@ private:
     fge::ObjRectangleShape g_rectBarHunger;
     fge::ObjRectangleShape g_rectBarThirst;
     fge::ObjRectangleShape g_rectBarLibido;
+
+    void refreshStats();
 
     mutable fge::ObjSprite g_spriteCreature;
     fge::texture::TextureDataPtr g_animTexture;

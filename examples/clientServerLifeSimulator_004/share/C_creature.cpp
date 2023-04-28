@@ -41,21 +41,29 @@ CreatureData::CreatureData()
     this->_sightRadius = fge::_random.range(10.0f, 60.0f);
 }
 
-void CreatureData::networkRegister(fge::net::NetworkTypeContainer& netList)
+void CreatureData::networkRegister(fge::net::NetworkTypeContainer& netList,
+                                   Creature* creature,
+                                   void (Creature::*callback)())
 {
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_lifePoint});
+    netList.push(new fge::net::NetworkType<uint8_t>{&this->_lifePoint})
+            ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
     netList.push(new fge::net::NetworkType<std::underlying_type_t<CreatureGender>>{
             reinterpret_cast<std::underlying_type_t<CreatureGender>*>(&this->_gender)});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_hunger});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_thirst});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_libido});
+    netList.push(new fge::net::NetworkType<uint8_t>{&this->_hunger})
+            ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
+    netList.push(new fge::net::NetworkType<uint8_t>{&this->_thirst})
+            ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
+    netList.push(new fge::net::NetworkType<uint8_t>{&this->_libido})
+            ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_libidoAdd});
-    netList.push(new fge::net::NetworkType<bool>{&this->_pregnant});
+    netList.push(new fge::net::NetworkType<bool>{&this->_pregnant})
+            ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_energy});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_height});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_muscularMass});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_bodyFat});
-    netList.push(new fge::net::NetworkType<float>{&this->_sightRadius});
+    netList.push(new fge::net::NetworkType<float>{&this->_sightRadius})
+            ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
 }
 
 fge::net::Packet& operator<<(fge::net::Packet& pck, const CreatureData& data)
@@ -96,13 +104,6 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->networkRegister();
 
     //creature
-    /*
-    100|val
-    ---|---
-    2.0| ?
-    */
-    const float scale = (2.0f * static_cast<float>(this->_data._height)) / 100.0f;
-    this->g_spriteCreature.setScale({scale, scale});
     this->g_spriteCreature.setOrigin({24, 19});
 
     //sightRadius
@@ -113,9 +114,6 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->g_circleSight.setOrigin({this->_data._sightRadius, this->_data._sightRadius});
 
     //Gender
-    this->g_txtGender.setString(
-            std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
-            (this->_data._pregnant ? " pregnant" : ""));
     this->g_txtGender.setFont(this->_font);
     this->g_txtGender.setCharacterSize(12);
     this->g_txtGender.setPosition({-20, 30});
@@ -130,21 +128,19 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->g_rectInfoBox.setOutlineColor(fge::Color::Black);
     this->g_rectInfoBox.setFillColor(fge::Color(100, 100, 100));
 
-    this->g_rectBarLife.setSize({this->_data._lifePoint, 5});
     this->g_rectBarLife.setPosition({-20, -40});
     this->g_rectBarLife.setFillColor(fge::Color::Red);
 
-    this->g_rectBarHunger.setSize({this->_data._hunger, 5});
     this->g_rectBarHunger.setPosition({-20, -35});
     this->g_rectBarHunger.setFillColor(fge::Color(255, 154, 29));
 
-    this->g_rectBarThirst.setSize({this->_data._thirst, 5});
     this->g_rectBarThirst.setPosition({-20, -30});
     this->g_rectBarThirst.setFillColor(fge::Color::Blue);
 
-    this->g_rectBarLibido.setSize({this->_data._libido, 5});
     this->g_rectBarLibido.setPosition({-20, -25});
     this->g_rectBarLibido.setFillColor(fge::Color(228, 0, 255));
+
+    this->refreshStats();
 }
 bool Creature::worldTick()
 {
@@ -409,7 +405,7 @@ void Creature::networkRegister()
                              }},
                              this);
 
-    this->_data.networkRegister(this->_netList);
+    this->_data.networkRegister(this->_netList, this, &Creature::refreshStats);
 }
 
 void Creature::save(nlohmann::json& jsonObject, fge::Scene* scene)
@@ -438,6 +434,23 @@ const char* Creature::getClassName() const
 const char* Creature::getReadableClassName() const
 {
     return "creature";
+}
+
+void Creature::refreshStats()
+{
+    const float scale = (2.0f * static_cast<float>(this->_data._height)) / 100.0f;
+    this->g_spriteCreature.setScale({scale, scale});
+
+    this->g_circleSight.setRadius(this->_data._sightRadius);
+
+    this->g_txtGender.setString(
+            std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
+            (this->_data._pregnant ? " pregnant" : ""));
+
+    this->g_rectBarLife.setSize({this->_data._lifePoint, 5});
+    this->g_rectBarHunger.setSize({this->_data._hunger, 5});
+    this->g_rectBarThirst.setSize({this->_data._thirst, 5});
+    this->g_rectBarLibido.setSize({this->_data._libido, 5});
 }
 
 } // namespace ls
