@@ -240,10 +240,10 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     fge::RenderTarget::GraphicPipelineKey key{this->g_vertices.getPrimitiveTopology(), copyStates._blendMode, 0};
     auto* graphicPipeline =
-            target.getGraphicPipeline(typeid(fge::ObjShape).name(), key, &InstanceVertexShader_constructor);
+            target.getGraphicPipeline(FGE_OBJSHAPE_PIPELINE_CACHE_NAME, key, &InstanceVertexShader_constructor);
     key._topology = this->g_outlineVertices.getPrimitiveTopology();
     auto* graphicPipelineOutline =
-            target.getGraphicPipeline(typeid(fge::ObjShape).name(), key, &InstanceVertexShader_constructor);
+            target.getGraphicPipeline(FGE_OBJSHAPE_PIPELINE_CACHE_NAME, key, &InstanceVertexShader_constructor);
 
     //Drawing inline
     copyStates._resTextures.set(texture, texture == nullptr ? 0 : 1);
@@ -259,6 +259,7 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     target.draw(copyStates, graphicPipeline);
 
+    //Drawing outline
     colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
     graphicPipelineOutline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
                                           &colorIndex);
@@ -353,7 +354,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     if (size < this->g_instancesCapacity)
     {
-        InstanceData* defaultInstanceData = reinterpret_cast<InstanceData*>(this->g_instances.getBufferMapped());
+        InstanceData* defaultInstanceData = static_cast<InstanceData*>(this->g_instances.getBufferMapped());
 
         for (std::size_t i = this->g_instancesCount; i < size; ++i)
         {
@@ -377,7 +378,8 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
     this->g_instancesCapacity = size;
-    this->g_instances.create(*fge::vulkan::GlobalContext, this->g_instancesCapacity * sizeof(InstanceData), true);
+    this->g_instances.create(*fge::vulkan::GlobalContext,
+                             static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
 
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
@@ -396,8 +398,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     const fge::vulkan::DescriptorSet::Descriptor descriptor{
             this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
-            fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
-            this->g_instancesCapacity * sizeof(InstanceData)};
+            fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, this->g_instances.getBufferSize()};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     for (std::size_t i = 0; i < size; ++i)
@@ -408,8 +409,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
 ObjShape::InstanceData* ObjShape::retrieveInstance(std::size_t index) const
 {
-    return reinterpret_cast<InstanceData*>(reinterpret_cast<uint8_t*>(this->g_instances.getBufferMapped()) +
-                                           sizeof(InstanceData) * index);
+    return static_cast<InstanceData*>(this->g_instances.getBufferMapped()) + index;
 }
 
 } // namespace fge
