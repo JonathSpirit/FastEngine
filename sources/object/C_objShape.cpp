@@ -381,6 +381,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
     this->g_instances.create(*fge::vulkan::GlobalContext,
                              static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
 
+#ifndef FGE_DEF_SERVER
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
         auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
@@ -400,6 +401,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
             this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
             fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, this->g_instances.getBufferSize()};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
+#endif
 
     for (std::size_t i = 0; i < size; ++i)
     {

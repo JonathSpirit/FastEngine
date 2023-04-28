@@ -280,8 +280,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     SDL_Window* window =
-            SDL_CreateWindow("example 006: multipleSprites", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
-                             600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+            SDL_CreateWindow("example 006: multipleSprites", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+                             SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (window == nullptr)

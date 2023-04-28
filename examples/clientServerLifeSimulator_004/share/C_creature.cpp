@@ -107,11 +107,9 @@ void Creature::first([[maybe_unused]] fge::Scene* scene)
     this->g_spriteCreature.setOrigin({24, 19});
 
     //sightRadius
-    this->g_circleSight.setRadius(this->_data._sightRadius);
     this->g_circleSight.setOutlineThickness(1.0f);
     this->g_circleSight.setOutlineColor(fge::Color(120, 120, 120, 180));
     this->g_circleSight.setFillColor(fge::Color::Transparent);
-    this->g_circleSight.setOrigin({this->_data._sightRadius, this->_data._sightRadius});
 
     //Gender
     this->g_txtGender.setFont(this->_font);
@@ -425,6 +423,7 @@ void Creature::unpack(fge::net::Packet& pck)
 {
     fge::Object::unpack(pck);
     pck >> this->_data;
+    this->refreshStats();
 }
 
 const char* Creature::getClassName() const
@@ -442,6 +441,7 @@ void Creature::refreshStats()
     this->g_spriteCreature.setScale({scale, scale});
 
     this->g_circleSight.setRadius(this->_data._sightRadius);
+    this->g_circleSight.setOrigin({this->_data._sightRadius, this->_data._sightRadius});
 
     this->g_txtGender.setString(
             std::string(this->_data._gender == ls::CreatureGender::GENDER_MALE ? "male" : "female") +
