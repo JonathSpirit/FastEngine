@@ -141,9 +141,9 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
         descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[i].dstSet = this->g_descriptorSet;
         descriptorWrites[i].dstBinding = descriptors[i]._binding;
-        descriptorWrites[i].dstArrayElement = 0;
+        descriptorWrites[i].dstArrayElement = descriptors[i]._dstArrayElement;
 
-        descriptorWrites[i].descriptorCount = 1;
+        descriptorWrites[i].descriptorCount = 1; ///TODO: multiple descriptors in one write
 
         descriptorWrites[i].pTexelBufferView = nullptr;
 

@@ -68,6 +68,7 @@ public:
         std::variant<VkDescriptorBufferInfo, VkDescriptorImageInfo> _data;
         uint32_t _binding{0};
         BufferTypes _bufferType{};
+        uint32_t _dstArrayElement{0};
     };
 
     DescriptorSet();
