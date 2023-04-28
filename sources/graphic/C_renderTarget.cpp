@@ -357,7 +357,7 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
             vkCmdDraw(commandBuffer, vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
             break;
         }
-        vkCmdDraw(commandBuffer, vertexCount, 1, vertexOffset, 0);
+        vkCmdDraw(commandBuffer, vertexCount, 1, vertexOffset, iInstance);
     }
 }
 

@@ -75,7 +75,7 @@ public:
         }
         [[nodiscard]] inline bool operator==(const GraphicPipelineKey& k) const
         {
-            return this->_blendMode == k._blendMode && this->_id == k._id;
+            return this->_topology == k._topology && this->_blendMode == k._blendMode && this->_id == k._id;
         }
 
         VkPrimitiveTopology _topology;
