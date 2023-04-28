@@ -21,6 +21,9 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_vulkan.h"
 #include <cstdint>
+#ifdef FGE_DEF_SERVER
+    #include <vector>
+#endif
 
 namespace fge::vulkan
 {
@@ -51,10 +54,14 @@ public:
     void copyData(const void* data, std::size_t size) const;
 
 private:
+#ifndef FGE_DEF_SERVER
     VkBuffer g_uniformBuffer;
     VmaAllocation g_uniformBufferAllocation;
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
+#else
+    mutable std::vector<uint8_t> g_uniformBuffer;
+#endif
 
     const Context* g_context;
 };

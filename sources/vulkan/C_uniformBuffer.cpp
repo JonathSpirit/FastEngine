@@ -23,10 +23,12 @@ namespace fge::vulkan
 {
 
 UniformBuffer::UniformBuffer() :
+#ifndef FGE_DEF_SERVER
         g_uniformBuffer(VK_NULL_HANDLE),
         g_uniformBufferAllocation(VK_NULL_HANDLE),
         g_uniformBufferMapped(nullptr),
         g_bufferSize(0),
+#endif
 
         g_context(nullptr)
 {}
@@ -34,17 +36,23 @@ UniformBuffer::UniformBuffer([[maybe_unused]] const UniformBuffer& r) : ///TODO:
         UniformBuffer()
 {}
 UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
+#ifndef FGE_DEF_SERVER
         g_uniformBuffer(r.g_uniformBuffer),
         g_uniformBufferAllocation(r.g_uniformBufferAllocation),
         g_uniformBufferMapped(r.g_uniformBufferMapped),
         g_bufferSize(r.g_bufferSize),
+#else
+        g_uniformBuffer(std::move(r.g_uniformBuffer)),
+#endif
 
         g_context(r.g_context)
 {
+#ifndef FGE_DEF_SERVER
     r.g_uniformBuffer = VK_NULL_HANDLE;
     r.g_uniformBufferAllocation = VK_NULL_HANDLE;
     r.g_uniformBufferMapped = nullptr;
     r.g_bufferSize = 0;
+#endif
 
     r.g_context = nullptr;
 }
@@ -53,8 +61,13 @@ UniformBuffer::~UniformBuffer()
     this->destroy();
 }
 
-void UniformBuffer::create(const Context& context, VkDeviceSize bufferSize, bool isStorageBuffer)
+void UniformBuffer::create(const Context& context, VkDeviceSize bufferSize, [[maybe_unused]] bool isStorageBuffer)
 {
+#ifdef FGE_DEF_SERVER
+    this->destroy();
+    this->g_uniformBuffer.resize(static_cast<std::size_t>(bufferSize));
+    this->g_context = &context;
+#else
     this->destroy();
 
     CreateBuffer(context, bufferSize,
@@ -66,9 +79,14 @@ void UniformBuffer::create(const Context& context, VkDeviceSize bufferSize, bool
     this->g_context = &context;
 
     vmaMapMemory(context.getAllocator(), this->g_uniformBufferAllocation, &this->g_uniformBufferMapped);
+#endif
 }
 void UniformBuffer::destroy()
 {
+#ifdef FGE_DEF_SERVER
+    this->g_uniformBuffer.clear();
+    this->g_context = nullptr;
+#else
     if (this->g_uniformBuffer != VK_NULL_HANDLE)
     {
         vmaUnmapMemory(this->g_context->getAllocator(), this->g_uniformBufferAllocation);
@@ -82,8 +100,10 @@ void UniformBuffer::destroy()
 
         this->g_context = nullptr;
     }
+#endif
 }
 
+#ifndef FGE_DEF_SERVER
 VkBuffer UniformBuffer::getBuffer() const
 {
     return this->g_uniformBuffer;
@@ -100,6 +120,24 @@ VkDeviceSize UniformBuffer::getBufferSize() const
 {
     return this->g_bufferSize;
 }
+#else
+VkBuffer UniformBuffer::getBuffer() const
+{
+    return VK_NULL_HANDLE;
+}
+VmaAllocation UniformBuffer::getBufferAllocation() const
+{
+    return VK_NULL_HANDLE;
+}
+void* UniformBuffer::getBufferMapped() const
+{
+    return this->g_uniformBuffer.data();
+}
+VkDeviceSize UniformBuffer::getBufferSize() const
+{
+    return static_cast<VkDeviceSize>(this->g_uniformBuffer.size());
+}
+#endif
 
 const Context* UniformBuffer::getContext() const
 {
@@ -108,7 +146,7 @@ const Context* UniformBuffer::getContext() const
 
 void UniformBuffer::copyData(const void* data, std::size_t size) const
 {
-    memcpy(this->g_uniformBufferMapped, data, size);
+    memcpy(this->getBufferMapped(), data, size);
 }
 
 } // namespace fge::vulkan
