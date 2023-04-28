@@ -93,7 +93,8 @@ void DescriptorPool::destroy()
     }
 }
 
-[[nodiscard]] std::optional<DescriptorSet> DescriptorPool::allocateDescriptorSet(VkDescriptorSetLayout layout) const
+[[nodiscard]] std::optional<DescriptorSet> DescriptorPool::allocateDescriptorSet(VkDescriptorSetLayout layout,
+                                                                                 uint32_t variableElements) const
 {
     if (layout == VK_NULL_HANDLE || !this->g_isCreated)
     {
@@ -107,6 +108,17 @@ void DescriptorPool::destroy()
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = &layout;
+    allocInfo.pNext = nullptr;
+
+    VkDescriptorSetVariableDescriptorCountAllocateInfoEXT variableDescriptorCountInfo = {};
+    if (variableElements != 0)
+    {
+        variableDescriptorCountInfo.sType =
+                VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
+        variableDescriptorCountInfo.descriptorSetCount = 1;
+        variableDescriptorCountInfo.pDescriptorCounts = &variableElements;
+        allocInfo.pNext = &variableDescriptorCountInfo;
+    }
 
     for (auto& pool: this->g_descriptorPools)
     {

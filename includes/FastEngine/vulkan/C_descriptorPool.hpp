@@ -71,10 +71,15 @@ public:
     /**
      * \brief Allocate a descriptor set
      *
+     * \warning If variableElements is not 0, the descriptor set layout must have been created
+     * with the VK_DESCRIPTOR_SET_LAYOUT_CREATE_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT flag in this last binding.
+     *
      * \param layout The descriptor set layout
+     * \param variableElements The number of variable elements in the descriptor set
      * \return The descriptor set or std::nullopt if the allocation failed
      */
-    [[nodiscard]] std::optional<DescriptorSet> allocateDescriptorSet(VkDescriptorSetLayout layout) const;
+    [[nodiscard]] std::optional<DescriptorSet> allocateDescriptorSet(VkDescriptorSetLayout layout,
+                                                                     uint32_t variableElements = 0) const;
 
     /**
      * \brief Free a descriptor set
