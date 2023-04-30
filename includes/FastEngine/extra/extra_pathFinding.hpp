@@ -28,7 +28,6 @@
 #include "FastEngine/C_vector.hpp"
 #include <array>
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
@@ -37,33 +36,32 @@
 namespace fge::AStar
 {
 
-using Vector2i = fge::Vector2<int32_t>;
-using HeuristicFunction = std::function<unsigned int(fge::AStar::Vector2i, fge::AStar::Vector2i)>;
-using CoordinateList = std::vector<fge::AStar::Vector2i>;
+using HeuristicFunction = unsigned int (*)(fge::Vector2i, fge::Vector2i);
+using CoordinateList = std::vector<fge::Vector2i>;
 
-struct Vector2int32Hash
+struct Vector2iHash
 {
-    static_assert(sizeof(fge::AStar::Vector2i) == 8, "bad sf::Vector2<int32_t> size, should be 8 !");
+    static_assert(sizeof(fge::Vector2i) == 8, "bad fge::Vector2i size, should be 8 !");
 
-    inline std::size_t operator()(const fge::AStar::Vector2i& coord) const
+    inline std::size_t operator()(const fge::Vector2i& coord) const
     {
         return std::hash<uint64_t>()(*reinterpret_cast<const uint64_t*>(&coord));
     }
 };
 
-using CoordinateSet = std::unordered_set<fge::AStar::Vector2i, fge::AStar::Vector2int32Hash>;
+using CoordinateSet = std::unordered_set<fge::Vector2i, fge::AStar::Vector2iHash>;
 
 struct FGE_API Node
 {
-    explicit Node(std::optional<fge::AStar::Vector2i> parent = std::nullopt);
+    explicit Node(std::optional<fge::Vector2i> parent = std::nullopt);
     [[nodiscard]] unsigned int getScore() const;
 
     unsigned int _costScore;
     unsigned int _heuristicScore;
-    std::optional<fge::AStar::Vector2i> _parent;
+    std::optional<fge::Vector2i> _parent;
 };
 
-using NodeMap = std::unordered_map<fge::AStar::Vector2i, fge::AStar::Node, fge::AStar::Vector2int32Hash>;
+using NodeMap = std::unordered_map<fge::Vector2i, fge::AStar::Node, fge::AStar::Vector2iHash>;
 
 class FGE_API Generator
 {
@@ -71,36 +69,36 @@ public:
     Generator();
     ~Generator() = default;
 
-    void setWorldSize(fge::AStar::Vector2i worldSize);
-    [[nodiscard]] const fge::AStar::Vector2i& getWorldSize() const;
+    void setWorldSize(fge::Vector2i worldSize);
+    [[nodiscard]] const fge::Vector2i& getWorldSize() const;
 
     void setDiagonalMovement(bool enable);
     void setHeuristic(HeuristicFunction heuristic);
-    CoordinateList findPath(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
-    void addCollision(fge::AStar::Vector2i coord);
-    void removeCollision(fge::AStar::Vector2i coord);
+    CoordinateList findPath(fge::Vector2i source, fge::Vector2i target);
+    void addCollision(fge::Vector2i coord);
+    void removeCollision(fge::Vector2i coord);
     void clearCollisions();
 
 private:
-    bool detectCollision(fge::AStar::Vector2i coord);
+    bool detectCollision(fge::Vector2i coord);
 
     HeuristicFunction g_heuristic;
     CoordinateSet g_walls;
-    fge::AStar::Vector2i g_worldSize;
+    fge::Vector2i g_worldSize;
 
-    const std::array<fge::AStar::Vector2i, 8> g_directions;
+    const std::array<fge::Vector2i, 8> g_directions;
     std::size_t g_directionsCount;
 };
 
 class FGE_API Heuristic
 {
 private:
-    static fge::AStar::Vector2i getDelta(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
+    static fge::Vector2i getDelta(fge::Vector2i source, fge::Vector2i target);
 
 public:
-    static unsigned int manhattan(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
-    static unsigned int euclidean(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
-    static unsigned int octagonal(fge::AStar::Vector2i source, fge::AStar::Vector2i target);
+    static unsigned int manhattan(fge::Vector2i source, fge::Vector2i target);
+    static unsigned int euclidean(fge::Vector2i source, fge::Vector2i target);
+    static unsigned int octagonal(fge::Vector2i source, fge::Vector2i target);
 };
 
 } // namespace fge::AStar

@@ -21,7 +21,7 @@
 namespace fge::AStar
 {
 
-Node::Node(std::optional<fge::AStar::Vector2i> parent) :
+Node::Node(std::optional<fge::Vector2i> parent) :
         _costScore(0),
         _heuristicScore(0),
         _parent(parent)
@@ -41,11 +41,11 @@ Generator::Generator() :
     this->setHeuristic(&Heuristic::manhattan);
 }
 
-void Generator::setWorldSize(fge::AStar::Vector2i worldSize)
+void Generator::setWorldSize(fge::Vector2i worldSize)
 {
     this->g_worldSize = worldSize;
 }
-const fge::AStar::Vector2i& Generator::getWorldSize() const
+const fge::Vector2i& Generator::getWorldSize() const
 {
     return this->g_worldSize;
 }
@@ -57,15 +57,15 @@ void Generator::setDiagonalMovement(bool enable)
 
 void Generator::setHeuristic(HeuristicFunction heuristic)
 {
-    this->g_heuristic = std::move(heuristic);
+    this->g_heuristic = heuristic;
 }
 
-void Generator::addCollision(fge::AStar::Vector2i coord)
+void Generator::addCollision(fge::Vector2i coord)
 {
     this->g_walls.insert(coord);
 }
 
-void Generator::removeCollision(fge::AStar::Vector2i coord)
+void Generator::removeCollision(fge::Vector2i coord)
 {
     this->g_walls.erase(coord);
 }
@@ -75,10 +75,10 @@ void Generator::clearCollisions()
     this->g_walls.clear();
 }
 
-CoordinateList Generator::findPath(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
+CoordinateList Generator::findPath(fge::Vector2i source, fge::Vector2i target)
 {
     Node* current = nullptr;
-    fge::AStar::Vector2i currentCoord;
+    fge::Vector2i currentCoord;
     NodeMap openNodes;
     NodeMap closeNodes;
 
@@ -114,7 +114,7 @@ CoordinateList Generator::findPath(fge::AStar::Vector2i source, fge::AStar::Vect
 
         for (std::size_t i = 0; i < this->g_directionsCount; ++i)
         {
-            fge::AStar::Vector2i newCoordinates{currentCoord + this->g_directions[i]};
+            fge::Vector2i newCoordinates{currentCoord + this->g_directions[i]};
             if (this->detectCollision(newCoordinates) || closeNodes.find(newCoordinates) != closeNodes.end())
             {
                 continue;
@@ -167,31 +167,31 @@ CoordinateList Generator::findPath(fge::AStar::Vector2i source, fge::AStar::Vect
     return {};
 }
 
-bool Generator::detectCollision(fge::AStar::Vector2i coord)
+bool Generator::detectCollision(fge::Vector2i coord)
 {
     bool isWall = this->g_walls.find(coord) != this->g_walls.end();
 
     return isWall || coord.x < 0 || coord.x >= this->g_worldSize.x || coord.y < 0 || coord.y >= this->g_worldSize.y;
 }
 
-fge::AStar::Vector2i Heuristic::getDelta(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
+fge::Vector2i Heuristic::getDelta(fge::Vector2i source, fge::Vector2i target)
 {
     return {std::abs(source.x - target.x), std::abs(source.y - target.y)};
 }
 
-unsigned int Heuristic::manhattan(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
+unsigned int Heuristic::manhattan(fge::Vector2i source, fge::Vector2i target)
 {
     auto delta = Heuristic::getDelta(source, target);
     return static_cast<unsigned int>(10 * (delta.x + delta.y));
 }
 
-unsigned int Heuristic::euclidean(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
+unsigned int Heuristic::euclidean(fge::Vector2i source, fge::Vector2i target)
 {
     auto delta = Heuristic::getDelta(source, target);
     return static_cast<unsigned int>(10 * std::sqrt(delta.x * delta.x + delta.y * delta.y));
 }
 
-unsigned int Heuristic::octagonal(fge::AStar::Vector2i source, fge::AStar::Vector2i target)
+unsigned int Heuristic::octagonal(fge::Vector2i source, fge::Vector2i target)
 {
     auto delta = Heuristic::getDelta(source, target);
     return 10 * (delta.x + delta.y) + (-6) * std::min(delta.x, delta.y);

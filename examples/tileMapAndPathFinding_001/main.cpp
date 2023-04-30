@@ -51,7 +51,7 @@ public:
         target.draw(this->g_startCircle, states);
     }
 
-    void setWorldSize(const fge::AStar::Vector2i& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }
+    void setWorldSize(const fge::Vector2i& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }
     void setTileSize(const fge::Vector2i& tileSize) { this->g_tileSize = tileSize; }
     void setObstacle(fge::ObjTileMap* tileMap)
     {
@@ -75,8 +75,7 @@ public:
                                        .get<bool>()
                                        .value_or(false))
                 {
-                    this->g_pathGenerator.addCollision(
-                            static_cast<fge::AStar::Vector2i>(fge::Vector2<std::size_t>{x, y}));
+                    this->g_pathGenerator.addCollision(static_cast<fge::Vector2i>(fge::Vector2<std::size_t>{x, y}));
                 }
             }
         }
@@ -161,8 +160,8 @@ private:
     fge::AStar::Generator g_pathGenerator;
     fge::AStar::CoordinateList g_path;
     std::vector<fge::ObjCircleShape> g_pathCircles;
-    fge::AStar::Vector2i g_goal;
-    fge::AStar::Vector2i g_start;
+    fge::Vector2i g_goal;
+    fge::Vector2i g_start;
     fge::Vector2i g_tileSize;
     fge::ObjCircleShape g_startCircle;
 };
@@ -216,7 +215,7 @@ public:
 
         //Create a pathfinder object
         auto pathFinder = this->newObject(FGE_NEWOBJECT(PathFinder), FGE_SCENE_PLAN_TOP);
-        pathFinder->getObject<PathFinder>()->setWorldSize(static_cast<fge::AStar::Vector2i>(tileMapSize));
+        pathFinder->getObject<PathFinder>()->setWorldSize(static_cast<fge::Vector2i>(tileMapSize));
         pathFinder->getObject<PathFinder>()->setTileSize({32, 32});
         pathFinder->getObject<PathFinder>()->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
 
