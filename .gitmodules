@@ -55,7 +55,7 @@
     path = libs/VulkanMemoryAllocator
     url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
     ignore = dirty
-    branch = v3.0.1
+    branch = master
 [submodule "libs/glslang"]
     path = libs/glslang
     url = https://github.com/KhronosGroup/glslang.git
