@@ -597,13 +597,13 @@ if (WIN32)
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 elseif(APPLE)
-    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.2.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
         add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${FILE}
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.0.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
+    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.2.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
         add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${FILE}
