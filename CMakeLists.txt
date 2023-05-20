@@ -148,7 +148,7 @@ if(WIN32)
     set(GLSLANG_EXTENSION ".dll.a")
 
     set(GLSLANG_DLL ${BINARY_DIR}/glslang/glslang.dll)
-    set(GLSLANG_RES_DLL ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits.dll)
+    set(GLSLANG_RES_DLL ${BINARY_DIR}/glslang/libglslang-default-resource-limits.dll)
     set(GLSLANG_SPIRV_DLL ${BINARY_DIR}/SPIRV/SPIRV.dll)
 elseif(APPLE)
     set(GLSLANG_EXTENSION ".dylib")
@@ -163,7 +163,7 @@ if (APPLE)
 else()
     set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
 endif()
-set(GLSLANG_RES_LIB ${BINARY_DIR}/StandAlone/libglslang-default-resource-limits${GLSLANG_EXTENSION})
+set(GLSLANG_RES_LIB ${BINARY_DIR}/glslang/libglslang-default-resource-limits${GLSLANG_EXTENSION})
 set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
 
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
