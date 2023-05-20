@@ -491,15 +491,15 @@ int main()
 #ifdef _WIN32
     installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/glslang/glslang/glslang.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
     installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/glslang/SPIRV/SPIRV.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
-    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/glslang/StandAlone/libglslang-default-resource-limits.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
+    installFiles.push_back({FTYPE_REQUIRE_DLL, "libs/glslang/glslang/libglslang-default-resource-limits.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
     
     installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/glslang/libglslang.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
     installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/SPIRV/libSPIRV.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
-    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/StandAlone/libglslang-default-resource-limits.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/glslang/libglslang-default-resource-limits.dll", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
 #else
     installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/glslang/libglslang", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
     installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/SPIRV/libSPIRV", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
-    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/StandAlone/libglslang-default-resource-limits", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
+    installFiles.push_back({FTYPE_REQUIRE_LIB, "libs/glslang/glslang/libglslang-default-resource-limits", {FARCH_32, FARCH_64}, {FBUILD_RELEASE}, "glslang"});
 #endif //_WIN32
 
     installFiles.push_back({FTYPE_REQUIRE_FILE, "libs/glslang/LICENSE.txt", {}, {}, "glslang"});
