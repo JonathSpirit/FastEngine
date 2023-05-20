@@ -60,4 +60,4 @@
     path = libs/glslang
     url = https://github.com/KhronosGroup/glslang.git
     ignore = dirty
-    branch = 12.0.0
+    branch = 12.2.0
