@@ -159,10 +159,10 @@ endif()
 set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang)
 if (APPLE)
     set(GLSLANG_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang)
-    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
-else()
-    set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
+    set(GLSLANG_RES_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang-default-resource-limits)
+    set(GLSLANG_SPIRV_LIB_APPLE_HELL ${BINARY_DIR}/SPIRV/libSPIRV)
 endif()
+set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
 set(GLSLANG_RES_LIB ${BINARY_DIR}/glslang/libglslang-default-resource-limits${GLSLANG_EXTENSION})
 set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
 
@@ -570,45 +570,42 @@ add_custom_target(FgeServerExeDeps)
 add_dependencies(FgeClientExeDeps ${FGE_LIB_NAME})
 add_dependencies(FgeServerExeDeps ${FGE_SERVER_LIB_NAME})
 
-if (WIN32)
-    foreach (DEPENDENCY SDL2 SDL2_image)
-        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
+function(CopyTargetDllsToRuntimeDirectory TARGET_NAMES MAIN_TARGET_NAME)
+    foreach (TARGET_NAME ${TARGET_NAMES})
+        add_custom_command(TARGET ${MAIN_TARGET_NAME} PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:${DEPENDENCY}>
+                $<TARGET_FILE:${TARGET_NAME}>
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-    foreach (DEPENDENCY SDL2 SDL2_image SDL2_mixer)
-        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:${DEPENDENCY}>
-                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endforeach()
+endfunction()
 
-    foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
-        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+function(CopyFilesToRuntimeDirectory FILE_PATHS MAIN_TARGET_NAME)
+    foreach (FILE_PATH ${FILE_PATHS})
+        add_custom_command(TARGET ${MAIN_TARGET_NAME} PRE_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${FILE}
+                ${FILE_PATH}
                 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
-    foreach (FILE ${GLSLANG_DLL} ${GLSLANG_RES_DLL} ${GLSLANG_SPIRV_DLL})
-        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${FILE}
-                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endforeach()
+endfunction()
+
+function(GrepAllFiles PATH_PREFIX EXTENSION OUTPUT_VARIABLE)
+    file(GLOB_RECURSE OUTPUT_RESULTS LIST_DIRECTORIES false "${PATH_PREFIX}*${EXTENSION}")
+    set(${OUTPUT_VARIABLE} ${OUTPUT_RESULTS} PARENT_SCOPE)
+endfunction()
+
+if (WIN32)
+    CopyTargetDllsToRuntimeDirectory("SDL2;SDL2_image;SDL2_mixer" FgeClientExeDeps)
+    CopyTargetDllsToRuntimeDirectory("SDL2;SDL2_image" FgeServerExeDeps)
+
+    CopyFilesToRuntimeDirectory("${GLSLANG_DLL};${GLSLANG_RES_DLL};${GLSLANG_SPIRV_DLL}" FgeClientExeDeps)
+    CopyFilesToRuntimeDirectory("${GLSLANG_DLL};${GLSLANG_RES_DLL};${GLSLANG_SPIRV_DLL}" FgeServerExeDeps)
 elseif(APPLE)
-    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.2.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
-        add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${FILE}
-                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endforeach()
-    foreach (FILE ${GLSLANG_LIB_APPLE_HELL}.dylib ${GLSLANG_LIB_APPLE_HELL}.12.dylib ${GLSLANG_LIB_APPLE_HELL}.12.2.0.dylib ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB})
-        add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${FILE}
-                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endforeach()
+    GrepAllFiles(${GLSLANG_LIB_APPLE_HELL} ".dylib" GLSLANG_LIBS)
+    GrepAllFiles(${GLSLANG_RES_LIB_APPLE_HELL} ".dylib" GLSLANG_RES_LIBS)
+    GrepAllFiles(${GLSLANG_SPIRV_LIB_APPLE_HELL} ".dylib" GLSLANG_SPIRV_LIBS)
+
+    CopyFilesToRuntimeDirectory("${GLSLANG_LIBS};${GLSLANG_RES_LIBS};${GLSLANG_SPIRV_LIBS}" FgeClientExeDeps)
+    CopyFilesToRuntimeDirectory("${GLSLANG_LIBS};${GLSLANG_RES_LIBS};${GLSLANG_SPIRV_LIBS}" FgeServerExeDeps)
 endif()
 
 add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
