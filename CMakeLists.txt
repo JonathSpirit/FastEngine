@@ -390,6 +390,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_packetBZ2.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_packetLZ4.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_server.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_socket.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_task.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_childObjectsAccessor.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_scene.cpp")
@@ -417,6 +418,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp")
 
 #######################
 
@@ -498,6 +500,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_packetBZ2.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_packetLZ4.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_server.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_socket.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_task.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_childObjectsAccessor.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_scene.cpp")
@@ -527,6 +530,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp")
 
 #Linking library
 if(WIN32)
