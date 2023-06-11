@@ -58,9 +58,9 @@ public:
 namespace task
 {
 
-[[nodiscard]] std::optional<fge::TaskTypeIndex> RegisterNewTask(std::unique_ptr<fge::TaskTypeBase> taskType);
-[[nodiscard]] fge::Task* CreateNewTask(fge::TaskTypeIndex index);
-[[nodiscard]] std::optional<fge::TaskTypeIndex> GetTaskIndex(std::type_info const& type);
+FGE_API std::optional<fge::TaskTypeIndex> RegisterNewTask(std::unique_ptr<fge::TaskTypeBase> taskType);
+[[nodiscard]] FGE_API fge::Task* CreateNewTask(fge::TaskTypeIndex index);
+[[nodiscard]] FGE_API std::optional<fge::TaskTypeIndex> GetTaskIndex(std::type_info const& type);
 
 } // namespace task
 } // namespace fge

@@ -20,17 +20,18 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_networkType.hpp"
+#include "FastEngine/manager/task_manager.hpp"
 #include <optional>
 #include <vector>
 
-#define FGE_TASK_DEFAULT_GETTYPE(type_)                                                                                \
-    [[nodiscard]] fge::TaskTypeIndex getType() const override                                                          \
+#define FGE_TASK_DEFAULT_GETTER(type_)                                                                                \
+    [[nodiscard]] fge::TaskTypeIndex getTypeIndex() const override                                                     \
     {                                                                                                                  \
-        return fge::task::GetTaskIndex(typeid(type_));                                                                 \
+        return fge::task::GetTaskIndex(typeid(type_)).value();                                                         \
     }                                                                                                                  \
-    [[nodiscard]] static fge::TaskTypeIndex GetType()                                                                  \
+    [[nodiscard]] static fge::TaskTypeIndex GetTypeIndex()                                                             \
     {                                                                                                                  \
-        return fge::task::GetTaskIndex(typeid(type_));                                                                 \
+        return fge::task::GetTaskIndex(typeid(type_)).value();                                                         \
     }
 
 namespace fge
