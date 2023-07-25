@@ -24,7 +24,7 @@
 #include <optional>
 #include <vector>
 
-#define FGE_TASK_DEFAULT_GETTER(type_)                                                                                \
+#define FGE_TASK_DEFAULT_GETTER(type_)                                                                                 \
     [[nodiscard]] fge::TaskTypeIndex getTypeIndex() const override                                                     \
     {                                                                                                                  \
         return fge::task::GetTaskIndex(typeid(type_)).value();                                                         \

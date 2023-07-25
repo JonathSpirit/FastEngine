@@ -119,6 +119,10 @@ void ObjLight::first(fge::Scene* scene)
     {
         this->setDefaultLightSystem(scene);
     }
+
+#ifndef FGE_DEF_SERVER
+    this->g_renderMap._renderTexture.setClearColor(fge::Color(0, 0, 0, 0));
+#endif //FGE_DEF_SERVER
 }
 
 FGE_OBJ_UPDATE_BODY(ObjLight)
@@ -131,7 +135,6 @@ FGE_OBJ_UPDATE_BODY(ObjLight)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjLight)
 {
-    this->g_renderMap._renderTexture.setClearColor(fge::Color(0, 0, 0, 0));
     this->g_renderMap._renderTexture.beginRenderPass(this->g_renderMap._renderTexture.prepareNextFrame(nullptr));
 
     auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
@@ -153,6 +156,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 
         const fge::RectFloat bounds = this->getGlobalBounds();
         const float range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
+        const fge::Vector2f center = bounds.getPosition() + bounds.getSize() / 2.0f;
 
         this->g_obstacleHulls.resize(lightSystem->getGatesSize());
 
@@ -166,14 +170,14 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             tmpHull.resize(obstacle->_g_myPoints.size() * 2);
             for (std::size_t a = 0; a < obstacle->_g_myPoints.size(); ++a)
             {
-                float distance = range - fge::GetDistanceBetween(obstacle->_g_myPoints[a], this->getPosition());
+                float distance = range - fge::GetDistanceBetween(obstacle->_g_myPoints[a], center);
                 if (distance < 0)
                 {
                     ++passCount;
                     distance = std::abs(distance) + range;
                 }
 
-                fge::Vector2f direction = fge::NormalizeVector2(obstacle->_g_myPoints[a] - this->getPosition());
+                fge::Vector2f direction = fge::NormalizeVector2(obstacle->_g_myPoints[a] - center);
                 tmpHull[a] = fge::Vector2f(obstacle->_g_myPoints[a].x + direction.x * distance,
                                            obstacle->_g_myPoints[a].y + direction.y * distance);
                 tmpHull[a + obstacle->_g_myPoints.size()] = obstacle->_g_myPoints[a];
@@ -255,7 +259,7 @@ const char* ObjLight::getReadableClassName() const
 
 fge::RectFloat ObjLight::getGlobalBounds() const
 {
-    return this->getTransform() * this->getLocalBounds();
+    return (this->getParentsTransform() * this->getTransform()) * this->getLocalBounds();
 }
 fge::RectFloat ObjLight::getLocalBounds() const
 {
