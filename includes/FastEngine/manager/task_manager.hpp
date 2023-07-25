@@ -58,8 +58,28 @@ public:
 namespace task
 {
 
+/**
+ * \brief Register a new task
+ *
+ * This function should be called at beginning of the program and once per task.
+ *
+ * \param taskType The task to register using TaskType<T> helper
+ * \return The index of the task
+ */
 FGE_API std::optional<fge::TaskTypeIndex> RegisterNewTask(std::unique_ptr<fge::TaskTypeBase> taskType);
+/**
+ * \brief Create a new task by it's type index
+ *
+ * \param index The type index of the task
+ * \return The new task or nullptr if the index is invalid
+ */
 [[nodiscard]] FGE_API fge::Task* CreateNewTask(fge::TaskTypeIndex index);
+/**
+ * \brief Get the task index by it's type
+ *
+ * \param type The type of the task
+ * \return The index of the task or std::nullopt if the type is invalid
+ */
 [[nodiscard]] FGE_API std::optional<fge::TaskTypeIndex> GetTaskIndex(std::type_info const& type);
 
 } // namespace task

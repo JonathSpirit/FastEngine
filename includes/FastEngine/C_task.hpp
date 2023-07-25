@@ -53,6 +53,14 @@ enum class TaskResult
 
 class TaskHandler;
 
+/**
+ * \class NetworkTypeTasks
+ * \brief Network type for the TaskHandler
+ * \ingroup network
+ *
+ * This class is used to synchronize the tasks of an object.
+ * \see TaskHandler
+ */
 class FGE_API NetworkTypeTasks : public fge::net::NetworkTypeBase
 {
 public:
@@ -80,25 +88,91 @@ private:
     fge::TasksChecksum g_checksumCopy;
 };
 
+/**
+ * \class Task
+ * \brief Base class for all tasks
+ * \ingroup objectControl
+ *
+ * A Task represent an action that can be done by an object. An action can be composed of multiple sub-tasks.
+ *
+ * This class can also be network aware.
+ * \see NetworkTypeTasks
+ */
 class FGE_API Task
 {
 public:
     Task() = default;
     virtual ~Task() = default;
 
+    /**
+     * \brief Update the task
+     *
+     * In order to complete a task, it must be updated.
+     *
+     * This function can return multiple values:
+     * - TASK_RESULT_ERROR: The task has encountered an error and must be stopped.
+     * - TASK_RESULT_UNFINISHED: The task is not finished yet.
+     * - TASK_RESULT_FINISHED: The task is finished.
+     * - TASK_RESULT_SUBTASK_REQUIRED: The task is finished but a sub-task is required and has been created.
+     *
+     * When receiving ERROR, all tasks from the TaskHandler should be cleared by calling TaskHandler::clearTasks().
+     * When receiving FINISHED, the top task should be removed by calling TaskHandler::popTask().
+     * \see TaskHandler
+     *
+     * \param taskHandler The TaskHandler that handle this task
+     * \param event The event object
+     * \param deltaTime The time elapsed since the last update
+     * \param scenePtr The scene pointer
+     * \return The result of the update
+     */
     virtual fge::TaskResult update(fge::TaskHandler& taskHandler,
                                    fge::Event& event,
                                    std::chrono::microseconds const& deltaTime,
                                    fge::Scene* scenePtr) = 0;
 
+    /**
+     * \brief Get the type index of the task
+     *
+     * Every task must have a unique type index that can be retrieved using the task_manager.hpp functions.
+     * \see task::RegisterNewTask
+     *
+     * \return The type index of the task
+     */
     [[nodiscard]] virtual fge::TaskTypeIndex getTypeIndex() const = 0;
+    /**
+     * \brief Get the custom status of the task as a string
+     *
+     * \return The custom status of the task
+     */
     [[nodiscard]] virtual std::string_view getStringStatus() const = 0;
 
+    /**
+     * \brief Get the progression of the task as a percentage
+     *
+     * \return The progression of the task
+     */
     [[nodiscard]] inline float getProgression() const { return this->_g_progress; }
 
+    /**
+     * \brief Pack the task data into a packet
+     *
+     * \param pck The packet
+     */
     virtual void pack(fge::net::Packet& pck) = 0;
+    /**
+     * \brief Unpack the task data from a packet and initialize the task
+     *
+     * \param pck The packet
+     */
     virtual void unpackAndInit(fge::net::Packet& pck) = 0;
 
+    /**
+     * \brief Get the parent object of the task
+     *
+     * This is always an object that should generally contain the TaskHandler.
+     *
+     * \return The parent object of the task
+     */
     [[nodiscard]] inline fge::Object* getParentObject() const { return this->_g_parentObject; }
 
 private:
@@ -113,6 +187,14 @@ protected:
 
 using TaskList = std::vector<std::unique_ptr<fge::Task>>;
 
+/**
+ * \class TaskHandler
+ * \brief Handle the tasks of an object
+ * \ingroup objectControl
+ *
+ * A TaskHandler is used to handle the tasks of an object.
+ * It can have multiple sub-tasks and one main task.
+ */
 class FGE_API TaskHandler
 {
 public:
@@ -124,13 +206,38 @@ public:
     TaskHandler& operator=(TaskHandler const& r) = delete;
     TaskHandler& operator=(TaskHandler&& r) noexcept = delete;
 
+    /**
+     * \brief Set the parent object of the TaskHandler
+     *
+     * All created tasks will have this object as parent.
+     *
+     * \param parentObject The parent object
+     */
     void setParentObject(fge::Object& parentObject);
     [[nodiscard]] fge::Object* getParentObject() const;
 
     [[nodiscard]] std::size_t getTaskSize() const;
 
+    /**
+     * \brief Set the main task
+     *
+     * All tasks is cleared before setting the new main task.
+     *
+     * \tparam T The type of the task for convenience
+     * \param newTask The new task
+     * \return The pointer to the new task with type T
+     */
     template<class T = fge::Task>
     T* setMainTask(std::unique_ptr<T>&& newTask);
+    /**
+     * \brief Add a sub-task
+     *
+     * This function should be called when a task is present and a sub-task is required.
+     *
+     * \tparam T The type of the task for convenience
+     * \param newTask The new task
+     * \return The pointer to the new task with type T
+     */
     template<class T = fge::Task>
     T* addSubTask(std::unique_ptr<T>&& newTask);
     [[nodiscard]] fge::Task* getMainTask() const;
@@ -144,11 +251,19 @@ public:
     [[nodiscard]] std::optional<fge::TaskTypeIndex> getLastTask() const;
     void clearLastTask();
 
+    /**
+     * \brief Register the network types of the tasks
+     *
+     * This is a helper function that register the network type using the NetworkTypeTasks class.
+     * It should be called inside the Object::networkRegister() function.
+     *
+     * \param netList The network type container
+     */
     void networkRegister(fge::net::NetworkTypeContainer& netList);
 
     [[nodiscard]] fge::TasksChecksum getChecksum() const;
 
-    fge::CallbackHandler<TaskHandler&> _onMainTaskChanged;
+    fge::CallbackHandler<TaskHandler&> _onMainTaskChanged; ///< Called when the main task is changed
 
 private:
     void computeChecksum();
