@@ -29,47 +29,129 @@
 namespace fge
 {
 
+/**
+ * \class Surface
+ * \ingroup graphics
+ * \brief Abstraction of SDL_Surface
+ *
+ * This class is an abstraction of SDL_Surface.
+ * It can be used to load image from file or memory with the help of SDL_image.
+ * The texture manager must be initialized in order to load image from file (or just init SDL_image manually).
+ *
+ * The surface is automatically destroyed when the object is destroyed.
+ *
+ * \see fge::texture::Init
+ */
 class FGE_API Surface
 {
 public:
     Surface();
-    Surface(const Surface& r);
+    Surface(int width, int height, fge::Color const& color = {0, 0, 0, 255});
+    Surface(Surface const& r);
     Surface(Surface&& r) noexcept;
     explicit Surface(SDL_Surface* newSurface);
     ~Surface();
 
-    Surface& operator=(const Surface& r);
+    Surface& operator=(Surface const& r);
     Surface& operator=(Surface&& r) noexcept;
 
+    /**
+     * \brief Destroy the surface
+     */
     void clear();
 
-    bool create(int width, int height, const fge::Color& color = {0, 0, 0, 255});
-    bool loadFromFile(const std::filesystem::path& filePath);
-    bool loadFromMemory(const void* data, std::size_t size);
+    bool create(int width, int height, fge::Color const& color = {0, 0, 0, 255});
+    bool loadFromFile(std::filesystem::path const& filePath);
+    bool loadFromMemory(void const* data, std::size_t size);
 
-    bool saveToFile(const std::filesystem::path& filePath) const;
+    /**
+     * \brief Save the surface to a PNG format file
+     *
+     * \param filePath The path to the file
+     * \return true if the file was successfully saved
+     */
+    bool saveToFile(std::filesystem::path const& filePath) const;
 
-    [[nodiscard]] glm::vec<2, int> getSize() const;
+    [[nodiscard]] fge::Vector2i getSize() const;
 
-    void createMaskFromColor(const fge::Color& color, uint8_t alpha = 0);
+    /**
+     * \brief Create a transparent mask from a color
+     *
+     * \param color The color to make transparent
+     * \param alpha The alpha value of the transparent color
+     */
+    void createMaskFromColor(fge::Color const& color, uint8_t alpha = 0);
 
-    bool setPixel(int x, int y, const fge::Color& color);
-    [[nodiscard]] std::optional<SDL_Color> getPixel(int x, int y) const;
+    bool setPixel(int x, int y, fge::Color const& color);
+    [[nodiscard]] std::optional<fge::Color> getPixel(int x, int y) const;
 
     void flipHorizontally();
     void flipVertically();
 
-    bool blitSurface(const Surface& src, const std::optional<SDL_Rect>& srcRect, std::optional<SDL_Rect>& dstRect);
+    /**
+     * \brief Blit a surface on this surface
+     *
+     * \see https://wiki.libsdl.org/SDL2/SDL_BlitSurface
+     *
+     * \param src The source surface
+     * \param srcRect The source rectangle
+     * \param dstRect The destination rectangle
+     * \return true if the blit was successful
+     */
+    bool blitSurface(Surface const& src, std::optional<SDL_Rect> const& srcRect, std::optional<SDL_Rect>& dstRect);
 
-    bool fillRect(const std::optional<SDL_Rect>& rect, const fge::Color& color);
+    /**
+     * \brief Fill a rectangle section of the surface with a color
+     *
+     * \see https://wiki.libsdl.org/SDL2/SDL_FillRect
+     *
+     * \param rect The rectangle to fill
+     * \param color The color to fill with
+     * \return true if the rectangle was successfully filled
+     */
+    bool fillRect(std::optional<SDL_Rect> const& rect, fge::Color const& color);
 
-    bool addBorder(int borderSize, const fge::Color& color);
+    /**
+     * \brief Add a border to the surface with a specific color
+     *
+     * An example of this function is to add a transparent border to a surface and then
+     * convert it to a texture.
+     *
+     * \param borderSize The size of the border
+     * \param color The color of the border
+     * \return true if the border was successfully added
+     */
+    bool addBorder(int borderSize, fge::Color const& color);
 
+    /**
+     * \brief Set a new surface
+     *
+     * The newly set surface will be destroyed when the object is destroyed.
+     *
+     * \param surface The new surface
+     */
     void set(SDL_Surface* surface);
+    /**
+     * \brief Get the SDL_Surface pointer
+     *
+     * \return The SDL_Surface pointer
+     */
     [[nodiscard]] SDL_Surface* get() const;
 
-    [[nodiscard]] fge::Vector2f normalizeTextureCoords(const fge::Vector2i& coords) const;
-    [[nodiscard]] fge::RectFloat normalizeTextureRect(const fge::RectInt& rect) const;
+    /**
+     * \brief Convert some pixel coordinates to texture coordinates (0.0f to 1.0f)
+     *
+     * \param coords The pixel coordinates
+     * \return The texture coordinates
+     */
+    [[nodiscard]] fge::Vector2f normalizeTextureCoords(fge::Vector2i const& coords) const;
+    /**
+     * \brief Convert a pixel rectangle to a texture rectangle (0.0f to 1.0f)
+     *
+     * \param rect The pixel rectangle
+     * \return The texture rectangle
+     */
+    [[nodiscard]] fge::RectFloat normalizeTextureRect(fge::RectInt const& rect) const;
 
 private:
     SDL_Surface* g_surface;

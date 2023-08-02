@@ -24,7 +24,13 @@ Surface::Surface() :
         g_surface(nullptr)
 {}
 
-Surface::Surface(const Surface& r) :
+Surface::Surface(int width, int height, fge::Color const& color) :
+        g_surface(nullptr)
+{
+    this->create(width, height, color);
+}
+
+Surface::Surface(Surface const& r) :
         g_surface(nullptr)
 {
     if (r.g_surface != nullptr)
@@ -49,7 +55,7 @@ Surface::~Surface()
     this->clear();
 }
 
-Surface& Surface::operator=(const Surface& r)
+Surface& Surface::operator=(Surface const& r)
 {
     this->clear();
     if (r.g_surface != nullptr)
@@ -77,7 +83,7 @@ void Surface::clear()
     }
 }
 
-bool Surface::create(int width, int height, const fge::Color& color)
+bool Surface::create(int width, int height, fge::Color const& color)
 {
     this->clear();
     this->g_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
@@ -85,7 +91,7 @@ bool Surface::create(int width, int height, const fge::Color& color)
     return this->g_surface != nullptr;
 }
 
-bool Surface::loadFromFile(const std::filesystem::path& filePath)
+bool Surface::loadFromFile(std::filesystem::path const& filePath)
 {
     this->clear();
     SDL_Surface* surface = IMG_Load(filePath.string().c_str());
@@ -98,7 +104,7 @@ bool Surface::loadFromFile(const std::filesystem::path& filePath)
     }
     return false;
 }
-bool Surface::loadFromMemory(const void* data, std::size_t size)
+bool Surface::loadFromMemory(void const* data, std::size_t size)
 {
     this->clear();
     SDL_RWops* RWops = SDL_RWFromConstMem(data, static_cast<int>(size));
@@ -113,12 +119,12 @@ bool Surface::loadFromMemory(const void* data, std::size_t size)
     return false;
 }
 
-bool Surface::saveToFile(const std::filesystem::path& filePath) const
+bool Surface::saveToFile(std::filesystem::path const& filePath) const
 {
     return IMG_SavePNG(this->g_surface, filePath.string().c_str()) == 0;
 }
 
-glm::vec<2, int> Surface::getSize() const
+fge::Vector2i Surface::getSize() const
 {
     if (this->g_surface == nullptr)
     {
@@ -127,12 +133,28 @@ glm::vec<2, int> Surface::getSize() const
     return {this->g_surface->w, this->g_surface->h};
 }
 
-void Surface::createMaskFromColor([[maybe_unused]] const fge::Color& color, [[maybe_unused]] uint8_t alpha)
+void Surface::createMaskFromColor(fge::Color const& color, uint8_t alpha)
 {
-    ///TODO
+    if (this->g_surface == nullptr)
+    {
+        return;
+    }
+
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            auto pixel = this->getPixel(w, h).value();
+            if (pixel == color)
+            {
+                pixel._a = alpha;
+                this->setPixel(w, h, pixel);
+            }
+        }
+    }
 }
 
-bool Surface::setPixel(int x, int y, const fge::Color& color)
+bool Surface::setPixel(int x, int y, fge::Color const& color)
 {
     if (this->g_surface == nullptr)
     {
@@ -152,7 +174,7 @@ bool Surface::setPixel(int x, int y, const fge::Color& color)
     return true;
 }
 
-std::optional<SDL_Color> Surface::getPixel(int x, int y) const
+std::optional<fge::Color> Surface::getPixel(int x, int y) const
 {
     if (this->g_surface == nullptr)
     {
@@ -170,14 +192,50 @@ std::optional<SDL_Color> Surface::getPixel(int x, int y) const
     SDL_Color result;
     SDL_GetRGBA(*targetPixel, this->g_surface->format, &result.r, &result.g, &result.b, &result.a);
 
-    return result;
+    return fge::Color{result};
 }
 
-void Surface::flipHorizontally() {}
+void Surface::flipHorizontally()
+{
+    if (this->g_surface == nullptr)
+    {
+        return;
+    }
 
-void Surface::flipVertically() {}
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w / 2; ++w)
+        {
+            auto pixelLeft = this->getPixel(w, h).value();
+            auto pixelRight = this->getPixel(this->g_surface->w - w - 1, h).value();
 
-bool Surface::blitSurface(const Surface& src, const std::optional<SDL_Rect>& srcRect, std::optional<SDL_Rect>& dstRect)
+            this->setPixel(w, h, pixelRight);
+            this->setPixel(this->g_surface->w - w - 1, h, pixelLeft);
+        }
+    }
+}
+
+void Surface::flipVertically()
+{
+    if (this->g_surface == nullptr)
+    {
+        return;
+    }
+
+    for (int w = 0; w < this->g_surface->w; ++w)
+    {
+        for (int h = 0; h < this->g_surface->h / 2; ++h)
+        {
+            auto pixelTop = this->getPixel(w, h).value();
+            auto pixelBottom = this->getPixel(w, this->g_surface->h - h - 1).value();
+
+            this->setPixel(w, h, pixelBottom);
+            this->setPixel(w, this->g_surface->h - h - 1, pixelTop);
+        }
+    }
+}
+
+bool Surface::blitSurface(Surface const& src, std::optional<SDL_Rect> const& srcRect, std::optional<SDL_Rect>& dstRect)
 {
     if (this->g_surface == nullptr)
     {
@@ -188,7 +246,7 @@ bool Surface::blitSurface(const Surface& src, const std::optional<SDL_Rect>& src
                            dstRect.has_value() ? &dstRect.value() : nullptr) == 0;
 }
 
-bool Surface::fillRect(const std::optional<SDL_Rect>& rect, const fge::Color& color)
+bool Surface::fillRect(std::optional<SDL_Rect> const& rect, fge::Color const& color)
 {
     if (this->g_surface == nullptr)
     {
@@ -198,7 +256,7 @@ bool Surface::fillRect(const std::optional<SDL_Rect>& rect, const fge::Color& co
                         SDL_MapRGBA(this->g_surface->format, color._r, color._g, color._b, color._a)) == 0;
 }
 
-bool Surface::addBorder(int borderSize, const fge::Color& color)
+bool Surface::addBorder(int borderSize, fge::Color const& color)
 {
     if (this->g_surface == nullptr)
     {
@@ -234,7 +292,7 @@ SDL_Surface* Surface::get() const
     return this->g_surface;
 }
 
-fge::Vector2f Surface::normalizeTextureCoords(const fge::Vector2i& coords) const
+fge::Vector2f Surface::normalizeTextureCoords(fge::Vector2i const& coords) const
 {
     if (this->g_surface == nullptr)
     {
@@ -243,7 +301,7 @@ fge::Vector2f Surface::normalizeTextureCoords(const fge::Vector2i& coords) const
     return {static_cast<float>(coords.x) / static_cast<float>(this->g_surface->w),
             static_cast<float>(coords.y) / static_cast<float>(this->g_surface->h)};
 }
-fge::RectFloat Surface::normalizeTextureRect(const fge::RectInt& rect) const
+fge::RectFloat Surface::normalizeTextureRect(fge::RectInt const& rect) const
 {
     if (this->g_surface == nullptr)
     {
