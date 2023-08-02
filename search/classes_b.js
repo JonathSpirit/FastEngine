@@ -11,7 +11,8 @@ var searchData=
   ['networktypesmoothfloat_8',['NetworkTypeSmoothFloat',['../classfge_1_1net_1_1NetworkTypeSmoothFloat.html',1,'fge::net']]],
   ['networktypesmoothvec2float_9',['NetworkTypeSmoothVec2Float',['../classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html',1,'fge::net']]],
   ['networktypetag_10',['NetworkTypeTag',['../classfge_1_1net_1_1NetworkTypeTag.html',1,'fge::net']]],
-  ['no_11',['No',['../structfge_1_1comparisonCheck_1_1No.html',1,'fge::comparisonCheck']]],
-  ['node_12',['Node',['../structfge_1_1AStar_1_1Node.html',1,'fge::AStar']]],
-  ['nothandledobjectdeleter_13',['NotHandledObjectDeleter',['../structfge_1_1ChildObjectsAccessor_1_1DataContext_1_1NotHandledObjectDeleter.html',1,'fge::ChildObjectsAccessor::DataContext']]]
+  ['networktypetasks_11',['NetworkTypeTasks',['../classfge_1_1NetworkTypeTasks.html',1,'fge']]],
+  ['no_12',['No',['../structfge_1_1comparisonCheck_1_1No.html',1,'fge::comparisonCheck']]],
+  ['node_13',['Node',['../structfge_1_1AStar_1_1Node.html',1,'fge::AStar']]],
+  ['nothandledobjectdeleter_14',['NotHandledObjectDeleter',['../structfge_1_1ChildObjectsAccessor_1_1DataContext_1_1NotHandledObjectDeleter.html',1,'fge::ChildObjectsAccessor::DataContext']]]
 ];

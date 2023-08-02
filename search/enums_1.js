@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['error_0',['Error',['../classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f',1,'fge::net::Socket']]]
+  ['options_0',['Options',['../structfge_1_1net_1_1SendQueuePacket.html#abfc2f40d1872d1bb0196653980f4bc5b',1,'fge::net::SendQueuePacket']]]
 ];
