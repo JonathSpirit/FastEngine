@@ -19,14 +19,13 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
+#include "FastEngine/vulkan/C_contextAware.hpp"
 #include "SDL_vulkan.h"
 #include <initializer_list>
 #include <vector>
 
 namespace fge::vulkan
 {
-
-class Context;
 
 /**
  * \ingroup vulkan
@@ -54,10 +53,10 @@ CreateSimpleLayoutBinding(uint32_t binding, VkDescriptorType type, VkShaderStage
  * Essentially, this class abstract creation and destruction of the descriptor set layout.
  * It also enable copy and move semantics.
  */
-class FGE_API DescriptorSetLayout
+class FGE_API DescriptorSetLayout : public ContextAware
 {
 public:
-    DescriptorSetLayout();
+    explicit DescriptorSetLayout(Context const& context);
     DescriptorSetLayout(const DescriptorSetLayout& r) = delete; ///TODO
     DescriptorSetLayout(DescriptorSetLayout&& r) noexcept;
     ~DescriptorSetLayout();
@@ -65,21 +64,17 @@ public:
     DescriptorSetLayout& operator=(const DescriptorSetLayout& r) = delete; ///TODO
     DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept;
 
-    void create(const Context& context,
-                std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
+    void create(std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
                 VkDescriptorBindingFlagsEXT const* bindingFlags = nullptr);
     void destroy();
 
     [[nodiscard]] VkDescriptorSetLayout getLayout() const;
     [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const;
     [[nodiscard]] std::size_t getBindingsCount() const;
-    [[nodiscard]] const Context* getContext() const;
 
 private:
     VkDescriptorSetLayout g_descriptorSetLayout;
     std::vector<VkDescriptorSetLayoutBinding> g_bindings;
-
-    const Context* g_context;
 };
 
 } // namespace fge::vulkan

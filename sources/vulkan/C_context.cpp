@@ -167,12 +167,10 @@ void Context::initVulkan(SDL_Window* window)
     this->createTextureDescriptorPool();
     this->createTransformDescriptorPool();
 
-    this->g_textureLayout.create(*this, {fge::vulkan::CreateSimpleLayoutBinding(
-                                                FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                VK_SHADER_STAGE_FRAGMENT_BIT)});
-    this->g_transformLayout.create(*this, {fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
-                                                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
+    this->g_textureLayout.create({fge::vulkan::CreateSimpleLayoutBinding(
+            FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
+    this->g_transformLayout.create({fge::vulkan::CreateSimpleLayoutBinding(
+            FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
 }
 void Context::enumerateExtensions()
 {
@@ -389,7 +387,9 @@ fge::vulkan::DescriptorSetLayout& Context::getCacheLayout(std::string_view key) 
     {
         return it->second;
     }
-    return this->g_cacheLayouts[std::string(key)];
+    return this->g_cacheLayouts
+            .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this))
+            .first->second;
 }
 const DescriptorPool& Context::getMultiUseDescriptorPool() const
 {

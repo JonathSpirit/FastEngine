@@ -38,8 +38,8 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
     auto& layout = context->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+        layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                              VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
     graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout(), layout.getLayout()});
@@ -387,8 +387,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
         auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
         if (layout.getLayout() == VK_NULL_HANDLE)
         {
-            layout.create(*fge::vulkan::GlobalContext,
-                          {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                                   VK_SHADER_STAGE_VERTEX_BIT)});
         }
 

@@ -39,16 +39,15 @@ void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Con
     auto& layout = context->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+        layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                              VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
     auto& textureLayout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES);
     if (textureLayout.getLayout() == VK_NULL_HANDLE)
     {
         VkDescriptorBindingFlagsEXT const bindingFlags[] = {VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
-        textureLayout.create(*fge::vulkan::GlobalContext,
-                             {VkDescriptorSetLayoutBinding{.binding = 0,
+        textureLayout.create({VkDescriptorSetLayoutBinding{.binding = 0,
                                                            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                                            .descriptorCount = FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES,
                                                            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -70,8 +69,8 @@ void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* conte
     auto& layout = context->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+        layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                              VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
     graphicPipeline->setDescriptorSetLayouts({layout.getLayout()});
@@ -400,8 +399,7 @@ void ObjSpriteBatches::updateBuffers() const
             auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
             if (layout.getLayout() == VK_NULL_HANDLE)
             {
-                layout.create(*fge::vulkan::GlobalContext,
-                              {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                                       VK_SHADER_STAGE_VERTEX_BIT)});
             }
 
@@ -434,8 +432,7 @@ void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
         {
             VkDescriptorBindingFlagsEXT const bindingFlags[] = {
                     VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
-            layout.create(*fge::vulkan::GlobalContext,
-                          {VkDescriptorSetLayoutBinding{.binding = 0,
+            layout.create({VkDescriptorSetLayoutBinding{.binding = 0,
                                                         .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                                         .descriptorCount = FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES,
                                                         .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
