@@ -26,7 +26,7 @@ DescriptorSetLayout::DescriptorSetLayout(Context const& context) :
         g_descriptorSetLayout(VK_NULL_HANDLE)
 {}
 DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& r) noexcept :
-        ContextAware(r),
+        ContextAware(static_cast<ContextAware&&>(r)),
         g_descriptorSetLayout(r.g_descriptorSetLayout),
         g_bindings(std::move(r.g_bindings))
 {
@@ -39,9 +39,10 @@ DescriptorSetLayout::~DescriptorSetLayout()
 
 DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& r) noexcept
 {
+    this->verifyContext(r);
+
     this->destroy();
 
-    ContextAware::operator=(r);
     this->g_bindings = std::move(r.g_bindings);
     this->g_descriptorSetLayout = r.g_descriptorSetLayout;
 
@@ -77,7 +78,7 @@ void DescriptorSetLayout::create(std::initializer_list<VkDescriptorSetLayoutBind
         layoutInfo.pNext = &bindingFlagsInfo;
     }
 
-    if (vkCreateDescriptorSetLayout(this->_g_context->getLogicalDevice().getDevice(), &layoutInfo, nullptr,
+    if (vkCreateDescriptorSetLayout(this->getContext()->getLogicalDevice().getDevice(), &layoutInfo, nullptr,
                                     &this->g_descriptorSetLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
@@ -87,7 +88,7 @@ void DescriptorSetLayout::destroy()
 {
     if (this->g_descriptorSetLayout != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorSetLayout(this->_g_context->getLogicalDevice().getDevice(), this->g_descriptorSetLayout,
+        vkDestroyDescriptorSetLayout(this->getContext()->getLogicalDevice().getDevice(), this->g_descriptorSetLayout,
                                      nullptr);
         this->g_descriptorSetLayout = VK_NULL_HANDLE;
         this->g_bindings.clear();

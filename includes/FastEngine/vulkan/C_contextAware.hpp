@@ -17,6 +17,8 @@
 #ifndef _FGE_VULKAN_C_CONTEXTAWARE_HPP_INCLUDED
 #define _FGE_VULKAN_C_CONTEXTAWARE_HPP_INCLUDED
 
+#include <stdexcept>
+
 namespace fge::vulkan
 {
 
@@ -26,19 +28,35 @@ class ContextAware
 {
 public:
     explicit constexpr ContextAware(Context const& context) :
-            _g_context{&context}
+            g_context{&context}
     {}
-    constexpr ContextAware(ContextAware const& r) = default;
-    constexpr ContextAware(ContextAware&& r) noexcept = default;
+    ContextAware(ContextAware const& r) = default;
+    ContextAware(ContextAware&& r) noexcept = default;
     constexpr ~ContextAware() = default;
 
-    [[nodiscard]] constexpr Context const* getContext() const { return this->_g_context; }
+    ContextAware& operator=(ContextAware const& r) = delete;
+    ContextAware& operator=(ContextAware&& r) noexcept = delete;
+
+    [[nodiscard]] constexpr Context const* getContext() const { return this->g_context; }
+    inline void swapContext(Context const& context)
+    {
+        this->destroy();
+        this->g_context = &context;
+    }
+
+    virtual void destroy() = 0;
 
 protected:
-    constexpr ContextAware& operator=(ContextAware const& r) = default;
-    constexpr ContextAware& operator=(ContextAware&& r) = default;
+    inline void verifyContext(ContextAware const& r)
+    {
+        if (this->g_context != r.g_context)
+        {
+            throw std::runtime_error("ContextAware objects assignment with different Context !");
+        }
+    }
 
-    Context const* _g_context{nullptr};
+private:
+    Context const* g_context{nullptr};
 };
 
 } // namespace fge::vulkan

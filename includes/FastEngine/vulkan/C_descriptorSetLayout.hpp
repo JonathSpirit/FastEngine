@@ -66,7 +66,7 @@ public:
 
     void create(std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
                 VkDescriptorBindingFlagsEXT const* bindingFlags = nullptr);
-    void destroy();
+    void destroy() final;
 
     [[nodiscard]] VkDescriptorSetLayout getLayout() const;
     [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const;
