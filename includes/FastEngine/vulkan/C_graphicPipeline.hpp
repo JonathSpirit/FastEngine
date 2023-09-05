@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
 #include "C_blendMode.hpp"
+#include "C_contextAware.hpp"
 #include "C_shader.hpp"
 #include "C_vertex.hpp"
 #include "C_vertexBuffer.hpp"
@@ -33,15 +34,15 @@ namespace fge::vulkan
 class SwapChain;
 class LogicalDevice;
 
-class FGE_API GraphicPipeline
+class FGE_API GraphicPipeline : public ContextAware
 {
 public:
-    explicit GraphicPipeline(const Context& context);
-    GraphicPipeline(const GraphicPipeline& r);
+    explicit GraphicPipeline(Context const& context);
+    GraphicPipeline(GraphicPipeline const& r);
     GraphicPipeline(GraphicPipeline&& r) noexcept;
     ~GraphicPipeline();
 
-    GraphicPipeline& operator=(const GraphicPipeline& r) = delete;
+    GraphicPipeline& operator=(GraphicPipeline const& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
     bool updateIfNeeded(VkRenderPass renderPass, bool force = false) const;
@@ -95,9 +96,8 @@ public:
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
-    [[nodiscard]] const Context* getContext();
 
-    void destroy();
+    void destroy() final;
 
 private:
     void updatePipelineLayout() const;
@@ -122,8 +122,6 @@ private:
 
     std::vector<VkPushConstantRange> g_pushConstantRanges;
     std::vector<VkDescriptorSetLayout> g_descriptorSetLayouts;
-
-    mutable const Context* g_context;
 };
 
 } // namespace fge::vulkan

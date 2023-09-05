@@ -21,7 +21,8 @@
 namespace fge::vulkan
 {
 
-GraphicPipeline::GraphicPipeline(const Context& context) :
+GraphicPipeline::GraphicPipeline(Context const& context) :
+        ContextAware(context),
         g_needUpdate(true),
 
         g_shaderCompute(nullptr),
@@ -35,11 +36,10 @@ GraphicPipeline::GraphicPipeline(const Context& context) :
         g_scissor(),
 
         g_pipelineLayout(VK_NULL_HANDLE),
-        g_graphicsPipeline(VK_NULL_HANDLE),
-
-        g_context(&context)
+        g_graphicsPipeline(VK_NULL_HANDLE)
 {}
-GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
+GraphicPipeline::GraphicPipeline(GraphicPipeline const& r) :
+        ContextAware(r),
         g_needUpdate(true),
 
         g_shaderCompute(r.g_shaderCompute),
@@ -57,11 +57,10 @@ GraphicPipeline::GraphicPipeline(const GraphicPipeline& r) :
         g_graphicsPipeline(VK_NULL_HANDLE),
 
         g_pushConstantRanges(r.g_pushConstantRanges),
-        g_descriptorSetLayouts(r.g_descriptorSetLayouts),
-
-        g_context(r.g_context)
+        g_descriptorSetLayouts(r.g_descriptorSetLayouts)
 {}
 GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
+        ContextAware(static_cast<ContextAware&&>(r)),
         g_needUpdate(r.g_needUpdate),
 
         g_shaderCompute(r.g_shaderCompute),
@@ -79,9 +78,7 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_graphicsPipeline(r.g_graphicsPipeline),
 
         g_pushConstantRanges(std::move(r.g_pushConstantRanges)),
-        g_descriptorSetLayouts(std::move(r.g_descriptorSetLayouts)),
-
-        g_context(r.g_context)
+        g_descriptorSetLayouts(std::move(r.g_descriptorSetLayouts))
 {
     r.g_needUpdate = true;
 
@@ -98,8 +95,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
 
     r.g_pipelineLayout = VK_NULL_HANDLE;
     r.g_graphicsPipeline = VK_NULL_HANDLE;
-
-    r.g_context = nullptr;
 }
 GraphicPipeline::~GraphicPipeline()
 {
@@ -235,8 +230,8 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1;              // Optional
 
-        if (vkCreateGraphicsPipelines(this->g_context->getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo,
-                                      nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(this->getContext()->getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1,
+                                      &pipelineInfo, nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
@@ -458,10 +453,6 @@ VkPipeline GraphicPipeline::getPipeline() const
 {
     return this->g_graphicsPipeline;
 }
-const Context* GraphicPipeline::getContext()
-{
-    return this->g_context;
-}
 
 void GraphicPipeline::updatePipelineLayout() const
 {
@@ -474,7 +465,7 @@ void GraphicPipeline::updatePipelineLayout() const
         pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
         pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
 
-        if (vkCreatePipelineLayout(this->g_context->getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
+        if (vkCreatePipelineLayout(this->getContext()->getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
                                    &this->g_pipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
@@ -486,8 +477,8 @@ void GraphicPipeline::cleanPipelineLayout() const
 {
     if (this->g_pipelineLayout != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(
-                GarbagePipelineLayout(this->g_pipelineLayout, this->g_context->getLogicalDevice().getDevice()));
+        this->getContext()->_garbageCollector.push(
+                GarbagePipelineLayout(this->g_pipelineLayout, this->getContext()->getLogicalDevice().getDevice()));
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
     }
@@ -496,8 +487,8 @@ void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->g_context->_garbageCollector.push(
-                GarbageGraphicPipeline(this->g_graphicsPipeline, this->g_context->getLogicalDevice().getDevice()));
+        this->getContext()->_garbageCollector.push(
+                GarbageGraphicPipeline(this->g_graphicsPipeline, this->getContext()->getLogicalDevice().getDevice()));
 
         this->g_graphicsPipeline = VK_NULL_HANDLE;
     }
