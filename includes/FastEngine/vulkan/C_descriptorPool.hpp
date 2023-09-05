@@ -19,6 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "volk.h"
+#include "FastEngine/vulkan/C_contextAware.hpp"
 #include "SDL_vulkan.h"
 #include <optional>
 #include <vector>
@@ -26,7 +27,6 @@
 namespace fge::vulkan
 {
 
-class Context;
 class DescriptorSet;
 
 /**
@@ -38,10 +38,10 @@ class DescriptorSet;
  * a way to resize it. This class help by allocating any number of descriptor sets
  * by creating multiple pools if needed.
  */
-class FGE_API DescriptorPool
+class FGE_API DescriptorPool : public ContextAware
 {
 public:
-    DescriptorPool();
+    explicit DescriptorPool(Context const& context);
     DescriptorPool(const DescriptorPool& r) = delete;
     DescriptorPool(DescriptorPool&& r) noexcept;
     ~DescriptorPool();
@@ -61,12 +61,11 @@ public:
      * \param isUnique If \b true, only one pool is created and will fail if the maxSetsPerPool is reached
      * \param individuallyFree If \b true, the descriptor sets are individually freed
      */
-    void create(const Context& context,
-                std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
+    void create(std::vector<VkDescriptorPoolSize>&& descriptorPoolSizes,
                 uint32_t maxSetsPerPool,
                 bool isUnique,
                 bool individuallyFree);
-    void destroy();
+    void destroy() final;
 
     /**
      * \brief Allocate a descriptor set
@@ -100,7 +99,6 @@ public:
     [[nodiscard]] uint32_t getMaxSetsPerPool() const;
     [[nodiscard]] bool isUnique() const;
     [[nodiscard]] bool isCreated() const;
-    [[nodiscard]] const Context* getContext() const;
 
 private:
     struct Pool
@@ -118,8 +116,6 @@ private:
     bool g_isUnique;
     bool g_isCreated;
     bool g_individuallyFree;
-
-    const Context* g_context;
 };
 
 } // namespace fge::vulkan

@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/vulkan/C_context.hpp"
-#include "SDL_events.h"
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -28,8 +27,11 @@ namespace fge::vulkan
 {
 
 Context::Context() :
-        g_textureDescriptorPool(),
-        g_transformDescriptorPool(),
+        g_multiUseDescriptorPool(*this),
+        g_textureLayout(*this),
+        g_transformLayout(*this),
+        g_textureDescriptorPool(*this),
+        g_transformDescriptorPool(*this),
         g_commandPool(VK_NULL_HANDLE),
         g_isCreated(false)
 {}
@@ -444,7 +446,7 @@ void Context::createMultiUseDescriptorPool()
     poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     poolSizes[2].descriptorCount = 1;
 
-    this->g_multiUseDescriptorPool.create(*this, std::move(poolSizes), 128, false, true);
+    this->g_multiUseDescriptorPool.create(std::move(poolSizes), 128, false, true);
 }
 void Context::createTextureDescriptorPool()
 {
@@ -452,7 +454,7 @@ void Context::createTextureDescriptorPool()
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSizes[0].descriptorCount = 1;
 
-    this->g_textureDescriptorPool.create(*this, std::move(poolSizes), 128, false, true);
+    this->g_textureDescriptorPool.create(std::move(poolSizes), 128, false, true);
 }
 void Context::createTransformDescriptorPool()
 {
@@ -460,7 +462,7 @@ void Context::createTransformDescriptorPool()
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = 1;
 
-    this->g_transformDescriptorPool.create(*this, std::move(poolSizes), 128, false, true);
+    this->g_transformDescriptorPool.create(std::move(poolSizes), 128, false, true);
 }
 
 } // namespace fge::vulkan

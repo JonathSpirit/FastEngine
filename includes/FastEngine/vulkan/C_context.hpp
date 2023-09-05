@@ -110,8 +110,8 @@ private:
     mutable std::map<std::string, fge::vulkan::DescriptorSetLayout, std::less<>> g_cacheLayouts;
     DescriptorPool g_multiUseDescriptorPool;
 
-    fge::vulkan::DescriptorSetLayout g_textureLayout{*this};
-    fge::vulkan::DescriptorSetLayout g_transformLayout{*this};
+    fge::vulkan::DescriptorSetLayout g_textureLayout;
+    fge::vulkan::DescriptorSetLayout g_transformLayout;
     DescriptorPool g_textureDescriptorPool;
     DescriptorPool g_transformDescriptorPool;
 
