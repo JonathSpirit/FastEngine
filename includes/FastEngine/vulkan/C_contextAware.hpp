@@ -30,9 +30,9 @@ public:
     explicit constexpr ContextAware(Context const& context) :
             g_context{&context}
     {}
-    ContextAware(ContextAware const& r) = default;
-    ContextAware(ContextAware&& r) noexcept = default;
-    constexpr ~ContextAware() = default;
+    constexpr ContextAware(ContextAware const& r) = default;
+    constexpr ContextAware(ContextAware&& r) noexcept = default;
+    constexpr virtual ~ContextAware() = default;
 
     ContextAware& operator=(ContextAware const& r) = delete;
     ContextAware& operator=(ContextAware&& r) noexcept = delete;

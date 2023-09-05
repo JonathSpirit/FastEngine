@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
+#include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_vulkan.h"
@@ -28,23 +29,20 @@
 namespace fge::vulkan
 {
 
-class Context;
-class PhysicalDevice;
-
-class FGE_API TextureImage
+class FGE_API TextureImage : public ContextAware
 {
 public:
-    TextureImage();
+    explicit TextureImage(Context const& context);
     TextureImage(const TextureImage& r) = delete;
     TextureImage(TextureImage&& r) noexcept;
-    ~TextureImage();
+    ~TextureImage() override;
 
     TextureImage& operator=(const TextureImage& r) = delete;
     TextureImage& operator=(TextureImage&& r) noexcept;
 
-    bool create(const Context& context, const glm::vec<2, int>& size);
-    bool create(const Context& context, SDL_Surface* surface);
-    void destroy();
+    bool create(const glm::vec<2, int>& size);
+    bool create(SDL_Surface* surface);
+    void destroy() final;
 
     [[nodiscard]] SDL_Surface* copyToSurface() const;
 
@@ -68,8 +66,6 @@ public:
     void setFilter(VkFilter filter);
     [[nodiscard]] VkFilter getFilter() const;
 
-    [[nodiscard]] const Context* getContext() const;
-
     [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
 
     [[nodiscard]] fge::Vector2f normalizeTextureCoords(const fge::Vector2i& coords) const;
@@ -78,7 +74,7 @@ public:
     [[nodiscard]] uint32_t getModificationCount() const;
 
 private:
-    void createTextureSampler(const PhysicalDevice& physicalDevice);
+    void createTextureSampler();
 
     VkImage g_textureImage;
     VmaAllocation g_textureImageAllocation;
@@ -95,8 +91,6 @@ private:
     fge::vulkan::DescriptorSet g_textureDescriptorSet;
 
     uint32_t g_modificationCount;
-
-    const Context* g_context;
 };
 
 } // namespace fge::vulkan

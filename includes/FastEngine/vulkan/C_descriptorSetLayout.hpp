@@ -59,7 +59,7 @@ public:
     explicit DescriptorSetLayout(Context const& context);
     DescriptorSetLayout(const DescriptorSetLayout& r) = delete; ///TODO
     DescriptorSetLayout(DescriptorSetLayout&& r) noexcept;
-    ~DescriptorSetLayout();
+    ~DescriptorSetLayout() override;
 
     DescriptorSetLayout& operator=(const DescriptorSetLayout& r) = delete; ///TODO
     DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept;

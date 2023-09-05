@@ -36,13 +36,6 @@
 namespace fge
 {
 
-namespace vulkan
-{
-
-class Context;
-
-} // namespace vulkan
-
 class FGE_API RenderTexture : public RenderTarget
 {
 public:

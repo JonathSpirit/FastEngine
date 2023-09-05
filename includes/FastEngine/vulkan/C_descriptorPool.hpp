@@ -44,7 +44,7 @@ public:
     explicit DescriptorPool(Context const& context);
     DescriptorPool(const DescriptorPool& r) = delete;
     DescriptorPool(DescriptorPool&& r) noexcept;
-    ~DescriptorPool();
+    ~DescriptorPool() override;
 
     DescriptorPool& operator=(const DescriptorPool& r) = delete;
     DescriptorPool& operator=(DescriptorPool&& r) noexcept = delete;

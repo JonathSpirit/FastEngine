@@ -31,16 +31,13 @@
 namespace fge::vulkan
 {
 
-class SwapChain;
-class LogicalDevice;
-
 class FGE_API GraphicPipeline : public ContextAware
 {
 public:
     explicit GraphicPipeline(Context const& context);
     GraphicPipeline(GraphicPipeline const& r);
     GraphicPipeline(GraphicPipeline&& r) noexcept;
-    ~GraphicPipeline();
+    ~GraphicPipeline() override;
 
     GraphicPipeline& operator=(GraphicPipeline const& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;

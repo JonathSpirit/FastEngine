@@ -18,7 +18,6 @@
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
-#include "SDL_events.h"
 #include "glm/gtc/type_ptr.hpp"
 
 namespace fge
@@ -26,6 +25,7 @@ namespace fge
 
 RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Context& context) :
         RenderTarget(context),
+        g_textureImage(context),
         g_renderPass(VK_NULL_HANDLE),
         g_framebuffer(VK_NULL_HANDLE),
         g_commandPool(VK_NULL_HANDLE),
@@ -37,6 +37,7 @@ RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Co
 }
 RenderTexture::RenderTexture(const RenderTexture& r) :
         RenderTarget(r),
+        g_textureImage(*r.getContext()),
         g_renderPass(VK_NULL_HANDLE),
         g_framebuffer(VK_NULL_HANDLE),
         g_commandPool(VK_NULL_HANDLE),
@@ -47,7 +48,7 @@ RenderTexture::RenderTexture(const RenderTexture& r) :
     this->initialize();
 }
 RenderTexture::RenderTexture(RenderTexture&& r) noexcept :
-        RenderTarget(std::move(r)),
+        RenderTarget(static_cast<RenderTarget&&>(r)),
         g_textureImage(std::move(r.g_textureImage)),
         g_renderPass(r.g_renderPass),
         g_framebuffer(r.g_framebuffer),
@@ -227,7 +228,7 @@ void RenderTexture::init(const glm::vec<2, int>& size)
     }
     this->g_isCreated = true;
 
-    this->g_textureImage.create(*this->_g_context, size);
+    this->g_textureImage.create(size);
 
     this->createRenderPass();
 

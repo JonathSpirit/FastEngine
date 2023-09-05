@@ -169,8 +169,8 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                 std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{std::move(buffSurface)}};
                 buffAnimData->_tilesetTexture = std::move(buffTexture);
 #else
-                std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
-                if (buffTexture->create(*vulkan::GlobalContext, buffSurface.get()))
+                std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{*vulkan::GlobalContext}};
+                if (buffTexture->create(buffSurface.get()))
                 {
                     buffAnimData->_tilesetTexture = std::move(buffTexture);
                 }
@@ -240,8 +240,8 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
                         std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{std::move(buffSurface)}};
                         tmpFrame._texture = std::move(buffTexture);
 #else
-                        std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{}};
-                        if (buffTexture->create(*vulkan::GlobalContext, buffSurface.get()))
+                        std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{*vulkan::GlobalContext}};
+                        if (buffTexture->create(buffSurface.get()))
                         {
                             tmpFrame._texture = std::move(buffTexture);
                         }
