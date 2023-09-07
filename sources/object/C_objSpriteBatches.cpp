@@ -81,6 +81,7 @@ void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* conte
 
 ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransformDataCapacity(0),
+        g_instancesTransform(*fge::vulkan::GlobalContext),
         g_needBuffersUpdate(true)
 {
     this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
@@ -91,6 +92,7 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         g_textures(r.g_textures),
         g_instancesData(r.g_instancesData),
         g_instancesTransformDataCapacity(0),
+        g_instancesTransform(*r.g_instancesTransform.getContext()),
         g_instancesVertices(r.g_instancesVertices),
         g_needBuffersUpdate(true)
 {}
@@ -413,8 +415,7 @@ void ObjSpriteBatches::updateBuffers() const
         {
             this->g_instancesTransformDataCapacity = this->g_instancesData.size();
 
-            this->g_instancesTransform.create(*fge::vulkan::GlobalContext,
-                                              sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1), true);
+            this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1), true);
 
             const fge::vulkan::DescriptorSet::Descriptor descriptor{
                     this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,

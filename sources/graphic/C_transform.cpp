@@ -20,46 +20,49 @@
 namespace fge
 {
 
-Transform::Transform([[maybe_unused]] const fge::vulkan::Context& context)
-{
 #ifndef FGE_DEF_SERVER
+
+Transform::Transform(const fge::vulkan::Context& context) :
+        g_uniformBuffer(context)
+{
     this->g_descriptorSet = context.getTransformDescriptorPool()
                                     .allocateDescriptorSet(context.getTransformLayout().getLayout())
                                     .value();
 
-    this->g_uniformBuffer.create(context, fge::TransformUboData::uboSize);
+    this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
     const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     new (&this->getData()) fge::TransformUboData();
-#endif
 }
-Transform::Transform(const Transform& r)
-#ifdef FGE_DEF_SERVER
-        :
-        g_uboData(r.g_uboData){}
-#else
-{
-    const fge::vulkan::Context* context = r.g_uniformBuffer.getContext();
 
-    if (context == nullptr)
-    {
-        return;
-    }
+Transform::Transform(const Transform& r) :
+        g_uniformBuffer(*r.g_uniformBuffer.getContext())
+{
+    auto const* context = r.g_uniformBuffer.getContext();
 
     this->g_descriptorSet = context->getTransformDescriptorPool()
                                     .allocateDescriptorSet(context->getTransformLayout().getLayout())
                                     .value();
 
-    this->g_uniformBuffer.create(*context, fge::TransformUboData::uboSize);
+    this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
     const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     new (&this->getData()) fge::TransformUboData();
 }
-#endif
 
-        // clang-format off
+#else
+
+Transform::Transform([[maybe_unused]] const fge::vulkan::Context& context) {}
+
+Transform::Transform(const Transform& r) :
+        g_uboData(r.g_uboData)
+{}
+
+#endif //FGE_DEF_SERVER
+
+// clang-format off
 Transform::~Transform()
 {
     this->destroy();
@@ -71,13 +74,18 @@ Transform& Transform::operator=(const Transform& r)
 #ifndef FGE_DEF_SERVER
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE && r.g_uniformBuffer.getBuffer() != VK_NULL_HANDLE)
     {
-        const fge::vulkan::Context* context = r.g_uniformBuffer.getContext();
+        auto const* context = r.g_uniformBuffer.getContext();
+
+        if (context != this->g_uniformBuffer.getContext())
+        {
+            this->g_uniformBuffer.swapContext(*context);
+        }
 
         this->g_descriptorSet = context->getTransformDescriptorPool()
                                         .allocateDescriptorSet(context->getTransformLayout().getLayout())
                                         .value();
 
-        this->g_uniformBuffer.create(*context, fge::TransformUboData::uboSize);
+        this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
         const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
         this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
@@ -132,7 +140,8 @@ void Transform::recreateUniformBuffer([[maybe_unused]] const fge::vulkan::Contex
                                     .allocateDescriptorSet(context.getTransformLayout().getLayout())
                                     .value();
 
-    this->g_uniformBuffer.create(context, fge::TransformUboData::uboSize);
+    this->g_uniformBuffer.swapContext(context);
+    this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
     const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 

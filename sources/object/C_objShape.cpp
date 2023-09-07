@@ -159,7 +159,8 @@ RectFloat ObjShape::getGlobalBounds() const
 ObjShape::ObjShape() :
         g_outlineThickness(0.0f),
         g_instancesCount(0),
-        g_instancesCapacity(0)
+        g_instancesCapacity(0),
+        g_instances(*fge::vulkan::GlobalContext)
 {
     this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
@@ -176,6 +177,7 @@ ObjShape::ObjShape(const ObjShape& r) :
         g_outlineVertices(r.g_outlineVertices),
         g_instancesCount(0),
         g_instancesCapacity(0),
+        g_instances(*r.g_instances.getContext()),
         g_insideBounds(r.g_insideBounds),
         g_bounds(r.g_bounds)
 {
@@ -378,8 +380,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
     this->g_instancesCapacity = size;
-    this->g_instances.create(*fge::vulkan::GlobalContext,
-                             static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
+    this->g_instances.create(static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
 
 #ifndef FGE_DEF_SERVER
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
