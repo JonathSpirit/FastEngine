@@ -20,7 +20,7 @@ namespace fge
 {
 
 ObjSprite::ObjSprite() :
-        g_vertices(*fge::vulkan::GlobalContext)
+        g_vertices(fge::vulkan::GetActiveContext())
 {
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }

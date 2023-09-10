@@ -408,7 +408,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
             return false;
         }
 
-        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GlobalContext->getLogicalDevice(), shaderOut, type))
+        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shaderOut, type))
         {
             return false;
         }
@@ -424,7 +424,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
         const std::vector<uint32_t> shader(reinterpret_cast<const uint32_t*>(data),
                                            reinterpret_cast<const uint32_t*>(data) + size / 4);
 
-        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GlobalContext->getLogicalDevice(), shader, type))
+        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shader, type))
         {
             return false;
         }
@@ -513,14 +513,14 @@ bool LoadFromFile(std::string_view name,
             return false;
         }
 
-        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GlobalContext->getLogicalDevice(), shaderOut, type))
+        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shaderOut, type))
         {
             return false;
         }
     }
     break;
     case ShaderInputTypes::SHADER_SPIRV:
-        if (!tmpShader.loadFromFile(fge::vulkan::GlobalContext->getLogicalDevice(), path, type))
+        if (!tmpShader.loadFromFile(fge::vulkan::GetActiveContext().getLogicalDevice(), path, type))
         {
             return false;
         }

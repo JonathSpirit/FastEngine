@@ -20,7 +20,7 @@ namespace fge
 {
 
 ObjAnimation::ObjAnimation() :
-        g_vertices(*fge::vulkan::GlobalContext),
+        g_vertices(fge::vulkan::GetActiveContext()),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
 
         g_paused(false)
@@ -29,7 +29,7 @@ ObjAnimation::ObjAnimation() :
     this->setTextureRect(this->g_animation);
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
-        g_vertices(*fge::vulkan::GlobalContext),
+        g_vertices(fge::vulkan::GetActiveContext()),
         g_animation(animation),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
 

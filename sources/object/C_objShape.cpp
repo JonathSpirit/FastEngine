@@ -158,11 +158,11 @@ RectFloat ObjShape::getGlobalBounds() const
 
 ObjShape::ObjShape() :
         g_outlineThickness(0.0f),
-        g_vertices(*fge::vulkan::GlobalContext),
-        g_outlineVertices(*fge::vulkan::GlobalContext),
+        g_vertices(fge::vulkan::GetActiveContext()),
+        g_outlineVertices(fge::vulkan::GetActiveContext()),
         g_instancesCount(0),
         g_instancesCapacity(0),
-        g_instances(*fge::vulkan::GlobalContext)
+        g_instances(fge::vulkan::GetActiveContext())
 {
     this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
@@ -387,14 +387,15 @@ void ObjShape::resizeBuffer(std::size_t size) const
 #ifndef FGE_DEF_SERVER
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
-        auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+        auto& layout = fge::vulkan::GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
         if (layout.getLayout() == VK_NULL_HANDLE)
         {
             layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                                   VK_SHADER_STAGE_VERTEX_BIT)});
         }
 
-        this->g_descriptorSet = fge::vulkan::GlobalContext->getMultiUseDescriptorPool()
+        this->g_descriptorSet = fge::vulkan::GetActiveContext()
+                                        .getMultiUseDescriptorPool()
                                         .allocateDescriptorSet(layout.getLayout())
                                         .value();
     }

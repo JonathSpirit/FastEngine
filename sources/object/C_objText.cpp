@@ -23,15 +23,15 @@ namespace fge
 {
 
 Character::Character() :
-        g_vertices(*fge::vulkan::GlobalContext),
-        g_outlineVertices(*fge::vulkan::GlobalContext)
+        g_vertices(fge::vulkan::GetActiveContext()),
+        g_outlineVertices(fge::vulkan::GetActiveContext())
 {
     this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
     this->g_outlineVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
 }
 Character::Character(const fge::Color& fillColor, const fge::Color& outlineColor) :
-        g_vertices(*fge::vulkan::GlobalContext),
-        g_outlineVertices(*fge::vulkan::GlobalContext),
+        g_vertices(fge::vulkan::GetActiveContext()),
+        g_outlineVertices(fge::vulkan::GetActiveContext()),
         g_fillColor(fillColor),
         g_outlineColor(outlineColor)
 {

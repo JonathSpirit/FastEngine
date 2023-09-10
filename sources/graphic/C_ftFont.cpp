@@ -595,7 +595,7 @@ bool FreeTypeFont::setCurrentSize(fge::CharacterSize characterSize) const
 }
 
 FreeTypeFont::Page::Page(bool smooth) :
-        _texture(*fge::vulkan::GlobalContext),
+        _texture(fge::vulkan::GetActiveContext()),
         _nextRow(3)
 {
     // Make sure that the texture is initialized by default

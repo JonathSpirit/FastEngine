@@ -22,7 +22,7 @@ namespace fge
 
 ObjRenderMap::ObjRenderMap() :
         g_colorClear(fge::Color::Transparent),
-        g_vertexBuffer(*fge::vulkan::GlobalContext),
+        g_vertexBuffer(fge::vulkan::GetActiveContext()),
         g_windowSize(0, 0)
 {
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);

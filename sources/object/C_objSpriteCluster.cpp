@@ -20,7 +20,7 @@ namespace fge
 {
 
 ObjSpriteCluster::ObjSpriteCluster() :
-        g_instancesVertices(*fge::vulkan::GlobalContext)
+        g_instancesVertices(fge::vulkan::GetActiveContext())
 {
     this->g_instancesVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
 }

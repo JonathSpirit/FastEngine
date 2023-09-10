@@ -33,7 +33,28 @@ std::vector<const char*> ValidationLayers = {};
 std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                              VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME};
 
-Context* GlobalContext{nullptr};
+namespace
+{
+
+Context* gActiveContext{nullptr};
+
+} // namespace
+
+Context& GetActiveContext()
+{
+#ifdef FGE_DEF_DEBUG
+    if (gActiveContext == nullptr)
+    {
+        throw std::runtime_error("No active context !");
+    }
+#endif
+
+    return *gActiveContext;
+}
+void SetActiveContext(Context& context)
+{
+    gActiveContext = &context;
+}
 
 bool CheckValidationLayerSupport(const char* layerName)
 {

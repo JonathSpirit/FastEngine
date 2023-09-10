@@ -40,7 +40,7 @@ class FGE_API RenderTexture : public RenderTarget
 {
 public:
     explicit RenderTexture(const glm::vec<2, int>& size = {1, 1},
-                           const fge::vulkan::Context& context = *fge::vulkan::GlobalContext);
+                           const fge::vulkan::Context& context = fge::vulkan::GetActiveContext());
     RenderTexture(const RenderTexture& r);
     RenderTexture(RenderTexture&& r) noexcept;
     ~RenderTexture() override;

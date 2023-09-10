@@ -25,7 +25,7 @@ namespace fge
 {
 
 ObjLight::ObjLight() :
-        g_vertexBuffer(*fge::vulkan::GlobalContext)
+        g_vertexBuffer(fge::vulkan::GetActiveContext())
 {
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
     this->g_blendMode = fge::vulkan::BlendAlpha;
@@ -160,7 +160,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         const fge::Vector2f center = bounds.getPosition() + bounds.getSize() / 2.0f;
 
         this->g_obstacleHulls.resize(lightSystem->getGatesSize(),
-                                     fge::vulkan::VertexBuffer{*fge::vulkan::GlobalContext});
+                                     fge::vulkan::VertexBuffer{fge::vulkan::GetActiveContext()});
 
         for (std::size_t i = 0; i < lightSystem->getGatesSize(); ++i)
         {

@@ -20,7 +20,7 @@ namespace fge
 {
 
 TileLayer::Tile::Tile() :
-        g_vertexBuffer(*fge::vulkan::GlobalContext)
+        g_vertexBuffer(fge::vulkan::GetActiveContext())
 {
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::DEVICE);
 }
