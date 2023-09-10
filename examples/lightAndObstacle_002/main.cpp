@@ -38,7 +38,11 @@ public:
         OBSTACLE_CONCAVE
     };
 
-    Obstacle() { this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP); }
+    Obstacle() :
+            g_vertices(*fge::vulkan::GlobalContext)
+    {
+        this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    }
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Obstacle)
 

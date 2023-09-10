@@ -19,10 +19,10 @@
 namespace fge
 {
 
-ObjSpriteCluster::ObjSpriteCluster()
+ObjSpriteCluster::ObjSpriteCluster() :
+        g_instancesVertices(*fge::vulkan::GlobalContext)
 {
-    this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                                     fge::vulkan::BufferTypes::LOCAL);
+    this->g_instancesVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BufferTypes::LOCAL);
 }
 ObjSpriteCluster::ObjSpriteCluster(const ObjSpriteCluster& r) :
         fge::Object(r),

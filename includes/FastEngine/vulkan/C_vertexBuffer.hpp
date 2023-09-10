@@ -20,6 +20,7 @@
 #include "FastEngine/fastengine_extern.hpp"
 #include "C_vertex.hpp"
 #include "FastEngine/C_rect.hpp"
+#include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_vulkan.h"
 #include <limits>
@@ -30,10 +31,6 @@
 namespace fge::vulkan
 {
 
-class LogicalDevice;
-class PhysicalDevice;
-class Context;
-
 enum class BufferTypes
 {
     UNINITIALIZED,
@@ -43,27 +40,24 @@ enum class BufferTypes
     DEFAULT = LOCAL
 };
 
-class FGE_API VertexBuffer
+class FGE_API VertexBuffer : public ContextAware
 {
 public:
-    VertexBuffer();
+    explicit VertexBuffer(Context const& context);
     VertexBuffer(const VertexBuffer& r);
     VertexBuffer(VertexBuffer&& r) noexcept;
-    ~VertexBuffer();
+    ~VertexBuffer() override;
 
     VertexBuffer& operator=(const VertexBuffer& r);
     VertexBuffer& operator=(VertexBuffer&& r) noexcept;
 
-    void create(const Context& context,
-                std::size_t vertexSize,
-                VkPrimitiveTopology topology,
-                BufferTypes type = BufferTypes::DEFAULT);
+    void create(std::size_t vertexSize, VkPrimitiveTopology topology, BufferTypes type = BufferTypes::DEFAULT);
 
     void clear();
     void resize(std::size_t vertexSize);
     void append(const Vertex& vertex);
 
-    void destroy();
+    void destroy() final;
 
     void bind(VkCommandBuffer commandBuffer) const;
 
@@ -80,7 +74,6 @@ public:
 
     [[nodiscard]] VkBuffer getVerticesBuffer() const;
     [[nodiscard]] VmaAllocation getVerticesBufferAllocation() const;
-    [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] BufferTypes getType() const;
 
@@ -104,28 +97,26 @@ private:
     BufferTypes g_type;
 
     mutable VkPrimitiveTopology g_primitiveTopology;
-
-    const Context* g_context;
 };
 
-class FGE_API IndexBuffer
+class FGE_API IndexBuffer : public ContextAware
 {
 public:
-    IndexBuffer();
+    explicit IndexBuffer(Context const& context);
     IndexBuffer(const IndexBuffer& r);
     IndexBuffer(IndexBuffer&& r) noexcept;
-    ~IndexBuffer();
+    ~IndexBuffer() override;
 
     IndexBuffer& operator=(const IndexBuffer& r);
     IndexBuffer& operator=(IndexBuffer&& r) noexcept;
 
-    void create(const Context& context, std::size_t indexSize, BufferTypes type = BufferTypes::DEFAULT);
+    void create(std::size_t indexSize, BufferTypes type = BufferTypes::DEFAULT);
 
     void clear();
     void resize(std::size_t indexSize);
     void append(uint16_t index = std::numeric_limits<uint16_t>::max());
 
-    void destroy();
+    void destroy() final;
 
     void bind(VkCommandBuffer commandBuffer) const;
 
@@ -139,7 +130,6 @@ public:
 
     [[nodiscard]] VkBuffer getIndicesBuffer() const;
     [[nodiscard]] VmaAllocation getIndicesBufferAllocation() const;
-    [[nodiscard]] const Context* getContext() const;
 
     [[nodiscard]] BufferTypes getType() const;
 
@@ -159,8 +149,6 @@ private:
     mutable bool g_needUpdate;
 
     BufferTypes g_type;
-
-    const Context* g_context;
 };
 
 } // namespace fge::vulkan

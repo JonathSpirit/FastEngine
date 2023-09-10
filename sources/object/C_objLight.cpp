@@ -24,9 +24,10 @@
 namespace fge
 {
 
-ObjLight::ObjLight()
+ObjLight::ObjLight() :
+        g_vertexBuffer(*fge::vulkan::GlobalContext)
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
     this->g_blendMode = fge::vulkan::BlendAlpha;
 }
 ObjLight::ObjLight(const fge::Texture& texture, const fge::Vector2f& position) :
@@ -158,7 +159,8 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         const float range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
         const fge::Vector2f center = bounds.getPosition() + bounds.getSize() / 2.0f;
 
-        this->g_obstacleHulls.resize(lightSystem->getGatesSize());
+        this->g_obstacleHulls.resize(lightSystem->getGatesSize(),
+                                     fge::vulkan::VertexBuffer{*fge::vulkan::GlobalContext});
 
         for (std::size_t i = 0; i < lightSystem->getGatesSize(); ++i)
         {
@@ -188,8 +190,8 @@ FGE_OBJ_DRAW_BODY(ObjLight)
             }
             fge::GetConvexHull(tmpHull, tmpHull);
 
-            this->g_obstacleHulls[i].create(*fge::vulkan::GlobalContext, tmpHull.size(),
-                                            VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::BufferTypes::LOCAL);
+            this->g_obstacleHulls[i].create(tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
+                                            fge::vulkan::BufferTypes::LOCAL);
             for (std::size_t a = 0; a < tmpHull.size(); ++a)
             {
                 this->g_obstacleHulls[i].getVertices()[a]._position = tmpHull[a];

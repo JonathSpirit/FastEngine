@@ -158,12 +158,14 @@ RectFloat ObjShape::getGlobalBounds() const
 
 ObjShape::ObjShape() :
         g_outlineThickness(0.0f),
+        g_vertices(*fge::vulkan::GlobalContext),
+        g_outlineVertices(*fge::vulkan::GlobalContext),
         g_instancesCount(0),
         g_instancesCapacity(0),
         g_instances(*fge::vulkan::GlobalContext)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+    this->g_outlineVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 
     this->resizeBuffer(1);
     *this->retrieveInstance(0) = {{fge::Color::White, fge::Color::White}, {0.0f, 0.0f}};

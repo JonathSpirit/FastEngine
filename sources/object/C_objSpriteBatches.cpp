@@ -82,10 +82,10 @@ void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* conte
 ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransformDataCapacity(0),
         g_instancesTransform(*fge::vulkan::GlobalContext),
+        g_instancesVertices(*fge::vulkan::GlobalContext),
         g_needBuffersUpdate(true)
 {
-    this->g_instancesVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-                                     fge::vulkan::BufferTypes::LOCAL);
+    this->g_instancesVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }
 ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         fge::Object(r),
