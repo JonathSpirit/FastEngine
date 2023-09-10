@@ -92,7 +92,7 @@ ObjSpriteBatches::ObjSpriteBatches(const ObjSpriteBatches& r) :
         g_textures(r.g_textures),
         g_instancesData(r.g_instancesData),
         g_instancesTransformDataCapacity(0),
-        g_instancesTransform(*r.g_instancesTransform.getContext()),
+        g_instancesTransform(r.g_instancesTransform.getContext()),
         g_instancesVertices(r.g_instancesVertices),
         g_needBuffersUpdate(true)
 {}

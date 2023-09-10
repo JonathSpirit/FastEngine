@@ -84,7 +84,7 @@ public:
 
     [[nodiscard]] VkDescriptorSet get() const;
     [[nodiscard]] const DescriptorPool* getPool() const;
-    [[nodiscard]] const Context* getContext() const;
+    [[nodiscard]] Context const* getContext() const;
 
     /**
      * \brief Update the descriptor set

@@ -73,7 +73,7 @@ void DescriptorPool::destroy()
 
         for (auto& pool: this->g_descriptorPools)
         {
-            vkDestroyDescriptorPool(this->getContext()->getLogicalDevice().getDevice(), pool._pool, nullptr);
+            vkDestroyDescriptorPool(this->getContext().getLogicalDevice().getDevice(), pool._pool, nullptr);
         }
         this->g_descriptorPools.clear();
 
@@ -115,8 +115,8 @@ void DescriptorPool::destroy()
     {
         allocInfo.descriptorPool = pool._pool;
 
-        auto result = vkAllocateDescriptorSets(this->getContext()->getLogicalDevice().getDevice(), &allocInfo,
-                                               &descriptorSet);
+        auto result =
+                vkAllocateDescriptorSets(this->getContext().getLogicalDevice().getDevice(), &allocInfo, &descriptorSet);
         if (result != VK_SUCCESS)
         {
             if (result == VK_ERROR_FRAGMENTED_POOL || result == VK_ERROR_OUT_OF_POOL_MEMORY)
@@ -137,7 +137,7 @@ void DescriptorPool::destroy()
         this->g_descriptorPools.push_back(this->createPool());
         allocInfo.descriptorPool = this->g_descriptorPools.back()._pool;
         descriptorPool = this->g_descriptorPools.back()._pool;
-        vkAllocateDescriptorSets(this->getContext()->getLogicalDevice().getDevice(), &allocInfo, &descriptorSet);
+        vkAllocateDescriptorSets(this->getContext().getLogicalDevice().getDevice(), &allocInfo, &descriptorSet);
     }
 
     //Last check for a valid descriptor set
@@ -165,22 +165,22 @@ void DescriptorPool::freeDescriptorSet(VkDescriptorSet descriptorSet, VkDescript
                 return;
             }
 
-            this->getContext()->_garbageCollector.push(GarbageDescriptorSet(
-                    descriptorSet, descriptorPool, this->getContext()->getLogicalDevice().getDevice()));
+            this->getContext()._garbageCollector.push(GarbageDescriptorSet(
+                    descriptorSet, descriptorPool, this->getContext().getLogicalDevice().getDevice()));
             --pool._count;
             return;
         }
     }
 
     //Should never happen, but in order to avoid memory leaks, we free the descriptor set anyway
-    this->getContext()->_garbageCollector.push(
-            GarbageDescriptorSet(descriptorSet, descriptorPool, this->getContext()->getLogicalDevice().getDevice()));
+    this->getContext()._garbageCollector.push(
+            GarbageDescriptorSet(descriptorSet, descriptorPool, this->getContext().getLogicalDevice().getDevice()));
 }
 void DescriptorPool::resetPools() const
 {
     for (auto& pool: this->g_descriptorPools)
     {
-        if (vkResetDescriptorPool(this->getContext()->getLogicalDevice().getDevice(), pool._pool, 0) != VK_SUCCESS)
+        if (vkResetDescriptorPool(this->getContext().getLogicalDevice().getDevice(), pool._pool, 0) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to reset descriptor pool!");
         }
@@ -211,7 +211,7 @@ DescriptorPool::Pool DescriptorPool::createPool() const
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
     VkDescriptorPool pool;
-    if (vkCreateDescriptorPool(this->getContext()->getLogicalDevice().getDevice(), &poolInfo, nullptr, &pool) !=
+    if (vkCreateDescriptorPool(this->getContext().getLogicalDevice().getDevice(), &poolInfo, nullptr, &pool) !=
         VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");

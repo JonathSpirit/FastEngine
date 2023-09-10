@@ -37,7 +37,7 @@ public:
     ContextAware& operator=(ContextAware const& r) = delete;
     ContextAware& operator=(ContextAware&& r) noexcept = delete;
 
-    [[nodiscard]] constexpr Context const* getContext() const { return this->g_context; }
+    [[nodiscard]] constexpr Context const& getContext() const { return *this->g_context; }
     inline void swapContext(Context const& context)
     {
         this->destroy();

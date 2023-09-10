@@ -34,7 +34,7 @@ UniformBuffer::UniformBuffer(Context const& context) :
 #endif
 {}
 UniformBuffer::UniformBuffer([[maybe_unused]] const UniformBuffer& r) : ///TODO: better copy
-        UniformBuffer(*r.getContext())
+        UniformBuffer(r.getContext())
 {}
 UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
@@ -73,14 +73,14 @@ void UniformBuffer::create(VkDeviceSize bufferSize, [[maybe_unused]] bool isStor
 #else
     this->destroy();
 
-    CreateBuffer(*this->getContext(), bufferSize,
+    CreateBuffer(this->getContext(), bufferSize,
                  isStorageBuffer ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->g_uniformBuffer,
                  this->g_uniformBufferAllocation);
 
     this->g_bufferSize = bufferSize;
 
-    vmaMapMemory(this->getContext()->getAllocator(), this->g_uniformBufferAllocation, &this->g_uniformBufferMapped);
+    vmaMapMemory(this->getContext().getAllocator(), this->g_uniformBufferAllocation, &this->g_uniformBufferMapped);
 #endif
 }
 void UniformBuffer::destroy()
@@ -90,9 +90,9 @@ void UniformBuffer::destroy()
 #else
     if (this->g_uniformBuffer != VK_NULL_HANDLE)
     {
-        vmaUnmapMemory(this->getContext()->getAllocator(), this->g_uniformBufferAllocation);
-        this->getContext()->_garbageCollector.push(fge::vulkan::GarbageBuffer(
-                this->g_uniformBuffer, this->g_uniformBufferAllocation, this->getContext()->getAllocator()));
+        vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferAllocation);
+        this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(
+                this->g_uniformBuffer, this->g_uniformBufferAllocation, this->getContext().getAllocator()));
 
         this->g_uniformBuffer = VK_NULL_HANDLE;
         this->g_uniformBufferAllocation = VK_NULL_HANDLE;

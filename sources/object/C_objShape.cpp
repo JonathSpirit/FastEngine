@@ -177,7 +177,7 @@ ObjShape::ObjShape(const ObjShape& r) :
         g_outlineVertices(r.g_outlineVertices),
         g_instancesCount(0),
         g_instancesCapacity(0),
-        g_instances(*r.g_instances.getContext()),
+        g_instances(r.g_instances.getContext()),
         g_insideBounds(r.g_insideBounds),
         g_bounds(r.g_bounds)
 {

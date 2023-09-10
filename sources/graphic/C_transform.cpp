@@ -37,12 +37,12 @@ Transform::Transform(const fge::vulkan::Context& context) :
 }
 
 Transform::Transform(const Transform& r) :
-        g_uniformBuffer(*r.g_uniformBuffer.getContext())
+        g_uniformBuffer(r.g_uniformBuffer.getContext())
 {
-    auto const* context = r.g_uniformBuffer.getContext();
+    auto const& context = r.g_uniformBuffer.getContext();
 
-    this->g_descriptorSet = context->getTransformDescriptorPool()
-                                    .allocateDescriptorSet(context->getTransformLayout().getLayout())
+    this->g_descriptorSet = context.getTransformDescriptorPool()
+                                    .allocateDescriptorSet(context.getTransformLayout().getLayout())
                                     .value();
 
     this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
@@ -74,15 +74,15 @@ Transform& Transform::operator=(const Transform& r)
 #ifndef FGE_DEF_SERVER
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE && r.g_uniformBuffer.getBuffer() != VK_NULL_HANDLE)
     {
-        auto const* context = r.g_uniformBuffer.getContext();
+        auto const& context = r.g_uniformBuffer.getContext();
 
-        if (context != this->g_uniformBuffer.getContext())
+        if (&context != &this->g_uniformBuffer.getContext())
         {
-            this->g_uniformBuffer.swapContext(*context);
+            this->g_uniformBuffer.swapContext(context);
         }
 
-        this->g_descriptorSet = context->getTransformDescriptorPool()
-                                        .allocateDescriptorSet(context->getTransformLayout().getLayout())
+        this->g_descriptorSet = context.getTransformDescriptorPool()
+                                        .allocateDescriptorSet(context.getTransformLayout().getLayout())
                                         .value();
 
         this->g_uniformBuffer.create(fge::TransformUboData::uboSize);

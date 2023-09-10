@@ -230,7 +230,7 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1;              // Optional
 
-        if (vkCreateGraphicsPipelines(this->getContext()->getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1,
+        if (vkCreateGraphicsPipelines(this->getContext().getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1,
                                       &pipelineInfo, nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create graphics pipeline!");
@@ -465,7 +465,7 @@ void GraphicPipeline::updatePipelineLayout() const
         pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
         pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
 
-        if (vkCreatePipelineLayout(this->getContext()->getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
+        if (vkCreatePipelineLayout(this->getContext().getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
                                    &this->g_pipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
@@ -477,8 +477,8 @@ void GraphicPipeline::cleanPipelineLayout() const
 {
     if (this->g_pipelineLayout != VK_NULL_HANDLE)
     {
-        this->getContext()->_garbageCollector.push(
-                GarbagePipelineLayout(this->g_pipelineLayout, this->getContext()->getLogicalDevice().getDevice()));
+        this->getContext()._garbageCollector.push(
+                GarbagePipelineLayout(this->g_pipelineLayout, this->getContext().getLogicalDevice().getDevice()));
 
         this->g_pipelineLayout = VK_NULL_HANDLE;
     }
@@ -487,8 +487,8 @@ void GraphicPipeline::cleanPipeline() const
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
-        this->getContext()->_garbageCollector.push(
-                GarbageGraphicPipeline(this->g_graphicsPipeline, this->getContext()->getLogicalDevice().getDevice()));
+        this->getContext()._garbageCollector.push(
+                GarbageGraphicPipeline(this->g_graphicsPipeline, this->getContext().getLogicalDevice().getDevice()));
 
         this->g_graphicsPipeline = VK_NULL_HANDLE;
     }
