@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_image.h"
 #include "private/string_hash.hpp"
@@ -91,7 +92,7 @@ fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lo
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
-        throw std::runtime_error("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
+        throw fge::Exception("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
     }
     return _dataTexture.begin();
 }
@@ -99,7 +100,7 @@ fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
-        throw std::runtime_error("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
+        throw fge::Exception("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
     }
     return _dataTexture.end();
 }

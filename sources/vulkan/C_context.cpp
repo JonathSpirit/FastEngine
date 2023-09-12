@@ -104,7 +104,7 @@ void Context::initVolk()
     auto result = volkInitialize();
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error{"Can't init volk!"};
+        throw fge::Exception{"Can't init volk!"};
     }
 }
 
@@ -118,7 +118,7 @@ void Context::initVulkan(SDL_Window* window)
     this->g_physicalDevice = this->g_instance.pickPhysicalDevice(this->g_surface.getSurface());
     if (this->g_physicalDevice.getDevice() == VK_NULL_HANDLE)
     {
-        throw std::runtime_error("failed to find a suitable GPU!");
+        throw fge::Exception("failed to find a suitable GPU!");
     }
     this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface.getSurface());
 
@@ -161,7 +161,7 @@ void Context::initVulkan(SDL_Window* window)
 
     if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create allocator!");
+        throw fge::Exception("failed to create allocator!");
     }
 
     this->createCommandPool();
@@ -295,7 +295,7 @@ void Context::transitionImageLayout(VkImage image,
     }
     else
     {
-        throw std::invalid_argument("unsupported layout transition!");
+        throw fge::Exception("unsupported layout transition!");
     }
 
     vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
@@ -431,7 +431,7 @@ void Context::createCommandPool()
 
     if (vkCreateCommandPool(this->g_logicalDevice.getDevice(), &poolInfo, nullptr, &this->g_commandPool) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command pool!");
+        throw fge::Exception("failed to create command pool!");
     }
 }
 void Context::createMultiUseDescriptorPool()

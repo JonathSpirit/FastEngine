@@ -15,9 +15,9 @@
  */
 
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -182,7 +182,7 @@ void DescriptorPool::resetPools() const
     {
         if (vkResetDescriptorPool(this->getContext().getLogicalDevice().getDevice(), pool._pool, 0) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to reset descriptor pool!");
+            throw fge::Exception("failed to reset descriptor pool!");
         }
         pool._count = 0;
     }
@@ -214,7 +214,7 @@ DescriptorPool::Pool DescriptorPool::createPool() const
     if (vkCreateDescriptorPool(this->getContext().getLogicalDevice().getDevice(), &poolInfo, nullptr, &pool) !=
         VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create descriptor pool!");
+        throw fge::Exception("failed to create descriptor pool!");
     }
 
     return {pool, 0};

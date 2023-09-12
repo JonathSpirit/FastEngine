@@ -302,7 +302,7 @@ fge::shader::ShaderDataType::const_iterator IteratorBegin(const std::unique_lock
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
-        throw std::runtime_error("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
+        throw fge::Exception("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
     }
     return _dataShader.begin();
 }
@@ -310,7 +310,7 @@ fge::shader::ShaderDataType::const_iterator IteratorEnd(const std::unique_lock<s
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
-        throw std::runtime_error("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
+        throw fge::Exception("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
     }
     return _dataShader.end();
 }

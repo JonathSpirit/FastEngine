@@ -18,6 +18,7 @@
 #define _FGE_C_MATRIX_HPP_INCLUDED
 
 #include "FastEngine/C_vector.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "json.hpp"
 #include <initializer_list>
 

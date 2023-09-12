@@ -15,11 +15,11 @@
  */
 
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include <cstring>
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -45,7 +45,7 @@ Context& GetActiveContext()
 #ifdef FGE_DEF_DEBUG
     if (gActiveContext == nullptr)
     {
-        throw std::runtime_error("No active context !");
+        throw fge::Exception("No active context !");
     }
 #endif
 
@@ -103,7 +103,7 @@ void CreateBuffer(const Context& context,
 
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create buffer!");
+        throw fge::Exception("failed to create buffer!");
     }
 }
 
@@ -147,7 +147,7 @@ void CreateImage(const Context& context,
 
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create image!");
+        throw fge::Exception("failed to create image!");
     }
 }
 
@@ -167,7 +167,7 @@ VkImageView CreateImageView(const LogicalDevice& logicalDevice, VkImage image, V
     VkImageView imageView = VK_NULL_HANDLE;
     if (vkCreateImageView(logicalDevice.getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create texture image view!");
+        throw fge::Exception("failed to create texture image view!");
     }
 
     return imageView;

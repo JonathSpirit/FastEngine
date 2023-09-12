@@ -15,9 +15,9 @@
  */
 
 #include "FastEngine/vulkan/C_surface.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "SDL_vulkan.h"
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -42,7 +42,7 @@ void Surface::create(Instance& instance)
 {
     if (SDL_Vulkan_CreateSurface(instance.getWindow(), instance.getInstance(), &this->g_surface) == SDL_FALSE)
     {
-        throw std::runtime_error("failed to create surface !");
+        throw fge::Exception("failed to create surface !");
     }
 
     this->g_instance = &instance;
@@ -53,7 +53,7 @@ void Surface::destroy()
     {
         if (this->g_instance->getInstance() == VK_NULL_HANDLE)
         {
-            throw std::runtime_error("surface must be destroyed before the instance !");
+            throw fge::Exception("surface must be destroyed before the instance !");
         }
         vkDestroySurfaceKHR(this->g_instance->getInstance(), this->g_surface, nullptr);
         this->g_surface = VK_NULL_HANDLE;

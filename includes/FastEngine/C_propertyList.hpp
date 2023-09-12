@@ -18,7 +18,7 @@
 #define _FGE_C_PROPERTYLIST_HPP_INCLUDED
 
 #include "FastEngine/C_property.hpp"
-#include <stdexcept>
+#include "FastEngine/fge_except.hpp"
 #include <string>
 #include <unordered_map>
 

@@ -31,7 +31,6 @@
 #include <cstdint>
 #include <forward_list>
 #include <list>
-#include <stdexcept>
 #include <string>
 #include <vector>
 

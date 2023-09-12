@@ -136,7 +136,7 @@ uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* i
 
     if (vkBeginCommandBuffer(this->g_commandBuffers[this->g_currentFrame], &beginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording command buffer!");
+        throw fge::Exception("failed to begin recording command buffer!");
     }
 
     return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
@@ -165,7 +165,7 @@ void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
 {
     if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to record command buffer!");
+        throw fge::Exception("failed to record command buffer!");
     }
 }
 
@@ -294,7 +294,7 @@ void RenderTexture::createRenderPass()
     if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
                            &this->g_renderPass) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create render pass!");
+        throw fge::Exception("failed to create render pass!");
     }
 }
 
@@ -314,7 +314,7 @@ void RenderTexture::createFramebuffer()
     if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
                             &this->g_framebuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create framebuffer!");
+        throw fge::Exception("failed to create framebuffer!");
     }
 }
 
@@ -331,7 +331,7 @@ void RenderTexture::createCommandBuffer()
     if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo,
                                  this->g_commandBuffers.data()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate command buffers!");
+        throw fge::Exception("failed to allocate command buffers!");
     }
 }
 void RenderTexture::createCommandPool()
@@ -347,7 +347,7 @@ void RenderTexture::createCommandPool()
     if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr,
                             &this->g_commandPool) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command pool!");
+        throw fge::Exception("failed to create command pool!");
     }
 }
 

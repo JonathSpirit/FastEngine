@@ -15,13 +15,13 @@
  */
 
 #include "FastEngine/vulkan/C_swapChain.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/C_surface.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <algorithm>
 #include <limits>
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -108,7 +108,7 @@ void SwapChain::create(SDL_Window* window,
 
     if (vkCreateSwapchainKHR(logicalDevice.getDevice(), &createInfo, nullptr, &this->g_swapChain) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create swap chain!");
+        throw fge::Exception("failed to create swap chain!");
     }
 
     vkGetSwapchainImagesKHR(logicalDevice.getDevice(), this->g_swapChain, &imageCount, nullptr);

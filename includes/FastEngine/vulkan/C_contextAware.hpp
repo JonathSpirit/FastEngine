@@ -17,7 +17,7 @@
 #ifndef _FGE_VULKAN_C_CONTEXTAWARE_HPP_INCLUDED
 #define _FGE_VULKAN_C_CONTEXTAWARE_HPP_INCLUDED
 
-#include <stdexcept>
+#include "FastEngine/fge_except.hpp"
 
 namespace fge::vulkan
 {
@@ -51,7 +51,7 @@ protected:
     {
         if (this->g_context != r.g_context)
         {
-            throw std::runtime_error("ContextAware objects assignment with different Context !");
+            throw fge::Exception("ContextAware objects assignment with different Context !");
         }
     }
 

@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -81,7 +81,7 @@ void DescriptorSetLayout::create(std::initializer_list<VkDescriptorSetLayoutBind
     if (vkCreateDescriptorSetLayout(this->getContext().getLogicalDevice().getDevice(), &layoutInfo, nullptr,
                                     &this->g_descriptorSetLayout) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create descriptor set layout!");
+        throw fge::Exception("failed to create descriptor set layout!");
     }
 }
 void DescriptorSetLayout::destroy()

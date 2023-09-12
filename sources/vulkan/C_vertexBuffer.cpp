@@ -15,11 +15,11 @@
  */
 
 #include "FastEngine/vulkan/C_vertexBuffer.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <cstring>
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -402,7 +402,7 @@ void VertexBuffer::updateBuffer() const
                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_buffer, this->g_bufferAllocation);
             break;
         default:
-            throw std::runtime_error("unexpected code path !");
+            throw fge::Exception("unexpected code path !");
         }
 
         this->g_needUpdate = true;
@@ -711,7 +711,7 @@ void IndexBuffer::updateBuffer() const
                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_buffer, this->g_bufferAllocation);
             break;
         default:
-            throw std::runtime_error("unexpected code path !");
+            throw fge::Exception("unexpected code path !");
         }
 
         this->g_needUpdate = true;

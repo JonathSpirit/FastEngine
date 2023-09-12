@@ -154,7 +154,7 @@ const fge::vulkan::DescriptorSet& Transform::getDescriptorSet() const
 #ifndef FGE_DEF_SERVER
     return this->g_descriptorSet;
 #else
-    throw "unimplemented";
+    throw fge::Exception("unimplemented");
 #endif
 }
 const fge::vulkan::UniformBuffer& Transform::getUniformBuffer() const
@@ -162,7 +162,7 @@ const fge::vulkan::UniformBuffer& Transform::getUniformBuffer() const
 #ifndef FGE_DEF_SERVER
     return this->g_uniformBuffer;
 #else
-    throw "unimplemented";
+    throw fge::Exception("unimplemented");
 #endif
 }
 

@@ -16,8 +16,8 @@
 
 #include "FastEngine/C_packetBZ2.hpp"
 #include "FastEngine/fge_endian.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "bzlib.h"
-#include <stdexcept>
 
 namespace fge
 {
@@ -54,16 +54,16 @@ void PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     switch (result)
     {
     case BZ_CONFIG_ERROR:
-        throw std::invalid_argument("Config error !");
+        throw fge::Exception("Config error !");
         break;
     case BZ_PARAM_ERROR:
-        throw std::invalid_argument("Parameter error !");
+        throw fge::Exception("Parameter error !");
         break;
     case BZ_MEM_ERROR:
-        throw std::out_of_range("No enough memory !");
+        throw fge::Exception("No enough memory !");
         break;
     case BZ_OUTBUFF_FULL:
-        throw std::out_of_range("Data > Buffer");
+        throw fge::Exception("Data > Buffer");
         break;
     }
 
@@ -78,7 +78,7 @@ void PacketBZ2::onReceive(void* data, std::size_t dsize)
 {
     if (dsize < 4)
     {
-        throw std::invalid_argument("Received a bad packet !");
+        throw fge::Exception("Received a bad packet !");
     }
 
     uint32_t dataUncompressedSize = 0;
@@ -88,7 +88,7 @@ void PacketBZ2::onReceive(void* data, std::size_t dsize)
 
     if (dataUncompressedSize > fge::net::PacketBZ2::_maxUncompressedReceivedSize)
     {
-        throw std::range_error("received packet is too big !");
+        throw fge::Exception("received packet is too big !");
     }
 
     dataUncompressedSize += 10;
@@ -101,16 +101,16 @@ void PacketBZ2::onReceive(void* data, std::size_t dsize)
     switch (result)
     {
     case BZ_CONFIG_ERROR:
-        throw std::invalid_argument("PacketBZ2 : Config error !");
+        throw fge::Exception("PacketBZ2 : Config error !");
         break;
     case BZ_PARAM_ERROR:
-        throw std::invalid_argument("PacketBZ2 : Parameter error !");
+        throw fge::Exception("PacketBZ2 : Parameter error !");
         break;
     case BZ_MEM_ERROR:
-        throw std::out_of_range("PacketBZ2 : No enough memory !");
+        throw fge::Exception("PacketBZ2 : No enough memory !");
         break;
     case BZ_OUTBUFF_FULL:
-        throw std::out_of_range("PacketBZ2 : Data > Buffer");
+        throw fge::Exception("PacketBZ2 : Data > Buffer");
         break;
     }
 

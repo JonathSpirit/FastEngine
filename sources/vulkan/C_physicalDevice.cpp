@@ -15,12 +15,12 @@
  */
 
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #ifdef FGE_DEF_DEBUG
     #include <iostream>
 #endif
 #include <set>
-#include <stdexcept>
 #include <string>
 
 namespace fge::vulkan
@@ -224,7 +224,7 @@ uint32_t PhysicalDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFla
         }
     }
 
-    throw std::runtime_error("failed to find suitable memory type!");
+    throw fge::Exception("failed to find suitable memory type!");
 }
 
 uint32_t PhysicalDevice::getMaxImageDimension2D() const

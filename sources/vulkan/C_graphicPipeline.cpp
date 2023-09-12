@@ -233,7 +233,7 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         if (vkCreateGraphicsPipelines(this->getContext().getLogicalDevice().getDevice(), VK_NULL_HANDLE, 1,
                                       &pipelineInfo, nullptr, &this->g_graphicsPipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create graphics pipeline!");
+            throw fge::Exception("failed to create graphics pipeline!");
         }
 
         return true;
@@ -468,7 +468,7 @@ void GraphicPipeline::updatePipelineLayout() const
         if (vkCreatePipelineLayout(this->getContext().getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
                                    &this->g_pipelineLayout) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create pipeline layout!");
+            throw fge::Exception("failed to create pipeline layout!");
         }
     }
 }

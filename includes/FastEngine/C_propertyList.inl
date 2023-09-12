@@ -67,7 +67,7 @@ const fge::Property& PropertyList::getProperty(const std::string& key) const
     {
         return it->second;
     }
-    throw std::logic_error("key not found !");
+    throw fge::Exception("key not found !");
 }
 
 fge::Property& PropertyList::operator[](const std::string& key)
@@ -81,7 +81,7 @@ const fge::Property& PropertyList::operator[](const std::string& key) const
     {
         return it->second;
     }
-    throw std::logic_error("key not found !");
+    throw fge::Exception("key not found !");
 }
 
 std::size_t PropertyList::getPropertiesSize() const

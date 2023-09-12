@@ -15,10 +15,10 @@
  */
 
 #include "FastEngine/vulkan/C_textureImage.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <cstring>
-#include <stdexcept>
 
 #define FGE_VULKAN_TEXTUREIMAGE_FORMAT VK_FORMAT_R8G8B8A8_UNORM
 
@@ -543,7 +543,7 @@ void TextureImage::createTextureSampler()
     if (vkCreateSampler(this->getContext().getLogicalDevice().getDevice(), &samplerInfo, nullptr,
                         &this->g_textureSampler) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create texture sampler!");
+        throw fge::Exception("failed to create texture sampler!");
     }
 }
 

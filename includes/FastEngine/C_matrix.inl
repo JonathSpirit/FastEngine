@@ -231,7 +231,7 @@ void Matrix<T>::set(std::initializer_list<std::initializer_list<T>> data)
         {
             if (it->size() != sizex)
             {
-                throw std::runtime_error("Matrix : size must be constant between rows");
+                throw fge::Exception("Matrix : size must be constant between rows");
             }
         }
     }
@@ -320,7 +320,7 @@ void Matrix<T>::setSize(std::size_t sizex, std::size_t sizey)
     }
     if (sizex == 0 || sizey == 0)
     { //Null size, aborting
-        throw std::runtime_error("Matrix : size cannot be 0");
+        throw fge::Exception("Matrix : size cannot be 0");
     }
 
     this->g_mdata.reset(new T[sizex * sizey]);
@@ -466,11 +466,11 @@ void from_json(const nlohmann::json& j, fge::Matrix<T>& r)
 
     if (!datay.is_array())
     {
-        throw std::runtime_error("Matrix json : must be an array");
+        throw fge::Exception("Matrix json : must be an array");
     }
     if (datay.size() != sizey)
     {
-        throw std::runtime_error("Matrix json : size y is not the same");
+        throw fge::Exception("Matrix json : size y is not the same");
     }
 
     r.setSize(sizex, sizey);
@@ -480,11 +480,11 @@ void from_json(const nlohmann::json& j, fge::Matrix<T>& r)
     {
         if (!(*ity).is_array())
         {
-            throw std::runtime_error("Matrix json : must be an array");
+            throw fge::Exception("Matrix json : must be an array");
         }
         if ((*ity).size() != sizex)
         {
-            throw std::runtime_error("Matrix json : size x is not the same");
+            throw fge::Exception("Matrix json : size x is not the same");
         }
 
         std::size_t x = 0;

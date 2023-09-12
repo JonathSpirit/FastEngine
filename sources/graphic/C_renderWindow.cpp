@@ -100,7 +100,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferIn
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
-        throw std::runtime_error("failed to acquire swap chain image!");
+        throw fge::Exception("failed to acquire swap chain image!");
     }
 
     // Only reset the fence if we are submitting work
@@ -115,7 +115,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferIn
 
     if (vkBeginCommandBuffer(this->g_commandBuffers[this->g_currentFrame], &beginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording command buffer!");
+        throw fge::Exception("failed to begin recording command buffer!");
     }
 
     return imageIndex;
@@ -151,7 +151,7 @@ void RenderWindow::display(uint32_t imageIndex)
 {
     if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to record command buffer!");
+        throw fge::Exception("failed to record command buffer!");
     }
 
     VkSubmitInfo submitInfo{};
@@ -175,7 +175,7 @@ void RenderWindow::display(uint32_t imageIndex)
     if (vkQueueSubmit(this->_g_context->getLogicalDevice().getGraphicQueue(), 1, &submitInfo,
                       this->g_inFlightFences[this->g_currentFrame]) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        throw fge::Exception("failed to submit draw command buffer!");
     }
 
     this->g_extraCommandBuffers.clear();
@@ -202,7 +202,7 @@ void RenderWindow::display(uint32_t imageIndex)
     }
     else if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to present swap chain image!");
+        throw fge::Exception("failed to present swap chain image!");
     }
 
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
@@ -374,7 +374,7 @@ void RenderWindow::createRenderPass()
     if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
                            &this->g_renderPass) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create render pass!");
+        throw fge::Exception("failed to create render pass!");
     }
 }
 
@@ -398,7 +398,7 @@ void RenderWindow::createFramebuffers()
         if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
                                 &this->g_swapChainFramebuffers[i]) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create framebuffer!");
+            throw fge::Exception("failed to create framebuffer!");
         }
     }
 }
@@ -416,7 +416,7 @@ void RenderWindow::createCommandBuffers()
     if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo,
                                  this->g_commandBuffers.data()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate command buffers!");
+        throw fge::Exception("failed to allocate command buffers!");
     }
 }
 void RenderWindow::createCommandPool()
@@ -432,7 +432,7 @@ void RenderWindow::createCommandPool()
     if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr,
                             &this->g_commandPool) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command pool!");
+        throw fge::Exception("failed to create command pool!");
     }
 }
 
@@ -458,7 +458,7 @@ void RenderWindow::createSyncObjects()
             vkCreateFence(this->_g_context->getLogicalDevice().getDevice(), &fenceInfo, nullptr,
                           &this->g_inFlightFences[i]) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create semaphores!");
+            throw fge::Exception("failed to create semaphores!");
         }
     }
 }
