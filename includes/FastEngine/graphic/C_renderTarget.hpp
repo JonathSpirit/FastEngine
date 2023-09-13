@@ -31,6 +31,7 @@
 #include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_view.hpp"
 #include "FastEngine/vulkan/C_blendMode.hpp"
+#include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
 #include "FastEngine/vulkan/C_vertex.hpp"
@@ -52,7 +53,7 @@ namespace fge
 class Texture;
 class Drawable;
 
-class FGE_API RenderTarget
+class FGE_API RenderTarget : public fge::vulkan::ContextAware
 {
 protected:
     explicit RenderTarget(const fge::vulkan::Context& context);
@@ -87,13 +88,13 @@ public:
             std::map<std::string,
                      std::unordered_map<GraphicPipelineKey, fge::vulkan::GraphicPipeline, GraphicPipelineKey>,
                      std::less<>>;
-    using GraphicPipelineConstructor = void (*)(const fge::vulkan::Context*,
-                                                const GraphicPipelineKey&,
+    using GraphicPipelineConstructor = void (*)(fge::vulkan::Context const&,
+                                                GraphicPipelineKey const&,
                                                 fge::vulkan::GraphicPipeline*);
 
     RenderTarget(const RenderTarget& r);
     RenderTarget(RenderTarget&& r) noexcept;
-    virtual ~RenderTarget() = default;
+    ~RenderTarget() override = default;
 
     RenderTarget& operator=(const RenderTarget& r);
     RenderTarget& operator=(RenderTarget&& r) noexcept;
@@ -123,8 +124,6 @@ public:
 
     virtual Vector2u getSize() const = 0;
 
-    [[nodiscard]] const fge::vulkan::Context* getContext() const;
-
     virtual bool isSrgb() const;
 
     [[nodiscard]] virtual VkExtent2D getExtent2D() const = 0;
@@ -142,8 +141,6 @@ private:
 
 protected:
     VkClearColorValue _g_clearColor;
-
-    const fge::vulkan::Context* _g_context;
 
     bool _g_forceGraphicPipelineUpdate;
 

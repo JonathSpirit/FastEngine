@@ -49,7 +49,7 @@ public:
     explicit RenderWindow(const fge::vulkan::Context& context);
     ~RenderWindow() override;
 
-    void destroy();
+    void destroy() final;
 
     [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;

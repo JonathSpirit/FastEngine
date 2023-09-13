@@ -61,7 +61,7 @@ void RenderWindow::destroy()
 
         this->clearGraphicPipelineCache();
 
-        VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
+        VkDevice logicalDevice = this->getContext().getLogicalDevice().getDevice();
 
         for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
         {
@@ -86,12 +86,12 @@ void RenderWindow::destroy()
 
 uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferInheritanceInfo* inheritanceInfo)
 {
-    vkWaitForFences(this->_g_context->getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
+    vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     const VkResult result = vkAcquireNextImageKHR(
-            this->_g_context->getLogicalDevice().getDevice(), this->g_swapChain.getSwapChain(), UINT64_MAX,
+            this->getContext().getLogicalDevice().getDevice(), this->g_swapChain.getSwapChain(), UINT64_MAX,
             this->g_imageAvailableSemaphores[this->g_currentFrame], VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -104,7 +104,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferIn
     }
 
     // Only reset the fence if we are submitting work
-    vkResetFences(this->_g_context->getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame]);
+    vkResetFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame]);
 
     vkResetCommandBuffer(this->g_commandBuffers[this->g_currentFrame], 0);
 
@@ -172,7 +172,7 @@ void RenderWindow::display(uint32_t imageIndex)
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(this->_g_context->getLogicalDevice().getGraphicQueue(), 1, &submitInfo,
+    if (vkQueueSubmit(this->getContext().getLogicalDevice().getGraphicQueue(), 1, &submitInfo,
                       this->g_inFlightFences[this->g_currentFrame]) != VK_SUCCESS)
     {
         throw fge::Exception("failed to submit draw command buffer!");
@@ -193,7 +193,7 @@ void RenderWindow::display(uint32_t imageIndex)
 
     presentInfo.pResults = nullptr; // Optional
 
-    VkResult result = vkQueuePresentKHR(this->_g_context->getLogicalDevice().getPresentQueue(), &presentInfo);
+    VkResult result = vkQueuePresentKHR(this->getContext().getLogicalDevice().getPresentQueue(), &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || this->g_framebufferResized)
     {
@@ -210,7 +210,7 @@ void RenderWindow::display(uint32_t imageIndex)
 
 Vector2u RenderWindow::getSize() const
 {
-    return static_cast<Vector2u>(this->_g_context->getInstance().getWindowSize());
+    return static_cast<Vector2u>(this->getContext().getInstance().getWindowSize());
 }
 
 bool RenderWindow::isSrgb() const
@@ -278,8 +278,8 @@ void RenderWindow::init()
     }
     this->g_isCreated = true;
 
-    this->g_swapChain.create(this->_g_context->getInstance().getWindow(), this->_g_context->getLogicalDevice(),
-                             this->_g_context->getPhysicalDevice(), this->_g_context->getSurface(),
+    this->g_swapChain.create(this->getContext().getInstance().getWindow(), this->getContext().getLogicalDevice(),
+                             this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
                              this->g_presentMode);
 
     this->createRenderPass();
@@ -296,29 +296,29 @@ void RenderWindow::init()
 
 void RenderWindow::recreateSwapChain()
 {
-    auto windowSize = this->_g_context->getInstance().getWindowSize();
+    auto windowSize = this->getContext().getInstance().getWindowSize();
 
     SDL_Event event;
 
     while (windowSize.x == 0 || windowSize.y == 0)
     {
-        windowSize = this->_g_context->getInstance().getWindowSize();
+        windowSize = this->getContext().getInstance().getWindowSize();
         SDL_WaitEvent(&event);
     }
 
-    vkDeviceWaitIdle(this->_g_context->getLogicalDevice().getDevice());
+    vkDeviceWaitIdle(this->getContext().getLogicalDevice().getDevice());
 
     for (auto framebuffer: this->g_swapChainFramebuffers)
     {
-        vkDestroyFramebuffer(this->_g_context->getLogicalDevice().getDevice(), framebuffer, nullptr);
+        vkDestroyFramebuffer(this->getContext().getLogicalDevice().getDevice(), framebuffer, nullptr);
     }
     this->g_swapChainFramebuffers.clear();
 
-    vkDestroyRenderPass(this->_g_context->getLogicalDevice().getDevice(), this->g_renderPass, nullptr);
+    vkDestroyRenderPass(this->getContext().getLogicalDevice().getDevice(), this->g_renderPass, nullptr);
     this->g_swapChain.destroy();
 
-    this->g_swapChain.create(this->_g_context->getInstance().getWindow(), this->_g_context->getLogicalDevice(),
-                             this->_g_context->getPhysicalDevice(), this->_g_context->getSurface(),
+    this->g_swapChain.create(this->getContext().getInstance().getWindow(), this->getContext().getLogicalDevice(),
+                             this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
                              this->g_presentMode);
     this->createRenderPass();
     this->createFramebuffers();
@@ -371,7 +371,7 @@ void RenderWindow::createRenderPass()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
+    if (vkCreateRenderPass(this->getContext().getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
                            &this->g_renderPass) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create render pass!");
@@ -395,7 +395,7 @@ void RenderWindow::createFramebuffers()
         framebufferInfo.height = this->g_swapChain.getSwapChainExtent().height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
+        if (vkCreateFramebuffer(this->getContext().getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
                                 &this->g_swapChainFramebuffers[i]) != VK_SUCCESS)
         {
             throw fge::Exception("failed to create framebuffer!");
@@ -413,7 +413,7 @@ void RenderWindow::createCommandBuffers()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = FGE_MAX_FRAMES_IN_FLIGHT;
 
-    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo,
+    if (vkAllocateCommandBuffers(this->getContext().getLogicalDevice().getDevice(), &allocInfo,
                                  this->g_commandBuffers.data()) != VK_SUCCESS)
     {
         throw fge::Exception("failed to allocate command buffers!");
@@ -422,14 +422,14 @@ void RenderWindow::createCommandBuffers()
 void RenderWindow::createCommandPool()
 {
     auto queueFamilyIndices =
-            this->_g_context->getPhysicalDevice().findQueueFamilies(this->_g_context->getSurface().getSurface());
+            this->getContext().getPhysicalDevice().findQueueFamilies(this->getContext().getSurface().getSurface());
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices._graphicsFamily.value();
 
-    if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr,
+    if (vkCreateCommandPool(this->getContext().getLogicalDevice().getDevice(), &poolInfo, nullptr,
                             &this->g_commandPool) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create command pool!");
@@ -451,11 +451,11 @@ void RenderWindow::createSyncObjects()
 
     for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        if (vkCreateSemaphore(this->_g_context->getLogicalDevice().getDevice(), &semaphoreInfo, nullptr,
+        if (vkCreateSemaphore(this->getContext().getLogicalDevice().getDevice(), &semaphoreInfo, nullptr,
                               &this->g_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(this->_g_context->getLogicalDevice().getDevice(), &semaphoreInfo, nullptr,
+            vkCreateSemaphore(this->getContext().getLogicalDevice().getDevice(), &semaphoreInfo, nullptr,
                               &this->g_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(this->_g_context->getLogicalDevice().getDevice(), &fenceInfo, nullptr,
+            vkCreateFence(this->getContext().getLogicalDevice().getDevice(), &fenceInfo, nullptr,
                           &this->g_inFlightFences[i]) != VK_SUCCESS)
         {
             throw fge::Exception("failed to create semaphores!");

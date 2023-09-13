@@ -27,8 +27,8 @@ namespace
 {
 
 #ifndef FGE_DEF_SERVER
-void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Context* context,
-                                                          const fge::RenderTarget::GraphicPipelineKey& key,
+void DefaultGraphicPipelineBatchesWithTexture_constructor(fge::vulkan::Context const& context,
+                                                          fge::RenderTarget::GraphicPipelineKey const& key,
                                                           fge::vulkan::GraphicPipeline* graphicPipeline)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT)->_shader);
@@ -36,7 +36,7 @@ void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Con
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
 
-    auto& layout = context->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
+    auto& layout = context.getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
         layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -57,8 +57,8 @@ void DefaultGraphicPipelineBatchesWithTexture_constructor(const fge::vulkan::Con
 
     graphicPipeline->setDescriptorSetLayouts({layout.getLayout(), textureLayout.getLayout()});
 }
-void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* context,
-                                               const fge::RenderTarget::GraphicPipelineKey& key,
+void DefaultGraphicPipelineBatches_constructor(fge::vulkan::Context const& context,
+                                               fge::RenderTarget::GraphicPipelineKey const& key,
                                                fge::vulkan::GraphicPipeline* graphicPipeline)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader); ///TODO
@@ -66,7 +66,7 @@ void DefaultGraphicPipelineBatches_constructor(const fge::vulkan::Context* conte
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
 
-    auto& layout = context->getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
+    auto& layout = context.getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
         layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,

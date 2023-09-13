@@ -49,7 +49,7 @@ public:
     RenderTexture& operator=(RenderTexture&& r) noexcept;
 
     void resize(const glm::vec<2, int>& size);
-    void destroy();
+    void destroy() final;
 
     uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;

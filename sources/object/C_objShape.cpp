@@ -24,8 +24,8 @@ namespace
 {
 
 #ifndef FGE_DEF_SERVER
-void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
-                                      const fge::RenderTarget::GraphicPipelineKey& key,
+void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
+                                      fge::RenderTarget::GraphicPipelineKey const& key,
                                       fge::vulkan::GraphicPipeline* graphicPipeline)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
@@ -35,14 +35,14 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
 
     graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint)}});
 
-    auto& layout = context->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+    auto& layout = context.getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
         layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                               VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
-    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout(), layout.getLayout()});
+    graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout(), layout.getLayout()});
 }
 #endif
 

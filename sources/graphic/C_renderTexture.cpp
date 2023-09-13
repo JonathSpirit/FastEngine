@@ -37,7 +37,7 @@ RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Co
 }
 RenderTexture::RenderTexture(const RenderTexture& r) :
         RenderTarget(r),
-        g_textureImage(*r.getContext()),
+        g_textureImage(r.getContext()),
         g_renderPass(VK_NULL_HANDLE),
         g_framebuffer(VK_NULL_HANDLE),
         g_commandPool(VK_NULL_HANDLE),
@@ -108,11 +108,11 @@ void RenderTexture::destroy()
     {
         this->clearGraphicPipelineCache();
 
-        VkDevice logicalDevice = this->_g_context->getLogicalDevice().getDevice();
+        VkDevice logicalDevice = this->getContext().getLogicalDevice().getDevice();
 
-        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageCommandPool(this->g_commandPool, logicalDevice));
-        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
-        this->_g_context->_garbageCollector.push(fge::vulkan::GarbageRenderPass(this->g_renderPass, logicalDevice));
+        this->getContext()._garbageCollector.push(fge::vulkan::GarbageCommandPool(this->g_commandPool, logicalDevice));
+        this->getContext()._garbageCollector.push(fge::vulkan::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
+        this->getContext()._garbageCollector.push(fge::vulkan::GarbageRenderPass(this->g_renderPass, logicalDevice));
 
         this->g_textureImage.destroy();
 
@@ -291,7 +291,7 @@ void RenderTexture::createRenderPass()
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
 
-    if (vkCreateRenderPass(this->_g_context->getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
+    if (vkCreateRenderPass(this->getContext().getLogicalDevice().getDevice(), &renderPassInfo, nullptr,
                            &this->g_renderPass) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create render pass!");
@@ -311,7 +311,7 @@ void RenderTexture::createFramebuffer()
     framebufferInfo.height = this->g_textureImage.getSize().y;
     framebufferInfo.layers = 1;
 
-    if (vkCreateFramebuffer(this->_g_context->getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
+    if (vkCreateFramebuffer(this->getContext().getLogicalDevice().getDevice(), &framebufferInfo, nullptr,
                             &this->g_framebuffer) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create framebuffer!");
@@ -328,7 +328,7 @@ void RenderTexture::createCommandBuffer()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = FGE_MAX_FRAMES_IN_FLIGHT;
 
-    if (vkAllocateCommandBuffers(this->_g_context->getLogicalDevice().getDevice(), &allocInfo,
+    if (vkAllocateCommandBuffers(this->getContext().getLogicalDevice().getDevice(), &allocInfo,
                                  this->g_commandBuffers.data()) != VK_SUCCESS)
     {
         throw fge::Exception("failed to allocate command buffers!");
@@ -337,14 +337,14 @@ void RenderTexture::createCommandBuffer()
 void RenderTexture::createCommandPool()
 {
     auto queueFamilyIndices =
-            this->_g_context->getPhysicalDevice().findQueueFamilies(this->_g_context->getSurface().getSurface());
+            this->getContext().getPhysicalDevice().findQueueFamilies(this->getContext().getSurface().getSurface());
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices._graphicsFamily.value();
 
-    if (vkCreateCommandPool(this->_g_context->getLogicalDevice().getDevice(), &poolInfo, nullptr,
+    if (vkCreateCommandPool(this->getContext().getLogicalDevice().getDevice(), &poolInfo, nullptr,
                             &this->g_commandPool) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create command pool!");
