@@ -176,21 +176,33 @@ void Context::initVulkan(SDL_Window* window)
 }
 void Context::enumerateExtensions()
 {
-#ifdef FGE_DEF_DEBUG
+    auto extensions = Context::retrieveExtensions();
+
+    std::cout << "available extensions:\n";
+
+    for (auto const& extension: extensions)
+    {
+        std::cout << '\t' << extension << '\n';
+    }
+    std::cout << std::flush;
+}
+std::vector<std::string> Context::retrieveExtensions()
+{
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    std::cout << "available extensions:\n";
+    std::vector<std::string> result;
+    result.reserve(extensionCount);
 
-    for (const auto& extension: extensions)
+    for (auto const& extension: extensions)
     {
-        std::cout << '\t' << extension.extensionName << '\n';
+        result.emplace_back(extension.extensionName);
     }
-    std::cout << std::endl;
-#endif
+
+    return result;
 }
 
 void Context::waitIdle()
