@@ -55,7 +55,6 @@ public:
      * When the number of descriptor sets allocated reach the maxSetsPerPool,
      * a new pool is created.
      *
-     * \param context The context
      * \param descriptorPoolSizes A vector of VkDescriptorPoolSize
      * \param maxSetsPerPool The max number of descriptor sets per pool
      * \param isUnique If \b true, only one pool is created and will fail if the maxSetsPerPool is reached
