@@ -85,9 +85,6 @@ private:
 
     void createFramebuffers();
 
-    void createCommandBuffers();
-    void createCommandPool();
-
     void createSyncObjects();
 
     fge::vulkan::SwapChain g_swapChain;
@@ -96,7 +93,6 @@ private:
 
     std::vector<VkFramebuffer> g_swapChainFramebuffers;
 
-    VkCommandPool g_commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> g_commandBuffers;
 
     mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;

@@ -70,7 +70,8 @@ void RenderWindow::destroy()
             vkDestroyFence(logicalDevice, this->g_inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(logicalDevice, this->g_commandPool, nullptr);
+        vkFreeCommandBuffers(logicalDevice, this->getContext().getGraphicsCommandPool(), FGE_MAX_FRAMES_IN_FLIGHT,
+                             this->g_commandBuffers.data());
         for (auto framebuffer: this->g_swapChainFramebuffers)
         {
             vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
@@ -286,8 +287,10 @@ void RenderWindow::init()
 
     this->createFramebuffers();
 
-    this->createCommandPool();
-    this->createCommandBuffers();
+    //create command buffers
+    this->g_commandBuffers.resize(FGE_MAX_FRAMES_IN_FLIGHT);
+    this->getContext().allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->g_commandBuffers.data(),
+                                                      this->g_commandBuffers.size());
 
     this->createSyncObjects();
 
@@ -400,39 +403,6 @@ void RenderWindow::createFramebuffers()
         {
             throw fge::Exception("failed to create framebuffer!");
         }
-    }
-}
-
-void RenderWindow::createCommandBuffers()
-{
-    this->g_commandBuffers.resize(FGE_MAX_FRAMES_IN_FLIGHT);
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = this->g_commandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = FGE_MAX_FRAMES_IN_FLIGHT;
-
-    if (vkAllocateCommandBuffers(this->getContext().getLogicalDevice().getDevice(), &allocInfo,
-                                 this->g_commandBuffers.data()) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to allocate command buffers!");
-    }
-}
-void RenderWindow::createCommandPool()
-{
-    auto queueFamilyIndices =
-            this->getContext().getPhysicalDevice().findQueueFamilies(this->getContext().getSurface().getSurface());
-
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    poolInfo.queueFamilyIndex = queueFamilyIndices._graphicsFamily.value();
-
-    if (vkCreateCommandPool(this->getContext().getLogicalDevice().getDevice(), &poolInfo, nullptr,
-                            &this->g_commandPool) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to create command pool!");
     }
 }
 

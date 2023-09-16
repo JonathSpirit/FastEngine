@@ -80,16 +80,12 @@ private:
 
     void createFramebuffer();
 
-    void createCommandBuffer();
-    void createCommandPool();
-
     fge::vulkan::TextureImage g_textureImage;
 
     VkRenderPass g_renderPass;
 
     VkFramebuffer g_framebuffer;
 
-    VkCommandPool g_commandPool;
     std::vector<VkCommandBuffer> g_commandBuffers;
 
     mutable uint32_t g_currentFrame;
