@@ -32,7 +32,7 @@ public:
     {}
     constexpr ContextAware(ContextAware const& r) = default;
     constexpr ContextAware(ContextAware&& r) noexcept = default;
-    constexpr virtual ~ContextAware() = default;
+    virtual ~ContextAware() = default;
 
     ContextAware& operator=(ContextAware const& r) = delete;
     ContextAware& operator=(ContextAware&& r) noexcept = delete;
