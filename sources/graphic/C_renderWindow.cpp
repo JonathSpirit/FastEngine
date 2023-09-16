@@ -160,9 +160,12 @@ void RenderWindow::display(uint32_t imageIndex)
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {this->g_imageAvailableSemaphores[this->g_currentFrame]};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = 1;
+    auto contextSemaphore = this->getContext().getOutsideRenderScopeSemaphore();
+
+    VkSemaphore waitSemaphores[] = {this->g_imageAvailableSemaphores[this->g_currentFrame], contextSemaphore};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                         FGE_CONTEXT_OUTSIDE_RENDER_SCOPE_COMMAND_WAITSTAGE};
+    submitInfo.waitSemaphoreCount = 1 + (contextSemaphore == VK_NULL_HANDLE ? 0 : 1);
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
@@ -172,6 +175,8 @@ void RenderWindow::display(uint32_t imageIndex)
     VkSemaphore signalSemaphores[] = {this->g_renderFinishedSemaphores[this->g_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
+
+    this->getContext().submit();
 
     if (vkQueueSubmit(this->getContext().getLogicalDevice().getGraphicQueue(), 1, &submitInfo,
                       this->g_inFlightFences[this->g_currentFrame]) != VK_SUCCESS)

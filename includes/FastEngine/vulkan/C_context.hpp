@@ -19,6 +19,7 @@
 
 #include "FastEngine/fastengine_extern.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include <array>
 #include <map>
 #include <vector>
 
@@ -36,6 +37,8 @@
 
 #define FGE_VULKAN_TEXTURE_BINDING 0
 #define FGE_VULKAN_TRANSFORM_BINDING 0
+
+#define FGE_CONTEXT_OUTSIDE_RENDER_SCOPE_COMMAND_WAITSTAGE VK_PIPELINE_STAGE_VERTEX_INPUT_BIT
 
 namespace fge::vulkan
 {
@@ -60,26 +63,71 @@ public:
 
     void destroy();
 
+    enum class SingleTimeCommandTypes
+    {
+        DIRECT_EXECUTION,
+        INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION
+    };
+    struct SingleTimeCommand
+    {
+        SingleTimeCommandTypes _type;
+        VkCommandBuffer _commandBuffer;
+    };
+
     /**
      * \brief Begin a single time command
      *
      * This return a command buffer that is ready to be used.
      *
+     * The DIRECT_EXECUTION type is used to execute a command buffer directly, this implies
+     * create the buffer,
+     * submit the buffer,
+     * and waiting for all queue operations to be finished.
+     * This is not ideal for performance.
+     *
+     * The INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION type is used to execute your commands inside
+     * a reusable command buffer that is submitted to the graphics queue at the same time as a render command buffer
+     * in a RenderScreen. This is ideal for performance like copying staging buffers to device local buffers.
+     * All this commands must be executed outside a render scope.
+     *
      * \warning This function must be pared with endSingleTimeCommands()
      *
      * \return The command buffer
      */
-    [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+    [[nodiscard]] SingleTimeCommand beginSingleTimeCommands(SingleTimeCommandTypes type) const;
     /**
      * \brief End a single time command
      *
-     * The command is queued to the graphics queue and is destroyed.
+     * If the command type is DIRECT_EXECUTION, the command is queued to the graphics queue and is destroyed.
      *
-     * \todo vkQueueWaitIdle is called but should be removed
-     *
-     * \param commandBuffer The command buffer to end
+     * \param command The command to end
      */
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+    void endSingleTimeCommands(SingleTimeCommand command) const;
+
+    /**
+     * \brief Retrieve the semaphore that is signaled when the outside render scope command buffer have finished executing
+     *
+     * This can return VK_NULL_HANDLE if the command buffer doesn't have any command to execute.
+     *
+     * \see submit()
+     *
+     * \return The semaphore
+     */
+    [[nodiscard]] VkSemaphore getOutsideRenderScopeSemaphore() const;
+    /**
+     * \brief Submit Context command buffers
+     *
+     * outsideRenderScopeCommandBuffers are submitted with a semaphore that is signaled when the command buffers have
+     * finished executing.
+     *
+     * The semaphore should be retrieved with getOutsideRenderScopeSemaphore() and you must wait for it to be
+     * signaled before rendering commands as this buffer generally contain some buffer transfer operations.
+     *
+     * This also increment the internal current frame counter.
+     *
+     * This is automatically called by a RenderScreen when the RenderScreen::display() method is called.
+     */
+    void submit() const;
 
     /**
      * \brief Initialize Volk (Vulkan loader)
@@ -324,6 +372,7 @@ private:
     void createMultiUseDescriptorPool();
     void createTextureDescriptorPool();
     void createTransformDescriptorPool();
+    void createSyncObjects();
 
     Instance g_instance;
     PhysicalDevice g_physicalDevice;
@@ -339,6 +388,11 @@ private:
     DescriptorPool g_transformDescriptorPool;
 
     mutable VmaAllocator g_allocator;
+
+    std::array<VkCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT> g_outsideRenderScopeCommandBuffers;
+    mutable std::array<bool, FGE_MAX_FRAMES_IN_FLIGHT> g_outsideRenderScopeCommandBuffersEmpty;
+    std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_outsideRenderScopeFinishedSemaphores;
+    mutable uint32_t g_currentFrame;
 
     mutable std::vector<VkCommandBuffer> g_executableGraphicsCommandBuffers;
     VkCommandPool g_graphicsCommandPool;
