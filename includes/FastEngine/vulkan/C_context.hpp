@@ -124,6 +124,32 @@ public:
     [[nodiscard]] const PhysicalDevice& getPhysicalDevice() const;
 
     /**
+     * \brief Retrieve a command pool for graphics commands
+     *
+     * This command pool is used to create command buffers that will be used to submit commands to the graphics queue.
+     *
+     * This command pool is created with the following flags:
+     * VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
+     *
+     * \return The command pool
+     */
+    [[nodiscard]] VkCommandPool getGraphicsCommandPool() const;
+    /**
+     * \brief Allocate graphics command buffers
+     *
+     * This is a shortcut for vkAllocateCommandBuffers with the graphics command pool.
+     *
+     * \see getGraphicsCommandPool()
+     *
+     * \param level The level of the command buffers (primary or secondary)
+     * \param commandBuffers An array of VkCommandBuffer structures in which the resulting command buffer objects are returned
+     * \param commandBufferCount The number of command buffers to allocate
+     */
+    void allocateGraphicsCommandBuffers(VkCommandBufferLevel level,
+                                        VkCommandBuffer commandBuffers[],
+                                        uint32_t commandBufferCount) const;
+
+    /**
      * \brief Copy a buffer to another
      *
      * Fill a command buffer with a copy command in order to copy a buffer to another.
@@ -289,7 +315,7 @@ private:
 
     mutable VmaAllocator g_allocator;
 
-    VkCommandPool g_commandPool;
+    VkCommandPool g_graphicsCommandPool;
     bool g_isCreated;
 };
 

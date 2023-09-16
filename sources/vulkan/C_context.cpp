@@ -32,7 +32,7 @@ Context::Context() :
         g_transformLayout(*this),
         g_textureDescriptorPool(*this),
         g_transformDescriptorPool(*this),
-        g_commandPool(VK_NULL_HANDLE),
+        g_graphicsCommandPool(VK_NULL_HANDLE),
         g_isCreated(false)
 {}
 Context::~Context()
@@ -52,7 +52,7 @@ void Context::destroy()
         this->g_textureDescriptorPool.destroy();
         this->g_transformDescriptorPool.destroy();
 
-        vkDestroyCommandPool(this->g_logicalDevice.getDevice(), this->g_commandPool, nullptr);
+        vkDestroyCommandPool(this->g_logicalDevice.getDevice(), this->g_graphicsCommandPool, nullptr);
 
         vmaDestroyAllocator(this->g_allocator);
 
@@ -60,7 +60,7 @@ void Context::destroy()
         this->g_logicalDevice.destroy();
         this->g_instance.destroy();
 
-        this->g_commandPool = VK_NULL_HANDLE;
+        this->g_graphicsCommandPool = VK_NULL_HANDLE;
         this->g_isCreated = false;
     }
 }
@@ -70,7 +70,7 @@ VkCommandBuffer Context::beginSingleTimeCommands() const
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = this->g_commandPool;
+    allocInfo.commandPool = this->g_graphicsCommandPool;
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
@@ -96,7 +96,7 @@ void Context::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
     vkQueueSubmit(this->g_logicalDevice.getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(this->g_logicalDevice.getGraphicQueue()); ///TODO stop doing that
 
-    vkFreeCommandBuffers(this->g_logicalDevice.getDevice(), this->g_commandPool, 1, &commandBuffer);
+    vkFreeCommandBuffers(this->g_logicalDevice.getDevice(), this->g_graphicsCommandPool, 1, &commandBuffer);
 }
 
 void Context::initVolk()
@@ -225,6 +225,26 @@ const LogicalDevice& Context::getLogicalDevice() const
 const PhysicalDevice& Context::getPhysicalDevice() const
 {
     return this->g_physicalDevice;
+}
+
+VkCommandPool Context::getGraphicsCommandPool() const
+{
+    return this->g_graphicsCommandPool;
+}
+void Context::allocateGraphicsCommandBuffers(VkCommandBufferLevel level,
+                                             VkCommandBuffer commandBuffers[],
+                                             uint32_t commandBufferCount) const
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = this->g_graphicsCommandPool;
+    allocInfo.level = level;
+    allocInfo.commandBufferCount = commandBufferCount;
+
+    if (vkAllocateCommandBuffers(this->g_logicalDevice.getDevice(), &allocInfo, commandBuffers) != VK_SUCCESS)
+    {
+        throw fge::Exception("failed to allocate command buffers!");
+    }
 }
 
 void Context::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const
@@ -441,7 +461,8 @@ void Context::createCommandPool()
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices._graphicsFamily.value();
 
-    if (vkCreateCommandPool(this->g_logicalDevice.getDevice(), &poolInfo, nullptr, &this->g_commandPool) != VK_SUCCESS)
+    if (vkCreateCommandPool(this->g_logicalDevice.getDevice(), &poolInfo, nullptr, &this->g_graphicsCommandPool) !=
+        VK_SUCCESS)
     {
         throw fge::Exception("failed to create command pool!");
     }
