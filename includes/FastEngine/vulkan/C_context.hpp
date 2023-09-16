@@ -88,6 +88,10 @@ public:
      * The INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION type is used to execute your commands inside
      * a reusable command buffer that is submitted to the graphics queue at the same time as a render command buffer
      * in a RenderScreen. This is ideal for performance like copying staging buffers to device local buffers.
+     * 
+     * This is also synced with a semaphore that is signaled when the command buffer have finished executing so this
+     * assure that every commands are finished before rendering.
+     *
      * All this commands must be executed outside a render scope.
      *
      * \warning This function must be pared with endSingleTimeCommands()
