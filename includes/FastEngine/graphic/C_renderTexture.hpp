@@ -64,14 +64,9 @@ public:
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
     [[nodiscard]] VkRenderPass getRenderPass() const override;
 
-    [[nodiscard]] std::vector<VkCommandBuffer> getCommandBuffers() const;
     [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
 
-    void setCurrentFrame(uint32_t frame) const;
     [[nodiscard]] uint32_t getCurrentFrame() const;
-
-    void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
-    void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
 
 private:
     void init(const glm::vec<2, int>& size);
@@ -88,9 +83,7 @@ private:
 
     std::vector<VkCommandBuffer> g_commandBuffers;
 
-    mutable uint32_t g_currentFrame;
-
-    mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
+    uint32_t g_currentFrame;
 
     bool g_isCreated;
 };

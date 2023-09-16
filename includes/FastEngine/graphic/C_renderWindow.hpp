@@ -60,9 +60,6 @@ public:
 
     bool isSrgb() const override;
 
-    void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
-    void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
-
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
 
@@ -94,9 +91,6 @@ private:
     std::vector<VkFramebuffer> g_swapChainFramebuffers;
 
     std::vector<VkCommandBuffer> g_commandBuffers;
-
-    mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
-    mutable std::vector<VkFence> g_extraFences;
 
     std::vector<VkSemaphore> g_imageAvailableSemaphores;
     std::vector<VkSemaphore> g_renderFinishedSemaphores;

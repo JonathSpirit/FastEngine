@@ -292,6 +292,31 @@ public:
      */
     [[nodiscard]] VmaAllocator getAllocator() const;
 
+    /**
+     * \brief Push a graphics command buffer to a list
+     *
+     * This is used to keep track of executable command buffers that will be submitted to the graphics queue.
+     * This list must be cleared once the command buffers are submitted. Generally, this is done by a RenderScreen
+     * when the RenderScreen::display() method is called.
+     *
+     * \param commandBuffer The command buffer to push
+     */
+    void pushGraphicsCommandBuffer(VkCommandBuffer commandBuffer) const;
+    /**
+     * \brief Retrieve the list of executable graphics command buffers
+     *
+     * \see pushGraphicsCommandBuffer()
+     *
+     * \return The list of executable graphics command buffers
+     */
+    [[nodiscard]] std::vector<VkCommandBuffer> const& getGraphicsCommandBuffers() const;
+    /**
+     * \brief Clear the list of executable graphics command buffers
+     *
+     * \see pushGraphicsCommandBuffer()
+     */
+    void clearGraphicsCommandBuffers() const;
+
     fge::vulkan::GarbageCollector _garbageCollector;
 
 private:
@@ -315,6 +340,7 @@ private:
 
     mutable VmaAllocator g_allocator;
 
+    mutable std::vector<VkCommandBuffer> g_executableGraphicsCommandBuffers;
     VkCommandPool g_graphicsCommandPool;
     bool g_isCreated;
 };

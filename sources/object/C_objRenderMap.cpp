@@ -96,8 +96,6 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
     this->_renderTexture.setView(target.getView());
     this->_renderTexture.endRenderPass();
     this->_renderTexture.display(FGE_RENDERTARGET_BAD_IMAGE_INDEX);
-    target.pushExtraCommandBuffer(this->_renderTexture.getCommandBuffers());
-    this->_renderTexture.setCurrentFrame(this->_renderTexture.getCurrentFrame() + 1);
 
     target.setView(this->g_windowView);
 

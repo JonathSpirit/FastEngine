@@ -452,6 +452,19 @@ VmaAllocator Context::getAllocator() const
     return this->g_allocator;
 }
 
+void Context::pushGraphicsCommandBuffer(VkCommandBuffer commandBuffer) const
+{
+    this->g_executableGraphicsCommandBuffers.push_back(commandBuffer);
+}
+std::vector<VkCommandBuffer> const& Context::getGraphicsCommandBuffers() const
+{
+    return this->g_executableGraphicsCommandBuffers;
+}
+void Context::clearGraphicsCommandBuffers() const
+{
+    this->g_executableGraphicsCommandBuffers.clear();
+}
+
 void Context::createCommandPool()
 {
     auto queueFamilyIndices = this->g_physicalDevice.findQueueFamilies(this->g_surface.getSurface());

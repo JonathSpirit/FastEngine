@@ -119,9 +119,6 @@ public:
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
 
-    virtual void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const;
-    virtual void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const;
-
     virtual Vector2u getSize() const = 0;
 
     virtual bool isSrgb() const;

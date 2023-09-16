@@ -361,9 +361,6 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
     }
 }
 
-void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer commandBuffer) const {}
-void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] const std::vector<VkCommandBuffer>& commandBuffers) const {}
-
 bool RenderTarget::isSrgb() const
 { //TODO: maybe delete that
     return false;

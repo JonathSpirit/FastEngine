@@ -52,7 +52,6 @@ RenderTexture::RenderTexture(RenderTexture&& r) noexcept :
         g_framebuffer(r.g_framebuffer),
         g_commandBuffers(std::move(r.g_commandBuffers)),
         g_currentFrame(r.g_currentFrame),
-        g_extraCommandBuffers(std::move(r.g_extraCommandBuffers)),
         g_isCreated(r.g_isCreated)
 {
     r.g_renderPass = VK_NULL_HANDLE;
@@ -82,7 +81,6 @@ RenderTexture& RenderTexture::operator=(RenderTexture&& r) noexcept
     this->g_framebuffer = r.g_framebuffer;
     this->g_commandBuffers = std::move(r.g_commandBuffers);
     this->g_currentFrame = r.g_currentFrame;
-    this->g_extraCommandBuffers = std::move(r.g_extraCommandBuffers);
     this->g_isCreated = r.g_isCreated;
 
     r.g_renderPass = VK_NULL_HANDLE;
@@ -159,13 +157,17 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 void RenderTexture::endRenderPass()
 {
     vkCmdEndRenderPass(this->g_commandBuffers[this->g_currentFrame]);
-}
-void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
-{
+
     if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
     {
         throw fge::Exception("failed to record command buffer!");
     }
+}
+void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
+{
+    this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame]);
+
+    this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
 }
 
 Vector2u RenderTexture::getSize() const
@@ -191,32 +193,14 @@ VkRenderPass RenderTexture::getRenderPass() const
     return this->g_renderPass;
 }
 
-std::vector<VkCommandBuffer> RenderTexture::getCommandBuffers() const
-{
-    this->g_extraCommandBuffers.push_back(this->g_commandBuffers[this->g_currentFrame]);
-    return std::move(this->g_extraCommandBuffers);
-}
 const fge::vulkan::TextureImage& RenderTexture::getTextureImage() const
 {
     return this->g_textureImage;
 }
 
-void RenderTexture::setCurrentFrame(uint32_t frame) const
-{
-    this->g_currentFrame = frame % FGE_MAX_FRAMES_IN_FLIGHT;
-}
 uint32_t RenderTexture::getCurrentFrame() const
 {
     return this->g_currentFrame;
-}
-
-void RenderTexture::pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const
-{
-    this->g_extraCommandBuffers.push_back(commandBuffer);
-}
-void RenderTexture::pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const
-{
-    this->g_extraCommandBuffers.insert(this->g_extraCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
 }
 
 void RenderTexture::init(const glm::vec<2, int>& size)
