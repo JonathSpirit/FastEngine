@@ -37,6 +37,7 @@ enum class GarbageType
     GARBAGE_GRAPHIC_PIPELINE,
     GARBAGE_PIPELINE_LAYOUT,
     GARBAGE_COMMAND_POOL,
+    GARBAGE_COMMAND_BUFFER,
     GARBAGE_FRAMEBUFFER,
     GARBAGE_RENDERPASS,
     GARBAGE_SAMPLER,
@@ -111,6 +112,20 @@ struct GarbageCommandPool
 
     GarbageType _type;
     VkCommandPool _commandPool;
+    VkDevice _logicalDevice;
+};
+struct GarbageCommandBuffer
+{
+    constexpr GarbageCommandBuffer(VkCommandPool commandPool, VkCommandBuffer commandBuffer, VkDevice logicalDevice) :
+            _type(GarbageType::GARBAGE_COMMAND_BUFFER),
+            _commandPool(commandPool),
+            _commandBuffer(commandBuffer),
+            _logicalDevice(logicalDevice)
+    {}
+
+    GarbageType _type;
+    VkCommandPool _commandPool;
+    VkCommandBuffer _commandBuffer;
     VkDevice _logicalDevice;
 };
 struct GarbageFramebuffer
@@ -199,6 +214,9 @@ public:
     constexpr Garbage(const GarbageCommandPool& garbage) :
             g_data(garbage)
     {}
+    constexpr Garbage(const GarbageCommandBuffer& garbage) :
+            g_data(garbage)
+    {}
     constexpr Garbage(const GarbageFramebuffer& garbage) :
             g_data(garbage)
     {}
@@ -243,6 +261,9 @@ private:
         explicit constexpr Data(const GarbageCommandPool& data) :
                 _commandPool{data}
         {}
+        explicit constexpr Data(const GarbageCommandBuffer& data) :
+                _commandBuffer{data}
+        {}
         explicit constexpr Data(const GarbageFramebuffer& data) :
                 _framebuffer{data}
         {}
@@ -262,6 +283,7 @@ private:
         GarbageGraphicPipeline _graphicPipeline;
         GarbagePipelineLayout _pipelineLayout;
         GarbageCommandPool _commandPool;
+        GarbageCommandBuffer _commandBuffer;
         GarbageFramebuffer _framebuffer;
         GarbageRenderPass _renderPass;
         GarbageSampler _sampler;
