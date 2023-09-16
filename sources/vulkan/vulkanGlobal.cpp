@@ -42,7 +42,7 @@ Context* gActiveContext{nullptr};
 
 Context& GetActiveContext()
 {
-#ifdef FGE_DEF_DEBUG
+#if defined(FGE_DEF_DEBUG) && !defined(FGE_DEF_SERVER)
     if (gActiveContext == nullptr)
     {
         throw fge::Exception("No active context !");
