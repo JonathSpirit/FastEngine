@@ -35,12 +35,12 @@ namespace fge
 namespace
 {
 
-bool CompareVector(const fge::Vector2f& a, const fge::Vector2f& b)
+inline bool CompareVector(const fge::Vector2f& a, const fge::Vector2f& b)
 {
     return a.x < b.x || (a.x == b.x && a.y < b.y);
 }
 
-double GetCrossProductVector(const fge::Vector2f& O, const fge::Vector2f& A, const fge::Vector2f& B)
+inline float GetCrossProductVector(const fge::Vector2f& O, const fge::Vector2f& A, const fge::Vector2f& B)
 {
     return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 }
@@ -430,6 +430,39 @@ bool IsPressed(const fge::Event& evt, const fge::Vector2f& mouse_pos, const fge:
     return false;
 }
 #endif //FGE_DEF_SERVER
+
+bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
+{
+    auto base1 = quad[1] - quad[0];
+    auto base2 = quad[2] - quad[1];
+    auto base3 = quad[3] - quad[2];
+    auto base4 = quad[0] - quad[3];
+
+    auto normalDir1 = glm::normalize(base1);
+    auto normalDir2 = glm::normalize(base2);
+    auto normalDir3 = glm::normalize(base3);
+    auto normalDir4 = glm::normalize(base4);
+
+    auto distance1 = std::abs((normalDir1.y * (point.x - quad[0].x) - normalDir1.x * (point.y - quad[0].y)) / (normalDir1.x*normalDir1.x + normalDir1.y*normalDir1.y));
+    auto distance2 = std::abs((normalDir2.y * (point.x - quad[1].x) - normalDir2.x * (point.y - quad[1].y)) / (normalDir2.x*normalDir2.x + normalDir2.y*normalDir2.y));
+    auto distance3 = std::abs((normalDir3.y * (point.x - quad[2].x) - normalDir3.x * (point.y - quad[2].y)) / (normalDir3.x*normalDir3.x + normalDir3.y*normalDir3.y));
+    auto distance4 = std::abs((normalDir4.y * (point.x - quad[3].x) - normalDir4.x * (point.y - quad[3].y)) / (normalDir4.x*normalDir4.x + normalDir4.y*normalDir4.y));
+
+    auto computedArea = (glm::length(base1) * distance1 +
+                         glm::length(base2) * distance2 +
+                         glm::length(base3) * distance3 +
+                         glm::length(base4) * distance4) / 2.0f;
+
+    auto base = quad[1] - quad[3];
+    auto normalDir = glm::normalize(base);
+
+    distance1 = std::abs((normalDir.y * (quad[0].x - quad[3].x) - normalDir.x * (quad[0].y - quad[3].y)) / (normalDir.x*normalDir.x + normalDir.y*normalDir.y));
+    distance2 = std::abs((normalDir.y * (quad[2].x - quad[3].x) - normalDir.x * (quad[2].y - quad[3].y)) / (normalDir.x*normalDir.x + normalDir.y*normalDir.y));
+
+    auto area = (glm::length(base) * distance1 + glm::length(base) * distance2) / 2.0f;
+
+    return std::abs(computedArea - area) <= 0.001f;
+}
 
 ///Reach
 fge::Vector2f ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime)

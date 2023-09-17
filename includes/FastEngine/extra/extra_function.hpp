@@ -27,11 +27,14 @@
 #include "json.hpp"
 #include <filesystem>
 #include <list>
+#include <array>
 
 #define FGE_MATH_PI 3.14159265358979323846
 
 namespace fge
 {
+
+using Quad = std::array<fge::Vector2f, 4>;
 
 enum TurnMode
 {
@@ -85,6 +88,8 @@ FGE_API bool IsPressed(const fge::Event& evt,
                        const fge::RectFloat& zone,
                        uint8_t button = SDL_BUTTON_LEFT);
 #endif //FGE_DEF_SERVER
+
+FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
 
 ///Position/Rectangle
 template<typename T>
