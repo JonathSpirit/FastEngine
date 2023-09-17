@@ -55,5 +55,6 @@ var searchData=
   ['color_52',['Color',['../classfge_1_1Color.html',1,'fge']]],
   ['commanddata_53',['CommandData',['../structfge_1_1CommandHandler_1_1CommandData.html',1,'fge::CommandHandler']]],
   ['commandhandler_54',['CommandHandler',['../classfge_1_1CommandHandler.html',1,'fge']]],
-  ['context_55',['Context',['../classfge_1_1vulkan_1_1Context.html',1,'fge::vulkan']]]
+  ['context_55',['Context',['../classfge_1_1vulkan_1_1Context.html',1,'fge::vulkan']]],
+  ['contextaware_56',['ContextAware',['../classfge_1_1vulkan_1_1ContextAware.html',1,'fge::vulkan']]]
 ];

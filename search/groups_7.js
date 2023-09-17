@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['utility_2ftools_0',['Utility/Tools',['../group__utility.html',1,'']]]
+  ['string_20utility_20tools_0',['Extra string utility/tools',['../group__extraString.html',1,'']]]
 ];
