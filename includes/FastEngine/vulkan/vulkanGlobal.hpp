@@ -40,7 +40,8 @@ class Context;
 FGE_API extern std::vector<const char*> ValidationLayers;
 FGE_API extern std::vector<const char*> DeviceExtensions;
 
-FGE_API extern Context* GlobalContext;
+FGE_API extern Context& GetActiveContext();
+FGE_API extern void SetActiveContext(Context& context);
 
 FGE_API bool CheckValidationLayerSupport(const char* layerName);
 

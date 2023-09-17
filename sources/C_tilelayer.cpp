@@ -19,10 +19,10 @@
 namespace fge
 {
 
-TileLayer::Tile::Tile()
+TileLayer::Tile::Tile() :
+        g_vertexBuffer(fge::vulkan::GetActiveContext())
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-                                fge::vulkan::BufferTypes::DEVICE);
+    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::DEVICE);
 }
 
 void TileLayer::Tile::setGid(TileId gid)

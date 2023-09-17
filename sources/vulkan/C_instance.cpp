@@ -16,10 +16,10 @@
 
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "FastEngine/fastengine_version.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <iostream>
 #include <map>
-#include <stdexcept>
 
 namespace fge::vulkan
 {
@@ -50,7 +50,7 @@ void Instance::create(SDL_Window* window,
 {
     if (this->g_instance != VK_NULL_HANDLE)
     {
-        throw std::runtime_error{"instance already created !"};
+        throw fge::Exception{"instance already created !"};
     }
 
     this->g_applicationName = std::move(applicationName);
@@ -104,7 +104,7 @@ void Instance::create(SDL_Window* window,
 
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error{"error while creating instance !"};
+        throw fge::Exception{"error while creating instance !"};
     }
 
     volkLoadInstance(this->g_instance);
@@ -177,7 +177,7 @@ void Instance::enumeratePhysicalDevices()
 
     if (deviceCount == 0)
     {
-        throw std::runtime_error("failed to find GPUs with Vulkan support !");
+        throw fge::Exception("failed to find GPUs with Vulkan support !");
     }
 
     std::vector<VkPhysicalDevice> physicalDevices(deviceCount);

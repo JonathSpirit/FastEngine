@@ -22,25 +22,28 @@ namespace fge
 
 ObjRenderMap::ObjRenderMap() :
         g_colorClear(fge::Color::Transparent),
+        g_vertexBuffer(fge::vulkan::GetActiveContext()),
         g_windowSize(0, 0)
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 ObjRenderMap::ObjRenderMap(const fge::ObjRenderMap& r) :
         fge::Object(r),
         fge::Subscriber(r),
         g_colorClear(r.g_colorClear),
+        g_vertexBuffer(r.g_vertexBuffer.getContext()),
         g_windowSize(0, 0)
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
         fge::Object(r),
         fge::Subscriber(r),
         g_colorClear(r.g_colorClear),
+        g_vertexBuffer(r.g_vertexBuffer.getContext()),
         g_windowSize(0, 0)
 {
-    this->g_vertexBuffer.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
 void ObjRenderMap::onDraw([[maybe_unused]] const fge::Scene* scene, [[maybe_unused]] fge::RenderTarget& target)
@@ -93,8 +96,6 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
     this->_renderTexture.setView(target.getView());
     this->_renderTexture.endRenderPass();
     this->_renderTexture.display(FGE_RENDERTARGET_BAD_IMAGE_INDEX);
-    target.pushExtraCommandBuffer(this->_renderTexture.getCommandBuffers());
-    this->_renderTexture.setCurrentFrame(this->_renderTexture.getCurrentFrame() + 1);
 
     target.setView(this->g_windowView);
 

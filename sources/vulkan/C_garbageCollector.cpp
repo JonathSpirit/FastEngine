@@ -45,6 +45,10 @@ Garbage::~Garbage()
     case GarbageType::GARBAGE_COMMAND_POOL:
         vkDestroyCommandPool(this->g_data._commandPool._logicalDevice, this->g_data._commandPool._commandPool, nullptr);
         break;
+    case GarbageType::GARBAGE_COMMAND_BUFFER:
+        vkFreeCommandBuffers(this->g_data._commandBuffer._logicalDevice, this->g_data._commandBuffer._commandPool, 1,
+                             &this->g_data._commandBuffer._commandBuffer);
+        break;
     case GarbageType::GARBAGE_FRAMEBUFFER:
         vkDestroyFramebuffer(this->g_data._framebuffer._logicalDevice, this->g_data._framebuffer._framebuffer, nullptr);
         break;

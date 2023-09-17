@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_image.h"
 #include "private/string_hash.hpp"
@@ -59,8 +60,8 @@ void Init()
 #ifdef FGE_DEF_SERVER
         _dataTextureBad->_texture = std::make_shared<fge::TextureType>(tmpSurface);
 #else
-        _dataTextureBad->_texture = std::make_shared<fge::TextureType>();
-        _dataTextureBad->_texture->create(*vulkan::GlobalContext, tmpSurface.get());
+        _dataTextureBad->_texture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
+        _dataTextureBad->_texture->create(tmpSurface.get());
 #endif //FGE_DEF_SERVER
         _dataTextureBad->_valid = false;
     }
@@ -91,7 +92,7 @@ fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lo
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
-        throw std::runtime_error("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
+        throw fge::Exception("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
     }
     return _dataTexture.begin();
 }
@@ -99,7 +100,7 @@ fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
-        throw std::runtime_error("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
+        throw fge::Exception("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
     }
     return _dataTexture.end();
 }
@@ -156,9 +157,9 @@ bool LoadFromSurface(std::string_view name, const fge::Surface& surface)
 #ifdef FGE_DEF_SERVER
     auto tmpTexture = std::make_shared<fge::TextureType>(surface);
 #else
-    auto tmpTexture = std::make_shared<fge::TextureType>();
+    auto tmpTexture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
 
-    if (!tmpTexture->create(*vulkan::GlobalContext, surface.get()))
+    if (!tmpTexture->create(surface.get()))
     {
         return false;
     }
@@ -193,12 +194,12 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
         return false;
     }
 
-    auto tmpTexture = std::make_shared<fge::TextureType>();
+    auto tmpTexture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
 
 #ifdef FGE_DEF_SERVER
     *tmpTexture = std::move(tmpSurface);
 #else
-    if (!tmpTexture->create(*vulkan::GlobalContext, tmpSurface.get()))
+    if (!tmpTexture->create(tmpSurface.get()))
     {
         return false;
     }

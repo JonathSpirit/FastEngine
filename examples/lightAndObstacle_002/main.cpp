@@ -38,7 +38,11 @@ public:
         OBSTACLE_CONCAVE
     };
 
-    Obstacle() { this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP); }
+    Obstacle() :
+            g_vertices(fge::vulkan::GetActiveContext())
+    {
+        this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    }
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Obstacle)
 
@@ -276,7 +280,7 @@ public:
             auto imageIndex = renderWindow.prepareNextFrame(nullptr);
             if (imageIndex != FGE_RENDERTARGET_BAD_IMAGE_INDEX)
             {
-                fge::vulkan::GlobalContext->_garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
+                fge::vulkan::GetActiveContext()._garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
 
                 renderWindow.beginRenderPass(imageIndex);
 
@@ -288,9 +292,9 @@ public:
             }
         }
 
-        fge::vulkan::GlobalContext->waitIdle();
+        fge::vulkan::GetActiveContext().waitIdle();
 
-        fge::vulkan::GlobalContext->_garbageCollector.enable(false);
+        fge::vulkan::GetActiveContext()._garbageCollector.enable(false);
     }
 };
 
@@ -314,9 +318,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::vulkan::Context::enumerateExtensions();
     vulkanContext.initVulkan(window);
 
-    fge::vulkan::GlobalContext = &vulkanContext;
+    fge::vulkan::SetActiveContext(vulkanContext);
 
-    fge::vulkan::GlobalContext->_garbageCollector.enable(true);
+    vulkanContext._garbageCollector.enable(true);
 
     fge::shader::Init();
 

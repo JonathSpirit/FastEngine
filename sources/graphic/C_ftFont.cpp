@@ -544,13 +544,13 @@ fge::RectInt FreeTypeFont::findGlyphRect(Page& page, unsigned int width, unsigne
             const unsigned int textureWidth = page._texture.getSize().x;
             const unsigned int textureHeight = page._texture.getSize().y;
 
-            auto maxImageDimension = page._texture.getContext()->getPhysicalDevice().getMaxImageDimension2D();
+            auto maxImageDimension = page._texture.getContext().getPhysicalDevice().getMaxImageDimension2D();
 
             if ((textureWidth * 2 <= maxImageDimension) && (textureHeight * 2 <= maxImageDimension))
             {
                 // Make the texture 2 times bigger
-                fge::vulkan::TextureImage newTexture;
-                newTexture.create(*page._texture.getContext(), {textureWidth * 2, textureHeight * 2});
+                fge::vulkan::TextureImage newTexture{page._texture.getContext()};
+                newTexture.create({textureWidth * 2, textureHeight * 2});
                 newTexture.setFilter(g_isSmooth ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
                 newTexture.update(page._texture, {0, 0});
                 page._texture = std::move(newTexture);
@@ -595,6 +595,7 @@ bool FreeTypeFont::setCurrentSize(fge::CharacterSize characterSize) const
 }
 
 FreeTypeFont::Page::Page(bool smooth) :
+        _texture(fge::vulkan::GetActiveContext()),
         _nextRow(3)
 {
     // Make sure that the texture is initialized by default
@@ -611,7 +612,7 @@ FreeTypeFont::Page::Page(bool smooth) :
     }
 
     // Create the texture
-    this->_texture.create(*fge::vulkan::GlobalContext, surface.get());
+    this->_texture.create(surface.get());
     this->_texture.setFilter(smooth ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
 }
 

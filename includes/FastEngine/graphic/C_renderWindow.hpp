@@ -49,7 +49,7 @@ public:
     explicit RenderWindow(const fge::vulkan::Context& context);
     ~RenderWindow() override;
 
-    void destroy();
+    void destroy() final;
 
     [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
@@ -59,9 +59,6 @@ public:
     Vector2u getSize() const override;
 
     bool isSrgb() const override;
-
-    void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
-    void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
 
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
@@ -85,9 +82,6 @@ private:
 
     void createFramebuffers();
 
-    void createCommandBuffers();
-    void createCommandPool();
-
     void createSyncObjects();
 
     fge::vulkan::SwapChain g_swapChain;
@@ -96,11 +90,7 @@ private:
 
     std::vector<VkFramebuffer> g_swapChainFramebuffers;
 
-    VkCommandPool g_commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> g_commandBuffers;
-
-    mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
-    mutable std::vector<VkFence> g_extraFences;
 
     std::vector<VkSemaphore> g_imageAvailableSemaphores;
     std::vector<VkSemaphore> g_renderFinishedSemaphores;

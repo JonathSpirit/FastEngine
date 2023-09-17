@@ -70,7 +70,7 @@ ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos,
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
-        throw std::runtime_error("ClientList::remove : lock is not owned or not my mutex !");
+        throw fge::Exception("ClientList::remove : lock is not owned or not my mutex !");
     }
     if (this->g_enableClientEventsFlag)
     {
@@ -99,7 +99,7 @@ fge::net::ClientList::ClientListData::iterator ClientList::begin(const std::uniq
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
-        throw std::runtime_error("ClientList::begin : lock is not owned or not my mutex !");
+        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
     }
     return this->g_data.begin();
 }
@@ -108,7 +108,7 @@ ClientList::begin(const std::unique_lock<std::recursive_mutex>& lock) const
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
-        throw std::runtime_error("ClientList::begin : lock is not owned or not my mutex !");
+        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
     }
     return this->g_data.cbegin();
 }
@@ -116,7 +116,7 @@ fge::net::ClientList::ClientListData::iterator ClientList::end(const std::unique
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
-        throw std::runtime_error("ClientList::begin : lock is not owned or not my mutex !");
+        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
     }
     return this->g_data.end();
 }
@@ -125,7 +125,7 @@ ClientList::end(const std::unique_lock<std::recursive_mutex>& lock) const
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
-        throw std::runtime_error("ClientList::begin : lock is not owned or not my mutex !");
+        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
     }
     return this->g_data.cend();
 }

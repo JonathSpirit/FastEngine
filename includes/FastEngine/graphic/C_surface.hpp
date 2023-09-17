@@ -29,6 +29,15 @@
 namespace fge
 {
 
+#ifdef FGE_DEF_SERVER
+namespace vulkan
+{
+
+class Context;
+
+} // namespace vulkan
+#endif
+
 /**
  * \class Surface
  * \ingroup graphics
@@ -46,6 +55,15 @@ class FGE_API Surface
 {
 public:
     Surface();
+#ifdef FGE_DEF_SERVER
+    //TODO: this is here in order to be interchangeable easily with TextureImage
+    //when building for the server or client target.
+    //For future, I want to remove that and have a TextureImage server version
+    //instead of switching between Surface <-> TextureImage with the fge::TextureType alias
+    explicit Surface([[maybe_unused]] fge::vulkan::Context const& r) :
+            Surface()
+    {}
+#endif
     Surface(int width, int height, fge::Color const& color = {0, 0, 0, 255});
     Surface(Surface const& r);
     Surface(Surface&& r) noexcept;

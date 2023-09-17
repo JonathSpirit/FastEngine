@@ -36,18 +36,11 @@
 namespace fge
 {
 
-namespace vulkan
-{
-
-class Context;
-
-} // namespace vulkan
-
 class FGE_API RenderTexture : public RenderTarget
 {
 public:
     explicit RenderTexture(const glm::vec<2, int>& size = {1, 1},
-                           const fge::vulkan::Context& context = *fge::vulkan::GlobalContext);
+                           const fge::vulkan::Context& context = fge::vulkan::GetActiveContext());
     RenderTexture(const RenderTexture& r);
     RenderTexture(RenderTexture&& r) noexcept;
     ~RenderTexture() override;
@@ -56,7 +49,7 @@ public:
     RenderTexture& operator=(RenderTexture&& r) noexcept;
 
     void resize(const glm::vec<2, int>& size);
-    void destroy();
+    void destroy() final;
 
     uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
@@ -71,14 +64,9 @@ public:
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
     [[nodiscard]] VkRenderPass getRenderPass() const override;
 
-    [[nodiscard]] std::vector<VkCommandBuffer> getCommandBuffers() const;
     [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
 
-    void setCurrentFrame(uint32_t frame) const;
     [[nodiscard]] uint32_t getCurrentFrame() const;
-
-    void pushExtraCommandBuffer(VkCommandBuffer commandBuffer) const override;
-    void pushExtraCommandBuffer(const std::vector<VkCommandBuffer>& commandBuffers) const override;
 
 private:
     void init(const glm::vec<2, int>& size);
@@ -87,21 +75,15 @@ private:
 
     void createFramebuffer();
 
-    void createCommandBuffer();
-    void createCommandPool();
-
     fge::vulkan::TextureImage g_textureImage;
 
     VkRenderPass g_renderPass;
 
     VkFramebuffer g_framebuffer;
 
-    VkCommandPool g_commandPool;
     std::vector<VkCommandBuffer> g_commandBuffers;
 
-    mutable uint32_t g_currentFrame;
-
-    mutable std::vector<VkCommandBuffer> g_extraCommandBuffers;
+    uint32_t g_currentFrame;
 
     bool g_isCreated;
 };

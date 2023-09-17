@@ -118,11 +118,11 @@ DescriptorSet& DescriptorSet::operator=(DescriptorSet&& r) noexcept
 {
     return this->g_pool;
 }
-[[nodiscard]] const Context* DescriptorSet::getContext() const
+[[nodiscard]] Context const* DescriptorSet::getContext() const
 {
     if (this->g_pool != nullptr)
     {
-        return this->g_pool->getContext();
+        return &this->g_pool->getContext();
     }
     return nullptr;
 }
@@ -174,7 +174,7 @@ void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size
         }
     }
 
-    vkUpdateDescriptorSets(this->g_pool->getContext()->getLogicalDevice().getDevice(), descriptorWrites.size(),
+    vkUpdateDescriptorSets(this->g_pool->getContext().getLogicalDevice().getDevice(), descriptorWrites.size(),
                            descriptorWrites.data(), 0, nullptr);
 }
 

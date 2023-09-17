@@ -30,7 +30,7 @@ Event::Event(SDL_Window* window)
     SDL_GetWindowPosition(window, &this->g_windowPosition.x, &this->g_windowPosition.y);
 }
 Event::Event(const fge::RenderWindow& renderWindow) :
-        Event(renderWindow.getContext()->getInstance().getWindow())
+        Event(renderWindow.getContext().getInstance().getWindow())
 {}
 #endif //FGE_DEF_SERVER
 

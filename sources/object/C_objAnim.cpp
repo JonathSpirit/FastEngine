@@ -20,22 +20,22 @@ namespace fge
 {
 
 ObjAnimation::ObjAnimation() :
+        g_vertices(fge::vulkan::GetActiveContext()),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
 
         g_paused(false)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-                            fge::vulkan::BufferTypes::LOCAL);
+    this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
     this->setTextureRect(this->g_animation);
 }
 ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
+        g_vertices(fge::vulkan::GetActiveContext()),
         g_animation(animation),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
 
         g_paused(false)
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-                            fge::vulkan::BufferTypes::LOCAL);
+    this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
     this->setPosition(position);
     this->setTextureRect(this->g_animation);
 }

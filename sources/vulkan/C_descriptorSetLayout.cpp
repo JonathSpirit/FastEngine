@@ -15,23 +15,22 @@
  */
 
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
-#include <stdexcept>
 
 namespace fge::vulkan
 {
 
-DescriptorSetLayout::DescriptorSetLayout() :
-        g_descriptorSetLayout(VK_NULL_HANDLE),
-        g_context(nullptr)
+DescriptorSetLayout::DescriptorSetLayout(Context const& context) :
+        ContextAware(context),
+        g_descriptorSetLayout(VK_NULL_HANDLE)
 {}
 DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& r) noexcept :
+        ContextAware(static_cast<ContextAware&&>(r)),
         g_descriptorSetLayout(r.g_descriptorSetLayout),
-        g_bindings(std::move(r.g_bindings)),
-        g_context(r.g_context)
+        g_bindings(std::move(r.g_bindings))
 {
     r.g_descriptorSetLayout = VK_NULL_HANDLE;
-    r.g_context = nullptr;
 }
 DescriptorSetLayout::~DescriptorSetLayout()
 {
@@ -40,20 +39,19 @@ DescriptorSetLayout::~DescriptorSetLayout()
 
 DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& r) noexcept
 {
+    this->verifyContext(r);
+
     this->destroy();
 
     this->g_bindings = std::move(r.g_bindings);
-    this->g_context = r.g_context;
     this->g_descriptorSetLayout = r.g_descriptorSetLayout;
 
     r.g_descriptorSetLayout = VK_NULL_HANDLE;
-    r.g_context = nullptr;
 
     return *this;
 }
 
-void DescriptorSetLayout::create(const Context& context,
-                                 std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
+void DescriptorSetLayout::create(std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
                                  VkDescriptorBindingFlagsEXT const* bindingFlags)
 {
     this->destroy();
@@ -64,7 +62,6 @@ void DescriptorSetLayout::create(const Context& context,
     }
 
     this->g_bindings = bindings;
-    this->g_context = &context;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -81,21 +78,20 @@ void DescriptorSetLayout::create(const Context& context,
         layoutInfo.pNext = &bindingFlagsInfo;
     }
 
-    if (vkCreateDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), &layoutInfo, nullptr,
+    if (vkCreateDescriptorSetLayout(this->getContext().getLogicalDevice().getDevice(), &layoutInfo, nullptr,
                                     &this->g_descriptorSetLayout) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create descriptor set layout!");
+        throw fge::Exception("failed to create descriptor set layout!");
     }
 }
 void DescriptorSetLayout::destroy()
 {
     if (this->g_descriptorSetLayout != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorSetLayout(this->g_context->getLogicalDevice().getDevice(), this->g_descriptorSetLayout,
+        vkDestroyDescriptorSetLayout(this->getContext().getLogicalDevice().getDevice(), this->g_descriptorSetLayout,
                                      nullptr);
         this->g_descriptorSetLayout = VK_NULL_HANDLE;
         this->g_bindings.clear();
-        this->g_context = nullptr;
     }
 }
 
@@ -110,10 +106,6 @@ const std::vector<VkDescriptorSetLayoutBinding>& DescriptorSetLayout::getBinding
 std::size_t DescriptorSetLayout::getBindingsCount() const
 {
     return this->g_bindings.size();
-}
-const Context* DescriptorSetLayout::getContext() const
-{
-    return this->g_context;
 }
 
 } // namespace fge::vulkan

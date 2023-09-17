@@ -15,9 +15,9 @@
  */
 
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <stdexcept>
 #include <vector>
 
 namespace fge::vulkan
@@ -111,7 +111,7 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 
     if (vkCreateDevice(physicalDevice.getDevice(), &createInfo, nullptr, &this->g_device) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create logical device!");
+        throw fge::Exception("failed to create logical device!");
     }
 
     vkGetDeviceQueue(this->g_device, indices._graphicsFamily.value(), 0, &this->g_graphicQueue);

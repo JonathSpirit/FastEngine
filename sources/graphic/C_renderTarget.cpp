@@ -28,8 +28,8 @@ namespace fge
 namespace
 {
 
-void DefaultGraphicPipelineWithTexture_constructor(const fge::vulkan::Context* context,
-                                                   const fge::RenderTarget::GraphicPipelineKey& key,
+void DefaultGraphicPipelineWithTexture_constructor(fge::vulkan::Context const& context,
+                                                   fge::RenderTarget::GraphicPipelineKey const& key,
                                                    fge::vulkan::GraphicPipeline* graphicPipeline)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
@@ -38,10 +38,10 @@ void DefaultGraphicPipelineWithTexture_constructor(const fge::vulkan::Context* c
     graphicPipeline->setPrimitiveTopology(key._topology);
 
     graphicPipeline->setDescriptorSetLayouts(
-            {context->getTransformLayout().getLayout(), context->getTextureLayout().getLayout()});
+            {context.getTransformLayout().getLayout(), context.getTextureLayout().getLayout()});
 }
-void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
-                                        const fge::RenderTarget::GraphicPipelineKey& key,
+void DefaultGraphicPipeline_constructor(fge::vulkan::Context const& context,
+                                        fge::RenderTarget::GraphicPipelineKey const& key,
                                         fge::vulkan::GraphicPipeline* graphicPipeline)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
@@ -49,7 +49,7 @@ void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
 
-    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout()});
+    graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout()});
 }
 
 } // end namespace
@@ -57,8 +57,8 @@ void DefaultGraphicPipeline_constructor(const fge::vulkan::Context* context,
 const fge::vulkan::TextureImage* RenderTarget::gLastTexture = nullptr;
 
 RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
+        fge::vulkan::ContextAware(context),
         _g_clearColor(fge::Color::White),
-        _g_context(&context),
         _g_forceGraphicPipelineUpdate(false)
 {}
 
@@ -70,36 +70,36 @@ void RenderTarget::initialize()
 }
 
 RenderTarget::RenderTarget(const RenderTarget& r) :
+        fge::vulkan::ContextAware(r),
         g_defaultView(r.g_defaultView),
         g_view(r.g_view),
         _g_clearColor(r._g_clearColor),
-        _g_context(r._g_context),
         _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate)
 {}
 RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
+        fge::vulkan::ContextAware(static_cast<fge::vulkan::ContextAware&&>(r)),
         g_defaultView(r.g_defaultView),
         g_view(r.g_view),
         _g_clearColor(r._g_clearColor),
-        _g_context(r._g_context),
         _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate),
         _g_graphicPipelineCache(std::move(r._g_graphicPipelineCache))
 {}
 
 RenderTarget& RenderTarget::operator=(const RenderTarget& r)
 {
+    this->verifyContext(r);
     this->g_defaultView = r.g_defaultView;
     this->g_view = r.g_view;
     this->_g_clearColor = r._g_clearColor;
-    this->_g_context = r._g_context;
     this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
     return *this;
 }
 RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
 {
+    this->verifyContext(r);
     this->g_defaultView = r.g_defaultView;
     this->g_view = r.g_view;
     this->_g_clearColor = r._g_clearColor;
-    this->_g_context = r._g_context;
     this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
     this->_g_graphicPipelineCache = std::move(r._g_graphicPipelineCache);
     return *this;
@@ -361,16 +361,8 @@ void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::Grap
     }
 }
 
-void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] VkCommandBuffer commandBuffer) const {}
-void RenderTarget::pushExtraCommandBuffer([[maybe_unused]] const std::vector<VkCommandBuffer>& commandBuffers) const {}
-
-const fge::vulkan::Context* RenderTarget::getContext() const
-{
-    return this->_g_context;
-}
-
 bool RenderTarget::isSrgb() const
-{
+{ //TODO: maybe delete that
     return false;
 }
 
@@ -393,11 +385,11 @@ fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view 
     }
     else
     {
-        graphicPipeline = &itName->second.emplace(key, fge::vulkan::GraphicPipeline{*this->_g_context}).first->second;
+        graphicPipeline = &itName->second.emplace(key, fge::vulkan::GraphicPipeline{this->getContext()}).first->second;
 
         if (constructor != nullptr)
         {
-            constructor(this->_g_context, key, graphicPipeline);
+            constructor(this->getContext(), key, graphicPipeline);
         }
     }
 

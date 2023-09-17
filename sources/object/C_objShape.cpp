@@ -24,8 +24,8 @@ namespace
 {
 
 #ifndef FGE_DEF_SERVER
-void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
-                                      const fge::RenderTarget::GraphicPipelineKey& key,
+void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
+                                      fge::RenderTarget::GraphicPipelineKey const& key,
                                       fge::vulkan::GraphicPipeline* graphicPipeline)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
@@ -35,14 +35,14 @@ void InstanceVertexShader_constructor(const fge::vulkan::Context* context,
 
     graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint)}});
 
-    auto& layout = context->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+    auto& layout = context.getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create(*context, {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                                        VK_SHADER_STAGE_VERTEX_BIT)});
+        layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                                              VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
-    graphicPipeline->setDescriptorSetLayouts({context->getTransformLayout().getLayout(), layout.getLayout()});
+    graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout(), layout.getLayout()});
 }
 #endif
 
@@ -158,11 +158,14 @@ RectFloat ObjShape::getGlobalBounds() const
 
 ObjShape::ObjShape() :
         g_outlineThickness(0.0f),
+        g_vertices(fge::vulkan::GetActiveContext()),
+        g_outlineVertices(fge::vulkan::GetActiveContext()),
         g_instancesCount(0),
-        g_instancesCapacity(0)
+        g_instancesCapacity(0),
+        g_instances(fge::vulkan::GetActiveContext())
 {
-    this->g_vertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
-    this->g_outlineVertices.create(*fge::vulkan::GlobalContext, 0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+    this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+    this->g_outlineVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 
     this->resizeBuffer(1);
     *this->retrieveInstance(0) = {{fge::Color::White, fge::Color::White}, {0.0f, 0.0f}};
@@ -176,6 +179,7 @@ ObjShape::ObjShape(const ObjShape& r) :
         g_outlineVertices(r.g_outlineVertices),
         g_instancesCount(0),
         g_instancesCapacity(0),
+        g_instances(r.g_instances.getContext()),
         g_insideBounds(r.g_insideBounds),
         g_bounds(r.g_bounds)
 {
@@ -378,21 +382,20 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
     this->g_instancesCapacity = size;
-    this->g_instances.create(*fge::vulkan::GlobalContext,
-                             static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
+    this->g_instances.create(static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
 
 #ifndef FGE_DEF_SERVER
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
-        auto& layout = fge::vulkan::GlobalContext->getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+        auto& layout = fge::vulkan::GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
         if (layout.getLayout() == VK_NULL_HANDLE)
         {
-            layout.create(*fge::vulkan::GlobalContext,
-                          {fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+            layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                                                   VK_SHADER_STAGE_VERTEX_BIT)});
         }
 
-        this->g_descriptorSet = fge::vulkan::GlobalContext->getMultiUseDescriptorPool()
+        this->g_descriptorSet = fge::vulkan::GetActiveContext()
+                                        .getMultiUseDescriptorPool()
                                         .allocateDescriptorSet(layout.getLayout())
                                         .value();
     }

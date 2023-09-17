@@ -18,6 +18,7 @@
 #define _FGE_VULKAN_C_UNIFORMBUFFER_HPP_INCLUDED
 
 #include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_vulkan.h"
 #include <cstdint>
@@ -28,28 +29,24 @@
 namespace fge::vulkan
 {
 
-class Context;
-
-class FGE_API UniformBuffer
+class FGE_API UniformBuffer : public ContextAware
 {
 public:
-    UniformBuffer();
+    explicit UniformBuffer(Context const& context);
     UniformBuffer(const UniformBuffer& r);
     UniformBuffer(UniformBuffer&& r) noexcept;
-    ~UniformBuffer();
+    ~UniformBuffer() override;
 
     UniformBuffer& operator=(const UniformBuffer& r) = delete;     ///TODO
     UniformBuffer& operator=(UniformBuffer&& r) noexcept = delete; ///TODO
 
-    void create(const Context& context, VkDeviceSize bufferSize, bool isStorageBuffer = false);
-    void destroy();
+    void create(VkDeviceSize bufferSize, bool isStorageBuffer = false);
+    void destroy() final;
 
     [[nodiscard]] VkBuffer getBuffer() const;
     [[nodiscard]] VmaAllocation getBufferAllocation() const;
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
-
-    [[nodiscard]] const Context* getContext() const;
 
     void copyData(const void* data, std::size_t size) const;
 
@@ -62,8 +59,6 @@ private:
 #else
     mutable std::vector<uint8_t> g_uniformBuffer;
 #endif
-
-    const Context* g_context;
 };
 
 } // namespace fge::vulkan

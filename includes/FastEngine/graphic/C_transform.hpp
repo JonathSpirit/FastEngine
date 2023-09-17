@@ -39,7 +39,7 @@ struct TransformUboData
 class FGE_API Transform
 {
 public:
-    explicit Transform(const fge::vulkan::Context& context = *fge::vulkan::GlobalContext);
+    explicit Transform(const fge::vulkan::Context& context = fge::vulkan::GetActiveContext());
     Transform(const Transform& r);
     Transform(Transform&& r) noexcept = default;
     ~Transform();
