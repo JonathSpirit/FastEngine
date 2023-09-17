@@ -61,7 +61,7 @@ UniformBuffer::~UniformBuffer()
 
 void UniformBuffer::create(VkDeviceSize bufferSize, [[maybe_unused]] bool isStorageBuffer)
 {
-    if (bufferSize == 0)
+    if (static_cast<std::size_t>(bufferSize) == 0)
     {
         this->destroy();
         return;
