@@ -42,7 +42,11 @@ int ResizeCallback(void* userdata, SDL_Event* event)
 } // namespace
 
 RenderWindow::RenderWindow(const fge::vulkan::Context& context) :
-        RenderTarget(context)
+        RenderTarget(context),
+        g_commandBuffers({VK_NULL_HANDLE}),
+        g_imageAvailableSemaphores({VK_NULL_HANDLE}),
+        g_renderFinishedSemaphores({VK_NULL_HANDLE}),
+        g_inFlightFences({VK_NULL_HANDLE})
 {
     this->init();
     this->initialize();
@@ -284,7 +288,6 @@ void RenderWindow::init()
     this->createFramebuffers();
 
     //create command buffers
-    this->g_commandBuffers.resize(FGE_MAX_FRAMES_IN_FLIGHT);
     this->getContext().allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->g_commandBuffers.data(),
                                                       this->g_commandBuffers.size());
 
@@ -404,10 +407,6 @@ void RenderWindow::createFramebuffers()
 
 void RenderWindow::createSyncObjects()
 {
-    this->g_imageAvailableSemaphores.resize(FGE_MAX_FRAMES_IN_FLIGHT);
-    this->g_renderFinishedSemaphores.resize(FGE_MAX_FRAMES_IN_FLIGHT);
-    this->g_inFlightFences.resize(FGE_MAX_FRAMES_IN_FLIGHT);
-
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 

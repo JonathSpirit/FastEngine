@@ -31,6 +31,7 @@
 #include "FastEngine/vulkan/C_swapChain.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
 #include "FastEngine/vulkan/C_uniformBuffer.hpp"
+#include <array>
 #include <string>
 
 namespace fge
@@ -81,7 +82,7 @@ private:
 
     VkFramebuffer g_framebuffer;
 
-    std::vector<VkCommandBuffer> g_commandBuffers;
+    std::array<VkCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT> g_commandBuffers;
 
     uint32_t g_currentFrame;
 

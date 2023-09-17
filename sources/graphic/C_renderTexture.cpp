@@ -28,6 +28,7 @@ RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Co
         g_textureImage(context),
         g_renderPass(VK_NULL_HANDLE),
         g_framebuffer(VK_NULL_HANDLE),
+        g_commandBuffers({VK_NULL_HANDLE}),
         g_currentFrame(0),
         g_isCreated(false)
 {
@@ -218,7 +219,6 @@ void RenderTexture::init(const glm::vec<2, int>& size)
     this->createFramebuffer();
 
     //create command buffers
-    this->g_commandBuffers.resize(FGE_MAX_FRAMES_IN_FLIGHT);
     this->getContext().allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->g_commandBuffers.data(),
                                                       this->g_commandBuffers.size());
 }

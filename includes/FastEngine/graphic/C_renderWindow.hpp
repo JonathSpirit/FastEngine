@@ -31,6 +31,7 @@
 #include "FastEngine/vulkan/C_swapChain.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
 #include "FastEngine/vulkan/C_uniformBuffer.hpp"
+#include <array>
 #include <string>
 
 namespace fge
@@ -90,11 +91,11 @@ private:
 
     std::vector<VkFramebuffer> g_swapChainFramebuffers;
 
-    std::vector<VkCommandBuffer> g_commandBuffers;
+    std::array<VkCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT> g_commandBuffers;
 
-    std::vector<VkSemaphore> g_imageAvailableSemaphores;
-    std::vector<VkSemaphore> g_renderFinishedSemaphores;
-    std::vector<VkFence> g_inFlightFences;
+    std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_imageAvailableSemaphores;
+    std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_renderFinishedSemaphores;
+    std::array<VkFence, FGE_MAX_FRAMES_IN_FLIGHT> g_inFlightFences;
 
     uint32_t g_currentFrame = 0;
 
