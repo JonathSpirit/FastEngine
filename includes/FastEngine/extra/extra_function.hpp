@@ -36,6 +36,19 @@ namespace fge
 
 using Quad = std::array<fge::Vector2f, 4>;
 
+struct Line
+{
+    fge::Vector2f _start;
+    fge::Vector2f _end;
+};
+
+struct Intersection
+{
+    fge::Vector2f _point;
+    float _normA;
+    float _normB;
+};
+
 enum TurnMode
 {
     TURN_CLOCKWISE,
@@ -90,6 +103,7 @@ FGE_API bool IsPressed(const fge::Event& evt,
 #endif //FGE_DEF_SERVER
 
 FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
+FGE_API std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB);
 
 ///Position/Rectangle
 template<typename T>
