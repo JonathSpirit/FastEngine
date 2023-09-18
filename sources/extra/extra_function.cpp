@@ -455,6 +455,25 @@ bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
 
     return std::abs(computedArea - area) <= 0.001f;
 }
+bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB)
+{
+    //Checking all lines intersection
+    for (std::size_t ia = 0; ia < quadA.size(); ++ia)
+    {
+        fge::Line const lineA{quadA[ia], quadA[(ia + 1) % quadA.size()]};
+        for (std::size_t ib = 0; ib < quadB.size(); ++ib)
+        {
+            fge::Line const lineB{quadB[ib], quadB[(ib + 1) % quadB.size()]};
+            if (fge::CheckIntersection(lineA, lineB))
+            {
+                return true;
+            }
+        }
+    }
+
+    //Great nothing intersect but the quadB can always be completely inside quadA
+    return fge::IsContained(quadA, quadB[0]); //We take a point of quadB to check if it is inside quadA
+}
 std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB)
 {
     /*

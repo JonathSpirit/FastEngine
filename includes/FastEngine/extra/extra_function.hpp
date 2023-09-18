@@ -103,6 +103,7 @@ FGE_API bool IsPressed(const fge::Event& evt,
 #endif //FGE_DEF_SERVER
 
 FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
+FGE_API bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB);
 FGE_API std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB);
 
 ///Position/Rectangle
