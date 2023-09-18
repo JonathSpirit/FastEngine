@@ -119,6 +119,8 @@ inline fge::Vector2f GetSegmentNormal(fge::Vector2f const& vec1, fge::Vector2f c
 inline constexpr float GetAngle(fge::Vector2f const& vec);
 inline constexpr float GetAngleBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
 inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+inline float
+GetShortestDistanceBetween(fge::Vector2f const& point, fge::Vector2f const& lineStart, fge::Vector2f const& lineEnd);
 
 template<typename TIterator>
 TIterator GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TIterator const& pointsEnd);

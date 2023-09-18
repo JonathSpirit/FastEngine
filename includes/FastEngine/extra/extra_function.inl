@@ -129,6 +129,13 @@ inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& 
 {
     return glm::length(vec2 - vec1);
 }
+inline float
+GetShortestDistanceBetween(fge::Vector2f const& point, fge::Vector2f const& lineStart, fge::Vector2f const& lineEnd)
+{
+    auto normalDir = glm::normalize(lineEnd - lineStart);
+    return std::abs((normalDir.y * (point.x - lineStart.x) - normalDir.x * (point.y - lineStart.y)) /
+                    (normalDir.x * normalDir.x + normalDir.y * normalDir.y));
+}
 
 template<typename TIterator>
 TIterator GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TIterator const& pointsEnd)
