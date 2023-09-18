@@ -16,6 +16,7 @@
 
 #include "FastEngine/extra/extra_function.hpp"
 
+#include "glm/gtx/perpendicular.hpp"
 #include "re2.h"
 #include <cmath>
 #include <filesystem>
@@ -443,21 +444,26 @@ bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
     auto normalDir3 = glm::normalize(base3);
     auto normalDir4 = glm::normalize(base4);
 
-    auto distance1 = std::abs((normalDir1.y * (point.x - quad[0].x) - normalDir1.x * (point.y - quad[0].y)) / (normalDir1.x*normalDir1.x + normalDir1.y*normalDir1.y));
-    auto distance2 = std::abs((normalDir2.y * (point.x - quad[1].x) - normalDir2.x * (point.y - quad[1].y)) / (normalDir2.x*normalDir2.x + normalDir2.y*normalDir2.y));
-    auto distance3 = std::abs((normalDir3.y * (point.x - quad[2].x) - normalDir3.x * (point.y - quad[2].y)) / (normalDir3.x*normalDir3.x + normalDir3.y*normalDir3.y));
-    auto distance4 = std::abs((normalDir4.y * (point.x - quad[3].x) - normalDir4.x * (point.y - quad[3].y)) / (normalDir4.x*normalDir4.x + normalDir4.y*normalDir4.y));
+    auto distance1 = std::abs((normalDir1.y * (point.x - quad[0].x) - normalDir1.x * (point.y - quad[0].y)) /
+                              (normalDir1.x * normalDir1.x + normalDir1.y * normalDir1.y));
+    auto distance2 = std::abs((normalDir2.y * (point.x - quad[1].x) - normalDir2.x * (point.y - quad[1].y)) /
+                              (normalDir2.x * normalDir2.x + normalDir2.y * normalDir2.y));
+    auto distance3 = std::abs((normalDir3.y * (point.x - quad[2].x) - normalDir3.x * (point.y - quad[2].y)) /
+                              (normalDir3.x * normalDir3.x + normalDir3.y * normalDir3.y));
+    auto distance4 = std::abs((normalDir4.y * (point.x - quad[3].x) - normalDir4.x * (point.y - quad[3].y)) /
+                              (normalDir4.x * normalDir4.x + normalDir4.y * normalDir4.y));
 
-    auto computedArea = (glm::length(base1) * distance1 +
-                         glm::length(base2) * distance2 +
-                         glm::length(base3) * distance3 +
-                         glm::length(base4) * distance4) / 2.0f;
+    auto computedArea = (glm::length(base1) * distance1 + glm::length(base2) * distance2 +
+                         glm::length(base3) * distance3 + glm::length(base4) * distance4) /
+                        2.0f;
 
     auto base = quad[1] - quad[3];
     auto normalDir = glm::normalize(base);
 
-    distance1 = std::abs((normalDir.y * (quad[0].x - quad[3].x) - normalDir.x * (quad[0].y - quad[3].y)) / (normalDir.x*normalDir.x + normalDir.y*normalDir.y));
-    distance2 = std::abs((normalDir.y * (quad[2].x - quad[3].x) - normalDir.x * (quad[2].y - quad[3].y)) / (normalDir.x*normalDir.x + normalDir.y*normalDir.y));
+    distance1 = std::abs((normalDir.y * (quad[0].x - quad[3].x) - normalDir.x * (quad[0].y - quad[3].y)) /
+                         (normalDir.x * normalDir.x + normalDir.y * normalDir.y));
+    distance2 = std::abs((normalDir.y * (quad[2].x - quad[3].x) - normalDir.x * (quad[2].y - quad[3].y)) /
+                         (normalDir.x * normalDir.x + normalDir.y * normalDir.y));
 
     auto area = (glm::length(base) * distance1 + glm::length(base) * distance2) / 2.0f;
 
@@ -468,7 +474,7 @@ bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
 fge::Vector2f ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime)
 {
     float travelDistance = speed * deltaTime;
-    fge::Vector2f direction = fge::NormalizeVector2(target - position);
+    fge::Vector2f direction = glm::normalize(target - position);
     float actualDistance = fge::GetDistanceBetween(position, target);
 
     if (travelDistance >= actualDistance)
@@ -560,67 +566,7 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
 }
 
 ///2D Math
-float ConvertRadToDeg(float rad)
-{
-    return static_cast<float>(std::fmod((rad * 180.0f / static_cast<float>(FGE_MATH_PI)) + 360.0f, 360.0f));
-}
-float ConvertDegToRad(float deg)
-{
-    return deg * static_cast<float>(FGE_MATH_PI) / 180.0f;
-}
-
-float GetDeterminant(const fge::Vector2f& vecCol1, const fge::Vector2f& vecCol2)
-{
-    return vecCol1.x * vecCol2.y - vecCol1.y * vecCol2.x;
-}
-float GetDotProduct(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
-{
-    return vec1.x * vec2.x + vec1.y * vec2.y;
-}
-float GetMagnitude(const fge::Vector2f& vec)
-{
-    return std::sqrt(vec.x * vec.x + vec.y * vec.y);
-}
-fge::Vector2f GetNormal(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
-{
-    const fge::Vector2f normal(vec1.y - vec2.y, vec2.x - vec1.x);
-    return normal / std::sqrt(normal.x * normal.x + normal.y * normal.y);
-}
-float GetRotation(const fge::Vector2f& vec)
-{
-    return fge::ConvertRadToDeg(std::atan2(vec.y, vec.x));
-}
-float GetRotationBetween(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
-{
-    return fge::ConvertRadToDeg(std::atan2(fge::GetDeterminant(vec1, vec2), fge::GetDotProduct(vec1, vec2)));
-}
-float GetDistanceBetween(const fge::Vector2f& pos1, const fge::Vector2f& pos2)
-{
-    return fge::GetMagnitude(pos2 - pos1);
-}
-
-fge::Vector2f GetForwardVector(float rotation)
-{
-    rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return {std::cos(rotation), std::sin(rotation)};
-}
-fge::Vector2f GetBackwardVector(float rotation)
-{
-    rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return -fge::Vector2f(std::cos(rotation), std::sin(rotation));
-}
-fge::Vector2f GetLeftVector(float rotation)
-{
-    rotation = (rotation - 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return {std::cos(rotation), std::sin(rotation)};
-}
-fge::Vector2f GetRightVector(float rotation)
-{
-    rotation = (rotation + 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return {std::cos(rotation), std::sin(rotation)};
-}
-
-void GetConvexHull(const std::vector<fge::Vector2f>& input, std::vector<fge::Vector2f>& output)
+void GetConvexHull(std::vector<fge::Vector2f> const& input, std::vector<fge::Vector2f>& output)
 {
     std::size_t n = input.size();
     std::size_t k = 0;

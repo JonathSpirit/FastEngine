@@ -109,21 +109,36 @@ T ReachValue(T value, T target, T speed, float deltaTime)
 }
 
 ///2D Math
-template<typename T>
-fge::Vector2f NormalizeVector2(const fge::Vector2<T>& vec)
+inline constexpr float Cross2d(fge::Vector2f const& vec1, fge::Vector2f const& vec2)
 {
-    return vec / std::sqrt(vec.x * vec.x + vec.y * vec.y);
+    return glm::cross(fge::Vector3f{vec1, 0.0f}, fge::Vector3f{vec2, 0.0f}).z;
+}
+inline fge::Vector2f GetSegmentNormal(fge::Vector2f const& vec1, fge::Vector2f const& vec2)
+{
+    return glm::normalize(fge::Vector2f{vec1.y - vec2.y, vec2.x - vec1.x});
+}
+inline constexpr float GetAngle(fge::Vector2f const& vec)
+{
+    return glm::degrees(std::atan2(vec.y, vec.x));
+}
+inline constexpr float GetAngleBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2)
+{
+    return glm::degrees(std::atan2(fge::Cross2d(vec1, vec2), glm::dot(vec1, vec2)));
+}
+inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2)
+{
+    return glm::length(vec2 - vec1);
 }
 
 template<typename TIterator>
-TIterator GetNearestVector(const fge::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd)
+TIterator GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TIterator const& pointsEnd)
 {
     TIterator bestNearestPoint = pointsEnd;
     float bestNearestDistance;
 
     for (TIterator it = pointsBegin; it != pointsEnd; ++it)
     {
-        float distance = fge::GetDistanceBetween(vec, *it);
+        float distance = fge::GetDistanceBetween(point, *it);
         if (bestNearestPoint == pointsEnd)
         {
             bestNearestPoint = it;
@@ -142,51 +157,47 @@ TIterator GetNearestVector(const fge::Vector2f& vec, const TIterator& pointsBegi
     return bestNearestPoint;
 }
 
-///Color
-fge::Color SetAlpha(const fge::Color& color, uint8_t alpha)
+inline constexpr fge::Vector2f GetForwardVector(float angle)
 {
-    fge::Color buff(color);
-    buff._a = alpha;
-    return buff;
+    angle = glm::radians(angle);
+    return {std::cos(angle), std::sin(angle)};
 }
-fge::Color SetRed(const fge::Color& color, uint8_t red)
+inline constexpr fge::Vector2f GetBackwardVector(float angle)
 {
-    fge::Color buff(color);
-    buff._r = red;
-    return buff;
+    angle = glm::radians(angle);
+    return -fge::Vector2f{std::cos(angle), std::sin(angle)};
 }
-fge::Color SetGreen(const fge::Color& color, uint8_t green)
+inline constexpr fge::Vector2f GetLeftVector(float angle)
 {
-    fge::Color buff(color);
-    buff._g = green;
-    return buff;
+    angle = glm::radians(angle - 90.0f);
+    return {std::cos(angle), std::sin(angle)};
 }
-fge::Color SetBlue(const fge::Color& color, uint8_t blue)
+inline constexpr fge::Vector2f GetRightVector(float angle)
 {
-    fge::Color buff(color);
-    buff._b = blue;
-    return buff;
+    angle = glm::radians(angle + 90.0f);
+    return {std::cos(angle), std::sin(angle)};
 }
 
-fge::Color&& SetAlpha(fge::Color&& color, uint8_t alpha)
+///Color
+inline fge::Color SetAlpha(fge::Color color, uint8_t alpha)
 {
     color._a = alpha;
-    return std::move(color);
+    return color;
 }
-fge::Color&& SetRed(fge::Color&& color, uint8_t red)
+inline fge::Color SetRed(fge::Color color, uint8_t red)
 {
     color._r = red;
-    return std::move(color);
+    return color;
 }
-fge::Color&& SetGreen(fge::Color&& color, uint8_t green)
+inline fge::Color SetGreen(fge::Color color, uint8_t green)
 {
     color._g = green;
-    return std::move(color);
+    return color;
 }
-fge::Color&& SetBlue(fge::Color&& color, uint8_t blue)
+inline fge::Color SetBlue(fge::Color color, uint8_t blue)
 {
     color._b = blue;
-    return std::move(color);
+    return color;
 }
 
 ///Time

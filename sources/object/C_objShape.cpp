@@ -317,16 +317,16 @@ void ObjShape::updateOutline()
         const fge::Vector2f p2 = this->g_vertices[index + 1]._position;
 
         // Compute their normal
-        fge::Vector2f n1 = fge::GetNormal(p0, p1);
-        fge::Vector2f n2 = fge::GetNormal(p1, p2);
+        fge::Vector2f n1 = fge::GetSegmentNormal(p0, p1);
+        fge::Vector2f n2 = fge::GetSegmentNormal(p1, p2);
 
         // Make sure that the normals point towards the outside of the shape
         // (this depends on the order in which the points were defined)
-        if (fge::GetDotProduct(n1, this->g_vertices[0]._position - p1) > 0)
+        if (glm::dot(n1, this->g_vertices[0]._position - p1) > 0)
         {
             n1 = -n1;
         }
-        if (fge::GetDotProduct(n2, this->g_vertices[0]._position - p1) > 0)
+        if (glm::dot(n2, this->g_vertices[0]._position - p1) > 0)
         {
             n2 = -n2;
         }
