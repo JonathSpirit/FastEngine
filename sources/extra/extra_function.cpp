@@ -453,7 +453,7 @@ bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
 
     auto area = (base * distance1 + base * distance2) / 2.0f;
 
-    return std::abs(computedArea - area) <= 0.001f;
+    return std::abs(computedArea - area) / std::max(computedArea, area) <= 0.02f;
 }
 bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB)
 {
@@ -472,7 +472,8 @@ bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB)
     }
 
     //Great nothing intersect but the quadB can always be completely inside quadA
-    return fge::IsContained(quadA, quadB[0]); //We take a point of quadB to check if it is inside quadA
+    //(or the opposite)
+    return fge::IsContained(quadA, quadB[0]) || fge::IsContained(quadB, quadA[0]);
 }
 std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB)
 {
@@ -513,7 +514,8 @@ std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::
     }
 
     //Make sure that there is actually an intersection
-    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normA < glm::length(lineA._end - lineA._start)))
+    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normA < glm::length(lineA._end - lineA._start)) &&
+        (result._normB < glm::length(lineB._end - lineB._start)))
     {
         result._point = lineA._start + directionA * result._normA;
         return result;
