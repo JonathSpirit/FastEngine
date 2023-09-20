@@ -247,7 +247,7 @@ void GraphicPipeline::setDescriptorSetLayouts(std::initializer_list<VkDescriptor
     this->g_descriptorSetLayouts = descriptorSetLayouts;
     this->g_needUpdate = true;
 }
-const std::vector<VkDescriptorSetLayout>& GraphicPipeline::getDescriptorSetLayouts() const
+std::vector<VkDescriptorSetLayout> const& GraphicPipeline::getDescriptorSetLayouts() const
 {
     return this->g_descriptorSetLayouts;
 }
@@ -277,7 +277,7 @@ void GraphicPipeline::clearShader(Shader::Type type)
     }
     this->g_needUpdate = true;
 }
-void GraphicPipeline::setShader(const Shader& shader)
+void GraphicPipeline::setShader(Shader const& shader)
 {
     switch (shader.getType())
     {
@@ -301,7 +301,7 @@ void GraphicPipeline::setShader(const Shader& shader)
         break;
     }
 }
-const Shader* GraphicPipeline::getShader(Shader::Type type) const
+Shader const* GraphicPipeline::getShader(Shader::Type type) const
 {
     switch (type)
     {
@@ -318,12 +318,12 @@ const Shader* GraphicPipeline::getShader(Shader::Type type) const
     }
 }
 
-void GraphicPipeline::setBlendMode(const BlendMode& blendMode)
+void GraphicPipeline::setBlendMode(BlendMode const& blendMode)
 {
     this->g_blendMode = blendMode;
     this->g_needUpdate = true;
 }
-const BlendMode& GraphicPipeline::getBlendMode() const
+BlendMode const& GraphicPipeline::getBlendMode() const
 {
     return this->g_blendMode;
 }
@@ -347,11 +347,11 @@ uint32_t GraphicPipeline::getDefaultVertexCount() const
     return this->g_defaultVertexCount;
 }
 
-void GraphicPipeline::setScissor(const VkRect2D& scissor) const
+void GraphicPipeline::setScissor(VkRect2D const& scissor) const
 {
     this->g_scissor = scissor;
 }
-const VkRect2D& GraphicPipeline::getScissor() const
+VkRect2D const& GraphicPipeline::getScissor() const
 {
     return this->g_scissor;
 }
@@ -362,15 +362,15 @@ void GraphicPipeline::setPushConstantRanges(std::initializer_list<VkPushConstant
     this->g_pushConstantRanges = pushConstantRanges;
     this->g_needUpdate = true;
 }
-const std::vector<VkPushConstantRange>& GraphicPipeline::getPushConstantRanges() const
+std::vector<VkPushConstantRange> const& GraphicPipeline::getPushConstantRanges() const
 {
     return this->g_pushConstantRanges;
 }
 
 void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
-                                          const Viewport& viewport,
-                                          const VertexBuffer* vertexBuffer,
-                                          const IndexBuffer* indexBuffer) const
+                                          Viewport const& viewport,
+                                          VertexBuffer const* vertexBuffer,
+                                          IndexBuffer const* indexBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
@@ -396,9 +396,9 @@ void GraphicPipeline::recordCommandBuffer(VkCommandBuffer commandBuffer,
     }
 }
 void GraphicPipeline::recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
-                                                     const Viewport& viewport,
-                                                     const VertexBuffer* vertexBuffer,
-                                                     const IndexBuffer* indexBuffer) const
+                                                     Viewport const& viewport,
+                                                     VertexBuffer const* vertexBuffer,
+                                                     IndexBuffer const* indexBuffer) const
 {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
@@ -415,7 +415,7 @@ void GraphicPipeline::recordCommandBufferWithoutDraw(VkCommandBuffer commandBuff
     }
 }
 void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
-                                         const VkDescriptorSet* descriptorSet,
+                                         VkDescriptorSet const* descriptorSet,
                                          uint32_t descriptorCount,
                                          uint32_t firstSet) const
 {
@@ -424,10 +424,10 @@ void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
                             descriptorCount, descriptorSet, 0, nullptr);
 }
 void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
-                                                const VkDescriptorSet* descriptorSet,
+                                                VkDescriptorSet const* descriptorSet,
                                                 uint32_t descriptorCount,
                                                 uint32_t dynamicOffsetCount,
-                                                const uint32_t* pDynamicOffsets,
+                                                uint32_t const* pDynamicOffsets,
                                                 uint32_t firstSet) const
 {
     this->updatePipelineLayout();
@@ -439,7 +439,7 @@ void GraphicPipeline::pushConstants(VkCommandBuffer commandBuffer,
                                     VkShaderStageFlags stageFlags,
                                     uint32_t offset,
                                     uint32_t size,
-                                    const void* pValues) const
+                                    void const* pValues) const
 {
     this->updatePipelineLayout();
     vkCmdPushConstants(commandBuffer, this->g_pipelineLayout, stageFlags, offset, size, pValues);

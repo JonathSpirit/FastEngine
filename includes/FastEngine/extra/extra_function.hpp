@@ -65,14 +65,14 @@ FGE_API bool IsEngineBuiltInDebugMode();
 FGE_API bool SetSystemCursor(SDL_SystemCursor id);
 
 FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer,
-                                     const std::filesystem::path& path,
-                                     const std::string& regexFilter = ".+",
+                                     std::filesystem::path const& path,
+                                     std::string const& regexFilter = ".+",
                                      bool ignoreDirectory = true,
                                      bool onlyFilename = true,
                                      bool recursive = false);
 
 FGE_API bool SetVirtualTerminalSequenceSupport();
-FGE_API void SetConsoleCmdTitle(const char* title);
+FGE_API void SetConsoleCmdTitle(char const* title);
 
 FGE_API void* AlignedAlloc(std::size_t size, std::size_t alignment);
 FGE_API void AlignedFree(void* data);
@@ -89,16 +89,16 @@ Implementation of Austin Appleby MurmurHash2 algorithm.
 https://sites.google.com/site/murmurhash/
 public domain
 */
-FGE_API std::size_t Hash(const void* key, std::size_t len, std::size_t seed = 0xc70f6907UL);
+FGE_API std::size_t Hash(void const* key, std::size_t len, std::size_t seed = 0xc70f6907UL);
 
 ///Detection
 #ifndef FGE_DEF_SERVER
-FGE_API bool IsMouseOn(const fge::RenderTarget& target, const fge::RectFloat& zone);
-FGE_API bool IsMouseOn(const fge::Vector2f& mousePos, const fge::RectFloat& zone);
+FGE_API bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone);
+FGE_API bool IsMouseOn(fge::Vector2f const& mousePos, fge::RectFloat const& zone);
 
-FGE_API bool IsPressed(const fge::Event& evt,
-                       const fge::Vector2f& mouse_pos,
-                       const fge::RectFloat& zone,
+FGE_API bool IsPressed(fge::Event const& evt,
+                       fge::Vector2f const& mouse_pos,
+                       fge::RectFloat const& zone,
                        uint8_t button = SDL_BUTTON_LEFT);
 #endif //FGE_DEF_SERVER
 
@@ -110,11 +110,11 @@ CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction,
 
 ///Position/Rectangle
 template<typename T>
-fge::Rect<T> ToRect(const fge::Vector2<T>& pos1, const fge::Vector2<T>& pos2);
+fge::Rect<T> ToRect(fge::Vector2<T> const& pos1, fge::Vector2<T> const& pos2);
 template<typename T>
-fge::Rect<T> ToRect(const std::vector<fge::Vector2<T>>& pos);
+fge::Rect<T> ToRect(std::vector<fge::Vector2<T>> const& pos);
 template<typename T>
-fge::Rect<T> ToRect(const fge::Vector2<T>* pos, std::size_t size);
+fge::Rect<T> ToRect(fge::Vector2<T> const* pos, std::size_t size);
 
 ///Color
 inline fge::Color SetAlpha(fge::Color color, uint8_t alpha);
@@ -124,7 +124,7 @@ inline fge::Color SetBlue(fge::Color color, uint8_t blue);
 
 ///Reach
 FGE_API fge::Vector2f
-ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime);
+ReachVector(fge::Vector2f const& position, fge::Vector2f const& target, float speed, float deltaTime);
 FGE_API float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
 
 template<typename T>
@@ -155,12 +155,12 @@ Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 FGE_API void GetConvexHull(std::vector<fge::Vector2f> const& input, std::vector<fge::Vector2f>& output);
 
 ///View
-FGE_API fge::Vector2f GetViewSizePercentage(const fge::View& view, const fge::View& defaultView);
-FGE_API fge::Vector2f SetViewSizePercentage(float percentage, const fge::View& defaultView);
-FGE_API fge::Vector2f SetViewSizePercentage(const fge::Vector2f& percentage, const fge::View& defaultView);
+FGE_API fge::Vector2f GetViewSizePercentage(fge::View const& view, fge::View const& defaultView);
+FGE_API fge::Vector2f SetViewSizePercentage(float percentage, fge::View const& defaultView);
+FGE_API fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage, fge::View const& defaultView);
 
 FGE_API fge::Vector2f
-TransposePointFromAnotherView(const fge::View& pointView, const fge::Vector2f& point, const fge::View& newView);
+TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView);
 
 enum class ClipClampModes
 {
@@ -169,29 +169,29 @@ enum class ClipClampModes
     CLIP_CLAMP_PUSH,
     CLIP_CLAMP_HIDE
 };
-FGE_API fge::View ClipView(const fge::View& view,
-                           const fge::RenderTarget& target,
-                           const fge::RectFloat& worldCoordClipRect,
+FGE_API fge::View ClipView(fge::View const& view,
+                           fge::RenderTarget const& target,
+                           fge::RectFloat const& worldCoordClipRect,
                            fge::ClipClampModes clampMode);
 
 ///Render
-FGE_API fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target);
+FGE_API fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target);
 FGE_API fge::RectInt
-CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target, const fge::View& view);
-FGE_API fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target);
+CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target, fge::View const& view);
+FGE_API fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target);
 FGE_API fge::RectFloat
-PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target, const fge::View& view);
+PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge::View const& view);
 
-FGE_API fge::RectFloat GetScreenRect(const fge::RenderTarget& target);
-FGE_API fge::RectFloat GetScreenRect(const fge::RenderTarget& target, const fge::View& view);
+FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target);
+FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view);
 
 ///Time
 template<class T>
 inline float DurationToSecondFloat(T duration);
 
 ///Json
-FGE_API bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j);
-FGE_API bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth = 2);
+FGE_API bool LoadJsonFromFile(std::filesystem::path const& path, nlohmann::json& j);
+FGE_API bool SaveJsonToFile(std::filesystem::path const& path, nlohmann::json const& j, int fieldWidth = 2);
 
 } // namespace fge
 

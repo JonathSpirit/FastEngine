@@ -38,7 +38,7 @@ VertexBuffer::VertexBuffer(Context const& context) :
 
         g_primitiveTopology(FGE_VULKAN_VERTEX_DEFAULT_TOPOLOGY)
 {}
-VertexBuffer::VertexBuffer(const VertexBuffer& r) :
+VertexBuffer::VertexBuffer(VertexBuffer const& r) :
         ContextAware(r),
         g_vertices(r.g_vertices),
 
@@ -87,7 +87,7 @@ VertexBuffer::~VertexBuffer()
     this->destroy();
 }
 
-VertexBuffer& VertexBuffer::operator=(const VertexBuffer& r)
+VertexBuffer& VertexBuffer::operator=(VertexBuffer const& r)
 {
     this->verifyContext(r);
 
@@ -185,7 +185,7 @@ void VertexBuffer::resize(std::size_t vertexSize)
         this->g_needUpdate = true;
     }
 }
-void VertexBuffer::append(const Vertex& vertex)
+void VertexBuffer::append(Vertex const& vertex)
 {
     this->g_vertices.push_back(vertex);
     this->g_needUpdate = true;
@@ -228,7 +228,7 @@ Vertex* VertexBuffer::getVertices()
     this->g_needUpdate = true;
     return this->g_vertices.empty() ? nullptr : this->g_vertices.data();
 }
-const Vertex* VertexBuffer::getVertices() const
+Vertex const* VertexBuffer::getVertices() const
 {
     this->g_needUpdate = true;
     return this->g_vertices.empty() ? nullptr : this->g_vertices.data();
@@ -239,7 +239,7 @@ Vertex& VertexBuffer::operator[](std::size_t index)
     this->g_needUpdate = true;
     return this->g_vertices[index];
 }
-const Vertex& VertexBuffer::operator[](std::size_t index) const
+Vertex const& VertexBuffer::operator[](std::size_t index) const
 {
     this->g_needUpdate = true;
     return this->g_vertices[index];
@@ -426,7 +426,7 @@ IndexBuffer::IndexBuffer(Context const& context) :
 
         g_type(BufferTypes::UNINITIALIZED)
 {}
-IndexBuffer::IndexBuffer(const IndexBuffer& r) :
+IndexBuffer::IndexBuffer(IndexBuffer const& r) :
         ContextAware(r),
         g_indices(r.g_indices),
 
@@ -469,7 +469,7 @@ IndexBuffer::~IndexBuffer()
     this->destroy();
 }
 
-IndexBuffer& IndexBuffer::operator=(const IndexBuffer& r)
+IndexBuffer& IndexBuffer::operator=(IndexBuffer const& r)
 {
     this->verifyContext(r);
 
@@ -591,7 +591,7 @@ uint16_t* IndexBuffer::getIndices()
     this->g_needUpdate = true;
     return this->g_indices.empty() ? nullptr : this->g_indices.data();
 }
-const uint16_t* IndexBuffer::getIndices() const
+uint16_t const* IndexBuffer::getIndices() const
 {
     this->g_needUpdate = true;
     return this->g_indices.empty() ? nullptr : this->g_indices.data();
@@ -602,7 +602,7 @@ uint16_t& IndexBuffer::operator[](std::size_t index)
     this->g_needUpdate = true;
     return this->g_indices[index];
 }
-const uint16_t& IndexBuffer::operator[](std::size_t index) const
+uint16_t const& IndexBuffer::operator[](std::size_t index) const
 {
     this->g_needUpdate = true;
     return this->g_indices[index];

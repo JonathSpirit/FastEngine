@@ -28,7 +28,7 @@ Texture::Texture(std::string name) :
         g_data(fge::texture::GetTexture(name)),
         g_name(std::move(name))
 {}
-Texture::Texture(const char* name) :
+Texture::Texture(char const* name) :
         g_data(fge::texture::GetTexture(name)),
         g_name(name)
 {}
@@ -57,11 +57,11 @@ fge::Vector2u Texture::getTextureSize() const
     return this->g_data->_texture->getSize();
 }
 
-const fge::texture::TextureDataPtr& Texture::getData() const
+fge::texture::TextureDataPtr const& Texture::getData() const
 {
     return this->g_data;
 }
-const std::string& Texture::getName() const
+std::string const& Texture::getName() const
 {
     return this->g_name;
 }
@@ -77,7 +77,7 @@ fge::Texture& Texture::operator=(std::string name)
     this->g_data = fge::texture::GetTexture(this->g_name);
     return *this;
 }
-fge::Texture& Texture::operator=(const char* name)
+fge::Texture& Texture::operator=(char const* name)
 {
     if (this->g_name == name)
     {
@@ -99,28 +99,28 @@ fge::TextureType* Texture::retrieve()
 {
     return this->g_data->_texture.get();
 }
-const fge::TextureType* Texture::retrieve() const
+fge::TextureType const* Texture::retrieve() const
 {
     return this->g_data->_texture.get();
 }
 
-const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Texture& data)
+fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Texture& data)
 {
     std::string textureName;
     pck >> textureName;
     data = std::move(textureName);
     return pck;
 }
-fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Texture& data)
+fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Texture const& data)
 {
     return pck << data.getName();
 }
 
-void to_json(nlohmann::json& j, const fge::Texture& p)
+void to_json(nlohmann::json& j, fge::Texture const& p)
 {
     j = p.getName();
 }
-void from_json(const nlohmann::json& j, fge::Texture& p)
+void from_json(nlohmann::json const& j, fge::Texture& p)
 {
     std::string textureName;
     j.get_to(textureName);

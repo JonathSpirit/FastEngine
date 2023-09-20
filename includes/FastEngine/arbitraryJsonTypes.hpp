@@ -27,22 +27,22 @@ namespace fge
 {
 
 template<class T>
-void to_json(nlohmann::json& j, const fge::Rect<T>& p);
+void to_json(nlohmann::json& j, fge::Rect<T> const& p);
 template<class T>
-void from_json(const nlohmann::json& j, fge::Rect<T>& p);
+void from_json(nlohmann::json const& j, fge::Rect<T>& p);
 
 template<class T>
-void to_json(nlohmann::json& j, const fge::Vector2<T>& p);
+void to_json(nlohmann::json& j, fge::Vector2<T> const& p);
 template<class T>
-void from_json(const nlohmann::json& j, fge::Vector2<T>& p);
+void from_json(nlohmann::json const& j, fge::Vector2<T>& p);
 
 template<class T>
-void to_json(nlohmann::json& j, const fge::Vector3<T>& p);
+void to_json(nlohmann::json& j, fge::Vector3<T> const& p);
 template<class T>
-void from_json(const nlohmann::json& j, fge::Vector3<T>& p);
+void from_json(nlohmann::json const& j, fge::Vector3<T>& p);
 
-inline void to_json(nlohmann::json& j, const fge::Color& p);
-inline void from_json(const nlohmann::json& j, fge::Color& p);
+inline void to_json(nlohmann::json& j, fge::Color const& p);
+inline void from_json(nlohmann::json const& j, fge::Color& p);
 
 } // namespace fge
 
@@ -50,22 +50,22 @@ namespace glm
 {
 
 template<class T>
-void to_json(nlohmann::json& j, const glm::vec<2, T>& p);
+void to_json(nlohmann::json& j, glm::vec<2, T> const& p);
 template<class T>
-void from_json(const nlohmann::json& j, glm::vec<2, T>& p);
+void from_json(nlohmann::json const& j, glm::vec<2, T>& p);
 
 template<class T>
-void to_json(nlohmann::json& j, const glm::vec<3, T>& p);
+void to_json(nlohmann::json& j, glm::vec<3, T> const& p);
 template<class T>
-void from_json(const nlohmann::json& j, glm::vec<3, T>& p);
+void from_json(nlohmann::json const& j, glm::vec<3, T>& p);
 
 } // namespace glm
 
 namespace tiny_utf8
 {
 
-inline void to_json(nlohmann::json& j, const tiny_utf8::string& p);
-inline void from_json(const nlohmann::json& j, tiny_utf8::string& p);
+inline void to_json(nlohmann::json& j, tiny_utf8::string const& p);
+inline void from_json(nlohmann::json const& j, tiny_utf8::string& p);
 
 } // namespace tiny_utf8
 

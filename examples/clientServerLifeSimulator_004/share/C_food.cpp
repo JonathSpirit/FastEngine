@@ -21,7 +21,7 @@
 namespace ls
 {
 
-Food::Food(const fge::Vector2f& pos)
+Food::Food(fge::Vector2f const& pos)
 {
     this->setPosition(pos);
 }
@@ -52,7 +52,7 @@ void Food::networkRegister()
 {
     this->_netList.clear();
     this->_netList.push(new fge::net::NetworkType<fge::Vector2f>(
-            {&this->getPosition(), [&](const fge::Vector2f& pos) { this->setPosition(pos); }}));
+            {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }}));
 }
 
 void Food::save(nlohmann::json& jsonObject, fge::Scene* scene)
@@ -74,11 +74,11 @@ void Food::unpack(fge::net::Packet& pck)
     pck >> this->_nutrition;
 }
 
-const char* Food::getClassName() const
+char const* Food::getClassName() const
 {
     return "LS:OBJ:FOOD";
 }
-const char* Food::getReadableClassName() const
+char const* Food::getReadableClassName() const
 {
     return "food";
 }

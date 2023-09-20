@@ -19,7 +19,7 @@
 namespace fge
 {
 
-Timer::Timer(const fge::Timer& timer) :
+Timer::Timer(fge::Timer const& timer) :
         g_lifeTimePoint(timer.g_lifeTimePoint),
 
         g_elapsedTime(timer.g_elapsedTime),
@@ -38,7 +38,7 @@ Timer::Timer(fge::Timer&& timer) noexcept :
         g_name(std::move(timer.g_name))
 {}
 
-Timer::Timer(const std::chrono::milliseconds& goal) :
+Timer::Timer(std::chrono::milliseconds const& goal) :
         g_lifeTimePoint(std::chrono::steady_clock::now()),
 
         g_elapsedTime(0),
@@ -47,7 +47,7 @@ Timer::Timer(const std::chrono::milliseconds& goal) :
         g_isPaused(false),
         g_name()
 {}
-Timer::Timer(const std::chrono::milliseconds& goal, bool paused) :
+Timer::Timer(std::chrono::milliseconds const& goal, bool paused) :
         g_lifeTimePoint(std::chrono::steady_clock::now()),
 
         g_elapsedTime(0),
@@ -56,7 +56,7 @@ Timer::Timer(const std::chrono::milliseconds& goal, bool paused) :
         g_isPaused(paused),
         g_name()
 {}
-Timer::Timer(const std::chrono::milliseconds& goal, std::string name, bool paused) :
+Timer::Timer(std::chrono::milliseconds const& goal, std::string name, bool paused) :
         g_lifeTimePoint(std::chrono::steady_clock::now()),
 
         g_elapsedTime(0),
@@ -66,34 +66,34 @@ Timer::Timer(const std::chrono::milliseconds& goal, std::string name, bool pause
         g_name(std::move(name))
 {}
 
-void Timer::setName(const std::string& name)
+void Timer::setName(std::string const& name)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_name = name;
 }
-const std::string& Timer::getName() const
+std::string const& Timer::getName() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_name;
 }
 
-void Timer::setGoalDuration(const std::chrono::milliseconds& t)
+void Timer::setGoalDuration(std::chrono::milliseconds const& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_goalDuration = t;
 }
-void Timer::addToGoal(const std::chrono::milliseconds& t)
+void Timer::addToGoal(std::chrono::milliseconds const& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_goalDuration += t;
 }
-void Timer::subToGoal(const std::chrono::milliseconds& t)
+void Timer::subToGoal(std::chrono::milliseconds const& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     this->g_goalDuration -= t;
 }
 
-void Timer::setElapsedTime(const std::chrono::milliseconds& t)
+void Timer::setElapsedTime(std::chrono::milliseconds const& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     if (!this->g_isPaused)
@@ -101,7 +101,7 @@ void Timer::setElapsedTime(const std::chrono::milliseconds& t)
         this->g_elapsedTime = t;
     }
 }
-void Timer::addToElapsedTime(const std::chrono::milliseconds& t)
+void Timer::addToElapsedTime(std::chrono::milliseconds const& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     if (!this->g_isPaused)
@@ -109,7 +109,7 @@ void Timer::addToElapsedTime(const std::chrono::milliseconds& t)
         this->g_elapsedTime += t;
     }
 }
-void Timer::subToElapsedTime(const std::chrono::milliseconds& t)
+void Timer::subToElapsedTime(std::chrono::milliseconds const& t)
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     if (!this->g_isPaused)
@@ -118,7 +118,7 @@ void Timer::subToElapsedTime(const std::chrono::milliseconds& t)
     }
 }
 
-const std::chrono::steady_clock::time_point& Timer::getLifeTimePoint() const
+std::chrono::steady_clock::time_point const& Timer::getLifeTimePoint() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_lifeTimePoint;
@@ -130,12 +130,12 @@ std::chrono::milliseconds Timer::getLifeDuration() const
                                                                  this->g_lifeTimePoint);
 }
 
-const std::chrono::milliseconds& Timer::getElapsedTime() const
+std::chrono::milliseconds const& Timer::getElapsedTime() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_elapsedTime;
 }
-const std::chrono::milliseconds& Timer::getGoalDuration() const
+std::chrono::milliseconds const& Timer::getGoalDuration() const
 {
     std::lock_guard<std::mutex> lck(this->g_mutex);
     return this->g_goalDuration;

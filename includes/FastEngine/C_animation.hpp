@@ -42,7 +42,7 @@ public:
      * \param name The name of the animation
      * \param frame The beginning frame of the animation
      */
-    Animation(const std::string& name, std::size_t frame = 0);
+    Animation(std::string const& name, std::size_t frame = 0);
     /**
      * \brief Constructor that takes the name of the animation and the group name
      *
@@ -53,12 +53,12 @@ public:
      * \param group The name of the group
      * \param frame The beginning frame of the animation
      */
-    Animation(const std::string& name, const std::string& group, std::size_t frame = 0);
-    Animation(const char* name, std::size_t frame = 0);
-    Animation(const char* name, const char* group, std::size_t frame = 0);
-    Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame = 0);
-    Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame = 0);
-    Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame = 0);
+    Animation(std::string const& name, std::string const& group, std::size_t frame = 0);
+    Animation(char const* name, std::size_t frame = 0);
+    Animation(char const* name, char const* group, std::size_t frame = 0);
+    Animation(fge::anim::AnimationDataPtr const& data, std::size_t frame = 0);
+    Animation(fge::anim::AnimationDataPtr const& data, std::string const& group, std::size_t frame = 0);
+    Animation(fge::anim::AnimationDataPtr const& data, char const* group, std::size_t frame = 0);
 
     /**
      * \brief Clear the animation
@@ -77,7 +77,7 @@ public:
      *
      * \return The name of the loaded animation
      */
-    [[nodiscard]] const std::string& getName() const;
+    [[nodiscard]] std::string const& getName() const;
 
     /**
      * \brief Get the type of the loaded animation
@@ -92,7 +92,7 @@ public:
      * \param groupName The name of the group
      * \return \b true if the group was found, \b false otherwise
      */
-    bool setGroup(const std::string& groupName);
+    bool setGroup(std::string const& groupName);
     /**
      * \brief Set the group of the animation by its index
      *
@@ -106,7 +106,7 @@ public:
      *
      * \return The group data or nullptr
      */
-    [[nodiscard]] const fge::anim::AnimationGroup* getGroup() const;
+    [[nodiscard]] fge::anim::AnimationGroup const* getGroup() const;
     [[nodiscard]] fge::anim::AnimationGroup* getGroup();
     /**
      * \brief Get the group of the animation by its name
@@ -114,15 +114,15 @@ public:
      * \param groupName The name of the group
      * \return The group data or nullptr
      */
-    [[nodiscard]] const fge::anim::AnimationGroup* getGroup(const std::string& groupName) const;
-    [[nodiscard]] fge::anim::AnimationGroup* getGroup(const std::string& groupName);
+    [[nodiscard]] fge::anim::AnimationGroup const* getGroup(std::string const& groupName) const;
+    [[nodiscard]] fge::anim::AnimationGroup* getGroup(std::string const& groupName);
     /**
      * \brief Get the group of the animation by its index
      *
      * \param groupIndex The index of the group
      * \return The group data or nullptr
      */
-    [[nodiscard]] const fge::anim::AnimationGroup* getGroup(std::size_t groupIndex) const;
+    [[nodiscard]] fge::anim::AnimationGroup const* getGroup(std::size_t groupIndex) const;
     [[nodiscard]] fge::anim::AnimationGroup* getGroup(std::size_t groupIndex);
 
     /**
@@ -163,14 +163,14 @@ public:
      *
      * \return The frame data or nullptr
      */
-    [[nodiscard]] const fge::anim::AnimationFrame* getFrame() const;
+    [[nodiscard]] fge::anim::AnimationFrame const* getFrame() const;
     [[nodiscard]] fge::anim::AnimationFrame* getFrame();
     /**
      * \brief Get the frame of the animation by its index
      *
      * \return The frame data or nullptr
      */
-    [[nodiscard]] const fge::anim::AnimationFrame* getFrame(std::size_t frameIndex) const;
+    [[nodiscard]] fge::anim::AnimationFrame const* getFrame(std::size_t frameIndex) const;
     [[nodiscard]] fge::anim::AnimationFrame* getFrame(std::size_t frameIndex);
 
     /**
@@ -211,11 +211,11 @@ public:
      *
      * \return The animation data
      */
-    [[nodiscard]] const fge::anim::AnimationDataPtr& getData() const;
+    [[nodiscard]] fge::anim::AnimationDataPtr const& getData() const;
 
-    fge::Animation& operator=(const std::string& name);
-    fge::Animation& operator=(const char* name);
-    fge::Animation& operator=(const fge::anim::AnimationDataPtr& data);
+    fge::Animation& operator=(std::string const& name);
+    fge::Animation& operator=(char const* name);
+    fge::Animation& operator=(fge::anim::AnimationDataPtr const& data);
 
     /**
      * \brief Retrieve the texture of the actual frame
@@ -225,7 +225,7 @@ public:
     [[nodiscard]] std::shared_ptr<fge::TextureType> const& retrieveTexture() const;
 
     operator std::string&();
-    operator const std::string&() const;
+    operator std::string const&() const;
 
     /**
      * \brief Get the texture rectangle if the type of the animation is fge::anim::ANIM_TYPE_TILESET of the actual frame

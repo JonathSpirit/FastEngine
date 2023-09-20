@@ -27,7 +27,7 @@ ObjRenderMap::ObjRenderMap() :
 {
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
-ObjRenderMap::ObjRenderMap(const fge::ObjRenderMap& r) :
+ObjRenderMap::ObjRenderMap(fge::ObjRenderMap const& r) :
         fge::Object(r),
         fge::Subscriber(r),
         g_colorClear(r.g_colorClear),
@@ -46,17 +46,17 @@ ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
-void ObjRenderMap::onDraw([[maybe_unused]] const fge::Scene* scene, [[maybe_unused]] fge::RenderTarget& target)
+void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const* scene, [[maybe_unused]] fge::RenderTarget& target)
 {
     this->_renderTexture.setClearColor(this->g_colorClear);
     this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));
 }
 
-void ObjRenderMap::setClearColor(const fge::Color& color)
+void ObjRenderMap::setClearColor(fge::Color const& color)
 {
     this->g_colorClear = color;
 }
-const fge::Color& ObjRenderMap::getClearColor() const
+fge::Color const& ObjRenderMap::getClearColor() const
 {
     return this->g_colorClear;
 }
@@ -118,11 +118,11 @@ void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unu
 void ObjRenderMap::pack([[maybe_unused]] fge::net::Packet& pck) {}
 void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet& pck) {}
 
-const char* ObjRenderMap::getClassName() const
+char const* ObjRenderMap::getClassName() const
 {
     return FGE_OBJRENDERMAP_CLASSNAME;
 }
-const char* ObjRenderMap::getReadableClassName() const
+char const* ObjRenderMap::getReadableClassName() const
 {
     return "render map";
 }

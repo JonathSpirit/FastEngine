@@ -22,13 +22,13 @@ namespace fge
 TileSet::TileSet(fge::Texture texture) :
         g_texture(std::move(texture))
 {}
-TileSet::TileSet(fge::Texture texture, const fge::Vector2i& tileSize) :
+TileSet::TileSet(fge::Texture texture, fge::Vector2i const& tileSize) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize)
 {
     this->slice();
 }
-TileSet::TileSet(fge::Texture texture, const fge::Vector2i& tileSize, const fge::Vector2i& offset) :
+TileSet::TileSet(fge::Texture texture, fge::Vector2i const& tileSize, fge::Vector2i const& offset) :
         g_texture(std::move(texture)),
         g_tileSize(tileSize),
         g_offset(offset)
@@ -47,7 +47,7 @@ void TileSet::setName(std::string name)
 {
     this->g_name = std::move(name);
 }
-const std::string& TileSet::getName() const
+std::string const& TileSet::getName() const
 {
     return this->g_name;
 }
@@ -57,7 +57,7 @@ bool TileSet::valid() const
     return this->g_texture.valid();
 }
 
-const fge::Texture& TileSet::getTexture() const
+fge::Texture const& TileSet::getTexture() const
 {
     return this->g_texture;
 }
@@ -67,21 +67,21 @@ void TileSet::setTexture(fge::Texture texture)
     this->slice();
 }
 
-const fge::Vector2i& TileSet::getTileSize() const
+fge::Vector2i const& TileSet::getTileSize() const
 {
     return this->g_tileSize;
 }
-void TileSet::setTileSize(const fge::Vector2i& tileSize)
+void TileSet::setTileSize(fge::Vector2i const& tileSize)
 {
     this->g_tileSize = tileSize;
     this->slice();
 }
 
-const fge::Vector2i& TileSet::getOffset() const
+fge::Vector2i const& TileSet::getOffset() const
 {
     return this->g_offset;
 }
-void TileSet::setOffset(const fge::Vector2i& offset)
+void TileSet::setOffset(fge::Vector2i const& offset)
 {
     this->g_offset = offset;
     this->slice();
@@ -92,7 +92,7 @@ std::size_t TileSet::getTileCount() const
     return this->g_tiles.size();
 }
 
-const fge::TileData* TileSet::getTile(TileId id) const
+fge::TileData const* TileSet::getTile(TileId id) const
 {
     auto it = this->g_tiles.find(id);
     return it != this->g_tiles.end() ? &(*it) : nullptr;
@@ -116,7 +116,7 @@ void TileSet::pushTile(fge::TileData tile)
     }
 }
 
-TileId TileSet::getLocalId(const fge::Vector2i& position) const
+TileId TileSet::getLocalId(fge::Vector2i const& position) const
 {
     if (position.x < 0 || position.y < 0)
     {
@@ -223,7 +223,7 @@ fge::TileSet& TileSet::operator=(fge::Texture texture)
     return *this;
 }
 
-void to_json(nlohmann::json& j, const fge::TileSet& p)
+void to_json(nlohmann::json& j, fge::TileSet const& p)
 {
     // Tiled info :
     j["type"] = "TileSet";
@@ -246,12 +246,12 @@ void to_json(nlohmann::json& j, const fge::TileSet& p)
     j["offset"] = {{"x", p.getOffset().x}, {"y", p.getOffset().y}};
 
     auto& tilesArray = j["tiles"];
-    for (const auto& tile: p)
+    for (auto const& tile: p)
     {
         tilesArray.push_back(tile);
     }
 }
-void from_json(const nlohmann::json& j, fge::TileSet& p)
+void from_json(nlohmann::json const& j, fge::TileSet& p)
 {
     p.clearTiles();
 
@@ -276,10 +276,10 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     auto itTiles = j.find("tiles");
     if (itTiles != j.end() && itTiles->is_array())
     {
-        for (const auto& tile: *itTiles)
+        for (auto const& tile: *itTiles)
         {
             fge::TileData newTile = tile.get<fge::TileData>();
-            const auto* actualTile = p.getTile(newTile._id);
+            auto const* actualTile = p.getTile(newTile._id);
             if (actualTile != nullptr)
             {
                 actualTile->_properties = std::move(newTile._properties);
@@ -288,7 +288,7 @@ void from_json(const nlohmann::json& j, fge::TileSet& p)
     }
 }
 
-void to_json(nlohmann::json& j, const fge::TileData& p)
+void to_json(nlohmann::json& j, fge::TileData const& p)
 {
     j = nlohmann::json{{"id", p._id}};
 
@@ -321,14 +321,14 @@ void to_json(nlohmann::json& j, const fge::TileData& p)
         }
     }
 }
-void from_json(const nlohmann::json& j, fge::TileData& p)
+void from_json(nlohmann::json const& j, fge::TileData& p)
 {
     j.at("id").get_to(p._id);
 
     auto itProperties = j.find("properties");
     if (itProperties != j.end() && itProperties->is_array())
     {
-        for (const auto& property: *itProperties)
+        for (auto const& property: *itProperties)
         {
             if (property.is_object())
             {

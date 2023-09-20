@@ -19,7 +19,7 @@
 namespace fge
 {
 
-Property::Property(const fge::Property& val) :
+Property::Property(fge::Property const& val) :
         g_type(val.g_type),
         g_isSigned(val.g_isSigned),
         g_isModified(true)
@@ -49,7 +49,7 @@ Property::Property(fge::Property&& val) noexcept :
     val.g_type = fge::Property::Types::PTYPE_NULL;
 }
 
-Property::Property(const char* val) :
+Property::Property(char const* val) :
         g_type{fge::Property::Types::PTYPE_STRING},
         g_isModified(true)
 {
@@ -75,7 +75,7 @@ void Property::clear()
     this->g_type = fge::Property::Types::PTYPE_NULL;
 }
 
-bool Property::operator==(const fge::Property& val) const
+bool Property::operator==(fge::Property const& val) const
 {
     if (this->g_type == val.g_type)
     {
@@ -130,7 +130,7 @@ bool Property::operator==(const fge::Property& val) const
     return false;
 }
 
-fge::Property& Property::operator=(const fge::Property& val)
+fge::Property& Property::operator=(fge::Property const& val)
 {
     this->set(val);
     return *this;
@@ -141,7 +141,7 @@ fge::Property& Property::operator=(fge::Property&& val) noexcept
     return *this;
 }
 
-fge::Property& Property::operator=(const char* val)
+fge::Property& Property::operator=(char const* val)
 {
     this->set(val);
     return *this;
@@ -170,7 +170,7 @@ bool Property::isType(fge::Property::Types type) const
     return this->g_type == type;
 }
 
-const std::type_info& Property::getClassType() const
+std::type_info const& Property::getClassType() const
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
@@ -224,7 +224,7 @@ std::string Property::toString() const
     }
 }
 
-bool Property::set(const fge::Property& val)
+bool Property::set(fge::Property const& val)
 {
     if (this->g_type == val.g_type)
     {
@@ -329,7 +329,7 @@ bool Property::set(fge::Property&& val)
     return false;
 }
 
-bool Property::set(const char* val)
+bool Property::set(char const* val)
 {
     if (this->g_type != fge::Property::Types::PTYPE_STRING)
     {
@@ -399,7 +399,7 @@ bool Property::reserve(std::size_t n)
     return false;
 }
 
-bool Property::pushData(const fge::Property& value)
+bool Property::pushData(fge::Property const& value)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
@@ -426,7 +426,7 @@ bool Property::pushData(fge::Property&& value)
     return false;
 }
 
-bool Property::setData(std::size_t index, const fge::Property& value)
+bool Property::setData(std::size_t index, fge::Property const& value)
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
@@ -468,7 +468,7 @@ fge::Property* Property::getData(std::size_t index)
     }
     return nullptr;
 }
-const fge::Property* Property::getData(std::size_t index) const
+fge::Property const* Property::getData(std::size_t index) const
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
@@ -501,7 +501,7 @@ fge::Property* Property::operator[](std::size_t index)
 {
     return this->getData(index);
 }
-const fge::Property* Property::operator[](std::size_t index) const
+fge::Property const* Property::operator[](std::size_t index) const
 {
     return this->getData(index);
 }

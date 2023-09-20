@@ -30,11 +30,11 @@ class FGE_API Surface
 {
 public:
     Surface();
-    Surface(const Surface& r) = delete;
+    Surface(Surface const& r) = delete;
     Surface(Surface&& r) noexcept;
     ~Surface();
 
-    Surface& operator=(const Surface& r) = delete;
+    Surface& operator=(Surface const& r) = delete;
     Surface& operator=(Surface&& r) noexcept = delete;
 
     void create(Instance& instance);
@@ -43,7 +43,7 @@ public:
     [[nodiscard]] VkSurfaceKHR getSurface() const;
 
     [[nodiscard]] Instance& getInstance();
-    [[nodiscard]] const Instance& getInstance() const;
+    [[nodiscard]] Instance const& getInstance() const;
 
 private:
     VkSurfaceKHR g_surface;

@@ -73,10 +73,10 @@ public:
     explicit NetworkTypeTasks(fge::TaskHandler* source);
     ~NetworkTypeTasks() override = default;
 
-    const void* getSource() const override;
+    void const* getSource() const override;
 
     bool applyData(fge::net::Packet& pck) override;
-    void packData(fge::net::Packet& pck, const fge::net::Identity& id) override;
+    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
     bool check() const override;

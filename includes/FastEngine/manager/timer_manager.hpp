@@ -69,14 +69,14 @@ FGE_API fge::timer::TimerShared Create(fge::timer::TimerShared timer);
  * \param timer The timer to destroy
  * \return \b true if the timer was destroyed, \b false otherwise
  */
-FGE_API bool Destroy(const fge::timer::TimerShared& timer);
+FGE_API bool Destroy(fge::timer::TimerShared const& timer);
 /**
  * \brief Destroy a timer with the given name.
  *
  * \param timerName The timer name to destroy
  * \return \b true if the timer was destroyed, \b false otherwise
  */
-FGE_API bool Destroy(const std::string& timerName);
+FGE_API bool Destroy(std::string const& timerName);
 
 /**
  * \brief Destroy all timers
@@ -89,14 +89,14 @@ FGE_API void DestroyAll();
  * \param timer The timer to check
  * \return \b true if the timer exist, \b false otherwise
  */
-FGE_API bool Check(const fge::timer::TimerShared& timer);
+FGE_API bool Check(fge::timer::TimerShared const& timer);
 /**
  * \brief Check if the given timer name exist in the manager.
  *
  * \param timerName The timer name to check
  * \return \b true if the timer exist, \b false otherwise
  */
-FGE_API bool Check(const std::string& timerName);
+FGE_API bool Check(std::string const& timerName);
 
 /**
  * \brief Get the total number of timers
@@ -111,7 +111,7 @@ FGE_API std::size_t GetTimerSize();
  * \param timerName The name of the timer to get
  * \return The timer pointer with the given name or the \b nullptr if not found
  */
-FGE_API fge::timer::TimerShared Get(const std::string& timerName);
+FGE_API fge::timer::TimerShared Get(std::string const& timerName);
 
 /**
  * @}

@@ -42,7 +42,7 @@ using Vector3f = Vector3<float>;
 namespace glm
 {
 
-inline glm::vec2 operator*(const glm::mat4& left, const glm::vec2& right)
+inline glm::vec2 operator*(glm::mat4 const& left, glm::vec2 const& right)
 {
     return left * glm::vec4(right, 0.0f, 1.0f);
 }

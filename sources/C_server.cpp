@@ -40,7 +40,7 @@ void ServerFluxUdp::clear()
     }
 }
 
-bool ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
+bool ServerFluxUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     if (this->g_packets.size() >= this->g_maxPackets)
@@ -50,7 +50,7 @@ bool ServerFluxUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
     this->g_packets.push(fluxPck);
     return true;
 }
-void ServerFluxUdp::forcePushPacket(const FluxPacketSharedPtr& fluxPck)
+void ServerFluxUdp::forcePushPacket(FluxPacketSharedPtr const& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexLocal);
     this->g_packets.push(fluxPck);
@@ -163,7 +163,7 @@ void ServerUdp::delAllFlux()
     this->g_flux.clear();
 }
 
-void ServerUdp::repushPacket(const FluxPacketSharedPtr& fluxPck)
+void ServerUdp::repushPacket(FluxPacketSharedPtr const& fluxPck)
 {
     if ((++fluxPck->_fluxCount) >= this->g_flux.size())
     {
@@ -174,7 +174,7 @@ void ServerUdp::repushPacket(const FluxPacketSharedPtr& fluxPck)
     this->g_flux[fluxPck->_fluxIndex]->forcePushPacket(fluxPck);
 }
 
-const fge::net::SocketUdp& ServerUdp::getSocket() const
+fge::net::SocketUdp const& ServerUdp::getSocket() const
 {
     return this->g_socket;
 }
@@ -192,12 +192,12 @@ std::mutex& ServerUdp::getSendMutex()
     return this->g_mutexSend;
 }
 
-fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port)
+fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, fge::net::IpAddress const& ip, fge::net::Port port)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexSend);
     return this->g_socket.sendTo(pck, ip, port);
 }
-fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, const fge::net::Identity& id)
+fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexSend);
     return this->g_socket.sendTo(pck, id._ip, id._port);
@@ -233,7 +233,7 @@ void ServerUdp::serverThreadTransmission()
                         { //Last verification of the packet
 
                             //Applying options
-                            for (const auto& option: buffPck._options)
+                            for (auto const& option: buffPck._options)
                             {
                                 if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                                 {
@@ -277,7 +277,7 @@ void ServerUdp::serverThreadTransmission()
                     { //Last verification of the packet
 
                         //Applying options
-                        for (const auto& option: buffPck._options)
+                        for (auto const& option: buffPck._options)
                         {
                             if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                             {
@@ -337,7 +337,7 @@ void ServerClientSideUdp::stop()
     }
 }
 
-const fge::net::SocketUdp& ServerClientSideUdp::getSocket() const
+fge::net::SocketUdp const& ServerClientSideUdp::getSocket() const
 {
     return this->g_socket;
 }
@@ -400,12 +400,12 @@ std::size_t ServerClientSideUdp::getMaxPackets() const
     return this->g_maxPackets;
 }
 
-const fge::net::Identity& ServerClientSideUdp::getClientIdentity() const
+fge::net::Identity const& ServerClientSideUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
 }
 
-bool ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds& ms)
+bool ServerClientSideUdp::waitForPackets(std::chrono::milliseconds const& ms)
 {
     if (this->getPacketsSize() > 0)
     {
@@ -420,7 +420,7 @@ bool ServerClientSideUdp::waitForPackets(const std::chrono::milliseconds& ms)
     return false;
 }
 
-bool ServerClientSideUdp::pushPacket(const FluxPacketSharedPtr& fluxPck)
+bool ServerClientSideUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
 {
     std::lock_guard<std::mutex> lock(this->g_mutexServer);
     if (this->g_packets.size() >= this->g_maxPackets)
@@ -449,7 +449,7 @@ void ServerClientSideUdp::serverThreadTransmission()
                 { //Last verification of the packet
 
                     //Applying options
-                    for (const auto& option: buffPck._options)
+                    for (auto const& option: buffPck._options)
                     {
                         if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
                         {

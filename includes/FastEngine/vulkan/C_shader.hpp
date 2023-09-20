@@ -40,21 +40,21 @@ public:
     };
 
     Shader();
-    Shader(const Shader& r) = delete;
+    Shader(Shader const& r) = delete;
     Shader(Shader&& r) noexcept;
     ~Shader();
 
-    Shader& operator=(const Shader& r) = delete;
+    Shader& operator=(Shader const& r) = delete;
     Shader& operator=(Shader&& r) noexcept;
 
     bool
-    loadFromSpirVBuffer(const LogicalDevice& logicalDevice, const std::vector<uint32_t>& buffer, Shader::Type type);
-    bool loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type);
+    loadFromSpirVBuffer(LogicalDevice const& logicalDevice, std::vector<uint32_t> const& buffer, Shader::Type type);
+    bool loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::path const& filepath, Shader::Type type);
 
     void destroy();
 
     [[nodiscard]] VkShaderModule getShaderModule() const;
-    [[nodiscard]] const VkPipelineShaderStageCreateInfo& getPipelineShaderStageCreateInfo() const;
+    [[nodiscard]] VkPipelineShaderStageCreateInfo const& getPipelineShaderStageCreateInfo() const;
     [[nodiscard]] Shader::Type getType() const;
 
 private:
@@ -62,7 +62,7 @@ private:
     VkPipelineShaderStageCreateInfo g_pipelineShaderStageCreateInfo;
     Shader::Type g_type{Shader::Type::SHADER_NONE};
 
-    const LogicalDevice* g_logicalDevice;
+    LogicalDevice const* g_logicalDevice;
 };
 
 } // namespace fge::vulkan

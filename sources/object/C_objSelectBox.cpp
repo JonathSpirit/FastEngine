@@ -35,7 +35,7 @@ ObjSelectBox::ObjSelectBox()
     this->g_box.setOutlineThickness(1.0f);
     this->g_box.setSize({120.0f, 18.0f});
 }
-ObjSelectBox::ObjSelectBox(fge::Font font, const fge::Vector2f& pos) :
+ObjSelectBox::ObjSelectBox(fge::Font font, fge::Vector2f const& pos) :
         ObjSelectBox()
 {
     this->g_textSelected.setFont(std::move(font));
@@ -46,7 +46,7 @@ std::size_t ObjSelectBox::getItemCount() const
 {
     return this->g_textList.size();
 }
-const tiny_utf8::string* ObjSelectBox::getItem(std::size_t index) const
+tiny_utf8::string const* ObjSelectBox::getItem(std::size_t index) const
 {
     if (index < this->g_textList.size())
     {
@@ -82,7 +82,7 @@ void ObjSelectBox::setSelectedText(tiny_utf8::string string)
 {
     this->g_textSelected.setString(std::move(string));
 }
-const tiny_utf8::string& ObjSelectBox::getSelectedText() const
+tiny_utf8::string const& ObjSelectBox::getSelectedText() const
 {
     return this->g_textSelected.getString();
 }
@@ -114,7 +114,7 @@ bool ObjSelectBox::getActiveStat() const
     return this->g_statActive;
 }
 
-void ObjSelectBox::setBoxSize(const fge::Vector2f& size)
+void ObjSelectBox::setBoxSize(fge::Vector2f const& size)
 {
     this->g_box.setSize(size);
     for (std::size_t i = 0; i < this->g_textList.size(); ++i)
@@ -148,7 +148,7 @@ fge::CharacterSize ObjSelectBox::getCharacterSize() const
     return this->g_textSelected.getCharacterSize();
 }
 
-const fge::Vector2f& ObjSelectBox::getBoxSize() const
+fge::Vector2f const& ObjSelectBox::getBoxSize() const
 {
     return this->g_box.getSize();
 }
@@ -186,7 +186,7 @@ FGE_OBJ_DRAW_BODY(ObjSelectBox)
 
     if (this->g_statActive)
     {
-        for (const auto& item: this->g_textList)
+        for (auto const& item: this->g_textList)
         {
             item.draw(target, copyStates);
         }
@@ -295,11 +295,11 @@ void ObjSelectBox::unpack(fge::net::Packet& pck)
     this->updateBoxInstances();
 }
 
-const char* ObjSelectBox::getClassName() const
+char const* ObjSelectBox::getClassName() const
 {
     return FGE_OBJSELECTBOX_CLASSNAME;
 }
-const char* ObjSelectBox::getReadableClassName() const
+char const* ObjSelectBox::getReadableClassName() const
 {
     return "selection box";
 }
@@ -319,8 +319,8 @@ fge::RectFloat ObjSelectBox::getLocalBounds() const
     return this->g_box.getLocalBounds();
 }
 
-void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] const fge::Event& evt,
-                                    [[maybe_unused]] const SDL_MouseMotionEvent& arg,
+void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] fge::Event const& evt,
+                                    [[maybe_unused]] SDL_MouseMotionEvent const& arg,
                                     [[maybe_unused]] fge::GuiElementContext& context)
 {
     if (!this->g_statActive)
@@ -343,7 +343,7 @@ void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] const fge::Event& evt,
 
     auto boxRect = transform * this->getLocalBounds();
 
-    const float individualBoxHeight = boxRect._height / static_cast<float>(this->g_textList.size() + 1);
+    float const individualBoxHeight = boxRect._height / static_cast<float>(this->g_textList.size() + 1);
 
     auto cursor = static_cast<std::size_t>((mousePosition.y - boxRect._y) / individualBoxHeight);
     if (cursor != 0)
@@ -361,8 +361,8 @@ void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] const fge::Event& evt,
         }
     }
 }
-void ObjSelectBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
-                                           [[maybe_unused]] const SDL_MouseButtonEvent& arg,
+void ObjSelectBox::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
+                                           [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                            [[maybe_unused]] fge::GuiElementContext& context)
 {
     if (this->g_statActive)
@@ -380,7 +380,7 @@ void ObjSelectBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& ev
     }
 }
 
-void ObjSelectBox::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+void ObjSelectBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
                                SDL_EventType evtType,
                                fge::GuiElementContext& context)
 {

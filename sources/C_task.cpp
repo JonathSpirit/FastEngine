@@ -26,7 +26,7 @@ NetworkTypeTasks::NetworkTypeTasks(fge::TaskHandler* source) :
         g_checksumCopy(source->getChecksum())
 {}
 
-const void* NetworkTypeTasks::getSource() const
+void const* NetworkTypeTasks::getSource() const
 {
     return this->g_tasksSource;
 }
@@ -81,19 +81,19 @@ bool NetworkTypeTasks::applyData(fge::net::Packet& pck)
     }
     return false;
 }
-void NetworkTypeTasks::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
         if (it->second & fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_EXPLICIT_UPDATE)
         { //The client need an explicit update
-            const auto& tasks = this->g_tasksSource->getTasks();
+            auto const& tasks = this->g_tasksSource->getTasks();
 
             pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
                     fge::NetworkTypeTasks::SyncType::SYNC_FULL);
             pck << static_cast<fge::net::SizeType>(tasks.size());
-            for (const auto& task: tasks)
+            for (auto const& task: tasks)
             {
                 pck << task->getTypeIndex();
                 task->pack(pck);
@@ -113,12 +113,12 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, const fge::net::Identity&
 }
 void NetworkTypeTasks::packData(fge::net::Packet& pck)
 {
-    const auto& tasks = this->g_tasksSource->getTasks();
+    auto const& tasks = this->g_tasksSource->getTasks();
 
     pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
             fge::NetworkTypeTasks::SyncType::SYNC_FULL);
     pck << static_cast<fge::net::SizeType>(tasks.size());
-    for (const auto& task: tasks)
+    for (auto const& task: tasks)
     {
         pck << task->getTypeIndex();
         task->pack(pck);

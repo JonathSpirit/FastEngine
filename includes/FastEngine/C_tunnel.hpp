@@ -40,7 +40,7 @@ public:
     bool knock(fge::TunnelGate<T>& gate, bool anonymous = false);
     bool addGate(fge::TunnelGate<T>& gate, bool anonymous = false);
 
-    bool isAnonymous(const fge::TunnelGate<T>& gate) const;
+    bool isAnonymous(fge::TunnelGate<T> const& gate) const;
 
     void closeGate(std::size_t index);
     void closeAnonymousGate(std::size_t index);
@@ -64,12 +64,12 @@ class TunnelGate
 {
 public:
     TunnelGate();
-    TunnelGate(const fge::TunnelGate<T>& gate);
+    TunnelGate(fge::TunnelGate<T> const& gate);
     TunnelGate(fge::TunnelGate<T>&& gate) noexcept;
     explicit TunnelGate(T* data);
     ~TunnelGate();
 
-    fge::TunnelGate<T>& operator=(const fge::TunnelGate<T>& gate);
+    fge::TunnelGate<T>& operator=(fge::TunnelGate<T> const& gate);
     fge::TunnelGate<T>& operator=(fge::TunnelGate<T>&& gate) noexcept;
 
     bool openTo(fge::Tunnel<T>& tunnel, bool anonymous = false);
@@ -77,7 +77,7 @@ public:
     [[nodiscard]] bool isOpen() const;
 
     void setData(T* val);
-    const T* getData() const;
+    T const* getData() const;
     T* getData();
 
     void setLock(bool val);

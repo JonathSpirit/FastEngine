@@ -43,7 +43,7 @@ public:
     PacketBZ2();
     PacketBZ2(fge::net::PacketBZ2&& pck) noexcept;
     PacketBZ2(fge::net::PacketBZ2& pck) = default;
-    PacketBZ2(const fge::net::PacketBZ2& pck) = default;
+    PacketBZ2(fge::net::PacketBZ2 const& pck) = default;
     ~PacketBZ2() override = default;
 
     static uint32_t _maxUncompressedReceivedSize;

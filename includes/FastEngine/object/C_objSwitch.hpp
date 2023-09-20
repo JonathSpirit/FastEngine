@@ -31,16 +31,16 @@ class FGE_API ObjSwitch : public fge::Object
 {
 public:
     ObjSwitch();
-    ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const fge::Vector2f& pos = fge::Vector2f());
+    ObjSwitch(fge::Texture const& t_on, fge::Texture const& t_off, fge::Vector2f const& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSwitch)
 
-    const fge::Texture& getTextureOn() const;
-    const fge::Texture& getTextureOff() const;
-    void setTextureOn(const fge::Texture& t_on);
-    void setTextureOff(const fge::Texture& t_off);
+    fge::Texture const& getTextureOn() const;
+    fge::Texture const& getTextureOff() const;
+    void setTextureOn(fge::Texture const& t_on);
+    void setTextureOff(fge::Texture const& t_off);
 
-    void setColor(const fge::Color& color);
+    void setColor(fge::Color const& color);
 
     void setActiveStat(bool active);
     bool getActiveStat() const;
@@ -53,8 +53,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

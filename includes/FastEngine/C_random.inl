@@ -34,7 +34,7 @@ void Random<TEngine>::setSeed(uint64_t seed)
 }
 
 template<typename TEngine>
-const TEngine& Random<TEngine>::getEngine() const
+TEngine const& Random<TEngine>::getEngine() const
 {
     return this->g_engine;
 }
@@ -136,7 +136,7 @@ fge::Color Random<TEngine>::randColor()
 }
 
 template<typename TEngine>
-std::string Random<TEngine>::randStr(std::size_t length, const std::string& bucket)
+std::string Random<TEngine>::randStr(std::size_t length, std::string const& bucket)
 {
     if ((length == 0) || bucket.empty())
     {

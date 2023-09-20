@@ -48,17 +48,17 @@ public:
     };
 
     FreeTypeFont();
-    FreeTypeFont(const FreeTypeFont& r) = delete;
+    FreeTypeFont(FreeTypeFont const& r) = delete;
     ~FreeTypeFont();
 
-    FreeTypeFont& operator=(const FreeTypeFont& r) = delete;
+    FreeTypeFont& operator=(FreeTypeFont const& r) = delete;
 
-    bool loadFromFile(const std::filesystem::path& filePath);
-    bool loadFromMemory(const void* data, std::size_t size);
+    bool loadFromFile(std::filesystem::path const& filePath);
+    bool loadFromMemory(void const* data, std::size_t size);
 
-    const Info& getInfo() const;
+    Info const& getInfo() const;
 
-    const Glyph&
+    Glyph const&
     getGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness = 0) const;
     bool hasGlyph(uint32_t codePoint) const;
 
@@ -67,7 +67,7 @@ public:
     float getUnderlinePosition(fge::CharacterSize characterSize) const;
     float getUnderlineThickness(fge::CharacterSize characterSize) const;
 
-    const fge::vulkan::TextureImage& getTexture(fge::CharacterSize characterSize) const;
+    fge::vulkan::TextureImage const& getTexture(fge::CharacterSize characterSize) const;
 
     void setSmooth(bool smooth);
     bool isSmooth() const;

@@ -57,11 +57,11 @@ class FGE_API DescriptorSetLayout : public ContextAware
 {
 public:
     explicit DescriptorSetLayout(Context const& context);
-    DescriptorSetLayout(const DescriptorSetLayout& r) = delete; ///TODO
+    DescriptorSetLayout(DescriptorSetLayout const& r) = delete; ///TODO
     DescriptorSetLayout(DescriptorSetLayout&& r) noexcept;
     ~DescriptorSetLayout() override;
 
-    DescriptorSetLayout& operator=(const DescriptorSetLayout& r) = delete; ///TODO
+    DescriptorSetLayout& operator=(DescriptorSetLayout const& r) = delete; ///TODO
     DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept;
 
     void create(std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
@@ -69,7 +69,7 @@ public:
     void destroy() final;
 
     [[nodiscard]] VkDescriptorSetLayout getLayout() const;
-    [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const;
+    [[nodiscard]] std::vector<VkDescriptorSetLayoutBinding> const& getBindings() const;
     [[nodiscard]] std::size_t getBindingsCount() const;
 
 private:

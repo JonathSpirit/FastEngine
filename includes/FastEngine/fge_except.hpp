@@ -32,7 +32,7 @@ public:
     {}
     ~Exception() override = default;
 
-    [[nodiscard]] const char* what() const noexcept override { return this->g_what.c_str(); }
+    [[nodiscard]] char const* what() const noexcept override { return this->g_what.c_str(); }
 
 private:
     std::string g_what;

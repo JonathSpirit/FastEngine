@@ -44,15 +44,15 @@ struct TileData
     mutable fge::PropertyList _properties{};
 };
 
-inline bool operator<(const fge::TileData& l, int r)
+inline bool operator<(fge::TileData const& l, int r)
 {
     return l._id < r;
 }
-inline bool operator<(int l, const fge::TileData& r)
+inline bool operator<(int l, fge::TileData const& r)
 {
     return l < r._id;
 }
-inline bool operator<(const fge::TileData& l, const fge::TileData& r)
+inline bool operator<(fge::TileData const& l, fge::TileData const& r)
 {
     return l._id < r._id;
 }
@@ -71,8 +71,8 @@ public:
 
     TileSet() = default;
     TileSet(fge::Texture texture);
-    TileSet(fge::Texture texture, const fge::Vector2i& tileSize);
-    TileSet(fge::Texture texture, const fge::Vector2i& tileSize, const fge::Vector2i& offset);
+    TileSet(fge::Texture texture, fge::Vector2i const& tileSize);
+    TileSet(fge::Texture texture, fge::Vector2i const& tileSize, fge::Vector2i const& offset);
 
     /**
      * \brief Clear the tiles
@@ -90,7 +90,7 @@ public:
      *
      * \return The name of the TileSet
      */
-    [[nodiscard]] const std::string& getName() const;
+    [[nodiscard]] std::string const& getName() const;
 
     /**
      * \brief Check if the TileSet have a valid Texture
@@ -104,7 +104,7 @@ public:
      *
      * \return The texture of the TileSet
      */
-    [[nodiscard]] const fge::Texture& getTexture() const;
+    [[nodiscard]] fge::Texture const& getTexture() const;
     /**
      * \brief Set the texture of the TileSet
      *
@@ -119,7 +119,7 @@ public:
      *
      * \return The tile size of the TileSet
      */
-    [[nodiscard]] const fge::Vector2i& getTileSize() const;
+    [[nodiscard]] fge::Vector2i const& getTileSize() const;
     /**
      * \brief Set the tile size of the TileSet
      *
@@ -127,20 +127,20 @@ public:
      *
      * \param tileSize The tile size of the TileSet
      */
-    void setTileSize(const fge::Vector2i& tileSize);
+    void setTileSize(fge::Vector2i const& tileSize);
 
     /**
      * \brief Get the offset in pixel of the TileSet
      *
      * \return The offset in pixel of the TileSet
      */
-    [[nodiscard]] const fge::Vector2i& getOffset() const;
+    [[nodiscard]] fge::Vector2i const& getOffset() const;
     /**
      * \brief Set the offset in pixel of the TileSet
      *
      * \param offset The offset in pixel of the TileSet
      */
-    void setOffset(const fge::Vector2i& offset);
+    void setOffset(fge::Vector2i const& offset);
 
     /**
      * \brief Get the total number of tiles in the TileSet
@@ -155,7 +155,7 @@ public:
      * \param id The local id of the tile
      * \return The tile pointer if found, \b nullptr otherwise
      */
-    [[nodiscard]] const fge::TileData* getTile(TileId id) const;
+    [[nodiscard]] fge::TileData const* getTile(TileId id) const;
 
     /**
      * \brief Get the local id of a tile by its grid position
@@ -163,7 +163,7 @@ public:
      * \param position The grid position of the tile
      * \return The local id of the tile if found, \b -1 otherwise
      */
-    [[nodiscard]] TileId getLocalId(const fge::Vector2i& position) const;
+    [[nodiscard]] TileId getLocalId(fge::Vector2i const& position) const;
     /**
      * \brief Get the local id of a tile by its global id
      *
@@ -253,11 +253,11 @@ private:
     int g_rows{0};
 };
 
-FGE_API void to_json(nlohmann::json& j, const fge::TileSet& p);
-FGE_API void from_json(const nlohmann::json& j, fge::TileSet& p);
+FGE_API void to_json(nlohmann::json& j, fge::TileSet const& p);
+FGE_API void from_json(nlohmann::json const& j, fge::TileSet& p);
 
-FGE_API void to_json(nlohmann::json& j, const fge::TileData& p);
-FGE_API void from_json(const nlohmann::json& j, fge::TileData& p);
+FGE_API void to_json(nlohmann::json& j, fge::TileData const& p);
+FGE_API void from_json(nlohmann::json const& j, fge::TileData& p);
 
 } // namespace fge
 

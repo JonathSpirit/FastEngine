@@ -259,7 +259,7 @@ public:
      *
      * \param object The parent object
      */
-    inline void setParent(const fge::ObjectDataShared& object) const
+    inline void setParent(fge::ObjectDataShared const& object) const
     {
         if (object)
         {
@@ -289,13 +289,13 @@ public:
      *
      * \return True if same SID, False otherwise
      */
-    inline bool operator==(const fge::ObjectSid& sid) const { return this->g_sid == sid; }
+    inline bool operator==(fge::ObjectSid const& sid) const { return this->g_sid == sid; }
     /**
      * \brief Comparison with another object pointer
      *
      * \return True if same address, False otherwise
      */
-    inline bool operator==(const fge::Object* ptr) const { return this->g_object.get() == ptr; }
+    inline bool operator==(fge::Object const* ptr) const { return this->g_object.get() == ptr; }
 
     /**
      * \brief Get the Object pointer.
@@ -308,14 +308,14 @@ public:
      *
      * \return The memory managed pointer of the Object
      */
-    inline operator const fge::ObjectPtr&() const { return this->g_object; }
+    inline operator fge::ObjectPtr const&() const { return this->g_object; }
     /**
      * \brief Get the SID of the Object.
      *
      * \return The SID of the object
      * \see getSid
      */
-    inline operator const fge::ObjectSid&() const { return this->g_sid; }
+    inline operator fge::ObjectSid const&() const { return this->g_sid; }
 
     /**
      * \brief check if the provided shared pointer Object is valid.
@@ -325,7 +325,7 @@ public:
      *
      * \param dataShared The shared pointer Object
      */
-    static inline bool isValid(const std::shared_ptr<fge::ObjectData>& dataShared)
+    static inline bool isValid(std::shared_ptr<fge::ObjectData> const& dataShared)
     {
         return dataShared && dataShared->isLinked();
     }
@@ -369,11 +369,11 @@ public:
 
     Scene();
     explicit Scene(std::string sceneName);
-    Scene(const Scene& r);
+    Scene(Scene const& r);
     Scene(Scene&& r) noexcept = delete; //TODO: implement move constructor
     virtual ~Scene() = default;
 
-    Scene& operator=(const Scene& r);
+    Scene& operator=(Scene const& r);
     Scene& operator=(Scene&& r) noexcept = delete; //TODO: implement move operator
 
     // Scene
@@ -382,7 +382,7 @@ public:
      *
      * \return the name of the Scene
      */
-    inline const std::string& getName() const { return this->g_name; }
+    inline std::string const& getName() const { return this->g_name; }
     /**
      * \brief Set the name of the Scene.
      *
@@ -410,9 +410,9 @@ public:
      * \param deltaTime The time in microseconds between two updates
      */
 #ifdef FGE_DEF_SERVER
-    void update(fge::Event& event, const std::chrono::microseconds& deltaTime);
+    void update(fge::Event& event, std::chrono::microseconds const& deltaTime);
 #else
-    void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::microseconds& deltaTime);
+    void update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime);
 #endif
     /**
      * \brief Draw the Scene.
@@ -433,7 +433,7 @@ public:
      * \param states The default RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states = {}) const;
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states = {}) const;
 #endif //FGE_DEF_SERVER
 
     /**
@@ -508,7 +508,7 @@ public:
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
      * \return An shared pointer of the ObjectData
      */
-    fge::ObjectDataShared newObject(const fge::ObjectDataShared& objectData, bool silent = false);
+    fge::ObjectDataShared newObject(fge::ObjectDataShared const& objectData, bool silent = false);
 
     /**
      * \brief Duplicate the provided Object SID.
@@ -631,7 +631,7 @@ public:
      * \param ptr Actual pointer of the wanted Object
      * \return The shared ObjectData pointer
      */
-    fge::ObjectDataShared getObject(const fge::Object* ptr) const;
+    fge::ObjectDataShared getObject(fge::Object const* ptr) const;
     /**
      * \brief Get an Object pointer with his SID.
      *
@@ -666,7 +666,7 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByPosition(const fge::Vector2f& pos, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByPosition(fge::Vector2f const& pos, fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a zone (or rectangle).
      *
@@ -679,7 +679,7 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByZone(const fge::RectFloat& zone, fge::ObjectContainer& buff) const;
+    std::size_t getAllObj_ByZone(fge::RectFloat const& zone, fge::ObjectContainer& buff) const;
 
 #ifndef FGE_DEF_SERVER
     /**
@@ -699,8 +699,8 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_ByLocalPosition(const fge::Vector2i& pos,
-                                          const fge::RenderTarget& target,
+    std::size_t getAllObj_ByLocalPosition(fge::Vector2i const& pos,
+                                          fge::RenderTarget const& target,
                                           fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a local zone (or rectangle).
@@ -718,7 +718,7 @@ public:
      * \return The number of Objects added in the container
      */
     std::size_t
-    getAllObj_ByLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target, fge::ObjectContainer& buff) const;
+    getAllObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target, fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object with a local position.
      *
@@ -737,8 +737,8 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_FromLocalPosition(const fge::Vector2i& pos,
-                                            const fge::RenderTarget& target,
+    std::size_t getAllObj_FromLocalPosition(fge::Vector2i const& pos,
+                                            fge::RenderTarget const& target,
                                             fge::ObjectContainer& buff) const;
     /**
      * \brief Get all Object within a local zone (or rectangle).
@@ -758,8 +758,8 @@ public:
      * \param buff An ObjectContainer that will receive results
      * \return The number of Objects added in the container
      */
-    std::size_t getAllObj_FromLocalZone(const fge::RectInt& zone,
-                                        const fge::RenderTarget& target,
+    std::size_t getAllObj_FromLocalZone(fge::RectInt const& zone,
+                                        fge::RenderTarget const& target,
                                         fge::ObjectContainer& buff) const;
 #endif //FGE_DEF_SERVER
 
@@ -796,7 +796,7 @@ public:
      * \param pos The position
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByPosition(const fge::Vector2f& pos) const;
+    fge::ObjectDataShared getFirstObj_ByPosition(fge::Vector2f const& pos) const;
     /**
      * \brief Get the first Object within a zone.
      *
@@ -805,7 +805,7 @@ public:
      * \param zone The zone
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByZone(const fge::RectFloat& zone) const;
+    fge::ObjectDataShared getFirstObj_ByZone(fge::RectFloat const& zone) const;
 
 #ifndef FGE_DEF_SERVER
     /**
@@ -817,7 +817,7 @@ public:
      * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByLocalPosition(const fge::Vector2i& pos, const fge::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_ByLocalPosition(fge::Vector2i const& pos, fge::RenderTarget const& target) const;
     /**
      * \brief Get the first Object within a local zone.
      *
@@ -827,7 +827,7 @@ public:
      * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_ByLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const;
     /**
      * \brief Get the first Object with a local position position.
      *
@@ -837,8 +837,8 @@ public:
      * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_FromLocalPosition(const fge::Vector2i& pos,
-                                                        const fge::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_FromLocalPosition(fge::Vector2i const& pos,
+                                                        fge::RenderTarget const& target) const;
     /**
      * \brief Get the first Object within a local zone.
      *
@@ -848,7 +848,7 @@ public:
      * \param target The RenderTarget
      * \return The first Object that match the argument
      */
-    fge::ObjectDataShared getFirstObj_FromLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const;
+    fge::ObjectDataShared getFirstObj_FromLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const;
         /**
      * \brief Get the first Object that match a provided class name.
      *
@@ -877,7 +877,7 @@ public:
      * \param ptr The Object pointer
      * \return FGE_SCENE_BAD_SID if there is no match, the Object SID otherwise
      */
-    fge::ObjectSid getSid(const fge::Object* ptr) const;
+    fge::ObjectSid getSid(fge::Object const* ptr) const;
 
     /**
      * \brief Check if the SID correspond to an Object in this Scene.
@@ -945,7 +945,7 @@ public:
      * \param clients The ClientList used for clients checkup
      * \param id The Identity of the client
      */
-    void packModification(fge::net::Packet& pck, fge::net::ClientList& clients, const fge::net::Identity& id);
+    void packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id);
     /**
      * \brief Pack all modification in a net::Packet for a net::Client.
      *
@@ -958,7 +958,7 @@ public:
      * \param pck The network packet
      * \param id The Identity of the client
      */
-    void packModification(fge::net::Packet& pck, const fge::net::Identity& id);
+    void packModification(fge::net::Packet& pck, fge::net::Identity const& id);
     /**
      * \brief Unpack all modification of received data packet from a server.
      *
@@ -990,7 +990,7 @@ public:
      * \param pck The network packet
      * \param id The Identity of the client
      */
-    void unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id);
+    void unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id);
 
     /**
      * \brief Do a clients checkup for the Scene::_netList and Object::_netList.
@@ -1005,7 +1005,7 @@ public:
      *
      * \param clients The net::ClientList attributed to this Scene
      */
-    void clientsCheckup(const fge::net::ClientList& clients);
+    void clientsCheckup(fge::net::ClientList const& clients);
 
     /**
      * \brief Force every network type modification flag to be \b true for a specified client net::Identity.
@@ -1015,7 +1015,7 @@ public:
      *
      * \param id The client net::Identity
      */
-    void forceCheckClient(const fge::net::Identity& id);
+    void forceCheckClient(fge::net::Identity const& id);
     /**
      * \brief Force every network type modification flag to be \b false for a specified client net::Identity.
      *
@@ -1023,7 +1023,7 @@ public:
      *
      * \param id The client net::Identity
      */
-    void forceUncheckClient(const fge::net::Identity& id);
+    void forceUncheckClient(fge::net::Identity const& id);
 
     // SceneNetEvent
     /**
@@ -1033,20 +1033,20 @@ public:
      *
      * \param clients The net::ClientList attributed to this Scene
      */
-    void clientsCheckupEvent(const fge::net::ClientList& clients);
+    void clientsCheckupEvent(fge::net::ClientList const& clients);
     /**
      * \brief Manually push a Scene related event for every clients.
      *
      * \param netEvent The SceneNetEvent
      */
-    void pushEvent(const fge::SceneNetEvent& netEvent);
+    void pushEvent(fge::SceneNetEvent const& netEvent);
     /**
      * \brief Manually push a Scene related event for a specified client.
      *
      * \param netEvent The SceneNetEvent
      * \param id A client net::Identity
      */
-    bool pushEvent(const fge::SceneNetEvent& netEvent, const fge::net::Identity& id);
+    bool pushEvent(fge::SceneNetEvent const& netEvent, fge::net::Identity const& id);
     /**
      * \brief Start to watch Scene related event or not.
      *
@@ -1072,7 +1072,7 @@ public:
      *
      * \param id A client net::Identity
      */
-    void deleteEvents(const fge::net::Identity& id);
+    void deleteEvents(fge::net::Identity const& id);
     /**
      * \brief Clear Scene events queue for all clients.
      */
@@ -1095,7 +1095,7 @@ public:
      * \param pck The network packet
      * \param id The client net::Identity
      */
-    void packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id);
+    void packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id);
     /**
      * \brief Unpack all Scene related events from a server.
      *
@@ -1122,7 +1122,7 @@ public:
      *
      * \return The shared point of the view
      */
-    const std::shared_ptr<fge::View>& getCustomView() const;
+    std::shared_ptr<fge::View> const& getCustomView() const;
     /**
      * \brief Remove the actual custom view.
      *
@@ -1146,7 +1146,7 @@ public:
      *
      * \return The linked RenderTarget or \b nullptr if there is none
      */
-    const fge::RenderTarget* getLinkedRenderTarget() const;
+    fge::RenderTarget const* getLinkedRenderTarget() const;
     /**
      * \brief Get the RenderTarget linked to this Scene (non-const).
      *
@@ -1167,7 +1167,7 @@ public:
      *
      * \return The related view pointer or \b nullptr if there is none
      */
-    [[nodiscard]] const fge::View* getRelatedView() const;
+    [[nodiscard]] fge::View const* getRelatedView() const;
 
     /**
      * \brief Set the callback context of this Scene.
@@ -1222,7 +1222,7 @@ public:
      * \param path The path of the file
      * \return \b true if successful, \b false otherwise
      */
-    bool saveInFile(const std::string& path);
+    bool saveInFile(std::string const& path);
     /**
      * \brief Load all the Scene data from a json file.
      *
@@ -1236,7 +1236,7 @@ public:
      * \param path The path of the file
      * \return \b true if successful, \b false otherwise
      */
-    bool loadFromFile(const std::string& path);
+    bool loadFromFile(std::string const& path);
 
     // Iterator
     inline fge::ObjectContainer::const_iterator begin() const { return this->g_data.begin(); }
@@ -1257,7 +1257,7 @@ public:
      * \param ptr The Object pointer
      * \return An constant iterator representing the ObjectData
      */
-    fge::ObjectContainer::const_iterator find(const fge::Object* ptr) const;
+    fge::ObjectContainer::const_iterator find(fge::Object const* ptr) const;
     /**
      * \brief Find an Object with the specified plan.
      *
@@ -1280,10 +1280,10 @@ public:
     fge::PropertyList _properties;
 
     // Event
-    mutable fge::CallbackHandler<const fge::Scene*, fge::RenderTarget&> _onDraw;
+    mutable fge::CallbackHandler<fge::Scene const*, fge::RenderTarget&> _onDraw;
 
-    mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onNewObject;
-    mutable fge::CallbackHandler<fge::Scene*, const fge::ObjectDataShared&> _onRemoveObject;
+    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onNewObject;
+    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onRemoveObject;
 
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 

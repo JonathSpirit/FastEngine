@@ -54,8 +54,8 @@ public:
      *
      * \param address A string representing the IP address
      */
-    IpAddress(const std::string& address);
-    IpAddress(const char* address);
+    IpAddress(std::string const& address);
+    IpAddress(char const* address);
     /**
      * \brief Build an IP address from a 4 bytes
      *
@@ -81,8 +81,8 @@ public:
      * \param address A string representing the IP address
      * \return \b true if the address is valid, \b false otherwise
      */
-    bool set(const std::string& address);
-    bool set(const char* address);
+    bool set(std::string const& address);
+    bool set(char const* address);
     /**
      * \brief Build an IP address from a 4 bytes
      *
@@ -108,7 +108,7 @@ public:
      */
     bool setNetworkByteOrdered(uint32_t address);
 
-    bool operator==(const fge::net::IpAddress& r) const;
+    bool operator==(fge::net::IpAddress const& r) const;
 
     /**
      * \brief Get the IP address in a string format

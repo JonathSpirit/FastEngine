@@ -46,7 +46,7 @@ public:
      * \param name The name of the loaded font
      */
     Font(std::string name);
-    Font(const char* name);
+    Font(char const* name);
     /**
      * \brief Copy a custom font data pointer.
      *
@@ -73,13 +73,13 @@ public:
      *
      * \return The font data
      */
-    [[nodiscard]] const fge::font::FontDataPtr& getData() const;
+    [[nodiscard]] fge::font::FontDataPtr const& getData() const;
     /**
      * \brief Get the name of the font
      *
      * \return The name of the font
      */
-    [[nodiscard]] const std::string& getName() const;
+    [[nodiscard]] std::string const& getName() const;
 
     /**
      * \brief Get the font data by its name
@@ -87,7 +87,7 @@ public:
      * \param name The name of the loaded font
      */
     fge::Font& operator=(std::string name);
-    fge::Font& operator=(const char* name);
+    fge::Font& operator=(char const* name);
     /**
      * \brief Copy a custom font data pointer.
      *
@@ -110,11 +110,11 @@ private:
     std::string g_name;
 };
 
-FGE_API const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Font& data);
-FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Font& data);
+FGE_API fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Font& data);
+FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Font const& data);
 
-FGE_API void to_json(nlohmann::json& j, const fge::Font& p);
-FGE_API void from_json(const nlohmann::json& j, fge::Font& p);
+FGE_API void to_json(nlohmann::json& j, fge::Font const& p);
+FGE_API void from_json(nlohmann::json const& j, fge::Font& p);
 
 } // namespace fge
 

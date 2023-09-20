@@ -41,7 +41,7 @@ std::unordered_map<std::string, fge::shader::ShaderDataPtr, fge::priv::string_ha
 std::mutex _dataMutex;
 
 #ifdef FGE_DEF_DEBUG
-bool IsInfoLogEmpty(const char* infoLog)
+bool IsInfoLogEmpty(char const* infoLog)
 {
     if (infoLog == nullptr)
     {
@@ -52,11 +52,11 @@ bool IsInfoLogEmpty(const char* infoLog)
 #endif
 
 bool CompileAndLinkShader(EShLanguage stage,
-                          const char* shaderIn,
+                          char const* shaderIn,
                           int shaderInSize,
                           std::vector<uint32_t>& shaderOut,
-                          const char* shaderName,
-                          const char* entryPointName,
+                          char const* shaderName,
+                          char const* entryPointName,
                           bool debugBuild,
                           bool isHlsl)
 {
@@ -71,7 +71,7 @@ bool CompileAndLinkShader(EShLanguage stage,
     shader.setStringsWithLengthsAndNames(&shaderIn, &shaderInSize, &shaderName, 1);
     shader.setEntryPoint(entryPointName);
 
-    const int defaultVersion = 110;
+    int const defaultVersion = 110;
 
     if (isHlsl)
     {
@@ -183,11 +183,11 @@ bool CompileAndLinkShader(EShLanguage stage,
 } // namespace
 
 bool CompileAndLinkShader(fge::vulkan::Shader::Type type,
-                          const char* shaderIn,
+                          char const* shaderIn,
                           int shaderInSize,
                           std::vector<uint32_t>& shaderOut,
-                          const char* shaderName,
-                          const char* entryPointName,
+                          char const* shaderName,
+                          char const* entryPointName,
                           bool debugBuild,
                           bool isHlsl)
 { //Public API of CompileAndLinkShader
@@ -215,7 +215,7 @@ bool CompileAndLinkShader(fge::vulkan::Shader::Type type,
                                 isHlsl);
 }
 
-bool SaveSpirVToBinaryFile(const std::vector<uint32_t>& spirv, const std::filesystem::path& path)
+bool SaveSpirVToBinaryFile(std::vector<uint32_t> const& spirv, std::filesystem::path const& path)
 {
     std::ofstream file(path, std::ios::binary | std::ios::out);
 
@@ -227,7 +227,7 @@ bool SaveSpirVToBinaryFile(const std::vector<uint32_t>& spirv, const std::filesy
     for (std::size_t i = 0; i < spirv.size(); ++i)
     {
         uint32_t word = spirv[i];
-        file.write((const char*) &word, 4);
+        file.write((char const*) &word, 4);
     }
     file.close();
     return true;
@@ -298,7 +298,7 @@ std::unique_lock<std::mutex> AcquireLock()
 {
     return std::unique_lock<std::mutex>(_dataMutex);
 }
-fge::shader::ShaderDataType::const_iterator IteratorBegin(const std::unique_lock<std::mutex>& lock)
+fge::shader::ShaderDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
@@ -306,7 +306,7 @@ fge::shader::ShaderDataType::const_iterator IteratorBegin(const std::unique_lock
     }
     return _dataShader.begin();
 }
-fge::shader::ShaderDataType::const_iterator IteratorEnd(const std::unique_lock<std::mutex>& lock)
+fge::shader::ShaderDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
@@ -315,7 +315,7 @@ fge::shader::ShaderDataType::const_iterator IteratorEnd(const std::unique_lock<s
     return _dataShader.end();
 }
 
-const fge::shader::ShaderDataPtr& GetBadShader()
+fge::shader::ShaderDataPtr const& GetBadShader()
 {
     return _dataShaderBad;
 }
@@ -350,7 +350,7 @@ bool Check(std::string_view name)
 }
 
 FGE_API bool LoadFromMemory(std::string_view name,
-                            const void* data,
+                            void const* data,
                             int size,
                             fge::vulkan::Shader::Type type,
                             ShaderInputTypes input,
@@ -402,7 +402,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
     {
         std::vector<uint32_t> shaderOut;
 
-        if (!CompileAndLinkShader(stage, reinterpret_cast<const char*>(data), size, shaderOut, shaderName.c_str(),
+        if (!CompileAndLinkShader(stage, reinterpret_cast<char const*>(data), size, shaderOut, shaderName.c_str(),
                                   "main", debugBuild, isHlsl))
         {
             return false;
@@ -421,8 +421,8 @@ FGE_API bool LoadFromMemory(std::string_view name,
             return false;
         }
 
-        const std::vector<uint32_t> shader(reinterpret_cast<const uint32_t*>(data),
-                                           reinterpret_cast<const uint32_t*>(data) + size / 4);
+        const std::vector<uint32_t> shader(reinterpret_cast<uint32_t const*>(data),
+                                           reinterpret_cast<uint32_t const*>(data) + size / 4);
 
         if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shader, type))
         {
@@ -497,7 +497,7 @@ bool LoadFromFile(std::string_view name,
         }
 
         test.seekg(0, std::ios::end);
-        const int size = static_cast<int>(test.tellg());
+        int const size = static_cast<int>(test.tellg());
 
         std::vector<char> buffer(size);
 
@@ -568,7 +568,7 @@ void UnloadAll()
     _dataShader.clear();
 }
 
-bool Push(std::string_view name, const fge::shader::ShaderDataPtr& data)
+bool Push(std::string_view name, fge::shader::ShaderDataPtr const& data)
 {
     if (name == FGE_SHADER_BAD)
     {

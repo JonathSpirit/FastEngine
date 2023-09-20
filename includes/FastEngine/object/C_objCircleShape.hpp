@@ -48,8 +48,8 @@ public:
 
     [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
 private:
     float g_radius;

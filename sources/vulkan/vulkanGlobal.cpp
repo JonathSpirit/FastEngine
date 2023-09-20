@@ -25,12 +25,12 @@ namespace fge::vulkan
 {
 
 #ifdef FGE_ENABLE_VALIDATION_LAYERS
-std::vector<const char*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
+std::vector<char const*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
 #else
-std::vector<const char*> ValidationLayers = {};
+std::vector<char const*> ValidationLayers = {};
 #endif
 
-std::vector<const char*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+std::vector<char const*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                              VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME};
 
 namespace
@@ -56,7 +56,7 @@ void SetActiveContext(Context& context)
     gActiveContext = &context;
 }
 
-bool CheckValidationLayerSupport(const char* layerName)
+bool CheckValidationLayerSupport(char const* layerName)
 {
     static std::vector<VkLayerProperties> availableLayers;
 
@@ -69,7 +69,7 @@ bool CheckValidationLayerSupport(const char* layerName)
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
     }
 
-    for (const auto& layerProperties: availableLayers)
+    for (auto const& layerProperties: availableLayers)
     {
         if (std::strcmp(layerName, layerProperties.layerName) == 0)
         {
@@ -79,7 +79,7 @@ bool CheckValidationLayerSupport(const char* layerName)
     return false;
 }
 
-void CreateBuffer(const Context& context,
+void CreateBuffer(Context const& context,
                   VkDeviceSize size,
                   VkBufferUsageFlags usage,
                   VkMemoryPropertyFlags properties,
@@ -107,7 +107,7 @@ void CreateBuffer(const Context& context,
     }
 }
 
-void CreateImage(const Context& context,
+void CreateImage(Context const& context,
                  uint32_t width,
                  uint32_t height,
                  VkFormat format,
@@ -151,7 +151,7 @@ void CreateImage(const Context& context,
     }
 }
 
-VkImageView CreateImageView(const LogicalDevice& logicalDevice, VkImage image, VkFormat format)
+VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, VkFormat format)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

@@ -64,13 +64,13 @@ IpAddress::IpAddress() noexcept :
         g_address(0),
         g_valid(false)
 {}
-IpAddress::IpAddress(const std::string& address) :
+IpAddress::IpAddress(std::string const& address) :
         g_address(0),
         g_valid(false)
 {
     this->set(address.c_str());
 }
-IpAddress::IpAddress(const char* address) :
+IpAddress::IpAddress(char const* address) :
         g_address(0),
         g_valid(false)
 {
@@ -85,11 +85,11 @@ IpAddress::IpAddress(uint32_t address) noexcept :
         g_valid(true)
 {}
 
-bool IpAddress::set(const std::string& address)
+bool IpAddress::set(std::string const& address)
 {
     return this->set(address.c_str());
 }
-bool IpAddress::set(const char* address)
+bool IpAddress::set(char const* address)
 {
     if (std::strcmp(address, "255.255.255.255") == 0)
     { //Broadcast
@@ -157,7 +157,7 @@ bool IpAddress::setNetworkByteOrdered(uint32_t address)
     return true;
 }
 
-bool IpAddress::operator==(const fge::net::IpAddress& r) const
+bool IpAddress::operator==(fge::net::IpAddress const& r) const
 {
     return (this->g_address == r.g_address) && (this->g_valid == r.g_valid);
 }

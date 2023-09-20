@@ -59,11 +59,11 @@ public:
         };
 
         Descriptor() = default;
-        Descriptor(const UniformBuffer& uniformBuffer,
+        Descriptor(UniformBuffer const& uniformBuffer,
                    uint32_t binding,
                    BufferTypes type = BufferTypes::STATIC,
                    VkDeviceSize range = 0);
-        Descriptor(const TextureImage& textureImage, uint32_t binding);
+        Descriptor(TextureImage const& textureImage, uint32_t binding);
 
         std::variant<VkDescriptorBufferInfo, VkDescriptorImageInfo> _data;
         uint32_t _binding{0};
@@ -72,18 +72,18 @@ public:
     };
 
     DescriptorSet();
-    DescriptorSet(VkDescriptorSet descriptorSet, const DescriptorPool* pool, VkDescriptorPool descriptorPool);
-    DescriptorSet(const DescriptorSet& r);
+    DescriptorSet(VkDescriptorSet descriptorSet, DescriptorPool const* pool, VkDescriptorPool descriptorPool);
+    DescriptorSet(DescriptorSet const& r);
     DescriptorSet(DescriptorSet&& r) noexcept;
     ~DescriptorSet();
 
-    DescriptorSet& operator=(const DescriptorSet& r);
+    DescriptorSet& operator=(DescriptorSet const& r);
     DescriptorSet& operator=(DescriptorSet&& r) noexcept;
 
     void destroy();
 
     [[nodiscard]] VkDescriptorSet get() const;
-    [[nodiscard]] const DescriptorPool* getPool() const;
+    [[nodiscard]] DescriptorPool const* getPool() const;
     [[nodiscard]] Context const* getContext() const;
 
     /**
@@ -94,11 +94,11 @@ public:
      * \param descriptors An array of descriptors
      * \param descriptorSize The size of the array
      */
-    void updateDescriptorSet(const Descriptor* descriptors, std::size_t descriptorSize);
+    void updateDescriptorSet(Descriptor const* descriptors, std::size_t descriptorSize);
 
 private:
     VkDescriptorSet g_descriptorSet;
-    const DescriptorPool* g_pool;
+    DescriptorPool const* g_pool;
     VkDescriptorPool g_poolKey;
 };
 

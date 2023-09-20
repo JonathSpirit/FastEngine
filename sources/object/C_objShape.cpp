@@ -48,7 +48,7 @@ void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
 
 } //end namespace
 
-void ObjShape::setTexture(const Texture& texture, bool resetRect)
+void ObjShape::setTexture(Texture const& texture, bool resetRect)
 {
     if (texture.valid())
     {
@@ -63,18 +63,18 @@ void ObjShape::setTexture(const Texture& texture, bool resetRect)
     this->g_texture = texture;
 }
 
-const Texture& ObjShape::getTexture() const
+Texture const& ObjShape::getTexture() const
 {
     return this->g_texture;
 }
 
-void ObjShape::setTextureRect(const RectInt& rect)
+void ObjShape::setTextureRect(RectInt const& rect)
 {
     this->g_textureRect = rect;
     this->updateTexCoords();
 }
 
-const RectInt& ObjShape::getTextureRect() const
+RectInt const& ObjShape::getTextureRect() const
 {
     return this->g_textureRect;
 }
@@ -93,7 +93,7 @@ void ObjShape::setOutlineColor(Color color, std::size_t instance)
         this->retrieveInstance(instance)->_color[FGE_OBJSHAPE_INDEX_OUTLINECOLOR] = color;
     }
 }
-void ObjShape::setOffset(const fge::Vector2f& offset, std::size_t instance)
+void ObjShape::setOffset(fge::Vector2f const& offset, std::size_t instance)
 {
     if (instance < this->g_instancesCount)
     {
@@ -108,7 +108,7 @@ void ObjShape::setInstancesCount(std::size_t count)
     }
     this->resizeBuffer(count);
 }
-void ObjShape::addInstance(Color fillColor, Color outlineColor, const fge::Vector2f& offset)
+void ObjShape::addInstance(Color fillColor, Color outlineColor, fge::Vector2f const& offset)
 {
     this->resizeBuffer(this->g_instancesCount + 1);
     *this->retrieveInstance(this->g_instancesCount - 1) = {{fillColor, outlineColor}, offset};
@@ -130,7 +130,7 @@ Color ObjShape::getOutlineColor(std::size_t instance) const
 {
     return fge::Color(this->retrieveInstance(instance)->_color[FGE_OBJSHAPE_INDEX_OUTLINECOLOR]);
 }
-const fge::Vector2f& ObjShape::getOffset(std::size_t instance) const
+fge::Vector2f const& ObjShape::getOffset(std::size_t instance) const
 {
     return this->retrieveInstance(instance)->_offset;
 }
@@ -170,7 +170,7 @@ ObjShape::ObjShape() :
     this->resizeBuffer(1);
     *this->retrieveInstance(0) = {{fge::Color::White, fge::Color::White}, {0.0f, 0.0f}};
 }
-ObjShape::ObjShape(const ObjShape& r) :
+ObjShape::ObjShape(ObjShape const& r) :
         fge::Object(r),
         g_texture(r.g_texture),
         g_textureRect(r.g_textureRect),
@@ -281,11 +281,11 @@ void ObjShape::updateTexCoords()
 
     for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
     {
-        const float xratio =
+        float const xratio =
                 this->g_insideBounds._width > 0
                         ? (this->g_vertices[i]._position.x - this->g_insideBounds._x) / this->g_insideBounds._width
                         : 0;
-        const float yratio =
+        float const yratio =
                 this->g_insideBounds._height > 0
                         ? (this->g_vertices[i]._position.y - this->g_insideBounds._y) / this->g_insideBounds._height
                         : 0;
@@ -332,7 +332,7 @@ void ObjShape::updateOutline()
         }
 
         // Combine them to get the extrusion direction
-        const float factor = 1.f + (n1.x * n2.x + n1.y * n2.y);
+        float const factor = 1.f + (n1.x * n2.x + n1.y * n2.y);
         const fge::Vector2f normal = (n1 + n2) / factor;
 
         // Update the outline points

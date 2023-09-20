@@ -20,7 +20,7 @@ namespace fge
 //Property
 
 template<class T, typename>
-Property::Property(const T& val) :
+Property::Property(T const& val) :
         g_isModified(true)
 {
     if constexpr (std::is_integral<std::remove_reference_t<T>>::value ||
@@ -121,7 +121,7 @@ Property::Property(T&& val) :
 }
 
 template<class T, typename>
-fge::Property& Property::operator=(const T& val)
+fge::Property& Property::operator=(T const& val)
 {
     this->set(std::forward<T>(val));
     return *this;
@@ -270,7 +270,7 @@ bool Property::isType() const
 }
 
 template<class T, typename>
-bool Property::set(const T& val)
+bool Property::set(T const& val)
 {
     if constexpr (std::is_integral<std::remove_reference_t<T>>::value ||
                   std::is_enum<std::remove_reference_t<T>>::value)
@@ -649,7 +649,7 @@ bool Property::get(T& val) const
         val = *reinterpret_cast<std::string*>(this->g_data._ptr);
         return true;
     }
-    else if constexpr (std::is_same<T, const char*>::value)
+    else if constexpr (std::is_same<T, char const*>::value)
     {
         if (this->g_type != fge::Property::Types::PTYPE_STRING)
         {
@@ -765,7 +765,7 @@ std::optional<T> Property::get() const
 
         return *reinterpret_cast<std::string*>(this->g_data._ptr);
     }
-    else if constexpr (std::is_same<T, const char*>::value)
+    else if constexpr (std::is_same<T, char const*>::value)
     {
         if (this->g_type != fge::Property::Types::PTYPE_STRING)
         {
@@ -876,7 +876,7 @@ T* Property::getPtr()
     }
 }
 template<class T>
-const T* Property::getPtr() const
+T const* Property::getPtr() const
 {
     if constexpr (std::is_integral<T>::value || std::is_enum<T>::value)
     {
@@ -1006,7 +1006,7 @@ T* Property::getDataPtr(std::size_t index)
     return nullptr;
 }
 template<class T>
-const T* Property::getDataPtr(std::size_t index) const
+T const* Property::getDataPtr(std::size_t index) const
 {
     if (this->g_type == fge::Property::Types::PTYPE_CLASS)
     {
@@ -1032,7 +1032,7 @@ PropertyClassWrapperType<T>::PropertyClassWrapperType(T val) :
 {}
 
 template<class T>
-const std::type_info& PropertyClassWrapperType<T>::getType() const
+std::type_info const& PropertyClassWrapperType<T>::getType() const
 {
     return typeid(T);
 }
@@ -1057,24 +1057,24 @@ fge::PropertyClassWrapper* PropertyClassWrapperType<T>::copy() const
 }
 
 template<class T>
-bool PropertyClassWrapperType<T>::tryToCopy(const fge::PropertyClassWrapper* val)
+bool PropertyClassWrapperType<T>::tryToCopy(fge::PropertyClassWrapper const* val)
 {
     if (val->getType() == typeid(T))
     {
-        this->_data = reinterpret_cast<const fge::PropertyClassWrapperType<T>*>(val)->_data;
+        this->_data = reinterpret_cast<fge::PropertyClassWrapperType<T> const*>(val)->_data;
         return true;
     }
     return false;
 }
 
 template<class T>
-bool PropertyClassWrapperType<T>::compare(const fge::PropertyClassWrapper* val)
+bool PropertyClassWrapperType<T>::compare(fge::PropertyClassWrapper const* val)
 {
     if (val->getType() == typeid(T))
     {
         if constexpr (comparisonCheck::EqualExists<T>::value)
         {
-            return this->_data == reinterpret_cast<const fge::PropertyClassWrapperType<T>*>(val)->_data;
+            return this->_data == reinterpret_cast<fge::PropertyClassWrapperType<T> const*>(val)->_data;
         }
         else
         {

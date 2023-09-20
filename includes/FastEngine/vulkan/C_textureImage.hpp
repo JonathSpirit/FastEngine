@@ -33,24 +33,24 @@ class FGE_API TextureImage : public ContextAware
 {
 public:
     explicit TextureImage(Context const& context);
-    TextureImage(const TextureImage& r) = delete;
+    TextureImage(TextureImage const& r) = delete;
     TextureImage(TextureImage&& r) noexcept;
     ~TextureImage() override;
 
-    TextureImage& operator=(const TextureImage& r) = delete;
+    TextureImage& operator=(TextureImage const& r) = delete;
     TextureImage& operator=(TextureImage&& r) noexcept;
 
-    bool create(const glm::vec<2, int>& size);
+    bool create(glm::vec<2, int> const& size);
     bool create(SDL_Surface* surface);
     void destroy() final;
 
     [[nodiscard]] SDL_Surface* copyToSurface() const;
 
-    void update(SDL_Surface* surface, const glm::vec<2, int>& offset);
-    void update(const TextureImage& textureImage, const glm::vec<2, int>& offset);
-    void update(void* buffer, std::size_t bufferSize, const glm::vec<2, int>& size, const glm::vec<2, int>& offset);
+    void update(SDL_Surface* surface, glm::vec<2, int> const& offset);
+    void update(TextureImage const& textureImage, glm::vec<2, int> const& offset);
+    void update(void* buffer, std::size_t bufferSize, glm::vec<2, int> const& size, glm::vec<2, int> const& offset);
 
-    [[nodiscard]] const glm::vec<2, int>& getSize() const;
+    [[nodiscard]] glm::vec<2, int> const& getSize() const;
     [[nodiscard]] VkExtent2D getExtent() const;
     [[nodiscard]] int getBytesPerPixel() const;
 
@@ -66,10 +66,10 @@ public:
     void setFilter(VkFilter filter);
     [[nodiscard]] VkFilter getFilter() const;
 
-    [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
+    [[nodiscard]] fge::vulkan::DescriptorSet const& getDescriptorSet() const;
 
-    [[nodiscard]] fge::Vector2f normalizeTextureCoords(const fge::Vector2i& coords) const;
-    [[nodiscard]] fge::RectFloat normalizeTextureRect(const fge::RectInt& rect) const;
+    [[nodiscard]] fge::Vector2f normalizeTextureCoords(fge::Vector2i const& coords) const;
+    [[nodiscard]] fge::RectFloat normalizeTextureRect(fge::RectInt const& rect) const;
 
     [[nodiscard]] uint32_t getModificationCount() const;
 

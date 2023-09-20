@@ -32,15 +32,15 @@ class FGE_API ObjRenderMap : public fge::Object, public fge::Subscriber
 {
 public:
     ObjRenderMap();
-    ObjRenderMap(const fge::ObjRenderMap& r);
+    ObjRenderMap(fge::ObjRenderMap const& r);
     ObjRenderMap(fge::ObjRenderMap& r);
 
     fge::Object* copy() override { return new fge::ObjRenderMap(); }
 
-    void onDraw(const fge::Scene* scene, fge::RenderTarget& target);
+    void onDraw(fge::Scene const* scene, fge::RenderTarget& target);
 
-    void setClearColor(const fge::Color& color);
-    const fge::Color& getClearColor() const;
+    void setClearColor(fge::Color const& color);
+    fge::Color const& getClearColor() const;
 
     void first(fge::Scene* scene) override;
     FGE_OBJ_UPDATE_DECLARE
@@ -52,8 +52,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

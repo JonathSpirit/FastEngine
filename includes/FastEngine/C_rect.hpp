@@ -38,16 +38,16 @@ class Rect
 
 public:
     Rect();
-    Rect(const Vector2<T>& position, const Vector2<T>& size);
+    Rect(Vector2<T> const& position, Vector2<T> const& size);
 
     template<class U>
-    explicit Rect(const Rect<U>& rectangle);
+    explicit Rect(Rect<U> const& rectangle);
 
-    [[nodiscard]] bool operator==(const Rect<T>& right) const;
-    [[nodiscard]] bool operator!=(const Rect<T>& right) const;
+    [[nodiscard]] bool operator==(Rect<T> const& right) const;
+    [[nodiscard]] bool operator!=(Rect<T> const& right) const;
 
-    [[nodiscard]] bool contains(const Vector2<T>& point) const;
-    [[nodiscard]] std::optional<Rect<T>> findIntersection(const Rect<T>& rectangle) const;
+    [[nodiscard]] bool contains(Vector2<T> const& point) const;
+    [[nodiscard]] std::optional<Rect<T>> findIntersection(Rect<T> const& rectangle) const;
 
     [[nodiscard]] Vector2<T> getPosition() const;
     [[nodiscard]] Vector2<T> getSize() const;
@@ -62,7 +62,7 @@ using RectInt = Rect<int32_t>;
 using RectUint = Rect<uint32_t>;
 using RectFloat = Rect<float>;
 
-fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& right);
+fge::RectFloat operator*(glm::mat4 const& left, fge::RectFloat const& right);
 
 } // namespace fge
 

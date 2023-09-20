@@ -45,7 +45,7 @@ void Generator::setWorldSize(fge::Vector2i worldSize)
 {
     this->g_worldSize = worldSize;
 }
-const fge::Vector2i& Generator::getWorldSize() const
+fge::Vector2i const& Generator::getWorldSize() const
 {
     return this->g_worldSize;
 }

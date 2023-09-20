@@ -40,19 +40,19 @@ public:
             _b(0),
             _a(255)
     {}
-    explicit Color(const SDL_Color& sdlColor) noexcept :
+    explicit Color(SDL_Color const& sdlColor) noexcept :
             _r(sdlColor.r),
             _g(sdlColor.g),
             _b(sdlColor.b),
             _a(sdlColor.a)
     {}
-    explicit Color(const VkClearColorValue& clearColorValue) noexcept :
+    explicit Color(VkClearColorValue const& clearColorValue) noexcept :
             _r(static_cast<uint8_t>(clearColorValue.float32[0] * 255.0f)),
             _g(static_cast<uint8_t>(clearColorValue.float32[1] * 255.0f)),
             _b(static_cast<uint8_t>(clearColorValue.float32[2] * 255.0f)),
             _a(static_cast<uint8_t>(clearColorValue.float32[3] * 255.0f))
     {}
-    explicit Color(const glm::vec4& vec4) noexcept :
+    explicit Color(glm::vec4 const& vec4) noexcept :
             _r(static_cast<uint8_t>(vec4.r * 255.0f)),
             _g(static_cast<uint8_t>(vec4.g * 255.0f)),
             _b(static_cast<uint8_t>(vec4.b * 255.0f)),
@@ -91,13 +91,13 @@ public:
                (static_cast<uint32_t>(this->_b) << 8) | static_cast<uint32_t>(this->_a);
     }
 
-    bool operator==(const Color& right) const
+    bool operator==(Color const& right) const
     {
         return this->_r == right._r && this->_g == right._g && this->_b == right._b && this->_a == right._a;
     }
-    bool operator!=(const Color& right) const { return !this->operator==(right); }
+    bool operator!=(Color const& right) const { return !this->operator==(right); }
 
-    Color operator+(const Color& right) const
+    Color operator+(Color const& right) const
     {
         const uint16_t red = static_cast<uint16_t>(this->_r) + right._r;
         const uint16_t green = static_cast<uint16_t>(this->_g) + right._g;
@@ -108,17 +108,17 @@ public:
                 blue > 255 ? uint8_t(255) : static_cast<uint8_t>(blue),
                 alpha > 255 ? uint8_t(255) : static_cast<uint8_t>(alpha)};
     }
-    Color operator-(const Color& right) const
+    Color operator-(Color const& right) const
     {
-        const auto red = static_cast<int16_t>(this->_r - right._r);
-        const auto green = static_cast<int16_t>(this->_g - right._g);
-        const auto blue = static_cast<int16_t>(this->_b - right._b);
-        const auto alpha = static_cast<int16_t>(this->_a - right._a);
+        auto const red = static_cast<int16_t>(this->_r - right._r);
+        auto const green = static_cast<int16_t>(this->_g - right._g);
+        auto const blue = static_cast<int16_t>(this->_b - right._b);
+        auto const alpha = static_cast<int16_t>(this->_a - right._a);
         return {red < 0 ? uint8_t(0) : static_cast<uint8_t>(red), green < 0 ? uint8_t(0) : static_cast<uint8_t>(green),
                 blue < 0 ? uint8_t(0) : static_cast<uint8_t>(blue),
                 alpha < 0 ? uint8_t(0) : static_cast<uint8_t>(alpha)};
     }
-    Color operator*(const Color& right) const
+    Color operator*(Color const& right) const
     {
         const uint16_t red = static_cast<uint16_t>(this->_r) * right._r;
         const uint16_t green = static_cast<uint16_t>(this->_g) * right._g;
@@ -128,9 +128,9 @@ public:
                 static_cast<uint8_t>(alpha / 255)};
     }
 
-    Color& operator+=(const Color& right) { return this->operator=(this->operator+(right)); }
-    Color& operator-=(const Color& right) { return this->operator=(this->operator-(right)); }
-    Color& operator*=(const Color& right) { return this->operator=(this->operator*(right)); }
+    Color& operator+=(Color const& right) { return this->operator=(this->operator+(right)); }
+    Color& operator-=(Color const& right) { return this->operator=(this->operator-(right)); }
+    Color& operator*=(Color const& right) { return this->operator=(this->operator*(right)); }
 
     uint8_t _r;
     uint8_t _g;

@@ -19,17 +19,17 @@
 namespace fge
 {
 
-ObjRectangleShape::ObjRectangleShape(const Vector2f& size)
+ObjRectangleShape::ObjRectangleShape(Vector2f const& size)
 {
     this->setSize(size);
 }
 
-void ObjRectangleShape::setSize(const Vector2f& size)
+void ObjRectangleShape::setSize(Vector2f const& size)
 {
     this->g_size = size;
     this->updateShape();
 }
-const Vector2f& ObjRectangleShape::getSize() const
+Vector2f const& ObjRectangleShape::getSize() const
 {
     return this->g_size;
 }
@@ -55,11 +55,11 @@ Vector2f ObjRectangleShape::getPoint(std::size_t index) const
     }
 }
 
-const char* ObjRectangleShape::getClassName() const
+char const* ObjRectangleShape::getClassName() const
 {
     return FGE_OBJRECTANGLESHAPE_CLASSNAME;
 }
-const char* ObjRectangleShape::getReadableClassName() const
+char const* ObjRectangleShape::getReadableClassName() const
 {
     return "rectangle shape";
 }

@@ -56,18 +56,18 @@ public:
     };
 
     explicit Anchor(fge::Object* parent);
-    Anchor(fge::Object* parent, const Anchor& anchor);
-    Anchor(const Anchor& r) = delete;
+    Anchor(fge::Object* parent, Anchor const& anchor);
+    Anchor(Anchor const& r) = delete;
     Anchor(Anchor&& r) noexcept = delete;
     ~Anchor();
 
-    Anchor& operator=(const Anchor& r);
+    Anchor& operator=(Anchor const& r);
     Anchor& operator=(Anchor&& r) noexcept = delete;
 
-    void updateAnchor(const fge::Vector2f& customTargetSize = {0.0f, 0.0f});
+    void updateAnchor(fge::Vector2f const& customTargetSize = {0.0f, 0.0f});
 
     void setAnchor(fge::Anchor::Types type,
-                   const fge::Vector2<fge::Anchor::Shifts>& shift,
+                   fge::Vector2<fge::Anchor::Shifts> const& shift,
                    fge::ObjectSid target = FGE_SCENE_BAD_SID);
 
     [[nodiscard]] fge::Anchor::Types getAnchorType() const;

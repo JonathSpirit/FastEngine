@@ -85,7 +85,7 @@ TPeek fge::net::rules::ChainedArguments<TValue>::peek()
 
 template<class TValue, bool TInvertResult>
 fge::net::rules::ChainedArguments<TValue>
-RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args)
+RRange(TValue const& min, TValue const& max, fge::net::rules::ChainedArguments<TValue> args)
 {
     if (args._pck->isValid())
     {
@@ -102,7 +102,7 @@ RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<T
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args)
+fge::net::rules::ChainedArguments<TValue> RMustEqual(TValue const& a, fge::net::rules::ChainedArguments<TValue> args)
 {
     if (args._pck->isValid())
     {

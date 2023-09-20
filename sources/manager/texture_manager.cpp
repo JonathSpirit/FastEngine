@@ -88,7 +88,7 @@ std::unique_lock<std::mutex> AcquireLock()
 {
     return std::unique_lock<std::mutex>(_dataMutex);
 }
-fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lock<std::mutex>& lock)
+fge::texture::TextureDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
@@ -96,7 +96,7 @@ fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lo
     }
     return _dataTexture.begin();
 }
-fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock<std::mutex>& lock)
+fge::texture::TextureDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
     {
@@ -105,7 +105,7 @@ fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock
     return _dataTexture.end();
 }
 
-const fge::texture::TextureDataPtr& GetBadTexture()
+fge::texture::TextureDataPtr const& GetBadTexture()
 {
     return _dataTextureBad;
 }
@@ -139,7 +139,7 @@ bool Check(std::string_view name)
     return it != _dataTexture.end();
 }
 
-bool LoadFromSurface(std::string_view name, const fge::Surface& surface)
+bool LoadFromSurface(std::string_view name, fge::Surface const& surface)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -245,7 +245,7 @@ void UnloadAll()
     _dataTexture.clear();
 }
 
-bool Push(std::string_view name, const fge::texture::TextureDataPtr& data)
+bool Push(std::string_view name, fge::texture::TextureDataPtr const& data)
 {
     if (name == FGE_TEXTURE_BAD)
     {

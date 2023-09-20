@@ -72,7 +72,7 @@ void PhysicalDevice::updateDeviceExtensionSupport()
 
     std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
 
-    for (const auto& extension: availableExtensions)
+    for (auto const& extension: availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
     }
@@ -141,7 +141,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
     vkGetPhysicalDeviceQueueFamilyProperties(this->g_device, &queueFamilyCount, queueFamilies.data());
 
     int i = 0;
-    for (const auto& queueFamily: queueFamilies)
+    for (auto const& queueFamily: queueFamilies)
     {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {

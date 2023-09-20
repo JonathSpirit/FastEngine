@@ -23,7 +23,7 @@ namespace fge::vulkan
 
 //Descriptor
 
-DescriptorSet::Descriptor::Descriptor(const UniformBuffer& uniformBuffer,
+DescriptorSet::Descriptor::Descriptor(UniformBuffer const& uniformBuffer,
                                       uint32_t binding,
                                       BufferTypes type,
                                       VkDeviceSize range) :
@@ -33,7 +33,7 @@ DescriptorSet::Descriptor::Descriptor(const UniformBuffer& uniformBuffer,
         _binding(binding),
         _bufferType(type)
 {}
-DescriptorSet::Descriptor::Descriptor(const TextureImage& textureImage, uint32_t binding) :
+DescriptorSet::Descriptor::Descriptor(TextureImage const& textureImage, uint32_t binding) :
         _data(VkDescriptorImageInfo{.sampler = textureImage.getTextureSampler(),
                                     .imageView = textureImage.getTextureImageView(),
                                     .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}),
@@ -49,13 +49,13 @@ DescriptorSet::DescriptorSet() :
         g_poolKey(VK_NULL_HANDLE)
 {}
 DescriptorSet::DescriptorSet(VkDescriptorSet descriptorSet,
-                             const DescriptorPool* pool,
+                             DescriptorPool const* pool,
                              VkDescriptorPool descriptorPool) :
         g_descriptorSet(descriptorSet),
         g_pool(pool),
         g_poolKey(descriptorPool)
 {}
-DescriptorSet::DescriptorSet([[maybe_unused]] const DescriptorSet& r) :
+DescriptorSet::DescriptorSet([[maybe_unused]] DescriptorSet const& r) :
         DescriptorSet() ///TODO: better copy
 {}
 DescriptorSet::DescriptorSet(DescriptorSet&& r) noexcept :
@@ -84,7 +84,7 @@ void DescriptorSet::destroy()
     }
 }
 
-DescriptorSet& DescriptorSet::operator=([[maybe_unused]] const DescriptorSet& r)
+DescriptorSet& DescriptorSet::operator=([[maybe_unused]] DescriptorSet const& r)
 { ///TODO: better copy
     this->g_descriptorSet = VK_NULL_HANDLE;
     this->g_pool = nullptr;
@@ -114,7 +114,7 @@ DescriptorSet& DescriptorSet::operator=(DescriptorSet&& r) noexcept
 {
     return this->g_descriptorSet;
 }
-[[nodiscard]] const DescriptorPool* DescriptorSet::getPool() const
+[[nodiscard]] DescriptorPool const* DescriptorSet::getPool() const
 {
     return this->g_pool;
 }
@@ -127,7 +127,7 @@ DescriptorSet& DescriptorSet::operator=(DescriptorSet&& r) noexcept
     return nullptr;
 }
 
-void DescriptorSet::updateDescriptorSet(const Descriptor* descriptors, std::size_t descriptorSize)
+void DescriptorSet::updateDescriptorSet(Descriptor const* descriptors, std::size_t descriptorSize)
 {
     if (descriptors == nullptr || descriptorSize == 0 || this->g_descriptorSet == VK_NULL_HANDLE)
     {

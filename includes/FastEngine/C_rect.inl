@@ -26,7 +26,7 @@ Rect<T>::Rect() :
 {}
 
 template<class T>
-Rect<T>::Rect(const Vector2<T>& position, const Vector2<T>& size) :
+Rect<T>::Rect(Vector2<T> const& position, Vector2<T> const& size) :
         _x(position.x),
         _y(position.y),
         _width(size.x),
@@ -35,7 +35,7 @@ Rect<T>::Rect(const Vector2<T>& position, const Vector2<T>& size) :
 
 template<class T>
 template<class U>
-Rect<T>::Rect(const Rect<U>& rectangle) :
+Rect<T>::Rect(Rect<U> const& rectangle) :
         _x(static_cast<T>(rectangle._x)),
         _y(static_cast<T>(rectangle._y)),
         _width(static_cast<T>(rectangle._width)),
@@ -43,20 +43,20 @@ Rect<T>::Rect(const Rect<U>& rectangle) :
 {}
 
 template<class T>
-bool Rect<T>::operator==(const Rect<T>& right) const
+bool Rect<T>::operator==(Rect<T> const& right) const
 {
     return (this->_x == right._x) && (this->_width == right._width) && (this->_y == right._y) &&
            (this->_height == right._height);
 }
 
 template<class T>
-bool Rect<T>::operator!=(const Rect<T>& right) const
+bool Rect<T>::operator!=(Rect<T> const& right) const
 {
     return !this->operator==(right);
 }
 
 template<class T>
-bool Rect<T>::contains(const Vector2<T>& point) const
+bool Rect<T>::contains(Vector2<T> const& point) const
 {
     // Rectangles with negative dimensions are allowed, so we must handle them correctly
     const T farX = static_cast<T>(this->_x + this->_width);
@@ -72,7 +72,7 @@ bool Rect<T>::contains(const Vector2<T>& point) const
 }
 
 template<class T>
-std::optional<Rect<T>> Rect<T>::findIntersection(const Rect<T>& rectangle) const
+std::optional<Rect<T>> Rect<T>::findIntersection(Rect<T> const& rectangle) const
 {
     // Rectangles with negative dimensions are allowed, so we must handle them correctly
     const T r1FarX = static_cast<T>(this->_x + this->_width);
@@ -119,7 +119,7 @@ Vector2<T> Rect<T>::getSize() const
     return Vector2<T>(this->_width, this->_height);
 }
 
-inline fge::RectFloat operator*(const glm::mat4& left, const fge::RectFloat& right)
+inline fge::RectFloat operator*(glm::mat4 const& left, fge::RectFloat const& right)
 {
     // Transform the 4 corners of the rectangle
     const fge::Vector2f points[] = {left * glm::vec4(right._x, right._y, 0.0f, 1.0f),

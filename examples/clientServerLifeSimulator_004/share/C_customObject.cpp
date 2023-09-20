@@ -27,12 +27,12 @@ bool CustomObject::worldTick()
     return false;
 }
 
-fge::Vector2f ClampToMapLimit(const fge::Vector2f& position)
+fge::Vector2f ClampToMapLimit(fge::Vector2f const& position)
 {
     return {std::clamp<float>(position.x, LIFESIM_MAP_SIZE_MINX, LIFESIM_MAP_SIZE_MAXX),
             std::clamp<float>(position.y, LIFESIM_MAP_SIZE_MINY, LIFESIM_MAP_SIZE_MAXY)};
 }
-fge::Vector2f GetRandomPositionFromCenter(const fge::Vector2f& center, float maxDistance)
+fge::Vector2f GetRandomPositionFromCenter(fge::Vector2f const& center, float maxDistance)
 {
     fge::Vector2f forwardVector = fge::GetForwardVector(fge::_random.range<float>(0.0f, 360.0f));
     forwardVector *= fge::_random.range<float>(0.0f, maxDistance);

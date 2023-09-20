@@ -21,32 +21,32 @@ void PropertyList::delAllProperties()
 {
     this->g_data.clear();
 }
-void PropertyList::delProperty(const std::string& key)
+void PropertyList::delProperty(std::string const& key)
 {
     this->g_data.erase(key);
 }
 
-bool PropertyList::checkProperty(const std::string& key) const
+bool PropertyList::checkProperty(std::string const& key) const
 {
     return this->g_data.find(key) != this->g_data.cend();
 }
 
-void PropertyList::setProperty(const std::string& key, const fge::Property& value)
+void PropertyList::setProperty(std::string const& key, fge::Property const& value)
 {
     this->g_data[key] = value;
 }
-void PropertyList::setProperty(const std::string& key, fge::Property&& value)
+void PropertyList::setProperty(std::string const& key, fge::Property&& value)
 {
     this->g_data[key] = std::move(value);
 }
 
 template<typename T>
-T* PropertyList::getPropertyType(const std::string& key)
+T* PropertyList::getPropertyType(std::string const& key)
 {
     return this->g_data[key].getPtr<T>();
 }
 template<typename T>
-const T* PropertyList::getPropertyType(const std::string& key) const
+T const* PropertyList::getPropertyType(std::string const& key) const
 {
     auto it = this->g_data.find(key);
     if (it != this->g_data.cend())
@@ -56,11 +56,11 @@ const T* PropertyList::getPropertyType(const std::string& key) const
     return nullptr;
 }
 
-fge::Property& PropertyList::getProperty(const std::string& key)
+fge::Property& PropertyList::getProperty(std::string const& key)
 {
     return this->g_data[key];
 }
-const fge::Property& PropertyList::getProperty(const std::string& key) const
+fge::Property const& PropertyList::getProperty(std::string const& key) const
 {
     auto it = this->g_data.find(key);
     if (it != this->g_data.cend())
@@ -70,11 +70,11 @@ const fge::Property& PropertyList::getProperty(const std::string& key) const
     throw fge::Exception("key not found !");
 }
 
-fge::Property& PropertyList::operator[](const std::string& key)
+fge::Property& PropertyList::operator[](std::string const& key)
 {
     return this->g_data[key];
 }
-const fge::Property& PropertyList::operator[](const std::string& key) const
+fge::Property const& PropertyList::operator[](std::string const& key) const
 {
     auto it = this->g_data.find(key);
     if (it != this->g_data.cend())
@@ -106,11 +106,11 @@ fge::PropertyList::PropertyListType::const_iterator PropertyList::end() const
     return this->g_data.end();
 }
 
-fge::PropertyList::PropertyListType::const_iterator PropertyList::find(const std::string& key) const
+fge::PropertyList::PropertyListType::const_iterator PropertyList::find(std::string const& key) const
 {
     return this->g_data.find(key);
 }
-fge::PropertyList::PropertyListType::iterator PropertyList::find(const std::string& key)
+fge::PropertyList::PropertyListType::iterator PropertyList::find(std::string const& key)
 {
     return this->g_data.find(key);
 }
@@ -126,7 +126,7 @@ std::size_t PropertyList::countAllModificationFlags() const
 {
     std::size_t counter{0};
 
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data.second.isModified())
         {

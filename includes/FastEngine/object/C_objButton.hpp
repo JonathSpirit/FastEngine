@@ -31,19 +31,19 @@ class FGE_API ObjButton : public fge::Object, public fge::Subscriber, public fge
 {
 public:
     ObjButton();
-    ObjButton(fge::Texture textureOn, fge::Texture textureOff, const fge::Vector2f& pos = fge::Vector2f());
-    explicit ObjButton(const fge::Texture& texture, const fge::Vector2f& pos = fge::Vector2f());
+    ObjButton(fge::Texture textureOn, fge::Texture textureOff, fge::Vector2f const& pos = fge::Vector2f());
+    explicit ObjButton(fge::Texture const& texture, fge::Vector2f const& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjButton)
 
     fge::GuiElement* getGuiElement() override { return this; }
 
-    const fge::Texture& getTextureOn() const;
-    const fge::Texture& getTextureOff() const;
-    void setTextureOn(const fge::Texture& textureOn);
-    void setTextureOff(const fge::Texture& textureOff);
+    fge::Texture const& getTextureOn() const;
+    fge::Texture const& getTextureOff() const;
+    void setTextureOn(fge::Texture const& textureOn);
+    void setTextureOff(fge::Texture const& textureOff);
 
-    void setColor(const fge::Color& color);
+    void setColor(fge::Color const& color);
 
     void setActiveStat(bool active);
     bool getActiveStat() const;
@@ -57,8 +57,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
@@ -67,11 +67,11 @@ public:
 
 private:
     void
-    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
-    void onGuiMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg, fge::GuiElementContext& context);
+    onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
+    void onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
+    void onGuiMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg, fge::GuiElementContext& context);
 
-    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
     mutable fge::ObjSprite g_sprite;
 

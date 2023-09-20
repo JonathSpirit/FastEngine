@@ -89,7 +89,7 @@ fge::font::FontDataType::const_iterator GetCEnd()
     return _dataFont.cend();
 }
 
-const fge::font::FontDataPtr& GetBadFont()
+fge::font::FontDataPtr const& GetBadFont()
 {
     return _dataFontBad;
 }
@@ -185,7 +185,7 @@ void UnloadAll()
     _dataFont.clear();
 }
 
-bool Push(std::string_view name, const fge::font::FontDataPtr& data)
+bool Push(std::string_view name, fge::font::FontDataPtr const& data)
 {
     if (name == FGE_FONT_BAD)
     {

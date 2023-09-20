@@ -329,8 +329,8 @@ public:
      * \param receivedTimestamp The received timestamp
      * \return Latency in milliseconds
      */
-    static fge::net::Latency_ms computeLatency_ms(const fge::net::Timestamp& sentTimestamp,
-                                                  const fge::net::Timestamp& receivedTimestamp);
+    static fge::net::Latency_ms computeLatency_ms(fge::net::Timestamp const& sentTimestamp,
+                                                  fge::net::Timestamp const& receivedTimestamp);
 
     /**
      * \brief Clear the packet queue
@@ -345,7 +345,7 @@ public:
      *
      * \param pck The packet to send with eventual options
      */
-    void pushPacket(const fge::net::SendQueuePacket& pck);
+    void pushPacket(fge::net::SendQueuePacket const& pck);
     void pushPacket(fge::net::SendQueuePacket&& pck);
     /**
      * \brief Pop a packet from the queue

@@ -40,7 +40,7 @@ TileSetList& ObjTileMap::getTileSets()
 {
     return this->g_tileSets;
 }
-const TileSetList& ObjTileMap::getTileSets() const
+TileSetList const& ObjTileMap::getTileSets() const
 {
     return this->g_tileSets;
 }
@@ -49,7 +49,7 @@ TileLayerList& ObjTileMap::getTileLayers()
 {
     return this->g_layers;
 }
-const TileLayerList& ObjTileMap::getTileLayers() const
+TileLayerList const& ObjTileMap::getTileLayers() const
 {
     return this->g_layers;
 }
@@ -83,20 +83,20 @@ void ObjTileMap::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* s
 }
 void ObjTileMap::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
 {
-    const auto& tileSetsArray = jsonObject.at("tilesets");
+    auto const& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())
     {
-        for (const auto& tileSet: tileSetsArray)
+        for (auto const& tileSet: tileSetsArray)
         {
             this->g_tileSets.emplace_back(std::make_shared<fge::TileSet>());
             tileSet.get_to(*this->g_tileSets.back());
         }
     }
 
-    const auto& layersArray = jsonObject.at("layers");
+    auto const& layersArray = jsonObject.at("layers");
     if (layersArray.is_array())
     {
-        for (const auto& layer: layersArray)
+        for (auto const& layer: layersArray)
         {
             this->g_layers.emplace_back(std::make_shared<fge::TileLayer>());
             layer.get_to(*this->g_layers.back());
@@ -114,11 +114,11 @@ void ObjTileMap::unpack(fge::net::Packet& pck)
     fge::Object::unpack(pck);
 }
 
-const char* ObjTileMap::getClassName() const
+char const* ObjTileMap::getClassName() const
 {
     return FGE_OBJTILEMAP_CLASSNAME;
 }
-const char* ObjTileMap::getReadableClassName() const
+char const* ObjTileMap::getReadableClassName() const
 {
     return "tileMap";
 }

@@ -37,11 +37,11 @@ class FGE_API LogicalDevice
 {
 public:
     LogicalDevice();
-    LogicalDevice(const LogicalDevice& r) = delete;
+    LogicalDevice(LogicalDevice const& r) = delete;
     LogicalDevice(LogicalDevice&& r) noexcept;
     ~LogicalDevice();
 
-    LogicalDevice& operator=(const LogicalDevice& r) = delete;
+    LogicalDevice& operator=(LogicalDevice const& r) = delete;
     LogicalDevice& operator=(LogicalDevice&& r) noexcept = delete;
 
     void create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface);

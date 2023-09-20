@@ -40,25 +40,25 @@ class FGE_API ChildObjectsAccessor
 {
 public:
     ChildObjectsAccessor() = default;
-    ChildObjectsAccessor([[maybe_unused]] const ChildObjectsAccessor& r){};
+    ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor const& r){};
     ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor&& r) noexcept {};
 
-    ChildObjectsAccessor& operator=([[maybe_unused]] const ChildObjectsAccessor& r) { return *this; };
+    ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor const& r) { return *this; };
     ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor&& r) noexcept { return *this; };
 
     void clear();
 
-    void addExistingObject(const fge::ObjectDataWeak& parent,
+    void addExistingObject(fge::ObjectDataWeak const& parent,
                            fge::Object* object,
                            fge::Scene* linkedScene,
                            std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
-    void addNewObject(const fge::ObjectDataWeak& parent,
+    void addNewObject(fge::ObjectDataWeak const& parent,
                       fge::ObjectPtr&& newObject,
                       fge::Scene* linkedScene,
                       std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
 
     [[nodiscard]] std::size_t getSize() const;
-    [[nodiscard]] const fge::Object* get(std::size_t index) const;
+    [[nodiscard]] fge::Object const* get(std::size_t index) const;
     [[nodiscard]] fge::Object* get(std::size_t index);
     [[nodiscard]] fge::ObjectDataShared getSharedPtr(std::size_t index) const;
 
@@ -66,11 +66,11 @@ public:
     void remove(std::size_t first, std::size_t last);
 
 #ifdef FGE_DEF_SERVER
-    void update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
+    void update(fge::Event& event, std::chrono::milliseconds const& deltaTime, fge::Scene* scene);
 #else
     void
-    update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene);
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const;
+    update(fge::RenderWindow& screen, fge::Event& event, std::chrono::milliseconds const& deltaTime, fge::Scene* scene);
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states) const;
 #endif //FGE_DEF_SERVER
 
     void putInFront(std::size_t index);

@@ -30,7 +30,7 @@ Animation::Animation() :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(const std::string& name, std::size_t frame) :
+Animation::Animation(std::string const& name, std::size_t frame) :
         g_data(fge::anim::GetAnimation(name)),
         g_name(name),
 
@@ -40,7 +40,7 @@ Animation::Animation(const std::string& name, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(const std::string& name, const std::string& group, std::size_t frame) :
+Animation::Animation(std::string const& name, std::string const& group, std::size_t frame) :
         g_data(fge::anim::GetAnimation(name)),
         g_name(name),
 
@@ -52,7 +52,7 @@ Animation::Animation(const std::string& name, const std::string& group, std::siz
 {
     this->setGroup(group);
 }
-Animation::Animation(const char* name, std::size_t frame) :
+Animation::Animation(char const* name, std::size_t frame) :
         g_data(fge::anim::GetAnimation(std::string(name))),
         g_name(name),
 
@@ -62,7 +62,7 @@ Animation::Animation(const char* name, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(const char* name, const char* group, std::size_t frame) :
+Animation::Animation(char const* name, char const* group, std::size_t frame) :
         g_data(fge::anim::GetAnimation(std::string(name))),
         g_name(name),
 
@@ -74,7 +74,7 @@ Animation::Animation(const char* name, const char* group, std::size_t frame) :
 {
     this->setGroup(std::string(group));
 }
-Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame) :
+Animation::Animation(fge::anim::AnimationDataPtr const& data, std::size_t frame) :
         g_data(data),
         g_name(FGE_ANIM_BAD),
 
@@ -84,7 +84,7 @@ Animation::Animation(const fge::anim::AnimationDataPtr& data, std::size_t frame)
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(const fge::anim::AnimationDataPtr& data, const std::string& group, std::size_t frame) :
+Animation::Animation(fge::anim::AnimationDataPtr const& data, std::string const& group, std::size_t frame) :
         g_data(data),
         g_name(FGE_ANIM_BAD),
 
@@ -96,7 +96,7 @@ Animation::Animation(const fge::anim::AnimationDataPtr& data, const std::string&
 {
     this->setGroup(group);
 }
-Animation::Animation(const fge::anim::AnimationDataPtr& data, const char* group, std::size_t frame) :
+Animation::Animation(fge::anim::AnimationDataPtr const& data, char const* group, std::size_t frame) :
         g_data(data),
         g_name(FGE_ANIM_BAD),
 
@@ -126,7 +126,7 @@ bool Animation::valid() const
     return this->g_data->_valid;
 }
 
-const std::string& Animation::getName() const
+std::string const& Animation::getName() const
 {
     return this->g_name;
 }
@@ -136,7 +136,7 @@ fge::anim::AnimationType Animation::getType() const
     return this->g_data->_type;
 }
 
-bool Animation::setGroup(const std::string& groupName)
+bool Animation::setGroup(std::string const& groupName)
 {
     if (this->isGroupValid())
     { //If same group, we do nothing
@@ -173,7 +173,7 @@ bool Animation::setGroup(std::size_t groupIndex)
     return false;
 }
 
-const fge::anim::AnimationGroup* Animation::getGroup() const
+fge::anim::AnimationGroup const* Animation::getGroup() const
 {
     if (this->g_groupIndex < this->g_data->_groups.size())
     {
@@ -189,7 +189,7 @@ fge::anim::AnimationGroup* Animation::getGroup()
     }
     return nullptr;
 }
-const fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName) const
+fge::anim::AnimationGroup const* Animation::getGroup(std::string const& groupName) const
 {
     for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
     {
@@ -200,7 +200,7 @@ const fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupNam
     }
     return nullptr;
 }
-fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName)
+fge::anim::AnimationGroup* Animation::getGroup(std::string const& groupName)
 {
     for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
     {
@@ -211,7 +211,7 @@ fge::anim::AnimationGroup* Animation::getGroup(const std::string& groupName)
     }
     return nullptr;
 }
-const fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex) const
+fge::anim::AnimationGroup const* Animation::getGroup(std::size_t groupIndex) const
 {
     if (groupIndex < this->g_data->_groups.size())
     {
@@ -282,7 +282,7 @@ std::size_t Animation::getGroupIndex() const
     return this->g_groupIndex;
 }
 
-const fge::anim::AnimationFrame* Animation::getFrame() const
+fge::anim::AnimationFrame const* Animation::getFrame() const
 {
     if (this->isFrameValid())
     {
@@ -298,7 +298,7 @@ fge::anim::AnimationFrame* Animation::getFrame()
     }
     return nullptr;
 }
-const fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex) const
+fge::anim::AnimationFrame const* Animation::getFrame(std::size_t frameIndex) const
 {
     if (this->isGroupValid())
     {
@@ -351,24 +351,24 @@ bool Animation::isReverse() const
     return this->g_reverse;
 }
 
-const fge::anim::AnimationDataPtr& Animation::getData() const
+fge::anim::AnimationDataPtr const& Animation::getData() const
 {
     return this->g_data;
 }
 
-fge::Animation& Animation::operator=(const std::string& name)
+fge::Animation& Animation::operator=(std::string const& name)
 {
     this->g_name = name;
     this->g_data = fge::anim::GetAnimation(name);
     return *this;
 }
-fge::Animation& Animation::operator=(const char* name)
+fge::Animation& Animation::operator=(char const* name)
 {
     this->g_name = std::string(name);
     this->g_data = fge::anim::GetAnimation(this->g_name);
     return *this;
 }
-fge::Animation& Animation::operator=(const fge::anim::AnimationDataPtr& data)
+fge::Animation& Animation::operator=(fge::anim::AnimationDataPtr const& data)
 {
     this->g_name = FGE_ANIM_BAD;
     this->g_data = data;
@@ -398,7 +398,7 @@ Animation::operator std::string&()
 {
     return this->g_name;
 }
-Animation::operator const std::string&() const
+Animation::operator std::string const&() const
 {
     return this->g_name;
 }

@@ -44,18 +44,18 @@ class FGE_API VertexBuffer : public ContextAware
 {
 public:
     explicit VertexBuffer(Context const& context);
-    VertexBuffer(const VertexBuffer& r);
+    VertexBuffer(VertexBuffer const& r);
     VertexBuffer(VertexBuffer&& r) noexcept;
     ~VertexBuffer() override;
 
-    VertexBuffer& operator=(const VertexBuffer& r);
+    VertexBuffer& operator=(VertexBuffer const& r);
     VertexBuffer& operator=(VertexBuffer&& r) noexcept;
 
     void create(std::size_t vertexSize, VkPrimitiveTopology topology, BufferTypes type = BufferTypes::DEFAULT);
 
     void clear();
     void resize(std::size_t vertexSize);
-    void append(const Vertex& vertex);
+    void append(Vertex const& vertex);
 
     void destroy() final;
 
@@ -64,10 +64,10 @@ public:
     [[nodiscard]] std::size_t getCount() const;
 
     [[nodiscard]] Vertex* getVertices();
-    [[nodiscard]] const Vertex* getVertices() const;
+    [[nodiscard]] Vertex const* getVertices() const;
 
     [[nodiscard]] Vertex& operator[](std::size_t index);
-    [[nodiscard]] const Vertex& operator[](std::size_t index) const;
+    [[nodiscard]] Vertex const& operator[](std::size_t index) const;
 
     void setPrimitiveTopology(VkPrimitiveTopology topology);
     [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
@@ -103,11 +103,11 @@ class FGE_API IndexBuffer : public ContextAware
 {
 public:
     explicit IndexBuffer(Context const& context);
-    IndexBuffer(const IndexBuffer& r);
+    IndexBuffer(IndexBuffer const& r);
     IndexBuffer(IndexBuffer&& r) noexcept;
     ~IndexBuffer() override;
 
-    IndexBuffer& operator=(const IndexBuffer& r);
+    IndexBuffer& operator=(IndexBuffer const& r);
     IndexBuffer& operator=(IndexBuffer&& r) noexcept;
 
     void create(std::size_t indexSize, BufferTypes type = BufferTypes::DEFAULT);
@@ -123,10 +123,10 @@ public:
     [[nodiscard]] std::size_t getCount() const;
 
     [[nodiscard]] uint16_t* getIndices();
-    [[nodiscard]] const uint16_t* getIndices() const;
+    [[nodiscard]] uint16_t const* getIndices() const;
 
     [[nodiscard]] uint16_t& operator[](std::size_t index);
-    [[nodiscard]] const uint16_t& operator[](std::size_t index) const;
+    [[nodiscard]] uint16_t const& operator[](std::size_t index) const;
 
     [[nodiscard]] VkBuffer getIndicesBuffer() const;
     [[nodiscard]] VmaAllocation getIndicesBufferAllocation() const;

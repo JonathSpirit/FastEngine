@@ -55,11 +55,11 @@ public:
     };
 
     explicit PhysicalDevice(VkPhysicalDevice device = VK_NULL_HANDLE);
-    PhysicalDevice(const PhysicalDevice& r) = default;
+    PhysicalDevice(PhysicalDevice const& r) = default;
     PhysicalDevice(PhysicalDevice&& r) noexcept;
     ~PhysicalDevice() = default;
 
-    PhysicalDevice& operator=(const PhysicalDevice& r) = default;
+    PhysicalDevice& operator=(PhysicalDevice const& r) = default;
     PhysicalDevice& operator=(PhysicalDevice&& r) noexcept;
 
     [[nodiscard]] VkPhysicalDevice getDevice() const;

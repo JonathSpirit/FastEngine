@@ -48,7 +48,7 @@ void PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     std::size_t dataSrcSize = this->getDataSize();
     int dataDstSize = LZ4_compressBound(dataSrcSize);
-    const char* dataSrc = reinterpret_cast<const char*>(this->_g_data.data());
+    char const* dataSrc = reinterpret_cast<char const*>(this->_g_data.data());
 
     if (dataDstSize <= 0)
     { //input size is incorrect (too large or negative)
@@ -79,9 +79,9 @@ void PacketLZ4::onReceive(void* data, std::size_t dsize)
     }
 
     uint32_t dataUncompressedSize = 0;
-    const char* dataBuff = static_cast<const char*>(data);
+    char const* dataBuff = static_cast<char const*>(data);
 
-    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<const uint32_t*>(&dataBuff[0]));
+    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<uint32_t const*>(&dataBuff[0]));
 
     if ((dataUncompressedSize > LZ4_MAX_INPUT_SIZE) ||
         (dataUncompressedSize > fge::net::PacketLZ4::_maxUncompressedReceivedSize))
@@ -127,7 +127,7 @@ void PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     std::size_t dataSrcSize = this->getDataSize();
     int dataDstSize = LZ4_compressBound(dataSrcSize);
-    const char* dataSrc = reinterpret_cast<const char*>(this->_g_data.data());
+    char const* dataSrc = reinterpret_cast<char const*>(this->_g_data.data());
 
     if (dataDstSize <= 0)
     { //input size is incorrect (too large or negative)
@@ -159,9 +159,9 @@ void PacketLZ4HC::onReceive(void* data, std::size_t dsize)
     }
 
     uint32_t dataUncompressedSize = 0;
-    const char* dataBuff = static_cast<const char*>(data);
+    char const* dataBuff = static_cast<char const*>(data);
 
-    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<const uint32_t*>(&dataBuff[0]));
+    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<uint32_t const*>(&dataBuff[0]));
 
     if ((dataUncompressedSize > LZ4_MAX_INPUT_SIZE) ||
         (dataUncompressedSize > fge::net::PacketLZ4HC::_maxUncompressedReceivedSize))

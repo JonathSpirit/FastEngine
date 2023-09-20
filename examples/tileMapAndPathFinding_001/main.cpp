@@ -39,10 +39,10 @@ public:
         this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
     }
 
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override
     {
         //Draw path circles
-        for (const auto& circle: this->g_pathCircles)
+        for (auto const& circle: this->g_pathCircles)
         {
             target.draw(circle, states);
         }
@@ -51,8 +51,8 @@ public:
         target.draw(this->g_startCircle, states);
     }
 
-    void setWorldSize(const fge::Vector2i& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }
-    void setTileSize(const fge::Vector2i& tileSize) { this->g_tileSize = tileSize; }
+    void setWorldSize(fge::Vector2i const& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }
+    void setTileSize(fge::Vector2i const& tileSize) { this->g_tileSize = tileSize; }
     void setObstacle(fge::ObjTileMap* tileMap)
     {
         //Clear the collisions list
@@ -66,7 +66,7 @@ public:
         {
             for (std::size_t y = 0; y < tileLayer->getTiles().getSizeY(); ++y)
             {
-                const auto& tile = tileLayer->getTiles().get(x, y);
+                auto const& tile = tileLayer->getTiles().get(x, y);
                 auto tileSet = tile.getTileSet();
 
                 //Add every red tiles to the collisions list
@@ -80,7 +80,7 @@ public:
             }
         }
     }
-    void setGoal(const fge::Vector2f& globalPos)
+    void setGoal(fge::Vector2f const& globalPos)
     {
         //Convert the global position to a tile position
         this->g_goal.x = static_cast<int>(globalPos.x) / this->g_tileSize.x;
@@ -93,7 +93,7 @@ public:
         //Generate the path
         this->generatePath();
     }
-    void setStart(const fge::Vector2f& globalPos)
+    void setStart(fge::Vector2f const& globalPos)
     {
         //Convert the global position to a tile position
         this->g_start.x = static_cast<int>(globalPos.x) / this->g_tileSize.x;
@@ -128,7 +128,7 @@ public:
 
         //Prepare a circle shape for every path point
         this->g_pathCircles.clear();
-        for (const auto& pathPoint: this->g_path)
+        for (auto const& pathPoint: this->g_path)
         {
             fge::ObjCircleShape circle;
             circle.setRadius(5.f);
@@ -153,8 +153,8 @@ public:
         this->g_startCircle.setOutlineThickness(2.f);
     }
 
-    const char* getClassName() const override { return "PATHFINDER"; }
-    const char* getReadableClassName() const override { return "pathfinder"; }
+    char const* getClassName() const override { return "PATHFINDER"; }
+    char const* getReadableClassName() const override { return "pathfinder"; }
 
 private:
     fge::AStar::Generator g_pathGenerator;
@@ -220,8 +220,8 @@ public:
         pathFinder->getObject<PathFinder>()->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
 
         //Create event callback for moving the view
-        event._onKeyDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_KeyboardEvent&>{
-                [&](const fge::Event&, const SDL_KeyboardEvent& keyEvent) {
+        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>{
+                [&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             auto view = renderWindow.getView();
             if (keyEvent.keysym.sym == SDLK_LEFT || keyEvent.keysym.sym == SDLK_a)
             {
@@ -243,8 +243,8 @@ public:
         }});
 
         //Create event callback for zooming the view
-        event._onMouseWheel.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseWheelEvent&>{
-                [&](const fge::Event&, const SDL_MouseWheelEvent& mouseWheelEvent) {
+        event._onMouseWheel.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseWheelEvent const&>{
+                [&](fge::Event const&, SDL_MouseWheelEvent const& mouseWheelEvent) {
             auto view = renderWindow.getView();
             if (mouseWheelEvent.y > 0)
             {
@@ -258,8 +258,8 @@ public:
         }});
 
         //Create event callback for mouse button pressed
-        event._onMouseButtonDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseButtonEvent&>{
-                [&](const fge::Event&, const SDL_MouseButtonEvent& mouseButtonEvent) {
+        event._onMouseButtonDown.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseButtonEvent const&>{
+                [&](fge::Event const&, SDL_MouseButtonEvent const& mouseButtonEvent) {
             //Get the mouse position
             auto mousePosition = renderWindow.mapPixelToCoords(fge::Vector2i{mouseButtonEvent.x, mouseButtonEvent.y});
 

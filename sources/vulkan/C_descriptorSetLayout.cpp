@@ -99,7 +99,7 @@ VkDescriptorSetLayout DescriptorSetLayout::getLayout() const
 {
     return this->g_descriptorSetLayout;
 }
-const std::vector<VkDescriptorSetLayoutBinding>& DescriptorSetLayout::getBindings() const
+std::vector<VkDescriptorSetLayoutBinding> const& DescriptorSetLayout::getBindings() const
 {
     return this->g_bindings;
 }

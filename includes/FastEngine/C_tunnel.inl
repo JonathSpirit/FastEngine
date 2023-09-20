@@ -90,7 +90,7 @@ bool Tunnel<T>::addGate(fge::TunnelGate<T>& gate, bool anonymous)
 }
 
 template<class T>
-bool Tunnel<T>::isAnonymous(const fge::TunnelGate<T>& gate) const
+bool Tunnel<T>::isAnonymous(fge::TunnelGate<T> const& gate) const
 {
     for (std::size_t i = 0; i < this->g_anonymousGates.size(); ++i)
     {
@@ -207,7 +207,7 @@ TunnelGate<T>::TunnelGate() :
         g_locked(false)
 {}
 template<class T>
-TunnelGate<T>::TunnelGate(const fge::TunnelGate<T>& gate) :
+TunnelGate<T>::TunnelGate(fge::TunnelGate<T> const& gate) :
         g_data(gate.g_data),
         g_tunnel(nullptr),
         g_locked(gate.g_locked)
@@ -242,7 +242,7 @@ TunnelGate<T>::~TunnelGate()
 }
 
 template<class T>
-fge::TunnelGate<T>& TunnelGate<T>::operator=(const fge::TunnelGate<T>& gate)
+fge::TunnelGate<T>& TunnelGate<T>::operator=(fge::TunnelGate<T> const& gate)
 {
     this->g_data = nullptr;
     this->g_tunnel = nullptr;
@@ -294,7 +294,7 @@ void TunnelGate<T>::setData(T* val)
     this->g_data = val;
 }
 template<class T>
-const T* TunnelGate<T>::getData() const
+T const* TunnelGate<T>::getData() const
 {
     return this->g_data;
 }

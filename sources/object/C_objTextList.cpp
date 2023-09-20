@@ -26,7 +26,7 @@ ObjTextList::ObjTextList()
     this->g_box.setOutlineColor(fge::Color{100, 100, 100, 255});
     this->g_box.setOutlineThickness(-2.0f);
 }
-ObjTextList::ObjTextList(const ObjTextList& r) :
+ObjTextList::ObjTextList(ObjTextList const& r) :
         fge::Object(r),
         fge::Subscriber(r),
 
@@ -110,11 +110,11 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
 }
 #endif
 
-const char* ObjTextList::getClassName() const
+char const* ObjTextList::getClassName() const
 {
     return FGE_OBJTEXTLIST_CLASSNAME;
 }
-const char* ObjTextList::getReadableClassName() const
+char const* ObjTextList::getReadableClassName() const
 {
     return "text list";
 }
@@ -149,7 +149,7 @@ fge::ObjText* ObjTextList::getText(std::size_t index)
     auto it = std::next(this->g_textList.begin(), index);
     return it == this->g_textList.end() ? nullptr : &(*it);
 }
-const fge::ObjText* ObjTextList::getText(std::size_t index) const
+fge::ObjText const* ObjTextList::getText(std::size_t index) const
 {
     auto it = std::next(this->g_textList.begin(), index);
     return it == this->g_textList.end() ? nullptr : &(*it);
@@ -168,12 +168,12 @@ void ObjTextList::setFont(fge::Font font)
         text.setFont(this->g_font);
     }
 }
-const fge::Font& ObjTextList::getFont() const
+fge::Font const& ObjTextList::getFont() const
 {
     return this->g_font;
 }
 
-void ObjTextList::setBoxSize(const fge::DynamicSize& size)
+void ObjTextList::setBoxSize(fge::DynamicSize const& size)
 {
     this->g_boxSize = size;
     this->refreshSize(this->g_guiElementHandler->_lastSize);
@@ -206,11 +206,11 @@ void ObjTextList::refreshSize()
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 }
 
-void ObjTextList::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const fge::Vector2f& size)
+void ObjTextList::onGuiResized([[maybe_unused]] fge::GuiElementHandler const& handler, fge::Vector2f const& size)
 {
     this->refreshSize(size);
 }
-void ObjTextList::refreshSize(const fge::Vector2f& targetSize)
+void ObjTextList::refreshSize(fge::Vector2f const& targetSize)
 {
     this->g_box.setSize(this->g_boxSize.getSize(this->getPosition(), targetSize));
 }

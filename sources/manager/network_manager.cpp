@@ -26,14 +26,14 @@ namespace fge::net
 uint32_t GetSceneChecksum(fge::Scene& scene)
 {
     uint32_t result = 0;
-    for (const auto& object: scene)
+    for (auto const& object: scene)
     {
         result += object->getSid();
     }
     return result;
 }
 
-bool WritePacketDataToFile(fge::net::Packet& pck, const std::string& file)
+bool WritePacketDataToFile(fge::net::Packet& pck, std::string const& file)
 {
     std::ofstream theFile(file, std::ios::binary);
     if (!theFile)
@@ -46,7 +46,7 @@ bool WritePacketDataToFile(fge::net::Packet& pck, const std::string& file)
     return true;
 }
 
-bool WriteOnSendPacketDataToFile(fge::net::Packet& pck, const std::string& file)
+bool WriteOnSendPacketDataToFile(fge::net::Packet& pck, std::string const& file)
 {
     std::ofstream theFile(file, std::ios::binary);
     if (!theFile)

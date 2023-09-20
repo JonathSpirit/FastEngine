@@ -150,14 +150,14 @@ FGE_API fge::anim::AnimationDataType::const_iterator GetCEnd();
  *
  * \return The bad animation
  */
-FGE_API const fge::anim::AnimationDataPtr& GetBadAnimation();
+FGE_API fge::anim::AnimationDataPtr const& GetBadAnimation();
 /**
  * \brief Get the animation with the given name
  *
  * \param name The name of the animation to get
  * \return The animation with the given name or the bad animation if not found
  */
-FGE_API fge::anim::AnimationDataPtr GetAnimation(const std::string& name);
+FGE_API fge::anim::AnimationDataPtr GetAnimation(std::string const& name);
 
 /**
  * \brief Check if the animation with the given name exist
@@ -165,7 +165,7 @@ FGE_API fge::anim::AnimationDataPtr GetAnimation(const std::string& name);
  * \param name The name of the animation to check
  * \return \b true if the animation exist, \b false otherwise
  */
-FGE_API bool Check(const std::string& name);
+FGE_API bool Check(std::string const& name);
 
 /**
  * \brief Load the animation with the given name from the given file path
@@ -202,14 +202,14 @@ FGE_API bool Check(const std::string& name);
  * \param path The file path of the animation to load
  * \return \b true if the animation is loaded, \b false otherwise
  */
-FGE_API bool LoadFromFile(const std::string& name, std::filesystem::path path);
+FGE_API bool LoadFromFile(std::string const& name, std::filesystem::path path);
 /**
  * \brief Unload the animation with the given name
  *
  * \param name The name of the animation to unload
  * \return \b true if the animation is unloaded, \b false otherwise
  */
-FGE_API bool Unload(const std::string& name);
+FGE_API bool Unload(std::string const& name);
 /**
  * \brief Unload all the animations
  */
@@ -222,7 +222,7 @@ FGE_API void UnloadAll();
  * \param data The animation to push
  * \return \b true if the animation is pushed, \b false otherwise
  */
-FGE_API bool Push(const std::string& name, const fge::anim::AnimationDataPtr& data);
+FGE_API bool Push(std::string const& name, fge::anim::AnimationDataPtr const& data);
 
 /**
  * @}

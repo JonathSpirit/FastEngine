@@ -84,7 +84,7 @@ void PacketBZ2::onReceive(void* data, std::size_t dsize)
     uint32_t dataUncompressedSize = 0;
     char* dataBuff = static_cast<char*>(data);
 
-    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<const uint32_t*>(&dataBuff[0]));
+    dataUncompressedSize = fge::SwapHostNetEndian_32(*reinterpret_cast<uint32_t const*>(&dataBuff[0]));
 
     if (dataUncompressedSize > fge::net::PacketBZ2::_maxUncompressedReceivedSize)
     {

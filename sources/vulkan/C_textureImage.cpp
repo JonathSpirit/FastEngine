@@ -117,7 +117,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     return *this;
 }
 
-bool TextureImage::create(const glm::vec<2, int>& size)
+bool TextureImage::create(glm::vec<2, int> const& size)
 {
     this->destroy();
 
@@ -303,7 +303,7 @@ SDL_Surface* TextureImage::copyToSurface() const
     return surface;
 }
 
-void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
+void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
 {
     if (surface == nullptr)
     {
@@ -342,7 +342,7 @@ void TextureImage::update(SDL_Surface* surface, const glm::vec<2, int>& offset)
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
-void TextureImage::update(const TextureImage& textureImage, const glm::vec<2, int>& offset)
+void TextureImage::update(TextureImage const& textureImage, glm::vec<2, int> const& offset)
 {
     if (textureImage.g_textureImage == VK_NULL_HANDLE)
     {
@@ -373,8 +373,8 @@ void TextureImage::update(const TextureImage& textureImage, const glm::vec<2, in
 }
 void TextureImage::update(void* buffer,
                           std::size_t bufferSize,
-                          const glm::vec<2, int>& size,
-                          const glm::vec<2, int>& offset)
+                          glm::vec<2, int> const& size,
+                          glm::vec<2, int> const& offset)
 {
     if (buffer == nullptr || bufferSize == 0)
     {
@@ -414,7 +414,7 @@ void TextureImage::update(void* buffer,
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
 
-const glm::vec<2, int>& TextureImage::getSize() const
+glm::vec<2, int> const& TextureImage::getSize() const
 {
     return this->g_textureSize;
 }
@@ -481,12 +481,12 @@ VkFilter TextureImage::getFilter() const
     return this->g_filter;
 }
 
-const fge::vulkan::DescriptorSet& TextureImage::getDescriptorSet() const
+fge::vulkan::DescriptorSet const& TextureImage::getDescriptorSet() const
 {
     return this->g_textureDescriptorSet;
 }
 
-fge::Vector2f TextureImage::normalizeTextureCoords(const fge::Vector2i& coords) const
+fge::Vector2f TextureImage::normalizeTextureCoords(fge::Vector2i const& coords) const
 {
     if (this->g_textureSize.x == 0 || this->g_textureSize.y == 0)
     {
@@ -495,7 +495,7 @@ fge::Vector2f TextureImage::normalizeTextureCoords(const fge::Vector2i& coords) 
     return {static_cast<float>(coords.x) / static_cast<float>(this->g_textureSize.x),
             static_cast<float>(coords.y) / static_cast<float>(this->g_textureSize.y)};
 }
-fge::RectFloat TextureImage::normalizeTextureRect(const fge::RectInt& rect) const
+fge::RectFloat TextureImage::normalizeTextureRect(fge::RectInt const& rect) const
 {
     if (this->g_textureSize.x == 0 || this->g_textureSize.y == 0)
     {

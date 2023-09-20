@@ -19,11 +19,11 @@
 namespace fge
 {
 
-bool EventList::add(const std::string& name)
+bool EventList::add(std::string const& name)
 {
     return this->g_events.emplace(name, fge::Event()).second;
 }
-bool EventList::del(const std::string& name)
+bool EventList::del(std::string const& name)
 {
     return this->g_events.erase(name) >= 1;
 }
@@ -32,7 +32,7 @@ void EventList::delAll()
     this->g_events.clear();
 }
 
-fge::Event* EventList::get(const std::string& name)
+fge::Event* EventList::get(std::string const& name)
 {
     auto it = this->g_events.find(name);
 

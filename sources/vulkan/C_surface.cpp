@@ -70,7 +70,7 @@ Instance& Surface::getInstance()
 {
     return *this->g_instance;
 }
-const Instance& Surface::getInstance() const
+Instance const& Surface::getInstance() const
 {
     return *this->g_instance;
 }

@@ -33,26 +33,26 @@ class FGE_API ObjAnimation : public fge::Object
 {
 public:
     ObjAnimation();
-    explicit ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position = fge::Vector2f());
+    explicit ObjAnimation(fge::Animation const& animation, fge::Vector2f const& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjAnimation)
 
-    void setAnimation(const fge::Animation& animation);
-    void setTextureRect(const fge::RectInt& rectangle);
+    void setAnimation(fge::Animation const& animation);
+    void setTextureRect(fge::RectInt const& rectangle);
 
-    void setColor(const fge::Color& color);
+    void setColor(fge::Color const& color);
 
     void setPause(bool flag);
     bool isPaused() const;
 
     void refresh();
 
-    void setTickDuration(const std::chrono::milliseconds& tms);
-    const std::chrono::microseconds& getTickDuration() const;
+    void setTickDuration(std::chrono::milliseconds const& tms);
+    std::chrono::microseconds const& getTickDuration() const;
 
-    const fge::Animation& getAnimation() const;
+    fge::Animation const& getAnimation() const;
     fge::Animation& getAnimation();
-    const fge::RectInt& getTextureRect() const;
+    fge::RectInt const& getTextureRect() const;
 
     fge::Color getColor() const;
 
@@ -64,8 +64,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

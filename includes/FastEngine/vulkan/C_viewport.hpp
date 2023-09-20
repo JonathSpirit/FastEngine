@@ -30,12 +30,12 @@ public:
     Viewport(float x, float y, float width, float height);
     ~Viewport() = default;
 
-    [[nodiscard]] bool operator==(const Viewport& r) const
+    [[nodiscard]] bool operator==(Viewport const& r) const
     {
         return this->g_viewport.x == r.g_viewport.x && this->g_viewport.y == r.g_viewport.y &&
                this->g_viewport.width == r.g_viewport.width && this->g_viewport.height == r.g_viewport.height;
     }
-    [[nodiscard]] bool operator!=(const Viewport& r) const { return !this->operator==(r); }
+    [[nodiscard]] bool operator!=(Viewport const& r) const { return !this->operator==(r); }
 
     void setPosition(float x, float y);
     void setSize(float width, float height);
@@ -46,7 +46,7 @@ public:
     [[nodiscard]] float getWidth() const;
     [[nodiscard]] float getHeight() const;
 
-    [[nodiscard]] const VkViewport& getViewport() const;
+    [[nodiscard]] VkViewport const& getViewport() const;
 
     void cmdSetViewport(VkCommandBuffer commandBuffer) const;
 

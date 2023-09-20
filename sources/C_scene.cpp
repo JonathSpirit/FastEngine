@@ -69,7 +69,7 @@ Scene::Scene(std::string sceneName) :
 {
     this->g_updatedObjectIterator = this->g_data.end();
 }
-Scene::Scene(const Scene& r) :
+Scene::Scene(Scene const& r) :
         _netList(),
         _properties(r._properties),
 
@@ -92,7 +92,7 @@ Scene::Scene(const Scene& r) :
 {
     this->g_updatedObjectIterator = this->g_data.end();
 
-    for (const auto& objectData: r.g_data)
+    for (auto const& objectData: r.g_data)
     {
         this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
                         objectData->g_type);
@@ -100,7 +100,7 @@ Scene::Scene(const Scene& r) :
     //TODO: make sure to copy object parent too
 }
 
-Scene& Scene::operator=(const Scene& r)
+Scene& Scene::operator=(Scene const& r)
 {
     this->clear();
 
@@ -119,7 +119,7 @@ Scene& Scene::operator=(const Scene& r)
 
     this->g_callbackContext = r.g_callbackContext;
 
-    for (const auto& objectData: r.g_data)
+    for (auto const& objectData: r.g_data)
     {
         this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
                         objectData->g_type);
@@ -130,9 +130,9 @@ Scene& Scene::operator=(const Scene& r)
 
 /** Scene **/
 #ifdef FGE_DEF_SERVER
-void Scene::update(fge::Event& event, const std::chrono::microseconds& deltaTime)
+void Scene::update(fge::Event& event, std::chrono::microseconds const& deltaTime)
 #else
-void Scene::update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::microseconds& deltaTime)
+void Scene::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime)
 #endif //FGE_DEF_SERVER
 {
     for (this->g_updatedObjectIterator = this->g_data.begin(); this->g_updatedObjectIterator != this->g_data.end();
@@ -169,7 +169,7 @@ void Scene::update(fge::RenderWindow& screen, fge::Event& event, const std::chro
     }
 }
 #ifndef FGE_DEF_SERVER
-void Scene::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
+void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
     this->_onDraw.call(this, target);
 
@@ -345,7 +345,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
 
     return *it;
 }
-fge::ObjectDataShared Scene::newObject(const fge::ObjectDataShared& objectData, bool silent)
+fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, bool silent)
 {
     fge::ObjectSid generatedSid = this->generateSid(objectData->g_sid);
     if (generatedSid == FGE_SCENE_BAD_SID)
@@ -665,7 +665,7 @@ fge::ObjectDataShared Scene::getObject(fge::ObjectSid sid) const
     }
     return nullptr;
 }
-fge::ObjectDataShared Scene::getObject(const fge::Object* ptr) const
+fge::ObjectDataShared Scene::getObject(fge::Object const* ptr) const
 {
     auto it = this->find(ptr);
     if (it != this->g_data.cend())
@@ -689,10 +689,10 @@ fge::ObjectDataShared Scene::getUpdatedObject() const
 }
 
 /** Search function **/
-std::size_t Scene::getAllObj_ByPosition(const fge::Vector2f& pos, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByPosition(fge::Vector2f const& pos, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         auto objBounds = data->g_object->getGlobalBounds();
         if (objBounds.contains(pos))
@@ -703,10 +703,10 @@ std::size_t Scene::getAllObj_ByPosition(const fge::Vector2f& pos, fge::ObjectCon
     }
     return objCount;
 }
-std::size_t Scene::getAllObj_ByZone(const fge::RectFloat& zone, fge::ObjectContainer& buff) const
+std::size_t Scene::getAllObj_ByZone(fge::RectFloat const& zone, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         auto objBounds = data->g_object->getGlobalBounds();
         if (objBounds.findIntersection(zone))
@@ -718,26 +718,26 @@ std::size_t Scene::getAllObj_ByZone(const fge::RectFloat& zone, fge::ObjectConta
     return objCount;
 }
 #ifndef FGE_DEF_SERVER
-std::size_t Scene::getAllObj_ByLocalPosition(const fge::Vector2i& pos,
-                                             const fge::RenderTarget& target,
+std::size_t Scene::getAllObj_ByLocalPosition(fge::Vector2i const& pos,
+                                             fge::RenderTarget const& target,
                                              fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByPosition(
             target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()), buff);
 }
-std::size_t Scene::getAllObj_ByLocalZone(const fge::RectInt& zone,
-                                         const fge::RenderTarget& target,
+std::size_t Scene::getAllObj_ByLocalZone(fge::RectInt const& zone,
+                                         fge::RenderTarget const& target,
                                          fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByZone(
             fge::PixelToCoordRect(zone, target, this->g_customView ? *this->g_customView : target.getView()), buff);
 }
-std::size_t Scene::getAllObj_FromLocalPosition(const fge::Vector2i& pos,
-                                               const fge::RenderTarget& target,
+std::size_t Scene::getAllObj_FromLocalPosition(fge::Vector2i const& pos,
+                                               fge::RenderTarget const& target,
                                                fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         auto objBounds = fge::CoordToPixelRect(data->g_object->getGlobalBounds(), target,
                                                this->g_customView ? *this->g_customView : target.getView());
@@ -749,12 +749,12 @@ std::size_t Scene::getAllObj_FromLocalPosition(const fge::Vector2i& pos,
     }
     return objCount;
 }
-std::size_t Scene::getAllObj_FromLocalZone(const fge::RectInt& zone,
-                                           const fge::RenderTarget& target,
+std::size_t Scene::getAllObj_FromLocalZone(fge::RectInt const& zone,
+                                           fge::RenderTarget const& target,
                                            fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         auto objBounds = fge::CoordToPixelRect(data->g_object->getGlobalBounds(), target,
                                                this->g_customView ? *this->g_customView : target.getView());
@@ -771,7 +771,7 @@ std::size_t Scene::getAllObj_FromLocalZone(const fge::RectInt& zone,
 std::size_t Scene::getAllObj_ByClass(std::string_view class_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data->g_object->getClassName() == class_name)
         {
@@ -784,7 +784,7 @@ std::size_t Scene::getAllObj_ByClass(std::string_view class_name, fge::ObjectCon
 std::size_t Scene::getAllObj_ByTag(std::string_view tag_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data->g_object->_tags.check(tag_name))
         {
@@ -795,11 +795,11 @@ std::size_t Scene::getAllObj_ByTag(std::string_view tag_name, fge::ObjectContain
     return objCount;
 }
 
-fge::ObjectDataShared Scene::getFirstObj_ByPosition(const fge::Vector2f& pos) const
+fge::ObjectDataShared Scene::getFirstObj_ByPosition(fge::Vector2f const& pos) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
-        const fge::ObjectPtr& buffObj = data->g_object;
+        fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = buffObj->getGlobalBounds();
         if (objBounds.contains(pos))
         {
@@ -808,11 +808,11 @@ fge::ObjectDataShared Scene::getFirstObj_ByPosition(const fge::Vector2f& pos) co
     }
     return nullptr;
 }
-fge::ObjectDataShared Scene::getFirstObj_ByZone(const fge::RectFloat& zone) const
+fge::ObjectDataShared Scene::getFirstObj_ByZone(fge::RectFloat const& zone) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
-        const fge::ObjectPtr& buffObj = data->g_object;
+        fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = buffObj->getGlobalBounds();
         if (objBounds.findIntersection(zone))
         {
@@ -823,23 +823,23 @@ fge::ObjectDataShared Scene::getFirstObj_ByZone(const fge::RectFloat& zone) cons
 }
 
 #ifndef FGE_DEF_SERVER
-fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(const fge::Vector2i& pos,
-                                                         const fge::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(fge::Vector2i const& pos,
+                                                         fge::RenderTarget const& target) const
 {
     return this->getFirstObj_ByPosition(
             target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()));
 }
-fge::ObjectDataShared Scene::getFirstObj_ByLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const
 {
     return this->getFirstObj_ByZone(
             fge::PixelToCoordRect(zone, target, this->g_customView ? *this->g_customView : target.getView()));
 }
-fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(const fge::Vector2i& pos,
-                                                           const fge::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& pos,
+                                                           fge::RenderTarget const& target) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
-        const fge::ObjectPtr& buffObj = data->g_object;
+        fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = fge::CoordToPixelRect(buffObj->getGlobalBounds(), target,
                                                this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.contains(pos))
@@ -849,11 +849,11 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(const fge::Vector2i& 
     }
     return nullptr;
 }
-fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(const fge::RectInt& zone, const fge::RenderTarget& target) const
+fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
-        const fge::ObjectPtr& buffObj = data->g_object;
+        fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = fge::CoordToPixelRect(buffObj->getGlobalBounds(), target,
                                                this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.findIntersection(zone))
@@ -867,7 +867,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(const fge::RectInt& zone,
 
 fge::ObjectDataShared Scene::getFirstObj_ByClass(std::string_view class_name) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data->g_object->getClassName() == class_name)
         {
@@ -878,7 +878,7 @@ fge::ObjectDataShared Scene::getFirstObj_ByClass(std::string_view class_name) co
 }
 fge::ObjectDataShared Scene::getFirstObj_ByTag(std::string_view tag_name) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data->g_object->_tags.check(tag_name))
         {
@@ -889,9 +889,9 @@ fge::ObjectDataShared Scene::getFirstObj_ByTag(std::string_view tag_name) const
 }
 
 /** Static id **/
-fge::ObjectSid Scene::getSid(const fge::Object* ptr) const
+fge::ObjectSid Scene::getSid(fge::Object const* ptr) const
 {
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (*data == ptr)
         {
@@ -941,7 +941,7 @@ void Scene::pack(fge::net::Packet& pck)
 
     //OBJECT SIZE
     pck << static_cast<fge::net::SizeType>(this->g_data.size());
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data->g_type == fge::ObjectType::TYPE_GUI)
         { //Ignore GUI
@@ -1014,7 +1014,7 @@ void Scene::unpack(fge::net::Packet& pck)
         }
     }
 }
-void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, const fge::net::Identity& id)
+void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id)
 {
     //SCENE NAME
     pck << this->g_name;
@@ -1052,7 +1052,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
             sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
 
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         //MODIF COUNT/OBJECT DATA
         fge::net::SizeType countModification = 0;
@@ -1100,7 +1100,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
     clients.clearClientEvent();
 }
-void Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id)
+void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     //SCENE NAME
     pck << this->g_name;
@@ -1137,7 +1137,7 @@ void Scene::packModification(fge::net::Packet& pck, const fge::net::Identity& id
             sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
 
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         //MODIF COUNT/OBJECT DATA
         fge::net::SizeType countModification = 0;
@@ -1263,7 +1263,7 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
     std::size_t countObjectPos = pck.getDataSize();
     pck.pack(&countObject, sizeof(countObject)); //Will be rewritten
 
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         std::size_t dataPos = pck.getDataSize();
         constexpr const std::size_t reservedSize = sizeof(fge::ObjectSid);
@@ -1285,7 +1285,7 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
 
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
-void Scene::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id)
+void Scene::unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     fge::net::SizeType countObject{0};
     pck >> countObject;
@@ -1315,42 +1315,42 @@ void Scene::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& 
     }
 }
 
-void Scene::clientsCheckup(const fge::net::ClientList& clients)
+void Scene::clientsCheckup(fge::net::ClientList const& clients)
 {
     this->_netList.clientsCheckup(clients);
 
-    for (const auto& data: *this)
+    for (auto const& data: *this)
     {
         data->getObject()->_netList.clientsCheckup(clients);
     }
 }
 
-void Scene::forceCheckClient(const fge::net::Identity& id)
+void Scene::forceCheckClient(fge::net::Identity const& id)
 {
     this->_netList.forceCheckClient(id);
 
-    for (const auto& data: *this)
+    for (auto const& data: *this)
     {
         data->getObject()->_netList.forceCheckClient(id);
     }
 }
-void Scene::forceUncheckClient(const fge::net::Identity& id)
+void Scene::forceUncheckClient(fge::net::Identity const& id)
 {
     this->_netList.forceUncheckClient(id);
 
-    for (const auto& data: *this)
+    for (auto const& data: *this)
     {
         data->getObject()->_netList.forceUncheckClient(id);
     }
 }
 
 /** SceneNetEvent **/
-void Scene::clientsCheckupEvent(const fge::net::ClientList& clients)
+void Scene::clientsCheckupEvent(fge::net::ClientList const& clients)
 {
     //Remove/Add client
     for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
     {
-        const fge::net::ClientListEvent& evt = clients.getClientEvent(i);
+        fge::net::ClientListEvent const& evt = clients.getClientEvent(i);
         if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
         {
             this->g_networkEvents.erase(evt._id);
@@ -1361,14 +1361,14 @@ void Scene::clientsCheckupEvent(const fge::net::ClientList& clients)
         }
     }
 }
-void Scene::pushEvent(const fge::SceneNetEvent& netEvent)
+void Scene::pushEvent(fge::SceneNetEvent const& netEvent)
 {
     for (auto& networkEvent: this->g_networkEvents)
     {
         networkEvent.second.push(netEvent);
     }
 }
-bool Scene::pushEvent(const fge::SceneNetEvent& netEvent, const fge::net::Identity& id)
+bool Scene::pushEvent(fge::SceneNetEvent const& netEvent, fge::net::Identity const& id)
 {
     auto it = this->g_networkEvents.find(id);
     if (it != this->g_networkEvents.end())
@@ -1391,7 +1391,7 @@ bool Scene::isWatchingEvent() const
     return this->g_enableNetworkEventsFlag;
 }
 
-void Scene::deleteEvents(const fge::net::Identity& id)
+void Scene::deleteEvents(fge::net::Identity const& id)
 {
     auto it = this->g_networkEvents.find(id);
     if (it != this->g_networkEvents.end())
@@ -1411,7 +1411,7 @@ void Scene::clearEvents()
     this->g_networkEvents.clear();
 }
 
-void Scene::packWatchedEvent(fge::net::Packet& pck, const fge::net::Identity& id)
+void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     fge::net::SizeType counter = 0;
 
@@ -1525,7 +1525,7 @@ void Scene::setCustomView(std::shared_ptr<fge::View> customView)
 {
     this->g_customView = std::move(customView);
 }
-const std::shared_ptr<fge::View>& Scene::getCustomView() const
+std::shared_ptr<fge::View> const& Scene::getCustomView() const
 {
     return this->g_customView;
 }
@@ -1539,7 +1539,7 @@ void Scene::setLinkedRenderTarget(fge::RenderTarget* target)
 {
     this->g_linkedRenderTarget = target;
 }
-const fge::RenderTarget* Scene::getLinkedRenderTarget() const
+fge::RenderTarget const* Scene::getLinkedRenderTarget() const
 {
     return this->g_linkedRenderTarget;
 }
@@ -1548,7 +1548,7 @@ fge::RenderTarget* Scene::getLinkedRenderTarget()
     return this->g_linkedRenderTarget;
 }
 
-const fge::View* Scene::getRelatedView() const
+fge::View const* Scene::getRelatedView() const
 {
     if (this->g_customView != nullptr)
     {
@@ -1572,7 +1572,7 @@ fge::CallbackContext Scene::getCallbackContext() const
 
 /** Save/Load in file **/
 
-bool Scene::saveInFile(const std::string& path)
+bool Scene::saveInFile(std::string const& path)
 {
     nlohmann::json outputJson;
 
@@ -1582,7 +1582,7 @@ bool Scene::saveInFile(const std::string& path)
     this->saveCustomData(outputJson["SceneData"]);
 
     outputJson["Objects"] = nlohmann::json::array();
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         nlohmann::json objNewJson = nlohmann::json::object();
         nlohmann::json& objJson = objNewJson[data->getObject()->getClassName()];
@@ -1607,7 +1607,7 @@ bool Scene::saveInFile(const std::string& path)
     outFile.close();
     return false;
 }
-bool Scene::loadFromFile(const std::string& path)
+bool Scene::loadFromFile(std::string const& path)
 {
     std::ifstream inFile(path);
     if (!inFile)
@@ -1653,7 +1653,7 @@ fge::ObjectContainer::const_iterator Scene::find(fge::ObjectSid sid) const
     return (it != this->g_dataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second)
                                           : this->g_data.cend();
 }
-fge::ObjectContainer::const_iterator Scene::find(const fge::Object* ptr) const
+fge::ObjectContainer::const_iterator Scene::find(fge::Object const* ptr) const
 {
     for (auto it = this->g_data.cbegin(); it != this->g_data.cend(); ++it)
     {

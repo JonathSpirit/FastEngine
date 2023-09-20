@@ -76,20 +76,20 @@ public:
          *
          * \param position The local position of the tile
          */
-        void setPosition(const fge::Vector2f& position);
+        void setPosition(fge::Vector2f const& position);
         /**
          * \brief Get the local position of the tile
          *
          * \return The local position of the tile
          */
-        [[nodiscard]] const fge::Vector2f& getPosition() const;
+        [[nodiscard]] fge::Vector2f const& getPosition() const;
 
         /**
          * \brief Set the color of the tile
          *
          * \param color The color of the tile
          */
-        void setColor(const fge::Color& color);
+        void setColor(fge::Color const& color);
         /**
          * \brief Get the color of the tile
          *
@@ -110,7 +110,7 @@ public:
          *
          * \return The associated tileset pointer
          */
-        [[nodiscard]] const std::shared_ptr<fge::TileSet>& getTileSet() const;
+        [[nodiscard]] std::shared_ptr<fge::TileSet> const& getTileSet() const;
 
     private:
         void updatePositions();
@@ -127,7 +127,7 @@ public:
     TileLayer() = default;
 
 #ifndef FGE_DEF_SERVER
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override;
 #endif
 
     /**
@@ -159,14 +159,14 @@ public:
      *
      * \return The name of the layer
      */
-    [[nodiscard]] const std::string& getName() const;
+    [[nodiscard]] std::string const& getName() const;
 
     /**
      * \brief Get the matrix of tiles
      *
      * \return The matrix of tiles
      */
-    [[nodiscard]] const fge::Matrix<TileLayer::Tile>& getTiles() const;
+    [[nodiscard]] fge::Matrix<TileLayer::Tile> const& getTiles() const;
     /**
      * \brief Shortcut to set a global tile id and a new tileset
      *
@@ -175,7 +175,7 @@ public:
      * \param tileSets The list of tilesets
      * \param gid The global tile id
      */
-    void setGid(std::size_t x, std::size_t y, const TileSetList& tileSets, TileId gid);
+    void setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, TileId gid);
     /**
      * \brief Shortcut to set a global tile id
      *
@@ -197,18 +197,18 @@ public:
      *
      * \param tileSets The list of tilesets
      */
-    void refreshTextures(const TileSetList& tileSets);
+    void refreshTextures(TileSetList const& tileSets);
 
 private:
-    static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(const TileSetList& tileSets, TileId gid);
+    static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(TileSetList const& tileSets, TileId gid);
 
     TileId g_id{1};
     std::string g_name;
     fge::Matrix<TileLayer::Tile> g_data;
 };
 
-FGE_API void to_json(nlohmann::json& j, const fge::TileLayer& p);
-FGE_API void from_json(const nlohmann::json& j, fge::TileLayer& p);
+FGE_API void to_json(nlohmann::json& j, fge::TileLayer const& p);
+FGE_API void from_json(nlohmann::json const& j, fge::TileLayer& p);
 
 } // namespace fge
 

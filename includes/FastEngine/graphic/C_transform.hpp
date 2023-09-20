@@ -39,24 +39,24 @@ struct TransformUboData
 class FGE_API Transform
 {
 public:
-    explicit Transform(const fge::vulkan::Context& context = fge::vulkan::GetActiveContext());
-    Transform(const Transform& r);
+    explicit Transform(fge::vulkan::Context const& context = fge::vulkan::GetActiveContext());
+    Transform(Transform const& r);
     Transform(Transform&& r) noexcept = default;
     ~Transform();
 
-    Transform& operator=(const Transform& r);
+    Transform& operator=(Transform const& r);
     Transform& operator=(Transform&& r) noexcept = default;
 
-    const Transform* start(const fge::Transformable& transformable,
-                           const fge::Transform* parentTransform = nullptr) const;
-    const Transform* start(const fge::Transform* parentTransform) const;
+    Transform const* start(fge::Transformable const& transformable,
+                           fge::Transform const* parentTransform = nullptr) const;
+    Transform const* start(fge::Transform const* parentTransform) const;
 
     void destroy();
 
-    void recreateUniformBuffer(const fge::vulkan::Context& context);
+    void recreateUniformBuffer(fge::vulkan::Context const& context);
 
-    [[nodiscard]] const fge::vulkan::DescriptorSet& getDescriptorSet() const;
-    [[nodiscard]] const fge::vulkan::UniformBuffer& getUniformBuffer() const;
+    [[nodiscard]] fge::vulkan::DescriptorSet const& getDescriptorSet() const;
+    [[nodiscard]] fge::vulkan::UniformBuffer const& getUniformBuffer() const;
 
     [[nodiscard]] TransformUboData& getData() const;
 

@@ -40,19 +40,19 @@ namespace fge
 class FGE_API RenderTexture : public RenderTarget
 {
 public:
-    explicit RenderTexture(const glm::vec<2, int>& size = {1, 1},
-                           const fge::vulkan::Context& context = fge::vulkan::GetActiveContext());
-    RenderTexture(const RenderTexture& r);
+    explicit RenderTexture(glm::vec<2, int> const& size = {1, 1},
+                           fge::vulkan::Context const& context = fge::vulkan::GetActiveContext());
+    RenderTexture(RenderTexture const& r);
     RenderTexture(RenderTexture&& r) noexcept;
     ~RenderTexture() override;
 
-    RenderTexture& operator=(const RenderTexture& r);
+    RenderTexture& operator=(RenderTexture const& r);
     RenderTexture& operator=(RenderTexture&& r) noexcept;
 
-    void resize(const glm::vec<2, int>& size);
+    void resize(glm::vec<2, int> const& size);
     void destroy() final;
 
-    uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
+    uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;
@@ -65,12 +65,12 @@ public:
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
     [[nodiscard]] VkRenderPass getRenderPass() const override;
 
-    [[nodiscard]] const fge::vulkan::TextureImage& getTextureImage() const;
+    [[nodiscard]] fge::vulkan::TextureImage const& getTextureImage() const;
 
     [[nodiscard]] uint32_t getCurrentFrame() const;
 
 private:
-    void init(const glm::vec<2, int>& size);
+    void init(glm::vec<2, int> const& size);
 
     void createRenderPass();
 

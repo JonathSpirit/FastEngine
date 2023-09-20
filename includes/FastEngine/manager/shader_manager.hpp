@@ -116,7 +116,7 @@ FGE_API std::unique_lock<std::mutex> AcquireLock();
  * \param lock A unique lock bound to this mutex
  * \return The begin iterator of the shader manager
  */
-FGE_API fge::shader::ShaderDataType::const_iterator IteratorBegin(const std::unique_lock<std::mutex>& lock);
+FGE_API fge::shader::ShaderDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock);
 /**
  * \brief Get the end iterator of the shader manager
  *
@@ -125,14 +125,14 @@ FGE_API fge::shader::ShaderDataType::const_iterator IteratorBegin(const std::uni
  * \param lock A unique lock bound to this mutex
  * \return The begin iterator of the shader manager
  */
-FGE_API fge::shader::ShaderDataType::const_iterator IteratorEnd(const std::unique_lock<std::mutex>& lock);
+FGE_API fge::shader::ShaderDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock);
 
 /**
  * \brief Get the bad shader
  *
  * \return The bad shader
  */
-FGE_API const fge::shader::ShaderDataPtr& GetBadShader();
+FGE_API fge::shader::ShaderDataPtr const& GetBadShader();
 /**
  * \brief Get the shader with the given name
  *
@@ -164,7 +164,7 @@ FGE_API bool Check(std::string_view name);
  * \return \b true if the shader was loaded, \b false otherwise
  */
 FGE_API bool LoadFromMemory(std::string_view name,
-                            const void* data,
+                            void const* data,
                             int size,
                             fge::vulkan::Shader::Type type,
                             ShaderInputTypes input,
@@ -203,7 +203,7 @@ FGE_API void UnloadAll();
  * \param data The shader data to add
  * \return \b true if the shader was added, \b false otherwise
  */
-FGE_API bool Push(std::string_view name, const fge::shader::ShaderDataPtr& data);
+FGE_API bool Push(std::string_view name, fge::shader::ShaderDataPtr const& data);
 
 /**
  * \brief Public API access to glslang
@@ -219,15 +219,15 @@ FGE_API bool Push(std::string_view name, const fge::shader::ShaderDataPtr& data)
  * \return \b true if the shader was successfully compiled, \b false otherwise
  */
 FGE_API bool CompileAndLinkShader(fge::vulkan::Shader::Type type,
-                                  const char* shaderIn,
+                                  char const* shaderIn,
                                   int shaderInSize,
                                   std::vector<uint32_t>& shaderOut,
-                                  const char* shaderName,
-                                  const char* entryPointName,
+                                  char const* shaderName,
+                                  char const* entryPointName,
                                   bool debugBuild,
                                   bool isHlsl);
 
-FGE_API bool SaveSpirVToBinaryFile(const std::vector<uint32_t>& spirv, const std::filesystem::path& path);
+FGE_API bool SaveSpirVToBinaryFile(std::vector<uint32_t> const& spirv, std::filesystem::path const& path);
 
 /**
  * @}

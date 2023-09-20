@@ -82,7 +82,7 @@ public:
      *
      * \param pck The packet to push
      */
-    void sendToAll(const fge::net::SendQueuePacket& pck);
+    void sendToAll(fge::net::SendQueuePacket const& pck);
 
     /**
      * \brief Add a client to the list
@@ -90,13 +90,13 @@ public:
      * \param id The client's identity
      * \param newClient The client to add
      */
-    void add(const fge::net::Identity& id, const fge::net::ClientSharedPtr& newClient);
+    void add(fge::net::Identity const& id, fge::net::ClientSharedPtr const& newClient);
     /**
      * \brief Remove a client from the list
      *
      * \param id The client's identity
      */
-    void remove(const fge::net::Identity& id);
+    void remove(fge::net::Identity const& id);
     /**
      * \brief Remove a client from the list
      *
@@ -108,7 +108,7 @@ public:
      * \return The iterator after the erased element
      */
     fge::net::ClientList::ClientListData::iterator remove(fge::net::ClientList::ClientListData::const_iterator itPos,
-                                                          const std::unique_lock<std::recursive_mutex>& lock);
+                                                          std::unique_lock<std::recursive_mutex> const& lock);
 
     /**
      * \brief Get a client from the list
@@ -116,7 +116,7 @@ public:
      * \param id The client's identity
      * \return The client if found, nullptr otherwise
      */
-    fge::net::ClientSharedPtr get(const fge::net::Identity& id) const;
+    fge::net::ClientSharedPtr get(fge::net::Identity const& id) const;
 
     /**
      * \brief Acquire a unique lock, with the ClientList mutex
@@ -141,11 +141,11 @@ public:
      * \param lock A unique lock bound to this mutex
      * \return The begin iterator
      */
-    fge::net::ClientList::ClientListData::iterator begin(const std::unique_lock<std::recursive_mutex>& lock);
+    fge::net::ClientList::ClientListData::iterator begin(std::unique_lock<std::recursive_mutex> const& lock);
     fge::net::ClientList::ClientListData::const_iterator
-    begin(const std::unique_lock<std::recursive_mutex>& lock) const;
-    fge::net::ClientList::ClientListData::iterator end(const std::unique_lock<std::recursive_mutex>& lock);
-    fge::net::ClientList::ClientListData::const_iterator end(const std::unique_lock<std::recursive_mutex>& lock) const;
+    begin(std::unique_lock<std::recursive_mutex> const& lock) const;
+    fge::net::ClientList::ClientListData::iterator end(std::unique_lock<std::recursive_mutex> const& lock);
+    fge::net::ClientList::ClientListData::const_iterator end(std::unique_lock<std::recursive_mutex> const& lock) const;
 
     /**
      * \brief Get the number of clients in the list
@@ -174,13 +174,13 @@ public:
      *
      * \param evt A client event
      */
-    void pushClientEvent(const fge::net::ClientListEvent& evt);
+    void pushClientEvent(fge::net::ClientListEvent const& evt);
     /**
      * \brief Get the client event with its index
      *
      * \return The client event
      */
-    const fge::net::ClientListEvent& getClientEvent(std::size_t index) const;
+    fge::net::ClientListEvent const& getClientEvent(std::size_t index) const;
     /**
      * \brief Get the number of client events
      *

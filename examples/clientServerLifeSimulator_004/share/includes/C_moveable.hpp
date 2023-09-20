@@ -28,8 +28,8 @@ public:
     Moveable() = default;
     ~Moveable() = default;
 
-    void setTargetPos(const fge::Vector2f& pos);
-    bool updateMoveable(fge::Transformable& transformable, const std::chrono::microseconds& deltaTime);
+    void setTargetPos(fge::Vector2f const& pos);
+    bool updateMoveable(fge::Transformable& transformable, std::chrono::microseconds const& deltaTime);
 
 protected:
     fge::Vector2f _g_targetPos;

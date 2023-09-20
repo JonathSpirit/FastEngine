@@ -53,9 +53,9 @@ SwapChain::~SwapChain()
 }
 
 void SwapChain::create(SDL_Window* window,
-                       const LogicalDevice& logicalDevice,
-                       const PhysicalDevice& physicalDevice,
-                       const Surface& surface,
+                       LogicalDevice const& logicalDevice,
+                       PhysicalDevice const& physicalDevice,
+                       Surface const& surface,
                        VkPresentModeKHR wantedPresentMode)
 {
     auto swapChainSupport = physicalDevice.querySwapChainSupport(surface.getSurface());
@@ -148,7 +148,7 @@ VkSwapchainKHR SwapChain::getSwapChain() const
 {
     return this->g_swapChain;
 }
-const std::vector<VkImage>& SwapChain::getSwapChainImages() const
+std::vector<VkImage> const& SwapChain::getSwapChainImages() const
 {
     return this->g_swapChainImages;
 }
@@ -161,12 +161,12 @@ VkExtent2D SwapChain::getSwapChainExtent() const
     return this->g_swapChainExtent;
 }
 
-const std::vector<VkImageView>& SwapChain::getSwapChainImageViews() const
+std::vector<VkImageView> const& SwapChain::getSwapChainImageViews() const
 {
     return this->g_swapChainImageViews;
 }
 
-const LogicalDevice* SwapChain::getLogicalDevice() const
+LogicalDevice const* SwapChain::getLogicalDevice() const
 {
     return this->g_logicalDevice;
 }
@@ -182,9 +182,9 @@ void SwapChain::createImageViews()
     }
 }
 
-VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(std::vector<VkSurfaceFormatKHR> const& availableFormats)
 {
-    for (const auto& availableFormat: availableFormats)
+    for (auto const& availableFormat: availableFormats)
     {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
             availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -195,10 +195,10 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 
     return availableFormats[0];
 }
-VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes,
+VkPresentModeKHR SwapChain::chooseSwapPresentMode(std::vector<VkPresentModeKHR> const& availablePresentModes,
                                                   VkPresentModeKHR wantedPresentMode)
 {
-    for (const auto& availablePresentMode: availablePresentModes)
+    for (auto const& availablePresentMode: availablePresentModes)
     {
         if (availablePresentMode == wantedPresentMode)
         {
@@ -208,7 +208,7 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
 
     return VK_PRESENT_MODE_FIFO_KHR;
 }
-VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, SDL_Window* window)
+VkExtent2D SwapChain::chooseSwapExtent(VkSurfaceCapabilitiesKHR const& capabilities, SDL_Window* window)
 {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {

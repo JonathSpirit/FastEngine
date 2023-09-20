@@ -63,7 +63,7 @@ bool Check(fge::reg::ClassId classId)
     return classId < _dataClassIdMap.size();
 }
 
-fge::Object* Duplicate(const fge::Object* obj)
+fge::Object* Duplicate(fge::Object const* obj)
 {
     auto it = _dataClassNameMap.find(obj->getClassName());
 

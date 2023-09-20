@@ -80,14 +80,14 @@ struct Action
     fge::ObjectSid _target;
 };
 
-fge::net::Packet& operator<<(fge::net::Packet& pck, const CreatureData& data);
-const fge::net::Packet& operator>>(const fge::net::Packet& pck, CreatureData& data);
+fge::net::Packet& operator<<(fge::net::Packet& pck, CreatureData const& data);
+fge::net::Packet const& operator>>(fge::net::Packet const& pck, CreatureData& data);
 
 class Creature : public ls::CustomObject, public fge::Subscriber
 {
 public:
     Creature() = default;
-    explicit Creature(const fge::Vector2f& pos);
+    explicit Creature(fge::Vector2f const& pos);
     ~Creature() override = default;
 
     void first(fge::Scene* scene) override;
@@ -101,8 +101,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::Font _font;
 

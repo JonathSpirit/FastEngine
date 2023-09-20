@@ -56,14 +56,14 @@ class Drawable;
 class FGE_API RenderTarget : public fge::vulkan::ContextAware
 {
 protected:
-    explicit RenderTarget(const fge::vulkan::Context& context);
+    explicit RenderTarget(fge::vulkan::Context const& context);
 
     void initialize();
 
 public:
     struct GraphicPipelineKey
     {
-        [[nodiscard]] inline std::size_t operator()(const GraphicPipelineKey& k) const
+        [[nodiscard]] inline std::size_t operator()(GraphicPipelineKey const& k) const
         {
             const uint64_t val = (static_cast<uint64_t>(k._topology) << 38) | (static_cast<uint64_t>(k._id) << 30) |
                                  (static_cast<uint64_t>(k._blendMode._srcColorBlendFactor) << 25) |
@@ -74,7 +74,7 @@ public:
                                  (static_cast<uint64_t>(k._blendMode._alphaBlendOp));
             return std::hash<uint64_t>{}(val);
         }
-        [[nodiscard]] inline bool operator==(const GraphicPipelineKey& k) const
+        [[nodiscard]] inline bool operator==(GraphicPipelineKey const& k) const
         {
             return this->_topology == k._topology && this->_blendMode == k._blendMode && this->_id == k._id;
         }
@@ -92,30 +92,30 @@ public:
                                                 GraphicPipelineKey const&,
                                                 fge::vulkan::GraphicPipeline*);
 
-    RenderTarget(const RenderTarget& r);
+    RenderTarget(RenderTarget const& r);
     RenderTarget(RenderTarget&& r) noexcept;
     ~RenderTarget() override = default;
 
-    RenderTarget& operator=(const RenderTarget& r);
+    RenderTarget& operator=(RenderTarget const& r);
     RenderTarget& operator=(RenderTarget&& r) noexcept;
 
-    void setClearColor(const fge::Color& color);
+    void setClearColor(fge::Color const& color);
     [[nodiscard]] fge::Color getClearColor() const;
 
-    void setView(const View& view);
-    [[nodiscard]] const View& getView() const;
-    [[nodiscard]] const View& getDefaultView() const;
-    [[nodiscard]] fge::vulkan::Viewport getViewport(const View& view) const;
+    void setView(View const& view);
+    [[nodiscard]] View const& getView() const;
+    [[nodiscard]] View const& getDefaultView() const;
+    [[nodiscard]] fge::vulkan::Viewport getViewport(View const& view) const;
 
-    [[nodiscard]] Vector2f mapPixelToCoords(const Vector2i& point) const;
-    [[nodiscard]] Vector2f mapPixelToCoords(const Vector2i& point, const View& view) const;
-    [[nodiscard]] Vector2i mapCoordsToPixel(const Vector2f& point) const;
-    [[nodiscard]] Vector2i mapCoordsToPixel(const Vector2f& point, const View& view) const;
+    [[nodiscard]] Vector2f mapPixelToCoords(Vector2i const& point) const;
+    [[nodiscard]] Vector2f mapPixelToCoords(Vector2i const& point, View const& view) const;
+    [[nodiscard]] Vector2i mapCoordsToPixel(Vector2f const& point) const;
+    [[nodiscard]] Vector2i mapCoordsToPixel(Vector2f const& point, View const& view) const;
 
-    virtual uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) = 0;
+    virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
-    void draw(const fge::Drawable& drawable, const fge::RenderStates& states);
-    void draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline = nullptr);
+    void draw(fge::Drawable const& drawable, fge::RenderStates const& states);
+    void draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline = nullptr);
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
 
@@ -128,7 +128,7 @@ public:
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
 
     [[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
-                                                                   const GraphicPipelineKey& key,
+                                                                   GraphicPipelineKey const& key,
                                                                    GraphicPipelineConstructor constructor) const;
     void clearGraphicPipelineCache();
 
@@ -143,7 +143,7 @@ protected:
 
     mutable GraphicPipelineCache _g_graphicPipelineCache;
 
-    static const fge::vulkan::TextureImage* gLastTexture;
+    static fge::vulkan::TextureImage const* gLastTexture;
 };
 
 } // namespace fge

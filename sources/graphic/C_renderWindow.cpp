@@ -41,7 +41,7 @@ int ResizeCallback(void* userdata, SDL_Event* event)
 
 } // namespace
 
-RenderWindow::RenderWindow(const fge::vulkan::Context& context) :
+RenderWindow::RenderWindow(fge::vulkan::Context const& context) :
         RenderTarget(context),
         g_commandBuffers({VK_NULL_HANDLE}),
         g_imageAvailableSemaphores({VK_NULL_HANDLE}),
@@ -89,7 +89,7 @@ void RenderWindow::destroy()
     }
 }
 
-uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] const VkCommandBufferInheritanceInfo* inheritanceInfo)
+uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
     vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);

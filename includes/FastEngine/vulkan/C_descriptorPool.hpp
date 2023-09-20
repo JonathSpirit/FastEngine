@@ -42,11 +42,11 @@ class FGE_API DescriptorPool : public ContextAware
 {
 public:
     explicit DescriptorPool(Context const& context);
-    DescriptorPool(const DescriptorPool& r) = delete;
+    DescriptorPool(DescriptorPool const& r) = delete;
     DescriptorPool(DescriptorPool&& r) noexcept;
     ~DescriptorPool() override;
 
-    DescriptorPool& operator=(const DescriptorPool& r) = delete;
+    DescriptorPool& operator=(DescriptorPool const& r) = delete;
     DescriptorPool& operator=(DescriptorPool&& r) noexcept = delete;
 
     /**

@@ -29,7 +29,7 @@ namespace fge
 Object::Object() :
         fge::Anchor(this)
 {}
-Object::Object(const Object& r) :
+Object::Object(Object const& r) :
         fge::Transformable(r),
         fge::Anchor(this, r)
 {}
@@ -44,18 +44,18 @@ void Object::callbackRegister([[maybe_unused]] fge::Event& event,
 {}
 #ifdef FGE_DEF_SERVER
 void Object::update([[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] const std::chrono::microseconds& deltaTime,
+                    [[maybe_unused]] std::chrono::microseconds const& deltaTime,
                     [[maybe_unused]] fge::Scene* scene)
 #else
 void Object::update([[maybe_unused]] fge::RenderWindow& screen,
                     [[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] const std::chrono::microseconds& deltaTime,
+                    [[maybe_unused]] std::chrono::microseconds const& deltaTime,
                     [[maybe_unused]] fge::Scene* scene)
 #endif //FGE_DEF_SERVER
 {}
 
 #ifndef FGE_DEF_SERVER
-void Object::draw([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] const fge::RenderStates& states) const {}
+void Object::draw([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] fge::RenderStates const& states) const {}
 #endif //FGE_DEF_SERVER
 void Object::networkRegister() {}
 void Object::removed([[maybe_unused]] fge::Scene* scene) {}
@@ -73,7 +73,7 @@ void Object::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene
     jsonObject["_origin"] = this->getOrigin();
 
     jsonObject["tags"] = nlohmann::json::array();
-    for (const auto& tag: this->_tags)
+    for (auto const& tag: this->_tags)
     {
         jsonObject["tags"] += tag;
     }
@@ -112,11 +112,11 @@ void Object::unpack(fge::net::Packet& pck)
     this->setOrigin(buffVec2f);
 }
 
-const char* Object::getClassName() const
+char const* Object::getClassName() const
 {
     return FGE_OBJ_BADCLASSNAME;
 }
-const char* Object::getReadableClassName() const
+char const* Object::getReadableClassName() const
 {
     return FGE_OBJ_BADCLASSNAME;
 }
@@ -130,7 +130,7 @@ fge::RectFloat Object::getLocalBounds() const
     return {{0.0f, 0.0f}, {1.0f, 1.0f}};
 }
 
-bool Object::saveInFile(const std::string& path)
+bool Object::saveInFile(std::string const& path)
 {
     nlohmann::json objNewJson = nlohmann::json::object();
     nlohmann::json& objJson = objNewJson[this->getClassName()];
@@ -149,7 +149,7 @@ bool Object::saveInFile(const std::string& path)
     outFile.close();
     return false;
 }
-bool Object::loadFromFile(const std::string& path)
+bool Object::loadFromFile(std::string const& path)
 {
     std::ifstream inFile(path);
     if (!inFile)
@@ -173,7 +173,7 @@ bool Object::loadFromFile(const std::string& path)
     }
     return false;
 }
-fge::Object* Object::LoadFromFile(const std::string& path)
+fge::Object* Object::LoadFromFile(std::string const& path)
 {
     std::ifstream inFile(path);
     if (!inFile)

@@ -59,7 +59,7 @@ public:
      * \param windowSize The size of the window
      * \param windowPosition The position of the window
      */
-    explicit Event(const fge::Vector2i& windowSize, const fge::Vector2i& windowPosition) :
+    explicit Event(fge::Vector2i const& windowSize, fge::Vector2i const& windowPosition) :
             g_windowSize(windowSize),
             g_windowPosition(windowPosition)
     {}
@@ -70,7 +70,7 @@ public:
      */
 #ifndef FGE_DEF_SERVER
     explicit Event(SDL_Window* window);
-    explicit Event(const fge::RenderWindow& renderWindow);
+    explicit Event(fge::RenderWindow const& renderWindow);
 #endif //FGE_DEF_SERVER
     ~Event() = default;
 
@@ -101,7 +101,7 @@ public:
      *
      * \param evt The SDL event
      */
-    void process(const SDL_Event& evt);
+    void process(SDL_Event const& evt);
     /**
      * \brief Process automatically SDL events
      *
@@ -135,13 +135,13 @@ public:
      *
      * \return The window size
      */
-    const fge::Vector2i& getWindowSize() const;
+    fge::Vector2i const& getWindowSize() const;
     /**
      * \brief Get the window position
      *
      * \return The window position
      */
-    const fge::Vector2i& getWindowPos() const;
+    fge::Vector2i const& getWindowPos() const;
 
     /**
      * \brief Check if the specified SDL event is active
@@ -156,7 +156,7 @@ public:
      *
      * \return The mouse pixel position
      */
-    const fge::Vector2i& getMousePixelPos() const;
+    fge::Vector2i const& getMousePixelPos() const;
     /**
      * \brief Check if the specified mouse button is pressed
      *
@@ -213,69 +213,69 @@ public:
     std::string getBinaryMouseButtonsString() const;
 
     //Callbacks
-    fge::CallbackHandler<const fge::Event&, const SDL_QuitEvent&> _onQuit;
+    fge::CallbackHandler<fge::Event const&, SDL_QuitEvent const&> _onQuit;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppTerminating;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppLowMemory;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppWillEnterBackground;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppDidEnterBackground;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppWillEnterForeground;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onAppDidEnterForeground;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppTerminating;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppLowMemory;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppWillEnterBackground;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppDidEnterBackground;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppWillEnterForeground;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppDidEnterForeground;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_WindowEvent&> _onWindowEvent;
-    fge::CallbackHandler<const fge::Event&, const SDL_SysWMEvent&> _onSyswmEvent;
+    fge::CallbackHandler<fge::Event const&, SDL_WindowEvent const&> _onWindowEvent;
+    fge::CallbackHandler<fge::Event const&, SDL_SysWMEvent const&> _onSyswmEvent;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_KeyboardEvent&> _onKeyDown;
-    fge::CallbackHandler<const fge::Event&, const SDL_KeyboardEvent&> _onKeyUp;
-    fge::CallbackHandler<const fge::Event&, const SDL_TextEditingEvent&> _onTextEditing;
-    fge::CallbackHandler<const fge::Event&, const SDL_TextInputEvent&> _onTextInput;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onKeymapChanged;
+    fge::CallbackHandler<fge::Event const&, SDL_KeyboardEvent const&> _onKeyDown;
+    fge::CallbackHandler<fge::Event const&, SDL_KeyboardEvent const&> _onKeyUp;
+    fge::CallbackHandler<fge::Event const&, SDL_TextEditingEvent const&> _onTextEditing;
+    fge::CallbackHandler<fge::Event const&, SDL_TextInputEvent const&> _onTextInput;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onKeymapChanged;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_MouseMotionEvent&> _onMouseMotion;
-    fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&> _onMouseButtonDown;
-    fge::CallbackHandler<const fge::Event&, const SDL_MouseButtonEvent&> _onMouseButtonUp;
-    fge::CallbackHandler<const fge::Event&, const SDL_MouseWheelEvent&> _onMouseWheel;
+    fge::CallbackHandler<fge::Event const&, SDL_MouseMotionEvent const&> _onMouseMotion;
+    fge::CallbackHandler<fge::Event const&, SDL_MouseButtonEvent const&> _onMouseButtonDown;
+    fge::CallbackHandler<fge::Event const&, SDL_MouseButtonEvent const&> _onMouseButtonUp;
+    fge::CallbackHandler<fge::Event const&, SDL_MouseWheelEvent const&> _onMouseWheel;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyAxisEvent&> _onJoyAxisMotion;
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyBallEvent&> _onJoyBallMotion;
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyHatEvent&> _onJoyHatMotion;
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyButtonEvent&> _onJoyButtonDown;
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyButtonEvent&> _onJoyButtonUp;
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyDeviceEvent&> _onJoyDeviceAdded;
-    fge::CallbackHandler<const fge::Event&, const SDL_JoyDeviceEvent&> _onJoyDeviceRemoved;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyAxisEvent const&> _onJoyAxisMotion;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyBallEvent const&> _onJoyBallMotion;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyHatEvent const&> _onJoyHatMotion;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyButtonEvent const&> _onJoyButtonDown;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyButtonEvent const&> _onJoyButtonUp;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyDeviceEvent const&> _onJoyDeviceAdded;
+    fge::CallbackHandler<fge::Event const&, SDL_JoyDeviceEvent const&> _onJoyDeviceRemoved;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_ControllerAxisEvent&> _onControllerAxisMotion;
-    fge::CallbackHandler<const fge::Event&, const SDL_ControllerButtonEvent&> _onControllerButtonDown;
-    fge::CallbackHandler<const fge::Event&, const SDL_ControllerButtonEvent&> _onControllerButtonUp;
-    fge::CallbackHandler<const fge::Event&, const SDL_ControllerDeviceEvent&> _onControllerDeviceAdded;
-    fge::CallbackHandler<const fge::Event&, const SDL_ControllerDeviceEvent&> _onControllerDeviceRemoved;
-    fge::CallbackHandler<const fge::Event&, const SDL_ControllerDeviceEvent&> _onControllerDeviceRemapped;
+    fge::CallbackHandler<fge::Event const&, SDL_ControllerAxisEvent const&> _onControllerAxisMotion;
+    fge::CallbackHandler<fge::Event const&, SDL_ControllerButtonEvent const&> _onControllerButtonDown;
+    fge::CallbackHandler<fge::Event const&, SDL_ControllerButtonEvent const&> _onControllerButtonUp;
+    fge::CallbackHandler<fge::Event const&, SDL_ControllerDeviceEvent const&> _onControllerDeviceAdded;
+    fge::CallbackHandler<fge::Event const&, SDL_ControllerDeviceEvent const&> _onControllerDeviceRemoved;
+    fge::CallbackHandler<fge::Event const&, SDL_ControllerDeviceEvent const&> _onControllerDeviceRemapped;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_TouchFingerEvent&> _onFingerDown;
-    fge::CallbackHandler<const fge::Event&, const SDL_TouchFingerEvent&> _onFingerUp;
-    fge::CallbackHandler<const fge::Event&, const SDL_TouchFingerEvent&> _onFingerMotion;
+    fge::CallbackHandler<fge::Event const&, SDL_TouchFingerEvent const&> _onFingerDown;
+    fge::CallbackHandler<fge::Event const&, SDL_TouchFingerEvent const&> _onFingerUp;
+    fge::CallbackHandler<fge::Event const&, SDL_TouchFingerEvent const&> _onFingerMotion;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_DollarGestureEvent&> _onDollarGesture;
-    fge::CallbackHandler<const fge::Event&, const SDL_DollarGestureEvent&> _onDollarRecord;
-    fge::CallbackHandler<const fge::Event&, const SDL_MultiGestureEvent&> _onMultiGesture;
+    fge::CallbackHandler<fge::Event const&, SDL_DollarGestureEvent const&> _onDollarGesture;
+    fge::CallbackHandler<fge::Event const&, SDL_DollarGestureEvent const&> _onDollarRecord;
+    fge::CallbackHandler<fge::Event const&, SDL_MultiGestureEvent const&> _onMultiGesture;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onClipboardUpdate;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onClipboardUpdate;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropFile;
-    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropText;
-    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropBegin;
-    fge::CallbackHandler<const fge::Event&, const SDL_DropEvent&> _onDropComplete;
+    fge::CallbackHandler<fge::Event const&, SDL_DropEvent const&> _onDropFile;
+    fge::CallbackHandler<fge::Event const&, SDL_DropEvent const&> _onDropText;
+    fge::CallbackHandler<fge::Event const&, SDL_DropEvent const&> _onDropBegin;
+    fge::CallbackHandler<fge::Event const&, SDL_DropEvent const&> _onDropComplete;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_AudioDeviceEvent&> _onAudioDeviceAdded;
-    fge::CallbackHandler<const fge::Event&, const SDL_AudioDeviceEvent&> _onAudioDeviceRemoved;
+    fge::CallbackHandler<fge::Event const&, SDL_AudioDeviceEvent const&> _onAudioDeviceAdded;
+    fge::CallbackHandler<fge::Event const&, SDL_AudioDeviceEvent const&> _onAudioDeviceRemoved;
 
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onRenderTargetReset;
-    fge::CallbackHandler<const fge::Event&, const SDL_CommonEvent&> _onRenderDeviceReset;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onRenderTargetReset;
+    fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onRenderDeviceReset;
 
 private:
     static uint64_t EventTypeToBitMask(uint32_t type);
     static std::size_t KeycodeToBitIndex(uint32_t keyCode);
-    static uint32_t UTF8ToUTF32(const char* utf8);
+    static uint32_t UTF8ToUTF32(char const* utf8);
 
     //Event type
     uint64_t g_types = 0;

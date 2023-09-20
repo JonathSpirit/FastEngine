@@ -37,7 +37,7 @@ void ClientList::sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck)
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
 }
-void ClientList::sendToAll(const fge::net::SendQueuePacket& pck)
+void ClientList::sendToAll(fge::net::SendQueuePacket const& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     for (auto& it: this->g_data)
@@ -46,7 +46,7 @@ void ClientList::sendToAll(const fge::net::SendQueuePacket& pck)
     }
 }
 
-void ClientList::add(const fge::net::Identity& id, const fge::net::ClientSharedPtr& newClient)
+void ClientList::add(fge::net::Identity const& id, fge::net::ClientSharedPtr const& newClient)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_data[id] = newClient;
@@ -55,7 +55,7 @@ void ClientList::add(const fge::net::Identity& id, const fge::net::ClientSharedP
         this->g_events.push_back({fge::net::ClientListEvent::CLEVT_NEWCLIENT, id});
     }
 }
-void ClientList::remove(const fge::net::Identity& id)
+void ClientList::remove(fge::net::Identity const& id)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_data.erase(id);
@@ -66,7 +66,7 @@ void ClientList::remove(const fge::net::Identity& id)
 }
 fge::net::ClientList::ClientListData::iterator
 ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos,
-                   const std::unique_lock<std::recursive_mutex>& lock)
+                   std::unique_lock<std::recursive_mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -79,7 +79,7 @@ ClientList::remove(fge::net::ClientList::ClientListData::const_iterator itPos,
     return this->g_data.erase(itPos);
 }
 
-fge::net::ClientSharedPtr ClientList::get(const fge::net::Identity& id) const
+fge::net::ClientSharedPtr ClientList::get(fge::net::Identity const& id) const
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     auto it = this->g_data.find(id);
@@ -95,7 +95,7 @@ std::unique_lock<std::recursive_mutex> ClientList::acquireLock() const
     return std::unique_lock<std::recursive_mutex>(this->g_mutex);
 }
 
-fge::net::ClientList::ClientListData::iterator ClientList::begin(const std::unique_lock<std::recursive_mutex>& lock)
+fge::net::ClientList::ClientListData::iterator ClientList::begin(std::unique_lock<std::recursive_mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -104,7 +104,7 @@ fge::net::ClientList::ClientListData::iterator ClientList::begin(const std::uniq
     return this->g_data.begin();
 }
 fge::net::ClientList::ClientListData::const_iterator
-ClientList::begin(const std::unique_lock<std::recursive_mutex>& lock) const
+ClientList::begin(std::unique_lock<std::recursive_mutex> const& lock) const
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -112,7 +112,7 @@ ClientList::begin(const std::unique_lock<std::recursive_mutex>& lock) const
     }
     return this->g_data.cbegin();
 }
-fge::net::ClientList::ClientListData::iterator ClientList::end(const std::unique_lock<std::recursive_mutex>& lock)
+fge::net::ClientList::ClientListData::iterator ClientList::end(std::unique_lock<std::recursive_mutex> const& lock)
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -121,7 +121,7 @@ fge::net::ClientList::ClientListData::iterator ClientList::end(const std::unique
     return this->g_data.end();
 }
 fge::net::ClientList::ClientListData::const_iterator
-ClientList::end(const std::unique_lock<std::recursive_mutex>& lock) const
+ClientList::end(std::unique_lock<std::recursive_mutex> const& lock) const
 {
     if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
     {
@@ -146,13 +146,13 @@ bool ClientList::isWatchingEvent() const
     return this->g_enableClientEventsFlag;
 }
 
-void ClientList::pushClientEvent(const fge::net::ClientListEvent& evt)
+void ClientList::pushClientEvent(fge::net::ClientListEvent const& evt)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_events.push_back(evt);
 }
 
-const fge::net::ClientListEvent& ClientList::getClientEvent(std::size_t index) const
+fge::net::ClientListEvent const& ClientList::getClientEvent(std::size_t index) const
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     return this->g_events[index];

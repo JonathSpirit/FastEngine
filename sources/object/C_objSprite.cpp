@@ -24,13 +24,13 @@ ObjSprite::ObjSprite() :
 {
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }
-ObjSprite::ObjSprite(const fge::Texture& texture, const fge::Vector2f& position) :
+ObjSprite::ObjSprite(fge::Texture const& texture, fge::Vector2f const& position) :
         ObjSprite()
 {
     this->setTexture(texture);
     this->setPosition(position);
 }
-ObjSprite::ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position) :
+ObjSprite::ObjSprite(fge::Texture const& texture, fge::RectInt const& rectangle, fge::Vector2f const& position) :
         ObjSprite()
 {
     this->setTexture(texture);
@@ -38,7 +38,7 @@ ObjSprite::ObjSprite(const fge::Texture& texture, const fge::RectInt& rectangle,
     this->setPosition(position);
 }
 
-void ObjSprite::setTexture(const fge::Texture& texture, bool resetRect)
+void ObjSprite::setTexture(fge::Texture const& texture, bool resetRect)
 {
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if (resetRect || !this->g_texture.valid())
@@ -51,7 +51,7 @@ void ObjSprite::setTexture(const fge::Texture& texture, bool resetRect)
         this->g_texture = texture;
     }
 }
-void ObjSprite::setTextureRect(const fge::RectInt& rectangle)
+void ObjSprite::setTextureRect(fge::RectInt const& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -61,7 +61,7 @@ void ObjSprite::setTextureRect(const fge::RectInt& rectangle)
     }
 }
 
-void ObjSprite::setColor(const fge::Color& color)
+void ObjSprite::setColor(fge::Color const& color)
 {
     this->g_vertices.getVertices()[0]._color = color;
     this->g_vertices.getVertices()[1]._color = color;
@@ -69,11 +69,11 @@ void ObjSprite::setColor(const fge::Color& color)
     this->g_vertices.getVertices()[3]._color = color;
 }
 
-const fge::Texture& ObjSprite::getTexture() const
+fge::Texture const& ObjSprite::getTexture() const
 {
     return this->g_texture;
 }
-const fge::RectInt& ObjSprite::getTextureRect() const
+fge::RectInt const& ObjSprite::getTextureRect() const
 {
     return this->g_textureRect;
 }
@@ -125,11 +125,11 @@ void ObjSprite::unpack(fge::net::Packet& pck)
     this->setColor(color);
 }
 
-const char* ObjSprite::getClassName() const
+char const* ObjSprite::getClassName() const
 {
     return FGE_OBJSPRITE_CLASSNAME;
 }
-const char* ObjSprite::getReadableClassName() const
+char const* ObjSprite::getReadableClassName() const
 {
     return "sprite";
 }
@@ -140,8 +140,8 @@ fge::RectFloat ObjSprite::getGlobalBounds() const
 }
 fge::RectFloat ObjSprite::getLocalBounds() const
 {
-    const auto width = static_cast<float>(std::abs(this->g_textureRect._width));
-    const auto height = static_cast<float>(std::abs(this->g_textureRect._height));
+    auto const width = static_cast<float>(std::abs(this->g_textureRect._width));
+    auto const height = static_cast<float>(std::abs(this->g_textureRect._height));
 
     return {{0.f, 0.f}, {width, height}};
 }
@@ -158,7 +158,7 @@ void ObjSprite::updatePositions()
 
 void ObjSprite::updateTexCoords()
 {
-    const auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
+    auto const rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
     this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);

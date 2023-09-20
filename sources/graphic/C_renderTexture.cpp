@@ -23,7 +23,7 @@
 namespace fge
 {
 
-RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Context& context) :
+RenderTexture::RenderTexture(glm::vec<2, int> const& size, fge::vulkan::Context const& context) :
         RenderTarget(context),
         g_textureImage(context),
         g_renderPass(VK_NULL_HANDLE),
@@ -35,7 +35,7 @@ RenderTexture::RenderTexture(const glm::vec<2, int>& size, const fge::vulkan::Co
     this->init(size);
     this->initialize();
 }
-RenderTexture::RenderTexture(const RenderTexture& r) :
+RenderTexture::RenderTexture(RenderTexture const& r) :
         RenderTarget(r),
         g_textureImage(r.getContext()),
         g_renderPass(VK_NULL_HANDLE),
@@ -65,7 +65,7 @@ RenderTexture::~RenderTexture()
     this->destroy();
 }
 
-RenderTexture& RenderTexture::operator=(const RenderTexture& r)
+RenderTexture& RenderTexture::operator=(RenderTexture const& r)
 {
     this->verifyContext(r);
     this->destroy();
@@ -91,7 +91,7 @@ RenderTexture& RenderTexture::operator=(RenderTexture&& r) noexcept
     return *this;
 }
 
-void RenderTexture::resize(const glm::vec<2, int>& size)
+void RenderTexture::resize(glm::vec<2, int> const& size)
 {
     this->destroy();
     this->init(size);
@@ -123,7 +123,7 @@ void RenderTexture::destroy()
     }
 }
 
-uint32_t RenderTexture::prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo)
+uint32_t RenderTexture::prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
     vkResetCommandBuffer(this->g_commandBuffers[this->g_currentFrame], 0);
 
@@ -194,7 +194,7 @@ VkRenderPass RenderTexture::getRenderPass() const
     return this->g_renderPass;
 }
 
-const fge::vulkan::TextureImage& RenderTexture::getTextureImage() const
+fge::vulkan::TextureImage const& RenderTexture::getTextureImage() const
 {
     return this->g_textureImage;
 }
@@ -204,7 +204,7 @@ uint32_t RenderTexture::getCurrentFrame() const
     return this->g_currentFrame;
 }
 
-void RenderTexture::init(const glm::vec<2, int>& size)
+void RenderTexture::init(glm::vec<2, int> const& size)
 {
     if (this->g_isCreated)
     {

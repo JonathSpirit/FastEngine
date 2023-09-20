@@ -29,7 +29,7 @@ ObjAnimation::ObjAnimation() :
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
     this->setTextureRect(this->g_animation);
 }
-ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f& position) :
+ObjAnimation::ObjAnimation(fge::Animation const& animation, fge::Vector2f const& position) :
         g_vertices(fge::vulkan::GetActiveContext()),
         g_animation(animation),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
@@ -42,12 +42,12 @@ ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f&
     this->setTextureRect(this->g_animation);
 }
 
-void ObjAnimation::setAnimation(const fge::Animation& animation)
+void ObjAnimation::setAnimation(fge::Animation const& animation)
 {
     this->g_animation = animation;
     this->setTextureRect(this->g_animation);
 }
-void ObjAnimation::setTextureRect(const fge::RectInt& rectangle)
+void ObjAnimation::setTextureRect(fge::RectInt const& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -57,7 +57,7 @@ void ObjAnimation::setTextureRect(const fge::RectInt& rectangle)
     }
 }
 
-void ObjAnimation::setColor(const fge::Color& color)
+void ObjAnimation::setColor(fge::Color const& color)
 {
     this->g_vertices[0]._color = color;
     this->g_vertices[1]._color = color;
@@ -80,16 +80,16 @@ void ObjAnimation::refresh()
     this->setTextureRect(this->g_animation);
 }
 
-void ObjAnimation::setTickDuration(const std::chrono::milliseconds& tms)
+void ObjAnimation::setTickDuration(std::chrono::milliseconds const& tms)
 {
     this->g_tickDuration = tms;
 }
-const std::chrono::microseconds& ObjAnimation::getTickDuration() const
+std::chrono::microseconds const& ObjAnimation::getTickDuration() const
 {
     return this->g_tickDuration;
 }
 
-const fge::Animation& ObjAnimation::getAnimation() const
+fge::Animation const& ObjAnimation::getAnimation() const
 {
     return this->g_animation;
 }
@@ -97,7 +97,7 @@ fge::Animation& ObjAnimation::getAnimation()
 {
     return this->g_animation;
 }
-const fge::RectInt& ObjAnimation::getTextureRect() const
+fge::RectInt const& ObjAnimation::getTextureRect() const
 {
     return this->g_textureRect;
 }
@@ -200,11 +200,11 @@ void ObjAnimation::unpack(fge::net::Packet& pck)
     this->setTextureRect(this->g_animation);
 }
 
-const char* ObjAnimation::getClassName() const
+char const* ObjAnimation::getClassName() const
 {
     return FGE_OBJANIM_CLASSNAME;
 }
-const char* ObjAnimation::getReadableClassName() const
+char const* ObjAnimation::getReadableClassName() const
 {
     return "animation";
 }
@@ -215,8 +215,8 @@ fge::RectFloat ObjAnimation::getGlobalBounds() const
 }
 fge::RectFloat ObjAnimation::getLocalBounds() const
 {
-    const auto width = static_cast<float>(std::abs(this->g_textureRect._width));
-    const auto height = static_cast<float>(std::abs(this->g_textureRect._height));
+    auto const width = static_cast<float>(std::abs(this->g_textureRect._width));
+    auto const height = static_cast<float>(std::abs(this->g_textureRect._height));
 
     return {{0.f, 0.f}, {width, height}};
 }
@@ -232,7 +232,7 @@ void ObjAnimation::updatePositions()
 }
 void ObjAnimation::updateTexCoords()
 {
-    const auto rect = this->g_animation.retrieveTexture()->normalizeTextureRect(this->g_textureRect);
+    auto const rect = this->g_animation.retrieveTexture()->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
     this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);

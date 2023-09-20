@@ -26,12 +26,12 @@ namespace fge
 namespace log
 {
 
-FGE_API const std::string& SetDefaultFolder(const std::string& default_folder);
+FGE_API std::string const& SetDefaultFolder(std::string const& default_folder);
 
-FGE_API bool Remove(const std::string& name);
-FGE_API bool Clean(const std::string& name);
-FGE_API bool Rename(const std::string& name, const std::string& new_name);
-FGE_API bool Write(const std::string& name, const std::string& text, const std::string& desc = std::string());
+FGE_API bool Remove(std::string const& name);
+FGE_API bool Clean(std::string const& name);
+FGE_API bool Rename(std::string const& name, std::string const& new_name);
+FGE_API bool Write(std::string const& name, std::string const& text, std::string const& desc = std::string());
 
 } // namespace log
 } // namespace fge

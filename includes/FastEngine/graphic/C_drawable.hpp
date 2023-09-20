@@ -38,7 +38,7 @@ public:
     Drawable() = default;
     virtual ~Drawable() = default;
 
-    virtual void draw(RenderTarget& target, const RenderStates& states) const = 0;
+    virtual void draw(RenderTarget& target, RenderStates const& states) const = 0;
 
     fge::Transform _transform;
 };

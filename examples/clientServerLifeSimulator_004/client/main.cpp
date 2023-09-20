@@ -139,7 +139,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Create a latency text
     char latencyTextBuffer[200];
-    const char* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
+    char const* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
     auto* latencyText = mainScene
                                 ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)

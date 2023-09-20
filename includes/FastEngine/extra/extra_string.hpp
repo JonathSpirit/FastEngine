@@ -39,7 +39,7 @@ namespace string
  * \param str The string to check
  * \return \b True if the string is valid, \b False otherwise
  */
-FGE_API bool IsValidUtf8String(const std::string& str);
+FGE_API bool IsValidUtf8String(std::string const& str);
 
 /**
  * \ingroup extraString
@@ -48,7 +48,7 @@ FGE_API bool IsValidUtf8String(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API uint8_t ToUint8(const std::string& str);
+FGE_API uint8_t ToUint8(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an uint16_t
@@ -56,7 +56,7 @@ FGE_API uint8_t ToUint8(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API uint16_t ToUint16(const std::string& str);
+FGE_API uint16_t ToUint16(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an uint32_t
@@ -64,7 +64,7 @@ FGE_API uint16_t ToUint16(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API uint32_t ToUint32(const std::string& str);
+FGE_API uint32_t ToUint32(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an uint64_t
@@ -72,7 +72,7 @@ FGE_API uint32_t ToUint32(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API uint64_t ToUint64(const std::string& str);
+FGE_API uint64_t ToUint64(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an int8_t
@@ -80,7 +80,7 @@ FGE_API uint64_t ToUint64(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API int8_t ToInt8(const std::string& str);
+FGE_API int8_t ToInt8(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an int16_t
@@ -88,7 +88,7 @@ FGE_API int8_t ToInt8(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API int16_t ToInt16(const std::string& str);
+FGE_API int16_t ToInt16(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an int32_t
@@ -96,7 +96,7 @@ FGE_API int16_t ToInt16(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API int32_t ToInt32(const std::string& str);
+FGE_API int32_t ToInt32(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an int64_t
@@ -104,7 +104,7 @@ FGE_API int32_t ToInt32(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API int64_t ToInt64(const std::string& str);
+FGE_API int64_t ToInt64(std::string const& str);
 
 /**
  * \ingroup extraString
@@ -113,7 +113,7 @@ FGE_API int64_t ToInt64(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API unsigned int ToUint(const std::string& str);
+FGE_API unsigned int ToUint(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an int
@@ -121,7 +121,7 @@ FGE_API unsigned int ToUint(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API int ToInt(const std::string& str);
+FGE_API int ToInt(std::string const& str);
 
 /**
  * \ingroup extraString
@@ -130,7 +130,7 @@ FGE_API int ToInt(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API unsigned long long int ToUlong(const std::string& str);
+FGE_API unsigned long long int ToUlong(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to an long long int
@@ -138,7 +138,7 @@ FGE_API unsigned long long int ToUlong(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API long long int ToLong(const std::string& str);
+FGE_API long long int ToLong(std::string const& str);
 
 /**
  * \ingroup extraString
@@ -147,7 +147,7 @@ FGE_API long long int ToLong(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API float ToFloat(const std::string& str);
+FGE_API float ToFloat(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to a double
@@ -155,7 +155,7 @@ FGE_API float ToFloat(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API double ToDouble(const std::string& str);
+FGE_API double ToDouble(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a string to a long double
@@ -163,7 +163,7 @@ FGE_API double ToDouble(const std::string& str);
  * \param str The string to convert
  * \return The converted value or 0 if there is an error
  */
-FGE_API long double ToLongDouble(const std::string& str);
+FGE_API long double ToLongDouble(std::string const& str);
 
 /**
  * \ingroup extraString
@@ -172,7 +172,7 @@ FGE_API long double ToLongDouble(const std::string& str);
  * \param str The string to convert
  * \return The converted value or \b false if there is an error
  */
-FGE_API bool ToBool(const std::string& str);
+FGE_API bool ToBool(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert a string to a pointer (address)
@@ -185,7 +185,7 @@ FGE_API bool ToBool(const std::string& str);
  * \param str The string to convert
  * \return The converted address or \b nullptr if there is an error
  */
-FGE_API void* ToPtr(const std::string& str);
+FGE_API void* ToPtr(std::string const& str);
 
 /**
  * \ingroup extraString
@@ -196,7 +196,7 @@ FGE_API void* ToPtr(const std::string& str);
  * \param str The string to convert
  * \return The converted vector or a vector with 0,0 if there is an error
  */
-FGE_API fge::Vector2f ToVec2f(const std::string& str);
+FGE_API fge::Vector2f ToVec2f(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert a string to a vector2<unsigned int>
@@ -206,7 +206,7 @@ FGE_API fge::Vector2f ToVec2f(const std::string& str);
  * \param str The string to convert
  * \return The converted vector or a vector with 0,0 if there is an error
  */
-FGE_API fge::Vector2u ToVec2u(const std::string& str);
+FGE_API fge::Vector2u ToVec2u(std::string const& str);
 /**
  * \ingroup extraString
  * \brief Convert a string to a vector2<int>
@@ -216,7 +216,7 @@ FGE_API fge::Vector2u ToVec2u(const std::string& str);
  * \param str The string to convert
  * \return The converted vector or a vector with 0,0 if there is an error
  */
-FGE_API fge::Vector2i ToVec2i(const std::string& str);
+FGE_API fge::Vector2i ToVec2i(std::string const& str);
 
 //Arithmetic type
 
@@ -394,7 +394,7 @@ FGE_API std::string ToStr(void* val);
  * \param val The address to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const void* val);
+FGE_API std::string ToStr(void const* val);
 
 /**
  * \ingroup extraString
@@ -406,7 +406,7 @@ FGE_API std::string ToStr(const void* val);
  * \return The converted string
  */
 template<class T>
-std::string ToStr(const std::optional<T>& val);
+std::string ToStr(std::optional<T> const& val);
 
 //Classes
 
@@ -419,7 +419,7 @@ std::string ToStr(const std::optional<T>& val);
  * \param val The vector2 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const fge::Vector2f& val);
+FGE_API std::string ToStr(fge::Vector2f const& val);
 /**
  * \ingroup extraString
  * \brief Convert a vector2<unsigned int> to a string
@@ -429,7 +429,7 @@ FGE_API std::string ToStr(const fge::Vector2f& val);
  * \param val The vector2 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const fge::Vector2u& val);
+FGE_API std::string ToStr(fge::Vector2u const& val);
 /**
  * \ingroup extraString
  * \brief Convert a vector2<int> to a string
@@ -439,7 +439,7 @@ FGE_API std::string ToStr(const fge::Vector2u& val);
  * \param val The vector2 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const fge::Vector2i& val);
+FGE_API std::string ToStr(fge::Vector2i const& val);
 
 /**
  * \ingroup extraString
@@ -450,7 +450,7 @@ FGE_API std::string ToStr(const fge::Vector2i& val);
  * \param val The vector3 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const fge::Vector3f& val);
+FGE_API std::string ToStr(fge::Vector3f const& val);
 /**
  * \ingroup extraString
  * \brief Convert a vector3<int> to a string
@@ -460,7 +460,7 @@ FGE_API std::string ToStr(const fge::Vector3f& val);
  * \param val The vector3 to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const fge::Vector3i& val);
+FGE_API std::string ToStr(fge::Vector3i const& val);
 
 /**
  * \ingroup extraString
@@ -471,7 +471,7 @@ FGE_API std::string ToStr(const fge::Vector3i& val);
  * \param val The Property to convert
  * \return The converted string
  */
-FGE_API std::string ToStr(const fge::Property& val);
+FGE_API std::string ToStr(fge::Property const& val);
 
 /**
  * \ingroup extraString
@@ -483,7 +483,7 @@ FGE_API std::string ToStr(const fge::Property& val);
  * \return A string containing all the values of the list
  */
 template<class T>
-std::string ToStr(const std::list<T>& val, char separator = ' ');
+std::string ToStr(std::list<T> const& val, char separator = ' ');
 /**
  * \ingroup extraString
  * \brief Convert a vector of value to a string
@@ -494,7 +494,7 @@ std::string ToStr(const std::list<T>& val, char separator = ' ');
  * \return A string containing all the values of the vector
  */
 template<class T>
-std::string ToStr(const std::vector<T>& val, char separator = ' ');
+std::string ToStr(std::vector<T> const& val, char separator = ' ');
 
 /**
  * \ingroup extraString
@@ -505,7 +505,7 @@ std::string ToStr(const std::vector<T>& val, char separator = ' ');
  * \param separator The separator to use
  * \return The number of element added to the vector
  */
-FGE_API std::size_t Split(const std::string& str, std::vector<std::string>& output, char separator);
+FGE_API std::size_t Split(std::string const& str, std::vector<std::string>& output, char separator);
 
 } // namespace string
 } // namespace fge

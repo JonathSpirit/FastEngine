@@ -22,7 +22,7 @@ namespace net
 ///ServerUdp
 
 template<typename Tpacket>
-bool ServerUdp::start(fge::net::Port port, const fge::net::IpAddress& ip)
+bool ServerUdp::start(fge::net::Port port, fge::net::IpAddress const& ip)
 {
     if (this->g_running)
     {
@@ -101,8 +101,8 @@ void ServerUdp::serverThreadReception()
 
 template<typename Tpacket>
 bool ServerClientSideUdp::start(fge::net::Port port,
-                                const fge::net::IpAddress& ip,
-                                const fge::net::IpAddress& remoteAddress,
+                                fge::net::IpAddress const& ip,
+                                fge::net::IpAddress const& remoteAddress,
                                 fge::net::Port remotePort)
 {
     if (this->g_running)

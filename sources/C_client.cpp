@@ -125,8 +125,8 @@ fge::net::FullTimestamp Client::getFullTimestamp_ms()
             .count();
 }
 
-fge::net::Latency_ms Client::computeLatency_ms(const fge::net::Timestamp& sentTimestamp,
-                                               const fge::net::Timestamp& receivedTimestamp)
+fge::net::Latency_ms Client::computeLatency_ms(fge::net::Timestamp const& sentTimestamp,
+                                               fge::net::Timestamp const& receivedTimestamp)
 {
     int32_t t = static_cast<int32_t>(receivedTimestamp) - static_cast<int32_t>(sentTimestamp);
     if (t < 0)
@@ -145,7 +145,7 @@ void Client::clearPackets()
         this->g_pendingTransmitPackets.pop();
     }
 }
-void Client::pushPacket(const fge::net::SendQueuePacket& pck)
+void Client::pushPacket(fge::net::SendQueuePacket const& pck)
 {
     std::scoped_lock<std::recursive_mutex> lck(this->g_mutex);
     this->g_pendingTransmitPackets.push(pck);

@@ -18,12 +18,12 @@ namespace fge
 {
 
 template<class T>
-void to_json(nlohmann::json& j, const fge::Rect<T>& p)
+void to_json(nlohmann::json& j, fge::Rect<T> const& p)
 {
     j = nlohmann::json{{"x", p._x}, {"y", p._y}, {"w", p._width}, {"h", p._height}};
 }
 template<class T>
-void from_json(const nlohmann::json& j, fge::Rect<T>& p)
+void from_json(nlohmann::json const& j, fge::Rect<T>& p)
 {
     j.at("x").get_to(p._x);
     j.at("y").get_to(p._y);
@@ -32,35 +32,35 @@ void from_json(const nlohmann::json& j, fge::Rect<T>& p)
 }
 
 template<class T>
-void to_json(nlohmann::json& j, const fge::Vector2<T>& p)
+void to_json(nlohmann::json& j, fge::Vector2<T> const& p)
 {
     j = nlohmann::json{{"x", p.x}, {"y", p.y}};
 }
 template<class T>
-void from_json(const nlohmann::json& j, fge::Vector2<T>& p)
+void from_json(nlohmann::json const& j, fge::Vector2<T>& p)
 {
     j.at("x").get_to(p.x);
     j.at("y").get_to(p.y);
 }
 
 template<class T>
-void to_json(nlohmann::json& j, const fge::Vector3<T>& p)
+void to_json(nlohmann::json& j, fge::Vector3<T> const& p)
 {
     j = nlohmann::json{{"x", p.x}, {"y", p.y}, {"z", p.z}};
 }
 template<class T>
-void from_json(const nlohmann::json& j, fge::Vector3<T>& p)
+void from_json(nlohmann::json const& j, fge::Vector3<T>& p)
 {
     j.at("x").get_to(p.x);
     j.at("y").get_to(p.y);
     j.at("z").get_to(p.z);
 }
 
-inline void to_json(nlohmann::json& j, const fge::Color& p)
+inline void to_json(nlohmann::json& j, fge::Color const& p)
 {
     j = p.toInteger();
 }
-inline void from_json(const nlohmann::json& j, fge::Color& p)
+inline void from_json(nlohmann::json const& j, fge::Color& p)
 {
     uint32_t color{0};
     j.get_to(color);
@@ -73,24 +73,24 @@ namespace glm
 {
 
 template<class T>
-void to_json(nlohmann::json& j, const glm::vec<2, T>& p)
+void to_json(nlohmann::json& j, glm::vec<2, T> const& p)
 {
     j = nlohmann::json{{"x", p.x}, {"y", p.y}};
 }
 template<class T>
-void from_json(const nlohmann::json& j, glm::vec<2, T>& p)
+void from_json(nlohmann::json const& j, glm::vec<2, T>& p)
 {
     j.at("x").get_to(p.x);
     j.at("y").get_to(p.y);
 }
 
 template<class T>
-void to_json(nlohmann::json& j, const glm::vec<3, T>& p)
+void to_json(nlohmann::json& j, glm::vec<3, T> const& p)
 {
     j = nlohmann::json{{"x", p.x}, {"y", p.y}, {"z", p.z}};
 }
 template<class T>
-void from_json(const nlohmann::json& j, glm::vec<3, T>& p)
+void from_json(nlohmann::json const& j, glm::vec<3, T>& p)
 {
     j.at("x").get_to(p.x);
     j.at("y").get_to(p.y);
@@ -102,11 +102,11 @@ void from_json(const nlohmann::json& j, glm::vec<3, T>& p)
 namespace tiny_utf8
 {
 
-inline void to_json(nlohmann::json& j, const tiny_utf8::string& p)
+inline void to_json(nlohmann::json& j, tiny_utf8::string const& p)
 {
     j = p.c_str();
 }
-inline void from_json(const nlohmann::json& j, tiny_utf8::string& p)
+inline void from_json(nlohmann::json const& j, tiny_utf8::string& p)
 {
     std::string str;
     j.get_to(str);

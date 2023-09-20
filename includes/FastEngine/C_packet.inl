@@ -73,7 +73,7 @@ fge::net::Packet& Packet::operator<<(long double data)
 }
 
 template<typename T>
-fge::net::Packet& Packet::operator<<(const std::forward_list<T>& data)
+fge::net::Packet& Packet::operator<<(std::forward_list<T> const& data)
 {
     *this << static_cast<fge::net::SizeType>(data.size());
     for (auto it = data.cbegin(); it != data.cend(); ++it)
@@ -83,7 +83,7 @@ fge::net::Packet& Packet::operator<<(const std::forward_list<T>& data)
     return *this;
 }
 template<typename T>
-fge::net::Packet& Packet::operator<<(const std::list<T>& data)
+fge::net::Packet& Packet::operator<<(std::list<T> const& data)
 {
     *this << static_cast<fge::net::SizeType>(data.size());
     for (auto it = data.cbegin(); it != data.cend(); ++it)
@@ -93,7 +93,7 @@ fge::net::Packet& Packet::operator<<(const std::list<T>& data)
     return *this;
 }
 template<typename T>
-fge::net::Packet& Packet::operator<<(const std::vector<T>& data)
+fge::net::Packet& Packet::operator<<(std::vector<T> const& data)
 {
     *this << static_cast<fge::net::SizeType>(data.size());
     for (std::size_t i = 0; i < data.size(); ++i)
@@ -104,18 +104,18 @@ fge::net::Packet& Packet::operator<<(const std::vector<T>& data)
 }
 
 template<typename T>
-fge::net::Packet& Packet::operator<<(const fge::Vector2<T>& data)
+fge::net::Packet& Packet::operator<<(fge::Vector2<T> const& data)
 {
     return *this << data.x << data.y;
 }
 template<typename T>
-fge::net::Packet& Packet::operator<<(const fge::Vector3<T>& data)
+fge::net::Packet& Packet::operator<<(fge::Vector3<T> const& data)
 {
     return *this << data.x << data.y << data.z;
 }
 
 template<typename T>
-fge::net::Packet& Packet::operator<<(const fge::Matrix<T>& data)
+fge::net::Packet& Packet::operator<<(fge::Matrix<T> const& data)
 {
     *this << static_cast<fge::net::SizeType>(data.getSizeX()) << static_cast<fge::net::SizeType>(data.getSizeY());
     for (std::size_t x = 0; x < data.getSizeX(); ++x)
@@ -128,12 +128,12 @@ fge::net::Packet& Packet::operator<<(const fge::Matrix<T>& data)
     return *this;
 }
 
-fge::net::Packet& Packet::operator<<(const fge::Color& data)
+fge::net::Packet& Packet::operator<<(fge::Color const& data)
 {
     return *this << static_cast<uint32_t>(data.toInteger());
 }
 
-fge::net::Packet& Packet::operator<<(const fge::net::IpAddress& data)
+fge::net::Packet& Packet::operator<<(fge::net::IpAddress const& data)
 {
     uint32_t ip = data.getNetworkByteOrder();
     return this->append(&ip, sizeof(ip));
@@ -141,7 +141,7 @@ fge::net::Packet& Packet::operator<<(const fge::net::IpAddress& data)
 
 ///
 
-const fge::net::Packet& Packet::operator>>(bool& data) const
+fge::net::Packet const& Packet::operator>>(bool& data) const
 {
     uint8_t a;
     this->read(&a, sizeof(uint8_t));
@@ -149,55 +149,55 @@ const fge::net::Packet& Packet::operator>>(bool& data) const
     return *this;
 }
 
-const fge::net::Packet& Packet::operator>>(int8_t& data) const
+fge::net::Packet const& Packet::operator>>(int8_t& data) const
 {
     return this->read(&data, sizeof(int8_t));
 }
-const fge::net::Packet& Packet::operator>>(int16_t& data) const
+fge::net::Packet const& Packet::operator>>(int16_t& data) const
 {
     return this->unpack(&data, sizeof(int16_t));
 }
-const fge::net::Packet& Packet::operator>>(int32_t& data) const
+fge::net::Packet const& Packet::operator>>(int32_t& data) const
 {
     return this->unpack(&data, sizeof(int32_t));
 }
-const fge::net::Packet& Packet::operator>>(int64_t& data) const
+fge::net::Packet const& Packet::operator>>(int64_t& data) const
 {
     return this->unpack(&data, sizeof(int64_t));
 }
 
-const fge::net::Packet& Packet::operator>>(uint8_t& data) const
+fge::net::Packet const& Packet::operator>>(uint8_t& data) const
 {
     return this->read(&data, sizeof(uint8_t));
 }
-const fge::net::Packet& Packet::operator>>(uint16_t& data) const
+fge::net::Packet const& Packet::operator>>(uint16_t& data) const
 {
     return this->unpack(&data, sizeof(uint16_t));
 }
-const fge::net::Packet& Packet::operator>>(uint32_t& data) const
+fge::net::Packet const& Packet::operator>>(uint32_t& data) const
 {
     return this->unpack(&data, sizeof(uint32_t));
 }
-const fge::net::Packet& Packet::operator>>(uint64_t& data) const
+fge::net::Packet const& Packet::operator>>(uint64_t& data) const
 {
     return this->unpack(&data, sizeof(uint64_t));
 }
 
-const fge::net::Packet& Packet::operator>>(float& data) const
+fge::net::Packet const& Packet::operator>>(float& data) const
 {
     return this->unpack(&data, sizeof(float));
 }
-const fge::net::Packet& Packet::operator>>(double& data) const
+fge::net::Packet const& Packet::operator>>(double& data) const
 {
     return this->unpack(&data, sizeof(double));
 }
-const fge::net::Packet& Packet::operator>>(long double& data) const
+fge::net::Packet const& Packet::operator>>(long double& data) const
 {
     return this->unpack(&data, sizeof(long double));
 }
 
 template<typename T>
-const fge::net::Packet& Packet::operator>>(std::forward_list<T>& data) const
+fge::net::Packet const& Packet::operator>>(std::forward_list<T>& data) const
 {
     fge::net::SizeType length = 0;
     *this >> length;
@@ -213,7 +213,7 @@ const fge::net::Packet& Packet::operator>>(std::forward_list<T>& data) const
     return *this;
 }
 template<typename T>
-const fge::net::Packet& Packet::operator>>(std::list<T>& data) const
+fge::net::Packet const& Packet::operator>>(std::list<T>& data) const
 {
     fge::net::SizeType length = 0;
     *this >> length;
@@ -229,7 +229,7 @@ const fge::net::Packet& Packet::operator>>(std::list<T>& data) const
     return *this;
 }
 template<typename T>
-const fge::net::Packet& Packet::operator>>(std::vector<T>& data) const
+fge::net::Packet const& Packet::operator>>(std::vector<T>& data) const
 {
     fge::net::SizeType length = 0;
     *this >> length;
@@ -244,18 +244,18 @@ const fge::net::Packet& Packet::operator>>(std::vector<T>& data) const
 }
 
 template<typename T>
-const fge::net::Packet& Packet::operator>>(fge::Vector2<T>& data) const
+fge::net::Packet const& Packet::operator>>(fge::Vector2<T>& data) const
 {
     return *this >> data.x >> data.y;
 }
 template<typename T>
-const fge::net::Packet& Packet::operator>>(fge::Vector3<T>& data) const
+fge::net::Packet const& Packet::operator>>(fge::Vector3<T>& data) const
 {
     return *this >> data.x >> data.y >> data.z;
 }
 
 template<typename T>
-const fge::net::Packet& Packet::operator>>(fge::Matrix<T>& data) const
+fge::net::Packet const& Packet::operator>>(fge::Matrix<T>& data) const
 {
     fge::net::SizeType sizeX = 0, sizeY = 0;
     *this >> sizeX >> sizeY;
@@ -272,7 +272,7 @@ const fge::net::Packet& Packet::operator>>(fge::Matrix<T>& data) const
     return *this;
 }
 
-const fge::net::Packet& Packet::operator>>(fge::Color& data) const
+fge::net::Packet const& Packet::operator>>(fge::Color& data) const
 {
     uint32_t buff;
     *this >> buff;
@@ -280,7 +280,7 @@ const fge::net::Packet& Packet::operator>>(fge::Color& data) const
     return *this;
 }
 
-const fge::net::Packet& Packet::operator>>(fge::net::IpAddress& data) const
+fge::net::Packet const& Packet::operator>>(fge::net::IpAddress& data) const
 {
     uint32_t ip = 0;
     this->read(&ip, sizeof(uint32_t));

@@ -99,7 +99,7 @@ FGE_API std::unique_lock<std::mutex> AcquireLock();
  * \param lock A unique lock bound to this mutex
  * \return The begin iterator of the texture manager
  */
-FGE_API fge::texture::TextureDataType::const_iterator IteratorBegin(const std::unique_lock<std::mutex>& lock);
+FGE_API fge::texture::TextureDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock);
 /**
  * \brief Get the end iterator of the texture manager
  *
@@ -108,14 +108,14 @@ FGE_API fge::texture::TextureDataType::const_iterator IteratorBegin(const std::u
  * \param lock A unique lock bound to this mutex
  * \return The begin iterator of the texture manager
  */
-FGE_API fge::texture::TextureDataType::const_iterator IteratorEnd(const std::unique_lock<std::mutex>& lock);
+FGE_API fge::texture::TextureDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock);
 
 /**
  * \brief Get the bad texture
  *
  * \return The bad texture
  */
-FGE_API const fge::texture::TextureDataPtr& GetBadTexture();
+FGE_API fge::texture::TextureDataPtr const& GetBadTexture();
 /**
  * \brief Get the texture with the given name
  *
@@ -139,7 +139,7 @@ FGE_API bool Check(std::string_view name);
  * \param surface The surface to load
  * \return \b true if the texture was loaded, \b false otherwise
  */
-FGE_API bool LoadFromSurface(std::string_view name, const fge::Surface& surface);
+FGE_API bool LoadFromSurface(std::string_view name, fge::Surface const& surface);
 /**
  * \brief Load a texture from a file
  *
@@ -167,7 +167,7 @@ FGE_API void UnloadAll();
  * \param data The texture data to add
  * \return \b true if the texture was added, \b false otherwise
  */
-FGE_API bool Push(std::string_view name, const fge::texture::TextureDataPtr& data);
+FGE_API bool Push(std::string_view name, fge::texture::TextureDataPtr const& data);
 
 /**
  * @}

@@ -45,14 +45,14 @@ public:
     bool updateIfNeeded(VkRenderPass renderPass, bool force = false) const;
 
     void setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts);
-    [[nodiscard]] const std::vector<VkDescriptorSetLayout>& getDescriptorSetLayouts() const;
+    [[nodiscard]] std::vector<VkDescriptorSetLayout> const& getDescriptorSetLayouts() const;
 
     void clearShader(Shader::Type type = Shader::Type::SHADER_NONE);
-    void setShader(const Shader& shader);
-    [[nodiscard]] const Shader* getShader(Shader::Type type = Shader::Type::SHADER_NONE) const;
+    void setShader(Shader const& shader);
+    [[nodiscard]] Shader const* getShader(Shader::Type type = Shader::Type::SHADER_NONE) const;
 
-    void setBlendMode(const BlendMode& blendMode);
-    [[nodiscard]] const BlendMode& getBlendMode() const;
+    void setBlendMode(BlendMode const& blendMode);
+    [[nodiscard]] BlendMode const& getBlendMode() const;
 
     void setPrimitiveTopology(VkPrimitiveTopology topology) const;
     [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
@@ -60,36 +60,36 @@ public:
     void setDefaultVertexCount(uint32_t count) const;
     [[nodiscard]] uint32_t getDefaultVertexCount() const;
 
-    void setScissor(const VkRect2D& scissor) const;
-    [[nodiscard]] const VkRect2D& getScissor() const;
+    void setScissor(VkRect2D const& scissor) const;
+    [[nodiscard]] VkRect2D const& getScissor() const;
 
     void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
-    [[nodiscard]] const std::vector<VkPushConstantRange>& getPushConstantRanges() const;
+    [[nodiscard]] std::vector<VkPushConstantRange> const& getPushConstantRanges() const;
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer,
-                             const Viewport& viewport,
-                             const VertexBuffer* vertexBuffer,
-                             const IndexBuffer* indexBuffer) const;
+                             Viewport const& viewport,
+                             VertexBuffer const* vertexBuffer,
+                             IndexBuffer const* indexBuffer) const;
     void recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
-                                        const Viewport& viewport,
-                                        const VertexBuffer* vertexBuffer,
-                                        const IndexBuffer* indexBuffer) const;
+                                        Viewport const& viewport,
+                                        VertexBuffer const* vertexBuffer,
+                                        IndexBuffer const* indexBuffer) const;
     void bindDescriptorSets(VkCommandBuffer commandBuffer,
-                            const VkDescriptorSet* descriptorSet,
+                            VkDescriptorSet const* descriptorSet,
                             uint32_t descriptorCount,
                             uint32_t firstSet = 0) const;
     void bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
-                                   const VkDescriptorSet* descriptorSet,
+                                   VkDescriptorSet const* descriptorSet,
                                    uint32_t descriptorCount,
                                    uint32_t dynamicOffsetCount,
-                                   const uint32_t* pDynamicOffsets,
+                                   uint32_t const* pDynamicOffsets,
                                    uint32_t firstSet = 0) const;
 
     void pushConstants(VkCommandBuffer commandBuffer,
                        VkShaderStageFlags stageFlags,
                        uint32_t offset,
                        uint32_t size,
-                       const void* pValues) const;
+                       void const* pValues) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
@@ -103,10 +103,10 @@ private:
 
     mutable bool g_needUpdate;
 
-    const Shader* g_shaderCompute;
-    const Shader* g_shaderVertex;
-    const Shader* g_shaderFragment;
-    const Shader* g_shaderGeometry;
+    Shader const* g_shaderCompute;
+    Shader const* g_shaderVertex;
+    Shader const* g_shaderFragment;
+    Shader const* g_shaderGeometry;
 
     mutable VkPrimitiveTopology g_primitiveTopology;
     mutable uint32_t g_defaultVertexCount;

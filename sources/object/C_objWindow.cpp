@@ -40,7 +40,7 @@ namespace fge
 ObjWindow::ObjWindow() :
         fge::GuiElement(FGE_WINDOW_DEFAULT_PRIORITY)
 {}
-ObjWindow::ObjWindow(const ObjWindow& r) :
+ObjWindow::ObjWindow(ObjWindow const& r) :
         fge::GuiElement(r),
         fge::Object(r),
         fge::Subscriber(r),
@@ -71,7 +71,7 @@ ObjWindow::ObjWindow(const ObjWindow& r) :
     std::unordered_map<fge::ObjectSid, fge::ObjectSid> oldSidMap;
 
     this->_windowScene.delAllObject(false);
-    for (const auto& objectData: r._windowScene)
+    for (auto const& objectData: r._windowScene)
     {
         auto newObject =
                 this->_windowScene.newObject(FGE_NEWOBJECT_PTR(objectData->getObject()->copy()), objectData->getPlan(),
@@ -83,7 +83,7 @@ ObjWindow::ObjWindow(const ObjWindow& r) :
     }
 
     //Moving all anchors successor and anchor target as they don't point anymore to the wanted ones
-    for (const auto& objectData: r._windowScene)
+    for (auto const& objectData: r._windowScene)
     { //TODO: Use that code inside of scene copy too ?
         if (auto oldSuccessor = objectData->getObject()->getAnchorSuccessor().lock())
         {
@@ -131,7 +131,7 @@ void ObjWindow::first(fge::Scene* scene)
 
     //Call "first" on pre-existent objects (copied from another scene)
     auto myObjectData = this->_myObjectData.lock();
-    for (const auto& objectData: this->_windowScene)
+    for (auto const& objectData: this->_windowScene)
     {
         //TODO: Make sure that the scene correctly transfer parent reference when copying
         objectData->setParent(myObjectData); //Be sure that the parent is set
@@ -169,7 +169,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
     event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this), this);
 
     //Call "callbackRegister" on pre-existent objects (copied from another scene)
-    for (const auto& objectData: this->_windowScene)
+    for (auto const& objectData: this->_windowScene)
     {
         objectData->getObject()->callbackRegister(event, &this->_windowHandler);
         objectData->getObject()->needAnchorUpdate(false);
@@ -227,11 +227,11 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
 }
 #endif
 
-const char* ObjWindow::getClassName() const
+char const* ObjWindow::getClassName() const
 {
     return FGE_OBJWINDOW_CLASSNAME;
 }
-const char* ObjWindow::getReadableClassName() const
+char const* ObjWindow::getReadableClassName() const
 {
     return "window";
 }
@@ -249,9 +249,9 @@ void ObjWindow::setHeight(float height)
 {
     this->setSize({this->g_size.x, height});
 }
-void ObjWindow::setSize(const fge::Vector2f& size)
+void ObjWindow::setSize(fge::Vector2f const& size)
 {
-    const fge::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
+    fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
     this->g_size.x = std::clamp(size.x, static_cast<float>(this->g_textureWindowResize.getTextureSize().x * 3),
                                 renderTarget.getDefaultView().getSize().x);
@@ -264,7 +264,7 @@ void ObjWindow::setSize(const fge::Vector2f& size)
     this->_windowHandler._onGuiResized.call(this->_windowHandler, this->getDrawAreaSize());
     this->_windowHandler._lastSize = this->getDrawAreaSize();
 }
-const fge::Vector2f& ObjWindow::getSize() const
+fge::Vector2f const& ObjWindow::getSize() const
 {
     return this->g_size;
 }
@@ -293,11 +293,11 @@ void ObjWindow::setResizeMode(ObjWindow::ResizeModes modeX, ObjWindow::ResizeMod
     this->g_resizeModeY = modeY;
 }
 
-void ObjWindow::setViewCenterOffset(const fge::Vector2f& offset)
+void ObjWindow::setViewCenterOffset(fge::Vector2f const& offset)
 {
     this->g_viewCenterOffset = offset;
 }
-const fge::Vector2f& ObjWindow::getViewCenterOffset() const
+fge::Vector2f const& ObjWindow::getViewCenterOffset() const
 {
     return this->g_viewCenterOffset;
 }
@@ -313,7 +313,7 @@ fge::ObjWindow* ObjWindow::getWindowObjectFromScene(fge::Scene* scene)
     return nullptr;
 }
 
-void ObjWindow::onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context)
+void ObjWindow::onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context)
 {
     if (context._recursive)
     {
@@ -355,8 +355,8 @@ void ObjWindow::onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::G
     }
 }
 
-void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
-                                        const SDL_MouseButtonEvent& arg,
+void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
+                                        SDL_MouseButtonEvent const& arg,
                                         fge::GuiElementContext& context)
 {
     if (arg.button == SDL_BUTTON_LEFT)
@@ -403,7 +403,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
         }
     }
 }
-void ObjWindow::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, const SDL_MouseButtonEvent& arg)
+void ObjWindow::onMouseButtonReleased([[maybe_unused]] fge::Event const& evt, SDL_MouseButtonEvent const& arg)
 {
     if (arg.button == SDL_BUTTON_LEFT)
     {
@@ -415,11 +415,11 @@ void ObjWindow::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt, co
         }
     }
 }
-void ObjWindow::onMouseMoved([[maybe_unused]] const fge::Event& evt, const SDL_MouseMotionEvent& arg)
+void ObjWindow::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMotionEvent const& arg)
 {
     if (this->g_movingWindowFlag)
     {
-        const fge::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
+        fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
         fge::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, renderTarget.getDefaultView());
 
@@ -434,7 +434,7 @@ void ObjWindow::onMouseMoved([[maybe_unused]] const fge::Event& evt, const SDL_M
     }
     else if (this->g_resizeWindowFlag)
     {
-        const fge::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
+        fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
         fge::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, renderTarget.getDefaultView());
 
@@ -461,12 +461,12 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         this->setPriority(myObjectData->getPlan() + myObjectData->getPlanDepth());
     }
 }
-void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, const fge::ObjectDataShared& object)
+void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared const& object)
 {
     object->setParent(this->_myObjectData.lock());
 }
 
-void ObjWindow::onRefreshGlobalScale(const fge::Vector2f& scale)
+void ObjWindow::onRefreshGlobalScale(fge::Vector2f const& scale)
 {
     this->setScale(scale);
     this->_windowHandler._onGuiResized.call(this->_windowHandler, this->getDrawAreaSize());
@@ -488,15 +488,15 @@ void ObjWindow::setTextureResize(fge::Texture texture)
     this->refreshRectBounds();
 }
 
-const fge::Texture& ObjWindow::getTextureMinimize() const
+fge::Texture const& ObjWindow::getTextureMinimize() const
 {
     return this->g_textureWindowMinimize;
 }
-const fge::Texture& ObjWindow::getTextureClose() const
+fge::Texture const& ObjWindow::getTextureClose() const
 {
     return this->g_textureWindowClose;
 }
-const fge::Texture& ObjWindow::getTextureResize() const
+fge::Texture const& ObjWindow::getTextureResize() const
 {
     return this->g_textureWindowResize;
 }
@@ -507,7 +507,7 @@ void ObjWindow::setTexture(fge::Texture texture)
     this->g_spriteBatches.setTexture(this->g_tileSetWindow.getTexture());
     this->refreshTextures();
 }
-void ObjWindow::setTileSet(const fge::TileSet& tileSet)
+void ObjWindow::setTileSet(fge::TileSet const& tileSet)
 {
     this->g_tileSetWindow = tileSet;
     this->g_spriteBatches.setTexture(this->g_tileSetWindow.getTexture());
@@ -519,7 +519,7 @@ void ObjWindow::setTileSet(fge::TileSet&& tileSet)
     this->g_tileSetWindow.setTexture(this->g_tileSetWindow.getTexture());
     this->refreshTextures();
 }
-const fge::TileSet& ObjWindow::getTileSet() const
+fge::TileSet const& ObjWindow::getTileSet() const
 {
     return this->g_tileSetWindow;
 }

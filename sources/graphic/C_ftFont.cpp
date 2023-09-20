@@ -59,7 +59,7 @@ FreeTypeFont::~FreeTypeFont()
     this->cleanup();
 }
 
-bool FreeTypeFont::loadFromFile(const std::filesystem::path& filePath)
+bool FreeTypeFont::loadFromFile(std::filesystem::path const& filePath)
 {
     // Cleanup the previous resources
     this->cleanup();
@@ -98,7 +98,7 @@ bool FreeTypeFont::loadFromFile(const std::filesystem::path& filePath)
     return true;
 }
 
-bool FreeTypeFont::loadFromMemory(const void* data, std::size_t sizeInBytes)
+bool FreeTypeFont::loadFromMemory(void const* data, std::size_t sizeInBytes)
 {
     // Cleanup the previous resources
     this->cleanup();
@@ -107,7 +107,7 @@ bool FreeTypeFont::loadFromMemory(const void* data, std::size_t sizeInBytes)
 
     // Load the new font face from the specified file
     FT_Face face;
-    if (FT_New_Memory_Face(library, reinterpret_cast<const FT_Byte*>(data), static_cast<FT_Long>(sizeInBytes), 0,
+    if (FT_New_Memory_Face(library, reinterpret_cast<FT_Byte const*>(data), static_cast<FT_Long>(sizeInBytes), 0,
                            &face) != 0)
     {
         return false;
@@ -138,12 +138,12 @@ bool FreeTypeFont::loadFromMemory(const void* data, std::size_t sizeInBytes)
     return true;
 }
 
-const FreeTypeFont::Info& FreeTypeFont::getInfo() const
+FreeTypeFont::Info const& FreeTypeFont::getInfo() const
 {
     return g_info;
 }
 
-const Glyph&
+Glyph const&
 FreeTypeFont::getGlyph(uint32_t codePoint, fge::CharacterSize characterSize, bool bold, float outlineThickness) const
 {
     // Get the page corresponding to the character size
@@ -259,7 +259,7 @@ float FreeTypeFont::getUnderlineThickness(fge::CharacterSize characterSize) cons
     return 0.0f;
 }
 
-const fge::vulkan::TextureImage& FreeTypeFont::getTexture(fge::CharacterSize characterSize) const
+fge::vulkan::TextureImage const& FreeTypeFont::getTexture(fge::CharacterSize characterSize) const
 {
     return this->loadPage(characterSize)._texture;
 }
@@ -379,7 +379,7 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint,
 
     // Apply bold and outline (there is no fallback for outline) if necessary -- first technique using outline (highest quality)
     const FT_Pos weight = 1 << 6;
-    const bool outline = (glyphDesc->format == FT_GLYPH_FORMAT_OUTLINE);
+    bool const outline = (glyphDesc->format == FT_GLYPH_FORMAT_OUTLINE);
     if (outline)
     {
         if (bold)
@@ -431,7 +431,7 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint,
     {
         // Leave a small padding around characters, so that filtering doesn't
         // pollute them with pixels from neighbors
-        const unsigned int padding = 2;
+        unsigned int const padding = 2;
 
         width += 2 * padding;
         height += 2 * padding;
@@ -459,7 +459,7 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint,
         this->g_surfaceBuffer.create(width, height, fge::Color(255, 255, 255, 0));
 
         // Extract the glyph's pixels from the bitmap
-        const uint8_t* pixels = bitmap.buffer;
+        uint8_t const* pixels = bitmap.buffer;
         if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
         {
             // Pixels are 1 bit monochrome values
@@ -489,8 +489,8 @@ Glyph FreeTypeFont::loadGlyph(uint32_t codePoint,
         }
 
         // Write the pixels to the texture
-        const unsigned int x = static_cast<unsigned int>(glyph._textureRect._x) - padding;
-        const unsigned int y = static_cast<unsigned int>(glyph._textureRect._y) - padding;
+        unsigned int const x = static_cast<unsigned int>(glyph._textureRect._x) - padding;
+        unsigned int const y = static_cast<unsigned int>(glyph._textureRect._y) - padding;
         page._texture.update(this->g_surfaceBuffer.get(), {x, y});
     }
 
@@ -508,7 +508,7 @@ fge::RectInt FreeTypeFont::findGlyphRect(Page& page, unsigned int width, unsigne
     float bestRatio = 0;
     for (auto it = page._rows.begin(); it != page._rows.end(); ++it)
     {
-        const float ratio = static_cast<float>(height) / static_cast<float>(it->_height);
+        float const ratio = static_cast<float>(height) / static_cast<float>(it->_height);
 
         // Ignore rows that are either too small or too high
         if ((ratio < 0.7f) || (ratio > 1.f))
@@ -541,8 +541,8 @@ fge::RectInt FreeTypeFont::findGlyphRect(Page& page, unsigned int width, unsigne
                (width >= static_cast<unsigned int>(page._texture.getSize().x)))
         {
             // Not enough space: resize the texture if possible
-            const unsigned int textureWidth = page._texture.getSize().x;
-            const unsigned int textureHeight = page._texture.getSize().y;
+            unsigned int const textureWidth = page._texture.getSize().x;
+            unsigned int const textureHeight = page._texture.getSize().y;
 
             auto maxImageDimension = page._texture.getContext().getPhysicalDevice().getMaxImageDimension2D();
 

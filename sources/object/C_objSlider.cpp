@@ -57,7 +57,7 @@ FGE_OBJ_DRAW_BODY(ObjSlider)
 }
 #endif
 
-void ObjSlider::setSize(const fge::DynamicSize& size)
+void ObjSlider::setSize(fge::DynamicSize const& size)
 {
     this->g_size = size;
     this->refreshSize(this->g_guiElementHandler->_lastSize);
@@ -103,7 +103,7 @@ void ObjSlider::setScrollBaseRectFillColor(fge::Color color)
     this->g_scrollBaseRect.setFillColor(color);
 }
 
-void ObjSlider::refreshSize(const fge::Vector2f& targetSize)
+void ObjSlider::refreshSize(fge::Vector2f const& targetSize)
 {
     this->g_scrollPositionY = std::clamp(this->g_scrollPositionY, 0.0f,
                                          this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
@@ -121,8 +121,8 @@ void ObjSlider::refreshSize(const fge::Vector2f& targetSize)
     this->_onSlide.call(this->getCursorRatio());
 }
 
-void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
-                                        [[maybe_unused]] const SDL_MouseButtonEvent& arg,
+void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
+                                        [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                         fge::GuiElementContext& context)
 {
     auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
@@ -134,8 +134,8 @@ void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
     this->g_lastMousePositionY = mousePosition.y;
     this->g_scrollRect.setOutlineThickness(2.0f);
 }
-void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
-                                      [[maybe_unused]] const SDL_MouseButtonEvent& arg)
+void ObjSlider::onMouseButtonReleased([[maybe_unused]] fge::Event const& evt,
+                                      [[maybe_unused]] SDL_MouseButtonEvent const& arg)
 {
     if (this->g_scrollPressed)
     {
@@ -143,11 +143,11 @@ void ObjSlider::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
         this->g_scrollRect.setOutlineThickness(0.0f);
     }
 }
-void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const SDL_MouseMotionEvent& arg)
+void ObjSlider::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMotionEvent const& arg)
 {
     if (this->g_scrollPressed)
     {
-        const fge::RenderTarget& renderTarget = this->g_guiElementHandler->getRenderTarget();
+        fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
         fge::Vector2f mousePos = renderTarget.mapPixelToCoords(
                 {arg.x, arg.y}, *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
@@ -159,13 +159,13 @@ void ObjSlider::onMouseMoved([[maybe_unused]] const fge::Event& evt, const SDL_M
     }
 }
 
-void ObjSlider::onGuiResized([[maybe_unused]] const fge::GuiElementHandler& handler, const fge::Vector2f& size)
+void ObjSlider::onGuiResized([[maybe_unused]] fge::GuiElementHandler const& handler, fge::Vector2f const& size)
 {
     this->updateAnchor(size);
     this->refreshSize(size);
 }
 
-void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
                             SDL_EventType evtType,
                             fge::GuiElementContext& context)
 {
@@ -198,11 +198,11 @@ void ObjSlider::onGuiVerify([[maybe_unused]] const fge::Event& evt,
     }
 }
 
-const char* ObjSlider::getClassName() const
+char const* ObjSlider::getClassName() const
 {
     return FGE_OBJSLIDER_CLASSNAME;
 }
-const char* ObjSlider::getReadableClassName() const
+char const* ObjSlider::getReadableClassName() const
 {
     return "slider";
 }

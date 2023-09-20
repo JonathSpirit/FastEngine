@@ -310,29 +310,29 @@ class RenderStates
 {
 public:
     RenderStates() = default;
-    RenderStates(const RenderStates& r) = delete;
+    RenderStates(RenderStates const& r) = delete;
     RenderStates(RenderStates&& r) noexcept = default;
-    explicit RenderStates(const fge::Transform* transform, const fge::TextureType* textureImage = nullptr) :
+    explicit RenderStates(fge::Transform const* transform, fge::TextureType const* textureImage = nullptr) :
             _resTransform{transform},
             _resTextures{textureImage, 1}
     {}
-    RenderStates(const fge::Transform* transform,
-                 const fge::vulkan::VertexBuffer* vertexBuffer,
-                 const fge::TextureType* textureImage = nullptr,
-                 const fge::vulkan::BlendMode& blendMode = {}) :
+    RenderStates(fge::Transform const* transform,
+                 fge::vulkan::VertexBuffer const* vertexBuffer,
+                 fge::TextureType const* textureImage = nullptr,
+                 fge::vulkan::BlendMode const& blendMode = {}) :
             _resTransform{transform},
             _resTextures{textureImage, 1},
             _vertexBuffer(vertexBuffer),
             _blendMode(blendMode)
     {}
 
-    [[nodiscard]] RenderStates copy(const fge::Transform* transform,
-                                    const fge::TextureType* textureImage = nullptr) const
+    [[nodiscard]] RenderStates copy(fge::Transform const* transform,
+                                    fge::TextureType const* textureImage = nullptr) const
     {
         return RenderStates{transform, nullptr, textureImage, this->_blendMode};
     }
 
-    RenderStates& operator=(const RenderStates& r) = delete;
+    RenderStates& operator=(RenderStates const& r) = delete;
     RenderStates& operator=(RenderStates&& r) noexcept = default;
 
     RenderResourceTransform _resTransform{};
@@ -340,8 +340,8 @@ public:
     RenderResourceInstances _resInstances{};
     RenderResourceDescriptors _resDescriptors{};
 
-    const fge::vulkan::VertexBuffer* _vertexBuffer{nullptr};
-    const fge::vulkan::IndexBuffer* _indexBuffer{nullptr};
+    fge::vulkan::VertexBuffer const* _vertexBuffer{nullptr};
+    fge::vulkan::IndexBuffer const* _indexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};
 };
 

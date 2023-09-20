@@ -33,7 +33,7 @@ View::View() :
 {
     this->reset(fge::vulkan::Viewport(0.0f, 0.0f, 1000.0f, 1000.0f));
 }
-View::View(const fge::vulkan::Viewport& viewport) :
+View::View(fge::vulkan::Viewport const& viewport) :
         g_center(0.0f, 0.0f),
         g_size(0.0f, 0.0f),
         g_rotation(0.0f),
@@ -45,7 +45,7 @@ View::View(const fge::vulkan::Viewport& viewport) :
 {
     this->reset(viewport);
 }
-View::View(const Vector2f& center, const Vector2f& size) :
+View::View(Vector2f const& center, Vector2f const& size) :
         g_center(center),
         g_size(size),
         g_rotation(0.0f),
@@ -56,26 +56,26 @@ View::View(const Vector2f& center, const Vector2f& size) :
         g_invTransformUpdated(false)
 {}
 
-void View::setCenter(const Vector2f& center)
+void View::setCenter(Vector2f const& center)
 {
     this->g_center = center;
 
     this->g_transformUpdated = false;
     this->g_invTransformUpdated = false;
 }
-const Vector2f& View::getCenter() const
+Vector2f const& View::getCenter() const
 {
     return this->g_center;
 }
 
-void View::setSize(const Vector2f& size)
+void View::setSize(Vector2f const& size)
 {
     this->g_size = size;
 
     this->g_transformUpdated = false;
     this->g_invTransformUpdated = false;
 }
-const Vector2f& View::getSize() const
+Vector2f const& View::getSize() const
 {
     return this->g_size;
 }
@@ -96,16 +96,16 @@ float View::getRotation() const
     return this->g_rotation;
 }
 
-void View::setFactorViewport(const fge::RectFloat& factorViewport)
+void View::setFactorViewport(fge::RectFloat const& factorViewport)
 {
     this->g_factorViewport = factorViewport;
 }
-const fge::RectFloat& View::getFactorViewport() const
+fge::RectFloat const& View::getFactorViewport() const
 {
     return this->g_factorViewport;
 }
 
-void View::reset(const fge::vulkan::Viewport& viewport)
+void View::reset(fge::vulkan::Viewport const& viewport)
 {
     this->g_center.x = viewport.getPositionX() + viewport.getWidth() / 2.0f;
     this->g_center.y = viewport.getPositionY() + viewport.getHeight() / 2.0f;
@@ -116,7 +116,7 @@ void View::reset(const fge::vulkan::Viewport& viewport)
     this->g_transformUpdated = false;
     this->g_invTransformUpdated = false;
 }
-void View::move(const Vector2f& offset)
+void View::move(Vector2f const& offset)
 {
     this->setCenter(this->g_center + offset);
 }
@@ -129,7 +129,7 @@ void View::zoom(float factor)
     this->setSize({this->g_size.x * factor, this->g_size.y * factor});
 }
 
-const glm::mat4& View::getTransform() const
+glm::mat4 const& View::getTransform() const
 {
     if (!this->g_transformUpdated)
     {
@@ -147,7 +147,7 @@ const glm::mat4& View::getTransform() const
 
     return this->g_transform;
 }
-const glm::mat4& View::getInverseTransform() const
+glm::mat4 const& View::getInverseTransform() const
 {
     if (!this->g_invTransformUpdated)
     {

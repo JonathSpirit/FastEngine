@@ -28,7 +28,7 @@ Font::Font(std::string name) :
         g_data(fge::font::GetFont(name)),
         g_name(std::move(name))
 {}
-Font::Font(const char* name) :
+Font::Font(char const* name) :
         g_data(fge::font::GetFont(name)),
         g_name(name)
 {}
@@ -48,11 +48,11 @@ bool Font::valid() const
     return this->g_data->_valid;
 }
 
-const fge::font::FontDataPtr& Font::getData() const
+fge::font::FontDataPtr const& Font::getData() const
 {
     return this->g_data;
 }
-const std::string& Font::getName() const
+std::string const& Font::getName() const
 {
     return this->g_name;
 }
@@ -63,7 +63,7 @@ fge::Font& Font::operator=(std::string name)
     this->g_data = fge::font::GetFont(this->g_name);
     return *this;
 }
-fge::Font& Font::operator=(const char* name)
+fge::Font& Font::operator=(char const* name)
 {
     this->g_name = name;
     this->g_data = fge::font::GetFont(this->g_name);
@@ -85,23 +85,23 @@ fge::FreeTypeFont const* Font::retrieve() const
     return this->g_data->_font.get();
 }
 
-const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Font& data)
+fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Font& data)
 {
     std::string fontName;
     pck >> fontName;
     data = std::move(fontName);
     return pck;
 }
-fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Font& data)
+fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Font const& data)
 {
     return pck << data.getName();
 }
 
-void to_json(nlohmann::json& j, const fge::Font& p)
+void to_json(nlohmann::json& j, fge::Font const& p)
 {
     j = p.getName();
 }
-void from_json(const nlohmann::json& j, fge::Font& p)
+void from_json(nlohmann::json const& j, fge::Font& p)
 {
     std::string fontName;
     j.get_to(fontName);

@@ -64,10 +64,10 @@ void Instance::create(SDL_Window* window,
     appInfo.apiVersion = VK_API_VERSION_1_1;
 
 #ifdef FGE_ENABLE_VALIDATION_LAYERS
-    std::vector<const char*> validValidationLayers;
+    std::vector<char const*> validValidationLayers;
     validValidationLayers.reserve(ValidationLayers.size());
 
-    for (const char* layerName: ValidationLayers)
+    for (char const* layerName: ValidationLayers)
     {
         if (!CheckValidationLayerSupport(layerName))
         {
@@ -83,7 +83,7 @@ void Instance::create(SDL_Window* window,
     uint32_t enabled_extension_count = 0;
     SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, nullptr);
 
-    std::vector<const char*> extensions{enabled_extension_count};
+    std::vector<char const*> extensions{enabled_extension_count};
 
     SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, extensions.data());
 
@@ -91,7 +91,7 @@ void Instance::create(SDL_Window* window,
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledExtensionCount = enabled_extension_count;
-    createInfo.ppEnabledExtensionNames = reinterpret_cast<const char* const*>(extensions.data());
+    createInfo.ppEnabledExtensionNames = reinterpret_cast<char const* const*>(extensions.data());
 
 #ifndef FGE_ENABLE_VALIDATION_LAYERS
     createInfo.enabledLayerCount = 0;
@@ -124,7 +124,7 @@ void Instance::destroy()
     }
 }
 
-const std::string& Instance::getApplicationName() const
+std::string const& Instance::getApplicationName() const
 {
     return this->g_applicationName;
 }
@@ -145,7 +145,7 @@ glm::vec<2, int> Instance::getWindowSize() const
     return size;
 }
 
-const std::vector<PhysicalDevice>& Instance::getPhysicalDevices() const
+std::vector<PhysicalDevice> const& Instance::getPhysicalDevices() const
 {
     return this->g_physicalDevices;
 }
@@ -154,9 +154,9 @@ PhysicalDevice Instance::pickPhysicalDevice(VkSurfaceKHR surface)
     // Use an ordered map to automatically sort candidates by increasing score
     std::multimap<int, PhysicalDevice> candidates;
 
-    for (const auto& device: this->g_physicalDevices)
+    for (auto const& device: this->g_physicalDevices)
     {
-        const auto score = device.rateDeviceSuitability(surface);
+        auto const score = device.rateDeviceSuitability(surface);
         candidates.insert(std::make_pair(score, device));
     }
 

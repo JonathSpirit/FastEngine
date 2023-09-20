@@ -42,18 +42,18 @@ public:
     void clear();
 
     TileSetList& getTileSets();
-    const TileSetList& getTileSets() const;
+    TileSetList const& getTileSets() const;
 
     TileLayerList& getTileLayers();
-    const TileLayerList& getTileLayers() const;
+    TileLayerList const& getTileLayers() const;
 
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

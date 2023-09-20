@@ -100,7 +100,7 @@ public:
      * \param lambda The callback lambda
      */
     template<typename TLambda>
-    explicit CallbackLambda(const TLambda& lambda);
+    explicit CallbackLambda(TLambda const& lambda);
     ~CallbackLambda() override;
 
     /**
@@ -190,7 +190,7 @@ public:
     /**
      * \brief Copy constructor that does nothing
      */
-    CallbackHandler([[maybe_unused]] const fge::CallbackHandler<Types...>& n) :
+    CallbackHandler([[maybe_unused]] fge::CallbackHandler<Types...> const& n) :
             fge::Subscription(){};
     /**
      * \brief Move constructor prohibited
@@ -200,7 +200,7 @@ public:
     /**
      * \brief Copy operator that does nothing
      */
-    fge::CallbackHandler<Types...>& operator=([[maybe_unused]] const fge::CallbackHandler<Types...>& n)
+    fge::CallbackHandler<Types...>& operator=([[maybe_unused]] fge::CallbackHandler<Types...> const& n)
     {
         return *this;
     };

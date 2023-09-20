@@ -32,7 +32,7 @@ ObjTextInputBox::ObjTextInputBox()
 
     this->g_text.setCharacterSize(12);
 }
-ObjTextInputBox::ObjTextInputBox(const fge::Font& font, uint16_t maxLength, const fge::Vector2f& pos) :
+ObjTextInputBox::ObjTextInputBox(fge::Font const& font, uint16_t maxLength, fge::Vector2f const& pos) :
         g_maxLength(maxLength),
         g_text(font)
 {
@@ -69,7 +69,7 @@ void ObjTextInputBox::setActiveStat(bool active)
     this->g_statActive = active;
 }
 
-void ObjTextInputBox::setBoxSize(const fge::Vector2f& size)
+void ObjTextInputBox::setBoxSize(fge::Vector2f const& size)
 {
     this->g_boxSize = size;
     this->g_box.setSize(this->g_boxSize);
@@ -81,23 +81,23 @@ void ObjTextInputBox::setBoxSize(float w, float h)
     this->g_box.setSize(this->g_boxSize);
 }
 
-void ObjTextInputBox::setBoxColor(const fge::Color& color)
+void ObjTextInputBox::setBoxColor(fge::Color const& color)
 {
     this->g_colorBox = color;
     this->g_box.setFillColor(color);
 }
-void ObjTextInputBox::setBoxOutlineColor(const fge::Color& color)
+void ObjTextInputBox::setBoxOutlineColor(fge::Color const& color)
 {
     this->g_colorBoxOutline = color;
     this->g_box.setOutlineColor(color);
 }
-void ObjTextInputBox::setTextColor(const fge::Color& color)
+void ObjTextInputBox::setTextColor(fge::Color const& color)
 {
     this->g_colorText = color;
     this->g_text.setFillColor(color);
 }
 
-const tiny_utf8::string& ObjTextInputBox::getString() const
+tiny_utf8::string const& ObjTextInputBox::getString() const
 {
     return this->g_string;
 }
@@ -119,20 +119,20 @@ bool ObjTextInputBox::getActiveStat() const
     return this->g_statActive;
 }
 
-const fge::Vector2f& ObjTextInputBox::getBoxSize() const
+fge::Vector2f const& ObjTextInputBox::getBoxSize() const
 {
     return this->g_boxSize;
 }
 
-const fge::Color& ObjTextInputBox::getBoxColor() const
+fge::Color const& ObjTextInputBox::getBoxColor() const
 {
     return this->g_colorBox;
 }
-const fge::Color& ObjTextInputBox::getBoxOutlineColor() const
+fge::Color const& ObjTextInputBox::getBoxOutlineColor() const
 {
     return this->g_colorBoxOutline;
 }
-const fge::Color& ObjTextInputBox::getTextColor() const
+fge::Color const& ObjTextInputBox::getTextColor() const
 {
     return this->g_colorText;
 }
@@ -346,11 +346,11 @@ void ObjTextInputBox::unpack(fge::net::Packet& pck)
     pck >> this->g_statActive;
 }
 
-const char* ObjTextInputBox::getClassName() const
+char const* ObjTextInputBox::getClassName() const
 {
     return FGE_OBJTEXTINBOX_CLASSNAME;
 }
-const char* ObjTextInputBox::getReadableClassName() const
+char const* ObjTextInputBox::getReadableClassName() const
 {
     return "text input box";
 }
@@ -364,14 +364,14 @@ fge::RectFloat ObjTextInputBox::getLocalBounds() const
     return this->g_box.getLocalBounds();
 }
 
-void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
-                                              [[maybe_unused]] const SDL_MouseButtonEvent& arg,
+void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
+                                              [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                               [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statActive = true;
 }
 
-void ObjTextInputBox::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+void ObjTextInputBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
                                   SDL_EventType evtType,
                                   fge::GuiElementContext& context)
 {

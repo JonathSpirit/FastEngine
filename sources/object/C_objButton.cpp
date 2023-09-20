@@ -24,7 +24,7 @@ namespace fge
 ObjButton::ObjButton() :
         g_color(fge::Color::White)
 {}
-ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, const fge::Vector2f& pos) :
+ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, fge::Vector2f const& pos) :
         g_textureOn(std::move(textureOn)),
         g_textureOff(std::move(textureOff)),
         g_color(fge::Color::White)
@@ -32,7 +32,7 @@ ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, const fge:
     this->setPosition(pos);
     this->g_sprite.setTexture(this->g_textureOff);
 }
-ObjButton::ObjButton(const fge::Texture& texture, const fge::Vector2f& pos) :
+ObjButton::ObjButton(fge::Texture const& texture, fge::Vector2f const& pos) :
         g_textureOn(texture),
         g_textureOff(texture),
         g_color(fge::Color::White)
@@ -41,24 +41,24 @@ ObjButton::ObjButton(const fge::Texture& texture, const fge::Vector2f& pos) :
     this->g_sprite.setTexture(this->g_textureOff);
 }
 
-const fge::Texture& ObjButton::getTextureOn() const
+fge::Texture const& ObjButton::getTextureOn() const
 {
     return this->g_textureOn;
 }
-const fge::Texture& ObjButton::getTextureOff() const
+fge::Texture const& ObjButton::getTextureOff() const
 {
     return this->g_textureOff;
 }
-void ObjButton::setTextureOn(const fge::Texture& textureOn)
+void ObjButton::setTextureOn(fge::Texture const& textureOn)
 {
     this->g_textureOn = textureOn;
 }
-void ObjButton::setTextureOff(const fge::Texture& textureOff)
+void ObjButton::setTextureOff(fge::Texture const& textureOff)
 {
     this->g_textureOff = textureOff;
 }
 
-void ObjButton::setColor(const fge::Color& color)
+void ObjButton::setColor(fge::Color const& color)
 {
     this->g_color = color;
 }
@@ -135,11 +135,11 @@ void ObjButton::unpack(fge::net::Packet& pck)
     pck >> this->g_color >> this->g_textureOn >> this->g_textureOff >> this->g_statMouseOn >> this->g_statActive;
 }
 
-const char* ObjButton::getClassName() const
+char const* ObjButton::getClassName() const
 {
     return FGE_OBJBUTTON_CLASSNAME;
 }
-const char* ObjButton::getReadableClassName() const
+char const* ObjButton::getReadableClassName() const
 {
     return "button";
 }
@@ -153,28 +153,28 @@ fge::RectFloat ObjButton::getLocalBounds() const
     return this->g_sprite.getLocalBounds();
 }
 
-void ObjButton::onGuiMouseButtonPressed([[maybe_unused]] const fge::Event& evt,
-                                        [[maybe_unused]] const SDL_MouseButtonEvent& arg,
+void ObjButton::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
+                                        [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                         [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statActive = true;
     this->g_sprite.setTexture(this->g_textureOn);
     this->_onButtonPressed.call(this);
 }
-void ObjButton::onMouseButtonReleased([[maybe_unused]] const fge::Event& evt,
-                                      [[maybe_unused]] const SDL_MouseButtonEvent& arg)
+void ObjButton::onMouseButtonReleased([[maybe_unused]] fge::Event const& evt,
+                                      [[maybe_unused]] SDL_MouseButtonEvent const& arg)
 {
     this->g_statActive = false;
     this->g_sprite.setTexture(this->g_textureOff);
 }
-void ObjButton::onGuiMouseMoved([[maybe_unused]] const fge::Event& evt,
-                                [[maybe_unused]] const SDL_MouseMotionEvent& arg,
+void ObjButton::onGuiMouseMoved([[maybe_unused]] fge::Event const& evt,
+                                [[maybe_unused]] SDL_MouseMotionEvent const& arg,
                                 [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statMouseOn = true;
 }
 
-void ObjButton::onGuiVerify([[maybe_unused]] const fge::Event& evt,
+void ObjButton::onGuiVerify([[maybe_unused]] fge::Event const& evt,
                             [[maybe_unused]] SDL_EventType evtType,
                             fge::GuiElementContext& context)
 {

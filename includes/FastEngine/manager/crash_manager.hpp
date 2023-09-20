@@ -26,7 +26,7 @@ namespace fge::crash
 
 FGE_API void Init(sf::RenderWindow& screen, sf::Font& font);
 
-FGE_API void SetInfoText(const std::string& txt);
+FGE_API void SetInfoText(std::string const& txt);
 
 } // namespace fge::crash
 

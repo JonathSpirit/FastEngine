@@ -66,20 +66,20 @@ void CreatureData::networkRegister(fge::net::NetworkTypeContainer& netList,
             ->_onApplied.add(new fge::CallbackFunctorObject{callback, creature}, creature);
 }
 
-fge::net::Packet& operator<<(fge::net::Packet& pck, const CreatureData& data)
+fge::net::Packet& operator<<(fge::net::Packet& pck, CreatureData const& data)
 {
     return pck << data._lifePoint << static_cast<std::underlying_type_t<CreatureGender>>(data._gender) << data._hunger
                << data._thirst << data._libido << data._libidoAdd << data._energy << data._height << data._muscularMass
                << data._bodyFat << data._sightRadius;
 }
-const fge::net::Packet& operator>>(const fge::net::Packet& pck, CreatureData& data)
+fge::net::Packet const& operator>>(fge::net::Packet const& pck, CreatureData& data)
 {
     return pck >> data._lifePoint >> reinterpret_cast<std::underlying_type_t<CreatureGender>&>(data._gender) >>
            data._hunger >> data._thirst >> data._libido >> data._libidoAdd >> data._energy >> data._height >>
            data._muscularMass >> data._bodyFat >> data._sightRadius;
 }
 
-Creature::Creature(const fge::Vector2f& pos)
+Creature::Creature(fge::Vector2f const& pos)
 {
     this->setPosition(pos);
 }
@@ -388,7 +388,7 @@ void Creature::networkRegister()
     this->_netList.clear();
 
     this->_netList.push(new fge::net::NetworkTypeSmoothVec2Float{
-            {&this->getPosition(), [&](const fge::Vector2f& pos) { this->setPosition(pos); }},
+            {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }},
             100.0f});
     this->_netList.push(new fge::net::NetworkType<fge::Vector2f>{&this->_g_targetPos})
             ->_onApplied.add(
@@ -426,18 +426,18 @@ void Creature::unpack(fge::net::Packet& pck)
     this->refreshStats();
 }
 
-const char* Creature::getClassName() const
+char const* Creature::getClassName() const
 {
     return "LS:OBJ:CREATURE";
 }
-const char* Creature::getReadableClassName() const
+char const* Creature::getReadableClassName() const
 {
     return "creature";
 }
 
 void Creature::refreshStats()
 {
-    const float scale = (2.0f * static_cast<float>(this->_data._height)) / 100.0f;
+    float const scale = (2.0f * static_cast<float>(this->_data._height)) / 100.0f;
     this->g_spriteCreature.setScale({scale, scale});
 
     this->g_circleSight.setRadius(this->_data._sightRadius);

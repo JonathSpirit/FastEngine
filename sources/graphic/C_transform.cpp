@@ -22,7 +22,7 @@ namespace fge
 
 #ifndef FGE_DEF_SERVER
 
-Transform::Transform(const fge::vulkan::Context& context) :
+Transform::Transform(fge::vulkan::Context const& context) :
         g_uniformBuffer(context)
 {
     this->g_descriptorSet = context.getTransformDescriptorPool()
@@ -36,7 +36,7 @@ Transform::Transform(const fge::vulkan::Context& context) :
     new (&this->getData()) fge::TransformUboData();
 }
 
-Transform::Transform(const Transform& r) :
+Transform::Transform(Transform const& r) :
         g_uniformBuffer(r.g_uniformBuffer.getContext())
 {
     auto const& context = r.g_uniformBuffer.getContext();
@@ -54,9 +54,9 @@ Transform::Transform(const Transform& r) :
 
 #else
 
-Transform::Transform([[maybe_unused]] const fge::vulkan::Context& context) {}
+Transform::Transform([[maybe_unused]] fge::vulkan::Context const& context) {}
 
-Transform::Transform(const Transform& r) :
+Transform::Transform(Transform const& r) :
         g_uboData(r.g_uboData)
 {}
 
@@ -69,7 +69,7 @@ Transform::~Transform()
 }
 // clang-format on
 
-Transform& Transform::operator=(const Transform& r)
+Transform& Transform::operator=(Transform const& r)
 {
 #ifndef FGE_DEF_SERVER
     if (this->g_uniformBuffer.getBuffer() == VK_NULL_HANDLE && r.g_uniformBuffer.getBuffer() != VK_NULL_HANDLE)
@@ -97,7 +97,7 @@ Transform& Transform::operator=(const Transform& r)
     return *this;
 }
 
-const Transform* Transform::start(const fge::Transformable& transformable, const fge::Transform* parentTransform) const
+Transform const* Transform::start(fge::Transformable const& transformable, fge::Transform const* parentTransform) const
 {
     if (parentTransform != nullptr)
     {
@@ -109,7 +109,7 @@ const Transform* Transform::start(const fge::Transformable& transformable, const
     }
     return this;
 }
-const Transform* Transform::start(const fge::Transform* parentTransform) const
+Transform const* Transform::start(fge::Transform const* parentTransform) const
 {
     if (parentTransform != nullptr)
     {
@@ -132,7 +132,7 @@ void Transform::destroy()
 #endif
 }
 
-void Transform::recreateUniformBuffer([[maybe_unused]] const fge::vulkan::Context& context)
+void Transform::recreateUniformBuffer([[maybe_unused]] fge::vulkan::Context const& context)
 {
     this->destroy();
 #ifndef FGE_DEF_SERVER
@@ -149,7 +149,7 @@ void Transform::recreateUniformBuffer([[maybe_unused]] const fge::vulkan::Contex
 #endif
 }
 
-const fge::vulkan::DescriptorSet& Transform::getDescriptorSet() const
+fge::vulkan::DescriptorSet const& Transform::getDescriptorSet() const
 {
 #ifndef FGE_DEF_SERVER
     return this->g_descriptorSet;
@@ -157,7 +157,7 @@ const fge::vulkan::DescriptorSet& Transform::getDescriptorSet() const
     throw fge::Exception("unimplemented");
 #endif
 }
-const fge::vulkan::UniformBuffer& Transform::getUniformBuffer() const
+fge::vulkan::UniformBuffer const& Transform::getUniformBuffer() const
 {
 #ifndef FGE_DEF_SERVER
     return this->g_uniformBuffer;

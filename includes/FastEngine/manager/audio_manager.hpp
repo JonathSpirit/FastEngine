@@ -107,14 +107,14 @@ FGE_API fge::audio::AudioDataType::const_iterator GetCEnd();
  *
  * \return The bad audio
  */
-FGE_API const fge::audio::AudioDataPtr& GetBadAudio();
+FGE_API fge::audio::AudioDataPtr const& GetBadAudio();
 /**
  * \brief Get the audio data with the given name
  *
  * \param name The name of the audio data
  * \return The audio data with the given name or bad audio if not found
  */
-FGE_API fge::audio::AudioDataPtr GetAudio(const std::string& name);
+FGE_API fge::audio::AudioDataPtr GetAudio(std::string const& name);
 
 /**
  * \brief Check if the audio data with the given name exist
@@ -122,7 +122,7 @@ FGE_API fge::audio::AudioDataPtr GetAudio(const std::string& name);
  * \param name The name of the audio data
  * \return \b true if the audio data with the given name exist, \b false otherwise
  */
-FGE_API bool Check(const std::string& name);
+FGE_API bool Check(std::string const& name);
 
 /**
  * \brief Load the audio data with the given name from the given file path
@@ -131,14 +131,14 @@ FGE_API bool Check(const std::string& name);
  * \param path The path to the audio file
  * \return \b true if the audio data was loaded, \b false otherwise
  */
-FGE_API bool LoadFromFile(const std::string& name, const std::string& path);
+FGE_API bool LoadFromFile(std::string const& name, std::string const& path);
 /**
  * \brief Unload the audio data with the given name
  *
  * \param name The name of the audio data
  * \return \b true if the audio data was unloaded, \b false otherwise
  */
-FGE_API bool Unload(const std::string& name);
+FGE_API bool Unload(std::string const& name);
 /**
  * \brief Unload all the audio data
  */
@@ -151,7 +151,7 @@ FGE_API void UnloadAll();
  * \param data The audio data to push
  * \return \b true if the audio is pushed, \b false otherwise
  */
-FGE_API bool Push(const std::string& name, const fge::audio::AudioDataPtr& data);
+FGE_API bool Push(std::string const& name, fge::audio::AudioDataPtr const& data);
 
 /**
  * @}

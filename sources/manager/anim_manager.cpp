@@ -72,11 +72,11 @@ fge::anim::AnimationDataType::const_iterator GetCEnd()
     return _dataAnim.cend();
 }
 
-const fge::anim::AnimationDataPtr& GetBadAnimation()
+fge::anim::AnimationDataPtr const& GetBadAnimation()
 {
     return _dataAnimBad;
 }
-fge::anim::AnimationDataPtr GetAnimation(const std::string& name)
+fge::anim::AnimationDataPtr GetAnimation(std::string const& name)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -93,7 +93,7 @@ fge::anim::AnimationDataPtr GetAnimation(const std::string& name)
     return _dataAnimBad;
 }
 
-bool Check(const std::string& name)
+bool Check(std::string const& name)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -106,7 +106,7 @@ bool Check(const std::string& name)
     return it != _dataAnim.end();
 }
 
-bool LoadFromFile(const std::string& name, std::filesystem::path path)
+bool LoadFromFile(std::string const& name, std::filesystem::path path)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -271,7 +271,7 @@ bool LoadFromFile(const std::string& name, std::filesystem::path path)
         return false;
     }
 }
-bool Unload(const std::string& name)
+bool Unload(std::string const& name)
 {
     if (name == FGE_ANIM_BAD)
     {
@@ -302,7 +302,7 @@ void UnloadAll()
     _dataAnim.clear();
 }
 
-bool Push(const std::string& name, const fge::anim::AnimationDataPtr& data)
+bool Push(std::string const& name, fge::anim::AnimationDataPtr const& data)
 {
     if (name == FGE_ANIM_BAD)
     {

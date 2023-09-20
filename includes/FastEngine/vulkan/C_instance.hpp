@@ -39,11 +39,11 @@ class FGE_API Instance
 {
 public:
     Instance();
-    Instance(const Instance& r) = delete;
+    Instance(Instance const& r) = delete;
     Instance(Instance&& r) noexcept;
     ~Instance();
 
-    Instance& operator=(const Instance& r) = delete;
+    Instance& operator=(Instance const& r) = delete;
     Instance& operator=(Instance&& r) noexcept = delete;
 
     /**
@@ -62,7 +62,7 @@ public:
                 uint16_t versionPatch = 0);
     void destroy();
 
-    [[nodiscard]] const std::string& getApplicationName() const;
+    [[nodiscard]] std::string const& getApplicationName() const;
 
     [[nodiscard]] VkInstance getInstance() const;
     [[nodiscard]] SDL_Window* getWindow() const;
@@ -81,7 +81,7 @@ public:
      *
      * \return The list of physical devices
      */
-    [[nodiscard]] const std::vector<PhysicalDevice>& getPhysicalDevices() const;
+    [[nodiscard]] std::vector<PhysicalDevice> const& getPhysicalDevices() const;
     /**
      * \brief Pick a physical device
      *

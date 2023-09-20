@@ -34,26 +34,26 @@ class FGE_API ObjLight : public fge::Object, public fge::LightComponent
 {
 public:
     ObjLight();
-    explicit ObjLight(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
-    ObjLight(const fge::Texture& texture,
-             const fge::RectInt& rectangle,
-             const fge::Vector2f& position = fge::Vector2f());
+    explicit ObjLight(fge::Texture const& texture, fge::Vector2f const& position = fge::Vector2f());
+    ObjLight(fge::Texture const& texture,
+             fge::RectInt const& rectangle,
+             fge::Vector2f const& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjLight)
 
-    void setBlendMode(const fge::vulkan::BlendMode& blendMode);
-    const fge::vulkan::BlendMode& getBlendMode() const;
+    void setBlendMode(fge::vulkan::BlendMode const& blendMode);
+    fge::vulkan::BlendMode const& getBlendMode() const;
 
-    void setTexture(const fge::Texture& texture, bool resetRect = false);
-    void setTextureRect(const fge::RectInt& rectangle);
+    void setTexture(fge::Texture const& texture, bool resetRect = false);
+    void setTextureRect(fge::RectInt const& rectangle);
 
-    void setRenderObject(const fge::ObjectDataShared& obj);
-    const fge::ObjectDataShared& getRenderObject() const;
+    void setRenderObject(fge::ObjectDataShared const& obj);
+    fge::ObjectDataShared const& getRenderObject() const;
 
-    void setColor(const fge::Color& color);
+    void setColor(fge::Color const& color);
 
-    const fge::Texture& getTexture() const;
-    const fge::RectInt& getTextureRect() const;
+    fge::Texture const& getTexture() const;
+    fge::RectInt const& getTextureRect() const;
 
     fge::Color getColor() const;
 
@@ -66,8 +66,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

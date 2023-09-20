@@ -117,8 +117,8 @@ public:
         fge::GuiElement::setGlobalGuiScale({1.0f, 1.0f});
 
         //Add a callback to duplicate the window
-        event._onKeyDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_KeyboardEvent&>(
-                [&]([[maybe_unused]] const fge::Event& event, const SDL_KeyboardEvent& keyEvent) {
+        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>(
+                [&]([[maybe_unused]] fge::Event const& event, SDL_KeyboardEvent const& keyEvent) {
             if (keyEvent.keysym.sym == SDLK_SPACE)
             {
                 auto newObject = this->duplicateObject(objWindow->_myObjectData.lock()->getSid());

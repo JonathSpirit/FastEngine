@@ -35,20 +35,20 @@ namespace fge
 class FGE_API ObjRectangleShape : public fge::ObjShape
 {
 public:
-    explicit ObjRectangleShape(const Vector2f& size = Vector2f(0, 0));
+    explicit ObjRectangleShape(Vector2f const& size = Vector2f(0, 0));
     ~ObjRectangleShape() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjRectangleShape)
 
-    void setSize(const Vector2f& size);
-    const Vector2f& getSize() const;
+    void setSize(Vector2f const& size);
+    Vector2f const& getSize() const;
 
     [[nodiscard]] std::size_t getPointCount() const override;
 
     [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
 private:
     Vector2f g_size;

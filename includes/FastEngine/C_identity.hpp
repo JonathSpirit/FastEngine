@@ -33,7 +33,7 @@ struct Identity
     fge::net::IpAddress _ip;
     fge::net::Port _port;
 
-    inline bool operator==(const fge::net::Identity& right) const
+    inline bool operator==(fge::net::Identity const& right) const
     {
         return (this->_ip == right._ip) && (this->_port == right._port);
     }
@@ -46,7 +46,7 @@ struct Identity
  */
 struct IdentityHash
 {
-    inline std::size_t operator()(const fge::net::Identity& id) const
+    inline std::size_t operator()(fge::net::Identity const& id) const
     {
         return std::hash<uint64_t>()(static_cast<uint64_t>(id._ip.getNetworkByteOrder()) |
                                      (static_cast<uint64_t>(id._port) << 32));

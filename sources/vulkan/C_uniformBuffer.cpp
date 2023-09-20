@@ -33,7 +33,7 @@ UniformBuffer::UniformBuffer(Context const& context) :
         ContextAware(context)
 #endif
 {}
-UniformBuffer::UniformBuffer([[maybe_unused]] const UniformBuffer& r) : ///TODO: better copy
+UniformBuffer::UniformBuffer([[maybe_unused]] UniformBuffer const& r) : ///TODO: better copy
         UniformBuffer(r.getContext())
 {}
 UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
@@ -138,7 +138,7 @@ VkDeviceSize UniformBuffer::getBufferSize() const
 }
 #endif
 
-void UniformBuffer::copyData(const void* data, std::size_t size) const
+void UniformBuffer::copyData(void const* data, std::size_t size) const
 {
     memcpy(this->getBufferMapped(), data, size);
 }

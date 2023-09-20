@@ -78,7 +78,7 @@ void CommandHandler::clearCmd()
 }
 
 fge::Property
-CommandHandler::callCmd(std::string_view name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene)
+CommandHandler::callCmd(std::string_view name, fge::Object* caller, fge::Property const& arg, fge::Scene* caller_scene)
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -89,7 +89,7 @@ CommandHandler::callCmd(std::string_view name, fge::Object* caller, const fge::P
     return {};
 }
 fge::Property
-CommandHandler::callCmd(std::size_t index, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene)
+CommandHandler::callCmd(std::size_t index, fge::Object* caller, fge::Property const& arg, fge::Scene* caller_scene)
 {
     if (index < this->g_cmdData.size())
     {
@@ -117,7 +117,7 @@ std::string_view CommandHandler::getCmdName(std::size_t index) const
     return {};
 }
 
-const fge::CommandHandler::CommandData* CommandHandler::getCmd(std::string_view name) const
+fge::CommandHandler::CommandData const* CommandHandler::getCmd(std::string_view name) const
 {
     auto it = this->g_cmdDataMap.find(name);
 
@@ -133,7 +133,7 @@ std::size_t CommandHandler::getCmdSize() const
     return this->g_cmdData.size();
 }
 
-const fge::CommandHandler::CommandDataType& CommandHandler::getCmdList() const
+fge::CommandHandler::CommandDataType const& CommandHandler::getCmdList() const
 {
     return this->g_cmdData;
 }

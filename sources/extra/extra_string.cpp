@@ -38,7 +38,7 @@
 namespace fge::string
 {
 
-bool IsValidUtf8String(const std::string& str)
+bool IsValidUtf8String(std::string const& str)
 {
     uint8_t requiredBytes{0};
 
@@ -80,107 +80,107 @@ bool IsValidUtf8String(const std::string& str)
     return requiredBytes == 0;
 }
 
-uint8_t ToUint8(const std::string& str)
+uint8_t ToUint8(std::string const& str)
 {
     uint8_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-uint16_t ToUint16(const std::string& str)
+uint16_t ToUint16(std::string const& str)
 {
     uint16_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-uint32_t ToUint32(const std::string& str)
+uint32_t ToUint32(std::string const& str)
 {
     uint32_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-uint64_t ToUint64(const std::string& str)
+uint64_t ToUint64(std::string const& str)
 {
     uint64_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-int8_t ToInt8(const std::string& str)
+int8_t ToInt8(std::string const& str)
 {
     int8_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-int16_t ToInt16(const std::string& str)
+int16_t ToInt16(std::string const& str)
 {
     int16_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-int32_t ToInt32(const std::string& str)
+int32_t ToInt32(std::string const& str)
 {
     int32_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-int64_t ToInt64(const std::string& str)
+int64_t ToInt64(std::string const& str)
 {
     int64_t result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
-unsigned int ToUint(const std::string& str)
+unsigned int ToUint(std::string const& str)
 {
     unsigned int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-int ToInt(const std::string& str)
+int ToInt(std::string const& str)
 {
     int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
-unsigned long long int ToUlong(const std::string& str)
+unsigned long long int ToUlong(std::string const& str)
 {
     unsigned long long int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-long long int ToLong(const std::string& str)
+long long int ToLong(std::string const& str)
 {
     long long int result = 0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
-float ToFloat(const std::string& str)
+float ToFloat(std::string const& str)
 {
     float result = 0.0f;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-double ToDouble(const std::string& str)
+double ToDouble(std::string const& str)
 {
     double result = 0.0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-long double ToLongDouble(const std::string& str)
+long double ToLongDouble(std::string const& str)
 {
     long double result = 0.0;
     strtk::string_to_type_converter(str, result);
     return result;
 }
 
-bool ToBool(const std::string& str)
+bool ToBool(std::string const& str)
 {
     bool result = false;
     strtk::string_to_type_converter(str, result);
     return result;
 }
-void* ToPtr(const std::string& str)
+void* ToPtr(std::string const& str)
 {
     unsigned int i = 0;
 
@@ -234,7 +234,7 @@ void* ToPtr(const std::string& str)
     return reinterpret_cast<void*>(result);
 }
 
-fge::Vector2f ToVec2f(const std::string& str)
+fge::Vector2f ToVec2f(std::string const& str)
 {
     size_t tagpos = str.find(' ');
     if (tagpos == std::string::npos)
@@ -244,7 +244,7 @@ fge::Vector2f ToVec2f(const std::string& str)
     return {fge::string::ToFloat(str.substr(0, tagpos)),
             fge::string::ToFloat(str.substr(tagpos + 1, std::string::npos))};
 }
-fge::Vector2u ToVec2u(const std::string& str)
+fge::Vector2u ToVec2u(std::string const& str)
 {
     size_t tagpos = str.find(' ');
     if (tagpos == std::string::npos)
@@ -253,7 +253,7 @@ fge::Vector2u ToVec2u(const std::string& str)
     }
     return {fge::string::ToUint(str.substr(0, tagpos)), fge::string::ToUint(str.substr(tagpos + 1, std::string::npos))};
 }
-fge::Vector2i ToVec2i(const std::string& str)
+fge::Vector2i ToVec2i(std::string const& str)
 {
     size_t tagpos = str.find(' ');
     if (tagpos == std::string::npos)
@@ -347,43 +347,43 @@ std::string ToStr(void* val)
 {
     return fmt::format(FMT_COMPILE("{}"), val);
 }
-std::string ToStr(const void* val)
+std::string ToStr(void const* val)
 {
     return fmt::format(FMT_COMPILE("{}"), val);
 }
 
 //Classes
 
-std::string ToStr(const fge::Vector2f& val)
+std::string ToStr(fge::Vector2f const& val)
 {
     return fmt::format(FMT_COMPILE("{} {}"), val.x, val.y);
 }
-std::string ToStr(const fge::Vector2u& val)
+std::string ToStr(fge::Vector2u const& val)
 {
     return fmt::format(FMT_COMPILE("{} {}"), val.x, val.y);
 }
-std::string ToStr(const fge::Vector2i& val)
+std::string ToStr(fge::Vector2i const& val)
 {
     return fmt::format(FMT_COMPILE("{} {}"), val.x, val.y);
 }
 
-std::string ToStr(const fge::Vector3f& val)
+std::string ToStr(fge::Vector3f const& val)
 {
     return fmt::format(FMT_COMPILE("{} {} {}"), val.x, val.y, val.z);
 }
-std::string ToStr(const fge::Vector3i& val)
+std::string ToStr(fge::Vector3i const& val)
 {
     return fmt::format(FMT_COMPILE("{} {} {}"), val.x, val.y, val.z);
 }
 
-std::string ToStr(const fge::Property& val)
+std::string ToStr(fge::Property const& val)
 {
     return val.toString();
 }
 
 ///-------------------------------------------------------------------------------
 
-std::size_t Split(const std::string& str, std::vector<std::string>& output, char separator)
+std::size_t Split(std::string const& str, std::vector<std::string>& output, char separator)
 {
     output.clear();
     std::istringstream f(str);

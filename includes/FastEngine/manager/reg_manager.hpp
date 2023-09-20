@@ -37,9 +37,9 @@ public:
     virtual ~BaseStamp() = default;
 
     [[nodiscard]] virtual fge::Object* createNew() const = 0;
-    [[nodiscard]] virtual fge::Object* duplicate(const fge::Object* obj) const = 0;
+    [[nodiscard]] virtual fge::Object* duplicate(fge::Object const* obj) const = 0;
 
-    [[nodiscard]] const std::string& getClassName() const { return this->g_className; }
+    [[nodiscard]] std::string const& getClassName() const { return this->g_className; }
 
 protected:
     std::string g_className;
@@ -55,9 +55,9 @@ public:
     }
 
     [[nodiscard]] fge::Object* createNew() const final { return new T(); }
-    [[nodiscard]] fge::Object* duplicate(const fge::Object* obj) const final
+    [[nodiscard]] fge::Object* duplicate(fge::Object const* obj) const final
     {
-        return new T(*reinterpret_cast<const T*>(obj));
+        return new T(*reinterpret_cast<T const*>(obj));
     }
 };
 
@@ -68,7 +68,7 @@ FGE_API bool RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 FGE_API bool Check(std::string_view className);
 FGE_API bool Check(fge::reg::ClassId classId);
 
-FGE_API fge::Object* Duplicate(const fge::Object* obj);
+FGE_API fge::Object* Duplicate(fge::Object const* obj);
 
 FGE_API bool Replace(std::string_view className, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
 FGE_API bool Replace(fge::reg::ClassId classId, std::unique_ptr<fge::reg::BaseStamp>&& newStamp);

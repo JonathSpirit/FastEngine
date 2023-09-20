@@ -169,7 +169,7 @@ struct GarbageImage
     constexpr GarbageImage(VkImage image,
                            VmaAllocation bufferAllocation,
                            VkImageView imageView,
-                           const Context* context) :
+                           Context const* context) :
             _type(GarbageType::GARBAGE_IMAGE),
             _image(image),
             _allocation(bufferAllocation),
@@ -181,7 +181,7 @@ struct GarbageImage
     VkImage _image;
     VmaAllocation _allocation;
     VkImageView _imageView;
-    const Context* _context;
+    Context const* _context;
 };
 
 /**
@@ -199,37 +199,37 @@ private:
     {}
 
 public:
-    constexpr Garbage(const GarbageDescriptorSet& garbage) :
+    constexpr Garbage(GarbageDescriptorSet const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageBuffer& garbage) :
+    constexpr Garbage(GarbageBuffer const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageGraphicPipeline& garbage) :
+    constexpr Garbage(GarbageGraphicPipeline const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbagePipelineLayout& garbage) :
+    constexpr Garbage(GarbagePipelineLayout const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageCommandPool& garbage) :
+    constexpr Garbage(GarbageCommandPool const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageCommandBuffer& garbage) :
+    constexpr Garbage(GarbageCommandBuffer const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageFramebuffer& garbage) :
+    constexpr Garbage(GarbageFramebuffer const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageRenderPass& garbage) :
+    constexpr Garbage(GarbageRenderPass const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageSampler& garbage) :
+    constexpr Garbage(GarbageSampler const& garbage) :
             g_data(garbage)
     {}
-    constexpr Garbage(const GarbageImage& garbage) :
+    constexpr Garbage(GarbageImage const& garbage) :
             g_data(garbage)
     {}
-    Garbage(const Garbage& r) = delete;
+    Garbage(Garbage const& r) = delete;
     Garbage(Garbage&& r) noexcept :
             g_data(r.g_data)
     {
@@ -237,7 +237,7 @@ public:
     }
     ~Garbage();
 
-    Garbage& operator=(const Garbage& r) = delete;
+    Garbage& operator=(Garbage const& r) = delete;
     Garbage& operator=(Garbage&& r) noexcept = delete;
 
 private:
@@ -246,34 +246,34 @@ private:
         explicit constexpr Data(GarbageType type) :
                 _generic{type}
         {}
-        explicit constexpr Data(const GarbageDescriptorSet& data) :
+        explicit constexpr Data(GarbageDescriptorSet const& data) :
                 _descriptorSet{data}
         {}
-        explicit constexpr Data(const GarbageBuffer& data) :
+        explicit constexpr Data(GarbageBuffer const& data) :
                 _buffer{data}
         {}
-        explicit constexpr Data(const GarbageGraphicPipeline& data) :
+        explicit constexpr Data(GarbageGraphicPipeline const& data) :
                 _graphicPipeline{data}
         {}
-        explicit constexpr Data(const GarbagePipelineLayout& data) :
+        explicit constexpr Data(GarbagePipelineLayout const& data) :
                 _pipelineLayout{data}
         {}
-        explicit constexpr Data(const GarbageCommandPool& data) :
+        explicit constexpr Data(GarbageCommandPool const& data) :
                 _commandPool{data}
         {}
-        explicit constexpr Data(const GarbageCommandBuffer& data) :
+        explicit constexpr Data(GarbageCommandBuffer const& data) :
                 _commandBuffer{data}
         {}
-        explicit constexpr Data(const GarbageFramebuffer& data) :
+        explicit constexpr Data(GarbageFramebuffer const& data) :
                 _framebuffer{data}
         {}
-        explicit constexpr Data(const GarbageRenderPass& data) :
+        explicit constexpr Data(GarbageRenderPass const& data) :
                 _renderPass{data}
         {}
-        explicit constexpr Data(const GarbageSampler& data) :
+        explicit constexpr Data(GarbageSampler const& data) :
                 _sampler{data}
         {}
-        explicit constexpr Data(const GarbageImage& data) :
+        explicit constexpr Data(GarbageImage const& data) :
                 _image{data}
         {}
 
@@ -308,11 +308,11 @@ public:
     using ContainerType = std::vector<Garbage>;
 
     GarbageCollector() = default;
-    GarbageCollector(const GarbageCollector& r) = delete;
+    GarbageCollector(GarbageCollector const& r) = delete;
     GarbageCollector(GarbageCollector&& r) noexcept;
     ~GarbageCollector() = default;
 
-    GarbageCollector& operator=(const GarbageCollector& r) = delete;
+    GarbageCollector& operator=(GarbageCollector const& r) = delete;
     GarbageCollector& operator=(GarbageCollector&& r) noexcept = delete;
 
     /**

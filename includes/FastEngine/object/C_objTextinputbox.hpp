@@ -33,9 +33,9 @@ class FGE_API ObjTextInputBox : public fge::Object, public fge::Subscriber, publ
 {
 public:
     ObjTextInputBox();
-    explicit ObjTextInputBox(const fge::Font& font,
+    explicit ObjTextInputBox(fge::Font const& font,
                              uint16_t maxLength = 10,
-                             const fge::Vector2f& pos = fge::Vector2f());
+                             fge::Vector2f const& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextInputBox)
 
@@ -48,25 +48,25 @@ public:
 
     void setActiveStat(bool active);
 
-    void setBoxSize(const fge::Vector2f& size);
+    void setBoxSize(fge::Vector2f const& size);
     void setBoxSize(float w, float h);
 
-    void setBoxColor(const fge::Color& color);
-    void setBoxOutlineColor(const fge::Color& color);
-    void setTextColor(const fge::Color& color);
+    void setBoxColor(fge::Color const& color);
+    void setBoxOutlineColor(fge::Color const& color);
+    void setTextColor(fge::Color const& color);
 
-    const tiny_utf8::string& getString() const;
+    tiny_utf8::string const& getString() const;
     fge::CharacterSize getCharacterSize() const;
     bool isTextHide() const;
     uint16_t getMaxLength() const;
 
     bool getActiveStat() const;
 
-    const fge::Vector2f& getBoxSize() const;
+    fge::Vector2f const& getBoxSize() const;
 
-    const fge::Color& getBoxColor() const;
-    const fge::Color& getBoxOutlineColor() const;
-    const fge::Color& getTextColor() const;
+    fge::Color const& getBoxColor() const;
+    fge::Color const& getBoxOutlineColor() const;
+    fge::Color const& getTextColor() const;
 
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
 
@@ -78,17 +78,17 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
 
 private:
     void
-    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
+    onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
 
-    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
     uint16_t g_cursor = 0;
     uint16_t g_maxLength = 10;

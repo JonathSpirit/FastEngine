@@ -28,13 +28,13 @@ namespace fge
 class FGE_API ObjLineShape : public fge::ObjShape
 {
 public:
-    ObjLineShape(const Vector2f& beginning, const Vector2f& end, float thickness);
+    ObjLineShape(Vector2f const& beginning, Vector2f const& end, float thickness);
     ~ObjLineShape() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjLineShape)
 
     void setThickness(float thickness);
-    void setEndPoint(const Vector2f& point);
+    void setEndPoint(Vector2f const& point);
 
     float getThickness() const;
     Vector2f getEndPoint() const;
@@ -44,8 +44,8 @@ public:
     [[nodiscard]] std::size_t getPointCount() const override;
     [[nodiscard]] Vector2f getPoint(std::size_t index) const override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
 private:
     Vector2f g_direction;

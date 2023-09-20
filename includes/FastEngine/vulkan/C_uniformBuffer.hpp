@@ -33,11 +33,11 @@ class FGE_API UniformBuffer : public ContextAware
 {
 public:
     explicit UniformBuffer(Context const& context);
-    UniformBuffer(const UniformBuffer& r);
+    UniformBuffer(UniformBuffer const& r);
     UniformBuffer(UniformBuffer&& r) noexcept;
     ~UniformBuffer() override;
 
-    UniformBuffer& operator=(const UniformBuffer& r) = delete;     ///TODO
+    UniformBuffer& operator=(UniformBuffer const& r) = delete;     ///TODO
     UniformBuffer& operator=(UniformBuffer&& r) noexcept = delete; ///TODO
 
     void create(VkDeviceSize bufferSize, bool isStorageBuffer = false);
@@ -48,7 +48,7 @@ public:
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
 
-    void copyData(const void* data, std::size_t size) const;
+    void copyData(void const* data, std::size_t size) const;
 
 private:
 #ifndef FGE_DEF_SERVER

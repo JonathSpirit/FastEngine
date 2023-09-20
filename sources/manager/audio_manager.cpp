@@ -81,11 +81,11 @@ fge::audio::AudioDataType::const_iterator GetCEnd()
     return _dataAudio.cend();
 }
 
-const fge::audio::AudioDataPtr& GetBadAudio()
+fge::audio::AudioDataPtr const& GetBadAudio()
 {
     return _dataAudioBad;
 }
-fge::audio::AudioDataPtr GetAudio(const std::string& name)
+fge::audio::AudioDataPtr GetAudio(std::string const& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -102,7 +102,7 @@ fge::audio::AudioDataPtr GetAudio(const std::string& name)
     return _dataAudioBad;
 }
 
-bool Check(const std::string& name)
+bool Check(std::string const& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -119,7 +119,7 @@ bool Check(const std::string& name)
     return false;
 }
 
-bool LoadFromFile(const std::string& name, const std::string& path)
+bool LoadFromFile(std::string const& name, std::string const& path)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -150,7 +150,7 @@ bool LoadFromFile(const std::string& name, const std::string& path)
     return true;
 }
 
-bool Unload(const std::string& name)
+bool Unload(std::string const& name)
 {
     if (name == FGE_AUDIO_BAD)
     {
@@ -181,7 +181,7 @@ void UnloadAll()
     _dataAudio.clear();
 }
 
-bool Push(const std::string& name, const fge::audio::AudioDataPtr& data)
+bool Push(std::string const& name, fge::audio::AudioDataPtr const& data)
 {
     if (name == FGE_AUDIO_BAD)
     {

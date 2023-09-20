@@ -306,19 +306,19 @@ void Context::waitIdle()
     vkDeviceWaitIdle(this->g_logicalDevice.getDevice());
 }
 
-const Instance& Context::getInstance() const
+Instance const& Context::getInstance() const
 {
     return this->g_instance;
 }
-const Surface& Context::getSurface() const
+Surface const& Context::getSurface() const
 {
     return this->g_surface;
 }
-const LogicalDevice& Context::getLogicalDevice() const
+LogicalDevice const& Context::getLogicalDevice() const
 {
     return this->g_logicalDevice;
 }
-const PhysicalDevice& Context::getPhysicalDevice() const
+PhysicalDevice const& Context::getPhysicalDevice() const
 {
     return this->g_physicalDevice;
 }
@@ -521,24 +521,24 @@ fge::vulkan::DescriptorSetLayout& Context::getCacheLayout(std::string_view key) 
             .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this))
             .first->second;
 }
-const DescriptorPool& Context::getMultiUseDescriptorPool() const
+DescriptorPool const& Context::getMultiUseDescriptorPool() const
 {
     return this->g_multiUseDescriptorPool;
 }
 
-const fge::vulkan::DescriptorSetLayout& Context::getTextureLayout() const
+fge::vulkan::DescriptorSetLayout const& Context::getTextureLayout() const
 {
     return this->g_textureLayout;
 }
-const fge::vulkan::DescriptorSetLayout& Context::getTransformLayout() const
+fge::vulkan::DescriptorSetLayout const& Context::getTransformLayout() const
 {
     return this->g_transformLayout;
 }
-const DescriptorPool& Context::getTextureDescriptorPool() const
+DescriptorPool const& Context::getTextureDescriptorPool() const
 {
     return this->g_textureDescriptorPool;
 }
-const DescriptorPool& Context::getTransformDescriptorPool() const
+DescriptorPool const& Context::getTransformDescriptorPool() const
 {
     return this->g_transformDescriptorPool;
 }

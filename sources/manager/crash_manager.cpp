@@ -23,7 +23,7 @@ namespace fge::crash
 namespace
 {
 
-const signed char _computerCrash[] = {
+signed char const _computerCrash[] = {
         -119, 80,   78,   71,   13,  10,  26,   10,  0,    0,    0,   13,   73,   72,   68,   82,   0,    0,    0,
         16,   0,    0,    0,    16,  8,   6,    0,   0,    0,    31,  -13,  -1,   97,   0,    0,    0,    6,    98,
         75,   71,   68,   0,    0,   0,   0,    0,   0,    -7,   67,  -69,  127,  0,    0,    0,    9,    112,  72,
@@ -57,15 +57,15 @@ void CrashFunction()
         {
             std::rethrow_exception(exc);
         }
-        catch (const std::exception& e)
+        catch (std::exception const& e)
         {
             textError = e.what();
         }
-        catch (const std::string& e)
+        catch (std::string const& e)
         {
             textError = e;
         }
-        catch (const char*& e)
+        catch (char const*& e)
         {
             textError = e;
         }
@@ -133,7 +133,7 @@ void Init(sf::RenderWindow& screen, sf::Font& font)
     std::set_terminate(CrashFunction);
 }
 
-void SetInfoText(const std::string& txt)
+void SetInfoText(std::string const& txt)
 {
     for (std::size_t i = 0; i < txt.size(); ++i)
     {

@@ -100,7 +100,7 @@ class FGE_API Object : public fge::Drawable, public fge::Transformable, public f
 {
 public:
     Object();
-    Object(const Object& r);
+    Object(Object const& r);
     Object(Object&& r) noexcept;
     ~Object() override = default;
 
@@ -136,10 +136,10 @@ public:
      * \param scene The scene where the object is updated (can be nullptr)
      */
 #ifdef FGE_DEF_SERVER
-    virtual void update(fge::Event& event, const std::chrono::microseconds& deltaTime, fge::Scene* scene);
+    virtual void update(fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene* scene);
 #else
     virtual void
-    update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::microseconds& deltaTime, fge::Scene* scene);
+    update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene* scene);
 #endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object
@@ -148,7 +148,7 @@ public:
      * \param states The render states
      */
 #ifndef FGE_DEF_SERVER
-    virtual void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
+    virtual void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override;
 #endif //FGE_DEF_SERVER
     /**
      * \brief Register all network types needed by the object
@@ -194,13 +194,13 @@ public:
      *
      * \return The unique class name of the object
      */
-    virtual const char* getClassName() const;
+    virtual char const* getClassName() const;
     /**
      * \brief Get a readable version of the class name
      *
      * \return A readable version of the class name
      */
-    virtual const char* getReadableClassName() const;
+    virtual char const* getReadableClassName() const;
 
     /**
      * \brief Get the global bounds of the object
@@ -221,21 +221,21 @@ public:
      * \param path The path of the file
      * \return \b true if the object was saved, \b false otherwise
      */
-    bool saveInFile(const std::string& path);
+    bool saveInFile(std::string const& path);
     /**
      * \brief Load the object from a file
      *
      * \param path The path of the file
      * \return \b true if the object was loaded, \b false otherwise
      */
-    bool loadFromFile(const std::string& path);
+    bool loadFromFile(std::string const& path);
     /**
      * \brief Static form of the loadFromFile method
      *
      * \param path The path of the file
      * \return The allocated pointer of the loaded object or nullptr if the object was not loaded
      */
-    static fge::Object* LoadFromFile(const std::string& path);
+    static fge::Object* LoadFromFile(std::string const& path);
 
     /**
      * \brief Get the GuiElement attached to this object if there is one

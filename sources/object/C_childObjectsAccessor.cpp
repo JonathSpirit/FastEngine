@@ -31,7 +31,7 @@ void ChildObjectsAccessor::clear()
     this->g_data.clear();
 }
 
-void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent,
+void ChildObjectsAccessor::addExistingObject(fge::ObjectDataWeak const& parent,
                                              fge::Object* object,
                                              fge::Scene* linkedScene,
                                              std::size_t insertionIndex)
@@ -56,7 +56,7 @@ void ChildObjectsAccessor::addExistingObject(const fge::ObjectDataWeak& parent,
     it->_objData->setParent(parentPtr);
     it->_objPtr->_myObjectData = it->_objData;
 }
-void ChildObjectsAccessor::addNewObject(const fge::ObjectDataWeak& parent,
+void ChildObjectsAccessor::addNewObject(fge::ObjectDataWeak const& parent,
                                         fge::ObjectPtr&& newObject,
                                         fge::Scene* linkedScene,
                                         std::size_t insertionIndex)
@@ -83,7 +83,7 @@ std::size_t ChildObjectsAccessor::getSize() const
 {
     return this->g_data.size();
 }
-const fge::Object* ChildObjectsAccessor::get(std::size_t index) const
+fge::Object const* ChildObjectsAccessor::get(std::size_t index) const
 {
     return this->g_data[index]._objPtr;
 }
@@ -113,7 +113,7 @@ void ChildObjectsAccessor::remove(std::size_t first, std::size_t last)
 }
 
 #ifdef FGE_DEF_SERVER
-void ChildObjectsAccessor::update(fge::Event& event, const std::chrono::milliseconds& deltaTime, fge::Scene* scene)
+void ChildObjectsAccessor::update(fge::Event& event, std::chrono::milliseconds const& deltaTime, fge::Scene* scene)
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
          ++this->g_actualIteratedIndex)
@@ -124,7 +124,7 @@ void ChildObjectsAccessor::update(fge::Event& event, const std::chrono::millisec
 #else
 void ChildObjectsAccessor::update(fge::RenderWindow& screen,
                                   fge::Event& event,
-                                  const std::chrono::milliseconds& deltaTime,
+                                  std::chrono::milliseconds const& deltaTime,
                                   fge::Scene* scene)
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
@@ -133,7 +133,7 @@ void ChildObjectsAccessor::update(fge::RenderWindow& screen,
         this->g_data[this->g_actualIteratedIndex]._objPtr->update(screen, event, deltaTime, scene);
     }
 }
-void ChildObjectsAccessor::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
+void ChildObjectsAccessor::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
          ++this->g_actualIteratedIndex)

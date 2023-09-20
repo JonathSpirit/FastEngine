@@ -30,20 +30,20 @@ class FGE_API ObjSprite : public fge::Object
 {
 public:
     ObjSprite();
-    explicit ObjSprite(const fge::Texture& texture, const fge::Vector2f& position = fge::Vector2f());
-    ObjSprite(const fge::Texture& texture,
-              const fge::RectInt& rectangle,
-              const fge::Vector2f& position = fge::Vector2f());
+    explicit ObjSprite(fge::Texture const& texture, fge::Vector2f const& position = fge::Vector2f());
+    ObjSprite(fge::Texture const& texture,
+              fge::RectInt const& rectangle,
+              fge::Vector2f const& position = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSprite)
 
-    void setTexture(const fge::Texture& texture, bool resetRect = false);
-    void setTextureRect(const fge::RectInt& rectangle);
+    void setTexture(fge::Texture const& texture, bool resetRect = false);
+    void setTextureRect(fge::RectInt const& rectangle);
 
-    void setColor(const fge::Color& color);
+    void setColor(fge::Color const& color);
 
-    const fge::Texture& getTexture() const;
-    const fge::RectInt& getTextureRect() const;
+    fge::Texture const& getTexture() const;
+    fge::RectInt const& getTextureRect() const;
 
     fge::Color getColor() const;
 
@@ -54,8 +54,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

@@ -21,7 +21,7 @@
 namespace ls
 {
 
-Drink::Drink(const fge::Vector2f& pos)
+Drink::Drink(fge::Vector2f const& pos)
 {
     this->setPosition(pos);
 }
@@ -52,7 +52,7 @@ void Drink::networkRegister()
 {
     this->_netList.clear();
     this->_netList.push(new fge::net::NetworkType<fge::Vector2f>(
-            {&this->getPosition(), [&](const fge::Vector2f& pos) { this->setPosition(pos); }}));
+            {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }}));
 }
 
 void Drink::save(nlohmann::json& jsonObject, fge::Scene* scene)
@@ -74,11 +74,11 @@ void Drink::unpack(fge::net::Packet& pck)
     pck >> this->_nutrition;
 }
 
-const char* Drink::getClassName() const
+char const* Drink::getClassName() const
 {
     return "LS:OBJ:DRINK";
 }
-const char* Drink::getReadableClassName() const
+char const* Drink::getReadableClassName() const
 {
     return "drink";
 }

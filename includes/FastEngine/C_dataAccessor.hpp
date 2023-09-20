@@ -37,7 +37,7 @@ struct DataAccessor
             _getter(std::move(getter))
     {}
 
-    DataAccessor(const T* directAccessPtrGetter, std::function<void(T)> setter) :
+    DataAccessor(T const* directAccessPtrGetter, std::function<void(T)> setter) :
             _setter(std::move(setter)),
             _getter([directAccessPtrGetter]() { return *directAccessPtrGetter; })
     {}

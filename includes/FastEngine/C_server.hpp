@@ -36,8 +36,8 @@ namespace fge::net
 
 struct FGE_API FluxPacket
 {
-    FluxPacket(const fge::net::Packet& pck,
-               const fge::net::Identity& id,
+    FluxPacket(fge::net::Packet const& pck,
+               fge::net::Identity const& id,
                std::size_t fluxIndex = 0,
                std::size_t fluxCount = 0) :
             _pck(pck),
@@ -47,7 +47,7 @@ struct FGE_API FluxPacket
             _fluxCount(fluxCount)
     {}
     FluxPacket(fge::net::Packet&& pck,
-               const fge::net::Identity& id,
+               fge::net::Identity const& id,
                std::size_t fluxIndex = 0,
                std::size_t fluxCount = 0) :
             _pck(std::move(pck)),
@@ -87,8 +87,8 @@ public:
     fge::net::ClientList _clients;
 
 private:
-    bool pushPacket(const FluxPacketSharedPtr& fluxPck);
-    void forcePushPacket(const FluxPacketSharedPtr& fluxPck);
+    bool pushPacket(FluxPacketSharedPtr const& fluxPck);
+    void forcePushPacket(FluxPacketSharedPtr const& fluxPck);
 
     mutable std::mutex g_mutexLocal;
 
@@ -105,7 +105,7 @@ public:
     ~ServerUdp();
 
     template<typename Tpacket = fge::net::Packet>
-    bool start(fge::net::Port port, const fge::net::IpAddress& ip = fge::net::IpAddress::Any);
+    bool start(fge::net::Port port, fge::net::IpAddress const& ip = fge::net::IpAddress::Any);
     template<typename Tpacket = fge::net::Packet>
     bool start();
     void stop();
@@ -120,16 +120,16 @@ public:
     void delFlux(fge::net::ServerFluxUdp* flux);
     void delAllFlux();
 
-    void repushPacket(const FluxPacketSharedPtr& fluxPck);
+    void repushPacket(FluxPacketSharedPtr const& fluxPck);
 
-    const fge::net::SocketUdp& getSocket() const;
+    fge::net::SocketUdp const& getSocket() const;
     fge::net::SocketUdp& getSocket();
 
     void notify();
     std::mutex& getSendMutex();
 
-    fge::net::Socket::Error sendTo(fge::net::Packet& pck, const fge::net::IpAddress& ip, fge::net::Port port);
-    fge::net::Socket::Error sendTo(fge::net::Packet& pck, const fge::net::Identity& id);
+    fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::IpAddress const& ip, fge::net::Port port);
+    fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::Identity const& id);
 
     bool isRunning() const;
 
@@ -161,14 +161,14 @@ public:
 
     template<typename Tpacket = fge::net::Packet>
     bool start(fge::net::Port port,
-               const fge::net::IpAddress& ip,
-               const fge::net::IpAddress& remoteAddress,
+               fge::net::IpAddress const& ip,
+               fge::net::IpAddress const& remoteAddress,
                fge::net::Port remotePort);
     template<typename Tpacket = fge::net::Packet>
     bool start();
     void stop();
 
-    const fge::net::SocketUdp& getSocket() const;
+    fge::net::SocketUdp const& getSocket() const;
     fge::net::SocketUdp& getSocket();
 
     void notify();
@@ -186,9 +186,9 @@ public:
     void setMaxPackets(std::size_t n);
     std::size_t getMaxPackets() const;
 
-    bool waitForPackets(const std::chrono::milliseconds& ms);
+    bool waitForPackets(std::chrono::milliseconds const& ms);
 
-    const fge::net::Identity& getClientIdentity() const;
+    fge::net::Identity const& getClientIdentity() const;
 
     fge::net::Client _client; //But it is the server :O
 
@@ -197,7 +197,7 @@ private:
     void serverThreadReception();
     void serverThreadTransmission();
 
-    bool pushPacket(const FluxPacketSharedPtr& fluxPck);
+    bool pushPacket(FluxPacketSharedPtr const& fluxPck);
 
     std::thread* g_threadReception;
     std::thread* g_threadTransmission;

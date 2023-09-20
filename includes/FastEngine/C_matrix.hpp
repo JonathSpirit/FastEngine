@@ -40,7 +40,7 @@ class Matrix
 {
 public:
     using iterator = T*;
-    using const_iterator = const T*;
+    using const_iterator = T const*;
 
     /**
      * \brief Construct a empty matrix
@@ -63,7 +63,7 @@ public:
      * \param msize The size of the matrix
      */
     template<class Tvec>
-    explicit Matrix(const fge::Vector2<Tvec>& msize);
+    explicit Matrix(fge::Vector2<Tvec> const& msize);
     /**
      * \brief Construct a matrix with a certain size
      *
@@ -80,7 +80,7 @@ public:
      * \param defaultValue The value to fill the matrix with
      */
     template<class Tvec>
-    Matrix(const fge::Vector2<Tvec>& msize, const T& defaultValue);
+    Matrix(fge::Vector2<Tvec> const& msize, T const& defaultValue);
     /**
      * \brief Construct a matrix with a certain size and a default value
      *
@@ -88,9 +88,9 @@ public:
      * \param sizey The size of the matrix on the y axis
      * \param defaultValue The value to fill the matrix with
      */
-    Matrix(std::size_t sizex, std::size_t sizey, const T& defaultValue);
+    Matrix(std::size_t sizex, std::size_t sizey, T const& defaultValue);
 
-    Matrix(const fge::Matrix<T>& m);
+    Matrix(fge::Matrix<T> const& m);
     Matrix(fge::Matrix<T>&& m) noexcept;
 
     ~Matrix() = default;
@@ -100,7 +100,7 @@ public:
      */
     void clear();
 
-    fge::Matrix<T>& operator=(const fge::Matrix<T>& m);
+    fge::Matrix<T>& operator=(fge::Matrix<T> const& m);
     fge::Matrix<T>& operator=(fge::Matrix<T>&& m) noexcept;
 
     /**
@@ -110,7 +110,7 @@ public:
      * \return The row as a vector
      */
     inline T* operator[](std::size_t x);
-    inline const T* operator[](std::size_t x) const;
+    inline T const* operator[](std::size_t x) const;
 
     /**
      * \brief Get the specified value
@@ -119,7 +119,7 @@ public:
      * \param y The y index of the value
      * \return A reference to the value
      */
-    inline const T& get(std::size_t x, std::size_t y) const;
+    inline T const& get(std::size_t x, std::size_t y) const;
     /**
      * \brief Get the specified value
      *
@@ -128,10 +128,10 @@ public:
      * \return A reference to the value
      */
     template<class Tvec>
-    inline const T& get(const fge::Vector2<Tvec>& coord) const;
+    inline T const& get(fge::Vector2<Tvec> const& coord) const;
     inline T& get(std::size_t x, std::size_t y);
     template<class Tvec>
-    inline T& get(const fge::Vector2<Tvec>& coord);
+    inline T& get(fge::Vector2<Tvec> const& coord);
 
     /**
      * \brief Get the specified value without throwing an exception
@@ -151,7 +151,7 @@ public:
      * \return \b true if the value was found, \b false otherwise
      */
     template<class Tvec>
-    bool get(const fge::Vector2<Tvec>& coord, T& buff) const;
+    bool get(fge::Vector2<Tvec> const& coord, T& buff) const;
 
     /**
      * \brief Get the specified value as a pointer
@@ -169,10 +169,10 @@ public:
      * \return A pointer to the value or \b nullptr if the value was not found
      */
     template<class Tvec>
-    T* getPtr(const fge::Vector2<Tvec>& coord);
-    const T* getPtr(std::size_t x, std::size_t y) const;
+    T* getPtr(fge::Vector2<Tvec> const& coord);
+    T const* getPtr(std::size_t x, std::size_t y) const;
     template<class Tvec>
-    const T* getPtr(const fge::Vector2<Tvec>& coord) const;
+    T const* getPtr(fge::Vector2<Tvec> const& coord) const;
 
     /**
      * \brief Set the specified value by moving it
@@ -190,7 +190,7 @@ public:
      * \param value The value to move
      */
     template<class Tvec>
-    void set(const fge::Vector2<Tvec>& coord, T&& value);
+    void set(fge::Vector2<Tvec> const& coord, T&& value);
     /**
      * \brief Set the specified value by copying it
      *
@@ -198,7 +198,7 @@ public:
      * \param y The y index of the value
      * \param value The value to copy
      */
-    void set(std::size_t x, std::size_t y, const T& value);
+    void set(std::size_t x, std::size_t y, T const& value);
     /**
      * \brief Set the specified value by copying it
      *
@@ -207,7 +207,7 @@ public:
      * \param value The value to copy
      */
     template<class Tvec>
-    void set(const fge::Vector2<Tvec>& coord, const T& value);
+    void set(fge::Vector2<Tvec> const& coord, T const& value);
 
     /**
      * \brief Set values with a initializer list
@@ -229,7 +229,7 @@ public:
      *
      * \return The size of the matrix as a vector2
      */
-    [[nodiscard]] inline const fge::Vector2<std::size_t>& getSize() const;
+    [[nodiscard]] inline fge::Vector2<std::size_t> const& getSize() const;
     /**
      * \brief Get the x size of the matrix
      *
@@ -248,7 +248,7 @@ public:
      *
      * \return The 2D array as a pointer of the first element
      */
-    [[nodiscard]] inline const T* get() const;
+    [[nodiscard]] inline T const* get() const;
     [[nodiscard]] inline T* get();
 
     [[nodiscard]] fge::Matrix<T>::iterator begin();
@@ -263,7 +263,7 @@ public:
      * \param msize The size of the matrix
      */
     template<class Tvec>
-    void setSize(const fge::Vector2<Tvec>& msize);
+    void setSize(fge::Vector2<Tvec> const& msize);
     /**
      * \brief Set the size of the matrix
      *
@@ -277,7 +277,7 @@ public:
      *
      * \param value The value to copy
      */
-    void fill(const T& value);
+    void fill(T const& value);
 
     /**
      * \brief Rotate the matrix by 90 degrees clockwise
@@ -328,7 +328,7 @@ private:
  * \param r The matrix to save
  */
 template<class T>
-void to_json(nlohmann::json& j, const fge::Matrix<T>& r);
+void to_json(nlohmann::json& j, fge::Matrix<T> const& r);
 /**
  * \brief json function to load a matrix
  *
@@ -337,7 +337,7 @@ void to_json(nlohmann::json& j, const fge::Matrix<T>& r);
  * \param r The matrix to load
  */
 template<class T>
-void from_json(const nlohmann::json& j, fge::Matrix<T>& r);
+void from_json(nlohmann::json const& j, fge::Matrix<T>& r);
 
 } // namespace fge
 

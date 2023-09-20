@@ -29,7 +29,7 @@ Event::Event(SDL_Window* window)
     SDL_GetWindowSize(window, &this->g_windowSize.x, &this->g_windowSize.y);
     SDL_GetWindowPosition(window, &this->g_windowPosition.x, &this->g_windowPosition.y);
 }
-Event::Event(const fge::RenderWindow& renderWindow) :
+Event::Event(fge::RenderWindow const& renderWindow) :
         Event(renderWindow.getContext().getInstance().getWindow())
 {}
 #endif //FGE_DEF_SERVER
@@ -75,7 +75,7 @@ void Event::start()
     this->g_mouseWheelVerticalDelta = 0;
 }
 #ifndef FGE_DEF_SERVER
-void Event::process(const SDL_Event& evt)
+void Event::process(SDL_Event const& evt)
 {
     this->g_types |= fge::Event::EventTypeToBitMask(evt.type);
 
@@ -308,11 +308,11 @@ uint32_t Event::getKeyUnicode() const
     return this->g_keyUnicode;
 }
 
-const fge::Vector2i& Event::getWindowSize() const
+fge::Vector2i const& Event::getWindowSize() const
 {
     return this->g_windowSize;
 }
-const fge::Vector2i& Event::getWindowPos() const
+fge::Vector2i const& Event::getWindowPos() const
 {
     return this->g_windowPosition;
 }
@@ -322,7 +322,7 @@ bool Event::isEventType(uint32_t type) const
     return static_cast<bool>(this->g_types & fge::Event::EventTypeToBitMask(type));
 }
 
-const fge::Vector2i& Event::getMousePixelPos() const
+fge::Vector2i const& Event::getMousePixelPos() const
 {
     return this->g_mousePixelPosition;
 }
@@ -500,7 +500,7 @@ uint64_t Event::EventTypeToBitMask(uint32_t type)
     {
         key = (key & 0x0F) + 10 + (static_cast<bool>(key & 0x10) ? 1 : 0);
     }
-    const auto index = static_cast<uint8_t>(type);
+    auto const index = static_cast<uint8_t>(type);
 
     return static_cast<uint64_t>(1) << (sdlEventCategoryBitEntryPoint[key] + index);
 }
@@ -512,7 +512,7 @@ std::size_t Event::KeycodeToBitIndex(uint32_t keyCode)
     }
     return keyCode;
 }
-uint32_t Event::UTF8ToUTF32(const char* utf8)
+uint32_t Event::UTF8ToUTF32(char const* utf8)
 {
     const tiny_utf8::string str = utf8;
     return str.front();

@@ -33,33 +33,33 @@ class FGE_API SwapChain
 {
 public:
     SwapChain();
-    SwapChain(const SwapChain& r) = delete;
+    SwapChain(SwapChain const& r) = delete;
     SwapChain(SwapChain&& r) noexcept;
     ~SwapChain();
 
-    SwapChain& operator=(const SwapChain& r) = delete;
+    SwapChain& operator=(SwapChain const& r) = delete;
     SwapChain& operator=(SwapChain&& r) noexcept = delete;
 
     void create(SDL_Window* window,
-                const LogicalDevice& logicalDevice,
-                const PhysicalDevice& physicalDevice,
-                const Surface& surface,
+                LogicalDevice const& logicalDevice,
+                PhysicalDevice const& physicalDevice,
+                Surface const& surface,
                 VkPresentModeKHR wantedPresentMode);
     void destroy();
 
     [[nodiscard]] VkSwapchainKHR getSwapChain() const;
-    [[nodiscard]] const std::vector<VkImage>& getSwapChainImages() const;
+    [[nodiscard]] std::vector<VkImage> const& getSwapChainImages() const;
     [[nodiscard]] VkFormat getSwapChainImageFormat() const;
     [[nodiscard]] VkExtent2D getSwapChainExtent() const;
 
-    [[nodiscard]] const std::vector<VkImageView>& getSwapChainImageViews() const;
+    [[nodiscard]] std::vector<VkImageView> const& getSwapChainImageViews() const;
 
-    [[nodiscard]] const LogicalDevice* getLogicalDevice() const;
+    [[nodiscard]] LogicalDevice const* getLogicalDevice() const;
 
-    static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes,
+    static VkSurfaceFormatKHR chooseSwapSurfaceFormat(std::vector<VkSurfaceFormatKHR> const& availableFormats);
+    static VkPresentModeKHR chooseSwapPresentMode(std::vector<VkPresentModeKHR> const& availablePresentModes,
                                                   VkPresentModeKHR wantedPresentMode);
-    static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, SDL_Window* window);
+    static VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR const& capabilities, SDL_Window* window);
 
 private:
     void createImageViews();
@@ -73,7 +73,7 @@ private:
 
     VkPresentModeKHR g_presentMode;
 
-    const LogicalDevice* g_logicalDevice;
+    LogicalDevice const* g_logicalDevice;
 };
 
 } // namespace fge::vulkan

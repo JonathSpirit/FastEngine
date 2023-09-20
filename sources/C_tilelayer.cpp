@@ -35,17 +35,17 @@ TileId TileLayer::Tile::getGid() const
     return this->g_gid;
 }
 
-void TileLayer::Tile::setPosition(const fge::Vector2f& position)
+void TileLayer::Tile::setPosition(fge::Vector2f const& position)
 {
     this->g_position = position;
     this->updatePositions();
 }
-const fge::Vector2f& TileLayer::Tile::getPosition() const
+fge::Vector2f const& TileLayer::Tile::getPosition() const
 {
     return this->g_position;
 }
 
-void TileLayer::Tile::setColor(const fge::Color& color)
+void TileLayer::Tile::setColor(fge::Color const& color)
 {
     for (std::size_t i = 0; i < 4; ++i)
     {
@@ -63,7 +63,7 @@ void TileLayer::Tile::setTileSet(std::shared_ptr<fge::TileSet> tileSet)
     this->updatePositions();
     this->updateTexCoords();
 }
-const std::shared_ptr<fge::TileSet>& TileLayer::Tile::getTileSet() const
+std::shared_ptr<fge::TileSet> const& TileLayer::Tile::getTileSet() const
 {
     return this->g_tileSet;
 }
@@ -88,10 +88,10 @@ void TileLayer::Tile::updateTexCoords()
 {
     if (this->g_tileSet)
     {
-        const auto* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
+        auto const* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
         if (tile != nullptr)
         {
-            const auto rect = this->g_tileSet->getTexture().getData()->_texture->normalizeTextureRect(tile->_rect);
+            auto const rect = this->g_tileSet->getTexture().getData()->_texture->normalizeTextureRect(tile->_rect);
 
             this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
             this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
@@ -103,11 +103,11 @@ void TileLayer::Tile::updateTexCoords()
 }
 
 #ifndef FGE_DEF_SERVER
-void TileLayer::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
+void TileLayer::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
     auto statesCopy = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
-    for (const auto& data: this->g_data)
+    for (auto const& data: this->g_data)
     {
         if (data.g_tileSet)
         {
@@ -137,16 +137,16 @@ void TileLayer::setName(std::string name)
 {
     this->g_name = std::move(name);
 }
-const std::string& TileLayer::getName() const
+std::string const& TileLayer::getName() const
 {
     return this->g_name;
 }
 
-const fge::Matrix<TileLayer::Tile>& TileLayer::getTiles() const
+fge::Matrix<TileLayer::Tile> const& TileLayer::getTiles() const
 {
     return this->g_data;
 }
-void TileLayer::setGid(std::size_t x, std::size_t y, const TileSetList& tileSets, TileId gid)
+void TileLayer::setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, TileId gid)
 {
     auto* data = this->g_data.getPtr(x, y);
     if (data != nullptr)
@@ -176,7 +176,7 @@ void TileLayer::setGridSize(std::size_t x, std::size_t y)
     this->g_data.setSize(x, y);
 }
 
-void TileLayer::refreshTextures(const TileSetList& tileSets)
+void TileLayer::refreshTextures(TileSetList const& tileSets)
 {
     for (std::size_t ix = 0; ix < this->g_data.getSizeX(); ++ix)
     {
@@ -196,9 +196,9 @@ void TileLayer::refreshTextures(const TileSetList& tileSets)
     }
 }
 
-std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(const TileSetList& tileSets, TileId gid)
+std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(TileSetList const& tileSets, TileId gid)
 {
-    for (const auto& tileSet: tileSets)
+    for (auto const& tileSet: tileSets)
     {
         if (tileSet->isGidContained(gid))
         {
@@ -208,7 +208,7 @@ std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(const TileSet
     return nullptr;
 }
 
-void to_json(nlohmann::json& j, const fge::TileLayer& p)
+void to_json(nlohmann::json& j, fge::TileLayer const& p)
 {
     j = nlohmann::json{{"id", p.getId()},
                        {"name", p.getName()},
@@ -232,7 +232,7 @@ void to_json(nlohmann::json& j, const fge::TileLayer& p)
         }
     }
 }
-void from_json(const nlohmann::json& j, fge::TileLayer& p)
+void from_json(nlohmann::json const& j, fge::TileLayer& p)
 {
     p.setId(j.at("id").get<int>());
 
@@ -247,7 +247,7 @@ void from_json(const nlohmann::json& j, fge::TileLayer& p)
     p.clear();
     p.setGridSize(w, h);
 
-    const auto& dataArray = j.at("data");
+    auto const& dataArray = j.at("data");
     if (dataArray.is_array() && dataArray.size() == (w * h))
     {
         auto it = dataArray.begin();

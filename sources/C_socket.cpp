@@ -430,7 +430,7 @@ fge::net::Socket::Error Socket::setBlocking(bool mode)
 }
 fge::net::Socket::Error Socket::setReuseAddress(bool mode)
 {
-    const char optval = mode ? 1 : 0;
+    char const optval = mode ? 1 : 0;
     if (setsockopt(this->g_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
@@ -439,7 +439,7 @@ fge::net::Socket::Error Socket::setReuseAddress(bool mode)
 }
 fge::net::Socket::Error Socket::setBroadcastOption(bool mode)
 {
-    const char optval = mode ? 1 : 0;
+    char const optval = mode ? 1 : 0;
     if (setsockopt(this->g_socket, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
@@ -561,7 +561,7 @@ fge::net::Socket::Error SocketUdp::create()
     return fge::net::Socket::ERR_NOERROR;
 }
 
-fge::net::Socket::Error SocketUdp::connect(const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort)
+fge::net::Socket::Error SocketUdp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
     // Create the remote address
     sockaddr_in addr{};
@@ -579,7 +579,7 @@ fge::net::Socket::Error SocketUdp::connect(const fge::net::IpAddress& remoteAddr
 
     return fge::net::Socket::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, const IpAddress& address)
+fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, IpAddress const& address)
 {
     // Close the socket if it is already bound
     close();
@@ -611,7 +611,7 @@ fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, const IpAddress& ad
 }
 
 fge::net::Socket::Error
-SocketUdp::sendTo(const void* data, std::size_t size, const IpAddress& remoteAddress, fge::net::Port remotePort)
+SocketUdp::sendTo(void const* data, std::size_t size, IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
     // Create the internal socket if it doesn't exist
     create();
@@ -632,7 +632,7 @@ SocketUdp::sendTo(const void* data, std::size_t size, const IpAddress& remoteAdd
 #endif
 
     // Send the data (unlike TCP, all the data is always sent in one call)
-    int sent = sendto(this->g_socket, static_cast<const char*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG,
+    int sent = sendto(this->g_socket, static_cast<char const*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG,
                       reinterpret_cast<sockaddr*>(&address), sizeof(address));
 
     // Check for errors
@@ -643,14 +643,14 @@ SocketUdp::sendTo(const void* data, std::size_t size, const IpAddress& remoteAdd
 
     return fge::net::Socket::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketUdp::send(const void* data, std::size_t size)
+fge::net::Socket::Error SocketUdp::send(void const* data, std::size_t size)
 {
     if ((data == nullptr) || (size == 0))
     {
         return fge::net::Socket::ERR_INVALIDARGUMENT;
     }
 
-    int sent = ::send(this->g_socket, static_cast<const char*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG);
+    int sent = ::send(this->g_socket, static_cast<char const*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -742,7 +742,7 @@ fge::net::Socket::Error SocketUdp::send(fge::net::Packet& packet)
         packet._g_sendPos = 0;
     }
 
-    int sent = ::send(this->g_socket, reinterpret_cast<const char*>(packet._g_lastData.data()),
+    int sent = ::send(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
                       static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG);
 
     // Check for errors
@@ -754,7 +754,7 @@ fge::net::Socket::Error SocketUdp::send(fge::net::Packet& packet)
     return fge::net::Socket::ERR_NOERROR;
 }
 fge::net::Socket::Error
-SocketUdp::sendTo(fge::net::Packet& packet, const IpAddress& remoteAddress, fge::net::Port remotePort)
+SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
     // Create the internal socket if it doesn't exist
     create();
@@ -781,7 +781,7 @@ SocketUdp::sendTo(fge::net::Packet& packet, const IpAddress& remoteAddress, fge:
     }
 
     // Send the data (unlike TCP, all the data is always sent in one call)
-    int sent = sendto(this->g_socket, reinterpret_cast<const char*>(packet._g_lastData.data()),
+    int sent = sendto(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
                       static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG,
                       reinterpret_cast<sockaddr*>(&address), sizeof(address));
 
@@ -884,7 +884,7 @@ fge::net::Socket::Error SocketTcp::create(fge::net::Socket::SocketDescriptor sck
     this->g_socket = sck;
 
     //Disable the Nagle algorithm
-    const char optval = 1;
+    char const optval = 1;
     if (setsockopt(this->g_socket, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
@@ -913,7 +913,7 @@ fge::net::Socket::Error SocketTcp::create()
         }
 
         //Disable the Nagle algorithm
-        const char optval = 1;
+        char const optval = 1;
         if (setsockopt(this->g_socket, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
         {
             return fge::net::NormalizeError();
@@ -931,7 +931,7 @@ fge::net::Socket::Error SocketTcp::create()
 }
 
 fge::net::Socket::Error
-SocketTcp::connect(const fge::net::IpAddress& remoteAddress, fge::net::Port remotePort, uint32_t timeoutms)
+SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort, uint32_t timeoutms)
 {
     // Disconnect the socket if it is already connected
     this->close();
@@ -1038,12 +1038,12 @@ SocketTcp::connect(const fge::net::IpAddress& remoteAddress, fge::net::Port remo
     return status;
 }
 
-fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size)
+fge::net::Socket::Error SocketTcp::send(void const* data, std::size_t size)
 {
     std::size_t sent;
     return this->send(data, size, sent);
 }
-fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size, std::size_t& sent)
+fge::net::Socket::Error SocketTcp::send(void const* data, std::size_t size, std::size_t& sent)
 {
     // Check the parameters
     if ((data == nullptr) || (size == 0))
@@ -1056,7 +1056,7 @@ fge::net::Socket::Error SocketTcp::send(const void* data, std::size_t size, std:
     for (sent = 0; sent < size; sent += result)
     {
         // Send a chunk of data
-        result = ::send(this->g_socket, static_cast<const char*>(data) + sent, static_cast<int>(size - sent),
+        result = ::send(this->g_socket, static_cast<char const*>(data) + sent, static_cast<int>(size - sent),
                         _FGE_SEND_RECV_FLAG);
 
         // Check for errors
@@ -1293,7 +1293,7 @@ fge::net::Socket::Error SocketListenerTcp::create()
         }
 
         //Disable the Nagle algorithm
-        const char optval = 1;
+        char const optval = 1;
         if (setsockopt(this->g_socket, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
         {
             return fge::net::NormalizeError();
@@ -1310,7 +1310,7 @@ fge::net::Socket::Error SocketListenerTcp::create()
     return fge::net::Socket::ERR_NOERROR;
 }
 
-fge::net::Socket::Error SocketListenerTcp::listen(fge::net::Port port, const fge::net::IpAddress& address)
+fge::net::Socket::Error SocketListenerTcp::listen(fge::net::Port port, fge::net::IpAddress const& address)
 {
     // Close the socket if it is already bound
     this->close();

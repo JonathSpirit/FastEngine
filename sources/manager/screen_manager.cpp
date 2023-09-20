@@ -36,7 +36,7 @@ void Uninit()
     __dataScreen.clear();
 }
 
-void Close(const std::string& name)
+void Close(std::string const& name)
 {
     auto it = __dataScreen.find(name);
     if (it != __dataScreen.end())
@@ -51,18 +51,18 @@ std::size_t GetScreenSize()
     return __dataScreen.size();
 }
 
-std::shared_ptr<sf::RenderWindow> Get(const std::string& name)
+std::shared_ptr<sf::RenderWindow> Get(std::string const& name)
 {
     auto it = __dataScreen.find(name);
     return (it != __dataScreen.cend()) ? it->second : nullptr;
 }
 
-bool Check(const std::string& name)
+bool Check(std::string const& name)
 {
     return __dataScreen.find(name) != __dataScreen.cend();
 }
 
-std::shared_ptr<sf::RenderWindow> New(const std::string& name)
+std::shared_ptr<sf::RenderWindow> New(std::string const& name)
 {
     if (fge::screen::Check(name))
     {

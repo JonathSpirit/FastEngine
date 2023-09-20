@@ -60,7 +60,7 @@ float Viewport::getHeight() const
     return this->g_viewport.height;
 }
 
-const VkViewport& Viewport::getViewport() const
+VkViewport const& Viewport::getViewport() const
 {
     return this->g_viewport;
 }

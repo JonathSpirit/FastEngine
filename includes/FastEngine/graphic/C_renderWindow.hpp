@@ -47,12 +47,12 @@ class Context;
 class FGE_API RenderWindow : public fge::RenderTarget
 {
 public:
-    explicit RenderWindow(const fge::vulkan::Context& context);
+    explicit RenderWindow(fge::vulkan::Context const& context);
     ~RenderWindow() override;
 
     void destroy() final;
 
-    [[nodiscard]] uint32_t prepareNextFrame(const VkCommandBufferInheritanceInfo* inheritanceInfo) override;
+    [[nodiscard]] uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) override;
     void beginRenderPass(uint32_t imageIndex) override;
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;

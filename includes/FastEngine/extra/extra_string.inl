@@ -20,7 +20,7 @@ namespace string
 {
 
 template<class T>
-std::string ToStr(const std::list<T>& val, char separator)
+std::string ToStr(std::list<T> const& val, char separator)
 {
     std::string result;
     for (auto it = val.cbegin(); it != val.cend(); ++it)
@@ -34,7 +34,7 @@ std::string ToStr(const std::list<T>& val, char separator)
     return result;
 }
 template<class T>
-std::string ToStr(const std::vector<T>& val, char separator)
+std::string ToStr(std::vector<T> const& val, char separator)
 {
     std::string result;
     for (auto it = val.cbegin(); it != val.cend(); ++it)
@@ -49,7 +49,7 @@ std::string ToStr(const std::vector<T>& val, char separator)
 }
 
 template<class T>
-std::string ToStr(const std::optional<T>& val)
+std::string ToStr(std::optional<T> const& val)
 {
     if (val.has_value())
     {

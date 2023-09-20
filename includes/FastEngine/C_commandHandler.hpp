@@ -38,7 +38,7 @@ class Scene;
 class Object;
 
 using CommandFunction = fge::Property (CommandHandler::*)(fge::Object* caller,
-                                                          const fge::Property& arg,
+                                                          fge::Property const& arg,
                                                           fge::Scene* caller_scene);
 
 /**
@@ -111,7 +111,7 @@ public:
      * \return A Property containing the result of the command
      */
     fge::Property
-    callCmd(std::string_view name, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
+    callCmd(std::string_view name, fge::Object* caller, fge::Property const& arg, fge::Scene* caller_scene);
     /**
      * \brief Call a command by its index
      *
@@ -121,7 +121,7 @@ public:
      * \param caller_scene The scene that contains the caller
      * \return A Property containing the result of the command
      */
-    fge::Property callCmd(std::size_t index, fge::Object* caller, const fge::Property& arg, fge::Scene* caller_scene);
+    fge::Property callCmd(std::size_t index, fge::Object* caller, fge::Property const& arg, fge::Scene* caller_scene);
 
     /**
      * \brief Get the index of a command by its name
@@ -144,7 +144,7 @@ public:
      * \param name The name of the command
      * \return The command or nullptr if the command doesn't exist
      */
-    [[nodiscard]] const fge::CommandHandler::CommandData* getCmd(std::string_view name) const;
+    [[nodiscard]] fge::CommandHandler::CommandData const* getCmd(std::string_view name) const;
 
     /**
      * \brief Get the number of commands
@@ -158,7 +158,7 @@ public:
      *
      * \return The commands list
      */
-    [[nodiscard]] const fge::CommandHandler::CommandDataType& getCmdList() const;
+    [[nodiscard]] fge::CommandHandler::CommandDataType const& getCmdList() const;
 
 private:
     fge::CommandHandler::CommandDataType g_cmdData;

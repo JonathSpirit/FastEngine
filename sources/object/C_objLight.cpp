@@ -30,13 +30,13 @@ ObjLight::ObjLight() :
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
     this->g_blendMode = fge::vulkan::BlendAlpha;
 }
-ObjLight::ObjLight(const fge::Texture& texture, const fge::Vector2f& position) :
+ObjLight::ObjLight(fge::Texture const& texture, fge::Vector2f const& position) :
         fge::ObjLight()
 {
     this->setTexture(texture);
     this->setPosition(position);
 }
-ObjLight::ObjLight(const fge::Texture& texture, const fge::RectInt& rectangle, const fge::Vector2f& position) :
+ObjLight::ObjLight(fge::Texture const& texture, fge::RectInt const& rectangle, fge::Vector2f const& position) :
         fge::ObjLight()
 {
     this->setTexture(texture);
@@ -44,16 +44,16 @@ ObjLight::ObjLight(const fge::Texture& texture, const fge::RectInt& rectangle, c
     this->setPosition(position);
 }
 
-void ObjLight::setBlendMode(const fge::vulkan::BlendMode& blendMode)
+void ObjLight::setBlendMode(fge::vulkan::BlendMode const& blendMode)
 {
     this->g_blendMode = blendMode;
 }
-const fge::vulkan::BlendMode& ObjLight::getBlendMode() const
+fge::vulkan::BlendMode const& ObjLight::getBlendMode() const
 {
     return this->g_blendMode;
 }
 
-void ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
+void ObjLight::setTexture(fge::Texture const& texture, bool resetRect)
 {
     // Recompute the texture area if requested, or if there was no valid texture & rect before
     if (resetRect || !this->g_texture.valid())
@@ -69,7 +69,7 @@ void ObjLight::setTexture(const fge::Texture& texture, bool resetRect)
     this->setOrigin({static_cast<float>(this->g_textureRect._width) / 2.0f,
                      static_cast<float>(this->g_textureRect._height) / 2.0f});
 }
-void ObjLight::setTextureRect(const fge::RectInt& rectangle)
+void ObjLight::setTextureRect(fge::RectInt const& rectangle)
 {
     if (rectangle != this->g_textureRect)
     {
@@ -79,16 +79,16 @@ void ObjLight::setTextureRect(const fge::RectInt& rectangle)
     }
 }
 
-void ObjLight::setRenderObject(const fge::ObjectDataShared& obj)
+void ObjLight::setRenderObject(fge::ObjectDataShared const& obj)
 {
     this->g_renderObject = obj;
 }
-const fge::ObjectDataShared& ObjLight::getRenderObject() const
+fge::ObjectDataShared const& ObjLight::getRenderObject() const
 {
     return this->g_renderObject;
 }
 
-void ObjLight::setColor(const fge::Color& color)
+void ObjLight::setColor(fge::Color const& color)
 {
     this->g_vertexBuffer.getVertices()[0]._color = color;
     this->g_vertexBuffer.getVertices()[1]._color = color;
@@ -96,11 +96,11 @@ void ObjLight::setColor(const fge::Color& color)
     this->g_vertexBuffer.getVertices()[3]._color = color;
 }
 
-const fge::Texture& ObjLight::getTexture() const
+fge::Texture const& ObjLight::getTexture() const
 {
     return this->g_texture;
 }
-const fge::RectInt& ObjLight::getTextureRect() const
+fge::RectInt const& ObjLight::getTextureRect() const
 {
     return this->g_textureRect;
 }
@@ -156,7 +156,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                                        VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD);
 
         const fge::RectFloat bounds = this->getGlobalBounds();
-        const float range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
+        float const range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
         const fge::Vector2f center = bounds.getPosition() + bounds.getSize() / 2.0f;
 
         this->g_obstacleHulls.resize(lightSystem->getGatesSize(),
@@ -250,11 +250,11 @@ void ObjLight::unpack(fge::net::Packet& pck)
     this->setColor(color);
 }
 
-const char* ObjLight::getClassName() const
+char const* ObjLight::getClassName() const
 {
     return FGE_OBJLIGHT_CLASSNAME;
 }
-const char* ObjLight::getReadableClassName() const
+char const* ObjLight::getReadableClassName() const
 {
     return "light";
 }

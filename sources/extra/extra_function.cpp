@@ -36,12 +36,12 @@ namespace fge
 namespace
 {
 
-inline bool CompareVector(const fge::Vector2f& a, const fge::Vector2f& b)
+inline bool CompareVector(fge::Vector2f const& a, fge::Vector2f const& b)
 {
     return a.x < b.x || (a.x == b.x && a.y < b.y);
 }
 
-inline float GetCrossProductVector(const fge::Vector2f& O, const fge::Vector2f& A, const fge::Vector2f& B)
+inline float GetCrossProductVector(fge::Vector2f const& O, fge::Vector2f const& A, fge::Vector2f const& B)
 {
     return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 }
@@ -90,8 +90,8 @@ bool SetSystemCursor(SDL_SystemCursor id)
 }
 
 std::size_t GetFilesInFolder(std::list<std::string>& buffer,
-                             const std::filesystem::path& path,
-                             const std::string& regexFilter,
+                             std::filesystem::path const& path,
+                             std::string const& regexFilter,
                              bool ignoreDirectory,
                              bool onlyFilename,
                              bool recursive)
@@ -105,7 +105,7 @@ std::size_t GetFilesInFolder(std::list<std::string>& buffer,
     std::size_t actualSize = buffer.size();
     if (recursive)
     {
-        for (const auto& entry: std::filesystem::recursive_directory_iterator(path))
+        for (auto const& entry: std::filesystem::recursive_directory_iterator(path))
         {
             if (ignoreDirectory && entry.is_directory())
             {
@@ -127,7 +127,7 @@ std::size_t GetFilesInFolder(std::list<std::string>& buffer,
     }
     else
     {
-        for (const auto& entry: std::filesystem::directory_iterator(path))
+        for (auto const& entry: std::filesystem::directory_iterator(path))
         {
             if (ignoreDirectory && entry.is_directory())
             {
@@ -174,7 +174,7 @@ bool SetVirtualTerminalSequenceSupport()
     return true;
 #endif //_WIN32
 }
-void SetConsoleCmdTitle(const char* title)
+void SetConsoleCmdTitle(char const* title)
 {
     if (title == nullptr)
     {
@@ -294,18 +294,18 @@ void Sleep(std::chrono::microseconds time)
 
 #if SIZE_MAX == UINT64_MAX
 // MurmurHash2, 64-bit versions, by Austin Appleby
-std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
+std::size_t Hash(void const* key, std::size_t len, std::size_t seed)
 {
     constexpr std::size_t m = 0xc6a4a7935bd1e995;
     constexpr int32_t r = 47;
 
     std::size_t h = seed ^ (len * m);
 
-    const uint8_t* data = static_cast<const uint8_t*>(key);
+    uint8_t const* data = static_cast<uint8_t const*>(key);
 
     while (len >= 8)
     {
-        std::size_t k = *reinterpret_cast<const std::size_t*>(data);
+        std::size_t k = *reinterpret_cast<std::size_t const*>(data);
 
         k *= m;
         k ^= k >> r;
@@ -351,7 +351,7 @@ std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
 }
 #else
 // MurmurHash2, 32-bit versions, by Austin Appleby
-std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
+std::size_t Hash(void const* key, std::size_t len, std::size_t seed)
 {
     // 'm' and 'r' are mixing constants generated offline.
     // They're not really 'magic', they just happen to work well.
@@ -365,11 +365,11 @@ std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
 
     // Mix 4 bytes at a time into the hash
 
-    const uint8_t* data = static_cast<const uint8_t*>(key);
+    uint8_t const* data = static_cast<uint8_t const*>(key);
 
     while (len >= 4)
     {
-        std::size_t k = *reinterpret_cast<const std::size_t*>(data);
+        std::size_t k = *reinterpret_cast<std::size_t const*>(data);
 
         k *= m;
         k ^= k >> r;
@@ -410,19 +410,19 @@ std::size_t Hash(const void* key, std::size_t len, std::size_t seed)
 
 ///Detection
 #ifndef FGE_DEF_SERVER
-bool IsMouseOn(const fge::RenderTarget& target, const fge::RectFloat& zone)
+bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone)
 {
     int x = 0;
     int y = 0;
     SDL_GetMouseState(&x, &y);
     return zone.contains(target.mapPixelToCoords({x, y}));
 }
-bool IsMouseOn(const fge::Vector2f& mousePos, const fge::RectFloat& zone)
+bool IsMouseOn(fge::Vector2f const& mousePos, fge::RectFloat const& zone)
 {
     return zone.contains(mousePos);
 }
 
-bool IsPressed(const fge::Event& evt, const fge::Vector2f& mouse_pos, const fge::RectFloat& zone, uint8_t button)
+bool IsPressed(fge::Event const& evt, fge::Vector2f const& mouse_pos, fge::RectFloat const& zone, uint8_t button)
 {
     if (zone.contains(mouse_pos))
     {
@@ -569,7 +569,7 @@ CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction,
 }
 
 ///Reach
-fge::Vector2f ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime)
+fge::Vector2f ReachVector(fge::Vector2f const& position, fge::Vector2f const& target, float speed, float deltaTime)
 {
     float travelDistance = speed * deltaTime;
     fge::Vector2f direction = glm::normalize(target - position);
@@ -705,30 +705,30 @@ void GetConvexHull(std::vector<fge::Vector2f> const& input, std::vector<fge::Vec
 }
 
 ///View
-fge::Vector2f GetViewSizePercentage(const fge::View& view, const fge::View& defaultView)
+fge::Vector2f GetViewSizePercentage(fge::View const& view, fge::View const& defaultView)
 {
     return {(view.getSize().x * 100.0f) / defaultView.getSize().x,
             (view.getSize().y * 100.0f) / defaultView.getSize().y};
 }
-fge::Vector2f SetViewSizePercentage(float percentage, const fge::View& defaultView)
+fge::Vector2f SetViewSizePercentage(float percentage, fge::View const& defaultView)
 {
     return {(percentage * defaultView.getSize().x) / 100.0f, (percentage * defaultView.getSize().y) / 100.0f};
 }
-fge::Vector2f SetViewSizePercentage(const fge::Vector2f& percentage, const fge::View& defaultView)
+fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage, fge::View const& defaultView)
 {
     return {(percentage.x * defaultView.getSize().x) / 100.0f, (percentage.y * defaultView.getSize().y) / 100.0f};
 }
 
 fge::Vector2f
-TransposePointFromAnotherView(const fge::View& pointView, const fge::Vector2f& point, const fge::View& newView)
+TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView)
 {
     const fge::Vector2f normalized = pointView.getTransform() * point;
     return newView.getInverseTransform() * normalized;
 }
 
-fge::View ClipView(const fge::View& view,
-                   const fge::RenderTarget& target,
-                   const fge::RectFloat& worldCoordClipRect,
+fge::View ClipView(fge::View const& view,
+                   fge::RenderTarget const& target,
+                   fge::RectFloat const& worldCoordClipRect,
                    fge::ClipClampModes clampMode)
 {
     fge::View clippedView = view;
@@ -857,7 +857,7 @@ fge::View ClipView(const fge::View& view,
 }
 
 ///Render
-fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target)
+fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target)
 {
     fge::Vector2i positions[4] = {
             target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y)),
@@ -867,7 +867,7 @@ fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarge
 
     return fge::ToRect(positions, 4);
 }
-fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarget& target, const fge::View& view)
+fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target, fge::View const& view)
 {
     fge::Vector2i positions[4] = {
             target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y), view),
@@ -877,7 +877,7 @@ fge::RectInt CoordToPixelRect(const fge::RectFloat& rect, const fge::RenderTarge
 
     return fge::ToRect(positions, 4);
 }
-fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target)
+fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target)
 {
     fge::Vector2f positions[4] = {
             target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y)),
@@ -887,7 +887,7 @@ fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarge
 
     return fge::ToRect(positions, 4);
 }
-fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarget& target, const fge::View& view)
+fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge::View const& view)
 {
     fge::Vector2f positions[4] = {
             target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y), view),
@@ -898,7 +898,7 @@ fge::RectFloat PixelToCoordRect(const fge::RectInt& rect, const fge::RenderTarge
     return fge::ToRect(positions, 4);
 }
 
-fge::RectFloat GetScreenRect(const fge::RenderTarget& target)
+fge::RectFloat GetScreenRect(fge::RenderTarget const& target)
 {
     fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(0, 0)),
                                   target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0)),
@@ -907,7 +907,7 @@ fge::RectFloat GetScreenRect(const fge::RenderTarget& target)
 
     return fge::ToRect(positions, 4);
 }
-fge::RectFloat GetScreenRect(const fge::RenderTarget& target, const fge::View& view)
+fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view)
 {
     fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(0, 0), view),
                                   target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0), view),
@@ -918,7 +918,7 @@ fge::RectFloat GetScreenRect(const fge::RenderTarget& target, const fge::View& v
 }
 
 ///Json
-bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j)
+bool LoadJsonFromFile(std::filesystem::path const& path, nlohmann::json& j)
 {
     std::ifstream file(path);
     if (!file)
@@ -939,7 +939,7 @@ bool LoadJsonFromFile(const std::filesystem::path& path, nlohmann::json& j)
         return false;
     }
 }
-bool SaveJsonToFile(const std::filesystem::path& path, const nlohmann::json& j, int fieldWidth)
+bool SaveJsonToFile(std::filesystem::path const& path, nlohmann::json const& j, int fieldWidth)
 {
     std::ofstream file(path);
     if (file)

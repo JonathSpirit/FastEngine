@@ -41,7 +41,7 @@ class FGE_API ObjSpriteBatches : public fge::Object
 {
 public:
     ObjSpriteBatches();
-    ObjSpriteBatches(const ObjSpriteBatches& r);
+    ObjSpriteBatches(ObjSpriteBatches const& r);
     explicit ObjSpriteBatches(fge::Texture texture);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSpriteBatches)
@@ -49,15 +49,15 @@ public:
     void addTexture(fge::Texture texture);
     void setTexture(std::size_t index, fge::Texture texture);
     void setTexture(fge::Texture texture);
-    const fge::Texture& getTexture(std::size_t index) const;
+    fge::Texture const& getTexture(std::size_t index) const;
     std::size_t getTextureCount() const;
     void clearTexture();
 
     void clear();
-    fge::Transformable& addSprite(const fge::RectInt& rectangle, uint32_t textureIndex = 0);
+    fge::Transformable& addSprite(fge::RectInt const& rectangle, uint32_t textureIndex = 0);
     void resize(std::size_t size);
-    void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
-    void setColor(std::size_t index, const fge::Color& color);
+    void setTextureRect(std::size_t index, fge::RectInt const& rectangle);
+    void setColor(std::size_t index, fge::Color const& color);
     void setSpriteTexture(std::size_t spriteIndex, uint32_t textureIndex);
     [[nodiscard]] std::size_t getSpriteCount() const;
 
@@ -65,7 +65,7 @@ public:
     [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;
 
     [[nodiscard]] fge::Transformable* getTransformable(std::size_t index);
-    [[nodiscard]] const fge::Transformable* getTransformable(std::size_t index) const;
+    [[nodiscard]] fge::Transformable const* getTransformable(std::size_t index) const;
 
     FGE_OBJ_DRAW_DECLARE
 
@@ -74,8 +74,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     [[nodiscard]] fge::RectFloat getGlobalBounds() const override;
     [[nodiscard]] std::optional<fge::RectFloat> getGlobalBounds(std::size_t index) const;
@@ -91,7 +91,7 @@ private:
     struct InstanceData
     {
         InstanceData() = default;
-        explicit InstanceData(const fge::RectInt& textureRect, glm::uint textureIndex) :
+        explicit InstanceData(fge::RectInt const& textureRect, glm::uint textureIndex) :
                 _textureRect(textureRect),
                 _textureIndex(textureIndex)
         {}

@@ -33,7 +33,7 @@ class FGE_API ObjTextList : public fge::Object, public fge::Subscriber
 {
 public:
     ObjTextList();
-    ObjTextList(const ObjTextList& r);
+    ObjTextList(ObjTextList const& r);
     ~ObjTextList() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextList)
@@ -42,8 +42,8 @@ public:
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     FGE_OBJ_DRAW_DECLARE
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
@@ -51,13 +51,13 @@ public:
     void addText(tiny_utf8::string string);
     std::size_t getTextCount() const;
     fge::ObjText* getText(std::size_t index);
-    const fge::ObjText* getText(std::size_t index) const;
+    fge::ObjText const* getText(std::size_t index) const;
     void removeAllTexts();
 
     void setFont(fge::Font font);
-    const fge::Font& getFont() const;
+    fge::Font const& getFont() const;
 
-    void setBoxSize(const fge::DynamicSize& size);
+    void setBoxSize(fge::DynamicSize const& size);
     fge::Vector2f getBoxSize() const;
 
     void setTextScrollRatio(float ratio);
@@ -69,8 +69,8 @@ public:
     void refreshSize();
 
 private:
-    void onGuiResized(const fge::GuiElementHandler& handler, const fge::Vector2f& size);
-    void refreshSize(const fge::Vector2f& targetSize);
+    void onGuiResized(fge::GuiElementHandler const& handler, fge::Vector2f const& size);
+    void refreshSize(fge::Vector2f const& targetSize);
 
     fge::GuiElementHandler* g_guiElementHandler{nullptr};
 

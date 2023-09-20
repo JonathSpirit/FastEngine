@@ -43,9 +43,9 @@ struct Vector2iHash
 {
     static_assert(sizeof(fge::Vector2i) == 8, "bad fge::Vector2i size, should be 8 !");
 
-    inline std::size_t operator()(const fge::Vector2i& coord) const
+    inline std::size_t operator()(fge::Vector2i const& coord) const
     {
-        return std::hash<uint64_t>()(*reinterpret_cast<const uint64_t*>(&coord));
+        return std::hash<uint64_t>()(*reinterpret_cast<uint64_t const*>(&coord));
     }
 };
 
@@ -70,7 +70,7 @@ public:
     ~Generator() = default;
 
     void setWorldSize(fge::Vector2i worldSize);
-    [[nodiscard]] const fge::Vector2i& getWorldSize() const;
+    [[nodiscard]] fge::Vector2i const& getWorldSize() const;
 
     void setDiagonalMovement(bool enable);
     void setHeuristic(HeuristicFunction heuristic);

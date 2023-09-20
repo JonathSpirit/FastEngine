@@ -97,7 +97,7 @@ public:
      * \param duration The chrono duration to check
      * \return \b True if the clock has elapsed the given duration, \b false otherwise
      */
-    bool reached(const std::chrono::milliseconds& duration)
+    bool reached(std::chrono::milliseconds const& duration)
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
                                                                      this->g_lastTimePoint) >= duration;

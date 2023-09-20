@@ -42,7 +42,7 @@ public:
     PacketLZ4();
     PacketLZ4(fge::net::PacketLZ4&& pck) noexcept;
     PacketLZ4(fge::net::PacketLZ4& pck) = default;
-    PacketLZ4(const fge::net::PacketLZ4& pck) = default;
+    PacketLZ4(fge::net::PacketLZ4 const& pck) = default;
     ~PacketLZ4() override = default;
 
     static uint32_t _maxUncompressedReceivedSize;
@@ -64,7 +64,7 @@ public:
     PacketLZ4HC();
     PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept;
     PacketLZ4HC(fge::net::PacketLZ4HC& pck) = default;
-    PacketLZ4HC(const fge::net::PacketLZ4HC& pck) = default;
+    PacketLZ4HC(fge::net::PacketLZ4HC const& pck) = default;
     ~PacketLZ4HC() override = default;
 
     static uint32_t _maxUncompressedReceivedSize;

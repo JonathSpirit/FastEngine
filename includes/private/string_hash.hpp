@@ -23,11 +23,11 @@ struct string_hash
 {
     using is_transparent = void;
 
-    [[nodiscard]] std::size_t operator()(const char* str) const { return std::hash<std::string_view>{}(str); }
+    [[nodiscard]] std::size_t operator()(char const* str) const { return std::hash<std::string_view>{}(str); }
 
     [[nodiscard]] std::size_t operator()(std::string_view str) const { return std::hash<std::string_view>{}(str); }
 
-    [[nodiscard]] std::size_t operator()(const std::string& str) const { return std::hash<std::string>{}(str); }
+    [[nodiscard]] std::size_t operator()(std::string const& str) const { return std::hash<std::string>{}(str); }
 };
 
 } // namespace fge::priv

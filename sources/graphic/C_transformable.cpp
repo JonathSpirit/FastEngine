@@ -32,17 +32,17 @@ Transformable::Transformable() :
         g_inverseTransformNeedUpdate(true)
 {}
 
-void Transformable::setPosition(const Vector2f& position)
+void Transformable::setPosition(Vector2f const& position)
 {
     this->g_position = position;
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
 }
-const Vector2f& Transformable::getPosition() const
+Vector2f const& Transformable::getPosition() const
 {
     return this->g_position;
 }
-void Transformable::move(const Vector2f& offset)
+void Transformable::move(Vector2f const& offset)
 {
     this->setPosition(this->g_position + offset);
 }
@@ -67,33 +67,33 @@ void Transformable::rotate(float angle)
     this->setRotation(this->g_rotation + angle);
 }
 
-void Transformable::setScale(const Vector2f& factors)
+void Transformable::setScale(Vector2f const& factors)
 {
     this->g_scale = factors;
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
 }
-const Vector2f& Transformable::getScale() const
+Vector2f const& Transformable::getScale() const
 {
     return this->g_scale;
 }
-void Transformable::scale(const Vector2f& factor)
+void Transformable::scale(Vector2f const& factor)
 {
     this->setScale(this->g_scale * factor);
 }
 
-void Transformable::setOrigin(const Vector2f& origin)
+void Transformable::setOrigin(Vector2f const& origin)
 {
     this->g_origin = origin;
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
 }
-const Vector2f& Transformable::getOrigin() const
+Vector2f const& Transformable::getOrigin() const
 {
     return this->g_origin;
 }
 
-const glm::mat4& Transformable::getTransform() const
+glm::mat4 const& Transformable::getTransform() const
 {
     if (this->g_transformNeedUpdate)
     {
@@ -111,7 +111,7 @@ const glm::mat4& Transformable::getTransform() const
     return this->g_transform;
 }
 
-const glm::mat4& Transformable::getInverseTransform() const
+glm::mat4 const& Transformable::getInverseTransform() const
 {
     if (this->g_inverseTransformNeedUpdate)
     {

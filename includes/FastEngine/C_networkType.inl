@@ -26,7 +26,7 @@ NetworkType<T>::NetworkType(fge::DataAccessor<T> source) :
 {}
 
 template<class T>
-const void* NetworkType<T>::getSource() const
+void const* NetworkType<T>::getSource() const
 {
     return &this->g_typeSource;
 }
@@ -42,7 +42,7 @@ bool NetworkType<T>::applyData(fge::net::Packet& pck)
     return false;
 }
 template<class T>
-void NetworkType<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkType<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -83,7 +83,7 @@ NetworkTypeProperty<T>::NetworkTypeProperty(fge::Property* source)
 }
 
 template<class T>
-const void* NetworkTypeProperty<T>::getSource() const
+void const* NetworkTypeProperty<T>::getSource() const
 {
     return this->g_typeSource;
 }
@@ -97,7 +97,7 @@ bool NetworkTypeProperty<T>::applyData(fge::net::Packet& pck)
     return true;
 }
 template<class T>
-void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -131,7 +131,7 @@ void NetworkTypeProperty<T>::forceUncheck()
 
 ///NetworkTypePropertyList
 template<class T>
-NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, const std::string& vname)
+NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, std::string const& vname)
 {
     this->g_typeSource = source;
     this->g_vname = vname;
@@ -141,7 +141,7 @@ NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, c
 }
 
 template<class T>
-const void* NetworkTypePropertyList<T>::getSource() const
+void const* NetworkTypePropertyList<T>::getSource() const
 {
     return this->g_typeSource;
 }
@@ -157,7 +157,7 @@ bool NetworkTypePropertyList<T>::applyData(fge::net::Packet& pck)
     return false;
 }
 template<class T>
-void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -194,7 +194,7 @@ void NetworkTypePropertyList<T>::forceUncheck()
 }
 
 template<class T>
-const std::string& NetworkTypePropertyList<T>::getValueName() const
+std::string const& NetworkTypePropertyList<T>::getValueName() const
 {
     return this->g_vname;
 }
@@ -208,7 +208,7 @@ NetworkTypeManual<T>::NetworkTypeManual(T* source)
 }
 
 template<class T>
-const void* NetworkTypeManual<T>::getSource() const
+void const* NetworkTypeManual<T>::getSource() const
 {
     return this->g_typeSource;
 }
@@ -224,7 +224,7 @@ bool NetworkTypeManual<T>::applyData(fge::net::Packet& pck)
     return false;
 }
 template<class T>
-void NetworkTypeManual<T>::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeManual<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())

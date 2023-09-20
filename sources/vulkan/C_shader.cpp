@@ -25,7 +25,7 @@ namespace fge::vulkan
 namespace
 {
 
-VkShaderModule CreateShaderModule(const std::vector<uint32_t>& code, VkDevice device)
+VkShaderModule CreateShaderModule(std::vector<uint32_t> const& code, VkDevice device)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -84,8 +84,8 @@ Shader& Shader::operator=(Shader&& r) noexcept
     return *this;
 }
 
-bool Shader::loadFromSpirVBuffer(const LogicalDevice& logicalDevice,
-                                 const std::vector<uint32_t>& buffer,
+bool Shader::loadFromSpirVBuffer(LogicalDevice const& logicalDevice,
+                                 std::vector<uint32_t> const& buffer,
                                  Shader::Type type)
 {
     this->destroy();
@@ -118,7 +118,7 @@ bool Shader::loadFromSpirVBuffer(const LogicalDevice& logicalDevice,
 
     return true;
 }
-bool Shader::loadFromFile(const LogicalDevice& logicalDevice, const std::filesystem::path& filepath, Shader::Type type)
+bool Shader::loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::path const& filepath, Shader::Type type)
 {
     if (type == Shader::Type::SHADER_NONE)
     {
@@ -165,7 +165,7 @@ VkShaderModule Shader::getShaderModule() const
 {
     return this->g_shaderModule;
 }
-const VkPipelineShaderStageCreateInfo& Shader::getPipelineShaderStageCreateInfo() const
+VkPipelineShaderStageCreateInfo const& Shader::getPipelineShaderStageCreateInfo() const
 {
     return this->g_pipelineShaderStageCreateInfo;
 }

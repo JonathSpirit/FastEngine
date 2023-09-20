@@ -20,7 +20,7 @@
 namespace fge
 {
 
-fge::CallbackHandler<const fge::Vector2f&> GuiElement::_onGlobalGuiScaleChange;
+fge::CallbackHandler<fge::Vector2f const&> GuiElement::_onGlobalGuiScaleChange;
 fge::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
 
 //GuiElementHandler
@@ -42,7 +42,7 @@ void GuiElementHandler::setEventCallback(fge::Event& event)
     this->onResized(event, dummyEvent);
 }
 
-void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const SDL_MouseWheelEvent& arg)
+void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWheelEvent const& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -72,7 +72,7 @@ void GuiElementHandler::onMouseWheelScrolled(const fge::Event& evt, const SDL_Mo
         }
     }
 }
-void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg)
+void GuiElementHandler::onMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -102,7 +102,7 @@ void GuiElementHandler::onMouseButtonPressed(const fge::Event& evt, const SDL_Mo
         }
     }
 }
-void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg)
+void GuiElementHandler::onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -132,7 +132,7 @@ void GuiElementHandler::onMouseButtonReleased(const fge::Event& evt, const SDL_M
         }
     }
 }
-void GuiElementHandler::onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg)
+void GuiElementHandler::onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg)
 {
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
@@ -163,7 +163,7 @@ void GuiElementHandler::onMouseMoved(const fge::Event& evt, const SDL_MouseMotio
     }
 }
 
-void GuiElementHandler::onResized([[maybe_unused]] const fge::Event& evt, const SDL_WindowEvent& arg)
+void GuiElementHandler::onResized([[maybe_unused]] fge::Event const& evt, SDL_WindowEvent const& arg)
 {
     if (arg.event == SDL_WINDOWEVENT_SIZE_CHANGED)
     {

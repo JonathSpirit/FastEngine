@@ -36,23 +36,23 @@ public:
     Transformable();
     virtual ~Transformable() = default;
 
-    void setPosition(const Vector2f& position);
-    const Vector2f& getPosition() const;
-    void move(const Vector2f& offset);
+    void setPosition(Vector2f const& position);
+    Vector2f const& getPosition() const;
+    void move(Vector2f const& offset);
 
     void setRotation(float angle);
     float getRotation() const;
     void rotate(float angle);
 
-    void setScale(const Vector2f& factors);
-    const Vector2f& getScale() const;
-    void scale(const Vector2f& factor);
+    void setScale(Vector2f const& factors);
+    Vector2f const& getScale() const;
+    void scale(Vector2f const& factor);
 
-    void setOrigin(const Vector2f& origin);
-    const Vector2f& getOrigin() const;
+    void setOrigin(Vector2f const& origin);
+    Vector2f const& getOrigin() const;
 
-    const glm::mat4& getTransform() const;
-    const glm::mat4& getInverseTransform() const;
+    glm::mat4 const& getTransform() const;
+    glm::mat4 const& getInverseTransform() const;
 
 private:
     Vector2f g_origin;                         //!< Origin of translation/rotation/scaling of the object

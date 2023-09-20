@@ -134,7 +134,7 @@ fge::timer::TimerShared Create(fge::timer::TimerShared timer)
     return _dataTimers.back();
 }
 
-bool Destroy(const fge::timer::TimerShared& timer)
+bool Destroy(fge::timer::TimerShared const& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -148,7 +148,7 @@ bool Destroy(const fge::timer::TimerShared& timer)
     }
     return false;
 }
-bool Destroy(const std::string& timerName)
+bool Destroy(std::string const& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -170,7 +170,7 @@ void DestroyAll()
     _dataCv.notify_all();
 }
 
-bool Check(const fge::timer::TimerShared& timer)
+bool Check(fge::timer::TimerShared const& timer)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto& dataTimer: _dataTimers)
@@ -182,7 +182,7 @@ bool Check(const fge::timer::TimerShared& timer)
     }
     return false;
 }
-bool Check(const std::string& timerName)
+bool Check(std::string const& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto& dataTimer: _dataTimers)
@@ -201,7 +201,7 @@ std::size_t GetTimerSize()
     return _dataTimers.size();
 }
 
-fge::timer::TimerShared Get(const std::string& timerName)
+fge::timer::TimerShared Get(std::string const& timerName)
 {
     std::lock_guard<std::mutex> lck(_dataMutex);
     for (auto& dataTimer: _dataTimers)

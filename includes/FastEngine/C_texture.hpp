@@ -47,7 +47,7 @@ public:
      * \param name The name of the loaded texture
      */
     Texture(std::string name);
-    Texture(const char* name);
+    Texture(char const* name);
     /**
      * \brief Copy a custom texture data pointer.
      *
@@ -85,13 +85,13 @@ public:
      *
      * \return The texture data
      */
-    [[nodiscard]] const fge::texture::TextureDataPtr& getData() const;
+    [[nodiscard]] fge::texture::TextureDataPtr const& getData() const;
     /**
      * \brief Get the name of the texture
      *
      * \return The name of the texture
      */
-    [[nodiscard]] const std::string& getName() const;
+    [[nodiscard]] std::string const& getName() const;
 
     /**
      * \brief Get the texture data by its name
@@ -99,7 +99,7 @@ public:
      * \param name The name of the loaded texture
      */
     fge::Texture& operator=(std::string name);
-    fge::Texture& operator=(const char* name);
+    fge::Texture& operator=(char const* name);
     /**
      * \brief Copy a custom texture data pointer.
      *
@@ -117,18 +117,18 @@ public:
      * \return The texture type pointer
      */
     [[nodiscard]] fge::TextureType* retrieve();
-    [[nodiscard]] const fge::TextureType* retrieve() const;
+    [[nodiscard]] fge::TextureType const* retrieve() const;
 
 private:
     fge::texture::TextureDataPtr g_data;
     std::string g_name;
 };
 
-FGE_API const fge::net::Packet& operator>>(const fge::net::Packet& pck, fge::Texture& data);
-FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, const fge::Texture& data);
+FGE_API fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Texture& data);
+FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Texture const& data);
 
-FGE_API void to_json(nlohmann::json& j, const fge::Texture& p);
-FGE_API void from_json(const nlohmann::json& j, fge::Texture& p);
+FGE_API void to_json(nlohmann::json& j, fge::Texture const& p);
+FGE_API void from_json(nlohmann::json const& j, fge::Texture& p);
 
 } // namespace fge
 

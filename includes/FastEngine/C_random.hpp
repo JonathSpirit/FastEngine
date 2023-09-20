@@ -73,7 +73,7 @@ public:
      *
      * \return The random engine
      */
-    [[nodiscard]] const TEngine& getEngine() const;
+    [[nodiscard]] TEngine const& getEngine() const;
     /**
      * \brief Get the random engine
      *
@@ -184,7 +184,7 @@ public:
      * \return A random character sequence
      */
     std::string randStr(std::size_t length,
-                        const std::string& bucket = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy0123456789");
+                        std::string const& bucket = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy0123456789");
 
 private:
     TEngine g_engine;

@@ -54,9 +54,9 @@ void DefaultGraphicPipeline_constructor(fge::vulkan::Context const& context,
 
 } // end namespace
 
-const fge::vulkan::TextureImage* RenderTarget::gLastTexture = nullptr;
+fge::vulkan::TextureImage const* RenderTarget::gLastTexture = nullptr;
 
-RenderTarget::RenderTarget(const fge::vulkan::Context& context) :
+RenderTarget::RenderTarget(fge::vulkan::Context const& context) :
         fge::vulkan::ContextAware(context),
         _g_clearColor(fge::Color::White),
         _g_forceGraphicPipelineUpdate(false)
@@ -69,7 +69,7 @@ void RenderTarget::initialize()
     this->g_view = this->g_defaultView;
 }
 
-RenderTarget::RenderTarget(const RenderTarget& r) :
+RenderTarget::RenderTarget(RenderTarget const& r) :
         fge::vulkan::ContextAware(r),
         g_defaultView(r.g_defaultView),
         g_view(r.g_view),
@@ -85,7 +85,7 @@ RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
         _g_graphicPipelineCache(std::move(r._g_graphicPipelineCache))
 {}
 
-RenderTarget& RenderTarget::operator=(const RenderTarget& r)
+RenderTarget& RenderTarget::operator=(RenderTarget const& r)
 {
     this->verifyContext(r);
     this->g_defaultView = r.g_defaultView;
@@ -105,7 +105,7 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
     return *this;
 }
 
-void RenderTarget::setClearColor(const fge::Color& color)
+void RenderTarget::setClearColor(fge::Color const& color)
 {
     this->_g_clearColor = color;
 }
@@ -114,31 +114,31 @@ fge::Color RenderTarget::getClearColor() const
     return fge::Color(this->_g_clearColor);
 }
 
-void RenderTarget::setView(const View& view)
+void RenderTarget::setView(View const& view)
 {
     this->g_view = view;
 }
-const View& RenderTarget::getView() const
+View const& RenderTarget::getView() const
 {
     return this->g_view;
 }
-const View& RenderTarget::getDefaultView() const
+View const& RenderTarget::getDefaultView() const
 {
     return this->g_defaultView;
 }
-fge::vulkan::Viewport RenderTarget::getViewport(const View& view) const
+fge::vulkan::Viewport RenderTarget::getViewport(View const& view) const
 {
     auto size = static_cast<Vector2f>(this->getSize());
-    const auto& viewport = view.getFactorViewport();
+    auto const& viewport = view.getFactorViewport();
 
     return {size.x * viewport._x, size.y * viewport._y, size.x * viewport._width, size.y * viewport._height};
 }
 
-Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point) const
+Vector2f RenderTarget::mapPixelToCoords(Vector2i const& point) const
 {
     return this->mapPixelToCoords(point, this->getView());
 }
-Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point, const View& view) const
+Vector2f RenderTarget::mapPixelToCoords(Vector2i const& point, View const& view) const
 {
     // First, convert from viewport coordinates to homogeneous coordinates
     glm::vec4 normalized;
@@ -151,11 +151,11 @@ Vector2f RenderTarget::mapPixelToCoords(const Vector2i& point, const View& view)
     // Then transform by the inverse of the view matrix
     return view.getInverseTransform() * normalized;
 }
-Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point) const
+Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point) const
 {
     return this->mapCoordsToPixel(point, this->getView());
 }
-Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view) const
+Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point, View const& view) const
 {
     const glm::vec4 pointVec4(point, 0.0f, 1.0f);
 
@@ -171,13 +171,13 @@ Vector2i RenderTarget::mapCoordsToPixel(const Vector2f& point, const View& view)
     return pixel;
 }
 
-void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
+void RenderTarget::draw(Drawable const& drawable, RenderStates const& states)
 {
     drawable.draw(*this, states);
 }
-void RenderTarget::draw(const fge::RenderStates& states, const fge::vulkan::GraphicPipeline* graphicPipeline)
+void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline)
 {
-    const bool haveTextures = states._resTextures.getCount() != 0;
+    bool const haveTextures = states._resTextures.getCount() != 0;
 
     //See if we can set a default graphicPipeline for this rendering call
     if (graphicPipeline == nullptr)
@@ -367,7 +367,7 @@ bool RenderTarget::isSrgb() const
 }
 
 fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view name,
-                                                               const GraphicPipelineKey& key,
+                                                               GraphicPipelineKey const& key,
                                                                GraphicPipelineConstructor constructor) const
 {
     fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;

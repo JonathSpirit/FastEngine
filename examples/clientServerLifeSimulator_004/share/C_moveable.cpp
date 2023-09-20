@@ -20,12 +20,12 @@
 namespace ls
 {
 
-void Moveable::setTargetPos(const fge::Vector2f& pos)
+void Moveable::setTargetPos(fge::Vector2f const& pos)
 {
     this->_g_targetPos = pos;
     this->_g_finish = false;
 }
-bool Moveable::updateMoveable(fge::Transformable& transformable, const std::chrono::microseconds& deltaTime)
+bool Moveable::updateMoveable(fge::Transformable& transformable, std::chrono::microseconds const& deltaTime)
 {
     if (this->_g_finish)
     {

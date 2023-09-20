@@ -27,7 +27,7 @@ class Drink : public ls::CustomObject
 {
 public:
     Drink() = default;
-    explicit Drink(const fge::Vector2f& pos);
+    explicit Drink(fge::Vector2f const& pos);
     ~Drink() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Drink)
@@ -41,8 +41,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     uint8_t _nutrition{0};
 

@@ -42,7 +42,7 @@ class FGE_API ObjShape : public fge::Object
 {
 protected:
     ObjShape();
-    ObjShape(const ObjShape& r);
+    ObjShape(ObjShape const& r);
 
 public:
     struct InstanceData
@@ -53,26 +53,26 @@ public:
 
     ~ObjShape() override = default;
 
-    void setTexture(const Texture& texture, bool resetRect = false);
-    void setTextureRect(const fge::RectInt& rect);
+    void setTexture(Texture const& texture, bool resetRect = false);
+    void setTextureRect(fge::RectInt const& rect);
 
     void setFillColor(Color color, std::size_t instance = 0);
     void setOutlineColor(Color color, std::size_t instance = 0);
-    void setOffset(const fge::Vector2f& offset, std::size_t instance = 0);
+    void setOffset(fge::Vector2f const& offset, std::size_t instance = 0);
     void setInstancesCount(std::size_t count);
-    void addInstance(Color fillColor, Color outlineColor, const fge::Vector2f& offset);
+    void addInstance(Color fillColor, Color outlineColor, fge::Vector2f const& offset);
     [[nodiscard]] std::size_t getInstancesCount() const;
     void clearInstances();
 
     void setOutlineThickness(float thickness);
 
-    [[nodiscard]] const Texture& getTexture() const;
+    [[nodiscard]] Texture const& getTexture() const;
 
-    [[nodiscard]] const RectInt& getTextureRect() const;
+    [[nodiscard]] RectInt const& getTextureRect() const;
 
     [[nodiscard]] Color getFillColor(std::size_t instance = 0) const;
     [[nodiscard]] Color getOutlineColor(std::size_t instance = 0) const;
-    [[nodiscard]] const fge::Vector2f& getOffset(std::size_t instance = 0) const;
+    [[nodiscard]] fge::Vector2f const& getOffset(std::size_t instance = 0) const;
 
     [[nodiscard]] float getOutlineThickness() const;
 

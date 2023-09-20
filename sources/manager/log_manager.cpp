@@ -34,7 +34,7 @@ std::string _defaultFolder;
 
 } // namespace
 
-const std::string& SetDefaultFolder(const std::string& default_folder)
+std::string const& SetDefaultFolder(std::string const& default_folder)
 {
     _defaultFolder = default_folder;
 
@@ -50,7 +50,7 @@ const std::string& SetDefaultFolder(const std::string& default_folder)
     return _defaultFolder;
 }
 
-bool Remove(const std::string& name)
+bool Remove(std::string const& name)
 {
     int return_value;
 
@@ -61,7 +61,7 @@ bool Remove(const std::string& name)
     }
     return false;
 }
-bool Clean(const std::string& name)
+bool Clean(std::string const& name)
 {
     std::ofstream file_log;
     file_log.open((_defaultFolder + name).c_str());
@@ -73,7 +73,7 @@ bool Clean(const std::string& name)
     }
     return false;
 }
-bool Rename(const std::string& name, const std::string& new_name)
+bool Rename(std::string const& name, std::string const& new_name)
 {
     int return_value;
 
@@ -84,7 +84,7 @@ bool Rename(const std::string& name, const std::string& new_name)
     }
     return false;
 }
-bool Write(const std::string& name, const std::string& text, const std::string& desc)
+bool Write(std::string const& name, std::string const& text, std::string const& desc)
 {
     time_t t = time(nullptr); // get time now
     struct tm* now = localtime(&t);

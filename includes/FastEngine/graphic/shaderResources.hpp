@@ -28,13 +28,13 @@ namespace fge::res
  * @{
  */
 
-FGE_API extern const char gDefaultVertexShader[];
-FGE_API extern const char gDefaultFragmentShader[];
-FGE_API extern const char gDefaultFragmentTextureShader[];
+FGE_API extern char const gDefaultVertexShader[];
+FGE_API extern char const gDefaultFragmentShader[];
+FGE_API extern char const gDefaultFragmentTextureShader[];
 
-FGE_API extern const unsigned int gDefaultVertexShaderSize;
-FGE_API extern const unsigned int gDefaultFragmentShaderSize;
-FGE_API extern const unsigned int gDefaultFragmentTextureShaderSize;
+FGE_API extern unsigned int const gDefaultVertexShaderSize;
+FGE_API extern unsigned int const gDefaultFragmentShaderSize;
+FGE_API extern unsigned int const gDefaultFragmentTextureShaderSize;
 
 /**
  * @}

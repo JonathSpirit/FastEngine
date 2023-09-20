@@ -51,20 +51,20 @@ std::size_t ObjCircleShape::getPointCount() const
 
 Vector2f ObjCircleShape::getPoint(std::size_t index) const
 {
-    const float angle =
+    float const angle =
             static_cast<float>(index) * 2.f * static_cast<float>(FGE_MATH_PI) / static_cast<float>(this->g_pointCount) -
             static_cast<float>(FGE_MATH_PI) / 2.f;
-    const float x = std::cos(angle) * this->g_radius;
-    const float y = std::sin(angle) * this->g_radius;
+    float const x = std::cos(angle) * this->g_radius;
+    float const y = std::sin(angle) * this->g_radius;
 
     return {this->g_radius + x, this->g_radius + y};
 }
 
-const char* ObjCircleShape::getClassName() const
+char const* ObjCircleShape::getClassName() const
 {
     return FGE_OBJCIRCLESHAPE_CLASSNAME;
 }
-const char* ObjCircleShape::getReadableClassName() const
+char const* ObjCircleShape::getReadableClassName() const
 {
     return "circle shape";
 }

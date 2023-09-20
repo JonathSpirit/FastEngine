@@ -43,11 +43,11 @@ class FGE_API View
 {
 public:
     View();
-    explicit View(const fge::vulkan::Viewport& viewport);
-    View(const Vector2f& center, const Vector2f& size);
+    explicit View(fge::vulkan::Viewport const& viewport);
+    View(Vector2f const& center, Vector2f const& size);
 
-    void setCenter(const Vector2f& center);
-    const Vector2f& getCenter() const;
+    void setCenter(Vector2f const& center);
+    Vector2f const& getCenter() const;
 
     /**
      * \brief Set the size of the view
@@ -57,8 +57,8 @@ public:
      *
      * \param size New size of the view
      */
-    void setSize(const Vector2f& size);
-    const Vector2f& getSize() const;
+    void setSize(Vector2f const& size);
+    Vector2f const& getSize() const;
 
     void setRotation(float angleDeg);
     float getRotation() const;
@@ -74,8 +74,8 @@ public:
      *
      * \param factorViewport New viewport rectangle, expressed as a factor of the render-target's size
      */
-    void setFactorViewport(const fge::RectFloat& factorViewport);
-    const fge::RectFloat& getFactorViewport() const;
+    void setFactorViewport(fge::RectFloat const& factorViewport);
+    fge::RectFloat const& getFactorViewport() const;
 
     /**
      * \brief Reset the view to the given viewport
@@ -85,13 +85,13 @@ public:
      *
      * \param viewport New viewport to apply to the view
      */
-    void reset(const fge::vulkan::Viewport& viewport);
+    void reset(fge::vulkan::Viewport const& viewport);
     /**
      * \brief Helper function to move the view
      *
      * \param offset Offset to apply to the view
      */
-    void move(const Vector2f& offset);
+    void move(Vector2f const& offset);
     /**
      * \brief Helper function to rotate the view
      *
@@ -112,8 +112,8 @@ public:
      *
      * \return A glm::mat4 of the view
      */
-    const glm::mat4& getTransform() const;
-    const glm::mat4& getInverseTransform() const;
+    glm::mat4 const& getTransform() const;
+    glm::mat4 const& getInverseTransform() const;
 
 private:
     fge::Vector2f g_center;

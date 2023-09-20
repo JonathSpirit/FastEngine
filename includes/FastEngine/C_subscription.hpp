@@ -52,7 +52,7 @@ public:
     Subscription() = default;
 
     ///\warning Empty copy constructor as it's not permitted (does nothing)
-    Subscription([[maybe_unused]] const fge::Subscription& r){};
+    Subscription([[maybe_unused]] fge::Subscription const& r){};
     Subscription(fge::Subscription&& r) noexcept;
 
     /**
@@ -61,7 +61,7 @@ public:
     virtual inline ~Subscription() { this->detachAll(); }
 
     ///\warning Empty copy operator as it's not permitted (does nothing)
-    fge::Subscription& operator=([[maybe_unused]] const fge::Subscription& r) { return *this; };
+    fge::Subscription& operator=([[maybe_unused]] fge::Subscription const& r) { return *this; };
     fge::Subscription& operator=(fge::Subscription&& r) noexcept;
 
 protected:
@@ -152,7 +152,7 @@ public:
     Subscriber() = default;
 
     ///\warning Empty copy constructor as it's not permitted (does nothing)
-    Subscriber([[maybe_unused]] const fge::Subscriber& n){};
+    Subscriber([[maybe_unused]] fge::Subscriber const& n){};
     ///\warning Move constructor prohibited
     Subscriber(fge::Subscriber&& n) noexcept = delete;
 
@@ -162,7 +162,7 @@ public:
     virtual inline ~Subscriber() { this->detachAll(); };
 
     ///\warning Empty copy operator as it's not permitted (does nothing)
-    fge::Subscriber& operator=([[maybe_unused]] const fge::Subscriber& n) { return *this; };
+    fge::Subscriber& operator=([[maybe_unused]] fge::Subscriber const& n) { return *this; };
     ///\warning Move operator prohibited
     fge::Subscriber& operator=(fge::Subscriber&& n) noexcept = delete;
 

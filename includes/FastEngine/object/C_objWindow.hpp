@@ -48,10 +48,10 @@ public:
     };
 
     ObjWindow();
-    ObjWindow(const ObjWindow& r);
+    ObjWindow(ObjWindow const& r);
     ~ObjWindow() override = default;
 
-    ObjWindow& operator=(const ObjWindow& r) = delete;
+    ObjWindow& operator=(ObjWindow const& r) = delete;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjWindow)
 
@@ -64,15 +64,15 @@ public:
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
 
     void setHeight(float height);
-    void setSize(const fge::Vector2f& size);
-    const fge::Vector2f& getSize() const;
+    void setSize(fge::Vector2f const& size);
+    fge::Vector2f const& getSize() const;
     fge::Vector2f getDrawAreaSize() const;
 
     void showExitButton(bool enable);
@@ -81,8 +81,8 @@ public:
 
     void setResizeMode(ObjWindow::ResizeModes modeX, ObjWindow::ResizeModes modeY);
 
-    void setViewCenterOffset(const fge::Vector2f& offset);
-    const fge::Vector2f& getViewCenterOffset() const;
+    void setViewCenterOffset(fge::Vector2f const& offset);
+    fge::Vector2f const& getViewCenterOffset() const;
 
     static fge::ObjWindow* getWindowObjectFromScene(fge::Scene* scene);
 
@@ -90,14 +90,14 @@ public:
     void setTextureClose(fge::Texture texture);
     void setTextureResize(fge::Texture texture);
 
-    const fge::Texture& getTextureMinimize() const;
-    const fge::Texture& getTextureClose() const;
-    const fge::Texture& getTextureResize() const;
+    fge::Texture const& getTextureMinimize() const;
+    fge::Texture const& getTextureClose() const;
+    fge::Texture const& getTextureResize() const;
 
     void setTexture(fge::Texture texture);
-    void setTileSet(const fge::TileSet& tileSet);
+    void setTileSet(fge::TileSet const& tileSet);
     void setTileSet(fge::TileSet&& tileSet);
-    const fge::TileSet& getTileSet() const;
+    fge::TileSet const& getTileSet() const;
 
     void refreshRectBounds();
     void refreshTextures();
@@ -107,17 +107,17 @@ public:
     mutable std::shared_ptr<fge::View> _windowView;
 
 private:
-    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
     void
-    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
+    onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
+    void onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
+    void onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg);
 
     void onPlanUpdate(fge::Scene* scene, fge::ObjectPlan plan);
-    void onNewObject(fge::Scene* scene, const fge::ObjectDataShared& object);
+    void onNewObject(fge::Scene* scene, fge::ObjectDataShared const& object);
 
-    void onRefreshGlobalScale(const fge::Vector2f& scale);
+    void onRefreshGlobalScale(fge::Vector2f const& scale);
 
     bool g_movingWindowFlag{false};
     bool g_resizeWindowFlag{false};

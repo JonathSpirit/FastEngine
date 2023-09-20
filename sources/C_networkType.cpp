@@ -24,12 +24,12 @@ namespace fge::net
 
 ///NetworkTypeBase
 
-bool NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients)
+bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients)
 {
     //Remove/add extra clients
     for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
     {
-        const fge::net::ClientListEvent& evt = clients.getClientEvent(i);
+        fge::net::ClientListEvent const& evt = clients.getClientEvent(i);
         if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
         {
             this->_g_tableId.erase(evt._id);
@@ -52,7 +52,7 @@ bool NetworkTypeBase::clientsCheckup(const fge::net::ClientList& clients)
     }
     return buff;
 }
-bool NetworkTypeBase::checkClient(const fge::net::Identity& id) const
+bool NetworkTypeBase::checkClient(fge::net::Identity const& id) const
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.cend())
@@ -61,7 +61,7 @@ bool NetworkTypeBase::checkClient(const fge::net::Identity& id) const
     }
     return false;
 }
-void NetworkTypeBase::forceCheckClient(const fge::net::Identity& id)
+void NetworkTypeBase::forceCheckClient(fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -69,7 +69,7 @@ void NetworkTypeBase::forceCheckClient(const fge::net::Identity& id)
         it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
-void NetworkTypeBase::forceUncheckClient(const fge::net::Identity& id)
+void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -77,7 +77,7 @@ void NetworkTypeBase::forceUncheckClient(const fge::net::Identity& id)
         it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
-void NetworkTypeBase::requireExplicitUpdateClient(const fge::net::Identity& id)
+void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -110,7 +110,7 @@ NetworkTypeScene::NetworkTypeScene(fge::Scene* source) :
         g_typeSource(source)
 {}
 
-const void* NetworkTypeScene::getSource() const
+void const* NetworkTypeScene::getSource() const
 {
     return this->g_typeSource;
 }
@@ -122,7 +122,7 @@ bool NetworkTypeScene::applyData(fge::net::Packet& pck)
     this->_onApplied.call();
     return true;
 }
-void NetworkTypeScene::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeScene::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     this->g_typeSource->packModification(pck, id);
     this->g_typeSource->packWatchedEvent(pck, id);
@@ -132,22 +132,22 @@ void NetworkTypeScene::packData(fge::net::Packet& pck)
     this->g_typeSource->pack(pck);
 }
 
-bool NetworkTypeScene::clientsCheckup(const fge::net::ClientList& clients)
+bool NetworkTypeScene::clientsCheckup(fge::net::ClientList const& clients)
 {
     this->g_typeSource->clientsCheckupEvent(clients);
     this->g_typeSource->clientsCheckup(clients);
     return true;
 }
 
-bool NetworkTypeScene::checkClient([[maybe_unused]] const fge::net::Identity& id) const
+bool NetworkTypeScene::checkClient([[maybe_unused]] fge::net::Identity const& id) const
 {
     return true;
 }
-void NetworkTypeScene::forceCheckClient(const fge::net::Identity& id)
+void NetworkTypeScene::forceCheckClient(fge::net::Identity const& id)
 {
     this->g_typeSource->forceCheckClient(id);
 }
-void NetworkTypeScene::forceUncheckClient(const fge::net::Identity& id)
+void NetworkTypeScene::forceUncheckClient(fge::net::Identity const& id)
 {
     this->g_typeSource->forceUncheckClient(id);
 }
@@ -167,7 +167,7 @@ NetworkTypeSmoothVec2Float::NetworkTypeSmoothVec2Float(fge::DataAccessor<fge::Ve
         g_errorRange(errorRange)
 {}
 
-const void* NetworkTypeSmoothVec2Float::getSource() const
+void const* NetworkTypeSmoothVec2Float::getSource() const
 {
     return nullptr;
 }
@@ -190,7 +190,7 @@ bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet& pck)
     }
     return false;
 }
-void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -218,7 +218,7 @@ void NetworkTypeSmoothVec2Float::forceUncheck()
     this->g_typeCopy = this->g_typeSource._getter();
 }
 
-const fge::Vector2f& NetworkTypeSmoothVec2Float::getCache() const
+fge::Vector2f const& NetworkTypeSmoothVec2Float::getCache() const
 {
     return this->g_typeCopy;
 }
@@ -239,7 +239,7 @@ NetworkTypeSmoothFloat::NetworkTypeSmoothFloat(fge::DataAccessor<float> source, 
         g_errorRange(errorRange)
 {}
 
-const void* NetworkTypeSmoothFloat::getSource() const
+void const* NetworkTypeSmoothFloat::getSource() const
 {
     return nullptr;
 }
@@ -261,7 +261,7 @@ bool NetworkTypeSmoothFloat::applyData(fge::net::Packet& pck)
     }
     return false;
 }
-void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
@@ -309,7 +309,7 @@ NetworkTypeTag::NetworkTypeTag(fge::TagList* source, std::string tag) :
         g_tag(std::move(tag))
 {}
 
-const void* NetworkTypeTag::getSource() const
+void const* NetworkTypeTag::getSource() const
 {
     return this->g_typeSource;
 }
@@ -331,7 +331,7 @@ bool NetworkTypeTag::applyData(fge::net::Packet& pck)
     this->_onApplied.call();
     return true;
 }
-void NetworkTypeTag::packData(fge::net::Packet& pck, [[maybe_unused]] const fge::net::Identity& id)
+void NetworkTypeTag::packData(fge::net::Packet& pck, [[maybe_unused]] fge::net::Identity const& id)
 {
     pck << this->g_typeSource->check(this->g_tag);
 }
@@ -385,7 +385,7 @@ std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
 
     return count;
 }
-void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, const fge::net::Identity& id)
+void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     fge::net::SizeType count{0};
     pck >> count;
@@ -400,21 +400,21 @@ void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, const fge::
     }
 }
 
-void NetworkTypeContainer::clientsCheckup(const fge::net::ClientList& clients)
+void NetworkTypeContainer::clientsCheckup(fge::net::ClientList const& clients)
 {
     for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         this->g_data[i]->clientsCheckup(clients);
     }
 }
-void NetworkTypeContainer::forceCheckClient(const fge::net::Identity& id)
+void NetworkTypeContainer::forceCheckClient(fge::net::Identity const& id)
 {
     for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         this->g_data[i]->forceCheckClient(id);
     }
 }
-void NetworkTypeContainer::forceUncheckClient(const fge::net::Identity& id)
+void NetworkTypeContainer::forceUncheckClient(fge::net::Identity const& id)
 {
     for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {

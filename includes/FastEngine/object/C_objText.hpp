@@ -42,7 +42,7 @@ class FGE_API Character : public fge::Transformable, public fge::Drawable
 {
 public:
     Character();
-    Character(const fge::Color& fillColor, const fge::Color& outlineColor);
+    Character(fge::Color const& fillColor, fge::Color const& outlineColor);
 
     void clear();
     void addLine(bool outlineVertices,
@@ -52,19 +52,19 @@ public:
                  float thickness,
                  float outlineThickness = 0.0f);
     void addGlyphQuad(bool outlineVertices,
-                      const fge::Vector2f& size,
-                      const fge::Glyph& glyph,
-                      const fge::Vector2i& textureSize,
+                      fge::Vector2f const& size,
+                      fge::Glyph const& glyph,
+                      fge::Vector2i const& textureSize,
                       float italicShear);
 
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override;
-    void drawVertices(bool outlineVertices, fge::RenderTarget& target, const fge::RenderStates& states) const;
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override;
+    void drawVertices(bool outlineVertices, fge::RenderTarget& target, fge::RenderStates const& states) const;
 
-    void setFillColor(const fge::Color& color);
-    void setOutlineColor(const fge::Color& color);
+    void setFillColor(fge::Color const& color);
+    void setOutlineColor(fge::Color const& color);
 
-    [[nodiscard]] const fge::Color& getFillColor() const;
-    [[nodiscard]] const fge::Color& getOutlineColor() const;
+    [[nodiscard]] fge::Color const& getFillColor() const;
+    [[nodiscard]] fge::Color const& getOutlineColor() const;
 
     void setVisibility(bool visibility);
     [[nodiscard]] bool isVisible() const;
@@ -100,14 +100,14 @@ public:
     ObjText() = default;
     ObjText(tiny_utf8::string string,
             fge::Font font,
-            const fge::Vector2f& position = {},
+            fge::Vector2f const& position = {},
             fge::CharacterSize characterSize = 30);
-    explicit ObjText(fge::Font font, const fge::Vector2f& position = {}, fge::CharacterSize characterSize = 30);
+    explicit ObjText(fge::Font font, fge::Vector2f const& position = {}, fge::CharacterSize characterSize = 30);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjText)
 
     void setFont(fge::Font font);
-    const fge::Font& getFont() const;
+    fge::Font const& getFont() const;
 
     void setString(tiny_utf8::string string);
 
@@ -118,12 +118,12 @@ public:
 
     void setStyle(std::underlying_type<Style>::type style);
 
-    void setFillColor(const fge::Color& color);
-    void setOutlineColor(const fge::Color& color);
+    void setFillColor(fge::Color const& color);
+    void setOutlineColor(fge::Color const& color);
 
     void setOutlineThickness(float thickness);
 
-    const tiny_utf8::string& getString() const;
+    tiny_utf8::string const& getString() const;
 
     fge::CharacterSize getCharacterSize() const;
 
@@ -133,15 +133,15 @@ public:
 
     std::underlying_type<Style>::type getStyle() const;
 
-    const fge::Color& getFillColor() const;
-    const fge::Color& getOutlineColor() const;
+    fge::Color const& getFillColor() const;
+    fge::Color const& getOutlineColor() const;
 
     float getOutlineThickness() const;
 
     fge::Vector2f findCharacterPos(std::size_t index) const;
 
     std::vector<fge::Character>& getCharacters();
-    const std::vector<fge::Character>& getCharacters() const;
+    std::vector<fge::Character> const& getCharacters() const;
 
     FGE_OBJ_DRAW_DECLARE
 
@@ -150,8 +150,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;

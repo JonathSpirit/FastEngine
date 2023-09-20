@@ -61,7 +61,7 @@ bool CallbackFunctorObject<TObject, Types...>::check(void* ptr)
 
 template<class... Types>
 template<typename TLambda>
-CallbackLambda<Types...>::CallbackLambda(const TLambda& lambda) :
+CallbackLambda<Types...>::CallbackLambda(TLambda const& lambda) :
         g_lambda(new TLambda(lambda))
 {
     this->g_executeLambda = [](void* lambdaPtr, Types... arguments) {

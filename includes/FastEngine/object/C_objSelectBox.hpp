@@ -34,20 +34,20 @@ class FGE_API ObjSelectBox : public fge::Object, public fge::Subscriber, public 
 {
 public:
     ObjSelectBox();
-    explicit ObjSelectBox(fge::Font font, const fge::Vector2f& pos = fge::Vector2f());
+    explicit ObjSelectBox(fge::Font font, fge::Vector2f const& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSelectBox)
 
     fge::GuiElement* getGuiElement() override { return this; }
 
     std::size_t getItemCount() const;
-    const tiny_utf8::string* getItem(std::size_t index) const;
+    tiny_utf8::string const* getItem(std::size_t index) const;
     bool setItem(std::size_t index, tiny_utf8::string text);
     void addItem(tiny_utf8::string text);
     void clearItems();
 
     void setSelectedText(tiny_utf8::string string);
-    const tiny_utf8::string& getSelectedText() const;
+    tiny_utf8::string const& getSelectedText() const;
     void clearSelectedText();
 
     void setCharacterSize(fge::CharacterSize size);
@@ -55,14 +55,14 @@ public:
     void setActiveStat(bool active);
     bool getActiveStat() const;
 
-    void setBoxSize(const fge::Vector2f& size);
+    void setBoxSize(fge::Vector2f const& size);
     void setBoxColor(fge::Color color);
     void setBoxOutlineColor(fge::Color color);
     void setTextColor(fge::Color color);
 
     fge::CharacterSize getCharacterSize() const;
 
-    const fge::Vector2f& getBoxSize() const;
+    fge::Vector2f const& getBoxSize() const;
     fge::Color getBoxColor() const;
     fge::Color getBoxOutlineColor() const;
     fge::Color getTextColor() const;
@@ -76,8 +76,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
@@ -86,10 +86,10 @@ public:
 
 private:
     void
-    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
-    void onGuiMouseMotion(const fge::Event& evt, const SDL_MouseMotionEvent& arg, fge::GuiElementContext& context);
+    onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
+    void onGuiMouseMotion(fge::Event const& evt, SDL_MouseMotionEvent const& arg, fge::GuiElementContext& context);
 
-    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
     void updateBoxInstances();
 

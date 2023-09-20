@@ -23,7 +23,7 @@ namespace fge
 ObjSwitch::ObjSwitch() :
         g_color(fge::Color::White)
 {}
-ObjSwitch::ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const fge::Vector2f& pos) :
+ObjSwitch::ObjSwitch(fge::Texture const& t_on, fge::Texture const& t_off, fge::Vector2f const& pos) :
         g_textureOn(t_on),
         g_textureOff(t_off),
         g_color(fge::Color::White)
@@ -32,24 +32,24 @@ ObjSwitch::ObjSwitch(const fge::Texture& t_on, const fge::Texture& t_off, const 
     this->g_sprite.setTexture(t_off);
 }
 
-const fge::Texture& ObjSwitch::getTextureOn() const
+fge::Texture const& ObjSwitch::getTextureOn() const
 {
     return this->g_textureOn;
 }
-const fge::Texture& ObjSwitch::getTextureOff() const
+fge::Texture const& ObjSwitch::getTextureOff() const
 {
     return this->g_textureOff;
 }
-void ObjSwitch::setTextureOn(const fge::Texture& t_on)
+void ObjSwitch::setTextureOn(fge::Texture const& t_on)
 {
     this->g_textureOn = t_on;
 }
-void ObjSwitch::setTextureOff(const fge::Texture& t_off)
+void ObjSwitch::setTextureOff(fge::Texture const& t_off)
 {
     this->g_textureOff = t_off;
 }
 
-void ObjSwitch::setColor(const fge::Color& color)
+void ObjSwitch::setColor(fge::Color const& color)
 {
     this->g_color = color;
 }
@@ -131,11 +131,11 @@ void ObjSwitch::unpack(fge::net::Packet& pck)
     pck >> this->g_color >> this->g_textureOn >> this->g_textureOff >> this->g_statMouseOn >> this->g_statActive;
 }
 
-const char* ObjSwitch::getClassName() const
+char const* ObjSwitch::getClassName() const
 {
     return FGE_OBJSWITCH_CLASSNAME;
 }
-const char* ObjSwitch::getReadableClassName() const
+char const* ObjSwitch::getReadableClassName() const
 {
     return "switch";
 }

@@ -27,26 +27,26 @@ class FGE_API SoundBuffer
 {
 public:
     SoundBuffer();
-    SoundBuffer(const std::string& name);
-    SoundBuffer(const char* name);
-    SoundBuffer(const fge::audio::AudioDataPtr& data);
+    SoundBuffer(std::string const& name);
+    SoundBuffer(char const* name);
+    SoundBuffer(fge::audio::AudioDataPtr const& data);
 
     void clear();
 
     bool valid() const;
 
-    const fge::audio::AudioDataPtr& getData() const;
-    const std::string& getName() const;
+    fge::audio::AudioDataPtr const& getData() const;
+    std::string const& getName() const;
 
-    void operator=(const std::string& name);
-    void operator=(const char* name);
-    void operator=(const fge::audio::AudioDataPtr& data);
+    void operator=(std::string const& name);
+    void operator=(char const* name);
+    void operator=(fge::audio::AudioDataPtr const& data);
 
     operator Mix_Chunk*();
-    operator const Mix_Chunk*() const;
+    operator Mix_Chunk const*() const;
 
     operator std::string&();
-    operator const std::string&() const;
+    operator std::string const&() const;
 
 private:
     fge::audio::AudioDataPtr g_data;

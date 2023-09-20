@@ -173,7 +173,7 @@ FGE_API uint32_t GetSceneChecksum(fge::Scene& scene);
  * \param file The file path that will contain the data
  * \return \b true if no error, \b false otherwise
  */
-FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, const std::string& file);
+FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, std::string const& file);
 
 /**
  * \brief Shortcut function that will clear the Packet and write an header to it
@@ -230,14 +230,14 @@ template<class TValue>
 struct ChainedArguments
 {
     ChainedArguments() = default;
-    ChainedArguments(const fge::net::Packet& pck) :
+    ChainedArguments(fge::net::Packet const& pck) :
             _pck(&pck)
     {}
-    ChainedArguments(const fge::net::Packet* pck) :
+    ChainedArguments(fge::net::Packet const* pck) :
             _pck(pck)
     {}
 
-    const fge::net::Packet* _pck; ///< This should be never null
+    fge::net::Packet const* _pck; ///< This should be never null
     std::optional<TValue> _value{std::nullopt};
 
     /**
@@ -281,7 +281,7 @@ struct ChainedArguments
  */
 template<class TValue, bool TInvertResult = false>
 fge::net::rules::ChainedArguments<TValue>
-RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<TValue> args);
+RRange(TValue const& min, TValue const& max, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
  * \brief Must equal rule, check if the value is equal to the provided one
@@ -293,7 +293,7 @@ RRange(const TValue& min, const TValue& max, fge::net::rules::ChainedArguments<T
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue> RMustEqual(const TValue& a, fge::net::rules::ChainedArguments<TValue> args);
+fge::net::rules::ChainedArguments<TValue> RMustEqual(TValue const& a, fge::net::rules::ChainedArguments<TValue> args);
 
 /**
  * \brief Strict less rule, check if the value is strictly lesser than the provided one

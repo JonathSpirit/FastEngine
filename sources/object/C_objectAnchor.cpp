@@ -24,7 +24,7 @@ namespace fge
 Anchor::Anchor(fge::Object* parent) :
         _g_objectParent(parent)
 {}
-Anchor::Anchor(fge::Object* parent, const Anchor& anchor) :
+Anchor::Anchor(fge::Object* parent, Anchor const& anchor) :
         _g_anchorType(anchor._g_anchorType),
         _g_anchorShift(anchor._g_anchorShift),
         _g_anchorTarget(anchor._g_anchorTarget),
@@ -39,7 +39,7 @@ Anchor::~Anchor()
     }
 }
 
-Anchor& Anchor::operator=(const Anchor& r)
+Anchor& Anchor::operator=(Anchor const& r)
 {
     this->_g_anchorType = r._g_anchorType;
     this->_g_anchorShift = r._g_anchorShift;
@@ -49,7 +49,7 @@ Anchor& Anchor::operator=(const Anchor& r)
     return *this;
 }
 
-void Anchor::updateAnchor(const fge::Vector2f& customTargetSize)
+void Anchor::updateAnchor(fge::Vector2f const& customTargetSize)
 {
     this->_g_anchorNeedUpdate = false;
 
@@ -142,7 +142,7 @@ void Anchor::updateAnchor(const fge::Vector2f& customTargetSize)
     parent->getObject()->move(movePosition);
 }
 
-void Anchor::setAnchor(fge::Anchor::Types type, const fge::Vector2<fge::Anchor::Shifts>& shift, fge::ObjectSid target)
+void Anchor::setAnchor(fge::Anchor::Types type, fge::Vector2<fge::Anchor::Shifts> const& shift, fge::ObjectSid target)
 {
     this->_g_anchorType = type;
     this->_g_anchorShift = shift;

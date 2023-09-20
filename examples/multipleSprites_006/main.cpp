@@ -183,8 +183,8 @@ public:
         }));
 
         //Create event callback for moving the view
-        event._onKeyDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_KeyboardEvent&>{
-                [&](const fge::Event&, const SDL_KeyboardEvent& keyEvent) {
+        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>{
+                [&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             auto view = renderWindow.getView();
             if (keyEvent.keysym.sym == SDLK_LEFT || keyEvent.keysym.sym == SDLK_a)
             {
@@ -214,8 +214,8 @@ public:
         }});
 
         //Create event callback for zooming the view
-        event._onMouseWheel.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseWheelEvent&>{
-                [&](const fge::Event&, const SDL_MouseWheelEvent& mouseWheelEvent) {
+        event._onMouseWheel.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseWheelEvent const&>{
+                [&](fge::Event const&, SDL_MouseWheelEvent const& mouseWheelEvent) {
             auto view = renderWindow.getView();
             if (mouseWheelEvent.y > 0)
             {

@@ -40,14 +40,14 @@ public:
     LightObstacle() :
             fge::ObstacleComponent(this)
     {}
-    LightObstacle(const fge::LightObstacle& r) :
+    LightObstacle(fge::LightObstacle const& r) :
             fge::ObstacleComponent(r),
             _g_myPoints(r._g_myPoints)
     {
         this->_g_lightSystemGate.setData(this);
     }
 
-    fge::LightObstacle& operator=(const fge::LightObstacle& r)
+    fge::LightObstacle& operator=(fge::LightObstacle const& r)
     {
         this->_g_lightSystemGate = r._g_lightSystemGate;
         this->_g_myPoints = r._g_myPoints;

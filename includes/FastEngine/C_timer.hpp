@@ -34,7 +34,7 @@ namespace fge
 class FGE_API Timer
 {
 public:
-    Timer(const fge::Timer& timer);
+    Timer(fge::Timer const& timer);
     Timer(fge::Timer&& timer) noexcept;
 
     /**
@@ -42,14 +42,14 @@ public:
      *
      * \param goal The time goal of the timer
      */
-    explicit Timer(const std::chrono::milliseconds& goal);
+    explicit Timer(std::chrono::milliseconds const& goal);
     /**
      * \brief Create a new timer with the given time goal and pause state.
      *
      * \param goal The time goal of the timer
      * \param paused The pause state of the timer
      */
-    Timer(const std::chrono::milliseconds& goal, bool paused);
+    Timer(std::chrono::milliseconds const& goal, bool paused);
     /**
      * \brief Create a new timer with the given time goal, name and pause state.
      *
@@ -57,20 +57,20 @@ public:
      * \param name The name of the timer
      * \param paused The pause state of the timer
      */
-    Timer(const std::chrono::milliseconds& goal, std::string name, bool paused);
+    Timer(std::chrono::milliseconds const& goal, std::string name, bool paused);
 
     /**
      * \brief Set the timer name
      *
      * \param name The name of the timer
      */
-    void setName(const std::string& name);
+    void setName(std::string const& name);
     /**
      * \brief Get the timer name
      *
      * \return The name of the timer
      */
-    const std::string& getName() const;
+    std::string const& getName() const;
 
     /**
      * \brief Set the goal duration of the timer
@@ -80,7 +80,7 @@ public:
      *
      * \param t The goal duration of the timer
      */
-    void setGoalDuration(const std::chrono::milliseconds& t);
+    void setGoalDuration(std::chrono::milliseconds const& t);
     /**
      * \brief Add an amount of time to the goal duration of the timer
      *
@@ -88,7 +88,7 @@ public:
      *
      * \param t The amount of time to add to the goal duration
      */
-    void addToGoal(const std::chrono::milliseconds& t);
+    void addToGoal(std::chrono::milliseconds const& t);
     /**
      * \brief Subtract an amount of time to the goal duration of the timer
      *
@@ -96,26 +96,26 @@ public:
      *
      * \param t The amount of time to subtract to the goal duration
      */
-    void subToGoal(const std::chrono::milliseconds& t);
+    void subToGoal(std::chrono::milliseconds const& t);
 
     /**
      * \brief Set the elapsed time of the timer
      *
      * \param t The elapsed time of the timer
      */
-    void setElapsedTime(const std::chrono::milliseconds& t);
+    void setElapsedTime(std::chrono::milliseconds const& t);
     /**
      * \brief Add an amount of time to the elapsed time of the timer
      *
      * \param t The amount of time to add to the elapsed time
      */
-    void addToElapsedTime(const std::chrono::milliseconds& t);
+    void addToElapsedTime(std::chrono::milliseconds const& t);
     /**
      * \brief Subtract an amount of time to the elapsed time of the timer
      *
      * \param t The amount of time to subtract to the elapsed time
      */
-    void subToElapsedTime(const std::chrono::milliseconds& t);
+    void subToElapsedTime(std::chrono::milliseconds const& t);
 
     /**
      * \brief Get the life time of the timer
@@ -124,7 +124,7 @@ public:
      *
      * \return The life time of the timer
      */
-    const std::chrono::steady_clock::time_point& getLifeTimePoint() const;
+    std::chrono::steady_clock::time_point const& getLifeTimePoint() const;
     /**
      * \brief Get the life time of the timer as milliseconds
      *
@@ -137,13 +137,13 @@ public:
      *
      * \return The elapsed time of the timer
      */
-    const std::chrono::milliseconds& getElapsedTime() const;
+    std::chrono::milliseconds const& getElapsedTime() const;
     /**
      * \brief Get the goal time of the timer
      *
      * \return The goal time of the timer
      */
-    const std::chrono::milliseconds& getGoalDuration() const;
+    std::chrono::milliseconds const& getGoalDuration() const;
 
     /**
      * \brief Get the remaining time of the timer

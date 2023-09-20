@@ -27,7 +27,7 @@ class Food : public ls::CustomObject
 {
 public:
     Food() = default;
-    explicit Food(const fge::Vector2f& pos);
+    explicit Food(fge::Vector2f const& pos);
     ~Food() override = default;
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Food)
@@ -41,8 +41,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     uint8_t _nutrition{0};
 

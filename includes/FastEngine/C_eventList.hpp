@@ -45,14 +45,14 @@ public:
      * \param name The name of the event
      * \return \b true if the event was added, \b false otherwise
      */
-    bool add(const std::string& name);
+    bool add(std::string const& name);
     /**
      * \brief Remove an event from the list
      *
      * \param name The name of the event
      * \return \b true if the event was removed, \b false otherwise
      */
-    bool del(const std::string& name);
+    bool del(std::string const& name);
     /**
      * \brief Remove all events from the list
      */
@@ -64,7 +64,7 @@ public:
      * \param name The name of the event
      * \return An pointer to the event, or \b nullptr if the event doesn't exist
      */
-    fge::Event* get(const std::string& name);
+    fge::Event* get(std::string const& name);
 
 private:
     std::unordered_map<std::string, fge::Event> g_events;

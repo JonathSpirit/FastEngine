@@ -41,7 +41,7 @@ public:
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     FGE_OBJ_DRAW_DECLARE
 
-    void setSize(const fge::DynamicSize& size);
+    void setSize(fge::DynamicSize const& size);
     fge::Vector2f getSize() const;
 
     void setCursorRatio(float ratio);
@@ -54,8 +54,8 @@ public:
     void setScrollRectOutlineColor(fge::Color color);
     void setScrollBaseRectFillColor(fge::Color color);
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
@@ -64,15 +64,15 @@ public:
 
 private:
     void
-    onGuiMouseButtonPressed(const fge::Event& evt, const SDL_MouseButtonEvent& arg, fge::GuiElementContext& context);
-    void onMouseButtonReleased(const fge::Event& evt, const SDL_MouseButtonEvent& arg);
-    void onMouseMoved(const fge::Event& evt, const SDL_MouseMotionEvent& arg);
+    onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
+    void onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
+    void onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg);
 
-    void onGuiResized(const fge::GuiElementHandler& handler, const fge::Vector2f& size);
+    void onGuiResized(fge::GuiElementHandler const& handler, fge::Vector2f const& size);
 
-    void onGuiVerify(const fge::Event& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
+    void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
-    void refreshSize(const fge::Vector2f& targetSize);
+    void refreshSize(fge::Vector2f const& targetSize);
 
     mutable fge::ObjRectangleShape g_scrollRect;
     mutable fge::ObjRectangleShape g_scrollBaseRect;

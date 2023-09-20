@@ -20,7 +20,7 @@
 namespace fge
 {
 
-ObjLineShape::ObjLineShape(const Vector2f& beginning, const Vector2f& end, float thickness) :
+ObjLineShape::ObjLineShape(Vector2f const& beginning, Vector2f const& end, float thickness) :
         g_direction(end - beginning),
         g_thickness(thickness)
 {
@@ -33,7 +33,7 @@ void ObjLineShape::setThickness(float thickness)
     this->g_thickness = thickness;
     this->updateShape();
 }
-void ObjLineShape::setEndPoint(const Vector2f& point)
+void ObjLineShape::setEndPoint(Vector2f const& point)
 {
     this->g_direction = point - getPosition();
     this->updateShape();
@@ -81,11 +81,11 @@ Vector2f ObjLineShape::getPoint(std::size_t index) const
     }
 }
 
-const char* ObjLineShape::getClassName() const
+char const* ObjLineShape::getClassName() const
 {
     return FGE_OBJLINESHAPE_CLASSNAME;
 }
-const char* ObjLineShape::getReadableClassName() const
+char const* ObjLineShape::getReadableClassName() const
 {
     return "line shape";
 }

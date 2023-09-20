@@ -31,7 +31,7 @@ class FGE_API ObjSpriteCluster : public fge::Object
 {
 public:
     ObjSpriteCluster();
-    ObjSpriteCluster(const ObjSpriteCluster& r);
+    ObjSpriteCluster(ObjSpriteCluster const& r);
     explicit ObjSpriteCluster(fge::Texture texture);
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSpriteCluster)
@@ -39,13 +39,13 @@ public:
     void setTexture(fge::Texture texture);
 
     void clear();
-    void addSprite(const fge::RectInt& rectangle, const fge::Vector2f& offset = {0.0f, 0.0f});
+    void addSprite(fge::RectInt const& rectangle, fge::Vector2f const& offset = {0.0f, 0.0f});
     void resize(std::size_t size);
-    void setTextureRect(std::size_t index, const fge::RectInt& rectangle);
-    void setColor(std::size_t index, const fge::Color& color);
-    void setOffset(std::size_t index, const fge::Vector2f& offset);
+    void setTextureRect(std::size_t index, fge::RectInt const& rectangle);
+    void setColor(std::size_t index, fge::Color const& color);
+    void setOffset(std::size_t index, fge::Vector2f const& offset);
 
-    const fge::Texture& getTexture() const;
+    fge::Texture const& getTexture() const;
 
     [[nodiscard]] std::optional<fge::RectInt> getTextureRect(std::size_t index) const;
     [[nodiscard]] std::optional<fge::Color> getColor(std::size_t index) const;
@@ -58,8 +58,8 @@ public:
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet& pck) override;
 
-    const char* getClassName() const override;
-    const char* getReadableClassName() const override;
+    char const* getClassName() const override;
+    char const* getReadableClassName() const override;
 
     [[nodiscard]] fge::RectFloat getGlobalBounds() const override;
     [[nodiscard]] std::optional<fge::RectFloat> getGlobalBounds(std::size_t index) const;
@@ -73,7 +73,7 @@ private:
     struct InstanceData
     {
         InstanceData() = default;
-        explicit InstanceData(const fge::RectInt& textureRect, const fge::Vector2f& offset) :
+        explicit InstanceData(fge::RectInt const& textureRect, fge::Vector2f const& offset) :
                 _offset(offset),
                 _textureRect(textureRect)
         {}

@@ -170,10 +170,10 @@ public:
      */
     void waitIdle();
 
-    [[nodiscard]] const Instance& getInstance() const;
-    [[nodiscard]] const Surface& getSurface() const;
-    [[nodiscard]] const LogicalDevice& getLogicalDevice() const;
-    [[nodiscard]] const PhysicalDevice& getPhysicalDevice() const;
+    [[nodiscard]] Instance const& getInstance() const;
+    [[nodiscard]] Surface const& getSurface() const;
+    [[nodiscard]] LogicalDevice const& getLogicalDevice() const;
+    [[nodiscard]] PhysicalDevice const& getPhysicalDevice() const;
 
     /**
      * \brief Retrieve a command pool for graphics commands
@@ -292,7 +292,7 @@ public:
      *
      * \return The descriptor pool
      */
-    [[nodiscard]] const DescriptorPool& getMultiUseDescriptorPool() const;
+    [[nodiscard]] DescriptorPool const& getMultiUseDescriptorPool() const;
 
     /**
      * \brief Retrieve a "texture" descriptor set layout
@@ -306,7 +306,7 @@ public:
      *
      * \return The descriptor set layout
      */
-    [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTextureLayout() const;
+    [[nodiscard]] fge::vulkan::DescriptorSetLayout const& getTextureLayout() const;
     /**
      * \brief Retrieve a "transform" descriptor set layout
      *
@@ -319,7 +319,7 @@ public:
      *
      * \return The descriptor set layout
      */
-    [[nodiscard]] const fge::vulkan::DescriptorSetLayout& getTransformLayout() const;
+    [[nodiscard]] fge::vulkan::DescriptorSetLayout const& getTransformLayout() const;
     /**
      * \brief Retrieve a "texture" descriptor pool
      *
@@ -327,7 +327,7 @@ public:
      *
      * \return The descriptor pool
      */
-    [[nodiscard]] const DescriptorPool& getTextureDescriptorPool() const;
+    [[nodiscard]] DescriptorPool const& getTextureDescriptorPool() const;
     /**
      * \brief Retrieve a "transform" descriptor pool
      *
@@ -335,7 +335,7 @@ public:
      *
      * \return The descriptor pool
      */
-    [[nodiscard]] const DescriptorPool& getTransformDescriptorPool() const;
+    [[nodiscard]] DescriptorPool const& getTransformDescriptorPool() const;
 
     /**
      * \brief Retrieve the VMA (Vulkan Memory Allocator)

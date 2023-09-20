@@ -58,7 +58,7 @@ public:
 
     void update([[maybe_unused]] fge::RenderWindow& screen,
                 [[maybe_unused]] fge::Event& event,
-                [[maybe_unused]] const std::chrono::microseconds& deltaTime,
+                [[maybe_unused]] std::chrono::microseconds const& deltaTime,
                 [[maybe_unused]] fge::Scene* scene) override
     {
         auto* follow = scene->_properties["follow"].getPtr<std::string>();
@@ -74,7 +74,7 @@ public:
         }
     }
 
-    void draw(fge::RenderTarget& target, const fge::RenderStates& states) const override
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override
     {
         //Draw vertices
         auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
@@ -123,8 +123,8 @@ public:
         }
     }
 
-    const char* getClassName() const override { return "OBSTACLE"; }
-    const char* getReadableClassName() const override { return "obstacle"; }
+    char const* getClassName() const override { return "OBSTACLE"; }
+    char const* getReadableClassName() const override { return "obstacle"; }
 
 private:
     ObstacleTypes g_type{ObstacleTypes::OBSTACLE_RECTANGLE};
@@ -185,8 +185,8 @@ public:
         this->_properties["follow"] = "obstacle";
 
         //Add a callback for mouse click
-        event._onMouseButtonDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_MouseButtonEvent&>(
-                [&]([[maybe_unused]] const fge::Event& event, const SDL_MouseButtonEvent& mouseEvent) {
+        event._onMouseButtonDown.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseButtonEvent const&>(
+                [&]([[maybe_unused]] fge::Event const& event, SDL_MouseButtonEvent const& mouseEvent) {
             //If the left button is pressed
             if (mouseEvent.button == SDL_BUTTON_LEFT)
             {
@@ -213,8 +213,8 @@ public:
         }));
 
         //Add a callback for key pressed
-        event._onKeyDown.add(new fge::CallbackLambda<const fge::Event&, const SDL_KeyboardEvent&>(
-                [&](const fge::Event&, const SDL_KeyboardEvent& keyEvent) {
+        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>(
+                [&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             //Changing the obstacle type
             if (keyEvent.keysym.sym == SDLK_1)
             {

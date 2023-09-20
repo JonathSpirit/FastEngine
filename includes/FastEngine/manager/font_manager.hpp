@@ -54,7 +54,7 @@ FGE_API std::mutex& GetMutex();
 FGE_API fge::font::FontDataType::const_iterator GetCBegin();
 FGE_API fge::font::FontDataType::const_iterator GetCEnd();
 
-FGE_API const fge::font::FontDataPtr& GetBadFont();
+FGE_API fge::font::FontDataPtr const& GetBadFont();
 FGE_API fge::font::FontDataPtr GetFont(std::string_view name);
 
 FGE_API bool Check(std::string_view name);
@@ -63,7 +63,7 @@ FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path path);
 FGE_API bool Unload(std::string_view name);
 FGE_API void UnloadAll();
 
-FGE_API bool Push(std::string_view name, const fge::font::FontDataPtr& data);
+FGE_API bool Push(std::string_view name, fge::font::FontDataPtr const& data);
 
 } // namespace fge::font
 
