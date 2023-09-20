@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/vulkan/C_instance.hpp"
-#include "FastEngine/fastengine_version.hpp"
 #include "FastEngine/fge_except.hpp"
+#include "FastEngine/fge_version.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <iostream>
 #include <map>

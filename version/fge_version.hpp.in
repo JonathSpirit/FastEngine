@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Guillaume Guillet
+ * Copyright 2023 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_FASTENGINE_VERSION_HPP_INCLUDED
-#define _FGE_FASTENGINE_VERSION_HPP_INCLUDED
+#ifndef _FGE_FGE_VERSION_HPP_INCLUDED
+#define _FGE_FGE_VERSION_HPP_INCLUDED
 
 #define FGE_VERSION_MAJOR @VAR_FGE_VERSION_MAJOR@
 #define FGE_VERSION_MINOR @VAR_FGE_VERSION_MINOR@
@@ -25,4 +25,4 @@
 #define FGE_VERSION_FULL_WITHTAG_STRING "@VAR_FGE_VERSION_FULL_WITHTAG_STRING@"
 #define FGE_VERSION_FULL_STRING "@VAR_FGE_VERSION_FULL_STRING@"
 
-#endif //_FGE_FASTENGINE_VERSION_HPP_INCLUDED
+#endif //_FGE_FGE_VERSION_HPP_INCLUDED

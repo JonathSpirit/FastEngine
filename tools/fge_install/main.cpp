@@ -331,7 +331,7 @@ std::vector<BuildDirectory> GetPossibleBuildDirectory()
 
 bool GetFastEngineVersionName(std::string& name)
 {
-    std::ifstream versionFile{"includes/FastEngine/fastengine_version.hpp"};
+    std::ifstream versionFile{"includes/FastEngine/fge_version.hpp"};
 
     if (versionFile)
     {
@@ -368,7 +368,7 @@ int main()
     std::string fgeName;
     if ( !GetFastEngineVersionName(fgeName) )
     {
-        std::cout << "Can't get the FastEngine version name in \"includes/FastEngine/fastengine_version.hpp\"" << std::endl;
+        std::cout << "Can't get the FastEngine version name in \"includes/FastEngine/fge_version.hpp\"" << std::endl;
         return -1;
     }
     std::cout << "Name : \""<< fgeName <<"\"" << std::endl;

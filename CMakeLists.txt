@@ -57,8 +57,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(Git)
 
 #Get FastEngine version
-set(SRC ${CMAKE_SOURCE_DIR}/version/fastengine_version.hpp.in)
-set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fastengine_version.hpp)
+set(SRC ${CMAKE_SOURCE_DIR}/version/fge_version.hpp.in)
+set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fge_version.hpp)
 include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
 #Options

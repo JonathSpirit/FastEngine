@@ -3,7 +3,7 @@
 *.spv
 /cmake-build*/
 /installdir/
-/includes/FastEngine/fastengine_version.hpp
+/includes/FastEngine/fge_version.hpp
 /build*/
 
 .idea/deployment.xml
