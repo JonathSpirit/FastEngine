@@ -18,7 +18,7 @@
 #define _FGE_CRASH_MANAGER_HPP_INCLUDED
 #ifndef FGE_DEF_SERVER
 
-    #include "FastEngine/fastengine_extern.hpp"
+    #include "FastEngine/fge_extern.hpp"
     #include <string>
 
 namespace fge::crash

@@ -17,7 +17,7 @@
 #ifndef _FGE_TIMER_MANAGER_HPP_INCLUDED
 #define _FGE_TIMER_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_timer.hpp"
 #include <memory>

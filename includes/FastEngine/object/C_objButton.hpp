@@ -17,7 +17,7 @@
 #ifndef _FGE_C_OBJBUTTON_HPP_INCLUDED
 #define _FGE_C_OBJBUTTON_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "C_objSprite.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_guiElement.hpp"

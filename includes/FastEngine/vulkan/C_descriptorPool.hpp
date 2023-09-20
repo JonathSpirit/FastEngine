@@ -17,7 +17,7 @@
 #ifndef _FGE_VULKAN_C_DESCRIPTORPOOL_HPP_INCLUDED
 #define _FGE_VULKAN_C_DESCRIPTORPOOL_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "volk.h"
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "SDL_vulkan.h"

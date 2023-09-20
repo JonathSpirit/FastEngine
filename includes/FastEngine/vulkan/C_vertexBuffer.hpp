@@ -17,7 +17,7 @@
 #ifndef _FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED
 #define _FGE_VULKAN_C_VERTEXBUFFER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "C_vertex.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"

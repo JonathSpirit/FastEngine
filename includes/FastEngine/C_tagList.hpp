@@ -17,7 +17,7 @@
 #ifndef _FGE_C_TAGLIST_HPP_INCLUDED
 #define _FGE_C_TAGLIST_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include <set>
 #include <string>
 

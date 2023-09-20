@@ -17,7 +17,7 @@
 #ifndef _FGE_C_OBJWINDOW_HPP_INCLUDED
 #define _FGE_C_OBJWINDOW_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/object/C_object.hpp"
 

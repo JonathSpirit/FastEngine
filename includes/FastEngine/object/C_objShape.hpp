@@ -24,7 +24,7 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_texture.hpp"
 #include "FastEngine/manager/shader_manager.hpp"

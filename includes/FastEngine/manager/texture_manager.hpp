@@ -17,7 +17,7 @@
 #ifndef _FGE_TEXTURE_MANAGER_HPP_INCLUDED
 #define _FGE_TEXTURE_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/graphic/C_surface.hpp"
 #include "FastEngine/textureType.hpp"

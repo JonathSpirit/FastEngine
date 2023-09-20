@@ -17,7 +17,7 @@
 #ifndef _FGE_NETWORK_MANAGER_HPP_INCLUDED
 #define _FGE_NETWORK_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_client.hpp"
 #include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_scene.hpp"

@@ -17,7 +17,7 @@
 #ifndef _FGE_EXTRA_FUNCTION_HPP_INCLUDED
 #define _FGE_EXTRA_FUNCTION_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/graphic/C_color.hpp"

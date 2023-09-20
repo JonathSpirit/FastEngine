@@ -17,7 +17,7 @@
 #ifndef _FGE_C_SERVER_HPP_INCLUDED
 #define _FGE_C_SERVER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_packetBZ2.hpp"

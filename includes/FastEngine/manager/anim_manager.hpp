@@ -17,7 +17,7 @@
 #ifndef _FGE_ANIM_MANAGER_HPP_INCLUDED
 #define _FGE_ANIM_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/textureType.hpp"

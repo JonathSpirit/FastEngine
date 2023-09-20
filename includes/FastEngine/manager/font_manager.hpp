@@ -17,7 +17,7 @@
 #ifndef _FGE_FONT_MANAGER_HPP_INCLUDED
 #define _FGE_FONT_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/graphic/C_ftFont.hpp"
 #include <filesystem>

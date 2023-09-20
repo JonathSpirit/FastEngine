@@ -17,7 +17,7 @@
 #ifndef _FGE_C_OBJECT_HPP_INCLUDED
 #define _FGE_C_OBJECT_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "C_childObjectsAccessor.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_networkType.hpp"

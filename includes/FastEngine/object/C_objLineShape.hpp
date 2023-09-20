@@ -17,7 +17,7 @@
 #ifndef _FGE_C_OBJLINESHAPE_HPP_INCLUDED
 #define _FGE_C_OBJLINESHAPE_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/object/C_objShape.hpp"
 
 #define FGE_OBJLINESHAPE_CLASSNAME "FGE:OBJ:LINESHAPE"

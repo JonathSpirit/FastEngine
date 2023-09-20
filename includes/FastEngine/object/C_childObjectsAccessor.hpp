@@ -17,7 +17,7 @@
 #ifndef _FGE_C_CHILDOBJECTSACCESSOR_HPP_INCLUDED
 #define _FGE_C_CHILDOBJECTSACCESSOR_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_renderWindow.hpp"
 #include <chrono>

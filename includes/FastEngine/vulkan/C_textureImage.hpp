@@ -17,7 +17,7 @@
 #ifndef _FGE_VULKAN_C_TEXTUREIMAGE_HPP_INCLUDED
 #define _FGE_VULKAN_C_TEXTUREIMAGE_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"

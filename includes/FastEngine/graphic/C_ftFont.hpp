@@ -24,7 +24,7 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/graphic/C_glyph.hpp"
 #include "FastEngine/graphic/C_surface.hpp"

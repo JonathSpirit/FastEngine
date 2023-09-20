@@ -24,7 +24,7 @@
  * Altered/Modified by Guillaume Guillet
  */
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/object/C_objShape.hpp"
 
 #define FGE_OBJCIRCLESHAPE_CLASSNAME "FGE:OBJ:CIRCLESHAPE"

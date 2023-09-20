@@ -17,7 +17,7 @@
 #ifndef _FGE_C_TEXTURE_HPP_INCLUDED
 #define _FGE_C_TEXTURE_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "C_vector.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "json.hpp"

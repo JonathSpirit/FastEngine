@@ -17,7 +17,7 @@
 #ifndef _FGE_SHADER_MANAGER_HPP_INCLUDED
 #define _FGE_SHADER_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/vulkan/C_shader.hpp"
 #include <filesystem>

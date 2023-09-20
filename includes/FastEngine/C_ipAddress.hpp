@@ -17,7 +17,7 @@
 #ifndef _FGE_C_IPADDRESS_HPP_INCLUDED_
 #define _FGE_C_IPADDRESS_HPP_INCLUDED_
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>

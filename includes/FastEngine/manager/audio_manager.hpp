@@ -17,7 +17,7 @@
 #ifndef _FGE_AUDIO_MANAGER_HPP_INCLUDED
 #define _FGE_AUDIO_MANAGER_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 
 #include "SDL_mixer.h"
 #include <memory>

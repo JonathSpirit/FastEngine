@@ -17,7 +17,7 @@
 #ifndef _FGE_C_EVENT_HPP_INCLUDED
 #define _FGE_C_EVENT_HPP_INCLUDED
 
-#include "FastEngine/fastengine_extern.hpp"
+#include "FastEngine/fge_extern.hpp"
 #include "C_vector.hpp"
 #include "FastEngine/C_callback.hpp"
 #include "SDL_events.h"
