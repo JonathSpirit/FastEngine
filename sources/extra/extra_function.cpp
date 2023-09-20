@@ -522,6 +522,51 @@ std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::
     }
     return std::nullopt;
 }
+std::optional<fge::Intersection>
+CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction, fge::Line const& line)
+{
+    /*
+     * Original from : https://github.com/MiguelMJ/Candle
+     * License : MIT
+     * Author : Miguel Mejía Jiménez
+     * Modified by : Guillaume Guillet
+     */
+
+    auto const& directionA = direction;
+    auto const directionB = glm::normalize(line._end - line._start);
+
+    fge::Intersection result;
+
+    //When the lines are parallel, we consider that there is not intersection.
+    auto const dot = std::abs(glm::dot(directionA, directionB));
+    if (dot >= 0.999f && dot <= 1.001f)
+    {
+        return std::nullopt;
+    }
+
+    //Math resolving, you can find more information here : https://ncase.me/sight-and-light/
+    if ((std::abs(directionB.y) >= 0.0f && std::abs(directionB.x) < 0.001f) ||
+        (std::abs(directionA.y) < 0.001f && std::abs(directionA.x) >= 0.0f))
+    {
+        result._normB = (directionA.x * (position.y - line._start.y) + directionA.y * (line._start.x - position.x)) /
+                        (directionB.y * directionA.x - directionB.x * directionA.y);
+        result._normA = (line._start.x + directionB.x * result._normB - position.x) / directionA.x;
+    }
+    else
+    {
+        result._normA = (directionB.x * (line._start.y - position.y) + directionB.y * (position.x - line._start.x)) /
+                        (directionA.y * directionB.x - directionA.x * directionB.y);
+        result._normB = (position.x + directionA.x * result._normA - line._start.x) / directionB.x;
+    }
+
+    //Make sure that there is actually an intersection
+    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normB < glm::length(line._end - line._start)))
+    {
+        result._point = position + directionA * result._normA;
+        return result;
+    }
+    return std::nullopt;
+}
 
 ///Reach
 fge::Vector2f ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime)
