@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_LOG_MANAGER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_LOG_MANAGER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
@@ -111,12 +111,12 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="keyword">namespace </span>log</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>{</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>FGE_API <span class="keyword">const</span> std::string&amp; SetDefaultFolder(<span class="keyword">const</span> std::string&amp; default_folder);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>FGE_API std::string <span class="keyword">const</span>&amp; SetDefaultFolder(std::string <span class="keyword">const</span>&amp; default_folder);</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>FGE_API <span class="keywordtype">bool</span> Remove(<span class="keyword">const</span> std::string&amp; name);</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>FGE_API <span class="keywordtype">bool</span> Clean(<span class="keyword">const</span> std::string&amp; name);</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>FGE_API <span class="keywordtype">bool</span> Rename(<span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> std::string&amp; new_name);</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>FGE_API <span class="keywordtype">bool</span> Write(<span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> std::string&amp; text, <span class="keyword">const</span> std::string&amp; desc = std::string());</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>FGE_API <span class="keywordtype">bool</span> Remove(std::string <span class="keyword">const</span>&amp; name);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>FGE_API <span class="keywordtype">bool</span> Clean(std::string <span class="keyword">const</span>&amp; name);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>FGE_API <span class="keywordtype">bool</span> Rename(std::string <span class="keyword">const</span>&amp; name, std::string <span class="keyword">const</span>&amp; new_name);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>FGE_API <span class="keywordtype">bool</span> Write(std::string <span class="keyword">const</span>&amp; name, std::string <span class="keyword">const</span>&amp; text, std::string <span class="keyword">const</span>&amp; desc = std::string());</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>} <span class="comment">// namespace log</span></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>} <span class="comment">// namespace fge</span></div>

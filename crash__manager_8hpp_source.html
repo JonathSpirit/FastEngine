@@ -103,7 +103,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_CRASH_MANAGER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#ifndef FGE_DEF_SERVER</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">    #include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">    #include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">    #include &lt;string&gt;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span>fge::crash</div>
@@ -111,7 +111,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>FGE_API <span class="keywordtype">void</span> <a class="code hl_function" href="group__animation.html#ga0195471753001e8761320bce3d33cbbc">Init</a>(sf::RenderWindow&amp; screen, sf::Font&amp; font);</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>FGE_API <span class="keywordtype">void</span> SetInfoText(<span class="keyword">const</span> std::string&amp; txt);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>FGE_API <span class="keywordtype">void</span> SetInfoText(std::string <span class="keyword">const</span>&amp; txt);</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>} <span class="comment">// namespace fge::crash</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>

@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_VULKAN_C_SWAPCHAIN_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_VULKAN_C_SWAPCHAIN_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;volk.h&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;SDL_vulkan.h&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
@@ -119,33 +119,33 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>{</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>();</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp; r) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>(<a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a> <span class="keyword">const</span>&amp; r) = <span class="keyword">delete</span>;</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>(<a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp;&amp; r) <span class="keyword">noexcept</span>;</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">~SwapChain</a>();</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp; operator=(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp; r) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a> <span class="keyword">const</span>&amp; r) = <span class="keyword">delete</span>;</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1vulkan_1_1SwapChain.html">SwapChain</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">void</span> create(SDL_Window* window,</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a>&amp; logicalDevice,</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>                <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a>&amp; physicalDevice,</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1Surface.html">Surface</a>&amp; surface,</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a> <span class="keyword">const</span>&amp; logicalDevice,</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>                <a class="code hl_class" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> <span class="keyword">const</span>&amp; physicalDevice,</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                <a class="code hl_class" href="classfge_1_1vulkan_1_1Surface.html">Surface</a> <span class="keyword">const</span>&amp; surface,</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                VkPresentModeKHR wantedPresentMode);</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">void</span> destroy();</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    [[nodiscard]] VkSwapchainKHR getSwapChain() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    [[nodiscard]] <span class="keyword">const</span> std::vector&lt;VkImage&gt;&amp; getSwapChainImages() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    [[nodiscard]] std::vector&lt;VkImage&gt; <span class="keyword">const</span>&amp; getSwapChainImages() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    [[nodiscard]] VkFormat getSwapChainImageFormat() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    [[nodiscard]] VkExtent2D getSwapChainExtent() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] <span class="keyword">const</span> std::vector&lt;VkImageView&gt;&amp; getSwapChainImageViews() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] std::vector&lt;VkImageView&gt; <span class="keyword">const</span>&amp; getSwapChainImageViews() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    [[nodiscard]] <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a>* getLogicalDevice() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a> <span class="keyword">const</span>* getLogicalDevice() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">static</span> VkSurfaceFormatKHR chooseSwapSurfaceFormat(<span class="keyword">const</span> std::vector&lt;VkSurfaceFormatKHR&gt;&amp; availableFormats);</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">static</span> VkPresentModeKHR chooseSwapPresentMode(<span class="keyword">const</span> std::vector&lt;VkPresentModeKHR&gt;&amp; availablePresentModes,</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">static</span> VkSurfaceFormatKHR chooseSwapSurfaceFormat(std::vector&lt;VkSurfaceFormatKHR&gt; <span class="keyword">const</span>&amp; availableFormats);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">static</span> VkPresentModeKHR chooseSwapPresentMode(std::vector&lt;VkPresentModeKHR&gt; <span class="keyword">const</span>&amp; availablePresentModes,</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                                  VkPresentModeKHR wantedPresentMode);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">static</span> VkExtent2D chooseSwapExtent(<span class="keyword">const</span> VkSurfaceCapabilitiesKHR&amp; capabilities, SDL_Window* window);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">static</span> VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR <span class="keyword">const</span>&amp; capabilities, SDL_Window* window);</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keyword">private</span>:</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordtype">void</span> createImageViews();</div>
@@ -159,7 +159,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    VkPresentModeKHR g_presentMode;</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a>* g_logicalDevice;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1LogicalDevice.html">LogicalDevice</a> <span class="keyword">const</span>* g_logicalDevice;</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>};</div>
 </div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>

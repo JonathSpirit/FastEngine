@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_C_SERVER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_C_SERVER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;FastEngine/C_clientList.hpp&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;FastEngine/C_packet.hpp&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;FastEngine/C_packetBZ2.hpp&quot;</span></div>
@@ -122,8 +122,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00037" data-start="{" data-end="};">
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="structfge_1_1net_1_1FluxPacket.html">   37</a></span><span class="keyword">struct </span>FGE_API <a class="code hl_struct" href="structfge_1_1net_1_1FluxPacket.html">FluxPacket</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>{</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <a class="code hl_struct" href="structfge_1_1net_1_1FluxPacket.html">FluxPacket</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck,</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>               <span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a>&amp; <span class="keywordtype">id</span>,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <a class="code hl_struct" href="structfge_1_1net_1_1FluxPacket.html">FluxPacket</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> <span class="keyword">const</span>&amp; pck,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>               <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <span class="keyword">const</span>&amp; <span class="keywordtype">id</span>,</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>               std::size_t fluxIndex = 0,</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>               std::size_t fluxCount = 0) :</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            _pck(pck),</div>
@@ -133,7 +133,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            _fluxCount(fluxCount)</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    {}</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <a class="code hl_struct" href="structfge_1_1net_1_1FluxPacket.html">FluxPacket</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp;&amp; pck,</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>               <span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a>&amp; <span class="keywordtype">id</span>,</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>               <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <span class="keyword">const</span>&amp; <span class="keywordtype">id</span>,</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>               std::size_t fluxIndex = 0,</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>               std::size_t fluxCount = 0) :</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>            _pck(std::move(pck)),</div>
@@ -175,8 +175,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <a class="code hl_class" href="classfge_1_1net_1_1ClientList.html">fge::net::ClientList</a> _clients;</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">bool</span> pushPacket(<span class="keyword">const</span> FluxPacketSharedPtr&amp; fluxPck);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">void</span> forcePushPacket(<span class="keyword">const</span> FluxPacketSharedPtr&amp; fluxPck);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">bool</span> pushPacket(FluxPacketSharedPtr <span class="keyword">const</span>&amp; fluxPck);</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">void</span> forcePushPacket(FluxPacketSharedPtr <span class="keyword">const</span>&amp; fluxPck);</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keyword">mutable</span> std::mutex g_mutexLocal;</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
@@ -195,7 +195,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_class" href="classfge_1_1net_1_1ServerUdp.html">~ServerUdp</a>();</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Tpacket = fge::net::Packet&gt;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">bool</span> start(fge::net::Port port, <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a>&amp; ip = <a class="code hl_variable" href="classfge_1_1net_1_1IpAddress.html#a9d082b9bafdaa67316d35740a536a7a5">fge::net::IpAddress::Any</a>);</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">bool</span> start(fge::net::Port port, <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> <span class="keyword">const</span>&amp; ip = <a class="code hl_variable" href="classfge_1_1net_1_1IpAddress.html#a9d082b9bafdaa67316d35740a536a7a5">fge::net::IpAddress::Any</a>);</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Tpacket = fge::net::Packet&gt;</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">bool</span> start();</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">void</span> stop();</div>
@@ -210,16 +210,16 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordtype">void</span> delFlux(<a class="code hl_class" href="classfge_1_1net_1_1ServerFluxUdp.html">fge::net::ServerFluxUdp</a>* flux);</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keywordtype">void</span> delAllFlux();</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordtype">void</span> repushPacket(<span class="keyword">const</span> FluxPacketSharedPtr&amp; fluxPck);</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordtype">void</span> repushPacket(FluxPacketSharedPtr <span class="keyword">const</span>&amp; fluxPck);</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a>&amp; getSocket() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <a class="code hl_class" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a> <span class="keyword">const</span>&amp; getSocket() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <a class="code hl_class" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a>&amp; getSocket();</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">void</span> notify();</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    std::mutex&amp; getSendMutex();</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <a class="code hl_enumeration" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> sendTo(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck, <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a>&amp; ip, fge::net::Port port);</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <a class="code hl_enumeration" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> sendTo(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck, <span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a>&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <a class="code hl_enumeration" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> sendTo(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck, <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> <span class="keyword">const</span>&amp; ip, fge::net::Port port);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <a class="code hl_enumeration" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> sendTo(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck, <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <span class="keyword">const</span>&amp; <span class="keywordtype">id</span>);</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keywordtype">bool</span> isRunning() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
@@ -253,14 +253,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Tpacket = fge::net::Packet&gt;</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordtype">bool</span> start(fge::net::Port port,</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>               <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a>&amp; ip,</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>               <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a>&amp; remoteAddress,</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>               <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> <span class="keyword">const</span>&amp; ip,</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>               <a class="code hl_class" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> <span class="keyword">const</span>&amp; remoteAddress,</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>               fge::net::Port remotePort);</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Tpacket = fge::net::Packet&gt;</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordtype">bool</span> start();</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">void</span> stop();</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a>&amp; getSocket() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <a class="code hl_class" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a> <span class="keyword">const</span>&amp; getSocket() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <a class="code hl_class" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a>&amp; getSocket();</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">void</span> notify();</div>
@@ -278,9 +278,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">void</span> setMaxPackets(std::size_t n);</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    std::size_t getMaxPackets() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordtype">bool</span> waitForPackets(<span class="keyword">const</span> std::chrono::milliseconds&amp; ms);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordtype">bool</span> waitForPackets(std::chrono::milliseconds <span class="keyword">const</span>&amp; ms);</div>
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a>&amp; getClientIdentity() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <a class="code hl_struct" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <span class="keyword">const</span>&amp; getClientIdentity() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <a class="code hl_class" href="classfge_1_1net_1_1Client.html">fge::net::Client</a> _client; <span class="comment">//But it is the server :O</span></div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
@@ -289,7 +289,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordtype">void</span> serverThreadReception();</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordtype">void</span> serverThreadTransmission();</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">bool</span> pushPacket(<span class="keyword">const</span> FluxPacketSharedPtr&amp; fluxPck);</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">bool</span> pushPacket(FluxPacketSharedPtr <span class="keyword">const</span>&amp; fluxPck);</div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    std::thread* g_threadReception;</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    std::thread* g_threadTransmission;</div>

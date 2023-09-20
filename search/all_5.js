@@ -5,7 +5,7 @@ var searchData=
   ['enumerateextensions_2',['enumerateExtensions',['../classfge_1_1vulkan_1_1Context.html#a2c2b48b2ad5cfac87a465e238372d2aa',1,'fge::vulkan::Context']]],
   ['equalexists_3',['EqualExists',['../structfge_1_1comparisonCheck_1_1EqualExists.html',1,'fge::comparisonCheck']]],
   ['error_4',['Error',['../classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f',1,'fge::net::Socket']]],
-  ['event_5',['event',['../classfge_1_1Event.html',1,'fge::Event'],['../classfge_1_1Event.html#a9ca20f996639beb5f2505b3cf39be1d3',1,'fge::Event::Event(const fge::Vector2i &amp;windowSize, const fge::Vector2i &amp;windowPosition)'],['../classfge_1_1Event.html#a539a35698eeab000e273fc37aea8c374',1,'fge::Event::Event(SDL_Window *window)']]],
+  ['event_5',['event',['../classfge_1_1Event.html',1,'fge::Event'],['../classfge_1_1Event.html#aa02425d4aa443cc7193b32e5ea27fa57',1,'fge::Event::Event(fge::Vector2i const &amp;windowSize, fge::Vector2i const &amp;windowPosition)'],['../classfge_1_1Event.html#a539a35698eeab000e273fc37aea8c374',1,'fge::Event::Event(SDL_Window *window)']]],
   ['eventlist_6',['EventList',['../classfge_1_1EventList.html',1,'fge']]],
   ['exception_7',['Exception',['../classfge_1_1Exception.html',1,'fge']]],
   ['extra_20string_20utility_20tools_8',['Extra string utility/tools',['../group__extraString.html',1,'']]],

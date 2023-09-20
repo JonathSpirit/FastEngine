@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_FONT_MANAGER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_FONT_MANAGER_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;FastEngine/graphic/C_ftFont.hpp&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;filesystem&gt;</span></div>
@@ -141,7 +141,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>FGE_API fge::font::FontDataType::const_iterator GetCBegin();</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>FGE_API fge::font::FontDataType::const_iterator GetCEnd();</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>FGE_API <span class="keyword">const</span> fge::font::FontDataPtr&amp; GetBadFont();</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>FGE_API fge::font::FontDataPtr <span class="keyword">const</span>&amp; GetBadFont();</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>FGE_API fge::font::FontDataPtr GetFont(std::string_view name);</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>FGE_API <span class="keywordtype">bool</span> Check(std::string_view name);</div>
@@ -150,7 +150,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>FGE_API <span class="keywordtype">bool</span> Unload(std::string_view name);</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>FGE_API <span class="keywordtype">void</span> UnloadAll();</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>FGE_API <span class="keywordtype">bool</span> Push(std::string_view name, <span class="keyword">const</span> fge::font::FontDataPtr&amp; data);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>FGE_API <span class="keywordtype">bool</span> Push(std::string_view name, fge::font::FontDataPtr <span class="keyword">const</span>&amp; data);</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>} <span class="comment">// namespace fge::font</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>

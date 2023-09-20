@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_VULKAN_C_BLENDMODE_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_VULKAN_C_BLENDMODE_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;volk.h&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;cstdint&gt;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;functional&gt;</span></div>
@@ -138,14 +138,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>            _alphaBlendOp(alphaBlendOp)</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    {}</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; right)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator==(<a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a> <span class="keyword">const</span>&amp; right)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keyword">    </span>{</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">return</span> this-&gt;_srcColorBlendFactor == right._srcColorBlendFactor &amp;&amp;</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>               this-&gt;_dstColorBlendFactor == right._dstColorBlendFactor &amp;&amp; this-&gt;_colorBlendOp == right._colorBlendOp &amp;&amp;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>               this-&gt;_srcAlphaBlendFactor == right._srcAlphaBlendFactor &amp;&amp;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>               this-&gt;_dstAlphaBlendFactor == right._dstAlphaBlendFactor &amp;&amp; this-&gt;_alphaBlendOp == right._alphaBlendOp;</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    }</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    [[nodiscard]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a>&amp; right)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !this-&gt;operator==(right); }</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    [[nodiscard]] <span class="keyword">constexpr</span> <span class="keywordtype">bool</span> operator!=(<a class="code hl_struct" href="structfge_1_1vulkan_1_1BlendMode.html">BlendMode</a> <span class="keyword">const</span>&amp; right)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !this-&gt;operator==(right); }</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    VkBlendFactor _srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    VkBlendFactor _dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;</div>

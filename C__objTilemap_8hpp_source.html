@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_C_OBJTILEMAP_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_C_OBJTILEMAP_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;C_object.hpp&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;FastEngine/C_texture.hpp&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;FastEngine/C_tilelayer.hpp&quot;</span></div>
@@ -128,18 +128,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keywordtype">void</span> clear();</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    TileSetList&amp; getTileSets();</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    const TileSetList&amp; getTileSets() const;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    TileSetList const&amp; getTileSets() const;</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    TileLayerList&amp; getTileLayers();</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    const TileLayerList&amp; getTileLayers() const;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    TileLayerList const&amp; getTileLayers() const;</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a0b11748486b79080a1f0f10189ea94ad">   50</a></span>    <span class="keywordtype">void</span> save(nlohmann::json&amp; jsonObject, fge::<a class="code hl_class" href="classfge_1_1Scene.html">Scene</a>* scene) override;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a41ceac7e0195c099b01b14848befc61c">   51</a></span>    <span class="keywordtype">void</span> load(nlohmann::json&amp; jsonObject, fge::<a class="code hl_class" href="classfge_1_1Scene.html">Scene</a>* scene) override;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#ab5f82e8eef6a848d4f1381677c6c4193">   52</a></span>    <span class="keywordtype">void</span> pack(fge::net::Packet&amp; pck) override;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a82605726c202d80f1a98ed70394fc135">   53</a></span>    <span class="keywordtype">void</span> unpack(fge::net::Packet&amp; pck) override;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a56777e6fbf07e6e2d707e6e3b966b3f7">   55</a></span>    const <span class="keywordtype">char</span>* getClassName() const override;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a01434ba5661c7afce8bd78066b6e8fea">   56</a></span>    const <span class="keywordtype">char</span>* getReadableClassName() const override;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a00884315852f497f7543d1e5ff74a642">   55</a></span>    <span class="keywordtype">char</span> const* getClassName() const override;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a3503686045bbcf83b8f61ef0b9622e6f">   56</a></span>    <span class="keywordtype">char</span> const* getReadableClassName() const override;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#ad9d2d03525134d778821d53aa676fcc3">   58</a></span>    fge::<a class="code hl_class" href="classfge_1_1Rect.html">RectFloat</a> getGlobalBounds() const override;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTileMap.html#a003f7e219684f121e73b53dc99094200">   59</a></span>    fge::<a class="code hl_class" href="classfge_1_1Rect.html">RectFloat</a> getLocalBounds() const override;</div>

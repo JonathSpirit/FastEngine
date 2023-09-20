@@ -102,7 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#ifndef _FGE_C_OBJTEXTLIST_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#define _FGE_C_OBJTEXTLIST_HPP_INCLUDED</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fastengine_extern.hpp&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;FastEngine/C_guiElement.hpp&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;FastEngine/object/C_objRectangleShape.hpp&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;FastEngine/object/C_objText.hpp&quot;</span></div>
@@ -119,7 +119,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>{</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <a class="code hl_class" href="classfge_1_1ObjTextList.html">ObjTextList</a>();</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <a class="code hl_class" href="classfge_1_1ObjTextList.html">ObjTextList</a>(<span class="keyword">const</span> <a class="code hl_class" href="classfge_1_1ObjTextList.html">ObjTextList</a>&amp; r);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <a class="code hl_class" href="classfge_1_1ObjTextList.html">ObjTextList</a>(<a class="code hl_class" href="classfge_1_1ObjTextList.html">ObjTextList</a> <span class="keyword">const</span>&amp; r);</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <a class="code hl_class" href="classfge_1_1ObjTextList.html">~ObjTextList</a>() <span class="keyword">override</span> = <span class="keywordflow">default</span>;</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    FGE_OBJ_DEFAULT_COPYMETHOD(<a class="code hl_class" href="classfge_1_1ObjTextList.html">fge::ObjTextList</a>)</div>
@@ -128,8 +128,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#adba259af8d0ea8fca23cc56d1616000a">   42</a></span>    <span class="keywordtype">void</span> callbackRegister(fge::<a class="code hl_class" href="classfge_1_1Event.html">Event</a>&amp; event, fge::<a class="code hl_class" href="classfge_1_1GuiElementHandler.html">GuiElementHandler</a>* guiElementHandlerPtr) override;</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    FGE_OBJ_DRAW_DECLARE</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#acfd4d66ccafbe272fc5470a56fd89639">   45</a></span>    const <span class="keywordtype">char</span>* getClassName() const override;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#ae37f67ddb42aeb7c9584a869562fe5be">   46</a></span>    const <span class="keywordtype">char</span>* getReadableClassName() const override;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#a405e1968c4041c39276bf25fbc9242df">   45</a></span>    <span class="keywordtype">char</span> const* getClassName() const override;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#ab18bd1105cb7d75fee7c235b6ae318ca">   46</a></span>    <span class="keywordtype">char</span> const* getReadableClassName() const override;</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#a0de6ec8b408ca33250b31ecd3fd4a1eb">   48</a></span>    fge::<a class="code hl_class" href="classfge_1_1Rect.html">RectFloat</a> getGlobalBounds() const override;</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classfge_1_1ObjTextList.html#a3376cf50fff2608072b4ba1a3361544a">   49</a></span>    fge::<a class="code hl_class" href="classfge_1_1Rect.html">RectFloat</a> getLocalBounds() const override;</div>
@@ -137,13 +137,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">void</span> addText(tiny_utf8::<span class="keywordtype">string</span> <span class="keywordtype">string</span>);</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    std::<span class="keywordtype">size_t</span> getTextCount() const;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    fge::<a class="code hl_class" href="classfge_1_1ObjText.html">ObjText</a>* getText(std::<span class="keywordtype">size_t</span> index);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    const fge::<a class="code hl_class" href="classfge_1_1ObjText.html">ObjText</a>* getText(std::<span class="keywordtype">size_t</span> index) const;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    fge::<a class="code hl_class" href="classfge_1_1ObjText.html">ObjText</a> const* getText(std::<span class="keywordtype">size_t</span> index) const;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">void</span> removeAllTexts();</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">void</span> setFont(fge::<a class="code hl_class" href="classfge_1_1Font.html">Font</a> font);</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    const fge::<a class="code hl_class" href="classfge_1_1Font.html">Font</a>&amp; getFont() const;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    fge::<a class="code hl_class" href="classfge_1_1Font.html">Font</a> const&amp; getFont() const;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">void</span> setBoxSize(const fge::<a class="code hl_struct" href="structfge_1_1DynamicSize.html">DynamicSize</a>&amp; size);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">void</span> setBoxSize(fge::<a class="code hl_struct" href="structfge_1_1DynamicSize.html">DynamicSize</a> const&amp; size);</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    fge::Vector2f getBoxSize() const;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">void</span> setTextScrollRatio(<span class="keywordtype">float</span> ratio);</div>
@@ -155,8 +155,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">void</span> refreshSize();</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>private:</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">void</span> onGuiResized(const fge::<a class="code hl_class" href="classfge_1_1GuiElementHandler.html">GuiElementHandler</a>&amp; handler, const fge::Vector2f&amp; size);</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordtype">void</span> refreshSize(const fge::Vector2f&amp; targetSize);</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">void</span> onGuiResized(fge::<a class="code hl_class" href="classfge_1_1GuiElementHandler.html">GuiElementHandler</a> const&amp; handler, fge::Vector2f const&amp; size);</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordtype">void</span> refreshSize(fge::Vector2f const&amp; targetSize);</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    fge::<a class="code hl_class" href="classfge_1_1GuiElementHandler.html">GuiElementHandler</a>* g_guiElementHandler{<span class="keyword">nullptr</span>};</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
