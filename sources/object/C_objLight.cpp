@@ -179,7 +179,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                     distance = std::abs(distance) + range;
                 }
 
-                fge::Vector2f direction = fge::NormalizeVector2(obstacle->_g_myPoints[a] - center);
+                fge::Vector2f direction = glm::normalize(obstacle->_g_myPoints[a] - center);
                 tmpHull[a] = fge::Vector2f(obstacle->_g_myPoints[a].x + direction.x * distance,
                                            obstacle->_g_myPoints[a].y + direction.y * distance);
                 tmpHull[a + obstacle->_g_myPoints.size()] = obstacle->_g_myPoints[a];

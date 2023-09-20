@@ -22,6 +22,7 @@ namespace fge
 ObjAnimation::ObjAnimation() :
         g_vertices(fge::vulkan::GetActiveContext()),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
+        g_nextFrameTime(0),
 
         g_paused(false)
 {
@@ -32,6 +33,7 @@ ObjAnimation::ObjAnimation(const fge::Animation& animation, const fge::Vector2f&
         g_vertices(fge::vulkan::GetActiveContext()),
         g_animation(animation),
         g_tickDuration(std::chrono::milliseconds{FGE_OBJANIM_DEFAULT_TICKDURATION_MS}),
+        g_nextFrameTime(0),
 
         g_paused(false)
 {

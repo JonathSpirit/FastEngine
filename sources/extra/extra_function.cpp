@@ -16,6 +16,7 @@
 
 #include "FastEngine/extra/extra_function.hpp"
 
+#include "glm/gtx/perpendicular.hpp"
 #include "re2.h"
 #include <cmath>
 #include <filesystem>
@@ -35,12 +36,12 @@ namespace fge
 namespace
 {
 
-bool CompareVector(const fge::Vector2f& a, const fge::Vector2f& b)
+inline bool CompareVector(const fge::Vector2f& a, const fge::Vector2f& b)
 {
     return a.x < b.x || (a.x == b.x && a.y < b.y);
 }
 
-double GetCrossProductVector(const fge::Vector2f& O, const fge::Vector2f& A, const fge::Vector2f& B)
+inline float GetCrossProductVector(const fge::Vector2f& O, const fge::Vector2f& A, const fge::Vector2f& B)
 {
     return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 }
@@ -431,11 +432,147 @@ bool IsPressed(const fge::Event& evt, const fge::Vector2f& mouse_pos, const fge:
 }
 #endif //FGE_DEF_SERVER
 
+bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
+{
+    auto base1 = glm::length(quad[1] - quad[0]);
+    auto base2 = glm::length(quad[2] - quad[1]);
+    auto base3 = glm::length(quad[3] - quad[2]);
+    auto base4 = glm::length(quad[0] - quad[3]);
+
+    auto distance1 = fge::GetShortestDistanceBetween(point, quad[0], quad[1]);
+    auto distance2 = fge::GetShortestDistanceBetween(point, quad[1], quad[2]);
+    auto distance3 = fge::GetShortestDistanceBetween(point, quad[2], quad[3]);
+    auto distance4 = fge::GetShortestDistanceBetween(point, quad[3], quad[0]);
+
+    auto computedArea = (base1 * distance1 + base2 * distance2 + base3 * distance3 + base4 * distance4) / 2.0f;
+
+    auto base = glm::length(quad[1] - quad[3]);
+
+    distance1 = fge::GetShortestDistanceBetween(quad[0], quad[3], quad[1]);
+    distance2 = fge::GetShortestDistanceBetween(quad[2], quad[3], quad[1]);
+
+    auto area = (base * distance1 + base * distance2) / 2.0f;
+
+    return std::abs(computedArea - area) / std::max(computedArea, area) <= 0.02f;
+}
+bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB)
+{
+    //Checking all lines intersection
+    for (std::size_t ia = 0; ia < quadA.size(); ++ia)
+    {
+        fge::Line const lineA{quadA[ia], quadA[(ia + 1) % quadA.size()]};
+        for (std::size_t ib = 0; ib < quadB.size(); ++ib)
+        {
+            fge::Line const lineB{quadB[ib], quadB[(ib + 1) % quadB.size()]};
+            if (fge::CheckIntersection(lineA, lineB))
+            {
+                return true;
+            }
+        }
+    }
+
+    //Great nothing intersect but the quadB can always be completely inside quadA
+    //(or the opposite)
+    return fge::IsContained(quadA, quadB[0]) || fge::IsContained(quadB, quadA[0]);
+}
+std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB)
+{
+    /*
+     * Original from : https://github.com/MiguelMJ/Candle
+     * License : MIT
+     * Author : Miguel Mejía Jiménez
+     * Modified by : Guillaume Guillet
+     */
+
+    auto const directionA = glm::normalize(lineA._end - lineA._start);
+    auto const directionB = glm::normalize(lineB._end - lineB._start);
+
+    fge::Intersection result;
+
+    //When the lines are parallel, we consider that there is not intersection.
+    auto const dot = std::abs(glm::dot(directionA, directionB));
+    if (dot >= 0.999f && dot <= 1.001f)
+    {
+        return std::nullopt;
+    }
+
+    //Math resolving, you can find more information here : https://ncase.me/sight-and-light/
+    if ((std::abs(directionB.y) >= 0.0f && std::abs(directionB.x) < 0.001f) ||
+        (std::abs(directionA.y) < 0.001f && std::abs(directionA.x) >= 0.0f))
+    {
+        result._normB =
+                (directionA.x * (lineA._start.y - lineB._start.y) + directionA.y * (lineB._start.x - lineA._start.x)) /
+                (directionB.y * directionA.x - directionB.x * directionA.y);
+        result._normA = (lineB._start.x + directionB.x * result._normB - lineA._start.x) / directionA.x;
+    }
+    else
+    {
+        result._normA =
+                (directionB.x * (lineB._start.y - lineA._start.y) + directionB.y * (lineA._start.x - lineB._start.x)) /
+                (directionA.y * directionB.x - directionA.x * directionB.y);
+        result._normB = (lineA._start.x + directionA.x * result._normA - lineB._start.x) / directionB.x;
+    }
+
+    //Make sure that there is actually an intersection
+    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normA < glm::length(lineA._end - lineA._start)) &&
+        (result._normB < glm::length(lineB._end - lineB._start)))
+    {
+        result._point = lineA._start + directionA * result._normA;
+        return result;
+    }
+    return std::nullopt;
+}
+std::optional<fge::Intersection>
+CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction, fge::Line const& line)
+{
+    /*
+     * Original from : https://github.com/MiguelMJ/Candle
+     * License : MIT
+     * Author : Miguel Mejía Jiménez
+     * Modified by : Guillaume Guillet
+     */
+
+    auto const& directionA = direction;
+    auto const directionB = glm::normalize(line._end - line._start);
+
+    fge::Intersection result;
+
+    //When the lines are parallel, we consider that there is not intersection.
+    auto const dot = std::abs(glm::dot(directionA, directionB));
+    if (dot >= 0.999f && dot <= 1.001f)
+    {
+        return std::nullopt;
+    }
+
+    //Math resolving, you can find more information here : https://ncase.me/sight-and-light/
+    if ((std::abs(directionB.y) >= 0.0f && std::abs(directionB.x) < 0.001f) ||
+        (std::abs(directionA.y) < 0.001f && std::abs(directionA.x) >= 0.0f))
+    {
+        result._normB = (directionA.x * (position.y - line._start.y) + directionA.y * (line._start.x - position.x)) /
+                        (directionB.y * directionA.x - directionB.x * directionA.y);
+        result._normA = (line._start.x + directionB.x * result._normB - position.x) / directionA.x;
+    }
+    else
+    {
+        result._normA = (directionB.x * (line._start.y - position.y) + directionB.y * (position.x - line._start.x)) /
+                        (directionA.y * directionB.x - directionA.x * directionB.y);
+        result._normB = (position.x + directionA.x * result._normA - line._start.x) / directionB.x;
+    }
+
+    //Make sure that there is actually an intersection
+    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normB < glm::length(line._end - line._start)))
+    {
+        result._point = position + directionA * result._normA;
+        return result;
+    }
+    return std::nullopt;
+}
+
 ///Reach
 fge::Vector2f ReachVector(const fge::Vector2f& position, const fge::Vector2f& target, float speed, float deltaTime)
 {
     float travelDistance = speed * deltaTime;
-    fge::Vector2f direction = fge::NormalizeVector2(target - position);
+    fge::Vector2f direction = glm::normalize(target - position);
     float actualDistance = fge::GetDistanceBetween(position, target);
 
     if (travelDistance >= actualDistance)
@@ -527,67 +664,7 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
 }
 
 ///2D Math
-float ConvertRadToDeg(float rad)
-{
-    return static_cast<float>(std::fmod((rad * 180.0f / static_cast<float>(FGE_MATH_PI)) + 360.0f, 360.0f));
-}
-float ConvertDegToRad(float deg)
-{
-    return deg * static_cast<float>(FGE_MATH_PI) / 180.0f;
-}
-
-float GetDeterminant(const fge::Vector2f& vecCol1, const fge::Vector2f& vecCol2)
-{
-    return vecCol1.x * vecCol2.y - vecCol1.y * vecCol2.x;
-}
-float GetDotProduct(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
-{
-    return vec1.x * vec2.x + vec1.y * vec2.y;
-}
-float GetMagnitude(const fge::Vector2f& vec)
-{
-    return std::sqrt(vec.x * vec.x + vec.y * vec.y);
-}
-fge::Vector2f GetNormal(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
-{
-    const fge::Vector2f normal(vec1.y - vec2.y, vec2.x - vec1.x);
-    return normal / std::sqrt(normal.x * normal.x + normal.y * normal.y);
-}
-float GetRotation(const fge::Vector2f& vec)
-{
-    return fge::ConvertRadToDeg(std::atan2(vec.y, vec.x));
-}
-float GetRotationBetween(const fge::Vector2f& vec1, const fge::Vector2f& vec2)
-{
-    return fge::ConvertRadToDeg(std::atan2(fge::GetDeterminant(vec1, vec2), fge::GetDotProduct(vec1, vec2)));
-}
-float GetDistanceBetween(const fge::Vector2f& pos1, const fge::Vector2f& pos2)
-{
-    return fge::GetMagnitude(pos2 - pos1);
-}
-
-fge::Vector2f GetForwardVector(float rotation)
-{
-    rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return {std::cos(rotation), std::sin(rotation)};
-}
-fge::Vector2f GetBackwardVector(float rotation)
-{
-    rotation *= static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return -fge::Vector2f(std::cos(rotation), std::sin(rotation));
-}
-fge::Vector2f GetLeftVector(float rotation)
-{
-    rotation = (rotation - 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return {std::cos(rotation), std::sin(rotation)};
-}
-fge::Vector2f GetRightVector(float rotation)
-{
-    rotation = (rotation + 90.0f) * static_cast<float>(FGE_MATH_PI) / 180.0f;
-    return {std::cos(rotation), std::sin(rotation)};
-}
-
-void GetConvexHull(const std::vector<fge::Vector2f>& input, std::vector<fge::Vector2f>& output)
+void GetConvexHull(std::vector<fge::Vector2f> const& input, std::vector<fge::Vector2f>& output)
 {
     std::size_t n = input.size();
     std::size_t k = 0;

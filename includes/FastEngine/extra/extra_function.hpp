@@ -25,6 +25,7 @@
 #include "FastEngine/graphic/C_view.hpp"
 #include "SDL_mouse.h"
 #include "json.hpp"
+#include <array>
 #include <filesystem>
 #include <list>
 
@@ -32,6 +33,21 @@
 
 namespace fge
 {
+
+using Quad = std::array<fge::Vector2f, 4>;
+
+struct Line
+{
+    fge::Vector2f _start;
+    fge::Vector2f _end;
+};
+
+struct Intersection
+{
+    fge::Vector2f _point;
+    float _normA;
+    float _normB;
+};
 
 enum TurnMode
 {
@@ -86,6 +102,12 @@ FGE_API bool IsPressed(const fge::Event& evt,
                        uint8_t button = SDL_BUTTON_LEFT);
 #endif //FGE_DEF_SERVER
 
+FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
+FGE_API bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB);
+FGE_API std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB);
+FGE_API std::optional<fge::Intersection>
+CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction, fge::Line const& line);
+
 ///Position/Rectangle
 template<typename T>
 fge::Rect<T> ToRect(const fge::Vector2<T>& pos1, const fge::Vector2<T>& pos2);
@@ -95,15 +117,10 @@ template<typename T>
 fge::Rect<T> ToRect(const fge::Vector2<T>* pos, std::size_t size);
 
 ///Color
-inline fge::Color SetAlpha(const fge::Color& color, uint8_t alpha);
-inline fge::Color SetRed(const fge::Color& color, uint8_t red);
-inline fge::Color SetGreen(const fge::Color& color, uint8_t green);
-inline fge::Color SetBlue(const fge::Color& color, uint8_t blue);
-
-inline fge::Color&& SetAlpha(fge::Color&& color, uint8_t alpha);
-inline fge::Color&& SetRed(fge::Color&& color, uint8_t red);
-inline fge::Color&& SetGreen(fge::Color&& color, uint8_t green);
-inline fge::Color&& SetBlue(fge::Color&& color, uint8_t blue);
+inline fge::Color SetAlpha(fge::Color color, uint8_t alpha);
+inline fge::Color SetRed(fge::Color color, uint8_t red);
+inline fge::Color SetGreen(fge::Color color, uint8_t green);
+inline fge::Color SetBlue(fge::Color color, uint8_t blue);
 
 ///Reach
 FGE_API fge::Vector2f
@@ -114,34 +131,28 @@ template<typename T>
 T ReachValue(T value, T target, T speed, float deltaTime);
 
 ///2D Math
-FGE_API float ConvertRadToDeg(float rad);
-FGE_API float ConvertDegToRad(float deg);
-
-FGE_API float GetDeterminant(const fge::Vector2f& vecCol1, const fge::Vector2f& vecCol2);
-FGE_API float GetDotProduct(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
-FGE_API float GetMagnitude(const fge::Vector2f& vec);
-FGE_API fge::Vector2f GetNormal(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
-FGE_API float GetRotation(const fge::Vector2f& vec);
-FGE_API float GetRotationBetween(const fge::Vector2f& vec1, const fge::Vector2f& vec2);
-FGE_API float GetDistanceBetween(const fge::Vector2f& pos1, const fge::Vector2f& pos2);
-
-template<typename T>
-fge::Vector2f NormalizeVector2(const fge::Vector2<T>& vec);
+inline constexpr float Cross2d(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+inline fge::Vector2f GetSegmentNormal(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+inline constexpr float GetAngle(fge::Vector2f const& vec);
+inline constexpr float GetAngleBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+inline float
+GetShortestDistanceBetween(fge::Vector2f const& point, fge::Vector2f const& lineStart, fge::Vector2f const& lineEnd);
 
 template<typename TIterator>
-TIterator GetNearestVector(const fge::Vector2f& vec, const TIterator& pointsBegin, const TIterator& pointsEnd);
+TIterator GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TIterator const& pointsEnd);
 
-FGE_API fge::Vector2f GetForwardVector(float rotation);
-FGE_API fge::Vector2f GetBackwardVector(float rotation);
-FGE_API fge::Vector2f GetLeftVector(float rotation);
-FGE_API fge::Vector2f GetRightVector(float rotation);
+inline constexpr fge::Vector2f GetForwardVector(float angle);
+inline constexpr fge::Vector2f GetBackwardVector(float angle);
+inline constexpr fge::Vector2f GetLeftVector(float angle);
+inline constexpr fge::Vector2f GetRightVector(float angle);
 
 /*
 Implementation of Andrew's monotone chain 2D convex hull algorithm.
 Asymptotic complexity: O(n log n).
 Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 */
-FGE_API void GetConvexHull(const std::vector<fge::Vector2f>& input, std::vector<fge::Vector2f>& output);
+FGE_API void GetConvexHull(std::vector<fge::Vector2f> const& input, std::vector<fge::Vector2f>& output);
 
 ///View
 FGE_API fge::Vector2f GetViewSizePercentage(const fge::View& view, const fge::View& defaultView);

@@ -50,7 +50,7 @@ Vector2f ObjLineShape::getEndPoint() const
 
 float ObjLineShape::getLength() const
 {
-    return fge::GetMagnitude(this->g_direction);
+    return glm::length(this->g_direction);
 }
 
 std::size_t ObjLineShape::getPointCount() const
@@ -62,7 +62,7 @@ Vector2f ObjLineShape::getPoint(std::size_t index) const
     auto offset = Vector2f();
     if (this->g_direction != Vector2f(0, 0))
     {
-        auto vec = fge::NormalizeVector2(this->g_direction);
+        auto vec = glm::normalize(this->g_direction);
         vec = fge::Vector2f{-vec.y, vec.x};
         offset = (this->g_thickness / 2.f) * vec;
     }
