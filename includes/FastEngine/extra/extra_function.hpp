@@ -34,6 +34,9 @@
 namespace fge
 {
 
+class ObjectData;
+using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
+
 using Quad = std::array<fge::Vector2f, 4>;
 
 struct Line
@@ -184,6 +187,9 @@ PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge:
 
 FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target);
 FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view);
+
+FGE_API fge::Quad GetObjectLocalQuad(fge::ObjectDataShared const& object);
+FGE_API fge::Quad GetObjectQuad(fge::ObjectDataShared const& object);
 
 ///Time
 template<class T>

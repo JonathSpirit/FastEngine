@@ -16,7 +16,7 @@
 
 #include "FastEngine/extra/extra_function.hpp"
 
-#include "glm/gtx/perpendicular.hpp"
+#include "FastEngine/C_scene.hpp"
 #include "re2.h"
 #include <cmath>
 #include <filesystem>
@@ -915,6 +915,29 @@ fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& v
                                   target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
+}
+
+fge::Quad GetObjectLocalQuad(fge::ObjectDataShared const& object)
+{
+    auto const localBounds = object->getObject()->getLocalBounds();
+
+    fge::Quad quad{glm::vec4(localBounds._x, localBounds._y, 0.0f, 1.0f),
+                   glm::vec4(localBounds._x + localBounds._width, localBounds._y, 0.0f, 1.0f),
+                   glm::vec4(localBounds._x + localBounds._width, localBounds._y + localBounds._height, 0.0f, 1.0f),
+                   glm::vec4(localBounds._x, localBounds._y + localBounds._height, 0.0f, 1.0f)};
+    return quad;
+}
+fge::Quad GetObjectQuad(fge::ObjectDataShared const& object)
+{
+    auto quad = GetObjectLocalQuad(object);
+    auto transform = object->getObject()->getParentsTransform() * object->getObject()->getTransform();
+
+    quad[0] = transform * quad[0];
+    quad[1] = transform * quad[1];
+    quad[2] = transform * quad[2];
+    quad[3] = transform * quad[3];
+
+    return quad;
 }
 
 ///Json
