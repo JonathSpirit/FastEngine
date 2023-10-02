@@ -68,7 +68,8 @@ constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck
 template<class TValue>
 constexpr TValue* ChainedArguments<TValue>::extract()
 {
-    auto* value = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value) : std::get<TValue*>(this->g_value);
+    auto* value = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value)
+                                                                : std::get<TValue*>(this->g_value);
     *this->g_pck >> *value;
     if (this->g_pck->isValid())
     {
@@ -103,12 +104,14 @@ constexpr fge::net::Packet const& ChainedArguments<TValue>::packet() const
 template<class TValue>
 constexpr TValue const& ChainedArguments<TValue>::value() const
 {
-    return std::holds_alternative<TValue>(this->g_value) ? std::get<TValue>(this->g_value) : *std::get<TValue*>(this->g_value);
+    return std::holds_alternative<TValue>(this->g_value) ? std::get<TValue>(this->g_value)
+                                                         : *std::get<TValue*>(this->g_value);
 }
 
 template<class TValue>
 template<class TInvokable>
-constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&> ChainedArguments<TValue>::and_then(TInvokable&& f)
+constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&>
+ChainedArguments<TValue>::and_then(TInvokable&& f)
 {
     if (this->g_pck->isValid())
     {
@@ -138,7 +141,8 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::apply(TValue& valu
 {
     if (this->g_pck->isValid())
     {
-        auto* extractedValue = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value) : std::get<TValue*>(this->g_value);
+        auto* extractedValue = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value)
+                                                                             : std::get<TValue*>(this->g_value);
         if constexpr (std::is_move_assignable_v<TValue>)
         {
             value = std::move(*extractedValue);
@@ -156,7 +160,8 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::apply(TInvokable&&
 {
     if (this->g_pck->isValid())
     {
-        auto* extractedValue = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value) : std::get<TValue*>(this->g_value);
+        auto* extractedValue = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value)
+                                                                             : std::get<TValue*>(this->g_value);
         std::invoke(std::forward<TInvokable>(f), const_cast<TValue&>(*extractedValue));
     }
     return *this;
@@ -184,8 +189,7 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::invalidate(Error&&
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue>
-RRange(TValue const& min, TValue const& max, ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue> args)
 {
     if (args.packet().isValid())
     {
@@ -285,8 +289,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
-                                                         ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue> args)
 {
     if (args.packet().isValid())
     {

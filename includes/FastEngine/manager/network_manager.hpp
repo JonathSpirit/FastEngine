@@ -144,7 +144,8 @@ public:
     [[nodiscard]] constexpr TValue const& value() const;
 
     template<class TInvokable>
-    [[nodiscard]] constexpr typename std::invoke_result_t<TInvokable,ChainedArguments<TValue>&> and_then(TInvokable&& f);
+    [[nodiscard]] constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&>
+    and_then(TInvokable&& f);
     template<class TInvokable>
     constexpr std::optional<Error> on_error(TInvokable&& f);
     [[nodiscard]] constexpr std::optional<Error> end();
@@ -265,8 +266,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
-                                                         ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue> args);
 
 /**
  * \brief Check if the extracted string is a valid UTF8 string

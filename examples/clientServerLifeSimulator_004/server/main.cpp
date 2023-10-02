@@ -284,21 +284,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                     //Before extracting a string from the packet, we must be sure that the string
                     //will have a valid size range.
-                    fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1)-1, {fluxPacket->_pck, &connectionText1}))
-                            .and_then([&](auto& chain){
-                        return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2)-1,
-                                                                            chain.template newChain<std::string>(&connectionText2)));
-                    }).and_then([&](auto& chain){
+                    fge::net::rules::RValid(
+                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1,
+                                                                         {fluxPacket->_pck, &connectionText1}))
+                            .and_then([&](auto& chain) {
+                                return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
+                                        sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
+                                        chain.template newChain<std::string>(&connectionText2)));
+                            })
+                            .and_then(
+                                    [&](auto& chain) {
                         //At this point, every extraction as been successful, so we can continue
                         //Check if those text is respected
-                        if (connectionText1 == LIFESIM_CONNECTION_TEXT1 &&
-                            connectionText2 == LIFESIM_CONNECTION_TEXT2)
+                        if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
                         {
                             //The client is valid, we can connect him
                             *packetSend._pck << true;
 
-                            std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !"
-                                      << std::endl;
+                            std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !" << std::endl;
 
                             //Create the new client with the packet identity
                             client = std::make_shared<fge::net::Client>();
@@ -319,11 +322,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         }
 
                         return chain;
-                    }).on_error([&]([[maybe_unused]] auto& chain){
-                        //Something is not right, we will send "false" to the potential client
-                        *packetSend._pck << false;
-                        server.sendTo(*packetSend._pck, fluxPacket->_id);
-                    });
+                            })
+                            .on_error([&]([[maybe_unused]] auto& chain) {
+                                //Something is not right, we will send "false" to the potential client
+                                *packetSend._pck << false;
+                                server.sendTo(*packetSend._pck, fluxPacket->_id);
+                            });
                 }
             }
             break;
