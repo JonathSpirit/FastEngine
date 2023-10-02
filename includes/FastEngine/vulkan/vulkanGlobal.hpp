@@ -24,6 +24,9 @@
 #ifndef NOMINMAX
     #define NOMINMAX
 #endif
+#define VMA_NULLABLE
+#define VMA_NOT_NULL
+#define VMA_NULLABLE_NON_DISPATCHABLE
 #include "vk_mem_alloc.h"
 
 #include <vector>

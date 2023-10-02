@@ -26,6 +26,9 @@
 #define VMA_IMPLEMENTATION
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#define VMA_NULLABLE
+#define VMA_NOT_NULL
+#define VMA_NULLABLE_NON_DISPATCHABLE
 #include "vk_mem_alloc.h"
 
 #ifdef __GNUC__
