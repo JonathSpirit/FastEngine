@@ -69,6 +69,7 @@ namespace net
 {
 
 class ClientList;
+using Error = std::string;
 
 } // namespace net
 
@@ -920,7 +921,7 @@ public:
      *
      * \param pck The network packet
      */
-    void unpack(fge::net::Packet& pck);
+    std::optional<fge::net::Error> unpack(fge::net::Packet& pck);
     /**
      * \brief Pack all modification in a net::Packet for a net::Client with clients checkup.
      *
@@ -968,7 +969,7 @@ public:
      *
      * \param pck The network packet
      */
-    void unpackModification(fge::net::Packet& pck);
+    std::optional<fge::net::Error> unpackModification(fge::net::Packet& pck);
 
     /**
      * \brief Pack object that need an explicit update from the server.
@@ -990,7 +991,7 @@ public:
      * \param pck The network packet
      * \param id The Identity of the client
      */
-    void unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id);
+    std::optional<fge::net::Error> unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id);
 
     /**
      * \brief Do a clients checkup for the Scene::_netList and Object::_netList.
@@ -1101,7 +1102,7 @@ public:
      *
      * \param pck The network packet
      */
-    void unpackWatchedEvent(fge::net::Packet& pck);
+    std::optional<fge::net::Error> unpackWatchedEvent(fge::net::Packet& pck);
 
     // Operator
     inline fge::ObjectDataShared operator[](fge::ObjectSid sid) const { return this->getObject(sid); }

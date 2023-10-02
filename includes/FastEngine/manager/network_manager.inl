@@ -53,48 +53,179 @@ namespace rules
 {
 
 template<class TValue>
-bool fge::net::rules::ChainedArguments<TValue>::checkExtract()
-{
-    if (this->_value.has_value())
-    {
-        return this->_pck->isValid();
-    }
-    *this->_pck >> this->_value.emplace();
-    return this->_pck->isValid();
-}
+constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck, TValue* existingValue) :
+        g_pck(&pck),
+        g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
+        g_error(pck.isValid() ? Error{} : "already invalid packet")
+{}
 template<class TValue>
-TValue& fge::net::rules::ChainedArguments<TValue>::extract()
+constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck, Error&& err, TValue* existingValue) :
+        g_pck(&pck),
+        g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
+        g_error(std::move(err))
+{}
+
+template<class TValue>
+constexpr TValue* ChainedArguments<TValue>::extract()
 {
-    if (this->_value.has_value())
+    auto* value = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value) : std::get<TValue*>(this->g_value);
+    *this->g_pck >> *value;
+    if (this->g_pck->isValid())
     {
-        return this->_value.value();
+        return value;
     }
-    *this->_pck >> this->_value.emplace();
-    return this->_value.value();
+    this->g_error = "extraction failed at position " + std::to_string(this->g_pck->getReadPos());
+    return nullptr;
 }
 template<class TValue>
 template<class TPeek>
-TPeek fge::net::rules::ChainedArguments<TValue>::peek()
+constexpr std::optional<TPeek> ChainedArguments<TValue>::peek()
 {
-    auto pos = this->_pck->getReadPos();
-    TPeek value;
-    *this->_pck >> value;
-    this->_pck->setReadPos(pos);
-    return std::move(value);
+    auto startReadPos = this->g_pck->getReadPos();
+
+    TPeek value{};
+    *this->g_pck >> value;
+
+    if (this->g_pck->isValid())
+    {
+        this->g_pck->setReadPos(startReadPos);
+        return std::move(value);
+    }
+    this->g_error = "peek failed at position " + std::to_string(this->g_pck->getReadPos());
+    return std::nullopt;
+}
+
+template<class TValue>
+constexpr fge::net::Packet const& ChainedArguments<TValue>::packet() const
+{
+    return *this->g_pck;
+}
+template<class TValue>
+constexpr TValue const& ChainedArguments<TValue>::value() const
+{
+    return std::holds_alternative<TValue>(this->g_value) ? std::get<TValue>(this->g_value) : *std::get<TValue*>(this->g_value);
+}
+
+template<class TValue>
+template<class TInvokable>
+constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&> ChainedArguments<TValue>::and_then(TInvokable&& f)
+{
+    if (this->g_pck->isValid())
+    {
+        return std::invoke(std::forward<TInvokable>(f), *this);
+    }
+    return {*this->g_pck, std::move(this->g_error), nullptr};
+}
+template<class TValue>
+template<class TInvokable>
+constexpr std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
+{
+    if (!this->g_pck->isValid())
+    {
+        std::invoke(std::forward<TInvokable>(f), *this);
+        return this->g_error;
+    }
+    return std::nullopt;
+}
+template<class TValue>
+constexpr std::optional<Error> ChainedArguments<TValue>::end()
+{
+    return this->g_pck->isValid() ? std::nullopt : std::optional<Error>{std::move(this->g_error)};
+}
+
+template<class TValue>
+constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::apply(TValue& value)
+{
+    if (this->g_pck->isValid())
+    {
+        auto* extractedValue = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value) : std::get<TValue*>(this->g_value);
+        if constexpr (std::is_move_assignable_v<TValue>)
+        {
+            value = std::move(*extractedValue);
+        }
+        else
+        {
+            value = *extractedValue;
+        }
+    }
+    return *this;
+}
+template<class TValue>
+template<class TInvokable>
+constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::apply(TInvokable&& f)
+{
+    if (this->g_pck->isValid())
+    {
+        auto* extractedValue = std::holds_alternative<TValue>(this->g_value) ? &std::get<TValue>(this->g_value) : std::get<TValue*>(this->g_value);
+        std::invoke(std::forward<TInvokable>(f), const_cast<TValue&>(*extractedValue));
+    }
+    return *this;
+}
+
+template<class TValue>
+template<class TNewValue>
+constexpr ChainedArguments<TNewValue> ChainedArguments<TValue>::newChain(TNewValue* existingValue)
+{
+    return ChainedArguments<TNewValue>{*this->g_pck, std::move(this->g_error), existingValue};
+}
+
+template<class TValue>
+constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::setError(Error&& err)
+{
+    this->g_error = std::move(err);
+    return *this;
+}
+template<class TValue>
+constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::invalidate(Error&& err)
+{
+    this->g_pck->invalidate();
+    this->g_error = std::move(err);
+    return *this;
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue>
-RRange(TValue const& min, TValue const& max, fge::net::rules::ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue>
+RRange(TValue const& min, TValue const& max, ChainedArguments<TValue> args)
 {
-    if (args._pck->isValid())
+    if (args.packet().isValid())
     {
-        auto& val = args.extract();
-        if (args._pck->isValid())
+        auto* val = args.extract();
+        if (val != nullptr)
         {
-            if (!((val >= min && val <= max) ^ TInvertResult))
+            if (!((*val >= min && *val <= max) ^ TInvertResult))
             {
-                args._pck->invalidate();
+                args.invalidate(__func__ + std::string{" failed"});
+            }
+        }
+    }
+    return std::move(args);
+}
+
+template<class TValue>
+constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue> args)
+{
+    if (args.packet().isValid())
+    {
+        auto* val = args.extract();
+        if (val == nullptr)
+        {
+            args.invalidate(__func__ + std::string{" failed"});
+        }
+    }
+    return std::move(args);
+}
+
+template<class TValue, bool TInvertResult>
+constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue> args)
+{
+    if (args.packet().isValid())
+    {
+        auto* val = args.extract();
+        if (val != nullptr)
+        {
+            if (!((*val == a) ^ TInvertResult))
+            {
+                args.invalidate(__func__ + std::string{" failed"});
             }
         }
     }
@@ -102,107 +233,90 @@ RRange(TValue const& min, TValue const& max, fge::net::rules::ChainedArguments<T
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue> RMustEqual(TValue const& a, fge::net::rules::ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue> args)
 {
-    if (args._pck->isValid())
+    if (args.packet().isValid())
     {
-        auto& val = args.extract();
-        if (args._pck->isValid())
+        auto* val = args.extract();
+        if (val != nullptr)
         {
-            if (!((val == a) ^ TInvertResult))
+            if (!((*val < less) ^ TInvertResult))
             {
-                args._pck->invalidate();
+                args.invalidate(__func__ + std::string{" failed"});
             }
         }
     }
-    return args;
+    return std::move(args);
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rules::ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue> args)
 {
-    if (args._pck->isValid())
+    if (args.packet().isValid())
     {
-        auto& val = args.extract();
-        if (args._pck->isValid())
+        auto* val = args.extract();
+        if (val != nullptr)
         {
-            if (!((val < less) ^ TInvertResult))
+            if (!((*val <= less) ^ TInvertResult))
             {
-                args._pck->invalidate();
+                args.invalidate(__func__ + std::string{" failed"});
             }
         }
     }
-    return args;
+    return std::move(args);
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue>
+RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue> args)
 {
-    if (args._pck->isValid())
+    if (args.packet().isValid())
     {
-        auto& val = args.extract();
-        if (args._pck->isValid())
+        auto size = args.template peek<fge::net::SizeType>();
+        if (size)
         {
-            if (!((val <= less) ^ TInvertResult))
+            if (!((size >= min && size <= max) ^ TInvertResult))
             {
-                args._pck->invalidate();
+                args.invalidate(__func__ + std::string{" failed"});
             }
         }
     }
-    return args;
+    return std::move(args);
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue>
-RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
+                                                         ChainedArguments<TValue> args)
 {
-    if (args._pck->isValid())
+    if (args.packet().isValid())
     {
-        fge::net::SizeType val = args.template peek<fge::net::SizeType>();
-        if (args._pck->isValid())
+        auto size = args.template peek<fge::net::SizeType>();
+        if (size)
         {
-            if (!((val >= min && val <= max) ^ TInvertResult))
+            if (!((size == a) ^ TInvertResult))
             {
-                args._pck->invalidate();
+                args.invalidate(__func__ + std::string{" failed"});
             }
         }
     }
-    return args;
+    return std::move(args);
 }
 
 template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
-                                                         fge::net::rules::ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue> args)
 {
-    if (args._pck->isValid())
+    if (args.packet().isValid())
     {
-        fge::net::SizeType val = args.template peek<fge::net::SizeType>();
-        if (args._pck->isValid())
-        {
-            if (!((val == a) ^ TInvertResult))
-            {
-                args._pck->invalidate();
-            }
-        }
-    }
-    return args;
-}
-
-template<class TValue, bool TInvertResult>
-fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::ChainedArguments<TValue> args)
-{
-    if (args._pck->isValid())
-    {
-        auto& val = args.extract();
-        if (args._pck->isValid())
+        auto* val = args.extract();
+        if (val != nullptr)
         {
             if (!(fge::string::IsValidUtf8String(val) ^ TInvertResult))
             {
-                args._pck->invalidate();
+                args.invalidate(__func__ + std::string{" failed"});
             }
         }
     }
-    return args;
+    return std::move(args);
 }
 
 } // namespace rules

@@ -284,52 +284,46 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                     //Before extracting a string from the packet, we must be sure that the string
                     //will have a valid size range.
-                    FGE_NET_RULES_START
-                        fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1),
-                                                                     {fluxPacket->_pck});
-                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText1, )
+                    fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1)-1, {fluxPacket->_pck, &connectionText1}))
+                            .and_then([&](auto& chain){
+                        return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2)-1,
+                                                                            chain.template newChain<std::string>(&connectionText2)));
+                    }).and_then([&](auto& chain){
+                        //At this point, every extraction as been successful, so we can continue
+                        //Check if those text is respected
+                        if (connectionText1 == LIFESIM_CONNECTION_TEXT1 &&
+                            connectionText2 == LIFESIM_CONNECTION_TEXT2)
+                        {
+                            //The client is valid, we can connect him
+                            *packetSend._pck << true;
 
-                        FGE_NET_RULES_START
-                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2),
-                                                                         {fluxPacket->_pck});
-                            FGE_NET_RULES_AFFECT_END_ELSE(connectionText2, )
+                            std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !"
+                                      << std::endl;
 
-                            //Check if the packet is still valid after extraction and/or rules
-                            if (fluxPacket->_pck)
-                            {
-                                //Check if those text is respected
-                                if (connectionText1 == LIFESIM_CONNECTION_TEXT1 &&
-                                    connectionText2 == LIFESIM_CONNECTION_TEXT2)
-                                {
-                                    //The client is valid, we can connect him
-                                    *packetSend._pck << true;
+                            //Create the new client with the packet identity
+                            client = std::make_shared<fge::net::Client>();
+                            clients.add(fluxPacket->_id, client);
 
-                                    std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !"
-                                              << std::endl;
+                            //Pack data required by the LatencyPlanner in order to compute latency
+                            client->_latencyPlanner.pack(packetSend);
 
-                                    //Create the new client with the packet identity
-                                    client = std::make_shared<fge::net::Client>();
-                                    clients.add(fluxPacket->_id, client);
+                            //Ask the server thread to automatically update the timestamp just before sending it
+                            client->pushPacket(std::move(packetSend));
 
-                                    //Pack data required by the LatencyPlanner in order to compute latency
-                                    client->_latencyPlanner.pack(packetSend);
+                            //We will send a full scene update to the client too
+                            packetSend = fge::net::SendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
+                            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            mainScene.pack(*packetSend._pck);
 
-                                    //Ask the server thread to automatically update the timestamp just before sending it
-                                    client->pushPacket(std::move(packetSend));
+                            client->pushPacket(std::move(packetSend));
+                        }
 
-                                    //We will send a full scene update to the client too
-                                    packetSend = fge::net::SendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
-                                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
-                                    mainScene.pack(*packetSend._pck);
-
-                                    client->pushPacket(std::move(packetSend));
-                                    break;
-                                }
-                            }
-
-                            //Something is not right, we will send "false" to the potential client
-                            *packetSend._pck << false;
-                            server.sendTo(*packetSend._pck, fluxPacket->_id);
+                        return chain;
+                    }).on_error([&]([[maybe_unused]] auto& chain){
+                        //Something is not right, we will send "false" to the potential client
+                        *packetSend._pck << false;
+                        server.sendTo(*packetSend._pck, fluxPacket->_id);
+                    });
                 }
             }
             break;
