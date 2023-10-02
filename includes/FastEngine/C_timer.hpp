@@ -183,7 +183,7 @@ public:
     fge::CallbackHandler<fge::Timer&> _onTimeReached; ///< The callback called when the timer reaches the goal
 
 private:
-    const std::chrono::steady_clock::time_point g_lifeTimePoint;
+    std::chrono::steady_clock::time_point const g_lifeTimePoint;
 
     std::chrono::milliseconds g_elapsedTime;
     std::chrono::milliseconds g_goalDuration;

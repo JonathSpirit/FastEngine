@@ -60,9 +60,9 @@ void SwapChain::create(SDL_Window* window,
 {
     auto swapChainSupport = physicalDevice.querySwapChainSupport(surface.getSurface());
 
-    const VkSurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport._formats);
+    VkSurfaceFormatKHR const surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport._formats);
     this->g_presentMode = SwapChain::chooseSwapPresentMode(swapChainSupport._presentModes, wantedPresentMode);
-    const VkExtent2D extent = SwapChain::chooseSwapExtent(swapChainSupport._capabilities, window);
+    VkExtent2D const extent = SwapChain::chooseSwapExtent(swapChainSupport._capabilities, window);
 
     uint32_t imageCount = swapChainSupport._capabilities.minImageCount + 1;
 

@@ -173,9 +173,9 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
 {
     this->_onDraw.call(this, target);
 
-    const fge::RectFloat screenBounds = fge::GetScreenRect(target);
+    fge::RectFloat const screenBounds = fge::GetScreenRect(target);
 
-    const fge::View backupView = target.getView();
+    fge::View const backupView = target.getView();
     if (this->g_customView)
     {
         target.setView(*this->g_customView);
@@ -239,7 +239,7 @@ fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
         auto plan = it->second->get()->g_plan;
         auto firstPlanObjectIt = this->g_planDataMap.find(plan)->second;
 
-        const fge::ObjectPlanDepth planDepth = std::distance(firstPlanObjectIt, it->second);
+        fge::ObjectPlanDepth const planDepth = std::distance(firstPlanObjectIt, it->second);
         it->second->get()->g_planDepth = planDepth;
 
         this->_onPlanUpdate.call(this, plan);
@@ -973,71 +973,69 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
     return fge::net::rules::RValid(
                    fge::net::rules::RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
             .and_then([&](auto& chain) {
-                //SCENE DATA
-                for (std::size_t i = 0; i < this->_netList.size(); ++i)
+        //SCENE DATA
+        for (std::size_t i = 0; i < this->_netList.size(); ++i)
+        {
+            if (!this->_netList[i]->applyData(pck))
+            {
+                break;
+            }
+        }
+
+        return chain;
+    })
+            .and_then([&](auto& chain) {
+        //OBJECT SIZE
+        this->delAllObject(true);
+
+        pck >> objectSize;
+
+        return chain;
+    })
+            .and_then([&](auto& chain) {
+        for (fge::net::SizeType i = 0; i < objectSize; ++i)
+        {
+            //SID
+            pck >> buffSid;
+            if (buffSid == FGE_SCENE_BAD_SID)
+            {
+                continue;
+            }
+            //CLASS
+            pck >> buffClass;
+            if (buffClass == FGE_REG_BADCLASSID)
+            {
+                return chain.invalidate(func + std::string{" received bad class ID"});
+            }
+            //PLAN
+            pck >> buffPlan;
+            //TYPE
+            auto err = fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_,
+                                                                                             pck)
+                               .and_then([&](auto& chain) {
+                fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
+                if (buffObject)
                 {
-                    if (!this->_netList[i]->applyData(pck))
-                    {
-                        break;
-                    }
+                    this->newObject(std::move(buffObject), buffPlan, buffSid,
+                                    static_cast<fge::ObjectType>(chain.value()))
+                            ->g_object->unpack(pck);
+                }
+                else
+                {
+                    return chain.invalidate(func + std::string{" unknown class ID"});
                 }
 
                 return chain;
-            })
-            .and_then([&](auto& chain) {
-                //OBJECT SIZE
-                this->delAllObject(true);
+            }).end();
 
-                pck >> objectSize;
+            if (err)
+            {
+                return chain.setError(std::move(err.value()));
+            }
+        }
 
-                return chain;
-            })
-            .and_then([&](auto& chain) {
-                for (fge::net::SizeType i = 0; i < objectSize; ++i)
-                {
-                    //SID
-                    pck >> buffSid;
-                    if (buffSid == FGE_SCENE_BAD_SID)
-                    {
-                        continue;
-                    }
-                    //CLASS
-                    pck >> buffClass;
-                    if (buffClass == FGE_REG_BADCLASSID)
-                    {
-                        return chain.invalidate(func + std::string{" received bad class ID"});
-                    }
-                    //PLAN
-                    pck >> buffPlan;
-                    //TYPE
-                    auto err = fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(
-                                       fge::ObjectType::TYPE_MAX_, pck)
-                                       .and_then([&](auto& chain) {
-                                           fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
-                                           if (buffObject)
-                                           {
-                                               this->newObject(std::move(buffObject), buffPlan, buffSid,
-                                                               static_cast<fge::ObjectType>(chain.value()))
-                                                       ->g_object->unpack(pck);
-                                           }
-                                           else
-                                           {
-                                               return chain.invalidate(func + std::string{" unknown class ID"});
-                                           }
-
-                                           return chain;
-                                       })
-                                       .end();
-
-                    if (err)
-                    {
-                        return chain.setError(std::move(err.value()));
-                    }
-                }
-
-                return chain;
-            })
-            .end();
+        return chain;
+    }).end();
 }
 void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id)
 {
@@ -1072,7 +1070,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
     pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
 
     std::size_t dataPos = pck.getDataSize();
-    constexpr const std::size_t reservedSize =
+    constexpr std::size_t const reservedSize =
             sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
             sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
@@ -1157,7 +1155,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
 
     std::size_t dataPos = pck.getDataSize();
-    constexpr const std::size_t reservedSize =
+    constexpr std::size_t const reservedSize =
             sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
             sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
@@ -1215,45 +1213,73 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet& pck)
     return fge::net::rules::RValid(
                    fge::net::rules::RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
             .and_then([&](auto& chain) {
-                //SCENE DATA
-                return fge::net::rules::RLess<fge::net::SizeType>(this->_netList.size(),
-                                                                  chain.template newChain<fge::net::SizeType>());
-            })
+        //SCENE DATA
+        return fge::net::rules::RLess<fge::net::SizeType>(this->_netList.size(),
+                                                          chain.template newChain<fge::net::SizeType>());
+    })
             .and_then([&](auto& chain) {
-                for (fge::net::SizeType i = 0; i < chain.value(); ++i)
-                {
-                    fge::net::SizeType buffIndex;
-                    pck >> buffIndex;
+        for (fge::net::SizeType i = 0; i < chain.value(); ++i)
+        {
+            fge::net::SizeType buffIndex;
+            pck >> buffIndex;
 
-                    if (!this->_netList[buffIndex]->applyData(pck))
-                    {
-                        break;
-                    }
+            if (!this->_netList[buffIndex]->applyData(pck))
+            {
+                break;
+            }
+        }
+
+        return chain;
+    })
+            .and_then([&](auto& chain) {
+        return fge::net::rules::RValid<fge::net::SizeType>(chain.template newChain<fge::net::SizeType>());
+    })
+            .and_then([&](auto& chain) {
+        for (fge::net::SizeType i = 0; i < chain.value(); ++i)
+        {
+            fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
+            fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
+            fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
+            std::underlying_type_t<fge::ObjectType> buffType{fge::ObjectType::TYPE_NULL};
+
+            //SID
+            pck >> buffSid;
+            //CLASS
+            pck >> buffClass;
+            //PLAN
+            pck >> buffPlan;
+            //TYPE
+            auto err = fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_,
+                                                                                             pck)
+                               .apply(buffType)
+                               .end();
+
+            if (err)
+            {
+                return chain.setError(std::move(err.value()));
+            }
+
+            auto buffObject = this->getObject(buffSid);
+            if (!buffObject)
+            {
+                buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
+                                             static_cast<fge::ObjectType>(buffType));
+                if (!buffObject)
+                {
+                    return chain.invalidate(func + std::string{" unknown class ID / SID"});
                 }
+            }
 
-                return chain;
-            })
-            .and_then([&](auto& chain) {
-                return fge::net::rules::RValid<fge::net::SizeType>(chain.template newChain<fge::net::SizeType>());
-            })
-            .and_then([&](auto& chain) {
-                for (fge::net::SizeType i = 0; i < chain.value(); ++i)
+            //MODIF COUNT/OBJECT DATA
+            auto& objectNetList = buffObject->g_object->_netList;
+
+            err = fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck)
+                          .and_then([&](auto& chain) {
+                for (fge::net::SizeType a = 0; a < chain.value(); ++a)
                 {
-                    fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
-                    fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
-                    fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
-                    std::underlying_type_t<fge::ObjectType> buffType{fge::ObjectType::TYPE_NULL};
-
-                    //SID
-                    pck >> buffSid;
-                    //CLASS
-                    pck >> buffClass;
-                    //PLAN
-                    pck >> buffPlan;
-                    //TYPE
-                    auto err = fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(
-                                       fge::ObjectType::TYPE_MAX_, pck)
-                                       .apply(buffType)
+                    fge::net::SizeType buffIndex{};
+                    auto err = fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck)
+                                       .apply(buffIndex)
                                        .end();
 
                     if (err)
@@ -1261,51 +1287,20 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet& pck)
                         return chain.setError(std::move(err.value()));
                     }
 
-                    auto buffObject = this->getObject(buffSid);
-                    if (!buffObject)
-                    {
-                        buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan,
-                                                     buffSid, static_cast<fge::ObjectType>(buffType));
-                        if (!buffObject)
-                        {
-                            return chain.invalidate(func + std::string{" unknown class ID / SID"});
-                        }
-                    }
-
-                    //MODIF COUNT/OBJECT DATA
-                    auto& objectNetList = buffObject->g_object->_netList;
-
-                    err = fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck)
-                                  .and_then([&](auto& chain) {
-                                      for (fge::net::SizeType a = 0; a < chain.value(); ++a)
-                                      {
-                                          fge::net::SizeType buffIndex{};
-                                          auto err =
-                                                  fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck)
-                                                          .apply(buffIndex)
-                                                          .end();
-
-                                          if (err)
-                                          {
-                                              return chain.setError(std::move(err.value()));
-                                          }
-
-                                          objectNetList[buffIndex]->applyData(pck);
-                                      }
-
-                                      return chain;
-                                  })
-                                  .end();
-
-                    if (err)
-                    {
-                        return chain.setError(std::move(err.value()));
-                    }
+                    objectNetList[buffIndex]->applyData(pck);
                 }
 
                 return chain;
-            })
-            .end();
+            }).end();
+
+            if (err)
+            {
+                return chain.setError(std::move(err.value()));
+            }
+        }
+
+        return chain;
+    }).end();
 }
 
 void Scene::packNeededUpdate(fge::net::Packet& pck)
@@ -1318,7 +1313,7 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
     for (auto const& data: this->g_data)
     {
         std::size_t dataPos = pck.getDataSize();
-        constexpr const std::size_t reservedSize = sizeof(fge::ObjectSid);
+        constexpr std::size_t const reservedSize = sizeof(fge::ObjectSid);
         pck.append(reservedSize);
 
         std::size_t count = data->getObject()->_netList.packNeededUpdate(pck);
@@ -1347,25 +1342,24 @@ std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet& pck, 
     {
         auto err = fge::net::rules::RMustEqual<fge::ObjectSid, true>(FGE_SCENE_BAD_SID, pck)
                            .and_then([&](auto& chain) {
-                               auto object = this->getObject(chain.value());
-                               if (object)
-                               {
-                                   object->g_object->_netList.unpackNeededUpdate(pck, id);
-                               }
-                               else
-                               {
-                                   fge::net::SizeType uselessDataSize{0};
-                                   pck >> uselessDataSize;
-                                   pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
-                                   if (!pck.isValid())
-                                   {
-                                       return chain.invalidate(func + std::string{" unattended data size"});
-                                   }
-                               }
+            auto object = this->getObject(chain.value());
+            if (object)
+            {
+                object->g_object->_netList.unpackNeededUpdate(pck, id);
+            }
+            else
+            {
+                fge::net::SizeType uselessDataSize{0};
+                pck >> uselessDataSize;
+                pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(func + std::string{" unattended data size"});
+                }
+            }
 
-                               return chain;
-                           })
-                           .end();
+            return chain;
+        }).end();
 
         if (err)
         {
@@ -1533,73 +1527,70 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet& pck)
 
     return fge::net::rules::RValid<fge::net::SizeType>(pck)
             .and_then([&](auto& chain) {
-                for (fge::net::SizeType i = 0; i < chain.value(); ++i)
-                {
-                    //Event type
-                    auto err =
-                            fge::net::rules::RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(
-                                    fge::SceneNetEvent::Events::SEVT_MAX_, pck)
-                                    .and_then([&](auto& chain) {
-                                        auto event = static_cast<fge::SceneNetEvent::Events>(chain.value());
+        for (fge::net::SizeType i = 0; i < chain.value(); ++i)
+        {
+            //Event type
+            auto err = fge::net::rules::RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(
+                               fge::SceneNetEvent::Events::SEVT_MAX_, pck)
+                               .and_then([&](auto& chain) {
+                auto event = static_cast<fge::SceneNetEvent::Events>(chain.value());
 
-                                        if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
-                                        { //New object
-                                            //SID
-                                            pck >> buffSid;
-                                            //CLASS
-                                            pck >> buffClass;
-                                            //PLAN
-                                            pck >> buffPlan;
-                                            //TYPE
-                                            fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(
-                                                    fge::ObjectType::TYPE_MAX_, pck)
-                                                    .apply(buffType);
-                                            if (!pck.isValid())
-                                            {
-                                                return chain.invalidate(func + std::string{" unattended object type"});
-                                            }
-
-                                            this->delObject(buffSid);
-                                            auto* newObj = fge::reg::GetNewClassOf(buffClass);
-                                            if (newObj == nullptr)
-                                            {
-                                                return chain.invalidate(func + std::string{" unknown class ID"});
-                                            }
-                                            this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid,
-                                                            static_cast<fge::ObjectType>(buffType))
-                                                    ->g_object->unpack(pck);
-                                        }
-                                        else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
-                                        { //Remove object
-                                            //SID
-                                            pck >> buffSid;
-                                            if (!pck.isValid())
-                                            {
-                                                return chain.invalidate(func + std::string{" unattended data size"});
-                                            }
-                                            if (buffSid == FGE_SCENE_BAD_SID)
-                                            {
-                                                this->delAllObject(true);
-                                            }
-                                            else
-                                            {
-                                                this->delObject(buffSid);
-                                            }
-                                        }
-
-                                        return chain;
-                                    })
-                                    .end();
-
-                    if (err)
+                if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
+                { //New object
+                    //SID
+                    pck >> buffSid;
+                    //CLASS
+                    pck >> buffClass;
+                    //PLAN
+                    pck >> buffPlan;
+                    //TYPE
+                    fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_,
+                                                                                          pck)
+                            .apply(buffType);
+                    if (!pck.isValid())
                     {
-                        return chain.setError(std::move(err.value()));
+                        return chain.invalidate(func + std::string{" unattended object type"});
+                    }
+
+                    this->delObject(buffSid);
+                    auto* newObj = fge::reg::GetNewClassOf(buffClass);
+                    if (newObj == nullptr)
+                    {
+                        return chain.invalidate(func + std::string{" unknown class ID"});
+                    }
+                    this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid,
+                                    static_cast<fge::ObjectType>(buffType))
+                            ->g_object->unpack(pck);
+                }
+                else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
+                { //Remove object
+                    //SID
+                    pck >> buffSid;
+                    if (!pck.isValid())
+                    {
+                        return chain.invalidate(func + std::string{" unattended data size"});
+                    }
+                    if (buffSid == FGE_SCENE_BAD_SID)
+                    {
+                        this->delAllObject(true);
+                    }
+                    else
+                    {
+                        this->delObject(buffSid);
                     }
                 }
 
                 return chain;
-            })
-            .end();
+            }).end();
+
+            if (err)
+            {
+                return chain.setError(std::move(err.value()));
+            }
+        }
+
+        return chain;
+    }).end();
 }
 
 /** Custom view **/

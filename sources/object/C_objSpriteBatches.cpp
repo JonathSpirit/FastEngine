@@ -152,7 +152,7 @@ fge::Transformable& ObjSpriteBatches::addSprite(fge::RectInt const& rectangle, u
 }
 void ObjSpriteBatches::resize(std::size_t size)
 {
-    const std::size_t oldSize = this->g_instancesData.size();
+    std::size_t const oldSize = this->g_instancesData.size();
 
     this->g_instancesData.resize(size);
     this->g_instancesVertices.resize(size * 4);
@@ -183,7 +183,7 @@ void ObjSpriteBatches::setColor(std::size_t index, fge::Color const& color)
 {
     if (index < this->g_instancesData.size())
     {
-        const std::size_t startIndex = index * 4;
+        std::size_t const startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._color = color;
         this->g_instancesVertices[startIndex + 1]._color = color;
@@ -278,7 +278,7 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
     copyStates._resInstances.setInstancesCount(this->g_instancesData.size(), false);
     copyStates._resInstances.setVertexCount(4);
 
-    const uint32_t sets[] = {0, 1};
+    uint32_t const sets[] = {0, 1};
     copyStates._resDescriptors.set(this->g_descriptorSets, sets, 2);
 
     copyStates._vertexBuffer = &this->g_instancesVertices;
@@ -287,7 +287,7 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     bool const haveTexture = !this->g_textures.empty();
 
-    const fge::RenderTarget::GraphicPipelineKey graphicPipelineKey{
+    fge::RenderTarget::GraphicPipelineKey const graphicPipelineKey{
             this->g_instancesVertices.getPrimitiveTopology(), copyStates._blendMode,
             uint8_t(haveTexture ? FGE_OBJSPRITEBATCHES_ID_TEXTURE : FGE_OBJSPRITEBATCHES_ID)};
 
@@ -359,8 +359,8 @@ void ObjSpriteBatches::updatePositions(std::size_t index)
 {
     if (index < this->g_instancesData.size())
     {
-        const fge::RectFloat bounds = this->getLocalBounds(index).value();
-        const std::size_t startIndex = index * 4;
+        fge::RectFloat const bounds = this->getLocalBounds(index).value();
+        std::size_t const startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._position = fge::Vector2f(0, 0);
         this->g_instancesVertices[startIndex + 1]._position = fge::Vector2f(0, bounds._height);
@@ -381,7 +381,7 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
         }
 
         auto const rect = texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
-        const std::size_t startIndex = index * 4;
+        std::size_t const startIndex = index * 4;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);
         this->g_instancesVertices[startIndex + 1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
@@ -418,7 +418,7 @@ void ObjSpriteBatches::updateBuffers() const
 
             this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1), true);
 
-            const fge::vulkan::DescriptorSet::Descriptor descriptor{
+            fge::vulkan::DescriptorSet::Descriptor const descriptor{
                     this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
                     this->g_instancesTransform.getBufferSize()};
             this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].updateDescriptorSet(&descriptor, 1);

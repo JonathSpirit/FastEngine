@@ -30,7 +30,7 @@ Transform::Transform(fge::vulkan::Context const& context) :
                                     .value();
 
     this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
-    const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
+    fge::vulkan::DescriptorSet::Descriptor const descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     new (&this->getData()) fge::TransformUboData();
@@ -46,7 +46,7 @@ Transform::Transform(Transform const& r) :
                                     .value();
 
     this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
-    const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
+    fge::vulkan::DescriptorSet::Descriptor const descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     new (&this->getData()) fge::TransformUboData();
@@ -86,7 +86,7 @@ Transform& Transform::operator=(Transform const& r)
                                         .value();
 
         this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
-        const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
+        fge::vulkan::DescriptorSet::Descriptor const descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
         this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
         new (&this->getData()) fge::TransformUboData();
@@ -142,7 +142,7 @@ void Transform::recreateUniformBuffer([[maybe_unused]] fge::vulkan::Context cons
 
     this->g_uniformBuffer.swapContext(context);
     this->g_uniformBuffer.create(fge::TransformUboData::uboSize);
-    const fge::vulkan::DescriptorSet::Descriptor descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
+    fge::vulkan::DescriptorSet::Descriptor const descriptor(this->g_uniformBuffer, FGE_VULKAN_TRANSFORM_BINDING);
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 
     new (&this->getData()) fge::TransformUboData();

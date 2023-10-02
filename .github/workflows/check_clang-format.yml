@@ -14,10 +14,10 @@ jobs:
     - name: Updating clang (clang-format)
       shell: bash
       run: |
-        sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main' && \
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && \
+        sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main' && \
+        wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
         sudo apt-mark hold grub-efi-amd64-signed && sudo apt-get update --fix-missing && sudo apt-get upgrade && sudo apt-get install clang-format-15 && \
-        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 1000
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-17 1000
       
     - name: Check clang-format version
       shell: bash

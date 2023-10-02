@@ -288,12 +288,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1,
                                                                          {fluxPacket->_pck, &connectionText1}))
                             .and_then([&](auto& chain) {
-                                return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
-                                        sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
-                                        chain.template newChain<std::string>(&connectionText2)));
-                            })
-                            .and_then(
-                                    [&](auto& chain) {
+                        return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
+                                sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
+                                chain.template newChain<std::string>(&connectionText2)));
+                    })
+                            .and_then([&](auto& chain) {
                         //At this point, every extraction as been successful, so we can continue
                         //Check if those text is respected
                         if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
@@ -322,12 +321,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         }
 
                         return chain;
-                            })
-                            .on_error([&]([[maybe_unused]] auto& chain) {
-                                //Something is not right, we will send "false" to the potential client
-                                *packetSend._pck << false;
-                                server.sendTo(*packetSend._pck, fluxPacket->_id);
-                            });
+                    }).on_error([&]([[maybe_unused]] auto& chain) {
+                        //Something is not right, we will send "false" to the potential client
+                        *packetSend._pck << false;
+                        server.sendTo(*packetSend._pck, fluxPacket->_id);
+                    });
                 }
             }
             break;

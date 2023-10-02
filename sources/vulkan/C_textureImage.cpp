@@ -130,7 +130,7 @@ bool TextureImage::create(glm::vec<2, int> const& size)
 
     auto& context = this->getContext();
 
-    const VkDeviceSize imageSize = static_cast<VkDeviceSize>(size.x) * size.y * 4;
+    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(size.x) * size.y * 4;
 
     this->g_textureSize = size;
     this->g_textureBytesPerPixel = 4;
@@ -172,7 +172,7 @@ bool TextureImage::create(glm::vec<2, int> const& size)
     this->g_textureDescriptorSet =
             context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
 
-    const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
+    DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
@@ -189,7 +189,7 @@ bool TextureImage::create(SDL_Surface* surface)
 
     auto& context = this->getContext();
 
-    const VkDeviceSize imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
+    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
 
     this->g_textureSize = {surface->w, surface->h};
     this->g_textureBytesPerPixel = surface->format->BytesPerPixel;
@@ -229,7 +229,7 @@ bool TextureImage::create(SDL_Surface* surface)
     this->g_textureDescriptorSet =
             context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
 
-    const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
+    DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
@@ -273,7 +273,7 @@ SDL_Surface* TextureImage::copyToSurface() const
         return nullptr;
     }
 
-    const VkDeviceSize imageSize =
+    VkDeviceSize const imageSize =
             static_cast<VkDeviceSize>(this->g_textureSize.x) * this->g_textureSize.y * this->g_textureBytesPerPixel;
 
     VkBuffer dstBuffer = VK_NULL_HANDLE;
@@ -321,7 +321,7 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-    const VkDeviceSize imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
+    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
     VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
@@ -392,7 +392,7 @@ void TextureImage::update(void* buffer,
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-    const VkDeviceSize imageSize = bufferSize;
+    VkDeviceSize const imageSize = bufferSize;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
     VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
@@ -454,7 +454,7 @@ void TextureImage::setNormalizedCoordinates(bool normalized)
                 fge::vulkan::GarbageSampler(this->g_textureSampler, this->getContext().getLogicalDevice().getDevice()));
         this->createTextureSampler();
 
-        const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
+        DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 }
@@ -472,7 +472,7 @@ void TextureImage::setFilter(VkFilter filter)
                 fge::vulkan::GarbageSampler(this->g_textureSampler, this->getContext().getLogicalDevice().getDevice()));
         this->createTextureSampler();
 
-        const DescriptorSet::Descriptor descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
+        DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 }

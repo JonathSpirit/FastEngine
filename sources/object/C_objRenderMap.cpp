@@ -141,7 +141,7 @@ fge::RectFloat ObjRenderMap::getLocalBounds() const
 
 void ObjRenderMap::updatePositions()
 {
-    const fge::RectFloat bounds = this->getLocalBounds();
+    fge::RectFloat const bounds = this->getLocalBounds();
 
     this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(0.0f, 0.0f);
     this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(0.0f, bounds._height);

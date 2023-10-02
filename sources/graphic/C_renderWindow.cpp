@@ -95,7 +95,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
                     VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    const VkResult result = vkAcquireNextImageKHR(
+    VkResult const result = vkAcquireNextImageKHR(
             this->getContext().getLogicalDevice().getDevice(), this->g_swapChain.getSwapChain(), UINT64_MAX,
             this->g_imageAvailableSemaphores[this->g_currentFrame], VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -137,7 +137,7 @@ void RenderWindow::beginRenderPass(uint32_t imageIndex)
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = this->g_swapChain.getSwapChainExtent();
 
-    const VkClearValue clearColor = {.color = this->_g_clearColor};
+    VkClearValue const clearColor = {.color = this->_g_clearColor};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 

@@ -148,7 +148,7 @@ fge::RectFloat ObjSprite::getLocalBounds() const
 
 void ObjSprite::updatePositions()
 {
-    const fge::RectFloat bounds = this->getLocalBounds();
+    fge::RectFloat const bounds = this->getLocalBounds();
 
     this->g_vertices[0]._position = fge::Vector2f(0, 0);
     this->g_vertices[1]._position = fge::Vector2f(0, bounds._height);

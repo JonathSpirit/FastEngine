@@ -146,19 +146,19 @@ public:
     /**
      * \brief Represent an invalid IpAddress
      */
-    static const fge::net::IpAddress None;
+    static fge::net::IpAddress const None;
     /**
      * \brief Represent the IpAddress 0.0.0.0
      */
-    static const fge::net::IpAddress Any;
+    static fge::net::IpAddress const Any;
     /**
      * \brief Represent the IpAddress 127.0.0.1
      */
-    static const fge::net::IpAddress LocalHost;
+    static fge::net::IpAddress const LocalHost;
     /**
      * \brief Represent the IpAddress 255.255.255.255
      */
-    static const fge::net::IpAddress Broadcast;
+    static fge::net::IpAddress const Broadcast;
 
 private:
     uint32_t g_address; //Network byte order address

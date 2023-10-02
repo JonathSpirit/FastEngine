@@ -213,7 +213,7 @@ void VertexBuffer::bind(VkCommandBuffer commandBuffer) const
     {
         this->updateBuffer();
 
-        const VkDeviceSize offsets[] = {0};
+        VkDeviceSize const offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &this->g_buffer, offsets);
     }
 }
@@ -318,7 +318,7 @@ void VertexBuffer::mapBuffer() const
 
     this->g_needUpdate = false;
 
-    const std::size_t size = sizeof(Vertex) * this->g_vertices.size();
+    std::size_t const size = sizeof(Vertex) * this->g_vertices.size();
 
     if (size == 0)
     {
@@ -383,7 +383,7 @@ void VertexBuffer::updateBuffer() const
 
         this->g_bufferCapacity = this->g_vertices.size() * 2;
 
-        const std::size_t bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.size() * 2);
+        std::size_t const bufferSize = sizeof(Vertex) * (this->g_vertices.empty() ? 1 : this->g_vertices.size() * 2);
 
         switch (this->g_type)
         {
@@ -631,7 +631,7 @@ void IndexBuffer::mapBuffer() const
 
     this->g_needUpdate = false;
 
-    const std::size_t size = sizeof(uint16_t) * this->g_indices.size();
+    std::size_t const size = sizeof(uint16_t) * this->g_indices.size();
 
     if (size == 0)
     {
@@ -692,7 +692,7 @@ void IndexBuffer::updateBuffer() const
 
         this->g_bufferCapacity = this->g_indices.capacity();
 
-        const std::size_t bufferSize = sizeof(uint16_t) * (this->g_indices.empty() ? 1 : this->g_indices.capacity());
+        std::size_t const bufferSize = sizeof(uint16_t) * (this->g_indices.empty() ? 1 : this->g_indices.capacity());
 
         switch (this->g_type)
         {

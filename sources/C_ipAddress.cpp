@@ -55,10 +55,10 @@
 namespace fge::net
 {
 
-const fge::net::IpAddress IpAddress::None{};
-const fge::net::IpAddress IpAddress::Any{0, 0, 0, 0};
-const fge::net::IpAddress IpAddress::LocalHost{127, 0, 0, 1};
-const fge::net::IpAddress IpAddress::Broadcast{255, 255, 255, 255};
+fge::net::IpAddress const IpAddress::None{};
+fge::net::IpAddress const IpAddress::Any{0, 0, 0, 0};
+fge::net::IpAddress const IpAddress::LocalHost{127, 0, 0, 1};
+fge::net::IpAddress const IpAddress::Broadcast{255, 255, 255, 255};
 
 IpAddress::IpAddress() noexcept :
         g_address(0),

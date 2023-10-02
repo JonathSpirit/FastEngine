@@ -65,7 +65,7 @@ public:
     {
         [[nodiscard]] inline std::size_t operator()(GraphicPipelineKey const& k) const
         {
-            const uint64_t val = (static_cast<uint64_t>(k._topology) << 38) | (static_cast<uint64_t>(k._id) << 30) |
+            uint64_t const val = (static_cast<uint64_t>(k._topology) << 38) | (static_cast<uint64_t>(k._id) << 30) |
                                  (static_cast<uint64_t>(k._blendMode._srcColorBlendFactor) << 25) |
                                  (static_cast<uint64_t>(k._blendMode._dstColorBlendFactor) << 20) |
                                  (static_cast<uint64_t>(k._blendMode._colorBlendOp) << 15) |

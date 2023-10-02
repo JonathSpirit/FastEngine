@@ -151,13 +151,13 @@ FGE_OBJ_DRAW_BODY(ObjLight)
     {
         fge::LightSystem* lightSystem = this->_g_lightSystemGate.getTunnel();
 
-        const fge::vulkan::BlendMode noLightBlend =
+        fge::vulkan::BlendMode const noLightBlend =
                 fge::vulkan::BlendMode(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_ZERO,
                                        VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD);
 
-        const fge::RectFloat bounds = this->getGlobalBounds();
+        fge::RectFloat const bounds = this->getGlobalBounds();
         float const range = (bounds._width > bounds._height) ? bounds._width : bounds._height;
-        const fge::Vector2f center = bounds.getPosition() + bounds.getSize() / 2.0f;
+        fge::Vector2f const center = bounds.getPosition() + bounds.getSize() / 2.0f;
 
         this->g_obstacleHulls.resize(lightSystem->getGatesSize(),
                                      fge::vulkan::VertexBuffer{fge::vulkan::GetActiveContext()});
@@ -273,7 +273,7 @@ fge::RectFloat ObjLight::getLocalBounds() const
 
 void ObjLight::updatePositions()
 {
-    const fge::RectFloat bounds = this->getLocalBounds();
+    fge::RectFloat const bounds = this->getLocalBounds();
 
     this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(0, 0);
     this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(0, bounds._height);

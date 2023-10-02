@@ -46,7 +46,7 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 {
     auto indices = physicalDevice.findQueueFamilies(surface);
 
-    const std::vector<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
+    std::vector<uint32_t> const uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float const queuePriority = 1.0f;

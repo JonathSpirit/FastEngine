@@ -180,46 +180,46 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         //Handle button pressing
         buttonValid->_onButtonPressed.add(
                 new fge::CallbackLambda<fge::ObjButton*>{[&, textInputBoxIp]([[maybe_unused]] fge::ObjButton* button) {
-                    if (connectionTimeoutCheck)
-                    {
-                        return;
-                    }
+            if (connectionTimeoutCheck)
+            {
+                return;
+            }
 
-                    fge::net::IpAddress ip{textInputBoxIp->getString().c_str()};
+            fge::net::IpAddress ip{textInputBoxIp->getString().c_str()};
 
-                    if (serverSocket.bind(LIFESIM_CLIENT_PORT) != fge::net::Socket::Error::ERR_DONE)
-                    {
-                        std::cout << "can't bind to socket " << LIFESIM_CLIENT_PORT << " !" << std::endl;
-                        return;
-                    }
+            if (serverSocket.bind(LIFESIM_CLIENT_PORT) != fge::net::Socket::Error::ERR_DONE)
+            {
+                std::cout << "can't bind to socket " << LIFESIM_CLIENT_PORT << " !" << std::endl;
+                return;
+            }
 
-                    if (serverSocket.connect(ip, LIFESIM_SERVER_PORT) != fge::net::Socket::Error::ERR_DONE)
-                    {
-                        serverSocket.close();
-                        std::cout << "can't connect the socket !" << std::endl;
-                        return;
-                    }
+            if (serverSocket.connect(ip, LIFESIM_SERVER_PORT) != fge::net::Socket::Error::ERR_DONE)
+            {
+                serverSocket.close();
+                std::cout << "can't connect the socket !" << std::endl;
+                return;
+            }
 
-                    //After the socket is bound and connected we start the server
-                    if (!server.start<fge::net::PacketLZ4>())
-                    {
-                        serverSocket.close();
-                        std::cout << "can't start the server !" << std::endl;
-                        return;
-                    }
+            //After the socket is bound and connected we start the server
+            if (!server.start<fge::net::PacketLZ4>())
+            {
+                serverSocket.close();
+                std::cout << "can't start the server !" << std::endl;
+                return;
+            }
 
-                    fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
-                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
-                            << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
+            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
+                    << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
-                    //Ask the server thread to automatically update the timestamp just before sending it
-                    server._client._latencyPlanner.pack(packetSend);
+            //Ask the server thread to automatically update the timestamp just before sending it
+            server._client._latencyPlanner.pack(packetSend);
 
-                    server._client.pushPacket(std::move(packetSend));
+            server._client.pushPacket(std::move(packetSend));
 
-                    connectionTimeoutCheck = true;
-                    connectionTimeout.restart();
-                }});
+            connectionTimeoutCheck = true;
+            connectionTimeout.restart();
+        }});
     };
 
     createConnectionWindow();
