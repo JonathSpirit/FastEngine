@@ -121,7 +121,7 @@ ChainedArguments<TValue>::and_then(TInvokable&& f)
 }
 template<class TValue>
 template<class TInvokable>
-constexpr std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
+inline std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
 {
     if (!this->g_pck->isValid())
     {
@@ -131,7 +131,7 @@ constexpr std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f
     return std::nullopt;
 }
 template<class TValue>
-constexpr std::optional<Error> ChainedArguments<TValue>::end()
+inline std::optional<Error> ChainedArguments<TValue>::end()
 {
     return this->g_pck->isValid() ? std::nullopt : std::optional<Error>{std::move(this->g_error)};
 }

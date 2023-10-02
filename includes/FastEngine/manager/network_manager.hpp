@@ -147,8 +147,8 @@ public:
     [[nodiscard]] constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&>
     and_then(TInvokable&& f);
     template<class TInvokable>
-    constexpr std::optional<Error> on_error(TInvokable&& f);
-    [[nodiscard]] constexpr std::optional<Error> end();
+    inline std::optional<Error> on_error(TInvokable&& f);
+    [[nodiscard]] inline std::optional<Error> end();
 
     constexpr ChainedArguments<TValue>& apply(TValue& value);
     template<class TInvokable>
