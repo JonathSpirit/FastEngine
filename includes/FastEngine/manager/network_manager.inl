@@ -202,7 +202,7 @@ constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, 
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue>
@@ -216,7 +216,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue> args)
             args.invalidate(__func__ + std::string{" failed"});
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -233,7 +233,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -250,7 +250,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -267,7 +267,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue> a
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -285,7 +285,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -302,7 +302,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 template<class TValue, bool TInvertResult>
@@ -319,7 +319,7 @@ constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue> args)
             }
         }
     }
-    return std::move(args);
+    return args;
 }
 
 } // namespace rules
