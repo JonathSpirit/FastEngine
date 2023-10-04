@@ -142,13 +142,21 @@ public:
 
     [[nodiscard]] constexpr fge::net::Packet const& packet() const;
     [[nodiscard]] constexpr TValue const& value() const;
+    [[nodiscard]] constexpr TValue& value();
 
     template<class TInvokable>
     [[nodiscard]] constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&>
     and_then(TInvokable&& f);
+    template<class TInvokable, class TIndex>
+    [[nodiscard]] constexpr ChainedArguments<TValue>&
+    and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f);
+    template<class TInvokable, class TIndex>
+    [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TIndex iStart, TIndex iIncrement, TInvokable&& f);
     template<class TInvokable>
     inline std::optional<Error> on_error(TInvokable&& f);
     [[nodiscard]] inline std::optional<Error> end();
+    [[nodiscard]] inline std::optional<Error> end(std::nullopt_t nullopt) const;
+    [[nodiscard]] inline std::optional<Error> end(Error&& err) const;
 
     constexpr ChainedArguments<TValue>& apply(TValue& value);
     template<class TInvokable>
@@ -156,6 +164,8 @@ public:
 
     template<class TNewValue>
     constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr);
+    template<class TNewValue>
+    constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr) const;
 
     constexpr ChainedArguments<TValue>& setError(Error&& err);
     constexpr ChainedArguments<TValue>& invalidate(Error&& err);
@@ -186,7 +196,7 @@ private:
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Valid rule, check if the value is correctly extracted
@@ -196,7 +206,7 @@ constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, 
  * \return The chained argument
  */
 template<class TValue>
-constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args);
 
 /**
  * \brief Must equal rule, check if the value is equal to the provided one
@@ -208,7 +218,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue> args);
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Strict less rule, check if the value is strictly lesser than the provided one
@@ -220,7 +230,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Less rule, check if the value is lesser than the provided one
@@ -232,7 +242,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Size range rule, check if the size is in the min/max range
@@ -252,7 +262,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue> a
  */
 template<class TValue, bool TInvertResult = false>
 constexpr ChainedArguments<TValue>
-RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue> args);
+RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Size must equal rule, check if the size is equal to the provided one
@@ -266,7 +276,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Check if the extracted string is a valid UTF8 string
@@ -280,7 +290,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
  * \return The chained argument
  */
 template<class TValue, bool TInvertResult = false>
-constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue> args);
+constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& args);
 
 /**
  * @}

@@ -107,6 +107,12 @@ constexpr TValue const& ChainedArguments<TValue>::value() const
     return std::holds_alternative<TValue>(this->g_value) ? std::get<TValue>(this->g_value)
                                                          : *std::get<TValue*>(this->g_value);
 }
+template<class TValue>
+constexpr TValue& ChainedArguments<TValue>::value()
+{
+    return std::holds_alternative<TValue>(this->g_value) ? std::get<TValue>(this->g_value)
+                                                         : *std::get<TValue*>(this->g_value);
+}
 
 template<class TValue>
 template<class TInvokable>
@@ -118,6 +124,54 @@ ChainedArguments<TValue>::and_then(TInvokable&& f)
         return std::invoke(std::forward<TInvokable>(f), *this);
     }
     return {*this->g_pck, std::move(this->g_error), nullptr};
+}
+template<class TValue>
+template<class TInvokable, class TIndex>
+constexpr ChainedArguments<TValue>&
+ChainedArguments<TValue>::and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f)
+{
+    if (!this->g_pck->isValid())
+    {
+        return *this;
+    }
+
+    for (iStart; iStart != iEnd; iStart += iIncrement)
+    {
+        std::optional<Error> err =
+                std::invoke(std::forward<TInvokable>(f), const_cast<ChainedArguments<TValue> const&>(*this), iStart);
+
+        if (err)
+        {
+            this->invalidate(std::move(err.value()));
+            return *this;
+        }
+    }
+    return *this;
+}
+template<class TValue>
+template<class TInvokable, class TIndex>
+constexpr ChainedArguments<TValue>&
+ChainedArguments<TValue>::and_for_each(TIndex iStart, TIndex iIncrement, TInvokable&& f)
+{
+    if (!this->g_pck->isValid())
+    {
+        return *this;
+    }
+
+    auto& value = this->value();
+
+    for (; iStart != value; iStart += iIncrement)
+    {
+        std::optional<Error> err =
+                std::invoke(std::forward<TInvokable>(f), const_cast<ChainedArguments<TValue> const&>(*this), iStart);
+
+        if (err)
+        {
+            this->invalidate(std::move(err.value()));
+            return *this;
+        }
+    }
+    return *this;
 }
 template<class TValue>
 template<class TInvokable>
@@ -134,6 +188,16 @@ template<class TValue>
 inline std::optional<Error> ChainedArguments<TValue>::end()
 {
     return this->g_pck->isValid() ? std::nullopt : std::optional<Error>{std::move(this->g_error)};
+}
+template<class TValue>
+inline std::optional<Error> ChainedArguments<TValue>::end(std::nullopt_t nullopt) const
+{
+    return std::optional<Error>{nullopt};
+}
+template<class TValue>
+inline std::optional<Error> ChainedArguments<TValue>::end(Error&& err) const
+{
+    return std::optional<Error>{std::move(err)};
 }
 
 template<class TValue>
@@ -173,6 +237,12 @@ constexpr ChainedArguments<TNewValue> ChainedArguments<TValue>::newChain(TNewVal
 {
     return ChainedArguments<TNewValue>{*this->g_pck, std::move(this->g_error), existingValue};
 }
+template<class TValue>
+template<class TNewValue>
+constexpr ChainedArguments<TNewValue> ChainedArguments<TValue>::newChain(TNewValue* existingValue) const
+{
+    return ChainedArguments<TNewValue>{*this->g_pck, existingValue};
+}
 
 template<class TValue>
 constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::setError(Error&& err)
@@ -189,7 +259,7 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::invalidate(Error&&
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -206,7 +276,7 @@ constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, 
 }
 
 template<class TValue>
-constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -220,7 +290,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue> args)
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -237,7 +307,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -254,7 +324,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -272,7 +342,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue> a
 
 template<class TValue, bool TInvertResult>
 constexpr ChainedArguments<TValue>
-RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue> args)
+RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -289,7 +359,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
@@ -306,7 +376,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
 }
 
 template<class TValue, bool TInvertResult>
-constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue> args)
+constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
