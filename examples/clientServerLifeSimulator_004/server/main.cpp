@@ -371,7 +371,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 (*it).second->pushPacket(std::move(packetSend));
 
                 //Notify the server that a packet as been pushed
-                server.notify();
+                server.notifyTransmission();
             }
         }
 

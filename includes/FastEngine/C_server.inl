@@ -14,32 +14,30 @@
  * limitations under the License.
  */
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
-///ServerUdp
+//ServerUdp
 
-template<typename Tpacket>
-bool ServerUdp::start(fge::net::Port port, fge::net::IpAddress const& ip)
+template<class TPacket>
+bool ServerUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp)
 {
     if (this->g_running)
     {
         return false;
     }
-    if (this->g_socket.bind(port, ip) == fge::net::Socket::ERR_NOERROR)
+    if (this->g_socket.bind(bindPort, bindIp) == fge::net::Socket::ERR_NOERROR)
     {
         this->g_running = true;
 
-        this->g_threadReception = new std::thread(&ServerUdp::serverThreadReception<Tpacket>, this);
-        this->g_threadTransmission = new std::thread(&ServerUdp::serverThreadTransmission, this);
+        this->g_threadReception = std::make_unique<std::thread>(&ServerUdp::serverThreadReception<TPacket>, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerUdp::serverThreadTransmission, this);
 
         return true;
     }
     return false;
 }
-template<typename Tpacket>
+template<class TPacket>
 bool ServerUdp::start()
 {
     if (this->g_running)
@@ -50,19 +48,19 @@ bool ServerUdp::start()
     {
         this->g_running = true;
 
-        this->g_threadReception = new std::thread(&ServerUdp::serverThreadReception<Tpacket>, this);
-        this->g_threadTransmission = new std::thread(&ServerUdp::serverThreadTransmission, this);
+        this->g_threadReception = std::make_unique<std::thread>(&ServerUdp::serverThreadReception<TPacket>, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerUdp::serverThreadTransmission, this);
 
         return true;
     }
     return false;
 }
 
-template<typename Tpacket>
+template<class TPacket>
 void ServerUdp::serverThreadReception()
 {
     fge::net::Identity idReceive;
-    Tpacket pckReceive;
+    TPacket pckReceive;
     std::size_t pushingIndex = 0;
 
     while (this->g_running)
@@ -72,19 +70,19 @@ void ServerUdp::serverThreadReception()
             if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == fge::net::Socket::ERR_NOERROR)
             {
                 std::lock_guard<std::mutex> lck(this->g_mutexServer);
-                if (this->g_flux.empty())
+                if (this->g_fluxes.empty())
                 {
                     this->g_defaultFlux.pushPacket(
                             std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), idReceive));
                     continue;
                 }
 
-                pushingIndex = (pushingIndex + 1) % this->g_flux.size();
+                pushingIndex = (pushingIndex + 1) % this->g_fluxes.size();
                 //Try to push packet in a flux
-                for (std::size_t i = 0; i < this->g_flux.size(); ++i)
+                for (std::size_t i = 0; i < this->g_fluxes.size(); ++i)
                 {
-                    pushingIndex = (pushingIndex + 1) % this->g_flux.size();
-                    if (this->g_flux[pushingIndex]->pushPacket(
+                    pushingIndex = (pushingIndex + 1) % this->g_fluxes.size();
+                    if (this->g_fluxes[pushingIndex]->pushPacket(
                                 std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), idReceive, pushingIndex)))
                     {
                         //Packet is correctly pushed
@@ -97,29 +95,31 @@ void ServerUdp::serverThreadReception()
     }
 }
 
-///ServerClientSideUdp
+//ServerClientSideUdp
 
-template<typename Tpacket>
-bool ServerClientSideUdp::start(fge::net::Port port,
-                                fge::net::IpAddress const& ip,
-                                fge::net::IpAddress const& remoteAddress,
-                                fge::net::Port remotePort)
+template<class TPacket>
+bool ServerClientSideUdp::start(fge::net::Port bindPort,
+                                fge::net::IpAddress const& bindIp,
+                                fge::net::Port connectRemotePort,
+                                fge::net::IpAddress const& connectRemoteAddress)
 {
     if (this->g_running)
     {
         return false;
     }
-    if (this->g_socket.bind(port, ip) == fge::net::Socket::ERR_NOERROR)
+    if (this->g_socket.bind(bindPort, bindIp) == fge::net::Socket::ERR_NOERROR)
     {
-        if (this->g_socket.connect(remoteAddress, remotePort) == fge::net::Socket::ERR_NOERROR)
+        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == fge::net::Socket::ERR_NOERROR)
         {
-            this->g_clientIdentity._ip = remoteAddress;
-            this->g_clientIdentity._port = remotePort;
+            this->g_clientIdentity._ip = connectRemoteAddress;
+            this->g_clientIdentity._port = connectRemotePort;
 
             this->g_running = true;
 
-            this->g_threadReception = new std::thread(&ServerClientSideUdp::serverThreadReception<Tpacket>, this);
-            this->g_threadTransmission = new std::thread(&ServerClientSideUdp::serverThreadTransmission, this);
+            this->g_threadReception =
+                    std::make_unique<std::thread>(&ServerClientSideUdp::serverThreadReception<TPacket>, this);
+            this->g_threadTransmission =
+                    std::make_unique<std::thread>(&ServerClientSideUdp::serverThreadTransmission, this);
 
             return true;
         }
@@ -127,32 +127,11 @@ bool ServerClientSideUdp::start(fge::net::Port port,
     this->g_socket.close();
     return false;
 }
-template<typename Tpacket>
-bool ServerClientSideUdp::start()
-{
-    if (this->g_running)
-    {
-        return false;
-    }
-    if (this->g_socket.isValid())
-    {
-        this->g_clientIdentity._ip = this->g_socket.getRemoteAddress();
-        this->g_clientIdentity._port = this->g_socket.getRemotePort();
 
-        this->g_running = true;
-
-        this->g_threadReception = new std::thread(&ServerClientSideUdp::serverThreadReception<Tpacket>, this);
-        this->g_threadTransmission = new std::thread(&ServerClientSideUdp::serverThreadTransmission, this);
-
-        return true;
-    }
-    return false;
-}
-
-template<typename Tpacket>
+template<class TPacket>
 void ServerClientSideUdp::serverThreadReception()
 {
-    Tpacket pckReceive;
+    TPacket pckReceive;
 
     while (this->g_running)
     {
@@ -161,11 +140,10 @@ void ServerClientSideUdp::serverThreadReception()
             if (this->g_socket.receive(pckReceive) == fge::net::Socket::ERR_NOERROR)
             {
                 this->pushPacket(std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), this->g_clientIdentity));
-                this->g_cvReceiveNotifier.notify_all();
+                this->g_receptionNotifier.notify_all();
             }
         }
     }
 }
 
-} // namespace net
-} // namespace fge
+} // namespace fge::net

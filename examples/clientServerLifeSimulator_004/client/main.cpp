@@ -93,7 +93,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Creating the client side server
     fge::net::ServerClientSideUdp server;
-    auto& serverSocket = server.getSocket();
 
     //Texture
     fge::texture::Init();
@@ -185,26 +184,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            fge::net::IpAddress ip{textInputBoxIp->getString().c_str()};
+            fge::net::IpAddress remoteIp{textInputBoxIp->getString().c_str()};
 
-            if (serverSocket.bind(LIFESIM_CLIENT_PORT) != fge::net::Socket::Error::ERR_DONE)
+            //We try to connect to the server
+            if (!server.start<fge::net::PacketLZ4>(LIFESIM_CLIENT_PORT, fge::net::IpAddress::Any, LIFESIM_SERVER_PORT,
+                                                   remoteIp))
             {
-                std::cout << "can't bind to socket " << LIFESIM_CLIENT_PORT << " !" << std::endl;
-                return;
-            }
-
-            if (serverSocket.connect(ip, LIFESIM_SERVER_PORT) != fge::net::Socket::Error::ERR_DONE)
-            {
-                serverSocket.close();
-                std::cout << "can't connect the socket !" << std::endl;
-                return;
-            }
-
-            //After the socket is bound and connected we start the server
-            if (!server.start<fge::net::PacketLZ4>())
-            {
-                serverSocket.close();
-                std::cout << "can't start the server !" << std::endl;
+                std::cout << "can't connect the server !" << std::endl;
                 return;
             }
 

@@ -16,33 +16,23 @@
 
 #include "FastEngine/C_server.hpp"
 
-#include "FastEngine/C_clientList.hpp"
-#include <memory>
-
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
-///ServerFluxUdp
+//ServerFluxUdp
 ServerFluxUdp::~ServerFluxUdp()
 {
-    this->clear();
+    this->clearPackets();
 }
 
-void ServerFluxUdp::clear()
+void ServerFluxUdp::clearPackets()
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
-    std::size_t qsize = this->g_packets.size();
-    for (std::size_t i = 0; i < qsize; ++i)
-    {
-        this->g_packets.pop();
-    }
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
+    std::queue<FluxPacketSharedPtr>().swap(this->g_packets);
 }
-
 bool ServerFluxUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
     if (this->g_packets.size() >= this->g_maxPackets)
     {
         return false;
@@ -50,18 +40,18 @@ bool ServerFluxUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
     this->g_packets.push(fluxPck);
     return true;
 }
-void ServerFluxUdp::forcePushPacket(FluxPacketSharedPtr const& fluxPck)
+void ServerFluxUdp::forcePushPacket(FluxPacketSharedPtr fluxPck)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
-    this->g_packets.push(fluxPck);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
+    this->g_packets.push(std::move(fluxPck));
 }
 
 FluxPacketSharedPtr ServerFluxUdp::popNextPacket()
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
     if (!this->g_packets.empty())
     {
-        FluxPacketSharedPtr tmpPck = this->g_packets.front();
+        FluxPacketSharedPtr tmpPck = std::move(this->g_packets.front());
         this->g_packets.pop();
         return tmpPck;
     }
@@ -69,27 +59,27 @@ FluxPacketSharedPtr ServerFluxUdp::popNextPacket()
 }
 std::size_t ServerFluxUdp::getPacketsSize() const
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
     return this->g_packets.size();
 }
 bool ServerFluxUdp::isEmpty() const
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
     return this->g_packets.empty();
 }
 
 void ServerFluxUdp::setMaxPackets(std::size_t n)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
     this->g_maxPackets = n;
 }
 std::size_t ServerFluxUdp::getMaxPackets() const
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexLocal);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexLocal);
     return this->g_maxPackets;
 }
 
-///ServerUdp
+//ServerUdp
 ServerUdp::ServerUdp() :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
@@ -109,9 +99,6 @@ void ServerUdp::stop()
         this->g_threadReception->join();
         this->g_threadTransmission->join();
 
-        delete this->g_threadReception;
-        delete this->g_threadTransmission;
-
         this->g_threadReception = nullptr;
         this->g_threadTransmission = nullptr;
 
@@ -121,20 +108,20 @@ void ServerUdp::stop()
 
 fge::net::ServerFluxUdp* ServerUdp::newFlux()
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
-    this->g_flux.push_back(std::make_unique<fge::net::ServerFluxUdp>());
-    return this->g_flux.back().get();
+    this->g_fluxes.push_back(std::make_unique<fge::net::ServerFluxUdp>());
+    return this->g_fluxes.back().get();
 }
 fge::net::ServerFluxUdp* ServerUdp::getFlux(std::size_t index)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
-    if (index >= this->g_flux.size())
+    if (index >= this->g_fluxes.size())
     {
         return nullptr;
     }
-    return this->g_flux[index].get();
+    return this->g_fluxes[index].get();
 }
 fge::net::ServerFluxUdp* ServerUdp::getDefaultFlux()
 {
@@ -142,64 +129,52 @@ fge::net::ServerFluxUdp* ServerUdp::getDefaultFlux()
 }
 std::size_t ServerUdp::getFluxSize() const
 {
-    return this->g_flux.size();
+    return this->g_fluxes.size();
 }
-void ServerUdp::delFlux(fge::net::ServerFluxUdp* flux)
+void ServerUdp::closeFlux(fge::net::ServerFluxUdp* flux)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
-    for (std::size_t i = 0; i < this->g_flux.size(); ++i)
+    for (std::size_t i = 0; i < this->g_fluxes.size(); ++i)
     {
-        if (this->g_flux[i].get() == flux)
+        if (this->g_fluxes[i].get() == flux)
         {
-            this->g_flux.erase(this->g_flux.begin() + i);
+            this->g_fluxes.erase(this->g_fluxes.begin() + i);
             break;
         }
     }
 }
-void ServerUdp::delAllFlux()
+void ServerUdp::closeAllFlux()
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
-    this->g_flux.clear();
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+    this->g_fluxes.clear();
 }
 
-void ServerUdp::repushPacket(FluxPacketSharedPtr const& fluxPck)
+void ServerUdp::repushPacket(FluxPacketSharedPtr&& fluxPck)
 {
-    if ((++fluxPck->_fluxCount) >= this->g_flux.size())
+    if ((++fluxPck->_fluxCount) >= this->g_fluxes.size())
     {
         this->g_defaultFlux.pushPacket(fluxPck);
         return;
     }
-    fluxPck->_fluxIndex = (fluxPck->_fluxIndex + 1) % this->g_flux.size();
-    this->g_flux[fluxPck->_fluxIndex]->forcePushPacket(fluxPck);
+    auto newIndex = (fluxPck->_fluxIndex + 1) % this->g_fluxes.size();
+    fluxPck->_fluxIndex = newIndex;
+    this->g_fluxes[newIndex]->forcePushPacket(std::move(fluxPck));
 }
 
-fge::net::SocketUdp const& ServerUdp::getSocket() const
+void ServerUdp::notifyTransmission()
 {
-    return this->g_socket;
-}
-fge::net::SocketUdp& ServerUdp::getSocket()
-{
-    return this->g_socket;
-}
-
-void ServerUdp::notify()
-{
-    this->g_cv.notify_one();
-}
-std::mutex& ServerUdp::getSendMutex()
-{
-    return this->g_mutexSend;
+    this->g_transmissionNotifier.notify_one();
 }
 
 fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, fge::net::IpAddress const& ip, fge::net::Port port)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexSend);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.sendTo(pck, ip, port);
 }
 fge::net::Socket::Error ServerUdp::sendTo(fge::net::Packet& pck, fge::net::Identity const& id)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexSend);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.sendTo(pck, id._ip, id._port);
 }
 
@@ -210,104 +185,75 @@ bool ServerUdp::isRunning() const
 
 void ServerUdp::serverThreadTransmission()
 {
-    std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
+    std::unique_lock<std::mutex> lckServer(this->g_mutexServer, std::defer_lock);
 
     while (this->g_running)
     {
-        this->g_cv.wait_for(lckServer, std::chrono::milliseconds(10));
+        this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
 
         //Flux
-        for (std::size_t i = 0; i < this->g_flux.size(); ++i)
+        for (std::size_t i = 0; i < this->g_fluxes.size() + 1; ++i)
         {
-            fge::net::ClientList& clients = this->g_flux[i]->_clients;
-            std::unique_lock<std::recursive_mutex> lck{clients.acquireLock()};
-
-            for (auto itClient = clients.begin(lck); itClient != clients.end(lck); ++itClient)
-            {
-                if (!itClient->second->isPendingPacketsEmpty())
-                {
-                    if (itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms())
-                    { //Ready to send !
-                        fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
-                        if (buffPck._pck)
-                        { //Last verification of the packet
-
-                            //Applying options
-                            for (auto const& option: buffPck._options)
-                            {
-                                if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
-                                {
-                                    fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
-                                    buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-                                }
-                                else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
-                                {
-                                    fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
-                                    buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-                                }
-                                else if (option._option ==
-                                         fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
-                                {
-                                    fge::net::Latency_ms correctorLatency =
-                                            itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
-                                    buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-                                }
-                            }
-
-                            //Sending the packet
-                            this->sendTo(*buffPck._pck, itClient->first);
-                            itClient->second->resetLastPacketTimePoint();
-                        }
-                    }
-                }
+            fge::net::ClientList* clients{nullptr};
+            if (i == this->g_fluxes.size())
+            { //Doing the default flux
+                clients = &this->g_defaultFlux._clients;
             }
-        }
-        //Default flux TODO: redundant code
-        std::unique_lock<std::recursive_mutex> lck{this->g_defaultFlux._clients.acquireLock()};
-
-        for (auto itClient = this->g_defaultFlux._clients.begin(lck); itClient != this->g_defaultFlux._clients.end(lck);
-             ++itClient)
-        {
-            if (!itClient->second->isPendingPacketsEmpty())
+            else
             {
-                if (itClient->second->getLastPacketElapsedTime() >= itClient->second->getSTOCLatency_ms())
-                { //Ready to send !
-                    fge::net::SendQueuePacket buffPck = itClient->second->popPacket();
-                    if (buffPck._pck)
-                    { //Last verification of the packet
+                clients = &this->g_fluxes[i]->_clients;
+            }
 
-                        //Applying options
-                        for (auto const& option: buffPck._options)
-                        {
-                            if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
-                            {
-                                fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
-                                buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-                            }
-                            else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
-                            {
-                                fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
-                                buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-                            }
-                            else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
-                            {
-                                fge::net::Latency_ms correctorLatency =
-                                        itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
-                                buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-                            }
-                        }
+            auto clientLock = clients->acquireLock();
 
-                        //Sending the packet
-                        this->sendTo(*buffPck._pck, itClient->first);
-                        itClient->second->resetLastPacketTimePoint();
+            for (auto itClient = clients->begin(clientLock); itClient != clients->end(clientLock); ++itClient)
+            {
+                if (itClient->second->isPendingPacketsEmpty())
+                {
+                    continue;
+                }
+
+                if (itClient->second->getLastPacketElapsedTime() < itClient->second->getSTOCLatency_ms())
+                {
+                    continue;
+                }
+
+                auto buffPck = itClient->second->popPacket();
+                if (!buffPck._pck)
+                { //Last verification of the packet
+                    continue;
+                }
+
+                //Applying options
+                for (auto const& option: buffPck._options)
+                {
+                    if (option._option == fge::net::SendQueuePacket::Options::UPDATE_TIMESTAMP)
+                    {
+                        fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+                        buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                    }
+                    else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_FULL_TIMESTAMP)
+                    {
+                        fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
+                        buffPck._pck->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+                    }
+                    else if (option._option == fge::net::SendQueuePacket::Options::UPDATE_CORRECTION_LATENCY)
+                    {
+                        fge::net::Latency_ms correctorLatency =
+                                itClient->second->getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+                        buffPck._pck->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
                     }
                 }
+
+                //Sending the packet
+                this->sendTo(*buffPck._pck, itClient->first);
+                itClient->second->resetLastPacketTimePoint();
             }
         }
     }
 }
 
-///ServerClientSideUdp
+//ServerClientSideUdp
 ServerClientSideUdp::ServerClientSideUdp() :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
@@ -327,9 +273,6 @@ void ServerClientSideUdp::stop()
         this->g_threadReception->join();
         this->g_threadTransmission->join();
 
-        delete this->g_threadReception;
-        delete this->g_threadTransmission;
-
         this->g_threadReception = nullptr;
         this->g_threadTransmission = nullptr;
 
@@ -337,27 +280,14 @@ void ServerClientSideUdp::stop()
     }
 }
 
-fge::net::SocketUdp const& ServerClientSideUdp::getSocket() const
+void ServerClientSideUdp::notifyTransmission()
 {
-    return this->g_socket;
-}
-fge::net::SocketUdp& ServerClientSideUdp::getSocket()
-{
-    return this->g_socket;
-}
-
-void ServerClientSideUdp::notify()
-{
-    this->g_cv.notify_one();
-}
-std::mutex& ServerClientSideUdp::getSendMutex()
-{
-    return this->g_mutexSend;
+    this->g_transmissionNotifier.notify_one();
 }
 
 fge::net::Socket::Error ServerClientSideUdp::send(fge::net::Packet& pck)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexSend);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.send(pck);
 }
 
@@ -368,7 +298,7 @@ bool ServerClientSideUdp::isRunning() const
 
 FluxPacketSharedPtr ServerClientSideUdp::popNextPacket()
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
     if (!this->g_packets.empty())
     {
         FluxPacketSharedPtr tmpPck = this->g_packets.front();
@@ -380,23 +310,23 @@ FluxPacketSharedPtr ServerClientSideUdp::popNextPacket()
 
 std::size_t ServerClientSideUdp::getPacketsSize() const
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
     return this->g_packets.size();
 }
 bool ServerClientSideUdp::isEmpty() const
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
     return this->g_packets.empty();
 }
 
 void ServerClientSideUdp::setMaxPackets(std::size_t n)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
     this->g_maxPackets = n;
 }
 std::size_t ServerClientSideUdp::getMaxPackets() const
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
     return this->g_maxPackets;
 }
 
@@ -405,24 +335,22 @@ fge::net::Identity const& ServerClientSideUdp::getClientIdentity() const
     return this->g_clientIdentity;
 }
 
-bool ServerClientSideUdp::waitForPackets(std::chrono::milliseconds const& ms)
+std::size_t ServerClientSideUdp::waitForPackets(std::chrono::milliseconds const& ms)
 {
-    if (this->getPacketsSize() > 0)
-    {
-        return true;
-    }
     std::unique_lock<std::mutex> lock(this->g_mutexServer);
-    this->g_cvReceiveNotifier.wait_for(lock, ms);
-    if (!this->g_packets.empty())
+    auto packetSize = this->g_packets.size();
+    if (packetSize > 0)
     {
-        return true;
+        return packetSize;
     }
-    return false;
+
+    this->g_receptionNotifier.wait_for(lock, ms);
+    return this->g_packets.size();
 }
 
 bool ServerClientSideUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
 {
-    std::lock_guard<std::mutex> lock(this->g_mutexServer);
+    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
     if (this->g_packets.size() >= this->g_maxPackets)
     {
         return false;
@@ -433,18 +361,18 @@ bool ServerClientSideUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
 
 void ServerClientSideUdp::serverThreadTransmission()
 {
-    std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
+    std::unique_lock<std::mutex> lckServer(this->g_mutexServer, std::defer_lock);
 
     while (this->g_running)
     {
-        this->g_cv.wait_for(lckServer, std::chrono::milliseconds(10));
+        this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
 
         //Flux
         if (!this->_client.isPendingPacketsEmpty())
         {
             if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
             { //Ready to send !
-                fge::net::SendQueuePacket buffPck = this->_client.popPacket();
+                auto buffPck = this->_client.popPacket();
                 if (buffPck._pck)
                 { //Last verification of the packet
 
@@ -478,5 +406,4 @@ void ServerClientSideUdp::serverThreadTransmission()
     }
 }
 
-} // namespace net
-} // namespace fge
+} // namespace fge::net
