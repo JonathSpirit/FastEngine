@@ -1000,12 +1000,13 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
         pck >> buffClass;
         if (buffClass == FGE_REG_BADCLASSID)
         {
-            return chain.end(func + std::string{" received bad class ID"});
+            return chain.end(
+                    net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad class ID", func});
         }
         //PLAN
         pck >> buffPlan;
         //TYPE
-        return fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+        return RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
                 .and_then([&](auto& chain) {
             fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
             if (buffObject)
@@ -1015,7 +1016,8 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
             }
             else
             {
-                return chain.invalidate(func + std::string{" unknown class ID"});
+                return chain.invalidate(
+                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID", func});
             }
 
             return chain;
@@ -1242,7 +1244,8 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet& pck)
                                          static_cast<fge::ObjectType>(buffType));
             if (!buffObject)
             {
-                return chain.end(func + std::string{" unknown class ID / SID"});
+                return chain.end(
+                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID / SID", func});
             }
         }
 
@@ -1311,7 +1314,8 @@ std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet& pck, 
                 pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
                 if (!pck.isValid())
                 {
-                    return chain.invalidate(func + std::string{" unattended data size"});
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
                 }
             }
 
@@ -1498,14 +1502,16 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet& pck)
                         .apply(buffType);
                 if (!pck.isValid())
                 {
-                    return chain.invalidate(func + std::string{" unattended object type"});
+                    return chain.invalidate(net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(),
+                                                       "unattended object type", func});
                 }
 
                 this->delObject(buffSid);
                 auto* newObj = fge::reg::GetNewClassOf(buffClass);
                 if (newObj == nullptr)
                 {
-                    return chain.invalidate(func + std::string{" unknown class ID"});
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID", func});
                 }
                 this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))
                         ->g_object->unpack(pck);
@@ -1516,7 +1522,8 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet& pck)
                 pck >> buffSid;
                 if (!pck.isValid())
                 {
-                    return chain.invalidate(func + std::string{" unattended data size"});
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
                 }
                 if (buffSid == FGE_SCENE_BAD_SID)
                 {

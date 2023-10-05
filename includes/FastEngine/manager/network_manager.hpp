@@ -41,8 +41,6 @@ namespace fge::net
  */
 using PacketHeader = uint16_t;
 
-using Error = std::string;
-
 /**
  * \brief Get a basic scene checksum
  *
@@ -153,10 +151,10 @@ public:
     template<class TInvokable, class TIndex>
     [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TIndex iStart, TIndex iIncrement, TInvokable&& f);
     template<class TInvokable>
-    inline std::optional<Error> on_error(TInvokable&& f);
-    [[nodiscard]] inline std::optional<Error> end();
-    [[nodiscard]] inline std::optional<Error> end(std::nullopt_t nullopt) const;
-    [[nodiscard]] inline std::optional<Error> end(Error&& err) const;
+    constexpr std::optional<Error> on_error(TInvokable&& f);
+    [[nodiscard]] constexpr std::optional<Error> end();
+    [[nodiscard]] constexpr std::optional<Error> end(std::nullopt_t nullopt) const;
+    [[nodiscard]] constexpr std::optional<Error> end(Error&& err) const;
 
     constexpr ChainedArguments<TValue>& apply(TValue& value);
     template<class TInvokable>

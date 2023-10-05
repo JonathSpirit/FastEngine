@@ -69,7 +69,6 @@ namespace net
 {
 
 class ClientList;
-using Error = std::string;
 
 } // namespace net
 

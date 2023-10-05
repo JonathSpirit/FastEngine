@@ -56,7 +56,9 @@ template<class TValue>
 constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck, TValue* existingValue) :
         g_pck(&pck),
         g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
-        g_error(pck.isValid() ? Error{} : "already invalid packet")
+        g_error(pck.isValid() ? Error{}
+                              : Error{Error::Types::ERR_ALREADY_INVALID, pck.getReadPos(), "already invalid packet",
+                                      __func__})
 {}
 template<class TValue>
 constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck, Error&& err, TValue* existingValue) :
@@ -75,7 +77,8 @@ constexpr TValue* ChainedArguments<TValue>::extract()
     {
         return value;
     }
-    this->g_error = "extraction failed at position " + std::to_string(this->g_pck->getReadPos());
+    this->g_error =
+            net::Error{net::Error::Types::ERR_EXTRACT, this->g_pck->getReadPos(), "extraction failed", __func__};
     return nullptr;
 }
 template<class TValue>
@@ -92,7 +95,8 @@ constexpr std::optional<TPeek> ChainedArguments<TValue>::peek()
         this->g_pck->setReadPos(startReadPos);
         return std::move(value);
     }
-    this->g_error = "peek failed at position " + std::to_string(this->g_pck->getReadPos());
+
+    this->g_error = net::Error{net::Error::Types::ERR_EXTRACT, this->g_pck->getReadPos(), "peek failed", __func__};
     return std::nullopt;
 }
 
@@ -175,7 +179,7 @@ ChainedArguments<TValue>::and_for_each(TIndex iStart, TIndex iIncrement, TInvoka
 }
 template<class TValue>
 template<class TInvokable>
-inline std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
+constexpr std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
 {
     if (!this->g_pck->isValid())
     {
@@ -185,17 +189,17 @@ inline std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
     return std::nullopt;
 }
 template<class TValue>
-inline std::optional<Error> ChainedArguments<TValue>::end()
+constexpr std::optional<Error> ChainedArguments<TValue>::end()
 {
     return this->g_pck->isValid() ? std::nullopt : std::optional<Error>{std::move(this->g_error)};
 }
 template<class TValue>
-inline std::optional<Error> ChainedArguments<TValue>::end(std::nullopt_t nullopt) const
+constexpr std::optional<Error> ChainedArguments<TValue>::end(std::nullopt_t nullopt) const
 {
     return std::optional<Error>{nullopt};
 }
 template<class TValue>
-inline std::optional<Error> ChainedArguments<TValue>::end(Error&& err) const
+constexpr std::optional<Error> ChainedArguments<TValue>::end(Error&& err) const
 {
     return std::optional<Error>{std::move(err)};
 }
@@ -268,7 +272,7 @@ constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, 
         {
             if (!((*val >= min && *val <= max) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }
@@ -283,7 +287,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args)
         auto* val = args.extract();
         if (val == nullptr)
         {
-            args.invalidate(__func__ + std::string{" failed"});
+            args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
         }
     }
     return args;
@@ -299,7 +303,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
         {
             if (!((*val == a) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }
@@ -316,7 +320,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
         {
             if (!((*val < less) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }
@@ -333,7 +337,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
         {
             if (!((*val <= less) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }
@@ -351,7 +355,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
         {
             if (!((size >= min && size <= max) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }
@@ -368,7 +372,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
         {
             if (!((size == a) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }
@@ -385,7 +389,7 @@ constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& arg
         {
             if (!(fge::string::IsValidUtf8String(val) ^ TInvertResult))
             {
-                args.invalidate(__func__ + std::string{" failed"});
+                args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
         }
     }

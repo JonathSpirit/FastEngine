@@ -43,6 +43,22 @@
 namespace fge::net
 {
 
+struct Error
+{
+    enum class Types
+    {
+        ERR_NONE,
+        ERR_ALREADY_INVALID,
+        ERR_EXTRACT,
+        ERR_RULE
+    };
+
+    Types _type{Types::ERR_NONE};
+    std::size_t _readPos{0};
+    char const* _error{nullptr};
+    char const* _function{nullptr};
+};
+
 class SocketTcp;
 class SocketUdp;
 
