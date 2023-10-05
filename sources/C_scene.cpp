@@ -1292,13 +1292,13 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
 std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     constexpr char const* const func = __func__;
-    fge::net::SizeType objectCount{0};
-    pck >> objectCount;
 
-    for (fge::net::SizeType i = 0; i < objectCount; ++i)
-    {
-        auto err = fge::net::rules::RMustEqual<fge::ObjectSid, true>(FGE_SCENE_BAD_SID, pck)
-                           .and_then([&](auto& chain) {
+    using namespace fge::net::rules;
+
+    return RValid<fge::net::SizeType>(pck)
+            .and_for_each(0, 1, [&](auto& chain, [[maybe_unused]] auto& i) {
+        return RMustEqual<fge::ObjectSid, true>(FGE_SCENE_BAD_SID, chain.template newChain<fge::ObjectSid>())
+                .and_then([&](auto& chain) {
             auto object = this->getObject(chain.value());
             if (object)
             {
@@ -1317,14 +1317,7 @@ std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet& pck, 
 
             return chain;
         }).end();
-
-        if (err)
-        {
-            return err;
-        }
-    }
-
-    return std::nullopt;
+    }).end();
 }
 
 void Scene::clientsCheckup(fge::net::ClientList const& clients)
@@ -1482,71 +1475,61 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet& pck)
     fge::ObjectPlan buffPlan;
     std::underlying_type_t<fge::ObjectType> buffType{fge::ObjectType::TYPE_NULL};
 
-    return fge::net::rules::RValid<fge::net::SizeType>(pck)
-            .and_then([&](auto& chain) {
-        for (fge::net::SizeType i = 0; i < chain.value(); ++i)
-        {
-            //Event type
-            auto err = fge::net::rules::RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(
-                               fge::SceneNetEvent::Events::SEVT_MAX_, pck)
-                               .and_then([&](auto& chain) {
-                auto event = static_cast<fge::SceneNetEvent::Events>(chain.value());
+    using namespace fge::net::rules;
 
-                if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
-                { //New object
-                    //SID
-                    pck >> buffSid;
-                    //CLASS
-                    pck >> buffClass;
-                    //PLAN
-                    pck >> buffPlan;
-                    //TYPE
-                    fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_,
-                                                                                          pck)
-                            .apply(buffType);
-                    if (!pck.isValid())
-                    {
-                        return chain.invalidate(func + std::string{" unattended object type"});
-                    }
+    return RValid<fge::net::SizeType>(pck)
+            .and_for_each(0, 1, [&]([[maybe_unused]] auto& chain, [[maybe_unused]] auto& i) {
+        //Event type
+        return RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(fge::SceneNetEvent::Events::SEVT_MAX_,
+                                                                               pck)
+                .and_then([&](auto& chain) {
+            auto event = static_cast<fge::SceneNetEvent::Events>(chain.value());
 
-                    this->delObject(buffSid);
-                    auto* newObj = fge::reg::GetNewClassOf(buffClass);
-                    if (newObj == nullptr)
-                    {
-                        return chain.invalidate(func + std::string{" unknown class ID"});
-                    }
-                    this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid,
-                                    static_cast<fge::ObjectType>(buffType))
-                            ->g_object->unpack(pck);
-                }
-                else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
-                { //Remove object
-                    //SID
-                    pck >> buffSid;
-                    if (!pck.isValid())
-                    {
-                        return chain.invalidate(func + std::string{" unattended data size"});
-                    }
-                    if (buffSid == FGE_SCENE_BAD_SID)
-                    {
-                        this->delAllObject(true);
-                    }
-                    else
-                    {
-                        this->delObject(buffSid);
-                    }
+            if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
+            { //New object
+                //SID
+                pck >> buffSid;
+                //CLASS
+                pck >> buffClass;
+                //PLAN
+                pck >> buffPlan;
+                //TYPE
+                fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+                        .apply(buffType);
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(func + std::string{" unattended object type"});
                 }
 
-                return chain;
-            }).end();
-
-            if (err)
-            {
-                return chain.setError(std::move(err.value()));
+                this->delObject(buffSid);
+                auto* newObj = fge::reg::GetNewClassOf(buffClass);
+                if (newObj == nullptr)
+                {
+                    return chain.invalidate(func + std::string{" unknown class ID"});
+                }
+                this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))
+                        ->g_object->unpack(pck);
             }
-        }
+            else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
+            { //Remove object
+                //SID
+                pck >> buffSid;
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(func + std::string{" unattended data size"});
+                }
+                if (buffSid == FGE_SCENE_BAD_SID)
+                {
+                    this->delAllObject(true);
+                }
+                else
+                {
+                    this->delObject(buffSid);
+                }
+            }
 
-        return chain;
+            return chain;
+        }).end();
     }).end();
 }
 
