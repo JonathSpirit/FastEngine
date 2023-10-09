@@ -50,7 +50,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             SDL_CreateWindow(("Life simulator client, a FastEngine example by Guillaume Guillet - version " +
                               std::to_string(LIFESIM_VERSION))
                                      .c_str(),
-                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LIFESIM_MAP_WIDTH, LIFESIM_MAP_HEIGHT,
                              SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
