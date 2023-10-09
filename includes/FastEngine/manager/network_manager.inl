@@ -262,7 +262,7 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::invalidate(Error&&
     return *this;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
@@ -270,7 +270,7 @@ constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, 
         auto* val = args.extract();
         if (val != nullptr)
         {
-            if (!((*val >= min && *val <= max) ^ TInvertResult))
+            if (!((*val >= min && *val <= max) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
@@ -293,7 +293,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args)
     return args;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
@@ -301,7 +301,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
         auto* val = args.extract();
         if (val != nullptr)
         {
-            if (!((*val == a) ^ TInvertResult))
+            if (!((*val == a) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
@@ -310,7 +310,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
     return args;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
@@ -318,7 +318,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
         auto* val = args.extract();
         if (val != nullptr)
         {
-            if (!((*val < less) ^ TInvertResult))
+            if (!((*val < less) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
@@ -327,7 +327,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
     return args;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
@@ -335,7 +335,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
         auto* val = args.extract();
         if (val != nullptr)
         {
-            if (!((*val <= less) ^ TInvertResult))
+            if (!((*val <= less) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
@@ -344,7 +344,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
     return args;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue>
 RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args)
 {
@@ -353,7 +353,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
         auto size = args.template peek<fge::net::SizeType>();
         if (size)
         {
-            if (!((size >= min && size <= max) ^ TInvertResult))
+            if (!((size >= min && size <= max) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
@@ -362,7 +362,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
     return args;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
@@ -370,7 +370,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
         auto size = args.template peek<fge::net::SizeType>();
         if (size)
         {
-            if (!((size == a) ^ TInvertResult))
+            if (!((size == a) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }
@@ -379,7 +379,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
     return args;
 }
 
-template<class TValue, bool TInvertResult>
+template<class TValue, ROutputs TOutput>
 constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
@@ -387,7 +387,7 @@ constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& arg
         auto* val = args.extract();
         if (val != nullptr)
         {
-            if (!(fge::string::IsValidUtf8String(val) ^ TInvertResult))
+            if (!(fge::string::IsValidUtf8String(val) ^ static_cast<bool>(TOutput)))
             {
                 args.invalidate(Error{Error::Types::ERR_RULE, args.packet().getReadPos(), "rule failed", __func__});
             }

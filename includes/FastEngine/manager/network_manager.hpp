@@ -181,6 +181,12 @@ private:
  * @{
  */
 
+enum class ROutputs : bool
+{
+    R_NORMAL = false,
+    R_INVERTED = true
+};
+
 /**
  * \brief Range rule, check if the value is in the min/max range
  *
@@ -193,7 +199,7 @@ private:
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue>&& args);
 
 /**
@@ -215,7 +221,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args);
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue>&& args);
 
 /**
@@ -227,7 +233,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue>&& args);
 
 /**
@@ -239,7 +245,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&& args);
 
 /**
@@ -258,7 +264,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue>
 RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args);
 
@@ -273,7 +279,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args);
 
 /**
@@ -287,7 +293,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& args);
 
 /**

@@ -1300,7 +1300,8 @@ std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet& pck, 
 
     return RValid<fge::net::SizeType>(pck)
             .and_for_each(0, 1, [&](auto& chain, [[maybe_unused]] auto& i) {
-        return RMustEqual<fge::ObjectSid, true>(FGE_SCENE_BAD_SID, chain.template newChain<fge::ObjectSid>())
+        return RMustEqual<fge::ObjectSid, ROutputs::R_INVERTED>(FGE_SCENE_BAD_SID,
+                                                                chain.template newChain<fge::ObjectSid>())
                 .and_then([&](auto& chain) {
             auto object = this->getObject(chain.value());
             if (object)
