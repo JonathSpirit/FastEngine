@@ -20,7 +20,7 @@ namespace fge::net
 //ServerUdp
 
 template<class TPacket>
-bool ServerUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp)
+bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp)
 {
     if (this->g_running)
     {
@@ -30,15 +30,15 @@ bool ServerUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp
     {
         this->g_running = true;
 
-        this->g_threadReception = std::make_unique<std::thread>(&ServerUdp::serverThreadReception<TPacket>, this);
-        this->g_threadTransmission = std::make_unique<std::thread>(&ServerUdp::serverThreadTransmission, this);
+        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception<TPacket>, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission, this);
 
         return true;
     }
     return false;
 }
 template<class TPacket>
-bool ServerUdp::start()
+bool ServerSideNetUdp::start()
 {
     if (this->g_running)
     {
@@ -48,8 +48,8 @@ bool ServerUdp::start()
     {
         this->g_running = true;
 
-        this->g_threadReception = std::make_unique<std::thread>(&ServerUdp::serverThreadReception<TPacket>, this);
-        this->g_threadTransmission = std::make_unique<std::thread>(&ServerUdp::serverThreadTransmission, this);
+        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception<TPacket>, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission, this);
 
         return true;
     }
@@ -57,7 +57,7 @@ bool ServerUdp::start()
 }
 
 template<class TPacket>
-void ServerUdp::serverThreadReception()
+void ServerSideNetUdp::threadReception()
 {
     fge::net::Identity idReceive;
     TPacket pckReceive;
@@ -98,10 +98,10 @@ void ServerUdp::serverThreadReception()
 //ServerClientSideUdp
 
 template<class TPacket>
-bool ServerClientSideUdp::start(fge::net::Port bindPort,
-                                fge::net::IpAddress const& bindIp,
-                                fge::net::Port connectRemotePort,
-                                fge::net::IpAddress const& connectRemoteAddress)
+bool ClientSideNetUdp::start(fge::net::Port bindPort,
+                             fge::net::IpAddress const& bindIp,
+                             fge::net::Port connectRemotePort,
+                             fge::net::IpAddress const& connectRemoteAddress)
 {
     if (this->g_running)
     {
@@ -116,10 +116,8 @@ bool ServerClientSideUdp::start(fge::net::Port bindPort,
 
             this->g_running = true;
 
-            this->g_threadReception =
-                    std::make_unique<std::thread>(&ServerClientSideUdp::serverThreadReception<TPacket>, this);
-            this->g_threadTransmission =
-                    std::make_unique<std::thread>(&ServerClientSideUdp::serverThreadTransmission, this);
+            this->g_threadReception = std::make_unique<std::thread>(&ClientSideNetUdp::threadReception<TPacket>, this);
+            this->g_threadTransmission = std::make_unique<std::thread>(&ClientSideNetUdp::threadTransmission, this);
 
             return true;
         }
@@ -129,7 +127,7 @@ bool ServerClientSideUdp::start(fge::net::Port bindPort,
 }
 
 template<class TPacket>
-void ServerClientSideUdp::serverThreadReception()
+void ClientSideNetUdp::threadReception()
 {
     TPacket pckReceive;
 

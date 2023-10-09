@@ -92,7 +92,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     mainScene->setCallbackContext({&event, &guiElementHandler});
 
     //Creating the client side server
-    fge::net::ServerClientSideUdp server;
+    fge::net::ClientSideNetUdp server;
 
     //Texture
     fge::texture::Init();

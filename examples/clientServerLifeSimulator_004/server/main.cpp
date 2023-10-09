@@ -74,7 +74,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::string title = "Life simulator server, FastEngine " + std::string{FGE_VERSION_FULL_WITHTAG_STRING};
     fge::SetConsoleCmdTitle(title.c_str());
 
-    fge::net::ServerUdp server;
+    fge::net::ServerSideNetUdp server;
     ///TODO: fge::net::ServerUdp should have a function to create a packet for us.
     /// This will save some time if the user want to re-change the packet type.
 
@@ -87,7 +87,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
     std::cout << "OK !" << std::endl << std::endl;
 
-    fge::net::ServerFluxUdp* serverFlux = server.getDefaultFlux();
+    auto* serverFlux = server.getDefaultFlux();
     fge::net::ClientList& clients = serverFlux->_clients;
 
     clients.watchEvent(true);

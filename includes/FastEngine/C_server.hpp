@@ -66,18 +66,29 @@ struct FGE_API FluxPacket
 };
 using FluxPacketSharedPtr = std::shared_ptr<fge::net::FluxPacket>;
 
-class ServerUdp;
+class ServerSideNetUdp;
 
-class FGE_API ServerFluxUdp
+/**
+ * \class NetFluxUdp
+ * \ingroup network
+ * \brief A network flux
+ *
+ * Every flux have its own client list and packet queue.
+ *
+ * When a packet is received by the network, it is pushed into the flux only
+ * if FGE_SERVER_DEFAULT_MAXPACKET is not reached. If it is, the packet is
+ * transmitted to another flux or dismissed if no one is available.
+ */
+class FGE_API NetFluxUdp
 {
 public:
-    ServerFluxUdp() = default;
-    ServerFluxUdp(ServerFluxUdp const& r) = delete;
-    ServerFluxUdp(ServerFluxUdp&& r) noexcept = delete;
-    ~ServerFluxUdp();
+    NetFluxUdp() = default;
+    NetFluxUdp(NetFluxUdp const& r) = delete;
+    NetFluxUdp(NetFluxUdp&& r) noexcept = delete;
+    virtual ~NetFluxUdp();
 
-    ServerFluxUdp& operator=(ServerFluxUdp const& r) = delete;
-    ServerFluxUdp& operator=(ServerFluxUdp&& r) noexcept = delete;
+    NetFluxUdp& operator=(NetFluxUdp const& r) = delete;
+    NetFluxUdp& operator=(NetFluxUdp&& r) noexcept = delete;
 
     void clearPackets();
     [[nodiscard]] FluxPacketSharedPtr popNextPacket();
@@ -88,30 +99,50 @@ public:
     void setMaxPackets(std::size_t n);
     [[nodiscard]] std::size_t getMaxPackets() const;
 
-    fge::net::ClientList _clients;
-
-private:
+protected:
     bool pushPacket(FluxPacketSharedPtr const& fluxPck);
     void forcePushPacket(FluxPacketSharedPtr fluxPck);
 
-    mutable std::mutex g_mutexLocal;
+    mutable std::mutex _g_mutexFlux;
+    std::queue<FluxPacketSharedPtr> _g_packets;
 
-    std::queue<FluxPacketSharedPtr> g_packets;
+private:
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
 
-    friend class ServerUdp;
+    friend class ServerSideNetUdp;
 };
-
-class FGE_API ServerUdp
+class FGE_API ServerNetFluxUdp : public NetFluxUdp
 {
 public:
-    ServerUdp();
-    ServerUdp(ServerUdp const& r) = delete;
-    ServerUdp(ServerUdp&& r) noexcept = delete;
-    ~ServerUdp();
+    ServerNetFluxUdp() = default;
+    ~ServerNetFluxUdp() override = default;
 
-    ServerUdp& operator=(ServerUdp const& r) = delete;
-    ServerUdp& operator=(ServerUdp&& r) noexcept = delete;
+    fge::net::ClientList _clients;
+};
+
+/**
+ * \class ServerSideNetUdp
+ * \ingroup network
+ * \brief A server side network manager
+ *
+ * This class is used to manage clients on the server side. When started, it will create
+ * two threads, one for the reception and one for the transmission.
+ *
+ * The reception thread will receive packets from the network and push them in created fluxes.
+ *
+ * The transmission thread will pop packets from the client queued packets and send them
+ * taking care of the latency.
+ */
+class FGE_API ServerSideNetUdp
+{
+public:
+    ServerSideNetUdp();
+    ServerSideNetUdp(ServerSideNetUdp const& r) = delete;
+    ServerSideNetUdp(ServerSideNetUdp&& r) noexcept = delete;
+    ~ServerSideNetUdp();
+
+    ServerSideNetUdp& operator=(ServerSideNetUdp const& r) = delete;
+    ServerSideNetUdp& operator=(ServerSideNetUdp&& r) noexcept = delete;
 
     template<class TPacket = fge::net::Packet>
     [[nodiscard]] bool start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp = fge::net::IpAddress::Any);
@@ -119,18 +150,40 @@ public:
     [[nodiscard]] bool start();
     void stop();
 
-    [[nodiscard]] fge::net::ServerFluxUdp* newFlux();
+    /**
+     * \brief Create a new flux
+     *
+     * When receiving a packet, the server will push it into a flux sequentially, if the
+     * thread that handle the flux doesn't want to handle the packet (because the packet
+     * is not from his client list, or other reasons) the thread must call repushPacket()
+     * to push the packet into another flux.
+     *
+     * If no flux is available, the packet is pushed into the default flux or dismissed if
+     * the default flux is full.
+     *
+     * \see NetFluxUdp
+     *
+     * \return A pointer to the new flux
+     */
+    [[nodiscard]] fge::net::ServerNetFluxUdp* newFlux();
 
-    [[nodiscard]] fge::net::ServerFluxUdp* getFlux(std::size_t index);
-    [[nodiscard]] fge::net::ServerFluxUdp* getDefaultFlux();
+    [[nodiscard]] fge::net::ServerNetFluxUdp* getFlux(std::size_t index);
+    [[nodiscard]] fge::net::ServerNetFluxUdp* getDefaultFlux();
 
     [[nodiscard]] std::size_t getFluxSize() const;
 
-    void closeFlux(fge::net::ServerFluxUdp* flux);
+    void closeFlux(fge::net::NetFluxUdp* flux);
     void closeAllFlux();
 
     void repushPacket(FluxPacketSharedPtr&& fluxPck);
 
+    /**
+     * \brief Notify the transmission thread
+     *
+     * This function notify the transmission thread to send packets.
+     * This should be called when a packet when you finish to push packets
+     * for clients.
+     */
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
@@ -139,8 +192,8 @@ public:
 
 private:
     template<class TPacket>
-    void serverThreadReception();
-    void serverThreadTransmission();
+    void threadReception();
+    void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
@@ -150,23 +203,30 @@ private:
     mutable std::mutex g_mutexTransmission;
     mutable std::mutex g_mutexServer;
 
-    std::vector<std::unique_ptr<fge::net::ServerFluxUdp>> g_fluxes;
-    fge::net::ServerFluxUdp g_defaultFlux;
+    std::vector<std::unique_ptr<fge::net::ServerNetFluxUdp>> g_fluxes;
+    fge::net::ServerNetFluxUdp g_defaultFlux;
 
     fge::net::SocketUdp g_socket;
     bool g_running;
 };
 
-class FGE_API ServerClientSideUdp
+/**
+ * \class ClientSideNetUdp
+ * \ingroup network
+ * \brief A client side network manager
+ *
+ * \see ServerSideNetUdp
+ */
+class FGE_API ClientSideNetUdp : public NetFluxUdp
 {
 public:
-    ServerClientSideUdp();
-    ServerClientSideUdp(ServerClientSideUdp const& r) = delete;
-    ServerClientSideUdp(ServerClientSideUdp&& r) noexcept = delete;
-    ~ServerClientSideUdp();
+    ClientSideNetUdp();
+    ClientSideNetUdp(ClientSideNetUdp const& r) = delete;
+    ClientSideNetUdp(ClientSideNetUdp&& r) noexcept = delete;
+    ~ClientSideNetUdp() override;
 
-    ServerClientSideUdp& operator=(ServerClientSideUdp const& r) = delete;
-    ServerClientSideUdp& operator=(ServerClientSideUdp&& r) noexcept = delete;
+    ClientSideNetUdp& operator=(ClientSideNetUdp const& r) = delete;
+    ClientSideNetUdp& operator=(ClientSideNetUdp&& r) noexcept = delete;
 
     template<class TPacket = fge::net::Packet>
     [[nodiscard]] bool start(fge::net::Port bindPort,
@@ -180,14 +240,6 @@ public:
 
     fge::net::Socket::Error send(fge::net::Packet& pck);
 
-    [[nodiscard]] FluxPacketSharedPtr popNextPacket();
-
-    [[nodiscard]] std::size_t getPacketsSize() const;
-    [[nodiscard]] bool isEmpty() const;
-
-    void setMaxPackets(std::size_t n);
-    [[nodiscard]] std::size_t getMaxPackets() const;
-
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds const& ms);
 
     [[nodiscard]] fge::net::Identity const& getClientIdentity() const;
@@ -196,10 +248,8 @@ public:
 
 private:
     template<class TPacket>
-    void serverThreadReception();
-    void serverThreadTransmission();
-
-    bool pushPacket(FluxPacketSharedPtr const& fluxPck);
+    void threadReception();
+    void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
@@ -208,13 +258,9 @@ private:
     std::condition_variable g_receptionNotifier;
 
     mutable std::mutex g_mutexTransmission;
-    mutable std::mutex g_mutexServer;
 
     fge::net::SocketUdp g_socket;
     bool g_running;
-
-    std::queue<FluxPacketSharedPtr> g_packets;
-    std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
 
     fge::net::Identity g_clientIdentity;
 };
