@@ -261,7 +261,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             //auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
             //Retrieve the packet header
-            switch (fge::net::GetHeader(fluxPacket->_pck))
+            switch (fge::net::GetHeader(fluxPacket->_packet))
             {
             case ls::LS_PROTOCOL_ALL_GOODBYE:
                 server.stop();
@@ -273,9 +273,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
                 bool valid = false;
-                fluxPacket->_pck >> valid;
+                fluxPacket->_packet >> valid;
 
-                if (fluxPacket->_pck && valid)
+                if (fluxPacket->_packet && valid)
                 {
                     //Get latency
                     server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
@@ -325,14 +325,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene
-                mainScene->unpackModification(fluxPacket->_pck);
+                mainScene->unpackModification(fluxPacket->_packet);
                 //And unpack all watched events
-                mainScene->unpackWatchedEvent(fluxPacket->_pck);
+                mainScene->unpackWatchedEvent(fluxPacket->_packet);
             }
             break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 //Do a full scene update
-                mainScene->unpack(fluxPacket->_pck);
+                mainScene->unpack(fluxPacket->_packet);
                 break;
             default:
                 break;

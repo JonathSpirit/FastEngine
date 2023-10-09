@@ -34,39 +34,38 @@
 namespace fge::net
 {
 
-struct FGE_API FluxPacket
-{
-    FluxPacket(fge::net::Packet const& pck,
-               fge::net::Identity const& id,
-               std::size_t fluxIndex = 0,
-               std::size_t fluxCount = 0) :
-            _pck(pck),
-            _id(id),
-            _timestamp(fge::net::Client::getTimestamp_ms()),
-            _fluxIndex(fluxIndex),
-            _fluxCount(fluxCount)
-    {}
-    FluxPacket(fge::net::Packet&& pck,
-               fge::net::Identity const& id,
-               std::size_t fluxIndex = 0,
-               std::size_t fluxCount = 0) :
-            _pck(std::move(pck)),
-            _id(id),
-            _timestamp(fge::net::Client::getTimestamp_ms()),
-            _fluxIndex(fluxIndex),
-            _fluxCount(fluxCount)
-    {}
-
-    fge::net::Packet _pck;
-    fge::net::Identity _id;
-    fge::net::Timestamp _timestamp;
-
-    std::size_t _fluxIndex;
-    std::size_t _fluxCount;
-};
-using FluxPacketSharedPtr = std::shared_ptr<fge::net::FluxPacket>;
-
 class ServerSideNetUdp;
+class ClientSideNetUdp;
+
+class FluxPacket
+{
+public:
+    inline FluxPacket(fge::net::Packet const& pck,
+                      fge::net::Identity const& id,
+                      std::size_t fluxIndex = 0,
+                      std::size_t fluxCount = 0);
+    inline FluxPacket(fge::net::Packet&& pck,
+                      fge::net::Identity const& id,
+                      std::size_t fluxIndex = 0,
+                      std::size_t fluxCount = 0);
+    ~FluxPacket() = default;
+
+    fge::net::Packet _packet;
+
+    [[nodiscard]] inline fge::net::Timestamp getTimeStamp() const;
+    [[nodiscard]] inline fge::net::Identity const& getIdentity() const;
+
+private:
+    friend class ServerSideNetUdp;
+    friend class ClientSideNetUdp;
+
+    fge::net::Identity g_id;
+    fge::net::Timestamp g_timestamp;
+
+    std::size_t g_fluxIndex;
+    std::size_t g_fluxCount;
+};
+using FluxPacketPtr = std::shared_ptr<fge::net::FluxPacket>;
 
 /**
  * \class NetFluxUdp
@@ -91,7 +90,7 @@ public:
     NetFluxUdp& operator=(NetFluxUdp&& r) noexcept = delete;
 
     void clearPackets();
-    [[nodiscard]] FluxPacketSharedPtr popNextPacket();
+    [[nodiscard]] FluxPacketPtr popNextPacket();
 
     [[nodiscard]] std::size_t getPacketsSize() const;
     [[nodiscard]] bool isEmpty() const;
@@ -100,11 +99,11 @@ public:
     [[nodiscard]] std::size_t getMaxPackets() const;
 
 protected:
-    bool pushPacket(FluxPacketSharedPtr const& fluxPck);
-    void forcePushPacket(FluxPacketSharedPtr fluxPck);
+    bool pushPacket(FluxPacketPtr const& fluxPck);
+    void forcePushPacket(FluxPacketPtr fluxPck);
 
     mutable std::mutex _g_mutexFlux;
-    std::queue<FluxPacketSharedPtr> _g_packets;
+    std::queue<FluxPacketPtr> _g_packets;
 
 private:
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
@@ -175,7 +174,7 @@ public:
     void closeFlux(fge::net::NetFluxUdp* flux);
     void closeAllFlux();
 
-    void repushPacket(FluxPacketSharedPtr&& fluxPck);
+    void repushPacket(FluxPacketPtr&& fluxPck);
 
     /**
      * \brief Notify the transmission thread

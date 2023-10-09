@@ -17,7 +17,39 @@
 namespace fge::net
 {
 
-//ServerUdp
+//FluxPacket
+
+inline FluxPacket::FluxPacket(fge::net::Packet const& pck,
+                              fge::net::Identity const& id,
+                              std::size_t fluxIndex,
+                              std::size_t fluxCount) :
+        _packet(pck),
+        g_id(id),
+        g_timestamp(fge::net::Client::getTimestamp_ms()),
+        g_fluxIndex(fluxIndex),
+        g_fluxCount(fluxCount)
+{}
+inline FluxPacket::FluxPacket(fge::net::Packet&& pck,
+                              fge::net::Identity const& id,
+                              std::size_t fluxIndex,
+                              std::size_t fluxCount) :
+        _packet(std::move(pck)),
+        g_id(id),
+        g_timestamp(fge::net::Client::getTimestamp_ms()),
+        g_fluxIndex(fluxIndex),
+        g_fluxCount(fluxCount)
+{}
+
+inline fge::net::Timestamp FluxPacket::getTimeStamp() const
+{
+    return this->g_timestamp;
+}
+inline fge::net::Identity const& FluxPacket::getIdentity() const
+{
+    return this->g_id;
+}
+
+//ServerSideNetUdp
 
 template<class TPacket>
 bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp)
@@ -95,7 +127,7 @@ void ServerSideNetUdp::threadReception()
     }
 }
 
-//ServerClientSideUdp
+//ClientSideNetUdp
 
 template<class TPacket>
 bool ClientSideNetUdp::start(fge::net::Port bindPort,

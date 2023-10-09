@@ -226,13 +226,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto fluxPacket = serverFlux->popNextPacket();
 
             //Check if we already know the packet identity
-            auto client = clients.get(fluxPacket->_id);
+            auto client = clients.get(fluxPacket->getIdentity());
 
             //Prepare a sending packet
             auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
             //Retrieve the packet header
-            switch (fge::net::GetHeader(fluxPacket->_pck))
+            switch (fge::net::GetHeader(fluxPacket->_packet))
             {
             case ls::LS_PROTOCOL_ALL_PING:
                 fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_ALL_PONG);
@@ -243,7 +243,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
                 else
                 {
-                    server.sendTo(transmissionPacket->packet(), fluxPacket->_id);
+                    server.sendTo(transmissionPacket->packet(), fluxPacket->getIdentity());
                 }
                 break;
             case ls::LS_PROTOCOL_C_UPDATE:
@@ -286,7 +286,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     //will have a valid size range.
                     fge::net::rules::RValid(
                             fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1,
-                                                                         {fluxPacket->_pck, &connectionText1}))
+                                                                         {fluxPacket->_packet, &connectionText1}))
                             .and_then([&](auto& chain) {
                         return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
                                 sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
@@ -300,11 +300,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             //The client is valid, we can connect him
                             transmissionPacket->packet() << true;
 
-                            std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !" << std::endl;
+                            std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString() << " connected !"
+                                      << std::endl;
 
                             //Create the new client with the packet identity
                             client = std::make_shared<fge::net::Client>();
-                            clients.add(fluxPacket->_id, client);
+                            clients.add(fluxPacket->getIdentity(), client);
 
                             //Pack data required by the LatencyPlanner in order to compute latency
                             client->_latencyPlanner.pack(transmissionPacket);
@@ -324,7 +325,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     }).on_error([&]([[maybe_unused]] auto& chain) {
                         //Something is not right, we will send "false" to the potential client
                         transmissionPacket->packet() << false;
-                        server.sendTo(transmissionPacket->packet(), fluxPacket->_id);
+                        server.sendTo(transmissionPacket->packet(), fluxPacket->getIdentity());
                     });
                 }
             }

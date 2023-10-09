@@ -28,9 +28,9 @@ NetFluxUdp::~NetFluxUdp()
 void NetFluxUdp::clearPackets()
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
-    std::queue<FluxPacketSharedPtr>().swap(this->_g_packets);
+    std::queue<FluxPacketPtr>().swap(this->_g_packets);
 }
-bool NetFluxUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
+bool NetFluxUdp::pushPacket(FluxPacketPtr const& fluxPck)
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
     if (this->_g_packets.size() >= this->g_maxPackets)
@@ -40,18 +40,18 @@ bool NetFluxUdp::pushPacket(FluxPacketSharedPtr const& fluxPck)
     this->_g_packets.push(fluxPck);
     return true;
 }
-void NetFluxUdp::forcePushPacket(FluxPacketSharedPtr fluxPck)
+void NetFluxUdp::forcePushPacket(FluxPacketPtr fluxPck)
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
     this->_g_packets.push(std::move(fluxPck));
 }
 
-FluxPacketSharedPtr NetFluxUdp::popNextPacket()
+FluxPacketPtr NetFluxUdp::popNextPacket()
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
     if (!this->_g_packets.empty())
     {
-        FluxPacketSharedPtr tmpPck = std::move(this->_g_packets.front());
+        FluxPacketPtr tmpPck = std::move(this->_g_packets.front());
         this->_g_packets.pop();
         return tmpPck;
     }
@@ -150,15 +150,15 @@ void ServerSideNetUdp::closeAllFlux()
     this->g_fluxes.clear();
 }
 
-void ServerSideNetUdp::repushPacket(FluxPacketSharedPtr&& fluxPck)
+void ServerSideNetUdp::repushPacket(FluxPacketPtr&& fluxPck)
 {
-    if ((++fluxPck->_fluxCount) >= this->g_fluxes.size())
+    if ((++fluxPck->g_fluxCount) >= this->g_fluxes.size())
     {
         this->g_defaultFlux.pushPacket(fluxPck);
         return;
     }
-    auto newIndex = (fluxPck->_fluxIndex + 1) % this->g_fluxes.size();
-    fluxPck->_fluxIndex = newIndex;
+    auto newIndex = (fluxPck->g_fluxIndex + 1) % this->g_fluxes.size();
+    fluxPck->g_fluxIndex = newIndex;
     this->g_fluxes[newIndex]->forcePushPacket(std::move(fluxPck));
 }
 

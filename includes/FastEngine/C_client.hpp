@@ -50,7 +50,7 @@ using FullTimestamp = uint64_t;      ///< An timestamp represent current time in
 using FullTimestampOffset = int64_t; ///< An timestamp offset
 using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
 
-struct FluxPacket;
+class FluxPacket;
 class Client;
 
 /**
