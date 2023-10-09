@@ -194,14 +194,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
-            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
+            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
                     << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
             //Ask the server thread to automatically update the timestamp just before sending it
-            server._client._latencyPlanner.pack(packetSend);
+            server._client._latencyPlanner.pack(transmissionPacket);
 
-            server._client.pushPacket(std::move(packetSend));
+            server._client.pushPacket(std::move(transmissionPacket));
 
             connectionTimeoutCheck = true;
             connectionTimeout.restart();
@@ -226,14 +226,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         {
             clockUpdate.restart();
 
-            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
-            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_UPDATE);
+            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_UPDATE);
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
             //The LatencyPlanner class will do all the work for that.
-            server._client._latencyPlanner.pack(packetSend);
-            server._client.pushPacket(std::move(packetSend));
+            server._client._latencyPlanner.pack(transmissionPacket);
+            server._client.pushPacket(std::move(transmissionPacket));
         }
 
         //Check if the connection is unsuccessful
@@ -257,8 +257,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             //Popping the next packet
             auto fluxPacket = server.popNextPacket();
 
-            //Prepare a sending packet
-            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            //Prepare a sending packet (not used in this example)
+            //auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
             //Retrieve the packet header
             switch (fge::net::GetHeader(fluxPacket->_pck))

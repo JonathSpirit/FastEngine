@@ -82,7 +82,7 @@ public:
      *
      * \param pck The packet to push
      */
-    void sendToAll(fge::net::SendQueuePacket const& pck);
+    void sendToAll(fge::net::TransmissionPacketPtr const& pck);
 
     /**
      * \brief Add a client to the list
