@@ -30,14 +30,14 @@ void NetFluxUdp::clearPackets()
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
     std::queue<FluxPacketPtr>().swap(this->_g_packets);
 }
-bool NetFluxUdp::pushPacket(FluxPacketPtr const& fluxPck)
+bool NetFluxUdp::pushPacket(FluxPacketPtr&& fluxPck)
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
     if (this->_g_packets.size() >= this->g_maxPackets)
     {
         return false;
     }
-    this->_g_packets.push(fluxPck);
+    this->_g_packets.push(std::move(fluxPck));
     return true;
 }
 void NetFluxUdp::forcePushPacket(FluxPacketPtr fluxPck)
@@ -154,7 +154,7 @@ void ServerSideNetUdp::repushPacket(FluxPacketPtr&& fluxPck)
 {
     if ((++fluxPck->g_fluxCount) >= this->g_fluxes.size())
     {
-        this->g_defaultFlux.pushPacket(fluxPck);
+        this->g_defaultFlux.pushPacket(std::move(fluxPck));
         return;
     }
     auto newIndex = (fluxPck->g_fluxIndex + 1) % this->g_fluxes.size();

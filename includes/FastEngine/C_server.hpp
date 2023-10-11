@@ -65,7 +65,7 @@ private:
     std::size_t g_fluxIndex;
     std::size_t g_fluxCount;
 };
-using FluxPacketPtr = std::shared_ptr<fge::net::FluxPacket>;
+using FluxPacketPtr = std::unique_ptr<fge::net::FluxPacket>;
 
 /**
  * \class NetFluxUdp
@@ -99,7 +99,7 @@ public:
     [[nodiscard]] std::size_t getMaxPackets() const;
 
 protected:
-    bool pushPacket(FluxPacketPtr const& fluxPck);
+    bool pushPacket(FluxPacketPtr&& fluxPck);
     void forcePushPacket(FluxPacketPtr fluxPck);
 
     mutable std::mutex _g_mutexFlux;

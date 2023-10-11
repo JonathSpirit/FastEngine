@@ -105,7 +105,7 @@ void ServerSideNetUdp::threadReception()
                 if (this->g_fluxes.empty())
                 {
                     this->g_defaultFlux.pushPacket(
-                            std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), idReceive));
+                            std::make_unique<fge::net::FluxPacket>(std::move(pckReceive), idReceive));
                     continue;
                 }
 
@@ -115,7 +115,7 @@ void ServerSideNetUdp::threadReception()
                 {
                     pushingIndex = (pushingIndex + 1) % this->g_fluxes.size();
                     if (this->g_fluxes[pushingIndex]->pushPacket(
-                                std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), idReceive, pushingIndex)))
+                                std::make_unique<fge::net::FluxPacket>(std::move(pckReceive), idReceive, pushingIndex)))
                     {
                         //Packet is correctly pushed
                         break;
@@ -169,7 +169,7 @@ void ClientSideNetUdp::threadReception()
         {
             if (this->g_socket.receive(pckReceive) == fge::net::Socket::ERR_NOERROR)
             {
-                this->pushPacket(std::make_shared<fge::net::FluxPacket>(std::move(pckReceive), this->g_clientIdentity));
+                this->pushPacket(std::make_unique<fge::net::FluxPacket>(std::move(pckReceive), this->g_clientIdentity));
                 this->g_receptionNotifier.notify_all();
             }
         }
