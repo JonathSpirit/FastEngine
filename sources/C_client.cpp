@@ -199,45 +199,39 @@ bool Client::isPendingPacketsEmpty()
 
 void OneWayLatencyPlanner::pack(fge::net::TransmissionPacketPtr& tPacket)
 {
-    //Append my timestamp
-    std::size_t myTimestampPos = tPacket->packet().getDataSize();
+    //Append timestamp
+    auto const myTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(fge::net::Timestamp));
+    tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
 
     //Append latency corrector
-    std::size_t myLatencyCorrectorPos = tPacket->packet().getDataSize();
-    fge::net::Latency_ms dummyLatency = FGE_NET_BAD_LATENCY;
-    tPacket->packet().pack(&dummyLatency, sizeof(dummyLatency));
+    auto const myLatencyCorrectorPos = tPacket->packet().getDataSize();
+    tPacket->packet().append(sizeof(fge::net::Latency_ms));
 
-    //Append my computed latency
-    fge::net::Latency_ms myComputedLatency = this->g_latency.value_or(FGE_NET_BAD_LATENCY);
+    //Pack computed latency
+    auto const myComputedLatency = this->g_latency.value_or(FGE_NET_BAD_LATENCY);
     tPacket->packet().pack(&myComputedLatency, sizeof(myComputedLatency));
 
-#ifdef FGE_DEF_SERVER
     //Append full (only server) timestamp
     std::size_t myFullTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(fge::net::FullTimestamp));
-#endif //FGE_DEF_SERVER
+    tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
 
-    //Append sync stat
+    //Pack sync stat
     tPacket->packet().pack(&this->g_syncStat, sizeof(this->g_syncStat));
 
-    //Append external stored timestamp (if exist)
+    //Pack external stored timestamp (if exist)
     if ((this->g_syncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
-        tPacket->packet().pack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
+        tPacket->packet().pack(&this->g_externalStoredTimestamp, sizeof(this->g_externalStoredTimestamp));
         tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY,
                                         myLatencyCorrectorPos);
         this->g_syncStat &= ~Stats::HAVE_EXTERNAL_TIMESTAMP;
     }
-
-    tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
-#ifdef FGE_DEF_SERVER
-    tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
-#endif //FGE_DEF_SERVER
 }
 void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client& client)
 {
-    bool finishedToSendLastPacket = !client.getCorrectorTimestamp().has_value();
+    bool const finishedToSendLastPacket = !client.getCorrectorTimestamp().has_value();
 
     if (finishedToSendLastPacket)
     {
@@ -261,11 +255,9 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         this->g_otherSideLatency = otherSideLatency;
     }
 
-#ifndef FGE_DEF_SERVER
     //Retrieve full server timestamp (only client)
     fge::net::FullTimestamp fullTimestamp;
     packet->_packet.unpack(&fullTimestamp, sizeof(fullTimestamp));
-#endif //FGE_DEF_SERVER
 
     //Retrieve external sync stat
     std::underlying_type_t<Stats> externalSyncStat;
@@ -298,9 +290,8 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         //Compute new latency
         this->g_latency = (this->g_roundTripTime.value() - latencyCorrector) / 2;
 
-#ifndef FGE_DEF_SERVER
         //Compute time offset
-        fge::net::FullTimestampOffset clockOffset =
+        fge::net::FullTimestampOffset const clockOffset =
                 static_cast<fge::net::FullTimestampOffset>(fge::net::Client::getFullTimestamp_ms()) -
                 static_cast<fge::net::FullTimestampOffset>(fullTimestamp) + this->g_latency.value();
         if (this->g_clockOffsetCount == this->g_clockOffsets.max_size())
@@ -326,7 +317,6 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
             result += this->g_clockOffsets[i];
         }
         this->g_meanClockOffset = result / this->g_clockOffsetCount;
-#endif
     }
 }
 

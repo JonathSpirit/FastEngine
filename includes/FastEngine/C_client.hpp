@@ -156,8 +156,6 @@ public:
      * The clock offset represent the delta time between 2 computers clocks.
      * It is useful in order to predicate some data.
      *
-     * \warning The offset is only available for clients
-     *
      * \return Optionally a full timestamp offset
      */
     [[nodiscard]] std::optional<fge::net::FullTimestampOffset> getClockOffset() const;
