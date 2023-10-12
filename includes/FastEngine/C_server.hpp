@@ -186,8 +186,10 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::IpAddress const& ip, fge::net::Port port);
     fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::Identity const& id);
+    fge::net::Socket::Error
+    sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
+    fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id);
 
 private:
     template<class TPacket>
@@ -238,8 +240,9 @@ public:
     [[nodiscard]] bool isRunning() const;
 
     fge::net::Socket::Error send(fge::net::Packet& pck);
+    fge::net::Socket::Error send(fge::net::TransmissionPacketPtr& pck);
 
-    [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds const& ms);
+    [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
     [[nodiscard]] fge::net::Identity const& getClientIdentity() const;
 

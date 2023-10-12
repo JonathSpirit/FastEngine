@@ -23,18 +23,14 @@ inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create()
     return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::make_unique<TPacket>())};
 }
 template<class TPacket>
-inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(std::initializer_list<Option> options)
+inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(TPacket&& packet)
 {
-    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::make_unique<TPacket>(), options)};
+    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::make_unique<TPacket>(std::move(packet)))};
 }
 
 inline TransmissionPacket::TransmissionPacket(std::unique_ptr<Packet>&& packet) :
         g_packet(std::move(packet)),
         g_options()
-{}
-inline TransmissionPacket::TransmissionPacket(std::unique_ptr<Packet>&& packet, std::initializer_list<Option> options) :
-        g_packet(std::move(packet)),
-        g_options(options)
 {}
 
 inline fge::net::Packet const& TransmissionPacket::packet() const

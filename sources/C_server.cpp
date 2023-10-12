@@ -167,16 +167,24 @@ void ServerSideNetUdp::notifyTransmission()
     this->g_transmissionNotifier.notify_one();
 }
 
-fge::net::Socket::Error
-ServerSideNetUdp::sendTo(fge::net::Packet& pck, fge::net::IpAddress const& ip, fge::net::Port port)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    return this->g_socket.sendTo(pck, ip, port);
-}
 fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.sendTo(pck, id._ip, id._port);
+}
+fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::TransmissionPacketPtr& pck,
+                                                 fge::net::Client const& client,
+                                                 fge::net::Identity const& id)
+{
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
+    pck->applyOptions(client);
+    return this->g_socket.sendTo(pck->packet(), id._ip, id._port);
+}
+fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id)
+{
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
+    pck->applyOptions();
+    return this->g_socket.sendTo(pck->packet(), id._ip, id._port);
 }
 
 bool ServerSideNetUdp::isRunning() const
@@ -274,6 +282,12 @@ fge::net::Socket::Error ClientSideNetUdp::send(fge::net::Packet& pck)
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.send(pck);
 }
+fge::net::Socket::Error ClientSideNetUdp::send(fge::net::TransmissionPacketPtr& pck)
+{
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
+    pck->applyOptions(this->_client);
+    return this->g_socket.send(pck->packet());
+}
 
 bool ClientSideNetUdp::isRunning() const
 {
@@ -285,7 +299,7 @@ fge::net::Identity const& ClientSideNetUdp::getClientIdentity() const
     return this->g_clientIdentity;
 }
 
-std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds const& ms)
+std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 {
     std::unique_lock<std::mutex> lock(this->_g_mutexFlux);
     auto packetSize = this->_g_packets.size();
@@ -294,7 +308,7 @@ std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds const& ms
         return packetSize;
     }
 
-    this->g_receptionNotifier.wait_for(lock, ms);
+    this->g_receptionNotifier.wait_for(lock, time_ms);
     return this->_g_packets.size();
 }
 

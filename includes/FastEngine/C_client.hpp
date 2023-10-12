@@ -90,7 +90,7 @@ public:
     template<class TPacket>
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create();
     template<class TPacket>
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(std::initializer_list<Option> options);
+    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(TPacket&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;
     TransmissionPacket(TransmissionPacket&& r) noexcept = delete;
@@ -105,10 +105,10 @@ public:
     [[nodiscard]] inline std::vector<Option>& options();
 
     void applyOptions(fge::net::Client const& client);
+    void applyOptions();
 
 private:
     inline explicit TransmissionPacket(std::unique_ptr<Packet>&& packet);
-    inline TransmissionPacket(std::unique_ptr<Packet>&& packet, std::initializer_list<Option> options);
 
     std::unique_ptr<Packet> g_packet;
     std::vector<Option> g_options;
