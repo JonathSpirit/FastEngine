@@ -484,8 +484,8 @@ std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::
      * Modified by : Guillaume Guillet
      */
 
-    auto const directionA = glm::normalize(lineA._end - lineA._start);
-    auto const directionB = glm::normalize(lineB._end - lineB._start);
+    auto const directionA = lineA.getDirection();
+    auto const directionB = lineB.getDirection();
 
     fge::Intersection result;
 
@@ -514,8 +514,8 @@ std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::
     }
 
     //Make sure that there is actually an intersection
-    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normA < glm::length(lineA._end - lineA._start)) &&
-        (result._normB < glm::length(lineB._end - lineB._start)))
+    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normA < lineA.getLength()) &&
+        (result._normB < lineB.getLength()))
     {
         result._point = lineA._start + directionA * result._normA;
         return result;
@@ -533,7 +533,7 @@ CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction,
      */
 
     auto const& directionA = direction;
-    auto const directionB = glm::normalize(line._end - line._start);
+    auto const directionB = line.getDirection();
 
     fge::Intersection result;
 
@@ -560,7 +560,7 @@ CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction,
     }
 
     //Make sure that there is actually an intersection
-    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normB < glm::length(line._end - line._start)))
+    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normB < line.getLength()))
     {
         result._point = position + directionA * result._normA;
         return result;
