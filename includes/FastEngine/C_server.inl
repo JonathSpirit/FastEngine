@@ -101,6 +101,13 @@ void ServerSideNetUdp::threadReception()
         {
             if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == fge::net::Socket::ERR_NOERROR)
             {
+#ifdef FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST
+                if (fge::_random.range(0, 1000) <= 20)
+                {
+                    continue;
+                }
+#endif
+
                 std::lock_guard<std::mutex> lck(this->g_mutexServer);
                 if (this->g_fluxes.empty())
                 {
@@ -169,6 +176,13 @@ void ClientSideNetUdp::threadReception()
         {
             if (this->g_socket.receive(pckReceive) == fge::net::Socket::ERR_NOERROR)
             {
+#ifdef FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST
+                if (fge::_random.range(0, 1000) <= 200)
+                {
+                    continue;
+                }
+#endif
+
                 this->pushPacket(std::make_unique<fge::net::FluxPacket>(std::move(pckReceive), this->g_clientIdentity));
                 this->g_receptionNotifier.notify_all();
             }

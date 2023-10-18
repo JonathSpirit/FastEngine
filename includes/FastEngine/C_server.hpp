@@ -29,6 +29,10 @@
 #include <queue>
 #include <thread>
 
+#if defined(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST) || defined(FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST)
+    #include "FastEngine/C_random.hpp"
+#endif
+
 #define FGE_SERVER_DEFAULT_MAXPACKET 200
 
 namespace fge::net

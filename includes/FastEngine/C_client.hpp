@@ -30,7 +30,7 @@
 #include <vector>
 
 #define FGE_NET_BAD_SKEY 0
-#define FGE_NET_DEFAULT_LATENCY 50
+#define FGE_NET_DEFAULT_LATENCY 20
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
