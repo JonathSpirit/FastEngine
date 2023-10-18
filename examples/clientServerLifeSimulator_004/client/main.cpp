@@ -138,7 +138,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Create a latency text
     char latencyTextBuffer[200];
-    char const* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
+    char const* latencyTextFormat = "clock offset: %s\nlatency CTOS: %d\nlatency STOC: %d\nping: %d\nRTT: %s";
     auto* latencyText = mainScene
                                 ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
@@ -321,7 +321,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 int size = sprintf(latencyTextBuffer, latencyTextFormat,
                                    fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
                                    server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                   server._client.getPing_ms());
+                                   server._client.getPing_ms(),
+                                   fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str());
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene

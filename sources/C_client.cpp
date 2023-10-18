@@ -231,8 +231,8 @@ void OneWayLatencyPlanner::pack(fge::net::TransmissionPacketPtr& tPacket)
     auto const myComputedLatency = this->g_latency.value_or(FGE_NET_BAD_LATENCY);
     tPacket->packet().pack(&myComputedLatency, sizeof(myComputedLatency));
 
-    //Append full (only server) timestamp
-    std::size_t myFullTimestampPos = tPacket->packet().getDataSize();
+    //Append full timestamp
+    std::size_t const myFullTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(fge::net::FullTimestamp));
     tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
 
@@ -266,7 +266,7 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
     fge::net::Latency_ms latencyCorrector;
     packet->_packet.unpack(&latencyCorrector, sizeof(latencyCorrector));
 
-    //Retrieve the latency computed at the other side (client or server)
+    //Retrieve the latency computed at the other side
     fge::net::Latency_ms otherSideLatency;
     packet->_packet.unpack(&otherSideLatency, sizeof(otherSideLatency));
     if (otherSideLatency != FGE_NET_BAD_LATENCY)
@@ -274,12 +274,12 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         this->g_otherSideLatency = otherSideLatency;
     }
 
-    //Retrieve full server timestamp (only client)
+    //Retrieve full server timestamp
     fge::net::FullTimestamp fullTimestamp;
     packet->_packet.unpack(&fullTimestamp, sizeof(fullTimestamp));
 
     //Retrieve external sync stat
-    std::underlying_type_t<Stats> externalSyncStat;
+    Stats externalSyncStat;
     packet->_packet.unpack(&externalSyncStat, sizeof(externalSyncStat));
 
     //Does he have our timestamp ?
@@ -307,7 +307,9 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         this->g_roundTripTime = fge::net::Client::computeLatency_ms(firstTimestamp, packet->getTimeStamp());
 
         //Compute new latency
-        this->g_latency = (this->g_roundTripTime.value() - latencyCorrector) / 2;
+        this->g_latency = (this->g_roundTripTime.value() < latencyCorrector)
+                                  ? FGE_NET_DEFAULT_LATENCY
+                                  : ((this->g_roundTripTime.value() - latencyCorrector) / 2);
 
         //Compute time offset
         fge::net::FullTimestampOffset const clockOffset =
