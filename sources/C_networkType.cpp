@@ -134,7 +134,6 @@ void NetworkTypeScene::packData(fge::net::Packet& pck)
 
 bool NetworkTypeScene::clientsCheckup(fge::net::ClientList const& clients)
 {
-    this->g_typeSource->clientsCheckupEvent(clients);
     this->g_typeSource->clientsCheckup(clients);
     return true;
 }

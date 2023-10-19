@@ -364,8 +364,13 @@ using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterat
 class FGE_API Scene : public fge::CommandHandler
 {
 public:
-    using NetworkEventQueuePerClient =
-            std::unordered_map<fge::net::Identity, std::queue<fge::SceneNetEvent>, fge::net::IdentityHash>;
+    using NetworkEventQueue = std::queue<fge::SceneNetEvent>;
+
+    enum UpdateFlags : uint32_t
+    {
+        NONE = 0,
+        INCREMENT_UPDATE_COUNT = 1 << 0
+    };
 
     Scene();
     explicit Scene(std::string sceneName);
@@ -410,10 +415,27 @@ public:
      * \param deltaTime The time in microseconds between two updates
      */
 #ifdef FGE_DEF_SERVER
-    void update(fge::Event& event, std::chrono::microseconds const& deltaTime);
+    void update(fge::Event& event,
+                std::chrono::microseconds const& deltaTime,
+                std::underlying_type_t<UpdateFlags> flags = UpdateFlags::INCREMENT_UPDATE_COUNT);
 #else
-    void update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime);
+    void update(fge::RenderWindow& screen,
+                fge::Event& event,
+                std::chrono::microseconds const& deltaTime,
+                std::underlying_type_t<UpdateFlags> flags = UpdateFlags::NONE);
 #endif
+    /**
+     * \brief Return the number of update.
+     *
+     * In order to increment the update count, the UpdateFlags::INCREMENT_UPDATE_COUNT flag must be used
+     * while calling the update method.
+     *
+     * This flag is generally set by the server.
+     * 
+     * \return The number of update
+     */
+    [[nodiscard]] uint16_t getUpdateCount() const;
+
     /**
      * \brief Draw the Scene.
      *
@@ -912,6 +934,17 @@ public:
      */
     void pack(fge::net::Packet& pck);
     /**
+     * \brief Pack all the Scene data in a Packet for a net::Client.
+     *
+     * This function is useful to do a full Scene synchronisation in a network from a server.
+     * By providing a net::Identity, the function will initialise/reset some internal sync stats
+     * like update count.
+     *
+     * \param pck The network packet
+     * \param id The Identity of the client
+     */
+    void pack(fge::net::Packet& pck, fge::net::Identity const& id);
+    /**
      * \brief Unpack all the received data of a serverside Scene.
      *
      * This function delete every actual Object in the Scene except GUI Object.
@@ -993,21 +1026,6 @@ public:
     std::optional<fge::net::Error> unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id);
 
     /**
-     * \brief Do a clients checkup for the Scene::_netList and Object::_netList.
-     *
-     * A clients checkup is necessary to keep an eye of new/removal client and keep a modification flag
-     * for every one of them.
-     *
-     * Every clients latency will vary a lot, so to keep an eye of what partial Scene modification have to be
-     * sent, a clients checkup is required.
-     *
-     * \see net::NetworkTypeBase::clientsCheckup
-     *
-     * \param clients The net::ClientList attributed to this Scene
-     */
-    void clientsCheckup(fge::net::ClientList const& clients);
-
-    /**
      * \brief Force every network type modification flag to be \b true for a specified client net::Identity.
      *
      * When a modification flag is \b true for a net::NetworkType, every data affected will be
@@ -1025,15 +1043,22 @@ public:
      */
     void forceUncheckClient(fge::net::Identity const& id);
 
-    // SceneNetEvent
     /**
-     * \brief Do a clients checkup for Scene related events.
+     * \brief Do a clients checkup.
      *
-     * \see clientsCheckup
+     * A clients checkup is necessary to keep an eye of new/removal client and keep a modification flag
+     * for every one of them.
+     *
+     * Clients latency will vary a lot, so to keep an eye of what partial Scene modification have to be
+     * sent, a clients checkup is required.
+     *
+     * \see net::NetworkTypeBase::clientsCheckup
      *
      * \param clients The net::ClientList attributed to this Scene
      */
-    void clientsCheckupEvent(fge::net::ClientList const& clients);
+    void clientsCheckup(fge::net::ClientList const& clients);
+
+    // SceneNetEvent
     /**
      * \brief Manually push a Scene related event for every clients.
      *
@@ -1068,24 +1093,22 @@ public:
     bool isWatchingEvent() const;
 
     /**
-     * \brief Clear Scene events queue for the specified client.
+     * \brief Clear Scene network events queue for the specified client.
      *
      * \param id A client net::Identity
      */
-    void deleteEvents(fge::net::Identity const& id);
+    void clearNetEventsQueue(fge::net::Identity const& id);
     /**
-     * \brief Clear Scene events queue for all clients.
+     * \brief Clear Scene network events queue for all clients.
      */
-    void deleteEvents();
+    void clearNetEventsQueue();
     /**
-     * \brief Remove all clients related data.
+     * \brief Remove all network clients related data.
      *
-     * This function clear all the clients data and queue. After a call to this function,
-     * you have to recall clientsCheckupEvent to re-register clients.
-     *
-     * \warning not to be confounded with deleteEvents that just clear up events queue.
+     * After a call to this function, you have to recall
+     * clientsCheckupEvent to re-register clients.
      */
-    void clearEvents();
+    void clearPerClientSyncData();
 
     /**
      * \brief Pack all Scene related events for a specified client.
@@ -1288,17 +1311,29 @@ public:
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 
 private:
+    struct PerClientSync
+    {
+        inline PerClientSync(uint16_t updateCount) :
+                _lastUpdateCount(updateCount)
+        {}
+
+        uint16_t _lastUpdateCount;
+        NetworkEventQueue _networkEvents;
+    };
+    using PerClientSyncMap = std::unordered_map<fge::net::Identity, PerClientSync, fge::net::IdentityHash>;
+
     void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator whoIterator, bool isLeaving);
     fge::ObjectContainer::iterator hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan);
 
     std::string g_name;
 
-    fge::Scene::NetworkEventQueuePerClient g_networkEvents;
+    PerClientSyncMap g_perClientSyncs;
     bool g_enableNetworkEventsFlag;
 
     std::shared_ptr<fge::View> g_customView;
     fge::RenderTarget* g_linkedRenderTarget;
 
+    uint16_t g_updateCount;
     bool g_deleteMe;                                        //Delete an object while updating flag
     fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object
 

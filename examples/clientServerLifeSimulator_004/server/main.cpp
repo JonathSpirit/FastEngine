@@ -340,10 +340,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Sending scene update to clients
         {
-            //We do a client checkup for every object, in order to prepare data for new clients or destroying old clients
+            //We do a client checkup, in order to prepare network data for new clients or destroying old clients
             mainScene.clientsCheckup(clients);
-            //Same with the scene
-            mainScene.clientsCheckupEvent(clients);
 
             //Client event must be manually cleared after use
             clients.clearClientEvent();
