@@ -18,7 +18,6 @@
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/C_random.hpp"
-#include "FastEngine/C_server.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
@@ -29,58 +28,6 @@
 
 namespace fge
 {
-
-//SceneUpdateCache
-
-void SceneUpdateCache::clear()
-{
-    this->g_forceRetrievable = false;
-    decltype(this->g_cache)().swap(this->g_cache);
-}
-
-void SceneUpdateCache::push(UpdateCountRange updateCountRange, fge::net::FluxPacketPtr fluxPacket)
-{
-    this->g_cache.push(SceneUpdateCache::Data{updateCountRange, std::move(fluxPacket)});
-    if (this->g_cache.size() >= FGE_SCENE_UPDATECACHE_LIMIT)
-    {
-        //We force the cache to be retrievable
-        //We can consider that some packets are lost if the cache is full
-        this->g_forceRetrievable = true;
-    }
-}
-bool SceneUpdateCache::isRetrievable(uint16_t sceneActualUpdateCount) const
-{
-    if (this->g_cache.empty())
-    {
-        this->g_forceRetrievable = false;
-        return false;
-    }
-
-    if (this->g_forceRetrievable)
-    {
-        return true;
-    }
-
-    if (this->g_cache.top()._updateCountRange._last == sceneActualUpdateCount)
-    {
-        return true;
-    }
-
-    return false;
-}
-SceneUpdateCache::Data SceneUpdateCache::pop()
-{
-    auto data = std::move(const_cast<SceneUpdateCache::Data&>(this->g_cache.top()));
-    this->g_cache.pop();
-    return data;
-}
-
-bool SceneUpdateCache::isForced() const
-{
-    return this->g_forceRetrievable;
-}
-
-//Scene
 
 Scene::Scene() :
         g_name(),

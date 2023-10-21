@@ -117,9 +117,15 @@ void const* NetworkTypeScene::getSource() const
 
 bool NetworkTypeScene::applyData(fge::net::Packet& pck)
 {
-    ///TODO: add a SceneUpdateCache
     fge::UpdateCountRange updateCountRange{};
-    this->g_typeSource->unpackModification(pck, updateCountRange, false);
+    auto err = this->g_typeSource->unpackModification(pck, updateCountRange, false);
+    if (err)
+    {
+        if (err.value()._type == fge::net::Error::Types::ERR_SCENE_NEED_CACHING)
+        {
+            this->g_typeSource->unpackModification(pck, updateCountRange, true);
+        }
+    }
     this->g_typeSource->unpackWatchedEvent(pck);
     this->_onApplied.call();
     return true;

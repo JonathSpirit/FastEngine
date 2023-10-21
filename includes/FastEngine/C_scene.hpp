@@ -23,6 +23,7 @@
 #include "FastEngine/C_commandHandler.hpp"
 #include "FastEngine/C_identity.hpp"
 #include "FastEngine/C_propertyList.hpp"
+#include "FastEngine/C_sceneUpdateCache.hpp"
 #include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include <memory>
@@ -62,8 +63,6 @@
         objectPtr_                                                                                                     \
     }
 
-#define FGE_SCENE_UPDATECACHE_LIMIT 10
-
 namespace fge
 {
 
@@ -71,9 +70,6 @@ namespace net
 {
 
 class ClientList;
-
-class FluxPacket;
-using FluxPacketPtr = std::unique_ptr<fge::net::FluxPacket>;
 
 } // namespace net
 
@@ -355,53 +351,6 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectContainer = std::list<fge::ObjectDataShared>;
 using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
 using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
-
-class Scene;
-
-struct UpdateCountRange
-{
-    uint16_t _last;
-    uint16_t _now;
-};
-
-/**
- * \class SceneUpdateCache
- * \ingroup network
- * \brief A cache for scene updates
- *
- * This class is used to cache scene updates and retrieve them later.
- */
-class FGE_API SceneUpdateCache
-{
-public:
-    struct Data
-    {
-        UpdateCountRange _updateCountRange;
-        fge::net::FluxPacketPtr _fluxPacket;
-
-        inline bool operator>(Data const& r) const { return this->_updateCountRange._last > r._updateCountRange._last; }
-    };
-
-    SceneUpdateCache() = default;
-    SceneUpdateCache(SceneUpdateCache const& r) = delete;
-    SceneUpdateCache(SceneUpdateCache&& r) noexcept = default;
-    ~SceneUpdateCache() = default;
-
-    SceneUpdateCache& operator=(SceneUpdateCache const& r) = delete;
-    SceneUpdateCache& operator=(SceneUpdateCache&& r) noexcept = default;
-
-    void clear();
-
-    void push(UpdateCountRange updateCountRange, fge::net::FluxPacketPtr fluxPacket);
-    [[nodiscard]] bool isRetrievable(uint16_t sceneActualUpdateCount) const;
-    [[nodiscard]] Data pop();
-
-    [[nodiscard]] bool isForced() const;
-
-private:
-    std::priority_queue<Data, std::vector<Data>, std::greater<>> g_cache;
-    mutable bool g_forceRetrievable{false};
-};
 
 /**
  * \class Scene
