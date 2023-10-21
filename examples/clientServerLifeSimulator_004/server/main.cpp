@@ -275,8 +275,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     client->pushPacket(std::move(transmissionPacket));
                 }
                 else
-                {
-                    //The potential client is not connected
+                { //The potential client is not connected
 
                     //We extract 2 "really super secret" strings for validating the connection
                     std::string connectionText1;
@@ -316,7 +315,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             //We will send a full scene update to the client too
                             transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
                             fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_S_UPDATE_ALL);
-                            mainScene.pack(transmissionPacket->packet());
+                            mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
 
                             client->pushPacket(std::move(transmissionPacket));
                         }
@@ -330,6 +329,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
             }
             break;
+            case ls::LS_PROTOCOL_C_ASK_FULL_UPDATE:
+                if (client)
+                {
+                    fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_S_UPDATE_ALL);
+                    mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
+                    client->pushPacket(std::move(transmissionPacket));
+                    server.notifyTransmission();
+                }
+                break;
             default:
                 break;
             }
@@ -349,7 +357,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto clientsLock = clients.acquireLock();
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
-                //Make sure that the server thread is not busy with another packet
+                //Make sure that the client is not busy with another packet
                 if (!(*it).second->isPendingPacketsEmpty())
                 {
                     continue;

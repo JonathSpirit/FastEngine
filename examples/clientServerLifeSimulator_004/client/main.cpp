@@ -132,6 +132,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         std::cout << "OK !" << std::endl;
     }
 
+    //Networking
+    fge::SceneUpdateCache updateCache;
+    uint32_t badPacketUpdatesCount = 0;
+
     //Clock
     fge::Clock clockUpdate;
     fge::Clock deltaTime;
@@ -143,7 +147,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                     "latency STOC: %d\n"
                                     "ping: %d\n"
                                     "RTT: %s\n"
-                                    "Update count %d";
+                                    "Update count: %d\n"
+                                    "Bad packets: %d";
     auto* latencyText = mainScene
                                 ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}, 15),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
@@ -262,8 +267,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             //Popping the next packet
             auto fluxPacket = server.popNextPacket();
 
-            //Prepare a sending packet (not used in this example)
-            //auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
+            //Prepare a sending packet
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
             //Retrieve the packet header
             switch (fge::net::GetHeader(fluxPacket->_packet))
@@ -323,23 +328,66 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Updating the latencyText
-                int size = sprintf(latencyTextBuffer, latencyTextFormat,
-                                   fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                                   server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                   server._client.getPing_ms(),
-                                   fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                                   mainScene->getUpdateCount());
+                auto const size = sprintf(latencyTextBuffer, latencyTextFormat,
+                                          fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                                          server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
+                                          server._client.getPing_ms(),
+                                          fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
+                                          mainScene->getUpdateCount(), badPacketUpdatesCount);
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene
-                mainScene->unpackModification(fluxPacket->_packet);
-                //And unpack all watched events
-                mainScene->unpackWatchedEvent(fluxPacket->_packet);
+                fge::UpdateCountRange updateCountRange{};
+                auto err = mainScene->unpackModification(fluxPacket->_packet, updateCountRange, false);
+                if (err)
+                {
+                    ++badPacketUpdatesCount;
+
+                    std::cout << "error during unpacking modification:\n"
+                              << "\tclient[" << mainScene->getUpdateCount() << "] "
+                              << "server[" << updateCountRange._last << " -> " << updateCountRange._now << "]\n"
+                              << "\ttype: " << (int) err.value()._type << "\n"
+                              << "\tfunction: " << err.value()._function << "\n"
+                              << "\terror: " << err.value()._error << "\n"
+                              << "\treadPos: " << err.value()._readPos << std::endl;
+
+                    if (err.value()._type == fge::net::Error::Types::ERR_SCENE_NEED_CACHING)
+                    {
+                        updateCache.push(updateCountRange, std::move(fluxPacket));
+
+                        auto const forced = updateCache.isForced();
+                        while (updateCache.isRetrievable(mainScene->getUpdateCount()))
+                        {
+                            auto cachedPacket = updateCache.pop();
+                            mainScene->unpackModification(cachedPacket._fluxPacket->_packet,
+                                                          cachedPacket._updateCountRange, true);
+                            //And unpack all watched events
+                            mainScene->unpackWatchedEvent(cachedPacket._fluxPacket->_packet);
+
+                            std::cout << "applied cached packet [" << cachedPacket._updateCountRange._last << " -> "
+                                      << cachedPacket._updateCountRange._now << "]" << std::endl;
+                        }
+                        if (forced)
+                        { //Here we consider that the scene is lost and we ask the server a full update
+                            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
+                            server._client.pushPacket(std::move(transmissionPacket));
+                            server.notifyTransmission();
+                        }
+                    }
+                }
+                else
+                {
+                    //And unpack all watched events
+                    mainScene->unpackWatchedEvent(fluxPacket->_packet);
+                }
             }
             break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 //Do a full scene update
                 mainScene->unpack(fluxPacket->_packet);
+                updateCache.clear();
+
+                std::cout << "received full scene update [" << mainScene->getUpdateCount() << "]" << std::endl;
                 break;
             default:
                 break;

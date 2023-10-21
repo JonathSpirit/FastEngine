@@ -117,7 +117,9 @@ void const* NetworkTypeScene::getSource() const
 
 bool NetworkTypeScene::applyData(fge::net::Packet& pck)
 {
-    this->g_typeSource->unpackModification(pck);
+    ///TODO: add a SceneUpdateCache
+    fge::UpdateCountRange updateCountRange{};
+    this->g_typeSource->unpackModification(pck, updateCountRange, false);
     this->g_typeSource->unpackWatchedEvent(pck);
     this->_onApplied.call();
     return true;

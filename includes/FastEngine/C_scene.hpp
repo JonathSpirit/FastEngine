@@ -62,6 +62,8 @@
         objectPtr_                                                                                                     \
     }
 
+#define FGE_SCENE_UPDATECACHE_LIMIT 10
+
 namespace fge
 {
 
@@ -69,6 +71,9 @@ namespace net
 {
 
 class ClientList;
+
+class FluxPacket;
+using FluxPacketPtr = std::unique_ptr<fge::net::FluxPacket>;
 
 } // namespace net
 
@@ -350,6 +355,53 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectContainer = std::list<fge::ObjectDataShared>;
 using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
 using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
+
+class Scene;
+
+struct UpdateCountRange
+{
+    uint16_t _last;
+    uint16_t _now;
+};
+
+/**
+ * \class SceneUpdateCache
+ * \ingroup network
+ * \brief A cache for scene updates
+ *
+ * This class is used to cache scene updates and retrieve them later.
+ */
+class FGE_API SceneUpdateCache
+{
+public:
+    struct Data
+    {
+        UpdateCountRange _updateCountRange;
+        fge::net::FluxPacketPtr _fluxPacket;
+
+        inline bool operator>(Data const& r) const { return this->_updateCountRange._last > r._updateCountRange._last; }
+    };
+
+    SceneUpdateCache() = default;
+    SceneUpdateCache(SceneUpdateCache const& r) = delete;
+    SceneUpdateCache(SceneUpdateCache&& r) noexcept = default;
+    ~SceneUpdateCache() = default;
+
+    SceneUpdateCache& operator=(SceneUpdateCache const& r) = delete;
+    SceneUpdateCache& operator=(SceneUpdateCache&& r) noexcept = default;
+
+    void clear();
+
+    void push(UpdateCountRange updateCountRange, fge::net::FluxPacketPtr fluxPacket);
+    [[nodiscard]] bool isRetrievable(uint16_t sceneActualUpdateCount) const;
+    [[nodiscard]] Data pop();
+
+    [[nodiscard]] bool isForced() const;
+
+private:
+    std::priority_queue<Data, std::vector<Data>, std::greater<>> g_cache;
+    mutable bool g_forceRetrievable{false};
+};
 
 /**
  * \class Scene
@@ -995,13 +1047,23 @@ public:
     /**
      * \brief Unpack all modification of received data packet from a server.
      *
-     * This function only extract Scene partial data, for full Scene sync please see pack and unpack
+     * This function only extract Scene partial data, for full Scene sync please see pack and unpack.
+     *
+     * Packets can arrive in any order, so this function will check if the packet continuity is respected.
+     * When returning an net::Error::ERR_SCENE_NEED_CACHING, use should stop extraction and push the
+     * received packet into a SceneUpdateCache class.
+     *
+     * The packet after returning an net::Error::ERR_SCENE_NEED_CACHING is considered pre-extracted and
+     * the next time you call this function, you have to set the isPreExtractedPacket argument to \b true.
      *
      * \see packModification
      *
      * \param pck The network packet
+     * \param updateCountRange A reference that will be used to extract update count range
+     * \param isPreExtractedPacket If \b true, the packet has already pre-extracted and is coming from a cache
      */
-    std::optional<fge::net::Error> unpackModification(fge::net::Packet& pck);
+    std::optional<fge::net::Error>
+    unpackModification(fge::net::Packet& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket);
 
     /**
      * \brief Pack object that need an explicit update from the server.

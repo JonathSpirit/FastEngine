@@ -114,6 +114,13 @@ enum ProtocolHeaders : fge::net::PacketHeader
         bool VALID
         LatencyPlanner LATENCY_PLANNER_DATA
     */
+    LS_PROTOCOL_C_ASK_FULL_UPDATE,
+    /*
+    IN:
+        -
+    OUT:
+        -
+    */
 
     LS_PROTOCOL_S_UPDATE,
     /*

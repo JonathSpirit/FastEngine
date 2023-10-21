@@ -50,7 +50,10 @@ struct Error
         ERR_NONE,
         ERR_ALREADY_INVALID,
         ERR_EXTRACT,
-        ERR_RULE
+        ERR_RULE,
+
+        ERR_SCENE_NEED_CACHING,
+        ERR_SCENE_OLD_PACKET
     };
 
     Types _type{Types::ERR_NONE};

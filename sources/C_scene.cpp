@@ -18,6 +18,7 @@
 #include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/C_random.hpp"
+#include "FastEngine/C_server.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
@@ -28,6 +29,58 @@
 
 namespace fge
 {
+
+//SceneUpdateCache
+
+void SceneUpdateCache::clear()
+{
+    this->g_forceRetrievable = false;
+    decltype(this->g_cache)().swap(this->g_cache);
+}
+
+void SceneUpdateCache::push(UpdateCountRange updateCountRange, fge::net::FluxPacketPtr fluxPacket)
+{
+    this->g_cache.push(SceneUpdateCache::Data{updateCountRange, std::move(fluxPacket)});
+    if (this->g_cache.size() >= FGE_SCENE_UPDATECACHE_LIMIT)
+    {
+        //We force the cache to be retrievable
+        //We can consider that some packets are lost if the cache is full
+        this->g_forceRetrievable = true;
+    }
+}
+bool SceneUpdateCache::isRetrievable(uint16_t sceneActualUpdateCount) const
+{
+    if (this->g_cache.empty())
+    {
+        this->g_forceRetrievable = false;
+        return false;
+    }
+
+    if (this->g_forceRetrievable)
+    {
+        return true;
+    }
+
+    if (this->g_cache.top()._updateCountRange._last == sceneActualUpdateCount)
+    {
+        return true;
+    }
+
+    return false;
+}
+SceneUpdateCache::Data SceneUpdateCache::pop()
+{
+    auto data = std::move(const_cast<SceneUpdateCache::Data&>(this->g_cache.top()));
+    this->g_cache.pop();
+    return data;
+}
+
+bool SceneUpdateCache::isForced() const
+{
+    return this->g_forceRetrievable;
+}
+
+//Scene
 
 Scene::Scene() :
         g_name(),
@@ -949,11 +1002,11 @@ fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid) const
 /** Network **/
 void Scene::pack(fge::net::Packet& pck)
 {
-    //scene name
-    pck << this->g_name;
-
     //update count
     pck << this->g_updateCount;
+
+    //scene name
+    pck << this->g_name;
 
     //scene data
     for (std::size_t i = 0; i < this->_netList.size(); ++i)
@@ -985,11 +1038,8 @@ void Scene::pack(fge::net::Packet& pck)
 }
 void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
 {
-    auto it = this->g_perClientSyncs.find(id);
-    if (it != this->g_perClientSyncs.end())
-    {
-        it->second._lastUpdateCount = this->g_updateCount;
-    }
+    this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(id),
+                                   std::forward_as_tuple(this->g_updateCount));
     this->pack(pck);
 }
 std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
@@ -1001,11 +1051,11 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
 
     using namespace fge::net::rules;
 
-    //scene name
-    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
+    //update count
+    return RValid<decltype(this->g_updateCount)>({pck, &this->g_updateCount})
             .and_then([&](auto& chain) {
-        //update count
-        return RValid(chain.template newChain<decltype(this->g_updateCount)>(&this->g_updateCount));
+        //scene name
+        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain.template newChain(&this->g_name)));
     })
             .and_then([&](auto& chain) {
         //scene data
@@ -1061,9 +1111,6 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
 }
 void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id)
 {
-    //scene name
-    pck << this->g_name;
-
     //update count range
     auto it = this->g_perClientSyncs.find(id);
     if (it != this->g_perClientSyncs.end())
@@ -1074,6 +1121,9 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
     { //Should not really happen as clientCheckup is generally called before
         pck << this->g_updateCount << this->g_updateCount;
     }
+
+    //scene name
+    pck << this->g_name;
 
     //scene data
     fge::net::SizeType countSceneDataModification = 0;
@@ -1158,19 +1208,20 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
 }
 void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id)
 {
-    //scene name
-    pck << this->g_name;
-
     //update count range
     auto it = this->g_perClientSyncs.find(id);
     if (it != this->g_perClientSyncs.end())
     {
         pck << it->second._lastUpdateCount << this->g_updateCount;
+        it->second._lastUpdateCount = this->g_updateCount; //keep track of last update count for the client
     }
     else
     { //Should not really happen as clientCheckup is generally called before
         pck << this->g_updateCount << this->g_updateCount;
     }
+
+    //scene name
+    pck << this->g_name;
 
     //scene data
     fge::net::SizeType countSceneDataModification = 0;
@@ -1249,28 +1300,43 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     pck.shrink(reservedSize);
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
-std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet& pck)
+std::optional<fge::net::Error>
+Scene::unpackModification(fge::net::Packet& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket)
 {
     constexpr char const* const func = __func__;
 
     using namespace fge::net::rules;
 
-    //scene name
-    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
-            .and_then([&](auto& chain) {
-        //update count range
-        uint16_t lastUpdateCount = 0;
-        uint16_t updateCount = 0;
-        pck >> lastUpdateCount >> updateCount;
+    //update count range
+    if (!isPreExtractedPacket)
+    {
+        pck >> updateCountRange._last >> updateCountRange._now;
         if (!pck)
         {
-            return chain.invalidate(net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(),
-                                               "received bad update count range", func});
+            return net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad update count range",
+                              func};
         }
-        this->g_updateCount = updateCount;
 
-        return chain;
-    })
+        //Check if the pack is not old
+        if (updateCountRange._last < this->g_updateCount ||
+            (updateCountRange._last > this->g_updateCount && updateCountRange._now < this->g_updateCount))
+        {
+            return net::Error{net::Error::Types::ERR_SCENE_OLD_PACKET, pck.getReadPos(),
+                              "old network updates for this scene", func};
+        }
+
+        //Check if the pack is continuous
+        if (updateCountRange._last != this->g_updateCount)
+        {
+            return net::Error{net::Error::Types::ERR_SCENE_NEED_CACHING, pck.getReadPos(),
+                              "discontinuity in the network updates for this scene", func};
+        }
+    }
+
+    this->g_updateCount = updateCountRange._now;
+
+    //scene name
+    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
             .and_then([&](auto& chain) {
         //scene data
         return RLess<fge::net::SizeType>(this->_netList.size(), chain.template newChain<fge::net::SizeType>());
