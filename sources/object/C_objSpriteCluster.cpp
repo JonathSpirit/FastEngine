@@ -172,7 +172,7 @@ void ObjSpriteCluster::pack(fge::net::Packet& pck)
 
     pck << this->g_texture;
 }
-void ObjSpriteCluster::unpack(fge::net::Packet& pck)
+void ObjSpriteCluster::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

@@ -68,7 +68,7 @@ void Drink::pack(fge::net::Packet& pck)
     fge::Object::pack(pck);
     pck << this->_nutrition;
 }
-void Drink::unpack(fge::net::Packet& pck)
+void Drink::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
     pck >> this->_nutrition;

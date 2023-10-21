@@ -241,7 +241,7 @@ void ObjLight::pack(fge::net::Packet& pck)
 
     pck << this->g_vertexBuffer.getVertices()[0]._color << this->g_texture;
 }
-void ObjLight::unpack(fge::net::Packet& pck)
+void ObjLight::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

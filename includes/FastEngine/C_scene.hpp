@@ -954,7 +954,7 @@ public:
      *
      * \param pck The network packet
      */
-    std::optional<fge::net::Error> unpack(fge::net::Packet& pck);
+    std::optional<fge::net::Error> unpack(fge::net::Packet const& pck);
     /**
      * \brief Pack all modification in a net::Packet for a net::Client with clients checkup.
      *
@@ -1012,7 +1012,7 @@ public:
      * \param isPreExtractedPacket If \b true, the packet has already pre-extracted and is coming from a cache
      */
     std::optional<fge::net::Error>
-    unpackModification(fge::net::Packet& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket);
+    unpackModification(fge::net::Packet const& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket);
 
     /**
      * \brief Pack object that need an explicit update from the server.
@@ -1034,7 +1034,7 @@ public:
      * \param pck The network packet
      * \param id The Identity of the client
      */
-    std::optional<fge::net::Error> unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id);
+    std::optional<fge::net::Error> unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id);
 
     /**
      * \brief Force every network type modification flag to be \b true for a specified client net::Identity.
@@ -1135,7 +1135,7 @@ public:
      *
      * \param pck The network packet
      */
-    std::optional<fge::net::Error> unpackWatchedEvent(fge::net::Packet& pck);
+    std::optional<fge::net::Error> unpackWatchedEvent(fge::net::Packet const& pck);
 
     // Operator
     inline fge::ObjectDataShared operator[](fge::ObjectSid sid) const { return this->getObject(sid); }

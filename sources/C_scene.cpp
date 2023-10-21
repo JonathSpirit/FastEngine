@@ -989,7 +989,7 @@ void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
                                    std::forward_as_tuple(this->g_updateCount));
     this->pack(pck);
 }
-std::optional<fge::net::Error> Scene::unpack(fge::net::Packet& pck)
+std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
 {
     constexpr char const* const func = __func__;
     fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
@@ -1248,7 +1248,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
 std::optional<fge::net::Error>
-Scene::unpackModification(fge::net::Packet& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket)
+Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket)
 {
     constexpr char const* const func = __func__;
 
@@ -1376,7 +1376,7 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
 
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
-std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id)
+std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id)
 {
     constexpr char const* const func = __func__;
 
@@ -1556,7 +1556,7 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id
 
     pck.pack(rewritePos, &counter, sizeof(counter));
 }
-std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet& pck)
+std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const& pck)
 {
     constexpr char const* const func = __func__;
     fge::ObjectSid buffSid;

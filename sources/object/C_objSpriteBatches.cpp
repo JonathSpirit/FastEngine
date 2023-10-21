@@ -312,7 +312,7 @@ void ObjSpriteBatches::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 }
-void ObjSpriteBatches::unpack(fge::net::Packet& pck)
+void ObjSpriteBatches::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 }

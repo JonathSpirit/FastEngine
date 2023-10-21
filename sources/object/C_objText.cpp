@@ -429,7 +429,7 @@ void ObjText::pack(fge::net::Packet& pck)
     pck << this->g_fillColor << this->g_outlineColor;
     pck << this->g_outlineThickness;
 }
-void ObjText::unpack(fge::net::Packet& pck)
+void ObjText::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

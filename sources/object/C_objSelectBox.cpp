@@ -269,7 +269,7 @@ void ObjSelectBox::pack(fge::net::Packet& pck)
     pck << this->g_box.getSize();
     pck << this->g_statActive << this->g_statMouseOn;
 }
-void ObjSelectBox::unpack(fge::net::Packet& pck)
+void ObjSelectBox::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

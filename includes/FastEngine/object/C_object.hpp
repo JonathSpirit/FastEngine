@@ -186,7 +186,7 @@ public:
      *
      * \param pck The packet where the object is unpacked
      */
-    virtual void unpack(fge::net::Packet& pck);
+    virtual void unpack(fge::net::Packet const& pck);
     //TODO: Apply network rules on every extraction method on every objects.
 
     /**

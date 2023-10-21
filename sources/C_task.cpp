@@ -31,7 +31,7 @@ void const* NetworkTypeTasks::getSource() const
     return this->g_tasksSource;
 }
 
-bool NetworkTypeTasks::applyData(fge::net::Packet& pck)
+bool NetworkTypeTasks::applyData(fge::net::Packet const& pck)
 {
     std::underlying_type<NetworkTypeTasks::SyncType>::type syncType;
 

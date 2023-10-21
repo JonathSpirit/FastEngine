@@ -31,7 +31,7 @@ void const* NetworkType<T>::getSource() const
     return &this->g_typeSource;
 }
 template<class T>
-bool NetworkType<T>::applyData(fge::net::Packet& pck)
+bool NetworkType<T>::applyData(fge::net::Packet const& pck)
 {
     if (pck >> this->g_typeCopy)
     {
@@ -89,7 +89,7 @@ void const* NetworkTypeProperty<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypeProperty<T>::applyData(fge::net::Packet& pck)
+bool NetworkTypeProperty<T>::applyData(fge::net::Packet const& pck)
 {
     pck >> this->g_typeSource->template setType<T>();
 
@@ -147,7 +147,7 @@ void const* NetworkTypePropertyList<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypePropertyList<T>::applyData(fge::net::Packet& pck)
+bool NetworkTypePropertyList<T>::applyData(fge::net::Packet const& pck)
 {
     fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
 
@@ -214,7 +214,7 @@ void const* NetworkTypeManual<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypeManual<T>::applyData(fge::net::Packet& pck)
+bool NetworkTypeManual<T>::applyData(fge::net::Packet const& pck)
 {
     if (pck >> *this->g_typeSource)
     {

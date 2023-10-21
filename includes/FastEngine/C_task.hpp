@@ -75,7 +75,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -164,7 +164,7 @@ public:
      *
      * \param pck The packet
      */
-    virtual void unpackAndInit(fge::net::Packet& pck) = 0;
+    virtual void unpackAndInit(fge::net::Packet const& pck) = 0;
 
     /**
      * \brief Get the parent object of the task

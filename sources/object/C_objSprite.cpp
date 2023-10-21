@@ -116,7 +116,7 @@ void ObjSprite::pack(fge::net::Packet& pck)
 
     pck << fge::Color(this->g_vertices.getVertices()[0]._color) << this->g_texture;
 }
-void ObjSprite::unpack(fge::net::Packet& pck)
+void ObjSprite::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

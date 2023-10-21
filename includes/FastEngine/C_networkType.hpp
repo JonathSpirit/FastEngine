@@ -80,7 +80,7 @@ public:
      * \param pck The packet containing the data
      * \return \b true if the data has been applied, \b false otherwise
      */
-    virtual bool applyData(fge::net::Packet& pck) = 0;
+    virtual bool applyData(fge::net::Packet const& pck) = 0;
     /**
      * \brief Pack the data into a packet and reset the modification flag of the identity
      *
@@ -199,7 +199,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -225,7 +225,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -256,7 +256,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -283,7 +283,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -313,7 +313,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -347,7 +347,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -375,7 +375,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -406,7 +406,7 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet& pck) override;
+    bool applyData(fge::net::Packet const& pck) override;
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
@@ -447,7 +447,7 @@ public:
     void reserve(size_t n);
 
     std::size_t packNeededUpdate(fge::net::Packet& pck);
-    void unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id);
+    void unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id);
 
     [[nodiscard]] inline size_t size() const { return this->g_data.size(); }
     inline fge::net::NetworkTypeBase* at(size_t index) { return this->g_data.at(index).get(); }

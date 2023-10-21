@@ -419,7 +419,7 @@ void Creature::pack(fge::net::Packet& pck)
     fge::Object::pack(pck);
     pck << this->_data;
 }
-void Creature::unpack(fge::net::Packet& pck)
+void Creature::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
     pck >> this->_data;

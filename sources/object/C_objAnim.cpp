@@ -178,7 +178,7 @@ void ObjAnimation::pack(fge::net::Packet& pck)
     pck << this->g_animation.isLoop() << this->g_animation.isReverse();
     pck << static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void ObjAnimation::unpack(fge::net::Packet& pck)
+void ObjAnimation::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

@@ -115,7 +115,7 @@ void const* NetworkTypeScene::getSource() const
     return this->g_typeSource;
 }
 
-bool NetworkTypeScene::applyData(fge::net::Packet& pck)
+bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
 {
     fge::UpdateCountRange updateCountRange{};
     auto err = this->g_typeSource->unpackModification(pck, updateCountRange, false);
@@ -179,7 +179,7 @@ void const* NetworkTypeSmoothVec2Float::getSource() const
     return nullptr;
 }
 
-bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet& pck)
+bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet const& pck)
 {
     if (pck >> this->g_typeCopy)
     {
@@ -251,7 +251,7 @@ void const* NetworkTypeSmoothFloat::getSource() const
     return nullptr;
 }
 
-bool NetworkTypeSmoothFloat::applyData(fge::net::Packet& pck)
+bool NetworkTypeSmoothFloat::applyData(fge::net::Packet const& pck)
 {
     if (pck >> this->g_typeCopy)
     {
@@ -321,7 +321,7 @@ void const* NetworkTypeTag::getSource() const
     return this->g_typeSource;
 }
 
-bool NetworkTypeTag::applyData(fge::net::Packet& pck)
+bool NetworkTypeTag::applyData(fge::net::Packet const& pck)
 {
     bool flag;
     pck >> flag;
@@ -392,7 +392,7 @@ std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
 
     return count;
 }
-void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id)
 {
     fge::net::SizeType count{0};
     pck >> count;
