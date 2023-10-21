@@ -63,7 +63,7 @@ void Uninit()
 
 std::size_t GetAudioSize()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     return _dataAudio.size();
 }
 
@@ -92,7 +92,7 @@ fge::audio::AudioDataPtr GetAudio(std::string const& name)
         return _dataAudioBad;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAudio.find(name);
 
     if (it != _dataAudio.end())
@@ -109,7 +109,7 @@ bool Check(std::string const& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAudio.find(name);
 
     if (it != _dataAudio.end())
@@ -126,7 +126,7 @@ bool LoadFromFile(std::string const& name, std::string const& path)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAudio.find(name);
 
     if (it != _dataAudio.end())
@@ -157,7 +157,7 @@ bool Unload(std::string const& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAudio.find(name);
 
     if (it != _dataAudio.end())
@@ -171,7 +171,7 @@ bool Unload(std::string const& name)
 }
 void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
 
     for (auto& data: _dataAudio)
     {
@@ -188,7 +188,7 @@ bool Push(std::string const& name, fge::audio::AudioDataPtr const& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     if (fge::audio::Check(name))
     {
         return false;

@@ -71,7 +71,7 @@ void* GetFreetypeLibrary()
 
 std::size_t GetFontSize()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     return _dataFont.size();
 }
 
@@ -100,7 +100,7 @@ fge::font::FontDataPtr GetFont(std::string_view name)
         return _dataFontBad;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataFont.find(name);
 
     if (it != _dataFont.end())
@@ -117,7 +117,7 @@ bool Check(std::string_view name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataFont.find(name);
 
     return it != _dataFont.end();
@@ -130,7 +130,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataFont.find(name);
 
     if (it != _dataFont.end())
@@ -161,7 +161,7 @@ bool Unload(std::string_view name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataFont.find(name);
 
     if (it != _dataFont.end())
@@ -175,7 +175,7 @@ bool Unload(std::string_view name)
 }
 void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
 
     for (auto& data: _dataFont)
     {
@@ -192,7 +192,7 @@ bool Push(std::string_view name, fge::font::FontDataPtr const& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     if (fge::font::Check(name))
     {
         return false;

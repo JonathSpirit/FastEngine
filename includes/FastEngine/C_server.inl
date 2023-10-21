@@ -108,7 +108,7 @@ void ServerSideNetUdp::threadReception()
                 }
 #endif
 
-                std::lock_guard<std::mutex> lck(this->g_mutexServer);
+                std::scoped_lock<std::mutex> const lck(this->g_mutexServer);
                 if (this->g_fluxes.empty())
                 {
                     this->g_defaultFlux.pushPacket(
