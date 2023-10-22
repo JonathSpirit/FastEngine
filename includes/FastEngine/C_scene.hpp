@@ -418,6 +418,7 @@ public:
      * \param screen A RenderWindow
      * \param event The FastEngine Event class
      * \param deltaTime The time in microseconds between two updates
+     * \param flags Some flags to control the update like the update count
      */
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event,
