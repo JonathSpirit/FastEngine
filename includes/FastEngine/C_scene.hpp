@@ -140,10 +140,10 @@ enum ObjectType : uint8_t
  * - the type of the object
  * - the plan depth of the object
  */
-class FGE_API ObjectData
+class ObjectData
 {
 public:
-    ObjectData() :
+    inline ObjectData() :
             g_linkedScene(nullptr),
 
             g_object(nullptr),
@@ -154,11 +154,11 @@ public:
             g_planDepth(FGE_SCENE_BAD_PLANDEPTH),
             g_requireForceClientsCheckup(true)
     {}
-    ObjectData(fge::Scene* linkedScene,
-               fge::ObjectPtr&& newObj,
-               fge::ObjectSid newSid = FGE_SCENE_BAD_SID,
-               fge::ObjectPlan newPlan = FGE_SCENE_PLAN_DEFAULT,
-               fge::ObjectType newType = fge::ObjectType::TYPE_OBJECT) :
+    inline ObjectData(fge::Scene* linkedScene,
+                      fge::ObjectPtr&& newObj,
+                      fge::ObjectSid newSid = FGE_SCENE_BAD_SID,
+                      fge::ObjectPlan newPlan = FGE_SCENE_PLAN_DEFAULT,
+                      fge::ObjectType newType = fge::ObjectType::TYPE_OBJECT) :
             g_linkedScene(linkedScene),
 
             g_object(std::move(newObj)),
@@ -180,7 +180,7 @@ public:
      *
      * \return The pointer of the Object
      */
-    inline fge::Object* releaseObject() { return this->g_object.release(); }
+    [[nodiscard]] inline fge::Object* releaseObject() { return this->g_object.release(); }
 
     /**
      * \brief Get the linked Scene.
@@ -292,33 +292,13 @@ public:
      *
      * \return True if same SID, False otherwise
      */
-    inline bool operator==(fge::ObjectSid const& sid) const { return this->g_sid == sid; }
+    [[nodiscard]] inline bool operator==(fge::ObjectSid const& sid) const { return this->g_sid == sid; }
     /**
      * \brief Comparison with another object pointer
      *
      * \return True if same address, False otherwise
      */
-    inline bool operator==(fge::Object const* ptr) const { return this->g_object.get() == ptr; }
-
-    /**
-     * \brief Get the Object pointer.
-     *
-     * \return The Object pointer
-     */
-    inline operator fge::Object*() const { return this->g_object.get(); }
-    /**
-     * \brief Get the memory managed pointer of the Object.
-     *
-     * \return The memory managed pointer of the Object
-     */
-    inline operator fge::ObjectPtr const&() const { return this->g_object; }
-    /**
-     * \brief Get the SID of the Object.
-     *
-     * \return The SID of the object
-     * \see getSid
-     */
-    inline operator fge::ObjectSid const&() const { return this->g_sid; }
+    [[nodiscard]] inline bool operator==(fge::Object const* ptr) const { return this->g_object.get() == ptr; }
 
     /**
      * \brief check if the provided shared pointer Object is valid.
@@ -328,7 +308,7 @@ public:
      *
      * \param dataShared The shared pointer Object
      */
-    static inline bool isValid(std::shared_ptr<fge::ObjectData> const& dataShared)
+    [[nodiscard]] static inline bool isValid(std::shared_ptr<fge::ObjectData> const& dataShared)
     {
         return dataShared && dataShared->isLinked();
     }
