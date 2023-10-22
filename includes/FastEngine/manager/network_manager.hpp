@@ -101,13 +101,13 @@ namespace rules
 
 /**
  * \struct ChainedArguments
- * \brief This is a wrapper around a Packet with an optional value
+ * \brief This is a wrapper around a Packet and a value for safe extraction
  * \ingroup networkRules
  *
- * This structure go through a rules chain and avoid extracting multiple times
- * the required value.
+ * A ChainedArguments is the argument for all network extraction rules.
+ * The goal is to chain up multiple rules and at the end output an optional error.
  *
- * When a rule is invalid, it will invalidate the Packet.
+ * When the packet is invalid, the chain will stop and the error will be returned.
  *
  * \tparam TValue The type of the value that will be extracted
  */
@@ -126,11 +126,13 @@ public:
     /**
      * \brief Extract and verify the value from the packet
      *
+     * If the user as provided an existing value, it will be used instead of creating a new one.
+     *
      * \return The extracted value or \b nullptr if the Packet is/become invalid
      */
     [[nodiscard]] constexpr TValue* extract();
     /**
-     * \brief Peek without changing the read position a certain value
+     * \brief Peek without changing the read position a copy of value
      *
      * \tparam TPeek The type of the value that will be peeked
      * \return A copy of the peeked value
@@ -142,30 +144,143 @@ public:
     [[nodiscard]] constexpr TValue const& value() const;
     [[nodiscard]] constexpr TValue& value();
 
+    /**
+     * \brief Chain up some code after a successful extraction
+     *
+     * If the packet is invalid, the chain will stop and the invokable argument will not be called.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
     template<class TInvokable>
     [[nodiscard]] constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&>
     and_then(TInvokable&& f);
+    /**
+     * \brief Chain up some code in a for loop after a successful extraction
+     *
+     * If the packet is invalid, the chain will stop and the invokable argument will not be called.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \tparam TIndex The type of the index
+     * \param iStart The starting value of the index
+     * \param iEnd The ending value of the index
+     * \param iIncrement The increment value of the index
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
     template<class TInvokable, class TIndex>
     [[nodiscard]] constexpr ChainedArguments<TValue>&
     and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f);
+    /**
+     * \brief Chain up some code in a for loop after a successful extraction
+     *
+     * This is the same as and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f)
+     * but you don't have to provide the end value of the index as it will be got from the last
+     * chain result.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \tparam TIndex The type of the index
+     * \param iStart The starting value of the index
+     * \param iIncrement The increment value of the index
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
     template<class TInvokable, class TIndex>
     [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TIndex iStart, TIndex iIncrement, TInvokable&& f);
+    /**
+     * \brief Chain up some code after a unsuccessful extraction
+     *
+     * This must be the last method called in the chain as this
+     * return an optional error.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return An optional error
+     */
     template<class TInvokable>
     constexpr std::optional<Error> on_error(TInvokable&& f);
+    /**
+     * \brief End the chain by doing a last validity check on the packet
+     *
+     * \return An optional error
+     */
     [[nodiscard]] constexpr std::optional<Error> end();
+    /**
+     * \brief End the chain without returning an error
+     *
+     * This is useful when you want to skip in a and_for_each loop.
+     *
+     * \param nullopt A nullopt_t
+     * \return An optional error (construct with nullopt)
+     */
     [[nodiscard]] constexpr std::optional<Error> end(std::nullopt_t nullopt) const;
+    /**
+     * \brief End the chain by returning a custom error$
+     *
+     * \param err The error
+     * \return An optional error (construct with err)
+     */
     [[nodiscard]] constexpr std::optional<Error> end(Error&& err) const;
 
+    /**
+     * \brief Apply the extracted value to the provided reference
+     *
+     * If the packet is invalid, the value will not be applied.
+     * When applied, the internal value is (if possible) moved to the provided reference.
+     * So value() must not be called after this.
+     *
+     * \param value The reference that will be applied
+     * \return A reference to the same ChainedArguments
+     */
     constexpr ChainedArguments<TValue>& apply(TValue& value);
     template<class TInvokable>
+    /**
+     * \brief Apply the extracted value to the provided invokable argument
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments
+     */
     constexpr ChainedArguments<TValue>& apply(TInvokable&& f);
 
+    /**
+     * \brief Create a new chain with a different value type
+     *
+     * The packet and the error will be copied/moved to the new chain.
+     *
+     * \tparam TNewValue The type of the new value
+     * \param existingValue An optional existing value
+     * \return A new ChainedArguments with a different value type
+     */
     template<class TNewValue>
     constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr);
+    /**
+     * \brief Create a new chain with a different value type
+     *
+     * This const version is generally used in a and_for_each loop.
+     * The error isn't forwarded to the new chain.
+     *
+     * \tparam TNewValue The type of the new value
+     * \param existingValue An optional existing value
+     * \return A new ChainedArguments with a different value type
+     */
     template<class TNewValue>
     constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr) const;
 
+    /**
+     * \brief Set the error
+     *
+     * \param err The error
+     * \return A reference to the same ChainedArguments
+     */
     constexpr ChainedArguments<TValue>& setError(Error&& err);
+    /**
+     * \brief Invalidate the packet and set the error
+     *
+     * \param err The error
+     * \return A reference to the same ChainedArguments
+     */
     constexpr ChainedArguments<TValue>& invalidate(Error&& err);
 
 private:
