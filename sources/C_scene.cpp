@@ -1056,103 +1056,6 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
         }).end();
     }).end();
 }
-void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id)
-{
-    //update count range
-    auto it = this->g_perClientSyncs.find(id);
-    if (it != this->g_perClientSyncs.end())
-    {
-        pck << it->second._lastUpdateCount << this->g_updateCount;
-    }
-    else
-    { //Should not really happen as clientCheckup is generally called before
-        pck << this->g_updateCount << this->g_updateCount;
-    }
-
-    //scene name
-    pck << this->g_name;
-
-    //scene data
-    fge::net::SizeType countSceneDataModification = 0;
-
-    std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewritten
-
-    for (std::size_t i = 0; i < this->_netList.size(); ++i)
-    {
-        fge::net::NetworkTypeBase* netType = this->_netList[i];
-
-        netType->clientsCheckup(clients, false);
-        if (netType->checkClient(id))
-        {
-            pck << static_cast<fge::net::SizeType>(i);
-            netType->packData(pck, id);
-
-            ++countSceneDataModification;
-        }
-    }
-    pck.pack(rewritePos, &countSceneDataModification, sizeof(countSceneDataModification)); //Rewriting size
-
-    //object size
-    fge::net::SizeType countObject = 0;
-
-    std::size_t countObjectPos = pck.getDataSize();
-    pck.pack(&countObject, sizeof(countObject)); //Will be rewritten
-
-    std::size_t dataPos = pck.getDataSize();
-    constexpr std::size_t const reservedSize =
-            sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-            sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
-    pck.append(reservedSize);
-
-    for (auto const& data: this->g_data)
-    {
-        //MODIF COUNT/OBJECT DATA
-        fge::net::SizeType countModification = 0;
-        for (std::size_t i = 0; i < data->getObject()->_netList.size(); ++i)
-        {
-            fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
-
-            netType->clientsCheckup(clients, false);
-
-            if (netType->checkClient(id))
-            {
-                pck << static_cast<fge::net::SizeType>(i);
-                netType->packData(pck, id);
-
-                ++countModification;
-            }
-        }
-        if (countModification > 0)
-        {
-            //SID
-            pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));
-            //CLASS
-            fge::reg::ClassId tmpClass = fge::reg::GetClassId(data->getObject()->getClassName());
-            pck.pack(dataPos + sizeof(fge::ObjectSid), &tmpClass, sizeof(fge::reg::ClassId));
-            //PLAN
-            pck.pack(dataPos + sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId), &data->g_plan,
-                     sizeof(fge::ObjectPlan));
-            //TYPE
-            std::underlying_type<fge::ObjectType>::type tmpType = data->g_type;
-            pck.pack(dataPos + sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan), &tmpType,
-                     sizeof(tmpType));
-
-            pck.pack(dataPos + sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-                             sizeof(tmpType),
-                     &countModification, sizeof(countModification));
-
-            dataPos = pck.getDataSize();
-            pck.append(reservedSize);
-
-            ++countObject;
-        }
-    }
-
-    pck.shrink(reservedSize);
-    pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
-    clients.clearClientEvent();
-}
 void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id)
 {
     //update count range
@@ -1218,7 +1121,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
                 ++countModification;
             }
         }
-        if (countModification)
+        if (countModification > 0)
         {
             //SID
             pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));

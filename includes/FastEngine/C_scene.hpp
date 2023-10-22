@@ -960,34 +960,14 @@ public:
      */
     std::optional<fge::net::Error> unpack(fge::net::Packet const& pck);
     /**
-     * \brief Pack all modification in a net::Packet for a net::Client with clients checkup.
+     * \brief Pack all modification in a net::Packet for a net::Client.
      *
-     * This function do a net::NetworkTypeBase::clientsCheckup and try to see if there
-     * is a modification in every network variable from the Object::_netList. This is done
-     * per net::Client with the provided net::Identity.
-     *
-     * If there is a detected modification, the new value is packed in the network net::Packet, with some
+     * The scene check for variable modification, the new value is then packed in the network net::Packet, with some
      * basic Object information like the SID.
-     *
-     * The _netList of this Scene is verified too.
      *
      * This allow a partial synchronisation between multiple clients and a server. A partial sync is here
      * to avoid re-sending over and over the same or a bit modified full Scene data. If you have a lots of Object,
      * this can be helpful for Packet size and bandwidth.
-     *
-     * \see clientsCheckup
-     *
-     * \warning The maximum Object that can be packed is fge::net::SizeType.
-     *
-     * \param pck The network packet
-     * \param clients The ClientList used for clients checkup
-     * \param id The Identity of the client
-     */
-    void packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id);
-    /**
-     * \brief Pack all modification in a net::Packet for a net::Client.
-     *
-     * This function do the same as packModification but without net::NetworkTypeBase::clientsCheckup
      *
      * \see clientsCheckup
      *
