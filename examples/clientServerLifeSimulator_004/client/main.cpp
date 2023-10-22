@@ -362,7 +362,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             mainScene->unpackModification(cachedPacket._fluxPacket->_packet,
                                                           cachedPacket._updateCountRange, true);
                             //And unpack all watched events
-                            mainScene->unpackWatchedEvent(cachedPacket._fluxPacket->_packet);
+                            err = mainScene->unpackWatchedEvent(cachedPacket._fluxPacket->_packet);
+                            if (err)
+                            {
+                                ++badPacketUpdatesCount;
+                            }
 
                             std::cout << "applied cached packet [" << cachedPacket._updateCountRange._last << " -> "
                                       << cachedPacket._updateCountRange._now << "]" << std::endl;
@@ -378,7 +382,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 else
                 {
                     //And unpack all watched events
-                    mainScene->unpackWatchedEvent(fluxPacket->_packet);
+                    err = mainScene->unpackWatchedEvent(fluxPacket->_packet);
+                    if (err)
+                    {
+                        ++badPacketUpdatesCount;
+                    }
                 }
             }
             break;

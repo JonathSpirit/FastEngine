@@ -24,19 +24,32 @@ namespace fge::net
 
 ///NetworkTypeBase
 
-bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients)
+bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool force)
 {
-    //Remove/add extra clients
-    for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
-    {
-        fge::net::ClientListEvent const& evt = clients.getClientEvent(i);
-        if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+    if (force)
+    { //Clear and redo the table by ClientList
+        this->_g_tableId.clear();
+        this->_g_tableId.reserve(clients.getSize());
+
+        auto lock = clients.acquireLock();
+        for (auto it = clients.begin(lock); it != clients.end(lock); ++it)
         {
-            this->_g_tableId.erase(evt._id);
+            this->_g_tableId.emplace(it->first, 0);
         }
-        else
+    }
+    else
+    { //Remove/add extra clients by ClientList events
+        for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
         {
-            this->_g_tableId.emplace(evt._id, 0);
+            fge::net::ClientListEvent const& evt = clients.getClientEvent(i);
+            if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+            {
+                this->_g_tableId.erase(evt._id);
+            }
+            else
+            {
+                this->_g_tableId.emplace(evt._id, 0);
+            }
         }
     }
 
@@ -140,9 +153,9 @@ void NetworkTypeScene::packData(fge::net::Packet& pck)
     this->g_typeSource->pack(pck);
 }
 
-bool NetworkTypeScene::clientsCheckup(fge::net::ClientList const& clients)
+bool NetworkTypeScene::clientsCheckup(fge::net::ClientList const& clients, bool force)
 {
-    this->g_typeSource->clientsCheckup(clients);
+    this->g_typeSource->clientsCheckup(clients, force);
     return true;
 }
 
@@ -407,11 +420,11 @@ void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet const& pck, fge::
     }
 }
 
-void NetworkTypeContainer::clientsCheckup(fge::net::ClientList const& clients)
+void NetworkTypeContainer::clientsCheckup(fge::net::ClientList const& clients, bool force)
 {
     for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
-        this->g_data[i]->clientsCheckup(clients);
+        this->g_data[i]->clientsCheckup(clients, force);
     }
 }
 void NetworkTypeContainer::forceCheckClient(fge::net::Identity const& id)

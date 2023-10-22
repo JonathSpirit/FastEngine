@@ -104,9 +104,10 @@ public:
      * Then the checkup check if the value have been modified and apply a modification flag to all clients.
      *
      * \param clients The client list to checkup with
+     * \param force \b true to force the checkup from the complete list of clients
      * \return \b true if there was a change in the value, \b false otherwise
      */
-    virtual bool clientsCheckup(fge::net::ClientList const& clients);
+    virtual bool clientsCheckup(fge::net::ClientList const& clients, bool force);
 
     /**
      * \brief Check if the modification flag is set for the specified client identity
@@ -229,7 +230,7 @@ public:
     void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
     void packData(fge::net::Packet& pck) override;
 
-    bool clientsCheckup(fge::net::ClientList const& clients) override;
+    bool clientsCheckup(fge::net::ClientList const& clients, bool force) override;
 
     bool checkClient(fge::net::Identity const& id) const override;
     void forceCheckClient(fge::net::Identity const& id) override;
@@ -438,7 +439,7 @@ public:
 
     void clear();
 
-    void clientsCheckup(fge::net::ClientList const& clients);
+    void clientsCheckup(fge::net::ClientList const& clients, bool force = false);
     void forceCheckClient(fge::net::Identity const& id);
     void forceUncheckClient(fge::net::Identity const& id);
 

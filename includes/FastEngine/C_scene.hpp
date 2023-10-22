@@ -151,7 +151,8 @@ public:
             g_plan(FGE_SCENE_PLAN_DEFAULT),
             g_type(fge::ObjectType::TYPE_NULL),
 
-            g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
+            g_planDepth(FGE_SCENE_BAD_PLANDEPTH),
+            g_requireForceClientsCheckup(true)
     {}
     ObjectData(fge::Scene* linkedScene,
                fge::ObjectPtr&& newObj,
@@ -165,7 +166,8 @@ public:
             g_plan(newPlan),
             g_type(newType),
 
-            g_planDepth(FGE_SCENE_BAD_PLANDEPTH)
+            g_planDepth(FGE_SCENE_BAD_PLANDEPTH),
+            g_requireForceClientsCheckup(true)
     {}
 
     /**
@@ -342,6 +344,8 @@ private:
     //Dynamic data (not saved, local only)
     mutable fge::ObjectPlanDepth g_planDepth;
     mutable fge::ObjectDataWeak g_parent;
+
+    bool g_requireForceClientsCheckup;
 
     friend class fge::Scene;
 };
@@ -1066,8 +1070,9 @@ public:
      * \see net::NetworkTypeBase::clientsCheckup
      *
      * \param clients The net::ClientList attributed to this Scene
+     * \param force If \b true, all per clients data will clear and redo a full checkup
      */
-    void clientsCheckup(fge::net::ClientList const& clients);
+    void clientsCheckup(fge::net::ClientList const& clients, bool force = false);
 
     // SceneNetEvent
     /**
@@ -1338,6 +1343,7 @@ private:
 
     std::string g_name;
 
+    NetworkEventQueue g_sceneNetworkEvents;
     PerClientSyncMap g_perClientSyncs;
     bool g_enableNetworkEventsFlag;
 

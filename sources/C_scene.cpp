@@ -1082,7 +1082,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
     {
         fge::net::NetworkTypeBase* netType = this->_netList[i];
 
-        netType->clientsCheckup(clients);
+        netType->clientsCheckup(clients, false);
         if (netType->checkClient(id))
         {
             pck << static_cast<fge::net::SizeType>(i);
@@ -1113,7 +1113,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
         {
             fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
 
-            netType->clientsCheckup(clients);
+            netType->clientsCheckup(clients, false);
 
             if (netType->checkClient(id))
             {
@@ -1428,27 +1428,46 @@ void Scene::forceUncheckClient(fge::net::Identity const& id)
     }
 }
 
-void Scene::clientsCheckup(fge::net::ClientList const& clients)
+void Scene::clientsCheckup(fge::net::ClientList const& clients, bool force)
 {
-    this->_netList.clientsCheckup(clients);
+    this->_netList.clientsCheckup(clients, force);
 
+    auto const clientsEmpty = clients.getSize() == 0;
     for (auto const& data: *this)
     {
-        data->getObject()->_netList.clientsCheckup(clients);
+        data->getObject()->_netList.clientsCheckup(clients,
+                                                   force || (data->g_requireForceClientsCheckup && !clientsEmpty));
+        data->g_requireForceClientsCheckup = false;
     }
 
     //Remove/Add client
-    for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
+    if (force)
     {
-        auto const& evt = clients.getClientEvent(i);
-        if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+        this->g_perClientSyncs.clear();
+        this->g_perClientSyncs.reserve(clients.getSize());
+
+        auto lock = clients.acquireLock();
+        for (auto it = clients.begin(lock); it != clients.end(lock); ++it)
         {
-            this->g_perClientSyncs.erase(evt._id);
-        }
-        else
-        {
-            this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(evt._id),
+            this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(it->first),
                                            std::forward_as_tuple(this->g_updateCount));
+        }
+    }
+    else
+    {
+        //Watch ClientList events
+        for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
+        {
+            auto const& evt = clients.getClientEvent(i);
+            if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+            {
+                this->g_perClientSyncs.erase(evt._id);
+            }
+            else
+            {
+                this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(evt._id),
+                                               std::forward_as_tuple(this->g_updateCount));
+            }
         }
     }
 }
