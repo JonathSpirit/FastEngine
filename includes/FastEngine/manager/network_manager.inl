@@ -93,7 +93,7 @@ constexpr std::optional<TPeek> ChainedArguments<TValue>::peek()
     if (this->g_pck->isValid())
     {
         this->g_pck->setReadPos(startReadPos);
-        return std::move(value);
+        return value;
     }
 
     this->g_error = net::Error{net::Error::Types::ERR_EXTRACT, this->g_pck->getReadPos(), "peek failed", __func__};
