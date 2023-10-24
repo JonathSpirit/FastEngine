@@ -290,7 +290,7 @@ void Uninit()
 
 std::size_t GetShaderSize()
 {
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     return _dataShader.size();
 }
 
@@ -326,7 +326,7 @@ fge::shader::ShaderDataPtr GetShader(std::string_view name)
         return _dataShaderBad;
     }
 
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -343,7 +343,7 @@ bool Check(std::string_view name)
         return false;
     }
 
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     return it != _dataShader.end();
@@ -361,7 +361,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
         return false;
     }
 
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -421,7 +421,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
             return false;
         }
 
-        const std::vector<uint32_t> shader(reinterpret_cast<uint32_t const*>(data),
+        std::vector<uint32_t> const shader(reinterpret_cast<uint32_t const*>(data),
                                            reinterpret_cast<uint32_t const*>(data) + size / 4);
 
         if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shader, type))
@@ -450,7 +450,7 @@ bool LoadFromFile(std::string_view name,
         return false;
     }
 
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -544,7 +544,7 @@ bool Unload(std::string_view name)
         return false;
     }
 
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataShader.find(name);
 
     if (it != _dataShader.end())
@@ -558,7 +558,7 @@ bool Unload(std::string_view name)
 }
 void UnloadAll()
 {
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
 
     for (auto& data: _dataShader)
     {
@@ -575,7 +575,7 @@ bool Push(std::string_view name, fge::shader::ShaderDataPtr const& data)
         return false;
     }
 
-    const std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     if (fge::shader::Check(name))
     {
         return false;

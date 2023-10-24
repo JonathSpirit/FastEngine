@@ -36,7 +36,7 @@ void GuiElementHandler::setEventCallback(fge::Event& event)
     event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onMouseMoved, this), this);
     event._onWindowEvent.add(new fge::CallbackFunctorObject(&fge::GuiElementHandler::onResized, this), this);
 
-    const SDL_WindowEvent dummyEvent = {
+    SDL_WindowEvent const dummyEvent = {
             SDL_WINDOWEVENT,        0, 0, SDL_WINDOWEVENT_SIZE_CHANGED, 0, 0, 0, event.getWindowSize().x,
             event.getWindowSize().y};
     this->onResized(event, dummyEvent);
@@ -167,7 +167,7 @@ void GuiElementHandler::onResized([[maybe_unused]] fge::Event const& evt, SDL_Wi
 {
     if (arg.event == SDL_WINDOWEVENT_SIZE_CHANGED)
     {
-        const fge::Vector2f size{static_cast<float>(arg.data1), static_cast<float>(arg.data2)};
+        fge::Vector2f const size{static_cast<float>(arg.data1), static_cast<float>(arg.data2)};
         this->_onGuiResized.call(*this, size);
         this->_lastSize = size;
     }

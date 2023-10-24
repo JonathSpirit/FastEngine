@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/C_event.hpp"
-#include "FastEngine/C_packet.hpp"
 #include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "tinyutf8.h"
 
@@ -125,14 +125,14 @@ void Event::process(SDL_Event const& evt)
 
     case SDL_KEYDOWN:
     {
-        const std::size_t index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
+        std::size_t const index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
         this->g_keyCodes[index / 32] |= (0x80000000 >> (index % 32));
     }
         this->_onKeyDown.call(*this, evt.key);
         break;
     case SDL_KEYUP:
     {
-        const std::size_t index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
+        std::size_t const index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
         this->g_keyCodes[index / 32] &= ~(0x80000000 >> (index % 32));
     }
         this->_onKeyUp.call(*this, evt.key);
@@ -300,7 +300,7 @@ void Event::popType(SDL_EventType type)
 
 bool Event::isKeyPressed(uint32_t keycode) const
 {
-    const std::size_t index = fge::Event::KeycodeToBitIndex(keycode);
+    std::size_t const index = fge::Event::KeycodeToBitIndex(keycode);
     return static_cast<bool>(this->g_keyCodes[index / 32] & (0x80000000 >> (index % 32)));
 }
 uint32_t Event::getKeyUnicode() const
@@ -477,7 +477,7 @@ uint64_t Event::EventTypeToBitMask(uint32_t type)
      * Then we can map a bit entry point on a 64bits value with the key :
     **/
 
-    static const uint8_t sdlEventCategoryBitEntryPoint[14] = {
+    static uint8_t const sdlEventCategoryBitEntryPoint[14] = {
             0,  //Display events => size 1, key 0
             1,  //Application events => size 8, key 1
             9,  //Window events => size 2, key 2
@@ -514,7 +514,7 @@ std::size_t Event::KeycodeToBitIndex(uint32_t keyCode)
 }
 uint32_t Event::UTF8ToUTF32(char const* utf8)
 {
-    const tiny_utf8::string str = utf8;
+    tiny_utf8::string const str = utf8;
     return str.front();
 }
 

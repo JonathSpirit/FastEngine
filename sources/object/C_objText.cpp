@@ -54,7 +54,7 @@ void Character::addLine(bool outlineVertices,
                         float outlineThickness)
 {
     fge::vulkan::VertexBuffer* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
-    const fge::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
+    fge::Color const color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
     float const top = std::floor(lineTop + offset - (thickness / 2.0f) + 0.5f);
     float const bottom = top + std::floor(thickness + 0.5f);
@@ -78,7 +78,7 @@ void Character::addGlyphQuad(bool outlineVertices,
                              float italicShear)
 {
     fge::vulkan::VertexBuffer* vertices = outlineVertices ? &this->g_outlineVertices : &this->g_vertices;
-    const fge::Color color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
+    fge::Color const color = outlineVertices ? this->g_outlineColor : this->g_fillColor;
 
     float const padding = 1.0f;
 
@@ -429,7 +429,7 @@ void ObjText::pack(fge::net::Packet& pck)
     pck << this->g_fillColor << this->g_outlineColor;
     pck << this->g_outlineThickness;
 }
-void ObjText::unpack(fge::net::Packet& pck)
+void ObjText::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 
@@ -509,7 +509,7 @@ void ObjText::ensureGeometryUpdate() const
     // Compute the location of the strike through dynamically
     // We use the center point of the lowercase 'x' glyph as the reference
     // We reuse the underline thickness as the thickness of the strike through as well
-    const fge::RectFloat xBounds = font->getGlyph(U'x', this->g_characterSize, isBold)._bounds;
+    fge::RectFloat const xBounds = font->getGlyph(U'x', this->g_characterSize, isBold)._bounds;
     float const strikeThroughOffset = xBounds._y + xBounds._height / 2.f;
 
     // Precompute the variables needed by the algorithm

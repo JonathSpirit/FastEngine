@@ -97,7 +97,7 @@ void Object::pack(fge::net::Packet& pck)
 {
     pck << this->getPosition() << this->getRotation() << this->getScale() << this->getOrigin();
 }
-void Object::unpack(fge::net::Packet& pck)
+void Object::unpack(fge::net::Packet const& pck)
 {
     fge::Vector2f buffVec2f;
     float buffFloat{0.0f};

@@ -20,12 +20,12 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_childObjectsAccessor.hpp"
 #include "FastEngine/C_event.hpp"
-#include "FastEngine/C_networkType.hpp"
-#include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_tagList.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
+#include "FastEngine/network/C_networkType.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_objectAnchor.hpp"
 #include "json.hpp"
 
@@ -186,7 +186,7 @@ public:
      *
      * \param pck The packet where the object is unpacked
      */
-    virtual void unpack(fge::net::Packet& pck);
+    virtual void unpack(fge::net::Packet const& pck);
     //TODO: Apply network rules on every extraction method on every objects.
 
     /**

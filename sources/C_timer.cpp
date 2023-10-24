@@ -68,34 +68,34 @@ Timer::Timer(std::chrono::milliseconds const& goal, std::string name, bool pause
 
 void Timer::setName(std::string const& name)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_name = name;
 }
 std::string const& Timer::getName() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return this->g_name;
 }
 
 void Timer::setGoalDuration(std::chrono::milliseconds const& t)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_goalDuration = t;
 }
 void Timer::addToGoal(std::chrono::milliseconds const& t)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_goalDuration += t;
 }
 void Timer::subToGoal(std::chrono::milliseconds const& t)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_goalDuration -= t;
 }
 
 void Timer::setElapsedTime(std::chrono::milliseconds const& t)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     if (!this->g_isPaused)
     {
         this->g_elapsedTime = t;
@@ -103,7 +103,7 @@ void Timer::setElapsedTime(std::chrono::milliseconds const& t)
 }
 void Timer::addToElapsedTime(std::chrono::milliseconds const& t)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     if (!this->g_isPaused)
     {
         this->g_elapsedTime += t;
@@ -111,7 +111,7 @@ void Timer::addToElapsedTime(std::chrono::milliseconds const& t)
 }
 void Timer::subToElapsedTime(std::chrono::milliseconds const& t)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     if (!this->g_isPaused)
     {
         this->g_elapsedTime -= t;
@@ -120,57 +120,57 @@ void Timer::subToElapsedTime(std::chrono::milliseconds const& t)
 
 std::chrono::steady_clock::time_point const& Timer::getLifeTimePoint() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return this->g_lifeTimePoint;
 }
 std::chrono::milliseconds Timer::getLifeDuration() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
                                                                  this->g_lifeTimePoint);
 }
 
 std::chrono::milliseconds const& Timer::getElapsedTime() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return this->g_elapsedTime;
 }
 std::chrono::milliseconds const& Timer::getGoalDuration() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return this->g_goalDuration;
 }
 
 std::chrono::milliseconds Timer::getTimeLeft() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return this->g_goalDuration - this->g_elapsedTime;
 }
 
 bool Timer::goalReached() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return (this->g_goalDuration - this->g_elapsedTime).count() <= 0;
 }
 void Timer::restart()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_elapsedTime = std::chrono::milliseconds(0);
 }
 
 void Timer::pause()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_isPaused = true;
 }
 void Timer::resume()
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_isPaused = false;
 }
 bool Timer::isPaused() const
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     return this->g_isPaused;
 }
 

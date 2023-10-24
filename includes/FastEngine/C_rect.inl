@@ -59,14 +59,14 @@ template<class T>
 bool Rect<T>::contains(Vector2<T> const& point) const
 {
     // Rectangles with negative dimensions are allowed, so we must handle them correctly
-    const T farX = static_cast<T>(this->_x + this->_width);
-    const T farY = static_cast<T>(this->_y + this->_height);
+    T const farX = static_cast<T>(this->_x + this->_width);
+    T const farY = static_cast<T>(this->_y + this->_height);
 
     // Compute the real min and max of the rectangle on both axes
-    const T minX = (this->_x < farX) ? this->_x : farX;
-    const T maxX = (this->_x > farX) ? this->_x : farX;
-    const T minY = (this->_y < farY) ? this->_y : farY;
-    const T maxY = (this->_y > farY) ? this->_y : farY;
+    T const minX = (this->_x < farX) ? this->_x : farX;
+    T const maxX = (this->_x > farX) ? this->_x : farX;
+    T const minY = (this->_y < farY) ? this->_y : farY;
+    T const maxY = (this->_y > farY) ? this->_y : farY;
 
     return (point.x >= minX) && (point.x < maxX) && (point.y >= minY) && (point.y < maxY);
 }
@@ -75,29 +75,29 @@ template<class T>
 std::optional<Rect<T>> Rect<T>::findIntersection(Rect<T> const& rectangle) const
 {
     // Rectangles with negative dimensions are allowed, so we must handle them correctly
-    const T r1FarX = static_cast<T>(this->_x + this->_width);
-    const T r1FarY = static_cast<T>(this->_y + this->_height);
+    T const r1FarX = static_cast<T>(this->_x + this->_width);
+    T const r1FarY = static_cast<T>(this->_y + this->_height);
 
-    const T r2FarX = static_cast<T>(rectangle._x + rectangle._width);
-    const T r2FarY = static_cast<T>(rectangle._y + rectangle._height);
+    T const r2FarX = static_cast<T>(rectangle._x + rectangle._width);
+    T const r2FarY = static_cast<T>(rectangle._y + rectangle._height);
 
     // Compute the min and max of the first rectangle on both axes
-    const T r1MinX = (this->_x < r1FarX) ? this->_x : r1FarX;
-    const T r1MaxX = (this->_x > r1FarX) ? this->_x : r1FarX;
-    const T r1MinY = (this->_y < r1FarY) ? this->_y : r1FarY;
-    const T r1MaxY = (this->_y > r1FarY) ? this->_y : r1FarY;
+    T const r1MinX = (this->_x < r1FarX) ? this->_x : r1FarX;
+    T const r1MaxX = (this->_x > r1FarX) ? this->_x : r1FarX;
+    T const r1MinY = (this->_y < r1FarY) ? this->_y : r1FarY;
+    T const r1MaxY = (this->_y > r1FarY) ? this->_y : r1FarY;
 
     // Compute the min and max of the second rectangle on both axes
-    const T r2MinX = (rectangle._x < r2FarX) ? rectangle._x : r2FarX;
-    const T r2MaxX = (rectangle._x > r2FarX) ? rectangle._x : r2FarX;
-    const T r2MinY = (rectangle._y < r2FarY) ? rectangle._y : r2FarY;
-    const T r2MaxY = (rectangle._y > r2FarY) ? rectangle._y : r2FarY;
+    T const r2MinX = (rectangle._x < r2FarX) ? rectangle._x : r2FarX;
+    T const r2MaxX = (rectangle._x > r2FarX) ? rectangle._x : r2FarX;
+    T const r2MinY = (rectangle._y < r2FarY) ? rectangle._y : r2FarY;
+    T const r2MaxY = (rectangle._y > r2FarY) ? rectangle._y : r2FarY;
 
     // Compute the intersection boundaries
-    const T interLeft = (r1MinX > r2MinX) ? r1MinX : r2MinX;
-    const T interTop = (r1MinY > r2MinY) ? r1MinY : r2MinY;
-    const T interRight = (r1MaxX < r2MaxX) ? r1MaxX : r2MaxX;
-    const T interBottom = (r1MaxY < r2MaxY) ? r1MaxY : r2MaxY;
+    T const interLeft = (r1MinX > r2MinX) ? r1MinX : r2MinX;
+    T const interTop = (r1MinY > r2MinY) ? r1MinY : r2MinY;
+    T const interRight = (r1MaxX < r2MaxX) ? r1MaxX : r2MaxX;
+    T const interBottom = (r1MaxY < r2MaxY) ? r1MaxY : r2MaxY;
 
     // If the intersection is valid (positive non-zero area), then there is an intersection
     if ((interLeft < interRight) && (interTop < interBottom))
@@ -122,7 +122,7 @@ Vector2<T> Rect<T>::getSize() const
 inline fge::RectFloat operator*(glm::mat4 const& left, fge::RectFloat const& right)
 {
     // Transform the 4 corners of the rectangle
-    const fge::Vector2f points[] = {left * glm::vec4(right._x, right._y, 0.0f, 1.0f),
+    fge::Vector2f const points[] = {left * glm::vec4(right._x, right._y, 0.0f, 1.0f),
                                     left * glm::vec4(right._x, right._y + right._height, 0.0f, 1.0f),
                                     left * glm::vec4(right._x + right._width, right._y, 0.0f, 1.0f),
                                     left * glm::vec4(right._x + right._width, right._y + right._height, 0.0f, 1.0f)};

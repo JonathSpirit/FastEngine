@@ -80,7 +80,7 @@ void Uninit()
 
 std::size_t GetTextureSize()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     return _dataTexture.size();
 }
 
@@ -116,7 +116,7 @@ fge::texture::TextureDataPtr GetTexture(std::string_view name)
         return _dataTextureBad;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
     if (it != _dataTexture.end())
@@ -133,7 +133,7 @@ bool Check(std::string_view name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
     return it != _dataTexture.end();
@@ -146,7 +146,7 @@ bool LoadFromSurface(std::string_view name, fge::Surface const& surface)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
     if (it != _dataTexture.end())
@@ -179,7 +179,7 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
     if (it != _dataTexture.end())
@@ -221,7 +221,7 @@ bool Unload(std::string_view name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
     if (it != _dataTexture.end())
@@ -235,7 +235,7 @@ bool Unload(std::string_view name)
 }
 void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
 
     for (auto& data: _dataTexture)
     {
@@ -252,7 +252,7 @@ bool Push(std::string_view name, fge::texture::TextureDataPtr const& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     if (fge::texture::Check(name))
     {
         return false;

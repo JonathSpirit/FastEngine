@@ -86,7 +86,7 @@ private:
     CoordinateSet g_walls;
     fge::Vector2i g_worldSize;
 
-    const std::array<fge::Vector2i, 8> g_directions;
+    std::array<fge::Vector2i, 8> const g_directions;
     std::size_t g_directionsCount;
 };
 

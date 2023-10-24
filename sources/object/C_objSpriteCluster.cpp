@@ -55,7 +55,7 @@ void ObjSpriteCluster::addSprite(fge::RectInt const& rectangle, fge::Vector2f co
 }
 void ObjSpriteCluster::resize(std::size_t size)
 {
-    const std::size_t oldSize = this->g_instancesData.size();
+    std::size_t const oldSize = this->g_instancesData.size();
 
     this->g_instancesData.resize(size);
     this->g_instancesVertices.resize(size * 6);
@@ -85,7 +85,7 @@ void ObjSpriteCluster::setColor(std::size_t index, fge::Color const& color)
 {
     if (index < this->g_instancesData.size())
     {
-        const std::size_t startIndex = index * 6;
+        std::size_t const startIndex = index * 6;
 
         this->g_instancesVertices[startIndex]._color = color;
         this->g_instancesVertices[startIndex + 1]._color = color;
@@ -172,7 +172,7 @@ void ObjSpriteCluster::pack(fge::net::Packet& pck)
 
     pck << this->g_texture;
 }
-void ObjSpriteCluster::unpack(fge::net::Packet& pck)
+void ObjSpriteCluster::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 
@@ -222,8 +222,8 @@ void ObjSpriteCluster::updatePositions(std::size_t index)
     if (index < this->g_instancesData.size())
     {
         auto const offset = this->g_instancesData[index]._offset;
-        const fge::RectFloat bounds = this->getLocalBounds(index).value();
-        const std::size_t startIndex = index * 6;
+        fge::RectFloat const bounds = this->getLocalBounds(index).value();
+        std::size_t const startIndex = index * 6;
 
         this->g_instancesVertices[startIndex]._position = offset;
         this->g_instancesVertices[startIndex + 1]._position = fge::Vector2f(0, bounds._height) + offset;
@@ -240,7 +240,7 @@ void ObjSpriteCluster::updateTexCoords(std::size_t index)
     {
         auto const rect =
                 this->g_texture.getData()->_texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
-        const std::size_t startIndex = index * 6;
+        std::size_t const startIndex = index * 6;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);
         this->g_instancesVertices[startIndex + 1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);

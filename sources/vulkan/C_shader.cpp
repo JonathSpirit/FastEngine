@@ -132,7 +132,7 @@ bool Shader::loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::p
         return false;
     }
 
-    const std::size_t fileSize = static_cast<std::size_t>(file.tellg());
+    std::size_t const fileSize = static_cast<std::size_t>(file.tellg());
     if (fileSize % sizeof(uint32_t) != 0)
     { //File should be a multiple of sizeof(uint32_t)
         file.close();

@@ -74,7 +74,7 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
 
     target.draw(this->g_box, copyStates);
 
-    const fge::View backupView = target.getView();
+    fge::View const backupView = target.getView();
     fge::View clipView = fge::ClipView(backupView, target,
                                        copyStates._resTransform.get()->getData()._modelTransform *
                                                fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},

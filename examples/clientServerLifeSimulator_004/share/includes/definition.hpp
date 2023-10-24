@@ -25,10 +25,13 @@
 #define LIFESIM_CONNECTION_TEXT1 "Hello"
 #define LIFESIM_CONNECTION_TEXT2 "_IWANTTOCONNECT_42//%"
 
-#define LIFESIM_MAP_SIZE_MAXX 1550
+#define LIFESIM_MAP_WIDTH 800
+#define LIFESIM_MAP_HEIGHT 600
+
+#define LIFESIM_MAP_SIZE_MAXX LIFESIM_MAP_WIDTH - 50
 #define LIFESIM_MAP_SIZE_MINX 50
 
-#define LIFESIM_MAP_SIZE_MAXY 850
+#define LIFESIM_MAP_SIZE_MAXY LIFESIM_MAP_HEIGHT - 50
 #define LIFESIM_MAP_SIZE_MINY 50
 
 #define LIFESIM_START_CREATURES_COUNT 20
@@ -110,6 +113,13 @@ enum ProtocolHeaders : fge::net::PacketHeader
     OUT:
         bool VALID
         LatencyPlanner LATENCY_PLANNER_DATA
+    */
+    LS_PROTOCOL_C_ASK_FULL_UPDATE,
+    /*
+    IN:
+        -
+    OUT:
+        -
     */
 
     LS_PROTOCOL_S_UPDATE,

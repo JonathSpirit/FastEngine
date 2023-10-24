@@ -128,7 +128,7 @@ void Notify()
 
 fge::timer::TimerShared Create(fge::timer::TimerShared timer)
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     _dataTimers.push_back(std::move(timer));
     _dataCv.notify_all();
     return _dataTimers.back();
@@ -136,7 +136,7 @@ fge::timer::TimerShared Create(fge::timer::TimerShared timer)
 
 bool Destroy(fge::timer::TimerShared const& timer)
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ((*it).get() == timer.get())
@@ -150,7 +150,7 @@ bool Destroy(fge::timer::TimerShared const& timer)
 }
 bool Destroy(std::string const& timerName)
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
     {
         if ((*it)->getName() == timerName)
@@ -165,14 +165,14 @@ bool Destroy(std::string const& timerName)
 
 void DestroyAll()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     _dataTimers.clear();
     _dataCv.notify_all();
 }
 
 bool Check(fge::timer::TimerShared const& timer)
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     for (auto& dataTimer: _dataTimers)
     {
         if (dataTimer.get() == timer.get())
@@ -184,7 +184,7 @@ bool Check(fge::timer::TimerShared const& timer)
 }
 bool Check(std::string const& timerName)
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     for (auto& dataTimer: _dataTimers)
     {
         if (dataTimer->getName() == timerName)
@@ -197,13 +197,13 @@ bool Check(std::string const& timerName)
 
 std::size_t GetTimerSize()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     return _dataTimers.size();
 }
 
 fge::timer::TimerShared Get(std::string const& timerName)
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     for (auto& dataTimer: _dataTimers)
     {
         if (dataTimer->getName() == timerName)

@@ -21,9 +21,9 @@
 #include "FastEngine/C_animation.hpp"
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_font.hpp"
-#include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_soundBuffer.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_objCircleShape.hpp"
 #include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
@@ -99,7 +99,7 @@ public:
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void pack(fge::net::Packet& pck) override;
-    void unpack(fge::net::Packet& pck) override;
+    void unpack(fge::net::Packet const& pck) override;
 
     char const* getClassName() const override;
     char const* getReadableClassName() const override;

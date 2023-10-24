@@ -109,7 +109,7 @@ void ObjTileMap::pack(fge::net::Packet& pck)
 {
     fge::Object::pack(pck);
 }
-void ObjTileMap::unpack(fge::net::Packet& pck)
+void ObjTileMap::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 }

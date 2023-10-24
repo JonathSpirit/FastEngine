@@ -100,7 +100,7 @@ void Instance::create(SDL_Window* window,
     createInfo.ppEnabledLayerNames = validValidationLayers.data();
 #endif
 
-    const VkResult result = vkCreateInstance(&createInfo, nullptr, &this->g_instance);
+    VkResult const result = vkCreateInstance(&createInfo, nullptr, &this->g_instance);
 
     if (result != VK_SUCCESS)
     {

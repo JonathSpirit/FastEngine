@@ -321,7 +321,7 @@ void ObjTextInputBox::pack(fge::net::Packet& pck)
 
     pck << this->g_statActive;
 }
-void ObjTextInputBox::unpack(fge::net::Packet& pck)
+void ObjTextInputBox::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

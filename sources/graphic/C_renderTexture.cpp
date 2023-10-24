@@ -149,7 +149,7 @@ void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = this->g_textureImage.getExtent();
 
-    const VkClearValue clearColor = {.color = this->_g_clearColor};
+    VkClearValue const clearColor = {.color = this->_g_clearColor};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
