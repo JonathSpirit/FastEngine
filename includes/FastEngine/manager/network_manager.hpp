@@ -18,9 +18,9 @@
 #define _FGE_NETWORK_MANAGER_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
-#include "FastEngine/C_client.hpp"
-#include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/network/C_client.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include <optional>
 #include <variant>

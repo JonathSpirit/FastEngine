@@ -15,8 +15,6 @@
  */
 
 #include "FastEngine/C_clock.hpp"
-#include "FastEngine/C_packetLZ4.hpp"
-#include "FastEngine/C_server.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 #include "FastEngine/manager/font_manager.hpp"
@@ -24,6 +22,8 @@
 #include "FastEngine/manager/reg_manager.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/network/C_packetLZ4.hpp"
+#include "FastEngine/network/C_server.hpp"
 #include "FastEngine/object/C_objButton.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTextinputbox.hpp"

@@ -21,10 +21,10 @@
 
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_commandHandler.hpp"
-#include "FastEngine/C_identity.hpp"
 #include "FastEngine/C_propertyList.hpp"
-#include "FastEngine/C_sceneUpdateCache.hpp"
 #include "FastEngine/graphic/C_renderTarget.hpp"
+#include "FastEngine/network/C_identity.hpp"
+#include "FastEngine/network/C_sceneUpdateCache.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include <memory>
 #include <queue>

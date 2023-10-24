@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "FastEngine/C_sceneUpdateCache.hpp"
-#include "FastEngine/C_server.hpp"
+#include "FastEngine/network/C_sceneUpdateCache.hpp"
+#include "FastEngine/network/C_server.hpp"
 
 namespace fge
 {

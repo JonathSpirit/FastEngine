@@ -15,8 +15,8 @@
  */
 
 #include "FastEngine/C_event.hpp"
-#include "FastEngine/C_packet.hpp"
 #include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "tinyutf8.h"
 

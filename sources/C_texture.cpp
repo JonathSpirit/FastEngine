@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/C_texture.hpp"
-#include "FastEngine/C_packet.hpp"
+#include "FastEngine/network/C_packet.hpp"
 
 namespace fge
 {

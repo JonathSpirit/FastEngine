@@ -19,8 +19,8 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_event.hpp"
-#include "FastEngine/C_networkType.hpp"
 #include "FastEngine/manager/task_manager.hpp"
+#include "FastEngine/network/C_networkType.hpp"
 #include <optional>
 #include <vector>
 
