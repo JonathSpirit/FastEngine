@@ -21,6 +21,7 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "master" ]
+    types: [opened, reopened]
   schedule:
     - cron: '25 0 * * 2'
 

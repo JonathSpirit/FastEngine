@@ -1,6 +1,9 @@
 name: CMake_macos
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    types: [opened, reopened]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
