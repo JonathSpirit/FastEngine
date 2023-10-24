@@ -722,7 +722,7 @@ fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage, fge::View c
 fge::Vector2f
 TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView)
 {
-    const fge::Vector2f normalized = pointView.getTransform() * point;
+    fge::Vector2f const normalized = pointView.getTransform() * point;
     return newView.getInverseTransform() * normalized;
 }
 

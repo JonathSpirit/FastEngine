@@ -110,20 +110,20 @@ T* Matrix<T>::operator[](std::size_t x)
 template<class T>
 T const* Matrix<T>::operator[](std::size_t x) const
 {
-    return FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, 0);
+    return FGE_MATRIX_GET(T const, this->g_mdata.get(), this->g_msize.y, x, 0);
 }
 
 template<class T>
 T const& Matrix<T>::get(std::size_t x, std::size_t y) const
 {
-    return *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, y);
+    return *FGE_MATRIX_GET(T const, this->g_mdata.get(), this->g_msize.y, x, y);
 }
 template<class T>
 template<class Tvec>
 T const& Matrix<T>::get(fge::Vector2<Tvec> const& coord) const
 {
     static_assert(std::is_integral<Tvec>::value, "Tvec must be an integral type");
-    return *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x),
+    return *FGE_MATRIX_GET(T const, this->g_mdata.get(), this->g_msize.y, static_cast<std::size_t>(coord.x),
                            static_cast<std::size_t>(coord.y));
 }
 template<class T>
@@ -145,7 +145,7 @@ bool Matrix<T>::get(std::size_t x, std::size_t y, T& buff) const
 {
     if ((x < this->g_msize.x) && (y < this->g_msize.y))
     {
-        buff = *FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, y);
+        buff = *FGE_MATRIX_GET(T const, this->g_mdata.get(), this->g_msize.y, x, y);
         return true;
     }
     return false;
@@ -179,7 +179,7 @@ T const* Matrix<T>::getPtr(std::size_t x, std::size_t y) const
 {
     if ((x < this->g_msize.x) && (y < this->g_msize.y))
     {
-        return FGE_MATRIX_GET(const T, this->g_mdata.get(), this->g_msize.y, x, y);
+        return FGE_MATRIX_GET(T const, this->g_mdata.get(), this->g_msize.y, x, y);
     }
     return nullptr;
 }
@@ -221,7 +221,7 @@ void Matrix<T>::set(fge::Vector2<Tvec> const& coord, T const& value)
 template<class T>
 void Matrix<T>::set(std::initializer_list<std::initializer_list<T>> data)
 {
-    const std::size_t sizey = data.size();
+    std::size_t const sizey = data.size();
     std::size_t sizex = 0;
     if (sizey > 0)
     {

@@ -396,11 +396,11 @@ void Creature::networkRegister()
                     this);
     this->_netList.push(new fge::net::NetworkType<bool>{&this->_g_finish})
             ->_onApplied.add(new fge::CallbackLambda<>{[&]() {
-                                 if (this->_g_finish)
-                                 {
-                                     this->setPosition(this->_g_targetPos);
-                                 }
-                             }},
+        if (this->_g_finish)
+        {
+            this->setPosition(this->_g_targetPos);
+        }
+    }},
                              this);
 
     this->_data.networkRegister(this->_netList, this, &Creature::refreshStats);
@@ -419,7 +419,7 @@ void Creature::pack(fge::net::Packet& pck)
     fge::Object::pack(pck);
     pck << this->_data;
 }
-void Creature::unpack(fge::net::Packet& pck)
+void Creature::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
     pck >> this->_data;

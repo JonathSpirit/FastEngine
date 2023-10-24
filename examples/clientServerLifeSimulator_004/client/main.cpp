@@ -15,8 +15,6 @@
  */
 
 #include "FastEngine/C_clock.hpp"
-#include "FastEngine/C_packetLZ4.hpp"
-#include "FastEngine/C_server.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 #include "FastEngine/manager/font_manager.hpp"
@@ -24,6 +22,8 @@
 #include "FastEngine/manager/reg_manager.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/network/C_packetLZ4.hpp"
+#include "FastEngine/network/C_server.hpp"
 #include "FastEngine/object/C_objButton.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTextinputbox.hpp"
@@ -50,7 +50,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             SDL_CreateWindow(("Life simulator client, a FastEngine example by Guillaume Guillet - version " +
                               std::to_string(LIFESIM_VERSION))
                                      .c_str(),
-                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LIFESIM_MAP_WIDTH, LIFESIM_MAP_HEIGHT,
                              SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
@@ -92,8 +92,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     mainScene->setCallbackContext({&event, &guiElementHandler});
 
     //Creating the client side server
-    fge::net::ServerClientSideUdp server;
-    auto& serverSocket = server.getSocket();
+    fge::net::ClientSideNetUdp server;
 
     //Texture
     fge::texture::Init();
@@ -133,15 +132,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         std::cout << "OK !" << std::endl;
     }
 
+    //Networking
+    fge::SceneUpdateCache updateCache;
+    uint32_t badPacketUpdatesCount = 0;
+
     //Clock
     fge::Clock clockUpdate;
     fge::Clock deltaTime;
 
     //Create a latency text
     char latencyTextBuffer[200];
-    char const* latencyTextFormat = "clock offset: %s, latency CTOS: %d, latency STOC: %d, ping: %d";
+    char const* latencyTextFormat = "clock offset: %s\n"
+                                    "latency CTOS: %d\n"
+                                    "latency STOC: %d\n"
+                                    "ping: %d\n"
+                                    "RTT: %s\n"
+                                    "Update count: %d\n"
+                                    "Bad packets: %d";
     auto* latencyText = mainScene
-                                ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}),
+                                ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}, 15),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
                                 ->getObject<fge::ObjText>();
     latencyText->setFillColor(fge::Color::Black);
@@ -180,46 +189,33 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         //Handle button pressing
         buttonValid->_onButtonPressed.add(
                 new fge::CallbackLambda<fge::ObjButton*>{[&, textInputBoxIp]([[maybe_unused]] fge::ObjButton* button) {
-                    if (connectionTimeoutCheck)
-                    {
-                        return;
-                    }
+            if (connectionTimeoutCheck)
+            {
+                return;
+            }
 
-                    fge::net::IpAddress ip{textInputBoxIp->getString().c_str()};
+            fge::net::IpAddress remoteIp{textInputBoxIp->getString().c_str()};
 
-                    if (serverSocket.bind(LIFESIM_CLIENT_PORT) != fge::net::Socket::Error::ERR_DONE)
-                    {
-                        std::cout << "can't bind to socket " << LIFESIM_CLIENT_PORT << " !" << std::endl;
-                        return;
-                    }
+            //We try to connect to the server
+            if (!server.start<fge::net::PacketLZ4>(LIFESIM_CLIENT_PORT, fge::net::IpAddress::Any, LIFESIM_SERVER_PORT,
+                                                   remoteIp))
+            {
+                std::cout << "can't connect the server !" << std::endl;
+                return;
+            }
 
-                    if (serverSocket.connect(ip, LIFESIM_SERVER_PORT) != fge::net::Socket::Error::ERR_DONE)
-                    {
-                        serverSocket.close();
-                        std::cout << "can't connect the socket !" << std::endl;
-                        return;
-                    }
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
+            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
+                    << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
-                    //After the socket is bound and connected we start the server
-                    if (!server.start<fge::net::PacketLZ4>())
-                    {
-                        serverSocket.close();
-                        std::cout << "can't start the server !" << std::endl;
-                        return;
-                    }
+            //Ask the server thread to automatically update the timestamp just before sending it
+            server._client._latencyPlanner.pack(transmissionPacket);
 
-                    fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
-                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
-                            << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
+            server._client.pushPacket(std::move(transmissionPacket));
 
-                    //Ask the server thread to automatically update the timestamp just before sending it
-                    server._client._latencyPlanner.pack(packetSend);
-
-                    server._client.pushPacket(std::move(packetSend));
-
-                    connectionTimeoutCheck = true;
-                    connectionTimeout.restart();
-                }});
+            connectionTimeoutCheck = true;
+            connectionTimeout.restart();
+        }});
     };
 
     createConnectionWindow();
@@ -240,14 +236,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         {
             clockUpdate.restart();
 
-            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
-            fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_UPDATE);
+            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_UPDATE);
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
             //The LatencyPlanner class will do all the work for that.
-            server._client._latencyPlanner.pack(packetSend);
-            server._client.pushPacket(std::move(packetSend));
+            server._client._latencyPlanner.pack(transmissionPacket);
+            server._client.pushPacket(std::move(transmissionPacket));
         }
 
         //Check if the connection is unsuccessful
@@ -272,10 +268,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto fluxPacket = server.popNextPacket();
 
             //Prepare a sending packet
-            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
             //Retrieve the packet header
-            switch (fge::net::GetHeader(fluxPacket->_pck))
+            switch (fge::net::GetHeader(fluxPacket->_packet))
             {
             case ls::LS_PROTOCOL_ALL_GOODBYE:
                 server.stop();
@@ -287,9 +283,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
                 bool valid = false;
-                fluxPacket->_pck >> valid;
+                fluxPacket->_packet >> valid;
 
-                if (fluxPacket->_pck && valid)
+                if (fluxPacket->_packet && valid)
                 {
                     //Get latency
                     server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
@@ -332,21 +328,74 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Updating the latencyText
-                int size = sprintf(latencyTextBuffer, latencyTextFormat,
-                                   fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                                   server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                   server._client.getPing_ms());
+                auto const size = sprintf(latencyTextBuffer, latencyTextFormat,
+                                          fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                                          server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
+                                          server._client.getPing_ms(),
+                                          fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
+                                          mainScene->getUpdateCount(), badPacketUpdatesCount);
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene
-                mainScene->unpackModification(fluxPacket->_pck);
-                //And unpack all watched events
-                mainScene->unpackWatchedEvent(fluxPacket->_pck);
+                fge::UpdateCountRange updateCountRange{};
+                auto err = mainScene->unpackModification(fluxPacket->_packet, updateCountRange, false);
+                if (err)
+                {
+                    ++badPacketUpdatesCount;
+
+                    std::cout << "error during unpacking modification:\n"
+                              << "\tclient[" << mainScene->getUpdateCount() << "] "
+                              << "server[" << updateCountRange._last << " -> " << updateCountRange._now << "]\n"
+                              << "\ttype: " << (int) err.value()._type << "\n"
+                              << "\tfunction: " << err.value()._function << "\n"
+                              << "\terror: " << err.value()._error << "\n"
+                              << "\treadPos: " << err.value()._readPos << std::endl;
+
+                    if (err.value()._type == fge::net::Error::Types::ERR_SCENE_NEED_CACHING)
+                    {
+                        updateCache.push(updateCountRange, std::move(fluxPacket));
+
+                        auto const forced = updateCache.isForced();
+                        while (updateCache.isRetrievable(mainScene->getUpdateCount()))
+                        {
+                            auto cachedPacket = updateCache.pop();
+                            mainScene->unpackModification(cachedPacket._fluxPacket->_packet,
+                                                          cachedPacket._updateCountRange, true);
+                            //And unpack all watched events
+                            err = mainScene->unpackWatchedEvent(cachedPacket._fluxPacket->_packet);
+                            if (err)
+                            {
+                                ++badPacketUpdatesCount;
+                            }
+
+                            std::cout << "applied cached packet [" << cachedPacket._updateCountRange._last << " -> "
+                                      << cachedPacket._updateCountRange._now << "]" << std::endl;
+                        }
+                        if (forced)
+                        { //Here we consider that the scene is lost and we ask the server a full update
+                            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
+                            server._client.pushPacket(std::move(transmissionPacket));
+                            server.notifyTransmission();
+                        }
+                    }
+                }
+                else
+                {
+                    //And unpack all watched events
+                    err = mainScene->unpackWatchedEvent(fluxPacket->_packet);
+                    if (err)
+                    {
+                        ++badPacketUpdatesCount;
+                    }
+                }
             }
             break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 //Do a full scene update
-                mainScene->unpack(fluxPacket->_pck);
+                mainScene->unpack(fluxPacket->_packet);
+                updateCache.clear();
+
+                std::cout << "received full scene update [" << mainScene->getUpdateCount() << "]" << std::endl;
                 break;
             default:
                 break;

@@ -124,7 +124,7 @@ void ObjSwitch::pack(fge::net::Packet& pck)
 
     pck << this->g_color << this->g_textureOn << this->g_textureOff << this->g_statMouseOn << this->g_statActive;
 }
-void ObjSwitch::unpack(fge::net::Packet& pck)
+void ObjSwitch::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 

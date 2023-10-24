@@ -55,7 +55,7 @@ void Uninit()
 
 std::size_t GetAnimationSize()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     return _dataAnim.size();
 }
 
@@ -83,7 +83,7 @@ fge::anim::AnimationDataPtr GetAnimation(std::string const& name)
         return _dataAnimBad;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAnim.find(name);
 
     if (it != _dataAnim.end())
@@ -100,7 +100,7 @@ bool Check(std::string const& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAnim.find(name);
 
     return it != _dataAnim.end();
@@ -113,7 +113,7 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAnim.find(name);
 
     if (it != _dataAnim.end())
@@ -278,7 +278,7 @@ bool Unload(std::string const& name)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataAnim.find(name);
 
     if (it != _dataAnim.end())
@@ -292,7 +292,7 @@ bool Unload(std::string const& name)
 }
 void UnloadAll()
 {
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
 
     for (auto& it: _dataAnim)
     {
@@ -309,7 +309,7 @@ bool Push(std::string const& name, fge::anim::AnimationDataPtr const& data)
         return false;
     }
 
-    std::lock_guard<std::mutex> lck(_dataMutex);
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
     if (fge::anim::Check(name))
     {
         return false;

@@ -26,7 +26,7 @@ namespace
 {
 
 std::unordered_map<std::string, std::filesystem::path, fge::priv::string_hash, std::equal_to<>> _dataPath;
-const std::filesystem::path _dataPathBad;
+std::filesystem::path const _dataPathBad;
 std::mutex _dataMutex;
 
 } // namespace

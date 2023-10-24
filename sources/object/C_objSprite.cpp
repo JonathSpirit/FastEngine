@@ -116,7 +116,7 @@ void ObjSprite::pack(fge::net::Packet& pck)
 
     pck << fge::Color(this->g_vertices.getVertices()[0]._color) << this->g_texture;
 }
-void ObjSprite::unpack(fge::net::Packet& pck)
+void ObjSprite::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 
@@ -148,7 +148,7 @@ fge::RectFloat ObjSprite::getLocalBounds() const
 
 void ObjSprite::updatePositions()
 {
-    const fge::RectFloat bounds = this->getLocalBounds();
+    fge::RectFloat const bounds = this->getLocalBounds();
 
     this->g_vertices[0]._position = fge::Vector2f(0, 0);
     this->g_vertices[1]._position = fge::Vector2f(0, bounds._height);

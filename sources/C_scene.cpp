@@ -15,12 +15,12 @@
  */
 
 #include "FastEngine/C_scene.hpp"
-#include "FastEngine/C_clientList.hpp"
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
+#include "FastEngine/network/C_clientList.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -32,12 +32,13 @@ namespace fge
 Scene::Scene() :
         g_name(),
 
-        g_networkEvents(),
+        g_perClientSyncs(),
         g_enableNetworkEventsFlag(false),
 
         g_customView(),
         g_linkedRenderTarget(nullptr),
 
+        g_updateCount(0),
         g_deleteMe(false),
         g_updatedObjectIterator(),
 
@@ -52,12 +53,13 @@ Scene::Scene() :
 Scene::Scene(std::string sceneName) :
         g_name(std::move(sceneName)),
 
-        g_networkEvents(),
+        g_perClientSyncs(),
         g_enableNetworkEventsFlag(false),
 
         g_customView(),
         g_linkedRenderTarget(nullptr),
 
+        g_updateCount(0),
         g_deleteMe(false),
         g_updatedObjectIterator(),
 
@@ -75,12 +77,13 @@ Scene::Scene(Scene const& r) :
 
         g_name(r.g_name),
 
-        g_networkEvents(),
+        g_perClientSyncs(),
         g_enableNetworkEventsFlag(r.g_enableNetworkEventsFlag),
 
         g_customView(r.g_customView),
         g_linkedRenderTarget(r.g_linkedRenderTarget),
 
+        g_updateCount(r.g_updateCount),
         g_deleteMe(false),
         g_updatedObjectIterator(),
 
@@ -108,12 +111,13 @@ Scene& Scene::operator=(Scene const& r)
 
     this->g_name = r.g_name;
 
-    this->g_networkEvents.clear();
+    this->g_perClientSyncs.clear();
     this->g_enableNetworkEventsFlag = r.g_enableNetworkEventsFlag;
 
     this->g_customView = r.g_customView;
     this->g_linkedRenderTarget = r.g_linkedRenderTarget;
 
+    this->g_updateCount = r.g_updateCount;
     this->g_deleteMe = false;
     this->g_updatedObjectIterator = this->g_data.end();
 
@@ -130,9 +134,14 @@ Scene& Scene::operator=(Scene const& r)
 
 /** Scene **/
 #ifdef FGE_DEF_SERVER
-void Scene::update(fge::Event& event, std::chrono::microseconds const& deltaTime)
+void Scene::update(fge::Event& event,
+                   std::chrono::microseconds const& deltaTime,
+                   std::underlying_type_t<UpdateFlags> flags)
 #else
-void Scene::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime)
+void Scene::update(fge::RenderWindow& screen,
+                   fge::Event& event,
+                   std::chrono::microseconds const& deltaTime,
+                   std::underlying_type_t<UpdateFlags> flags)
 #endif //FGE_DEF_SERVER
 {
     for (this->g_updatedObjectIterator = this->g_data.begin(); this->g_updatedObjectIterator != this->g_data.end();
@@ -167,15 +176,25 @@ void Scene::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::mi
             this->_onPlanUpdate.call(this, objectPlan);
         }
     }
+
+    if ((flags & UpdateFlags::INCREMENT_UPDATE_COUNT) > 0)
+    {
+        ++this->g_updateCount;
+    }
 }
+uint16_t Scene::getUpdateCount() const
+{
+    return this->g_updateCount;
+}
+
 #ifndef FGE_DEF_SERVER
 void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
     this->_onDraw.call(this, target);
 
-    const fge::RectFloat screenBounds = fge::GetScreenRect(target);
+    fge::RectFloat const screenBounds = fge::GetScreenRect(target);
 
-    const fge::View backupView = target.getView();
+    fge::View const backupView = target.getView();
     if (this->g_customView)
     {
         target.setView(*this->g_customView);
@@ -239,7 +258,7 @@ fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
         auto plan = it->second->get()->g_plan;
         auto firstPlanObjectIt = this->g_planDataMap.find(plan)->second;
 
-        const fge::ObjectPlanDepth planDepth = std::distance(firstPlanObjectIt, it->second);
+        fge::ObjectPlanDepth const planDepth = std::distance(firstPlanObjectIt, it->second);
         it->second->get()->g_planDepth = planDepth;
 
         this->_onPlanUpdate.call(this, plan);
@@ -469,7 +488,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
 {
     if (this->g_enableNetworkEventsFlag)
     {
-        this->deleteEvents();
+        this->clearNetEventsQueue();
         this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, FGE_SCENE_BAD_SID});
     }
 
@@ -930,16 +949,19 @@ fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid) const
 /** Network **/
 void Scene::pack(fge::net::Packet& pck)
 {
-    //SCENE NAME
+    //update count
+    pck << this->g_updateCount;
+
+    //scene name
     pck << this->g_name;
 
-    //SCENE DATA
+    //scene data
     for (std::size_t i = 0; i < this->_netList.size(); ++i)
     {
         this->_netList[i]->packData(pck);
     }
 
-    //OBJECT SIZE
+    //object size
     pck << static_cast<fge::net::SizeType>(this->g_data.size());
     for (auto const& data: this->g_data)
     {
@@ -961,75 +983,106 @@ void Scene::pack(fge::net::Packet& pck)
         data->g_object->pack(pck);
     }
 }
-void Scene::unpack(fge::net::Packet& pck)
+void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
 {
+    this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(id),
+                                   std::forward_as_tuple(this->g_updateCount));
+    this->pack(pck);
+}
+std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
+{
+    constexpr char const* const func = __func__;
     fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
     fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
     fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
-    std::underlying_type<fge::ObjectType>::type buffType{fge::ObjectType::TYPE_NULL};
 
-    //SCENE NAME
-    FGE_NET_RULES_START
-        fge::net::rules::RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, pck);
-    FGE_NET_RULES_AFFECT_END(this->g_name)
+    using namespace fge::net::rules;
 
-    //SCENE DATA
-    for (std::size_t i = 0; i < this->_netList.size(); ++i)
-    {
-        this->_netList[i]->applyData(pck);
-    }
+    //update count
+    return RValid<decltype(this->g_updateCount)>({pck, &this->g_updateCount})
+            .and_then([&](auto& chain) {
+        //scene name
+        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain.template newChain(&this->g_name)));
+    })
+            .and_then([&](auto& chain) {
+        //scene data
+        for (std::size_t i = 0; i < this->_netList.size(); ++i)
+        {
+            if (!this->_netList[i]->applyData(pck))
+            {
+                break;
+            }
+        }
 
-    //OBJECT SIZE
-    this->delAllObject(true);
-
-    fge::net::SizeType objectSize{0};
-    pck >> objectSize;
-    for (fge::net::SizeType i = 0; i < objectSize; ++i)
-    {
+        return chain;
+    })
+            .and_then([&](auto& chain) {
+        //object size
+        this->delAllObject(true);
+        return RValid(chain.template newChain<fge::net::SizeType>());
+    })
+            .and_for_each(0, 1, [&](auto& chain, [[maybe_unused]] auto& i) {
         //SID
         pck >> buffSid;
         if (buffSid == FGE_SCENE_BAD_SID)
         {
-            continue;
+            return chain.end(std::nullopt);
         }
         //CLASS
         pck >> buffClass;
+        if (buffClass == FGE_REG_BADCLASSID)
+        {
+            return chain.end(
+                    net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad class ID", func});
+        }
         //PLAN
         pck >> buffPlan;
         //TYPE
-        FGE_NET_RULES_START
-            fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck);
-        FGE_NET_RULES_AFFECT_END(buffType)
+        return RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+                .and_then([&](auto& chain) {
+            fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
+            if (buffObject)
+            {
+                this->newObject(std::move(buffObject), buffPlan, buffSid, static_cast<fge::ObjectType>(chain.value()))
+                        ->g_object->unpack(pck);
+            }
+            else
+            {
+                return chain.invalidate(
+                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID", func});
+            }
 
-        fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
-        if (buffObject)
-        {
-            this->newObject(std::move(buffObject), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))
-                    ->g_object->unpack(pck);
-        }
-        else
-        {
-            pck.invalidate();
-            return;
-        }
-    }
+            return chain;
+        }).end();
+    }).end();
 }
-void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& clients, fge::net::Identity const& id)
+void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id)
 {
-    //SCENE NAME
+    //update count range
+    auto it = this->g_perClientSyncs.find(id);
+    if (it != this->g_perClientSyncs.end())
+    {
+        pck << it->second._lastUpdateCount << this->g_updateCount;
+        it->second._lastUpdateCount = this->g_updateCount; //keep track of last update count for the client
+    }
+    else
+    { //Should not really happen as clientCheckup is generally called before
+        pck << this->g_updateCount << this->g_updateCount;
+    }
+
+    //scene name
     pck << this->g_name;
 
-    //SCENE DATA
+    //scene data
     fge::net::SizeType countSceneDataModification = 0;
 
     std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewrited
+    pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewritten
 
     for (std::size_t i = 0; i < this->_netList.size(); ++i)
     {
         fge::net::NetworkTypeBase* netType = this->_netList[i];
 
-        netType->clientsCheckup(clients);
         if (netType->checkClient(id))
         {
             pck << static_cast<fge::net::SizeType>(i);
@@ -1040,14 +1093,14 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
     }
     pck.pack(rewritePos, &countSceneDataModification, sizeof(countSceneDataModification)); //Rewriting size
 
-    //OBJECT SIZE
+    //object size
     fge::net::SizeType countObject = 0;
 
     std::size_t countObjectPos = pck.getDataSize();
-    pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
+    pck.pack(&countObject, sizeof(countObject)); //Will be rewritten
 
     std::size_t dataPos = pck.getDataSize();
-    constexpr const std::size_t reservedSize =
+    constexpr std::size_t const reservedSize =
             sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
             sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
@@ -1059,8 +1112,6 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
         for (std::size_t i = 0; i < data->getObject()->_netList.size(); ++i)
         {
             fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
-
-            netType->clientsCheckup(clients);
 
             if (netType->checkClient(id))
             {
@@ -1098,120 +1149,64 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::ClientList& client
 
     pck.shrink(reservedSize);
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
-    clients.clearClientEvent();
 }
-void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id)
+std::optional<fge::net::Error>
+Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket)
 {
-    //SCENE NAME
-    pck << this->g_name;
+    constexpr char const* const func = __func__;
 
-    //SCENE DATA
-    fge::net::SizeType countSceneDataModification = 0;
+    using namespace fge::net::rules;
 
-    std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewrited
-
-    for (std::size_t i = 0; i < this->_netList.size(); ++i)
+    //update count range
+    if (!isPreExtractedPacket)
     {
-        fge::net::NetworkTypeBase* netType = this->_netList[i];
-
-        if (netType->checkClient(id))
+        pck >> updateCountRange._last >> updateCountRange._now;
+        if (!pck)
         {
-            pck << static_cast<fge::net::SizeType>(i);
-            netType->packData(pck, id);
-
-            ++countSceneDataModification;
+            return net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad update count range",
+                              func};
         }
-    }
-    pck.pack(rewritePos, &countSceneDataModification, sizeof(countSceneDataModification)); //Rewriting size
 
-    //OBJECT SIZE
-    fge::net::SizeType countObject = 0;
-
-    std::size_t countObjectPos = pck.getDataSize();
-    pck.pack(&countObject, sizeof(countObject)); //Will be rewrited
-
-    std::size_t dataPos = pck.getDataSize();
-    constexpr const std::size_t reservedSize =
-            sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-            sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
-    pck.append(reservedSize);
-
-    for (auto const& data: this->g_data)
-    {
-        //MODIF COUNT/OBJECT DATA
-        fge::net::SizeType countModification = 0;
-        for (std::size_t i = 0; i < data->getObject()->_netList.size(); ++i)
+        //Check if the pack is not old
+        if (updateCountRange._last < this->g_updateCount ||
+            (updateCountRange._last > this->g_updateCount && updateCountRange._now < this->g_updateCount))
         {
-            fge::net::NetworkTypeBase* netType = data->getObject()->_netList[i];
-
-            if (netType->checkClient(id))
-            {
-                pck << static_cast<fge::net::SizeType>(i);
-                netType->packData(pck, id);
-
-                ++countModification;
-            }
+            return net::Error{net::Error::Types::ERR_SCENE_OLD_PACKET, pck.getReadPos(),
+                              "old network updates for this scene", func};
         }
-        if (countModification)
+
+        //Check if the pack is continuous
+        if (updateCountRange._last != this->g_updateCount)
         {
-            //SID
-            pck.pack(dataPos, &data->g_sid, sizeof(fge::ObjectSid));
-            //CLASS
-            fge::reg::ClassId tmpClass = fge::reg::GetClassId(data->getObject()->getClassName());
-            pck.pack(dataPos + sizeof(fge::ObjectSid), &tmpClass, sizeof(fge::reg::ClassId));
-            //PLAN
-            pck.pack(dataPos + sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId), &data->g_plan,
-                     sizeof(fge::ObjectPlan));
-            //TYPE
-            std::underlying_type<fge::ObjectType>::type tmpType = data->g_type;
-            pck.pack(dataPos + sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan), &tmpType,
-                     sizeof(tmpType));
-
-            pck.pack(dataPos + sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-                             sizeof(tmpType),
-                     &countModification, sizeof(countModification));
-
-            dataPos = pck.getDataSize();
-            pck.append(reservedSize);
-
-            ++countObject;
+            return net::Error{net::Error::Types::ERR_SCENE_NEED_CACHING, pck.getReadPos(),
+                              "discontinuity in the network updates for this scene", func};
         }
     }
 
-    pck.shrink(reservedSize);
-    pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
-}
-void Scene::unpackModification(fge::net::Packet& pck)
-{
-    fge::net::SizeType buffSize = 0;
+    this->g_updateCount = updateCountRange._now;
 
-    //SCENE NAME
-    FGE_NET_RULES_START
-        fge::net::rules::RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, pck);
-    FGE_NET_RULES_AFFECT_END(this->g_name)
-
-    //SCENE DATA
-    FGE_NET_RULES_START
-        fge::net::rules::RLess<fge::net::SizeType>(this->_netList.size(), pck);
-    FGE_NET_RULES_AFFECT_END(buffSize)
-    for (fge::net::SizeType i = 0; i < buffSize; ++i)
-    {
-        fge::net::SizeType buffIndex;
-        pck >> buffIndex;
-
-        this->_netList[buffIndex]->applyData(pck);
-    }
-
-    //OBJECT SIZE
-    buffSize = 0;
-    pck >> buffSize;
-    for (fge::net::SizeType i = 0; i < buffSize; ++i)
-    {
+    //scene name
+    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
+            .and_then([&](auto& chain) {
+        //scene data
+        return RLess<fge::net::SizeType>(this->_netList.size(), chain.template newChain<fge::net::SizeType>());
+    })
+            .and_for_each(0, 1,
+                          [&](auto& chain, [[maybe_unused]] auto& i) {
+        return RValid(chain.template newChain<fge::net::SizeType>())
+                .and_then([&](auto& chain) {
+            this->_netList[chain.value()]->applyData(pck);
+            return chain;
+        }).end();
+    })
+            .and_then([&](auto& chain) {
+        return RValid<fge::net::SizeType>(chain.template newChain<fge::net::SizeType>());
+    })
+            .and_for_each(0, 1, [&](auto& chain, [[maybe_unused]] auto& i) {
         fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
         fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
         fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
-        std::underlying_type<fge::ObjectType>::type buffType{fge::ObjectType::TYPE_NULL};
+        std::underlying_type_t<fge::ObjectType> buffType{fge::ObjectType::TYPE_NULL};
 
         //SID
         pck >> buffSid;
@@ -1220,9 +1215,14 @@ void Scene::unpackModification(fge::net::Packet& pck)
         //PLAN
         pck >> buffPlan;
         //TYPE
-        FGE_NET_RULES_START
-            fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck);
-        FGE_NET_RULES_AFFECT_END(buffType)
+        auto err = RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+                           .apply(buffType)
+                           .end();
+
+        if (err)
+        {
+            return err;
+        }
 
         auto buffObject = this->getObject(buffSid);
         if (!buffObject)
@@ -1231,29 +1231,23 @@ void Scene::unpackModification(fge::net::Packet& pck)
                                          static_cast<fge::ObjectType>(buffType));
             if (!buffObject)
             {
-                pck.invalidate();
-                return;
+                return chain.end(
+                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID / SID", func});
             }
         }
 
         //MODIF COUNT/OBJECT DATA
         auto& objectNetList = buffObject->g_object->_netList;
 
-        fge::net::SizeType counterModif = 0;
-        FGE_NET_RULES_START
-            fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck);
-        FGE_NET_RULES_AFFECT_END(counterModif)
-
-        for (fge::net::SizeType a = 0; a < counterModif; ++a)
-        {
-            fge::net::SizeType buffIndex;
-            FGE_NET_RULES_START
-                fge::net::rules::RLess<fge::net::SizeType>(objectNetList.size(), pck);
-            FGE_NET_RULES_AFFECT_END(buffIndex)
-
-            objectNetList[buffIndex]->applyData(pck);
-        }
-    }
+        return RLess<fge::net::SizeType>(objectNetList.size(), pck)
+                .and_for_each(0, 1, [&](auto& chain, [[maybe_unused]] auto& i) {
+            return RLess<fge::net::SizeType>(objectNetList.size(), chain.template newChain<fge::net::SizeType>())
+                    .and_then([&](auto& chain) {
+                objectNetList[chain.value()]->applyData(pck);
+                return chain;
+            }).end();
+        }).end();
+    }).end();
 }
 
 void Scene::packNeededUpdate(fge::net::Packet& pck)
@@ -1266,7 +1260,7 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
     for (auto const& data: this->g_data)
     {
         std::size_t dataPos = pck.getDataSize();
-        constexpr const std::size_t reservedSize = sizeof(fge::ObjectSid);
+        constexpr std::size_t const reservedSize = sizeof(fge::ObjectSid);
         pck.append(reservedSize);
 
         std::size_t count = data->getObject()->_netList.packNeededUpdate(pck);
@@ -1285,44 +1279,37 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
 
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
-void Scene::unpackNeededUpdate(fge::net::Packet& pck, fge::net::Identity const& id)
+std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id)
 {
-    fge::net::SizeType countObject{0};
-    pck >> countObject;
+    constexpr char const* const func = __func__;
 
-    for (fge::net::SizeType i = 0; i < countObject; ++i)
-    {
-        fge::ObjectSid sid;
-        FGE_NET_RULES_START
-            fge::net::rules::RMustEqual<fge::ObjectSid, true>(FGE_SCENE_BAD_SID, pck);
-        FGE_NET_RULES_AFFECT_END(sid)
+    using namespace fge::net::rules;
 
-        auto object = this->getObject(sid);
-        if (object)
-        {
-            object->g_object->_netList.unpackNeededUpdate(pck, id);
-        }
-        else
-        {
-            fge::net::SizeType uselessDataSize{0};
-            pck >> uselessDataSize;
-            pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
-            if (!pck.isValid())
+    return RValid<fge::net::SizeType>(pck)
+            .and_for_each(0, 1, [&](auto& chain, [[maybe_unused]] auto& i) {
+        return RMustEqual<fge::ObjectSid, ROutputs::R_INVERTED>(FGE_SCENE_BAD_SID,
+                                                                chain.template newChain<fge::ObjectSid>())
+                .and_then([&](auto& chain) {
+            auto object = this->getObject(chain.value());
+            if (object)
             {
-                return;
+                object->g_object->_netList.unpackNeededUpdate(pck, id);
             }
-        }
-    }
-}
+            else
+            {
+                fge::net::SizeType uselessDataSize{0};
+                pck >> uselessDataSize;
+                pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
+                }
+            }
 
-void Scene::clientsCheckup(fge::net::ClientList const& clients)
-{
-    this->_netList.clientsCheckup(clients);
-
-    for (auto const& data: *this)
-    {
-        data->getObject()->_netList.clientsCheckup(clients);
-    }
+            return chain;
+        }).end();
+    }).end();
 }
 
 void Scene::forceCheckClient(fge::net::Identity const& id)
@@ -1344,36 +1331,65 @@ void Scene::forceUncheckClient(fge::net::Identity const& id)
     }
 }
 
-/** SceneNetEvent **/
-void Scene::clientsCheckupEvent(fge::net::ClientList const& clients)
+void Scene::clientsCheckup(fge::net::ClientList const& clients, bool force)
 {
-    //Remove/Add client
-    for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
+    this->_netList.clientsCheckup(clients, force);
+
+    auto const clientsEmpty = clients.getSize() == 0;
+    for (auto const& data: *this)
     {
-        fge::net::ClientListEvent const& evt = clients.getClientEvent(i);
-        if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+        data->getObject()->_netList.clientsCheckup(clients,
+                                                   force || (data->g_requireForceClientsCheckup && !clientsEmpty));
+        data->g_requireForceClientsCheckup = false;
+    }
+
+    //Remove/Add client
+    if (force)
+    {
+        this->g_perClientSyncs.clear();
+        this->g_perClientSyncs.reserve(clients.getSize());
+
+        auto lock = clients.acquireLock();
+        for (auto it = clients.begin(lock); it != clients.end(lock); ++it)
         {
-            this->g_networkEvents.erase(evt._id);
+            this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(it->first),
+                                           std::forward_as_tuple(this->g_updateCount));
         }
-        else
+    }
+    else
+    {
+        //Watch ClientList events
+        for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
         {
-            this->g_networkEvents[evt._id];
+            auto const& evt = clients.getClientEvent(i);
+            if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+            {
+                this->g_perClientSyncs.erase(evt._id);
+            }
+            else
+            {
+                this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(evt._id),
+                                               std::forward_as_tuple(this->g_updateCount));
+            }
         }
     }
 }
+
+/** SceneNetEvent **/
+
 void Scene::pushEvent(fge::SceneNetEvent const& netEvent)
 {
-    for (auto& networkEvent: this->g_networkEvents)
+    for (auto& clientSync: this->g_perClientSyncs)
     {
-        networkEvent.second.push(netEvent);
+        clientSync.second._networkEvents.push(netEvent);
     }
 }
 bool Scene::pushEvent(fge::SceneNetEvent const& netEvent, fge::net::Identity const& id)
 {
-    auto it = this->g_networkEvents.find(id);
-    if (it != this->g_networkEvents.end())
+    auto it = this->g_perClientSyncs.find(id);
+    if (it != this->g_perClientSyncs.end())
     {
-        it->second.push(netEvent);
+        it->second._networkEvents.push(netEvent);
         return true;
     }
     return false;
@@ -1382,7 +1398,7 @@ void Scene::watchEvent(bool on)
 {
     if (!on)
     {
-        this->clearEvents();
+        this->clearNetEventsQueue();
     }
     this->g_enableNetworkEventsFlag = on;
 }
@@ -1391,24 +1407,24 @@ bool Scene::isWatchingEvent() const
     return this->g_enableNetworkEventsFlag;
 }
 
-void Scene::deleteEvents(fge::net::Identity const& id)
+void Scene::clearNetEventsQueue(fge::net::Identity const& id)
 {
-    auto it = this->g_networkEvents.find(id);
-    if (it != this->g_networkEvents.end())
+    auto it = this->g_perClientSyncs.find(id);
+    if (it != this->g_perClientSyncs.end())
     {
-        std::queue<fge::SceneNetEvent>().swap(it->second);
+        std::queue<fge::SceneNetEvent>().swap(it->second._networkEvents);
     }
 }
-void Scene::deleteEvents()
+void Scene::clearNetEventsQueue()
 {
-    for (auto& networkEvent: this->g_networkEvents)
+    for (auto& clientSync: this->g_perClientSyncs)
     {
-        std::queue<fge::SceneNetEvent>().swap(networkEvent.second);
+        std::queue<fge::SceneNetEvent>().swap(clientSync.second._networkEvents);
     }
 }
-void Scene::clearEvents()
+void Scene::clearPerClientSyncData()
 {
-    this->g_networkEvents.clear();
+    this->g_perClientSyncs.clear();
 }
 
 void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id)
@@ -1416,15 +1432,15 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id
     fge::net::SizeType counter = 0;
 
     std::size_t rewritePos = pck.getDataSize();
-    pck.pack(&counter, sizeof(counter)); //will be rewrited
+    pck.pack(&counter, sizeof(counter)); //will be rewritten
 
-    auto it = this->g_networkEvents.find(id);
-    if (it == this->g_networkEvents.end())
+    auto it = this->g_perClientSyncs.find(id);
+    if (it == this->g_perClientSyncs.end())
     {
         return;
     }
 
-    std::queue<fge::SceneNetEvent>& events = it->second;
+    auto& events = it->second._networkEvents;
 
     while (!events.empty())
     {
@@ -1462,62 +1478,73 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id
 
     pck.pack(rewritePos, &counter, sizeof(counter));
 }
-void Scene::unpackWatchedEvent(fge::net::Packet& pck)
+std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const& pck)
 {
+    constexpr char const* const func = __func__;
     fge::ObjectSid buffSid;
     fge::reg::ClassId buffClass;
     fge::ObjectPlan buffPlan;
-    std::underlying_type<fge::ObjectType>::type buffType;
+    std::underlying_type_t<fge::ObjectType> buffType{fge::ObjectType::TYPE_NULL};
 
-    std::underlying_type<fge::SceneNetEvent::Events>::type event = fge::SceneNetEvent::SEVT_UNKNOWN;
+    using namespace fge::net::rules;
 
-    fge::net::SizeType dataSize = 0;
-    pck >> dataSize;
-    for (fge::net::SizeType i = 0; i < dataSize; ++i)
-    {
+    return RValid<fge::net::SizeType>(pck)
+            .and_for_each(0, 1, [&]([[maybe_unused]] auto& chain, [[maybe_unused]] auto& i) {
         //Event type
-        FGE_NET_RULES_START
-            fge::net::rules::RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(
-                    fge::SceneNetEvent::Events::SEVT_MAX_, pck);
-        FGE_NET_RULES_AFFECT_END(event)
+        return RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(fge::SceneNetEvent::Events::SEVT_MAX_,
+                                                                               pck)
+                .and_then([&](auto& chain) {
+            auto event = static_cast<fge::SceneNetEvent::Events>(chain.value());
 
-        if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
-        { //New object
-            //SID
-            pck >> buffSid;
-            //CLASS
-            pck >> buffClass;
-            //PLAN
-            pck >> buffPlan;
-            //TYPE
-            FGE_NET_RULES_START
-                fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck);
-            FGE_NET_RULES_AFFECT_END(buffType)
+            if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
+            { //New object
+                //SID
+                pck >> buffSid;
+                //CLASS
+                pck >> buffClass;
+                //PLAN
+                pck >> buffPlan;
+                //TYPE
+                fge::net::rules::RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+                        .apply(buffType);
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(),
+                                                       "unattended object type", func});
+                }
 
-            this->delObject(buffSid);
-            auto* newObj = fge::reg::GetNewClassOf(buffClass);
-            if (newObj == nullptr)
-            {
-                pck.invalidate();
-                return;
-            }
-            this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))
-                    ->g_object->unpack(pck);
-        }
-        else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
-        { //Remove object
-            //SID
-            pck >> buffSid;
-            if (buffSid == FGE_SCENE_BAD_SID)
-            {
-                this->delAllObject(true);
-            }
-            else
-            {
                 this->delObject(buffSid);
+                auto* newObj = fge::reg::GetNewClassOf(buffClass);
+                if (newObj == nullptr)
+                {
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID", func});
+                }
+                this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))
+                        ->g_object->unpack(pck);
             }
-        }
-    }
+            else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
+            { //Remove object
+                //SID
+                pck >> buffSid;
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
+                }
+                if (buffSid == FGE_SCENE_BAD_SID)
+                {
+                    this->delAllObject(true);
+                }
+                else
+                {
+                    this->delObject(buffSid);
+                }
+            }
+
+            return chain;
+        }).end();
+    }).end();
 }
 
 /** Custom view **/

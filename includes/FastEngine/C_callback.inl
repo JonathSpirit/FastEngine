@@ -91,7 +91,7 @@ bool CallbackLambda<Types...>::check([[maybe_unused]] void* ptr)
 template<class... Types>
 void CallbackHandler<Types...>::clear()
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->detachAll();
     this->g_callees.clear();
 }
@@ -99,14 +99,14 @@ void CallbackHandler<Types...>::clear()
 template<class... Types>
 void CallbackHandler<Types...>::add(fge::CallbackFunctorBase<Types...>* callback, fge::Subscriber* subscriber)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->attach(subscriber);
     this->g_callees.push_front({typename fge::CallbackHandler<Types...>::CalleePtr(callback), subscriber});
 }
 template<class... Types>
 void CallbackHandler<Types...>::delPtr(void* ptr)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
     for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
          it != this->g_callees.end(); ++it)
@@ -130,7 +130,7 @@ void CallbackHandler<Types...>::delPtr(void* ptr)
 template<class... Types>
 void CallbackHandler<Types...>::del(fge::Subscriber* subscriber)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
     for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
          it != this->g_callees.end(); ++it)
@@ -155,7 +155,7 @@ void CallbackHandler<Types...>::del(fge::Subscriber* subscriber)
 template<class... Types>
 void CallbackHandler<Types...>::call(Types... args)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     auto itCalleeNext = this->g_callees.begin();
     for (auto itCallee = this->g_callees.begin(); itCallee != this->g_callees.end(); itCallee = itCalleeNext)
     {
@@ -167,7 +167,7 @@ void CallbackHandler<Types...>::call(Types... args)
 template<class... Types>
 void CallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
 {
-    std::lock_guard<std::recursive_mutex> lck(this->g_mutex);
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
     for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
          it != this->g_callees.end(); ++it)

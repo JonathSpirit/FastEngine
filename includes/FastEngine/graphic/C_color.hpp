@@ -99,10 +99,10 @@ public:
 
     Color operator+(Color const& right) const
     {
-        const uint16_t red = static_cast<uint16_t>(this->_r) + right._r;
-        const uint16_t green = static_cast<uint16_t>(this->_g) + right._g;
-        const uint16_t blue = static_cast<uint16_t>(this->_b) + right._b;
-        const uint16_t alpha = static_cast<uint16_t>(this->_a) + right._a;
+        uint16_t const red = static_cast<uint16_t>(this->_r) + right._r;
+        uint16_t const green = static_cast<uint16_t>(this->_g) + right._g;
+        uint16_t const blue = static_cast<uint16_t>(this->_b) + right._b;
+        uint16_t const alpha = static_cast<uint16_t>(this->_a) + right._a;
         return {red > 255 ? uint8_t(255) : static_cast<uint8_t>(red),
                 green > 255 ? uint8_t(255) : static_cast<uint8_t>(green),
                 blue > 255 ? uint8_t(255) : static_cast<uint8_t>(blue),
@@ -120,10 +120,10 @@ public:
     }
     Color operator*(Color const& right) const
     {
-        const uint16_t red = static_cast<uint16_t>(this->_r) * right._r;
-        const uint16_t green = static_cast<uint16_t>(this->_g) * right._g;
-        const uint16_t blue = static_cast<uint16_t>(this->_b) * right._b;
-        const uint16_t alpha = static_cast<uint16_t>(this->_a) * right._a;
+        uint16_t const red = static_cast<uint16_t>(this->_r) * right._r;
+        uint16_t const green = static_cast<uint16_t>(this->_g) * right._g;
+        uint16_t const blue = static_cast<uint16_t>(this->_b) * right._b;
+        uint16_t const alpha = static_cast<uint16_t>(this->_a) * right._a;
         return {static_cast<uint8_t>(red / 255), static_cast<uint8_t>(green / 255), static_cast<uint8_t>(blue / 255),
                 static_cast<uint8_t>(alpha / 255)};
     }
@@ -137,26 +137,26 @@ public:
     uint8_t _b;
     uint8_t _a;
 
-    static const Color Black;       //!< Black predefined color
-    static const Color White;       //!< White predefined color
-    static const Color Red;         //!< Red predefined color
-    static const Color Green;       //!< Green predefined color
-    static const Color Blue;        //!< Blue predefined color
-    static const Color Yellow;      //!< Yellow predefined color
-    static const Color Magenta;     //!< Magenta predefined color
-    static const Color Cyan;        //!< Cyan predefined color
-    static const Color Transparent; //!< Transparent (black) predefined color
+    static Color const Black;       //!< Black predefined color
+    static Color const White;       //!< White predefined color
+    static Color const Red;         //!< Red predefined color
+    static Color const Green;       //!< Green predefined color
+    static Color const Blue;        //!< Blue predefined color
+    static Color const Yellow;      //!< Yellow predefined color
+    static Color const Magenta;     //!< Magenta predefined color
+    static Color const Cyan;        //!< Cyan predefined color
+    static Color const Transparent; //!< Transparent (black) predefined color
 };
 
-inline const Color Color::Black(0, 0, 0);
-inline const Color Color::White(255, 255, 255);
-inline const Color Color::Red(255, 0, 0);
-inline const Color Color::Green(0, 255, 0);
-inline const Color Color::Blue(0, 0, 255);
-inline const Color Color::Yellow(255, 255, 0);
-inline const Color Color::Magenta(255, 0, 255);
-inline const Color Color::Cyan(0, 255, 255);
-inline const Color Color::Transparent(0, 0, 0, 0);
+inline Color const Color::Black(0, 0, 0);
+inline Color const Color::White(255, 255, 255);
+inline Color const Color::Red(255, 0, 0);
+inline Color const Color::Green(0, 255, 0);
+inline Color const Color::Blue(0, 0, 255);
+inline Color const Color::Yellow(255, 255, 0);
+inline Color const Color::Magenta(255, 0, 255);
+inline Color const Color::Cyan(0, 255, 255);
+inline Color const Color::Transparent(0, 0, 0, 0);
 
 } // namespace fge
 

@@ -15,12 +15,12 @@
  */
 
 #include "FastEngine/C_clock.hpp"
-#include "FastEngine/C_packetLZ4.hpp"
-#include "FastEngine/C_server.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/fge_version.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
+#include "FastEngine/network/C_packetLZ4.hpp"
+#include "FastEngine/network/C_server.hpp"
 #include "definition.hpp"
 
 #include "C_creature.hpp"
@@ -74,7 +74,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::string title = "Life simulator server, FastEngine " + std::string{FGE_VERSION_FULL_WITHTAG_STRING};
     fge::SetConsoleCmdTitle(title.c_str());
 
-    fge::net::ServerUdp server;
+    fge::net::ServerSideNetUdp server;
     ///TODO: fge::net::ServerUdp should have a function to create a packet for us.
     /// This will save some time if the user want to re-change the packet type.
 
@@ -87,7 +87,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
     std::cout << "OK !" << std::endl << std::endl;
 
-    fge::net::ServerFluxUdp* serverFlux = server.getDefaultFlux();
+    auto* serverFlux = server.getDefaultFlux();
     fge::net::ClientList& clients = serverFlux->_clients;
 
     clients.watchEvent(true);
@@ -226,24 +226,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto fluxPacket = serverFlux->popNextPacket();
 
             //Check if we already know the packet identity
-            auto client = clients.get(fluxPacket->_id);
+            auto client = clients.get(fluxPacket->getIdentity());
 
             //Prepare a sending packet
-            fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
+            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
 
             //Retrieve the packet header
-            switch (fge::net::GetHeader(fluxPacket->_pck))
+            switch (fge::net::GetHeader(fluxPacket->_packet))
             {
             case ls::LS_PROTOCOL_ALL_PING:
-                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_ALL_PONG);
+                fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_ALL_PONG);
 
                 if (client)
                 {
-                    client->pushPacket(std::move(packetSend));
+                    client->pushPacket(std::move(transmissionPacket));
                 }
                 else
                 {
-                    server.sendTo(*packetSend._pck, fluxPacket->_id);
+                    server.sendTo(transmissionPacket->packet(), fluxPacket->getIdentity());
                 }
                 break;
             case ls::LS_PROTOCOL_C_UPDATE:
@@ -266,17 +266,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
-                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+                fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
 
                 if (client != nullptr)
                 {
                     //The client is already connected, so we just send "true"
-                    *packetSend._pck << true;
-                    client->pushPacket(std::move(packetSend));
+                    transmissionPacket->packet() << true;
+                    client->pushPacket(std::move(transmissionPacket));
                 }
                 else
-                {
-                    //The potential client is not connected
+                { //The potential client is not connected
 
                     //We extract 2 "really super secret" strings for validating the connection
                     std::string connectionText1;
@@ -284,55 +283,61 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                     //Before extracting a string from the packet, we must be sure that the string
                     //will have a valid size range.
-                    FGE_NET_RULES_START
-                        fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1),
-                                                                     {fluxPacket->_pck});
-                        FGE_NET_RULES_AFFECT_END_ELSE(connectionText1, )
+                    fge::net::rules::RValid(
+                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1,
+                                                                         {fluxPacket->_packet, &connectionText1}))
+                            .and_then([&](auto& chain) {
+                        return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
+                                sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
+                                chain.template newChain<std::string>(&connectionText2)));
+                    })
+                            .and_then([&](auto& chain) {
+                        //At this point, every extraction as been successful, so we can continue
+                        //Check if those text is respected
+                        if (connectionText1 == LIFESIM_CONNECTION_TEXT1 && connectionText2 == LIFESIM_CONNECTION_TEXT2)
+                        {
+                            //The client is valid, we can connect him
+                            transmissionPacket->packet() << true;
 
-                        FGE_NET_RULES_START
-                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2),
-                                                                         {fluxPacket->_pck});
-                            FGE_NET_RULES_AFFECT_END_ELSE(connectionText2, )
+                            std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString() << " connected !"
+                                      << std::endl;
 
-                            //Check if the packet is still valid after extraction and/or rules
-                            if (fluxPacket->_pck)
-                            {
-                                //Check if those text is respected
-                                if (connectionText1 == LIFESIM_CONNECTION_TEXT1 &&
-                                    connectionText2 == LIFESIM_CONNECTION_TEXT2)
-                                {
-                                    //The client is valid, we can connect him
-                                    *packetSend._pck << true;
+                            //Create the new client with the packet identity
+                            client = std::make_shared<fge::net::Client>();
+                            clients.add(fluxPacket->getIdentity(), client);
 
-                                    std::cout << "new user : " << fluxPacket->_id._ip.toString() << " connected !"
-                                              << std::endl;
+                            //Pack data required by the LatencyPlanner in order to compute latency
+                            client->_latencyPlanner.pack(transmissionPacket);
 
-                                    //Create the new client with the packet identity
-                                    client = std::make_shared<fge::net::Client>();
-                                    clients.add(fluxPacket->_id, client);
+                            //Ask the server thread to automatically update the timestamp just before sending it
+                            client->pushPacket(std::move(transmissionPacket));
 
-                                    //Pack data required by the LatencyPlanner in order to compute latency
-                                    client->_latencyPlanner.pack(packetSend);
+                            //We will send a full scene update to the client too
+                            transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
+                            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
 
-                                    //Ask the server thread to automatically update the timestamp just before sending it
-                                    client->pushPacket(std::move(packetSend));
+                            client->pushPacket(std::move(transmissionPacket));
+                        }
 
-                                    //We will send a full scene update to the client too
-                                    packetSend = fge::net::SendQueuePacket{std::make_shared<fge::net::PacketLZ4>()};
-                                    fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE_ALL);
-                                    mainScene.pack(*packetSend._pck);
-
-                                    client->pushPacket(std::move(packetSend));
-                                    break;
-                                }
-                            }
-
-                            //Something is not right, we will send "false" to the potential client
-                            *packetSend._pck << false;
-                            server.sendTo(*packetSend._pck, fluxPacket->_id);
+                        return chain;
+                    }).on_error([&]([[maybe_unused]] auto& chain) {
+                        //Something is not right, we will send "false" to the potential client
+                        transmissionPacket->packet() << false;
+                        server.sendTo(transmissionPacket->packet(), fluxPacket->getIdentity());
+                    });
                 }
             }
             break;
+            case ls::LS_PROTOCOL_C_ASK_FULL_UPDATE:
+                if (client)
+                {
+                    fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_S_UPDATE_ALL);
+                    mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
+                    client->pushPacket(std::move(transmissionPacket));
+                    server.notifyTransmission();
+                }
+                break;
             default:
                 break;
             }
@@ -343,10 +348,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Sending scene update to clients
         {
-            //We do a client checkup for every object, in order to prepare data for new clients or destroying old clients
+            //We do a client checkup, in order to prepare network data for new clients or destroying old clients
             mainScene.clientsCheckup(clients);
-            //Same with the scene
-            mainScene.clientsCheckupEvent(clients);
 
             //Client event must be manually cleared after use
             clients.clearClientEvent();
@@ -354,28 +357,28 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto clientsLock = clients.acquireLock();
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
-                //Make sure that the server thread is not busy with another packet
+                //Make sure that the client is not busy with another packet
                 if (!(*it).second->isPendingPacketsEmpty())
                 {
                     continue;
                 }
 
-                fge::net::SendQueuePacket packetSend{std::make_shared<fge::net::PacketLZ4>()};
-                fge::net::SetHeader(*packetSend._pck, ls::LS_PROTOCOL_S_UPDATE);
+                auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
+                fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_S_UPDATE);
 
                 //Pack data required by the LatencyPlanner in order to compute latency
-                (*it).second->_latencyPlanner.pack(packetSend);
+                (*it).second->_latencyPlanner.pack(transmissionPacket);
 
                 //We can now push all scene modification by clients
-                mainScene.packModification(*packetSend._pck, (*it).first);
+                mainScene.packModification(transmissionPacket->packet(), (*it).first);
                 //And push all scene events by clients
-                mainScene.packWatchedEvent(*packetSend._pck, (*it).first);
+                mainScene.packWatchedEvent(transmissionPacket->packet(), (*it).first);
 
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
-                (*it).second->pushPacket(std::move(packetSend));
+                (*it).second->pushPacket(std::move(transmissionPacket));
 
                 //Notify the server that a packet as been pushed
-                server.notify();
+                server.notifyTransmission();
             }
         }
 

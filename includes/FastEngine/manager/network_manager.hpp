@@ -18,129 +18,14 @@
 #define _FGE_NETWORK_MANAGER_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
-#include "FastEngine/C_client.hpp"
-#include "FastEngine/C_packet.hpp"
 #include "FastEngine/C_scene.hpp"
+#include "FastEngine/network/C_client.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include <optional>
+#include <variant>
 
 #define FGE_NET_BAD_HEADER 0
-
-/**
- * \ingroup networkRules
- * @{
- */
-
-/**
- * \brief Macro that indicate the beginning of a network rules chain
- *
- * This will create a scope and a ChainedArguments variable.
- */
-#define FGE_NET_RULES_START                                                                                            \
-    {                                                                                                                  \
-        auto chainedArgs_ =
-/**
- * \brief Macro that will check extract the ChainedArguments
- *
- * \see fge::net::rules::ChainedArguments::checkExtract
- */
-#define FGE_NET_RULES_CHECK_EXTRACT chainedArgs_.checkExtract()
-/**
- * \brief Macro that will check is everything is valid and return if not
- */
-#define FGE_NET_RULES_TRY                                                                                              \
-    if (!FGE_NET_RULES_CHECK_EXTRACT)                                                                                  \
-    {                                                                                                                  \
-        return;                                                                                                        \
-    }
-/**
- * \brief Macro that will check is everything is valid and do something else instead
- *
- * \param else_ The code that will be executed when rules is invalid
- */
-#define FGE_NET_RULES_TRY_ELSE(else_)                                                                                  \
-    if (!FGE_NET_RULES_CHECK_EXTRACT)                                                                                  \
-    {                                                                                                                  \
-        else_                                                                                                          \
-    }
-/**
- * \brief Macro that will get the value stored in the ChainedArguments and move it
- */
-#define FGE_NET_RULES_RESULT std::move(chainedArgs_._value.value())
-/**
- * \brief Macro that will get the value stored in the ChainedArguments
- */
-#define FGE_NET_RULES_RESULT_N chainedArgs_._value.value()
-/**
- * \brief Macro that will made everything in order to affect the ChainedArguments value into the provided variable
- *
- * This macro will first check if the packet is valid after Packet extraction and will
- * copy or move the value into the provided variable.
- *
- * \param var_ The variable that will receive the valid value
- */
-#define FGE_NET_RULES_AFFECT(var_)                                                                                     \
-    FGE_NET_RULES_TRY if constexpr (std::is_move_constructible<decltype(var_)>::value)                                 \
-    {                                                                                                                  \
-        (var_) = FGE_NET_RULES_RESULT;                                                                                 \
-    }                                                                                                                  \
-    else                                                                                                               \
-    {                                                                                                                  \
-        (var_) = FGE_NET_RULES_RESULT_N;                                                                               \
-    }
-/**
- * \brief Macro that will made everything in order to affect the ChainedArguments value into the provided function/method
- *
- * \see FGE_NET_RULES_AFFECT
- *
- * \param setter_ The function to be called in order to affect the valid value
- */
-#define FGE_NET_RULES_SETTER(setter_) FGE_NET_RULES_TRY setter_(FGE_NET_RULES_RESULT);
-/**
- * \brief Same as FGE_NET_RULES_AFFECT with custom \b else condition
- *
- * \see FGE_NET_RULES_AFFECT
- *
- * \param var_ The variable that will receive the valid value
- * \param else_ The code that will be executed when rules is invalid
- */
-#define FGE_NET_RULES_AFFECT_ELSE(var_, else_)                                                                         \
-    FGE_NET_RULES_TRY_ELSE(else_) if constexpr (std::is_move_constructible<decltype(var_)>::value)                     \
-    {                                                                                                                  \
-        (var_) = FGE_NET_RULES_RESULT;                                                                                 \
-    }                                                                                                                  \
-    else                                                                                                               \
-    {                                                                                                                  \
-        (var_) = FGE_NET_RULES_RESULT_N;                                                                               \
-    }
-/**
- * \brief Same as FGE_NET_RULES_SETTER with custom \b else condition
- *
- * \see FGE_NET_RULES_AFFECT
- *
- * \param setter_ The function to be called in order to affect the valid value
- * \param else_ The code that will be executed when rules is invalid
- */
-#define FGE_NET_RULES_SETTER_ELSE(setter_, else_) FGE_NET_RULES_TRY_ELSE(else_) setter_(FGE_NET_RULES_RESULT);
-/**
- * \brief End the rules scope
- */
-#define FGE_NET_RULES_END }
-#define FGE_NET_RULES_AFFECT_END(var_)                                                                                 \
-    FGE_NET_RULES_AFFECT(var_)                                                                                         \
-    FGE_NET_RULES_END
-#define FGE_NET_RULES_SETTER_END(setter_)                                                                              \
-    FGE_NET_RULES_SETTER(setter_)                                                                                      \
-    FGE_NET_RULES_END
-#define FGE_NET_RULES_AFFECT_END_ELSE(var_, else_)                                                                     \
-    FGE_NET_RULES_AFFECT_ELSE(var_, else_)                                                                             \
-    FGE_NET_RULES_END
-#define FGE_NET_RULES_SETTER_END_ELSE(setter_, else_)                                                                  \
-    FGE_NET_RULES_SETTER_ELSE(setter_, else_)                                                                          \
-    FGE_NET_RULES_END
-/**
- * @}
- */
 
 namespace fge::net
 {
@@ -216,56 +101,206 @@ namespace rules
 
 /**
  * \struct ChainedArguments
- * \brief This is a wrapper around a Packet with an optional value
+ * \brief This is a wrapper around a Packet and a value for safe extraction
  * \ingroup networkRules
  *
- * This structure go through a rules chain and avoid extracting multiple times
- * the required value.
+ * A ChainedArguments is the argument for all network extraction rules.
+ * The goal is to chain up multiple rules and at the end output an optional error.
  *
- * When a rule is invalid, it will invalidate the Packet.
+ * When the packet is invalid, the chain will stop and the error will be returned.
  *
  * \tparam TValue The type of the value that will be extracted
  */
 template<class TValue>
-struct ChainedArguments
+class ChainedArguments
 {
-    ChainedArguments() = default;
-    ChainedArguments(fge::net::Packet const& pck) :
-            _pck(&pck)
-    {}
-    ChainedArguments(fge::net::Packet const* pck) :
-            _pck(pck)
-    {}
+public:
+    constexpr ChainedArguments(fge::net::Packet const& pck, TValue* existingValue = nullptr);
+    constexpr ChainedArguments(fge::net::Packet const& pck, Error&& err, TValue* existingValue = nullptr);
+    constexpr ChainedArguments(ChainedArguments const& r) = default;
+    constexpr ChainedArguments(ChainedArguments&& r) noexcept = default;
 
-    fge::net::Packet const* _pck; ///< This should be never null
-    std::optional<TValue> _value{std::nullopt};
+    constexpr ChainedArguments& operator=(ChainedArguments const& r) = default;
+    constexpr ChainedArguments& operator=(ChainedArguments&& r) noexcept = default;
 
     /**
-     * \brief Make sure that the value is extracted and return \b true if everything is valid
+     * \brief Extract and verify the value from the packet
      *
-     * \return The validity of the Packet
-     */
-    bool checkExtract();
-    /**
-     * \brief Make sure that the value is extracted and return the extracted value
+     * If the user as provided an existing value, it will be used instead of creating a new one.
      *
-     * \return The extracted value
+     * \return The extracted value or \b nullptr if the Packet is/become invalid
      */
-    TValue& extract();
+    [[nodiscard]] constexpr TValue* extract();
     /**
-     * \brief Peek without changing the read position a certain value
+     * \brief Peek without changing the read position a copy of value
      *
      * \tparam TPeek The type of the value that will be peeked
      * \return A copy of the peeked value
      */
     template<class TPeek>
-    TPeek peek();
+    [[nodiscard]] constexpr std::optional<TPeek> peek();
+
+    [[nodiscard]] constexpr fge::net::Packet const& packet() const;
+    [[nodiscard]] constexpr TValue const& value() const;
+    [[nodiscard]] constexpr TValue& value();
+
+    /**
+     * \brief Chain up some code after a successful extraction
+     *
+     * If the packet is invalid, the chain will stop and the invokable argument will not be called.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
+    template<class TInvokable>
+    [[nodiscard]] constexpr typename std::invoke_result_t<TInvokable, ChainedArguments<TValue>&>
+    and_then(TInvokable&& f);
+    /**
+     * \brief Chain up some code in a for loop after a successful extraction
+     *
+     * If the packet is invalid, the chain will stop and the invokable argument will not be called.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \tparam TIndex The type of the index
+     * \param iStart The starting value of the index
+     * \param iEnd The ending value of the index
+     * \param iIncrement The increment value of the index
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
+    template<class TInvokable, class TIndex>
+    [[nodiscard]] constexpr ChainedArguments<TValue>&
+    and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f);
+    /**
+     * \brief Chain up some code in a for loop after a successful extraction
+     *
+     * This is the same as and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f)
+     * but you don't have to provide the end value of the index as it will be got from the last
+     * chain result.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \tparam TIndex The type of the index
+     * \param iStart The starting value of the index
+     * \param iIncrement The increment value of the index
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
+    template<class TInvokable, class TIndex>
+    [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TIndex iStart, TIndex iIncrement, TInvokable&& f);
+    /**
+     * \brief Chain up some code after a unsuccessful extraction
+     *
+     * This must be the last method called in the chain as this
+     * return an optional error.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return An optional error
+     */
+    template<class TInvokable>
+    constexpr std::optional<Error> on_error(TInvokable&& f);
+    /**
+     * \brief End the chain by doing a last validity check on the packet
+     *
+     * \return An optional error
+     */
+    [[nodiscard]] constexpr std::optional<Error> end();
+    /**
+     * \brief End the chain without returning an error
+     *
+     * This is useful when you want to skip in a and_for_each loop.
+     *
+     * \param nullopt A nullopt_t
+     * \return An optional error (construct with nullopt)
+     */
+    [[nodiscard]] constexpr std::optional<Error> end(std::nullopt_t nullopt) const;
+    /**
+     * \brief End the chain by returning a custom error$
+     *
+     * \param err The error
+     * \return An optional error (construct with err)
+     */
+    [[nodiscard]] constexpr std::optional<Error> end(Error&& err) const;
+
+    /**
+     * \brief Apply the extracted value to the provided reference
+     *
+     * If the packet is invalid, the value will not be applied.
+     * When applied, the internal value is (if possible) moved to the provided reference.
+     * So value() must not be called after this.
+     *
+     * \param value The reference that will be applied
+     * \return A reference to the same ChainedArguments
+     */
+    constexpr ChainedArguments<TValue>& apply(TValue& value);
+    template<class TInvokable>
+    /**
+     * \brief Apply the extracted value to the provided invokable argument
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments
+     */
+    constexpr ChainedArguments<TValue>& apply(TInvokable&& f);
+
+    /**
+     * \brief Create a new chain with a different value type
+     *
+     * The packet and the error will be copied/moved to the new chain.
+     *
+     * \tparam TNewValue The type of the new value
+     * \param existingValue An optional existing value
+     * \return A new ChainedArguments with a different value type
+     */
+    template<class TNewValue>
+    constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr);
+    /**
+     * \brief Create a new chain with a different value type
+     *
+     * This const version is generally used in a and_for_each loop.
+     * The error isn't forwarded to the new chain.
+     *
+     * \tparam TNewValue The type of the new value
+     * \param existingValue An optional existing value
+     * \return A new ChainedArguments with a different value type
+     */
+    template<class TNewValue>
+    constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr) const;
+
+    /**
+     * \brief Set the error
+     *
+     * \param err The error
+     * \return A reference to the same ChainedArguments
+     */
+    constexpr ChainedArguments<TValue>& setError(Error&& err);
+    /**
+     * \brief Invalidate the packet and set the error
+     *
+     * \param err The error
+     * \return A reference to the same ChainedArguments
+     */
+    constexpr ChainedArguments<TValue>& invalidate(Error&& err);
+
+private:
+    using Value = std::variant<TValue, TValue*>;
+
+    fge::net::Packet const* g_pck;
+    Value g_value;
+    Error g_error;
 };
 
 /**
  * \ingroup networkRules
  * @{
  */
+
+enum class ROutputs : bool
+{
+    R_NORMAL = false,
+    R_INVERTED = true
+};
 
 /**
  * \brief Range rule, check if the value is in the min/max range
@@ -279,9 +314,18 @@ struct ChainedArguments
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue>
-RRange(TValue const& min, TValue const& max, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue>&& args);
+
+/**
+ * \brief Valid rule, check if the value is correctly extracted
+ *
+ * \tparam TValue The type of the value
+ * \param args The chained argument
+ * \return The chained argument
+ */
+template<class TValue>
+constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args);
 
 /**
  * \brief Must equal rule, check if the value is equal to the provided one
@@ -292,8 +336,8 @@ RRange(TValue const& min, TValue const& max, fge::net::rules::ChainedArguments<T
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue> RMustEqual(TValue const& a, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Strict less rule, check if the value is strictly lesser than the provided one
@@ -304,8 +348,8 @@ fge::net::rules::ChainedArguments<TValue> RMustEqual(TValue const& a, fge::net::
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Less rule, check if the value is lesser than the provided one
@@ -316,8 +360,8 @@ fge::net::rules::ChainedArguments<TValue> RStrictLess(TValue less, fge::net::rul
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Size range rule, check if the size is in the min/max range
@@ -335,9 +379,9 @@ fge::net::rules::ChainedArguments<TValue> RLess(TValue less, fge::net::rules::Ch
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue>
-RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue>
+RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Size must equal rule, check if the size is equal to the provided one
@@ -350,9 +394,8 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, fge::net::rules::Chai
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
-                                                         fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Check if the extracted string is a valid UTF8 string
@@ -365,8 +408,8 @@ fge::net::rules::ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a,
  * \param args The chained argument
  * \return The chained argument
  */
-template<class TValue, bool TInvertResult = false>
-fge::net::rules::ChainedArguments<TValue> RMustValidUtf8(fge::net::rules::ChainedArguments<TValue> args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& args);
 
 /**
  * @}

@@ -29,7 +29,7 @@ Random<TEngine>::Random(uint64_t seed) :
 template<typename TEngine>
 void Random<TEngine>::setSeed(uint64_t seed)
 {
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
     this->g_engine.seed(seed);
 }
 
@@ -49,7 +49,7 @@ template<typename T>
 T Random<TEngine>::range(T min, T max)
 {
     static_assert(std::is_arithmetic<T>::value, "T must be arithmetic !");
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
 
     if constexpr (std::is_floating_point<T>::value)
     {
@@ -68,7 +68,7 @@ template<typename T>
 T Random<TEngine>::rand()
 {
     static_assert(std::is_arithmetic<T>::value, "T must be arithmetic !");
-    std::lock_guard<std::mutex> lck(this->g_mutex);
+    std::scoped_lock<std::mutex> const lck(this->g_mutex);
 
     if constexpr (std::is_floating_point<T>::value)
     {

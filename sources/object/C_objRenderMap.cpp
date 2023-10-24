@@ -116,7 +116,7 @@ void ObjRenderMap::removed([[maybe_unused]] fge::Scene* scene)
 void ObjRenderMap::save([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene) {}
 void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene) {}
 void ObjRenderMap::pack([[maybe_unused]] fge::net::Packet& pck) {}
-void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet& pck) {}
+void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet const& pck) {}
 
 char const* ObjRenderMap::getClassName() const
 {
@@ -141,7 +141,7 @@ fge::RectFloat ObjRenderMap::getLocalBounds() const
 
 void ObjRenderMap::updatePositions()
 {
-    const fge::RectFloat bounds = this->getLocalBounds();
+    fge::RectFloat const bounds = this->getLocalBounds();
 
     this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(0.0f, 0.0f);
     this->g_vertexBuffer.getVertices()[1]._position = fge::Vector2f(0.0f, bounds._height);

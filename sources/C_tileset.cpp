@@ -157,7 +157,7 @@ void TileSet::slice()
     this->clearTiles();
     if (this->g_texture.valid() && this->g_tileSize.x > 0 && this->g_tileSize.y > 0)
     {
-        const fge::Vector2i size = static_cast<fge::Vector2i>(this->g_texture.getTextureSize());
+        fge::Vector2i const size = static_cast<fge::Vector2i>(this->g_texture.getTextureSize());
         this->g_columns = (static_cast<int>(size.x) - this->g_offset.x) / this->g_tileSize.x;
         this->g_rows = (static_cast<int>(size.y) - this->g_offset.y) / this->g_tileSize.y;
 

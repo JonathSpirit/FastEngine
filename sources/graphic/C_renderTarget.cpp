@@ -157,10 +157,10 @@ Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point) const
 }
 Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point, View const& view) const
 {
-    const glm::vec4 pointVec4(point, 0.0f, 1.0f);
+    glm::vec4 const pointVec4(point, 0.0f, 1.0f);
 
     // First, transform the point by the view matrix
-    const glm::vec4 normalized = view.getTransform() * pointVec4;
+    glm::vec4 const normalized = view.getTransform() * pointVec4;
 
     // Then convert to viewport coordinates
     Vector2i pixel;
@@ -187,7 +187,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         { //Simple rendering: There must be 1 instance, a transform, no descriptors
             if (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0)
             { //1 or no texture
-                const GraphicPipelineKey graphicPipelineKey{
+                GraphicPipelineKey const graphicPipelineKey{
                         states._vertexBuffer->getPrimitiveTopology(), states._blendMode,
                         uint8_t(haveTextures ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : FGE_RENDERTARGET_DEFAULT_ID)};
 
@@ -215,7 +215,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     auto windowSize = static_cast<fge::Vector2f>(this->getSize());
     auto factorViewport = this->getView().getFactorViewport();
 
-    const fge::vulkan::Viewport viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
+    fge::vulkan::Viewport const viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
                                          windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
 
     graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
@@ -341,15 +341,15 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         //Binding dynamic descriptors
         for (uint32_t i = 0; i < states._resInstances.getDynamicCount(); ++i)
         {
-            const uint32_t dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance;
+            uint32_t const dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance;
             auto descriptorSet = states._resInstances.getDynamicDescriptors(i)->get();
             graphicPipeline->bindDynamicDescriptorSets(commandBuffer, &descriptorSet, 1, 1, &dynamicOffset,
                                                        states._resInstances.getDynamicSets(i));
         }
 
-        const uint32_t vertexCount = states._resInstances.getVertexCount() == 0 ? states._vertexBuffer->getCount()
+        uint32_t const vertexCount = states._resInstances.getVertexCount() == 0 ? states._vertexBuffer->getCount()
                                                                                 : states._resInstances.getVertexCount();
-        const uint32_t vertexOffset = states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance;
+        uint32_t const vertexOffset = states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance;
 
         ///TODO: have in graphicPipeline, a draw method
         if (states._resInstances.hasUniqueDrawCall())

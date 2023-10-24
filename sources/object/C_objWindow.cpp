@@ -343,7 +343,7 @@ void ObjWindow::onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::G
     {
         if (this->verifyPriority(context._prioritizedElement))
         {
-            const fge::RectFloat rect{{0.0f, 0.0f}, {this->g_size.x, this->g_size.y}};
+            fge::RectFloat const rect{{0.0f, 0.0f}, {this->g_size.x, this->g_size.y}};
 
             auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -369,7 +369,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
 
         if (this->g_showCloseButton)
         {
-            const fge::RectFloat closeRectangle{transform * this->g_windowCloseRect};
+            fge::RectFloat const closeRectangle{transform * this->g_windowCloseRect};
             if (closeRectangle.contains(context._mouseGuiPosition))
             {
                 myObjectData->getLinkedScene()->delObject(myObjectData->getSid());
@@ -379,7 +379,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
 
         if (this->g_makeMovable)
         {
-            const fge::RectFloat moveRectangle{transform * this->g_windowMoveRect};
+            fge::RectFloat const moveRectangle{transform * this->g_windowMoveRect};
             if (moveRectangle.contains(context._mouseGuiPosition))
             {
                 this->g_movingWindowFlag = true;
@@ -391,7 +391,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
 
         if (this->g_makeResizable)
         {
-            const fge::RectFloat resizeRectangle{transform * this->g_windowResizeRect};
+            fge::RectFloat const resizeRectangle{transform * this->g_windowResizeRect};
             if (resizeRectangle.contains(context._mouseGuiPosition))
             {
                 this->g_resizeWindowFlag = true;

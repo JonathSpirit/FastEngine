@@ -178,7 +178,7 @@ void ObjAnimation::pack(fge::net::Packet& pck)
     pck << this->g_animation.isLoop() << this->g_animation.isReverse();
     pck << static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void ObjAnimation::unpack(fge::net::Packet& pck)
+void ObjAnimation::unpack(fge::net::Packet const& pck)
 {
     fge::Object::unpack(pck);
 
@@ -223,7 +223,7 @@ fge::RectFloat ObjAnimation::getLocalBounds() const
 
 void ObjAnimation::updatePositions()
 {
-    const fge::RectFloat bounds = this->getLocalBounds();
+    fge::RectFloat const bounds = this->getLocalBounds();
 
     this->g_vertices[0]._position = fge::Vector2f(0, 0);
     this->g_vertices[1]._position = fge::Vector2f(0, bounds._height);

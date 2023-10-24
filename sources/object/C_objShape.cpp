@@ -192,7 +192,7 @@ ObjShape::ObjShape(ObjShape const& r) :
 void ObjShape::updateShape()
 {
     // Get the total number of points of the shape
-    const std::size_t count = this->getPointCount();
+    std::size_t const count = this->getPointCount();
     if (count < 3)
     {
         this->g_vertices.clear();
@@ -258,7 +258,7 @@ FGE_OBJ_DRAW_BODY(ObjShape)
                                    &colorIndex);
 
     copyStates._resInstances.setInstancesCount(this->g_instancesCount, true);
-    const uint32_t sets[] = {1};
+    uint32_t const sets[] = {1};
     copyStates._resDescriptors.set(&this->g_descriptorSet, sets, 1);
 
     target.draw(copyStates, graphicPipeline);
@@ -304,17 +304,17 @@ void ObjShape::updateOutline()
         return;
     }
 
-    const std::size_t count = this->g_vertices.getCount() - 2;
+    std::size_t const count = this->g_vertices.getCount() - 2;
     this->g_outlineVertices.resize((count + 1) * 2);
 
     for (std::size_t i = 0; i < count; ++i)
     {
-        const std::size_t index = i + 1;
+        std::size_t const index = i + 1;
 
         // Get the two segments shared by the current point
-        const fge::Vector2f p0 = (i == 0) ? this->g_vertices[count]._position : this->g_vertices[index - 1]._position;
-        const fge::Vector2f p1 = this->g_vertices[index]._position;
-        const fge::Vector2f p2 = this->g_vertices[index + 1]._position;
+        fge::Vector2f const p0 = (i == 0) ? this->g_vertices[count]._position : this->g_vertices[index - 1]._position;
+        fge::Vector2f const p1 = this->g_vertices[index]._position;
+        fge::Vector2f const p2 = this->g_vertices[index + 1]._position;
 
         // Compute their normal
         fge::Vector2f n1 = fge::GetSegmentNormal(p0, p1);
@@ -333,7 +333,7 @@ void ObjShape::updateOutline()
 
         // Combine them to get the extrusion direction
         float const factor = 1.f + (n1.x * n2.x + n1.y * n2.y);
-        const fge::Vector2f normal = (n1 + n2) / factor;
+        fge::Vector2f const normal = (n1 + n2) / factor;
 
         // Update the outline points
         this->g_outlineVertices[i * 2 + 0]._position = p1;
@@ -400,7 +400,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
                                         .value();
     }
 
-    const fge::vulkan::DescriptorSet::Descriptor descriptor{
+    fge::vulkan::DescriptorSet::Descriptor const descriptor{
             this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
             fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, this->g_instances.getBufferSize()};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
