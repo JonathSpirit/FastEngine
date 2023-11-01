@@ -64,9 +64,9 @@ enum TurnMode
 };
 
 ///Utility
-inline char UnicodeToChar(uint32_t unicode);
+[[nodiscard]] inline char UnicodeToChar(uint32_t unicode);
 
-FGE_API bool IsEngineBuiltInDebugMode();
+[[nodiscard]] FGE_API bool IsEngineBuiltInDebugMode();
 
 FGE_API bool SetSystemCursor(SDL_SystemCursor id);
 
@@ -80,7 +80,7 @@ FGE_API std::size_t GetFilesInFolder(std::list<std::string>& buffer,
 FGE_API bool SetVirtualTerminalSequenceSupport();
 FGE_API void SetConsoleCmdTitle(char const* title);
 
-FGE_API void* AlignedAlloc(std::size_t size, std::size_t alignment);
+[[nodiscard]] FGE_API void* AlignedAlloc(std::size_t size, std::size_t alignment);
 FGE_API void AlignedFree(void* data);
 
 FGE_API void Sleep(std::chrono::microseconds time);
@@ -95,63 +95,76 @@ Implementation of Austin Appleby MurmurHash2 algorithm.
 https://sites.google.com/site/murmurhash/
 public domain
 */
-FGE_API std::size_t Hash(void const* key, std::size_t len, std::size_t seed = 0xc70f6907UL);
+[[nodiscard]] FGE_API std::size_t Hash(void const* key, std::size_t len, std::size_t seed = 0xc70f6907UL);
 
 ///Detection
 #ifndef FGE_DEF_SERVER
-FGE_API bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone);
-FGE_API bool IsMouseOn(fge::Vector2f const& mousePos, fge::RectFloat const& zone);
+[[nodiscard]] FGE_API bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone);
+[[nodiscard]] FGE_API bool IsMouseOn(fge::Vector2f const& mousePos, fge::RectFloat const& zone);
 
-FGE_API bool IsPressed(fge::Event const& evt,
-                       fge::Vector2f const& mouse_pos,
-                       fge::RectFloat const& zone,
-                       uint8_t button = SDL_BUTTON_LEFT);
+[[nodiscard]] FGE_API bool IsPressed(fge::Event const& evt,
+                                     fge::Vector2f const& mouse_pos,
+                                     fge::RectFloat const& zone,
+                                     uint8_t button = SDL_BUTTON_LEFT);
 #endif //FGE_DEF_SERVER
 
-FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
-FGE_API bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB);
-FGE_API std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB);
-FGE_API std::optional<fge::Intersection>
+[[nodiscard]] FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
+[[nodiscard]] FGE_API bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB);
+[[nodiscard]] FGE_API std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA,
+                                                                         fge::Line const& lineB);
+[[nodiscard]] FGE_API std::optional<fge::Intersection>
 CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction, fge::Line const& line);
+
+[[nodiscard]] inline bool IsVertexInCone(fge::Line const& line1,
+                                         fge::Line const& line2,
+                                         fge::Vector2f const& origin,
+                                         fge::Vector2f const& vertex);
 
 ///Position/Rectangle
 template<typename T>
-fge::Rect<T> ToRect(fge::Vector2<T> const& pos1, fge::Vector2<T> const& pos2);
+[[nodiscard]] fge::Rect<T> ToRect(fge::Vector2<T> const& pos1, fge::Vector2<T> const& pos2);
 template<typename T>
-fge::Rect<T> ToRect(std::vector<fge::Vector2<T>> const& pos);
+[[nodiscard]] fge::Rect<T> ToRect(std::vector<fge::Vector2<T>> const& pos);
 template<typename T>
-fge::Rect<T> ToRect(fge::Vector2<T> const* pos, std::size_t size);
+[[nodiscard]] fge::Rect<T> ToRect(fge::Vector2<T> const* pos, std::size_t size);
 
 ///Color
-inline fge::Color SetAlpha(fge::Color color, uint8_t alpha);
-inline fge::Color SetRed(fge::Color color, uint8_t red);
-inline fge::Color SetGreen(fge::Color color, uint8_t green);
-inline fge::Color SetBlue(fge::Color color, uint8_t blue);
+[[nodiscard]] inline fge::Color SetAlpha(fge::Color color, uint8_t alpha);
+[[nodiscard]] inline fge::Color SetRed(fge::Color color, uint8_t red);
+[[nodiscard]] inline fge::Color SetGreen(fge::Color color, uint8_t green);
+[[nodiscard]] inline fge::Color SetBlue(fge::Color color, uint8_t blue);
 
 ///Reach
-FGE_API fge::Vector2f
+[[nodiscard]] FGE_API fge::Vector2f
 ReachVector(fge::Vector2f const& position, fge::Vector2f const& target, float speed, float deltaTime);
-FGE_API float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
+[[nodiscard]] FGE_API float
+ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode);
 
 template<typename T>
-T ReachValue(T value, T target, T speed, float deltaTime);
+[[nodiscard]] T ReachValue(T value, T target, T speed, float deltaTime);
 
 ///2D Math
-inline constexpr float Cross2d(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
-inline fge::Vector2f GetSegmentNormal(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
-inline constexpr float GetAngle(fge::Vector2f const& vec);
-inline constexpr float GetAngleBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
-inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
-inline float
+[[nodiscard]] inline constexpr float Cross2d(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+[[nodiscard]] inline fge::Vector2f GetSegmentNormal(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+[[nodiscard]] inline constexpr float GetAngle(fge::Vector2f const& vec);
+[[nodiscard]] inline constexpr float GetAngleBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+[[nodiscard]] inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2);
+[[nodiscard]] inline float
 GetShortestDistanceBetween(fge::Vector2f const& point, fge::Vector2f const& lineStart, fge::Vector2f const& lineEnd);
 
 template<typename TIterator>
-TIterator GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TIterator const& pointsEnd);
+[[nodiscard]] TIterator
+GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TIterator const& pointsEnd);
 
-inline constexpr fge::Vector2f GetForwardVector(float angle);
-inline constexpr fge::Vector2f GetBackwardVector(float angle);
-inline constexpr fge::Vector2f GetLeftVector(float angle);
-inline constexpr fge::Vector2f GetRightVector(float angle);
+[[nodiscard]] inline constexpr fge::Vector2f GetForwardVector(float angle);
+[[nodiscard]] inline constexpr fge::Vector2f GetBackwardVector(float angle);
+[[nodiscard]] inline constexpr fge::Vector2f GetLeftVector(float angle);
+[[nodiscard]] inline constexpr fge::Vector2f GetRightVector(float angle);
+
+[[nodiscard]] inline constexpr float DotSquare(fge::Vector2f const& vec);
+
+[[nodiscard]] inline constexpr float
+GetHandedness(fge::Vector2f const& vec1, fge::Vector2f const& vec2, fge::Vector2f const& vec3);
 
 /*
 Implementation of Andrew's monotone chain 2D convex hull algorithm.
@@ -161,11 +174,12 @@ Practical performance: 0.5-1.0 seconds for n=1000000 on a 1GHz machine.
 FGE_API void GetConvexHull(std::vector<fge::Vector2f> const& input, std::vector<fge::Vector2f>& output);
 
 ///View
-FGE_API fge::Vector2f GetViewSizePercentage(fge::View const& view, fge::View const& defaultView);
-FGE_API fge::Vector2f SetViewSizePercentage(float percentage, fge::View const& defaultView);
-FGE_API fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage, fge::View const& defaultView);
+[[nodiscard]] FGE_API fge::Vector2f GetViewSizePercentage(fge::View const& view, fge::View const& defaultView);
+[[nodiscard]] FGE_API fge::Vector2f SetViewSizePercentage(float percentage, fge::View const& defaultView);
+[[nodiscard]] FGE_API fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage,
+                                                          fge::View const& defaultView);
 
-FGE_API fge::Vector2f
+[[nodiscard]] FGE_API fge::Vector2f
 TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView);
 
 enum class ClipClampModes
@@ -175,28 +189,28 @@ enum class ClipClampModes
     CLIP_CLAMP_PUSH,
     CLIP_CLAMP_HIDE
 };
-FGE_API fge::View ClipView(fge::View const& view,
-                           fge::RenderTarget const& target,
-                           fge::RectFloat const& worldCoordClipRect,
-                           fge::ClipClampModes clampMode);
+[[nodiscard]] FGE_API fge::View ClipView(fge::View const& view,
+                                         fge::RenderTarget const& target,
+                                         fge::RectFloat const& worldCoordClipRect,
+                                         fge::ClipClampModes clampMode);
 
 ///Render
-FGE_API fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target);
-FGE_API fge::RectInt
+[[nodiscard]] FGE_API fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target);
+[[nodiscard]] FGE_API fge::RectInt
 CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target, fge::View const& view);
-FGE_API fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target);
-FGE_API fge::RectFloat
+[[nodiscard]] FGE_API fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target);
+[[nodiscard]] FGE_API fge::RectFloat
 PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge::View const& view);
 
-FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target);
-FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view);
+[[nodiscard]] FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target);
+[[nodiscard]] FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view);
 
-FGE_API fge::Quad GetObjectLocalQuad(fge::ObjectDataShared const& object);
-FGE_API fge::Quad GetObjectQuad(fge::ObjectDataShared const& object);
+[[nodiscard]] FGE_API fge::Quad GetObjectLocalQuad(fge::ObjectDataShared const& object);
+[[nodiscard]] FGE_API fge::Quad GetObjectQuad(fge::ObjectDataShared const& object);
 
 ///Time
 template<class T>
-inline float DurationToSecondFloat(T duration);
+[[nodiscard]] inline float DurationToSecondFloat(T duration);
 
 ///Json
 FGE_API bool LoadJsonFromFile(std::filesystem::path const& path, nlohmann::json& j);

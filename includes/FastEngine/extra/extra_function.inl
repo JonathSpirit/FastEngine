@@ -23,6 +23,18 @@ char UnicodeToChar(uint32_t unicode)
     return (unicode < 128) ? static_cast<char>(unicode) : 0;
 }
 
+///Detection
+inline bool
+IsVertexInCone(fge::Line const& line1, fge::Line const& line2, fge::Vector2f const& origin, fge::Vector2f const& vertex)
+{
+    auto const relativePos = vertex - origin;
+
+    auto const line1Product = fge::Cross2d(relativePos, line1.getDirection());
+    auto const line2Product = fge::Cross2d(relativePos, line2.getDirection());
+
+    return line1Product < 0.0f && line2Product > 0.0f;
+}
+
 ///Position/Rectangle
 template<typename T>
 fge::Rect<T> ToRect(fge::Vector2<T> const& pos1, fge::Vector2<T> const& pos2)
@@ -183,6 +195,19 @@ inline constexpr fge::Vector2f GetRightVector(float angle)
 {
     angle = glm::radians(angle + 90.0f);
     return {std::cos(angle), std::sin(angle)};
+}
+
+inline constexpr float DotSquare(fge::Vector2f const& vec)
+{
+    return glm::dot(vec, vec);
+}
+
+inline constexpr float GetHandedness(fge::Vector2f const& vec1, fge::Vector2f const& vec2, fge::Vector2f const& vec3)
+{
+    auto const edge1 = vec2 - vec1;
+    auto const edge2 = vec3 - vec2;
+
+    return fge::Cross2d(edge1, edge2);
 }
 
 ///Color
