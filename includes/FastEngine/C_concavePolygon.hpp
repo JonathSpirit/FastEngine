@@ -20,31 +20,21 @@
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include <map>
 #include <vector>
 
 /*
  * Original from : https://github.com/mjjq/ConvexDecomposition
  * Copyright (C) mjjq
  * License MIT
+ * The algorithm for decomposing concave polygons to convex can be found here:
+ * https://mpen.ca/406/bayazit (Mark Bayazit).
  *
  * Altered/Modified by Guillaume Guillet
  */
 
 namespace fge
 {
-
-inline float GetHandedness(fge::Vector2f const& v1, fge::Vector2f const& v2, fge::Vector2f const& v3)
-{
-    auto const edge1 = v2 - v1;
-    auto const edge2 = v3 - v2;
-
-    return fge::Cross2d(edge1, edge2);
-}
-
-inline float Square(fge::Vector2f const& vec)
-{
-    return glm::dot(vec, vec);
-}
 
 class FGE_API ConcavePolygon
 {
@@ -91,29 +81,28 @@ private:
     using VertexIndexMap = std::map<std::size_t, fge::Vector2f>;
     using Indices = std::vector<std::size_t>;
 
-    [[nodiscard]] bool
-    isVertexInCone(fge::Line const& ls1, fge::Line const& ls2, fge::Vector2f const& origin, fge::Vector2f const& vert);
+    [[nodiscard]] static std::pair<bool, fge::Vector2f> intersects(fge::Line s1, fge::Line s2);
 
-    [[nodiscard]] Indices findVerticesInCone(fge::Line const& ls1,
-                                             fge::Line const& ls2,
-                                             fge::Vector2f const& origin,
-                                             VertexArray const& inputVerts);
+    [[nodiscard]] static Indices findVerticesInCone(fge::Line const& line1,
+                                                    fge::Line const& line2,
+                                                    fge::Vector2f const& origin,
+                                                    VertexArray const& inputVertices);
 
-    [[nodiscard]] bool checkVisibility(fge::Vector2f const& originalPosition,
-                                       fge::Vector2f const& vert,
-                                       VertexArray const& polygonVertices);
+    [[nodiscard]] static bool checkVisibility(fge::Vector2f const& originalPosition,
+                                              fge::Vector2f const& vert,
+                                              VertexArray const& polygonVertices);
 
     [[nodiscard]] std::optional<std::size_t>
     getBestVertexToConnect(Indices const& indices, VertexArray const& polygonVertices, fge::Vector2f const& origin);
 
-    [[nodiscard]] std::optional<std::size_t> findFirstReflexVertex(VertexArray const& vertices);
+    [[nodiscard]] std::optional<std::size_t> findFirstReflexVertex();
 
     void flipPolygon();
 
-    [[nodiscard]] VertexIndexMap
+    [[nodiscard]] static VertexIndexMap
     cullByDistance(VertexIndexMap const& input, fge::Vector2f const& origin, std::size_t maxVertsToKeep);
 
-    [[nodiscard]] VertexIndexMap verticesAlongLineSegment(fge::Line const& segment, VertexArray const& vertices);
+    [[nodiscard]] static VertexIndexMap verticesAlongLineSegment(fge::Line const& segment, VertexArray const& vertices);
 };
 
 } // namespace fge
