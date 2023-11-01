@@ -62,15 +62,15 @@ public:
 
     [[nodiscard]] inline VertexArray const& subPolygon(std::size_t subPolyIndex) const
     {
-        return this->g_convexPolygons[subPolyIndex];
+        return this->g_subPolygons[subPolyIndex];
     }
-    [[nodiscard]] inline std::size_t subPolygonCount() const { return this->g_convexPolygons.size(); }
+    [[nodiscard]] inline std::size_t subPolygonCount() const { return this->g_subPolygons.size(); }
 
     void clear();
 
 private:
     VertexArray g_vertices;
-    std::vector<VertexArray> g_convexPolygons;
+    std::vector<VertexArray> g_subPolygons;
 
     using VertexIndexMap = std::map<std::size_t, fge::Vector2f>;
     using Indices = std::vector<std::size_t>;

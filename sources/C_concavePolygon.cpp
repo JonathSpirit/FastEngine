@@ -64,33 +64,33 @@ bool ConcavePolygon::checkIfRightHanded()
 
 void ConcavePolygon::slicePolygon(fge::Line const& segment)
 {
-    if (this->g_convexPolygons.empty())
+    if (this->g_subPolygons.empty())
     {
         auto polygons = ConcavePolygon::slicePolygon(segment, this->g_vertices);
         if (polygons)
         {
-            this->g_convexPolygons.push_back(std::move(polygons.value().first));
-            this->g_convexPolygons.push_back(std::move(polygons.value().second));
+            this->g_subPolygons.push_back(std::move(polygons.value().first));
+            this->g_subPolygons.push_back(std::move(polygons.value().second));
         }
         return;
     }
 
-    auto oldSize = this->g_convexPolygons.size();
+    auto oldSize = this->g_subPolygons.size();
     for (std::size_t i = 0; i < oldSize; ++i)
     {
-        auto vertices = ConcavePolygon::slicePolygon(segment, this->g_convexPolygons[i]);
+        auto vertices = ConcavePolygon::slicePolygon(segment, this->g_subPolygons[i]);
         if (vertices)
         {
-            this->g_convexPolygons.push_back(std::move(vertices.value().first));
-            this->g_convexPolygons.push_back(std::move(vertices.value().second));
+            this->g_subPolygons.push_back(std::move(vertices.value().first));
+            this->g_subPolygons.push_back(std::move(vertices.value().second));
         }
     }
-    this->g_convexPolygons.erase(this->g_convexPolygons.begin(), this->g_convexPolygons.begin() + oldSize);
+    this->g_subPolygons.erase(this->g_subPolygons.begin(), this->g_subPolygons.begin() + oldSize);
 }
 
 void ConcavePolygon::convexDecomposition()
 {
-    if (!this->g_convexPolygons.empty())
+    if (!this->g_subPolygons.empty())
     {
         return;
     }
@@ -104,14 +104,14 @@ void ConcavePolygon::convexDecomposition()
 
         if (polygon.size() <= 3)
         {
-            this->g_convexPolygons.push_back(std::move(polygon));
+            this->g_subPolygons.push_back(std::move(polygon));
             continue;
         }
 
         auto reflexIndex = ConcavePolygon::findFirstReflexVertex(polygon);
         if (!reflexIndex)
         {
-            this->g_convexPolygons.push_back(std::move(polygon));
+            this->g_subPolygons.push_back(std::move(polygon));
             continue;
         }
 
@@ -157,7 +157,7 @@ void ConcavePolygon::convexDecomposition()
 
 void ConcavePolygon::clear()
 {
-    this->g_convexPolygons.clear();
+    this->g_subPolygons.clear();
 }
 
 std::optional<std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>>
