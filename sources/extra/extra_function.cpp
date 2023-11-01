@@ -514,8 +514,8 @@ std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::
     }
 
     //Make sure that there is actually an intersection
-    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normA < lineA.getLength()) &&
-        (result._normB < lineB.getLength()))
+    if ((result._normB >= 0.0f) && (result._normA >= 0.0f) && (result._normA <= lineA.getLength()) &&
+        (result._normB <= lineB.getLength()))
     {
         result._point = lineA._start + directionA * result._normA;
         return result;
