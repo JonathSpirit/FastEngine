@@ -41,6 +41,12 @@ using Quad = std::array<fge::Vector2f, 4>;
 
 struct Line
 {
+    inline Line() = default;
+    inline Line(fge::Vector2f const& start, fge::Vector2f const& end) :
+            _start(start),
+            _end(end)
+    {}
+
     [[nodiscard]] inline fge::Vector2f getDirection() const { return glm::normalize(this->_end - this->_start); }
     [[nodiscard]] inline float getLength() const { return glm::length(this->_end - this->_start); }
 
