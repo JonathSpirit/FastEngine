@@ -53,33 +53,30 @@ public:
 
     [[nodiscard]] bool checkIfRightHanded();
 
-    void slicePolygon(std::size_t vertexIndex1, std::size_t vertexIndex2);
     void slicePolygon(fge::Line const& segment);
 
     void convexDecomposition();
 
-    [[nodiscard]] std::optional<fge::Vector2f> getPoint(std::size_t index) const;
-    [[nodiscard]] std::size_t getPointCount() const;
-
     [[nodiscard]] inline VertexArray& vertices() { return this->g_vertices; }
     [[nodiscard]] inline VertexArray const& vertices() const { return this->g_vertices; }
 
-    [[nodiscard]] inline ConcavePolygon const& subPolygon(std::size_t subPolyIndex) const
+    [[nodiscard]] inline VertexArray const& subPolygon(std::size_t subPolyIndex) const
     {
-        return this->g_subPolygons[subPolyIndex];
+        return this->g_convexPolygons[subPolyIndex];
     }
-    [[nodiscard]] inline std::size_t subPolygonCount() const { return this->g_subPolygons.size(); }
-
-    void returnLowestLevelPolys(PolygonArray& returnArray);
+    [[nodiscard]] inline std::size_t subPolygonCount() const { return this->g_convexPolygons.size(); }
 
     void clear();
 
 private:
     VertexArray g_vertices;
-    PolygonArray g_subPolygons;
+    std::vector<VertexArray> g_convexPolygons;
 
     using VertexIndexMap = std::map<std::size_t, fge::Vector2f>;
     using Indices = std::vector<std::size_t>;
+
+    [[nodiscard]] static std::optional<std::pair<VertexArray, VertexArray>>
+    slicePolygon(fge::Line const& segment, VertexArray const& inputVertices);
 
     [[nodiscard]] static std::pair<bool, fge::Vector2f> intersects(fge::Line s1, fge::Line s2);
 
@@ -92,10 +89,10 @@ private:
                                               fge::Vector2f const& vert,
                                               VertexArray const& polygonVertices);
 
-    [[nodiscard]] std::optional<std::size_t>
+    [[nodiscard]] static std::optional<std::size_t>
     getBestVertexToConnect(Indices const& indices, VertexArray const& polygonVertices, fge::Vector2f const& origin);
 
-    [[nodiscard]] std::optional<std::size_t> findFirstReflexVertex();
+    [[nodiscard]] static std::optional<std::size_t> findFirstReflexVertex(VertexArray const& polygon);
 
     void flipPolygon();
 
