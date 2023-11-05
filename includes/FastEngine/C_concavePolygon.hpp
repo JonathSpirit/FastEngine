@@ -75,10 +75,10 @@ private:
     using VertexIndexMap = std::map<std::size_t, fge::Vector2f>;
     using Indices = std::vector<std::size_t>;
 
+    [[nodiscard]] static std::optional<std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>>
+    slicePolygon(fge::Vector2f const& position, fge::Vector2f const& direction, VertexArray const& inputVertices);
     [[nodiscard]] static std::optional<std::pair<VertexArray, VertexArray>>
     slicePolygon(fge::Line const& segment, VertexArray const& inputVertices);
-
-    [[nodiscard]] static std::pair<bool, fge::Vector2f> intersects(fge::Line s1, fge::Line s2);
 
     [[nodiscard]] static Indices findVerticesInCone(fge::Line const& line1,
                                                     fge::Line const& line2,
@@ -100,6 +100,9 @@ private:
     cullByDistance(VertexIndexMap const& input, fge::Vector2f const& origin, std::size_t maxVertsToKeep);
 
     [[nodiscard]] static VertexIndexMap verticesAlongLineSegment(fge::Line const& segment, VertexArray const& vertices);
+    [[nodiscard]] static VertexIndexMap verticesAlongLineSegment(fge::Vector2f const& position,
+                                                                 fge::Vector2f const& direction,
+                                                                 VertexArray const& vertices);
 };
 
 } // namespace fge
