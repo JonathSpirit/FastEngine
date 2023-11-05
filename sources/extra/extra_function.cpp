@@ -475,55 +475,38 @@ bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB)
     //(or the opposite)
     return fge::IsContained(quadA, quadB[0]) || fge::IsContained(quadB, quadA[0]);
 }
-std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA, fge::Line const& lineB)
+std::optional<fge::Intersection>
+CheckIntersection(fge::Line const& lineA, fge::Line const& lineB, IntersectionOptions option)
 {
-    /*
-     * Original from : https://github.com/MiguelMJ/Candle
-     * License : MIT
-     * Author : Miguel Mejía Jiménez
-     * Modified by : Guillaume Guillet
-     */
+    auto result = fge::CheckIntersection(lineA._start, lineA.getDirection(), lineB, option);
 
-    auto const directionA = lineA.getDirection();
-    auto const directionB = lineB.getDirection();
-
-    fge::Intersection result;
-
-    //When the lines are parallel, we consider that there is not intersection.
-    auto const dot = std::abs(glm::dot(directionA, directionB));
-    if (dot >= 0.999f && dot <= 1.001f)
+    if (result)
     {
-        return std::nullopt;
-    }
-
-    //Math resolving, you can find more information here : https://ncase.me/sight-and-light/
-    if ((std::abs(directionB.y) >= 0.0f && std::abs(directionB.x) < 0.001f) ||
-        (std::abs(directionA.y) < 0.001f && std::abs(directionA.x) >= 0.0f))
-    {
-        result._normB =
-                (directionA.x * (lineA._start.y - lineB._start.y) + directionA.y * (lineB._start.x - lineA._start.x)) /
-                (directionB.y * directionA.x - directionB.x * directionA.y);
-        result._normA = (lineB._start.x + directionB.x * result._normB - lineA._start.x) / directionA.x;
-    }
-    else
-    {
-        result._normA =
-                (directionB.x * (lineB._start.y - lineA._start.y) + directionB.y * (lineA._start.x - lineB._start.x)) /
-                (directionA.y * directionB.x - directionA.x * directionB.y);
-        result._normB = (lineA._start.x + directionA.x * result._normA - lineB._start.x) / directionB.x;
-    }
-
-    //Make sure that there is actually an intersection
-    if ((result._normB >= 0.0f) && (result._normA >= 0.0f) && (result._normA <= lineA.getLength()) &&
-        (result._normB <= lineB.getLength()))
-    {
-        result._point = lineA._start + directionA * result._normA;
-        return result;
+        switch (option)
+        {
+        case IntersectionOptions::I_NORM_LIMITS:
+            if (result->_normA <= lineA.getLength())
+            {
+                return result;
+            }
+            break;
+        case IntersectionOptions::I_STRICT_NORM_LIMITS:
+            if (result->_normA < lineA.getLength())
+            {
+                return result;
+            }
+            break;
+        case IntersectionOptions::I_NO_NORM_LIMITS:
+            return result;
+            break;
+        }
     }
     return std::nullopt;
 }
-std::optional<fge::Intersection>
-CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction, fge::Line const& line)
+std::optional<fge::Intersection> CheckIntersection(fge::Vector2f const& position,
+                                                   fge::Vector2f const& direction,
+                                                   fge::Line const& line,
+                                                   IntersectionOptions option)
 {
     /*
      * Original from : https://github.com/MiguelMJ/Candle
@@ -560,8 +543,23 @@ CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction,
     }
 
     //Make sure that there is actually an intersection
-    if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normB < line.getLength()))
+    switch (option)
     {
+    case IntersectionOptions::I_NORM_LIMITS:
+        if ((result._normB >= 0.0f) && (result._normA >= 0.0f) && (result._normB <= line.getLength()))
+        {
+            result._point = position + directionA * result._normA;
+            return result;
+        }
+        break;
+    case IntersectionOptions::I_STRICT_NORM_LIMITS:
+        if ((result._normB > 0.0f) && (result._normA > 0.0f) && (result._normB < line.getLength()))
+        {
+            result._point = position + directionA * result._normA;
+            return result;
+        }
+        break;
+    case IntersectionOptions::I_NO_NORM_LIMITS:
         result._point = position + directionA * result._normA;
         return result;
     }

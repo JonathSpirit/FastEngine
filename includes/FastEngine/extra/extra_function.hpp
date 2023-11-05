@@ -115,11 +115,26 @@ public domain
 #endif //FGE_DEF_SERVER
 
 [[nodiscard]] FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
+
+enum class IntersectionOptions
+{
+    I_NORM_LIMITS,
+    I_STRICT_NORM_LIMITS,
+    I_NO_NORM_LIMITS,
+
+    I_DEFAULT = I_NORM_LIMITS
+};
+
 [[nodiscard]] FGE_API bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB);
-[[nodiscard]] FGE_API std::optional<fge::Intersection> CheckIntersection(fge::Line const& lineA,
-                                                                         fge::Line const& lineB);
 [[nodiscard]] FGE_API std::optional<fge::Intersection>
-CheckIntersection(fge::Vector2f const& position, fge::Vector2f const& direction, fge::Line const& line);
+CheckIntersection(fge::Line const& lineA,
+                  fge::Line const& lineB,
+                  IntersectionOptions option = IntersectionOptions::I_DEFAULT);
+[[nodiscard]] FGE_API std::optional<fge::Intersection>
+CheckIntersection(fge::Vector2f const& position,
+                  fge::Vector2f const& direction,
+                  fge::Line const& line,
+                  IntersectionOptions option = IntersectionOptions::I_DEFAULT);
 
 [[nodiscard]] inline bool IsVertexInCone(fge::Line const& line1,
                                          fge::Line const& line2,
