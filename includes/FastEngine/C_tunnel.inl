@@ -263,8 +263,8 @@ fge::TunnelGate<T>& TunnelGate<T>::operator=(fge::TunnelGate<T>&& gate) noexcept
 
     if (gate.g_tunnel)
     {
-        gate.g_tunnel->addGate(this, gate.g_tunnel->isAnonymous(&gate));
-        gate.g_tunnel->closeGate(&gate);
+        gate.g_tunnel->addGate(*this, gate.g_tunnel->isAnonymous(gate));
+        gate.g_tunnel->closeGate(gate);
     }
     return *this;
 }
