@@ -31,7 +31,9 @@
 
 #include <vector>
 
-#define FGE_MAX_FRAMES_IN_FLIGHT 2
+//TODO: In order to have more than 1 frames in flight :
+// Avoid simultaneous buffers access by having multiple ones
+#define FGE_MAX_FRAMES_IN_FLIGHT 1
 
 namespace fge::vulkan
 {
