@@ -140,22 +140,37 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(this->g_device, &queueFamilyCount, queueFamilies.data());
 
-    int i = 0;
-    for (auto const& queueFamily: queueFamilies)
+    for (uint32_t i = 0; i<queueFamilies.size(); ++i)
     {
-        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        auto const& queueFamily = queueFamilies[i];
+
+        if (!indices._graphicsFamily.has_value())
         {
-            indices._graphicsFamily = i;
+            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) > 0)
+            {
+                indices._graphicsFamily = i;
+            }
+
+            if (queueFamily.queueCount < 2 || (queueFamily.queueFlags & VK_QUEUE_PROTECTED_BIT) == 0)
+            {
+                continue;
+            }
         }
 
-        VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(this->g_device, i, surface, &presentSupport);
-        if (presentSupport)
+        if (!indices._presentFamily.has_value())
         {
-            indices._presentFamily = i;
-        }
+            if ((queueFamily.queueFlags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) > 0)
+            {
+                continue;
+            }
 
-        i++;
+            VkBool32 presentSupport = VK_FALSE;
+            vkGetPhysicalDeviceSurfaceSupportKHR(this->g_device, i, surface, &presentSupport);
+            if (presentSupport == VK_TRUE)
+            {
+                indices._presentFamily = i;
+            }
+        }
     }
 
     return indices;
