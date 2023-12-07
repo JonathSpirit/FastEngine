@@ -18,7 +18,6 @@
 #define _FGE_C_OBJLIGHT_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
-#include "C_lightObstacle.hpp"
 #include "C_lightSystem.hpp"
 #include "C_objRenderMap.hpp"
 #include "C_object.hpp"

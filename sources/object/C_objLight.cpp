@@ -16,7 +16,6 @@
 
 #include "FastEngine/object/C_objLight.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/object/C_lightObstacle.hpp"
 #include "FastEngine/object/C_lightSystem.hpp"
 
 #include "FastEngine/object/C_objRenderMap.hpp"
@@ -164,43 +163,77 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 
         for (std::size_t i = 0; i < lightSystem->getGatesSize(); ++i)
         {
-            fge::LightObstacle* obstacle = lightSystem->get(i);
-
-            std::size_t passCount = 0;
-
-            static std::vector<fge::Vector2f> tmpHull;
-            tmpHull.resize(obstacle->_g_myPoints.size() * 2);
-            for (std::size_t a = 0; a < obstacle->_g_myPoints.size(); ++a)
-            {
-                float distance = range - fge::GetDistanceBetween(obstacle->_g_myPoints[a], center);
-                if (distance < 0)
-                {
-                    ++passCount;
-                    distance = std::abs(distance) + range;
-                }
-
-                fge::Vector2f direction = glm::normalize(obstacle->_g_myPoints[a] - center);
-                tmpHull[a] = fge::Vector2f(obstacle->_g_myPoints[a].x + direction.x * distance,
-                                           obstacle->_g_myPoints[a].y + direction.y * distance);
-                tmpHull[a + obstacle->_g_myPoints.size()] = obstacle->_g_myPoints[a];
-            }
-            if (passCount >= obstacle->_g_myPoints.size())
+            auto* lightComponent = lightSystem->get(i);
+            if (!lightComponent->isObstacle())
             {
                 continue;
             }
-            fge::GetConvexHull(tmpHull, tmpHull);
+            auto* obstacle = reinterpret_cast<fge::LightObstacle*>(lightComponent);
 
-            this->g_obstacleHulls[i].create(tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
-                                            fge::vulkan::BufferTypes::LOCAL);
-            for (std::size_t a = 0; a < tmpHull.size(); ++a)
+            //Update the shape if needed
+            if (obstacle->getShape().subPolygonCount() == 0)
             {
-                this->g_obstacleHulls[i].getVertices()[a]._position = tmpHull[a];
-                this->g_obstacleHulls[i].getVertices()[a]._color = fge::Color(255, 255, 255, 255);
+                obstacle->updateObstacleShape();
             }
 
-            auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[i]);
-            polygonStates._blendMode = noLightBlend;
-            this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
+            std::size_t passCount = 0;
+
+            //Check if the objects is too far from the light, (if so do nothing with it)
+            //TODO: for now, we just check the first point of every subPolygon
+            for (std::size_t iShape = 0; iShape < obstacle->getShape().subPolygonCount(); ++iShape)
+            {
+                auto point = *obstacle->getShape().subPolygon(iShape).begin();
+                point = obstacle->getTransformableParent().getTransform() * point;
+
+                float const distance = range - fge::GetDistanceBetween(point, center);
+                if (distance < 0.0f)
+                {
+                    ++passCount;
+                }
+            }
+            if (passCount >= obstacle->getShape().subPolygonCount())
+            {
+                continue;
+            }
+
+            this->g_obstacleHulls[i].create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN, fge::vulkan::BufferTypes::LOCAL);
+
+            static std::vector<fge::Vector2f> tmpHull;
+            for (std::size_t iShape = 0; iShape < obstacle->getShape().subPolygonCount(); ++iShape)
+            {
+                auto const& shape = obstacle->getShape().subPolygon(iShape);
+
+                tmpHull.resize(shape.size() * 2);
+                for (std::size_t a = 0; a < shape.size(); ++a)
+                {
+                    auto const vertex = obstacle->getTransformableParent().getTransform() * shape[a];
+                    float distance = range - fge::GetDistanceBetween(vertex, center);
+                    if (distance < 0.0f)
+                    {
+                        distance = std::abs(distance) + range;
+                    }
+
+                    auto const direction = glm::normalize(vertex - center);
+                    tmpHull[a] =
+                            fge::Vector2f(vertex.x + direction.x * distance, vertex.y + direction.y * distance);
+                    tmpHull[a + shape.size()] = vertex;
+                }
+                fge::GetConvexHull(tmpHull, tmpHull);
+
+                auto const actualSize = this->g_obstacleHulls[i].getCount();
+                this->g_obstacleHulls[i].resize(actualSize+tmpHull.size());
+                for (std::size_t a = 0; a < tmpHull.size(); ++a)
+                {
+                    this->g_obstacleHulls[i].getVertices()[actualSize+a]._position = tmpHull[a];
+                    this->g_obstacleHulls[i].getVertices()[actualSize+a]._color = fge::Color(255, 255, 255, 255);
+                }
+
+                auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[i]);
+                polygonStates._blendMode = noLightBlend;
+                polygonStates._resInstances.setVertexCount(tmpHull.size());
+                polygonStates._resInstances.setVertexOffset(actualSize);
+                this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
+            }
         }
     }
 
