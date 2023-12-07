@@ -40,7 +40,6 @@ class FGE_API ConcavePolygon
 {
 public:
     using VertexArray = std::vector<fge::Vector2f>;
-    using PolygonArray = std::vector<ConcavePolygon>;
 
     ConcavePolygon() = default;
     explicit ConcavePolygon(VertexArray const& vertices);
