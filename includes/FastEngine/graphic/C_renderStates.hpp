@@ -106,6 +106,7 @@ public:
     }
 
     constexpr void setVertexCount(uint32_t count) { this->g_vertexCount = count; }
+    constexpr void setVertexOffset(uint32_t offset) { this->g_vertexOffset = offset; }
 
     [[nodiscard]] constexpr uint32_t getInstancesCount() const { return this->g_count; }
     [[nodiscard]] constexpr bool hasUniqueDrawCall() const { return this->g_uniqueDrawCall; }
@@ -130,6 +131,7 @@ public:
     [[nodiscard]] constexpr uint32_t getDynamicCount() const { return this->g_dynamicCount; }
 
     [[nodiscard]] constexpr uint32_t getVertexCount() const { return this->g_vertexCount; }
+    [[nodiscard]] constexpr uint32_t getVertexOffset() const { return this->g_vertexOffset; }
 
 private:
     uint32_t g_count{1};
@@ -141,6 +143,7 @@ private:
     uint32_t const* g_dynamicSets{nullptr};
 
     uint32_t g_vertexCount{0};
+    uint32_t g_vertexOffset{0};
     bool g_uniqueDrawCall{false};
 };
 /**
