@@ -39,9 +39,9 @@ std::vector<fge::Vector2f> ConvertTriangleStripTopologyToPolygon(fge::vulkan::Ve
     }
     for (size_t i = count; i > 0; --i)
     {
-        if ((i-1) % 2 == 0)
+        if ((i - 1) % 2 == 0)
         {
-            polygon.push_back(vertices[i-1]._position);
+            polygon.push_back(vertices[i - 1]._position);
         }
     }
 
@@ -145,7 +145,8 @@ public:
 
     void updateObstacleShape() override
     {
-        auto vertices = ConvertTriangleStripTopologyToPolygon(this->g_vertices.getVertices(), this->g_vertices.getCount());
+        auto vertices =
+                ConvertTriangleStripTopologyToPolygon(this->g_vertices.getVertices(), this->g_vertices.getCount());
         this->_g_shape = fge::ConcavePolygon(std::move(vertices));
         this->_g_shape.convexDecomposition();
     }

@@ -17,9 +17,9 @@
 #ifndef _FGE_C_LIGHTSYSTEM_HPP_INCLUDED
 #define _FGE_C_LIGHTSYSTEM_HPP_INCLUDED
 
+#include "FastEngine/C_concavePolygon.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/C_tunnel.hpp"
-#include "FastEngine/C_concavePolygon.hpp"
 
 #define FGE_LIGHT_PROPERTY_DEFAULT_LS "_fge_def_ls"
 
@@ -92,7 +92,10 @@ public:
      *
      * \param lightSystem The light system to use
      */
-    inline void setLightSystem(fge::LightSystem& lightSystem) { this->_g_lightSystemGate.openTo(lightSystem, !this->isObstacle()); }
+    inline void setLightSystem(fge::LightSystem& lightSystem)
+    {
+        this->_g_lightSystemGate.openTo(lightSystem, !this->isObstacle());
+    }
 
     [[nodiscard]] inline virtual bool isObstacle() const { return false; }
     inline virtual void updateObstacleShape() {}
@@ -153,7 +156,10 @@ public:
 
     [[nodiscard]] inline bool isObstacle() const final { return true; }
 
-    [[nodiscard]] inline fge::Transformable const& getTransformableParent() const { return *this->g_transformableParent; }
+    [[nodiscard]] inline fge::Transformable const& getTransformableParent() const
+    {
+        return *this->g_transformableParent;
+    }
 
     [[nodiscard]] inline fge::ConcavePolygon const& getShape() const { return this->_g_shape; }
 

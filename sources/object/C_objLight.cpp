@@ -214,18 +214,17 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                     }
 
                     auto const direction = glm::normalize(vertex - center);
-                    tmpHull[a] =
-                            fge::Vector2f(vertex.x + direction.x * distance, vertex.y + direction.y * distance);
+                    tmpHull[a] = fge::Vector2f(vertex.x + direction.x * distance, vertex.y + direction.y * distance);
                     tmpHull[a + shape.size()] = vertex;
                 }
                 fge::GetConvexHull(tmpHull, tmpHull);
 
                 auto const actualSize = this->g_obstacleHulls[i].getCount();
-                this->g_obstacleHulls[i].resize(actualSize+tmpHull.size());
+                this->g_obstacleHulls[i].resize(actualSize + tmpHull.size());
                 for (std::size_t a = 0; a < tmpHull.size(); ++a)
                 {
-                    this->g_obstacleHulls[i].getVertices()[actualSize+a]._position = tmpHull[a];
-                    this->g_obstacleHulls[i].getVertices()[actualSize+a]._color = fge::Color(255, 255, 255, 255);
+                    this->g_obstacleHulls[i].getVertices()[actualSize + a]._position = tmpHull[a];
+                    this->g_obstacleHulls[i].getVertices()[actualSize + a]._color = fge::Color(255, 255, 255, 255);
                 }
 
                 auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[i]);

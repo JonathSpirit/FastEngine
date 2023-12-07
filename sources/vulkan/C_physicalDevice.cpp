@@ -140,7 +140,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(this->g_device, &queueFamilyCount, queueFamilies.data());
 
-    for (uint32_t i = 0; i<queueFamilies.size(); ++i)
+    for (uint32_t i = 0; i < queueFamilies.size(); ++i)
     {
         auto const& queueFamily = queueFamilies[i];
 
