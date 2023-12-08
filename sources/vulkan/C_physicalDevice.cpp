@@ -159,7 +159,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
 
         if (!indices._presentFamily.has_value())
         {
-            if ((queueFamily.queueFlags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) > 0)
+            if (queueFamily.queueFlags > VK_QUEUE_PROTECTED_BIT)
             {
                 continue;
             }
