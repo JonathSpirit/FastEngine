@@ -56,7 +56,10 @@ public:
 
     void convexDecomposition();
 
-    [[nodiscard]] inline VertexArray& vertices() { return this->g_vertices; }
+    void setVertices(VertexArray const& vertices);
+    void setVertices(VertexArray&& vertices);
+    [[nodiscard]] inline fge::Vector2f& vertex(std::size_t index) { return this->g_vertices[index]; }
+    [[nodiscard]] inline fge::Vector2f const& vertex(std::size_t index) const { return this->g_vertices[index]; }
     [[nodiscard]] inline VertexArray const& vertices() const { return this->g_vertices; }
 
     [[nodiscard]] inline VertexArray const& subPolygon(std::size_t subPolyIndex) const

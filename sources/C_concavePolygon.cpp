@@ -155,6 +155,33 @@ void ConcavePolygon::convexDecomposition()
     } while (!polygonQueue.empty());
 }
 
+void ConcavePolygon::setVertices(VertexArray const& vertices)
+{
+    this->g_subPolygons.clear();
+    this->g_vertices = vertices;
+
+    if (this->g_vertices.size() > 2)
+    {
+        if (!this->checkIfRightHanded())
+        {
+            this->flipPolygon();
+        }
+    }
+}
+void ConcavePolygon::setVertices(VertexArray&& vertices)
+{
+    this->g_subPolygons.clear();
+    this->g_vertices = std::move(vertices);
+
+    if (this->g_vertices.size() > 2)
+    {
+        if (!this->checkIfRightHanded())
+        {
+            this->flipPolygon();
+        }
+    }
+}
+
 void ConcavePolygon::clear()
 {
     this->g_subPolygons.clear();
@@ -322,6 +349,7 @@ std::optional<std::size_t> ConcavePolygon::findFirstReflexVertex(VertexArray con
 
 void ConcavePolygon::flipPolygon()
 {
+    return;
     std::size_t iMax = this->g_vertices.size() / 2;
 
     if (this->g_vertices.size() % 2 != 0)
