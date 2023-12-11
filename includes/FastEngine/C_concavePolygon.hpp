@@ -52,8 +52,6 @@ public:
 
     [[nodiscard]] bool checkIfRightHanded();
 
-    void slicePolygon(fge::Line const& segment);
-
     void convexDecomposition();
 
     void setVertices(VertexArray const& vertices);
@@ -77,10 +75,12 @@ private:
     using VertexIndexMap = std::map<std::size_t, fge::Vector2f>;
     using Indices = std::vector<std::size_t>;
 
-    [[nodiscard]] static std::optional<std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>>
-    slicePolygon(fge::Vector2f const& position, fge::Vector2f const& direction, VertexArray const& inputVertices);
-    [[nodiscard]] static std::optional<std::pair<VertexArray, VertexArray>>
-    slicePolygon(fge::Line const& segment, VertexArray const& inputVertices);
+    [[nodiscard]] static bool checkIfRightHanded(VertexArray const& vertices);
+
+    [[nodiscard]] static std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>
+    slicePolygon(std::size_t const& startVertexIndex,
+                 std::size_t const& stopVertexIndex,
+                 VertexArray const& inputVertices);
 
     [[nodiscard]] static Indices findVerticesInCone(fge::Line const& line1,
                                                     fge::Line const& line2,
@@ -96,15 +96,12 @@ private:
 
     [[nodiscard]] static std::optional<std::size_t> findFirstReflexVertex(VertexArray const& polygon);
 
-    void flipPolygon();
-
-    [[nodiscard]] static VertexIndexMap
-    cullByDistance(VertexIndexMap const& input, fge::Vector2f const& origin, std::size_t maxVertsToKeep);
+    static void flipPolygon(VertexArray& vertices);
 
     [[nodiscard]] static VertexIndexMap verticesAlongLineSegment(fge::Line const& segment, VertexArray const& vertices);
-    [[nodiscard]] static VertexIndexMap verticesAlongLineSegment(fge::Vector2f const& position,
-                                                                 fge::Vector2f const& direction,
-                                                                 VertexArray const& vertices);
+
+    [[nodiscard]] static std::optional<std::size_t>
+    addNewVertex(std::size_t& positionIndex, fge::Vector2f const& direction, VertexArray& vertices);
 };
 
 } // namespace fge

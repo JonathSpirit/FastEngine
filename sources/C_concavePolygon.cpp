@@ -22,70 +22,32 @@ namespace fge
 
 ConcavePolygon::ConcavePolygon(VertexArray const& vertices) :
         g_vertices{vertices}
-{
-    if (this->g_vertices.size() > 2)
-    {
-        if (!this->checkIfRightHanded())
-        {
-            this->flipPolygon();
-        }
-    }
-}
+{}
 ConcavePolygon::ConcavePolygon(VertexArray&& vertices) :
         g_vertices{std::move(vertices)}
-{
-    if (this->g_vertices.size() > 2)
-    {
-        if (!this->checkIfRightHanded())
-        {
-            this->flipPolygon();
-        }
-    }
-}
+{}
 
 bool ConcavePolygon::checkIfRightHanded()
 {
-    if (this->g_vertices.size() < 3)
+    return ConcavePolygon::checkIfRightHanded(this->g_vertices);
+}
+bool ConcavePolygon::checkIfRightHanded(VertexArray const& vertices)
+{
+    if (vertices.size() < 3)
     {
         return false;
     }
 
     float signedArea = 0.0f;
 
-    for (std::size_t i = 0; i < this->g_vertices.size(); ++i)
+    for (std::size_t i = 0; i < vertices.size(); ++i)
     {
-        auto const& vert1 = this->g_vertices[i];
-        auto const& vert2 = this->g_vertices[(i + 1) % this->g_vertices.size()];
+        auto const& vert1 = vertices[i];
+        auto const& vert2 = vertices[(i + 1) % vertices.size()];
         signedArea += (vert2.x - vert1.x) * (vert2.y + vert1.y);
     }
 
     return signedArea < 0.0f;
-}
-
-void ConcavePolygon::slicePolygon(fge::Line const& segment)
-{
-    if (this->g_subPolygons.empty())
-    {
-        auto polygons = ConcavePolygon::slicePolygon(segment, this->g_vertices);
-        if (polygons)
-        {
-            this->g_subPolygons.push_back(std::move(polygons.value().first));
-            this->g_subPolygons.push_back(std::move(polygons.value().second));
-        }
-        return;
-    }
-
-    auto oldSize = this->g_subPolygons.size();
-    for (std::size_t i = 0; i < oldSize; ++i)
-    {
-        auto vertices = ConcavePolygon::slicePolygon(segment, this->g_subPolygons[i]);
-        if (vertices)
-        {
-            this->g_subPolygons.push_back(std::move(vertices.value().first));
-            this->g_subPolygons.push_back(std::move(vertices.value().second));
-        }
-    }
-    this->g_subPolygons.erase(this->g_subPolygons.begin(), this->g_subPolygons.begin() + oldSize);
 }
 
 void ConcavePolygon::convexDecomposition()
@@ -97,6 +59,14 @@ void ConcavePolygon::convexDecomposition()
 
     std::queue<VertexArray> polygonQueue;
     polygonQueue.emplace(this->g_vertices);
+
+    if (polygonQueue.back().size() > 2)
+    {
+        if (!ConcavePolygon::checkIfRightHanded(polygonQueue.back()))
+        {
+            ConcavePolygon::flipPolygon(polygonQueue.back());
+        }
+    }
 
     do {
         auto polygon = std::move(polygonQueue.front());
@@ -115,7 +85,7 @@ void ConcavePolygon::convexDecomposition()
             continue;
         }
 
-        auto const& prevVertPos = polygon[(reflexIndex.value() - 1) % polygon.size()];
+        auto const& prevVertPos = polygon[(reflexIndex.value() == 0) ? polygon.size() - 1 : reflexIndex.value() - 1];
         auto const& currVertPos = polygon[reflexIndex.value()];
         auto const& nextVertPos = polygon[(reflexIndex.value() + 1) % polygon.size()];
 
@@ -131,13 +101,16 @@ void ConcavePolygon::convexDecomposition()
             bestVert = ConcavePolygon::getBestVertexToConnect(verticesInCone, polygon, currVertPos);
             if (bestVert)
             {
-                fge::Line const newLine(currVertPos, polygon[bestVert.value()]);
+                auto startIndex = reflexIndex.value();
 
-                auto polygons = ConcavePolygon::slicePolygon(newLine, polygon);
-                if (polygons)
+                auto polygons = ConcavePolygon::slicePolygon(startIndex, bestVert.value(), polygon);
+                if (!polygons.first.empty())
                 {
-                    polygonQueue.emplace(std::move(polygons.value().first));
-                    polygonQueue.emplace(std::move(polygons.value().second));
+                    polygonQueue.emplace(std::move(polygons.first));
+                }
+                if (!polygons.second.empty())
+                {
+                    polygonQueue.emplace(std::move(polygons.second));
                 }
             }
         }
@@ -145,11 +118,22 @@ void ConcavePolygon::convexDecomposition()
         {
             auto const direction = -glm::normalize((line1._start - line1._end) + (line2._start - line2._end));
 
-            auto polygons = ConcavePolygon::slicePolygon(currVertPos, direction, polygon);
-            if (polygons)
+            auto startIndex = reflexIndex.value();
+            auto endIndex = ConcavePolygon::addNewVertex(startIndex, direction, polygon);
+
+            if (!endIndex)
             {
-                polygonQueue.emplace(std::move(polygons.value().first));
-                polygonQueue.emplace(std::move(polygons.value().second));
+                continue;
+            }
+
+            auto polygons = ConcavePolygon::slicePolygon(startIndex, endIndex.value(), polygon);
+            if (!polygons.first.empty())
+            {
+                polygonQueue.emplace(std::move(polygons.first));
+            }
+            if (!polygons.second.empty())
+            {
+                polygonQueue.emplace(std::move(polygons.second));
             }
         }
     } while (!polygonQueue.empty());
@@ -159,27 +143,11 @@ void ConcavePolygon::setVertices(VertexArray const& vertices)
 {
     this->g_subPolygons.clear();
     this->g_vertices = vertices;
-
-    if (this->g_vertices.size() > 2)
-    {
-        if (!this->checkIfRightHanded())
-        {
-            this->flipPolygon();
-        }
-    }
 }
 void ConcavePolygon::setVertices(VertexArray&& vertices)
 {
     this->g_subPolygons.clear();
     this->g_vertices = std::move(vertices);
-
-    if (this->g_vertices.size() > 2)
-    {
-        if (!this->checkIfRightHanded())
-        {
-            this->flipPolygon();
-        }
-    }
 }
 
 void ConcavePolygon::clear()
@@ -187,57 +155,46 @@ void ConcavePolygon::clear()
     this->g_subPolygons.clear();
 }
 
-std::optional<std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>>
-ConcavePolygon::slicePolygon(fge::Vector2f const& position,
-                             fge::Vector2f const& direction,
-                             VertexArray const& inputVertices)
+std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>
+ConcavePolygon::slicePolygon(std::size_t const& startVertexIndex,
+                             std::size_t const& stopVertexIndex,
+                             VertexArray const& vertices)
 {
-    constexpr float TOLERANCE = 1e-5f;
-
-    auto slicedVertices = ConcavePolygon::verticesAlongLineSegment(position, direction, inputVertices);
-    slicedVertices = ConcavePolygon::cullByDistance(slicedVertices, position, 2);
-
-    if (slicedVertices.size() < 2)
+    if (startVertexIndex == stopVertexIndex || startVertexIndex >= vertices.size() ||
+        stopVertexIndex >= vertices.size())
     {
-        return std::nullopt;
+        return {};
     }
 
     VertexArray leftVertices;
     VertexArray rightVertices;
 
-    for (std::size_t i = 0; i < inputVertices.size(); ++i)
+    bool left = false;
+
+    for (std::size_t i = startVertexIndex; i < startVertexIndex + vertices.size() + 1; ++i)
     {
-        auto relativePosition = inputVertices[i] - position;
+        auto const a = i % vertices.size();
 
-        auto it = slicedVertices.begin();
-
-        float const perpDistance = std::abs(fge::Cross2d(relativePosition, direction));
-
-        if (perpDistance > TOLERANCE || (perpDistance <= TOLERANCE && (slicedVertices.find(i) == slicedVertices.end())))
+        if (left)
         {
-            if ((i > it->first) && (i <= (++it)->first))
-            {
-                leftVertices.push_back(inputVertices[i]);
-            }
-            else
-            {
-                rightVertices.push_back(inputVertices[i]);
-            }
+            leftVertices.push_back(vertices[a]);
         }
-
-        if (slicedVertices.find(i) != slicedVertices.end())
+        else
         {
-            rightVertices.push_back(slicedVertices[i]);
-            leftVertices.push_back(slicedVertices[i]);
+            rightVertices.push_back(vertices[a]);
+            if (a == stopVertexIndex)
+            {
+                if ((a + 1) % vertices.size() == startVertexIndex)
+                {
+                    break;
+                }
+                leftVertices.push_back(vertices[a]);
+                left = true;
+            }
         }
     }
 
-    return {{std::move(leftVertices), std::move(rightVertices)}};
-}
-std::optional<std::pair<ConcavePolygon::VertexArray, ConcavePolygon::VertexArray>>
-ConcavePolygon::slicePolygon(fge::Line const& segment, VertexArray const& inputVertices)
-{
-    return ConcavePolygon::slicePolygon(segment._start, segment.getDirection(), inputVertices);
+    return {std::move(leftVertices), std::move(rightVertices)};
 }
 
 ConcavePolygon::Indices ConcavePolygon::findVerticesInCone(fge::Line const& line1,
@@ -287,7 +244,7 @@ std::optional<std::size_t> ConcavePolygon::getBestVertexToConnect(Indices const&
         {
             auto const vertSize = polygonVertices.size();
 
-            auto const prevVert = polygonVertices[(index - 1) % vertSize];
+            auto const prevVert = polygonVertices[(index == 0) ? vertSize - 1 : index - 1];
             auto const currVert = polygonVertices[index];
             auto const nextVert = polygonVertices[(index + 1) % vertSize];
 
@@ -336,8 +293,8 @@ std::optional<std::size_t> ConcavePolygon::findFirstReflexVertex(VertexArray con
 {
     for (std::size_t i = 0; i < polygon.size(); ++i)
     {
-        float const handedness =
-                fge::GetHandedness(polygon[(i - 1) % polygon.size()], polygon[i], polygon[(i + 1) % polygon.size()]);
+        float const handedness = fge::GetHandedness(polygon[(i == 0) ? polygon.size() - 1 : i - 1], polygon[i],
+                                                    polygon[(i + 1) % polygon.size()]);
         if (handedness < 0.0f)
         {
             return i;
@@ -347,59 +304,19 @@ std::optional<std::size_t> ConcavePolygon::findFirstReflexVertex(VertexArray con
     return std::nullopt;
 }
 
-void ConcavePolygon::flipPolygon()
+void ConcavePolygon::flipPolygon(VertexArray& vertices)
 {
-    return;
-    std::size_t iMax = this->g_vertices.size() / 2;
+    std::size_t iMax = vertices.size() / 2;
 
-    if (this->g_vertices.size() % 2 != 0)
+    if (vertices.size() % 2 != 0)
     {
         iMax += 1;
     }
 
     for (std::size_t i = 1; i < iMax; ++i)
     {
-        std::swap(this->g_vertices[i], this->g_vertices[this->g_vertices.size() - i]);
+        std::swap(vertices[i], vertices[vertices.size() - i]);
     }
-}
-
-ConcavePolygon::VertexIndexMap
-ConcavePolygon::cullByDistance(VertexIndexMap const& input, fge::Vector2f const& origin, std::size_t maxVerticesToKeep)
-{
-    struct DistanceVertex
-    {
-        DistanceVertex() = default;
-        explicit DistanceVertex(float distance, VertexIndexMap::const_iterator it) :
-                _distance{distance},
-                _itInput{it}
-        {}
-
-        inline bool operator<(DistanceVertex const& r) const { return this->_distance < r._distance; }
-
-        float _distance{};
-        VertexIndexMap::const_iterator _itInput{};
-    };
-
-    if (maxVerticesToKeep >= input.size())
-    {
-        return input;
-    }
-
-    std::priority_queue<DistanceVertex> distanceVertices;
-
-    for (auto it = input.begin(); it != input.end(); ++it)
-    {
-        distanceVertices.emplace(fge::DotSquare(it->second - origin), it);
-    }
-
-    VertexIndexMap result;
-    for (std::size_t i = 0; i < maxVerticesToKeep; ++i)
-    {
-        result.insert({distanceVertices.top()._itInput->first, distanceVertices.top()._itInput->second});
-        distanceVertices.pop();
-    }
-
-    return result;
 }
 
 ConcavePolygon::VertexIndexMap ConcavePolygon::verticesAlongLineSegment(fge::Line const& segment,
@@ -435,39 +352,36 @@ ConcavePolygon::VertexIndexMap ConcavePolygon::verticesAlongLineSegment(fge::Lin
 
     return result;
 }
-ConcavePolygon::VertexIndexMap ConcavePolygon::verticesAlongLineSegment(fge::Vector2f const& position,
-                                                                        fge::Vector2f const& direction,
-                                                                        VertexArray const& vertices)
+
+std::optional<std::size_t>
+ConcavePolygon::addNewVertex(std::size_t& positionIndex, fge::Vector2f const& direction, VertexArray& vertices)
 {
-    VertexIndexMap result;
-
-    std::size_t lastIndex = std::numeric_limits<std::size_t>::max();
-
     for (std::size_t i = 0; i < vertices.size(); ++i)
     {
-        fge::Line const verticesSegment{vertices[i], vertices[(i + 1) % vertices.size()]};
+        fge::Line const segment{vertices[i], vertices[(i + 1) % vertices.size()]};
 
-        auto intersectionResult =
-                fge::CheckIntersection(position, direction, verticesSegment, fge::IntersectionOptions::I_NORM_LIMITS);
+        auto intersectionResult = fge::CheckIntersection(vertices[positionIndex], direction, segment);
 
         if (!intersectionResult)
         {
             continue;
         }
 
-        if (lastIndex == (i - 1) % vertices.size())
-        { //Avoid point duplication check
-            if (fge::DotSquare(result[lastIndex] - intersectionResult->_point) < 1e-5f)
-            {
-                continue;
-            }
+        if (intersectionResult->_normA < 1e-5f)
+        {
+            continue;
         }
 
-        lastIndex = i;
-        result.insert({i, intersectionResult->_point});
+        if (i < positionIndex)
+        {
+            positionIndex += 1;
+        }
+
+        vertices.insert(vertices.begin() + (i + 1), intersectionResult->_point);
+        return i + 1;
     }
 
-    return result;
+    return std::nullopt;
 }
 
 } // namespace fge
