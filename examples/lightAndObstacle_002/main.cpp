@@ -183,6 +183,7 @@ public:
         //Create a text object with explanation
         auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
                                                          "Use Q/E to switch between light and obstacle follow up\n"
+                                                         "Use A/D to rotate the obstacle\n"
                                                          "Use 1/2/3/4 to change the obstacle form\n"
                                                          "Use left mouse click to duplicate the obstacle/light\n"
                                                          "Use space to delete all duplicated objects\n"
@@ -271,6 +272,16 @@ public:
                 this->_properties["follow"] = "light";
             }
 
+            //Rotate the obstacle
+            if (keyEvent.keysym.sym == SDLK_a)
+            {
+                obstacle->getObject()->rotate(-10.0f);
+            }
+            else if (keyEvent.keysym.sym == SDLK_d)
+            {
+                obstacle->getObject()->rotate(10.0f);
+            }
+
             //Remove all duplicates
             if (keyEvent.keysym.sym == SDLK_SPACE)
             {
@@ -280,6 +291,8 @@ public:
                 {
                     this->delObject(duplicate->getSid());
                 }
+
+                obstacle->getObject()->setRotation(0.0f);
             }
         }));
 
