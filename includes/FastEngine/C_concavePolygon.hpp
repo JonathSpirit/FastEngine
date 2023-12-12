@@ -66,11 +66,14 @@ public:
     }
     [[nodiscard]] inline std::size_t subPolygonCount() const { return this->g_subPolygons.size(); }
 
+    [[nodiscard]] inline std::size_t totalVertexCount() const { return this->g_totalVertexCount; }
+
     void clear();
 
 private:
     VertexArray g_vertices;
     std::vector<VertexArray> g_subPolygons;
+    std::size_t g_totalVertexCount = 0;
 
     using VertexIndexMap = std::map<std::size_t, fge::Vector2f>;
     using Indices = std::vector<std::size_t>;

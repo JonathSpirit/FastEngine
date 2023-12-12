@@ -57,6 +57,8 @@ void ConcavePolygon::convexDecomposition()
         return;
     }
 
+    this->g_totalVertexCount = 0;
+
     std::queue<VertexArray> polygonQueue;
     polygonQueue.emplace(this->g_vertices);
 
@@ -74,6 +76,7 @@ void ConcavePolygon::convexDecomposition()
 
         if (polygon.size() <= 3)
         {
+            this->g_totalVertexCount += polygon.size();
             this->g_subPolygons.push_back(std::move(polygon));
             continue;
         }
@@ -81,6 +84,7 @@ void ConcavePolygon::convexDecomposition()
         auto reflexIndex = ConcavePolygon::findFirstReflexVertex(polygon);
         if (!reflexIndex)
         {
+            this->g_totalVertexCount += polygon.size();
             this->g_subPolygons.push_back(std::move(polygon));
             continue;
         }
