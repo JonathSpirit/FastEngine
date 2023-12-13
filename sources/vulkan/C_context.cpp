@@ -580,7 +580,7 @@ void Context::createMultiUseDescriptorPool()
 {
     std::vector<VkDescriptorPoolSize> poolSizes(3);
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[0].descriptorCount = 1;
+    poolSizes[0].descriptorCount = FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER;
 
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[1].descriptorCount = 1;
