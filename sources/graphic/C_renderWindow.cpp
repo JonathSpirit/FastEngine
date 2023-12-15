@@ -127,8 +127,6 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
 }
 void RenderWindow::beginRenderPass(uint32_t imageIndex)
 {
-    fge::RenderTarget::gLastTexture = nullptr;
-
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = this->g_renderPass;

@@ -142,8 +142,6 @@ protected:
     bool _g_forceGraphicPipelineUpdate;
 
     mutable GraphicPipelineCache _g_graphicPipelineCache;
-
-    static fge::vulkan::TextureImage const* gLastTexture;
 };
 
 } // namespace fge
