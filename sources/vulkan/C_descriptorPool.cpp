@@ -62,6 +62,11 @@ void DescriptorPool::create(std::vector<VkDescriptorPoolSize>&& descriptorPoolSi
     this->g_individuallyFree = individuallyFree;
     ///TODO: if false, need to reset pools when they reach count=0
 
+    for (auto& poolSize: descriptorPoolSizes)
+    {
+        poolSize.descriptorCount *= this->g_maxSetsPerPool;
+    }
+
     this->g_descriptorPoolSizes = std::move(descriptorPoolSizes);
     this->g_descriptorPools.push_back(this->createPool());
 }
@@ -93,7 +98,7 @@ void DescriptorPool::destroy()
     }
 
     VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+    DescriptorPool::Pool* descriptorPool = nullptr;
 
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -126,8 +131,7 @@ void DescriptorPool::destroy()
             return std::nullopt;
         }
 
-        ++pool._count;
-        descriptorPool = pool._pool;
+        descriptorPool = &pool;
         break;
     }
 
@@ -136,17 +140,20 @@ void DescriptorPool::destroy()
     {
         this->g_descriptorPools.push_back(this->createPool());
         allocInfo.descriptorPool = this->g_descriptorPools.back()._pool;
-        descriptorPool = this->g_descriptorPools.back()._pool;
+        descriptorPool = &this->g_descriptorPools.back();
         vkAllocateDescriptorSets(this->getContext().getLogicalDevice().getDevice(), &allocInfo, &descriptorSet);
     }
 
     //Last check for a valid descriptor set
-    if (descriptorSet == VK_NULL_HANDLE)
+    if (descriptorSet == VK_NULL_HANDLE || descriptorPool == nullptr)
     {
         return std::nullopt;
     }
 
-    return DescriptorSet{descriptorSet, this, descriptorPool};
+    //Increment the pool count
+    ++descriptorPool->_count;
+
+    return DescriptorSet{descriptorSet, this, descriptorPool->_pool};
 }
 void DescriptorPool::freeDescriptorSet(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool) const
 {
