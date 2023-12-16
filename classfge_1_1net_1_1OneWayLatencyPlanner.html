@@ -96,10 +96,10 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1f32e0454b14f169bad61cada909e7c6" id="r_a1f32e0454b14f169bad61cada909e7c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html#a1f32e0454b14f169bad61cada909e7c6">pack</a> (<a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;packet)</td></tr>
-<tr class="memdesc:a1f32e0454b14f169bad61cada909e7c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack the required data by the planner to the client/server.  <br /></td></tr>
-<tr class="separator:a1f32e0454b14f169bad61cada909e7c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af132c995e213aefbeebac7dcd82aceb0" id="r_af132c995e213aefbeebac7dcd82aceb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html#af132c995e213aefbeebac7dcd82aceb0">unpack</a> (<a class="el" href="structfge_1_1net_1_1FluxPacket.html">fge::net::FluxPacket</a> *packet, <a class="el" href="classfge_1_1net_1_1Client.html">fge::net::Client</a> &amp;client)</td></tr>
+<tr class="memitem:a4b530a1de5f61c306d09670a8b78d6e8" id="r_a4b530a1de5f61c306d09670a8b78d6e8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html#a4b530a1de5f61c306d09670a8b78d6e8">pack</a> (fge::net::TransmissionPacketPtr &amp;tPacket)</td></tr>
+<tr class="memdesc:a4b530a1de5f61c306d09670a8b78d6e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack the required data by the planner to the client/server.  <br /></td></tr>
+<tr class="separator:a4b530a1de5f61c306d09670a8b78d6e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af132c995e213aefbeebac7dcd82aceb0" id="r_af132c995e213aefbeebac7dcd82aceb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html#af132c995e213aefbeebac7dcd82aceb0">unpack</a> (<a class="el" href="classfge_1_1net_1_1FluxPacket.html">fge::net::FluxPacket</a> *packet, <a class="el" href="classfge_1_1net_1_1Client.html">fge::net::Client</a> &amp;client)</td></tr>
 <tr class="memdesc:af132c995e213aefbeebac7dcd82aceb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unpack the data received by another client/server planner.  <br /></td></tr>
 <tr class="separator:af132c995e213aefbeebac7dcd82aceb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f10e2cf6f28d1384d0879489e0c75e7" id="r_a4f10e2cf6f28d1384d0879489e0c75e7"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="group__network.html#ga8e0aa7766b712742f5e50079b6d64467">fge::net::FullTimestampOffset</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html#a4f10e2cf6f28d1384d0879489e0c75e7">getClockOffset</a> () const</td></tr>
@@ -137,7 +137,6 @@ Public Member Functions</h2></td></tr>
 
 <p>Retrieve the clock offset. </p>
 <p>The clock offset represent the delta time between 2 computers clocks. It is useful in order to predicate some data.</p>
-<dl class="section warning"><dt>Warning</dt><dd>The offset is only available for clients</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Optionally a full timestamp offset </dd></dl>
 
 </div>
@@ -224,8 +223,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1f32e0454b14f169bad61cada909e7c6" name="a1f32e0454b14f169bad61cada909e7c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1f32e0454b14f169bad61cada909e7c6">&#9670;&#160;</a></span>pack()</h2>
+<a id="a4b530a1de5f61c306d09670a8b78d6e8" name="a4b530a1de5f61c306d09670a8b78d6e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b530a1de5f61c306d09670a8b78d6e8">&#9670;&#160;</a></span>pack()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -233,8 +232,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void fge::net::OneWayLatencyPlanner::pack </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;&#160;</td>
-          <td class="paramname"><em>packet</em></td><td>)</td>
+          <td class="paramtype">fge::net::TransmissionPacketPtr &amp;&#160;</td>
+          <td class="paramname"><em>tPacket</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -243,7 +242,7 @@ Public Member Functions</h2></td></tr>
 <p>Pack the required data by the planner to the client/server. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">packet</td><td>A <a class="el" href="structfge_1_1net_1_1SendQueuePacket.html" title="A packet to send to the network thread.">SendQueuePacket</a> that will be sent </td></tr>
+    <tr><td class="paramname">tPacket</td><td>A <a class="el" href="classfge_1_1net_1_1TransmissionPacket.html" title="A packet with configurable options to transmit via a network thread.">TransmissionPacket</a> </td></tr>
   </table>
   </dd>
 </dl>
@@ -259,7 +258,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void fge::net::OneWayLatencyPlanner::unpack </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1FluxPacket.html">fge::net::FluxPacket</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1FluxPacket.html">fge::net::FluxPacket</a> *&#160;</td>
           <td class="paramname"><em>packet</em>, </td>
         </tr>
         <tr>

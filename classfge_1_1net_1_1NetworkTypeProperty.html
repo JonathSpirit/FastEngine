@@ -106,9 +106,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab5f08d57bf6072510946d1572ef98259" id="r_ab5f08d57bf6072510946d1572ef98259"><td class="memItemLeft" align="right" valign="top">void const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html#ab5f08d57bf6072510946d1572ef98259">getSource</a> () const override</td></tr>
 <tr class="memdesc:ab5f08d57bf6072510946d1572ef98259"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the source pointer that have been used to create this network type.  <br /></td></tr>
 <tr class="separator:ab5f08d57bf6072510946d1572ef98259"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84fc2551c3f30afaffbbe800d2346af1" id="r_a84fc2551c3f30afaffbbe800d2346af1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html#a84fc2551c3f30afaffbbe800d2346af1">applyData</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck) override</td></tr>
-<tr class="memdesc:a84fc2551c3f30afaffbbe800d2346af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the data packed by the same network type from a server.  <br /></td></tr>
-<tr class="separator:a84fc2551c3f30afaffbbe800d2346af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a704eccdfec892ef43abf497114637309" id="r_a704eccdfec892ef43abf497114637309"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html#a704eccdfec892ef43abf497114637309">applyData</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> const &amp;pck) override</td></tr>
+<tr class="memdesc:a704eccdfec892ef43abf497114637309"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the data packed by the same network type from a server.  <br /></td></tr>
+<tr class="separator:a704eccdfec892ef43abf497114637309"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b9793b14b65aab1746ecb9604eb8967" id="r_a7b9793b14b65aab1746ecb9604eb8967"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html#a7b9793b14b65aab1746ecb9604eb8967">packData</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck, <a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;id) override</td></tr>
 <tr class="memdesc:a7b9793b14b65aab1746ecb9604eb8967"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack the data into a packet and reset the modification flag of the identity.  <br /></td></tr>
 <tr class="separator:a7b9793b14b65aab1746ecb9604eb8967"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,9 +124,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a43063388f61270db39a9a59c957ad135" id="r_a43063388f61270db39a9a59c957ad135"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html#a43063388f61270db39a9a59c957ad135">forceUncheck</a> () override</td></tr>
 <tr class="memdesc:a43063388f61270db39a9a59c957ad135"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the forced modification of the value.  <br /></td></tr>
 <tr class="separator:a43063388f61270db39a9a59c957ad135"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83551c8b952338736260da96cc382dfd" id="r_a83551c8b952338736260da96cc382dfd"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#a83551c8b952338736260da96cc382dfd">clientsCheckup</a> (<a class="el" href="classfge_1_1net_1_1ClientList.html">fge::net::ClientList</a> const &amp;clients)</td></tr>
-<tr class="memdesc:a83551c8b952338736260da96cc382dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Do a clients checkup with the specified client list.  <br /></td></tr>
-<tr class="separator:a83551c8b952338736260da96cc382dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4001776bda7672c5722ec41bc5955da2" id="r_a4001776bda7672c5722ec41bc5955da2"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#a4001776bda7672c5722ec41bc5955da2">clientsCheckup</a> (<a class="el" href="classfge_1_1net_1_1ClientList.html">fge::net::ClientList</a> const &amp;clients, bool force)</td></tr>
+<tr class="memdesc:a4001776bda7672c5722ec41bc5955da2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Do a clients checkup with the specified client list.  <br /></td></tr>
+<tr class="separator:a4001776bda7672c5722ec41bc5955da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a704c96812cf5909f30b98ea1c466c48c" id="r_a704c96812cf5909f30b98ea1c466c48c"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#a704c96812cf5909f30b98ea1c466c48c">checkClient</a> (<a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;id) const</td></tr>
 <tr class="memdesc:a704c96812cf5909f30b98ea1c466c48c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the modification flag is set for the specified client identity.  <br /></td></tr>
 <tr class="separator:a704c96812cf5909f30b98ea1c466c48c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,8 +203,8 @@ template&lt;class T &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a84fc2551c3f30afaffbbe800d2346af1" name="a84fc2551c3f30afaffbbe800d2346af1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a84fc2551c3f30afaffbbe800d2346af1">&#9670;&#160;</a></span>applyData()</h2>
+<a id="a704eccdfec892ef43abf497114637309" name="a704eccdfec892ef43abf497114637309"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a704eccdfec892ef43abf497114637309">&#9670;&#160;</a></span>applyData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -217,7 +217,7 @@ template&lt;class T &gt; </div>
         <tr>
           <td class="memname">bool <a class="el" href="classfge_1_1net_1_1NetworkTypeProperty.html">fge::net::NetworkTypeProperty</a>&lt; T &gt;::applyData </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> const &amp;&#160;</td>
           <td class="paramname"><em>pck</em></td><td>)</td>
           <td></td>
         </tr>
@@ -238,7 +238,7 @@ template&lt;class T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><b>true</b> if the data has been applied, <b>false</b> otherwise </dd></dl>
 
-<p>Implements <a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#a7d9660b6eea6e0d26f4eddbff84e434b">fge::net::NetworkTypeBase</a>.</p>
+<p>Implements <a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#af6e83e60feace0e8b5850deee7db8ea5">fge::net::NetworkTypeBase</a>.</p>
 
 </div>
 </div>
@@ -338,8 +338,8 @@ template&lt;class T &gt; </div>
 
 </div>
 </div>
-<a id="a83551c8b952338736260da96cc382dfd" name="a83551c8b952338736260da96cc382dfd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a83551c8b952338736260da96cc382dfd">&#9670;&#160;</a></span>clientsCheckup()</h2>
+<a id="a4001776bda7672c5722ec41bc5955da2" name="a4001776bda7672c5722ec41bc5955da2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4001776bda7672c5722ec41bc5955da2">&#9670;&#160;</a></span>clientsCheckup()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -351,8 +351,18 @@ template&lt;class T &gt; </div>
           <td class="memname">virtual bool fge::net::NetworkTypeBase::clientsCheckup </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfge_1_1net_1_1ClientList.html">fge::net::ClientList</a> const &amp;&#160;</td>
-          <td class="paramname"><em>clients</em></td><td>)</td>
+          <td class="paramname"><em>clients</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>force</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -368,12 +378,13 @@ template&lt;class T &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">clients</td><td>The client list to checkup with </td></tr>
+    <tr><td class="paramname">force</td><td><b>true</b> to force the checkup from the complete list of clients </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><b>true</b> if there was a change in the value, <b>false</b> otherwise </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1net_1_1NetworkTypeScene.html#a9bf5c1e3ba732a77f46abe408b3ee8b7">fge::net::NetworkTypeScene</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1net_1_1NetworkTypeScene.html#af84b85a10951b3feb6b14d90a69cdc0a">fge::net::NetworkTypeScene</a>.</p>
 
 </div>
 </div>

@@ -21,7 +21,6 @@ var searchData=
   ['objtextlist_18',['ObjTextList',['../classfge_1_1ObjTextList.html',1,'fge']]],
   ['objtilemap_19',['ObjTileMap',['../classfge_1_1ObjTileMap.html',1,'fge']]],
   ['objwindow_20',['ObjWindow',['../classfge_1_1ObjWindow.html',1,'fge']]],
-  ['obstaclecomponent_21',['ObstacleComponent',['../classfge_1_1ObstacleComponent.html',1,'fge']]],
-  ['onewaylatencyplanner_22',['OneWayLatencyPlanner',['../classfge_1_1net_1_1OneWayLatencyPlanner.html',1,'fge::net']]],
-  ['option_23',['Option',['../structfge_1_1net_1_1SendQueuePacket_1_1Option.html',1,'fge::net::SendQueuePacket']]]
+  ['onewaylatencyplanner_21',['OneWayLatencyPlanner',['../classfge_1_1net_1_1OneWayLatencyPlanner.html',1,'fge::net']]],
+  ['option_22',['Option',['../structfge_1_1net_1_1TransmissionPacket_1_1Option.html',1,'fge::net::TransmissionPacket']]]
 ];

@@ -117,7 +117,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00030" data-start="{" data-end="}">
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="classfge_1_1Random.html#a592c396ba192621746d048b7d59c5709">   30</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1Random.html#a592c396ba192621746d048b7d59c5709">Random&lt;TEngine&gt;::setSeed</a>(uint64_t seed)</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>{</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    std::lock_guard&lt;std::mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    std::scoped_lock&lt;std::mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    this-&gt;g_engine.seed(seed);</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>}</div>
 </div>
@@ -143,7 +143,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classfge_1_1Random.html#a6bd5e5b775fdd57029a0f3c99b743910">   49</a></span>T <a class="code hl_function" href="classfge_1_1Random.html#a6bd5e5b775fdd57029a0f3c99b743910">Random&lt;TEngine&gt;::range</a>(T min, T max)</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>{</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">static_assert</span>(std::is_arithmetic&lt;T&gt;::value, <span class="stringliteral">&quot;T must be arithmetic !&quot;</span>);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    std::lock_guard&lt;std::mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    std::scoped_lock&lt;std::mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (std::is_floating_point&lt;T&gt;::value)</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    {</div>
@@ -164,7 +164,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="classfge_1_1Random.html#ad03d393b19a59e61bf03e1b9ba84b3ee">   68</a></span>T <a class="code hl_function" href="classfge_1_1Random.html#ad03d393b19a59e61bf03e1b9ba84b3ee">Random&lt;TEngine&gt;::rand</a>()</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>{</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keyword">static_assert</span>(std::is_arithmetic&lt;T&gt;::value, <span class="stringliteral">&quot;T must be arithmetic !&quot;</span>);</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    std::lock_guard&lt;std::mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    std::scoped_lock&lt;std::mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span> (std::is_floating_point&lt;T&gt;::value)</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    {</div>

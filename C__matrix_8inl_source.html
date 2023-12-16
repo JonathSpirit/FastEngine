@@ -216,14 +216,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>T <span class="keyword">const</span>* <a class="code hl_function" href="classfge_1_1Matrix.html#a2204fedad0c2c1da35e28f06fb6cd302">Matrix&lt;T&gt;::operator[]</a>(std::size_t x)<span class="keyword"> const</span></div>
 <div class="foldopen" id="foldopen00112" data-start="{" data-end="}">
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno"><a class="line" href="classfge_1_1Matrix.html#a2204fedad0c2c1da35e28f06fb6cd302">  112</a></span><span class="keyword"></span>{</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">return</span> FGE_MATRIX_GET(<span class="keyword">const</span> T, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, 0);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">return</span> FGE_MATRIX_GET(T <span class="keyword">const</span>, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, 0);</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>}</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
 <div class="foldopen" id="foldopen00117" data-start="{" data-end="}">
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="classfge_1_1Matrix.html#a3b5338ad65b2ae93b91aaba9996a8414">  117</a></span>T <span class="keyword">const</span>&amp; <a class="code hl_function" href="classfge_1_1Matrix.html#ae5d76d49d44527f6d92e0672f76c9da0">Matrix&lt;T&gt;::get</a>(std::size_t x, std::size_t y)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keyword"></span>{</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordflow">return</span> *FGE_MATRIX_GET(<span class="keyword">const</span> T, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, y);</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordflow">return</span> *FGE_MATRIX_GET(T <span class="keyword">const</span>, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, y);</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>}</div>
 </div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
@@ -232,7 +232,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>T <span class="keyword">const</span>&amp; <a class="code hl_function" href="classfge_1_1Matrix.html#ae5d76d49d44527f6d92e0672f76c9da0">Matrix&lt;T&gt;::get</a>(fge::Vector2&lt;Tvec&gt; <span class="keyword">const</span>&amp; coord)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="keyword"></span>{</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keyword">static_assert</span>(std::is_integral&lt;Tvec&gt;::value, <span class="stringliteral">&quot;Tvec must be an integral type&quot;</span>);</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordflow">return</span> *FGE_MATRIX_GET(<span class="keyword">const</span> T, this-&gt;g_mdata.get(), this-&gt;g_msize.y, <span class="keyword">static_cast&lt;</span>std::size_t<span class="keyword">&gt;</span>(coord.x),</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordflow">return</span> *FGE_MATRIX_GET(T <span class="keyword">const</span>, this-&gt;g_mdata.get(), this-&gt;g_msize.y, <span class="keyword">static_cast&lt;</span>std::size_t<span class="keyword">&gt;</span>(coord.x),</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                           <span class="keyword">static_cast&lt;</span>std::size_t<span class="keyword">&gt;</span>(coord.y));</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>}</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
@@ -255,7 +255,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="keyword"></span>{</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordflow">if</span> ((x &lt; this-&gt;g_msize.x) &amp;&amp; (y &lt; this-&gt;g_msize.y))</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    {</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        buff = *FGE_MATRIX_GET(<span class="keyword">const</span> T, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, y);</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        buff = *FGE_MATRIX_GET(T <span class="keyword">const</span>, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, y);</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    }</div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -300,7 +300,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keyword"></span>{</div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordflow">if</span> ((x &lt; this-&gt;g_msize.x) &amp;&amp; (y &lt; this-&gt;g_msize.y))</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    {</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>        <span class="keywordflow">return</span> FGE_MATRIX_GET(<span class="keyword">const</span> T, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, y);</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>        <span class="keywordflow">return</span> FGE_MATRIX_GET(T <span class="keyword">const</span>, this-&gt;g_mdata.get(), this-&gt;g_msize.y, x, y);</div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    }</div>
 <div class="foldopen" id="foldopen00184" data-start="{" data-end="}">
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="classfge_1_1Matrix.html#a1344806619919e06c63881d259fef779">  184</a></span>    <span class="keywordflow">return</span> <span class="keyword">nullptr</span>;</div>
@@ -355,7 +355,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00222" data-start="{" data-end="}">
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno"><a class="line" href="classfge_1_1Matrix.html#ac1b7ab54d39571cc6c55d414728326c3">  222</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1Matrix.html#a1344806619919e06c63881d259fef779">Matrix&lt;T&gt;::set</a>(std::initializer_list&lt;std::initializer_list&lt;T&gt;&gt; data)</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>{</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keyword">const</span> std::size_t sizey = data.size();</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    std::size_t <span class="keyword">const</span> sizey = data.size();</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    std::size_t sizex = 0;</div>
 <div class="foldopen" id="foldopen00226" data-start="{" data-end="}">
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno"><a class="line" href="classfge_1_1Matrix.html#a2918e4d51ea0a0e1a1681a577c5a33e9">  226</a></span>    <span class="keywordflow">if</span> (sizey &gt; 0)</div>

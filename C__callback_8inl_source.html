@@ -195,7 +195,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00092" data-start="{" data-end="}">
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="classfge_1_1CallbackHandler.html#ad4b0cf49f5fb5476027047c566a5fdbf">   92</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1CallbackHandler.html#ad4b0cf49f5fb5476027047c566a5fdbf">CallbackHandler&lt;Types...&gt;::clear</a>()</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>{</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    std::lock_guard&lt;std::recursive_mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    std::scoped_lock&lt;std::recursive_mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    this-&gt;detachAll();</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    this-&gt;g_callees.clear();</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>}</div>
@@ -205,7 +205,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00100" data-start="{" data-end="}">
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="classfge_1_1CallbackHandler.html#a21160f05ee749c2e01b154a30ebcb2d5">  100</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1CallbackHandler.html#a21160f05ee749c2e01b154a30ebcb2d5">CallbackHandler&lt;Types...&gt;::add</a>(<a class="code hl_class" href="classfge_1_1CallbackFunctorBase.html">fge::CallbackFunctorBase&lt;Types...&gt;</a>* callback, <a class="code hl_class" href="classfge_1_1Subscriber.html">fge::Subscriber</a>* subscriber)</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>{</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    std::lock_guard&lt;std::recursive_mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    std::scoped_lock&lt;std::recursive_mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    this-&gt;attach(subscriber);</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    this-&gt;g_callees.push_front({<span class="keyword">typename</span> fge::CallbackHandler&lt;Types...&gt;::CalleePtr(callback), subscriber});</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}</div>
@@ -214,7 +214,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00107" data-start="{" data-end="}">
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="classfge_1_1CallbackHandler.html#a138ff92d078bfba5f4cbfd8fb1d98f00">  107</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1CallbackHandler.html#a138ff92d078bfba5f4cbfd8fb1d98f00">CallbackHandler&lt;Types...&gt;::delPtr</a>(<span class="keywordtype">void</span>* ptr)</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>{</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    std::lock_guard&lt;std::recursive_mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    std::scoped_lock&lt;std::recursive_mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keyword">typename</span> <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;Types...&gt;::CalleeList::iterator prev = this-&gt;g_callees.before_begin();</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordflow">for</span> (<span class="keyword">typename</span> <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler&lt;Types...&gt;::CalleeList::iterator</a> it = this-&gt;g_callees.begin();</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>         it != this-&gt;g_callees.end(); ++it)</div>
@@ -240,7 +240,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00131" data-start="{" data-end="}">
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno"><a class="line" href="classfge_1_1CallbackHandler.html#a2e169701b8748204929c26c52faf4cb1">  131</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1CallbackHandler.html#a2e169701b8748204929c26c52faf4cb1">CallbackHandler&lt;Types...&gt;::del</a>(<a class="code hl_class" href="classfge_1_1Subscriber.html">fge::Subscriber</a>* subscriber)</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>{</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    std::lock_guard&lt;std::recursive_mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    std::scoped_lock&lt;std::recursive_mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keyword">typename</span> <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;Types...&gt;::CalleeList::iterator prev = this-&gt;g_callees.before_begin();</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keywordflow">for</span> (<span class="keyword">typename</span> <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler&lt;Types...&gt;::CalleeList::iterator</a> it = this-&gt;g_callees.begin();</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>         it != this-&gt;g_callees.end(); ++it)</div>
@@ -267,7 +267,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00156" data-start="{" data-end="}">
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno"><a class="line" href="classfge_1_1CallbackHandler.html#ab36291e056abe0e7b18a947868c5f8aa">  156</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1CallbackHandler.html#ab36291e056abe0e7b18a947868c5f8aa">CallbackHandler&lt;Types...&gt;::call</a>(Types... args)</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>{</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    std::lock_guard&lt;std::recursive_mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    std::scoped_lock&lt;std::recursive_mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keyword">auto</span> itCalleeNext = this-&gt;g_callees.begin();</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> itCallee = this-&gt;g_callees.begin(); itCallee != this-&gt;g_callees.end(); itCallee = itCalleeNext)</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    {</div>
@@ -281,7 +281,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="foldopen" id="foldopen00168" data-start="{" data-end="}">
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno"><a class="line" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">  168</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1CallbackHandler.html#a65446748a81112d12b0cce8ede673224">CallbackHandler&lt;Types...&gt;::onDetach</a>(<a class="code hl_class" href="classfge_1_1Subscriber.html">fge::Subscriber</a>* subscriber)</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>{</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    std::lock_guard&lt;std::recursive_mutex&gt; lck(this-&gt;g_mutex);</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    std::scoped_lock&lt;std::recursive_mutex&gt; <span class="keyword">const</span> lck(this-&gt;g_mutex);</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keyword">typename</span> <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;Types...&gt;::CalleeList::iterator prev = this-&gt;g_callees.before_begin();</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordflow">for</span> (<span class="keyword">typename</span> <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler&lt;Types...&gt;::CalleeList::iterator</a> it = this-&gt;g_callees.begin();</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>         it != this-&gt;g_callees.end(); ++it)</div>

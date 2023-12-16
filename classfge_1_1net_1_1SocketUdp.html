@@ -144,7 +144,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a22cdd861777c8907995b8d5683458f24" id="r_a22cdd861777c8907995b8d5683458f24"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1SocketUdp.html#a22cdd861777c8907995b8d5683458f24">connect</a> (<a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const &amp;remoteAddress, fge::net::Port remotePort)</td></tr>
 <tr class="memdesc:a22cdd861777c8907995b8d5683458f24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connect the socket to a remote address and port.  <br /></td></tr>
 <tr class="separator:a22cdd861777c8907995b8d5683458f24"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad878f4411c9794cc88fa379b865791aa" id="r_ad878f4411c9794cc88fa379b865791aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1SocketUdp.html#ad878f4411c9794cc88fa379b865791aa">bind</a> (fge::net::Port port, <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const &amp;address=<a class="el" href="classfge_1_1net_1_1IpAddress.html#a9d082b9bafdaa67316d35740a536a7a5">fge::net::IpAddress::Any</a>)</td></tr>
+<tr class="memitem:ad878f4411c9794cc88fa379b865791aa" id="r_ad878f4411c9794cc88fa379b865791aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1SocketUdp.html#ad878f4411c9794cc88fa379b865791aa">bind</a> (fge::net::Port port, <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const &amp;address=<a class="el" href="classfge_1_1net_1_1IpAddress.html#a6cd7de8165bb287002bd46db33144578">fge::net::IpAddress::Any</a>)</td></tr>
 <tr class="memdesc:ad878f4411c9794cc88fa379b865791aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind the socket to a local address and port.  <br /></td></tr>
 <tr class="separator:ad878f4411c9794cc88fa379b865791aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad94f49ee94e83e6197d7b47ac75aeff7" id="r_ad94f49ee94e83e6197d7b47ac75aeff7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1SocketUdp.html#ad94f49ee94e83e6197d7b47ac75aeff7">send</a> (void const *data, std::size_t size)</td></tr>
@@ -303,7 +303,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const &amp;&#160;</td>
-          <td class="paramname"><em>address</em> = <code><a class="el" href="classfge_1_1net_1_1IpAddress.html#a9d082b9bafdaa67316d35740a536a7a5">fge::net::IpAddress::Any</a></code>&#160;</td>
+          <td class="paramname"><em>address</em> = <code><a class="el" href="classfge_1_1net_1_1IpAddress.html#a6cd7de8165bb287002bd46db33144578">fge::net::IpAddress::Any</a></code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -447,7 +447,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 <p>Get the local address of the socket. </p>
 <p>From MSDN: This function provide the only way to determine the local association that has been set by the system.</p>
-<dl class="section return"><dt>Returns</dt><dd>The local address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#af59280af9128b8ab3e2d08809befb5ea" title="Represent an invalid IpAddress.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The local address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#ada1d1fafe5862a21c9d393f1d9fbb8a1" title="Represent an invalid IpAddress.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
 
 </div>
 </div>
@@ -533,7 +533,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 <p>Get the remote address of the socket. </p>
 <p>From MSDN: For datagram sockets, only the address of a peer specified in a previous connect call will be returned. Any address specified by a previous sendto call will not be returned.</p>
-<dl class="section return"><dt>Returns</dt><dd>The remote address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#af59280af9128b8ab3e2d08809befb5ea" title="Represent an invalid IpAddress.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The remote address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#ada1d1fafe5862a21c9d393f1d9fbb8a1" title="Represent an invalid IpAddress.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
 
 </div>
 </div>

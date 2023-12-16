@@ -133,15 +133,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a451b2cfcc024f6ce1b3f57956ff2702b" id="r_a451b2cfcc024f6ce1b3f57956ff2702b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a451b2cfcc024f6ce1b3f57956ff2702b">clearPackets</a> ()</td></tr>
 <tr class="memdesc:a451b2cfcc024f6ce1b3f57956ff2702b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the packet queue.  <br /></td></tr>
 <tr class="separator:a451b2cfcc024f6ce1b3f57956ff2702b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed30606e282fa550cc22429c480b0a9b" id="r_aed30606e282fa550cc22429c480b0a9b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#aed30606e282fa550cc22429c480b0a9b">pushPacket</a> (<a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> const &amp;pck)</td></tr>
-<tr class="memdesc:aed30606e282fa550cc22429c480b0a9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a packet to the queue.  <br /></td></tr>
-<tr class="separator:aed30606e282fa550cc22429c480b0a9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af229caffd9e0f9caa1610e9b0a5cd543" id="r_af229caffd9e0f9caa1610e9b0a5cd543"><td class="memItemLeft" align="right" valign="top"><a id="af229caffd9e0f9caa1610e9b0a5cd543" name="af229caffd9e0f9caa1610e9b0a5cd543"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pushPacket</b> (<a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> &amp;&amp;pck)</td></tr>
-<tr class="separator:af229caffd9e0f9caa1610e9b0a5cd543"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae87e8325e2103b8486b4a2a38466075" id="r_aae87e8325e2103b8486b4a2a38466075"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#aae87e8325e2103b8486b4a2a38466075">popPacket</a> ()</td></tr>
-<tr class="memdesc:aae87e8325e2103b8486b4a2a38466075"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop a packet from the queue.  <br /></td></tr>
-<tr class="separator:aae87e8325e2103b8486b4a2a38466075"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a802db6bc14e5ab831f045a1daeeb445e" id="r_a802db6bc14e5ab831f045a1daeeb445e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#a802db6bc14e5ab831f045a1daeeb445e">pushPacket</a> (fge::net::TransmissionPacketPtr pck)</td></tr>
+<tr class="memdesc:a802db6bc14e5ab831f045a1daeeb445e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a <a class="el" href="classfge_1_1net_1_1TransmissionPacket.html" title="A packet with configurable options to transmit via a network thread.">TransmissionPacket</a> to the queue.  <br /></td></tr>
+<tr class="separator:a802db6bc14e5ab831f045a1daeeb445e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac04a33a2887b50b434dbb51fbf96c396" id="r_ac04a33a2887b50b434dbb51fbf96c396"><td class="memItemLeft" align="right" valign="top">fge::net::TransmissionPacketPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#ac04a33a2887b50b434dbb51fbf96c396">popPacket</a> ()</td></tr>
+<tr class="memdesc:ac04a33a2887b50b434dbb51fbf96c396"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop a packet from the queue.  <br /></td></tr>
+<tr class="separator:ac04a33a2887b50b434dbb51fbf96c396"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af044244df233dd95253ebac4c48e696d" id="r_af044244df233dd95253ebac4c48e696d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html#af044244df233dd95253ebac4c48e696d">isPendingPacketsEmpty</a> ()</td></tr>
 <tr class="memdesc:af044244df233dd95253ebac4c48e696d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the packet queue is empty.  <br /></td></tr>
 <tr class="separator:af044244df233dd95253ebac4c48e696d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -539,14 +536,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aae87e8325e2103b8486b4a2a38466075" name="aae87e8325e2103b8486b4a2a38466075"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae87e8325e2103b8486b4a2a38466075">&#9670;&#160;</a></span>popPacket()</h2>
+<a id="ac04a33a2887b50b434dbb51fbf96c396" name="ac04a33a2887b50b434dbb51fbf96c396"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac04a33a2887b50b434dbb51fbf96c396">&#9670;&#160;</a></span>popPacket()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> fge::net::Client::popPacket </td>
+          <td class="memname">fge::net::TransmissionPacketPtr fge::net::Client::popPacket </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -559,8 +556,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aed30606e282fa550cc22429c480b0a9b" name="aed30606e282fa550cc22429c480b0a9b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed30606e282fa550cc22429c480b0a9b">&#9670;&#160;</a></span>pushPacket()</h2>
+<a id="a802db6bc14e5ab831f045a1daeeb445e" name="a802db6bc14e5ab831f045a1daeeb445e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a802db6bc14e5ab831f045a1daeeb445e">&#9670;&#160;</a></span>pushPacket()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -568,14 +565,14 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">void fge::net::Client::pushPacket </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> const &amp;&#160;</td>
+          <td class="paramtype">fge::net::TransmissionPacketPtr&#160;</td>
           <td class="paramname"><em>pck</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Add a packet to the queue. </p>
+<p>Add a <a class="el" href="classfge_1_1net_1_1TransmissionPacket.html" title="A packet with configurable options to transmit via a network thread.">TransmissionPacket</a> to the queue. </p>
 <p>The packet will be sent when the network thread is ready to send it. The network thread is ready to send a packet when the time interval between the last sent packet is greater than the latency of the server-&gt;client.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">

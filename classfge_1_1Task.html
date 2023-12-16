@@ -106,9 +106,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2b63d3054b6fd1b4fba0b0bf0f728455" id="r_a2b63d3054b6fd1b4fba0b0bf0f728455"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Task.html#a2b63d3054b6fd1b4fba0b0bf0f728455">pack</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)=0</td></tr>
 <tr class="memdesc:a2b63d3054b6fd1b4fba0b0bf0f728455"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack the task data into a packet.  <br /></td></tr>
 <tr class="separator:a2b63d3054b6fd1b4fba0b0bf0f728455"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1398f1a1e5fbda2580cc1ff5595e2eb0" id="r_a1398f1a1e5fbda2580cc1ff5595e2eb0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Task.html#a1398f1a1e5fbda2580cc1ff5595e2eb0">unpackAndInit</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)=0</td></tr>
-<tr class="memdesc:a1398f1a1e5fbda2580cc1ff5595e2eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unpack the task data from a packet and initialize the task.  <br /></td></tr>
-<tr class="separator:a1398f1a1e5fbda2580cc1ff5595e2eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f3db24b6c912dce48fe5959fddb7bf4" id="r_a8f3db24b6c912dce48fe5959fddb7bf4"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Task.html#a8f3db24b6c912dce48fe5959fddb7bf4">unpackAndInit</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> const &amp;pck)=0</td></tr>
+<tr class="memdesc:a8f3db24b6c912dce48fe5959fddb7bf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unpack the task data from a packet and initialize the task.  <br /></td></tr>
+<tr class="separator:a8f3db24b6c912dce48fe5959fddb7bf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b01173b8d37bd8ced6fea4f02903ae6" id="r_a6b01173b8d37bd8ced6fea4f02903ae6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Task.html#a6b01173b8d37bd8ced6fea4f02903ae6">getParentObject</a> () const</td></tr>
 <tr class="memdesc:a6b01173b8d37bd8ced6fea4f02903ae6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the parent object of the task.  <br /></td></tr>
 <tr class="separator:a6b01173b8d37bd8ced6fea4f02903ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -284,8 +284,8 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>NetworkTypeTasks</b>
 
 </div>
 </div>
-<a id="a1398f1a1e5fbda2580cc1ff5595e2eb0" name="a1398f1a1e5fbda2580cc1ff5595e2eb0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1398f1a1e5fbda2580cc1ff5595e2eb0">&#9670;&#160;</a></span>unpackAndInit()</h2>
+<a id="a8f3db24b6c912dce48fe5959fddb7bf4" name="a8f3db24b6c912dce48fe5959fddb7bf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f3db24b6c912dce48fe5959fddb7bf4">&#9670;&#160;</a></span>unpackAndInit()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -296,7 +296,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>NetworkTypeTasks</b>
         <tr>
           <td class="memname">virtual void fge::Task::unpackAndInit </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> const &amp;&#160;</td>
           <td class="paramname"><em>pck</em></td><td>)</td>
           <td></td>
         </tr>

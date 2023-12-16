@@ -84,14 +84,20 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A packet to send to the network thread.  <a href="structfge_1_1net_1_1SendQueuePacket.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1TransmissionPacket.html">fge::net::TransmissionPacket</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A packet with configurable options to transmit via a network thread.  <a href="classfge_1_1net_1_1TransmissionPacket.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1OneWayLatencyPlanner.html">fge::net::OneWayLatencyPlanner</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A helper class that measure latency between client/server.  <a href="classfge_1_1net_1_1OneWayLatencyPlanner.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Client.html">fge::net::Client</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class that represent the identity of a client.  <a href="classfge_1_1net_1_1Client.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfge_1_1SceneNetEvent.html">fge::SceneNetEvent</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure that represent an network event related to <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.  <a href="structfge_1_1SceneNetEvent.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1NetworkTypeTasks.html">fge::NetworkTypeTasks</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Network type for the <a class="el" href="classfge_1_1TaskHandler.html" title="Handle the tasks of an object.">TaskHandler</a>.  <a href="classfge_1_1NetworkTypeTasks.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an event on the client list (client added, client removed, ...)  <a href="structfge_1_1net_1_1ClientListEvent.html#details">More...</a><br /></td></tr>
@@ -138,8 +144,17 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network type for a container.  <a href="classfge_1_1net_1_1NetworkTypeContainer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfge_1_1SceneNetEvent.html">fge::SceneNetEvent</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure that represent an network event related to <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.  <a href="structfge_1_1SceneNetEvent.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1SceneUpdateCache.html">fge::SceneUpdateCache</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A cache for scene updates.  <a href="classfge_1_1SceneUpdateCache.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetFluxUdp.html">fge::net::NetFluxUdp</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A network flux.  <a href="classfge_1_1net_1_1NetFluxUdp.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ServerSideNetUdp.html">fge::net::ServerSideNetUdp</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A server side network manager.  <a href="classfge_1_1net_1_1ServerSideNetUdp.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientSideNetUdp.html">fge::net::ClientSideNetUdp</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A client side network manager.  <a href="classfge_1_1net_1_1ClientSideNetUdp.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1Socket.html">fge::net::Socket</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A base class wrapper for low-level network functions.  <a href="classfge_1_1net_1_1Socket.html#details">More...</a><br /></td></tr>
@@ -152,9 +167,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1SocketListenerTcp.html">fge::net::SocketListenerTcp</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A wrapper for TCP listener sockets inheriting from <a class="el" href="classfge_1_1net_1_1Socket.html" title="A base class wrapper for low-level network functions.">Socket</a>.  <a href="classfge_1_1net_1_1SocketListenerTcp.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1NetworkTypeTasks.html">fge::NetworkTypeTasks</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Network type for the <a class="el" href="classfge_1_1TaskHandler.html" title="Handle the tasks of an object.">TaskHandler</a>.  <a href="classfge_1_1NetworkTypeTasks.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -174,6 +186,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga67e842bbf62052bdb51991c219cf29dc" id="r_ga67e842bbf62052bdb51991c219cf29dc"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__network.html#ga67e842bbf62052bdb51991c219cf29dc">fge::net::Latency_ms</a> = uint16_t</td></tr>
 <tr class="memdesc:ga67e842bbf62052bdb51991c219cf29dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">An latency represent the latency of the client-&gt;server / server-&gt;client connection.  <br /></td></tr>
 <tr class="separator:ga67e842bbf62052bdb51991c219cf29dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6c05a2b8c50da0e2a99211c1db17e5d7" id="r_ga6c05a2b8c50da0e2a99211c1db17e5d7"><td class="memItemLeft" align="right" valign="top"><a id="ga6c05a2b8c50da0e2a99211c1db17e5d7" name="ga6c05a2b8c50da0e2a99211c1db17e5d7"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>fge::net::TransmissionPacketPtr</b> = std::shared_ptr&lt; <a class="el" href="classfge_1_1net_1_1TransmissionPacket.html">fge::net::TransmissionPacket</a> &gt;</td></tr>
+<tr class="separator:ga6c05a2b8c50da0e2a99211c1db17e5d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>

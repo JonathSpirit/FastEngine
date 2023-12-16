@@ -91,69 +91,69 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a149b2df3274fe27910307cbdd4bfca78" id="r_a149b2df3274fe27910307cbdd4bfca78"><td class="memItemLeft" align="right" valign="top"><a id="a149b2df3274fe27910307cbdd4bfca78" name="a149b2df3274fe27910307cbdd4bfca78"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>ClientListData</b> = std::unordered_map&lt; <a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a>, fge::net::ClientSharedPtr, <a class="el" href="structfge_1_1net_1_1IdentityHash.html">fge::net::IdentityHash</a> &gt;</td></tr>
+<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ClientListData</b> = std::unordered_map&lt; <a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a>, fge::net::ClientSharedPtr, <a class="el" href="structfge_1_1net_1_1IdentityHash.html">fge::net::IdentityHash</a> &gt;</td></tr>
 <tr class="separator:a149b2df3274fe27910307cbdd4bfca78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3cb3f038fdf9f55df7151579317cc05f" id="r_a3cb3f038fdf9f55df7151579317cc05f"><td class="memItemLeft" align="right" valign="top"><a id="a3cb3f038fdf9f55df7151579317cc05f" name="a3cb3f038fdf9f55df7151579317cc05f"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>ClientEventList</b> = std::deque&lt; <a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> &gt;</td></tr>
+<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">using</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ClientEventList</b> = std::deque&lt; <a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> &gt;</td></tr>
 <tr class="separator:a3cb3f038fdf9f55df7151579317cc05f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1120e7d5fdcffff91a63016b82788821" id="r_a1120e7d5fdcffff91a63016b82788821"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a1120e7d5fdcffff91a63016b82788821">clear</a> ()</td></tr>
+<tr class="memitem:a1120e7d5fdcffff91a63016b82788821" id="r_a1120e7d5fdcffff91a63016b82788821"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a1120e7d5fdcffff91a63016b82788821">clear</a> ()</td></tr>
 <tr class="memdesc:a1120e7d5fdcffff91a63016b82788821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the client list and the event list.  <br /></td></tr>
 <tr class="separator:a1120e7d5fdcffff91a63016b82788821"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69117490e2401ce6efb00851d686754e" id="r_a69117490e2401ce6efb00851d686754e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a69117490e2401ce6efb00851d686754e">sendToAll</a> (<a class="el" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a> &amp;socket, <a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)</td></tr>
+<tr class="memitem:a69117490e2401ce6efb00851d686754e" id="r_a69117490e2401ce6efb00851d686754e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a69117490e2401ce6efb00851d686754e">sendToAll</a> (<a class="el" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">socket</a>, <a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">pck</a>)</td></tr>
 <tr class="memdesc:a69117490e2401ce6efb00851d686754e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Directly send a packet to every clients in the list.  <br /></td></tr>
 <tr class="separator:a69117490e2401ce6efb00851d686754e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1cc164bcbf0f564ceab4ea0d426980ec" id="r_a1cc164bcbf0f564ceab4ea0d426980ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a1cc164bcbf0f564ceab4ea0d426980ec">sendToAll</a> (<a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> const &amp;pck)</td></tr>
-<tr class="memdesc:a1cc164bcbf0f564ceab4ea0d426980ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a packet to every clients in the list.  <br /></td></tr>
-<tr class="separator:a1cc164bcbf0f564ceab4ea0d426980ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac0f97bec374ccae8d52d2fb3f0c5058" id="r_aac0f97bec374ccae8d52d2fb3f0c5058"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#aac0f97bec374ccae8d52d2fb3f0c5058">add</a> (<a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;id, fge::net::ClientSharedPtr const &amp;newClient)</td></tr>
+<tr class="memitem:a5f65b058880e7b9ebd75c28bf3e90a92" id="r_a5f65b058880e7b9ebd75c28bf3e90a92"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5f65b058880e7b9ebd75c28bf3e90a92">sendToAll</a> (fge::net::TransmissionPacketPtr <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">pck</a>)</td></tr>
+<tr class="memdesc:a5f65b058880e7b9ebd75c28bf3e90a92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a packet to every clients in the list.  <br /></td></tr>
+<tr class="separator:a5f65b058880e7b9ebd75c28bf3e90a92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac0f97bec374ccae8d52d2fb3f0c5058" id="r_aac0f97bec374ccae8d52d2fb3f0c5058"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#aac0f97bec374ccae8d52d2fb3f0c5058">add</a> (<a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">id</a>, fge::net::ClientSharedPtr <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">newClient</a>)</td></tr>
 <tr class="memdesc:aac0f97bec374ccae8d52d2fb3f0c5058"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a client to the list.  <br /></td></tr>
 <tr class="separator:aac0f97bec374ccae8d52d2fb3f0c5058"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04f0a4e078bae1769cca64d83652d71c" id="r_a04f0a4e078bae1769cca64d83652d71c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a04f0a4e078bae1769cca64d83652d71c">remove</a> (<a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;id)</td></tr>
+<tr class="memitem:a04f0a4e078bae1769cca64d83652d71c" id="r_a04f0a4e078bae1769cca64d83652d71c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a04f0a4e078bae1769cca64d83652d71c">remove</a> (<a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">id</a>)</td></tr>
 <tr class="memdesc:a04f0a4e078bae1769cca64d83652d71c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a client from the list.  <br /></td></tr>
 <tr class="separator:a04f0a4e078bae1769cca64d83652d71c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2f3725f692a605f2d43696c97f8f929" id="r_ab2f3725f692a605f2d43696c97f8f929"><td class="memItemLeft" align="right" valign="top">fge::net::ClientList::ClientListData::iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ab2f3725f692a605f2d43696c97f8f929">remove</a> (fge::net::ClientList::ClientListData::const_iterator itPos, std::unique_lock&lt; std::recursive_mutex &gt; const &amp;lock)</td></tr>
+<tr class="memitem:ab2f3725f692a605f2d43696c97f8f929" id="r_ab2f3725f692a605f2d43696c97f8f929"><td class="memItemLeft" align="right" valign="top">fge::net::ClientList::ClientListData::iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ab2f3725f692a605f2d43696c97f8f929">remove</a> (fge::net::ClientList::ClientListData::const_iterator <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">itPos</a>, std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">lock</a>)</td></tr>
 <tr class="memdesc:ab2f3725f692a605f2d43696c97f8f929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a client from the list.  <br /></td></tr>
 <tr class="separator:ab2f3725f692a605f2d43696c97f8f929"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5be8d07fed368543e55cf5012e52c70f" id="r_a5be8d07fed368543e55cf5012e52c70f"><td class="memItemLeft" align="right" valign="top">fge::net::ClientSharedPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">get</a> (<a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;id) const</td></tr>
 <tr class="memdesc:a5be8d07fed368543e55cf5012e52c70f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a client from the list.  <br /></td></tr>
 <tr class="separator:a5be8d07fed368543e55cf5012e52c70f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab400f0dd0bc0fe61570ea6010a8531d4" id="r_ab400f0dd0bc0fe61570ea6010a8531d4"><td class="memItemLeft" align="right" valign="top">std::unique_lock&lt; std::recursive_mutex &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ab400f0dd0bc0fe61570ea6010a8531d4">acquireLock</a> () const</td></tr>
+<tr class="memitem:ab400f0dd0bc0fe61570ea6010a8531d4" id="r_ab400f0dd0bc0fe61570ea6010a8531d4"><td class="memItemLeft" align="right" valign="top">std::unique_lock&lt; std::recursive_mutex &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ab400f0dd0bc0fe61570ea6010a8531d4">acquireLock</a> () <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="memdesc:ab400f0dd0bc0fe61570ea6010a8531d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire a unique lock, with the <a class="el" href="classfge_1_1net_1_1ClientList.html" title="A list of clients used by a server.">ClientList</a> mutex.  <br /></td></tr>
 <tr class="separator:ab400f0dd0bc0fe61570ea6010a8531d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab24fae1f6bd7f0f93f478dc469c531fb" id="r_ab24fae1f6bd7f0f93f478dc469c531fb"><td class="memItemLeft" align="right" valign="top">fge::net::ClientList::ClientListData::iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ab24fae1f6bd7f0f93f478dc469c531fb">begin</a> (std::unique_lock&lt; std::recursive_mutex &gt; const &amp;lock)</td></tr>
+<tr class="memitem:ab24fae1f6bd7f0f93f478dc469c531fb" id="r_ab24fae1f6bd7f0f93f478dc469c531fb"><td class="memItemLeft" align="right" valign="top">fge::net::ClientList::ClientListData::iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ab24fae1f6bd7f0f93f478dc469c531fb">begin</a> (std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">lock</a>)</td></tr>
 <tr class="memdesc:ab24fae1f6bd7f0f93f478dc469c531fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the begin iterator of the <a class="el" href="classfge_1_1net_1_1ClientList.html" title="A list of clients used by a server.">ClientList</a>.  <br /></td></tr>
 <tr class="separator:ab24fae1f6bd7f0f93f478dc469c531fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40bc0adf499fdc71792af774686979d9" id="r_a40bc0adf499fdc71792af774686979d9"><td class="memItemLeft" align="right" valign="top"><a id="a40bc0adf499fdc71792af774686979d9" name="a40bc0adf499fdc71792af774686979d9"></a>
-fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> (std::unique_lock&lt; std::recursive_mutex &gt; const &amp;lock) const</td></tr>
+fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> (std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">lock</a>) <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="separator:a40bc0adf499fdc71792af774686979d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57d99c1c080746febdbf430ac81c5945" id="r_a57d99c1c080746febdbf430ac81c5945"><td class="memItemLeft" align="right" valign="top"><a id="a57d99c1c080746febdbf430ac81c5945" name="a57d99c1c080746febdbf430ac81c5945"></a>
-fge::net::ClientList::ClientListData::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> (std::unique_lock&lt; std::recursive_mutex &gt; const &amp;lock)</td></tr>
+fge::net::ClientList::ClientListData::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> (std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">lock</a>)</td></tr>
 <tr class="separator:a57d99c1c080746febdbf430ac81c5945"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4e33a407c3e33eb5ed92380c124f646" id="r_ad4e33a407c3e33eb5ed92380c124f646"><td class="memItemLeft" align="right" valign="top"><a id="ad4e33a407c3e33eb5ed92380c124f646" name="ad4e33a407c3e33eb5ed92380c124f646"></a>
-fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> (std::unique_lock&lt; std::recursive_mutex &gt; const &amp;lock) const</td></tr>
+fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> (std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">lock</a>) <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="separator:ad4e33a407c3e33eb5ed92380c124f646"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca43bc63b3ab0c2de3d0a3a999f65a34" id="r_aca43bc63b3ab0c2de3d0a3a999f65a34"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#aca43bc63b3ab0c2de3d0a3a999f65a34">getSize</a> () const</td></tr>
+<tr class="memitem:aca43bc63b3ab0c2de3d0a3a999f65a34" id="r_aca43bc63b3ab0c2de3d0a3a999f65a34"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#aca43bc63b3ab0c2de3d0a3a999f65a34">getSize</a> () <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="memdesc:aca43bc63b3ab0c2de3d0a3a999f65a34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of clients in the list.  <br /></td></tr>
 <tr class="separator:aca43bc63b3ab0c2de3d0a3a999f65a34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70475bf80bead69e0de7265fe73deebb" id="r_a70475bf80bead69e0de7265fe73deebb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a70475bf80bead69e0de7265fe73deebb">watchEvent</a> (bool on)</td></tr>
+<tr class="memitem:a70475bf80bead69e0de7265fe73deebb" id="r_a70475bf80bead69e0de7265fe73deebb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a70475bf80bead69e0de7265fe73deebb">watchEvent</a> (<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">bool</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">on</a>)</td></tr>
 <tr class="memdesc:a70475bf80bead69e0de7265fe73deebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable or disable the gathering of client events.  <br /></td></tr>
 <tr class="separator:a70475bf80bead69e0de7265fe73deebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1489086cb3dbd5ff4e5b5e7e17800dda" id="r_a1489086cb3dbd5ff4e5b5e7e17800dda"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a1489086cb3dbd5ff4e5b5e7e17800dda">isWatchingEvent</a> () const</td></tr>
+<tr class="memitem:a1489086cb3dbd5ff4e5b5e7e17800dda" id="r_a1489086cb3dbd5ff4e5b5e7e17800dda"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a1489086cb3dbd5ff4e5b5e7e17800dda">isWatchingEvent</a> () <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="memdesc:a1489086cb3dbd5ff4e5b5e7e17800dda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the gathering of client events is enabled.  <br /></td></tr>
 <tr class="separator:a1489086cb3dbd5ff4e5b5e7e17800dda"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4051f34e84d56df83aad146e993c3eb" id="r_ac4051f34e84d56df83aad146e993c3eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ac4051f34e84d56df83aad146e993c3eb">pushClientEvent</a> (<a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> const &amp;evt)</td></tr>
+<tr class="memitem:ac4051f34e84d56df83aad146e993c3eb" id="r_ac4051f34e84d56df83aad146e993c3eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#ac4051f34e84d56df83aad146e993c3eb">pushClientEvent</a> (<a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;<a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">evt</a>)</td></tr>
 <tr class="memdesc:ac4051f34e84d56df83aad146e993c3eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manually push a client event.  <br /></td></tr>
 <tr class="separator:ac4051f34e84d56df83aad146e993c3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89db97d313f027ff4507a63f2a8eb4ec" id="r_a89db97d313f027ff4507a63f2a8eb4ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a89db97d313f027ff4507a63f2a8eb4ec">getClientEvent</a> (std::size_t index) const</td></tr>
+<tr class="memitem:a89db97d313f027ff4507a63f2a8eb4ec" id="r_a89db97d313f027ff4507a63f2a8eb4ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a89db97d313f027ff4507a63f2a8eb4ec">getClientEvent</a> (std::size_t <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">index</a>) <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="memdesc:a89db97d313f027ff4507a63f2a8eb4ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the client event with its index.  <br /></td></tr>
 <tr class="separator:a89db97d313f027ff4507a63f2a8eb4ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af937c6307c70fa799b6efd6999959013" id="r_af937c6307c70fa799b6efd6999959013"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#af937c6307c70fa799b6efd6999959013">getClientEventSize</a> () const</td></tr>
+<tr class="memitem:af937c6307c70fa799b6efd6999959013" id="r_af937c6307c70fa799b6efd6999959013"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#af937c6307c70fa799b6efd6999959013">getClientEventSize</a> () <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a></td></tr>
 <tr class="memdesc:af937c6307c70fa799b6efd6999959013"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of client events.  <br /></td></tr>
 <tr class="separator:af937c6307c70fa799b6efd6999959013"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2da4bef5133f9244165692e5adbd6aa1" id="r_a2da4bef5133f9244165692e5adbd6aa1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a2da4bef5133f9244165692e5adbd6aa1">clearClientEvent</a> ()</td></tr>
+<tr class="memitem:a2da4bef5133f9244165692e5adbd6aa1" id="r_a2da4bef5133f9244165692e5adbd6aa1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1ClientList.html#a2da4bef5133f9244165692e5adbd6aa1">clearClientEvent</a> ()</td></tr>
 <tr class="memdesc:a2da4bef5133f9244165692e5adbd6aa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the client event list.  <br /></td></tr>
 <tr class="separator:a2da4bef5133f9244165692e5adbd6aa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -188,15 +188,15 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::add </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::add </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
           <td class="paramname"><em>id</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">fge::net::ClientSharedPtr const &amp;&#160;</td>
+          <td class="paramtype">fge::net::ClientSharedPtr <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
           <td class="paramname"><em>newClient</em>&#160;</td>
         </tr>
         <tr>
@@ -227,7 +227,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
         <tr>
           <td class="memname">fge::net::ClientList::ClientListData::iterator fge::net::ClientList::begin </td>
           <td>(</td>
-          <td class="paramtype">std::unique_lock&lt; std::recursive_mutex &gt; const &amp;&#160;</td>
+          <td class="paramtype">std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
           <td class="paramname"><em>lock</em></td><td>)</td>
           <td></td>
         </tr>
@@ -256,7 +256,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::clear </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::clear </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -275,7 +275,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::clearClientEvent </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::clearClientEvent </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -322,7 +322,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> const  &amp; fge::net::ClientList::getClientEvent </td>
+          <td class="memname"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a>  &amp; fge::net::ClientList::getClientEvent </td>
           <td>(</td>
           <td class="paramtype">std::size_t&#160;</td>
           <td class="paramname"><em>index</em></td><td>)</td>
@@ -383,7 +383,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool fge::net::ClientList::isWatchingEvent </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">bool</a> fge::net::ClientList::isWatchingEvent </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -403,9 +403,9 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::pushClientEvent </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::pushClientEvent </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> const &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1ClientListEvent.html">fge::net::ClientListEvent</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
           <td class="paramname"><em>evt</em></td><td>)</td>
           <td></td>
         </tr>
@@ -437,7 +437,7 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::unique_lock&lt; std::recursive_mutex &gt; const &amp;&#160;</td>
+          <td class="paramtype">std::unique_lock&lt; std::recursive_mutex &gt; <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
           <td class="paramname"><em>lock</em>&#160;</td>
         </tr>
         <tr>
@@ -468,9 +468,9 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::remove </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::remove </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> const &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1Identity.html">fge::net::Identity</a> <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td></td>
         </tr>
@@ -487,40 +487,14 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 
 </div>
 </div>
-<a id="a1cc164bcbf0f564ceab4ea0d426980ec" name="a1cc164bcbf0f564ceab4ea0d426980ec"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1cc164bcbf0f564ceab4ea0d426980ec">&#9670;&#160;</a></span>sendToAll() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::net::ClientList::sendToAll </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structfge_1_1net_1_1SendQueuePacket.html">fge::net::SendQueuePacket</a> const &amp;&#160;</td>
-          <td class="paramname"><em>pck</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Push a packet to every clients in the list. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pck</td><td>The packet to push </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="a69117490e2401ce6efb00851d686754e" name="a69117490e2401ce6efb00851d686754e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a69117490e2401ce6efb00851d686754e">&#9670;&#160;</a></span>sendToAll() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a69117490e2401ce6efb00851d686754e">&#9670;&#160;</a></span>sendToAll() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::sendToAll </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::sendToAll </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classfge_1_1net_1_1SocketUdp.html">fge::net::SocketUdp</a> &amp;&#160;</td>
           <td class="paramname"><em>socket</em>, </td>
@@ -551,6 +525,32 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 
 </div>
 </div>
+<a id="a5f65b058880e7b9ebd75c28bf3e90a92" name="a5f65b058880e7b9ebd75c28bf3e90a92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f65b058880e7b9ebd75c28bf3e90a92">&#9670;&#160;</a></span>sendToAll() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::sendToAll </td>
+          <td>(</td>
+          <td class="paramtype">fge::net::TransmissionPacketPtr <a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">const</a> &amp;&#160;</td>
+          <td class="paramname"><em>pck</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Push a packet to every clients in the list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pck</td><td>The packet to push </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a70475bf80bead69e0de7265fe73deebb" name="a70475bf80bead69e0de7265fe73deebb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a70475bf80bead69e0de7265fe73deebb">&#9670;&#160;</a></span>watchEvent()</h2>
 
@@ -558,9 +558,9 @@ fge::net::ClientList::ClientListData::const_iterator&#160;</td><td class="memIte
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void fge::net::ClientList::watchEvent </td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">void</a> fge::net::ClientList::watchEvent </td>
           <td>(</td>
-          <td class="paramtype">bool&#160;</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1net_1_1ClientList.html#a5be8d07fed368543e55cf5012e52c70f">bool</a>&#160;</td>
           <td class="paramname"><em>on</em></td><td>)</td>
           <td></td>
         </tr>
