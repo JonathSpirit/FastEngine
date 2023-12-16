@@ -28,21 +28,26 @@ UniformBuffer::UniformBuffer(Context const& context) :
         g_uniformBuffer(VK_NULL_HANDLE),
         g_uniformBufferAllocation(VK_NULL_HANDLE),
         g_uniformBufferMapped(nullptr),
-        g_bufferSize(0)
+        g_bufferSize(0),
+        g_isStorageBuffer(false)
 #else
         ContextAware(context)
 #endif
 {}
-UniformBuffer::UniformBuffer([[maybe_unused]] UniformBuffer const& r) : ///TODO: better copy
+UniformBuffer::UniformBuffer(UniformBuffer const& r) :
         UniformBuffer(r.getContext())
-{}
+{
+    this->create(r.getBufferSize(), r.isStorageBuffer());
+    this->copyData(r.getBufferMapped(), static_cast<std::size_t>(r.getBufferSize()));
+}
 UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
 #ifndef FGE_DEF_SERVER
         g_uniformBuffer(r.g_uniformBuffer),
         g_uniformBufferAllocation(r.g_uniformBufferAllocation),
         g_uniformBufferMapped(r.g_uniformBufferMapped),
-        g_bufferSize(r.g_bufferSize)
+        g_bufferSize(r.g_bufferSize),
+        g_isStorageBuffer(r.g_isStorageBuffer)
 #else
         g_uniformBuffer(std::move(r.g_uniformBuffer))
 #endif
@@ -52,6 +57,7 @@ UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
     r.g_uniformBufferAllocation = VK_NULL_HANDLE;
     r.g_uniformBufferMapped = nullptr;
     r.g_bufferSize = 0;
+    r.g_isStorageBuffer = false;
 #endif
 }
 UniformBuffer::~UniformBuffer()
@@ -59,18 +65,55 @@ UniformBuffer::~UniformBuffer()
     this->destroy();
 }
 
+UniformBuffer& UniformBuffer::operator=(UniformBuffer const& r)
+{
+    this->verifyContext(r);
+    this->create(r.getBufferSize(), r.isStorageBuffer());
+    this->copyData(r.getBufferMapped(), static_cast<std::size_t>(r.getBufferSize()));
+    return *this;
+}
+UniformBuffer& UniformBuffer::operator=(UniformBuffer&& r) noexcept
+{
+    this->verifyContext(r);
+    this->destroy();
+#ifndef FGE_DEF_SERVER
+    this->g_uniformBuffer = r.g_uniformBuffer;
+    this->g_uniformBufferAllocation = r.g_uniformBufferAllocation;
+    this->g_uniformBufferMapped = r.g_uniformBufferMapped;
+    this->g_bufferSize = r.g_bufferSize;
+    this->g_isStorageBuffer = r.g_isStorageBuffer;
+
+    r.g_uniformBuffer = VK_NULL_HANDLE;
+    r.g_uniformBufferAllocation = VK_NULL_HANDLE;
+    r.g_uniformBufferMapped = nullptr;
+    r.g_bufferSize = 0;
+    r.g_isStorageBuffer = false;
+#else
+    this->g_uniformBuffer = std::move(r.g_uniformBuffer);
+#endif
+    return *this;
+}
+
 void UniformBuffer::create(VkDeviceSize bufferSize, [[maybe_unused]] bool isStorageBuffer)
 {
+#ifdef FGE_DEF_SERVER
     if (static_cast<std::size_t>(bufferSize) == 0)
     {
         this->destroy();
         return;
     }
 
-#ifdef FGE_DEF_SERVER
     this->destroy();
     this->g_uniformBuffer.resize(static_cast<std::size_t>(bufferSize));
 #else
+    this->g_isStorageBuffer = isStorageBuffer;
+
+    if (static_cast<std::size_t>(bufferSize) == 0)
+    {
+        this->destroy();
+        return;
+    }
+
     this->destroy();
 
     CreateBuffer(this->getContext(), bufferSize,
@@ -98,6 +141,7 @@ void UniformBuffer::destroy()
         this->g_uniformBufferAllocation = VK_NULL_HANDLE;
         this->g_uniformBufferMapped = nullptr;
         this->g_bufferSize = 0;
+        this->g_isStorageBuffer = false;
     }
 #endif
 }
@@ -119,6 +163,10 @@ VkDeviceSize UniformBuffer::getBufferSize() const
 {
     return this->g_bufferSize;
 }
+bool UniformBuffer::isStorageBuffer() const
+{
+    return this->g_isStorageBuffer;
+}
 #else
 VkBuffer UniformBuffer::getBuffer() const
 {
@@ -136,11 +184,18 @@ VkDeviceSize UniformBuffer::getBufferSize() const
 {
     return static_cast<VkDeviceSize>(this->g_uniformBuffer.size());
 }
+bool UniformBuffer::isStorageBuffer() const
+{
+    return false;
+}
 #endif
 
 void UniformBuffer::copyData(void const* data, std::size_t size) const
 {
-    memcpy(this->getBufferMapped(), data, size);
+    if (data != nullptr && size > 0)
+    {
+        memcpy(this->getBufferMapped(), data, size);
+    }
 }
 
 } // namespace fge::vulkan

@@ -37,8 +37,8 @@ public:
     UniformBuffer(UniformBuffer&& r) noexcept;
     ~UniformBuffer() override;
 
-    UniformBuffer& operator=(UniformBuffer const& r) = delete;     ///TODO
-    UniformBuffer& operator=(UniformBuffer&& r) noexcept = delete; ///TODO
+    UniformBuffer& operator=(UniformBuffer const& r);
+    UniformBuffer& operator=(UniformBuffer&& r) noexcept;
 
     void create(VkDeviceSize bufferSize, bool isStorageBuffer = false);
     void destroy() final;
@@ -47,6 +47,7 @@ public:
     [[nodiscard]] VmaAllocation getBufferAllocation() const;
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
+    [[nodiscard]] bool isStorageBuffer() const;
 
     void copyData(void const* data, std::size_t size) const;
 
@@ -56,6 +57,7 @@ private:
     VmaAllocation g_uniformBufferAllocation;
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
+    bool g_isStorageBuffer;
 #else
     mutable std::vector<uint8_t> g_uniformBuffer;
 #endif
