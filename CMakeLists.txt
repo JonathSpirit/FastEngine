@@ -371,6 +371,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_event.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_property.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_concavePolygon.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
@@ -482,6 +483,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_event.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_concavePolygon.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objAnim.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objButton.cpp")
@@ -622,15 +624,15 @@ elseif(APPLE)
     CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeServerExeDeps)
 endif()
 
-add_custom_command(TARGET FgeClientExeDeps PRE_BUILD
+add_custom_target(ResourcesSymlink
         COMMAND ${CMAKE_COMMAND} -E create_symlink
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+        BYPRODUCTS resources/
+        VERBATIM)
 
-add_custom_command(TARGET FgeServerExeDeps PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+add_dependencies(FgeClientExeDeps ResourcesSymlink)
+add_dependencies(FgeServerExeDeps ResourcesSymlink)
 
 #Set some variables that help exe linking
 if(WIN32)

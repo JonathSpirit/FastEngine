@@ -17,6 +17,7 @@
 #ifndef _FGE_C_LIGHTSYSTEM_HPP_INCLUDED
 #define _FGE_C_LIGHTSYSTEM_HPP_INCLUDED
 
+#include "FastEngine/C_concavePolygon.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/C_tunnel.hpp"
 
@@ -25,14 +26,14 @@
 namespace fge
 {
 
-class LightObstacle;
+class LightComponent;
 
 /**
  * \ingroup graphics
  * \brief An fge::Tunnel class that regroups all the lights and obstacles as a tunnel.
  */
-using LightSystem = fge::Tunnel<fge::LightObstacle>;
-using LightSystemGate = fge::TunnelGate<fge::LightObstacle>;
+using LightSystem = fge::Tunnel<fge::LightComponent>;
+using LightSystemGate = fge::TunnelGate<fge::LightComponent>;
 
 /**
  * \brief Get the default light system from a scene property
@@ -58,23 +59,53 @@ inline fge::LightSystem* GetDefaultLightSystem(fge::Scene* scene)
 class LightComponent
 {
 public:
-    explicit LightComponent(fge::LightObstacle* lightObstacle = nullptr) :
-            _g_lightSystemGate(lightObstacle)
+    inline LightComponent() :
+            _g_lightSystemGate(this)
     {}
+    inline LightComponent(fge::LightComponent const& r) :
+            _g_lightSystemGate(r._g_lightSystemGate)
+    {
+        this->_g_lightSystemGate.setData(this);
+    }
+    inline LightComponent(fge::LightComponent&& r) noexcept :
+            _g_lightSystemGate(std::move(r._g_lightSystemGate))
+    {
+        this->_g_lightSystemGate.setData(this);
+    }
+    virtual ~LightComponent() = default;
+
+    inline LightComponent& operator=(fge::LightComponent const& r)
+    {
+        this->_g_lightSystemGate = r._g_lightSystemGate;
+        this->_g_lightSystemGate.setData(this);
+        return *this;
+    }
+    inline LightComponent& operator=(fge::LightComponent&& r) noexcept
+    {
+        this->_g_lightSystemGate = std::move(r._g_lightSystemGate);
+        this->_g_lightSystemGate.setData(this);
+        return *this;
+    }
 
     /**
      * \brief Set the light system to be used by this light
      *
      * \param lightSystem The light system to use
      */
-    void setLightSystem(fge::LightSystem& lightSystem) { this->_g_lightSystemGate.openTo(lightSystem, true); }
+    inline void setLightSystem(fge::LightSystem& lightSystem)
+    {
+        this->_g_lightSystemGate.openTo(lightSystem, !this->isObstacle());
+    }
+
+    [[nodiscard]] inline virtual bool isObstacle() const { return false; }
+    inline virtual void updateObstacleShape() {}
 
     /**
      * \brief Retrieve the default light system from a scene
      *
      * \param scene The scene to get the light system from
      */
-    void setDefaultLightSystem(fge::Scene* scene)
+    inline void setDefaultLightSystem(fge::Scene* scene)
     {
         auto* ls = fge::GetDefaultLightSystem(scene);
         if (ls != nullptr)
@@ -88,40 +119,55 @@ protected:
 };
 
 /**
- * \class ObstacleComponent
+ * \class LightObstacle
  * \ingroup graphics
- * \brief A base class that define an obstacle component
+ * \brief A base class to define an obstacle for the light system
+ *
+ * An obstacle is a group of points that define the shape of the object.
  */
-class ObstacleComponent
+class LightObstacle : public fge::LightComponent
 {
 public:
-    explicit ObstacleComponent(fge::LightObstacle* lightObstacle = nullptr) :
-            _g_lightSystemGate(lightObstacle)
+    inline explicit LightObstacle(fge::Transformable const* transformableParent) :
+            g_transformableParent(transformableParent)
     {}
+    inline LightObstacle(fge::LightObstacle const& r, fge::Transformable const* transformableParent) :
+            fge::LightComponent(r),
+            g_transformableParent(transformableParent)
+    {}
+    inline LightObstacle(fge::LightObstacle&& r, fge::Transformable const* transformableParent) noexcept :
+            fge::LightComponent(std::move(static_cast<fge::LightComponent&&>(r))),
+            g_transformableParent(transformableParent)
+    {}
+    inline LightObstacle(fge::LightObstacle const& r) = delete;
+    inline LightObstacle(fge::LightObstacle&& r) noexcept = delete;
+    inline ~LightObstacle() override = default;
 
-    /**
-     * \brief Set the light system to be used by this light
-     *
-     * \param lightSystem The light system to use
-     */
-    void setLightSystem(fge::LightSystem& lightSystem) { this->_g_lightSystemGate.openTo(lightSystem, false); }
-
-    /**
-     * \brief Retrieve the default light system from a scene
-     *
-     * \param scene The scene to get the light system from
-     */
-    void setDefaultLightSystem(fge::Scene* scene)
+    inline fge::LightObstacle& operator=(fge::LightObstacle const& r)
     {
-        auto* ls = fge::GetDefaultLightSystem(scene);
-        if (ls)
-        {
-            this->setLightSystem(*ls);
-        }
+        LightComponent::operator=(static_cast<fge::LightComponent const&>(r));
+        return *this;
+    }
+    inline fge::LightObstacle& operator=(fge::LightObstacle&& r) noexcept
+    {
+        LightComponent::operator=(std::move(static_cast<fge::LightComponent&&>(r)));
+        return *this;
     }
 
+    [[nodiscard]] inline bool isObstacle() const final { return true; }
+
+    [[nodiscard]] inline fge::Transformable const& getTransformableParent() const
+    {
+        return *this->g_transformableParent;
+    }
+
+    [[nodiscard]] inline fge::ConcavePolygon const& getShape() const { return this->_g_shape; }
+
 protected:
-    fge::LightSystemGate _g_lightSystemGate;
+    fge::ConcavePolygon _g_shape;
+
+private:
+    fge::Transformable const* g_transformableParent;
 };
 
 } // namespace fge

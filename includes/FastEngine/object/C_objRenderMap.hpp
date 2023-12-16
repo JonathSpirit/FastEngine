@@ -18,7 +18,6 @@
 #define _FGE_C_OBJRENDERMAP_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
-#include "C_lightObstacle.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_tunnel.hpp"
 #include "FastEngine/graphic/C_renderTexture.hpp"

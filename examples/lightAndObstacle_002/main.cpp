@@ -26,7 +26,29 @@
 #include <FastEngine/C_scene.hpp>
 #include <iostream>
 
-//Create a obstacle class object
+std::vector<fge::Vector2f> ConvertTriangleStripTopologyToPolygon(fge::vulkan::Vertex const* vertices, std::size_t count)
+{
+    std::vector<fge::Vector2f> polygon;
+
+    for (size_t i = 1; i < count; ++i)
+    {
+        if (i % 2 != 0)
+        {
+            polygon.push_back(vertices[i]._position);
+        }
+    }
+    for (size_t i = count; i > 0; --i)
+    {
+        if ((i - 1) % 2 == 0)
+        {
+            polygon.push_back(vertices[i - 1]._position);
+        }
+    }
+
+    return polygon;
+}
+
+//Create an obstacle class object
 class Obstacle : public fge::Object, public fge::LightObstacle
 {
 public:
@@ -39,10 +61,17 @@ public:
     };
 
     Obstacle() :
+            fge::LightObstacle(this),
             g_vertices(fge::vulkan::GetActiveContext())
     {
         this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
     }
+    Obstacle(Obstacle const& r) :
+            fge::Object(r),
+            fge::LightObstacle(*this, this),
+            g_type(r.g_type),
+            g_vertices(r.g_vertices)
+    {}
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Obstacle)
 
@@ -66,12 +95,6 @@ public:
         {
             this->setPosition(screen.mapPixelToCoords(event.getMousePixelPos()));
         }
-
-        this->_g_myPoints.resize(this->g_vertices.getCount());
-        for (std::size_t i = 0; i < this->g_vertices.getCount(); ++i)
-        {
-            this->_g_myPoints[i] = this->getTransform() * this->g_vertices[i]._position;
-        }
     }
 
     void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override
@@ -87,6 +110,7 @@ public:
     {
         this->g_type = type;
         this->g_vertices.clear();
+        this->_g_shape.clear();
 
         switch (type)
         {
@@ -111,16 +135,20 @@ public:
             break;
         case ObstacleTypes::OBSTACLE_CONCAVE:
             this->g_vertices.append(fge::vulkan::Vertex{{0.0f, 0.0f}, fge::Color::Green});
-            this->g_vertices.append(fge::vulkan::Vertex{{10.0f, -20.0f}, fge::Color::Green});
+            this->g_vertices.append(fge::vulkan::Vertex{{0.0f, 20.0f}, fge::Color::Green});
+            this->g_vertices.append(fge::vulkan::Vertex{{10.0f, 10.0f}, fge::Color::Green});
+            this->g_vertices.append(fge::vulkan::Vertex{{20.0f, 20.0f}, fge::Color::Green});
             this->g_vertices.append(fge::vulkan::Vertex{{20.0f, 0.0f}, fge::Color::Green});
-
-            this->g_vertices.append(fge::vulkan::Vertex{{20.0f, 10.0f}, fge::Color::Green});
-            this->g_vertices.append(fge::vulkan::Vertex{{30.0f, 10.0f}, fge::Color::Green});
-
-            this->g_vertices.append(fge::vulkan::Vertex{{30.0f, -20.0f}, fge::Color::Green});
-            this->g_vertices.append(fge::vulkan::Vertex{{40.0f, 0.0f}, fge::Color::Green});
             break;
         }
+    }
+
+    void updateObstacleShape() override
+    {
+        auto vertices =
+                ConvertTriangleStripTopologyToPolygon(this->g_vertices.getVertices(), this->g_vertices.getCount());
+        this->_g_shape = fge::ConcavePolygon(std::move(vertices));
+        this->_g_shape.convexDecomposition();
     }
 
     char const* getClassName() const override { return "OBSTACLE"; }
@@ -155,6 +183,7 @@ public:
         //Create a text object with explanation
         auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
                                                          "Use Q/E to switch between light and obstacle follow up\n"
+                                                         "Use A/D to rotate the obstacle\n"
                                                          "Use 1/2/3/4 to change the obstacle form\n"
                                                          "Use left mouse click to duplicate the obstacle/light\n"
                                                          "Use space to delete all duplicated objects\n"
@@ -243,6 +272,16 @@ public:
                 this->_properties["follow"] = "light";
             }
 
+            //Rotate the obstacle
+            if (keyEvent.keysym.sym == SDLK_a)
+            {
+                obstacle->getObject()->rotate(-10.0f);
+            }
+            else if (keyEvent.keysym.sym == SDLK_d)
+            {
+                obstacle->getObject()->rotate(10.0f);
+            }
+
             //Remove all duplicates
             if (keyEvent.keysym.sym == SDLK_SPACE)
             {
@@ -252,6 +291,8 @@ public:
                 {
                     this->delObject(duplicate->getSid());
                 }
+
+                obstacle->getObject()->setRotation(0.0f);
             }
         }));
 

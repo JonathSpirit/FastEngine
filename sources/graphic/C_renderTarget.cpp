@@ -54,8 +54,6 @@ void DefaultGraphicPipeline_constructor(fge::vulkan::Context const& context,
 
 } // end namespace
 
-fge::vulkan::TextureImage const* RenderTarget::gLastTexture = nullptr;
-
 RenderTarget::RenderTarget(fge::vulkan::Context const& context) :
         fge::vulkan::ContextAware(context),
         _g_clearColor(fge::Color::White),
@@ -275,13 +273,10 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                             states._resTextures.getTextureImage<RenderResourceTextures::PtrTypes::TEXTURE_IMAGE>(0);
                     break;
                 }
-                if (RenderTarget::gLastTexture != textureImage)
-                {
-                    RenderTarget::gLastTexture = textureImage;
-                    auto descriptorSetTexture = textureImage->getDescriptorSet().get();
-                    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1,
-                                                        FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
-                }
+
+                auto descriptorSetTexture = textureImage->getDescriptorSet().get();
+                graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1,
+                                                    FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
     }
@@ -327,13 +322,9 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                     textureImage = fge::texture::GetBadTexture()->_texture.get();
                 }
 
-                if (RenderTarget::gLastTexture != textureImage)
-                {
-                    RenderTarget::gLastTexture = textureImage;
-                    auto descriptorSet = textureImage->getDescriptorSet().get();
-                    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSet, 1,
-                                                        FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
-                }
+                auto descriptorSet = textureImage->getDescriptorSet().get();
+                graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSet, 1,
+                                                    FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
 #endif //FGE_DEF_SERVER
@@ -349,7 +340,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
         uint32_t const vertexCount = states._resInstances.getVertexCount() == 0 ? states._vertexBuffer->getCount()
                                                                                 : states._resInstances.getVertexCount();
-        uint32_t const vertexOffset = states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance;
+        uint32_t const vertexOffset = (states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance) +
+                                      states._resInstances.getVertexOffset();
 
         ///TODO: have in graphicPipeline, a draw method
         if (states._resInstances.hasUniqueDrawCall())

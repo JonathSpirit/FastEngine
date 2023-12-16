@@ -16,7 +16,6 @@
 
 #include "FastEngine/object/C_objLight.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/object/C_lightObstacle.hpp"
 #include "FastEngine/object/C_lightSystem.hpp"
 
 #include "FastEngine/object/C_objRenderMap.hpp"
@@ -140,8 +139,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 
     auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
     copyStates._resTextures.set(this->g_texture.retrieve(), 1);
-    copyStates._blendMode = fge::vulkan::BlendMode{VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD,
-                                                   VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD};
+    copyStates._blendMode = fge::vulkan::BlendNone;
 
     copyStates._vertexBuffer = &this->g_vertexBuffer;
 
@@ -151,7 +149,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
     {
         fge::LightSystem* lightSystem = this->_g_lightSystemGate.getTunnel();
 
-        fge::vulkan::BlendMode const noLightBlend =
+        constexpr fge::vulkan::BlendMode noLightBlend =
                 fge::vulkan::BlendMode(VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_ZERO,
                                        VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD);
 
@@ -162,61 +160,92 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         this->g_obstacleHulls.resize(lightSystem->getGatesSize(),
                                      fge::vulkan::VertexBuffer{fge::vulkan::GetActiveContext()});
 
-        for (std::size_t i = 0; i < lightSystem->getGatesSize(); ++i)
+        for (std::size_t iComponent = 0; iComponent < lightSystem->getGatesSize(); ++iComponent)
         {
-            fge::LightObstacle* obstacle = lightSystem->get(i);
-
-            std::size_t passCount = 0;
-
-            static std::vector<fge::Vector2f> tmpHull;
-            tmpHull.resize(obstacle->_g_myPoints.size() * 2);
-            for (std::size_t a = 0; a < obstacle->_g_myPoints.size(); ++a)
-            {
-                float distance = range - fge::GetDistanceBetween(obstacle->_g_myPoints[a], center);
-                if (distance < 0)
-                {
-                    ++passCount;
-                    distance = std::abs(distance) + range;
-                }
-
-                fge::Vector2f direction = glm::normalize(obstacle->_g_myPoints[a] - center);
-                tmpHull[a] = fge::Vector2f(obstacle->_g_myPoints[a].x + direction.x * distance,
-                                           obstacle->_g_myPoints[a].y + direction.y * distance);
-                tmpHull[a + obstacle->_g_myPoints.size()] = obstacle->_g_myPoints[a];
-            }
-            if (passCount >= obstacle->_g_myPoints.size())
+            auto* lightComponent = lightSystem->get(iComponent);
+            if (!lightComponent->isObstacle())
             {
                 continue;
             }
-            fge::GetConvexHull(tmpHull, tmpHull);
+            auto* obstacle = reinterpret_cast<fge::LightObstacle*>(lightComponent);
 
-            this->g_obstacleHulls[i].create(tmpHull.size(), VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
-                                            fge::vulkan::BufferTypes::LOCAL);
-            for (std::size_t a = 0; a < tmpHull.size(); ++a)
+            //Update the shape if needed
+            if (obstacle->getShape().subPolygonCount() == 0)
             {
-                this->g_obstacleHulls[i].getVertices()[a]._position = tmpHull[a];
-                this->g_obstacleHulls[i].getVertices()[a]._color = fge::Color(255, 255, 255, 255);
+                obstacle->updateObstacleShape();
             }
 
-            auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[i]);
-            polygonStates._blendMode = noLightBlend;
-            this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
+            std::size_t passCount = 0;
+
+            //Check if the objects is too far from the light, (if so do nothing with it)
+            //TODO: for now, we just check the first point of every subPolygon
+            for (std::size_t iShape = 0; iShape < obstacle->getShape().subPolygonCount(); ++iShape)
+            {
+                auto point = *obstacle->getShape().subPolygon(iShape).begin();
+                point = obstacle->getTransformableParent().getTransform() * point;
+
+                float const distance = range - fge::GetDistanceBetween(point, center);
+                if (distance < 0.0f)
+                {
+                    ++passCount;
+                }
+            }
+            if (passCount >= obstacle->getShape().subPolygonCount())
+            {
+                continue;
+            }
+
+            this->g_obstacleHulls[iComponent].create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
+                                                     fge::vulkan::BufferTypes::LOCAL);
+
+            static std::vector<fge::Vector2f> tmpHull;
+            for (std::size_t iShape = 0; iShape < obstacle->getShape().subPolygonCount(); ++iShape)
+            {
+                auto const& shape = obstacle->getShape().subPolygon(iShape);
+
+                tmpHull.resize(shape.size() * 2);
+                for (std::size_t iVertex = 0; iVertex < shape.size(); ++iVertex)
+                {
+                    auto const vertex = obstacle->getTransformableParent().getTransform() * shape[iVertex];
+                    float distance = range - fge::GetDistanceBetween(vertex, center);
+                    if (distance < 0.0f)
+                    {
+                        distance = std::abs(distance) + range;
+                    }
+
+                    auto const direction = glm::normalize(vertex - center);
+                    tmpHull[iVertex] =
+                            fge::Vector2f(vertex.x + direction.x * distance, vertex.y + direction.y * distance);
+                    tmpHull[iVertex + shape.size()] = vertex;
+                }
+                fge::GetConvexHull(tmpHull, tmpHull);
+
+                auto const vertexOffset = this->g_obstacleHulls[iComponent].getCount();
+                this->g_obstacleHulls[iComponent].resize(vertexOffset + tmpHull.size());
+                for (std::size_t iVertex = 0; iVertex < tmpHull.size(); ++iVertex)
+                {
+                    this->g_obstacleHulls[iComponent][vertexOffset + iVertex]._position = tmpHull[iVertex];
+                    this->g_obstacleHulls[iComponent][vertexOffset + iVertex]._color = fge::Color::White;
+                }
+
+                auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[iComponent]);
+                polygonStates._blendMode = noLightBlend;
+                polygonStates._resInstances.setVertexCount(tmpHull.size());
+                polygonStates._resInstances.setVertexOffset(vertexOffset);
+                this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
+            }
         }
     }
 
-    fge::RenderTarget* theTarget;
+    fge::RenderTarget* finalTarget{&target};
     if (this->g_renderObject)
     {
-        theTarget = &reinterpret_cast<fge::ObjRenderMap*>(this->g_renderObject->getObject())->_renderTexture;
-    }
-    else
-    {
-        theTarget = &target;
+        finalTarget = &reinterpret_cast<fge::ObjRenderMap*>(this->g_renderObject->getObject())->_renderTexture;
     }
 
     auto targetStates = fge::RenderStates(&this->_transform);
     targetStates._blendMode = this->g_blendMode;
-    theTarget->draw(this->g_renderMap, targetStates);
+    finalTarget->draw(this->g_renderMap, targetStates);
 }
 #endif
 
