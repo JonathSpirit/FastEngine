@@ -28,6 +28,19 @@ T* TaskHandler::setMainTask(std::unique_ptr<T>&& newTask)
     return static_cast<T*>(this->g_tasks.back().get());
 }
 template<class T>
+T* TaskHandler::setMainTask()
+{
+    return this->setMainTask(std::make_unique<T>());
+}
+template<class T, class... TArgs>
+T* TaskHandler::setMainTaskAndInit(TArgs&&... args)
+{
+    auto* task = this->setMainTask(std::make_unique<T>());
+    task->init(std::forward<TArgs>(args)...);
+    return task;
+}
+
+template<class T>
 T* TaskHandler::addSubTask(std::unique_ptr<T>&& newTask)
 {
     this->g_lastTask = newTask->getTypeIndex();

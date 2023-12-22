@@ -95,6 +95,9 @@ private:
  *
  * A Task represent an action that can be done by an object. An action can be composed of multiple sub-tasks.
  *
+ * When inheriting from this class, you should implement a init() method that will initialize the task with
+ * custom parameters.
+ *
  * This class can also be network aware.
  * \see NetworkTypeTasks
  */
@@ -229,6 +232,10 @@ public:
      */
     template<class T = fge::Task>
     T* setMainTask(std::unique_ptr<T>&& newTask);
+    template<class T>
+    T* setMainTask();
+    template<class T, class... TArgs>
+    T* setMainTaskAndInit(TArgs&&... args);
     /**
      * \brief Add a sub-task
      *
