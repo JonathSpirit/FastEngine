@@ -23,12 +23,12 @@ template<class T, typename>
 Property::Property(T const& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<std::remove_reference_t<T>>::value ||
-                  std::is_enum<std::remove_reference_t<T>>::value)
+    if constexpr (std::is_integral<remove_cvref_t<T>>::value ||
+                  std::is_enum<remove_cvref_t<T>>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_INTEGERS;
 
-        if constexpr (std::is_signed<std::remove_reference_t<T>>::value)
+        if constexpr (std::is_signed<remove_cvref_t<T>>::value)
         {
             this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
@@ -39,9 +39,9 @@ Property::Property(T const& val) :
             this->g_isSigned = false;
         }
     }
-    else if constexpr (std::is_floating_point<std::remove_reference_t<T>>::value)
+    else if constexpr (std::is_floating_point<remove_cvref_t<T>>::value)
     {
-        if constexpr (std::is_same<std::remove_reference_t<T>, float>::value)
+        if constexpr (std::is_same<remove_cvref_t<T>, float>::value)
         {
             this->g_type = fge::Property::Types::PTYPE_FLOAT;
             this->g_data._f = val;
@@ -52,12 +52,12 @@ Property::Property(T const& val) :
             this->g_data._d = static_cast<double>(val);
         }
     }
-    else if constexpr (std::is_same<std::remove_reference_t<T>, std::string>::value)
+    else if constexpr (std::is_same<remove_cvref_t<T>, std::string>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_STRING;
         this->g_data._ptr = new std::string(val);
     }
-    else if constexpr (std::is_pointer<std::remove_reference_t<T>>::value)
+    else if constexpr (std::is_pointer<remove_cvref_t<T>>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_POINTER;
         this->g_data._ptr = val;
@@ -66,19 +66,19 @@ Property::Property(T const& val) :
     {
         this->g_type = fge::Property::Types::PTYPE_CLASS;
         this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                new fge::PropertyClassWrapperType<std::remove_reference_t<T>>(val));
+                new fge::PropertyClassWrapperType<remove_cvref_t<T>>(val));
     }
 }
 template<class T, typename>
 Property::Property(T&& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<std::remove_reference_t<T>>::value ||
-                  std::is_enum<std::remove_reference_t<T>>::value)
+    if constexpr (std::is_integral<remove_cvref_t<T>>::value ||
+                  std::is_enum<remove_cvref_t<T>>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_INTEGERS;
 
-        if constexpr (std::is_signed<std::remove_reference_t<T>>::value)
+        if constexpr (std::is_signed<remove_cvref_t<T>>::value)
         {
             this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
@@ -89,9 +89,9 @@ Property::Property(T&& val) :
             this->g_isSigned = false;
         }
     }
-    else if constexpr (std::is_floating_point<std::remove_reference_t<T>>::value)
+    else if constexpr (std::is_floating_point<remove_cvref_t<T>>::value)
     {
-        if constexpr (std::is_same<std::remove_reference_t<T>, float>::value)
+        if constexpr (std::is_same<remove_cvref_t<T>, float>::value)
         {
             this->g_type = fge::Property::Types::PTYPE_FLOAT;
             this->g_data._f = val;
@@ -102,12 +102,12 @@ Property::Property(T&& val) :
             this->g_data._d = static_cast<double>(val);
         }
     }
-    else if constexpr (std::is_same<std::remove_reference_t<T>, std::string>::value)
+    else if constexpr (std::is_same<remove_cvref_t<T>, std::string>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_STRING;
         this->g_data._ptr = new std::string(std::forward<T>(val));
     }
-    else if constexpr (std::is_pointer<std::remove_reference_t<T>>::value)
+    else if constexpr (std::is_pointer<remove_cvref_t<T>>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_POINTER;
         this->g_data._ptr = val;
@@ -116,7 +116,7 @@ Property::Property(T&& val) :
     {
         this->g_type = fge::Property::Types::PTYPE_CLASS;
         this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                new fge::PropertyClassWrapperType<std::remove_reference_t<T>>(std::forward<T>(val)));
+                new fge::PropertyClassWrapperType<remove_cvref_t<T>>(std::forward<T>(val)));
     }
 }
 
@@ -206,15 +206,15 @@ T& Property::setType()
             this->clear();
             this->g_type = fge::Property::Types::PTYPE_CLASS;
             this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                    new fge::PropertyClassWrapperType<std::remove_reference_t<T>>());
-            return reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                    new fge::PropertyClassWrapperType<remove_cvref_t<T>>());
+            return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                     ->_data;
         }
         else
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                         ->_data;
             }
             else
@@ -222,8 +222,8 @@ T& Property::setType()
                 this->clear();
                 this->g_type = fge::Property::Types::PTYPE_CLASS;
                 this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                        new fge::PropertyClassWrapperType<std::remove_reference_t<T>>());
-                return reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                        new fge::PropertyClassWrapperType<remove_cvref_t<T>>());
+                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                         ->_data;
             }
         }
@@ -528,7 +528,7 @@ bool Property::get(T& val) const
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                val = reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                val = reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                               ->_data;
                 return true;
             }
@@ -642,7 +642,7 @@ std::optional<T> Property::get() const
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                         ->_data;
             }
         }
@@ -720,7 +720,7 @@ T* Property::getPtr()
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return &reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                return &reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                                 ->_data;
             }
         }
@@ -797,7 +797,7 @@ T const* Property::getPtr() const
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return &reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)
+                return &reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
                                 ->_data;
             }
         }

@@ -339,16 +339,10 @@ bool Property::set(char const* val)
             this->g_data._ptr = new std::string(val);
             return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
-    else
-    {
-        *reinterpret_cast<std::string*>(this->g_data._ptr) = val;
-        return true;
-    }
+    *reinterpret_cast<std::string*>(this->g_data._ptr) = val;
+    return true;
 }
 
 fge::ParrayType& Property::setArrayType()

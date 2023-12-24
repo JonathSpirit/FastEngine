@@ -77,9 +77,9 @@ public:
     Property(fge::Property&& val) noexcept;
 
     //Copy/Move some type constructor
-    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     Property(T const& val);
-    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     Property(T&& val);
 
     //Special string copy constructor
@@ -96,9 +96,9 @@ public:
     fge::Property& operator=(fge::Property&& val) noexcept;
 
     //Copy/Move some type operator
-    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     fge::Property& operator=(T const& val);
-    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     fge::Property& operator=(T&& val);
 
     //Special string copy operator
