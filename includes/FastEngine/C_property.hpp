@@ -38,6 +38,14 @@ using ParrayType = std::vector<fge::Property>;
 class FGE_API Property
 {
 public:
+    template<class T>
+    struct remove_cvref
+    {
+        typedef std::remove_cv_t<std::remove_reference_t<T>> type;
+    };
+    template<class T>
+    using remove_cvref_t = typename fge::Property::remove_cvref<T>::type;
+
     enum class Types : uint8_t
     {
         PTYPE_NULL,
@@ -112,9 +120,7 @@ public:
     bool set(fge::Property const& val);
     bool set(fge::Property&& val);
 
-    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
-    bool set(T const& val);
-    template<class T, typename = std::enable_if_t<!std::is_same<std::remove_reference_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     bool set(T&& val);
 
     bool set(char const* val);

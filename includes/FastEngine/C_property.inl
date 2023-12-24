@@ -270,145 +270,9 @@ bool Property::isType() const
 }
 
 template<class T, typename>
-bool Property::set(T const& val)
-{
-    if constexpr (std::is_integral<std::remove_reference_t<T>>::value ||
-                  std::is_enum<std::remove_reference_t<T>>::value)
-    {
-        if (this->g_type != fge::Property::Types::PTYPE_INTEGERS)
-        {
-            if (this->g_type == fge::Property::Types::PTYPE_NULL)
-            {
-                this->g_type = fge::Property::Types::PTYPE_INTEGERS;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        if constexpr (std::is_signed<std::remove_reference_t<T>>::value)
-        {
-            this->g_data._i = static_cast<fge::PintType>(val);
-            this->g_isSigned = true;
-            return true;
-        }
-        else
-        {
-            this->g_data._u = static_cast<fge::PuintType>(val);
-            this->g_isSigned = false;
-            return true;
-        }
-    }
-    else if constexpr (std::is_floating_point<std::remove_reference_t<T>>::value)
-    {
-        if constexpr (std::is_same<std::remove_reference_t<T>, float>::value)
-        {
-            if (this->g_type != fge::Property::Types::PTYPE_FLOAT)
-            {
-                if (this->g_type == fge::Property::Types::PTYPE_NULL)
-                {
-                    this->g_type = fge::Property::Types::PTYPE_FLOAT;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            this->g_data._f = val;
-            return true;
-        }
-        else
-        {
-            if (this->g_type != fge::Property::Types::PTYPE_DOUBLE)
-            {
-                if (this->g_type == fge::Property::Types::PTYPE_NULL)
-                {
-                    this->g_type = fge::Property::Types::PTYPE_DOUBLE;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            this->g_data._d = static_cast<double>(val);
-            return true;
-        }
-    }
-    else if constexpr (std::is_same<std::remove_reference_t<T>, std::string>::value)
-    {
-        if (this->g_type != fge::Property::Types::PTYPE_STRING)
-        {
-            if (this->g_type == fge::Property::Types::PTYPE_NULL)
-            {
-                this->g_type = fge::Property::Types::PTYPE_STRING;
-                this->g_data._ptr = new std::string(val);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            *reinterpret_cast<std::string*>(this->g_data._ptr) = val;
-            return true;
-        }
-    }
-    else if constexpr (std::is_pointer<std::remove_reference_t<T>>::value)
-    {
-        if (this->g_type != fge::Property::Types::PTYPE_POINTER)
-        {
-            if (this->g_type == fge::Property::Types::PTYPE_NULL)
-            {
-                this->g_type = fge::Property::Types::PTYPE_POINTER;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        this->g_data._ptr = val;
-        return true;
-    }
-    else
-    {
-        if (this->g_type != fge::Property::Types::PTYPE_CLASS)
-        {
-            if (this->g_type == fge::Property::Types::PTYPE_NULL)
-            {
-                this->g_type = fge::Property::Types::PTYPE_CLASS;
-                this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                        new fge::PropertyClassWrapperType<std::remove_reference_t<T>>(val));
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() ==
-                typeid(std::remove_reference_t<T>))
-            {
-                reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)->_data =
-                        val;
-                return true;
-            }
-            return false;
-        }
-    }
-}
-template<class T, typename>
 bool Property::set(T&& val)
 {
-    if constexpr (std::is_integral<std::remove_reference_t<T>>::value ||
-                  std::is_enum<std::remove_reference_t<T>>::value)
+    if constexpr (std::is_integral<remove_cvref_t<T>>::value || std::is_enum<remove_cvref_t<T>>::value)
     {
         if (this->g_type != fge::Property::Types::PTYPE_INTEGERS)
         {
@@ -422,7 +286,7 @@ bool Property::set(T&& val)
             }
         }
 
-        if constexpr (std::is_signed<std::remove_reference_t<T>>::value)
+        if constexpr (std::is_signed<remove_cvref_t<T>>::value)
         {
             this->g_data._i = static_cast<fge::PintType>(val);
             this->g_isSigned = true;
@@ -435,9 +299,9 @@ bool Property::set(T&& val)
             return true;
         }
     }
-    else if constexpr (std::is_floating_point<std::remove_reference_t<T>>::value)
+    else if constexpr (std::is_floating_point<remove_cvref_t<T>>::value)
     {
-        if constexpr (std::is_same<std::remove_reference_t<T>, float>::value)
+        if constexpr (std::is_same<remove_cvref_t<T>, float>::value)
         {
             if (this->g_type != fge::Property::Types::PTYPE_FLOAT)
             {
@@ -472,7 +336,7 @@ bool Property::set(T&& val)
             return true;
         }
     }
-    else if constexpr (std::is_same<std::remove_reference_t<T>, std::string>::value)
+    else if constexpr (std::is_same<remove_cvref_t<T>, std::string>::value)
     {
         if (this->g_type != fge::Property::Types::PTYPE_STRING)
         {
@@ -482,18 +346,13 @@ bool Property::set(T&& val)
                 this->g_data._ptr = new std::string(std::forward<T>(val));
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-        else
-        {
-            *reinterpret_cast<std::string*>(this->g_data._ptr) = std::forward<T>(val);
-            return true;
-        }
+
+        *reinterpret_cast<std::string*>(this->g_data._ptr) = std::forward<T>(val);
+        return true;
     }
-    else if constexpr (std::is_pointer<std::remove_reference_t<T>>::value)
+    else if constexpr (std::is_pointer<remove_cvref_t<T>>::value)
     {
         if (this->g_type != fge::Property::Types::PTYPE_POINTER)
         {
@@ -518,25 +377,19 @@ bool Property::set(T&& val)
             {
                 this->g_type = fge::Property::Types::PTYPE_CLASS;
                 this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                        new fge::PropertyClassWrapperType<std::remove_reference_t<T>>(std::forward<T>(val)));
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() ==
-                typeid(std::remove_reference_t<T>))
-            {
-                reinterpret_cast<fge::PropertyClassWrapperType<std::remove_reference_t<T>>*>(this->g_data._ptr)->_data =
-                        std::forward<T>(val);
+                        new fge::PropertyClassWrapperType<remove_cvref_t<T>>(std::forward<T>(val)));
                 return true;
             }
             return false;
         }
+
+        if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(remove_cvref_t<T>))
+        {
+            reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data =
+                    std::forward<T>(val);
+            return true;
+        }
+        return false;
     }
 }
 
