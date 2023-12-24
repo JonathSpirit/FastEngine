@@ -23,8 +23,7 @@ template<class T, typename>
 Property::Property(T const& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<remove_cvref_t<T>>::value ||
-                  std::is_enum<remove_cvref_t<T>>::value)
+    if constexpr (std::is_integral<remove_cvref_t<T>>::value || std::is_enum<remove_cvref_t<T>>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_INTEGERS;
 
@@ -65,16 +64,15 @@ Property::Property(T const& val) :
     else
     {
         this->g_type = fge::Property::Types::PTYPE_CLASS;
-        this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                new fge::PropertyClassWrapperType<remove_cvref_t<T>>(val));
+        this->g_data._ptr =
+                static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<remove_cvref_t<T>>(val));
     }
 }
 template<class T, typename>
 Property::Property(T&& val) :
         g_isModified(true)
 {
-    if constexpr (std::is_integral<remove_cvref_t<T>>::value ||
-                  std::is_enum<remove_cvref_t<T>>::value)
+    if constexpr (std::is_integral<remove_cvref_t<T>>::value || std::is_enum<remove_cvref_t<T>>::value)
     {
         this->g_type = fge::Property::Types::PTYPE_INTEGERS;
 
@@ -120,12 +118,6 @@ Property::Property(T&& val) :
     }
 }
 
-template<class T, typename>
-fge::Property& Property::operator=(T const& val)
-{
-    this->set(std::forward<T>(val));
-    return *this;
-}
 template<class T, typename>
 fge::Property& Property::operator=(T&& val)
 {
@@ -205,26 +197,23 @@ T& Property::setType()
         {
             this->clear();
             this->g_type = fge::Property::Types::PTYPE_CLASS;
-            this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                    new fge::PropertyClassWrapperType<remove_cvref_t<T>>());
-            return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                    ->_data;
+            this->g_data._ptr =
+                    static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<remove_cvref_t<T>>());
+            return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
         }
         else
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                        ->_data;
+                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
             }
             else
             {
                 this->clear();
                 this->g_type = fge::Property::Types::PTYPE_CLASS;
-                this->g_data._ptr = static_cast<fge::PropertyClassWrapper*>(
-                        new fge::PropertyClassWrapperType<remove_cvref_t<T>>());
-                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                        ->_data;
+                this->g_data._ptr =
+                        static_cast<fge::PropertyClassWrapper*>(new fge::PropertyClassWrapperType<remove_cvref_t<T>>());
+                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
             }
         }
     }
@@ -528,8 +517,7 @@ bool Property::get(T& val) const
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                val = reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                              ->_data;
+                val = reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
                 return true;
             }
         }
@@ -642,8 +630,7 @@ std::optional<T> Property::get() const
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                        ->_data;
+                return reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
             }
         }
 
@@ -720,8 +707,7 @@ T* Property::getPtr()
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return &reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                                ->_data;
+                return &reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
             }
         }
 
@@ -797,8 +783,7 @@ T const* Property::getPtr() const
         {
             if (reinterpret_cast<fge::PropertyClassWrapper*>(this->g_data._ptr)->getType() == typeid(T))
             {
-                return &reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)
-                                ->_data;
+                return &reinterpret_cast<fge::PropertyClassWrapperType<remove_cvref_t<T>>*>(this->g_data._ptr)->_data;
             }
         }
 

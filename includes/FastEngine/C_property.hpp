@@ -97,8 +97,6 @@ public:
 
     //Copy/Move some type operator
     template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
-    fge::Property& operator=(T const& val);
-    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     fge::Property& operator=(T&& val);
 
     //Special string copy operator
