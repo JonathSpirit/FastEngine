@@ -78,8 +78,6 @@ public:
 
     //Copy/Move some type constructor
     template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
-    Property(T const& val);
-    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
     Property(T&& val);
 
     //Special string copy constructor
