@@ -121,9 +121,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::cout << "registering all classes ..." << std::endl;
     {
         bool valid = true;
-        valid &= fge::reg::RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Creature>()));
-        valid &= fge::reg::RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Food>()));
-        valid &= fge::reg::RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>(new fge::reg::Stamp<ls::Drink>()));
+        valid &= fge::reg::RegisterNewClass<ls::Creature>();
+        valid &= fge::reg::RegisterNewClass<ls::Food>();
+        valid &= fge::reg::RegisterNewClass<ls::Drink>();
         if (!valid)
         {
             std::cout << "error during class registrations !" << std::endl;

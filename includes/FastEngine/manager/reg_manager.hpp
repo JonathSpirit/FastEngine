@@ -64,6 +64,11 @@ public:
 FGE_API void ClearAll();
 
 FGE_API bool RegisterNewClass(std::unique_ptr<fge::reg::BaseStamp>&& newStamp);
+template<class T>
+inline bool RegisterNewClass()
+{
+    return fge::reg::RegisterNewClass(std::make_unique<fge::reg::Stamp<T>>());
+}
 
 FGE_API bool Check(std::string_view className);
 FGE_API bool Check(fge::reg::ClassId classId);
