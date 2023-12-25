@@ -89,28 +89,28 @@ std::size_t PropertyList::getPropertiesSize() const
     return this->g_data.size();
 }
 
-fge::PropertyList::PropertyListType::iterator PropertyList::begin()
+fge::PropertyList::Type::iterator PropertyList::begin()
 {
     return this->g_data.begin();
 }
-fge::PropertyList::PropertyListType::iterator PropertyList::end()
+fge::PropertyList::Type::iterator PropertyList::end()
 {
     return this->g_data.end();
 }
-fge::PropertyList::PropertyListType::const_iterator PropertyList::begin() const
+fge::PropertyList::Type::const_iterator PropertyList::begin() const
 {
     return this->g_data.begin();
 }
-fge::PropertyList::PropertyListType::const_iterator PropertyList::end() const
+fge::PropertyList::Type::const_iterator PropertyList::end() const
 {
     return this->g_data.end();
 }
 
-fge::PropertyList::PropertyListType::const_iterator PropertyList::find(std::string const& key) const
+fge::PropertyList::Type::const_iterator PropertyList::find(std::string const& key) const
 {
     return this->g_data.find(key);
 }
-fge::PropertyList::PropertyListType::iterator PropertyList::find(std::string const& key)
+fge::PropertyList::Type::iterator PropertyList::find(std::string const& key)
 {
     return this->g_data.find(key);
 }

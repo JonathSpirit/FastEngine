@@ -28,7 +28,7 @@ namespace fge
 class PropertyList
 {
 public:
-    using PropertyListType = std::unordered_map<std::string, fge::Property>;
+    using Type = std::unordered_map<std::string, fge::Property>;
 
     inline PropertyList() = default;
     inline PropertyList(PropertyList const& r) = default;
@@ -59,23 +59,23 @@ public:
 
     inline std::size_t getPropertiesSize() const;
 
-    inline fge::PropertyList::PropertyListType::iterator begin();
-    inline fge::PropertyList::PropertyListType::iterator end();
-    inline fge::PropertyList::PropertyListType::const_iterator begin() const;
-    inline fge::PropertyList::PropertyListType::const_iterator end() const;
+    inline fge::PropertyList::Type::iterator begin();
+    inline fge::PropertyList::Type::iterator end();
+    inline fge::PropertyList::Type::const_iterator begin() const;
+    inline fge::PropertyList::Type::const_iterator end() const;
 
-    inline fge::PropertyList::PropertyListType::const_iterator find(std::string const& key) const;
-    inline fge::PropertyList::PropertyListType::iterator find(std::string const& key);
+    inline fge::PropertyList::Type::const_iterator find(std::string const& key) const;
+    inline fge::PropertyList::Type::iterator find(std::string const& key);
 
     inline void clearAllModificationFlags();
     inline std::size_t countAllModificationFlags() const;
 
 private:
-    fge::PropertyList::PropertyListType g_data;
+    fge::PropertyList::Type g_data;
 };
 
 } // namespace fge
 
-#include <FastEngine/C_propertyList.inl>
+#include "FastEngine/C_propertyList.inl"
 
 #endif // _FGE_C_PROPERTYLIST_HPP_INCLUDED
