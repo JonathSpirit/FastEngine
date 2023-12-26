@@ -134,7 +134,8 @@ bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
     auto err = this->g_typeSource->unpackModification(pck, updateCountRange, false);
     if (err)
     {
-        if (err.value()._type == fge::net::Error::Types::ERR_SCENE_NEED_CACHING)
+        if (err.value()._type == fge::net::Error::Types::ERR_SCENE_NEED_CACHING ||
+            err.value()._type == fge::net::Error::Types::ERR_SCENE_OLD_PACKET)
         {
             this->g_typeSource->unpackModification(pck, updateCountRange, true);
         }
