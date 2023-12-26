@@ -164,13 +164,16 @@ bool IpAddress::operator==(fge::net::IpAddress const& r) const
 
 std::string IpAddress::toString() const
 {
-    std::string result(16, '\0');
+    std::string result(INET_ADDRSTRLEN, '\0');
 
     in_addr address{};
     address.s_addr = this->g_address;
 
     if (inet_ntop(AF_INET, &address, result.data(), result.size()) != nullptr)
     {
+        auto firstNull = result.find_first_of('\0');
+        result.resize(firstNull);
+
         return result;
     }
     return {};
