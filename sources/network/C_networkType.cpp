@@ -408,16 +408,25 @@ std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
 }
 void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id)
 {
+    ///TODO : need safe data extraction with net rules
     fge::net::SizeType count{0};
     pck >> count;
 
     for (fge::net::SizeType i = 0; i < count; ++i)
     {
-        fge::net::SizeType dataIndex{0};
+        fge::net::SizeType dataIndex{std::numeric_limits<fge::net::SizeType>::max()};
+        pck >> dataIndex;
 
-        auto* net = this->g_data.at(dataIndex).get();
-        net->forceCheckClient(id);
-        net->requireExplicitUpdateClient(id);
+        if (dataIndex < this->g_data.size())
+        {
+            auto* net = this->g_data[dataIndex].get();
+            net->forceCheckClient(id);
+            net->requireExplicitUpdateClient(id);
+        }
+        else
+        {
+            return;
+        }
     }
 }
 
