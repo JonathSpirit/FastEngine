@@ -179,6 +179,10 @@ void TaskHandler::popTask()
     if (!this->g_tasks.empty())
     {
         this->g_tasks.pop_back();
+        if (this->g_tasks.empty())
+        {
+            this->_onMainTaskChanged.call(*this);
+        }
     }
     else
     {
@@ -188,9 +192,14 @@ void TaskHandler::popTask()
 }
 void TaskHandler::clearTasks()
 {
+    bool hasMainTask = !this->g_tasks.empty();
     this->g_tasks.clear();
     this->clearLastTask();
     this->computeChecksum();
+    if (hasMainTask)
+    {
+        this->_onMainTaskChanged.call(*this);
+    }
 }
 
 fge::TaskList const& TaskHandler::getTasks() const
