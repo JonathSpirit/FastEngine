@@ -127,7 +127,7 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck)
 
 bool NetworkTypeTasks::check() const
 {
-    return true;
+    return (this->g_tasksSource->getChecksum() != this->g_checksumCopy) || this->_g_force;
 }
 void NetworkTypeTasks::forceCheck()
 {
