@@ -50,7 +50,7 @@ public:
      * \param name The name of the animation
      * \param frame The beginning frame of the animation
      */
-    Animation(std::string const& name, std::size_t frame = 0); ///TODO: use string_view ?
+    Animation(std::string name, std::size_t frame = 0); ///TODO: use string_view ?
     /**
      * \brief Constructor that takes the name of the animation and the group name
      *
@@ -61,12 +61,12 @@ public:
      * \param group The name of the group
      * \param frame The beginning frame of the animation
      */
-    Animation(std::string const& name, std::string const& group, std::size_t frame = 0);
+    Animation(std::string name, std::string const& group, std::size_t frame = 0);
     Animation(char const* name, std::size_t frame = 0);
     Animation(char const* name, char const* group, std::size_t frame = 0);
-    Animation(fge::anim::AnimationDataPtr const& data, std::size_t frame = 0);
-    Animation(fge::anim::AnimationDataPtr const& data, std::string const& group, std::size_t frame = 0);
-    Animation(fge::anim::AnimationDataPtr const& data, char const* group, std::size_t frame = 0);
+    Animation(fge::anim::AnimationDataPtr data, std::size_t frame = 0);
+    Animation(fge::anim::AnimationDataPtr data, std::string const& group, std::size_t frame = 0);
+    Animation(fge::anim::AnimationDataPtr data, char const* group, std::size_t frame = 0);
 
     /**
      * \brief Clear the animation
@@ -221,9 +221,9 @@ public:
      */
     [[nodiscard]] fge::anim::AnimationDataPtr const& getData() const;
 
-    fge::Animation& operator=(std::string const& name);
+    fge::Animation& operator=(std::string name);
     fge::Animation& operator=(char const* name);
-    fge::Animation& operator=(fge::anim::AnimationDataPtr const& data);
+    fge::Animation& operator=(fge::anim::AnimationDataPtr data);
 
     /**
      * \brief Retrieve the texture of the actual frame

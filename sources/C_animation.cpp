@@ -31,9 +31,9 @@ Animation::Animation() :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(std::string const& name, std::size_t frame) :
+Animation::Animation(std::string name, std::size_t frame) :
         g_data(fge::anim::GetAnimation(name)),
-        g_name(name),
+        g_name(std::move(name)),
 
         g_groupIndex(0),
         g_frameIndex(frame),
@@ -41,9 +41,9 @@ Animation::Animation(std::string const& name, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(std::string const& name, std::string const& group, std::size_t frame) :
+Animation::Animation(std::string name, std::string const& group, std::size_t frame) :
         g_data(fge::anim::GetAnimation(name)),
-        g_name(name),
+        g_name(std::move(name)),
 
         g_groupIndex(0),
         g_frameIndex(frame),
@@ -73,10 +73,10 @@ Animation::Animation(char const* name, char const* group, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {
-    this->setGroup(std::string(group));
+    this->setGroup(std::string{group});
 }
-Animation::Animation(fge::anim::AnimationDataPtr const& data, std::size_t frame) :
-        g_data(data),
+Animation::Animation(fge::anim::AnimationDataPtr data, std::size_t frame) :
+        g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
         g_groupIndex(0),
@@ -85,8 +85,8 @@ Animation::Animation(fge::anim::AnimationDataPtr const& data, std::size_t frame)
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(fge::anim::AnimationDataPtr const& data, std::string const& group, std::size_t frame) :
-        g_data(data),
+Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group, std::size_t frame) :
+        g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
         g_groupIndex(0),
@@ -97,8 +97,8 @@ Animation::Animation(fge::anim::AnimationDataPtr const& data, std::string const&
 {
     this->setGroup(group);
 }
-Animation::Animation(fge::anim::AnimationDataPtr const& data, char const* group, std::size_t frame) :
-        g_data(data),
+Animation::Animation(fge::anim::AnimationDataPtr data, char const* group, std::size_t frame) :
+        g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
         g_groupIndex(0),
@@ -107,7 +107,7 @@ Animation::Animation(fge::anim::AnimationDataPtr const& data, char const* group,
         g_loop(false),
         g_reverse(false)
 {
-    this->setGroup(std::string(group));
+    this->setGroup(std::string{group});
 }
 
 void Animation::clear()
@@ -357,22 +357,22 @@ fge::anim::AnimationDataPtr const& Animation::getData() const
     return this->g_data;
 }
 
-fge::Animation& Animation::operator=(std::string const& name)
+fge::Animation& Animation::operator=(std::string name)
 {
-    this->g_name = name;
+    this->g_name = std::move(name);
     this->g_data = fge::anim::GetAnimation(name);
     return *this;
 }
 fge::Animation& Animation::operator=(char const* name)
 {
-    this->g_name = std::string(name);
+    this->g_name = std::string{name};
     this->g_data = fge::anim::GetAnimation(this->g_name);
     return *this;
 }
-fge::Animation& Animation::operator=(fge::anim::AnimationDataPtr const& data)
+fge::Animation& Animation::operator=(fge::anim::AnimationDataPtr data)
 {
     this->g_name = FGE_ANIM_BAD;
-    this->g_data = data;
+    this->g_data = std::move(data);
     return *this;
 }
 
