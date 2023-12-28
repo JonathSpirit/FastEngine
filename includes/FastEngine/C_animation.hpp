@@ -20,9 +20,17 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_rect.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
+#include "json.hpp"
 
 namespace fge
 {
+
+namespace net
+{
+
+class Packet;
+
+} // namespace net
 
 /**
  * \class Animation
@@ -42,7 +50,7 @@ public:
      * \param name The name of the animation
      * \param frame The beginning frame of the animation
      */
-    Animation(std::string const& name, std::size_t frame = 0);
+    Animation(std::string const& name, std::size_t frame = 0); ///TODO: use string_view ?
     /**
      * \brief Constructor that takes the name of the animation and the group name
      *
@@ -224,9 +232,6 @@ public:
      */
     [[nodiscard]] std::shared_ptr<fge::TextureType> const& retrieveTexture() const;
 
-    operator std::string&();
-    operator std::string const&() const;
-
     /**
      * \brief Get the texture rectangle if the type of the animation is fge::anim::ANIM_TYPE_TILESET of the actual frame
      *
@@ -238,12 +243,18 @@ private:
     fge::anim::AnimationDataPtr g_data;
     std::string g_name;
 
-    std::size_t g_groupIndex;
+    std::size_t g_groupIndex; ///TODO: do not use std::size_t for network compatibility
     std::size_t g_frameIndex;
 
     bool g_loop;
     bool g_reverse;
 };
+
+FGE_API fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& data);
+FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Animation const& data);
+
+FGE_API void to_json(nlohmann::json& j, fge::Animation const& p);
+FGE_API void from_json(nlohmann::json const& j, fge::Animation& p);
 
 } // namespace fge
 

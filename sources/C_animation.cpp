@@ -16,6 +16,7 @@
 
 #include "FastEngine/C_animation.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/network/C_packet.hpp"
 
 namespace fge
 {
@@ -394,15 +395,6 @@ std::shared_ptr<fge::TextureType> const& Animation::retrieveTexture() const
     return fge::texture::GetBadTexture()->_texture;
 }
 
-Animation::operator std::string&()
-{
-    return this->g_name;
-}
-Animation::operator std::string const&() const
-{
-    return this->g_name;
-}
-
 Animation::operator fge::RectInt() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
@@ -427,6 +419,46 @@ Animation::operator fge::RectInt() const
         }
     }
     return {{0, 0}, static_cast<fge::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
+}
+
+fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& data)
+{
+    ///TODO: Verify extraction validity (maybe also propagate the error inside the packet ?)
+    std::string name;
+    std::size_t groupIndex = 0;
+    std::size_t frameIndex = 0;
+    bool loop = false;
+    bool reverse = false;
+
+    pck >> name >> groupIndex >> frameIndex >> loop >> reverse;
+    data = std::move(name);
+    data.setGroup(groupIndex);
+    data.setFrame(frameIndex);
+    data.setLoop(loop);
+    data.setReverse(reverse);
+    return pck;
+}
+fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Animation const& data)
+{
+    ///TODO: Use a bool "array" here
+    return pck << data.getName() << data.getGroupIndex() << data.getFrameIndex() << data.isLoop() << data.isReverse();
+}
+
+void to_json(nlohmann::json& j, fge::Animation const& p)
+{
+    j = nlohmann::json{{"name", p.getName()},
+                       {"groupIndex", p.getGroupIndex()},
+                       {"frameIndex", p.getFrameIndex()},
+                       {"loop", p.isLoop()},
+                       {"reverse", p.isReverse()}};
+}
+void from_json(nlohmann::json const& j, fge::Animation& p)
+{
+    p = j.at("name").get<std::string>();
+    p.setGroup(j.at("groupIndex").get<std::size_t>());
+    p.setFrame(j.at("frameIndex").get<std::size_t>());
+    p.setLoop(j.at("loop").get<bool>());
+    p.setReverse(j.at("reverse").get<bool>());
 }
 
 } // namespace fge
