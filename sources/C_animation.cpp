@@ -41,7 +41,7 @@ Animation::Animation(std::string name, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(std::string name, std::string const& group, std::size_t frame) :
+Animation::Animation(std::string name, std::string const& group, Index frame) :
         g_data(fge::anim::GetAnimation(name)),
         g_name(std::move(name)),
 
@@ -53,7 +53,7 @@ Animation::Animation(std::string name, std::string const& group, std::size_t fra
 {
     this->setGroup(group);
 }
-Animation::Animation(char const* name, std::size_t frame) :
+Animation::Animation(char const* name, Index frame) :
         g_data(fge::anim::GetAnimation(std::string(name))),
         g_name(name),
 
@@ -63,7 +63,7 @@ Animation::Animation(char const* name, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(char const* name, char const* group, std::size_t frame) :
+Animation::Animation(char const* name, char const* group, Index frame) :
         g_data(fge::anim::GetAnimation(std::string(name))),
         g_name(name),
 
@@ -75,7 +75,7 @@ Animation::Animation(char const* name, char const* group, std::size_t frame) :
 {
     this->setGroup(std::string{group});
 }
-Animation::Animation(fge::anim::AnimationDataPtr data, std::size_t frame) :
+Animation::Animation(fge::anim::AnimationDataPtr data, Index frame) :
         g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
@@ -85,7 +85,7 @@ Animation::Animation(fge::anim::AnimationDataPtr data, std::size_t frame) :
         g_loop(false),
         g_reverse(false)
 {}
-Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group, std::size_t frame) :
+Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group, Index frame) :
         g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
@@ -97,7 +97,7 @@ Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group,
 {
     this->setGroup(group);
 }
-Animation::Animation(fge::anim::AnimationDataPtr data, char const* group, std::size_t frame) :
+Animation::Animation(fge::anim::AnimationDataPtr data, char const* group, Index frame) :
         g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
@@ -158,7 +158,7 @@ bool Animation::setGroup(std::string const& groupName)
     }
     return false;
 }
-bool Animation::setGroup(std::size_t groupIndex)
+bool Animation::setGroup(Index groupIndex)
 {
     if (this->g_groupIndex == groupIndex)
     { //If same group, we do nothing
@@ -212,7 +212,7 @@ fge::anim::AnimationGroup* Animation::getGroup(std::string const& groupName)
     }
     return nullptr;
 }
-fge::anim::AnimationGroup const* Animation::getGroup(std::size_t groupIndex) const
+fge::anim::AnimationGroup const* Animation::getGroup(Index groupIndex) const
 {
     if (groupIndex < this->g_data->_groups.size())
     {
@@ -220,7 +220,7 @@ fge::anim::AnimationGroup const* Animation::getGroup(std::size_t groupIndex) con
     }
     return nullptr;
 }
-fge::anim::AnimationGroup* Animation::getGroup(std::size_t groupIndex)
+fge::anim::AnimationGroup* Animation::getGroup(Index groupIndex)
 {
     if (groupIndex < this->g_data->_groups.size())
     {
@@ -234,7 +234,7 @@ bool Animation::isGroupValid() const
     return this->g_groupIndex < this->g_data->_groups.size();
 }
 
-std::size_t Animation::nextFrame()
+Animation::Index Animation::nextFrame()
 {
     if (this->isGroupValid())
     {
@@ -244,7 +244,8 @@ std::size_t Animation::nextFrame()
             {
                 if (this->g_loop)
                 {
-                    this->g_frameIndex = this->g_data->_groups[this->g_groupIndex]._frames.size() - 1;
+                    this->g_frameIndex =
+                            static_cast<Index>(this->g_data->_groups[this->g_groupIndex]._frames.size() - 1);
                 }
             }
             else
@@ -254,7 +255,7 @@ std::size_t Animation::nextFrame()
         }
         else
         {
-            if (this->g_frameIndex + 1 >= this->g_data->_groups[this->g_groupIndex]._frames.size())
+            if (this->g_frameIndex + 1 >= static_cast<Index>(this->g_data->_groups[this->g_groupIndex]._frames.size()))
             {
                 if (this->g_loop)
                 {
@@ -269,16 +270,16 @@ std::size_t Animation::nextFrame()
     }
     return this->g_frameIndex;
 }
-void Animation::setFrame(std::size_t frame)
+void Animation::setFrame(Index frame)
 {
     this->g_frameIndex = frame;
 }
 
-std::size_t Animation::getFrameIndex() const
+Animation::Index Animation::getFrameIndex() const
 {
     return this->g_frameIndex;
 }
-std::size_t Animation::getGroupIndex() const
+Animation::Index Animation::getGroupIndex() const
 {
     return this->g_groupIndex;
 }
@@ -299,7 +300,7 @@ fge::anim::AnimationFrame* Animation::getFrame()
     }
     return nullptr;
 }
-fge::anim::AnimationFrame const* Animation::getFrame(std::size_t frameIndex) const
+fge::anim::AnimationFrame const* Animation::getFrame(Index frameIndex) const
 {
     if (this->isGroupValid())
     {
@@ -310,7 +311,7 @@ fge::anim::AnimationFrame const* Animation::getFrame(std::size_t frameIndex) con
     }
     return nullptr;
 }
-fge::anim::AnimationFrame* Animation::getFrame(std::size_t frameIndex)
+fge::anim::AnimationFrame* Animation::getFrame(Index frameIndex)
 {
     if (this->isGroupValid())
     {
@@ -425,8 +426,8 @@ fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& 
 {
     ///TODO: Verify extraction validity (maybe also propagate the error inside the packet ?)
     std::string name;
-    std::size_t groupIndex = 0;
-    std::size_t frameIndex = 0;
+    Animation::Index groupIndex = 0;
+    Animation::Index frameIndex = 0;
     bool loop = false;
     bool reverse = false;
 
@@ -455,8 +456,8 @@ void to_json(nlohmann::json& j, fge::Animation const& p)
 void from_json(nlohmann::json const& j, fge::Animation& p)
 {
     p = j.at("name").get<std::string>();
-    p.setGroup(j.at("groupIndex").get<std::size_t>());
-    p.setFrame(j.at("frameIndex").get<std::size_t>());
+    p.setGroup(j.at("groupIndex").get<Animation::Index>());
+    p.setFrame(j.at("frameIndex").get<Animation::Index>());
     p.setLoop(j.at("loop").get<bool>());
     p.setReverse(j.at("reverse").get<bool>());
 }

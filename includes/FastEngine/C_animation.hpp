@@ -40,6 +40,8 @@ class Packet;
 class FGE_API Animation
 {
 public:
+    using Index = uint16_t;
+
     Animation();
     /**
      * \brief Constructor that takes the name of the animation
@@ -61,12 +63,12 @@ public:
      * \param group The name of the group
      * \param frame The beginning frame of the animation
      */
-    Animation(std::string name, std::string const& group, std::size_t frame = 0);
-    Animation(char const* name, std::size_t frame = 0);
-    Animation(char const* name, char const* group, std::size_t frame = 0);
-    Animation(fge::anim::AnimationDataPtr data, std::size_t frame = 0);
-    Animation(fge::anim::AnimationDataPtr data, std::string const& group, std::size_t frame = 0);
-    Animation(fge::anim::AnimationDataPtr data, char const* group, std::size_t frame = 0);
+    Animation(std::string name, std::string const& group, Index frame = 0);
+    Animation(char const* name, Index frame = 0);
+    Animation(char const* name, char const* group, Index frame = 0);
+    Animation(fge::anim::AnimationDataPtr data, Index frame = 0);
+    Animation(fge::anim::AnimationDataPtr data, std::string const& group, Index frame = 0);
+    Animation(fge::anim::AnimationDataPtr data, char const* group, Index frame = 0);
 
     /**
      * \brief Clear the animation
@@ -107,7 +109,7 @@ public:
      * \param groupIndex The index of the group
      * \return \b true if the group was found, \b false otherwise
      */
-    bool setGroup(std::size_t groupIndex);
+    bool setGroup(Index groupIndex);
 
     /**
      * \brief Get the actual group of the animation
@@ -130,8 +132,8 @@ public:
      * \param groupIndex The index of the group
      * \return The group data or nullptr
      */
-    [[nodiscard]] fge::anim::AnimationGroup const* getGroup(std::size_t groupIndex) const;
-    [[nodiscard]] fge::anim::AnimationGroup* getGroup(std::size_t groupIndex);
+    [[nodiscard]] fge::anim::AnimationGroup const* getGroup(Index groupIndex) const;
+    [[nodiscard]] fge::anim::AnimationGroup* getGroup(Index groupIndex);
 
     /**
      * \brief Check if the actual group is valid
@@ -145,26 +147,26 @@ public:
      *
      * \return The new frame index
      */
-    std::size_t nextFrame();
+    Index nextFrame();
     /**
      * \brief Set the frame of the animation
      *
      * \param frame The new frame index
      */
-    void setFrame(std::size_t frame);
+    void setFrame(Index frame);
 
     /**
      * \brief Get the actual frame index of the animation
      *
      * \return The frame index
      */
-    [[nodiscard]] std::size_t getFrameIndex() const;
+    [[nodiscard]] Index getFrameIndex() const;
     /**
      * \brief Get the actual group index of the animation
      *
      * \return The group index
      */
-    [[nodiscard]] std::size_t getGroupIndex() const;
+    [[nodiscard]] Index getGroupIndex() const;
 
     /**
      * \brief Get the actual frame of the animation
@@ -178,8 +180,8 @@ public:
      *
      * \return The frame data or nullptr
      */
-    [[nodiscard]] fge::anim::AnimationFrame const* getFrame(std::size_t frameIndex) const;
-    [[nodiscard]] fge::anim::AnimationFrame* getFrame(std::size_t frameIndex);
+    [[nodiscard]] fge::anim::AnimationFrame const* getFrame(Index frameIndex) const;
+    [[nodiscard]] fge::anim::AnimationFrame* getFrame(Index frameIndex);
 
     /**
      * \brief Check if the actual frame is valid
@@ -243,8 +245,8 @@ private:
     fge::anim::AnimationDataPtr g_data;
     std::string g_name;
 
-    std::size_t g_groupIndex; ///TODO: do not use std::size_t for network compatibility
-    std::size_t g_frameIndex;
+    Index g_groupIndex;
+    Index g_frameIndex;
 
     bool g_loop;
     bool g_reverse;
