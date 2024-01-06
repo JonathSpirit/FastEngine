@@ -23,9 +23,9 @@
 #ifndef GLSLANG_IS_SHARED_LIBRARY
     #define GLSLANG_IS_SHARED_LIBRARY
 #endif
-#include "glslang/SPIRV/GlslangToSpv.h"
 #include "glslang/Public/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
+#include "glslang/SPIRV/GlslangToSpv.h"
 
 #ifdef FGE_DEF_DEBUG
     #include <iostream>
