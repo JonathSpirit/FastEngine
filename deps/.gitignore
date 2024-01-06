@@ -1,0 +1,8 @@
+*.dll
+*.exe
+/cmake-build*/
+/x64/
+/x32/
+/build*/
+
+/.idea/
