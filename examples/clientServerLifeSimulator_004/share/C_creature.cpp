@@ -20,7 +20,9 @@
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/manager/audio_manager.hpp"
+#ifndef FGE_DEF_SERVER
+    #include "FastEngine/manager/audio_manager.hpp"
+#endif //FGE_DEF_SERVER
 
 namespace ls
 {

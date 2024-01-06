@@ -21,6 +21,11 @@
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include <cstring>
 
+extern "C"
+{
+#include "volk.c" //Including the volk implementation
+}
+
 namespace fge::vulkan
 {
 

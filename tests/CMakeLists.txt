@@ -19,9 +19,9 @@ add_library(fgeDoctestMain STATIC doctestMain.cpp)
 target_link_libraries(fgeDoctestMain PUBLIC doctest::doctest)
 
 set(TESTS_DEPENDENCIES
-    SDL2
-    SDL2_image
-    SDL2_mixer
+    SDL2::SDL2
+    SDL2_image::SDL2_image
+    SDL2_mixer::SDL2_mixer
     ${FGE_LIB_NAME}
 )
 

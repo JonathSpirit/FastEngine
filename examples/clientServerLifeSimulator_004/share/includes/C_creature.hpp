@@ -21,7 +21,9 @@
 #include "FastEngine/C_animation.hpp"
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_font.hpp"
-#include "FastEngine/C_soundBuffer.hpp"
+#ifndef FGE_DEF_SERVER
+    #include "FastEngine/C_soundBuffer.hpp"
+#endif // FGE_DEF_SERVER
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_objCircleShape.hpp"

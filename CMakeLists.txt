@@ -1,8 +1,25 @@
 cmake_minimum_required(VERSION 3.10)
 project(FastEngine)
 
-include(ExternalProject)
-include(FindFreetype)
+#Dependencies
+if (NOT FGE_DEPS_PATH)
+    #Throw error message if FGE_DEPS_PATH is not set
+    message(FATAL_ERROR "FGE_DEPS_PATH is not set, please set it to the path of the dependencies (.../libs) folder create by the cmake script in deps/CMakeLists.txt")
+else()
+    set(FGE_DEPS_FULL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${FGE_DEPS_PATH})
+
+    #Verify that FGE_DEPS_PATH contain "Dependencies.cmake"
+    if (NOT EXISTS ${FGE_DEPS_FULL_PATH})
+        message(FATAL_ERROR "FGE_DEPS_PATH is not a valid directory")
+    else()
+        if (NOT EXISTS ${FGE_DEPS_FULL_PATH}/Dependencies.cmake)
+            message(FATAL_ERROR "FGE_DEPS_PATH does not contain Dependencies.cmake")
+        endif()
+
+        #Include the dependencies file
+        include(${FGE_DEPS_FULL_PATH}/Dependencies.cmake)
+    endif()
+endif()
 
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -33,7 +50,7 @@ endif()
 if(NOT WIN32)
     set(FGE_SDL_MAIN "")
 else()
-    set(FGE_SDL_MAIN "SDL2main")
+    set(FGE_SDL_MAIN "SDL2::SDL2main")
 endif()
 
 #Getting all *.h/*.inl files
@@ -98,119 +115,12 @@ if (FGE_BUILD_DOC)
     endif (DOXYGEN_FOUND)
 endif()
 
-#Add all subdirectories
-
-#Make sure we are building shared libs for libraries that need to be shared
-set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE) #BEGIN BUILD_SHARED_LIBS
-set(BUILD_STATIC_LIBS OFF CACHE BOOL "" FORCE)
-
-if(WIN32)
-    ExternalProject_Add(freetype_extern #freetype
-            URL "${PROJECT_SOURCE_DIR}/libs/freetype"
-            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/freetype_extern
-            CMAKE_ARGS -DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_BUILD_TYPE=Release
-            INSTALL_COMMAND ""
-            TEST_COMMAND ""
-            DOWNLOAD_COMMAND ""
-            SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/freetype
-            EXCLUDE_FROM_ALL
-            )
-
-    set(FREETYPE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/freetype/include" CACHE PATH "" FORCE)
-    if (MSVC)
-        set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/$<CONFIG>/freetype$<$<CONFIG:Debug>:d>.lib" CACHE FILEPATH "" FORCE)
-    else()
-        set(FREETYPE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/freetype_extern/src/freetype_extern-build/libfreetype.a" CACHE FILEPATH "" FORCE)
-    endif()
-
-    if(NOT MSVC)
-        if (NOT EXISTS ${FREETYPE_LIBRARY})
-            file(TOUCH ${FREETYPE_LIBRARY})
-        endif()
-    endif()
-
-else()
-    find_library(FREETYPE NAMES freetype REQUIRED)
-    set(FREETYPE_INCLUDE_DIR ${FREETYPE_INCLUDE_DIR_freetype2})
-endif()
-
-ExternalProject_Add(glslang #glslang
-        URL "${PROJECT_SOURCE_DIR}/libs/glslang"
-        CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF
-        PREFIX ${CMAKE_BINARY_DIR}/libs/glslang
-        BINARY_DIR ${CMAKE_BINARY_DIR}/libs/glslang
-        INSTALL_COMMAND ""
-        TEST_COMMAND ""
-        DOWNLOAD_COMMAND ""
-        SOURCE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang
-        EXCLUDE_FROM_ALL
-        )
-ExternalProject_Get_Property(glslang BINARY_DIR)
-
-if(WIN32)
-    set(GLSLANG_EXTENSION ".dll.a")
-
-    set(GLSLANG_DLL ${BINARY_DIR}/glslang/glslang.dll)
-    set(GLSLANG_RES_DLL ${BINARY_DIR}/glslang/libglslang-default-resource-limits.dll)
-    set(GLSLANG_SPIRV_DLL ${BINARY_DIR}/SPIRV/SPIRV.dll)
-elseif(APPLE)
-    set(GLSLANG_EXTENSION ".dylib")
-else()
-    set(GLSLANG_EXTENSION ".so")
-endif()
-
-set(GLSLANG_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/glslang)
-if (APPLE)
-    set(GLSLANG_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang*${GLSLANG_EXTENSION})
-    set(GLSLANG_RES_LIB_APPLE_HELL ${BINARY_DIR}/glslang/libglslang-default-resource-limits*${GLSLANG_EXTENSION})
-    set(GLSLANG_SPIRV_LIB_APPLE_HELL ${BINARY_DIR}/SPIRV/libSPIRV*${GLSLANG_EXTENSION})
-endif()
-set(GLSLANG_LIB ${BINARY_DIR}/glslang/libglslang${GLSLANG_EXTENSION})
-set(GLSLANG_RES_LIB ${BINARY_DIR}/glslang/libglslang-default-resource-limits${GLSLANG_EXTENSION})
-set(GLSLANG_SPIRV_LIB ${BINARY_DIR}/SPIRV/libSPIRV${GLSLANG_EXTENSION})
-
-set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE) #SDL
-set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
-add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
-
-set(SDL2IMAGE_INSTALL OFF CACHE BOOL "" FORCE) #SDL_image
-set(SDL2_DIR "libs/SDL" CACHE PATH "" FORCE)
-set(SDL2_MAIN_LIBRARY SDL2main CACHE STRING "" FORCE)
-add_subdirectory(libs/SDL_image EXCLUDE_FROM_ALL)
-
-set(SDL2MIXER_INSTALL OFF CACHE BOOL "" FORCE) #SDL_mixer
-set(SDL2MIXER_VENDORED ON CACHE BOOL "" FORCE)
-add_subdirectory(libs/SDL_mixer EXCLUDE_FROM_ALL)
-
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE) #END BUILD_SHARED_LIBS
-
-set(LZ4_BUILD_CLI OFF CACHE BOOL "" FORCE) #lz4
-add_subdirectory("libs/lz4/build/cmake" EXCLUDE_FROM_ALL)
-
-set(FMT_TEST OFF CACHE BOOL "" FORCE) #fmt
-add_subdirectory("libs/fmt" EXCLUDE_FROM_ALL)
-
-set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE) #re2
-set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-add_subdirectory("libs/re2" EXCLUDE_FROM_ALL)
-
-set(ENABLE_LIB_ONLY ON CACHE BOOL "" FORCE) #bzip2
-set(ENABLE_APP OFF CACHE BOOL "" FORCE)
-set(ENABLE_STATIC_LIB ON CACHE BOOL "" FORCE)
-add_subdirectory("libs/bzip2" EXCLUDE_FROM_ALL)
-
 #Create the library
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_library(${FGE_LIB_NAME} SHARED)
 add_library(${FGE_SERVER_LIB_NAME} SHARED)
-
-#Dependencies
-
-#Checking for Vulkan
-find_package(Vulkan MODULE REQUIRED)
 
 if(WIN32)
     add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
@@ -220,67 +130,13 @@ else()
     add_compile_definitions(VK_USE_PLATFORM_XLIB_KHR)
 endif()
 
-if(WIN32)
-    add_dependencies(${FGE_SERVER_LIB_NAME} freetype_extern)
-    add_dependencies(${FGE_LIB_NAME} freetype_extern)
-endif()
-
-add_dependencies(SDL2_image SDL2)
-add_dependencies(SDL2_mixer SDL2)
-
-add_dependencies(${FGE_LIB_NAME} glslang) #glslang
-add_dependencies(${FGE_SERVER_LIB_NAME} glslang)
-target_include_directories(${FGE_LIB_NAME} PRIVATE ${GLSLANG_INCLUDE_DIR})
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${GLSLANG_INCLUDE_DIR})
-
-add_dependencies(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer) #SDL
-add_dependencies(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL/include)
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL_image)
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/SDL_mixer/include)
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL/include)
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL_image)
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/SDL_mixer/include)
-
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/volk) #Volk
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/volk)
-
-add_compile_definitions(VMA_VULKAN_VERSION=1001000)
+add_compile_definitions(VMA_VULKAN_VERSION=1001000) #VulkanMemoryAllocator
 add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0)
 add_compile_definitions(VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/VulkanMemoryAllocator/include) #VulkanMemoryAllocator
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/VulkanMemoryAllocator/include)
 
-target_include_directories(${FGE_LIB_NAME} PUBLIC libs/glm) #glm
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC libs/glm)
-
-include_directories(${Vulkan_INCLUDE_DIRS}) #Vulkan
-
-add_dependencies(${FGE_LIB_NAME} lz4_static) #Lz4
-add_dependencies(${FGE_SERVER_LIB_NAME} lz4_static)
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/lz4/lib")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/lz4/lib")
-
-add_dependencies(${FGE_LIB_NAME} fmt) #fmt
-add_dependencies(${FGE_SERVER_LIB_NAME} fmt)
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/fmt/include")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/fmt/include")
-
-add_dependencies(${FGE_LIB_NAME} re2) #re2
-add_dependencies(${FGE_SERVER_LIB_NAME} re2)
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/re2/re2")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/re2/re2")
-
-add_dependencies(${FGE_LIB_NAME} bz2_static) #bz2
-add_dependencies(${FGE_SERVER_LIB_NAME} bz2_static)
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/bzip2")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/bzip2")
-
-target_include_directories(${FGE_LIB_NAME} PUBLIC "libs/strtk") #strtk
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "libs/strtk")
-
-target_include_directories(${FGE_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR}) #FreeType
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIR})
+get_filename_component(DEPS_strtk_HEADER_FOLDER ${DEPS_strtk_HEADER_FILE} DIRECTORY) #strtk
+target_include_directories(${FGE_LIB_NAME} PUBLIC ${DEPS_strtk_HEADER_FOLDER})
+target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC ${DEPS_strtk_HEADER_FOLDER})
 
 #Compile options
 if (MSVC)
@@ -330,9 +186,6 @@ target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "${PROJECT_BINARY_DIR}"
 
 #Source files
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_INCLUDES})
-
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE libs/volk/volk.c)
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE libs/volk/volk.h)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/vulkan/vma.cpp
@@ -442,9 +295,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp"
 #######################
 
 target_sources(${FGE_LIB_NAME} PRIVATE ${FGE_INCLUDES})
-
-target_sources(${FGE_LIB_NAME} PRIVATE libs/volk/volk.c)
-target_sources(${FGE_LIB_NAME} PRIVATE libs/volk/volk.h)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/vulkan/vma.cpp
@@ -559,23 +409,27 @@ if(WIN32)
     target_link_libraries(${FGE_SERVER_LIB_NAME} user32 ws2_32 winmm)
 endif()
 
-target_link_libraries(${FGE_LIB_NAME} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB} ${GLSLANG_LIB})
-target_link_libraries(${FGE_LIB_NAME} SDL2 SDL2_image SDL2_mixer)
-target_link_libraries(${FGE_LIB_NAME} bz2_static)
-target_link_libraries(${FGE_LIB_NAME} lz4_static)
-target_link_libraries(${FGE_LIB_NAME} fmt)
-target_link_libraries(${FGE_LIB_NAME} ${FREETYPE_LIBRARY})
-target_link_libraries(${FGE_LIB_NAME} re2)
+target_link_libraries(${FGE_LIB_NAME} glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
+target_link_libraries(${FGE_LIB_NAME} SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer)
+target_link_libraries(${FGE_LIB_NAME} BZip2::bz2_static)
+target_link_libraries(${FGE_LIB_NAME} LZ4::lz4_static)
+target_link_libraries(${FGE_LIB_NAME} fmt::fmt-header-only)
+target_link_libraries(${FGE_LIB_NAME} Freetype::Freetype)
+target_link_libraries(${FGE_LIB_NAME} re2::re2)
+target_link_libraries(${FGE_LIB_NAME} glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
 
-target_link_libraries(${FGE_SERVER_LIB_NAME} ${GLSLANG_RES_LIB} ${GLSLANG_SPIRV_LIB} ${GLSLANG_LIB})
-target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2 SDL2_image)
-target_link_libraries(${FGE_SERVER_LIB_NAME} bz2_static)
-target_link_libraries(${FGE_SERVER_LIB_NAME} lz4_static)
-target_link_libraries(${FGE_SERVER_LIB_NAME} fmt)
-target_link_libraries(${FGE_SERVER_LIB_NAME} ${FREETYPE_LIBRARY})
-target_link_libraries(${FGE_SERVER_LIB_NAME} re2)
+target_link_libraries(${FGE_SERVER_LIB_NAME} glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
+target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2::SDL2 SDL2_image::SDL2_image)
+target_link_libraries(${FGE_SERVER_LIB_NAME} BZip2::bz2_static)
+target_link_libraries(${FGE_SERVER_LIB_NAME} LZ4::lz4_static)
+target_link_libraries(${FGE_SERVER_LIB_NAME} fmt::fmt-header-only)
+target_link_libraries(${FGE_SERVER_LIB_NAME} Freetype::Freetype)
+target_link_libraries(${FGE_SERVER_LIB_NAME} re2::re2)
+target_link_libraries(${FGE_SERVER_LIB_NAME} glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
 
 #Install
+include(GNUInstallDirs)
+
 install(TARGETS ${FGE_LIB_NAME})
 install(TARGETS ${FGE_SERVER_LIB_NAME})
 install(FILES ${FGE_INCLUDES_EXTRA}
@@ -614,14 +468,14 @@ function(CopyFilesToRuntimeDirectory FILE_PATHS MAIN_TARGET_NAME)
 endfunction()
 
 if (WIN32)
-    CopyTargetDllsToRuntimeDirectory("SDL2;SDL2_image;SDL2_mixer" FgeClientExeDeps)
-    CopyTargetDllsToRuntimeDirectory("SDL2;SDL2_image" FgeServerExeDeps)
+    CopyTargetDllsToRuntimeDirectory("SDL2::SDL2;SDL2_image::SDL2_image;SDL2_mixer::SDL2_mixer" FgeClientExeDeps)
+    CopyTargetDllsToRuntimeDirectory("SDL2::SDL2;SDL2_image::SDL2_image" FgeServerExeDeps)
 
-    CopyFilesToRuntimeDirectory("${GLSLANG_DLL};${GLSLANG_RES_DLL};${GLSLANG_SPIRV_DLL}" FgeClientExeDeps)
-    CopyFilesToRuntimeDirectory("${GLSLANG_DLL};${GLSLANG_RES_DLL};${GLSLANG_SPIRV_DLL}" FgeServerExeDeps)
+    CopyTargetDllsToRuntimeDirectory("glslang::glslang-default-resource-limits;glslang::SPIRV;glslang::glslang" FgeClientExeDeps)
+    CopyTargetDllsToRuntimeDirectory("glslang::glslang-default-resource-limits;glslang::SPIRV;glslang::glslang" FgeServerExeDeps)
 elseif(APPLE)
-    CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeClientExeDeps)
-    CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeServerExeDeps)
+    #CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeClientExeDeps)
+    #CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeServerExeDeps)
 endif()
 
 add_custom_target(ResourcesSymlink
@@ -634,17 +488,9 @@ add_custom_target(ResourcesSymlink
 add_dependencies(FgeClientExeDeps ResourcesSymlink)
 add_dependencies(FgeServerExeDeps ResourcesSymlink)
 
-#Set some variables that help exe linking
-if(WIN32)
-    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer ${FGE_LIB_NAME})
-    set(FGE_SERVER_LIBS SDL2 SDL2_image ${FGE_SERVER_LIB_NAME})
-elseif(APPLE)
-    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer ${FGE_LIB_NAME})
-    set(FGE_SERVER_LIBS SDL2 SDL2_image ${FGE_SERVER_LIB_NAME})
-else()
-    set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2 SDL2_image SDL2_mixer ${FGE_LIB_NAME})
-    set(FGE_SERVER_LIBS SDL2 SDL2_image ${FGE_SERVER_LIB_NAME})
-endif()
+#Set some helper variables for executables
+set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer ${FGE_LIB_NAME})
+set(FGE_SERVER_LIBS SDL2::SDL2 SDL2_image::SDL2_image ${FGE_SERVER_LIB_NAME})
 
 #Tests
 if (FGE_BUILD_TESTS)
