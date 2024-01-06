@@ -40,9 +40,9 @@ index c4b0b6e..cabb4df 100644
          VERSION ${LT_VERSION} SOVERSION ${LT_SOVERSION})
 -    install(TARGETS bz2 DESTINATION ${CMAKE_INSTALL_LIBDIR})
 -    install(FILES bzlib.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-+	install(TARGETS bz2 DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT bzip2Targets 
++	install(TARGETS bz2 DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT bzip2Targets
 +		FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT Development)
-+		
++
 +	export(TARGETS bz2 NAMESPACE BZip2:: FILE bzip2Targets.cmake)
  
      if(USE_OLD_SONAME)
@@ -66,13 +66,13 @@ index c4b0b6e..cabb4df 100644
      target_compile_definitions(bz2_static PUBLIC BZ2_STATICLIB)
 -    install(TARGETS bz2_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 -    install(FILES bzlib.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-+    install(TARGETS bz2_static DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT bzip2Targets 
++    install(TARGETS bz2_static DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT bzip2Targets
 +		FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT Development)
-+		
++
 +	export(TARGETS bz2_static NAMESPACE BZip2:: FILE bzip2Targets.cmake)
  endif()
  
-+configure_package_config_file(bzip2Config.cmake.in 
++configure_package_config_file(bzip2Config.cmake.in
 +	${CMAKE_CURRENT_BINARY_DIR}/bzip2Config.cmake
 +	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 +write_basic_package_version_file(bzip2ConfigVersion.cmake VERSION ${LT_VERSION} COMPATIBILITY SameMajorVersion)

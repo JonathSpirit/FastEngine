@@ -42,7 +42,7 @@ function(AddPatchedDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR PATCH)
             PREFIX project/${NAME}
             PATCH_COMMAND ${GIT_EXECUTABLE} clean --force -d -x &&
             PATCH_COMMAND ${GIT_EXECUTABLE} reset --hard &&
-            PATCH_COMMAND ${GIT_EXECUTABLE} apply "${PATCH}"
+            PATCH_COMMAND ${GIT_EXECUTABLE} am "${PATCH}"
             TEST_COMMAND ""
             SOURCE_SUBDIR ${SOURCE_SUBDIR}
             EXCLUDE_FROM_ALL)
