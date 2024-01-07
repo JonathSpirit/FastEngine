@@ -31,7 +31,7 @@ jobs:
       with:
         msystem: ${{matrix.sys}}
         update: true
-        install: git mingw-w64-${{matrix.env}}-vulkan-devel mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-cmake mingw-w64-${{matrix.env}}-make
+        install: git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-cmake mingw-w64-${{matrix.env}}-make
     
     - name: Create Build Environment
       run: cmake -E make_directory "${{github.workspace}}\build"
@@ -51,12 +51,12 @@ jobs:
       shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
       run: cmake $GITHUB_WORKSPACE -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D FGE_DEPS_PATH="deps/libs"
-
+    
     - name: Build
       shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
       run: cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
-
+    
     - name: Test
       shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
