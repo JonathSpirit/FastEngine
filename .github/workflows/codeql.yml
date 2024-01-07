@@ -1,25 +1,12 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
 name: "CodeQL"
 
 env:
   BUILD_TYPE: Release
-  ARCH: "64"
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ "master" ]
     types: [opened, reopened]
   schedule:
@@ -33,29 +20,38 @@ jobs:
       actions: read
       contents: read
       security-events: write
-
+    
     strategy:
       fail-fast: false
       matrix:
         language: [ 'cpp' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
-
+    
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: 'recursive'
-        
+    
+    - name: Get number of CPU cores
+      uses: SimenB/github-actions-cpu-cores@v2
+      id: cpu-cores
+    
     - name: Install gcc
       run: sudo apt-get update && sudo apt-get install gcc-11 g++-11
-      
+    
     - name: Install dependencies
       run: |
-        sudo apt-get install libfreetype-dev libx11-dev libxrandr-dev libudev-dev \
+        sudo apt-get install libx11-dev libxrandr-dev libudev-dev \
         libglu1-mesa-dev freeglut3-dev mesa-common-dev libflac-dev libogg-dev \
-        libvorbis-dev libopenal-dev libxcursor-dev libvulkan-dev
-
+        libvorbis-dev libopenal-dev libxcursor-dev
+    
+    - name: Handling project dependencies
+      shell: bash
+      working-directory: ${{github.workspace}}\deps
+      run: |
+        cmake . -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+        cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
+    
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
@@ -67,40 +63,19 @@ jobs:
         
         # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
-
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
+    
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
-
+    
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D TARGET_ARCH=$ARCH
-    
-    - name: Get number of CPU cores
-      uses: SimenB/github-actions-cpu-cores@v1
-      id: cpu-cores
+      run: cmake $GITHUB_WORKSPACE -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D FGE_DEPS_PATH="deps/libs"
     
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE --target FastEngine64
-
+      run: cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
+    
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
-      with:
-        upload: false
-        output: sarif-results
-        
-    - name: filter-sarif
-      uses: advanced-security/filter-sarif@main
-      with:
-        patterns: |
-          -**/libs/**
-        input: sarif-results/${{ matrix.language }}.sarif
-        output: sarif-results/${{ matrix.language }}.sarif
-
-    - name: Upload SARIF
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: sarif-results/${{ matrix.language }}.sarif
