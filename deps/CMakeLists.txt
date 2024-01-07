@@ -99,7 +99,7 @@ AddCmakeDependency(re2
         https://github.com/google/re2.git
         2023-03-01
         OFF
-        "-DRE2_BUILD_TESTING=OFF -DBUILD_TESTING=OFF"
+        "-DRE2_BUILD_TESTING=OFF -DBUILD_TESTING=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
 AddSingleHeaderDependency(strtk
