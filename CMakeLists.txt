@@ -21,6 +21,11 @@ else()
     endif()
 endif()
 
+get_target_property(TEST_INTERFACE_INCLUDE_DIRECTORIES LZ4::lz4_static INTERFACE_INCLUDE_DIRECTORIES)
+message(WARNING "lz4:test : ${TEST_INTERFACE_INCLUDE_DIRECTORIES}")
+file(READ "${FGE_DEPS_FULL_PATH}/lz4/lib/cmake/lz4/lz4Targets.cmake" TEST_FILE)
+message(WARNING "lz4:test : ${TEST_FILE}")
+
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(FGE_ARCH 64)
