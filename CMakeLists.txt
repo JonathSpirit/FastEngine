@@ -21,11 +21,13 @@ else()
     endif()
 endif()
 
-#Add a fix for lz4 on apple
-if (APPLE)
+#Add a LZ4 fix for missing INTERFACE_INCLUDE_DIRECTORIES property
+get_target_property(VAR_PROPERTY_CHECK LZ4::lz4_static INTERFACE_INCLUDE_DIRECTORIES)
+
+if (VAR_PROPERTY_CHECK STREQUAL "VAR_PROPERTY_CHECK-NOTFOUND" OR
+    VAR_PROPERTY_CHECK STREQUAL "")
     set_target_properties(LZ4::lz4_static PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES "${FGE_DEPS_FULL_PATH}/lz4/include"
-    )
+            INTERFACE_INCLUDE_DIRECTORIES "${FGE_DEPS_FULL_PATH}/lz4/include")
 endif()
 
 #Check for architecture
