@@ -3,6 +3,7 @@
 *.spv
 /cmake-build*/
 /installdir/
+/install/
 /includes/FastEngine/fge_version.hpp
 /build*/
 

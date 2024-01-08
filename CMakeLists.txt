@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.23)
 project(FastEngine)
 
 #Dependencies
@@ -60,23 +60,23 @@ else()
     set(FGE_SDL_MAIN "SDL2::SDL2main")
 endif()
 
-#Getting all *.h/*.inl files
+#Getting all headers files
 file(GLOB_RECURSE FGE_INCLUDES
         LIST_DIRECTORIES false
         RELATIVE ${PROJECT_SOURCE_DIR}
-        includes/*.hpp includes/*.inl)
+        includes/*.hpp includes/*.h includes/*.inl)
 
-file(GLOB FGE_INCLUDES_EXTRA
+file(GLOB_RECURSE FGE_INCLUDES_PUBLIC
         LIST_DIRECTORIES false
-        RELATIVE ${PROJECT_SOURCE_DIR}
-        includes/*.hpp includes/*.inl)
+        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        includes/*.hpp includes/*.h includes/*.inl)
 
-file(GLOB FGE_INCLUDES_PROJECT
+file(GLOB_RECURSE FGE_INCLUDES_PRIVATE
         LIST_DIRECTORIES false
-        RELATIVE ${PROJECT_SOURCE_DIR}
-        includes/FastEngine/*.hpp includes/FastEngine/*.inl)
+        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        includes/private/*.hpp includes/private/*.h includes/private/*.inl)
 
-set(FGE_EXE_NAME ${PROJECT_NAME}_test)
+list(REMOVE_ITEM FGE_INCLUDES_PUBLIC ${FGE_INCLUDES_PRIVATE})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -87,6 +87,9 @@ find_package(Git)
 set(SRC ${CMAKE_SOURCE_DIR}/version/fge_version.hpp.in)
 set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fge_version.hpp)
 include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
+
+#Set default install prefix
+option(CMAKE_INSTALL_PREFIX "Where to install fge" "${CMAKE_CURRENT_SOURCE_DIR}/install/FastEngine_${CMAKE_SYSTEM_NAME}_${FGE_ARCH}_${CMAKE_BUILD_TYPE}_${VAR_FGE_VERSION_FULL_WITHTAG_STRING}")
 
 #Options
 if (NOT ${FGE_DEBUG})
@@ -142,16 +145,16 @@ add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0)
 add_compile_definitions(VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
 
 get_filename_component(DEPS_strtk_HEADER_FOLDER ${DEPS_strtk_HEADER_FILE} DIRECTORY) #strtk
-target_include_directories(${FGE_LIB_NAME} PUBLIC ${DEPS_strtk_HEADER_FOLDER})
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC ${DEPS_strtk_HEADER_FOLDER})
+target_include_directories(${FGE_LIB_NAME} PRIVATE ${DEPS_strtk_HEADER_FOLDER})
+target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${DEPS_strtk_HEADER_FOLDER})
 
 #Compile options
 if (MSVC)
-    target_compile_options(${FGE_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275 /wd26812)
-    target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC /W4 /wd4251 /wd4275 /wd26812)
+    target_compile_options(${FGE_LIB_NAME} PRIVATE /W4 /wd4251 /wd4275 /wd26812)
+    target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE /W4 /wd4251 /wd4275 /wd26812)
 else()
-    target_compile_options(${FGE_LIB_NAME} PUBLIC -Wpedantic -Wall -Wextra)
-    target_compile_options(${FGE_SERVER_LIB_NAME} PUBLIC -Wpedantic -Wall -Wextra)
+    target_compile_options(${FGE_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
+    target_compile_options(${FGE_SERVER_LIB_NAME} PRIVATE -Wpedantic -Wall -Wextra)
 endif()
 
 #Definition
@@ -159,40 +162,41 @@ target_compile_definitions(${FGE_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE _FGE_DEF_BUILDDLL)
 
 if (${FGE_DEBUG})
-    target_compile_definitions(${FGE_LIB_NAME} PRIVATE FGE_DEF_DEBUG)
-    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_DEF_DEBUG)
+    target_compile_definitions(${FGE_LIB_NAME} PUBLIC FGE_DEF_DEBUG)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PUBLIC FGE_DEF_DEBUG)
 endif()
 
 if (${FGE_ENABLE_VALIDATION_LAYERS})
-    target_compile_definitions(${FGE_LIB_NAME} PRIVATE FGE_ENABLE_VALIDATION_LAYERS)
-    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_ENABLE_VALIDATION_LAYERS)
+    target_compile_definitions(${FGE_LIB_NAME} PUBLIC FGE_ENABLE_VALIDATION_LAYERS)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PUBLIC FGE_ENABLE_VALIDATION_LAYERS)
 endif()
 
 if (${FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST})
-    target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PUBLIC FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST)
     if (NOT ${FGE_DEBUG})
         message(WARNING "FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST is enabled, but FGE_DEBUG is disabled")
     endif()
 endif()
 
 if (${FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST})
-    target_compile_definitions(${FGE_LIB_NAME} PRIVATE FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST)
+    target_compile_definitions(${FGE_LIB_NAME} PUBLIC FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST)
     if (NOT ${FGE_DEBUG})
         message(WARNING "FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST is enabled, but FGE_DEBUG is disabled")
     endif()
 endif()
 
-target_compile_definitions(${FGE_SERVER_LIB_NAME} PRIVATE FGE_DEF_SERVER)
+target_compile_definitions(${FGE_SERVER_LIB_NAME} PUBLIC FGE_DEF_SERVER)
 
 #Includes path
-target_include_directories(${FGE_LIB_NAME} PUBLIC "includes")
-target_include_directories(${FGE_LIB_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(${FGE_LIB_NAME} PRIVATE "includes")
+target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE "includes")
 
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "includes")
-target_include_directories(${FGE_SERVER_LIB_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(${FGE_LIB_NAME} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories(${FGE_SERVER_LIB_NAME} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 #Source files
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE ${FGE_INCLUDES})
+target_sources(${FGE_SERVER_LIB_NAME} PUBLIC FILE_SET publicHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PUBLIC})
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE FILE_SET privateHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PRIVATE})
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/vulkan/vma.cpp
@@ -301,7 +305,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp"
 
 #######################
 
-target_sources(${FGE_LIB_NAME} PRIVATE ${FGE_INCLUDES})
+target_sources(${FGE_LIB_NAME} PUBLIC FILE_SET publicHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PUBLIC})
+target_sources(${FGE_LIB_NAME} PRIVATE FILE_SET privateHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PRIVATE})
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/vulkan/vma.cpp
@@ -412,37 +417,74 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp")
 
 #Linking library
 if(WIN32)
-    target_link_libraries(${FGE_LIB_NAME} user32 ws2_32 winmm)
-    target_link_libraries(${FGE_SERVER_LIB_NAME} user32 ws2_32 winmm)
+    target_link_libraries(${FGE_LIB_NAME} PUBLIC user32 ws2_32 winmm)
+    target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC user32 ws2_32 winmm)
 endif()
 
-target_link_libraries(${FGE_LIB_NAME} glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
-target_link_libraries(${FGE_LIB_NAME} SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer)
-target_link_libraries(${FGE_LIB_NAME} BZip2::bz2_static)
-target_link_libraries(${FGE_LIB_NAME} LZ4::lz4_static)
-target_link_libraries(${FGE_LIB_NAME} fmt::fmt-header-only)
-target_link_libraries(${FGE_LIB_NAME} Freetype::Freetype)
-target_link_libraries(${FGE_LIB_NAME} re2::re2)
-target_link_libraries(${FGE_LIB_NAME} glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
+target_link_libraries(${FGE_LIB_NAME} PUBLIC SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE BZip2::bz2_static)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE LZ4::lz4_static)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE fmt::fmt-header-only)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE Freetype::Freetype)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE re2::re2)
+target_link_libraries(${FGE_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
 
-target_link_libraries(${FGE_SERVER_LIB_NAME} glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
-target_link_libraries(${FGE_SERVER_LIB_NAME} SDL2::SDL2 SDL2_image::SDL2_image)
-target_link_libraries(${FGE_SERVER_LIB_NAME} BZip2::bz2_static)
-target_link_libraries(${FGE_SERVER_LIB_NAME} LZ4::lz4_static)
-target_link_libraries(${FGE_SERVER_LIB_NAME} fmt::fmt-header-only)
-target_link_libraries(${FGE_SERVER_LIB_NAME} Freetype::Freetype)
-target_link_libraries(${FGE_SERVER_LIB_NAME} re2::re2)
-target_link_libraries(${FGE_SERVER_LIB_NAME} glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC SDL2::SDL2 SDL2_image::SDL2_image)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE BZip2::bz2_static)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE LZ4::lz4_static)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE fmt::fmt-header-only)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE Freetype::Freetype)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE re2::re2)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
 
 #Install
 include(GNUInstallDirs)
 
-install(TARGETS ${FGE_LIB_NAME})
-install(TARGETS ${FGE_SERVER_LIB_NAME})
-install(FILES ${FGE_INCLUDES_EXTRA}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(FILES ${FGE_INCLUDES_PROJECT}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/FastEngine)
+install(TARGETS ${FGE_LIB_NAME} EXPORT ${PROJECT_NAME}Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        FILE_SET publicHeaders DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(TARGETS ${FGE_SERVER_LIB_NAME} EXPORT ${PROJECT_NAME}Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        FILE_SET publicHeaders DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(FILES fge_changelog.txt DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+install(FILES IMAGE_AUDIO_LOGO_LICENSE DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+install(FILES logo.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+
+install(DIRECTORY ${FGE_DEPS_FULL_PATH} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/external)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${VAR_FGE_VERSION_FULL_STRING}
+        COMPATIBILITY SameMajorVersion)
+
+configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME})
+
+export(EXPORT ${PROJECT_NAME}Targets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
+        NAMESPACE ${PROJECT_NAME}::)
+
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME})
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME})
 
 #Custom target for executables that copy compiled DLLs and symlink the resources folder
 if (MSVC)
