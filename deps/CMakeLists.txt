@@ -83,7 +83,7 @@ AddPatchedDependency(bzip2
 
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
-        10.0.0
+        10.2.1
         OFF
         "-DFMT_TEST=OFF"
         "")
@@ -109,21 +109,21 @@ AddSingleHeaderDependency(strtk
 
 AddCmakeDependency(freetype
         https://gitlab.freedesktop.org/freetype/freetype.git
-        VER-2-13-0
+        VER-2-13-2
         OFF
         "-DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
 AddCmakeDependency(SDL2
         https://github.com/libsdl-org/SDL.git
-        release-2.28.2
+        release-2.28.5
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
 
 AddCmakeDependency(SDL2_image
         https://github.com/libsdl-org/SDL_image.git
-        release-2.6.3
+        release-2.8.2
         ON
         "-DSDL2IMAGE_SAMPLES=OFF -DSDL2IMAGE_DEPS_SHARED=OFF -DSDL2IMAGE_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL2"
         "")
