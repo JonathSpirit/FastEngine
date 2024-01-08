@@ -21,10 +21,12 @@ else()
     endif()
 endif()
 
-get_target_property(TEST_INTERFACE_INCLUDE_DIRECTORIES LZ4::lz4_static INTERFACE_INCLUDE_DIRECTORIES)
-message(WARNING "lz4:test : ${TEST_INTERFACE_INCLUDE_DIRECTORIES}")
-file(READ "${FGE_DEPS_FULL_PATH}/lz4/lib/cmake/lz4/lz4Targets.cmake" TEST_FILE)
-message(WARNING "lz4:test : ${TEST_FILE}")
+#Add a fix for lz4 on apple
+if (APPLE)
+    set_target_properties(LZ4::lz4_static PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${FGE_DEPS_FULL_PATH}/lz4/include"
+    )
+endif()
 
 #Check for architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
