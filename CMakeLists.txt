@@ -480,9 +480,6 @@ if (WIN32)
 
     CopyTargetDllsToRuntimeDirectory("glslang::glslang-default-resource-limits;glslang::SPIRV;glslang::glslang" FgeClientExeDeps)
     CopyTargetDllsToRuntimeDirectory("glslang::glslang-default-resource-limits;glslang::SPIRV;glslang::glslang" FgeServerExeDeps)
-elseif(APPLE)
-    #CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeClientExeDeps)
-    #CopyFilesToRuntimeDirectory("${GLSLANG_LIB_APPLE_HELL};${GLSLANG_RES_LIB_APPLE_HELL};${GLSLANG_SPIRV_LIB_APPLE_HELL}" FgeServerExeDeps)
 endif()
 
 add_custom_target(ResourcesSymlink
