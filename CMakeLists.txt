@@ -37,20 +37,8 @@ else()
     set(FGE_ARCH 32)
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
-    set(FGE_LIB_NAME "${PROJECT_NAME}${FGE_ARCH}_d")
-    set(FGE_SERVER_LIB_NAME "${PROJECT_NAME}Server${FGE_ARCH}_d")
-    set(FGE_DEBUG ON)
-    set(FGE_ENABLE_VALIDATION_LAYERS ON CACHE BOOL "enable/disable Vulkan validation layers")
-else()
-    set(FGE_LIB_NAME "${PROJECT_NAME}${FGE_ARCH}")
-    set(FGE_SERVER_LIB_NAME "${PROJECT_NAME}Server${FGE_ARCH}")
-    set(FGE_DEBUG OFF)
-    set(FGE_ENABLE_VALIDATION_LAYERS OFF CACHE BOOL "enable/disable Vulkan validation layers")
-endif()
-
-set(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST OFF CACHE BOOL "enable/disable random packet lost for server")
-set(FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST OFF CACHE BOOL "enable/disable random packet lost for client")
+set(FGE_LIB_NAME "${PROJECT_NAME}")
+set(FGE_SERVER_LIB_NAME "${PROJECT_NAME}Server")
 
 if(APPLE)
     add_compile_options(-Wno-nullability-extension)
@@ -63,11 +51,6 @@ else()
 endif()
 
 #Getting all headers files
-file(GLOB_RECURSE FGE_INCLUDES
-        LIST_DIRECTORIES false
-        RELATIVE ${PROJECT_SOURCE_DIR}
-        includes/*.hpp includes/*.h includes/*.inl)
-
 file(GLOB_RECURSE FGE_INCLUDES_PUBLIC
         LIST_DIRECTORIES false
         RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
@@ -96,14 +79,25 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 #Options
+if(CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
+    set(FGE_DEBUG ON)
+else()
+    set(FGE_DEBUG OFF)
+endif()
+
 if (NOT ${FGE_DEBUG})
     option(FGE_BUILD_DOC "Build documentation" ON)
+    option(FGE_ENABLE_VALIDATION_LAYERS "enable/disable Vulkan validation layers" OFF)
 else()
     option(FGE_BUILD_DOC "Build documentation" OFF)
+    option(FGE_ENABLE_VALIDATION_LAYERS "enable/disable Vulkan validation layers" ON)
 endif()
 
 option(FGE_BUILD_EXAMPLES "Build examples" ON)
 option(FGE_BUILD_TESTS "Build tests" ON)
+
+option(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST "enable/disable random packet lost for server" OFF)
+option(FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST "enable/disable random packet lost for client" OFF)
 
 #Check if Doxygen is installed
 if (FGE_BUILD_DOC)
@@ -132,6 +126,9 @@ endif()
 #Create the library
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+set(CMAKE_DEBUG_POSTFIX "${FGE_ARCH}_d")
+set(CMAKE_RELEASE_POSTFIX "${FGE_ARCH}")
 
 add_library(${FGE_LIB_NAME} SHARED)
 add_library(${FGE_SERVER_LIB_NAME} SHARED)
