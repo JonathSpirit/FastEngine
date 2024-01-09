@@ -69,8 +69,8 @@ jobs:
     
     - uses: actions/upload-artifact@v4
       with:
-        name: FastEngine-${{matrix.os}}-${{matrix.env}}-${{matrix.sys}}
-        path: install/FastEngine*
+        name: FastEngine-windows-${{matrix.env}}-${{matrix.sys}}
+        path: ${{github.workspace}}\install\FastEngine*
         if-no-files-found: error
         retention-days: 3
         compression-level: 9

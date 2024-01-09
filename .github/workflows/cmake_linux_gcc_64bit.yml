@@ -57,13 +57,13 @@ jobs:
     
     - name: Installing
       shell: bash
-      working-directory: ${{github.workspace}}\build
+      working-directory: ${{github.workspace}}/build
       run: cmake --install .
     
     - uses: actions/upload-artifact@v4
       with:
         name: FastEngine-linux-64
-        path: install/FastEngine*
+        path: ${{github.workspace}}/install/FastEngine*
         if-no-files-found: error
         retention-days: 3
         compression-level: 9
