@@ -91,7 +91,9 @@ set(DST ${CMAKE_SOURCE_DIR}/includes/FastEngine/fge_version.hpp)
 include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 
 #Set default install prefix
-option(CMAKE_INSTALL_PREFIX "Where to install fge" "${CMAKE_CURRENT_SOURCE_DIR}/install/FastEngine_${CMAKE_SYSTEM_NAME}_${FGE_ARCH}_${CMAKE_BUILD_TYPE}_${VAR_FGE_VERSION_FULL_WITHTAG_STRING}")
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install/FastEngine_${CMAKE_SYSTEM_NAME}_${FGE_ARCH}_${CMAKE_BUILD_TYPE}_${VAR_FGE_VERSION_FULL_WITHTAG_STRING}" CACHE PATH "Where to install fge" FORCE)
+endif()
 
 #Options
 if (NOT ${FGE_DEBUG})
