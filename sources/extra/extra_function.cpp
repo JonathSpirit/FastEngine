@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Guillaume Guillet
+ * Copyright 2024 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include "FastEngine/extra/extra_function.hpp"
 
 #include "FastEngine/C_scene.hpp"
-#include "re2.h"
+#include "re2/re2.h"
 #include <cmath>
 #include <filesystem>
 #include <fstream>

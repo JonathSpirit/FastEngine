@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Guillaume Guillet
+ * Copyright 2024 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include <cstring>
+
+extern "C" {
+#include "volk.c" //Including the volk implementation
+}
 
 namespace fge::vulkan
 {

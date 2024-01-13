@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Guillaume Guillet
+ * Copyright 2024 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "private/string_hash.hpp"
 
-#define GLSLANG_IS_SHARED_LIBRARY
-#include "SPIRV/GlslangToSpv.h"
+#ifndef GLSLANG_IS_SHARED_LIBRARY
+    #define GLSLANG_IS_SHARED_LIBRARY
+#endif
 #include "glslang/Public/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
+#include "glslang/SPIRV/GlslangToSpv.h"
 
 #ifdef FGE_DEF_DEBUG
     #include <iostream>

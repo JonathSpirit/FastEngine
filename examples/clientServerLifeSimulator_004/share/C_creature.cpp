@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Guillaume Guillet
+ * Copyright 2024 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include "FastEngine/manager/audio_manager.hpp"
+#ifndef FGE_DEF_SERVER
+    #include "FastEngine/manager/audio_manager.hpp"
+#endif //FGE_DEF_SERVER
 
 namespace ls
 {

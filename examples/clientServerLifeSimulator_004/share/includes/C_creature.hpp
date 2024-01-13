@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Guillaume Guillet
+ * Copyright 2024 Guillaume Guillet
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@
 #include "FastEngine/C_animation.hpp"
 #include "FastEngine/C_clock.hpp"
 #include "FastEngine/C_font.hpp"
-#include "FastEngine/C_soundBuffer.hpp"
+#ifndef FGE_DEF_SERVER
+    #include "FastEngine/C_soundBuffer.hpp"
+#endif // FGE_DEF_SERVER
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_objCircleShape.hpp"

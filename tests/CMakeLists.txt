@@ -11,7 +11,7 @@ endfunction()
 set(DOCTEST_NO_INSTALL ON)
 FetchContent_Declare(doctest
     GIT_REPOSITORY "https://github.com/doctest/doctest.git"
-    GIT_TAG v2.4.9
+    GIT_TAG v2.4.11
 )
 FetchContent_MakeAvailable(doctest)
 
@@ -19,9 +19,9 @@ add_library(fgeDoctestMain STATIC doctestMain.cpp)
 target_link_libraries(fgeDoctestMain PUBLIC doctest::doctest)
 
 set(TESTS_DEPENDENCIES
-    SDL2
-    SDL2_image
-    SDL2_mixer
+    SDL2::SDL2
+    SDL2_image::SDL2_image
+    SDL2_mixer::SDL2_mixer
     ${FGE_LIB_NAME}
 )
 
