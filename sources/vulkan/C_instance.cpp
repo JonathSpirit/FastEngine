@@ -81,7 +81,10 @@ void Instance::create(SDL_Window* window,
 #endif
 
     uint32_t enabled_extension_count = 0;
-    SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, nullptr);
+    if (SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, nullptr) == SDL_FALSE)
+    {
+        throw fge::Exception{"instance: not all required extension was available !"};
+    }
 
     std::vector<char const*> extensions{enabled_extension_count};
 
