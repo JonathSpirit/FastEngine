@@ -27,3 +27,4 @@ set(TESTS_DEPENDENCIES
 
 fge_add_test(fgeMatrixTests test_fge_matrix.cpp "${TESTS_DEPENDENCIES}")
 fge_add_test(fgeExtraStringTests test_fge_extra_string.cpp "${TESTS_DEPENDENCIES}")
+fge_add_test(fgeCallbackTests test_fge_callback.cpp "${TESTS_DEPENDENCIES}")
