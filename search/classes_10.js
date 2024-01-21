@@ -17,7 +17,7 @@ var searchData=
   ['string_5fhash_14',['string_hash',['../structfge_1_1priv_1_1string__hash.html',1,'fge::priv']]],
   ['subscriber_15',['Subscriber',['../classfge_1_1Subscriber.html',1,'fge']]],
   ['subscription_16',['Subscription',['../classfge_1_1Subscription.html',1,'fge']]],
-  ['surface_17',['surface',['../classfge_1_1Surface.html',1,'fge::Surface'],['../classfge_1_1vulkan_1_1Surface.html',1,'fge::vulkan::Surface']]],
+  ['surface_17',['Surface',['../classfge_1_1Surface.html',1,'fge::Surface'],['../classfge_1_1vulkan_1_1Surface.html',1,'fge::vulkan::Surface']]],
   ['swapchain_18',['SwapChain',['../classfge_1_1vulkan_1_1SwapChain.html',1,'fge::vulkan']]],
   ['swapchainsupportdetails_19',['SwapChainSupportDetails',['../structfge_1_1vulkan_1_1PhysicalDevice_1_1SwapChainSupportDetails.html',1,'fge::vulkan::PhysicalDevice']]]
 ];

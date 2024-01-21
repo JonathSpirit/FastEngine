@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['data_0',['data',['../unionfge_1_1Property_1_1Data.html',1,'fge::Property::Data'],['../structfge_1_1SceneUpdateCache_1_1Data.html',1,'fge::SceneUpdateCache::Data']]],
+  ['data_0',['Data',['../unionfge_1_1Property_1_1Data.html',1,'fge::Property::Data'],['../structfge_1_1SceneUpdateCache_1_1Data.html',1,'fge::SceneUpdateCache::Data']]],
   ['dataaccessor_1',['DataAccessor',['../structfge_1_1DataAccessor.html',1,'fge']]],
   ['dataaccessor_3c_20fge_3a_3avector2f_20_3e_2',['DataAccessor&lt; fge::Vector2f &gt;',['../structfge_1_1DataAccessor.html',1,'fge']]],
   ['dataaccessor_3c_20float_20_3e_3',['DataAccessor&lt; float &gt;',['../structfge_1_1DataAccessor.html',1,'fge']]],
