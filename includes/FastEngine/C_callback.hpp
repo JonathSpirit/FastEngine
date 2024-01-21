@@ -124,7 +124,7 @@ protected:
 };
 
 /**
- * \class CallbackFunctorObject
+ * \class CallbackObjectFunctor
  * \ingroup callback
  * \brief Callback functor of a method with an object
  *
@@ -132,7 +132,7 @@ protected:
  * \tparam TObject The object type
  */
 template<class TObject, class... Types>
-class CallbackFunctorObject : public fge::CallbackFunctorBase<Types...>
+class CallbackObjectFunctor : public fge::CallbackFunctorBase<Types...>
 {
 public:
     using CallbackFunctionObject = void (TObject::*)(Types... args);
@@ -143,8 +143,8 @@ public:
      * \param func The callback method of the object
      * \param object The object pointer
      */
-    CallbackFunctorObject(fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func, TObject* object);
-    ~CallbackFunctorObject() override = default;
+    CallbackObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func, TObject* object);
+    ~CallbackObjectFunctor() override = default;
 
     /**
      * \brief Call the callback method with the given arguments
@@ -161,7 +161,7 @@ public:
     inline bool check(void* ptr) override;
 
 protected:
-    fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject g_functionObj;
+    fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject g_functionObj;
     TObject* g_object;
 };
 
@@ -225,7 +225,7 @@ public:
      * You can pass a nullptr to the subscriber parameter if you don't want to use it, if so
      * the callback will be added to the default group.
      *
-     * To facilitate your code, you can use the helper methods addFunctor(), addLambda() and addFunctorObject().
+     * To facilitate your code, you can use the helper methods addFunctor(), addLambda() and addObjectFunctor().
      *
      * \param callback The new callback to add
      * \param subscriber The subscriber to use to categorize the callback
@@ -238,10 +238,10 @@ public:
     template<typename TLambda>
     inline fge::CallbackLambda<Types...>* addLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
     template<class TObject>
-    inline fge::CallbackFunctorObject<TObject, Types...>*
-    addFunctorObject(fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func,
+    inline fge::CallbackObjectFunctor<TObject, Types...>*
+    addObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
                      TObject* object,
-                     fge::Subscriber* subscriber = nullptr);
+                     Subscriber* subscriber = nullptr);
     /**
      * \brief Remove a callback from the list
      *

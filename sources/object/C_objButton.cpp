@@ -77,12 +77,12 @@ void ObjButton::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 {
     this->detachAll();
 
-    guiElementHandlerPtr->_onGuiVerify.addFunctorObject(&fge::ObjButton::onGuiVerify, this, this);
+    guiElementHandlerPtr->_onGuiVerify.addObjectFunctor(&fge::ObjButton::onGuiVerify, this, this);
 
-    this->_onGuiMouseButtonPressed.addFunctorObject(&fge::ObjButton::onGuiMouseButtonPressed, this, this);
-    this->_onGuiMouseMoved.addFunctorObject(&fge::ObjButton::onGuiMouseMoved, this, this);
+    this->_onGuiMouseButtonPressed.addObjectFunctor(&fge::ObjButton::onGuiMouseButtonPressed, this, this);
+    this->_onGuiMouseMoved.addObjectFunctor(&fge::ObjButton::onGuiMouseMoved, this, this);
 
-    event._onMouseButtonUp.addFunctorObject(&fge::ObjButton::onMouseButtonReleased, this, this);
+    event._onMouseButtonUp.addObjectFunctor(&fge::ObjButton::onMouseButtonReleased, this, this);
 }
 
 #ifndef FGE_DEF_SERVER

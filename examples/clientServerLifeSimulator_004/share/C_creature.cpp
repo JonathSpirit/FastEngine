@@ -48,24 +48,24 @@ void CreatureData::networkRegister(fge::net::NetworkTypeContainer& netList,
                                    void (Creature::*callback)())
 {
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_lifePoint})
-            ->_onApplied.addFunctorObject(callback, creature, creature);
+            ->_onApplied.addObjectFunctor(callback, creature, creature);
     netList.push(new fge::net::NetworkType<std::underlying_type_t<CreatureGender>>{
             reinterpret_cast<std::underlying_type_t<CreatureGender>*>(&this->_gender)});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_hunger})
-            ->_onApplied.addFunctorObject(callback, creature, creature);
+            ->_onApplied.addObjectFunctor(callback, creature, creature);
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_thirst})
-            ->_onApplied.addFunctorObject(callback, creature, creature);
+            ->_onApplied.addObjectFunctor(callback, creature, creature);
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_libido})
-            ->_onApplied.addFunctorObject(callback, creature, creature);
+            ->_onApplied.addObjectFunctor(callback, creature, creature);
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_libidoAdd});
     netList.push(new fge::net::NetworkType<bool>{&this->_pregnant})
-            ->_onApplied.addFunctorObject(callback, creature, creature);
+            ->_onApplied.addObjectFunctor(callback, creature, creature);
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_energy});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_height});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_muscularMass});
     netList.push(new fge::net::NetworkType<uint8_t>{&this->_bodyFat});
     netList.push(new fge::net::NetworkType<float>{&this->_sightRadius})
-            ->_onApplied.addFunctorObject(callback, creature, creature);
+            ->_onApplied.addObjectFunctor(callback, creature, creature);
 }
 
 fge::net::Packet& operator<<(fge::net::Packet& pck, CreatureData const& data)

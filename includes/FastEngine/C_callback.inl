@@ -35,24 +35,24 @@ bool CallbackFunctor<Types...>::check(void* ptr)
     return this->g_function == reinterpret_cast<fge::CallbackFunctor<Types...>::CallbackFunction>(ptr);
 }
 
-//CallbackFunctorObject
+//CallbackObjectFunctor
 
 template<class TObject, class... Types>
-CallbackFunctorObject<TObject, Types...>::CallbackFunctorObject(
-        fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func,
+CallbackObjectFunctor<TObject, Types...>::CallbackObjectFunctor(
+        fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
         TObject* object) :
         g_functionObj(func),
         g_object(object)
 {}
 
 template<class TObject, class... Types>
-void CallbackFunctorObject<TObject, Types...>::call(Types... args)
+void CallbackObjectFunctor<TObject, Types...>::call(Types... args)
 {
     ((this->g_object)->*(this->g_functionObj))(args...);
 }
 
 template<class TObject, class... Types>
-bool CallbackFunctorObject<TObject, Types...>::check(void* ptr)
+bool CallbackObjectFunctor<TObject, Types...>::check(void* ptr)
 {
     return this->g_object == reinterpret_cast<TObject*>(ptr);
 }
@@ -122,13 +122,13 @@ inline fge::CallbackLambda<Types...>* CallbackHandler<Types...>::addLambda(TLamb
 }
 template<class... Types>
 template<class TObject>
-inline fge::CallbackFunctorObject<TObject, Types...>*
-CallbackHandler<Types...>::addFunctorObject(fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func,
+inline fge::CallbackObjectFunctor<TObject, Types...>*
+CallbackHandler<Types...>::addObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
                                             TObject* object,
-                                            fge::Subscriber* subscriber)
+                                            Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackFunctorObject<TObject, Types...>*>(
-            this->add(std::make_unique<fge::CallbackFunctorObject<TObject, Types...>>(func, object), subscriber));
+    return reinterpret_cast<fge::CallbackObjectFunctor<TObject, Types...>*>(
+            this->add(std::make_unique<fge::CallbackObjectFunctor<TObject, Types...>>(func, object), subscriber));
 }
 
 template<class... Types>

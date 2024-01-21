@@ -114,4 +114,4 @@ TEST_CASE("testing callback with arguments")
     }
 }
 
-///TODO: add tests for CallbackFunctorObject, and object that inherit from Subscriber
+///TODO: add tests for CallbackObjectFunctor, and object that inherit from Subscriber

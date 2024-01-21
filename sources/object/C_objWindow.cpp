@@ -152,19 +152,19 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
     }
     this->_windowScene.setCallbackContext({&event, &this->_windowHandler});
 
-    this->_windowScene._onNewObject.addFunctorObject(&fge::ObjWindow::onNewObject, this, this);
+    this->_windowScene._onNewObject.addObjectFunctor(&fge::ObjWindow::onNewObject, this, this);
 
-    fge::GuiElement::_onGlobalGuiScaleChange.addFunctorObject(&fge::ObjWindow::onRefreshGlobalScale, this, this);
-    this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.addFunctorObject(&fge::ObjWindow::onPlanUpdate, this,
+    fge::GuiElement::_onGlobalGuiScaleChange.addObjectFunctor(&fge::ObjWindow::onRefreshGlobalScale, this, this);
+    this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.addObjectFunctor(&fge::ObjWindow::onPlanUpdate, this,
                                                                                  this);
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
-    guiElementHandlerPtr->_onGuiVerify.addFunctorObject(&fge::ObjWindow::onGuiVerify, this, this);
-    this->_onGuiMouseButtonPressed.addFunctorObject(&fge::ObjWindow::onGuiMouseButtonPressed, this, this);
+    guiElementHandlerPtr->_onGuiVerify.addObjectFunctor(&fge::ObjWindow::onGuiVerify, this, this);
+    this->_onGuiMouseButtonPressed.addObjectFunctor(&fge::ObjWindow::onGuiMouseButtonPressed, this, this);
 
-    event._onMouseMotion.addFunctorObject(&fge::ObjWindow::onMouseMoved, this, this);
-    event._onMouseButtonUp.addFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this, this);
+    event._onMouseMotion.addObjectFunctor(&fge::ObjWindow::onMouseMoved, this, this);
+    event._onMouseButtonUp.addObjectFunctor(&fge::ObjWindow::onMouseButtonReleased, this, this);
 
     //Call "callbackRegister" on pre-existent objects (copied from another scene)
     for (auto const& objectData: this->_windowScene)

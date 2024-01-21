@@ -141,9 +141,9 @@ void ObjTextInputBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::
 {
     this->detachAll();
 
-    guiElementHandlerPtr->_onGuiVerify.addFunctorObject(&fge::ObjTextInputBox::onGuiVerify, this, this);
+    guiElementHandlerPtr->_onGuiVerify.addObjectFunctor(&fge::ObjTextInputBox::onGuiVerify, this, this);
 
-    this->_onGuiMouseButtonPressed.addFunctorObject(&fge::ObjTextInputBox::onGuiMouseButtonPressed, this, this);
+    this->_onGuiMouseButtonPressed.addObjectFunctor(&fge::ObjTextInputBox::onGuiMouseButtonPressed, this, this);
 }
 
 #ifdef FGE_DEF_SERVER

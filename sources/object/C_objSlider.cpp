@@ -35,13 +35,13 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
-    guiElementHandlerPtr->_onGuiVerify.addFunctorObject(&fge::ObjSlider::onGuiVerify, this, this);
+    guiElementHandlerPtr->_onGuiVerify.addObjectFunctor(&fge::ObjSlider::onGuiVerify, this, this);
 
-    guiElementHandlerPtr->_onGuiResized.addFunctorObject(&fge::ObjSlider::onGuiResized, this, this);
-    this->_onGuiMouseButtonPressed.addFunctorObject(&fge::ObjSlider::onGuiMouseButtonPressed, this, this);
+    guiElementHandlerPtr->_onGuiResized.addObjectFunctor(&fge::ObjSlider::onGuiResized, this, this);
+    this->_onGuiMouseButtonPressed.addObjectFunctor(&fge::ObjSlider::onGuiMouseButtonPressed, this, this);
 
-    event._onMouseMotion.addFunctorObject(&fge::ObjSlider::onMouseMoved, this, this);
-    event._onMouseButtonUp.addFunctorObject(&fge::ObjSlider::onMouseButtonReleased, this, this);
+    event._onMouseMotion.addObjectFunctor(&fge::ObjSlider::onMouseMoved, this, this);
+    event._onMouseButtonUp.addObjectFunctor(&fge::ObjSlider::onMouseButtonReleased, this, this);
 
     this->refreshSize(guiElementHandlerPtr->_lastSize);
 }
