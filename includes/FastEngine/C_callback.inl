@@ -97,7 +97,7 @@ void CallbackHandler<Types...>::clear()
 }
 
 template<class... Types>
-fge::CallbackFunctorBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback, fge::Subscriber* subscriber)
+fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback, fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->attach(subscriber);

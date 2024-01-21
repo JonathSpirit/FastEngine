@@ -27,17 +27,17 @@ namespace fge
 {
 
 /**
- * \class CallbackFunctorBase
+ * \class CallbackBase
  * \ingroup callback
- * \brief Base class for callback functors
+ * \brief Base class for callbacks
  *
- * \tparam Types The list of arguments types passed to the functor
+ * \tparam Types The list of arguments types passed to the callback
  */
 template<class... Types>
-class CallbackFunctorBase
+class CallbackBase
 {
 public:
-    virtual ~CallbackFunctorBase() = default;
+    virtual ~CallbackBase() = default;
 
     virtual void call(Types... args) = 0;
     virtual bool check(void* ptr) = 0;
@@ -51,7 +51,7 @@ public:
  * \tparam Types The list of arguments types passed to the functor
  */
 template<class... Types>
-class CallbackFunctor : public fge::CallbackFunctorBase<Types...>
+class CallbackFunctor : public fge::CallbackBase<Types...>
 {
 public:
     using CallbackFunction = void (*)(Types... args);
@@ -90,7 +90,7 @@ protected:
  * \tparam Types The list of arguments types passed to the lambda
  */
 template<class... Types>
-class CallbackLambda : public fge::CallbackFunctorBase<Types...>
+class CallbackLambda : public fge::CallbackBase<Types...>
 {
 public:
     /**
@@ -132,7 +132,7 @@ protected:
  * \tparam TObject The object type
  */
 template<class TObject, class... Types>
-class CallbackObjectFunctor : public fge::CallbackFunctorBase<Types...>
+class CallbackObjectFunctor : public fge::CallbackBase<Types...>
 {
 public:
     using CallbackFunctionObject = void (TObject::*)(Types... args);
@@ -184,7 +184,7 @@ template<class... Types>
 class CallbackHandler : public fge::Subscription
 {
 public:
-    using CalleePtr = std::unique_ptr<fge::CallbackFunctorBase<Types...>>;
+    using CalleePtr = std::unique_ptr<fge::CallbackBase<Types...>>;
 
     CallbackHandler() = default;
     ~CallbackHandler() override = default;
@@ -231,7 +231,7 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    inline fge::CallbackFunctorBase<Types...>* add(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackBase<Types...>* add(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
 
     inline fge::CallbackFunctor<Types...>* addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
                                                       fge::Subscriber* subscriber = nullptr);
