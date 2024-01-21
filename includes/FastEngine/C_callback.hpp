@@ -233,15 +233,46 @@ public:
      */
     inline fge::CallbackBase<Types...>* add(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
 
+    /**
+     * \brief Helper method to add a callback functor
+     *
+     * \see add()
+     *
+     * \param func The callback function
+     * \param subscriber The subscriber to use to categorize the callback
+     * \return The callback pointer
+     */
     inline fge::CallbackFunctor<Types...>* addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
                                                       fge::Subscriber* subscriber = nullptr);
+    /**
+     * \brief Helper method to add a callback lambda
+     *
+     * \see add()
+     *
+     * \tparam TLambda The lambda type
+     * \param lambda The callback lambda
+     * \param subscriber The subscriber to use to categorize the callback
+     * \return The callback pointer
+     */
     template<typename TLambda>
     inline fge::CallbackLambda<Types...>* addLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
+    /**
+     * \brief Helper method to add a callback object functor
+     *
+     * \see add()
+     *
+     * \tparam TObject The object type
+     * \param func The callback method of the object
+     * \param object The object pointer
+     * \param subscriber The subscriber to use to categorize the callback
+     * \return The callback pointer
+     */
     template<class TObject>
     inline fge::CallbackObjectFunctor<TObject, Types...>*
     addObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
                      TObject* object,
                      Subscriber* subscriber = nullptr);
+
     /**
      * \brief Remove a callback from the list
      *
