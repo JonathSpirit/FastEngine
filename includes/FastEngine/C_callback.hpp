@@ -242,7 +242,7 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    inline fge::CallbackFunctor<Types...>* addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
+    inline fge::CallbackFunctor<Types...>* addFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
                                                       fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Helper method to add a callback lambda
@@ -269,7 +269,7 @@ public:
      */
     template<class TObject>
     inline fge::CallbackObjectFunctor<TObject, Types...>*
-    addObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+    addObjectFunctor(typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
                      TObject* object,
                      Subscriber* subscriber = nullptr);
 

@@ -106,7 +106,7 @@ fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback
 }
 template<class... Types>
 inline fge::CallbackFunctor<Types...>*
-CallbackHandler<Types...>::addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
+CallbackHandler<Types...>::addFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
                                       fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackFunctor<Types...>*>(
@@ -122,10 +122,10 @@ inline fge::CallbackLambda<Types...>* CallbackHandler<Types...>::addLambda(TLamb
 }
 template<class... Types>
 template<class TObject>
-inline fge::CallbackObjectFunctor<TObject, Types...>*
-CallbackHandler<Types...>::addObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
-                                            TObject* object,
-                                            Subscriber* subscriber)
+inline fge::CallbackObjectFunctor<TObject, Types...>* CallbackHandler<Types...>::addObjectFunctor(
+        typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+        TObject* object,
+        Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackObjectFunctor<TObject, Types...>*>(
             this->add(std::make_unique<fge::CallbackObjectFunctor<TObject, Types...>>(func, object), subscriber));
