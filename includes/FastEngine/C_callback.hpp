@@ -251,6 +251,19 @@ public:
      */
     void call(Types... args);
 
+    /**
+     * \brief Hook a callback handler to this handler
+     *
+     * This will propagate the calls from this handler to the given handler of the same type.
+     *
+     * \warning The other handler must remain valid during the lifetime of this handler as it is not
+     * cleared automatically.
+     *
+     * \param handler Another handler of the same type
+     * \param subscriber The subscriber associated with this handler
+     */
+    void hook(fge::CallbackHandler<Types...>& handler, fge::Subscriber* subscriber = nullptr);
+
 protected:
     /**
      * \brief This method is called when a subscriber is destroyed (destructor called)

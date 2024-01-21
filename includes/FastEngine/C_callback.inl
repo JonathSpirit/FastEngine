@@ -160,8 +160,17 @@ void CallbackHandler<Types...>::call(Types... args)
     for (auto itCallee = this->g_callees.begin(); itCallee != this->g_callees.end(); itCallee = itCalleeNext)
     {
         ++itCalleeNext;
-        itCallee->_f->call(args...);
+        itCallee->_f->call(std::forward<Types>(args)...);
     }
+}
+
+template<class... Types>
+void CallbackHandler<Types...>::hook(fge::CallbackHandler<Types...>& handler, fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->add(new fge::CallbackLambda<Types...>(
+                      [&handler](Types... args) { handler.call(std::forward<Types>(args)...); }),
+              subscriber);
 }
 
 template<class... Types>
