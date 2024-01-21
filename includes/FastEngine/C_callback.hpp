@@ -227,6 +227,15 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      */
     inline void add(fge::CallbackFunctorBase<Types...>* callback, fge::Subscriber* subscriber = nullptr);
+
+    inline fge::CallbackFunctor<Types...>* addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
+                                                      fge::Subscriber* subscriber = nullptr);
+    template<typename TLambda>
+    inline fge::CallbackLambda<Types...>* addLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
+    template<class TObject>
+    inline fge::CallbackFunctorObject<TObject, Types...>* addFunctorObject(
+            fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func, TObject* object,
+            fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Remove a callback from the list
      *
@@ -290,6 +299,6 @@ private:
 
 } // namespace fge
 
-#include <FastEngine/C_callback.inl>
+#include "FastEngine/C_callback.inl"
 
 #endif // _FGE_C_CALLBACKHANDLER_HPP_INCLUDED

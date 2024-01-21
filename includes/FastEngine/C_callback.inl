@@ -104,6 +104,33 @@ void CallbackHandler<Types...>::add(fge::CallbackFunctorBase<Types...>* callback
     this->g_callees.push_front({typename fge::CallbackHandler<Types...>::CalleePtr(callback), subscriber});
 }
 template<class... Types>
+inline fge::CallbackFunctor<Types...>* CallbackHandler<Types...>::addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
+                                                                             fge::Subscriber* subscriber)
+{
+    auto ptr = new fge::CallbackFunctor<Types...>(func);
+    this->add(ptr, subscriber);
+    return ptr;
+}
+template<class... Types>
+template<typename TLambda>
+inline fge::CallbackLambda<Types...>* CallbackHandler<Types...>::addLambda(TLambda const& lambda, fge::Subscriber* subscriber)
+{
+    auto ptr = new fge::CallbackLambda<Types...>(lambda);
+    this->add(ptr, subscriber);
+    return ptr;
+}
+template<class... Types>
+template<class TObject>
+inline fge::CallbackFunctorObject<TObject, Types...>* CallbackHandler<Types...>::addFunctorObject(
+        fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func, TObject* object,
+        fge::Subscriber* subscriber)
+{
+    auto ptr = new fge::CallbackFunctorObject<TObject, Types...>(func, object);
+    this->add(ptr, subscriber);
+    return ptr;
+}
+
+template<class... Types>
 void CallbackHandler<Types...>::delPtr(void* ptr)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
