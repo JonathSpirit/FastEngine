@@ -184,6 +184,8 @@ template<class... Types>
 class CallbackHandler : public fge::Subscription
 {
 public:
+    using CalleePtr = std::unique_ptr<fge::CallbackFunctorBase<Types...>>;
+
     CallbackHandler() = default;
     ~CallbackHandler() override = default;
 
@@ -223,19 +225,23 @@ public:
      * You can pass a nullptr to the subscriber parameter if you don't want to use it, if so
      * the callback will be added to the default group.
      *
+     * To facilitate your code, you can use the helper methods addFunctor(), addLambda() and addFunctorObject().
+     *
      * \param callback The new callback to add
      * \param subscriber The subscriber to use to categorize the callback
+     * \return The callback pointer
      */
-    inline void add(fge::CallbackFunctorBase<Types...>* callback, fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackFunctorBase<Types...>* add(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
 
     inline fge::CallbackFunctor<Types...>* addFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func,
                                                       fge::Subscriber* subscriber = nullptr);
     template<typename TLambda>
     inline fge::CallbackLambda<Types...>* addLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
     template<class TObject>
-    inline fge::CallbackFunctorObject<TObject, Types...>* addFunctorObject(
-            fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func, TObject* object,
-            fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackFunctorObject<TObject, Types...>*
+    addFunctorObject(fge::CallbackFunctorObject<TObject, Types...>::CallbackFunctionObject func,
+                     TObject* object,
+                     fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Remove a callback from the list
      *
@@ -284,7 +290,6 @@ protected:
     void onDetach(fge::Subscriber* subscriber) override;
 
 private:
-    using CalleePtr = std::unique_ptr<fge::CallbackFunctorBase<Types...>>;
     struct CalleeData
     {
         fge::CallbackHandler<Types...>::CalleePtr _f;

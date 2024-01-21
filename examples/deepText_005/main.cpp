@@ -92,10 +92,10 @@ public:
                                  {fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE});
         objSliderFreq->needAnchorUpdate(false);
 
-        objSliderFreq->_onSlide.add(new fge::CallbackLambda<float>{[&](float ratio) {
+        objSliderFreq->_onSlide.addLambda([&](float ratio) {
             math_f = std::clamp(3.0f * ratio, 0.1f, 3.0f);
             frequencyText->setString(fge::string::ToStr(math_f) + "Hz");
-        }});
+        });
 
         //Add a rectangle representing the bounds of the moving text
         auto* rectText = this->newObject(FGE_NEWOBJECT(fge::ObjRectangleShape))->getObject<fge::ObjRectangleShape>();

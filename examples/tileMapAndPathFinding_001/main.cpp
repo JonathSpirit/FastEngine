@@ -220,8 +220,7 @@ public:
         pathFinder->getObject<PathFinder>()->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
 
         //Create event callback for moving the view
-        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>{
-                [&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
+        event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             auto view = renderWindow.getView();
             if (keyEvent.keysym.sym == SDLK_LEFT || keyEvent.keysym.sym == SDLK_a)
             {
@@ -240,11 +239,10 @@ public:
                 view.move({0, 10});
             }
             renderWindow.setView(view);
-        }});
+        });
 
         //Create event callback for zooming the view
-        event._onMouseWheel.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseWheelEvent const&>{
-                [&](fge::Event const&, SDL_MouseWheelEvent const& mouseWheelEvent) {
+        event._onMouseWheel.addLambda([&](fge::Event const&, SDL_MouseWheelEvent const& mouseWheelEvent) {
             auto view = renderWindow.getView();
             if (mouseWheelEvent.y > 0)
             {
@@ -255,11 +253,10 @@ public:
                 view.zoom(1.1f);
             }
             renderWindow.setView(view);
-        }});
+        });
 
         //Create event callback for mouse button pressed
-        event._onMouseButtonDown.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseButtonEvent const&>{
-                [&](fge::Event const&, SDL_MouseButtonEvent const& mouseButtonEvent) {
+        event._onMouseButtonDown.addLambda([&](fge::Event const&, SDL_MouseButtonEvent const& mouseButtonEvent) {
             //Get the mouse position
             auto mousePosition = renderWindow.mapPixelToCoords(fge::Vector2i{mouseButtonEvent.x, mouseButtonEvent.y});
 
@@ -273,7 +270,7 @@ public:
             {
                 pathFinder->getObject<PathFinder>()->setStart(mousePosition);
             }
-        }});
+        });
 
         //Begin loop
         bool running = true;

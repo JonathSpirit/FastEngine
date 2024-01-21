@@ -61,8 +61,7 @@ void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiE
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
-    guiElementHandlerPtr->_onGuiResized.add(new fge::CallbackFunctorObject(&fge::ObjTextList::onGuiResized, this),
-                                            this);
+    guiElementHandlerPtr->_onGuiResized.addFunctorObject(&fge::ObjTextList::onGuiResized, this, this);
 
     this->refreshSize(guiElementHandlerPtr->_lastSize);
 }

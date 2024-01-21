@@ -152,21 +152,19 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
     }
     this->_windowScene.setCallbackContext({&event, &this->_windowHandler});
 
-    this->_windowScene._onNewObject.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onNewObject, this), this);
+    this->_windowScene._onNewObject.addFunctorObject(&fge::ObjWindow::onNewObject, this, this);
 
-    fge::GuiElement::_onGlobalGuiScaleChange.add(
-            new fge::CallbackFunctorObject(&fge::ObjWindow::onRefreshGlobalScale, this), this);
-    this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.add(
-            new fge::CallbackFunctorObject(&fge::ObjWindow::onPlanUpdate, this), this);
+    fge::GuiElement::_onGlobalGuiScaleChange.addFunctorObject(&fge::ObjWindow::onRefreshGlobalScale, this, this);
+    this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.addFunctorObject(&fge::ObjWindow::onPlanUpdate, this,
+                                                                                 this);
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
-    guiElementHandlerPtr->_onGuiVerify.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onGuiVerify, this), this);
-    this->_onGuiMouseButtonPressed.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onGuiMouseButtonPressed, this),
-                                       this);
+    guiElementHandlerPtr->_onGuiVerify.addFunctorObject(&fge::ObjWindow::onGuiVerify, this, this);
+    this->_onGuiMouseButtonPressed.addFunctorObject(&fge::ObjWindow::onGuiMouseButtonPressed, this, this);
 
-    event._onMouseMotion.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseMoved, this), this);
-    event._onMouseButtonUp.add(new fge::CallbackFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this), this);
+    event._onMouseMotion.addFunctorObject(&fge::ObjWindow::onMouseMoved, this, this);
+    event._onMouseButtonUp.addFunctorObject(&fge::ObjWindow::onMouseButtonReleased, this, this);
 
     //Call "callbackRegister" on pre-existent objects (copied from another scene)
     for (auto const& objectData: this->_windowScene)

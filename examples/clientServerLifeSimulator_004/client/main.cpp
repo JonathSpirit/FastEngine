@@ -187,8 +187,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         buttonValid->move({20.0f, 100.0f});
 
         //Handle button pressing
-        buttonValid->_onButtonPressed.add(
-                new fge::CallbackLambda<fge::ObjButton*>{[&, textInputBoxIp]([[maybe_unused]] fge::ObjButton* button) {
+        buttonValid->_onButtonPressed.addLambda([&, textInputBoxIp]([[maybe_unused]] fge::ObjButton* button) {
             if (connectionTimeoutCheck)
             {
                 return;
@@ -215,7 +214,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             connectionTimeoutCheck = true;
             connectionTimeout.restart();
-        }});
+        });
     };
 
     createConnectionWindow();

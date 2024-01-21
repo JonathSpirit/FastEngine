@@ -99,8 +99,7 @@ public:
         objSlider->needAnchorUpdate(false);
 
         //Linking the slide ratio with the text list scroll ratio
-        objSlider->_onSlide.add(new fge::CallbackFunctorObject(&fge::ObjTextList::setTextScrollRatio, objTextList),
-                                objTextList);
+        objSlider->_onSlide.addFunctorObject(&fge::ObjTextList::setTextScrollRatio, objTextList, objTextList);
 
         //Create a slider object for the scaling
         auto* objSlider2 = this->newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
@@ -110,15 +109,14 @@ public:
                               {fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE});
         objSlider2->needAnchorUpdate(false);
 
-        objSlider2->_onSlide.add(new fge::CallbackLambda<float>{[](float ratio) {
+        objSlider2->_onSlide.addLambda([](float ratio) {
             fge::GuiElement::setGlobalGuiScale({2.0f * ratio + 0.5f, 2.0f * ratio + 0.5f});
-        }});
+        });
 
         fge::GuiElement::setGlobalGuiScale({1.0f, 1.0f});
 
         //Add a callback to duplicate the window
-        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>(
-                [&]([[maybe_unused]] fge::Event const& event, SDL_KeyboardEvent const& keyEvent) {
+        event._onKeyDown.addLambda([&]([[maybe_unused]] fge::Event const& event, SDL_KeyboardEvent const& keyEvent) {
             if (keyEvent.keysym.sym == SDLK_SPACE)
             {
                 auto newObject = this->duplicateObject(objWindow->_myObjectData.lock()->getSid());
@@ -132,11 +130,9 @@ public:
                 auto* newTextList = newObject->getObject<fge::ObjWindow>()
                                             ->_windowScene.getFirstObj_ByClass(FGE_OBJTEXTLIST_CLASSNAME)
                                             ->getObject<fge::ObjTextList>();
-                newSlider->_onSlide.add(
-                        new fge::CallbackFunctorObject(&fge::ObjTextList::setTextScrollRatio, newTextList),
-                        newTextList);
+                newSlider->_onSlide.addFunctorObject(&fge::ObjTextList::setTextScrollRatio, newTextList, newTextList);
             }
-        }));
+        });
 
         //Begin loop
         bool running = true;

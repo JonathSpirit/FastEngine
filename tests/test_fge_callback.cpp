@@ -28,7 +28,7 @@ TEST_CASE("testing empty callback")
             ++number;
         };
 
-        onEvent.add(new fge::CallbackLambda<>(func));
+        onEvent.addLambda(func);
         onEvent.call();
 
         REQUIRE(number == 1);
@@ -52,7 +52,7 @@ TEST_CASE("testing empty callback")
         SUBCASE("adding same lambda with a subscriber and removing")
         {
             fge::Subscriber subscriber;
-            onEvent.add(new fge::CallbackLambda<>(func), &subscriber);
+            onEvent.addLambda(func, &subscriber);
             onEvent.call();
             REQUIRE(number == 4);
             onEvent.del(&subscriber);
@@ -77,7 +77,7 @@ TEST_CASE("testing callback with arguments")
     SUBCASE("adding function callback")
     {
         int number = 0;
-        onEvent.add(new fge::CallbackFunctor<int*, int>(func));
+        onEvent.addFunctor(func);
         onEvent.call(&number, 1);
 
         REQUIRE(number == 1);
@@ -101,7 +101,7 @@ TEST_CASE("testing callback with arguments")
         SUBCASE("adding same function with a subscriber and removing")
         {
             fge::Subscriber subscriber;
-            onEvent.add(new fge::CallbackFunctor<int*, int>(func), &subscriber);
+            onEvent.addFunctor(func, &subscriber);
             onEvent.call(&number, 10);
             REQUIRE(number == 23);
             onEvent.del(&subscriber);

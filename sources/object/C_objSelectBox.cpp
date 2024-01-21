@@ -169,11 +169,10 @@ void ObjSelectBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::Gui
 {
     this->detachAll();
 
-    guiElementHandlerPtr->_onGuiVerify.add(new fge::CallbackFunctorObject(&fge::ObjSelectBox::onGuiVerify, this), this);
+    guiElementHandlerPtr->_onGuiVerify.addFunctorObject(&fge::ObjSelectBox::onGuiVerify, this, this);
 
-    this->_onGuiMouseButtonPressed.add(
-            new fge::CallbackFunctorObject(&fge::ObjSelectBox::onGuiMouseButtonPressed, this), this);
-    this->_onGuiMouseMoved.add(new fge::CallbackFunctorObject(&fge::ObjSelectBox::onGuiMouseMotion, this), this);
+    this->_onGuiMouseButtonPressed.addFunctorObject(&fge::ObjSelectBox::onGuiMouseButtonPressed, this, this);
+    this->_onGuiMouseMoved.addFunctorObject(&fge::ObjSelectBox::onGuiMouseMotion, this, this);
 }
 
 #ifndef FGE_DEF_SERVER

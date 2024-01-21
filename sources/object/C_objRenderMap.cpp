@@ -65,7 +65,7 @@ void ObjRenderMap::first(fge::Scene* scene)
 {
     if (scene != nullptr)
     {
-        scene->_onDraw.add(new CallbackFunctorObject(&fge::ObjRenderMap::onDraw, this), this);
+        scene->_onDraw.addFunctorObject(&fge::ObjRenderMap::onDraw, this, this);
     }
 }
 

@@ -75,8 +75,7 @@ public:
         selectBox->addItem("ObjRectangleShape");
         selectBox->addItem("None");
 
-        selectBox->_onSelect.add(new fge::CallbackLambda<fge::ObjSelectBox&, std::size_t>(
-                [&](fge::ObjSelectBox& obj, std::size_t itemIndex) {
+        selectBox->_onSelect.addLambda([&](fge::ObjSelectBox& obj, std::size_t itemIndex) {
             std::cout << "ObjSelectBox: " << itemIndex << " , " << *obj.getItem(itemIndex) << std::endl;
 
             //Clearing existing objects
@@ -180,11 +179,10 @@ public:
                     }
                 }
             }
-        }));
+        });
 
         //Create event callback for moving the view
-        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>{
-                [&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
+        event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             auto view = renderWindow.getView();
             if (keyEvent.keysym.sym == SDLK_LEFT || keyEvent.keysym.sym == SDLK_a)
             {
@@ -211,11 +209,10 @@ public:
                 view.rotate(10.0f);
             }
             renderWindow.setView(view);
-        }});
+        });
 
         //Create event callback for zooming the view
-        event._onMouseWheel.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseWheelEvent const&>{
-                [&](fge::Event const&, SDL_MouseWheelEvent const& mouseWheelEvent) {
+        event._onMouseWheel.addLambda([&](fge::Event const&, SDL_MouseWheelEvent const& mouseWheelEvent) {
             auto view = renderWindow.getView();
             if (mouseWheelEvent.y > 0)
             {
@@ -226,7 +223,7 @@ public:
                 view.zoom(1.1f);
             }
             renderWindow.setView(view);
-        }});
+        });
 
         float fpsMean = 0.0f;
         std::size_t fpsMeanCount = 0;

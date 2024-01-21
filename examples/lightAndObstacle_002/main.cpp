@@ -214,7 +214,7 @@ public:
         this->_properties["follow"] = "obstacle";
 
         //Add a callback for mouse click
-        event._onMouseButtonDown.add(new fge::CallbackLambda<fge::Event const&, SDL_MouseButtonEvent const&>(
+        event._onMouseButtonDown.addLambda(
                 [&]([[maybe_unused]] fge::Event const& event, SDL_MouseButtonEvent const& mouseEvent) {
             //If the left button is pressed
             if (mouseEvent.button == SDL_BUTTON_LEFT)
@@ -239,11 +239,10 @@ public:
                 //Change randomly the color of the light
                 light->getObject<fge::ObjLight>()->setColor(fge::_random.randColor());
             }
-        }));
+        });
 
         //Add a callback for key pressed
-        event._onKeyDown.add(new fge::CallbackLambda<fge::Event const&, SDL_KeyboardEvent const&>(
-                [&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
+        event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             //Changing the obstacle type
             if (keyEvent.keysym.sym == SDLK_1)
             {
@@ -294,7 +293,7 @@ public:
 
                 obstacle->getObject()->setRotation(0.0f);
             }
-        }));
+        });
 
         //Begin loop
         bool running = true;
