@@ -44,7 +44,7 @@ TEST_CASE("testing empty callback")
 
         SUBCASE("removing lambda callback using default subscriber")
         {
-            onEvent.del(nullptr);
+            onEvent.delSub(nullptr);
             onEvent.call();
             REQUIRE(number == 2);
         }
@@ -55,7 +55,7 @@ TEST_CASE("testing empty callback")
             onEvent.addLambda(func, &subscriber);
             onEvent.call();
             REQUIRE(number == 4);
-            onEvent.del(&subscriber);
+            onEvent.delSub(&subscriber);
             onEvent.call();
             REQUIRE(number == 5);
             onEvent.clear();
@@ -93,7 +93,7 @@ TEST_CASE("testing callback with arguments")
 
         SUBCASE("removing function callback using default subscriber")
         {
-            onEvent.del(nullptr);
+            onEvent.delSub(nullptr);
             onEvent.call(&number, 1);
             REQUIRE(number == 3);
         }
@@ -104,7 +104,7 @@ TEST_CASE("testing callback with arguments")
             onEvent.addFunctor(func, &subscriber);
             onEvent.call(&number, 10);
             REQUIRE(number == 23);
-            onEvent.del(&subscriber);
+            onEvent.delSub(&subscriber);
             onEvent.call(&number, -3);
             REQUIRE(number == 20);
             onEvent.clear();

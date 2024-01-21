@@ -156,7 +156,7 @@ void CallbackHandler<Types...>::delPtr(void* ptr)
     }
 }
 template<class... Types>
-void CallbackHandler<Types...>::del(fge::Subscriber* subscriber)
+void CallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
@@ -170,6 +170,26 @@ void CallbackHandler<Types...>::del(fge::Subscriber* subscriber)
                 this->g_callees.erase_after(prev);
                 break;
             }
+            this->g_callees.erase_after(prev);
+            it = prev;
+        }
+        else
+        {
+            prev = it;
+        }
+    }
+}
+template<class... Types>
+void CallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
+    for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
+         it != this->g_callees.end(); ++it)
+    {
+        if ((*it)._f.get() == callback)
+        {
+            this->detachOnce((*it)._subscriber);
             this->g_callees.erase_after(prev);
             it = prev;
         }

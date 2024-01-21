@@ -288,7 +288,15 @@ public:
      *
      * \param subscriber The subscriber associated to the group of callbacks
      */
-    void del(fge::Subscriber* subscriber);
+    void delSub(fge::Subscriber* subscriber);
+    /**
+     * \brief Remove a callback from the list
+     *
+     * Remove a callback with the specified pointer.
+     *
+     * \param callback The callback to remove
+     */
+    void del(fge::CallbackBase<Types...>* callback);
 
     /**
      * \brief Call all the callbacks with the given arguments
