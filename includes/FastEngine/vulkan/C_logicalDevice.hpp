@@ -27,7 +27,7 @@ class PhysicalDevice;
 
 /**
  * \class LogicalDevice
- * \ingroup Vulkan
+ * \ingroup vulkan
  * \brief Logical device abstraction
  *
  * This class is used to create a Vulkan logical device and get the

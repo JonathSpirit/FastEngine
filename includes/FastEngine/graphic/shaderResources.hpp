@@ -24,7 +24,7 @@ namespace fge::res
 
 /**
  * All shaders here is in GLSL language
- * \ingroup graphic
+ * \ingroup graphics
  * @{
  */
 
