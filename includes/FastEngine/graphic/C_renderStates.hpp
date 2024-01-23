@@ -85,7 +85,12 @@ public:
     constexpr void setInstancesCount(uint32_t count, bool uniqueDrawCall)
     {
         this->g_count = count;
-        this->g_uniqueDrawCall = uniqueDrawCall;
+        this->g_uniqueDrawCall = uniqueDrawCall || (this->g_indirectBuffer != VK_NULL_HANDLE);
+    }
+    constexpr void setIndirectBuffer(VkBuffer buffer)
+    {
+        this->g_indirectBuffer = buffer;
+        this->g_uniqueDrawCall = (buffer != VK_NULL_HANDLE);
     }
 
     constexpr void setTextureIndices(uint32_t const* textureIndices) { this->g_textureIndices = textureIndices; }
@@ -110,6 +115,7 @@ public:
 
     [[nodiscard]] constexpr uint32_t getInstancesCount() const { return this->g_count; }
     [[nodiscard]] constexpr bool hasUniqueDrawCall() const { return this->g_uniqueDrawCall; }
+    [[nodiscard]] constexpr VkBuffer getIndirectBuffer() const { return this->g_indirectBuffer; }
 
     [[nodiscard]] constexpr uint32_t const* getTextureIndices() const { return this->g_textureIndices; }
     [[nodiscard]] constexpr uint32_t getTextureIndices(uint32_t index) const { return this->g_textureIndices[index]; }
@@ -145,6 +151,7 @@ private:
     uint32_t g_vertexCount{0};
     uint32_t g_vertexOffset{0};
     bool g_uniqueDrawCall{false};
+    VkBuffer g_indirectBuffer{VK_NULL_HANDLE};
 };
 /**
  * \class RenderResourceTextures
