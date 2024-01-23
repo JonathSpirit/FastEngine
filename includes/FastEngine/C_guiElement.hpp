@@ -253,7 +253,7 @@ public:
     void onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
     void onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg);
 
-    void onResized(fge::Event const& evt, SDL_WindowEvent const& arg);
+    void checkViewSize();
 
     fge::CallbackHandler<fge::Event const&, SDL_EventType, fge::GuiElementContext&> _onGuiVerify;
     fge::CallbackHandler<fge::GuiElementHandler const&, fge::Vector2f const&> _onGuiResized;
