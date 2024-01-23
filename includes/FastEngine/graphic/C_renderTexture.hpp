@@ -59,8 +59,6 @@ public:
 
     Vector2u getSize() const override;
 
-    bool isSrgb() const override;
-
     [[nodiscard]] VkExtent2D getExtent2D() const override;
     [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
     [[nodiscard]] VkRenderPass getRenderPass() const override;

@@ -221,11 +221,6 @@ Vector2u RenderWindow::getSize() const
     return static_cast<Vector2u>(this->getContext().getInstance().getWindowSize());
 }
 
-bool RenderWindow::isSrgb() const
-{
-    return false; ///TODO
-}
-
 void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)
 {
     this->g_presentMode = presentMode;

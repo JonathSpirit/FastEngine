@@ -121,8 +121,6 @@ public:
 
     virtual Vector2u getSize() const = 0;
 
-    virtual bool isSrgb() const;
-
     [[nodiscard]] virtual VkExtent2D getExtent2D() const = 0;
     [[nodiscard]] virtual VkCommandBuffer getCommandBuffer() const = 0;
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;

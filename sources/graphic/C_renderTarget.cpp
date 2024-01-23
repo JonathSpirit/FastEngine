@@ -360,11 +360,6 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     }
 }
 
-bool RenderTarget::isSrgb() const
-{ //TODO: maybe delete that
-    return false;
-}
-
 fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view name,
                                                                GraphicPipelineKey const& key,
                                                                GraphicPipelineConstructor constructor) const
