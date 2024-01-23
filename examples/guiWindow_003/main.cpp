@@ -113,6 +113,8 @@ public:
             fge::GuiElement::setGlobalGuiScale({2.0f * ratio + 0.5f, 2.0f * ratio + 0.5f});
         });
 
+        objSlider2->setCursorRatio(0.25f);
+
         fge::GuiElement::setGlobalGuiScale({1.0f, 1.0f});
 
         //Add a callback to duplicate the window
@@ -143,6 +145,13 @@ public:
             if (event.isEventType(SDL_QUIT))
             {
                 running = false;
+            }
+            if (event.isEventType(SDL_WINDOWEVENT))
+            {
+                auto view = renderWindow.getView();
+                view.resizeFixCenter({event.getWindowSize().x, event.getWindowSize().y});
+                renderWindow.setView(view);
+                guiElementHandler.checkViewSize();
             }
 
             //Update scene
