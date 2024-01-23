@@ -104,6 +104,12 @@ public:
      * \param factor Zoom factor to apply to the view
      */
     void zoom(float factor);
+    /**
+     * \brief Resize the view and move it relatively to old center in order to expand it
+     *
+     * \param newSize New size of the view
+     */
+    void resizeFixCenter(fge::Vector2f const& newSize);
 
     /**
      * \brief Get the combined transform of the view

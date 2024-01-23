@@ -128,6 +128,12 @@ void View::zoom(float factor)
 {
     this->setSize({this->g_size.x * factor, this->g_size.y * factor});
 }
+void View::resizeFixCenter(fge::Vector2f const& newSize)
+{
+    auto const oldSize = this->getSize();
+    this->setSize({newSize.x, newSize.y});
+    this->move({(newSize.x - oldSize.x) / 2.0f, (newSize.y - oldSize.y) / 2.0f});
+}
 
 glm::mat4 const& View::getTransform() const
 {
