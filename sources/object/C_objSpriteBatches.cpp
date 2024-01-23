@@ -416,7 +416,8 @@ void ObjSpriteBatches::updateBuffers() const
         {
             this->g_instancesTransformDataCapacity = this->g_instancesData.size();
 
-            this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1), true);
+            this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1),
+                                              vulkan::UniformBuffer::Types::STORAGE_BUFFER);
 
             fge::vulkan::DescriptorSet::Descriptor const descriptor{
                     this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,

@@ -382,7 +382,8 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
     this->g_instancesCapacity = size;
-    this->g_instances.create(static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData), true);
+    this->g_instances.create(static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData),
+                             vulkan::UniformBuffer::Types::STORAGE_BUFFER);
 
 #ifndef FGE_DEF_SERVER
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
