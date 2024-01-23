@@ -75,9 +75,10 @@ void ObjSlider::setCursorRatio(float ratio)
 }
 float ObjSlider::getCursorRatio() const
 {
-    return std::clamp(
+    auto const ratio = std::clamp(
             std::abs(this->g_scrollPositionY / (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y)),
             0.0f, 1.0f);
+    return std::isnan(ratio) ? 0.0f : ratio;
 }
 bool ObjSlider::isScrollPressed() const
 {
@@ -160,7 +161,12 @@ void ObjSlider::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
 
 void ObjSlider::onGuiResized([[maybe_unused]] fge::GuiElementHandler const& handler, fge::Vector2f const& size)
 {
+    auto const oldRatio = this->getCursorRatio();
+
     this->updateAnchor(size);
+    this->refreshSize(size);
+
+    this->g_scrollPositionY = oldRatio * (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
     this->refreshSize(size);
 }
 
