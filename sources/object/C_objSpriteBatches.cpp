@@ -146,7 +146,7 @@ void ObjSpriteBatches::clear()
 fge::Transformable& ObjSpriteBatches::addSprite(fge::RectInt const& rectangle, uint32_t textureIndex)
 {
     auto& transformable = this->g_instancesData.emplace_back(rectangle, textureIndex)._transformable;
-    this->g_instancesVertices.resize(this->g_instancesVertices.getCount() + 4);
+    this->g_instancesVertices.resize(this->g_instancesVertices.getCount() + FGE_OBJSPRITEBATCHES_VERTEX_COUNT);
     this->updatePositions(this->g_instancesData.size() - 1);
     this->updateTexCoords(this->g_instancesData.size() - 1);
     this->g_needBuffersUpdate = true;
@@ -157,7 +157,7 @@ void ObjSpriteBatches::resize(std::size_t size)
     std::size_t const oldSize = this->g_instancesData.size();
 
     this->g_instancesData.resize(size);
-    this->g_instancesVertices.resize(size * 4);
+    this->g_instancesVertices.resize(size * FGE_OBJSPRITEBATCHES_VERTEX_COUNT);
 
     if (size > oldSize)
     {
@@ -185,7 +185,7 @@ void ObjSpriteBatches::setColor(std::size_t index, fge::Color const& color)
 {
     if (index < this->g_instancesData.size())
     {
-        std::size_t const startIndex = index * 4;
+        std::size_t const startIndex = index * FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
 
         this->g_instancesVertices[startIndex]._color = color;
         this->g_instancesVertices[startIndex + 1]._color = color;
@@ -220,7 +220,7 @@ std::optional<fge::Color> ObjSpriteBatches::getColor(std::size_t index) const
 {
     if (index < this->g_instancesData.size())
     {
-        return fge::Color(this->g_instancesVertices[index * 4]._color);
+        return fge::Color(this->g_instancesVertices[index * FGE_OBJSPRITEBATCHES_VERTEX_COUNT]._color);
     }
     return std::nullopt;
 }
@@ -278,14 +278,15 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
     copyStates._blendMode = states._blendMode;
 
     copyStates._resInstances.setInstancesCount(this->g_instancesData.size(), false);
-    copyStates._resInstances.setVertexCount(4);
+    copyStates._resInstances.setVertexCount(FGE_OBJSPRITEBATCHES_VERTEX_COUNT);
+    copyStates._resInstances.setIndirectBuffer(this->g_instancesIndirectCommands.getBuffer());
+    ///TODO: Check before if the multiDrawIndirect feature is supported
+    /// We can always go back to the old method if it's not supported
 
     uint32_t const sets[] = {0, 1};
     copyStates._resDescriptors.set(this->g_descriptorSets, sets, 2);
 
     copyStates._vertexBuffer = &this->g_instancesVertices;
-
-    //copyStates._resTextures.set(this->g_textures.data(), this->g_textures.size());
 
     bool const haveTexture = !this->g_textures.empty();
 
@@ -362,7 +363,7 @@ void ObjSpriteBatches::updatePositions(std::size_t index)
     if (index < this->g_instancesData.size())
     {
         fge::RectFloat const bounds = this->getLocalBounds(index).value();
-        std::size_t const startIndex = index * 4;
+        std::size_t const startIndex = index * FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
 
         this->g_instancesVertices[startIndex]._position = fge::Vector2f(0, 0);
         this->g_instancesVertices[startIndex + 1]._position = fge::Vector2f(0, bounds._height);
@@ -383,7 +384,7 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
         }
 
         auto const rect = texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
-        std::size_t const startIndex = index * 4;
+        std::size_t const startIndex = index * FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);
         this->g_instancesVertices[startIndex + 1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
@@ -428,6 +429,17 @@ void ObjSpriteBatches::updateBuffers() const
                     this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
                     this->g_instancesTransform.getBufferSize()};
             this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].updateDescriptorSet(&descriptor, 1);
+        }
+
+        //Fill indirect commands buffer
+        for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
+        {
+            auto* command =
+                    static_cast<VkDrawIndirectCommand*>(this->g_instancesIndirectCommands.getBufferMapped()) + i;
+            command->vertexCount = FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
+            command->instanceCount = 1;
+            command->firstVertex = i * FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
+            command->firstInstance = i;
         }
     }
 }
