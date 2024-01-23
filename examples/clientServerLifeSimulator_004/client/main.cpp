@@ -83,7 +83,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::Event event;
     fge::GuiElementHandler guiElementHandler{event, renderWindow};
-    guiElementHandler.setEventCallback(event);
+    guiElementHandler.setEventCallback();
 
     //Creating the scene
     std::unique_ptr<fge::Scene> mainScene = std::make_unique<fge::Scene>();

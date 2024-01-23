@@ -40,7 +40,7 @@ public:
     {
         fge::Event event(renderWindow);
         fge::GuiElementHandler guiElementHandler(event, renderWindow);
-        guiElementHandler.setEventCallback(event);
+        guiElementHandler.setEventCallback();
 
         this->setCallbackContext({&event, &guiElementHandler});
 

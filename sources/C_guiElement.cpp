@@ -25,13 +25,13 @@ fge::Vector2f GuiElement::_GlobalGuiScale{1.0f, 1.0f};
 
 //GuiElementHandler
 
-void GuiElementHandler::setEventCallback(fge::Event& event)
+void GuiElementHandler::setEventCallback()
 {
     this->detachAll();
-    event._onMouseWheel.addObjectFunctor(&fge::GuiElementHandler::onMouseWheelScrolled, this, this);
-    event._onMouseButtonDown.addObjectFunctor(&fge::GuiElementHandler::onMouseButtonPressed, this, this);
-    event._onMouseButtonUp.addObjectFunctor(&fge::GuiElementHandler::onMouseButtonReleased, this, this);
-    event._onMouseMotion.addObjectFunctor(&fge::GuiElementHandler::onMouseMoved, this, this);
+    this->g_event->_onMouseWheel.addObjectFunctor(&fge::GuiElementHandler::onMouseWheelScrolled, this, this);
+    this->g_event->_onMouseButtonDown.addObjectFunctor(&fge::GuiElementHandler::onMouseButtonPressed, this, this);
+    this->g_event->_onMouseButtonUp.addObjectFunctor(&fge::GuiElementHandler::onMouseButtonReleased, this, this);
+    this->g_event->_onMouseMotion.addObjectFunctor(&fge::GuiElementHandler::onMouseMoved, this, this);
 
     auto const size = this->g_target->getView().getSize();
     this->_onGuiResized.call(*this, size);

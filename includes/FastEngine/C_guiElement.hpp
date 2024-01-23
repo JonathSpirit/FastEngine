@@ -246,7 +246,7 @@ public:
     inline void setRenderTarget(fge::RenderTarget const& target) { this->g_target = &target; }
     [[nodiscard]] inline fge::RenderTarget const& getRenderTarget() const { return *this->g_target; }
 
-    void setEventCallback(fge::Event& event);
+    void setEventCallback();
 
     void onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWheelEvent const& arg);
     void onMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
