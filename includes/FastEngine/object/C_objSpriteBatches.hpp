@@ -109,8 +109,9 @@ private:
     std::vector<fge::Texture> g_textures;
 
     std::vector<InstanceData> g_instancesData;
-    mutable std::size_t g_instancesTransformDataCapacity;
+    mutable std::size_t g_instancesBufferCapacity;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
+    mutable fge::vulkan::UniformBuffer g_instancesIndirectCommands;
     mutable fge::vulkan::DescriptorSet g_descriptorSets[2];
     fge::vulkan::VertexBuffer g_instancesVertices;
 

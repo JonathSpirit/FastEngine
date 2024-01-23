@@ -80,8 +80,9 @@ void DefaultGraphicPipelineBatches_constructor(fge::vulkan::Context const& conte
 } // end namespace
 
 ObjSpriteBatches::ObjSpriteBatches() :
-        g_instancesTransformDataCapacity(0),
+        g_instancesBufferCapacity(0),
         g_instancesTransform(fge::vulkan::GetActiveContext()),
+        g_instancesIndirectCommands(fge::vulkan::GetActiveContext()),
         g_instancesVertices(fge::vulkan::GetActiveContext()),
         g_needBuffersUpdate(true)
 {
@@ -91,8 +92,9 @@ ObjSpriteBatches::ObjSpriteBatches(ObjSpriteBatches const& r) :
         fge::Object(r),
         g_textures(r.g_textures),
         g_instancesData(r.g_instancesData),
-        g_instancesTransformDataCapacity(0),
+        g_instancesBufferCapacity(0),
         g_instancesTransform(r.g_instancesTransform.getContext()),
+        g_instancesIndirectCommands(r.g_instancesIndirectCommands.getContext()),
         g_instancesVertices(r.g_instancesVertices),
         g_needBuffersUpdate(true)
 {}
@@ -412,12 +414,15 @@ void ObjSpriteBatches::updateBuffers() const
                             .value();
         }
 
-        if (!this->g_instancesData.empty() && this->g_instancesData.size() > this->g_instancesTransformDataCapacity)
+        if (!this->g_instancesData.empty() && this->g_instancesData.size() > this->g_instancesBufferCapacity)
         {
-            this->g_instancesTransformDataCapacity = this->g_instancesData.size();
+            this->g_instancesBufferCapacity = this->g_instancesData.size();
 
             this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1),
                                               vulkan::UniformBuffer::Types::STORAGE_BUFFER);
+
+            this->g_instancesIndirectCommands.create(sizeof(VkDrawIndirectCommand) * this->g_instancesData.size(),
+                                                     vulkan::UniformBuffer::Types::INDIRECT_BUFFER);
 
             fge::vulkan::DescriptorSet::Descriptor const descriptor{
                     this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
