@@ -137,6 +137,8 @@ private:
     View g_view;
 
 protected:
+    void resetDefaultView();
+
     VkClearColorValue _g_clearColor;
 
     bool _g_forceGraphicPipelineUpdate;

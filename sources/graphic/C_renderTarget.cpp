@@ -62,8 +62,7 @@ RenderTarget::RenderTarget(fge::vulkan::Context const& context) :
 
 void RenderTarget::initialize()
 {
-    this->g_defaultView.reset(
-            {0.0f, 0.0f, static_cast<float>(this->getSize().x), static_cast<float>(this->getSize().y)});
+    this->resetDefaultView();
     this->g_view = this->g_defaultView;
 }
 
@@ -390,6 +389,12 @@ fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view 
 void RenderTarget::clearGraphicPipelineCache()
 {
     this->_g_graphicPipelineCache.clear();
+}
+
+void RenderTarget::resetDefaultView()
+{
+    this->g_defaultView.reset(
+            {0.0f, 0.0f, static_cast<float>(this->getSize().x), static_cast<float>(this->getSize().y)});
 }
 
 } // namespace fge

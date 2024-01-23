@@ -267,6 +267,7 @@ uint32_t RenderWindow::getCurrentFrame() const
 void RenderWindow::onResize()
 {
     this->g_framebufferResized = true;
+    this->resetDefaultView();
 }
 
 void RenderWindow::init()
