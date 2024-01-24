@@ -331,7 +331,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         //Binding dynamic descriptors
         for (uint32_t i = 0; i < states._resInstances.getDynamicCount(); ++i)
         {
-            uint32_t const dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance;
+            uint32_t const dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance +
+                                           states._resInstances.getDynamicBufferOffsets(i);
             auto descriptorSet = states._resInstances.getDynamicDescriptors(i)->get();
             graphicPipeline->bindDynamicDescriptorSets(commandBuffer, &descriptorSet, 1, 1, &dynamicOffset,
                                                        states._resInstances.getDynamicSets(i));
