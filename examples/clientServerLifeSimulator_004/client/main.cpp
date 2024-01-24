@@ -37,6 +37,8 @@
 
 #include <iostream>
 
+#define LATENCY_TEXT_BUFFER_SIZE 200
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     if (!fge::net::Socket::initSocket())
@@ -141,7 +143,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::Clock deltaTime;
 
     //Create a latency text
-    char latencyTextBuffer[200];
+    char latencyTextBuffer[LATENCY_TEXT_BUFFER_SIZE];
     char const* latencyTextFormat = "clock offset: %s\n"
                                     "latency CTOS: %d\n"
                                     "latency STOC: %d\n"
@@ -327,12 +329,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Updating the latencyText
-                auto const size = sprintf(latencyTextBuffer, latencyTextFormat,
-                                          fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                                          server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                          server._client.getPing_ms(),
-                                          fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                                          mainScene->getUpdateCount(), badPacketUpdatesCount);
+                auto const size =
+                        snprintf(latencyTextBuffer, LATENCY_TEXT_BUFFER_SIZE, latencyTextFormat,
+                                 fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                                 server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
+                                 server._client.getPing_ms(),
+                                 fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
+                                 mainScene->getUpdateCount(), badPacketUpdatesCount);
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene
