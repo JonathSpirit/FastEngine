@@ -54,6 +54,7 @@ public:
 
     void generateMipmaps(uint32_t levels = FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
     [[nodiscard]] uint32_t getMipLevels() const;
+    void forceMipLod(float mipLodBias, float mipLodMin, float mipLodMax);
 
     [[nodiscard]] glm::vec<2, int> const& getSize() const;
     [[nodiscard]] VkExtent2D getExtent() const;
@@ -79,7 +80,7 @@ public:
     [[nodiscard]] uint32_t getModificationCount() const;
 
 private:
-    void createTextureSampler();
+    void createTextureSampler(float mipLodBias, float mipLodMin, float mipLodMax);
 
     VkImage g_textureImage;
     VmaAllocation g_textureImageAllocation;

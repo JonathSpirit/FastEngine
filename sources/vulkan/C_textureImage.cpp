@@ -181,7 +181,7 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
     this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage,
                                                FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
 
-    this->createTextureSampler();
+    this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
 
     this->g_textureDescriptorSet =
             context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
@@ -247,7 +247,7 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
     this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage,
                                                FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
 
-    this->createTextureSampler();
+    this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
 
     this->g_textureDescriptorSet =
             context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
@@ -552,6 +552,15 @@ uint32_t TextureImage::getMipLevels() const
 {
     return this->g_mipLevels;
 }
+void TextureImage::forceMipLod(float mipLodBias, float mipLodMin, float mipLodMax)
+{
+    this->getContext()._garbageCollector.push(
+            fge::vulkan::GarbageSampler(this->g_textureSampler, this->getContext().getLogicalDevice().getDevice()));
+    this->createTextureSampler(mipLodBias, mipLodMin, mipLodMax);
+
+    DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
+    this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
+}
 
 glm::vec<2, int> const& TextureImage::getSize() const
 {
@@ -591,7 +600,7 @@ void TextureImage::setNormalizedCoordinates(bool normalized)
         this->g_normalizedCoordinates = normalized;
         this->getContext()._garbageCollector.push(
                 fge::vulkan::GarbageSampler(this->g_textureSampler, this->getContext().getLogicalDevice().getDevice()));
-        this->createTextureSampler();
+        this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
 
         DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
@@ -609,7 +618,7 @@ void TextureImage::setFilter(VkFilter filter)
         this->g_filter = filter;
         this->getContext()._garbageCollector.push(
                 fge::vulkan::GarbageSampler(this->g_textureSampler, this->getContext().getLogicalDevice().getDevice()));
-        this->createTextureSampler();
+        this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
 
         DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
         this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
@@ -652,7 +661,7 @@ uint32_t TextureImage::getModificationCount() const
     return this->g_modificationCount;
 }
 
-void TextureImage::createTextureSampler()
+void TextureImage::createTextureSampler(float mipLodBias, float mipLodMin, float mipLodMax)
 {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -675,9 +684,10 @@ void TextureImage::createTextureSampler()
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    samplerInfo.mipLodBias = 0.0f;
-    samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = static_cast<float>(this->g_mipLevels);
+    samplerInfo.mipLodBias = mipLodBias;
+    samplerInfo.minLod = mipLodMin;
+    samplerInfo.maxLod =
+            mipLodMax > static_cast<float>(this->g_mipLevels) ? static_cast<float>(this->g_mipLevels) : mipLodMax;
 
     if (vkCreateSampler(this->getContext().getLogicalDevice().getDevice(), &samplerInfo, nullptr,
                         &this->g_textureSampler) != VK_SUCCESS)
