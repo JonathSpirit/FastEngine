@@ -64,10 +64,14 @@ FGE_API void CreateImage(Context const& context,
                          VkImageTiling tiling,
                          VkImageUsageFlags usage,
                          VkMemoryPropertyFlags properties,
+                         uint32_t mipLevels,
                          VkImage& image,
                          VmaAllocation& allocation);
 
-FGE_API VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, VkFormat format);
+FGE_API VkImageView CreateImageView(LogicalDevice const& logicalDevice,
+                                    VkImage image,
+                                    VkFormat format,
+                                    uint32_t mipLevels);
 
 } // namespace fge::vulkan
 
