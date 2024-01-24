@@ -399,15 +399,16 @@ FGE_OBJ_DRAW_BODY(ObjText)
             {
                 auto& character = this->g_characters[i];
 
+                fge::TransformUboData* transformData =
+                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
+                transformData->_modelTransform =
+                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
+                transformData->_viewTransform = target.getView().getTransform();
+
                 if (!character.g_visibility)
                 {
                     continue;
                 }
-
-                fge::TransformUboData* transformData =
-                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
-                transformData->_modelTransform = this->getTransform() * character.getTransform();
-                transformData->_viewTransform = target.getView().getTransform();
 
                 uint32_t dynamicBufferSize = fge::TransformUboData::uboSize;
                 uint32_t dynamicBufferOffsets = fge::TransformUboData::uboSize * i;
@@ -434,7 +435,8 @@ FGE_OBJ_DRAW_BODY(ObjText)
             {
                 fge::TransformUboData* transformData =
                         reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
-                transformData->_modelTransform = this->getTransform() * character.getTransform();
+                transformData->_modelTransform =
+                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
                 transformData->_viewTransform = target.getView().getTransform();
             }
 
