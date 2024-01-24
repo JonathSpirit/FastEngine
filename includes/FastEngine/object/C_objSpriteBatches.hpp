@@ -120,6 +120,7 @@ private:
     fge::vulkan::VertexBuffer g_instancesVertices;
 
     mutable bool g_needBuffersUpdate;
+    bool const g_featureMultiDrawIndirect;
 };
 
 } // namespace fge

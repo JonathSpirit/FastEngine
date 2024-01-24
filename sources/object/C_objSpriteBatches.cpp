@@ -84,7 +84,9 @@ ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransform(fge::vulkan::GetActiveContext()),
         g_instancesIndirectCommands(fge::vulkan::GetActiveContext()),
         g_instancesVertices(fge::vulkan::GetActiveContext()),
-        g_needBuffersUpdate(true)
+        g_needBuffersUpdate(true),
+        g_featureMultiDrawIndirect(
+                fge::vulkan::GetActiveContext().getLogicalDevice().getEnabledFeatures().multiDrawIndirect == VK_TRUE)
 {
     this->g_instancesVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
 }
@@ -96,7 +98,8 @@ ObjSpriteBatches::ObjSpriteBatches(ObjSpriteBatches const& r) :
         g_instancesTransform(r.g_instancesTransform.getContext()),
         g_instancesIndirectCommands(r.g_instancesIndirectCommands.getContext()),
         g_instancesVertices(r.g_instancesVertices),
-        g_needBuffersUpdate(true)
+        g_needBuffersUpdate(true),
+        g_featureMultiDrawIndirect(r.g_featureMultiDrawIndirect)
 {}
 ObjSpriteBatches::ObjSpriteBatches(fge::Texture texture) :
         ObjSpriteBatches()
@@ -279,9 +282,10 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     copyStates._resInstances.setInstancesCount(this->g_instancesData.size(), false);
     copyStates._resInstances.setVertexCount(FGE_OBJSPRITEBATCHES_VERTEX_COUNT);
-    copyStates._resInstances.setIndirectBuffer(this->g_instancesIndirectCommands.getBuffer());
-    ///TODO: Check before if the multiDrawIndirect feature is supported
-    /// We can always go back to the old method if it's not supported
+    if (this->g_featureMultiDrawIndirect)
+    {
+        copyStates._resInstances.setIndirectBuffer(this->g_instancesIndirectCommands.getBuffer());
+    }
 
     uint32_t const sets[] = {0, 1};
     copyStates._resDescriptors.set(this->g_descriptorSets, sets, 2);
@@ -422,8 +426,11 @@ void ObjSpriteBatches::updateBuffers() const
             this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1),
                                               vulkan::UniformBuffer::Types::STORAGE_BUFFER);
 
-            this->g_instancesIndirectCommands.create(sizeof(VkDrawIndirectCommand) * this->g_instancesData.size(),
-                                                     vulkan::UniformBuffer::Types::INDIRECT_BUFFER);
+            if (this->g_featureMultiDrawIndirect)
+            {
+                this->g_instancesIndirectCommands.create(sizeof(VkDrawIndirectCommand) * this->g_instancesData.size(),
+                                                         vulkan::UniformBuffer::Types::INDIRECT_BUFFER);
+            }
 
             fge::vulkan::DescriptorSet::Descriptor const descriptor{
                     this->g_instancesTransform, 0, fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
@@ -431,15 +438,18 @@ void ObjSpriteBatches::updateBuffers() const
             this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].updateDescriptorSet(&descriptor, 1);
         }
 
-        //Fill indirect commands buffer
-        for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
-        {
-            auto* command =
-                    static_cast<VkDrawIndirectCommand*>(this->g_instancesIndirectCommands.getBufferMapped()) + i;
-            command->vertexCount = FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
-            command->instanceCount = 1;
-            command->firstVertex = i * FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
-            command->firstInstance = i;
+        if (this->g_featureMultiDrawIndirect)
+        { //Only for multiDrawIndirect feature
+            //Fill indirect commands buffer
+            for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
+            {
+                auto* command =
+                        static_cast<VkDrawIndirectCommand*>(this->g_instancesIndirectCommands.getBufferMapped()) + i;
+                command->vertexCount = FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
+                command->instanceCount = 1;
+                command->firstVertex = i * FGE_OBJSPRITEBATCHES_VERTEX_COUNT;
+                command->firstInstance = i;
+            }
         }
     }
 }
