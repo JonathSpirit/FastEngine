@@ -44,9 +44,11 @@ public:
 
         //Load texture
         fge::texture::LoadFromFile("texture", "resources/textures/texture.jpg");
-        fge::texture::GetTexture("texture")->_texture->generateMipmaps(FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
+        auto textureData = fge::texture::GetTexture("texture");
+        textureData->_texture->generateMipmaps(FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
 
-        std::cout << "Mipmap levels : " << fge::texture::GetTexture("texture")->_texture->getMipLevels() << std::endl;
+        std::cout << "Mipmap levels : " << textureData->_texture->getMipLevels() << std::endl;
+        float mipMinLod = 0.0f;
 
         //Load font
         fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
@@ -56,6 +58,7 @@ public:
         //Create a text object with explanation
         auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
                                                          "Use WASD/Arrow keys to move the view around\n"
+                                                         "Use Q/E to increase/decrease the mipmap min value\n"
                                                          "Use the mouse wheel to zoom in and out",
                                                          "base", {}, 18),
                                            FGE_SCENE_PLAN_HIGH_TOP);
@@ -88,11 +91,25 @@ public:
             }
             else if (keyEvent.keysym.sym == SDLK_q)
             {
-                view.rotate(-10.0f);
+                mipMinLod -= 1.0f;
+                if (mipMinLod < 0.0f)
+                {
+                    mipMinLod = 0.0f;
+                }
+                textureData->_texture->forceMipLod(0.0f, mipMinLod,
+                                                   static_cast<float>(textureData->_texture->getMipLevels()));
+                std::cout << "Mipmap min lod : " << mipMinLod << std::endl;
             }
             else if (keyEvent.keysym.sym == SDLK_e)
             {
-                view.rotate(10.0f);
+                mipMinLod += 1.0f;
+                if (mipMinLod > static_cast<float>(textureData->_texture->getMipLevels()))
+                {
+                    mipMinLod = static_cast<float>(textureData->_texture->getMipLevels());
+                }
+                textureData->_texture->forceMipLod(0.0f, mipMinLod,
+                                                   static_cast<float>(textureData->_texture->getMipLevels()));
+                std::cout << "Mipmap min lod : " << mipMinLod << std::endl;
             }
             renderWindow.setView(view);
         });
