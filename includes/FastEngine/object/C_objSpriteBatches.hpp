@@ -27,10 +27,14 @@
 #define FGE_OBJSPRITEBATCHES_PIPELINE_CACHE_NAME FGE_OBJSPRITEBATCHES_CLASSNAME
 #define FGE_OBJSPRITEBATCHES_ID 0
 #define FGE_OBJSPRITEBATCHES_ID_TEXTURE 1
+
 #define FGE_OBJSPRITEBATCHES_SHADER_VERTEX "FGE:OBJ:SPRITEBATCHES:VERTEX"
 #define FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT "FGE:OBJ:SPRITEBATCHES:FRAGMENT"
+
 #define FGE_OBJSPRITEBATCHES_LAYOUT "FGE:OBJ:SPRITEBATCHES:LAYOUT"
 #define FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES "FGE:OBJ:SPRITEBATCHES:LAYOUTTEXTURES"
+
+#define FGE_OBJSPRITEBATCHES_VERTEX_COUNT 4
 
 #define FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER
 
@@ -109,12 +113,14 @@ private:
     std::vector<fge::Texture> g_textures;
 
     std::vector<InstanceData> g_instancesData;
-    mutable std::size_t g_instancesTransformDataCapacity;
+    mutable std::size_t g_instancesBufferCapacity;
     mutable fge::vulkan::UniformBuffer g_instancesTransform;
+    mutable fge::vulkan::UniformBuffer g_instancesIndirectCommands;
     mutable fge::vulkan::DescriptorSet g_descriptorSets[2];
     fge::vulkan::VertexBuffer g_instancesVertices;
 
     mutable bool g_needBuffersUpdate;
+    bool const g_featureMultiDrawIndirect;
 };
 
 } // namespace fge

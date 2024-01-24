@@ -273,5 +273,11 @@ uint32_t PhysicalDevice::getMaxMemoryAllocationCount() const
     vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
     return deviceProperties.limits.maxMemoryAllocationCount;
 }
+VkPhysicalDeviceFeatures PhysicalDevice::getFeatures() const
+{
+    VkPhysicalDeviceFeatures features;
+    vkGetPhysicalDeviceFeatures(this->g_device, &features);
+    return features;
+}
 
 } // namespace fge::vulkan

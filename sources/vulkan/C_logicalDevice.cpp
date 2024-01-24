@@ -18,6 +18,7 @@
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include <cstring>
 #include <vector>
 
 namespace fge::vulkan
@@ -60,8 +61,15 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
-    VkPhysicalDeviceFeatures deviceFeatures{};
-    deviceFeatures.samplerAnisotropy = VK_TRUE;
+    std::memset(&this->g_enabledFeatures, 0, sizeof(this->g_enabledFeatures));
+    auto const availableFeatures = physicalDevice.getFeatures();
+
+    if (availableFeatures.samplerAnisotropy == VK_FALSE)
+    {
+        throw fge::Exception("Device does not support samplerAnisotropy feature !");
+    }
+    this->g_enabledFeatures.samplerAnisotropy = VK_TRUE;
+    this->g_enabledFeatures.multiDrawIndirect = availableFeatures.multiDrawIndirect;
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -69,7 +77,7 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 
-    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.pEnabledFeatures = &this->g_enabledFeatures;
 
     createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
@@ -139,6 +147,10 @@ VkQueue LogicalDevice::getGraphicQueue() const
 VkQueue LogicalDevice::getPresentQueue() const
 {
     return this->g_presentQueue;
+}
+VkPhysicalDeviceFeatures LogicalDevice::getEnabledFeatures() const
+{
+    return this->g_enabledFeatures;
 }
 
 } // namespace fge::vulkan

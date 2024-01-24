@@ -176,11 +176,6 @@ Vector2u RenderTexture::getSize() const
     return static_cast<Vector2u>(this->g_textureImage.getSize());
 }
 
-bool RenderTexture::isSrgb() const
-{
-    return false; ///TODO
-}
-
 VkExtent2D RenderTexture::getExtent2D() const
 {
     return this->g_textureImage.getExtent();

@@ -50,11 +50,13 @@ public:
     [[nodiscard]] VkDevice getDevice() const;
     [[nodiscard]] VkQueue getGraphicQueue() const;
     [[nodiscard]] VkQueue getPresentQueue() const;
+    [[nodiscard]] VkPhysicalDeviceFeatures getEnabledFeatures() const;
 
 private:
     VkDevice g_device;
     VkQueue g_graphicQueue;
     VkQueue g_presentQueue;
+    VkPhysicalDeviceFeatures g_enabledFeatures;
 };
 
 } // namespace fge::vulkan

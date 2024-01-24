@@ -32,6 +32,13 @@ namespace fge::vulkan
 class FGE_API UniformBuffer : public ContextAware
 {
 public:
+    enum class Types
+    {
+        UNIFORM_BUFFER,
+        STORAGE_BUFFER,
+        INDIRECT_BUFFER
+    };
+
     explicit UniformBuffer(Context const& context);
     UniformBuffer(UniformBuffer const& r);
     UniformBuffer(UniformBuffer&& r) noexcept;
@@ -40,14 +47,14 @@ public:
     UniformBuffer& operator=(UniformBuffer const& r);
     UniformBuffer& operator=(UniformBuffer&& r) noexcept;
 
-    void create(VkDeviceSize bufferSize, bool isStorageBuffer = false);
+    void create(VkDeviceSize bufferSize, Types type = Types::UNIFORM_BUFFER);
     void destroy() final;
 
     [[nodiscard]] VkBuffer getBuffer() const;
     [[nodiscard]] VmaAllocation getBufferAllocation() const;
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
-    [[nodiscard]] bool isStorageBuffer() const;
+    [[nodiscard]] Types getType() const;
 
     void copyData(void const* data, std::size_t size) const;
 
@@ -57,10 +64,10 @@ private:
     VmaAllocation g_uniformBufferAllocation;
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
-    bool g_isStorageBuffer;
 #else
     mutable std::vector<uint8_t> g_uniformBuffer;
 #endif
+    Types g_type;
 };
 
 } // namespace fge::vulkan

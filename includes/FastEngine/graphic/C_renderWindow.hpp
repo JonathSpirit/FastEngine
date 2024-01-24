@@ -59,8 +59,6 @@ public:
 
     Vector2u getSize() const override;
 
-    bool isSrgb() const override;
-
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
 

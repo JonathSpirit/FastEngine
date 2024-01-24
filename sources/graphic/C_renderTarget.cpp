@@ -170,7 +170,7 @@ Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point, View const& view)
 
 void RenderTarget::draw(Drawable const& drawable, RenderStates const& states)
 {
-    drawable.draw(*this, states);
+    drawable.draw(*this, states); ///TODO: Inline that
 }
 void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline)
 {
@@ -345,16 +345,19 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         ///TODO: have in graphicPipeline, a draw method
         if (states._resInstances.hasUniqueDrawCall())
         {
-            vkCmdDraw(commandBuffer, vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
+            if (states._resInstances.getIndirectBuffer() != VK_NULL_HANDLE)
+            { //Indirect draw
+                vkCmdDrawIndirect(commandBuffer, states._resInstances.getIndirectBuffer(), 0,
+                                  states._resInstances.getInstancesCount(), sizeof(VkDrawIndirectCommand));
+            }
+            else
+            {
+                vkCmdDraw(commandBuffer, vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
+            }
             break;
         }
         vkCmdDraw(commandBuffer, vertexCount, 1, vertexOffset, iInstance);
     }
-}
-
-bool RenderTarget::isSrgb() const
-{ //TODO: maybe delete that
-    return false;
 }
 
 fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view name,
