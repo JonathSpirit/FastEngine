@@ -118,6 +118,7 @@ void CreateImage(Context const& context,
                  VkImageTiling tiling,
                  VkImageUsageFlags usage,
                  VkMemoryPropertyFlags properties,
+                 uint32_t mipLevels,
                  VkImage& image,
                  VmaAllocation& allocation)
 {
@@ -127,7 +128,7 @@ void CreateImage(Context const& context,
     imageInfo.extent.width = width;
     imageInfo.extent.height = height;
     imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
+    imageInfo.mipLevels = mipLevels;
     imageInfo.arrayLayers = 1;
 
     imageInfo.format = format;
@@ -155,7 +156,7 @@ void CreateImage(Context const& context,
     }
 }
 
-VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, VkFormat format)
+VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, VkFormat format, uint32_t mipLevels)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -164,7 +165,7 @@ VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, V
     viewInfo.format = format;
     viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.levelCount = mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 

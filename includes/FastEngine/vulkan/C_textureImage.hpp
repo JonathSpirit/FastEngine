@@ -26,6 +26,8 @@
 #include "SDL_vulkan.h"
 #include <vector>
 
+#define FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO 0
+
 namespace fge::vulkan
 {
 
@@ -40,8 +42,8 @@ public:
     TextureImage& operator=(TextureImage const& r) = delete;
     TextureImage& operator=(TextureImage&& r) noexcept;
 
-    bool create(glm::vec<2, int> const& size);
-    bool create(SDL_Surface* surface);
+    bool create(glm::vec<2, int> const& size, uint32_t levels = 1);
+    bool create(SDL_Surface* surface, uint32_t levels = 1);
     void destroy() final;
 
     [[nodiscard]] SDL_Surface* copyToSurface() const;
@@ -49,6 +51,10 @@ public:
     void update(SDL_Surface* surface, glm::vec<2, int> const& offset);
     void update(TextureImage const& textureImage, glm::vec<2, int> const& offset);
     void update(void* buffer, std::size_t bufferSize, glm::vec<2, int> const& size, glm::vec<2, int> const& offset);
+
+    void generateMipmaps(uint32_t levels = FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
+    [[nodiscard]] uint32_t getMipLevels() const;
+    void forceMipLod(float mipLodBias, float mipLodMin, float mipLodMax);
 
     [[nodiscard]] glm::vec<2, int> const& getSize() const;
     [[nodiscard]] VkExtent2D getExtent() const;
@@ -74,7 +80,7 @@ public:
     [[nodiscard]] uint32_t getModificationCount() const;
 
 private:
-    void createTextureSampler();
+    void createTextureSampler(float mipLodBias, float mipLodMin, float mipLodMax);
 
     VkImage g_textureImage;
     VmaAllocation g_textureImageAllocation;
@@ -90,6 +96,7 @@ private:
 
     fge::vulkan::DescriptorSet g_textureDescriptorSet;
 
+    uint32_t g_mipLevels;
     uint32_t g_modificationCount;
 };
 
