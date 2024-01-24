@@ -39,6 +39,7 @@ TextureImage::TextureImage(Context const& context) :
         g_filter(VK_FILTER_NEAREST),
         g_normalizedCoordinates(true),
 
+        g_mipLevels(0),
         g_modificationCount(0)
 {}
 TextureImage::TextureImage(TextureImage&& r) noexcept :
@@ -57,6 +58,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
 
         g_textureDescriptorSet(std::move(r.g_textureDescriptorSet)),
 
+        g_mipLevels(r.g_mipLevels),
         g_modificationCount(r.g_modificationCount)
 {
     r.g_textureImage = VK_NULL_HANDLE;
@@ -71,6 +73,7 @@ TextureImage::TextureImage(TextureImage&& r) noexcept :
     r.g_filter = VK_FILTER_NEAREST;
     r.g_normalizedCoordinates = false;
 
+    r.g_mipLevels = 0;
     r.g_modificationCount = 0;
 }
 TextureImage::~TextureImage()
@@ -97,6 +100,7 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     this->g_normalizedCoordinates = r.g_normalizedCoordinates;
 
     this->g_textureDescriptorSet = std::move(r.g_textureDescriptorSet);
+    this->g_mipLevels = r.g_mipLevels;
 
     ++this->g_modificationCount;
 
@@ -112,14 +116,21 @@ TextureImage& TextureImage::operator=(TextureImage&& r) noexcept
     r.g_filter = VK_FILTER_NEAREST;
     r.g_normalizedCoordinates = false;
 
+    r.g_mipLevels = 0;
     r.g_modificationCount = 0;
 
     return *this;
 }
 
-bool TextureImage::create(glm::vec<2, int> const& size)
+bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 {
     this->destroy();
+
+    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
+    {
+        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
+                 1;
+    }
 
     ++this->g_modificationCount;
 
@@ -134,6 +145,7 @@ bool TextureImage::create(glm::vec<2, int> const& size)
 
     this->g_textureSize = size;
     this->g_textureBytesPerPixel = 4;
+    this->g_mipLevels = levels;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
     VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
@@ -152,20 +164,22 @@ bool TextureImage::create(glm::vec<2, int> const& size)
     CreateImage(context, size.x, size.y, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
                         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_textureImage, this->g_textureImageAllocation);
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_mipLevels, this->g_textureImage,
+                this->g_textureImageAllocation);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
     context.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(size.x),
                               static_cast<uint32_t>(size.y));
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 
-    this->g_textureImageView =
-            CreateImageView(context.getLogicalDevice(), this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT);
+    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage,
+                                               FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
 
     this->createTextureSampler();
 
@@ -176,9 +190,15 @@ bool TextureImage::create(glm::vec<2, int> const& size)
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
-bool TextureImage::create(SDL_Surface* surface)
+bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 {
     this->destroy();
+
+    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
+    {
+        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
+                 1;
+    }
 
     ++this->g_modificationCount;
 
@@ -193,6 +213,7 @@ bool TextureImage::create(SDL_Surface* surface)
 
     this->g_textureSize = {surface->w, surface->h};
     this->g_textureBytesPerPixel = surface->format->BytesPerPixel;
+    this->g_mipLevels = levels;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;
     VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
@@ -209,20 +230,22 @@ bool TextureImage::create(SDL_Surface* surface)
     CreateImage(context, surface->w, surface->h, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
                         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_textureImage, this->g_textureImageAllocation);
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_mipLevels, this->g_textureImage,
+                this->g_textureImageAllocation);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
     context.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(surface->w),
                               static_cast<uint32_t>(surface->h));
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 
-    this->g_textureImageView =
-            CreateImageView(context.getLogicalDevice(), this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT);
+    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage,
+                                               FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
 
     this->createTextureSampler();
 
@@ -255,6 +278,7 @@ void TextureImage::destroy()
 
         this->g_filter = VK_FILTER_NEAREST;
 
+        this->g_mipLevels = 0;
         this->g_modificationCount = 0;
     }
 }
@@ -286,7 +310,8 @@ SDL_Surface* TextureImage::copyToSurface() const
                  dstBufferAllocation);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                  this->g_mipLevels);
 
     context.copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
 
@@ -298,7 +323,8 @@ SDL_Surface* TextureImage::copyToSurface() const
     vmaDestroyBuffer(context.getAllocator(), dstBuffer, dstBufferAllocation);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
 
     return surface;
 }
@@ -319,7 +345,8 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
     auto& context = this->getContext();
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  this->g_mipLevels);
 
     VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
 
@@ -338,7 +365,8 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
     context.copyBufferToImage(stagingBuffer, this->g_textureImage, surface->w, surface->h, offset.x, offset.y);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
@@ -359,17 +387,21 @@ void TextureImage::update(TextureImage const& textureImage, glm::vec<2, int> con
     auto& context = this->getContext();
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  this->g_mipLevels);
     context.transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                  this->g_mipLevels);
 
     context.copyImageToImage(textureImage.g_textureImage, this->g_textureImage, textureImage.g_textureSize.x,
                              textureImage.g_textureSize.y, offset.x, offset.y);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
     context.transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
 }
 void TextureImage::update(void* buffer,
                           std::size_t bufferSize,
@@ -390,7 +422,8 @@ void TextureImage::update(void* buffer,
     auto& context = this->getContext();
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  this->g_mipLevels);
 
     VkDeviceSize const imageSize = bufferSize;
 
@@ -409,9 +442,111 @@ void TextureImage::update(void* buffer,
     context.copyBufferToImage(stagingBuffer, this->g_textureImage, size.x, size.y, offset.x, offset.y);
 
     context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  this->g_mipLevels);
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
+}
+
+void TextureImage::generateMipmaps(uint32_t levels)
+{
+    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
+    {
+        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
+                 1;
+    }
+
+    if (levels != this->g_mipLevels || (levels == 1 && this->g_mipLevels > 1))
+    {
+        auto* surface = this->copyToSurface();
+        if (surface == nullptr)
+        {
+            return;
+        }
+        this->create(surface, levels);
+    }
+    if (levels == 1)
+    {
+        return;
+    }
+
+    auto const& context = this->getContext();
+
+    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  this->g_mipLevels);
+
+    auto command = context.beginSingleTimeCommands(Context::SingleTimeCommandTypes::DIRECT_EXECUTION);
+
+    VkImageMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.image = this->g_textureImage;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.levelCount = 1;
+
+    int32_t mipWidth = this->g_textureSize.x;
+    int32_t mipHeight = this->g_textureSize.y;
+
+    for (uint32_t i = 1; i < this->g_mipLevels; i++)
+    {
+        barrier.subresourceRange.baseMipLevel = i - 1;
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+        vkCmdPipelineBarrier(command._commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                             0, nullptr, 0, nullptr, 1, &barrier);
+
+        VkImageBlit blit{};
+        blit.srcOffsets[0] = {0, 0, 0};
+        blit.srcOffsets[1] = {mipWidth, mipHeight, 1};
+        blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        blit.srcSubresource.mipLevel = i - 1;
+        blit.srcSubresource.baseArrayLayer = 0;
+        blit.srcSubresource.layerCount = 1;
+        blit.dstOffsets[0] = {0, 0, 0};
+        blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
+        blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        blit.dstSubresource.mipLevel = i;
+        blit.dstSubresource.baseArrayLayer = 0;
+        blit.dstSubresource.layerCount = 1;
+
+        vkCmdBlitImage(command._commandBuffer, this->g_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                       this->g_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(command._commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+        if (mipWidth > 1)
+        {
+            mipWidth /= 2;
+        }
+        if (mipHeight > 1)
+        {
+            mipHeight /= 2;
+        }
+    }
+
+    barrier.subresourceRange.baseMipLevel = this->g_mipLevels - 1;
+    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    vkCmdPipelineBarrier(command._commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    context.endSingleTimeCommands(command);
 }
 
 glm::vec<2, int> const& TextureImage::getSize() const
@@ -538,7 +673,7 @@ void TextureImage::createTextureSampler()
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = 0.0f;
+    samplerInfo.maxLod = static_cast<float>(this->g_mipLevels);
 
     if (vkCreateSampler(this->getContext().getLogicalDevice().getDevice(), &samplerInfo, nullptr,
                         &this->g_textureSampler) != VK_SUCCESS)

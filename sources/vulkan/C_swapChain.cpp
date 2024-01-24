@@ -178,7 +178,7 @@ void SwapChain::createImageViews()
     for (size_t i = 0; i < this->g_swapChainImages.size(); i++)
     {
         this->g_swapChainImageViews[i] =
-                CreateImageView(*this->g_logicalDevice, this->g_swapChainImages[i], this->g_swapChainImageFormat);
+                CreateImageView(*this->g_logicalDevice, this->g_swapChainImages[i], this->g_swapChainImageFormat, 1);
     }
 }
 
