@@ -103,6 +103,7 @@ public:
     [[nodiscard]] uint32_t getMinUniformBufferOffsetAlignment() const;
     [[nodiscard]] VkDeviceSize getMaxMemoryAllocationSize() const;
     [[nodiscard]] uint32_t getMaxMemoryAllocationCount() const;
+    [[nodiscard]] VkPhysicalDeviceFeatures getFeatures() const;
 
 private:
     void updateDeviceExtensionSupport();
