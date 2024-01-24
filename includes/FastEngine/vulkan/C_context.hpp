@@ -222,7 +222,11 @@ public:
      * \param oldLayout The old layout
      * \param newLayout The new layout
      */
-    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
+    void transitionImageLayout(VkImage image,
+                               VkFormat format,
+                               VkImageLayout oldLayout,
+                               VkImageLayout newLayout,
+                               uint32_t mipLevels) const;
     /**
      * \brief Copy a buffer to an image
      *

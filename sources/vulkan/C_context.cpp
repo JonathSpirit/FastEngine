@@ -359,7 +359,8 @@ void Context::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize si
 void Context::transitionImageLayout(VkImage image,
                                     [[maybe_unused]] VkFormat format,
                                     VkImageLayout oldLayout,
-                                    VkImageLayout newLayout) const
+                                    VkImageLayout newLayout,
+                                    uint32_t mipLevels) const
 { ///TODO: format
     auto command = beginSingleTimeCommands(SingleTimeCommandTypes::DIRECT_EXECUTION);
 
@@ -374,7 +375,7 @@ void Context::transitionImageLayout(VkImage image,
     barrier.image = image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.levelCount = mipLevels;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
