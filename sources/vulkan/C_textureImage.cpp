@@ -548,6 +548,10 @@ void TextureImage::generateMipmaps(uint32_t levels)
 
     context.endSingleTimeCommands(command);
 }
+uint32_t TextureImage::getMipLevels() const
+{
+    return this->g_mipLevels;
+}
 
 glm::vec<2, int> const& TextureImage::getSize() const
 {

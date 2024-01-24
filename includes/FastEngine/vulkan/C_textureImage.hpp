@@ -53,6 +53,7 @@ public:
     void update(void* buffer, std::size_t bufferSize, glm::vec<2, int> const& size, glm::vec<2, int> const& offset);
 
     void generateMipmaps(uint32_t levels = FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
+    [[nodiscard]] uint32_t getMipLevels() const;
 
     [[nodiscard]] glm::vec<2, int> const& getSize() const;
     [[nodiscard]] VkExtent2D getExtent() const;
