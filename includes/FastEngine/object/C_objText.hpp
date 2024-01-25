@@ -160,6 +160,7 @@ public:
 
 private:
     void ensureGeometryUpdate() const;
+    void updateDescriptors() const;
 
     tiny_utf8::string g_string;                         /// String to display
     fge::Font g_font;                                   /// Font used to display the string

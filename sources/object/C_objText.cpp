@@ -541,6 +541,12 @@ void ObjText::ensureGeometryUpdate() const
     auto const* font = this->g_font.retrieve();
     auto const& fontTexture = font->getTexture(this->g_characterSize);
 
+    if (this->g_charactersTransforms.getBuffer() != VK_NULL_HANDLE &&
+        this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
+    {
+        this->updateDescriptors();
+    }
+
     // Do nothing, if geometry has not changed and the font texture has not changed
     if (!this->g_geometryNeedUpdate && fontTexture.getModificationCount() == this->g_fontTextureModificationCount)
     {
@@ -757,28 +763,8 @@ void ObjText::ensureGeometryUpdate() const
     }
 
     //Updating UBO
-    auto const& context = fge::vulkan::GetActiveContext();
-
-    this->g_charactersTransforms.create(fge::TransformUboData::uboSize * usedCharacters);
-
-    if (this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
-    {
-        auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
-        if (layout.getLayout() == VK_NULL_HANDLE)
-        {
-            layout.create({fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
-                                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
-        }
-
-        this->g_charactersTransformsDescriptorSet =
-                context.getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
-    }
-
-    fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_charactersTransforms, FGE_VULKAN_TRANSFORM_BINDING,
-                                                      fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
-                                                      fge::TransformUboData::uboSize};
-    this->g_charactersTransformsDescriptorSet.updateDescriptorSet(&descriptor, 1);
+    this->g_charactersTransforms.resize(fge::TransformUboData::uboSize * usedCharacters);
+    this->updateDescriptors();
 
     // Remove extra characters
     this->g_characters.resize(usedCharacters);
@@ -798,6 +784,29 @@ void ObjText::ensureGeometryUpdate() const
     this->g_bounds._y = minY;
     this->g_bounds._width = maxX - minX;
     this->g_bounds._height = maxY - minY;
+}
+void ObjText::updateDescriptors() const
+{
+    auto const& context = fge::vulkan::GetActiveContext();
+
+    if (this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
+    {
+        auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
+        if (layout.getLayout() == VK_NULL_HANDLE)
+        {
+            layout.create({fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
+                                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
+        }
+
+        this->g_charactersTransformsDescriptorSet =
+                context.getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
+    }
+
+    fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_charactersTransforms, FGE_VULKAN_TRANSFORM_BINDING,
+                                                      fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
+                                                      fge::TransformUboData::uboSize};
+    this->g_charactersTransformsDescriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
 } // namespace fge
