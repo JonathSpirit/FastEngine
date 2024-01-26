@@ -93,6 +93,7 @@ private:
     void updateTexCoords();
     void updateOutline();
     void resizeBuffer(std::size_t size) const;
+    void updateDescriptors() const;
 
     inline InstanceData* retrieveInstance(std::size_t index) const;
 
@@ -105,7 +106,6 @@ private:
     fge::vulkan::VertexBuffer g_outlineVertices;
 
     mutable std::size_t g_instancesCount;
-    mutable std::size_t g_instancesCapacity;
     mutable fge::vulkan::UniformBuffer g_instances;
     mutable fge::vulkan::DescriptorSet g_descriptorSet;
 

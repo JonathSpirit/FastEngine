@@ -161,14 +161,12 @@ ObjShape::ObjShape() :
         g_vertices(fge::vulkan::GetActiveContext()),
         g_outlineVertices(fge::vulkan::GetActiveContext()),
         g_instancesCount(0),
-        g_instancesCapacity(0),
-        g_instances(fge::vulkan::GetActiveContext())
+        g_instances(fge::vulkan::GetActiveContext(), vulkan::UniformBuffer::Types::STORAGE_BUFFER)
 {
     this->g_vertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
     this->g_outlineVertices.create(0, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 
     this->resizeBuffer(1);
-    *this->retrieveInstance(0) = {{fge::Color::White, fge::Color::White}, {0.0f, 0.0f}};
 }
 ObjShape::ObjShape(ObjShape const& r) :
         fge::Object(r),
@@ -177,17 +175,12 @@ ObjShape::ObjShape(ObjShape const& r) :
         g_outlineThickness(r.g_outlineThickness),
         g_vertices(r.g_vertices),
         g_outlineVertices(r.g_outlineVertices),
-        g_instancesCount(0),
-        g_instancesCapacity(0),
-        g_instances(r.g_instances.getContext()),
+        g_instancesCount(r.g_instancesCount),
+        g_instances(r.g_instances),
         g_insideBounds(r.g_insideBounds),
         g_bounds(r.g_bounds)
 {
-    this->resizeBuffer(r.g_instancesCount);
-    for (std::size_t i = 0; i < r.g_instancesCount; ++i)
-    {
-        *this->retrieveInstance(i) = *r.retrieveInstance(i);
-    }
+    this->updateDescriptors();
 }
 void ObjShape::updateShape()
 {
@@ -350,22 +343,12 @@ void ObjShape::updateOutline()
 
 void ObjShape::resizeBuffer(std::size_t size) const
 {
+    this->g_instances.resize(size * sizeof(InstanceData));
+
     if (size <= this->g_instancesCount)
     {
         this->g_instancesCount = size;
         return;
-    }
-
-    if (size < this->g_instancesCapacity)
-    {
-        InstanceData* defaultInstanceData = static_cast<InstanceData*>(this->g_instances.getBufferMapped());
-
-        for (std::size_t i = this->g_instancesCount; i < size; ++i)
-        {
-            new (this->retrieveInstance(i)) InstanceData(*defaultInstanceData);
-        }
-
-        this->g_instancesCount = size;
     }
 
     InstanceData defaultInstanceData;
@@ -380,12 +363,17 @@ void ObjShape::resizeBuffer(std::size_t size) const
         defaultInstanceData = *this->retrieveInstance(0);
     }
 
-    this->g_instancesCount = size;
-    this->g_instancesCapacity = size;
-    this->g_instances.create(static_cast<VkDeviceSize>(this->g_instancesCapacity) * sizeof(InstanceData),
-                             vulkan::UniformBuffer::Types::STORAGE_BUFFER);
+    for (std::size_t i = this->g_instancesCount; i < size; ++i)
+    {
+        new (this->retrieveInstance(i)) InstanceData(defaultInstanceData);
+    }
 
-#ifndef FGE_DEF_SERVER
+    this->g_instancesCount = size;
+
+    this->updateDescriptors();
+}
+void ObjShape::updateDescriptors() const
+{
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
         auto& layout = fge::vulkan::GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
@@ -405,12 +393,6 @@ void ObjShape::resizeBuffer(std::size_t size) const
             this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
             fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, this->g_instances.getBufferSize()};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
-#endif
-
-    for (std::size_t i = 0; i < size; ++i)
-    {
-        new (this->retrieveInstance(i)) InstanceData(defaultInstanceData);
-    }
 }
 
 ObjShape::InstanceData* ObjShape::retrieveInstance(std::size_t index) const
