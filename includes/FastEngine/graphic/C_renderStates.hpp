@@ -97,16 +97,19 @@ public:
 
     constexpr void setDynamicDescriptors(fge::vulkan::DescriptorSet const* dynamicDescriptors,
                                          uint32_t const* dynamicBufferSizes,
+                                         uint32_t const* dynamicBufferOffsets,
                                          uint32_t const* dynamicSets,
                                          uint32_t count)
     {
         this->g_dynamicDescriptors = dynamicDescriptors;
         this->g_dynamicBufferSizes = dynamicBufferSizes;
+        this->g_dynamicBufferOffsets = dynamicBufferOffsets;
         this->g_dynamicSets = dynamicSets;
         this->g_dynamicCount = count;
 
         assert(count == 0 || dynamicDescriptors != nullptr);
         assert(count == 0 || dynamicBufferSizes != nullptr);
+        assert(count == 0 || dynamicBufferOffsets != nullptr);
         assert(count == 0 || dynamicSets != nullptr);
     }
 
@@ -131,6 +134,12 @@ public:
         return this->g_dynamicBufferSizes[index];
     }
 
+    [[nodiscard]] constexpr uint32_t const* getDynamicBufferOffsets() const { return this->g_dynamicBufferOffsets; }
+    [[nodiscard]] constexpr uint32_t getDynamicBufferOffsets(uint32_t index) const
+    {
+        return this->g_dynamicBufferOffsets[index];
+    }
+
     [[nodiscard]] constexpr uint32_t const* getDynamicSets() const { return this->g_dynamicSets; }
     [[nodiscard]] constexpr uint32_t getDynamicSets(uint32_t index) const { return this->g_dynamicSets[index]; }
 
@@ -146,6 +155,7 @@ private:
     fge::vulkan::DescriptorSet const* g_dynamicDescriptors{nullptr};
     uint32_t g_dynamicCount{0};
     uint32_t const* g_dynamicBufferSizes{nullptr};
+    uint32_t const* g_dynamicBufferOffsets{nullptr};
     uint32_t const* g_dynamicSets{nullptr};
 
     uint32_t g_vertexCount{0};

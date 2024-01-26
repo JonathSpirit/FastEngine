@@ -18,9 +18,36 @@
 #include "FastEngine/arbitraryJsonTypes.hpp"
 #include "FastEngine/graphic/C_ftFont.hpp"
 #include "FastEngine/manager/font_manager.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 
 namespace fge
 {
+
+namespace
+{
+
+#ifndef FGE_DEF_SERVER
+void DefaultGraphicPipelineTextWithTexture_constructor(fge::vulkan::Context const& context,
+                                                       fge::RenderTarget::GraphicPipelineKey const& key,
+                                                       fge::vulkan::GraphicPipeline* graphicPipeline)
+{
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
+    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
+    graphicPipeline->setBlendMode(key._blendMode);
+    graphicPipeline->setPrimitiveTopology(key._topology);
+
+    auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
+    if (layout.getLayout() == VK_NULL_HANDLE)
+    {
+        layout.create({fge::vulkan::CreateSimpleLayoutBinding(
+                FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT)});
+    }
+
+    graphicPipeline->setDescriptorSetLayouts({layout.getLayout(), context.getTextureLayout().getLayout()});
+}
+#endif // FGE_DEF_SERVER
+
+} //end namespace
 
 Character::Character() :
         g_vertices(fge::vulkan::GetActiveContext()),
@@ -102,36 +129,19 @@ void Character::addGlyphQuad(bool outlineVertices,
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
 }
 
-void Character::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
+void Character::draw(fge::Transform& externalTransform,
+                     fge::RenderTarget& target,
+                     fge::RenderStates const& states) const
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+        auto copyStates = states.copy(externalTransform.start(*this, states._resTransform.get()));
         copyStates._resTextures = states._resTextures;
 
         copyStates._vertexBuffer = &this->g_outlineVertices;
         target.draw(copyStates);
         copyStates._vertexBuffer = &this->g_vertices;
         target.draw(copyStates);
-    }
-}
-void Character::drawVertices(bool outlineVertices, fge::RenderTarget& target, fge::RenderStates const& states) const
-{
-    if (this->g_visibility)
-    {
-        auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
-        copyStates._resTextures = states._resTextures;
-
-        if (outlineVertices)
-        {
-            copyStates._vertexBuffer = &this->g_outlineVertices;
-            target.draw(copyStates);
-        }
-        else
-        {
-            copyStates._vertexBuffer = &this->g_vertices;
-            target.draw(copyStates);
-        }
     }
 }
 
@@ -370,17 +380,75 @@ FGE_OBJ_DRAW_BODY(ObjText)
 
         copyStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
 
+        fge::RenderTarget::GraphicPipelineKey const graphicPipelineKey{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                                                                       copyStates._blendMode, FGE_OBJTEXT_ID};
+
+        auto* graphicPipeline = target.getGraphicPipeline(FGE_OBJTEXT_PIPELINE_CACHE_NAME, graphicPipelineKey,
+                                                          DefaultGraphicPipelineTextWithTexture_constructor);
+
+        auto characterStates = copyStates.copy(nullptr);
+        characterStates._resTextures = copyStates._resTextures;
+
+        bool transformDataUpdated = false;
+
         if (this->g_outlineThickness != 0.0f)
         {
-            for (auto const& character: this->g_characters)
+            transformDataUpdated = true;
+
+            for (std::size_t i = 0; i < this->g_characters.size(); ++i)
             {
-                character.drawVertices(true, target, copyStates);
+                auto& character = this->g_characters[i];
+
+                fge::TransformUboData* transformData =
+                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
+                transformData->_modelTransform =
+                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
+                transformData->_viewTransform = target.getView().getTransform();
+
+                if (!character.g_visibility)
+                {
+                    continue;
+                }
+
+                uint32_t dynamicBufferSize = fge::TransformUboData::uboSize;
+                uint32_t dynamicBufferOffsets = fge::TransformUboData::uboSize * i;
+                uint32_t dynamicSet = FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM;
+                characterStates._resInstances.setDynamicDescriptors(&this->g_charactersTransformsDescriptorSet,
+                                                                    &dynamicBufferSize, &dynamicBufferOffsets,
+                                                                    &dynamicSet, 1);
+
+                characterStates._vertexBuffer = &character.g_outlineVertices;
+                target.draw(characterStates, graphicPipeline);
             }
         }
 
-        for (auto const& character: this->g_characters)
+        for (std::size_t i = 0; i < this->g_characters.size(); ++i)
         {
-            character.drawVertices(false, target, copyStates);
+            auto& character = this->g_characters[i];
+
+            if (!character.g_visibility)
+            {
+                continue;
+            }
+
+            if (!transformDataUpdated)
+            {
+                fge::TransformUboData* transformData =
+                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
+                transformData->_modelTransform =
+                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
+                transformData->_viewTransform = target.getView().getTransform();
+            }
+
+            uint32_t dynamicBufferSize = fge::TransformUboData::uboSize;
+            uint32_t dynamicBufferOffsets = fge::TransformUboData::uboSize * i;
+            uint32_t dynamicSet = FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM;
+            characterStates._resInstances.setDynamicDescriptors(&this->g_charactersTransformsDescriptorSet,
+                                                                &dynamicBufferSize, &dynamicBufferOffsets, &dynamicSet,
+                                                                1);
+
+            characterStates._vertexBuffer = &character.g_vertices;
+            target.draw(characterStates, graphicPipeline);
         }
     }
 }
@@ -472,6 +540,12 @@ void ObjText::ensureGeometryUpdate() const
 
     auto const* font = this->g_font.retrieve();
     auto const& fontTexture = font->getTexture(this->g_characterSize);
+
+    if (this->g_charactersTransforms.getBuffer() != VK_NULL_HANDLE &&
+        this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
+    {
+        this->updateDescriptors();
+    }
 
     // Do nothing, if geometry has not changed and the font texture has not changed
     if (!this->g_geometryNeedUpdate && fontTexture.getModificationCount() == this->g_fontTextureModificationCount)
@@ -688,6 +762,10 @@ void ObjText::ensureGeometryUpdate() const
         position.x += characterLength;
     }
 
+    //Updating UBO
+    this->g_charactersTransforms.resize(fge::TransformUboData::uboSize * usedCharacters);
+    this->updateDescriptors();
+
     // Remove extra characters
     this->g_characters.resize(usedCharacters);
 
@@ -706,6 +784,29 @@ void ObjText::ensureGeometryUpdate() const
     this->g_bounds._y = minY;
     this->g_bounds._width = maxX - minX;
     this->g_bounds._height = maxY - minY;
+}
+void ObjText::updateDescriptors() const
+{
+    auto const& context = fge::vulkan::GetActiveContext();
+
+    if (this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
+    {
+        auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
+        if (layout.getLayout() == VK_NULL_HANDLE)
+        {
+            layout.create({fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
+                                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
+        }
+
+        this->g_charactersTransformsDescriptorSet =
+                context.getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
+    }
+
+    fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_charactersTransforms, FGE_VULKAN_TRANSFORM_BINDING,
+                                                      fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
+                                                      fge::TransformUboData::uboSize};
+    this->g_charactersTransformsDescriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
 } // namespace fge

@@ -39,7 +39,7 @@ public:
         INDIRECT_BUFFER
     };
 
-    explicit UniformBuffer(Context const& context);
+    explicit UniformBuffer(Context const& context, Types type = Types::UNIFORM_BUFFER);
     UniformBuffer(UniformBuffer const& r);
     UniformBuffer(UniformBuffer&& r) noexcept;
     ~UniformBuffer() override;
@@ -48,22 +48,28 @@ public:
     UniformBuffer& operator=(UniformBuffer&& r) noexcept;
 
     void create(VkDeviceSize bufferSize, Types type = Types::UNIFORM_BUFFER);
+    void resize(VkDeviceSize bufferSize, bool shrink = false);
+    void shrinkToFit();
     void destroy() final;
 
     [[nodiscard]] VkBuffer getBuffer() const;
     [[nodiscard]] VmaAllocation getBufferAllocation() const;
     [[nodiscard]] void* getBufferMapped() const;
     [[nodiscard]] VkDeviceSize getBufferSize() const;
+    [[nodiscard]] VkDeviceSize getBufferCapacity() const;
     [[nodiscard]] Types getType() const;
 
     void copyData(void const* data, std::size_t size) const;
 
 private:
 #ifndef FGE_DEF_SERVER
+    void createBuffer(VkDeviceSize bufferSize, VkBuffer& buffer, VmaAllocation& bufferAllocation);
+
     VkBuffer g_uniformBuffer;
     VmaAllocation g_uniformBufferAllocation;
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
+    VkDeviceSize g_bufferCapacity;
 #else
     mutable std::vector<uint8_t> g_uniformBuffer;
 #endif

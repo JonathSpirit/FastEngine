@@ -80,9 +80,8 @@ void DefaultGraphicPipelineBatches_constructor(fge::vulkan::Context const& conte
 } // end namespace
 
 ObjSpriteBatches::ObjSpriteBatches() :
-        g_instancesBufferCapacity(0),
-        g_instancesTransform(fge::vulkan::GetActiveContext()),
-        g_instancesIndirectCommands(fge::vulkan::GetActiveContext()),
+        g_instancesTransform(fge::vulkan::GetActiveContext(), vulkan::UniformBuffer::Types::STORAGE_BUFFER),
+        g_instancesIndirectCommands(fge::vulkan::GetActiveContext(), vulkan::UniformBuffer::Types::INDIRECT_BUFFER),
         g_instancesVertices(fge::vulkan::GetActiveContext()),
         g_needBuffersUpdate(true),
         g_featureMultiDrawIndirect(
@@ -94,9 +93,8 @@ ObjSpriteBatches::ObjSpriteBatches(ObjSpriteBatches const& r) :
         fge::Object(r),
         g_textures(r.g_textures),
         g_instancesData(r.g_instancesData),
-        g_instancesBufferCapacity(0),
-        g_instancesTransform(r.g_instancesTransform.getContext()),
-        g_instancesIndirectCommands(r.g_instancesIndirectCommands.getContext()),
+        g_instancesTransform(r.g_instancesTransform.getContext(), vulkan::UniformBuffer::Types::STORAGE_BUFFER),
+        g_instancesIndirectCommands(r.g_instancesIndirectCommands),
         g_instancesVertices(r.g_instancesVertices),
         g_needBuffersUpdate(true),
         g_featureMultiDrawIndirect(r.g_featureMultiDrawIndirect)
@@ -419,17 +417,13 @@ void ObjSpriteBatches::updateBuffers() const
                             .value();
         }
 
-        if (!this->g_instancesData.empty() && this->g_instancesData.size() > this->g_instancesBufferCapacity)
+        if (!this->g_instancesData.empty())
         {
-            this->g_instancesBufferCapacity = this->g_instancesData.size();
-
-            this->g_instancesTransform.create(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1),
-                                              vulkan::UniformBuffer::Types::STORAGE_BUFFER);
+            this->g_instancesTransform.resize(sizeof(InstanceDataBuffer) * (this->g_instancesData.size() + 1));
 
             if (this->g_featureMultiDrawIndirect)
             {
-                this->g_instancesIndirectCommands.create(sizeof(VkDrawIndirectCommand) * this->g_instancesData.size(),
-                                                         vulkan::UniformBuffer::Types::INDIRECT_BUFFER);
+                this->g_instancesIndirectCommands.resize(sizeof(VkDrawIndirectCommand) * this->g_instancesData.size());
             }
 
             fge::vulkan::DescriptorSet::Descriptor const descriptor{
