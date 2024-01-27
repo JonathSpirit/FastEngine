@@ -374,6 +374,7 @@ void ObjShape::resizeBuffer(std::size_t size) const
 }
 void ObjShape::updateDescriptors() const
 {
+#ifndef FGE_DEF_SERVER
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
         auto& layout = fge::vulkan::GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
@@ -393,6 +394,7 @@ void ObjShape::updateDescriptors() const
             this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
             fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, this->g_instances.getBufferSize()};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
+#endif //FGE_DEF_SERVER
 }
 
 ObjShape::InstanceData* ObjShape::retrieveInstance(std::size_t index) const
