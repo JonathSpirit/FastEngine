@@ -183,19 +183,19 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">void</span> updateTexCoords();</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">void</span> updateOutline();</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordtype">void</span> resizeBuffer(std::size_t size) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keyword">inline</span> <a class="code hl_struct" href="structfge_1_1ObjShape_1_1InstanceData.html">InstanceData</a>* retrieveInstance(std::size_t index) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_class" href="classfge_1_1Texture.html">fge::Texture</a> g_texture;</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <a class="code hl_class" href="classfge_1_1Rect.html">fge::RectInt</a> g_textureRect;</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">float</span> g_outlineThickness;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> g_vertices;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> g_outlineVertices;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keyword">mutable</span> std::size_t g_instancesCount;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keyword">mutable</span> std::size_t g_instancesCapacity;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">void</span> updateDescriptors() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keyword">inline</span> <a class="code hl_struct" href="structfge_1_1ObjShape_1_1InstanceData.html">InstanceData</a>* retrieveInstance(std::size_t index) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <a class="code hl_class" href="classfge_1_1Texture.html">fge::Texture</a> g_texture;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_class" href="classfge_1_1Rect.html">fge::RectInt</a> g_textureRect;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordtype">float</span> g_outlineThickness;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> g_vertices;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <a class="code hl_class" href="classfge_1_1vulkan_1_1VertexBuffer.html">fge::vulkan::VertexBuffer</a> g_outlineVertices;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keyword">mutable</span> std::size_t g_instancesCount;</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1UniformBuffer.html">fge::vulkan::UniformBuffer</a> g_instances;</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keyword">mutable</span> <a class="code hl_class" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> g_descriptorSet;</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>

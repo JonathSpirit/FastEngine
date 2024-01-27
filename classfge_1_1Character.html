@@ -79,7 +79,6 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classfge_1_1Character-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::Character Class Reference</div></div>
 </div><!--header-->
@@ -91,7 +90,6 @@ Inheritance diagram for fge::Character:</div>
   <img src="classfge_1_1Character.png" usemap="#fge::Character_map" alt=""/>
   <map id="fge::Character_map" name="fge::Character_map">
 <area href="classfge_1_1Transformable.html" alt="fge::Transformable" shape="rect" coords="0,0,117,24"/>
-<area href="classfge_1_1Drawable.html" alt="fge::Drawable" shape="rect" coords="127,0,244,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -109,11 +107,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>addLine</b> (bool out
 <tr class="memitem:a6cab1f3573da0407b2d3f972b01a46e2" id="r_a6cab1f3573da0407b2d3f972b01a46e2"><td class="memItemLeft" align="right" valign="top"><a id="a6cab1f3573da0407b2d3f972b01a46e2" name="a6cab1f3573da0407b2d3f972b01a46e2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>addGlyphQuad</b> (bool outlineVertices, fge::Vector2f const &amp;size, <a class="el" href="classfge_1_1Glyph.html">fge::Glyph</a> const &amp;glyph, fge::Vector2i const &amp;textureSize, float italicShear)</td></tr>
 <tr class="separator:a6cab1f3573da0407b2d3f972b01a46e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ea585edcaf60438efaf394eb3d35f31" id="r_a5ea585edcaf60438efaf394eb3d35f31"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5ea585edcaf60438efaf394eb3d35f31">draw</a> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> const &amp;states) const override</td></tr>
-<tr class="separator:a5ea585edcaf60438efaf394eb3d35f31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a8743f5b4dac88126558c080379823c" id="r_a4a8743f5b4dac88126558c080379823c"><td class="memItemLeft" align="right" valign="top"><a id="a4a8743f5b4dac88126558c080379823c" name="a4a8743f5b4dac88126558c080379823c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drawVertices</b> (bool outlineVertices, <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> const &amp;states) const</td></tr>
-<tr class="separator:a4a8743f5b4dac88126558c080379823c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ee55321da1031f7a092f9a2ace2cf61" id="r_a3ee55321da1031f7a092f9a2ace2cf61"><td class="memItemLeft" align="right" valign="top"><a id="a3ee55321da1031f7a092f9a2ace2cf61" name="a3ee55321da1031f7a092f9a2ace2cf61"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>draw</b> (<a class="el" href="classfge_1_1Transform.html">fge::Transform</a> &amp;externalTransform, <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> const &amp;states) const</td></tr>
+<tr class="separator:a3ee55321da1031f7a092f9a2ace2cf61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa087c7c11abd372bf076c498fba69479" id="r_aa087c7c11abd372bf076c498fba69479"><td class="memItemLeft" align="right" valign="top"><a id="aa087c7c11abd372bf076c498fba69479" name="aa087c7c11abd372bf076c498fba69479"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setFillColor</b> (<a class="el" href="classfge_1_1Color.html">fge::Color</a> const &amp;color)</td></tr>
 <tr class="separator:aa087c7c11abd372bf076c498fba69479"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,45 +170,7 @@ glm::mat4 const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getT
 <tr class="memitem:af88ad085c5a806b8dadeea0e4f4b5d77" id="r_af88ad085c5a806b8dadeea0e4f4b5d77"><td class="memItemLeft" align="right" valign="top"><a id="af88ad085c5a806b8dadeea0e4f4b5d77" name="af88ad085c5a806b8dadeea0e4f4b5d77"></a>
 glm::mat4 const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getInverseTransform</b> () const</td></tr>
 <tr class="separator:af88ad085c5a806b8dadeea0e4f4b5d77"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ae3dce3b1be2ca57d9ae8a201607ec920" id="r_ae3dce3b1be2ca57d9ae8a201607ec920"><td class="memItemLeft" align="right" valign="top"><a id="ae3dce3b1be2ca57d9ae8a201607ec920" name="ae3dce3b1be2ca57d9ae8a201607ec920"></a>
-<a class="el" href="classfge_1_1Transform.html">fge::Transform</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_transform</b></td></tr>
-<tr class="separator:ae3dce3b1be2ca57d9ae8a201607ec920"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a5ea585edcaf60438efaf394eb3d35f31" name="a5ea585edcaf60438efaf394eb3d35f31"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5ea585edcaf60438efaf394eb3d35f31">&#9670;&#160;</a></span>draw()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::Character::draw </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>target</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> const &amp;</td>          <td class="paramname"><span class="paramname"><em>states</em></span>&#160;) const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Implements <a class="el" href="classfge_1_1Drawable.html">fge::Drawable</a>.</p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="C__objText_8hpp_source.html">C_objText.hpp</a></li>
 </ul>

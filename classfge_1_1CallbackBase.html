@@ -73,41 +73,41 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>fge</b></li><li class="navelem"><a class="el" href="classfge_1_1CallbackFunctorBase.html">CallbackBase</a></li>  </ul>
+<li class="navelem"><b>fge</b></li><li class="navelem"><a class="el" href="classfge_1_1CallbackBase.html">CallbackBase</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="classfge_1_1CallbackFunctorBase-members.html">List of all members</a>  </div>
+<a href="classfge_1_1CallbackBase-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::CallbackBase&lt; Types &gt; Class Template Reference<span class="mlabels"><span class="mlabel">abstract</span></span><div class="ingroups"><a class="el" href="group__callback.html">Callback</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Base class for callback functors.  
+<p>Base class for callbacks.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="C__callback_8hpp_source.html">C_callback.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab94aafd0d89f0182fa3ad236e5a27cd4" id="r_ab94aafd0d89f0182fa3ad236e5a27cd4"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab94aafd0d89f0182fa3ad236e5a27cd4">call</a> (Types... args)=0</td></tr>
-<tr class="separator:ab94aafd0d89f0182fa3ad236e5a27cd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87fbcf285b9b007a0f06543c4880b3d1" id="r_a87fbcf285b9b007a0f06543c4880b3d1"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a87fbcf285b9b007a0f06543c4880b3d1">check</a> (void *ptr)=0</td></tr>
-<tr class="separator:a87fbcf285b9b007a0f06543c4880b3d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d8e29d5ccbee40ad030f32562f2a9f2" id="r_a9d8e29d5ccbee40ad030f32562f2a9f2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9d8e29d5ccbee40ad030f32562f2a9f2">call</a> (Types... args)=0</td></tr>
+<tr class="separator:a9d8e29d5ccbee40ad030f32562f2a9f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9483c6c505a57060ae7fe47673a1c47" id="r_aa9483c6c505a57060ae7fe47673a1c47"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9483c6c505a57060ae7fe47673a1c47">check</a> (void *ptr)=0</td></tr>
+<tr class="separator:aa9483c6c505a57060ae7fe47673a1c47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;class... Types&gt;<br />
-class fge::CallbackBase&lt; Types &gt;</div><p>Base class for callback functors. </p>
+class fge::CallbackBase&lt; Types &gt;</div><p>Base class for callbacks. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Types</td><td>The list of arguments types passed to the functor </td></tr>
+    <tr><td class="paramname">Types</td><td>The list of arguments types passed to the callback </td></tr>
   </table>
   </dd>
 </dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ab94aafd0d89f0182fa3ad236e5a27cd4" name="ab94aafd0d89f0182fa3ad236e5a27cd4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab94aafd0d89f0182fa3ad236e5a27cd4">&#9670;&#160;</a></span>call()</h2>
+<a id="a9d8e29d5ccbee40ad030f32562f2a9f2" name="a9d8e29d5ccbee40ad030f32562f2a9f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d8e29d5ccbee40ad030f32562f2a9f2">&#9670;&#160;</a></span>call()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -118,7 +118,7 @@ template&lt;class... Types&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="classfge_1_1CallbackFunctorBase.html">fge::CallbackBase</a>&lt; Types &gt;::call </td>
+          <td class="memname">virtual void <a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt; Types &gt;::call </td>
           <td>(</td>
           <td class="paramtype">Types...</td>          <td class="paramname"><span class="paramname"><em>args</em></span></td><td>)</td>
           <td></td>
@@ -131,12 +131,12 @@ template&lt;class... Types&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Implemented in <a class="el" href="classfge_1_1CallbackFunctor.html#a6289a6912a9e60888f6c474be6d21fe7">fge::CallbackFunctor&lt; Types &gt;</a>, <a class="el" href="classfge_1_1CallbackLambda.html#aaab4acb03642620ede3a22bdf38a6dbf">fge::CallbackLambda&lt; Types &gt;</a>, and <a class="el" href="classfge_1_1CallbackFunctorObject.html#ae1fd6ed9e4f062b74df88f73a987e98b">fge::CallbackObjectFunctor&lt; TObject, Types &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classfge_1_1CallbackFunctor.html#a6289a6912a9e60888f6c474be6d21fe7">fge::CallbackFunctor&lt; Types &gt;</a>, <a class="el" href="classfge_1_1CallbackLambda.html#aaab4acb03642620ede3a22bdf38a6dbf">fge::CallbackLambda&lt; Types &gt;</a>, and <a class="el" href="classfge_1_1CallbackObjectFunctor.html#a97d993e56dbacdb26b6e996b1de5c94c">fge::CallbackObjectFunctor&lt; TObject, Types &gt;</a>.</p>
 
 </div>
 </div>
-<a id="a87fbcf285b9b007a0f06543c4880b3d1" name="a87fbcf285b9b007a0f06543c4880b3d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a87fbcf285b9b007a0f06543c4880b3d1">&#9670;&#160;</a></span>check()</h2>
+<a id="aa9483c6c505a57060ae7fe47673a1c47" name="aa9483c6c505a57060ae7fe47673a1c47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9483c6c505a57060ae7fe47673a1c47">&#9670;&#160;</a></span>check()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -147,7 +147,7 @@ template&lt;class... Types&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool <a class="el" href="classfge_1_1CallbackFunctorBase.html">fge::CallbackBase</a>&lt; Types &gt;::check </td>
+          <td class="memname">virtual bool <a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt; Types &gt;::check </td>
           <td>(</td>
           <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>ptr</em></span></td><td>)</td>
           <td></td>
@@ -160,7 +160,7 @@ template&lt;class... Types&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Implemented in <a class="el" href="classfge_1_1CallbackFunctor.html#a376eff237d753c1d5fcc8ab038b098c0">fge::CallbackFunctor&lt; Types &gt;</a>, <a class="el" href="classfge_1_1CallbackLambda.html#a720a6ff53a98c4bdae18f6895d625687">fge::CallbackLambda&lt; Types &gt;</a>, and <a class="el" href="classfge_1_1CallbackFunctorObject.html#ac7d7bb84fec58e5204453cb43ae37a22">fge::CallbackObjectFunctor&lt; TObject, Types &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classfge_1_1CallbackFunctor.html#a376eff237d753c1d5fcc8ab038b098c0">fge::CallbackFunctor&lt; Types &gt;</a>, <a class="el" href="classfge_1_1CallbackLambda.html#a720a6ff53a98c4bdae18f6895d625687">fge::CallbackLambda&lt; Types &gt;</a>, and <a class="el" href="classfge_1_1CallbackObjectFunctor.html#a36b66e9082cb5c5fd040efe6be7acf29">fge::CallbackObjectFunctor&lt; TObject, Types &gt;</a>.</p>
 
 </div>
 </div>

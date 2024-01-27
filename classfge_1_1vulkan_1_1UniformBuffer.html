@@ -78,6 +78,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classfge_1_1vulkan_1_1UniformBuffer-members.html">List of all members</a>  </div>
@@ -94,11 +95,19 @@ Inheritance diagram for fge::vulkan::UniformBuffer:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ad3297d4f420c82aefd65e917e676ba21" id="r_ad3297d4f420c82aefd65e917e676ba21"><td class="memItemLeft" align="right" valign="top"><a id="ad3297d4f420c82aefd65e917e676ba21" name="ad3297d4f420c82aefd65e917e676ba21"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>Types</b> { <b>UNIFORM_BUFFER</b>
+, <b>STORAGE_BUFFER</b>
+, <b>INDIRECT_BUFFER</b>
+ }</td></tr>
+<tr class="separator:ad3297d4f420c82aefd65e917e676ba21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa8b8e52efc8d2aff6ec1685933409889" id="r_aa8b8e52efc8d2aff6ec1685933409889"><td class="memItemLeft" align="right" valign="top"><a id="aa8b8e52efc8d2aff6ec1685933409889" name="aa8b8e52efc8d2aff6ec1685933409889"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>UniformBuffer</b> (<a class="el" href="classfge_1_1vulkan_1_1Context.html">Context</a> const &amp;context)</td></tr>
-<tr class="separator:aa8b8e52efc8d2aff6ec1685933409889"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7b98a803e68b689f24d9f75cd1bc39e" id="r_ae7b98a803e68b689f24d9f75cd1bc39e"><td class="memItemLeft" align="right" valign="top"><a id="ae7b98a803e68b689f24d9f75cd1bc39e" name="ae7b98a803e68b689f24d9f75cd1bc39e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UniformBuffer</b> (<a class="el" href="classfge_1_1vulkan_1_1Context.html">Context</a> const &amp;context, Types type=Types::UNIFORM_BUFFER)</td></tr>
+<tr class="separator:ae7b98a803e68b689f24d9f75cd1bc39e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2f4b65677323dd5e0781d55fd026608" id="r_af2f4b65677323dd5e0781d55fd026608"><td class="memItemLeft" align="right" valign="top"><a id="af2f4b65677323dd5e0781d55fd026608" name="af2f4b65677323dd5e0781d55fd026608"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UniformBuffer</b> (<a class="el" href="classfge_1_1vulkan_1_1UniformBuffer.html">UniformBuffer</a> const &amp;r)</td></tr>
 <tr class="separator:af2f4b65677323dd5e0781d55fd026608"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -111,9 +120,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a5e5ef91a2259622805633859f6090599" id="r_a5e5ef91a2259622805633859f6090599"><td class="memItemLeft" align="right" valign="top"><a id="a5e5ef91a2259622805633859f6090599" name="a5e5ef91a2259622805633859f6090599"></a>
 <a class="el" href="classfge_1_1vulkan_1_1UniformBuffer.html">UniformBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1vulkan_1_1UniformBuffer.html">UniformBuffer</a> &amp;&amp;r) noexcept</td></tr>
 <tr class="separator:a5e5ef91a2259622805633859f6090599"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ef30234bb3f6d50e877d05e2d1fe44e" id="r_a8ef30234bb3f6d50e877d05e2d1fe44e"><td class="memItemLeft" align="right" valign="top"><a id="a8ef30234bb3f6d50e877d05e2d1fe44e" name="a8ef30234bb3f6d50e877d05e2d1fe44e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (VkDeviceSize bufferSize, bool isStorageBuffer=false)</td></tr>
-<tr class="separator:a8ef30234bb3f6d50e877d05e2d1fe44e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab72b2d08ffd753a99b5225aa60ae4d62" id="r_ab72b2d08ffd753a99b5225aa60ae4d62"><td class="memItemLeft" align="right" valign="top"><a id="ab72b2d08ffd753a99b5225aa60ae4d62" name="ab72b2d08ffd753a99b5225aa60ae4d62"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (VkDeviceSize bufferSize, Types type=Types::UNIFORM_BUFFER)</td></tr>
+<tr class="separator:ab72b2d08ffd753a99b5225aa60ae4d62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a115304c443d4b503e93b3807a842bad4" id="r_a115304c443d4b503e93b3807a842bad4"><td class="memItemLeft" align="right" valign="top"><a id="a115304c443d4b503e93b3807a842bad4" name="a115304c443d4b503e93b3807a842bad4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>resize</b> (VkDeviceSize bufferSize, bool shrink=false)</td></tr>
+<tr class="separator:a115304c443d4b503e93b3807a842bad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa073614dffdecfe99ab01a6a5a15ada" id="r_afa073614dffdecfe99ab01a6a5a15ada"><td class="memItemLeft" align="right" valign="top"><a id="afa073614dffdecfe99ab01a6a5a15ada" name="afa073614dffdecfe99ab01a6a5a15ada"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>shrinkToFit</b> ()</td></tr>
+<tr class="separator:afa073614dffdecfe99ab01a6a5a15ada"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c4a5809114b4fd19caa61fefa94a67d" id="r_a9c4a5809114b4fd19caa61fefa94a67d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c4a5809114b4fd19caa61fefa94a67d">destroy</a> () final</td></tr>
 <tr class="separator:a9c4a5809114b4fd19caa61fefa94a67d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a89faa6f84044d8a121e4d258185443" id="r_a1a89faa6f84044d8a121e4d258185443"><td class="memItemLeft" align="right" valign="top"><a id="a1a89faa6f84044d8a121e4d258185443" name="a1a89faa6f84044d8a121e4d258185443"></a>
@@ -128,9 +143,12 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>getBufferMapped</b>
 <tr class="memitem:a789bcb9e43f0ae80621cb93eb9d64069" id="r_a789bcb9e43f0ae80621cb93eb9d64069"><td class="memItemLeft" align="right" valign="top"><a id="a789bcb9e43f0ae80621cb93eb9d64069" name="a789bcb9e43f0ae80621cb93eb9d64069"></a>
 VkDeviceSize&#160;</td><td class="memItemRight" valign="bottom"><b>getBufferSize</b> () const</td></tr>
 <tr class="separator:a789bcb9e43f0ae80621cb93eb9d64069"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fdc421e70ac5365652564c77cb02de0" id="r_a6fdc421e70ac5365652564c77cb02de0"><td class="memItemLeft" align="right" valign="top"><a id="a6fdc421e70ac5365652564c77cb02de0" name="a6fdc421e70ac5365652564c77cb02de0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isStorageBuffer</b> () const</td></tr>
-<tr class="separator:a6fdc421e70ac5365652564c77cb02de0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad83ff6c6e3c67d3f7c324689e81ec81b" id="r_ad83ff6c6e3c67d3f7c324689e81ec81b"><td class="memItemLeft" align="right" valign="top"><a id="ad83ff6c6e3c67d3f7c324689e81ec81b" name="ad83ff6c6e3c67d3f7c324689e81ec81b"></a>
+VkDeviceSize&#160;</td><td class="memItemRight" valign="bottom"><b>getBufferCapacity</b> () const</td></tr>
+<tr class="separator:ad83ff6c6e3c67d3f7c324689e81ec81b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a654c79e3a4581dd68f9bd048edc0ae9d" id="r_a654c79e3a4581dd68f9bd048edc0ae9d"><td class="memItemLeft" align="right" valign="top"><a id="a654c79e3a4581dd68f9bd048edc0ae9d" name="a654c79e3a4581dd68f9bd048edc0ae9d"></a>
+Types&#160;</td><td class="memItemRight" valign="bottom"><b>getType</b> () const</td></tr>
+<tr class="separator:a654c79e3a4581dd68f9bd048edc0ae9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7a641cf14642e1ed43dceac4421ea99" id="r_ae7a641cf14642e1ed43dceac4421ea99"><td class="memItemLeft" align="right" valign="top"><a id="ae7a641cf14642e1ed43dceac4421ea99" name="ae7a641cf14642e1ed43dceac4421ea99"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>copyData</b> (void const *data, std::size_t size) const</td></tr>
 <tr class="separator:ae7a641cf14642e1ed43dceac4421ea99"><td class="memSeparator" colspan="2">&#160;</td></tr>

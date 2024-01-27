@@ -111,12 +111,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3caeb80e4ca1391b84bb1f35a0f5ca9e" id="r_a3caeb80e4ca1391b84bb1f35a0f5ca9e"><td class="memItemLeft" align="right" valign="top"><a id="a3caeb80e4ca1391b84bb1f35a0f5ca9e" name="a3caeb80e4ca1391b84bb1f35a0f5ca9e"></a>
 <a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">TextureImage</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">TextureImage</a> &amp;&amp;r) noexcept</td></tr>
 <tr class="separator:a3caeb80e4ca1391b84bb1f35a0f5ca9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdf2ec002568410dbf5a9ed1c0296c38" id="r_acdf2ec002568410dbf5a9ed1c0296c38"><td class="memItemLeft" align="right" valign="top"><a id="acdf2ec002568410dbf5a9ed1c0296c38" name="acdf2ec002568410dbf5a9ed1c0296c38"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (glm::vec&lt; 2, int &gt; const &amp;size)</td></tr>
-<tr class="separator:acdf2ec002568410dbf5a9ed1c0296c38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab38d029fa71c90fc3754a445ddfb96f" id="r_aab38d029fa71c90fc3754a445ddfb96f"><td class="memItemLeft" align="right" valign="top"><a id="aab38d029fa71c90fc3754a445ddfb96f" name="aab38d029fa71c90fc3754a445ddfb96f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (SDL_Surface *surface)</td></tr>
-<tr class="separator:aab38d029fa71c90fc3754a445ddfb96f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d749e98f863549e95097fe9141d3299" id="r_a6d749e98f863549e95097fe9141d3299"><td class="memItemLeft" align="right" valign="top"><a id="a6d749e98f863549e95097fe9141d3299" name="a6d749e98f863549e95097fe9141d3299"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (glm::vec&lt; 2, int &gt; const &amp;size, uint32_t levels=1)</td></tr>
+<tr class="separator:a6d749e98f863549e95097fe9141d3299"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a802ecc690a05884aadebfe6571f57234" id="r_a802ecc690a05884aadebfe6571f57234"><td class="memItemLeft" align="right" valign="top"><a id="a802ecc690a05884aadebfe6571f57234" name="a802ecc690a05884aadebfe6571f57234"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (SDL_Surface *surface, uint32_t levels=1)</td></tr>
+<tr class="separator:a802ecc690a05884aadebfe6571f57234"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47c06deaeb8d23fdcc5383ce75b4892c" id="r_a47c06deaeb8d23fdcc5383ce75b4892c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47c06deaeb8d23fdcc5383ce75b4892c">destroy</a> () final</td></tr>
 <tr class="separator:a47c06deaeb8d23fdcc5383ce75b4892c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcee6ed8f19524c2c076639461bf6cf4" id="r_adcee6ed8f19524c2c076639461bf6cf4"><td class="memItemLeft" align="right" valign="top"><a id="adcee6ed8f19524c2c076639461bf6cf4" name="adcee6ed8f19524c2c076639461bf6cf4"></a>
@@ -131,6 +131,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (<a class=
 <tr class="memitem:a2bc86ecc5a205876f130acf1ff145257" id="r_a2bc86ecc5a205876f130acf1ff145257"><td class="memItemLeft" align="right" valign="top"><a id="a2bc86ecc5a205876f130acf1ff145257" name="a2bc86ecc5a205876f130acf1ff145257"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (void *buffer, std::size_t bufferSize, glm::vec&lt; 2, int &gt; const &amp;size, glm::vec&lt; 2, int &gt; const &amp;offset)</td></tr>
 <tr class="separator:a2bc86ecc5a205876f130acf1ff145257"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac46b5e2254c16d28f921841daf307920" id="r_ac46b5e2254c16d28f921841daf307920"><td class="memItemLeft" align="right" valign="top"><a id="ac46b5e2254c16d28f921841daf307920" name="ac46b5e2254c16d28f921841daf307920"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>generateMipmaps</b> (uint32_t levels=0)</td></tr>
+<tr class="separator:ac46b5e2254c16d28f921841daf307920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7965d23cf516311d5ed2cc27bacfde9" id="r_af7965d23cf516311d5ed2cc27bacfde9"><td class="memItemLeft" align="right" valign="top"><a id="af7965d23cf516311d5ed2cc27bacfde9" name="af7965d23cf516311d5ed2cc27bacfde9"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>getMipLevels</b> () const</td></tr>
+<tr class="separator:af7965d23cf516311d5ed2cc27bacfde9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1eb2b2914a6e3ce3fc259368b507b399" id="r_a1eb2b2914a6e3ce3fc259368b507b399"><td class="memItemLeft" align="right" valign="top"><a id="a1eb2b2914a6e3ce3fc259368b507b399" name="a1eb2b2914a6e3ce3fc259368b507b399"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>forceMipLod</b> (float mipLodBias, float mipLodMin, float mipLodMax)</td></tr>
+<tr class="separator:a1eb2b2914a6e3ce3fc259368b507b399"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5077abb81530aba95bce5045d8b8c7d6" id="r_a5077abb81530aba95bce5045d8b8c7d6"><td class="memItemLeft" align="right" valign="top"><a id="a5077abb81530aba95bce5045d8b8c7d6" name="a5077abb81530aba95bce5045d8b8c7d6"></a>
 glm::vec&lt; 2, int &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getSize</b> () const</td></tr>
 <tr class="separator:a5077abb81530aba95bce5045d8b8c7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>

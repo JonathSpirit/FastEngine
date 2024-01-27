@@ -130,17 +130,19 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    [[nodiscard]] VkDevice getDevice() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    [[nodiscard]] VkQueue getGraphicQueue() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    [[nodiscard]] VkQueue getPresentQueue() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    VkDevice g_device;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    VkQueue g_graphicQueue;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    VkQueue g_presentQueue;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>};</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    [[nodiscard]] VkPhysicalDeviceFeatures getEnabledFeatures() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    VkDevice g_device;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    VkQueue g_graphicQueue;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    VkQueue g_presentQueue;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    VkPhysicalDeviceFeatures g_enabledFeatures;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>};</div>
 </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>} <span class="comment">// namespace fge::vulkan</span></div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_VULKAN_C_LOGICALDEVICE_HPP_INCLUDED</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>} <span class="comment">// namespace fge::vulkan</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#endif </span><span class="comment">//_FGE_VULKAN_C_LOGICALDEVICE_HPP_INCLUDED</span></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1LogicalDevice_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1LogicalDevice.html">fge::vulkan::LogicalDevice</a></div><div class="ttdoc">Logical device abstraction.</div><div class="ttdef"><b>Definition</b> C_logicalDevice.hpp:37</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1PhysicalDevice_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1PhysicalDevice.html">fge::vulkan::PhysicalDevice</a></div><div class="ttdoc">Vulkan physical device abstraction.</div><div class="ttdef"><b>Definition</b> C_physicalDevice.hpp:35</div></div>
 </div><!-- fragment --></div><!-- contents -->

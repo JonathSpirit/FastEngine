@@ -102,6 +102,9 @@ Inheritance diagram for fge::CallbackHandler&lt; Types &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
+<tr class="memitem:a77692098b70a135c58992ebeb8037ac4" id="r_a77692098b70a135c58992ebeb8037ac4"><td class="memItemLeft" align="right" valign="top"><a id="a77692098b70a135c58992ebeb8037ac4" name="a77692098b70a135c58992ebeb8037ac4"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>CalleePtr</b> = std::unique_ptr&lt;<a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt;Types...&gt;&gt;</td></tr>
+<tr class="separator:a77692098b70a135c58992ebeb8037ac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac90a6b2678c081298ed8cb6d71581a83" id="r_ac90a6b2678c081298ed8cb6d71581a83"><td class="memItemLeft" align="right" valign="top"><a id="ac90a6b2678c081298ed8cb6d71581a83" name="ac90a6b2678c081298ed8cb6d71581a83"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>SubscriberCount</b> = unsigned int</td></tr>
 <tr class="separator:ac90a6b2678c081298ed8cb6d71581a83"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -123,15 +126,29 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad4b0cf49f5fb5476027047c566a5fdbf" id="r_ad4b0cf49f5fb5476027047c566a5fdbf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad4b0cf49f5fb5476027047c566a5fdbf">clear</a> ()</td></tr>
 <tr class="memdesc:ad4b0cf49f5fb5476027047c566a5fdbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the list of callbacks.  <br /></td></tr>
 <tr class="separator:ad4b0cf49f5fb5476027047c566a5fdbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21160f05ee749c2e01b154a30ebcb2d5" id="r_a21160f05ee749c2e01b154a30ebcb2d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21160f05ee749c2e01b154a30ebcb2d5">add</a> (<a class="el" href="classfge_1_1CallbackFunctorBase.html">fge::CallbackFunctorBase</a>&lt; Types... &gt; *callback, <a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber=nullptr)</td></tr>
-<tr class="memdesc:a21160f05ee749c2e01b154a30ebcb2d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new callback to the list.  <br /></td></tr>
-<tr class="separator:a21160f05ee749c2e01b154a30ebcb2d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5aa57aa5862132db3f3531718f4eb82e" id="r_a5aa57aa5862132db3f3531718f4eb82e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt; Types... &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5aa57aa5862132db3f3531718f4eb82e">add</a> (CalleePtr &amp;&amp;callback, <a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber=nullptr)</td></tr>
+<tr class="memdesc:a5aa57aa5862132db3f3531718f4eb82e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new callback to the list.  <br /></td></tr>
+<tr class="separator:a5aa57aa5862132db3f3531718f4eb82e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b1bfb4abde142ae1a8fc11bf1f63b77" id="r_a2b1bfb4abde142ae1a8fc11bf1f63b77"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackFunctor.html">fge::CallbackFunctor</a>&lt; Types... &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b1bfb4abde142ae1a8fc11bf1f63b77">addFunctor</a> (typename <a class="el" href="classfge_1_1CallbackFunctor.html">fge::CallbackFunctor</a>&lt; Types... &gt;::CallbackFunction func, <a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber=nullptr)</td></tr>
+<tr class="memdesc:a2b1bfb4abde142ae1a8fc11bf1f63b77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper method to add a callback functor.  <br /></td></tr>
+<tr class="separator:a2b1bfb4abde142ae1a8fc11bf1f63b77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9b3789ad417ddf59c656043b5ca9304" id="r_af9b3789ad417ddf59c656043b5ca9304"><td class="memTemplParams" colspan="2">template&lt;typename TLambda &gt; </td></tr>
+<tr class="memitem:af9b3789ad417ddf59c656043b5ca9304"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackLambda.html">fge::CallbackLambda</a>&lt; Types... &gt; *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#af9b3789ad417ddf59c656043b5ca9304">addLambda</a> (TLambda const &amp;lambda, <a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber=nullptr)</td></tr>
+<tr class="memdesc:af9b3789ad417ddf59c656043b5ca9304"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper method to add a callback lambda.  <br /></td></tr>
+<tr class="separator:af9b3789ad417ddf59c656043b5ca9304"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6c2cd8bcf955fd5aa07641006172695" id="r_af6c2cd8bcf955fd5aa07641006172695"><td class="memTemplParams" colspan="2">template&lt;class TObject &gt; </td></tr>
+<tr class="memitem:af6c2cd8bcf955fd5aa07641006172695"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackObjectFunctor.html">fge::CallbackObjectFunctor</a>&lt; TObject, Types... &gt; *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#af6c2cd8bcf955fd5aa07641006172695">addObjectFunctor</a> (typename <a class="el" href="classfge_1_1CallbackObjectFunctor.html">fge::CallbackObjectFunctor</a>&lt; TObject, Types... &gt;::CallbackFunctionObject func, TObject *object, <a class="el" href="classfge_1_1Subscriber.html">Subscriber</a> *subscriber=nullptr)</td></tr>
+<tr class="memdesc:af6c2cd8bcf955fd5aa07641006172695"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper method to add a callback object functor.  <br /></td></tr>
+<tr class="separator:af6c2cd8bcf955fd5aa07641006172695"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a138ff92d078bfba5f4cbfd8fb1d98f00" id="r_a138ff92d078bfba5f4cbfd8fb1d98f00"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a138ff92d078bfba5f4cbfd8fb1d98f00">delPtr</a> (void *ptr)</td></tr>
 <tr class="memdesc:a138ff92d078bfba5f4cbfd8fb1d98f00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a callback from the list.  <br /></td></tr>
 <tr class="separator:a138ff92d078bfba5f4cbfd8fb1d98f00"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e169701b8748204929c26c52faf4cb1" id="r_a2e169701b8748204929c26c52faf4cb1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e169701b8748204929c26c52faf4cb1">del</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
-<tr class="memdesc:a2e169701b8748204929c26c52faf4cb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a callback from the list.  <br /></td></tr>
-<tr class="separator:a2e169701b8748204929c26c52faf4cb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac525e56c2e6a6e4f85e5d886b115f1bc" id="r_ac525e56c2e6a6e4f85e5d886b115f1bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac525e56c2e6a6e4f85e5d886b115f1bc">delSub</a> (<a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *subscriber)</td></tr>
+<tr class="memdesc:ac525e56c2e6a6e4f85e5d886b115f1bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a callback from the list.  <br /></td></tr>
+<tr class="separator:ac525e56c2e6a6e4f85e5d886b115f1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41a8982a51f66e2ec3a3ed62b017e744" id="r_a41a8982a51f66e2ec3a3ed62b017e744"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a41a8982a51f66e2ec3a3ed62b017e744">del</a> (<a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt; Types... &gt; *callback)</td></tr>
+<tr class="memdesc:a41a8982a51f66e2ec3a3ed62b017e744"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a callback from the list.  <br /></td></tr>
+<tr class="separator:a41a8982a51f66e2ec3a3ed62b017e744"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab36291e056abe0e7b18a947868c5f8aa" id="r_ab36291e056abe0e7b18a947868c5f8aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab36291e056abe0e7b18a947868c5f8aa">call</a> (Types... args)</td></tr>
 <tr class="memdesc:ab36291e056abe0e7b18a947868c5f8aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all the callbacks with the given arguments.  <br /></td></tr>
 <tr class="separator:ab36291e056abe0e7b18a947868c5f8aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -232,8 +249,8 @@ template&lt;class... Types&gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a21160f05ee749c2e01b154a30ebcb2d5" name="a21160f05ee749c2e01b154a30ebcb2d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a21160f05ee749c2e01b154a30ebcb2d5">&#9670;&#160;</a></span>add()</h2>
+<a id="a5aa57aa5862132db3f3531718f4eb82e" name="a5aa57aa5862132db3f3531718f4eb82e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5aa57aa5862132db3f3531718f4eb82e">&#9670;&#160;</a></span>add()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -244,9 +261,9 @@ template&lt;class... Types&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::add </td>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt; Types... &gt; * <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::add </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1CallbackFunctorBase.html">fge::CallbackFunctorBase</a>&lt; Types... &gt; *</td>          <td class="paramname"><span class="paramname"><em>callback</em>, </span></td>
+          <td class="paramtype">CalleePtr &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>callback</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -264,6 +281,7 @@ template&lt;class... Types&gt; </div>
 <p>Add a new callback to the list. </p>
 <p>A subscriber can be passed to this function to "categorize" the callback. The subscriber will be used to remove the group of callbacks related to him later.</p>
 <p>You can pass a nullptr to the subscriber parameter if you don't want to use it, if so the callback will be added to the default group.</p>
+<p>To facilitate your code, you can use the helper methods <a class="el" href="#a2b1bfb4abde142ae1a8fc11bf1f63b77" title="Helper method to add a callback functor.">addFunctor()</a>, <a class="el" href="#af9b3789ad417ddf59c656043b5ca9304" title="Helper method to add a callback lambda.">addLambda()</a> and <a class="el" href="#af6c2cd8bcf955fd5aa07641006172695" title="Helper method to add a callback object functor.">addObjectFunctor()</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">callback</td><td>The new callback to add </td></tr>
@@ -271,6 +289,155 @@ template&lt;class... Types&gt; </div>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>The callback pointer </dd></dl>
+
+</div>
+</div>
+<a id="a2b1bfb4abde142ae1a8fc11bf1f63b77" name="a2b1bfb4abde142ae1a8fc11bf1f63b77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b1bfb4abde142ae1a8fc11bf1f63b77">&#9670;&#160;</a></span>addFunctor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... Types&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackFunctor.html">fge::CallbackFunctor</a>&lt; Types... &gt; * <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::addFunctor </td>
+          <td>(</td>
+          <td class="paramtype">typename <a class="el" href="classfge_1_1CallbackFunctor.html">fge::CallbackFunctor</a>&lt; Types... &gt;::CallbackFunction</td>          <td class="paramname"><span class="paramname"><em>func</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *</td>          <td class="paramname"><span class="paramname"><em>subscriber</em><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper method to add a callback functor. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#a5aa57aa5862132db3f3531718f4eb82e" title="Add a new callback to the list.">add()</a></dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">func</td><td>The callback function </td></tr>
+    <tr><td class="paramname">subscriber</td><td>The subscriber to use to categorize the callback </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The callback pointer </dd></dl>
+
+</div>
+</div>
+<a id="af9b3789ad417ddf59c656043b5ca9304" name="af9b3789ad417ddf59c656043b5ca9304"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9b3789ad417ddf59c656043b5ca9304">&#9670;&#160;</a></span>addLambda()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... Types&gt; </div>
+<div class="memtemplate">
+template&lt;typename TLambda &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackLambda.html">fge::CallbackLambda</a>&lt; Types... &gt; * <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::addLambda </td>
+          <td>(</td>
+          <td class="paramtype">TLambda const &amp;</td>          <td class="paramname"><span class="paramname"><em>lambda</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *</td>          <td class="paramname"><span class="paramname"><em>subscriber</em><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper method to add a callback lambda. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#a5aa57aa5862132db3f3531718f4eb82e" title="Add a new callback to the list.">add()</a></dd></dl>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">TLambda</td><td>The lambda type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lambda</td><td>The callback lambda </td></tr>
+    <tr><td class="paramname">subscriber</td><td>The subscriber to use to categorize the callback </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The callback pointer </dd></dl>
+
+</div>
+</div>
+<a id="af6c2cd8bcf955fd5aa07641006172695" name="af6c2cd8bcf955fd5aa07641006172695"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6c2cd8bcf955fd5aa07641006172695">&#9670;&#160;</a></span>addObjectFunctor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... Types&gt; </div>
+<div class="memtemplate">
+template&lt;class TObject &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackObjectFunctor.html">fge::CallbackObjectFunctor</a>&lt; TObject, Types... &gt; * <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::addObjectFunctor </td>
+          <td>(</td>
+          <td class="paramtype">typename <a class="el" href="classfge_1_1CallbackObjectFunctor.html">fge::CallbackObjectFunctor</a>&lt; TObject, Types... &gt;::CallbackFunctionObject</td>          <td class="paramname"><span class="paramname"><em>func</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TObject *</td>          <td class="paramname"><span class="paramname"><em>object</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">Subscriber</a> *</td>          <td class="paramname"><span class="paramname"><em>subscriber</em><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper method to add a callback object functor. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#a5aa57aa5862132db3f3531718f4eb82e" title="Add a new callback to the list.">add()</a></dd></dl>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">TObject</td><td>The object type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">func</td><td>The callback method of the object </td></tr>
+    <tr><td class="paramname">object</td><td>The object pointer </td></tr>
+    <tr><td class="paramname">subscriber</td><td>The subscriber to use to categorize the callback </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The callback pointer </dd></dl>
 
 </div>
 </div>
@@ -365,8 +532,8 @@ template&lt;class... Types&gt; </div>
 
 </div>
 </div>
-<a id="a2e169701b8748204929c26c52faf4cb1" name="a2e169701b8748204929c26c52faf4cb1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e169701b8748204929c26c52faf4cb1">&#9670;&#160;</a></span>del()</h2>
+<a id="a41a8982a51f66e2ec3a3ed62b017e744" name="a41a8982a51f66e2ec3a3ed62b017e744"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41a8982a51f66e2ec3a3ed62b017e744">&#9670;&#160;</a></span>del()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -376,17 +543,17 @@ template&lt;class... Types&gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::del </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *</td>          <td class="paramname"><span class="paramname"><em>subscriber</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1CallbackBase.html">fge::CallbackBase</a>&lt; Types... &gt; *</td>          <td class="paramname"><span class="paramname"><em>callback</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Remove a callback from the list. </p>
-<p>Remove a group of callbacks with the specified subscriber or nullptr for the default group.</p>
+<p>Remove a callback with the specified pointer.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">subscriber</td><td>The subscriber associated to the group of callbacks </td></tr>
+    <tr><td class="paramname">callback</td><td>The callback to remove </td></tr>
   </table>
   </dd>
 </dl>
@@ -415,6 +582,34 @@ template&lt;class... Types&gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ptr</td><td>The function/object pointer to remove </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac525e56c2e6a6e4f85e5d886b115f1bc" name="ac525e56c2e6a6e4f85e5d886b115f1bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac525e56c2e6a6e4f85e5d886b115f1bc">&#9670;&#160;</a></span>delSub()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... Types&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; Types &gt;::delSub </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Subscriber.html">fge::Subscriber</a> *</td>          <td class="paramname"><span class="paramname"><em>subscriber</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remove a callback from the list. </p>
+<p>Remove a group of callbacks with the specified subscriber or nullptr for the default group.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">subscriber</td><td>The subscriber associated to the group of callbacks </td></tr>
   </table>
   </dd>
 </dl>

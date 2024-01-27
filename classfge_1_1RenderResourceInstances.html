@@ -94,12 +94,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9e2f23c37272d203a200cf371ade6cec" id="r_a9e2f23c37272d203a200cf371ade6cec"><td class="memItemLeft" align="right" valign="top"><a id="a9e2f23c37272d203a200cf371ade6cec" name="a9e2f23c37272d203a200cf371ade6cec"></a>
 constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>setInstancesCount</b> (uint32_t count, bool uniqueDrawCall)</td></tr>
 <tr class="separator:a9e2f23c37272d203a200cf371ade6cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c2c02603402f954329c0b1df2c24062" id="r_a5c2c02603402f954329c0b1df2c24062"><td class="memItemLeft" align="right" valign="top"><a id="a5c2c02603402f954329c0b1df2c24062" name="a5c2c02603402f954329c0b1df2c24062"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>setIndirectBuffer</b> (VkBuffer buffer)</td></tr>
+<tr class="separator:a5c2c02603402f954329c0b1df2c24062"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac160bc0add1411ecd96ac97297c83da1" id="r_ac160bc0add1411ecd96ac97297c83da1"><td class="memItemLeft" align="right" valign="top"><a id="ac160bc0add1411ecd96ac97297c83da1" name="ac160bc0add1411ecd96ac97297c83da1"></a>
 constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>setTextureIndices</b> (uint32_t const *textureIndices)</td></tr>
 <tr class="separator:ac160bc0add1411ecd96ac97297c83da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a082f863ad8e49dd5a39c2b3a4d4ada89" id="r_a082f863ad8e49dd5a39c2b3a4d4ada89"><td class="memItemLeft" align="right" valign="top"><a id="a082f863ad8e49dd5a39c2b3a4d4ada89" name="a082f863ad8e49dd5a39c2b3a4d4ada89"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>setDynamicDescriptors</b> (<a class="el" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> const *dynamicDescriptors, uint32_t const *dynamicBufferSizes, uint32_t const *dynamicSets, uint32_t count)</td></tr>
-<tr class="separator:a082f863ad8e49dd5a39c2b3a4d4ada89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20b10026312a77fef768dab55ef8e7c9" id="r_a20b10026312a77fef768dab55ef8e7c9"><td class="memItemLeft" align="right" valign="top"><a id="a20b10026312a77fef768dab55ef8e7c9" name="a20b10026312a77fef768dab55ef8e7c9"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>setDynamicDescriptors</b> (<a class="el" href="classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> const *dynamicDescriptors, uint32_t const *dynamicBufferSizes, uint32_t const *dynamicBufferOffsets, uint32_t const *dynamicSets, uint32_t count)</td></tr>
+<tr class="separator:a20b10026312a77fef768dab55ef8e7c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e52d1700260c9cb11d21272284ef385" id="r_a4e52d1700260c9cb11d21272284ef385"><td class="memItemLeft" align="right" valign="top"><a id="a4e52d1700260c9cb11d21272284ef385" name="a4e52d1700260c9cb11d21272284ef385"></a>
 constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>setVertexCount</b> (uint32_t count)</td></tr>
 <tr class="separator:a4e52d1700260c9cb11d21272284ef385"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -112,6 +115,9 @@ constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>getInst
 <tr class="memitem:aa6c49ac5d88ea351125b5bf603834ac8" id="r_aa6c49ac5d88ea351125b5bf603834ac8"><td class="memItemLeft" align="right" valign="top"><a id="aa6c49ac5d88ea351125b5bf603834ac8" name="aa6c49ac5d88ea351125b5bf603834ac8"></a>
 constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasUniqueDrawCall</b> () const</td></tr>
 <tr class="separator:aa6c49ac5d88ea351125b5bf603834ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9f122a72d6291658c77aaee01cd54f0" id="r_af9f122a72d6291658c77aaee01cd54f0"><td class="memItemLeft" align="right" valign="top"><a id="af9f122a72d6291658c77aaee01cd54f0" name="af9f122a72d6291658c77aaee01cd54f0"></a>
+constexpr VkBuffer&#160;</td><td class="memItemRight" valign="bottom"><b>getIndirectBuffer</b> () const</td></tr>
+<tr class="separator:af9f122a72d6291658c77aaee01cd54f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56f59aa9ac7a91e09dddd751a804792e" id="r_a56f59aa9ac7a91e09dddd751a804792e"><td class="memItemLeft" align="right" valign="top"><a id="a56f59aa9ac7a91e09dddd751a804792e" name="a56f59aa9ac7a91e09dddd751a804792e"></a>
 constexpr uint32_t const *&#160;</td><td class="memItemRight" valign="bottom"><b>getTextureIndices</b> () const</td></tr>
 <tr class="separator:a56f59aa9ac7a91e09dddd751a804792e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,6 +133,12 @@ constexpr uint32_t const *&#160;</td><td class="memItemRight" valign="bottom"><b
 <tr class="memitem:a3c9c9f8245b7642bf194805dba2bb1e9" id="r_a3c9c9f8245b7642bf194805dba2bb1e9"><td class="memItemLeft" align="right" valign="top"><a id="a3c9c9f8245b7642bf194805dba2bb1e9" name="a3c9c9f8245b7642bf194805dba2bb1e9"></a>
 constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>getDynamicBufferSizes</b> (uint32_t index) const</td></tr>
 <tr class="separator:a3c9c9f8245b7642bf194805dba2bb1e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a60ca7069b8ab621de4f2423e5bd9bf" id="r_a4a60ca7069b8ab621de4f2423e5bd9bf"><td class="memItemLeft" align="right" valign="top"><a id="a4a60ca7069b8ab621de4f2423e5bd9bf" name="a4a60ca7069b8ab621de4f2423e5bd9bf"></a>
+constexpr uint32_t const *&#160;</td><td class="memItemRight" valign="bottom"><b>getDynamicBufferOffsets</b> () const</td></tr>
+<tr class="separator:a4a60ca7069b8ab621de4f2423e5bd9bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbc50425bbf22813e030f65fff8b06fb" id="r_abbc50425bbf22813e030f65fff8b06fb"><td class="memItemLeft" align="right" valign="top"><a id="abbc50425bbf22813e030f65fff8b06fb" name="abbc50425bbf22813e030f65fff8b06fb"></a>
+constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>getDynamicBufferOffsets</b> (uint32_t index) const</td></tr>
+<tr class="separator:abbc50425bbf22813e030f65fff8b06fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f357a91e16345447f42e34770e0c600" id="r_a6f357a91e16345447f42e34770e0c600"><td class="memItemLeft" align="right" valign="top"><a id="a6f357a91e16345447f42e34770e0c600" name="a6f357a91e16345447f42e34770e0c600"></a>
 constexpr uint32_t const *&#160;</td><td class="memItemRight" valign="bottom"><b>getDynamicSets</b> () const</td></tr>
 <tr class="separator:a6f357a91e16345447f42e34770e0c600"><td class="memSeparator" colspan="2">&#160;</td></tr>
