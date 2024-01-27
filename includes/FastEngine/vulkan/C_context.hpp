@@ -221,6 +221,7 @@ public:
      * \param format The format of the image
      * \param oldLayout The old layout
      * \param newLayout The new layout
+     * \param mipLevels The number of mip the image have
      */
     void transitionImageLayout(VkImage image,
                                VkFormat format,
