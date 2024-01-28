@@ -131,11 +131,13 @@ inline fge::Vector2f GetSegmentNormal(fge::Vector2f const& vec1, fge::Vector2f c
 }
 inline constexpr float GetAngle(fge::Vector2f const& vec)
 {
-    return glm::degrees(std::atan2(vec.y, vec.x));
+    auto const angle = glm::degrees(std::atan2(vec.y, vec.x));
+    return angle < 0.0f ? angle + 360.0f : angle;
 }
 inline constexpr float GetAngleBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2)
 {
-    return glm::degrees(std::atan2(fge::Cross2d(vec1, vec2), glm::dot(vec1, vec2)));
+    auto const angle = glm::degrees(std::atan2(fge::Cross2d(vec1, vec2), glm::dot(vec1, vec2)));
+    return angle < 0.0f ? angle + 360.0f : angle;
 }
 inline float GetDistanceBetween(fge::Vector2f const& vec1, fge::Vector2f const& vec2)
 {
