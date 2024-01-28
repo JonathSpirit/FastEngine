@@ -152,7 +152,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
     }
     this->_windowScene.setCallbackContext({&event, &this->_windowHandler});
 
-    this->_windowScene._onNewObject.addObjectFunctor(&fge::ObjWindow::onNewObject, this, this);
+    this->_windowScene._onObjectAdded.addObjectFunctor(&fge::ObjWindow::onObjectAdded, this, this);
 
     fge::GuiElement::_onGlobalGuiScaleChange.addObjectFunctor(&fge::ObjWindow::onRefreshGlobalScale, this, this);
     this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.addObjectFunctor(&fge::ObjWindow::onPlanUpdate, this,
@@ -459,7 +459,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         this->setPriority(myObjectData->getPlan() + myObjectData->getPlanDepth());
     }
 }
-void ObjWindow::onNewObject([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared const& object)
+void ObjWindow::onObjectAdded([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared const& object)
 {
     object->setParent(this->_myObjectData.lock());
 }

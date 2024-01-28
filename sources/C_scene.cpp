@@ -165,14 +165,16 @@ void Scene::update(fge::RenderWindow& screen,
                 this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, (*this->g_updatedObjectIterator)->g_sid});
             }
 
-            (*this->g_updatedObjectIterator)->g_object->removed(this);
-            this->_onRemoveObject.call(this, *this->g_updatedObjectIterator);
-            (*this->g_updatedObjectIterator)->g_linkedScene = nullptr;
-            (*this->g_updatedObjectIterator)->g_object->_myObjectData.reset();
-            auto objectPlan = (*this->g_updatedObjectIterator)->g_plan;
+            auto buff = *this->g_updatedObjectIterator;
+            buff->g_object->removed(this);
+            buff->g_linkedScene = nullptr;
+            buff->g_object->_myObjectData.reset();
+
+            auto objectPlan = buff->g_plan;
             this->hash_updatePlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
 
+            this->_onObjectRemoved.call(this, buff);
             this->_onPlanUpdate.call(this, objectPlan);
         }
     }
@@ -359,7 +361,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
         (*it)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
     }
 
-    this->_onNewObject.call(this, *it);
+    this->_onObjectAdded.call(this, *it);
     this->_onPlanUpdate.call(this, plan);
 
     return *it;
@@ -401,7 +403,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
                                                this->g_callbackContext._guiElementHandler);
     }
 
-    this->_onNewObject.call(this, objectData);
+    this->_onObjectAdded.call(this, objectData);
     this->_onPlanUpdate.call(this, objectData->g_plan);
 
     return objectData;
@@ -434,13 +436,13 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
     {
         if (!newScene.isValid(sid))
         {
-            fge::ObjectDataShared buff = std::move(*it->second);
+            fge::ObjectDataShared buff = *it->second;
             buff->g_object->removed(this);
-            this->_onRemoveObject.call(this, buff);
             this->hash_updatePlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
 
+            this->_onObjectRemoved.call(this, buff);
             this->_onPlanUpdate.call(this, buff->g_plan);
 
             if (this->g_enableNetworkEventsFlag)
@@ -469,15 +471,18 @@ bool Scene::delObject(fge::ObjectSid sid)
             this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, (*it->second)->g_sid});
         }
 
-        (*it->second)->g_object->removed(this);
-        this->_onRemoveObject.call(this, *it->second);
-        (*it->second)->g_linkedScene = nullptr;
-        (*it->second)->g_object->_myObjectData.reset();
-        auto objectPlan = (*it->second)->g_plan;
+        auto buff = *it->second;
+
+        buff->g_object->removed(this);
+        buff->g_linkedScene = nullptr;
+        buff->g_object->_myObjectData.reset();
+
+        auto objectPlan = buff->g_plan;
         this->hash_updatePlanDataMap(objectPlan, it->second, true);
         this->g_data.erase(it->second);
         this->g_dataMap.erase(it);
 
+        this->_onObjectRemoved.call(this, buff);
         this->_onPlanUpdate.call(this, objectPlan);
 
         return true;
@@ -495,23 +500,26 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
     std::size_t buffSize = this->g_data.size();
     for (auto it = this->g_data.begin(); it != this->g_data.end(); ++it)
     {
+        auto buff = *it;
+
         if (ignoreGuiObject)
         {
-            if ((*it)->g_type == fge::ObjectType::TYPE_GUI)
+            if (buff->g_type == fge::ObjectType::TYPE_GUI)
             {
                 --buffSize;
                 continue;
             }
         }
 
-        (*it)->g_object->removed(this);
-        this->_onRemoveObject.call(this, *it);
-        (*it)->g_linkedScene = nullptr;
-        (*it)->g_object->_myObjectData.reset();
-        this->hash_updatePlanDataMap((*it)->g_plan, it, true);
+        buff->g_object->removed(this);
+        buff->g_linkedScene = nullptr;
+        buff->g_object->_myObjectData.reset();
+        this->hash_updatePlanDataMap(buff->g_plan, it, true);
 
-        this->g_dataMap.erase((*it)->g_sid);
+        this->g_dataMap.erase(buff->g_sid);
         it = --this->g_data.erase(it);
+
+        this->_onObjectRemoved.call(this, buff);
     }
 
     this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);

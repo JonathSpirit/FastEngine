@@ -115,7 +115,7 @@ private:
     void onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg);
 
     void onPlanUpdate(fge::Scene* scene, fge::ObjectPlan plan);
-    void onNewObject(fge::Scene* scene, fge::ObjectDataShared const& object);
+    void onObjectAdded(fge::Scene* scene, fge::ObjectDataShared const& object);
 
     void onRefreshGlobalScale(fge::Vector2f const& scale);
 

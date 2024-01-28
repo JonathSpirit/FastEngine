@@ -1280,11 +1280,20 @@ public:
     fge::PropertyList _properties;
 
     // Event
+    /// Event called when the Scene is about to be drawn
     mutable fge::CallbackHandler<fge::Scene const*, fge::RenderTarget&> _onDraw;
 
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onNewObject;
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onRemoveObject;
+    /// Event called when a new Object has been added
+    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onObjectAdded;
+    /// Event called when an Object has been removed
+    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onObjectRemoved;
 
+    /**
+     * \brief Event called when a change in the plan is detected
+     *
+     * When an Object change his plan, is created, is deleted ... this event is called.
+     * The ObjectPlan argument can be FGE_SCENE_BAD_PLAN, this mean that all plans have been impacted.
+     */
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 
 private:
