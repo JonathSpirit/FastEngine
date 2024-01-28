@@ -176,16 +176,22 @@ public:
      *
      * \return The parent object of the task
      */
-    [[nodiscard]] inline fge::Object* getParentObject() const { return this->_g_parentObject; }
+    [[nodiscard]] inline fge::Object* getParentObject() const { return this->g_parentObject; }
+    template<class T>
+    [[nodiscard]] inline T* getParentObject() const
+    {
+        return reinterpret_cast<T*>(this->g_parentObject);
+    }
 
 private:
     friend class TaskHandler;
     friend class NetworkTypeTasks;
-    inline void setParentObject(fge::Object* parentObject) { this->_g_parentObject = parentObject; }
+    inline void setParentObject(fge::Object* parentObject) { this->g_parentObject = parentObject; }
+
+    fge::Object* g_parentObject{nullptr};
 
 protected:
     float _g_progress{0.0f};
-    fge::Object* _g_parentObject{nullptr};
 };
 
 using TaskList = std::vector<std::unique_ptr<fge::Task>>;
