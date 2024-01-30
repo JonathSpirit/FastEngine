@@ -183,6 +183,9 @@ void Scene::update(fge::RenderWindow& screen,
     {
         ++this->g_updateCount;
     }
+
+    this->_onDelayedUpdate.call(this);
+    this->_onDelayedUpdate.clear();
 }
 uint16_t Scene::getUpdateCount() const
 {

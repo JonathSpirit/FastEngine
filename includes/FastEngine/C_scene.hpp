@@ -1296,6 +1296,14 @@ public:
      */
     mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
 
+    /**
+     * \brief Event called only once after a Scene update
+     *
+     * You or an Object can register a one time callback that will be called after updating the Scene.
+     * Once called, callbacks is cleared.
+     */
+    mutable fge::CallbackHandler<fge::Scene*> _onDelayedUpdate;
+
 private:
     struct PerClientSync
     {
