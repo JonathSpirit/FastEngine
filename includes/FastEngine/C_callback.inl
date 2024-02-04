@@ -103,7 +103,21 @@ template<class... Types>
 fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback, fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
     this->attach(subscriber);
+
+    //Search for a "mark for deletion" callee and replace it with the new one
+    for (auto& callee: this->g_callees)
+    {
+        if (callee._f == nullptr)
+        {
+            callee._f = std::move(callback);
+            callee._subscriber = subscriber;
+            return callee._f.get();
+        }
+    }
+
+    //Emplace back the new callee if there is no "mark for deletion"
     this->g_callees.emplace_back(std::move(callback), subscriber);
     return this->g_callees.back()._f.get();
 }
