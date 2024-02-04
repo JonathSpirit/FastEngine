@@ -25,7 +25,8 @@
 #include <cstdint>
 
 #define FGE_GUI_ELEMENT_PRIORITY_LAST 0
-#define FGE_GUI_ELEMENT_PRIORITY_MAX std::numeric_limits<fge::GuiElement::Priority>::max()
+#define FGE_GUI_ELEMENT_PRIORITY_DEFAULT 50
+#define FGE_GUI_ELEMENT_PRIORITY_FIRST std::numeric_limits<fge::GuiElement::Priority>::max()
 #define FGE_SCENE_BAD_SID std::numeric_limits<fge::ObjectSid>::max()
 
 namespace fge
@@ -212,7 +213,7 @@ public:
     inline static fge::Vector2f const& getGlobalGuiScale() { return fge::GuiElement::_GlobalGuiScale; }
 
 protected:
-    mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_LAST};
+    mutable fge::GuiElement::Priority _g_priority{FGE_GUI_ELEMENT_PRIORITY_DEFAULT};
     fge::Vector2f _g_scale{1.0f, 1.0f};
 
 private:

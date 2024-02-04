@@ -27,7 +27,7 @@
 #include "FastEngine/object/C_objSpriteBatches.hpp"
 #include "FastEngine/object/C_objText.hpp"
 
-#define FGE_WINDOW_DEFAULT_PRIORITY FGE_GUI_ELEMENT_PRIORITY_LAST
+#define FGE_WINDOW_DEFAULT_PRIORITY (FGE_GUI_ELEMENT_PRIORITY_DEFAULT + 1)
 #define FGE_WINDOW_DEFAULT_SIZE_X 120.0f
 #define FGE_WINDOW_DEFAULT_SIZE_Y 200.0f
 #define FGE_WINDOW_PIXEL_SIZE 6
