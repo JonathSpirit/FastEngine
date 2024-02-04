@@ -17,11 +17,10 @@
 #ifndef _FGE_C_CALLBACKHANDLER_HPP_INCLUDED
 #define _FGE_C_CALLBACKHANDLER_HPP_INCLUDED
 
-#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_subscription.hpp"
-#include <forward_list>
 #include <memory>
 #include <mutex>
+#include <vector>
 
 namespace fge
 {
@@ -331,12 +330,17 @@ protected:
 private:
     struct CalleeData
     {
-        fge::CallbackHandler<Types...>::CalleePtr _f;
+        inline CalleeData(CalleePtr&& f, fge::Subscriber* subscriber) :
+                _f(std::move(f)),
+                _subscriber(subscriber)
+        {}
+
+        CalleePtr _f;
         fge::Subscriber* _subscriber = nullptr;
     };
-    using CalleeList = std::forward_list<fge::CallbackHandler<Types...>::CalleeData>;
+    using CalleeList = std::vector<CalleeData>;
 
-    fge::CallbackHandler<Types...>::CalleeList g_callees;
+    CalleeList g_callees;
 
     mutable std::recursive_mutex g_mutex;
 };

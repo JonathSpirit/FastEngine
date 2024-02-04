@@ -93,7 +93,10 @@ void CallbackHandler<Types...>::clear()
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->detachAll();
-    this->g_callees.clear();
+    for (auto& callee: this->g_callees)
+    {
+        callee._f = nullptr;
+    }
 }
 
 template<class... Types>
@@ -101,8 +104,8 @@ fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->attach(subscriber);
-    this->g_callees.push_front({std::move(callback), subscriber});
-    return this->g_callees.front()._f.get();
+    this->g_callees.emplace_back(std::move(callback), subscriber);
+    return this->g_callees.back()._f.get();
 }
 template<class... Types>
 inline fge::CallbackFunctor<Types...>*
@@ -135,23 +138,17 @@ template<class... Types>
 void CallbackHandler<Types...>::delPtr(void* ptr)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
-    for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
-         it != this->g_callees.end(); ++it)
+    for (auto& callee: this->g_callees)
     {
-        if ((*it)._f->check(ptr))
+        if (callee._f == nullptr)
         {
-            if (this->detachOnce((*it)._subscriber) == 0)
-            {
-                this->g_callees.erase_after(prev);
-                break;
-            }
-            this->g_callees.erase_after(prev);
-            it = prev;
+            continue;
         }
-        else
+
+        if (callee._f->check(ptr))
         {
-            prev = it;
+            this->detachOnce(callee._subscriber);
+            callee._f = nullptr;
         }
     }
 }
@@ -159,23 +156,21 @@ template<class... Types>
 void CallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
-    for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
-         it != this->g_callees.end(); ++it)
+    for (auto& callee: this->g_callees)
     {
-        if ((*it)._subscriber == subscriber)
+        if (callee._f == nullptr)
         {
-            if (this->detachOnce((*it)._subscriber) == 0)
-            {
-                this->g_callees.erase_after(prev);
+            continue;
+        }
+
+        if (callee._subscriber == subscriber)
+        {
+            if (this->detachOnce(callee._subscriber) == 0)
+            { //At this point, all subscribers are detached so we can end the loop
+                callee._f = nullptr;
                 break;
             }
-            this->g_callees.erase_after(prev);
-            it = prev;
-        }
-        else
-        {
-            prev = it;
+            callee._f = nullptr;
         }
     }
 }
@@ -183,19 +178,17 @@ template<class... Types>
 void CallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
-    for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
-         it != this->g_callees.end(); ++it)
+    for (auto& callee: this->g_callees)
     {
-        if ((*it)._f.get() == callback)
+        if (callee._f == nullptr)
         {
-            this->detachOnce((*it)._subscriber);
-            this->g_callees.erase_after(prev);
-            it = prev;
+            continue;
         }
-        else
+
+        if (callee._f.get() == callback)
         {
-            prev = it;
+            this->detachOnce(callee._subscriber);
+            this->g_callees._f = nullptr;
         }
     }
 }
@@ -204,17 +197,39 @@ template<class... Types>
 void CallbackHandler<Types...>::call(Types... args)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    auto itCalleeNext = this->g_callees.begin();
-    for (auto itCallee = this->g_callees.begin(); itCallee != this->g_callees.end(); itCallee = itCalleeNext)
+
+    std::size_t eraseCount = 0;
+    for (std::size_t i = 0; i < this->g_callees.size(); ++i)
     {
-        ++itCalleeNext;
-        itCallee->_f->call(std::forward<Types>(args)...);
+        if (this->g_callees[i]._f == nullptr)
+        {
+            ++eraseCount;
+            continue;
+        }
+
+        if (eraseCount > 0)
+        { //We found a valid callee, we can erase the previous ones
+            this->g_callees.erase(this->g_callees.begin() + i - eraseCount, this->g_callees.begin() + i);
+            i -= eraseCount;
+            eraseCount = 0;
+        }
+
+        this->g_callees[i]._f->call(std::forward<Types>(args)...);
+
+        //While calling, the callee can remove itself or others
+        //Every erased callee is replaced by nullptr (mark for deletion)
+        //In order to avoid calling somthing that is not valid anymore
     }
 }
 
 template<class... Types>
 void CallbackHandler<Types...>::hook(fge::CallbackHandler<Types...>& handler, fge::Subscriber* subscriber)
 {
+    if (this == &handler)
+    { //Can't hook itself
+        return;
+    }
+
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->add(new fge::CallbackLambda<Types...>(
                       [&handler](Types... args) { handler.call(std::forward<Types>(args)...); }),
@@ -225,18 +240,16 @@ template<class... Types>
 void CallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    typename fge::CallbackHandler<Types...>::CalleeList::iterator prev = this->g_callees.before_begin();
-    for (typename fge::CallbackHandler<Types...>::CalleeList::iterator it = this->g_callees.begin();
-         it != this->g_callees.end(); ++it)
+    for (auto& callee: this->g_callees)
     {
-        if ((*it)._subscriber == subscriber)
+        if (callee._f == nullptr)
         {
-            this->g_callees.erase_after(prev);
-            it = prev;
+            continue;
         }
-        else
+
+        if (callee._subscriber == subscriber)
         {
-            prev = it;
+            callee._f = nullptr;
         }
     }
 }

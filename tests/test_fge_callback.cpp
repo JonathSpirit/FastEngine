@@ -114,4 +114,122 @@ TEST_CASE("testing callback with arguments")
     }
 }
 
+TEST_CASE("testing callback suppression")
+{
+    fge::CallbackHandler<> onEvent;
+
+    unsigned int number = 0;
+    auto funcCount = [&](){
+        ++number;
+    };
+    auto funcCountLess = [&](){
+        --number;
+    };
+    auto funcDestroy = [&](){
+        onEvent.delSub(nullptr);
+    };
+
+    SUBCASE("suppressing callbacks after")
+    {
+        fge::Subscriber subscriber;
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCountLess, &subscriber);
+        onEvent.addLambda(funcDestroy, &subscriber);
+
+        onEvent.call();
+        REQUIRE(number == 2);
+
+        number = 0;
+
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, &subscriber);
+
+        onEvent.call();
+        REQUIRE(number == 3);
+    }
+
+    SUBCASE("suppressing callbacks before")
+    {
+        fge::Subscriber subscriber;
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCountLess, &subscriber);
+        onEvent.addLambda(funcDestroy, &subscriber);
+
+        onEvent.call();
+        REQUIRE(number == 2);
+
+        number = 1;
+        onEvent.call(); //All callbacks without subscriber should be marked as deleted
+        REQUIRE(number == 0);
+
+        number = 5;
+
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+
+        onEvent.call();
+        REQUIRE(number == 8);
+    }
+
+    SUBCASE("suppressing itself")
+    {
+        fge::Subscriber subscriber;
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCount, &subscriber);
+        onEvent.addLambda(funcCountLess, &subscriber);
+        onEvent.addLambda(funcDestroy, nullptr);
+
+        onEvent.call();
+        REQUIRE(number == 2);
+
+        number = 0;
+
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, nullptr);
+        onEvent.addLambda(funcCount, &subscriber);
+
+        onEvent.call();
+        REQUIRE(number == 6);
+    }
+}
+
+TEST_CASE("testing adding callbacks in a call")
+{
+    fge::CallbackHandler<> onEvent;
+
+    unsigned int number = 0;
+    auto funcCount = [&](){
+        ++number;
+    };
+    auto funcCountLess = [&](){
+        --number;
+    };
+    auto funcAdd = [&](){
+        onEvent.addLambda(funcCountLess);
+        onEvent.addLambda(funcCountLess);
+    };
+
+    onEvent.addLambda(funcCount);
+    onEvent.addLambda(funcCount);
+    onEvent.addLambda(funcCount);
+    onEvent.addLambda(funcAdd);
+    onEvent.addLambda(funcCount);
+    onEvent.addLambda(funcCount);
+    onEvent.addLambda(funcCount);
+    onEvent.addLambda(funcAdd);
+
+    onEvent.call();
+    REQUIRE(number == 2);
+}
+
 ///TODO: add tests for CallbackObjectFunctor, and object that inherit from Subscriber
