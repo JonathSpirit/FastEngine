@@ -16,6 +16,7 @@
 
 #include "FastEngine/manager/anim_manager.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 
@@ -123,155 +124,134 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
         return false;
     }
 
-    std::ifstream inFile(path);
-    if (!inFile)
+    nlohmann::ordered_json inputJson;
+
+    if (!fge::LoadOrderedJsonFromFile(path, inputJson) || !inputJson.is_object())
     {
         return false;
     }
 
-    try
+    auto itType = inputJson.find("type");
+    if (itType == inputJson.end() || !itType->is_string())
     {
-        nlohmann::ordered_json inputJson;
-        inFile >> inputJson;
-        inFile.close();
+        return false;
+    }
 
-        if (inputJson.empty())
+    std::string typeString = itType->get<std::string>();
+    fge::anim::AnimationType type;
+    if (typeString == "tileset")
+    {
+        type = fge::anim::AnimationType::ANIM_TYPE_TILESET;
+    }
+    else if (typeString == "separate")
+    {
+        type = fge::anim::AnimationType::ANIM_TYPE_SEPARATE_FILES;
+    }
+    else
+    {
+        return false;
+    }
+
+    fge::anim::AnimationDataPtr buffAnimData = std::make_shared<fge::anim::AnimationData>();
+    buffAnimData->_path = std::move(path);
+    buffAnimData->_valid = true;
+    buffAnimData->_type = type;
+
+    if (type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    {
+        auto itPath = inputJson.find("tileset");
+        if (itPath == inputJson.end() || !itPath->is_string())
         {
             return false;
         }
 
-        std::string animTypeStr = inputJson["type"].get<std::string>();
-        fge::anim::AnimationType animType;
-        if (animTypeStr == "tileset")
-        {
-            animType = fge::anim::AnimationType::ANIM_TYPE_TILESET;
-        }
-        else if (animTypeStr == "separate")
-        {
-            animType = fge::anim::AnimationType::ANIM_TYPE_SEPARATE_FILES;
-        }
-        else
-        {
-            return false;
-        }
+        buffAnimData->_tilesetPath =
+                fge::MakeRelativePathToBasePathIfExist(buffAnimData->_path, itPath->get<std::filesystem::path>());
+        buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
 
-        fge::anim::AnimationDataPtr buffAnimData = std::make_shared<fge::anim::AnimationData>();
-        buffAnimData->_path = std::move(path);
-        buffAnimData->_valid = true;
-        buffAnimData->_type = animType;
-
-        if (animType == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+        fge::Surface textureSurface;
+        if (textureSurface.loadFromFile(buffAnimData->_tilesetPath))
         {
-            buffAnimData->_tilesetPath = inputJson.value<std::filesystem::path>("tileset", {});
-
-            fge::Surface buffSurface;
-            if (buffSurface.loadFromFile(buffAnimData->_tilesetPath))
-            {
 #ifdef FGE_DEF_SERVER
-                std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{std::move(buffSurface)}};
-                buffAnimData->_tilesetTexture = std::move(buffTexture);
+            buffAnimData->_tilesetTexture = std::make_shared<fge::TextureType>(std::move(textureSurface));
 #else
-                std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{vulkan::GetActiveContext()}};
-                if (buffTexture->create(buffSurface.get()))
-                {
-                    buffAnimData->_tilesetTexture = std::move(buffTexture);
-                }
-                else
-                {
-                    buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
-                }
+            auto texture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
+            if (texture->create(textureSurface.get()))
+            {
+                buffAnimData->_tilesetTexture = std::move(texture);
+            }
 #endif // FGE_DEF_SERVER
-            }
-            else
-            {
-                buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
-            }
-
-            buffAnimData->_tilesetGridSize = inputJson.value<fge::Vector2u>("gridSize", {0, 0});
         }
 
-        nlohmann::ordered_json& inputJsonDataObject = inputJson["data"];
-        if (!inputJsonDataObject.is_object())
+        buffAnimData->_tilesetGridSize = inputJson.value<fge::Vector2u>("gridSize", {0, 0});
+    }
+
+    auto itData = inputJson.find("data");
+    if (itData == inputJson.end() || !itData->is_object())
+    {
+        return false;
+    }
+
+    buffAnimData->_groups.reserve(itData->size());
+
+    for (auto const& [dataKey, dataValue]: itData->items())
+    {
+        if (!dataValue.is_array())
         {
-            return false;
+            continue;
         }
 
-        buffAnimData->_groups.resize(inputJsonDataObject.size());
+        fge::anim::AnimationGroup group{};
 
-        std::size_t iGroup = 0;
+        group._groupName = dataKey;
+        group._frames.reserve(dataValue.size());
 
-        for (nlohmann::ordered_json::iterator itGroup = inputJsonDataObject.begin();
-             itGroup != inputJsonDataObject.end(); ++itGroup)
+        for (auto const& jsonFrame: dataValue)
         {
-            nlohmann::ordered_json& jsonGroup = itGroup.value();
-
-            fge::anim::AnimationGroup& tmpGroup = buffAnimData->_groups[iGroup];
-
-            tmpGroup._groupName = itGroup.key();
-
-            tmpGroup._frames.resize(jsonGroup.size());
-
-            std::size_t iFrame = 0;
-
-            for (nlohmann::ordered_json::iterator itFrame = jsonGroup.begin(); itFrame != jsonGroup.end(); ++itFrame)
+            if (!jsonFrame.is_object())
             {
-                nlohmann::ordered_json& jsonFrame = itFrame.value();
+                continue;
+            }
 
-                fge::anim::AnimationFrame& tmpFrame = tmpGroup._frames[iFrame];
+            fge::anim::AnimationFrame frame{};
+            frame._texture = fge::texture::GetBadTexture()->_texture;
 
-                switch (animType)
+            switch (type)
+            {
+            case AnimationType::ANIM_TYPE_TILESET:
+                std::numeric_limits<fge::Vector2u>::max();
+                frame._texturePosition =
+                        jsonFrame.value<fge::Vector2u>("position", FGE_NUMERIC_LIMITS_VECTOR_MAX(fge::Vector2u));
+                break;
+            case AnimationType::ANIM_TYPE_SEPARATE_FILES:
+                frame._path = fge::MakeRelativePathToBasePathIfExist(
+                        buffAnimData->_path, jsonFrame.value<std::filesystem::path>("path", {}));
                 {
-                case AnimationType::ANIM_TYPE_TILESET:
-                    tmpFrame._texturePosition = jsonFrame.value<fge::Vector2u>("position", {0, 0});
-                    tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
-                    break;
-                case AnimationType::ANIM_TYPE_SEPARATE_FILES:
-                    tmpFrame._path = jsonFrame.value<std::string>("path", "");
-                    break;
-                }
-
-                tmpFrame._ticks = jsonFrame.value<uint32_t>("ticks", FGE_ANIM_DEFAULT_TICKS);
-
-                //Load texture
-                if (animType != fge::anim::AnimationType::ANIM_TYPE_TILESET)
-                {
-                    fge::Surface buffSurface;
-                    if (buffSurface.loadFromFile(tmpFrame._path))
+                    fge::Surface textureSurface;
+                    if (textureSurface.loadFromFile(frame._path))
                     {
 #ifdef FGE_DEF_SERVER
-                        std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{std::move(buffSurface)}};
-                        tmpFrame._texture = std::move(buffTexture);
+                        frame._texture = std::make_shared<fge::TextureType>(std::move(textureSurface));
 #else
-                        std::shared_ptr<fge::TextureType> buffTexture{new fge::TextureType{vulkan::GetActiveContext()}};
-                        if (buffTexture->create(buffSurface.get()))
+                        auto texture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
+                        if (texture->create(textureSurface.get()))
                         {
-                            tmpFrame._texture = std::move(buffTexture);
-                        }
-                        else
-                        {
-                            tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
+                            frame._texture = std::move(texture);
                         }
 #endif //FGE_DEF_SERVER
                     }
-                    else
-                    {
-                        tmpFrame._texture = fge::texture::GetBadTexture()->_texture;
-                    }
                 }
-
-                ++iFrame;
+                break;
             }
-            ++iGroup;
-        }
 
-        _dataAnim[name] = std::move(buffAnimData);
-        return true;
+            frame._ticks = jsonFrame.value<uint32_t>("ticks", FGE_ANIM_DEFAULT_TICKS);
+            group._frames.push_back(std::move(frame));
+        }
+        buffAnimData->_groups.push_back(std::move(group));
     }
-    catch (std::exception& e)
-    {
-        inFile.close();
-        return false;
-    }
+
+    _dataAnim[name] = std::move(buffAnimData);
+    return true;
 }
 bool Unload(std::string const& name)
 {

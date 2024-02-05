@@ -54,7 +54,7 @@ enum class AnimationType
 struct AnimationFrame
 {
     std::shared_ptr<fge::TextureType> _texture; ///< The shared pointer texture of the frame
-    std::string _path;                          ///< The file path of the texture
+    std::filesystem::path _path;                ///< The file path of the texture
     fge::Vector2u _texturePosition; ///< The tileset grid position, only useful if the type is ANIM_TYPE_TILESET
 
     uint32_t _ticks; ///< The number of ticks that the frame will be displayed, by default 1 tick take 100 ms.
