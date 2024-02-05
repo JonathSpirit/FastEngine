@@ -21,6 +21,8 @@
 #define GLM_FORCE_CTOR_INIT
 #include "glm/glm.hpp"
 
+#define FGE_NUMERIC_LIMITS_VECTOR_MAX(_vecType) (_vecType{std::numeric_limits<_vecType::value_type>::max()})
+
 namespace fge
 {
 
