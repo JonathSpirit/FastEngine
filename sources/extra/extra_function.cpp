@@ -960,6 +960,27 @@ bool LoadJsonFromFile(std::filesystem::path const& path, nlohmann::json& j)
         return false;
     }
 }
+bool LoadOrderedJsonFromFile(std::filesystem::path const& path, nlohmann::ordered_json& j)
+{
+    std::ifstream file(path);
+    if (!file)
+    {
+        file.close();
+        return false;
+    }
+
+    try
+    {
+        file >> j;
+        file.close();
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        file.close();
+        return false;
+    }
+}
 bool SaveJsonToFile(std::filesystem::path const& path, nlohmann::json const& j, int fieldWidth)
 {
     std::ofstream file(path);

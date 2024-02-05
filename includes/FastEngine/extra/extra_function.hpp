@@ -235,6 +235,7 @@ template<class T>
 
 ///Json
 FGE_API bool LoadJsonFromFile(std::filesystem::path const& path, nlohmann::json& j);
+FGE_API bool LoadOrderedJsonFromFile(std::filesystem::path const& path, nlohmann::ordered_json& j);
 FGE_API bool SaveJsonToFile(std::filesystem::path const& path, nlohmann::json const& j, int fieldWidth = 2);
 
 } // namespace fge
