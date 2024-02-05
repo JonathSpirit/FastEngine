@@ -238,6 +238,10 @@ FGE_API bool LoadJsonFromFile(std::filesystem::path const& path, nlohmann::json&
 FGE_API bool LoadOrderedJsonFromFile(std::filesystem::path const& path, nlohmann::ordered_json& j);
 FGE_API bool SaveJsonToFile(std::filesystem::path const& path, nlohmann::json const& j, int fieldWidth = 2);
 
+///Path
+[[nodiscard]] FGE_API std::filesystem::path MakeRelativePathToBasePathIfExist(std::filesystem::path const& basePath,
+                                                                              std::filesystem::path const& path);
+
 } // namespace fge
 
 #include "extra_function.inl"

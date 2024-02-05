@@ -994,4 +994,18 @@ bool SaveJsonToFile(std::filesystem::path const& path, nlohmann::json const& j, 
     return false;
 }
 
+std::filesystem::path MakeRelativePathToBasePathIfExist(std::filesystem::path const& basePath,
+                                                        std::filesystem::path const& path)
+{
+    if (path.is_relative() && basePath.has_parent_path() && basePath.parent_path() != path.parent_path())
+    {
+        auto relativePath = basePath.parent_path() / path;
+        if (std::filesystem::exists(relativePath))
+        {
+            return relativePath;
+        }
+    }
+    return path;
+}
+
 } // namespace fge
