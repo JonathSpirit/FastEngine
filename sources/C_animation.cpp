@@ -329,6 +329,11 @@ bool Animation::isFrameValid() const
     {
         if (this->g_frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
         {
+            if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+            {
+                return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition !=
+                       FGE_NUMERIC_LIMITS_VECTOR_MAX(fge::Vector2u);
+            }
             return true;
         }
     }
@@ -381,7 +386,7 @@ std::shared_ptr<fge::TextureType> const& Animation::retrieveTexture() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
-        if (this->g_data->_valid)
+        if (this->isFrameValid())
         {
             return this->g_data->_tilesetTexture;
         }
