@@ -19,11 +19,11 @@
 
 #include "FastEngine/fge_extern.hpp"
 
+#include "FastEngine/C_accessLock.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/textureType.hpp"
 #include <filesystem>
 #include <memory>
-#include <mutex>
 #include <unordered_map>
 #include <vector>
 
@@ -125,23 +125,36 @@ FGE_API void Uninit();
 FGE_API std::size_t GetAnimationSize();
 
 /**
- * \brief Get the mutex of the animation manager
+ * \brief Acquire a AccessLock, with the texture manager mutex
  *
- * \return The mutex of the animation manager
+ * In order to use iterators, you have to acquire a lock from this function.
+ * The lock is not differed and will lock the mutex.
+ *
+ * \return A AccessLock bound to this mutex
  */
-FGE_API std::mutex& GetMutex();
+[[nodiscard]] FGE_API fge::AccessLock<std::mutex> AcquireLock();
 /**
  * \brief Get the begin iterator of the animation manager
  *
- * \return The begin iterator of the animation manager
+ * You have to provide a valid reference to a AccessLock acquired with
+ * the function AcquireLock().
+ * This function will throw if one of this is not respected :
+ * - The mutex pointer of the lock does not correspond to this mutex.
+ *
+ * \param lock A AccessLock bound to this mutex
+ * \return The begin iterator of the texture manager
  */
-FGE_API fge::anim::AnimationDataType::const_iterator GetCBegin();
+[[nodiscard]] FGE_API fge::anim::AnimationDataType::const_iterator
+IteratorBegin(fge::AccessLock<std::mutex> const& lock);
 /**
  * \brief Get the end iterator of the animation manager
  *
- * \return The end iterator of the animation manager
+ * \see IteratorBegin()
+ *
+ * \param lock A AccessLock bound to this mutex
+ * \return The begin iterator of the texture manager
  */
-FGE_API fge::anim::AnimationDataType::const_iterator GetCEnd();
+[[nodiscard]] FGE_API fge::anim::AnimationDataType::const_iterator IteratorEnd(fge::AccessLock<std::mutex> const& lock);
 
 /**
  * \brief Get the bad animation

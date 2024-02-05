@@ -59,16 +59,18 @@ std::size_t GetAnimationSize()
     return _dataAnim.size();
 }
 
-std::mutex& GetMutex()
+fge::AccessLock<std::mutex> AcquireLock()
 {
-    return _dataMutex;
+    return fge::AccessLock<std::mutex>{_dataMutex};
 }
-fge::anim::AnimationDataType::const_iterator GetCBegin()
+fge::anim::AnimationDataType::const_iterator IteratorBegin(fge::AccessLock<std::mutex> const& lock)
 {
+    lock.throwIfDifferent(_dataMutex);
     return _dataAnim.cbegin();
 }
-fge::anim::AnimationDataType::const_iterator GetCEnd()
+fge::anim::AnimationDataType::const_iterator IteratorEnd(fge::AccessLock<std::mutex> const& lock)
 {
+    lock.throwIfDifferent(_dataMutex);
     return _dataAnim.cend();
 }
 
