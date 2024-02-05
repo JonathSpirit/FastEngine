@@ -217,6 +217,19 @@ public:
     [[nodiscard]] bool isReverse() const;
 
     /**
+     * \brief Set the horizontal flip mode of the animation
+     *
+     * \param active \b true to enable flip, \b false otherwise
+     */
+    void setHorizontalFlip(bool active);
+    /**
+     * \brief Check if the horizontal flip mode is active
+     *
+     * \return \b true if the horizontal flip mode is active, \b false otherwise
+     */
+    [[nodiscard]] bool isHorizontalFlipped() const;
+
+    /**
      * \brief Get the animation data
      *
      * \return The animation data
@@ -250,6 +263,7 @@ private:
 
     bool g_loop;
     bool g_reverse;
+    bool g_flipHorizontal;
 };
 
 FGE_API fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& data);

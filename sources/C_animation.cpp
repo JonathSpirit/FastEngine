@@ -29,7 +29,8 @@ Animation::Animation() :
         g_frameIndex(0),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {}
 Animation::Animation(std::string name, std::size_t frame) :
         g_data(fge::anim::GetAnimation(name)),
@@ -39,7 +40,8 @@ Animation::Animation(std::string name, std::size_t frame) :
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {}
 Animation::Animation(std::string name, std::string const& group, Index frame) :
         g_data(fge::anim::GetAnimation(name)),
@@ -49,7 +51,8 @@ Animation::Animation(std::string name, std::string const& group, Index frame) :
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {
     this->setGroup(group);
 }
@@ -61,7 +64,8 @@ Animation::Animation(char const* name, Index frame) :
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {}
 Animation::Animation(char const* name, char const* group, Index frame) :
         g_data(fge::anim::GetAnimation(std::string(name))),
@@ -71,7 +75,8 @@ Animation::Animation(char const* name, char const* group, Index frame) :
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {
     this->setGroup(std::string{group});
 }
@@ -83,7 +88,8 @@ Animation::Animation(fge::anim::AnimationDataPtr data, Index frame) :
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {}
 Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group, Index frame) :
         g_data(std::move(data)),
@@ -93,7 +99,8 @@ Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group,
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {
     this->setGroup(group);
 }
@@ -105,7 +112,8 @@ Animation::Animation(fge::anim::AnimationDataPtr data, char const* group, Index 
         g_frameIndex(frame),
 
         g_loop(false),
-        g_reverse(false)
+        g_reverse(false),
+        g_flipHorizontal(false)
 {
     this->setGroup(std::string{group});
 }
@@ -120,6 +128,7 @@ void Animation::clear()
 
     this->g_loop = false;
     this->g_reverse = false;
+    this->g_flipHorizontal = false;
 }
 
 bool Animation::valid() const
@@ -358,6 +367,15 @@ bool Animation::isReverse() const
     return this->g_reverse;
 }
 
+void Animation::setHorizontalFlip(bool active)
+{
+    this->g_flipHorizontal = active;
+}
+bool Animation::isHorizontalFlipped() const
+{
+    return this->g_flipHorizontal;
+}
+
 fge::anim::AnimationDataPtr const& Animation::getData() const
 {
     return this->g_data;
@@ -412,7 +430,14 @@ Animation::operator fge::RectInt() const
                     this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
             gridPosition.x *= gridSize.x;
             gridPosition.y *= gridSize.y;
-            return {gridPosition, gridSize};
+
+            auto rect = fge::RectInt{gridPosition, gridSize};
+            if (this->g_flipHorizontal)
+            {
+                rect._x = gridPosition.x + gridSize.x;
+                rect._width = -gridSize.x;
+            }
+            return rect;
         }
     }
     else
@@ -421,7 +446,14 @@ Animation::operator fge::RectInt() const
         {
             auto gridSize = static_cast<fge::Vector2i>(
                     this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
-            return {{0, 0}, gridSize};
+
+            auto rect = fge::RectInt{{0, 0}, gridSize};
+            if (this->g_flipHorizontal)
+            {
+                rect._x = rect._width;
+                rect._width = -rect._width;
+            }
+            return rect;
         }
     }
     return {{0, 0}, static_cast<fge::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
@@ -435,28 +467,29 @@ fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& 
     Animation::Index frameIndex = 0;
     bool loop = false;
     bool reverse = false;
+    bool flipHorizontal = false;
 
-    pck >> name >> groupIndex >> frameIndex >> loop >> reverse;
+    pck >> name >> groupIndex >> frameIndex >> loop >> reverse >> flipHorizontal;
     data = std::move(name);
     data.setGroup(groupIndex);
     data.setFrame(frameIndex);
     data.setLoop(loop);
     data.setReverse(reverse);
+    data.setHorizontalFlip(flipHorizontal);
     return pck;
 }
 fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Animation const& data)
 {
     ///TODO: Use a bool "array" here
-    return pck << data.getName() << data.getGroupIndex() << data.getFrameIndex() << data.isLoop() << data.isReverse();
+    return pck << data.getName() << data.getGroupIndex() << data.getFrameIndex() << data.isLoop() << data.isReverse()
+               << data.isHorizontalFlipped();
 }
 
 void to_json(nlohmann::json& j, fge::Animation const& p)
 {
-    j = nlohmann::json{{"name", p.getName()},
-                       {"groupIndex", p.getGroupIndex()},
-                       {"frameIndex", p.getFrameIndex()},
-                       {"loop", p.isLoop()},
-                       {"reverse", p.isReverse()}};
+    j = nlohmann::json{
+            {"name", p.getName()}, {"groupIndex", p.getGroupIndex()}, {"frameIndex", p.getFrameIndex()},
+            {"loop", p.isLoop()},  {"reverse", p.isReverse()},        {"flipHorizontal", p.isHorizontalFlipped()}};
 }
 void from_json(nlohmann::json const& j, fge::Animation& p)
 {
@@ -465,6 +498,7 @@ void from_json(nlohmann::json const& j, fge::Animation& p)
     p.setFrame(j.at("frameIndex").get<Animation::Index>());
     p.setLoop(j.at("loop").get<bool>());
     p.setReverse(j.at("reverse").get<bool>());
+    p.setHorizontalFlip(j.at("flipHorizontal").get<bool>());
 }
 
 } // namespace fge
