@@ -164,6 +164,11 @@ protected:
     TObject* g_object;
 };
 
+template<class... Types>
+using CalleeUniquePtr = std::unique_ptr<fge::CallbackBase<Types...>>;
+template<class... Types>
+using CalleeSharedPtr = std::shared_ptr<fge::CallbackBase<Types...>>;
+
 /**
  * \class CallbackHandler
  * \ingroup callback
@@ -183,7 +188,7 @@ template<class... Types>
 class CallbackHandler : public fge::Subscription
 {
 public:
-    using CalleePtr = std::unique_ptr<fge::CallbackBase<Types...>>;
+    using CalleePtr = CalleeUniquePtr<Types...>;
 
     CallbackHandler() = default;
     ~CallbackHandler() override = default;
@@ -343,6 +348,60 @@ private:
     CalleeList g_callees;
 
     mutable std::recursive_mutex g_mutex;
+};
+
+/**
+ * \struct CallbackStaticHelpers
+ * \ingroup callback
+ * \brief This struct helper is used to create callbacks
+ *
+ * \tparam TCalleePtr The callback pointer type, can be CalleeUniquePtr or CalleeSharedPtr
+ * \tparam Types The list of arguments types passed to the functor
+ */
+template<class TCalleePtr, class... Types>
+struct CallbackStaticHelpers
+{
+    using CalleePtr = TCalleePtr;
+
+    /**
+     * \brief Helper function to create a new callback functor
+     *
+     * \param func The callback function
+     * \return The callback pointer
+     */
+    [[nodiscard]] inline static CalleePtr newFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func)
+    {
+        return CalleePtr{new fge::CallbackFunctor<Types...>(func)};
+    }
+
+    /**
+     * \brief Helper function to create a new callback lambda
+     *
+     * \tparam TLambda The lambda type
+     * \param lambda The callback lambda
+     * \return The callback pointer
+     */
+    template<typename TLambda>
+    [[nodiscard]] inline static CalleePtr newLambda(TLambda const& lambda)
+    {
+        return CalleePtr{new fge::CallbackLambda<Types...>(lambda)};
+    }
+
+    /**
+     * \brief Helper function to create a new callback object functor
+     *
+     * \tparam TObject The object type
+     * \param func The callback method of the object
+     * \param object The object pointer
+     * \return The callback pointer
+     */
+    template<class TObject>
+    [[nodiscard]] inline static CalleePtr
+    newObjectFunctor(typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+                     TObject* object)
+    {
+        return CalleePtr{new fge::CallbackObjectFunctor<TObject, Types...>(func, object)};
+    }
 };
 
 } // namespace fge
