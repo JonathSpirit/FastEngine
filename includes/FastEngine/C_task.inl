@@ -49,5 +49,17 @@ T* TaskHandler::addSubTask(std::unique_ptr<T>&& newTask)
     this->computeChecksum();
     return static_cast<T*>(this->g_tasks.back().get());
 }
+template<class T>
+T* TaskHandler::addSubTask()
+{
+    return this->addSubTask(std::make_unique<T>());
+}
+template<class T, class... TArgs>
+T* TaskHandler::addSubTaskAndInit(TArgs&&... args)
+{
+    auto* task = this->addSubTask(std::make_unique<T>());
+    task->init(std::forward<TArgs>(args)...);
+    return task;
+}
 
 } // namespace fge

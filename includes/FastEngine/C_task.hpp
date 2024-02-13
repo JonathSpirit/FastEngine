@@ -253,6 +253,11 @@ public:
      */
     template<class T = fge::Task>
     T* addSubTask(std::unique_ptr<T>&& newTask);
+    template<class T>
+    T* addSubTask();
+    template<class T, class... TArgs>
+    T* addSubTaskAndInit(TArgs&&... args);
+
     [[nodiscard]] fge::Task* getMainTask() const;
     [[nodiscard]] fge::Task* getActualTask() const;
     [[nodiscard]] std::optional<fge::TaskTypeIndex> getActualTaskType() const;
