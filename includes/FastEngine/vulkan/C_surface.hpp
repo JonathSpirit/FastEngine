@@ -19,6 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
+#include "FastEngine/C_vector.hpp"
 #include "SDL_vulkan.h"
 
 namespace fge::vulkan
@@ -37,7 +38,7 @@ public:
     Surface& operator=(Surface const& r) = delete;
     Surface& operator=(Surface&& r) noexcept = delete;
 
-    void create(Instance& instance);
+    void create(SDL_Window* window, Instance& instance);
     void destroy();
 
     [[nodiscard]] VkSurfaceKHR getSurface() const;
@@ -45,9 +46,13 @@ public:
     [[nodiscard]] Instance& getInstance();
     [[nodiscard]] Instance const& getInstance() const;
 
+    [[nodiscard]] SDL_Window* getWindow() const;
+    [[nodiscard]] fge::Vector2i getWindowSize() const;
+
 private:
     VkSurfaceKHR g_surface;
     Instance* g_instance;
+    SDL_Window* g_window;
 };
 
 } // namespace fge::vulkan

@@ -20,8 +20,8 @@
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
 #include "C_physicalDevice.hpp"
-#include "FastEngine/C_vector.hpp"
 #include "SDL_vulkan.h"
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -55,8 +55,7 @@ public:
      * \param versionMinor The application version minor
      * \param versionPatch The application version patch
      */
-    void create(SDL_Window* window,
-                std::string applicationName,
+    void create(std::string applicationName,
                 uint16_t versionMajor = 1,
                 uint16_t versionMinor = 0,
                 uint16_t versionPatch = 0);
@@ -65,14 +64,6 @@ public:
     [[nodiscard]] std::string const& getApplicationName() const;
 
     [[nodiscard]] VkInstance getInstance() const;
-    [[nodiscard]] SDL_Window* getWindow() const;
-
-    /**
-     * \brief Helper to get the SDL window size
-     *
-     * \return The window size
-     */
-    [[nodiscard]] glm::vec<2, int> getWindowSize() const;
 
     /**
      * \brief Get a list of physical devices
@@ -91,15 +82,13 @@ public:
      * \param surface The surface
      * \return The physical device or VK_NULL_HANDLE if no physical device is found
      */
-    [[nodiscard]] PhysicalDevice pickPhysicalDevice(VkSurfaceKHR surface);
+    [[nodiscard]] std::optional<PhysicalDevice> pickPhysicalDevice(VkSurfaceKHR surface);
 
 private:
     void enumeratePhysicalDevices();
 
     VkInstance g_instance;
     std::string g_applicationName;
-
-    SDL_Window* g_window;
 
     std::vector<PhysicalDevice> g_physicalDevices;
 };

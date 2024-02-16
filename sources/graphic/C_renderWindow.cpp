@@ -218,7 +218,7 @@ void RenderWindow::display(uint32_t imageIndex)
 
 Vector2u RenderWindow::getSize() const
 {
-    return static_cast<Vector2u>(this->getContext().getInstance().getWindowSize());
+    return static_cast<Vector2u>(this->getContext().getSurface().getWindowSize());
 }
 
 void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)
@@ -273,7 +273,7 @@ void RenderWindow::init()
     }
     this->g_isCreated = true;
 
-    this->g_swapChain.create(this->getContext().getInstance().getWindow(), this->getContext().getLogicalDevice(),
+    this->g_swapChain.create(this->getContext().getSurface().getWindow(), this->getContext().getLogicalDevice(),
                              this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
                              this->g_presentMode);
 
@@ -292,13 +292,13 @@ void RenderWindow::init()
 
 void RenderWindow::recreateSwapChain()
 {
-    auto windowSize = this->getContext().getInstance().getWindowSize();
+    auto windowSize = this->getContext().getSurface().getWindowSize();
 
     SDL_Event event;
 
     while (windowSize.x == 0 || windowSize.y == 0)
     {
-        windowSize = this->getContext().getInstance().getWindowSize();
+        windowSize = this->getContext().getSurface().getWindowSize();
         SDL_WaitEvent(&event);
     }
 
@@ -313,7 +313,7 @@ void RenderWindow::recreateSwapChain()
     vkDestroyRenderPass(this->getContext().getLogicalDevice().getDevice(), this->g_renderPass, nullptr);
     this->g_swapChain.destroy();
 
-    this->g_swapChain.create(this->getContext().getInstance().getWindow(), this->getContext().getLogicalDevice(),
+    this->g_swapChain.create(this->getContext().getSurface().getWindow(), this->getContext().getLogicalDevice(),
                              this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
                              this->g_presentMode);
     this->createRenderPass();

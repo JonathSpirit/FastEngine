@@ -204,14 +204,15 @@ void Context::initVulkan(SDL_Window* window)
 {
     this->g_isCreated = true;
 
-    this->g_instance.create(window, "VulkanTest");
+    this->g_instance.create("VulkanTest");
 
-    this->g_surface.create(this->g_instance);
-    this->g_physicalDevice = this->g_instance.pickPhysicalDevice(this->g_surface.getSurface());
-    if (this->g_physicalDevice.getDevice() == VK_NULL_HANDLE)
+    this->g_surface.create(window, this->g_instance);
+    auto physicalDevice = this->g_instance.pickPhysicalDevice(this->g_surface.getSurface());
+    if (!physicalDevice.has_value())
     {
         throw fge::Exception("failed to find a suitable GPU!");
     }
+    this->g_physicalDevice = std::move(physicalDevice.value());
     this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface.getSurface());
 
     VmaVulkanFunctions vulkanFunctions{vkGetInstanceProcAddr,

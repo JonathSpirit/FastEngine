@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/vulkan/C_instance.hpp"
+#include "FastEngine/C_alloca.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/fge_version.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
@@ -25,28 +26,21 @@ namespace fge::vulkan
 {
 
 Instance::Instance() :
-        g_instance(VK_NULL_HANDLE),
-        g_window(nullptr)
+        g_instance(VK_NULL_HANDLE)
 {}
 Instance::Instance(Instance&& r) noexcept :
         g_instance(r.g_instance),
         g_applicationName(std::move(r.g_applicationName)),
-        g_window(r.g_window),
         g_physicalDevices(std::move(r.g_physicalDevices))
 {
     r.g_instance = VK_NULL_HANDLE;
-    r.g_window = nullptr;
 }
 Instance::~Instance()
 {
     this->destroy();
 }
 
-void Instance::create(SDL_Window* window,
-                      std::string applicationName,
-                      uint16_t versionMajor,
-                      uint16_t versionMinor,
-                      uint16_t versionPatch)
+void Instance::create(std::string applicationName, uint16_t versionMajor, uint16_t versionMinor, uint16_t versionPatch)
 {
     if (this->g_instance != VK_NULL_HANDLE)
     {
@@ -81,14 +75,14 @@ void Instance::create(SDL_Window* window,
 #endif
 
     uint32_t enabled_extension_count = 0;
-    if (SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, nullptr) == SDL_FALSE)
+    if (SDL_Vulkan_GetInstanceExtensions(nullptr, &enabled_extension_count, nullptr) == SDL_FALSE)
     {
         throw fge::Exception{"instance: not all required extension was available !"};
     }
 
     std::vector<char const*> extensions{enabled_extension_count};
 
-    SDL_Vulkan_GetInstanceExtensions(window, &enabled_extension_count, extensions.data());
+    SDL_Vulkan_GetInstanceExtensions(nullptr, &enabled_extension_count, extensions.data());
 
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -112,8 +106,6 @@ void Instance::create(SDL_Window* window,
 
     volkLoadInstance(this->g_instance);
 
-    this->g_window = window;
-
     this->enumeratePhysicalDevices();
 }
 void Instance::destroy()
@@ -122,7 +114,6 @@ void Instance::destroy()
     {
         vkDestroyInstance(this->g_instance, nullptr);
         this->g_instance = VK_NULL_HANDLE;
-        this->g_window = nullptr;
         this->g_applicationName.clear();
     }
 }
@@ -136,39 +127,28 @@ VkInstance Instance::getInstance() const
 {
     return this->g_instance;
 }
-SDL_Window* Instance::getWindow() const
-{
-    return this->g_window;
-}
-
-glm::vec<2, int> Instance::getWindowSize() const
-{
-    glm::vec<2, int> size{0};
-    SDL_GetWindowSize(this->g_window, &size.x, &size.y);
-    return size;
-}
 
 std::vector<PhysicalDevice> const& Instance::getPhysicalDevices() const
 {
     return this->g_physicalDevices;
 }
-PhysicalDevice Instance::pickPhysicalDevice(VkSurfaceKHR surface)
+std::optional<PhysicalDevice> Instance::pickPhysicalDevice(VkSurfaceKHR surface)
 {
     // Use an ordered map to automatically sort candidates by increasing score
-    std::multimap<int, PhysicalDevice> candidates;
+    std::multimap<unsigned int, PhysicalDevice const*> candidates;
 
     for (auto const& device: this->g_physicalDevices)
     {
         auto const score = device.rateDeviceSuitability(surface);
-        candidates.insert(std::make_pair(score, device));
+        candidates.insert(std::make_pair(score, &device));
     }
 
     // Check if the best candidate is suitable at all
     if (candidates.rbegin()->first > 0)
     {
-        return candidates.rbegin()->second;
+        return *candidates.rbegin()->second;
     }
-    return PhysicalDevice(VK_NULL_HANDLE);
+    return std::nullopt;
 }
 
 void Instance::enumeratePhysicalDevices()
@@ -183,13 +163,13 @@ void Instance::enumeratePhysicalDevices()
         throw fge::Exception("failed to find GPUs with Vulkan support !");
     }
 
-    std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
-    vkEnumeratePhysicalDevices(this->g_instance, &deviceCount, physicalDevices.data());
+    auto* physicalDevices = FGE_ALLOCA_T(VkPhysicalDevice, deviceCount);
+    vkEnumeratePhysicalDevices(this->g_instance, &deviceCount, physicalDevices);
 
-    this->g_physicalDevices.resize(deviceCount);
-    for (std::size_t i = 0; i < deviceCount; ++i)
+    this->g_physicalDevices.reserve(deviceCount);
+    for (uint32_t i = 0; i < deviceCount; ++i)
     {
-        this->g_physicalDevices[i] = PhysicalDevice(physicalDevices[i]);
+        this->g_physicalDevices.emplace_back(physicalDevices[i]);
     }
 }
 

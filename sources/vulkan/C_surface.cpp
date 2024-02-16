@@ -24,11 +24,13 @@ namespace fge::vulkan
 
 Surface::Surface() :
         g_surface(VK_NULL_HANDLE),
-        g_instance(nullptr)
+        g_instance(nullptr),
+        g_window(nullptr)
 {}
 Surface::Surface(Surface&& r) noexcept :
         g_surface(r.g_surface),
-        g_instance(r.g_instance)
+        g_instance(r.g_instance),
+        g_window(r.g_window)
 {
     r.g_surface = VK_NULL_HANDLE;
     r.g_instance = nullptr;
@@ -38,14 +40,15 @@ Surface::~Surface()
     this->destroy();
 }
 
-void Surface::create(Instance& instance)
+void Surface::create(SDL_Window* window, Instance& instance)
 {
-    if (SDL_Vulkan_CreateSurface(instance.getWindow(), instance.getInstance(), &this->g_surface) == SDL_FALSE)
+    if (SDL_Vulkan_CreateSurface(window, instance.getInstance(), &this->g_surface) == SDL_FALSE)
     {
         throw fge::Exception("failed to create surface !");
     }
 
     this->g_instance = &instance;
+    this->g_window = window;
 }
 void Surface::destroy()
 {
@@ -58,6 +61,7 @@ void Surface::destroy()
         vkDestroySurfaceKHR(this->g_instance->getInstance(), this->g_surface, nullptr);
         this->g_surface = VK_NULL_HANDLE;
         this->g_instance = nullptr;
+        this->g_window = nullptr;
     }
 }
 
@@ -73,6 +77,17 @@ Instance& Surface::getInstance()
 Instance const& Surface::getInstance() const
 {
     return *this->g_instance;
+}
+
+SDL_Window* Surface::getWindow() const
+{
+    return this->g_window;
+}
+fge::Vector2i Surface::getWindowSize() const
+{
+    fge::Vector2i size{0};
+    SDL_GetWindowSize(this->g_window, &size.x, &size.y);
+    return size;
 }
 
 } // namespace fge::vulkan
