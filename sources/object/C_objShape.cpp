@@ -28,6 +28,8 @@ void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
                                       fge::RenderTarget::GraphicPipelineKey const& key,
                                       fge::vulkan::GraphicPipeline* graphicPipeline)
 {
+    using namespace fge::vulkan;
+
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
@@ -38,8 +40,7 @@ void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
     auto& layout = context.getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                              VK_SHADER_STAGE_VERTEX_BIT)});
+        layout.create({DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
     graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout(), layout.getLayout()});
@@ -375,24 +376,24 @@ void ObjShape::resizeBuffer(std::size_t size) const
 void ObjShape::updateDescriptors() const
 {
 #ifndef FGE_DEF_SERVER
+    using namespace fge::vulkan;
+
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
-        auto& layout = fge::vulkan::GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
+        auto& layout = GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
         if (layout.getLayout() == VK_NULL_HANDLE)
         {
-            layout.create({fge::vulkan::CreateSimpleLayoutBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
+            layout.create(
+                    {DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
         }
 
-        this->g_descriptorSet = fge::vulkan::GetActiveContext()
-                                        .getMultiUseDescriptorPool()
-                                        .allocateDescriptorSet(layout.getLayout())
-                                        .value();
+        this->g_descriptorSet =
+                GetActiveContext().getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
     }
 
-    fge::vulkan::DescriptorSet::Descriptor const descriptor{
-            this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
-            fge::vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, this->g_instances.getBufferSize()};
+    DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
+                                               DescriptorSet::Descriptor::BufferTypes::STORAGE,
+                                               this->g_instances.getBufferSize()};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 #endif //FGE_DEF_SERVER
 }

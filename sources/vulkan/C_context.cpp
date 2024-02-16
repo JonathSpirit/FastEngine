@@ -265,9 +265,9 @@ void Context::initVulkan(SDL_Window* window)
     this->allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                                          this->g_outsideRenderScopeCommandBuffers.data(), FGE_MAX_FRAMES_IN_FLIGHT);
 
-    this->g_textureLayout.create({fge::vulkan::CreateSimpleLayoutBinding(
+    this->g_textureLayout.create({DescriptorSetLayout::Binding(
             FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
-    this->g_transformLayout.create({fge::vulkan::CreateSimpleLayoutBinding(
+    this->g_transformLayout.create({DescriptorSetLayout::Binding(
             FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
 }
 void Context::enumerateExtensions()

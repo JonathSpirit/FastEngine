@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
+#include "FastEngine/C_alloca.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 
@@ -25,6 +26,12 @@ DescriptorSetLayout::DescriptorSetLayout(Context const& context) :
         ContextAware(context),
         g_descriptorSetLayout(VK_NULL_HANDLE)
 {}
+DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout const& r) :
+        ContextAware(r),
+        g_descriptorSetLayout(VK_NULL_HANDLE)
+{
+    this->create(r.g_bindings.data(), static_cast<uint32_t>(r.g_bindings.size()));
+}
 DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
         g_descriptorSetLayout(r.g_descriptorSetLayout),
@@ -37,6 +44,14 @@ DescriptorSetLayout::~DescriptorSetLayout()
     this->destroy();
 }
 
+DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout const& r)
+{
+    this->verifyContext(r);
+
+    this->create(r.g_bindings.data(), static_cast<uint32_t>(r.g_bindings.size()));
+
+    return *this;
+}
 DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& r) noexcept
 {
     this->verifyContext(r);
@@ -51,30 +66,40 @@ DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& r) noe
     return *this;
 }
 
-void DescriptorSetLayout::create(std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
-                                 VkDescriptorBindingFlagsEXT const* bindingFlags)
+void DescriptorSetLayout::create(Binding const* bindings, uint32_t bindingCount)
 {
     this->destroy();
 
-    if (bindings.size() == 0)
+    if (bindings == nullptr || bindingCount == 0)
     {
         return;
     }
 
-    this->g_bindings = bindings;
+    this->g_bindings.assign(bindings, bindings + bindingCount);
+
+    auto* layoutBindings = FGE_ALLOCA_T(VkDescriptorSetLayoutBinding, bindingCount);
+    auto* layoutBindingFlags = FGE_ALLOCA_T(VkDescriptorBindingFlags, bindingCount);
+
+    bool haveBindingFlags = false;
+    for (uint32_t i = 0; i < bindingCount; ++i)
+    {
+        layoutBindings[i] = static_cast<VkDescriptorSetLayoutBinding>(this->g_bindings[i]);
+        layoutBindingFlags[i] = this->g_bindings[i].getBindingFlags();
+        haveBindingFlags |= layoutBindingFlags[i] != 0;
+    }
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(this->g_bindings.size());
-    layoutInfo.pBindings = this->g_bindings.data();
+    layoutInfo.pBindings = layoutBindings;
     layoutInfo.pNext = nullptr;
 
     VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo{};
-    if (bindingFlags != nullptr)
+    if (haveBindingFlags)
     {
         bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
         bindingFlagsInfo.bindingCount = static_cast<uint32_t>(this->g_bindings.size());
-        bindingFlagsInfo.pBindingFlags = bindingFlags;
+        bindingFlagsInfo.pBindingFlags = layoutBindingFlags;
         layoutInfo.pNext = &bindingFlagsInfo;
     }
 
@@ -99,13 +124,13 @@ VkDescriptorSetLayout DescriptorSetLayout::getLayout() const
 {
     return this->g_descriptorSetLayout;
 }
-std::vector<VkDescriptorSetLayoutBinding> const& DescriptorSetLayout::getBindings() const
+std::vector<DescriptorSetLayout::Binding> const& DescriptorSetLayout::getBindings() const
 {
     return this->g_bindings;
 }
-std::size_t DescriptorSetLayout::getBindingsCount() const
+uint32_t DescriptorSetLayout::getBindingsCount() const
 {
-    return this->g_bindings.size();
+    return static_cast<uint32_t>(this->g_bindings.size());
 }
 
 } // namespace fge::vulkan

@@ -28,24 +28,6 @@ namespace fge::vulkan
 {
 
 /**
- * \ingroup vulkan
- * \brief Function to create a simple VkDescriptorSetLayoutBinding.
- *
- * \param binding The binding number that this descriptor uses in the shader
- * \param type The type of descriptor
- * \param stageFlags Which shader stage(s) will use this descriptor
- */
-constexpr VkDescriptorSetLayoutBinding
-CreateSimpleLayoutBinding(uint32_t binding, VkDescriptorType type, VkShaderStageFlags stageFlags)
-{
-    return {.binding = binding,
-            .descriptorType = type,
-            .descriptorCount = 1,
-            .stageFlags = stageFlags,
-            .pImmutableSamplers = nullptr};
-}
-
-/**
  * \class DescriptorSetLayout
  * \ingroup vulkan
  * \brief This class abstract the vulkan descriptor set layout for easier use
@@ -56,25 +38,79 @@ CreateSimpleLayoutBinding(uint32_t binding, VkDescriptorType type, VkShaderStage
 class FGE_API DescriptorSetLayout : public ContextAware
 {
 public:
+    class Binding
+    {
+    public:
+        constexpr Binding(uint32_t binding,
+                          VkDescriptorType type,
+                          VkShaderStageFlags stageFlags,
+                          uint32_t descriptorCount = 1,
+                          VkDescriptorBindingFlagsEXT bindingFlags = 0) :
+                g_binding(binding),
+                g_descriptorType(type),
+                g_descriptorCount(descriptorCount),
+                g_stageFlags(stageFlags),
+                g_bindingFlags(bindingFlags)
+        {}
+
+        constexpr void setBinding(uint32_t binding) { this->g_binding = binding; }
+        [[nodiscard]] constexpr uint32_t getBinding() const { return this->g_binding; }
+
+        constexpr void setDescriptorType(VkDescriptorType type) { this->g_descriptorType = type; }
+        [[nodiscard]] constexpr VkDescriptorType getDescriptorType() const { return this->g_descriptorType; }
+
+        constexpr void setDescriptorCount(uint32_t descriptorCount) { this->g_descriptorCount = descriptorCount; }
+        [[nodiscard]] constexpr uint32_t getDescriptorCount() const { return this->g_descriptorCount; }
+
+        constexpr void setStageFlags(VkShaderStageFlags stageFlags) { this->g_stageFlags = stageFlags; }
+        [[nodiscard]] constexpr VkShaderStageFlags getStageFlags() const { return this->g_stageFlags; }
+
+        constexpr void setBindingFlags(VkDescriptorBindingFlagsEXT bindingFlags)
+        {
+            this->g_bindingFlags = bindingFlags;
+        }
+        constexpr void clearBindingFlags() { this->g_bindingFlags = 0; }
+        [[nodiscard]] constexpr VkDescriptorBindingFlagsEXT getBindingFlags() const { return this->g_bindingFlags; }
+
+        constexpr explicit operator VkDescriptorSetLayoutBinding() const
+        {
+            return {.binding = this->g_binding,
+                    .descriptorType = this->g_descriptorType,
+                    .descriptorCount = this->g_descriptorCount,
+                    .stageFlags = this->g_stageFlags,
+                    .pImmutableSamplers = nullptr};
+        }
+
+    private:
+        uint32_t g_binding;
+        VkDescriptorType g_descriptorType;
+        uint32_t g_descriptorCount;
+        VkShaderStageFlags g_stageFlags;
+        VkDescriptorBindingFlagsEXT g_bindingFlags;
+    };
+
     explicit DescriptorSetLayout(Context const& context);
-    DescriptorSetLayout(DescriptorSetLayout const& r) = delete; ///TODO
+    DescriptorSetLayout(DescriptorSetLayout const& r);
     DescriptorSetLayout(DescriptorSetLayout&& r) noexcept;
     ~DescriptorSetLayout() override;
 
-    DescriptorSetLayout& operator=(DescriptorSetLayout const& r) = delete; ///TODO
+    DescriptorSetLayout& operator=(DescriptorSetLayout const& r);
     DescriptorSetLayout& operator=(DescriptorSetLayout&& r) noexcept;
 
-    void create(std::initializer_list<VkDescriptorSetLayoutBinding> bindings,
-                VkDescriptorBindingFlagsEXT const* bindingFlags = nullptr);
+    void create(Binding const* bindings, uint32_t bindingCount);
+    inline void create(std::initializer_list<Binding> bindings)
+    {
+        this->create(bindings.begin(), static_cast<uint32_t>(bindings.size()));
+    }
     void destroy() final;
 
     [[nodiscard]] VkDescriptorSetLayout getLayout() const;
-    [[nodiscard]] std::vector<VkDescriptorSetLayoutBinding> const& getBindings() const;
-    [[nodiscard]] std::size_t getBindingsCount() const;
+    [[nodiscard]] std::vector<Binding> const& getBindings() const;
+    [[nodiscard]] uint32_t getBindingsCount() const;
 
 private:
     VkDescriptorSetLayout g_descriptorSetLayout;
-    std::vector<VkDescriptorSetLayoutBinding> g_bindings;
+    std::vector<Binding> g_bindings;
 };
 
 } // namespace fge::vulkan

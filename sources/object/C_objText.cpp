@@ -31,6 +31,8 @@ void DefaultGraphicPipelineTextWithTexture_constructor(fge::vulkan::Context cons
                                                        fge::RenderTarget::GraphicPipelineKey const& key,
                                                        fge::vulkan::GraphicPipeline* graphicPipeline)
 {
+    using namespace fge::vulkan;
+
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
     graphicPipeline->setBlendMode(key._blendMode);
@@ -39,7 +41,7 @@ void DefaultGraphicPipelineTextWithTexture_constructor(fge::vulkan::Context cons
     auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
     if (layout.getLayout() == VK_NULL_HANDLE)
     {
-        layout.create({fge::vulkan::CreateSimpleLayoutBinding(
+        layout.create({DescriptorSetLayout::Binding(
                 FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT)});
     }
 
@@ -787,25 +789,27 @@ void ObjText::ensureGeometryUpdate() const
 }
 void ObjText::updateDescriptors() const
 {
-    auto const& context = fge::vulkan::GetActiveContext();
+    using namespace fge::vulkan;
+
+    auto const& context = GetActiveContext();
 
     if (this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
     {
         auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
         if (layout.getLayout() == VK_NULL_HANDLE)
         {
-            layout.create({fge::vulkan::CreateSimpleLayoutBinding(FGE_VULKAN_TRANSFORM_BINDING,
-                                                                  VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                                                  VK_SHADER_STAGE_VERTEX_BIT)});
+            layout.create({DescriptorSetLayout::Binding(FGE_VULKAN_TRANSFORM_BINDING,
+                                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                                        VK_SHADER_STAGE_VERTEX_BIT)});
         }
 
         this->g_charactersTransformsDescriptorSet =
                 context.getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
     }
 
-    fge::vulkan::DescriptorSet::Descriptor descriptor{this->g_charactersTransforms, FGE_VULKAN_TRANSFORM_BINDING,
-                                                      fge::vulkan::DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
-                                                      fge::TransformUboData::uboSize};
+    DescriptorSet::Descriptor descriptor{this->g_charactersTransforms, FGE_VULKAN_TRANSFORM_BINDING,
+                                         DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
+                                         fge::TransformUboData::uboSize};
     this->g_charactersTransformsDescriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
