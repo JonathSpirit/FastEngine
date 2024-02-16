@@ -3,6 +3,7 @@
 /cmake-build*/
 /x64/
 /x32/
+/msvc/
 /build*/
 
 /.idea/

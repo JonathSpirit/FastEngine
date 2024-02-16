@@ -520,9 +520,6 @@ endfunction()
 if (WIN32)
     CopyTargetDllsToRuntimeDirectory("SDL2::SDL2;SDL2_image::SDL2_image;SDL2_mixer::SDL2_mixer" FgeClientExeDeps)
     CopyTargetDllsToRuntimeDirectory("SDL2::SDL2;SDL2_image::SDL2_image" FgeServerExeDeps)
-
-    CopyTargetDllsToRuntimeDirectory("glslang::glslang-default-resource-limits;glslang::SPIRV;glslang::glslang" FgeClientExeDeps)
-    CopyTargetDllsToRuntimeDirectory("glslang::glslang-default-resource-limits;glslang::SPIRV;glslang::glslang" FgeServerExeDeps)
 endif()
 
 add_custom_target(ResourcesSymlink

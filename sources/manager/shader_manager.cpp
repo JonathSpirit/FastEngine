@@ -20,9 +20,6 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "private/string_hash.hpp"
 
-#ifndef GLSLANG_IS_SHARED_LIBRARY
-    #define GLSLANG_IS_SHARED_LIBRARY
-#endif
 #include "glslang/Public/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
