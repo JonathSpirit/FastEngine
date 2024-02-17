@@ -67,6 +67,11 @@ namespace task
  * \return The index of the task
  */
 FGE_API std::optional<fge::TaskTypeIndex> RegisterNewTask(std::unique_ptr<fge::TaskTypeBase> taskType);
+template<class T>
+inline std::optional<fge::TaskTypeIndex> RegisterNewTask()
+{
+    return RegisterNewTask(std::make_unique<fge::TaskType<T>>());
+}
 /**
  * \brief Create a new task by it's type index
  *
