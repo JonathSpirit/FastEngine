@@ -47,6 +47,14 @@ constexpr fge::Vector2f& Quad::operator[](std::size_t index)
     return this->_points[index];
 }
 
+constexpr void Quad::fill(Vector2f const& fillValue)
+{
+    this->_points[0] = fillValue;
+    this->_points[1] = fillValue;
+    this->_points[2] = fillValue;
+    this->_points[3] = fillValue;
+}
+
 constexpr fge::Quad operator*(glm::mat4 const& left, fge::Quad const& right)
 {
     return {left * glm::vec4{right[0], 0.0f, 1.0f}, left * glm::vec4{right[1], 0.0f, 1.0f},

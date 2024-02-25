@@ -42,6 +42,8 @@ public:
     [[nodiscard]] constexpr fge::Vector2f const& operator[](std::size_t index) const;
     [[nodiscard]] constexpr fge::Vector2f& operator[](std::size_t index);
 
+    constexpr void fill(Vector2f const& fillValue);
+
     std::array<fge::Vector2f, 4> _points{fge::Vector2f{0.0f}, fge::Vector2f{0.0f}, fge::Vector2f{0.0f},
                                          fge::Vector2f{0.0f}};
 };
