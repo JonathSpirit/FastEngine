@@ -432,49 +432,6 @@ bool IsPressed(fge::Event const& evt, fge::Vector2f const& mouse_pos, fge::RectF
 }
 #endif //FGE_DEF_SERVER
 
-bool IsContained(fge::Quad const& quad, fge::Vector2f const& point)
-{
-    auto base1 = glm::length(quad[1] - quad[0]);
-    auto base2 = glm::length(quad[2] - quad[1]);
-    auto base3 = glm::length(quad[3] - quad[2]);
-    auto base4 = glm::length(quad[0] - quad[3]);
-
-    auto distance1 = fge::GetShortestDistanceBetween(point, quad[0], quad[1]);
-    auto distance2 = fge::GetShortestDistanceBetween(point, quad[1], quad[2]);
-    auto distance3 = fge::GetShortestDistanceBetween(point, quad[2], quad[3]);
-    auto distance4 = fge::GetShortestDistanceBetween(point, quad[3], quad[0]);
-
-    auto computedArea = (base1 * distance1 + base2 * distance2 + base3 * distance3 + base4 * distance4) / 2.0f;
-
-    auto base = glm::length(quad[1] - quad[3]);
-
-    distance1 = fge::GetShortestDistanceBetween(quad[0], quad[3], quad[1]);
-    distance2 = fge::GetShortestDistanceBetween(quad[2], quad[3], quad[1]);
-
-    auto area = (base * distance1 + base * distance2) / 2.0f;
-
-    return std::abs(computedArea - area) / std::max(computedArea, area) <= 0.02f;
-}
-bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB)
-{
-    //Checking all lines intersection
-    for (std::size_t ia = 0; ia < quadA.size(); ++ia)
-    {
-        fge::Line const lineA{quadA[ia], quadA[(ia + 1) % quadA.size()]};
-        for (std::size_t ib = 0; ib < quadB.size(); ++ib)
-        {
-            fge::Line const lineB{quadB[ib], quadB[(ib + 1) % quadB.size()]};
-            if (fge::CheckIntersection(lineA, lineB))
-            {
-                return true;
-            }
-        }
-    }
-
-    //Great nothing intersect but the quadB can always be completely inside quadA
-    //(or the opposite)
-    return fge::IsContained(quadA, quadB[0]) || fge::IsContained(quadB, quadA[0]);
-}
 std::optional<fge::Intersection>
 CheckIntersection(fge::Line const& lineA, fge::Line const& lineB, IntersectionOptions option)
 {
@@ -913,29 +870,6 @@ fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& v
                                   target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
-}
-
-fge::Quad GetObjectLocalQuad(fge::ObjectDataShared const& object)
-{
-    auto const localBounds = object->getObject()->getLocalBounds();
-
-    fge::Quad quad{glm::vec4(localBounds._x, localBounds._y, 0.0f, 1.0f),
-                   glm::vec4(localBounds._x + localBounds._width, localBounds._y, 0.0f, 1.0f),
-                   glm::vec4(localBounds._x + localBounds._width, localBounds._y + localBounds._height, 0.0f, 1.0f),
-                   glm::vec4(localBounds._x, localBounds._y + localBounds._height, 0.0f, 1.0f)};
-    return quad;
-}
-fge::Quad GetObjectQuad(fge::ObjectDataShared const& object)
-{
-    auto quad = GetObjectLocalQuad(object);
-    auto transform = object->getObject()->getParentsTransform() * object->getObject()->getTransform();
-
-    quad[0] = transform * quad[0];
-    quad[1] = transform * quad[1];
-    quad[2] = transform * quad[2];
-    quad[3] = transform * quad[3];
-
-    return quad;
 }
 
 ///Json

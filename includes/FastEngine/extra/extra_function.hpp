@@ -37,8 +37,6 @@ namespace fge
 class ObjectData;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 
-using Quad = std::array<fge::Vector2f, 4>;
-
 struct Line
 {
     inline Line() = default;
@@ -114,8 +112,6 @@ public domain
                                      uint8_t button = SDL_BUTTON_LEFT);
 #endif //FGE_DEF_SERVER
 
-[[nodiscard]] FGE_API bool IsContained(fge::Quad const& quad, fge::Vector2f const& point);
-
 enum class IntersectionOptions
 {
     I_NORM_LIMITS,
@@ -125,7 +121,6 @@ enum class IntersectionOptions
     I_DEFAULT = I_NORM_LIMITS
 };
 
-[[nodiscard]] FGE_API bool CheckIntersection(fge::Quad const& quadA, fge::Quad const& quadB);
 [[nodiscard]] FGE_API std::optional<fge::Intersection>
 CheckIntersection(fge::Line const& lineA,
                   fge::Line const& lineB,
@@ -225,9 +220,6 @@ PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge:
 
 [[nodiscard]] FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target);
 [[nodiscard]] FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view);
-
-[[nodiscard]] FGE_API fge::Quad GetObjectLocalQuad(fge::ObjectDataShared const& object);
-[[nodiscard]] FGE_API fge::Quad GetObjectQuad(fge::ObjectDataShared const& object);
 
 ///Time
 template<class T>
