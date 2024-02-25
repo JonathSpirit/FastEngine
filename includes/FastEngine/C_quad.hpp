@@ -17,6 +17,7 @@
 #ifndef _FGE_C_QUAD_HPP_INCLUDED
 #define _FGE_C_QUAD_HPP_INCLUDED
 
+#include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include <array>
 
@@ -28,6 +29,7 @@ class Quad
 public:
     constexpr Quad() = default;
     constexpr explicit Quad(Vector2f const& fillValue);
+    constexpr explicit Quad(RectFloat const& rect);
     constexpr Quad(Vector2f const& vec1, Vector2f const& vec2, Vector2f const& vec3, Vector2f const& vec4);
 
     [[nodiscard]] constexpr bool operator==(Quad const& right) const;

@@ -20,6 +20,10 @@ namespace fge
 constexpr Quad::Quad(Vector2f const& fillValue) :
         _points{fillValue, fillValue, fillValue, fillValue}
 {}
+constexpr Quad::Quad(RectFloat const& rect) :
+        _points{Vector2f{rect._x, rect._y}, Vector2f{rect._x + rect._width, rect._y},
+                Vector2f{rect._x + rect._width, rect._y + rect._height}, Vector2f{rect._x, rect._y + rect._height}}
+{}
 constexpr Quad::Quad(Vector2f const& vec1, Vector2f const& vec2, Vector2f const& vec3, Vector2f const& vec4) :
         _points{vec1, vec2, vec3, vec4}
 {}
