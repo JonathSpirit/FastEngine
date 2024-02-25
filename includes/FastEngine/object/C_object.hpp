@@ -20,6 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_childObjectsAccessor.hpp"
 #include "FastEngine/C_event.hpp"
+#include "FastEngine/C_quad.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_tagList.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
@@ -207,13 +208,15 @@ public:
      *
      * \return The global bounds of the object
      */
-    virtual fge::RectFloat getGlobalBounds() const;
+    [[nodiscard]] virtual fge::RectFloat getGlobalBounds() const;
+    [[nodiscard]] virtual fge::Quad getGlobalQuad() const;
     /**
      * \brief Get the local bounds of the object (without any transformations)
      *
      * \return The local bounds of the object
      */
-    virtual fge::RectFloat getLocalBounds() const;
+    [[nodiscard]] virtual fge::RectFloat getLocalBounds() const;
+    [[nodiscard]] virtual fge::Quad getLocalQuad() const;
 
     /**
      * \brief Save the object in a file

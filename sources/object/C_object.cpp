@@ -125,9 +125,17 @@ fge::RectFloat Object::getGlobalBounds() const
 {
     return this->getTransform() * this->getLocalBounds();
 }
+fge::Quad Object::getGlobalQuad() const
+{
+    return this->getTransform() * this->getLocalQuad();
+}
 fge::RectFloat Object::getLocalBounds() const
 {
     return {{0.0f, 0.0f}, {1.0f, 1.0f}};
+}
+fge::Quad Object::getLocalQuad() const
+{
+    return fge::Quad(this->getLocalBounds());
 }
 
 bool Object::saveInFile(std::string const& path)
