@@ -17,6 +17,7 @@
 #ifndef _FGE_C_QUAD_HPP_INCLUDED
 #define _FGE_C_QUAD_HPP_INCLUDED
 
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include <array>
@@ -24,7 +25,7 @@
 namespace fge
 {
 
-class Quad
+class FGE_API Quad
 {
 public:
     constexpr Quad() = default;
