@@ -39,23 +39,17 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 class FGE_API ChildObjectsAccessor
 {
 public:
-    ChildObjectsAccessor() = default;
-    ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor const& r){};
-    ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor&& r) noexcept {};
+    explicit ChildObjectsAccessor(fge::Object* owner);
+    ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor const& r) {}
+    ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor&& r) noexcept {}
 
-    ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor const& r) { return *this; };
-    ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor&& r) noexcept { return *this; };
+    ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor const& r) { return *this; }
+    ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor&& r) noexcept { return *this; }
 
     void clear();
 
-    void addExistingObject(fge::ObjectDataWeak const& parent,
-                           fge::Object* object,
-                           fge::Scene* linkedScene,
-                           std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
-    void addNewObject(fge::ObjectDataWeak const& parent,
-                      fge::ObjectPtr&& newObject,
-                      fge::Scene* linkedScene,
-                      std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
+    void addExistingObject(fge::Object* object, std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
+    void addNewObject(fge::ObjectPtr&& newObject, std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
 
     [[nodiscard]] std::size_t getSize() const;
     [[nodiscard]] fge::Object const* get(std::size_t index) const;
@@ -68,8 +62,10 @@ public:
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event, std::chrono::milliseconds const& deltaTime, fge::Scene* scene);
 #else
-    void
-    update(fge::RenderWindow& screen, fge::Event& event, std::chrono::milliseconds const& deltaTime, fge::Scene* scene);
+    void update(fge::RenderWindow& screen,
+                fge::Event& event,
+                std::chrono::milliseconds const& deltaTime,
+                fge::Scene* scene) const;
     void draw(fge::RenderTarget& target, fge::RenderStates const& states) const;
 #endif //FGE_DEF_SERVER
 
@@ -85,7 +81,7 @@ private:
     {
         struct NotHandledObjectDeleter
         {
-            void operator()(fge::ObjectData* data);
+            void operator()(fge::ObjectData* data) const;
         };
 
         fge::Object* _objPtr;
@@ -94,6 +90,7 @@ private:
 
     std::vector<DataContext> g_data;
     mutable std::size_t g_actualIteratedIndex{std::numeric_limits<std::size_t>::max()};
+    fge::Object* g_owner{nullptr};
 };
 
 } // namespace fge

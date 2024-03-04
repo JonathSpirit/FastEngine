@@ -27,15 +27,18 @@ namespace fge
 {
 
 Object::Object() :
-        fge::Anchor(this)
+        fge::Anchor(this),
+        _children(this)
 {}
 Object::Object(Object const& r) :
         fge::Transformable(r),
-        fge::Anchor(this, r)
+        fge::Anchor(this, r),
+        _children(this)
 {}
 Object::Object(Object&& r) noexcept :
         fge::Transformable(std::move(r)),
-        fge::Anchor(this, r)
+        fge::Anchor(this, r),
+        _children(this)
 {}
 
 void Object::first([[maybe_unused]] fge::Scene* scene) {}

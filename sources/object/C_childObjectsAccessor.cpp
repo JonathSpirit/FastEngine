@@ -20,22 +20,30 @@
 namespace fge
 {
 
-void ChildObjectsAccessor::DataContext::NotHandledObjectDeleter::operator()(fge::ObjectData* data)
+void ChildObjectsAccessor::DataContext::NotHandledObjectDeleter::operator()(fge::ObjectData* data) const
 {
     (void) data->releaseObject();
     delete data;
 }
+
+ChildObjectsAccessor::ChildObjectsAccessor(fge::Object* owner) :
+        g_owner(owner)
+{}
 
 void ChildObjectsAccessor::clear()
 {
     this->g_data.clear();
 }
 
-void ChildObjectsAccessor::addExistingObject(fge::ObjectDataWeak const& parent,
-                                             fge::Object* object,
-                                             fge::Scene* linkedScene,
-                                             std::size_t insertionIndex)
+void ChildObjectsAccessor::addExistingObject(fge::Object* object, std::size_t insertionIndex)
 {
+    fge::Scene* linkedScene = nullptr;
+    auto owner = this->g_owner->_myObjectData.lock();
+    if (owner)
+    {
+        linkedScene = owner->getLinkedScene();
+    }
+
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
@@ -52,15 +60,18 @@ void ChildObjectsAccessor::addExistingObject(fge::ObjectDataWeak const& parent,
                                                DataContext::NotHandledObjectDeleter{}}});
     }
 
-    auto parentPtr = parent.lock();
-    it->_objData->setParent(parentPtr);
+    it->_objData->setParent(owner);
     it->_objPtr->_myObjectData = it->_objData;
 }
-void ChildObjectsAccessor::addNewObject(fge::ObjectDataWeak const& parent,
-                                        fge::ObjectPtr&& newObject,
-                                        fge::Scene* linkedScene,
-                                        std::size_t insertionIndex)
+void ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t insertionIndex)
 {
+    fge::Scene* linkedScene = nullptr;
+    auto owner = this->g_owner->_myObjectData.lock();
+    if (owner)
+    {
+        linkedScene = owner->getLinkedScene();
+    }
+
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
@@ -74,8 +85,7 @@ void ChildObjectsAccessor::addNewObject(fge::ObjectDataWeak const& parent,
                 {newObject.get(), std::make_shared<fge::ObjectData>(linkedScene, std::move(newObject))});
     }
 
-    auto parentPtr = parent.lock();
-    it->_objData->setParent(parentPtr);
+    it->_objData->setParent(owner);
     it->_objPtr->_myObjectData = it->_objData;
 }
 
@@ -125,7 +135,7 @@ void ChildObjectsAccessor::update(fge::Event& event, std::chrono::milliseconds c
 void ChildObjectsAccessor::update(fge::RenderWindow& screen,
                                   fge::Event& event,
                                   std::chrono::milliseconds const& deltaTime,
-                                  fge::Scene* scene)
+                                  fge::Scene* scene) const
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
          ++this->g_actualIteratedIndex)
