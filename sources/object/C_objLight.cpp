@@ -312,7 +312,7 @@ void ObjLight::updatePositions()
 
 void ObjLight::updateTexCoords()
 {
-    auto rect = this->g_texture.getData()->_texture->normalizeTextureRect(this->g_textureRect);
+    auto rect = this->g_texture.getSharedTexture()->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
     this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);

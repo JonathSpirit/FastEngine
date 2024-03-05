@@ -380,7 +380,7 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
         fge::TextureType const* texture = fge::texture::GetBadTexture()->_texture.get();
         if (textureIndex < this->g_textures.size())
         {
-            texture = this->g_textures[textureIndex].getData()->_texture.get();
+            texture = this->g_textures[textureIndex].getSharedTexture().get();
         }
 
         auto const rect = texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
@@ -470,7 +470,7 @@ void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
     descriptors.reserve(this->g_textures.size());
     for (std::size_t i = 0; i < this->g_textures.size(); ++i)
     {
-        descriptors.emplace_back(*this->g_textures[i].getData()->_texture, 0);
+        descriptors.emplace_back(*this->g_textures[i].getSharedTexture(), 0);
         descriptors.back()._dstArrayElement = i;
     }
 

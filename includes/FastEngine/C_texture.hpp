@@ -21,6 +21,7 @@
 #include "C_vector.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "json.hpp"
+#include <variant>
 
 namespace fge
 {
@@ -40,6 +41,9 @@ class Packet;
 class FGE_API Texture
 {
 public:
+    using SharedTextureDataType = fge::texture::TextureDataPtr;
+    using SharedTextureType = std::shared_ptr<fge::TextureType>;
+
     Texture();
     /**
      * \brief Get the texture data by its name
@@ -49,11 +53,17 @@ public:
     Texture(std::string name);
     Texture(char const* name);
     /**
-     * \brief Copy a custom texture data pointer.
+     * \brief Copy a texture manager data pointer.
      *
-     * \param data The custom texture data pointer
+     * \param data The texture manager data pointer
      */
-    Texture(fge::texture::TextureDataPtr data);
+    Texture(SharedTextureDataType data);
+    /**
+     * \brief Copy a custom texture pointer.
+     *
+     * \param data The custom texture pointer
+     */
+    Texture(SharedTextureType data);
 
     /**
      * \brief Clear the texture data
@@ -83,9 +93,19 @@ public:
     /**
      * \brief Get the texture data
      *
+     * Will return bad texture if the stored data is a custom texture.
+     *
      * \return The texture data
      */
-    [[nodiscard]] fge::texture::TextureDataPtr const& getData() const;
+    [[nodiscard]] SharedTextureDataType const& getSharedData() const;
+    /**
+     * \brief Get the texture
+     *
+     * Will return bad texture if the stored data is a custom texture.
+     *
+     * \return The managed texture data
+     */
+    [[nodiscard]] SharedTextureType const& getSharedTexture() const;
     /**
      * \brief Get the name of the texture
      *
@@ -101,11 +121,17 @@ public:
     fge::Texture& operator=(std::string name);
     fge::Texture& operator=(char const* name);
     /**
-     * \brief Copy a custom texture data pointer.
+     * \brief Copy a texture manager data pointer.
      *
-     * \param data The custom texture data pointer
+     * \param data The texture manager data pointer
      */
-    fge::Texture& operator=(fge::texture::TextureDataPtr data);
+    fge::Texture& operator=(SharedTextureDataType data);
+    /**
+     * \brief Copy a custom texture pointer.
+     *
+     * \param data The custom texture pointer
+     */
+    fge::Texture& operator=(SharedTextureType data);
 
     /**
      * \brief Retrieve the internal texture type pointer
@@ -120,7 +146,7 @@ public:
     [[nodiscard]] fge::TextureType const* retrieve() const;
 
 private:
-    fge::texture::TextureDataPtr g_data;
+    std::variant<SharedTextureDataType, SharedTextureType> g_data;
     std::string g_name;
 };
 

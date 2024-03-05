@@ -91,7 +91,7 @@ void TileLayer::Tile::updateTexCoords()
         auto const* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
         if (tile != nullptr)
         {
-            auto const rect = this->g_tileSet->getTexture().getData()->_texture->normalizeTextureRect(tile->_rect);
+            auto const rect = this->g_tileSet->getTexture().getSharedTexture()->normalizeTextureRect(tile->_rect);
 
             this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
             this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);

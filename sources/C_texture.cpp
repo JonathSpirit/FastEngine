@@ -32,7 +32,11 @@ Texture::Texture(char const* name) :
         g_data(fge::texture::GetTexture(name)),
         g_name(name)
 {}
-Texture::Texture(fge::texture::TextureDataPtr data) :
+Texture::Texture(SharedTextureDataType data) :
+        g_data(std::move(data)),
+        g_name(FGE_TEXTURE_BAD)
+{}
+Texture::Texture(SharedTextureType data) :
         g_data(std::move(data)),
         g_name(FGE_TEXTURE_BAD)
 {}
@@ -49,17 +53,38 @@ void Texture::refresh()
 
 bool Texture::valid() const
 {
-    return this->g_data->_valid;
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        return std::get<SharedTextureDataType>(this->g_data)->_valid;
+    }
+    return static_cast<bool>(std::get<SharedTextureType>(this->g_data));
 }
 
 fge::Vector2u Texture::getTextureSize() const
 {
-    return this->g_data->_texture->getSize();
+    return this->retrieve()->getSize();
 }
 
-fge::texture::TextureDataPtr const& Texture::getData() const
+Texture::SharedTextureDataType const& Texture::getSharedData() const
 {
-    return this->g_data;
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        return std::get<SharedTextureDataType>(this->g_data);
+    }
+    return fge::texture::GetBadTexture();
+}
+Texture::SharedTextureType const& Texture::getSharedTexture() const
+{
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        return std::get<SharedTextureDataType>(this->g_data)->_texture;
+    }
+
+    if (std::get<SharedTextureType>(this->g_data))
+    {
+        return std::get<SharedTextureType>(this->g_data);
+    }
+    return fge::texture::GetBadTexture()->_texture;
 }
 std::string const& Texture::getName() const
 {
@@ -88,7 +113,13 @@ fge::Texture& Texture::operator=(char const* name)
     this->g_data = fge::texture::GetTexture(this->g_name);
     return *this;
 }
-fge::Texture& Texture::operator=(fge::texture::TextureDataPtr data)
+fge::Texture& Texture::operator=(SharedTextureDataType data)
+{
+    this->g_name = FGE_TEXTURE_BAD;
+    this->g_data = std::move(data);
+    return *this;
+}
+fge::Texture& Texture::operator=(SharedTextureType data)
 {
     this->g_name = FGE_TEXTURE_BAD;
     this->g_data = std::move(data);
@@ -97,11 +128,29 @@ fge::Texture& Texture::operator=(fge::texture::TextureDataPtr data)
 
 fge::TextureType* Texture::retrieve()
 {
-    return this->g_data->_texture.get();
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        return std::get<SharedTextureDataType>(this->g_data)->_texture.get();
+    }
+
+    if (std::get<SharedTextureType>(this->g_data))
+    {
+        return std::get<SharedTextureType>(this->g_data).get();
+    }
+    return fge::texture::GetBadTexture()->_texture.get();
 }
 fge::TextureType const* Texture::retrieve() const
 {
-    return this->g_data->_texture.get();
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        return std::get<SharedTextureDataType>(this->g_data)->_texture.get();
+    }
+
+    if (std::get<SharedTextureType>(this->g_data))
+    {
+        return std::get<SharedTextureType>(this->g_data).get();
+    }
+    return fge::texture::GetBadTexture()->_texture.get();
 }
 
 fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Texture& data)
