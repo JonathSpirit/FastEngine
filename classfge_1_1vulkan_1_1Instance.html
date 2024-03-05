@@ -103,9 +103,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aadcab8c94ce74ee1591111573d520dc5" id="r_aadcab8c94ce74ee1591111573d520dc5"><td class="memItemLeft" align="right" valign="top"><a id="aadcab8c94ce74ee1591111573d520dc5" name="aadcab8c94ce74ee1591111573d520dc5"></a>
 <a class="el" href="classfge_1_1vulkan_1_1Instance.html">Instance</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1vulkan_1_1Instance.html">Instance</a> &amp;&amp;r) noexcept=delete</td></tr>
 <tr class="separator:aadcab8c94ce74ee1591111573d520dc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1b2f29af7ac959534efc00a7a87d699" id="r_ad1b2f29af7ac959534efc00a7a87d699"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad1b2f29af7ac959534efc00a7a87d699">create</a> (SDL_Window *window, std::string applicationName, uint16_t versionMajor=1, uint16_t versionMinor=0, uint16_t versionPatch=0)</td></tr>
-<tr class="memdesc:ad1b2f29af7ac959534efc00a7a87d699"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the instance.  <br /></td></tr>
-<tr class="separator:ad1b2f29af7ac959534efc00a7a87d699"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3b6401754261a246bb0f6cabb55fe8f" id="r_aa3b6401754261a246bb0f6cabb55fe8f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3b6401754261a246bb0f6cabb55fe8f">create</a> (std::string applicationName, uint16_t versionMajor=1, uint16_t versionMinor=0, uint16_t versionPatch=0)</td></tr>
+<tr class="memdesc:aa3b6401754261a246bb0f6cabb55fe8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the instance.  <br /></td></tr>
+<tr class="separator:aa3b6401754261a246bb0f6cabb55fe8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acccb9973d1d47368da44d2a802e8c5d6" id="r_acccb9973d1d47368da44d2a802e8c5d6"><td class="memItemLeft" align="right" valign="top"><a id="acccb9973d1d47368da44d2a802e8c5d6" name="acccb9973d1d47368da44d2a802e8c5d6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>destroy</b> ()</td></tr>
 <tr class="separator:acccb9973d1d47368da44d2a802e8c5d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -115,25 +115,19 @@ std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ge
 <tr class="memitem:a1163050e69fdcbf97473de5239ad42bb" id="r_a1163050e69fdcbf97473de5239ad42bb"><td class="memItemLeft" align="right" valign="top"><a id="a1163050e69fdcbf97473de5239ad42bb" name="a1163050e69fdcbf97473de5239ad42bb"></a>
 VkInstance&#160;</td><td class="memItemRight" valign="bottom"><b>getInstance</b> () const</td></tr>
 <tr class="separator:a1163050e69fdcbf97473de5239ad42bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ecd4675db381610169990ecab850fdc" id="r_a8ecd4675db381610169990ecab850fdc"><td class="memItemLeft" align="right" valign="top"><a id="a8ecd4675db381610169990ecab850fdc" name="a8ecd4675db381610169990ecab850fdc"></a>
-SDL_Window *&#160;</td><td class="memItemRight" valign="bottom"><b>getWindow</b> () const</td></tr>
-<tr class="separator:a8ecd4675db381610169990ecab850fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a020de653f33432849abf8e33e871e7c7" id="r_a020de653f33432849abf8e33e871e7c7"><td class="memItemLeft" align="right" valign="top">glm::vec&lt; 2, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a020de653f33432849abf8e33e871e7c7">getWindowSize</a> () const</td></tr>
-<tr class="memdesc:a020de653f33432849abf8e33e871e7c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper to get the SDL window size.  <br /></td></tr>
-<tr class="separator:a020de653f33432849abf8e33e871e7c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8d67b1ff4283aa1f06560368c1a8750" id="r_ad8d67b1ff4283aa1f06560368c1a8750"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad8d67b1ff4283aa1f06560368c1a8750">getPhysicalDevices</a> () const</td></tr>
 <tr class="memdesc:ad8d67b1ff4283aa1f06560368c1a8750"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of physical devices.  <br /></td></tr>
 <tr class="separator:ad8d67b1ff4283aa1f06560368c1a8750"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aceef85dc6a690bbe0077f6a642b1f3bd" id="r_aceef85dc6a690bbe0077f6a642b1f3bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aceef85dc6a690bbe0077f6a642b1f3bd">pickPhysicalDevice</a> (VkSurfaceKHR surface)</td></tr>
-<tr class="memdesc:aceef85dc6a690bbe0077f6a642b1f3bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pick a physical device.  <br /></td></tr>
-<tr class="separator:aceef85dc6a690bbe0077f6a642b1f3bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a485a6bd56bff4ce2196afeb6f6385305" id="r_a485a6bd56bff4ce2196afeb6f6385305"><td class="memItemLeft" align="right" valign="top">std::optional&lt; <a class="el" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a485a6bd56bff4ce2196afeb6f6385305">pickPhysicalDevice</a> (VkSurfaceKHR surface)</td></tr>
+<tr class="memdesc:a485a6bd56bff4ce2196afeb6f6385305"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pick a physical device.  <br /></td></tr>
+<tr class="separator:a485a6bd56bff4ce2196afeb6f6385305"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Vulkan instance abstraction. </p>
 <p>This class is used to create a Vulkan instance and get the physical devices. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ad1b2f29af7ac959534efc00a7a87d699" name="ad1b2f29af7ac959534efc00a7a87d699"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad1b2f29af7ac959534efc00a7a87d699">&#9670;&#160;</a></span>create()</h2>
+<a id="aa3b6401754261a246bb0f6cabb55fe8f" name="aa3b6401754261a246bb0f6cabb55fe8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3b6401754261a246bb0f6cabb55fe8f">&#9670;&#160;</a></span>create()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -141,11 +135,6 @@ SDL_Window *&#160;</td><td class="memItemRight" valign="bottom"><b>getWindow</b>
         <tr>
           <td class="memname">void fge::vulkan::Instance::create </td>
           <td>(</td>
-          <td class="paramtype">SDL_Window *</td>          <td class="paramname"><span class="paramname"><em>window</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>applicationName</em>, </span></td>
         </tr>
         <tr>
@@ -169,7 +158,6 @@ SDL_Window *&#160;</td><td class="memItemRight" valign="bottom"><b>getWindow</b>
 <p>Create the instance. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">window</td><td>The SDL window </td></tr>
     <tr><td class="paramname">applicationName</td><td>The application name </td></tr>
     <tr><td class="paramname">versionMajor</td><td>The application version major </td></tr>
     <tr><td class="paramname">versionMinor</td><td>The application version minor </td></tr>
@@ -201,34 +189,14 @@ SDL_Window *&#160;</td><td class="memItemRight" valign="bottom"><b>getWindow</b>
 
 </div>
 </div>
-<a id="a020de653f33432849abf8e33e871e7c7" name="a020de653f33432849abf8e33e871e7c7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a020de653f33432849abf8e33e871e7c7">&#9670;&#160;</a></span>getWindowSize()</h2>
+<a id="a485a6bd56bff4ce2196afeb6f6385305" name="a485a6bd56bff4ce2196afeb6f6385305"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a485a6bd56bff4ce2196afeb6f6385305">&#9670;&#160;</a></span>pickPhysicalDevice()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">glm::vec&lt; 2, int &gt; fge::vulkan::Instance::getWindowSize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Helper to get the SDL window size. </p>
-<dl class="section return"><dt>Returns</dt><dd>The window size </dd></dl>
-
-</div>
-</div>
-<a id="aceef85dc6a690bbe0077f6a642b1f3bd" name="aceef85dc6a690bbe0077f6a642b1f3bd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aceef85dc6a690bbe0077f6a642b1f3bd">&#9670;&#160;</a></span>pickPhysicalDevice()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> fge::vulkan::Instance::pickPhysicalDevice </td>
+          <td class="memname">std::optional&lt; <a class="el" href="classfge_1_1vulkan_1_1PhysicalDevice.html">PhysicalDevice</a> &gt; fge::vulkan::Instance::pickPhysicalDevice </td>
           <td>(</td>
           <td class="paramtype">VkSurfaceKHR</td>          <td class="paramname"><span class="paramname"><em>surface</em></span></td><td>)</td>
           <td></td>

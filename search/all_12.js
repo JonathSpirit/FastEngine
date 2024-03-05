@@ -5,7 +5,7 @@ var searchData=
   ['taskhandler_2',['TaskHandler',['../classfge_1_1TaskHandler.html',1,'fge']]],
   ['tasktype_3',['TaskType',['../classfge_1_1TaskType.html',1,'fge']]],
   ['tasktypebase_4',['TaskTypeBase',['../classfge_1_1TaskTypeBase.html',1,'fge']]],
-  ['texture_5',['Texture',['../classfge_1_1Texture.html',1,'fge::Texture'],['../classfge_1_1Texture.html#ac11ff97c602dee10f88b92e9518e0470',1,'fge::Texture::Texture(std::string name)'],['../classfge_1_1Texture.html#ade52dc1c2dae818ad01c8718be319139',1,'fge::Texture::Texture(fge::texture::TextureDataPtr data)']]],
+  ['texture_5',['Texture',['../classfge_1_1Texture.html',1,'fge::Texture'],['../classfge_1_1Texture.html#ac11ff97c602dee10f88b92e9518e0470',1,'fge::Texture::Texture(std::string name)'],['../classfge_1_1Texture.html#aa4dd0dd5204d145b9a3bac327de05303',1,'fge::Texture::Texture(SharedTextureDataType data)'],['../classfge_1_1Texture.html#aeb789e96ed204f5a22f1ad8777b2ee77',1,'fge::Texture::Texture(SharedTextureType data)']]],
   ['texturedata_6',['TextureData',['../structfge_1_1texture_1_1TextureData.html',1,'fge::texture']]],
   ['textureimage_7',['TextureImage',['../classfge_1_1vulkan_1_1TextureImage.html',1,'fge::vulkan']]],
   ['tile_8',['Tile',['../classfge_1_1TileLayer_1_1Tile.html',1,'fge::TileLayer']]],

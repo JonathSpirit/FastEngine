@@ -78,6 +78,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classfge_1_1Texture-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::Texture Class Reference<div class="ingroups"><a class="el" href="group__graphics.html">Graphics utility/tools</a></div></div></div>
@@ -89,6 +90,15 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="C__texture_8hpp_source.html">C_texture.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:aa2079c7e05ed656d3c4f9c0a032faa72" id="r_aa2079c7e05ed656d3c4f9c0a032faa72"><td class="memItemLeft" align="right" valign="top"><a id="aa2079c7e05ed656d3c4f9c0a032faa72" name="aa2079c7e05ed656d3c4f9c0a032faa72"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedTextureDataType</b> = fge::texture::TextureDataPtr</td></tr>
+<tr class="separator:aa2079c7e05ed656d3c4f9c0a032faa72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50f1eb73a10ffbc52e06174c4ae8656b" id="r_a50f1eb73a10ffbc52e06174c4ae8656b"><td class="memItemLeft" align="right" valign="top"><a id="a50f1eb73a10ffbc52e06174c4ae8656b" name="a50f1eb73a10ffbc52e06174c4ae8656b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedTextureType</b> = std::shared_ptr&lt;<a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::TextureType</a>&gt;</td></tr>
+<tr class="separator:a50f1eb73a10ffbc52e06174c4ae8656b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ac11ff97c602dee10f88b92e9518e0470" id="r_ac11ff97c602dee10f88b92e9518e0470"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac11ff97c602dee10f88b92e9518e0470">Texture</a> (std::string name)</td></tr>
@@ -97,9 +107,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aafd690e20ef1676c1f67dd899ff651fb" id="r_aafd690e20ef1676c1f67dd899ff651fb"><td class="memItemLeft" align="right" valign="top"><a id="aafd690e20ef1676c1f67dd899ff651fb" name="aafd690e20ef1676c1f67dd899ff651fb"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Texture</b> (char const *name)</td></tr>
 <tr class="separator:aafd690e20ef1676c1f67dd899ff651fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade52dc1c2dae818ad01c8718be319139" id="r_ade52dc1c2dae818ad01c8718be319139"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ade52dc1c2dae818ad01c8718be319139">Texture</a> (fge::texture::TextureDataPtr data)</td></tr>
-<tr class="memdesc:ade52dc1c2dae818ad01c8718be319139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a custom texture data pointer.  <br /></td></tr>
-<tr class="separator:ade52dc1c2dae818ad01c8718be319139"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4dd0dd5204d145b9a3bac327de05303" id="r_aa4dd0dd5204d145b9a3bac327de05303"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa4dd0dd5204d145b9a3bac327de05303">Texture</a> (SharedTextureDataType data)</td></tr>
+<tr class="memdesc:aa4dd0dd5204d145b9a3bac327de05303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a texture manager data pointer.  <br /></td></tr>
+<tr class="separator:aa4dd0dd5204d145b9a3bac327de05303"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb789e96ed204f5a22f1ad8777b2ee77" id="r_aeb789e96ed204f5a22f1ad8777b2ee77"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeb789e96ed204f5a22f1ad8777b2ee77">Texture</a> (SharedTextureType data)</td></tr>
+<tr class="memdesc:aeb789e96ed204f5a22f1ad8777b2ee77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a custom texture pointer.  <br /></td></tr>
+<tr class="separator:aeb789e96ed204f5a22f1ad8777b2ee77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d48df4a3fd030ce461da2265ad8aeb6" id="r_a0d48df4a3fd030ce461da2265ad8aeb6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d48df4a3fd030ce461da2265ad8aeb6">clear</a> ()</td></tr>
 <tr class="memdesc:a0d48df4a3fd030ce461da2265ad8aeb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the texture data.  <br /></td></tr>
 <tr class="separator:a0d48df4a3fd030ce461da2265ad8aeb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -112,9 +125,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a919d018c8a4a16ad65201670fc13f34f" id="r_a919d018c8a4a16ad65201670fc13f34f"><td class="memItemLeft" align="right" valign="top">fge::Vector2u&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a919d018c8a4a16ad65201670fc13f34f">getTextureSize</a> () const</td></tr>
 <tr class="memdesc:a919d018c8a4a16ad65201670fc13f34f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the texture size.  <br /></td></tr>
 <tr class="separator:a919d018c8a4a16ad65201670fc13f34f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa797d72808b5734c571f081cc45019e8" id="r_aa797d72808b5734c571f081cc45019e8"><td class="memItemLeft" align="right" valign="top">fge::texture::TextureDataPtr const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa797d72808b5734c571f081cc45019e8">getData</a> () const</td></tr>
-<tr class="memdesc:aa797d72808b5734c571f081cc45019e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the texture data.  <br /></td></tr>
-<tr class="separator:aa797d72808b5734c571f081cc45019e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46689ae6b1d64fd2acac70595afa2f84" id="r_a46689ae6b1d64fd2acac70595afa2f84"><td class="memItemLeft" align="right" valign="top">SharedTextureDataType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46689ae6b1d64fd2acac70595afa2f84">getSharedData</a> () const</td></tr>
+<tr class="memdesc:a46689ae6b1d64fd2acac70595afa2f84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the texture data.  <br /></td></tr>
+<tr class="separator:a46689ae6b1d64fd2acac70595afa2f84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c165afdf5bfd34261c51e3f6de9e786" id="r_a8c165afdf5bfd34261c51e3f6de9e786"><td class="memItemLeft" align="right" valign="top">SharedTextureType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c165afdf5bfd34261c51e3f6de9e786">getSharedTexture</a> () const</td></tr>
+<tr class="memdesc:a8c165afdf5bfd34261c51e3f6de9e786"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the texture.  <br /></td></tr>
+<tr class="separator:a8c165afdf5bfd34261c51e3f6de9e786"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60b33d4b2533624532087518e217844c" id="r_a60b33d4b2533624532087518e217844c"><td class="memItemLeft" align="right" valign="top">std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a60b33d4b2533624532087518e217844c">getName</a> () const</td></tr>
 <tr class="memdesc:a60b33d4b2533624532087518e217844c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the name of the texture.  <br /></td></tr>
 <tr class="separator:a60b33d4b2533624532087518e217844c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,9 +140,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abb27b70ee7787e75ffc2cdbfed2f300d" id="r_abb27b70ee7787e75ffc2cdbfed2f300d"><td class="memItemLeft" align="right" valign="top"><a id="abb27b70ee7787e75ffc2cdbfed2f300d" name="abb27b70ee7787e75ffc2cdbfed2f300d"></a>
 <a class="el" href="classfge_1_1Texture.html">fge::Texture</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (char const *name)</td></tr>
 <tr class="separator:abb27b70ee7787e75ffc2cdbfed2f300d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a458f66ec4f2cbb456f774d8098785810" id="r_a458f66ec4f2cbb456f774d8098785810"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Texture.html">fge::Texture</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a458f66ec4f2cbb456f774d8098785810">operator=</a> (fge::texture::TextureDataPtr data)</td></tr>
-<tr class="memdesc:a458f66ec4f2cbb456f774d8098785810"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a custom texture data pointer.  <br /></td></tr>
-<tr class="separator:a458f66ec4f2cbb456f774d8098785810"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a171c9b44c7c53306aaf44b1e50d6b303" id="r_a171c9b44c7c53306aaf44b1e50d6b303"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Texture.html">fge::Texture</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a171c9b44c7c53306aaf44b1e50d6b303">operator=</a> (SharedTextureDataType data)</td></tr>
+<tr class="memdesc:a171c9b44c7c53306aaf44b1e50d6b303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a texture manager data pointer.  <br /></td></tr>
+<tr class="separator:a171c9b44c7c53306aaf44b1e50d6b303"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae23dbb9789e449fd167a80f5c0832bc3" id="r_ae23dbb9789e449fd167a80f5c0832bc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Texture.html">fge::Texture</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae23dbb9789e449fd167a80f5c0832bc3">operator=</a> (SharedTextureType data)</td></tr>
+<tr class="memdesc:ae23dbb9789e449fd167a80f5c0832bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a custom texture pointer.  <br /></td></tr>
+<tr class="separator:ae23dbb9789e449fd167a80f5c0832bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a393ce38cb1d5b1542e6f3b2181cf4429" id="r_a393ce38cb1d5b1542e6f3b2181cf4429"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1vulkan_1_1TextureImage.html">fge::TextureType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a393ce38cb1d5b1542e6f3b2181cf4429">retrieve</a> ()</td></tr>
 <tr class="memdesc:a393ce38cb1d5b1542e6f3b2181cf4429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the internal texture type pointer.  <br /></td></tr>
 <tr class="separator:a393ce38cb1d5b1542e6f3b2181cf4429"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -138,7 +157,7 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>This class is a wrapper for the texture manger to allow easy manipulation. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac11ff97c602dee10f88b92e9518e0470" name="ac11ff97c602dee10f88b92e9518e0470"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac11ff97c602dee10f88b92e9518e0470">&#9670;&#160;</a></span>Texture() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac11ff97c602dee10f88b92e9518e0470">&#9670;&#160;</a></span>Texture() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -162,8 +181,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ade52dc1c2dae818ad01c8718be319139" name="ade52dc1c2dae818ad01c8718be319139"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ade52dc1c2dae818ad01c8718be319139">&#9670;&#160;</a></span>Texture() <span class="overload">[2/2]</span></h2>
+<a id="aa4dd0dd5204d145b9a3bac327de05303" name="aa4dd0dd5204d145b9a3bac327de05303"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4dd0dd5204d145b9a3bac327de05303">&#9670;&#160;</a></span>Texture() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -171,16 +190,41 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">fge::Texture::Texture </td>
           <td>(</td>
-          <td class="paramtype">fge::texture::TextureDataPtr</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td class="paramtype">SharedTextureDataType</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Copy a custom texture data pointer. </p>
+<p>Copy a texture manager data pointer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>The custom texture data pointer </td></tr>
+    <tr><td class="paramname">data</td><td>The texture manager data pointer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aeb789e96ed204f5a22f1ad8777b2ee77" name="aeb789e96ed204f5a22f1ad8777b2ee77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb789e96ed204f5a22f1ad8777b2ee77">&#9670;&#160;</a></span>Texture() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::Texture::Texture </td>
+          <td>(</td>
+          <td class="paramtype">SharedTextureType</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy a custom texture pointer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The custom texture pointer </td></tr>
   </table>
   </dd>
 </dl>
@@ -208,26 +252,6 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa797d72808b5734c571f081cc45019e8" name="aa797d72808b5734c571f081cc45019e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa797d72808b5734c571f081cc45019e8">&#9670;&#160;</a></span>getData()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">fge::texture::TextureDataPtr const  &amp; fge::Texture::getData </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the texture data. </p>
-<dl class="section return"><dt>Returns</dt><dd>The texture data </dd></dl>
-
-</div>
-</div>
 <a id="a60b33d4b2533624532087518e217844c" name="a60b33d4b2533624532087518e217844c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a60b33d4b2533624532087518e217844c">&#9670;&#160;</a></span>getName()</h2>
 
@@ -245,6 +269,48 @@ Public Member Functions</h2></td></tr>
 
 <p>Get the name of the texture. </p>
 <dl class="section return"><dt>Returns</dt><dd>The name of the texture </dd></dl>
+
+</div>
+</div>
+<a id="a46689ae6b1d64fd2acac70595afa2f84" name="a46689ae6b1d64fd2acac70595afa2f84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46689ae6b1d64fd2acac70595afa2f84">&#9670;&#160;</a></span>getSharedData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SharedTextureDataType const  &amp; fge::Texture::getSharedData </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the texture data. </p>
+<p>Will return bad texture if the stored data is a custom texture.</p>
+<dl class="section return"><dt>Returns</dt><dd>The texture data </dd></dl>
+
+</div>
+</div>
+<a id="a8c165afdf5bfd34261c51e3f6de9e786" name="a8c165afdf5bfd34261c51e3f6de9e786"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c165afdf5bfd34261c51e3f6de9e786">&#9670;&#160;</a></span>getSharedTexture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SharedTextureType const  &amp; fge::Texture::getSharedTexture </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the texture. </p>
+<p>Will return bad texture if the stored data is a custom texture.</p>
+<dl class="section return"><dt>Returns</dt><dd>The managed texture data </dd></dl>
 
 </div>
 </div>
@@ -268,8 +334,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a458f66ec4f2cbb456f774d8098785810" name="a458f66ec4f2cbb456f774d8098785810"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a458f66ec4f2cbb456f774d8098785810">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
+<a id="a171c9b44c7c53306aaf44b1e50d6b303" name="a171c9b44c7c53306aaf44b1e50d6b303"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a171c9b44c7c53306aaf44b1e50d6b303">&#9670;&#160;</a></span>operator=() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -277,16 +343,41 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classfge_1_1Texture.html">fge::Texture</a> &amp; fge::Texture::operator= </td>
           <td>(</td>
-          <td class="paramtype">fge::texture::TextureDataPtr</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td class="paramtype">SharedTextureDataType</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Copy a custom texture data pointer. </p>
+<p>Copy a texture manager data pointer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>The custom texture data pointer </td></tr>
+    <tr><td class="paramname">data</td><td>The texture manager data pointer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae23dbb9789e449fd167a80f5c0832bc3" name="ae23dbb9789e449fd167a80f5c0832bc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae23dbb9789e449fd167a80f5c0832bc3">&#9670;&#160;</a></span>operator=() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1Texture.html">fge::Texture</a> &amp; fge::Texture::operator= </td>
+          <td>(</td>
+          <td class="paramtype">SharedTextureType</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy a custom texture pointer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The custom texture pointer </td></tr>
   </table>
   </dd>
 </dl>
@@ -294,7 +385,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a23397b605204e6d35242b3fb04f13688" name="a23397b605204e6d35242b3fb04f13688"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a23397b605204e6d35242b3fb04f13688">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a23397b605204e6d35242b3fb04f13688">&#9670;&#160;</a></span>operator=() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

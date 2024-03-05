@@ -117,15 +117,15 @@ Enumerations</h2></td></tr>
 <tr class="memitem:gadf43ad1455c199b2c85ae591f44f2b6e" id="r_gadf43ad1455c199b2c85ae591f44f2b6e"><td class="memItemLeft" align="right" valign="top">FGE_API std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gadf43ad1455c199b2c85ae591f44f2b6e">fge::anim::GetAnimationSize</a> ()</td></tr>
 <tr class="memdesc:gadf43ad1455c199b2c85ae591f44f2b6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the total number of loaded animations.  <br /></td></tr>
 <tr class="separator:gadf43ad1455c199b2c85ae591f44f2b6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga52e611b3c3403a6278f2bea984da52b0" id="r_ga52e611b3c3403a6278f2bea984da52b0"><td class="memItemLeft" align="right" valign="top">FGE_API std::mutex &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga52e611b3c3403a6278f2bea984da52b0">fge::anim::GetMutex</a> ()</td></tr>
-<tr class="memdesc:ga52e611b3c3403a6278f2bea984da52b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the mutex of the animation manager.  <br /></td></tr>
-<tr class="separator:ga52e611b3c3403a6278f2bea984da52b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3c82aebbc2a984b0ca1e4ee9dcccb328" id="r_ga3c82aebbc2a984b0ca1e4ee9dcccb328"><td class="memItemLeft" align="right" valign="top">FGE_API fge::anim::AnimationDataType::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga3c82aebbc2a984b0ca1e4ee9dcccb328">fge::anim::GetCBegin</a> ()</td></tr>
-<tr class="memdesc:ga3c82aebbc2a984b0ca1e4ee9dcccb328"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the begin iterator of the animation manager.  <br /></td></tr>
-<tr class="separator:ga3c82aebbc2a984b0ca1e4ee9dcccb328"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa87b08e19dc57d28eb85af091642b138" id="r_gaa87b08e19dc57d28eb85af091642b138"><td class="memItemLeft" align="right" valign="top">FGE_API fge::anim::AnimationDataType::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa87b08e19dc57d28eb85af091642b138">fge::anim::GetCEnd</a> ()</td></tr>
-<tr class="memdesc:gaa87b08e19dc57d28eb85af091642b138"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the end iterator of the animation manager.  <br /></td></tr>
-<tr class="separator:gaa87b08e19dc57d28eb85af091642b138"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4bed090ee3233976d77ff33cd32d5db0" id="r_ga4bed090ee3233976d77ff33cd32d5db0"><td class="memItemLeft" align="right" valign="top">FGE_API <a class="el" href="classfge_1_1AccessLock.html">fge::AccessLock</a>&lt; std::mutex &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga4bed090ee3233976d77ff33cd32d5db0">fge::anim::AcquireLock</a> ()</td></tr>
+<tr class="memdesc:ga4bed090ee3233976d77ff33cd32d5db0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire a <a class="el" href="classfge_1_1AccessLock.html" title="Class that lock a mutex and unlock it only when the object is destroyed.">AccessLock</a>, with the texture manager mutex.  <br /></td></tr>
+<tr class="separator:ga4bed090ee3233976d77ff33cd32d5db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa54d6e85e2e54d67f3a85df024a520ac" id="r_gaa54d6e85e2e54d67f3a85df024a520ac"><td class="memItemLeft" align="right" valign="top">FGE_API fge::anim::AnimationDataType::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gaa54d6e85e2e54d67f3a85df024a520ac">fge::anim::IteratorBegin</a> (<a class="el" href="classfge_1_1AccessLock.html">fge::AccessLock</a>&lt; std::mutex &gt; const &amp;lock)</td></tr>
+<tr class="memdesc:gaa54d6e85e2e54d67f3a85df024a520ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the begin iterator of the animation manager.  <br /></td></tr>
+<tr class="separator:gaa54d6e85e2e54d67f3a85df024a520ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga21aa3159fe08d63aff3eeb7936a91439" id="r_ga21aa3159fe08d63aff3eeb7936a91439"><td class="memItemLeft" align="right" valign="top">FGE_API fge::anim::AnimationDataType::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga21aa3159fe08d63aff3eeb7936a91439">fge::anim::IteratorEnd</a> (<a class="el" href="classfge_1_1AccessLock.html">fge::AccessLock</a>&lt; std::mutex &gt; const &amp;lock)</td></tr>
+<tr class="memdesc:ga21aa3159fe08d63aff3eeb7936a91439"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the end iterator of the animation manager.  <br /></td></tr>
+<tr class="separator:ga21aa3159fe08d63aff3eeb7936a91439"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafdd51fe58b574e7174ac57b2571406b3" id="r_gafdd51fe58b574e7174ac57b2571406b3"><td class="memItemLeft" align="right" valign="top">FGE_API fge::anim::AnimationDataPtr const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafdd51fe58b574e7174ac57b2571406b3">fge::anim::GetBadAnimation</a> ()</td></tr>
 <tr class="memdesc:gafdd51fe58b574e7174ac57b2571406b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the bad animation.  <br /></td></tr>
 <tr class="separator:gafdd51fe58b574e7174ac57b2571406b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,6 +182,27 @@ Enumerations</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga4bed090ee3233976d77ff33cd32d5db0" name="ga4bed090ee3233976d77ff33cd32d5db0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4bed090ee3233976d77ff33cd32d5db0">&#9670;&#160;</a></span>AcquireLock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">FGE_API <a class="el" href="classfge_1_1AccessLock.html">fge::AccessLock</a>&lt; std::mutex &gt; fge::anim::AcquireLock </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Acquire a <a class="el" href="classfge_1_1AccessLock.html" title="Class that lock a mutex and unlock it only when the object is destroyed.">AccessLock</a>, with the texture manager mutex. </p>
+<p>In order to use iterators, you have to acquire a lock from this function. The lock is not differed and will lock the mutex.</p>
+<dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="classfge_1_1AccessLock.html" title="Class that lock a mutex and unlock it only when the object is destroyed.">AccessLock</a> bound to this mutex </dd></dl>
+
+</div>
+</div>
 <a id="ga4fac89dfcf2cea962482c44d10116df4" name="ga4fac89dfcf2cea962482c44d10116df4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga4fac89dfcf2cea962482c44d10116df4">&#9670;&#160;</a></span>Check()</h2>
 
@@ -275,66 +296,6 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
-<a id="ga3c82aebbc2a984b0ca1e4ee9dcccb328" name="ga3c82aebbc2a984b0ca1e4ee9dcccb328"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3c82aebbc2a984b0ca1e4ee9dcccb328">&#9670;&#160;</a></span>GetCBegin()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">FGE_API fge::anim::AnimationDataType::const_iterator fge::anim::GetCBegin </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the begin iterator of the animation manager. </p>
-<dl class="section return"><dt>Returns</dt><dd>The begin iterator of the animation manager </dd></dl>
-
-</div>
-</div>
-<a id="gaa87b08e19dc57d28eb85af091642b138" name="gaa87b08e19dc57d28eb85af091642b138"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa87b08e19dc57d28eb85af091642b138">&#9670;&#160;</a></span>GetCEnd()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">FGE_API fge::anim::AnimationDataType::const_iterator fge::anim::GetCEnd </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the end iterator of the animation manager. </p>
-<dl class="section return"><dt>Returns</dt><dd>The end iterator of the animation manager </dd></dl>
-
-</div>
-</div>
-<a id="ga52e611b3c3403a6278f2bea984da52b0" name="ga52e611b3c3403a6278f2bea984da52b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga52e611b3c3403a6278f2bea984da52b0">&#9670;&#160;</a></span>GetMutex()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">FGE_API std::mutex &amp; fge::anim::GetMutex </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the mutex of the animation manager. </p>
-<dl class="section return"><dt>Returns</dt><dd>The mutex of the animation manager </dd></dl>
-
-</div>
-</div>
 <a id="ga0195471753001e8761320bce3d33cbbc" name="ga0195471753001e8761320bce3d33cbbc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga0195471753001e8761320bce3d33cbbc">&#9670;&#160;</a></span>Init()</h2>
 
@@ -373,6 +334,62 @@ Enumerations</h2></td></tr>
 
 <p>Check if the animation manager is initialized. </p>
 <dl class="section return"><dt>Returns</dt><dd><b>true</b> if the animation manager is initialized, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="gaa54d6e85e2e54d67f3a85df024a520ac" name="gaa54d6e85e2e54d67f3a85df024a520ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa54d6e85e2e54d67f3a85df024a520ac">&#9670;&#160;</a></span>IteratorBegin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">FGE_API fge::anim::AnimationDataType::const_iterator fge::anim::IteratorBegin </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1AccessLock.html">fge::AccessLock</a>&lt; std::mutex &gt; const &amp;</td>          <td class="paramname"><span class="paramname"><em>lock</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the begin iterator of the animation manager. </p>
+<p>You have to provide a valid reference to a <a class="el" href="classfge_1_1AccessLock.html" title="Class that lock a mutex and unlock it only when the object is destroyed.">AccessLock</a> acquired with the function <a class="el" href="#ga4bed090ee3233976d77ff33cd32d5db0" title="Acquire a AccessLock, with the texture manager mutex.">AcquireLock()</a>. This function will throw if one of this is not respected :</p><ul>
+<li>The mutex pointer of the lock does not correspond to this mutex.</li>
+</ul>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lock</td><td>A <a class="el" href="classfge_1_1AccessLock.html" title="Class that lock a mutex and unlock it only when the object is destroyed.">AccessLock</a> bound to this mutex </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The begin iterator of the texture manager </dd></dl>
+
+</div>
+</div>
+<a id="ga21aa3159fe08d63aff3eeb7936a91439" name="ga21aa3159fe08d63aff3eeb7936a91439"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga21aa3159fe08d63aff3eeb7936a91439">&#9670;&#160;</a></span>IteratorEnd()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">FGE_API fge::anim::AnimationDataType::const_iterator fge::anim::IteratorEnd </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1AccessLock.html">fge::AccessLock</a>&lt; std::mutex &gt; const &amp;</td>          <td class="paramname"><span class="paramname"><em>lock</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the end iterator of the animation manager. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#gaa54d6e85e2e54d67f3a85df024a520ac" title="Get the begin iterator of the animation manager.">IteratorBegin()</a></dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lock</td><td>A <a class="el" href="classfge_1_1AccessLock.html" title="Class that lock a mutex and unlock it only when the object is destroyed.">AccessLock</a> bound to this mutex </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The begin iterator of the texture manager </dd></dl>
 
 </div>
 </div>

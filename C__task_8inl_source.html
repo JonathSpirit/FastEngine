@@ -131,7 +131,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
 <div class="foldopen" id="foldopen00044" data-start="{" data-end="}">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#a3f4c20de2e434d6dbb096b83fd21cfbf">   44</a></span>T* <a class="code hl_function" href="classfge_1_1TaskHandler.html#a3f4c20de2e434d6dbb096b83fd21cfbf">TaskHandler::addSubTask</a>(std::unique_ptr&lt;T&gt;&amp;&amp; newTask)</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#a3f4c20de2e434d6dbb096b83fd21cfbf">   44</a></span>T* TaskHandler::addSubTask(std::unique_ptr&lt;T&gt;&amp;&amp; newTask)</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>{</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    this-&gt;g_lastTask = newTask-&gt;getTypeIndex();</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    this-&gt;g_tasks.push_back(std::move(newTask));</div>
@@ -140,10 +140,21 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>T*<span class="keyword">&gt;</span>(this-&gt;g_tasks.back().get());</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
 </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>} <span class="comment">// namespace fge</span></div>
-<div class="ttc" id="aclassfge_1_1TaskHandler_html_a3f4c20de2e434d6dbb096b83fd21cfbf"><div class="ttname"><a href="classfge_1_1TaskHandler.html#a3f4c20de2e434d6dbb096b83fd21cfbf">fge::TaskHandler::addSubTask</a></div><div class="ttdeci">T * addSubTask(std::unique_ptr&lt; T &gt; &amp;&amp;newTask)</div><div class="ttdoc">Add a sub-task.</div><div class="ttdef"><b>Definition</b> C_task.inl:44</div></div>
-<div class="ttc" id="aclassfge_1_1TaskHandler_html_ae0edf1a5f1b8541ed97faa692c0c638f"><div class="ttname"><a href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">fge::TaskHandler::_onMainTaskChanged</a></div><div class="ttdeci">fge::CallbackHandler&lt; TaskHandler &amp; &gt; _onMainTaskChanged</div><div class="ttdoc">Called when the main task is changed.</div><div class="ttdef"><b>Definition</b> C_task.hpp:273</div></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>T* TaskHandler::addSubTask()</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>{</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordflow">return</span> this-&gt;addSubTask(std::make_unique&lt;T&gt;());</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>}</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keyword">template</span>&lt;<span class="keyword">class </span>T, <span class="keyword">class</span>... TArgs&gt;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>T* TaskHandler::addSubTaskAndInit(TArgs&amp;&amp;... args)</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>{</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">auto</span>* task = this-&gt;addSubTask(std::make_unique&lt;T&gt;());</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    task-&gt;init(std::forward&lt;TArgs&gt;(args)...);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">return</span> task;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>}</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>} <span class="comment">// namespace fge</span></div>
+<div class="ttc" id="aclassfge_1_1TaskHandler_html_ae0edf1a5f1b8541ed97faa692c0c638f"><div class="ttname"><a href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">fge::TaskHandler::_onMainTaskChanged</a></div><div class="ttdeci">fge::CallbackHandler&lt; TaskHandler &amp; &gt; _onMainTaskChanged</div><div class="ttdoc">Called when the main task is changed.</div><div class="ttdef"><b>Definition</b> C_task.hpp:284</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

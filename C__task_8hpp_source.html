@@ -189,79 +189,90 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno"><a class="line" href="classfge_1_1Task.html#a2b63d3054b6fd1b4fba0b0bf0f728455">  164</a></span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1Task.html#a2b63d3054b6fd1b4fba0b0bf0f728455">pack</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a>&amp; pck) = 0;</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno"><a class="line" href="classfge_1_1Task.html#a8f3db24b6c912dce48fe5959fddb7bf4">  170</a></span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1Task.html#a8f3db24b6c912dce48fe5959fddb7bf4">unpackAndInit</a>(<a class="code hl_class" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> <span class="keyword">const</span>&amp; pck) = 0;</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno"><a class="line" href="classfge_1_1Task.html#a6b01173b8d37bd8ced6fea4f02903ae6">  179</a></span>    [[nodiscard]] <span class="keyword">inline</span> <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* <a class="code hl_function" href="classfge_1_1Task.html#a6b01173b8d37bd8ced6fea4f02903ae6">getParentObject</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> this-&gt;_g_parentObject; }</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>;</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classfge_1_1NetworkTypeTasks.html">NetworkTypeTasks</a>;</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keyword">inline</span> <span class="keywordtype">void</span> setParentObject(<a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* parentObject) { this-&gt;_g_parentObject = parentObject; }</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno"><a class="line" href="classfge_1_1Task.html#a6b01173b8d37bd8ced6fea4f02903ae6">  179</a></span>    [[nodiscard]] <span class="keyword">inline</span> <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* <a class="code hl_function" href="classfge_1_1Task.html#a6b01173b8d37bd8ced6fea4f02903ae6">getParentObject</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> this-&gt;g_parentObject; }</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    [[nodiscard]] <span class="keyword">inline</span> T* getParentObject()<span class="keyword"> const</span></div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span>T*<span class="keyword">&gt;</span>(this-&gt;g_parentObject);</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    }</div>
 <div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordtype">float</span> _g_progress{0.0f};</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* _g_parentObject{<span class="keyword">nullptr</span>};</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>};</div>
-</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keyword">friend</span> <span class="keyword">class </span>TaskHandler;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">friend</span> <span class="keyword">class </span>NetworkTypeTasks;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keyword">inline</span> <span class="keywordtype">void</span> setParentObject(<a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* parentObject) { this-&gt;g_parentObject = parentObject; }</div>
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="keyword">using </span>TaskList = std::vector&lt;std::unique_ptr&lt;fge::Task&gt;&gt;;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* g_parentObject{<span class="keyword">nullptr</span>};</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
-<div class="foldopen" id="foldopen00201" data-start="{" data-end="};">
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html">  201</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a></div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>{</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a> <span class="keyword">const</span>&amp; r) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp;&amp; r) <span class="keyword">noexcept</span>;</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">~TaskHandler</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a> <span class="keyword">const</span>&amp; r) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#a7c06b930f26ffcd9ca7eda727b5162c5">  219</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1TaskHandler.html#a7c06b930f26ffcd9ca7eda727b5162c5">setParentObject</a>(<a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>&amp; parentObject);</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* getParentObject() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    [[nodiscard]] std::size_t getTaskSize() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T = fge::Task&gt;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    T* setMainTask(std::unique_ptr&lt;T&gt;&amp;&amp; newTask);</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    T* setMainTask();</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keyword">template</span>&lt;<span class="keyword">class </span>T, <span class="keyword">class</span>... TArgs&gt;</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    T* setMainTaskAndInit(TArgs&amp;&amp;... args);</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T = fge::Task&gt;</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    T* addSubTask(std::unique_ptr&lt;T&gt;&amp;&amp; newTask);</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1Task.html">fge::Task</a>* getMainTask() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1Task.html">fge::Task</a>* getActualTask() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    [[nodiscard]] std::optional&lt;fge::TaskTypeIndex&gt; getActualTaskType() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keywordtype">void</span> popTask();</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordtype">void</span> clearTasks();</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    [[nodiscard]] fge::TaskList <span class="keyword">const</span>&amp; getTasks() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    [[nodiscard]] std::optional&lt;fge::TaskTypeIndex&gt; getLastTask() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordtype">void</span> clearLastTask();</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#a9e8828ac6a7823c7183d564e292c9435">  269</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1TaskHandler.html#a9e8828ac6a7823c7183d564e292c9435">networkRegister</a>(<a class="code hl_class" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a>&amp; netList);</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    [[nodiscard]] fge::TasksChecksum getChecksum() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">  273</a></span>    <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler&lt;TaskHandler&amp;&gt;</a> <a class="code hl_variable" href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">_onMainTaskChanged</a>; </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordtype">void</span> computeChecksum();</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* g_parentObject{<span class="keyword">nullptr</span>};</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    fge::TaskList g_tasks;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    std::optional&lt;fge::TaskTypeIndex&gt; g_lastTask;</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    fge::TasksChecksum g_tasksChecksum{0};</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>};</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keywordtype">float</span> _g_progress{0.0f};</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>};</div>
 </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="keyword">using </span>TaskList = std::vector&lt;std::unique_ptr&lt;fge::Task&gt;&gt;;</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+<div class="foldopen" id="foldopen00207" data-start="{" data-end="};">
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html">  207</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>{</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a> <span class="keyword">const</span>&amp; r) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp;&amp; r) <span class="keyword">noexcept</span>;</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">~TaskHandler</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a> <span class="keyword">const</span>&amp; r) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    <a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp; operator=(<a class="code hl_class" href="classfge_1_1TaskHandler.html">TaskHandler</a>&amp;&amp; r) <span class="keyword">noexcept</span> = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#a7c06b930f26ffcd9ca7eda727b5162c5">  225</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1TaskHandler.html#a7c06b930f26ffcd9ca7eda727b5162c5">setParentObject</a>(<a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>&amp; parentObject);</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* getParentObject() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    [[nodiscard]] std::size_t getTaskSize() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T = fge::Task&gt;</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    T* setMainTask(std::unique_ptr&lt;T&gt;&amp;&amp; newTask);</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    T* setMainTask();</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keyword">template</span>&lt;<span class="keyword">class </span>T, <span class="keyword">class</span>... TArgs&gt;</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    T* setMainTaskAndInit(TArgs&amp;&amp;... args);</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T = fge::Task&gt;</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    T* addSubTask(std::unique_ptr&lt;T&gt;&amp;&amp; newTask);</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    T* addSubTask();</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="keyword">template</span>&lt;<span class="keyword">class </span>T, <span class="keyword">class</span>... TArgs&gt;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    T* addSubTaskAndInit(TArgs&amp;&amp;... args);</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1Task.html">fge::Task</a>* getMainTask() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1Task.html">fge::Task</a>* getActualTask() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    [[nodiscard]] std::optional&lt;fge::TaskTypeIndex&gt; getActualTaskType() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">void</span> popTask();</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordtype">void</span> clearTasks();</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    [[nodiscard]] fge::TaskList <span class="keyword">const</span>&amp; getTasks() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    [[nodiscard]] std::optional&lt;fge::TaskTypeIndex&gt; getLastTask() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">void</span> clearLastTask();</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#a9e8828ac6a7823c7183d564e292c9435">  280</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classfge_1_1TaskHandler.html#a9e8828ac6a7823c7183d564e292c9435">networkRegister</a>(<a class="code hl_class" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a>&amp; netList);</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    [[nodiscard]] fge::TasksChecksum getChecksum() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>} <span class="comment">// namespace fge</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno"><a class="line" href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">  284</a></span>    <a class="code hl_class" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler&lt;TaskHandler&amp;&gt;</a> <a class="code hl_variable" href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">_onMainTaskChanged</a>; </div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="preprocessor">#include &quot;FastEngine/C_task.inl&quot;</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_TASK_HPP_INCLUDED</span></div>
-<div class="ttc" id="aclassfge_1_1CallbackHandler_html"><div class="ttname"><a href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a></div><div class="ttdoc">This class is used to handle callbacks in a safe way.</div><div class="ttdef"><b>Definition</b> C_callback.hpp:185</div></div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordtype">void</span> computeChecksum();</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <a class="code hl_class" href="classfge_1_1Object.html">fge::Object</a>* g_parentObject{<span class="keyword">nullptr</span>};</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    fge::TaskList g_tasks;</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    std::optional&lt;fge::TaskTypeIndex&gt; g_lastTask;</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    fge::TasksChecksum g_tasksChecksum{0};</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>};</div>
+</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>} <span class="comment">// namespace fge</span></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="preprocessor">#include &quot;FastEngine/C_task.inl&quot;</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_TASK_HPP_INCLUDED</span></div>
+<div class="ttc" id="aclassfge_1_1CallbackHandler_html"><div class="ttname"><a href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a></div><div class="ttdoc">This class is used to handle callbacks in a safe way.</div><div class="ttdef"><b>Definition</b> C_callback.hpp:189</div></div>
 <div class="ttc" id="aclassfge_1_1Event_html"><div class="ttname"><a href="classfge_1_1Event.html">fge::Event</a></div><div class="ttdoc">This class is a wrapper for SDL events.</div><div class="ttdef"><b>Definition</b> C_event.hpp:53</div></div>
 <div class="ttc" id="aclassfge_1_1NetworkTypeTasks_html"><div class="ttname"><a href="classfge_1_1NetworkTypeTasks.html">fge::NetworkTypeTasks</a></div><div class="ttdoc">Network type for the TaskHandler.</div><div class="ttdef"><b>Definition</b> C_task.hpp:65</div></div>
 <div class="ttc" id="aclassfge_1_1NetworkTypeTasks_html_a0d263e92bb73d0df6b9fdf054321a054"><div class="ttname"><a href="classfge_1_1NetworkTypeTasks.html#a0d263e92bb73d0df6b9fdf054321a054">fge::NetworkTypeTasks::packData</a></div><div class="ttdeci">void packData(fge::net::Packet &amp;pck, fge::net::Identity const &amp;id) override</div><div class="ttdoc">Pack the data into a packet and reset the modification flag of the identity.</div></div>
@@ -271,12 +282,12 @@ $(function() { codefold.init(0); });
 <div class="ttc" id="aclassfge_1_1NetworkTypeTasks_html_a4882d27278e622773e5485326c9b007b"><div class="ttname"><a href="classfge_1_1NetworkTypeTasks.html#a4882d27278e622773e5485326c9b007b">fge::NetworkTypeTasks::packData</a></div><div class="ttdeci">void packData(fge::net::Packet &amp;pck) override</div><div class="ttdoc">Pack the data without any client identity.</div></div>
 <div class="ttc" id="aclassfge_1_1NetworkTypeTasks_html_a63c8283dec0aab01df6f2cf2b92fa282"><div class="ttname"><a href="classfge_1_1NetworkTypeTasks.html#a63c8283dec0aab01df6f2cf2b92fa282">fge::NetworkTypeTasks::applyData</a></div><div class="ttdeci">bool applyData(fge::net::Packet const &amp;pck) override</div><div class="ttdoc">Apply the data packed by the same network type from a server.</div></div>
 <div class="ttc" id="aclassfge_1_1NetworkTypeTasks_html_afa94669ff3801b9a4a87073f9893570d"><div class="ttname"><a href="classfge_1_1NetworkTypeTasks.html#afa94669ff3801b9a4a87073f9893570d">fge::NetworkTypeTasks::forceUncheck</a></div><div class="ttdeci">void forceUncheck() override</div><div class="ttdoc">Remove the forced modification of the value.</div></div>
-<div class="ttc" id="aclassfge_1_1Object_html"><div class="ttname"><a href="classfge_1_1Object.html">fge::Object</a></div><div class="ttdoc">The Object class is the base class for all objects in the engine.</div><div class="ttdef"><b>Definition</b> C_object.hpp:100</div></div>
+<div class="ttc" id="aclassfge_1_1Object_html"><div class="ttname"><a href="classfge_1_1Object.html">fge::Object</a></div><div class="ttdoc">The Object class is the base class for all objects in the engine.</div><div class="ttdef"><b>Definition</b> C_object.hpp:101</div></div>
 <div class="ttc" id="aclassfge_1_1Scene_html"><div class="ttname"><a href="classfge_1_1Scene.html">fge::Scene</a></div><div class="ttdoc">A scene contain a collection of object and handle them.</div><div class="ttdef"><b>Definition</b> C_scene.hpp:350</div></div>
-<div class="ttc" id="aclassfge_1_1TaskHandler_html"><div class="ttname"><a href="classfge_1_1TaskHandler.html">fge::TaskHandler</a></div><div class="ttdoc">Handle the tasks of an object.</div><div class="ttdef"><b>Definition</b> C_task.hpp:202</div></div>
+<div class="ttc" id="aclassfge_1_1TaskHandler_html"><div class="ttname"><a href="classfge_1_1TaskHandler.html">fge::TaskHandler</a></div><div class="ttdoc">Handle the tasks of an object.</div><div class="ttdef"><b>Definition</b> C_task.hpp:208</div></div>
 <div class="ttc" id="aclassfge_1_1TaskHandler_html_a7c06b930f26ffcd9ca7eda727b5162c5"><div class="ttname"><a href="classfge_1_1TaskHandler.html#a7c06b930f26ffcd9ca7eda727b5162c5">fge::TaskHandler::setParentObject</a></div><div class="ttdeci">void setParentObject(fge::Object &amp;parentObject)</div><div class="ttdoc">Set the parent object of the TaskHandler.</div></div>
 <div class="ttc" id="aclassfge_1_1TaskHandler_html_a9e8828ac6a7823c7183d564e292c9435"><div class="ttname"><a href="classfge_1_1TaskHandler.html#a9e8828ac6a7823c7183d564e292c9435">fge::TaskHandler::networkRegister</a></div><div class="ttdeci">void networkRegister(fge::net::NetworkTypeContainer &amp;netList)</div><div class="ttdoc">Register the network types of the tasks.</div></div>
-<div class="ttc" id="aclassfge_1_1TaskHandler_html_ae0edf1a5f1b8541ed97faa692c0c638f"><div class="ttname"><a href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">fge::TaskHandler::_onMainTaskChanged</a></div><div class="ttdeci">fge::CallbackHandler&lt; TaskHandler &amp; &gt; _onMainTaskChanged</div><div class="ttdoc">Called when the main task is changed.</div><div class="ttdef"><b>Definition</b> C_task.hpp:273</div></div>
+<div class="ttc" id="aclassfge_1_1TaskHandler_html_ae0edf1a5f1b8541ed97faa692c0c638f"><div class="ttname"><a href="classfge_1_1TaskHandler.html#ae0edf1a5f1b8541ed97faa692c0c638f">fge::TaskHandler::_onMainTaskChanged</a></div><div class="ttdeci">fge::CallbackHandler&lt; TaskHandler &amp; &gt; _onMainTaskChanged</div><div class="ttdoc">Called when the main task is changed.</div><div class="ttdef"><b>Definition</b> C_task.hpp:284</div></div>
 <div class="ttc" id="aclassfge_1_1Task_html"><div class="ttname"><a href="classfge_1_1Task.html">fge::Task</a></div><div class="ttdoc">Base class for all tasks.</div><div class="ttdef"><b>Definition</b> C_task.hpp:105</div></div>
 <div class="ttc" id="aclassfge_1_1Task_html_a2b63d3054b6fd1b4fba0b0bf0f728455"><div class="ttname"><a href="classfge_1_1Task.html#a2b63d3054b6fd1b4fba0b0bf0f728455">fge::Task::pack</a></div><div class="ttdeci">virtual void pack(fge::net::Packet &amp;pck)=0</div><div class="ttdoc">Pack the task data into a packet.</div></div>
 <div class="ttc" id="aclassfge_1_1Task_html_a4207f03bad3a246706aa67b99281ebc5"><div class="ttname"><a href="classfge_1_1Task.html#a4207f03bad3a246706aa67b99281ebc5">fge::Task::getTypeIndex</a></div><div class="ttdeci">virtual fge::TaskTypeIndex getTypeIndex() const =0</div><div class="ttdoc">Get the type index of the task.</div></div>

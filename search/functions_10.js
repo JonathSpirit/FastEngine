@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['texture_0',['Texture',['../classfge_1_1Texture.html#ac11ff97c602dee10f88b92e9518e0470',1,'fge::Texture::Texture(std::string name)'],['../classfge_1_1Texture.html#ade52dc1c2dae818ad01c8718be319139',1,'fge::Texture::Texture(fge::texture::TextureDataPtr data)']]],
+  ['texture_0',['Texture',['../classfge_1_1Texture.html#ac11ff97c602dee10f88b92e9518e0470',1,'fge::Texture::Texture(std::string name)'],['../classfge_1_1Texture.html#aa4dd0dd5204d145b9a3bac327de05303',1,'fge::Texture::Texture(SharedTextureDataType data)'],['../classfge_1_1Texture.html#aeb789e96ed204f5a22f1ad8777b2ee77',1,'fge::Texture::Texture(SharedTextureType data)']]],
   ['timer_1',['Timer',['../classfge_1_1Timer.html#aa0e70442f91410455ee18751bc93abcf',1,'fge::Timer::Timer(std::chrono::milliseconds const &amp;goal)'],['../classfge_1_1Timer.html#ad5403ce6f7b031b91e9e94ca45c34425',1,'fge::Timer::Timer(std::chrono::milliseconds const &amp;goal, bool paused)'],['../classfge_1_1Timer.html#af8b9a53a273fee7ec26e3bd23e63f24e',1,'fge::Timer::Timer(std::chrono::milliseconds const &amp;goal, std::string name, bool paused)']]],
   ['tobool_2',['ToBool',['../group__extraString.html#ga1c36acd2afaf5fee12fe0b6b6aa9edac',1,'fge::string']]],
   ['todouble_3',['ToDouble',['../group__extraString.html#ga5a29718b51f012862ffe424df65b7e35',1,'fge::string']]],

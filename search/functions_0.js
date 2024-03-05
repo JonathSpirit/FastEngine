@@ -2,7 +2,7 @@ var searchData=
 [
   ['accept_0',['accept',['../classfge_1_1net_1_1SocketListenerTcp.html#a45d367e0ee3f3cf18e1108e98fab7617',1,'fge::net::SocketListenerTcp']]],
   ['acquirelock_1',['acquireLock',['../classfge_1_1net_1_1ClientList.html#ab400f0dd0bc0fe61570ea6010a8531d4',1,'fge::net::ClientList']]],
-  ['acquirelock_2',['AcquireLock',['../group__graphics.html#ga09ff2a2fc83507aabde3241534239d42',1,'fge::shader::AcquireLock()'],['../group__graphics.html#ga4c81a03132c458104c37c80feed2b260',1,'fge::texture::AcquireLock()']]],
+  ['acquirelock_2',['AcquireLock',['../group__animation.html#ga4bed090ee3233976d77ff33cd32d5db0',1,'fge::anim::AcquireLock()'],['../group__graphics.html#ga09ff2a2fc83507aabde3241534239d42',1,'fge::shader::AcquireLock()'],['../group__graphics.html#ga4c81a03132c458104c37c80feed2b260',1,'fge::texture::AcquireLock()']]],
   ['add_3',['add',['../classfge_1_1CallbackHandler.html#a5aa57aa5862132db3f3531718f4eb82e',1,'fge::CallbackHandler::add()'],['../classfge_1_1EventList.html#abb623fd66908d046beba0769ff2f4a7c',1,'fge::EventList::add()'],['../classfge_1_1net_1_1ClientList.html#aac0f97bec374ccae8d52d2fb3f0c5058',1,'fge::net::ClientList::add()']]],
   ['addborder_4',['addBorder',['../classfge_1_1Surface.html#ad706ee967aa04150811964389e46e817',1,'fge::Surface']]],
   ['addcmd_5',['addCmd',['../classfge_1_1CommandHandler.html#a7a942e9634cf7838f1266bf782627472',1,'fge::CommandHandler']]],

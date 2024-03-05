@@ -191,6 +191,12 @@ TileLayerList const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="memitem:a581c6d7b620521b52dd2a49e482792f7" id="r_a581c6d7b620521b52dd2a49e482792f7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a581c6d7b620521b52dd2a49e482792f7">removed</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
 <tr class="memdesc:a581c6d7b620521b52dd2a49e482792f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is removed from a scene.  <br /></td></tr>
 <tr class="separator:a581c6d7b620521b52dd2a49e482792f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b8d7888a742ad19dd43cf39457109a9" id="r_a1b8d7888a742ad19dd43cf39457109a9"><td class="memItemLeft" align="right" valign="top"><a id="a1b8d7888a742ad19dd43cf39457109a9" name="a1b8d7888a742ad19dd43cf39457109a9"></a>
+virtual <a class="el" href="classfge_1_1Quad.html">fge::Quad</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getGlobalQuad</b> () const</td></tr>
+<tr class="separator:a1b8d7888a742ad19dd43cf39457109a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a765e1f5f15fe58f8a342f5c6f25ce185" id="r_a765e1f5f15fe58f8a342f5c6f25ce185"><td class="memItemLeft" align="right" valign="top"><a id="a765e1f5f15fe58f8a342f5c6f25ce185" name="a765e1f5f15fe58f8a342f5c6f25ce185"></a>
+virtual <a class="el" href="classfge_1_1Quad.html">fge::Quad</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getLocalQuad</b> () const</td></tr>
+<tr class="separator:a765e1f5f15fe58f8a342f5c6f25ce185"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11d30d0777c9d58e06f3082f425a9333" id="r_a11d30d0777c9d58e06f3082f425a9333"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a11d30d0777c9d58e06f3082f425a9333">saveInFile</a> (std::string const &amp;path)</td></tr>
 <tr class="memdesc:a11d30d0777c9d58e06f3082f425a9333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the object in a file.  <br /></td></tr>
 <tr class="separator:a11d30d0777c9d58e06f3082f425a9333"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -227,12 +233,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>rotate</b> (float ang
 <tr class="memitem:a9c3f60e1c658e019535fe4e97b56a06e" id="r_a9c3f60e1c658e019535fe4e97b56a06e"><td class="memItemLeft" align="right" valign="top"><a id="a9c3f60e1c658e019535fe4e97b56a06e" name="a9c3f60e1c658e019535fe4e97b56a06e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setScale</b> (Vector2f const &amp;factors)</td></tr>
 <tr class="separator:a9c3f60e1c658e019535fe4e97b56a06e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a3ee1685a81ac27a819b48e7a5d7398" id="r_a5a3ee1685a81ac27a819b48e7a5d7398"><td class="memItemLeft" align="right" valign="top"><a id="a5a3ee1685a81ac27a819b48e7a5d7398" name="a5a3ee1685a81ac27a819b48e7a5d7398"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setScale</b> (float factor)</td></tr>
+<tr class="separator:a5a3ee1685a81ac27a819b48e7a5d7398"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb298270c92ce289483679f059cf67e1" id="r_abb298270c92ce289483679f059cf67e1"><td class="memItemLeft" align="right" valign="top"><a id="abb298270c92ce289483679f059cf67e1" name="abb298270c92ce289483679f059cf67e1"></a>
 Vector2f const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getScale</b> () const</td></tr>
 <tr class="separator:abb298270c92ce289483679f059cf67e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa06c258e0e854d124faedb700dd2958f" id="r_aa06c258e0e854d124faedb700dd2958f"><td class="memItemLeft" align="right" valign="top"><a id="aa06c258e0e854d124faedb700dd2958f" name="aa06c258e0e854d124faedb700dd2958f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>scale</b> (Vector2f const &amp;factor)</td></tr>
 <tr class="separator:aa06c258e0e854d124faedb700dd2958f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d129ce771866ac2250ed1deaf62328c" id="r_a4d129ce771866ac2250ed1deaf62328c"><td class="memItemLeft" align="right" valign="top"><a id="a4d129ce771866ac2250ed1deaf62328c" name="a4d129ce771866ac2250ed1deaf62328c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>scale</b> (float factor)</td></tr>
+<tr class="separator:a4d129ce771866ac2250ed1deaf62328c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaab150009c1aa2f97b90882d2bc3a2aa" id="r_aaab150009c1aa2f97b90882d2bc3a2aa"><td class="memItemLeft" align="right" valign="top"><a id="aaab150009c1aa2f97b90882d2bc3a2aa" name="aaab150009c1aa2f97b90882d2bc3a2aa"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setOrigin</b> (Vector2f const &amp;origin)</td></tr>
 <tr class="separator:aaab150009c1aa2f97b90882d2bc3a2aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
