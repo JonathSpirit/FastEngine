@@ -73,11 +73,21 @@ void Transformable::setScale(Vector2f const& factors)
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;
 }
+void Transformable::setScale(float factor)
+{
+    this->g_scale = {factor, factor};
+    this->g_transformNeedUpdate = true;
+    this->g_inverseTransformNeedUpdate = true;
+}
 Vector2f const& Transformable::getScale() const
 {
     return this->g_scale;
 }
 void Transformable::scale(Vector2f const& factor)
+{
+    this->setScale(this->g_scale * factor);
+}
+void Transformable::scale(float factor)
 {
     this->setScale(this->g_scale * factor);
 }

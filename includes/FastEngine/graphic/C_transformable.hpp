@@ -45,8 +45,10 @@ public:
     void rotate(float angle);
 
     void setScale(Vector2f const& factors);
+    void setScale(float factor);
     Vector2f const& getScale() const;
     void scale(Vector2f const& factor);
+    void scale(float factor);
 
     void setOrigin(Vector2f const& origin);
     Vector2f const& getOrigin() const;
