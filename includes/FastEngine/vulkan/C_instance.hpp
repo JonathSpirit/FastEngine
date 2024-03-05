@@ -49,7 +49,6 @@ public:
     /**
      * \brief Create the instance
      *
-     * \param window The SDL window
      * \param applicationName The application name
      * \param versionMajor The application version major
      * \param versionMinor The application version minor
