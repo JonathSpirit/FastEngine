@@ -129,9 +129,10 @@ public:
 
     fge::CharacterSize getCharacterSize() const;
 
-    float getLetterSpacingFactor() const;
-    float getLineSpacingFactor() const;
-    float getLineSpacing() const;
+    [[nodiscard]] float getLetterSpacingFactor() const;
+    [[nodiscard]] float getLineSpacingFactor() const;
+    [[nodiscard]] float getLineSpacing() const;
+    [[nodiscard]] float getGlyphAdvance(uint32_t c) const;
 
     std::underlying_type<Style>::type getStyle() const;
 

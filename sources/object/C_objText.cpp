@@ -326,6 +326,12 @@ float ObjText::getLineSpacing() const
 {
     return this->g_font.getData()->_font->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
 }
+float ObjText::getGlyphAdvance(uint32_t c) const
+{
+    auto const* font = this->g_font.retrieve();
+    auto const& glyph = font->getGlyph(c, this->g_characterSize, static_cast<bool>(this->g_style & Bold));
+    return glyph._advance;
+}
 
 std::underlying_type<ObjText::Style>::type ObjText::getStyle() const
 {
@@ -354,7 +360,7 @@ fge::Vector2f ObjText::findCharacterPos(std::size_t index) const
     }
 
     // Adjust the index if it's out of range
-    if (index > this->g_characters.size())
+    if (index >= this->g_characters.size())
     {
         index = this->g_characters.size();
     }
