@@ -18,7 +18,6 @@
 #define _FGE_C_OBJTEXTINPUTBOX_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
-#include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_guiElement.hpp"
 #include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
@@ -42,6 +41,7 @@ public:
     fge::GuiElement* getGuiElement() override { return this; }
 
     void setString(tiny_utf8::string string);
+    void setFont(fge::Font font);
     void setCharacterSize(fge::CharacterSize size);
     void setHideTextFlag(bool flag);
     void setMaxLength(uint16_t length);
@@ -87,24 +87,27 @@ public:
 private:
     void
     onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
+    void onTextInput(fge::Event const& evt, SDL_TextInputEvent const& arg);
+    void onKeyDown(fge::Event const& evt, SDL_KeyboardEvent const& arg);
 
     void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 
-    uint16_t g_cursor = 0;
-    uint16_t g_maxLength = 10;
-    bool g_hide = false;
+    std::chrono::milliseconds g_cursorBlinkTime{0};
+    uint16_t g_cursor{0};
+    uint16_t g_maxLength{10};
+    bool g_hide{false};
 
-    fge::Color g_colorBox = fge::Color::White;
-    fge::Color g_colorBoxOutline = fge::Color::Black;
-    fge::Color g_colorText = fge::Color::Black;
+    fge::Color g_colorBox{fge::Color::White};
+    fge::Color g_colorBoxOutline{fge::Color::Black};
 
     tiny_utf8::string g_string;
     mutable fge::ObjText g_text;
     mutable fge::ObjRectangleShape g_box;
+    mutable fge::ObjRectangleShape g_cursorLine;
 
-    fge::Vector2f g_boxSize = fge::Vector2f(120, 18);
+    fge::Vector2f g_boxSize{120.0f, 18.0f};
 
-    bool g_statActive = false;
+    bool g_statActive{false};
 };
 
 } // namespace fge

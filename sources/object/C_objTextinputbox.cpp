@@ -24,25 +24,32 @@ namespace fge
 
 ObjTextInputBox::ObjTextInputBox()
 {
-    this->g_text.setFillColor(this->g_colorText);
+    this->g_text.setFillColor(fge::Color::Black);
+
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_box.setOutlineThickness(1.0f);
     this->g_box.setSize(this->g_boxSize);
 
-    this->g_text.setCharacterSize(12);
+    this->g_cursorLine.setFillColor(fge::Color::Black);
+
+    this->setCharacterSize(12);
 }
 ObjTextInputBox::ObjTextInputBox(fge::Font const& font, uint16_t maxLength, fge::Vector2f const& pos) :
         g_maxLength(maxLength),
         g_text(font)
 {
-    this->g_text.setFillColor(this->g_colorText);
+    this->g_text.setFillColor(fge::Color::Black);
+
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
     this->g_box.setOutlineThickness(1.0f);
     this->g_box.setSize(this->g_boxSize);
 
-    this->g_text.setCharacterSize(12);
+    this->g_cursorLine.setFillColor(fge::Color::Black);
+    this->g_cursorLine.setOrigin({0.0f, -4.0f});
+
+    this->setCharacterSize(12);
 
     this->setPosition(pos);
 }
@@ -50,14 +57,36 @@ ObjTextInputBox::ObjTextInputBox(fge::Font const& font, uint16_t maxLength, fge:
 void ObjTextInputBox::setString(tiny_utf8::string string)
 {
     this->g_string = std::move(string);
+    if (this->g_hide)
+    {
+        this->g_text.setString(tiny_utf8::string(this->g_string.length(), U'*'));
+    }
+    else
+    {
+        this->g_text.setString(this->g_string);
+    }
+    this->g_cursor = this->g_string.length();
+}
+void ObjTextInputBox::setFont(fge::Font font)
+{
+    this->g_text.setFont(std::move(font));
 }
 void ObjTextInputBox::setCharacterSize(fge::CharacterSize size)
 {
     this->g_text.setCharacterSize(size);
+    this->g_cursorLine.setSize({1.0f, static_cast<float>(this->g_text.getCharacterSize())});
 }
 void ObjTextInputBox::setHideTextFlag(bool flag)
 {
     this->g_hide = flag;
+    if (flag)
+    {
+        this->g_text.setString(tiny_utf8::string(this->g_string.length(), U'*'));
+    }
+    else
+    {
+        this->g_text.setString(this->g_string);
+    }
 }
 void ObjTextInputBox::setMaxLength(uint16_t length)
 {
@@ -93,7 +122,6 @@ void ObjTextInputBox::setBoxOutlineColor(fge::Color const& color)
 }
 void ObjTextInputBox::setTextColor(fge::Color const& color)
 {
-    this->g_colorText = color;
     this->g_text.setFillColor(color);
 }
 
@@ -134,16 +162,18 @@ fge::Color const& ObjTextInputBox::getBoxOutlineColor() const
 }
 fge::Color const& ObjTextInputBox::getTextColor() const
 {
-    return this->g_colorText;
+    return this->g_text.getFillColor();
 }
 
 void ObjTextInputBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr)
 {
     this->detachAll();
 
-    guiElementHandlerPtr->_onGuiVerify.addObjectFunctor(&fge::ObjTextInputBox::onGuiVerify, this, this);
+    guiElementHandlerPtr->_onGuiVerify.addObjectFunctor(&ObjTextInputBox::onGuiVerify, this, this);
 
-    this->_onGuiMouseButtonPressed.addObjectFunctor(&fge::ObjTextInputBox::onGuiMouseButtonPressed, this, this);
+    this->_onGuiMouseButtonPressed.addObjectFunctor(&ObjTextInputBox::onGuiMouseButtonPressed, this, this);
+    event._onTextInput.addObjectFunctor(&ObjTextInputBox::onTextInput, this, this);
+    event._onKeyDown.addObjectFunctor(&ObjTextInputBox::onKeyDown, this, this);
 }
 
 #ifdef FGE_DEF_SERVER
@@ -151,69 +181,12 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
 {
-    if (event.isEventType(SDL_KEYDOWN))
+    this->g_cursorBlinkTime += std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime);
+    if (this->g_cursorBlinkTime >= std::chrono::milliseconds{500})
     {
-        if (this->g_statActive)
-        {
-            uint32_t key = event.getKeyUnicode();
-
-            if (event.isKeyPressed(SDLK_RETURN))
-            {
-                this->g_statActive = false;
-                return;
-            }
-            if (event.isKeyPressed(SDLK_LEFT))
-            {
-                this->g_cursor = this->g_cursor ? (this->g_cursor - 1) : 0;
-                return;
-            }
-            if (event.isKeyPressed(SDLK_RIGHT))
-            {
-                this->g_cursor =
-                        (this->g_cursor < this->g_string.length()) ? (this->g_cursor + 1) : this->g_string.length();
-                return;
-            }
-
-            //BackSpace
-            if (event.isKeyPressed(SDLK_BACKSPACE))
-            {
-                if (this->g_string.length() > 0 && this->g_cursor > 0)
-                {
-                    this->g_string.erase(this->g_cursor - 1);
-                    --this->g_cursor;
-                }
-                return;
-            }
-            //Delete
-            if (event.isKeyPressed(SDLK_DELETE))
-            {
-                if (this->g_cursor < this->g_string.length())
-                {
-                    this->g_string.erase(this->g_cursor);
-                }
-                return;
-            }
-
-            //Ignore Unicode control char
-            if ((key < 32) || ((key > 127) && (key < 161)))
-            {
-                return;
-            }
-
-            //Insert Unicode char
-            if (this->g_string.length() < this->g_maxLength)
-            {
-                if (this->g_cursor >= this->g_string.length())
-                {
-                    this->g_string += key;
-                }
-                else
-                {
-                    this->g_string.insert(this->g_cursor, key);
-                }
-                ++this->g_cursor;
-            }
-        }
+        this->g_cursorBlinkTime = std::chrono::milliseconds{0};
+        bool const isVisible = this->g_cursorLine.getFillColor() != fge::Color::Transparent;
+        this->g_cursorLine.setFillColor(isVisible ? fge::Color::Transparent : fge::Color::Black);
     }
 }
 #endif
@@ -221,36 +194,26 @@ FGE_OBJ_UPDATE_BODY(ObjTextInputBox)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 {
-    tiny_utf8::string tmpString;
-
-    if (this->g_hide)
+    if (this->g_cursor >= this->g_string.length() && !this->g_string.empty())
     {
-        tmpString.assign(this->g_string.length(), '*');
+        auto const advance = this->g_text.getGlyphAdvance(this->g_string[this->g_string.length() - 1]);
+        this->g_cursorLine.setPosition(this->g_text.findCharacterPos(this->g_string.length() - 1) +
+                                       fge::Vector2f{advance, 0});
     }
     else
     {
-        tmpString = this->g_string;
+        this->g_cursorLine.setPosition(this->g_text.findCharacterPos(this->g_cursor));
     }
 
-    if (this->g_statActive)
-    {
-        if (this->g_cursor >= this->g_string.length())
-        {
-            tmpString += '|';
-        }
-        else
-        {
-            tmpString.insert(this->g_cursor, '|');
-        }
-    }
-
-    this->g_text.setString(tmpString);
-
-    this->g_box.setFillColor(this->g_statActive ? (this->g_colorBox - fge::Color(50, 50, 50, 0)) : this->g_colorBox);
+    this->g_box.setFillColor(this->g_statActive ? this->g_colorBox - fge::Color(50, 50, 50, 0) : this->g_colorBox);
 
     auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
     target.draw(this->g_box, copyStates);
     target.draw(this->g_text, copyStates);
+    if (this->g_statActive)
+    {
+        target.draw(this->g_cursorLine, copyStates);
+    }
 }
 #endif
 
@@ -264,7 +227,7 @@ void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
 
     jsonObject["colorBox"] = this->g_colorBox.toInteger();
     jsonObject["colorBoxOutline"] = this->g_colorBoxOutline.toInteger();
-    jsonObject["colorText"] = this->g_colorText.toInteger();
+    jsonObject["colorText"] = this->g_text.getFillColor().toInteger();
 
     jsonObject["string"] = this->g_string;
 
@@ -286,12 +249,11 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
 
     this->g_colorBox = fge::Color(jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF));
     this->g_colorBoxOutline = fge::Color(jsonObject.value<uint32_t>("colorBoxOutline", 0));
-    this->g_colorText = fge::Color(jsonObject.value<uint32_t>("colorText", 0));
+    this->g_text.setFillColor(fge::Color(jsonObject.value<uint32_t>("colorText", 0)));
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
-    this->g_text.setFillColor(this->g_colorText);
 
-    this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
+    this->setString(jsonObject.value<tiny_utf8::string>("string", {}));
 
     this->g_text.setCharacterSize(jsonObject.value<fge::CharacterSize>("characterSize", 12));
     this->g_text.setFont(jsonObject.value<std::string>("font", FGE_FONT_BAD));
@@ -309,7 +271,7 @@ void ObjTextInputBox::pack(fge::net::Packet& pck)
 
     pck << this->g_cursor << this->g_maxLength << this->g_hide;
 
-    pck << this->g_colorBox << this->g_colorBoxOutline << this->g_colorText;
+    pck << this->g_colorBox << this->g_colorBoxOutline << this->g_text.getFillColor();
 
     pck << this->g_string;
 
@@ -325,12 +287,15 @@ void ObjTextInputBox::unpack(fge::net::Packet const& pck)
 
     pck >> this->g_cursor >> this->g_maxLength >> this->g_hide;
 
-    pck >> this->g_colorBox >> this->g_colorBoxOutline >> this->g_colorText;
+    fge::Color color;
+    pck >> this->g_colorBox >> this->g_colorBoxOutline >> color;
     this->g_box.setFillColor(this->g_colorBox);
     this->g_box.setOutlineColor(this->g_colorBoxOutline);
-    this->g_text.setFillColor(this->g_colorText);
+    this->g_text.setFillColor(color);
 
-    pck >> this->g_string;
+    tiny_utf8::string string;
+    pck >> string;
+    this->setString(std::move(string));
 
     fge::CharacterSize tmpCharSize = 12;
     fge::Font tmpFont;
@@ -367,6 +332,101 @@ void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const&
                                               [[maybe_unused]] fge::GuiElementContext& context)
 {
     this->g_statActive = true;
+}
+void ObjTextInputBox::onTextInput(fge::Event const& evt, [[maybe_unused]] SDL_TextInputEvent const& arg)
+{
+    if (!this->g_statActive)
+    {
+        return;
+    }
+
+    auto const key = evt.getKeyUnicode();
+
+    //Ignore Unicode control char
+    if (key < 32 || (key > 127 && key < 161))
+    {
+        return;
+    }
+
+    //Insert Unicode char
+    if (this->g_string.length() < this->g_maxLength)
+    {
+        if (this->g_cursor >= this->g_string.length())
+        {
+            this->g_string += key;
+        }
+        else
+        {
+            this->g_string.insert(this->g_cursor, key);
+        }
+        ++this->g_cursor;
+    }
+    if (this->g_hide)
+    {
+        this->g_text.setString(tiny_utf8::string(this->g_string.length(), U'*'));
+    }
+    else
+    {
+        this->g_text.setString(this->g_string);
+    }
+}
+void ObjTextInputBox::onKeyDown([[maybe_unused]] fge::Event const& evt, SDL_KeyboardEvent const& arg)
+{
+    if (!this->g_statActive)
+    {
+        return;
+    }
+
+    switch (arg.keysym.sym)
+    {
+    case SDLK_RETURN:
+        this->g_statActive = false;
+        break;
+
+    case SDLK_LEFT:
+        this->g_cursor = this->g_cursor != 0 ? this->g_cursor - 1 : 0;
+        this->g_cursorBlinkTime = std::chrono::milliseconds{0};
+        break;
+    case SDLK_RIGHT:
+        this->g_cursor = this->g_cursor < this->g_string.length() ? this->g_cursor + 1 : this->g_string.length();
+        this->g_cursorBlinkTime = std::chrono::milliseconds{0};
+        break;
+
+    case SDLK_BACKSPACE:
+        if (!this->g_string.empty() && this->g_cursor > 0)
+        {
+            this->g_string.erase(this->g_cursor - 1);
+            if (this->g_hide)
+            {
+                this->g_text.setString(tiny_utf8::string(this->g_string.length(), U'*'));
+            }
+            else
+            {
+                this->g_text.setString(this->g_string);
+            }
+            --this->g_cursor;
+            this->g_cursorBlinkTime = std::chrono::milliseconds{0};
+        }
+        break;
+    case SDLK_DELETE:
+        if (this->g_cursor < this->g_string.length())
+        {
+            this->g_string.erase(this->g_cursor);
+            if (this->g_hide)
+            {
+                this->g_text.setString(tiny_utf8::string(this->g_string.length(), U'*'));
+            }
+            else
+            {
+                this->g_text.setString(this->g_string);
+            }
+            this->g_cursorBlinkTime = std::chrono::milliseconds{0};
+        }
+        break;
+
+    default:
+        break;
+    }
 }
 
 void ObjTextInputBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
