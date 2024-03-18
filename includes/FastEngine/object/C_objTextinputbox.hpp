@@ -84,6 +84,9 @@ public:
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
 
+    fge::CallbackHandler<fge::ObjTextInputBox&> _onStatChange;
+    fge::CallbackHandler<fge::ObjTextInputBox&> _onReturn;
+
 private:
     void
     onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);

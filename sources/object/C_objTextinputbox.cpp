@@ -95,7 +95,11 @@ void ObjTextInputBox::setMaxLength(uint16_t length)
 
 void ObjTextInputBox::setActiveStat(bool active)
 {
-    this->g_statActive = active;
+    if (this->g_statActive != active)
+    {
+        this->g_statActive = active;
+        this->_onStatChange.call(*this);
+    }
 }
 
 void ObjTextInputBox::setBoxSize(fge::Vector2f const& size)
@@ -331,7 +335,7 @@ void ObjTextInputBox::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const&
                                               [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                               [[maybe_unused]] fge::GuiElementContext& context)
 {
-    this->g_statActive = true;
+    this->setActiveStat(true);
 }
 void ObjTextInputBox::onTextInput(fge::Event const& evt, [[maybe_unused]] SDL_TextInputEvent const& arg)
 {
@@ -380,7 +384,8 @@ void ObjTextInputBox::onKeyDown([[maybe_unused]] fge::Event const& evt, SDL_Keyb
     switch (arg.keysym.sym)
     {
     case SDLK_RETURN:
-        this->g_statActive = false;
+        this->setActiveStat(false);
+        this->_onReturn.call(*this);
         break;
 
     case SDLK_LEFT:
@@ -456,12 +461,12 @@ void ObjTextInputBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
         }
         else if (evtType == SDL_MOUSEBUTTONDOWN)
         {
-            this->g_statActive = false;
+            this->setActiveStat(false);
         }
     }
     else if (evtType == SDL_MOUSEBUTTONDOWN)
     {
-        this->g_statActive = false;
+        this->setActiveStat(false);
     }
 }
 
