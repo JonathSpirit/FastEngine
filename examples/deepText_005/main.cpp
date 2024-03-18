@@ -25,6 +25,7 @@
 #include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
+#include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL.h"
 #include <cmath>
@@ -106,6 +107,11 @@ public:
         rectText->setFillColor(fge::Color::Transparent);
         rectText->setOutlineColor(fge::Color::Red);
         rectText->setOutlineThickness(2.0f);
+
+        //Add a text input box
+        auto* textInputBox = this->newObject(FGE_NEWOBJECT(fge::ObjTextInputBox, "base", 20, {200.0f, 400.0f}))
+                                     ->getObject<fge::ObjTextInputBox>();
+        textInputBox->setString("type here");
 
         fge::Clock changeTextColorClock;
 
