@@ -93,15 +93,15 @@ public:
 
                 spriteBatches->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
-                const fge::Vector2f textureSize =
+                fge::Vector2f const textureSize =
                         static_cast<fge::Vector2f>(spriteBatches->getTexture(0).getTextureSize());
-                const fge::RectInt textureRect({}, spriteBatches->getTexture(0).getTextureSize());
+                fge::RectInt const textureRect({}, spriteBatches->getTexture(0).getTextureSize());
 
                 for (std::size_t y = 0; y < MAP_SIZE_H; ++y)
                 {
                     for (std::size_t x = 0; x < MAP_SIZE_W; ++x)
                     {
-                        const std::size_t index = x + y * MAP_SIZE_W;
+                        std::size_t const index = x + y * MAP_SIZE_W;
 
                         spriteBatches->setSpriteTexture(index, 0);
                         spriteBatches->setTextureRect(index, textureRect);
@@ -120,15 +120,15 @@ public:
 
                 spriteCluster->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
-                const fge::Vector2f textureSize =
+                fge::Vector2f const textureSize =
                         static_cast<fge::Vector2f>(spriteCluster->getTexture().getTextureSize());
-                const fge::RectInt textureRect({}, spriteCluster->getTexture().getTextureSize());
+                fge::RectInt const textureRect({}, spriteCluster->getTexture().getTextureSize());
 
                 for (std::size_t y = 0; y < MAP_SIZE_H; ++y)
                 {
                     for (std::size_t x = 0; x < MAP_SIZE_W; ++x)
                     {
-                        const std::size_t index = x + y * MAP_SIZE_W;
+                        std::size_t const index = x + y * MAP_SIZE_W;
 
                         spriteCluster->setTextureRect(index, textureRect);
                         spriteCluster->setOffset(
@@ -138,8 +138,8 @@ public:
             }
             else if (itemIndex == 2)
             { //Create a matrix of sprites
-                const fge::Texture texture = "grid";
-                const fge::Vector2f textureSize = static_cast<fge::Vector2f>(texture.getTextureSize());
+                fge::Texture const texture = "grid";
+                fge::Vector2f const textureSize = static_cast<fge::Vector2f>(texture.getTextureSize());
 
                 for (std::size_t y = 0; y < MAP_SIZE_H; ++y)
                 {
@@ -169,7 +169,7 @@ public:
                 {
                     for (std::size_t x = 0; x < MAP_SIZE_W; ++x)
                     {
-                        const std::size_t index = x + y * MAP_SIZE_W;
+                        std::size_t const index = x + y * MAP_SIZE_W;
 
                         rectangleShape->setOffset({static_cast<float>(x) * rectangleShape->getSize().x,
                                                    static_cast<float>(y) * rectangleShape->getSize().y},

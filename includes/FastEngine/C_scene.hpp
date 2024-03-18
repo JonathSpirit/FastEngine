@@ -1199,7 +1199,7 @@ public:
      *
      * \param jsonObject The json object
      */
-    virtual void saveCustomData([[maybe_unused]] nlohmann::json& jsonObject){};
+    virtual void saveCustomData([[maybe_unused]] nlohmann::json& jsonObject) {};
     /**
      * \brief Load some user defined custom data.
      *
@@ -1210,7 +1210,7 @@ public:
      *
      * \param jsonObject The json object
      */
-    virtual void loadCustomData([[maybe_unused]] nlohmann::json& jsonObject){};
+    virtual void loadCustomData([[maybe_unused]] nlohmann::json& jsonObject) {};
 
     /**
      * \brief Save all the Scene with its Object in a file.

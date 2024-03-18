@@ -392,17 +392,15 @@ void Creature::networkRegister()
     this->_netList.push(new fge::net::NetworkTypeSmoothVec2Float{
             {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }},
             100.0f});
-    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>{&this->_g_targetPos})
-            ->_onApplied.addLambda([&]() { this->_g_finish = this->getPosition() == this->_g_targetPos; }, this);
-    this->_netList.push(new fge::net::NetworkType<bool>{&this->_g_finish})
-            ->_onApplied.addLambda(
-                    [&]() {
+    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>{&this->_g_targetPos})->_onApplied.addLambda([&]() {
+        this->_g_finish = this->getPosition() == this->_g_targetPos;
+    }, this);
+    this->_netList.push(new fge::net::NetworkType<bool>{&this->_g_finish})->_onApplied.addLambda([&]() {
         if (this->_g_finish)
         {
             this->setPosition(this->_g_targetPos);
         }
-    },
-                    this);
+    }, this);
 
     this->_data.networkRegister(this->_netList, this, &Creature::refreshStats);
 }

@@ -109,9 +109,8 @@ public:
                               {fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE});
         objSlider2->needAnchorUpdate(false);
 
-        objSlider2->_onSlide.addLambda([](float ratio) {
-            fge::GuiElement::setGlobalGuiScale({2.0f * ratio + 0.5f, 2.0f * ratio + 0.5f});
-        });
+        objSlider2->_onSlide.addLambda(
+                [](float ratio) { fge::GuiElement::setGlobalGuiScale({2.0f * ratio + 0.5f, 2.0f * ratio + 0.5f}); });
 
         objSlider2->setCursorRatio(0.25f);
 
