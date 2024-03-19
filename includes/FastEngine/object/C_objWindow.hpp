@@ -106,6 +106,8 @@ public:
     fge::GuiElementHandler _windowHandler;
     mutable std::shared_ptr<fge::View> _windowView;
 
+    fge::CallbackHandler<fge::ObjWindow&> _onWindowClose;
+
 private:
     void onGuiVerify(fge::Event const& evt, SDL_EventType evtType, fge::GuiElementContext& context) override;
 

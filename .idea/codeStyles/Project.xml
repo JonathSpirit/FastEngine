@@ -9,8 +9,5 @@
     <Objective-C-extensions>
       <option name="TAG_PREFIX_OF_BLOCK_COMMENT" value="BACK_SLASH" />
     </Objective-C-extensions>
-    <clangFormatSettings>
-      <option name="ENABLED" value="true" />
-    </clangFormatSettings>
   </code_scheme>
 </component>

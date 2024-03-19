@@ -370,6 +370,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
             fge::RectFloat const closeRectangle{transform * this->g_windowCloseRect};
             if (closeRectangle.contains(context._mouseGuiPosition))
             {
+                this->_onWindowClose.call(*this);
                 myObjectData->getLinkedScene()->delObject(myObjectData->getSid());
                 return;
             }
