@@ -17,8 +17,8 @@
 #include "FastEngine/object/C_object.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
-#include "FastEngine/extra/extra_string.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
+#include "FastEngine/network/C_packet.hpp"
 
 #include <fstream>
 #include <iomanip>

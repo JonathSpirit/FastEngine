@@ -20,13 +20,13 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_childObjectsAccessor.hpp"
 #include "FastEngine/C_event.hpp"
+#include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/C_quad.hpp"
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_tagList.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/network/C_networkType.hpp"
-#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/object/C_objectAnchor.hpp"
 #include "json.hpp"
 
@@ -262,7 +262,8 @@ public:
 
     //Data
 
-    fge::TagList _tags; ///< The tags of the object
+    fge::TagList _tags;            ///< The tags of the object
+    fge::PropertyList _properties; ///< The properties of the object
 
     //Network
 
