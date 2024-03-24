@@ -24,6 +24,13 @@
 namespace fge
 {
 
+/**
+ * \class PropertyList
+ * \ingroup utility
+ * \brief A class that map a string to a Property
+ *
+ * \see Property
+ */
 class PropertyList
 {
 public:
