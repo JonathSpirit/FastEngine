@@ -629,7 +629,7 @@ T* Property::getPtr()
             return nullptr;
         }
 
-        return &reinterpret_cast<T>(this->g_data._ptr);
+        return &reinterpret_cast<T&>(this->g_data._ptr);
     }
     else
     {
@@ -706,7 +706,7 @@ T const* Property::getPtr() const
             return nullptr;
         }
 
-        return &reinterpret_cast<T>(this->g_data._ptr);
+        return &reinterpret_cast<T&>(this->g_data._ptr);
     }
     else
     {
