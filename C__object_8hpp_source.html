@@ -107,13 +107,13 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;FastEngine/fge_extern.hpp&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;C_childObjectsAccessor.hpp&quot;</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;FastEngine/C_event.hpp&quot;</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;FastEngine/C_quad.hpp&quot;</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;FastEngine/C_rect.hpp&quot;</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;FastEngine/C_tagList.hpp&quot;</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;FastEngine/graphic/C_drawable.hpp&quot;</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;FastEngine/graphic/C_transformable.hpp&quot;</span></div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;FastEngine/network/C_networkType.hpp&quot;</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#include &quot;FastEngine/network/C_packet.hpp&quot;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;FastEngine/C_propertyList.hpp&quot;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;FastEngine/C_quad.hpp&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;FastEngine/C_rect.hpp&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;FastEngine/C_tagList.hpp&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;FastEngine/graphic/C_drawable.hpp&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;FastEngine/graphic/C_transformable.hpp&quot;</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#include &quot;FastEngine/network/C_networkType.hpp&quot;</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#include &quot;FastEngine/object/C_objectAnchor.hpp&quot;</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#include &quot;json.hpp&quot;</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
@@ -229,51 +229,52 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="comment">//Data</span></div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37">  265</a></span>    <a class="code hl_class" href="classfge_1_1TagList.html">fge::TagList</a> <a class="code hl_variable" href="classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37">_tags</a>; </div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="comment">//Network</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">  269</a></span>    <a class="code hl_class" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a> <a class="code hl_variable" href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">_netList</a>; </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="comment">//Scene control</span></div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a87aabbb175c17dec3a902513a6561c94">  273</a></span>    fge::ObjectDataWeak _myObjectData{}; </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keyword">enum class</span> DrawModes : uint8_t</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    {</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        DRAW_IF_ON_TARGET,</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        DRAW_ALWAYS_HIDDEN,</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        DRAW_ALWAYS_DRAWN,</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>        DRAW_DEFAULT = DRAW_IF_ON_TARGET</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    };</div>
-<div class="foldopen" id="foldopen00283" data-start="{" data-end="};">
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#adf5a9a1ae1be023ba3efc58646aaa8e1">  283</a></span>    fge::Object::DrawModes _drawMode{</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            fge::Object::DrawModes::DRAW_DEFAULT}; </div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37">  265</a></span>    <a class="code hl_class" href="classfge_1_1TagList.html">fge::TagList</a> <a class="code hl_variable" href="classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37">_tags</a>;            </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#ac994bd2b561bbf05e6686ed10cf5fe75">  266</a></span>    <a class="code hl_class" href="classfge_1_1PropertyList.html">fge::PropertyList</a> <a class="code hl_variable" href="classfge_1_1Object.html#ac994bd2b561bbf05e6686ed10cf5fe75">_properties</a>; </div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="comment">//Network</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">  270</a></span>    <a class="code hl_class" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a> <a class="code hl_variable" href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">_netList</a>; </div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="comment">//Scene control</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a87aabbb175c17dec3a902513a6561c94">  274</a></span>    fge::ObjectDataWeak _myObjectData{}; </div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keyword">enum class</span> DrawModes : uint8_t</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    {</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        DRAW_IF_ON_TARGET,</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        DRAW_ALWAYS_HIDDEN,</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>        DRAW_ALWAYS_DRAWN,</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>        DRAW_DEFAULT = DRAW_IF_ON_TARGET</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    };</div>
+<div class="foldopen" id="foldopen00284" data-start="{" data-end="};">
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#adf5a9a1ae1be023ba3efc58646aaa8e1">  284</a></span>    fge::Object::DrawModes _drawMode{</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            fge::Object::DrawModes::DRAW_DEFAULT}; </div>
 </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keyword">enum class</span> CallbackContextModes : uint8_t</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    {</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>        CONTEXT_MANUAL,</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>        CONTEXT_AUTO,</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>        CONTEXT_DEFAULT = CONTEXT_AUTO</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    };</div>
-<div class="foldopen" id="foldopen00293" data-start="{" data-end="};">
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#ae52935b55b19dde411191cbb69c43b5a">  293</a></span>    fge::Object::CallbackContextModes _callbackContextMode{</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>            fge::Object::CallbackContextModes::</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>                    CONTEXT_DEFAULT}; </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keyword">enum class</span> CallbackContextModes : uint8_t</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    {</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>        CONTEXT_MANUAL,</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>        CONTEXT_AUTO,</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>        CONTEXT_DEFAULT = CONTEXT_AUTO</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    };</div>
+<div class="foldopen" id="foldopen00294" data-start="{" data-end="};">
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#ae52935b55b19dde411191cbb69c43b5a">  294</a></span>    fge::Object::CallbackContextModes _callbackContextMode{</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>            fge::Object::CallbackContextModes::</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>                    CONTEXT_DEFAULT}; </div>
 </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="comment">//Child objects</span></div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">  299</a></span>    <a class="code hl_class" href="classfge_1_1ChildObjectsAccessor.html">fge::ChildObjectsAccessor</a> <a class="code hl_variable" href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">_children</a>; </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>};</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="comment">//Child objects</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno"><a class="line" href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">  300</a></span>    <a class="code hl_class" href="classfge_1_1ChildObjectsAccessor.html">fge::ChildObjectsAccessor</a> <a class="code hl_variable" href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">_children</a>; </div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>};</div>
 </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>} <span class="comment">// namespace fge</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJECT_HPP_INCLUDED</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>} <span class="comment">// namespace fge</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJECT_HPP_INCLUDED</span></div>
 <div class="ttc" id="aclassfge_1_1Anchor_html"><div class="ttname"><a href="classfge_1_1Anchor.html">fge::Anchor</a></div><div class="ttdef"><b>Definition</b> C_objectAnchor.hpp:40</div></div>
 <div class="ttc" id="aclassfge_1_1ChildObjectsAccessor_html"><div class="ttname"><a href="classfge_1_1ChildObjectsAccessor.html">fge::ChildObjectsAccessor</a></div><div class="ttdef"><b>Definition</b> C_childObjectsAccessor.hpp:40</div></div>
 <div class="ttc" id="aclassfge_1_1Drawable_html"><div class="ttname"><a href="classfge_1_1Drawable.html">fge::Drawable</a></div><div class="ttdef"><b>Definition</b> C_drawable.hpp:36</div></div>
@@ -286,7 +287,7 @@ $(function() { codefold.init(0); });
 <div class="ttc" id="aclassfge_1_1Object_html_a11f9cc4ffa3e2881475bb475c1632422"><div class="ttname"><a href="classfge_1_1Object.html#a11f9cc4ffa3e2881475bb475c1632422">fge::Object::draw</a></div><div class="ttdeci">virtual void draw(fge::RenderTarget &amp;target, fge::RenderStates const &amp;states) const override</div><div class="ttdoc">Method called every frame to draw the object.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a21fc497a76f297207f92a54523cb0a0c"><div class="ttname"><a href="classfge_1_1Object.html#a21fc497a76f297207f92a54523cb0a0c">fge::Object::copy</a></div><div class="ttdeci">virtual fge::Object * copy()</div><div class="ttdoc">Duplicate the object.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a2a13676654aff0efb72186d540351a37"><div class="ttname"><a href="classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37">fge::Object::_tags</a></div><div class="ttdeci">fge::TagList _tags</div><div class="ttdoc">The tags of the object.</div><div class="ttdef"><b>Definition</b> C_object.hpp:265</div></div>
-<div class="ttc" id="aclassfge_1_1Object_html_a2dd40ca526ef9b1f8f7bb06d12feea4c"><div class="ttname"><a href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">fge::Object::_netList</a></div><div class="ttdeci">fge::net::NetworkTypeContainer _netList</div><div class="ttdoc">The network types container of the object.</div><div class="ttdef"><b>Definition</b> C_object.hpp:269</div></div>
+<div class="ttc" id="aclassfge_1_1Object_html_a2dd40ca526ef9b1f8f7bb06d12feea4c"><div class="ttname"><a href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">fge::Object::_netList</a></div><div class="ttdeci">fge::net::NetworkTypeContainer _netList</div><div class="ttdoc">The network types container of the object.</div><div class="ttdef"><b>Definition</b> C_object.hpp:270</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a3ad79ee29328238b096dcc064cb95482"><div class="ttname"><a href="classfge_1_1Object.html#a3ad79ee29328238b096dcc064cb95482">fge::Object::loadFromFile</a></div><div class="ttdeci">bool loadFromFile(std::string const &amp;path)</div><div class="ttdoc">Load the object from a file.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a5802633d7b1349343187a4d26f553939"><div class="ttname"><a href="classfge_1_1Object.html#a5802633d7b1349343187a4d26f553939">fge::Object::getClassName</a></div><div class="ttdeci">virtual char const * getClassName() const</div><div class="ttdoc">Get the unique class name of the object.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a581c6d7b620521b52dd2a49e482792f7"><div class="ttname"><a href="classfge_1_1Object.html#a581c6d7b620521b52dd2a49e482792f7">fge::Object::removed</a></div><div class="ttdeci">virtual void removed(fge::Scene *scene)</div><div class="ttdoc">Method called when the object is removed from a scene.</div></div>
@@ -294,16 +295,18 @@ $(function() { codefold.init(0); });
 <div class="ttc" id="aclassfge_1_1Object_html_a849d36f905682fedd870d96fb2d5c81c"><div class="ttname"><a href="classfge_1_1Object.html#a849d36f905682fedd870d96fb2d5c81c">fge::Object::getGlobalBounds</a></div><div class="ttdeci">virtual fge::RectFloat getGlobalBounds() const</div><div class="ttdoc">Get the global bounds of the object.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a84cd084ae66696cf0f33f0c3e1f68cf1"><div class="ttname"><a href="classfge_1_1Object.html#a84cd084ae66696cf0f33f0c3e1f68cf1">fge::Object::first</a></div><div class="ttdeci">virtual void first(fge::Scene *scene)</div><div class="ttdoc">Method called when the object is added to a scene for initialization purposes.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_a8bf0f7f6f8926553d72eb07e3fc994d0"><div class="ttname"><a href="classfge_1_1Object.html#a8bf0f7f6f8926553d72eb07e3fc994d0">fge::Object::save</a></div><div class="ttdeci">virtual void save(nlohmann::json &amp;jsonObject, fge::Scene *scene)</div><div class="ttdoc">Save the object to a json object.</div></div>
-<div class="ttc" id="aclassfge_1_1Object_html_a8d2d9667224ff9b9c9d2d8efa77c5c11"><div class="ttname"><a href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">fge::Object::_children</a></div><div class="ttdeci">fge::ChildObjectsAccessor _children</div><div class="ttdoc">An access to child objects of this object.</div><div class="ttdef"><b>Definition</b> C_object.hpp:299</div></div>
+<div class="ttc" id="aclassfge_1_1Object_html_a8d2d9667224ff9b9c9d2d8efa77c5c11"><div class="ttname"><a href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">fge::Object::_children</a></div><div class="ttdeci">fge::ChildObjectsAccessor _children</div><div class="ttdoc">An access to child objects of this object.</div><div class="ttdef"><b>Definition</b> C_object.hpp:300</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_aa493e4561d2b06fa5534f05300af0889"><div class="ttname"><a href="classfge_1_1Object.html#aa493e4561d2b06fa5534f05300af0889">fge::Object::pack</a></div><div class="ttdeci">virtual void pack(fge::net::Packet &amp;pck)</div><div class="ttdoc">Pack the object into a packet.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_aa87dbafb68444083914c73d7b3b0584f"><div class="ttname"><a href="classfge_1_1Object.html#aa87dbafb68444083914c73d7b3b0584f">fge::Object::LoadFromFile</a></div><div class="ttdeci">static fge::Object * LoadFromFile(std::string const &amp;path)</div><div class="ttdoc">Static form of the loadFromFile method.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_aae0826f1216a566010b4452cd35cc253"><div class="ttname"><a href="classfge_1_1Object.html#aae0826f1216a566010b4452cd35cc253">fge::Object::getLocalBounds</a></div><div class="ttdeci">virtual fge::RectFloat getLocalBounds() const</div><div class="ttdoc">Get the local bounds of the object (without any transformations)</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_abbffc05479a125d8d55cdafaaa085a13"><div class="ttname"><a href="classfge_1_1Object.html#abbffc05479a125d8d55cdafaaa085a13">fge::Object::getGuiElement</a></div><div class="ttdeci">virtual fge::GuiElement * getGuiElement()</div><div class="ttdoc">Get the GuiElement attached to this object if there is one.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_ac721a6ca8d50e47955f41252f18da533"><div class="ttname"><a href="classfge_1_1Object.html#ac721a6ca8d50e47955f41252f18da533">fge::Object::update</a></div><div class="ttdeci">virtual void update(fge::RenderWindow &amp;screen, fge::Event &amp;event, std::chrono::microseconds const &amp;deltaTime, fge::Scene *scene)</div><div class="ttdoc">Main method called every frame.</div></div>
+<div class="ttc" id="aclassfge_1_1Object_html_ac994bd2b561bbf05e6686ed10cf5fe75"><div class="ttname"><a href="classfge_1_1Object.html#ac994bd2b561bbf05e6686ed10cf5fe75">fge::Object::_properties</a></div><div class="ttdeci">fge::PropertyList _properties</div><div class="ttdoc">The properties of the object.</div><div class="ttdef"><b>Definition</b> C_object.hpp:266</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_ad2f08ecfe44c190a2f51ac52a9c70109"><div class="ttname"><a href="classfge_1_1Object.html#ad2f08ecfe44c190a2f51ac52a9c70109">fge::Object::unpack</a></div><div class="ttdeci">virtual void unpack(fge::net::Packet const &amp;pck)</div><div class="ttdoc">Unpack the object from a packet.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_ae4df5200aafaf19af9912e7d4bec9ab5"><div class="ttname"><a href="classfge_1_1Object.html#ae4df5200aafaf19af9912e7d4bec9ab5">fge::Object::load</a></div><div class="ttdeci">virtual void load(nlohmann::json &amp;jsonObject, fge::Scene *scene)</div><div class="ttdoc">Load the object from a json object.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_ae9f531a05d43d09501849905d1e2f00c"><div class="ttname"><a href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c">fge::Object::callbackRegister</a></div><div class="ttdeci">virtual void callbackRegister(fge::Event &amp;event, fge::GuiElementHandler *guiElementHandlerPtr)</div><div class="ttdoc">Ask the object to register all callbacks it needs to receive events.</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html_af80f7814f28d09f87d7083a2eb0344d2"><div class="ttname"><a href="classfge_1_1Object.html#af80f7814f28d09f87d7083a2eb0344d2">fge::Object::getParentsTransform</a></div><div class="ttdeci">glm::mat4 getParentsTransform() const</div><div class="ttdoc">Retrieve recursively all parents transform by combining them.</div></div>
+<div class="ttc" id="aclassfge_1_1PropertyList_html"><div class="ttname"><a href="classfge_1_1PropertyList.html">fge::PropertyList</a></div><div class="ttdoc">A class that map a string to a Property.</div><div class="ttdef"><b>Definition</b> C_propertyList.hpp:35</div></div>
 <div class="ttc" id="aclassfge_1_1Quad_html"><div class="ttname"><a href="classfge_1_1Quad.html">fge::Quad</a></div><div class="ttdef"><b>Definition</b> C_quad.hpp:29</div></div>
 <div class="ttc" id="aclassfge_1_1Rect_html"><div class="ttname"><a href="classfge_1_1Rect.html">fge::Rect&lt; float &gt;</a></div></div>
 <div class="ttc" id="aclassfge_1_1RenderStates_html"><div class="ttname"><a href="classfge_1_1RenderStates.html">fge::RenderStates</a></div><div class="ttdoc">The RenderStates class contains all the information needed to render something.</div><div class="ttdef"><b>Definition</b> C_renderStates.hpp:330</div></div>

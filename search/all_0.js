@@ -30,7 +30,7 @@ var searchData=
   ['_5fontimereached_27',['_onTimeReached',['../classfge_1_1Timer.html#a607544cab8eacb37863a5be56d526960',1,'fge::Timer']]],
   ['_5foption_28',['_option',['../structfge_1_1net_1_1TransmissionPacket_1_1Option.html#a3a29c13549c6e1a16630c56d1d8bbcfa',1,'fge::net::TransmissionPacket::Option']]],
   ['_5fpath_29',['_path',['../structfge_1_1anim_1_1AnimationFrame.html#acd9dcbdb96b3115950a793bc463433f7',1,'fge::anim::AnimationFrame::_path'],['../structfge_1_1anim_1_1AnimationData.html#a4c942fbe323047592fcfead1f4500de5',1,'fge::anim::AnimationData::_path'],['../structfge_1_1audio_1_1AudioData.html#ac37d7c76eafaf5d04cd70b7dc19a2df1',1,'fge::audio::AudioData::_path']]],
-  ['_5fproperties_30',['_properties',['../classfge_1_1Scene.html#aa60918f884f77c90d94064d2638b676c',1,'fge::Scene']]],
+  ['_5fproperties_30',['_properties',['../classfge_1_1Scene.html#aa60918f884f77c90d94064d2638b676c',1,'fge::Scene::_properties'],['../classfge_1_1Object.html#ac994bd2b561bbf05e6686ed10cf5fe75',1,'fge::Object::_properties']]],
   ['_5frandom_31',['_random',['../group__utility.html#ga9d5ebe4d592b8634d5ef5b6843298ae3',1,'fge']]],
   ['_5frsbdelta_32',['_rsbDelta',['../classfge_1_1Glyph.html#a1f4644e041bd3ee7f5895f69dd310031',1,'fge::Glyph']]],
   ['_5ftags_33',['_tags',['../classfge_1_1Object.html#a2a13676654aff0efb72186d540351a37',1,'fge::Object']]],

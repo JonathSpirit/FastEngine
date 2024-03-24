@@ -96,9 +96,14 @@ Inheritance diagram for fge::PropertyClassWrapperType&lt; T &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab9d958fa5221ef630be5cbb2b46627f6" id="r_ab9d958fa5221ef630be5cbb2b46627f6"><td class="memItemLeft" align="right" valign="top"><a id="ab9d958fa5221ef630be5cbb2b46627f6" name="ab9d958fa5221ef630be5cbb2b46627f6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PropertyClassWrapperType</b> (T val)</td></tr>
-<tr class="separator:ab9d958fa5221ef630be5cbb2b46627f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa33abe2c8563732550a76b30ba2d7497" id="r_aa33abe2c8563732550a76b30ba2d7497"><td class="memTemplParams" colspan="2"><a id="aa33abe2c8563732550a76b30ba2d7497" name="aa33abe2c8563732550a76b30ba2d7497"></a>
+template&lt;typename  = std::enable_if_t&lt;std::is_copy_constructible_v&lt;T&gt;&gt;&gt; </td></tr>
+<tr class="memitem:aa33abe2c8563732550a76b30ba2d7497"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>PropertyClassWrapperType</b> (T const &amp;val)</td></tr>
+<tr class="separator:aa33abe2c8563732550a76b30ba2d7497"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bc0717fb9af7e9fb357b39a2195bd55" id="r_a2bc0717fb9af7e9fb357b39a2195bd55"><td class="memTemplParams" colspan="2"><a id="a2bc0717fb9af7e9fb357b39a2195bd55" name="a2bc0717fb9af7e9fb357b39a2195bd55"></a>
+template&lt;typename  = std::enable_if_t&lt;std::is_move_constructible_v&lt;T&gt;&gt;&gt; </td></tr>
+<tr class="memitem:a2bc0717fb9af7e9fb357b39a2195bd55"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>PropertyClassWrapperType</b> (T &amp;&amp;val) noexcept</td></tr>
+<tr class="separator:a2bc0717fb9af7e9fb357b39a2195bd55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e10021677e0ec4b9b979bafbd6c6f9e" id="r_a0e10021677e0ec4b9b979bafbd6c6f9e"><td class="memItemLeft" align="right" valign="top">std::type_info const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e10021677e0ec4b9b979bafbd6c6f9e">getType</a> () const override</td></tr>
 <tr class="separator:a0e10021677e0ec4b9b979bafbd6c6f9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60597526c6c9b2066177e1d2b54ce58f" id="r_a60597526c6c9b2066177e1d2b54ce58f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a60597526c6c9b2066177e1d2b54ce58f">toString</a> () const override</td></tr>

@@ -81,15 +81,20 @@ $(function() {
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classfge_1_1PropertyList-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fge::PropertyList Class Reference</div></div>
+  <div class="headertitle"><div class="title">fge::PropertyList Class Reference<div class="ingroups"><a class="el" href="group__utility.html">Utility/Tools</a></div></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A class that map a string to a <a class="el" href="classfge_1_1Property.html" title="A class that can store any type of data.">Property</a>.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="C__propertyList_8hpp_source.html">C_propertyList.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a8f25dfae9292d69f18cc7fc553b11ad3" id="r_a8f25dfae9292d69f18cc7fc553b11ad3"><td class="memItemLeft" align="right" valign="top"><a id="a8f25dfae9292d69f18cc7fc553b11ad3" name="a8f25dfae9292d69f18cc7fc553b11ad3"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>Type</b> = std::unordered_map&lt;std::string, <a class="el" href="classfge_1_1Property.html">fge::Property</a>&gt;</td></tr>
-<tr class="separator:a8f25dfae9292d69f18cc7fc553b11ad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8032366ad8ec983214fbcba44a2dd5bf" id="r_a8032366ad8ec983214fbcba44a2dd5bf"><td class="memItemLeft" align="right" valign="top"><a id="a8032366ad8ec983214fbcba44a2dd5bf" name="a8032366ad8ec983214fbcba44a2dd5bf"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>DataType</b> = std::unordered_map&lt;std::string, <a class="el" href="classfge_1_1Property.html">fge::Property</a>&gt;</td></tr>
+<tr class="separator:a8032366ad8ec983214fbcba44a2dd5bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -111,68 +116,71 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>delAllProperties</b> 
 <tr class="memitem:acb234ef8d52b6398a0870d9ed0ed50cf" id="r_acb234ef8d52b6398a0870d9ed0ed50cf"><td class="memItemLeft" align="right" valign="top"><a id="acb234ef8d52b6398a0870d9ed0ed50cf" name="acb234ef8d52b6398a0870d9ed0ed50cf"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>delProperty</b> (std::string const &amp;key)</td></tr>
 <tr class="separator:acb234ef8d52b6398a0870d9ed0ed50cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56e1a827550040cb56478286bdfcf96f" id="r_a56e1a827550040cb56478286bdfcf96f"><td class="memItemLeft" align="right" valign="top"><a id="a56e1a827550040cb56478286bdfcf96f" name="a56e1a827550040cb56478286bdfcf96f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>checkProperty</b> (std::string const &amp;key) const</td></tr>
-<tr class="separator:a56e1a827550040cb56478286bdfcf96f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a179598cd484b5f0da9b5a67c809231fb" id="r_a179598cd484b5f0da9b5a67c809231fb"><td class="memItemLeft" align="right" valign="top"><a id="a179598cd484b5f0da9b5a67c809231fb" name="a179598cd484b5f0da9b5a67c809231fb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setProperty</b> (std::string const &amp;key, <a class="el" href="classfge_1_1Property.html">fge::Property</a> const &amp;value)</td></tr>
-<tr class="separator:a179598cd484b5f0da9b5a67c809231fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed8db1b871a883b6f54aca10c98f7598" id="r_aed8db1b871a883b6f54aca10c98f7598"><td class="memItemLeft" align="right" valign="top"><a id="aed8db1b871a883b6f54aca10c98f7598" name="aed8db1b871a883b6f54aca10c98f7598"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setProperty</b> (std::string const &amp;key, <a class="el" href="classfge_1_1Property.html">fge::Property</a> &amp;&amp;value)</td></tr>
-<tr class="separator:aed8db1b871a883b6f54aca10c98f7598"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a80c30cc2734b455b0b9fe9426713dffd" id="r_a80c30cc2734b455b0b9fe9426713dffd"><td class="memTemplParams" colspan="2"><a id="a80c30cc2734b455b0b9fe9426713dffd" name="a80c30cc2734b455b0b9fe9426713dffd"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a80c30cc2734b455b0b9fe9426713dffd"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getPropertyType</b> (std::string const &amp;key)</td></tr>
-<tr class="separator:a80c30cc2734b455b0b9fe9426713dffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1d52a6548b5427078120d667c98fad3" id="r_ac1d52a6548b5427078120d667c98fad3"><td class="memTemplParams" colspan="2"><a id="ac1d52a6548b5427078120d667c98fad3" name="ac1d52a6548b5427078120d667c98fad3"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ac1d52a6548b5427078120d667c98fad3"><td class="memTemplItemLeft" align="right" valign="top">T const *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getPropertyType</b> (std::string const &amp;key) const</td></tr>
-<tr class="separator:ac1d52a6548b5427078120d667c98fad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53ec6571e343fe5700cc3304a01fd885" id="r_a53ec6571e343fe5700cc3304a01fd885"><td class="memTemplParams" colspan="2"><a id="a53ec6571e343fe5700cc3304a01fd885" name="a53ec6571e343fe5700cc3304a01fd885"></a>
+template&lt;class T &gt; </td></tr>
+<tr class="memitem:a53ec6571e343fe5700cc3304a01fd885"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>findProperty</b> (std::string const &amp;key) const</td></tr>
+<tr class="separator:a53ec6571e343fe5700cc3304a01fd885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0f0665a90adf2f8b1a7129499859686" id="r_af0f0665a90adf2f8b1a7129499859686"><td class="memItemLeft" align="right" valign="top"><a id="af0f0665a90adf2f8b1a7129499859686" name="af0f0665a90adf2f8b1a7129499859686"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>findProperty</b> (std::string const &amp;key) const</td></tr>
+<tr class="separator:af0f0665a90adf2f8b1a7129499859686"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb5c4dcbe479037e68f6b7cfb0d5be21" id="r_adb5c4dcbe479037e68f6b7cfb0d5be21"><td class="memTemplParams" colspan="2"><a id="adb5c4dcbe479037e68f6b7cfb0d5be21" name="adb5c4dcbe479037e68f6b7cfb0d5be21"></a>
+template&lt;class T &gt; </td></tr>
+<tr class="memitem:adb5c4dcbe479037e68f6b7cfb0d5be21"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>setProperty</b> (std::string const &amp;key, T &amp;&amp;value)</td></tr>
+<tr class="separator:adb5c4dcbe479037e68f6b7cfb0d5be21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0783fc8fbf20f481113d53a08880355" id="r_ac0783fc8fbf20f481113d53a08880355"><td class="memTemplParams" colspan="2"><a id="ac0783fc8fbf20f481113d53a08880355" name="ac0783fc8fbf20f481113d53a08880355"></a>
+template&lt;class T &gt; </td></tr>
+<tr class="memitem:ac0783fc8fbf20f481113d53a08880355"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key)</td></tr>
+<tr class="separator:ac0783fc8fbf20f481113d53a08880355"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1d910d27ecf973d8859247207047e61" id="r_aa1d910d27ecf973d8859247207047e61"><td class="memTemplParams" colspan="2"><a id="aa1d910d27ecf973d8859247207047e61" name="aa1d910d27ecf973d8859247207047e61"></a>
+template&lt;class T &gt; </td></tr>
+<tr class="memitem:aa1d910d27ecf973d8859247207047e61"><td class="memTemplItemLeft" align="right" valign="top">T const *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key) const</td></tr>
+<tr class="separator:aa1d910d27ecf973d8859247207047e61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cd455d060e7aea98356fe695f1729c2" id="r_a0cd455d060e7aea98356fe695f1729c2"><td class="memTemplParams" colspan="2"><a id="a0cd455d060e7aea98356fe695f1729c2" name="a0cd455d060e7aea98356fe695f1729c2"></a>
+template&lt;class T , class TDefault &gt; </td></tr>
+<tr class="memitem:a0cd455d060e7aea98356fe695f1729c2"><td class="memTemplItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key, TDefault &amp;&amp;defaultValue)</td></tr>
+<tr class="separator:a0cd455d060e7aea98356fe695f1729c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58305eca76351d93d5a290247e8446be" id="r_a58305eca76351d93d5a290247e8446be"><td class="memItemLeft" align="right" valign="top"><a id="a58305eca76351d93d5a290247e8446be" name="a58305eca76351d93d5a290247e8446be"></a>
 <a class="el" href="classfge_1_1Property.html">fge::Property</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key)</td></tr>
 <tr class="separator:a58305eca76351d93d5a290247e8446be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31cfc4802d15255047712ffad53a3c3d" id="r_a31cfc4802d15255047712ffad53a3c3d"><td class="memItemLeft" align="right" valign="top"><a id="a31cfc4802d15255047712ffad53a3c3d" name="a31cfc4802d15255047712ffad53a3c3d"></a>
-<a class="el" href="classfge_1_1Property.html">fge::Property</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key) const</td></tr>
-<tr class="separator:a31cfc4802d15255047712ffad53a3c3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa77959cb52503adfdcee09d7ecdf0ec1" id="r_aa77959cb52503adfdcee09d7ecdf0ec1"><td class="memItemLeft" align="right" valign="top"><a id="aa77959cb52503adfdcee09d7ecdf0ec1" name="aa77959cb52503adfdcee09d7ecdf0ec1"></a>
+<a class="el" href="classfge_1_1Property.html">fge::Property</a> const *&#160;</td><td class="memItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key) const</td></tr>
+<tr class="separator:aa77959cb52503adfdcee09d7ecdf0ec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8518688bede2bc63b0255993699f443e" id="r_a8518688bede2bc63b0255993699f443e"><td class="memItemLeft" align="right" valign="top"><a id="a8518688bede2bc63b0255993699f443e" name="a8518688bede2bc63b0255993699f443e"></a>
 <a class="el" href="classfge_1_1Property.html">fge::Property</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::string const &amp;key)</td></tr>
 <tr class="separator:a8518688bede2bc63b0255993699f443e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd221949010a8770c301934e022c76bc" id="r_acd221949010a8770c301934e022c76bc"><td class="memItemLeft" align="right" valign="top"><a id="acd221949010a8770c301934e022c76bc" name="acd221949010a8770c301934e022c76bc"></a>
-<a class="el" href="classfge_1_1Property.html">fge::Property</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::string const &amp;key) const</td></tr>
-<tr class="separator:acd221949010a8770c301934e022c76bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a462e82764deaeb168f9e1d563c77e0e8" id="r_a462e82764deaeb168f9e1d563c77e0e8"><td class="memItemLeft" align="right" valign="top"><a id="a462e82764deaeb168f9e1d563c77e0e8" name="a462e82764deaeb168f9e1d563c77e0e8"></a>
-std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>getPropertiesSize</b> () const</td></tr>
-<tr class="separator:a462e82764deaeb168f9e1d563c77e0e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2bd41365cc88a418c211e1034e3836c0" id="r_a2bd41365cc88a418c211e1034e3836c0"><td class="memItemLeft" align="right" valign="top"><a id="a2bd41365cc88a418c211e1034e3836c0" name="a2bd41365cc88a418c211e1034e3836c0"></a>
-fge::PropertyList::Type::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> ()</td></tr>
-<tr class="separator:a2bd41365cc88a418c211e1034e3836c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa106b80146caf1d39de39980c4e497d4" id="r_aa106b80146caf1d39de39980c4e497d4"><td class="memItemLeft" align="right" valign="top"><a id="aa106b80146caf1d39de39980c4e497d4" name="aa106b80146caf1d39de39980c4e497d4"></a>
-fge::PropertyList::Type::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> ()</td></tr>
-<tr class="separator:aa106b80146caf1d39de39980c4e497d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ef7ded67d2f56cd704d9db77ec3fdc8" id="r_a7ef7ded67d2f56cd704d9db77ec3fdc8"><td class="memItemLeft" align="right" valign="top"><a id="a7ef7ded67d2f56cd704d9db77ec3fdc8" name="a7ef7ded67d2f56cd704d9db77ec3fdc8"></a>
-fge::PropertyList::Type::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> () const</td></tr>
-<tr class="separator:a7ef7ded67d2f56cd704d9db77ec3fdc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6967d35f87624bf2b101f89eb1240d8a" id="r_a6967d35f87624bf2b101f89eb1240d8a"><td class="memItemLeft" align="right" valign="top"><a id="a6967d35f87624bf2b101f89eb1240d8a" name="a6967d35f87624bf2b101f89eb1240d8a"></a>
-fge::PropertyList::Type::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> () const</td></tr>
-<tr class="separator:a6967d35f87624bf2b101f89eb1240d8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e661be633a1df8a472a922514881f71" id="r_a7e661be633a1df8a472a922514881f71"><td class="memItemLeft" align="right" valign="top"><a id="a7e661be633a1df8a472a922514881f71" name="a7e661be633a1df8a472a922514881f71"></a>
-fge::PropertyList::Type::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>find</b> (std::string const &amp;key) const</td></tr>
-<tr class="separator:a7e661be633a1df8a472a922514881f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af06de5fd40474985bc44cd3fe1065498" id="r_af06de5fd40474985bc44cd3fe1065498"><td class="memItemLeft" align="right" valign="top"><a id="af06de5fd40474985bc44cd3fe1065498" name="af06de5fd40474985bc44cd3fe1065498"></a>
-fge::PropertyList::Type::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>find</b> (std::string const &amp;key)</td></tr>
-<tr class="separator:af06de5fd40474985bc44cd3fe1065498"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ca30459499ea43f7acad310302d0f85" id="r_a2ca30459499ea43f7acad310302d0f85"><td class="memItemLeft" align="right" valign="top"><a id="a2ca30459499ea43f7acad310302d0f85" name="a2ca30459499ea43f7acad310302d0f85"></a>
+<a class="el" href="classfge_1_1Property.html">fge::Property</a> const *&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::string const &amp;key) const</td></tr>
+<tr class="separator:a2ca30459499ea43f7acad310302d0f85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86777be7c313c061edbea72ff7433f0c" id="r_a86777be7c313c061edbea72ff7433f0c"><td class="memItemLeft" align="right" valign="top"><a id="a86777be7c313c061edbea72ff7433f0c" name="a86777be7c313c061edbea72ff7433f0c"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>count</b> () const</td></tr>
+<tr class="separator:a86777be7c313c061edbea72ff7433f0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad9fa585a3314967c4dc897a87bec7e5" id="r_aad9fa585a3314967c4dc897a87bec7e5"><td class="memItemLeft" align="right" valign="top"><a id="aad9fa585a3314967c4dc897a87bec7e5" name="aad9fa585a3314967c4dc897a87bec7e5"></a>
+DataType::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> ()</td></tr>
+<tr class="separator:aad9fa585a3314967c4dc897a87bec7e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acda2b2733a2a1f6fdd222a4489cd6dfa" id="r_acda2b2733a2a1f6fdd222a4489cd6dfa"><td class="memItemLeft" align="right" valign="top"><a id="acda2b2733a2a1f6fdd222a4489cd6dfa" name="acda2b2733a2a1f6fdd222a4489cd6dfa"></a>
+DataType::iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> ()</td></tr>
+<tr class="separator:acda2b2733a2a1f6fdd222a4489cd6dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7944ae07da60ce22e818f77ae71bc52b" id="r_a7944ae07da60ce22e818f77ae71bc52b"><td class="memItemLeft" align="right" valign="top"><a id="a7944ae07da60ce22e818f77ae71bc52b" name="a7944ae07da60ce22e818f77ae71bc52b"></a>
+DataType::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> () const</td></tr>
+<tr class="separator:a7944ae07da60ce22e818f77ae71bc52b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4be23c77d1bb209a2bb761cf791090ea" id="r_a4be23c77d1bb209a2bb761cf791090ea"><td class="memItemLeft" align="right" valign="top"><a id="a4be23c77d1bb209a2bb761cf791090ea" name="a4be23c77d1bb209a2bb761cf791090ea"></a>
+DataType::const_iterator&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> () const</td></tr>
+<tr class="separator:a4be23c77d1bb209a2bb761cf791090ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff8b5311a083d96718d0d3dfce95a5b1" id="r_aff8b5311a083d96718d0d3dfce95a5b1"><td class="memItemLeft" align="right" valign="top"><a id="aff8b5311a083d96718d0d3dfce95a5b1" name="aff8b5311a083d96718d0d3dfce95a5b1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clearAllModificationFlags</b> ()</td></tr>
 <tr class="separator:aff8b5311a083d96718d0d3dfce95a5b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42cc835d5567dfb6302a41f2ef7187ad" id="r_a42cc835d5567dfb6302a41f2ef7187ad"><td class="memItemLeft" align="right" valign="top"><a id="a42cc835d5567dfb6302a41f2ef7187ad" name="a42cc835d5567dfb6302a41f2ef7187ad"></a>
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>countAllModificationFlags</b> () const</td></tr>
 <tr class="separator:a42cc835d5567dfb6302a41f2ef7187ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1d52a6548b5427078120d667c98fad3" id="r_ac1d52a6548b5427078120d667c98fad3"><td class="memTemplParams" colspan="2"><a id="ac1d52a6548b5427078120d667c98fad3" name="ac1d52a6548b5427078120d667c98fad3"></a>
-template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ac1d52a6548b5427078120d667c98fad3"><td class="memTemplItemLeft" align="right" valign="top">T const *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getPropertyType</b> (std::string const &amp;key) const</td></tr>
-<tr class="separator:ac1d52a6548b5427078120d667c98fad3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1d910d27ecf973d8859247207047e61" id="r_aa1d910d27ecf973d8859247207047e61"><td class="memTemplParams" colspan="2"><a id="aa1d910d27ecf973d8859247207047e61" name="aa1d910d27ecf973d8859247207047e61"></a>
+template&lt;class T &gt; </td></tr>
+<tr class="memitem:aa1d910d27ecf973d8859247207047e61"><td class="memTemplItemLeft" align="right" valign="top">T const *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>getProperty</b> (std::string const &amp;key) const</td></tr>
+<tr class="separator:aa1d910d27ecf973d8859247207047e61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A class that map a string to a <a class="el" href="classfge_1_1Property.html" title="A class that can store any type of data.">Property</a>. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classfge_1_1Property.html" title="A class that can store any type of data.">Property</a> </dd></dl>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="C__propertyList_8hpp_source.html">C_propertyList.hpp</a></li>
 <li><a class="el" href="C__propertyList_8inl_source.html">C_propertyList.inl</a></li>
 </ul>
