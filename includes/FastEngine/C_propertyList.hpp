@@ -18,7 +18,6 @@
 #define _FGE_C_PROPERTYLIST_HPP_INCLUDED
 
 #include "FastEngine/C_property.hpp"
-#include "FastEngine/fge_except.hpp"
 #include <string>
 #include <unordered_map>
 
@@ -28,7 +27,7 @@ namespace fge
 class PropertyList
 {
 public:
-    using Type = std::unordered_map<std::string, fge::Property>;
+    using DataType = std::unordered_map<std::string, fge::Property>;
 
     inline PropertyList() = default;
     inline PropertyList(PropertyList const& r) = default;
@@ -41,37 +40,38 @@ public:
     inline void delAllProperties();
     inline void delProperty(std::string const& key);
 
-    inline bool checkProperty(std::string const& key) const;
+    template<class T>
+    [[nodiscard]] inline bool findProperty(std::string const& key) const;
+    [[nodiscard]] inline bool findProperty(std::string const& key) const;
 
-    inline void setProperty(std::string const& key, fge::Property const& value);
-    inline void setProperty(std::string const& key, fge::Property&& value);
+    template<class T>
+    inline void setProperty(std::string const& key, T&& value);
 
-    template<typename T>
-    inline T* getPropertyType(std::string const& key);
-    template<typename T>
-    inline T const* getPropertyType(std::string const& key) const;
+    template<class T>
+    [[nodiscard]] inline T* getProperty(std::string const& key);
+    template<class T>
+    [[nodiscard]] inline T const* getProperty(std::string const& key) const;
+    template<class T, class TDefault>
+    [[nodiscard]] inline T& getProperty(std::string const& key, TDefault&& defaultValue);
 
-    inline fge::Property& getProperty(std::string const& key);
-    inline fge::Property const& getProperty(std::string const& key) const;
+    [[nodiscard]] inline fge::Property& getProperty(std::string const& key);
+    [[nodiscard]] inline fge::Property const* getProperty(std::string const& key) const;
 
-    inline fge::Property& operator[](std::string const& key);
-    inline fge::Property const& operator[](std::string const& key) const;
+    [[nodiscard]] inline fge::Property& operator[](std::string const& key);
+    [[nodiscard]] inline fge::Property const* operator[](std::string const& key) const;
 
-    inline std::size_t getPropertiesSize() const;
+    [[nodiscard]] inline std::size_t count() const;
 
-    inline fge::PropertyList::Type::iterator begin();
-    inline fge::PropertyList::Type::iterator end();
-    inline fge::PropertyList::Type::const_iterator begin() const;
-    inline fge::PropertyList::Type::const_iterator end() const;
-
-    inline fge::PropertyList::Type::const_iterator find(std::string const& key) const;
-    inline fge::PropertyList::Type::iterator find(std::string const& key);
+    [[nodiscard]] inline DataType::iterator begin();
+    [[nodiscard]] inline DataType::iterator end();
+    [[nodiscard]] inline DataType::const_iterator begin() const;
+    [[nodiscard]] inline DataType::const_iterator end() const;
 
     inline void clearAllModificationFlags();
-    inline std::size_t countAllModificationFlags() const;
+    [[nodiscard]] inline std::size_t countAllModificationFlags() const;
 
 private:
-    fge::PropertyList::Type g_data;
+    DataType g_data;
 };
 
 } // namespace fge

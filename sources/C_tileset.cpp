@@ -292,7 +292,7 @@ void to_json(nlohmann::json& j, fge::TileData const& p)
 {
     j = nlohmann::json{{"id", p._id}};
 
-    if (p._properties.getPropertiesSize() != 0)
+    if (p._properties.count() != 0)
     {
         auto& propertiesArray = j["properties"];
         for (auto& property: p._properties)
