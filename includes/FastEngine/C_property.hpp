@@ -35,17 +35,32 @@ using PdoubleType = double;
 class Property;
 using ParrayType = std::vector<fge::Property>;
 
+class PropertyClassWrapper;
+template<class T>
+class PropertyClassWrapperType;
+
+/**
+ * \class Property
+ * \ingroup utility
+ * \brief A class that can store any type of data
+ *
+ * This class can store any type of data.
+ * Integer is converted to PintType or PuintType so in order to get the value you need to use the defined types.
+ * class oder than the basic type are stored as a pointer to a PropertyClassWrapper.
+ *
+ * This class also easly enable to store an array of Property.
+ */
 class FGE_API Property
 {
-public:
     template<class T>
     struct remove_cvref
     {
         typedef std::remove_cv_t<std::remove_reference_t<T>> type;
     };
     template<class T>
-    using remove_cvref_t = typename fge::Property::remove_cvref<T>::type;
+    using remove_cvref_t = typename remove_cvref<T>::type;
 
+public:
     enum class Types : uint8_t
     {
         PTYPE_NULL,
@@ -68,6 +83,22 @@ public:
         fge::PdoubleType _d;
 
         void* _ptr;
+
+        constexpr void setClassWrapper(fge::PropertyClassWrapper* val) { this->_ptr = val; }
+        [[nodiscard]] constexpr fge::PropertyClassWrapper* getClassWrapper() const
+        {
+            return static_cast<fge::PropertyClassWrapper*>(this->_ptr);
+        }
+        template<class T>
+        [[nodiscard]] constexpr fge::PropertyClassWrapperType<T>* getClassWrapper() const
+        {
+            return static_cast<fge::PropertyClassWrapperType<T>*>(this->_ptr);
+        }
+        [[nodiscard]] constexpr fge::PropertyClassWrapperType<fge::ParrayType>* getArray() const
+        {
+            return static_cast<fge::PropertyClassWrapperType<fge::ParrayType>*>(this->_ptr);
+        }
+        [[nodiscard]] constexpr std::string* getString() const { return static_cast<std::string*>(this->_ptr); }
     };
 
     Property() = default;
@@ -77,7 +108,7 @@ public:
     Property(fge::Property&& val) noexcept;
 
     //Copy/Move some type constructor
-    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same_v<remove_cvref_t<T>, fge::Property>>>
     Property(T&& val);
 
     //Special string copy constructor
@@ -87,14 +118,14 @@ public:
 
     void clear();
 
-    bool operator==(fge::Property const& val) const;
+    [[nodiscard]] bool operator==(fge::Property const& val) const;
 
     //Copy/Move operator
     fge::Property& operator=(fge::Property const& val);
     fge::Property& operator=(fge::Property&& val) noexcept;
 
     //Copy/Move some type operator
-    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same_v<remove_cvref_t<T>, fge::Property>>>
     fge::Property& operator=(T&& val);
 
     //Special string copy operator
@@ -102,13 +133,13 @@ public:
 
     template<class T>
     T& setType();
-    void setType(fge::Property::Types type);
+    void setType(Types type);
     template<class T>
     [[nodiscard]] bool isType() const;
-    [[nodiscard]] bool isType(fge::Property::Types type) const;
+    [[nodiscard]] bool isType(Types type) const;
 
     [[nodiscard]] std::type_info const& getClassType() const;
-    [[nodiscard]] Property::Types getType() const;
+    [[nodiscard]] Types getType() const;
     [[nodiscard]] bool isSigned() const;
 
     [[nodiscard]] std::string toString() const;
@@ -116,7 +147,7 @@ public:
     bool set(fge::Property const& val);
     bool set(fge::Property&& val);
 
-    template<class T, typename = std::enable_if_t<!std::is_same<remove_cvref_t<T>, fge::Property>::value>>
+    template<class T, typename = std::enable_if_t<!std::is_same_v<remove_cvref_t<T>, fge::Property>>>
     bool set(T&& val);
 
     bool set(char const* val);
@@ -165,8 +196,8 @@ public:
     void setModifiedFlag(bool flag);
 
 private:
-    Property::Types g_type{Property::Types::PTYPE_NULL};
-    Property::Data g_data{};
+    Types g_type{Types::PTYPE_NULL};
+    Data g_data{};
     bool g_isSigned{};
     bool g_isModified{false};
 };
@@ -208,18 +239,20 @@ struct EqualExists
 template<class T>
 class PropertyClassWrapperType : public PropertyClassWrapper
 {
-    static_assert(std::negation<std::is_base_of<fge::PropertyClassWrapper, T>>::value,
+    static_assert(std::negation_v<std::is_base_of<fge::PropertyClassWrapper, T>>,
                   "fge::PropertyClassWrapperType<T>, T must not be based on fge::PropertyClassWrapper class type !");
-    static_assert(std::negation<std::is_base_of<fge::Property, T>>::value,
+    static_assert(std::negation_v<std::is_base_of<fge::Property, T>>,
                   "fge::PropertyClassWrapperType<T>, T must not be based on fge::Property class type !");
-    static_assert(std::negation<std::is_pointer<T>>::value,
-                  "fge::PropertyClassWrapperType<T>, T must not be a pointer !");
-    static_assert(std::negation<std::is_reference<T>>::value,
+    static_assert(std::negation_v<std::is_pointer<T>>, "fge::PropertyClassWrapperType<T>, T must not be a pointer !");
+    static_assert(std::negation_v<std::is_reference<T>>,
                   "fge::PropertyClassWrapperType<T>, T must not be a reference !");
 
 public:
     PropertyClassWrapperType() = default;
-    explicit PropertyClassWrapperType(T val);
+    template<typename = std::enable_if_t<std::is_copy_constructible_v<T>>>
+    explicit PropertyClassWrapperType(T const& val);
+    template<typename = std::enable_if_t<std::is_move_constructible_v<T>>>
+    explicit PropertyClassWrapperType(T&& val) noexcept;
     ~PropertyClassWrapperType() override = default;
 
     [[nodiscard]] std::type_info const& getType() const override;
@@ -237,6 +270,6 @@ public:
 
 } // namespace fge
 
-#include <FastEngine/C_property.inl>
+#include "FastEngine/C_property.inl"
 
 #endif // _FGE_C_PROPERTY_HPP_INCLUDED
