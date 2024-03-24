@@ -59,7 +59,7 @@ public:
     Anchor(fge::Object* parent, Anchor const& anchor);
     Anchor(Anchor const& r) = delete;
     Anchor(Anchor&& r) noexcept = delete;
-    ~Anchor();
+    virtual ~Anchor();
 
     Anchor& operator=(Anchor const& r);
     Anchor& operator=(Anchor&& r) noexcept = delete;
