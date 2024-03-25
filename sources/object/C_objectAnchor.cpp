@@ -21,43 +21,42 @@
 namespace fge
 {
 
-Anchor::Anchor(fge::Object* parent) :
-        _g_objectParent(parent)
+Anchor::Anchor(fge::Object* owner) :
+        g_anchorOwner(owner)
 {}
-Anchor::Anchor(fge::Object* parent, Anchor const& anchor) :
-        _g_anchorType(anchor._g_anchorType),
-        _g_anchorShift(anchor._g_anchorShift),
-        _g_anchorTarget(anchor._g_anchorTarget),
-        _g_anchorNeedUpdate(true),
-        _g_objectParent(parent)
+Anchor::Anchor(fge::Object* owner, Anchor const& anchor) :
+        g_anchorType(anchor.g_anchorType),
+        g_anchorShift(anchor.g_anchorShift),
+        g_anchorTarget(anchor.g_anchorTarget),
+        g_anchorOwner(owner)
 {}
 Anchor::~Anchor()
 {
-    if (auto successor = this->_g_anchorSuccessor.lock())
+    if (auto successor = this->g_anchorSuccessor.lock())
     {
-        successor->getObject()->setAnchor(this->_g_anchorType, this->_g_anchorShift, this->_g_anchorTarget);
+        successor->getObject()->setAnchor(this->g_anchorType, this->g_anchorShift, this->g_anchorTarget);
     }
 }
 
 Anchor& Anchor::operator=(Anchor const& r)
 {
-    this->_g_anchorType = r._g_anchorType;
-    this->_g_anchorShift = r._g_anchorShift;
-    this->_g_anchorTarget = r._g_anchorTarget;
-    this->_g_anchorNeedUpdate = true;
-    this->_g_anchorSuccessor.reset();
+    this->g_anchorType = r.g_anchorType;
+    this->g_anchorShift = r.g_anchorShift;
+    this->g_anchorTarget = r.g_anchorTarget;
+    this->g_anchorNeedUpdate = true;
+    this->g_anchorSuccessor.reset();
     return *this;
 }
 
 void Anchor::updateAnchor(fge::Vector2f const& customTargetSize)
 {
-    this->_g_anchorNeedUpdate = false;
+    this->g_anchorNeedUpdate = false;
 
-    if (this->_g_anchorType == fge::Anchor::Types::ANCHOR_NONE)
+    if (this->g_anchorType == Types::ANCHOR_NONE)
     {
         return;
     }
-    auto parent = this->_g_objectParent->_myObjectData.lock();
+    auto parent = this->g_anchorOwner->_myObjectData.lock();
     if (!fge::ObjectData::isValid(parent))
     {
         return;
@@ -68,17 +67,15 @@ void Anchor::updateAnchor(fge::Vector2f const& customTargetSize)
         return;
     }
 
-    fge::Vector2f movePosition;
-
     fge::RectFloat targetGlobalBounds;
     fge::RectFloat parentGlobalBounds = parent->getObject()->getGlobalBounds();
 
-    auto target = scene->getObject(this->_g_anchorTarget);
+    auto target = scene->getObject(this->g_anchorTarget);
     if (fge::ObjectData::isValid(target))
     { //On a target
         targetGlobalBounds = target->getObject()->getGlobalBounds();
     }
-    else if (this->_g_anchorTarget == FGE_SCENE_BAD_SID)
+    else if (this->g_anchorTarget == FGE_SCENE_BAD_SID)
     { //On the render target
         if (customTargetSize.x != 0.0f && customTargetSize.y != 0.0f)
         {
@@ -95,18 +92,18 @@ void Anchor::updateAnchor(fge::Vector2f const& customTargetSize)
     }
 
     fge::Vector2f anchorPosition;
-    switch (this->_g_anchorType)
+    switch (this->g_anchorType)
     {
-    case fge::Anchor::Types::ANCHOR_UPLEFT_CORNER:
+    case Types::ANCHOR_UPLEFT_CORNER:
         anchorPosition = targetGlobalBounds.getPosition();
         break;
-    case fge::Anchor::Types::ANCHOR_UPRIGHT_CORNER:
+    case Types::ANCHOR_UPRIGHT_CORNER:
         anchorPosition = targetGlobalBounds.getPosition() + fge::Vector2f{targetGlobalBounds._width, 0.0f};
         break;
-    case fge::Anchor::Types::ANCHOR_DOWNLEFT_CORNER:
+    case Types::ANCHOR_DOWNLEFT_CORNER:
         anchorPosition = targetGlobalBounds.getPosition() + fge::Vector2f{0.0f, targetGlobalBounds._height};
         break;
-    case fge::Anchor::Types::ANCHOR_DOWNRIGHT_CORNER:
+    case Types::ANCHOR_DOWNRIGHT_CORNER:
         anchorPosition =
                 targetGlobalBounds.getPosition() + fge::Vector2f{targetGlobalBounds._width, targetGlobalBounds._height};
         break;
@@ -115,71 +112,89 @@ void Anchor::updateAnchor(fge::Vector2f const& customTargetSize)
         break;
     }
 
-    switch (this->_g_anchorShift.x)
+    switch (this->g_anchorShift.x)
     {
-    case fge::Anchor::Shifts::SHIFT_NONE:
+    case Shifts::SHIFT_NONE:
         break;
-    case fge::Anchor::Shifts::SHIFT_POSITIVE_BOUNDS:
+    case Shifts::SHIFT_POSITIVE_BOUNDS:
         anchorPosition.x += parentGlobalBounds._width;
         break;
-    case fge::Anchor::Shifts::SHIFT_NEGATIVE_BOUNDS:
+    case Shifts::SHIFT_NEGATIVE_BOUNDS:
         anchorPosition.x -= parentGlobalBounds._width;
         break;
     }
-    switch (this->_g_anchorShift.y)
+    switch (this->g_anchorShift.y)
     {
-    case fge::Anchor::Shifts::SHIFT_NONE:
+    case Shifts::SHIFT_NONE:
         break;
-    case fge::Anchor::Shifts::SHIFT_POSITIVE_BOUNDS:
+    case Shifts::SHIFT_POSITIVE_BOUNDS:
         anchorPosition.y += parentGlobalBounds._height;
         break;
-    case fge::Anchor::Shifts::SHIFT_NEGATIVE_BOUNDS:
+    case Shifts::SHIFT_NEGATIVE_BOUNDS:
         anchorPosition.y -= parentGlobalBounds._height;
         break;
     }
 
-    movePosition = anchorPosition - parentGlobalBounds.getPosition();
+    fge::Vector2f movePosition = anchorPosition - parentGlobalBounds.getPosition();
     parent->getObject()->move(movePosition);
 }
 
-void Anchor::setAnchor(fge::Anchor::Types type, fge::Vector2<fge::Anchor::Shifts> const& shift, fge::ObjectSid target)
+void Anchor::setAnchor(Types type, fge::Vector2<Shifts> const& shift, fge::ObjectSid target)
 {
-    this->_g_anchorType = type;
-    this->_g_anchorShift = shift;
-    this->_g_anchorTarget = target;
-    this->_g_anchorNeedUpdate = true;
+    this->g_anchorType = type;
+    this->g_anchorShift = shift;
+    this->g_anchorTarget = target;
+    this->g_anchorNeedUpdate = true;
+}
+void Anchor::setAnchorType(Types type)
+{
+    this->g_anchorType = type;
+    this->g_anchorNeedUpdate = true;
+}
+void Anchor::setAnchorShift(fge::Vector2<Shifts> const& shift)
+{
+    this->g_anchorShift = shift;
+    this->g_anchorNeedUpdate = true;
+}
+void Anchor::setAnchorTarget(fge::ObjectSid target)
+{
+    this->g_anchorTarget = target;
+    this->g_anchorNeedUpdate = true;
 }
 
 fge::Anchor::Types Anchor::getAnchorType() const
 {
-    return this->_g_anchorType;
+    return this->g_anchorType;
+}
+fge::Vector2<Anchor::Shifts> const& Anchor::getAnchorShift() const
+{
+    return this->g_anchorShift;
 }
 fge::ObjectSid Anchor::getAnchorTarget() const
 {
-    return this->_g_anchorTarget;
+    return this->g_anchorTarget;
+}
+fge::Object* Anchor::getAnchorOwner() const
+{
+    return this->g_anchorOwner;
 }
 
-void Anchor::setAnchorTarget(fge::ObjectSid target)
-{
-    this->_g_anchorTarget = target;
-    this->_g_anchorNeedUpdate = true;
-}
 void Anchor::setAnchorSuccessor(fge::ObjectDataWeak successor)
 {
-    this->_g_anchorSuccessor = std::move(successor);
+    this->g_anchorSuccessor = std::move(successor);
 }
 fge::ObjectDataWeak Anchor::getAnchorSuccessor() const
 {
-    return this->_g_anchorSuccessor;
+    return this->g_anchorSuccessor;
 }
 
 void Anchor::needAnchorUpdate(bool flag)
 {
-    this->_g_anchorNeedUpdate = flag;
+    this->g_anchorNeedUpdate = flag;
 }
 bool Anchor::isNeedingAnchorUpdate() const
 {
-    return this->_g_anchorNeedUpdate;
+    return this->g_anchorNeedUpdate;
 }
 
 } // namespace fge

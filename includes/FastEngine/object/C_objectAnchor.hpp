@@ -55,8 +55,8 @@ public:
         SHIFT_NEGATIVE_BOUNDS
     };
 
-    explicit Anchor(fge::Object* parent);
-    Anchor(fge::Object* parent, Anchor const& anchor);
+    explicit Anchor(fge::Object* owner);
+    Anchor(fge::Object* owner, Anchor const& anchor);
     Anchor(Anchor const& r) = delete;
     Anchor(Anchor&& r) noexcept = delete;
     virtual ~Anchor();
@@ -66,27 +66,30 @@ public:
 
     void updateAnchor(fge::Vector2f const& customTargetSize = {0.0f, 0.0f});
 
-    void setAnchor(fge::Anchor::Types type,
-                   fge::Vector2<fge::Anchor::Shifts> const& shift,
-                   fge::ObjectSid target = FGE_SCENE_BAD_SID);
+    void setAnchor(Types type, fge::Vector2<Shifts> const& shift, fge::ObjectSid target = FGE_SCENE_BAD_SID);
 
-    [[nodiscard]] fge::Anchor::Types getAnchorType() const;
-    [[nodiscard]] fge::ObjectSid getAnchorTarget() const;
-
+    void setAnchorType(Types type);
+    void setAnchorShift(fge::Vector2<Shifts> const& shift);
     void setAnchorTarget(fge::ObjectSid target);
+
+    [[nodiscard]] Types getAnchorType() const;
+    [[nodiscard]] fge::Vector2<Shifts> const& getAnchorShift() const;
+    [[nodiscard]] fge::ObjectSid getAnchorTarget() const;
+    [[nodiscard]] fge::Object* getAnchorOwner() const;
+
     void setAnchorSuccessor(fge::ObjectDataWeak successor);
     [[nodiscard]] fge::ObjectDataWeak getAnchorSuccessor() const;
 
     void needAnchorUpdate(bool flag);
     [[nodiscard]] bool isNeedingAnchorUpdate() const;
 
-protected:
-    fge::Anchor::Types _g_anchorType{fge::Anchor::Types::ANCHOR_NONE};
-    fge::Vector2<fge::Anchor::Shifts> _g_anchorShift{fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE};
-    fge::ObjectSid _g_anchorTarget{FGE_SCENE_BAD_SID};
-    bool _g_anchorNeedUpdate{true};
-    fge::ObjectDataWeak _g_anchorSuccessor{};
-    fge::Object* _g_objectParent{};
+private:
+    Types g_anchorType{Types::ANCHOR_NONE};
+    fge::Vector2<Shifts> g_anchorShift{Shifts::SHIFT_NONE, Shifts::SHIFT_NONE};
+    fge::ObjectSid g_anchorTarget{FGE_SCENE_BAD_SID};
+    bool g_anchorNeedUpdate{true};
+    fge::ObjectDataWeak g_anchorSuccessor;
+    fge::Object* g_anchorOwner;
 };
 
 } // namespace fge
