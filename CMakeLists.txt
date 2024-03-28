@@ -50,19 +50,6 @@ else()
     set(FGE_SDL_MAIN "SDL2::SDL2main")
 endif()
 
-#Getting all headers files
-file(GLOB_RECURSE FGE_INCLUDES_PUBLIC
-        LIST_DIRECTORIES false
-        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        includes/*.hpp includes/*.h includes/*.inl)
-
-file(GLOB_RECURSE FGE_INCLUDES_PRIVATE
-        LIST_DIRECTORIES false
-        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        includes/private/*.hpp includes/private/*.h includes/private/*.inl)
-
-list(REMOVE_ITEM FGE_INCLUDES_PUBLIC ${FGE_INCLUDES_PRIVATE})
-
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #Get the GIT version target
@@ -77,6 +64,19 @@ include(${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install/FastEngine_${CMAKE_SYSTEM_NAME}_${FGE_ARCH}_${CMAKE_BUILD_TYPE}_${VAR_FGE_VERSION_FULL_WITHTAG_STRING}" CACHE PATH "Where to install fge" FORCE)
 endif()
+
+#Getting all headers files
+file(GLOB_RECURSE FGE_INCLUDES_PUBLIC
+        LIST_DIRECTORIES false
+        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        includes/*.hpp includes/*.h includes/*.inl)
+
+file(GLOB_RECURSE FGE_INCLUDES_PRIVATE
+        LIST_DIRECTORIES false
+        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        includes/private/*.hpp includes/private/*.h includes/private/*.inl)
+
+list(REMOVE_ITEM FGE_INCLUDES_PUBLIC ${FGE_INCLUDES_PRIVATE})
 
 #Options
 if(CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
