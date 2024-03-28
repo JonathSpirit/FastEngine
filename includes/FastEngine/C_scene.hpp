@@ -288,6 +288,17 @@ public:
     [[nodiscard]] inline bool isLinked() const { return this->g_linkedScene != nullptr; }
 
     /**
+     * \brief Check if the Object is a specific class.
+     *
+     * @param className The class name
+     * @return True if the Object is the specified class, False otherwise
+     */
+    [[nodiscard]] inline bool isClass(std::string_view const className) const
+    {
+        return this->g_object->getClassName() == className;
+    }
+
+    /**
      * \brief Comparison with another SID
      *
      * \return True if same SID, False otherwise
