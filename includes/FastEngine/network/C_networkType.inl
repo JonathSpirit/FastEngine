@@ -261,4 +261,420 @@ void NetworkTypeManual<T>::trigger()
     this->g_trigger = true;
 }
 
+//RecordedVector
+
+template<class T>
+typename RecordedVector<T>::const_reference RecordedVector<T>::at(SizeType index) const
+{
+    return this->g_container.at(index);
+}
+template<class T>
+typename RecordedVector<T>::const_reference RecordedVector<T>::operator[](SizeType index) const
+{
+    return this->g_container[index];
+}
+template<class T>
+typename RecordedVector<T>::const_reference RecordedVector<T>::front() const
+{
+    return this->g_container.front();
+}
+template<class T>
+typename RecordedVector<T>::const_reference RecordedVector<T>::back() const
+{
+    return this->g_container.back();
+}
+template<class T>
+T const* RecordedVector<T>::data() const
+{
+    return this->g_container.data();
+}
+
+template<class T>
+typename RecordedVector<T>::const_iterator RecordedVector<T>::begin() const
+{
+    return this->g_container.begin();
+}
+template<class T>
+typename RecordedVector<T>::const_iterator RecordedVector<T>::end() const
+{
+    return this->g_container.end();
+}
+template<class T>
+typename RecordedVector<T>::const_iterator RecordedVector<T>::cbegin() const
+{
+    return this->g_container.cbegin();
+}
+template<class T>
+typename RecordedVector<T>::const_iterator RecordedVector<T>::cend() const
+{
+    return this->g_container.cend();
+}
+template<class T>
+typename RecordedVector<T>::const_reverse_iterator RecordedVector<T>::rbegin() const
+{
+    return this->g_container.rbegin();
+}
+template<class T>
+typename RecordedVector<T>::const_reverse_iterator RecordedVector<T>::rend() const
+{
+    return this->g_container.rend();
+}
+template<class T>
+typename RecordedVector<T>::const_reverse_iterator RecordedVector<T>::crbegin() const
+{
+    return this->g_container.crbegin();
+}
+template<class T>
+typename RecordedVector<T>::const_reverse_iterator RecordedVector<T>::crend() const
+{
+    return this->g_container.crend();
+}
+
+template<class T>
+SizeType RecordedVector<T>::size() const
+{
+    return static_cast<SizeType>(this->g_container.size());
+}
+template<class T>
+bool RecordedVector<T>::empty() const
+{
+    return this->g_container.empty();
+}
+
+template<class T>
+void RecordedVector<T>::reserve(SizeType n)
+{
+    this->g_container.reserve(n);
+}
+
+template<class T>
+void RecordedVector<T>::clear()
+{
+    this->g_container.clear();
+    this->clearEvents();
+    this->pushEvent({EventTypes::REMOVE_ALL, 0});
+}
+template<class T>
+typename RecordedVector<T>::iterator RecordedVector<T>::insert(const_iterator pos, T const& value)
+{
+    SizeType index = pos - this->g_container.begin();
+    this->pushEvent({EventTypes::ADD, index});
+    return this->g_container.insert(pos, value);
+}
+template<class T>
+typename RecordedVector<T>::iterator RecordedVector<T>::insert(const_iterator pos, T&& value)
+{
+    SizeType index = pos - this->g_container.begin();
+    this->pushEvent({EventTypes::ADD, index});
+    return this->g_container.insert(pos, std::move(value));
+}
+template<class T>
+template<class... TArgs>
+typename RecordedVector<T>::iterator RecordedVector<T>::emplace(const_iterator pos, TArgs&&... value)
+{
+    SizeType index = pos - this->g_container.begin();
+    this->pushEvent({EventTypes::ADD, index});
+    return this->g_container.emplace(pos, std::forward<TArgs>(value)...);
+}
+template<class T>
+template<class TArg>
+void RecordedVector<T>::push_back(TArg&& arg)
+{
+    this->pushEvent({EventTypes::ADD, this->g_container.size()});
+    this->g_container.push_back(std::forward<TArg>(arg));
+}
+template<class T>
+template<class... TArgs>
+typename RecordedVector<T>::reference RecordedVector<T>::emplace_back(TArgs&&... arg)
+{
+    this->pushEvent({EventTypes::ADD, this->g_container.size()});
+    return this->g_container.emplace_back(std::forward<TArgs>(arg)...);
+}
+template<class T>
+typename RecordedVector<T>::const_iterator RecordedVector<T>::erase(const_iterator pos)
+{
+    SizeType index = pos - this->g_container.begin();
+    this->pushEvent({EventTypes::REMOVE, index});
+    return this->g_container.erase(pos);
+}
+template<class T>
+void RecordedVector<T>::pop_back()
+{
+    this->pushEvent({EventTypes::REMOVE, this->g_container.size() - 1});
+    this->g_container.pop_back();
+}
+
+template<class T>
+typename RecordedVector<T>::reference RecordedVector<T>::modify(SizeType index)
+{
+    this->pushEvent({EventTypes::MODIFY, index});
+    return this->g_container[index];
+}
+
+template<class T>
+void RecordedVector<T>::clearEvents()
+{
+    this->g_events.clear();
+}
+template<class T>
+SizeType RecordedVector<T>::eventsSize() const
+{
+    return static_cast<SizeType>(this->g_events.size());
+}
+template<class T>
+typename RecordedVector<T>::EventQueue const& RecordedVector<T>::getEventQueue() const
+{
+    return this->g_events;
+}
+
+template<class T>
+bool RecordedVector<T>::isRegisteringEvents() const
+{
+    return this->g_registerEvents;
+}
+template<class T>
+void RecordedVector<T>::registerEvents(bool enable)
+{
+    this->clearEvents();
+    this->g_registerEvents = enable;
+}
+
+template<class T>
+void RecordedVector<T>::pushEvent(Event event)
+{
+    if (this->g_registerEvents)
+    {
+        this->g_events.emplace_back(event);
+    }
+}
+
+template<class T>
+Packet& operator<<(Packet& pck, RecordedVector<T> const& vec)
+{
+    return pck << vec.g_container;
+}
+template<class T>
+Packet const& operator>>(Packet const& pck, RecordedVector<T>& vec)
+{
+    return pck >> vec.g_container;
+}
+template<class T>
+Packet& operator<<(Packet& pck, typename RecordedVector<T>::Event const& event)
+{
+    return pck << event._type << event._index;
+}
+template<class T>
+Packet const& operator>>(Packet const& pck, typename RecordedVector<T>::Event& event)
+{
+    return pck >> event._type >> event._index;
+}
+
+///NetworkTypeVector
+
+template<class T>
+NetworkTypeVector<T>::NetworkTypeVector(RecordedVector<T>* source) :
+        g_typeSource(source)
+{}
+template<class T>
+NetworkTypeVector<T>::~NetworkTypeVector()
+{
+    for (auto& it: this->_g_tableId)
+    {
+        this->destroyClientCustomData(it.second._customData);
+    }
+}
+
+template<class T>
+void const* NetworkTypeVector<T>::getSource() const
+{
+    return this->g_typeSource;
+}
+
+template<class T>
+bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
+{
+    PackTypes packType;
+    pck >> packType;
+
+    if (packType == PackTypes::FULL)
+    {
+        pck >> *this->g_typeSource;
+    }
+    else
+    {
+        SizeType eventCount{0};
+        pck >> eventCount;
+        for (SizeType i = 0; i < eventCount; ++i)
+        {
+            typename RecordedVector<T>::Event event;
+            pck >> event;
+            switch (event.type)
+            {
+            case RecordedVector<T>::EventTypes::ADD:
+                if (event.index >= this->g_typeSource->size())
+                {
+                    T value;
+                    pck >> value;
+                    this->g_typeSource->emplace_back(std::move(value));
+                }
+                else
+                {
+                    T value;
+                    pck >> value;
+                    this->g_typeSource->emplace(this->g_typeSource->begin() + event.index, std::move(value));
+                }
+                break;
+            case RecordedVector<T>::EventTypes::REMOVE:
+                if (event.index < this->g_typeSource->size())
+                {
+                    this->g_typeSource->erase(this->g_typeSource->begin() + event.index);
+                }
+                else
+                {
+                    return false; ///TODO: handle error
+                }
+                break;
+            case RecordedVector<T>::EventTypes::REMOVE_ALL:
+                this->g_typeSource->clear();
+                break;
+            case RecordedVector<T>::EventTypes::MODIFY:
+                if (event.index < this->g_typeSource->size())
+                {
+                    pck >> this->g_typeSource->modify(event.index);
+                }
+                else
+                {
+                    return false; ///TODO: handle error
+                }
+                break;
+            }
+        }
+    }
+
+    this->_onApplied.call();
+    return true;
+}
+template<class T>
+void NetworkTypeVector<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+{
+    auto itId = this->_g_tableId.find(id);
+    if (itId != this->_g_tableId.end())
+    {
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(itId->second._customData);
+
+        if (events->empty())
+        { //Events queue is empty but the modified flag is set, that means we have to send the full vector
+            pck << PackTypes::FULL;
+            pck << *this->g_typeSource;
+        }
+        else
+        {
+            pck << PackTypes::EVENTS;
+            pck << static_cast<SizeType>(events->size());
+            for (auto itEvent = events->begin(); itEvent != events->end(); ++itEvent)
+            {
+                pck << *itEvent;
+                if (itEvent->_type == RecordedVector<T>::EventTypes::ADD ||
+                    itEvent->_type == RecordedVector<T>::EventTypes::MODIFY)
+                {
+                    //We have to pack the data but the index do not represent the current state of the vector.
+                    //So we have to reverse read the events (history) to get the correct index.
+                    auto finalIndex = itEvent->_index;
+                    for (auto itReverse = events->rbegin(); itReverse != itEvent; ++itReverse)
+                    {
+                        if (itReverse->_type == RecordedVector<T>::EventTypes::ADD && itReverse->_index <= finalIndex)
+                        {
+                            ++finalIndex;
+                        }
+                        else if (itReverse->_type == RecordedVector<T>::EventTypes::REMOVE &&
+                                 itReverse->_index < finalIndex)
+                        {
+                            --finalIndex;
+                        }
+                    }
+                    pck << this->g_typeSource->at(finalIndex);
+                }
+            }
+            events->clear();
+        }
+
+        itId->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+    }
+}
+template<class T>
+void NetworkTypeVector<T>::packData(fge::net::Packet& pck)
+{
+    pck << *this->g_typeSource;
+}
+
+template<class T>
+void NetworkTypeVector<T>::forceCheckClient(fge::net::Identity const& id)
+{
+    auto it = this->_g_tableId.find(id);
+    if (it != this->_g_tableId.end())
+    {
+        it->second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(it->second._customData);
+        events->clear();
+    }
+}
+template<class T>
+void NetworkTypeVector<T>::forceUncheckClient(fge::net::Identity const& id)
+{
+    auto it = this->_g_tableId.find(id);
+    if (it != this->_g_tableId.end())
+    {
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(it->second._customData);
+        events->clear();
+    }
+}
+
+template<class T>
+bool NetworkTypeVector<T>::check() const
+{
+    if (this->_g_force)
+    { //When events is cleared, we send the full vector
+        this->g_typeSource->clearEvents();
+    }
+    return this->g_typeSource->eventsSize() != 0 || this->_g_force;
+}
+template<class T>
+void NetworkTypeVector<T>::forceCheck()
+{
+    this->_g_force = true;
+}
+template<class T>
+void NetworkTypeVector<T>::forceUncheck()
+{
+    this->_g_force = false;
+    this->g_typeSource->clearEvents();
+}
+
+template<class T>
+void NetworkTypeVector<T>::createClientCustomData(void*& ptr) const
+{
+    ptr = new typename RecordedVector<T>::EventQueue();
+}
+template<class T>
+void NetworkTypeVector<T>::destroyClientCustomData(void*& ptr) const
+{
+    delete static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
+}
+template<class T>
+void NetworkTypeVector<T>::applyClientCustomData(void*& ptr) const
+{
+    auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
+    bool clearFirst = this->g_typeSource->getEventQueue().front()._type == RecordedVector<T>::EventTypes::REMOVE_ALL;
+    if (clearFirst)
+    {
+        events->clear();
+    }
+    for (auto const& event: this->g_typeSource->getEventQueue())
+    {
+        events->push_back(event);
+    }
+}
+
+
 } // namespace fge::net

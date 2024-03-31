@@ -184,6 +184,10 @@ public:
     fge::CallbackHandler<> _onApplied;
 
 protected:
+    virtual void createClientCustomData([[maybe_unused]] void*& ptr) const {}
+    virtual void destroyClientCustomData([[maybe_unused]] void*& ptr) const {}
+    virtual void applyClientCustomData([[maybe_unused]] void*& ptr) const {}
+
     fge::net::NetworkPerClientModificationTable _g_tableId;
     bool _g_needUpdate{false};
     bool _g_force{false};
@@ -425,6 +429,140 @@ public:
 private:
     T* g_typeSource;
     bool g_trigger;
+};
+
+template<class T>
+class RecordedVector;
+
+template<class T>
+Packet& operator<<(Packet& pck, RecordedVector<T> const& vec);
+template<class T>
+Packet const& operator>>(Packet const& pck, RecordedVector<T>& vec);
+
+template<class T>
+class RecordedVector
+{
+public:
+    enum class EventTypes : uint8_t
+    {
+        ADD,
+        REMOVE,
+        REMOVE_ALL,
+        MODIFY
+    };
+    struct Event
+    {
+        EventTypes _type;
+        SizeType _index;
+    };
+
+    using const_iterator = typename std::vector<T>::const_iterator;
+    using iterator = typename std::vector<T>::iterator;
+    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
+    using const_reference = typename std::vector<T>::const_reference;
+    using reference = typename std::vector<T>::reference;
+
+    using EventQueue = std::vector<Event>;
+
+    RecordedVector() = default;
+    ~RecordedVector() = default;
+
+    [[nodiscard]] const_reference at(SizeType index) const;
+    [[nodiscard]] const_reference operator[](SizeType index) const;
+    [[nodiscard]] const_reference front() const;
+    [[nodiscard]] const_reference back() const;
+    [[nodiscard]] T const* data() const;
+
+    [[nodiscard]] const_iterator begin() const;
+    [[nodiscard]] const_iterator end() const;
+    [[nodiscard]] const_iterator cbegin() const;
+    [[nodiscard]] const_iterator cend() const;
+    [[nodiscard]] const_reverse_iterator rbegin() const;
+    [[nodiscard]] const_reverse_iterator rend() const;
+    [[nodiscard]] const_reverse_iterator crbegin() const;
+    [[nodiscard]] const_reverse_iterator crend() const;
+
+    [[nodiscard]] SizeType size() const;
+    [[nodiscard]] bool empty() const;
+
+    void reserve(SizeType n);
+
+    void clear();
+    iterator insert(const_iterator pos, T const& value);
+    iterator insert(const_iterator pos, T&& value);
+    template<class... TArgs>
+    iterator emplace(const_iterator pos, TArgs&&... value);
+    template<class TArg>
+    void push_back(TArg&& arg);
+    template<class... TArgs>
+    reference emplace_back(TArgs&&... arg);
+    const_iterator erase(const_iterator pos);
+    void pop_back();
+
+    [[nodiscard]] reference modify(SizeType index);
+
+    void clearEvents();
+    [[nodiscard]] SizeType eventsSize() const;
+    [[nodiscard]] EventQueue const& getEventQueue() const;
+    [[nodiscard]] bool isRegisteringEvents() const;
+    void registerEvents(bool enable);
+
+private:
+    void pushEvent(Event event);
+
+    std::vector<T> g_container;
+    EventQueue g_events;
+#ifdef FGE_DEF_SERVER
+    bool g_registerEvents{true};
+#else
+    bool g_registerEvents{false};
+#endif
+
+    friend Packet& operator<< <T>(Packet& pck, RecordedVector const& vec);
+    friend Packet const& operator>> <T>(Packet const& pck, RecordedVector& vec);
+};
+template<class T>
+Packet& operator<<(Packet& pck, typename RecordedVector<T>::Event const& event);
+template<class T>
+Packet const& operator>>(Packet const& pck, typename RecordedVector<T>::Event& event);
+
+/**
+ * \class NetworkTypeVector
+ * \ingroup network
+ * \brief The network type for a vector
+ */
+template<class T>
+class NetworkTypeVector : public NetworkTypeBase
+{
+public:
+    NetworkTypeVector(RecordedVector<T>* source);
+    ~NetworkTypeVector() override;
+
+    void const* getSource() const override;
+
+    bool applyData(fge::net::Packet const& pck) override;
+    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
+    void packData(fge::net::Packet& pck) override;
+
+    void forceCheckClient(fge::net::Identity const& id) override;
+    void forceUncheckClient(fge::net::Identity const& id) override;
+
+    bool check() const override;
+    void forceCheck() override;
+    void forceUncheck() override;
+
+private:
+    void createClientCustomData(void*& ptr) const override;
+    void destroyClientCustomData(void*& ptr) const override;
+    void applyClientCustomData(void*& ptr) const override;
+
+    enum class PackTypes : uint8_t
+    {
+        FULL,
+        PARTIAL
+    };
+
+    RecordedVector<T>* g_typeSource;
 };
 
 /**
