@@ -139,6 +139,13 @@ fge::net::Packet& Packet::operator<<(fge::net::IpAddress const& data)
     return this->append(&ip, sizeof(ip));
 }
 
+template<class TEnum, typename>
+fge::net::Packet& Packet::operator<<(TEnum const& data)
+{
+    using TTEnum = std::underlying_type_t<TEnum>;
+    return this->append(&reinterpret_cast<TTEnum const&>(data), sizeof(TTEnum));
+}
+
 ///
 
 fge::net::Packet const& Packet::operator>>(bool& data) const
@@ -286,6 +293,13 @@ fge::net::Packet const& Packet::operator>>(fge::net::IpAddress& data) const
     this->read(&ip, sizeof(uint32_t));
     data.setNetworkByteOrdered(ip);
     return *this;
+}
+
+template<class TEnum, typename>
+fge::net::Packet const& Packet::operator>>(TEnum& data) const
+{
+    using TTEnum = std::underlying_type_t<TEnum>;
+    return this->unpack(&reinterpret_cast<TTEnum&>(data), sizeof(TTEnum));
 }
 
 } // namespace net

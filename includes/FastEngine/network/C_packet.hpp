@@ -157,6 +157,9 @@ public:
 
     inline fge::net::Packet& operator<<(fge::Color const& data);
 
+    template<class TEnum, typename = std::enable_if_t<std::is_enum_v<TEnum>>>
+    inline fge::net::Packet& operator<<(TEnum const& data);
+
     ///
 
     inline fge::net::Packet const& operator>>(bool& data) const;
@@ -199,6 +202,9 @@ public:
     fge::net::Packet const& operator>>(fge::Matrix<T>& data) const;
 
     inline fge::net::Packet const& operator>>(fge::Color& data) const;
+
+    template<class TEnum, typename = std::enable_if_t<std::is_enum_v<TEnum>>>
+    inline fge::net::Packet const& operator>>(TEnum& data) const;
 
     bool operator==(Packet const& right) const = delete;
     bool operator!=(Packet const& right) const = delete;
