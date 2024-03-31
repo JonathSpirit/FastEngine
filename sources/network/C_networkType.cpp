@@ -87,7 +87,7 @@ void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
