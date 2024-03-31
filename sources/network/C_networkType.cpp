@@ -38,7 +38,8 @@ bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool f
         auto lock = clients.acquireLock();
         for (auto it = clients.begin(lock); it != clients.end(lock); ++it)
         {
-            this->createClientCustomData(this->_g_tableId.emplace(it->first, 0).first->second._customData);
+            this->createClientCustomData(
+                    this->_g_tableId.emplace(it->first, PerClientConfig{}).first->second._customData);
         }
     }
     else
@@ -57,7 +58,8 @@ bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool f
             }
             else
             {
-                this->createClientCustomData(this->_g_tableId.emplace(evt._id, 0).first->second._customData);
+                this->createClientCustomData(
+                        this->_g_tableId.emplace(evt._id, PerClientConfig{}).first->second._customData);
             }
         }
     }
