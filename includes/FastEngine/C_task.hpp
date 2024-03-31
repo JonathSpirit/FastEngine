@@ -277,7 +277,7 @@ public:
      *
      * \param netList The network type container
      */
-    void networkRegister(fge::net::NetworkTypeContainer& netList);
+    void networkRegister(fge::net::NetworkTypeHandler& netList);
 
     [[nodiscard]] fge::TasksChecksum getChecksum() const;
 

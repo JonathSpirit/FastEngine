@@ -267,7 +267,7 @@ public:
 
     //Network
 
-    fge::net::NetworkTypeContainer _netList; ///< The network types container of the object
+    fge::net::NetworkTypeHandler _netList; ///< The network types container of the object
 
     //Scene control
 

@@ -1282,7 +1282,7 @@ public:
      * The network list must be used to synchronised data between client
      * and server.
      */
-    fge::net::NetworkTypeContainer _netList;
+    fge::net::NetworkTypeHandler _netList;
 
     // Properties
     /**

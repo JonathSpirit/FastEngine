@@ -423,38 +423,58 @@ private:
 };
 
 /**
- * \class NetworkTypeContainer
+ * \class NetworkTypeHandler
  * \ingroup network
- * \brief The network type for a container
+ * \brief A regroupment of network types
+ *
+ * In order to synchronize a certain number of variables with the network, you can use a NetworkTypeHandler.
+ * It will regroup all the network types and provide a way to update them all at once.
  */
-class FGE_API NetworkTypeContainer
+class FGE_API NetworkTypeHandler
 {
 public:
-    NetworkTypeContainer() = default;
-    ~NetworkTypeContainer() = default;
+    NetworkTypeHandler() = default;
+    ~NetworkTypeHandler() = default;
 
     //Copy function that does nothing
-    NetworkTypeContainer([[maybe_unused]] NetworkTypeContainer const& n){};
-    NetworkTypeContainer& operator=([[maybe_unused]] NetworkTypeContainer const& n) { return *this; };
+    NetworkTypeHandler([[maybe_unused]] NetworkTypeHandler const& n) {}
+    NetworkTypeHandler& operator=([[maybe_unused]] NetworkTypeHandler const& n) { return *this; }
 
     void clear();
 
-    void clientsCheckup(fge::net::ClientList const& clients, bool force = false);
-    void forceCheckClient(fge::net::Identity const& id);
-    void forceUncheckClient(fge::net::Identity const& id);
+    void clientsCheckup(fge::net::ClientList const& clients, bool force = false) const;
+    void forceCheckClient(fge::net::Identity const& id) const;
+    void forceUncheckClient(fge::net::Identity const& id) const;
 
-    fge::net::NetworkTypeBase* push(fge::net::NetworkTypeBase* newNet);
+    fge::net::NetworkTypeBase* push(std::unique_ptr<fge::net::NetworkTypeBase>&& newNet);
+    template<class T, class... TArgs>
+    T* push(TArgs&&... args)
+    {
+        static_assert(std::is_base_of_v<fge::net::NetworkTypeBase, T>, "T must inherit from fge::net::NetworkTypeBase");
+        return static_cast<T*>(this->push(std::make_unique<T>(std::forward<TArgs>(args)...)));
+    }
+    template<class T, class... TArgs>
+    fge::net::NetworkType<T>* pushTrivial(TArgs&&... args)
+    {
+        return static_cast<fge::net::NetworkType<T>*>(this->push(
+                std::make_unique<fge::net::NetworkType<T>>(fge::DataAccessor<T>{std::forward<TArgs>(args)...})));
+    }
 
-    void reserve(size_t n);
+    std::size_t packNeededUpdate(fge::net::Packet& pck) const;
+    void unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id) const;
 
-    std::size_t packNeededUpdate(fge::net::Packet& pck);
-    void unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id);
-
-    [[nodiscard]] inline size_t size() const { return this->g_data.size(); }
-    inline fge::net::NetworkTypeBase* at(size_t index) { return this->g_data.at(index).get(); }
-    inline fge::net::NetworkTypeBase* operator[](size_t index) { return this->g_data[index].get(); }
-    inline fge::net::NetworkTypeBase* back() { return this->g_data.back().get(); }
-    inline fge::net::NetworkTypeBase* front() { return this->g_data.front().get(); }
+    [[nodiscard]] inline std::size_t size() const { return this->g_data.size(); }
+    [[nodiscard]] inline fge::net::NetworkTypeBase* get(std::size_t index) const { return this->g_data[index].get(); }
+    template<class T>
+    [[nodiscard]] inline T* get(std::size_t index) const
+    {
+        static_assert(std::is_base_of_v<fge::net::NetworkTypeBase, T>, "T must inherit from fge::net::NetworkTypeBase");
+        return static_cast<T*>(this->g_data[index].get());
+    }
+    [[nodiscard]] inline fge::net::NetworkTypeBase* operator[](std::size_t index) const
+    {
+        return this->g_data[index].get();
+    }
 
 private:
     std::vector<std::unique_ptr<fge::net::NetworkTypeBase>> g_data;

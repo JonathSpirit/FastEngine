@@ -51,8 +51,8 @@ FGE_OBJ_DRAW_BODY(Food)
 void Food::networkRegister()
 {
     this->_netList.clear();
-    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>(
-            {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }}));
+    this->_netList.pushTrivial<fge::Vector2f>(&this->getPosition(),
+                                              [&](fge::Vector2f const& pos) { this->setPosition(pos); });
 }
 
 void Food::save(nlohmann::json& jsonObject, fge::Scene* scene)

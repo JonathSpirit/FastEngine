@@ -217,9 +217,9 @@ void TaskHandler::clearLastTask()
     this->computeChecksum();
 }
 
-void TaskHandler::networkRegister(fge::net::NetworkTypeContainer& netList)
+void TaskHandler::networkRegister(fge::net::NetworkTypeHandler& netList)
 {
-    netList.push(new fge::NetworkTypeTasks(this));
+    netList.push<fge::NetworkTypeTasks>(this);
 }
 
 fge::TasksChecksum TaskHandler::getChecksum() const

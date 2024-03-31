@@ -43,29 +43,22 @@ CreatureData::CreatureData()
     this->_sightRadius = fge::_random.range(10.0f, 60.0f);
 }
 
-void CreatureData::networkRegister(fge::net::NetworkTypeContainer& netList,
+void CreatureData::networkRegister(fge::net::NetworkTypeHandler& netList,
                                    Creature* creature,
                                    void (Creature::*callback)())
 {
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_lifePoint})
-            ->_onApplied.addObjectFunctor(callback, creature, creature);
-    netList.push(new fge::net::NetworkType<std::underlying_type_t<CreatureGender>>{
-            reinterpret_cast<std::underlying_type_t<CreatureGender>*>(&this->_gender)});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_hunger})
-            ->_onApplied.addObjectFunctor(callback, creature, creature);
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_thirst})
-            ->_onApplied.addObjectFunctor(callback, creature, creature);
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_libido})
-            ->_onApplied.addObjectFunctor(callback, creature, creature);
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_libidoAdd});
-    netList.push(new fge::net::NetworkType<bool>{&this->_pregnant})
-            ->_onApplied.addObjectFunctor(callback, creature, creature);
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_energy});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_height});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_muscularMass});
-    netList.push(new fge::net::NetworkType<uint8_t>{&this->_bodyFat});
-    netList.push(new fge::net::NetworkType<float>{&this->_sightRadius})
-            ->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<uint8_t>(&this->_lifePoint)->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<CreatureGender>(&this->_gender);
+    netList.pushTrivial<uint8_t>(&this->_hunger)->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<uint8_t>(&this->_thirst)->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<uint8_t>(&this->_libido)->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<uint8_t>(&this->_libidoAdd)->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<bool>(&this->_pregnant)->_onApplied.addObjectFunctor(callback, creature, creature);
+    netList.pushTrivial<uint8_t>(&this->_energy);
+    netList.pushTrivial<uint8_t>(&this->_height);
+    netList.pushTrivial<uint8_t>(&this->_muscularMass);
+    netList.pushTrivial<uint8_t>(&this->_bodyFat);
+    netList.pushTrivial<float>(&this->_sightRadius)->_onApplied.addObjectFunctor(callback, creature, creature);
 }
 
 fge::net::Packet& operator<<(fge::net::Packet& pck, CreatureData const& data)
@@ -389,13 +382,14 @@ void Creature::networkRegister()
 {
     this->_netList.clear();
 
-    this->_netList.push(new fge::net::NetworkTypeSmoothVec2Float{
-            {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }},
-            100.0f});
-    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>{&this->_g_targetPos})->_onApplied.addLambda([&]() {
+    this->_netList.push<fge::net::NetworkTypeSmoothVec2Float>(
+            fge::DataAccessor<fge::Vector2f>{&this->getPosition(),
+                                             [&](fge::Vector2f const& pos) { this->setPosition(pos); }},
+            100.0f);
+    this->_netList.pushTrivial<fge::Vector2f>(&this->_g_targetPos)->_onApplied.addLambda([&]() {
         this->_g_finish = this->getPosition() == this->_g_targetPos;
     }, this);
-    this->_netList.push(new fge::net::NetworkType<bool>{&this->_g_finish})->_onApplied.addLambda([&]() {
+    this->_netList.pushTrivial<bool>(&this->_g_finish)->_onApplied.addLambda([&]() {
         if (this->_g_finish)
         {
             this->setPosition(this->_g_targetPos);

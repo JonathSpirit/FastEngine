@@ -370,25 +370,19 @@ void NetworkTypeTag::forceUncheck() {}
 
 ///NetworkTypeContainer
 
-void NetworkTypeContainer::clear()
+void NetworkTypeHandler::clear()
 {
     this->g_data.clear();
 }
 
-fge::net::NetworkTypeBase* NetworkTypeContainer::push(fge::net::NetworkTypeBase* newNet)
+fge::net::NetworkTypeBase* NetworkTypeHandler::push(std::unique_ptr<fge::net::NetworkTypeBase>&& newNet)
 {
-    this->g_data.push_back(std::unique_ptr<fge::net::NetworkTypeBase>(newNet));
-    return newNet;
+    return this->g_data.emplace_back(std::move(newNet)).get();
 }
 
-void NetworkTypeContainer::reserve(size_t n)
+std::size_t NetworkTypeHandler::packNeededUpdate(fge::net::Packet& pck) const
 {
-    this->g_data.reserve(n);
-}
-
-std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
-{
-    std::size_t rewritePos = pck.getDataSize();
+    auto const rewritePos = pck.getDataSize();
     pck.append(sizeof(fge::net::SizeType)); //Will be rewrited
 
     fge::net::SizeType count{0};
@@ -406,7 +400,7 @@ std::size_t NetworkTypeContainer::packNeededUpdate(fge::net::Packet& pck)
 
     return count;
 }
-void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id)
+void NetworkTypeHandler::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id) const
 {
     ///TODO : need safe data extraction with net rules
     fge::net::SizeType count{0};
@@ -430,25 +424,25 @@ void NetworkTypeContainer::unpackNeededUpdate(fge::net::Packet const& pck, fge::
     }
 }
 
-void NetworkTypeContainer::clientsCheckup(fge::net::ClientList const& clients, bool force)
+void NetworkTypeHandler::clientsCheckup(fge::net::ClientList const& clients, bool force) const
 {
-    for (std::size_t i = 0; i < this->g_data.size(); ++i)
+    for (auto const& netType: this->g_data)
     {
-        this->g_data[i]->clientsCheckup(clients, force);
+        netType->clientsCheckup(clients, force);
     }
 }
-void NetworkTypeContainer::forceCheckClient(fge::net::Identity const& id)
+void NetworkTypeHandler::forceCheckClient(fge::net::Identity const& id) const
 {
-    for (std::size_t i = 0; i < this->g_data.size(); ++i)
+    for (auto const& netType: this->g_data)
     {
-        this->g_data[i]->forceCheckClient(id);
+        netType->forceCheckClient(id);
     }
 }
-void NetworkTypeContainer::forceUncheckClient(fge::net::Identity const& id)
+void NetworkTypeHandler::forceUncheckClient(fge::net::Identity const& id) const
 {
-    for (std::size_t i = 0; i < this->g_data.size(); ++i)
+    for (auto const& netType: this->g_data)
     {
-        this->g_data[i]->forceUncheckClient(id);
+        netType->forceUncheckClient(id);
     }
 }
 

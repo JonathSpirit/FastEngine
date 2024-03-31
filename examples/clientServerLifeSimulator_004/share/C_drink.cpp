@@ -51,8 +51,8 @@ FGE_OBJ_DRAW_BODY(Drink)
 void Drink::networkRegister()
 {
     this->_netList.clear();
-    this->_netList.push(new fge::net::NetworkType<fge::Vector2f>(
-            {&this->getPosition(), [&](fge::Vector2f const& pos) { this->setPosition(pos); }}));
+    this->_netList.pushTrivial<fge::Vector2f>(&this->getPosition(),
+                                              [&](fge::Vector2f const& pos) { this->setPosition(pos); });
 }
 
 void Drink::save(nlohmann::json& jsonObject, fge::Scene* scene)

@@ -47,7 +47,7 @@ struct CreatureData
 {
     CreatureData();
 
-    void networkRegister(fge::net::NetworkTypeContainer& netList, Creature* creature, void (Creature::*callback)());
+    void networkRegister(fge::net::NetworkTypeHandler& netList, Creature* creature, void (Creature::*callback)());
 
     uint8_t _lifePoint;
 
