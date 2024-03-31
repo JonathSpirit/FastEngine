@@ -439,30 +439,33 @@ Packet& operator<<(Packet& pck, RecordedVector<T> const& vec);
 template<class T>
 Packet const& operator>>(Packet const& pck, RecordedVector<T>& vec);
 
+enum class RecordedEventTypes : uint8_t
+{
+    ADD,
+    REMOVE,
+    REMOVE_ALL,
+    MODIFY
+};
+struct RecordedEvent
+{
+    RecordedEventTypes _type;
+    SizeType _index;
+};
+
+inline Packet& operator<<(Packet& pck, RecordedEvent const& event);
+inline Packet const& operator>>(Packet const& pck, RecordedEvent& event);
+
 template<class T>
 class RecordedVector
 {
 public:
-    enum class EventTypes : uint8_t
-    {
-        ADD,
-        REMOVE,
-        REMOVE_ALL,
-        MODIFY
-    };
-    struct Event
-    {
-        EventTypes _type;
-        SizeType _index;
-    };
-
     using const_iterator = typename std::vector<T>::const_iterator;
     using iterator = typename std::vector<T>::iterator;
     using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
     using const_reference = typename std::vector<T>::const_reference;
     using reference = typename std::vector<T>::reference;
 
-    using EventQueue = std::vector<Event>;
+    using EventQueue = std::vector<RecordedEvent>;
 
     RecordedVector() = default;
     ~RecordedVector() = default;
@@ -500,6 +503,7 @@ public:
     void pop_back();
 
     [[nodiscard]] reference modify(SizeType index);
+    [[nodiscard]] reference modify(const_iterator pos);
 
     void clearEvents();
     [[nodiscard]] SizeType eventsSize() const;
@@ -508,7 +512,7 @@ public:
     void registerEvents(bool enable);
 
 private:
-    void pushEvent(Event event);
+    void pushEvent(RecordedEvent event);
 
     std::vector<T> g_container;
     EventQueue g_events;
@@ -521,10 +525,6 @@ private:
     friend Packet& operator<< <T>(Packet& pck, RecordedVector const& vec);
     friend Packet const& operator>> <T>(Packet const& pck, RecordedVector& vec);
 };
-template<class T>
-Packet& operator<<(Packet& pck, typename RecordedVector<T>::Event const& event);
-template<class T>
-Packet const& operator>>(Packet const& pck, typename RecordedVector<T>::Event& event);
 
 /**
  * \class NetworkTypeVector

@@ -352,20 +352,20 @@ void RecordedVector<T>::clear()
 {
     this->g_container.clear();
     this->clearEvents();
-    this->pushEvent({EventTypes::REMOVE_ALL, 0});
+    this->pushEvent({RecordedEventTypes::REMOVE_ALL, 0});
 }
 template<class T>
 typename RecordedVector<T>::iterator RecordedVector<T>::insert(const_iterator pos, T const& value)
 {
     SizeType index = pos - this->g_container.begin();
-    this->pushEvent({EventTypes::ADD, index});
+    this->pushEvent({RecordedEventTypes::ADD, index});
     return this->g_container.insert(pos, value);
 }
 template<class T>
 typename RecordedVector<T>::iterator RecordedVector<T>::insert(const_iterator pos, T&& value)
 {
     SizeType index = pos - this->g_container.begin();
-    this->pushEvent({EventTypes::ADD, index});
+    this->pushEvent({RecordedEventTypes::ADD, index});
     return this->g_container.insert(pos, std::move(value));
 }
 template<class T>
@@ -373,41 +373,48 @@ template<class... TArgs>
 typename RecordedVector<T>::iterator RecordedVector<T>::emplace(const_iterator pos, TArgs&&... value)
 {
     SizeType index = pos - this->g_container.begin();
-    this->pushEvent({EventTypes::ADD, index});
+    this->pushEvent({RecordedEventTypes::ADD, index});
     return this->g_container.emplace(pos, std::forward<TArgs>(value)...);
 }
 template<class T>
 template<class TArg>
 void RecordedVector<T>::push_back(TArg&& arg)
 {
-    this->pushEvent({EventTypes::ADD, this->g_container.size()});
+    this->pushEvent({RecordedEventTypes::ADD, this->g_container.size()});
     this->g_container.push_back(std::forward<TArg>(arg));
 }
 template<class T>
 template<class... TArgs>
 typename RecordedVector<T>::reference RecordedVector<T>::emplace_back(TArgs&&... arg)
 {
-    this->pushEvent({EventTypes::ADD, this->g_container.size()});
+    this->pushEvent({RecordedEventTypes::ADD, this->g_container.size()});
     return this->g_container.emplace_back(std::forward<TArgs>(arg)...);
 }
 template<class T>
 typename RecordedVector<T>::const_iterator RecordedVector<T>::erase(const_iterator pos)
 {
     SizeType index = pos - this->g_container.begin();
-    this->pushEvent({EventTypes::REMOVE, index});
+    this->pushEvent({RecordedEventTypes::REMOVE, index});
     return this->g_container.erase(pos);
 }
 template<class T>
 void RecordedVector<T>::pop_back()
 {
-    this->pushEvent({EventTypes::REMOVE, this->g_container.size() - 1});
+    this->pushEvent({RecordedEventTypes::REMOVE, this->g_container.size() - 1});
     this->g_container.pop_back();
 }
 
 template<class T>
 typename RecordedVector<T>::reference RecordedVector<T>::modify(SizeType index)
 {
-    this->pushEvent({EventTypes::MODIFY, index});
+    this->pushEvent({RecordedEventTypes::MODIFY, index});
+    return this->g_container[index];
+}
+template<class T>
+typename RecordedVector<T>::reference RecordedVector<T>::modify(const_iterator pos)
+{
+    SizeType index = pos - this->g_container.begin();
+    this->pushEvent({RecordedEventTypes::MODIFY, index});
     return this->g_container[index];
 }
 
@@ -440,7 +447,7 @@ void RecordedVector<T>::registerEvents(bool enable)
 }
 
 template<class T>
-void RecordedVector<T>::pushEvent(Event event)
+void RecordedVector<T>::pushEvent(RecordedEvent event)
 {
     if (this->g_registerEvents)
     {
@@ -458,13 +465,11 @@ Packet const& operator>>(Packet const& pck, RecordedVector<T>& vec)
 {
     return pck >> vec.g_container;
 }
-template<class T>
-Packet& operator<<(Packet& pck, typename RecordedVector<T>::Event const& event)
+inline Packet& operator<<(Packet& pck, RecordedEvent const& event)
 {
     return pck << event._type << event._index;
 }
-template<class T>
-Packet const& operator>>(Packet const& pck, typename RecordedVector<T>::Event& event)
+inline Packet const& operator>>(Packet const& pck, RecordedEvent& event)
 {
     return pck >> event._type >> event._index;
 }
@@ -506,12 +511,12 @@ bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
         pck >> eventCount;
         for (SizeType i = 0; i < eventCount; ++i)
         {
-            typename RecordedVector<T>::Event event;
+            RecordedEvent event{};
             pck >> event;
-            switch (event.type)
+            switch (event._type)
             {
-            case RecordedVector<T>::EventTypes::ADD:
-                if (event.index >= this->g_typeSource->size())
+            case RecordedEventTypes::ADD:
+                if (event._index >= this->g_typeSource->size())
                 {
                     T value;
                     pck >> value;
@@ -521,26 +526,26 @@ bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
                 {
                     T value;
                     pck >> value;
-                    this->g_typeSource->emplace(this->g_typeSource->begin() + event.index, std::move(value));
+                    this->g_typeSource->emplace(this->g_typeSource->begin() + event._index, std::move(value));
                 }
                 break;
-            case RecordedVector<T>::EventTypes::REMOVE:
-                if (event.index < this->g_typeSource->size())
+            case RecordedEventTypes::REMOVE:
+                if (event._index < this->g_typeSource->size())
                 {
-                    this->g_typeSource->erase(this->g_typeSource->begin() + event.index);
+                    this->g_typeSource->erase(this->g_typeSource->begin() + event._index);
                 }
                 else
                 {
                     return false; ///TODO: handle error
                 }
                 break;
-            case RecordedVector<T>::EventTypes::REMOVE_ALL:
+            case RecordedEventTypes::REMOVE_ALL:
                 this->g_typeSource->clear();
                 break;
-            case RecordedVector<T>::EventTypes::MODIFY:
-                if (event.index < this->g_typeSource->size())
+            case RecordedEventTypes::MODIFY:
+                if (event._index < this->g_typeSource->size())
                 {
-                    pck >> this->g_typeSource->modify(event.index);
+                    pck >> this->g_typeSource->modify(event._index);
                 }
                 else
                 {
@@ -569,25 +574,24 @@ void NetworkTypeVector<T>::packData(fge::net::Packet& pck, fge::net::Identity co
         }
         else
         {
-            pck << PackTypes::EVENTS;
+            pck << PackTypes::PARTIAL;
             pck << static_cast<SizeType>(events->size());
             for (auto itEvent = events->begin(); itEvent != events->end(); ++itEvent)
             {
                 pck << *itEvent;
-                if (itEvent->_type == RecordedVector<T>::EventTypes::ADD ||
-                    itEvent->_type == RecordedVector<T>::EventTypes::MODIFY)
+                if (itEvent->_type == RecordedEventTypes::ADD || itEvent->_type == RecordedEventTypes::MODIFY)
                 {
                     //We have to pack the data but the index do not represent the current state of the vector.
                     //So we have to reverse read the events (history) to get the correct index.
                     auto finalIndex = itEvent->_index;
-                    for (auto itReverse = events->rbegin(); itReverse != itEvent; ++itReverse)
+                    for (auto itReverse = events->rbegin(); itReverse != std::make_reverse_iterator(itEvent);
+                         ++itReverse)
                     {
-                        if (itReverse->_type == RecordedVector<T>::EventTypes::ADD && itReverse->_index <= finalIndex)
+                        if (itReverse->_type == RecordedEventTypes::ADD && itReverse->_index <= finalIndex)
                         {
                             ++finalIndex;
                         }
-                        else if (itReverse->_type == RecordedVector<T>::EventTypes::REMOVE &&
-                                 itReverse->_index < finalIndex)
+                        else if (itReverse->_type == RecordedEventTypes::REMOVE && itReverse->_index < finalIndex)
                         {
                             --finalIndex;
                         }
@@ -665,7 +669,7 @@ template<class T>
 void NetworkTypeVector<T>::applyClientCustomData(void*& ptr) const
 {
     auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
-    bool clearFirst = this->g_typeSource->getEventQueue().front()._type == RecordedVector<T>::EventTypes::REMOVE_ALL;
+    bool clearFirst = this->g_typeSource->getEventQueue().front()._type == RecordedEventTypes::REMOVE_ALL;
     if (clearFirst)
     {
         events->clear();
