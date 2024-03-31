@@ -28,27 +28,36 @@ bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool f
 {
     if (force)
     { //Clear and redo the table by ClientList
+        for (auto& it: this->_g_tableId)
+        {
+            this->destroyClientCustomData(it.second._customData);
+        }
         this->_g_tableId.clear();
         this->_g_tableId.reserve(clients.getSize());
 
         auto lock = clients.acquireLock();
         for (auto it = clients.begin(lock); it != clients.end(lock); ++it)
         {
-            this->_g_tableId.emplace(it->first, 0);
+            this->createClientCustomData(this->_g_tableId.emplace(it->first, 0).first->second._customData);
         }
     }
     else
     { //Remove/add extra clients by ClientList events
         for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
         {
-            fge::net::ClientListEvent const& evt = clients.getClientEvent(i);
+            auto const& evt = clients.getClientEvent(i);
             if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
             {
-                this->_g_tableId.erase(evt._id);
+                auto it = this->_g_tableId.find(evt._id);
+                if (it != this->_g_tableId.end())
+                {
+                    this->destroyClientCustomData(it->second._customData);
+                    this->_g_tableId.erase(it);
+                }
             }
             else
             {
-                this->_g_tableId.emplace(evt._id, 0);
+                this->createClientCustomData(this->_g_tableId.emplace(evt._id, 0).first->second._customData);
             }
         }
     }
@@ -59,7 +68,8 @@ bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool f
     {
         for (auto& it: this->_g_tableId)
         {
-            it.second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+            it.second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+            this->applyClientCustomData(it.second._customData);
         }
         this->forceUncheck();
     }
@@ -70,7 +80,7 @@ bool NetworkTypeBase::checkClient(fge::net::Identity const& id) const
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.cend())
     {
-        return (it->second & fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK) > 0;
+        return (it->second._config & fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK) > 0;
     }
     return false;
 }
@@ -79,7 +89,7 @@ void NetworkTypeBase::forceCheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
@@ -87,7 +97,7 @@ void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second &=~ fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
@@ -95,7 +105,7 @@ void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second |= fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_EXPLICIT_UPDATE;
+        it->second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_EXPLICIT_UPDATE;
     }
 }
 
@@ -217,7 +227,7 @@ void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, fge::net::Ident
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
@@ -288,7 +298,7 @@ void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, fge::net::Identity 
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)

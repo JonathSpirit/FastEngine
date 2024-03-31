@@ -37,15 +37,20 @@ class TagList;
 namespace net
 {
 
-using NetworkPerClientConfigByte = uint8_t;
-enum NetworkPerClientConfigByteMasks : NetworkPerClientConfigByte
+enum PerClientConfigs : uint8_t
 {
     CONFIG_BYTE_MODIFIED_CHECK = 1 << 0, ///< The value has been modified and must be updated
     CONFIG_BYTE_EXPLICIT_UPDATE = 1 << 1 ///< The client require an explicit update
 };
 
+struct PerClientConfig
+{
+    std::underlying_type_t<PerClientConfigs> _config{0};
+    void* _customData{nullptr};
+};
+
 using NetworkPerClientModificationTable =
-        std::unordered_map<fge::net::Identity, fge::net::NetworkPerClientConfigByte, fge::net::IdentityHash>;
+        std::unordered_map<fge::net::Identity, fge::net::PerClientConfig, fge::net::IdentityHash>;
 
 class ClientList;
 

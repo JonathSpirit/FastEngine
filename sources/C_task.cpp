@@ -86,7 +86,7 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const&
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        if (it->second & fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_EXPLICIT_UPDATE)
+        if (it->second._config & fge::net::PerClientConfigs::CONFIG_BYTE_EXPLICIT_UPDATE)
         { //The client need an explicit update
             auto const& tasks = this->g_tasksSource->getTasks();
 
@@ -99,15 +99,15 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const&
                 task->pack(pck);
             }
 
-            it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_EXPLICIT_UPDATE;
-            it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+            it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_EXPLICIT_UPDATE;
+            it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
         }
         else
         {
             pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
                     fge::NetworkTypeTasks::SyncType::SYNC_CHECKSUM);
             pck << this->g_tasksSource->getChecksum();
-            it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+            it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
         }
     }
 }

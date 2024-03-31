@@ -48,7 +48,7 @@ void NetworkType<T>::packData(fge::net::Packet& pck, fge::net::Identity const& i
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second = false;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template<class T>
@@ -104,7 +104,7 @@ void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, fge::net::Identity 
     {
         pck << this->g_typeSource->template setType<T>();
 
-        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template<class T>
@@ -166,7 +166,7 @@ void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, fge::net::Ident
 
         pck << property.setType<T>();
 
-        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template<class T>
@@ -230,7 +230,7 @@ void NetworkTypeManual<T>::packData(fge::net::Packet& pck, fge::net::Identity co
     if (it != this->_g_tableId.end())
     {
         pck << *this->g_typeSource;
-        it->second &= ~fge::net::NetworkPerClientConfigByteMasks::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
     }
 }
 template<class T>
