@@ -584,8 +584,7 @@ void NetworkTypeVector<T>::packData(fge::net::Packet& pck, fge::net::Identity co
                     //We have to pack the data but the index do not represent the current state of the vector.
                     //So we have to reverse read the events (history) to get the correct index.
                     auto finalIndex = itEvent->_index;
-                    for (auto itReverse = events->rbegin(); itReverse != std::make_reverse_iterator(itEvent);
-                         ++itReverse)
+                    for (auto itReverse = events->rbegin(); &(*itReverse) != &(*itEvent); ++itReverse)
                     {
                         if (itReverse->_type == RecordedEventTypes::ADD && itReverse->_index <= finalIndex)
                         {
