@@ -37,6 +37,7 @@ bool NetworkType<T>::applyData(fge::net::Packet const& pck)
     {
         this->g_typeSource._setter(this->g_typeCopy);
         this->setLastUpdateTime();
+        this->clearWaitingUpdateFlag();
         this->_onApplied.call();
         return true;
     }
@@ -95,6 +96,7 @@ bool NetworkTypeProperty<T>::applyData(fge::net::Packet const& pck)
     pck >> this->g_typeSource->template setType<T>();
 
     this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return true;
 }
@@ -155,6 +157,7 @@ bool NetworkTypePropertyList<T>::applyData(fge::net::Packet const& pck)
     pck >> property.setType<T>();
 
     this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return false;
 }
@@ -220,6 +223,7 @@ bool NetworkTypeManual<T>::applyData(fge::net::Packet const& pck)
     if (pck >> *this->g_typeSource)
     {
         this->setLastUpdateTime();
+        this->clearWaitingUpdateFlag();
         this->_onApplied.call();
         return true;
     }
@@ -559,6 +563,7 @@ bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
     }
 
     this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return true;
 }

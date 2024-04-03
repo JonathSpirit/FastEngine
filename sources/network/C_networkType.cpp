@@ -181,6 +181,7 @@ bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
     }
     this->g_typeSource->unpackWatchedEvent(pck);
     this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return true;
 }
@@ -243,6 +244,7 @@ bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet const& pck)
         { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
             this->setLastUpdateTime();
+            this->clearWaitingUpdateFlag();
             this->_onApplied.call();
             return true;
         }
@@ -315,6 +317,7 @@ bool NetworkTypeSmoothFloat::applyData(fge::net::Packet const& pck)
         { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
             this->setLastUpdateTime();
+            this->clearWaitingUpdateFlag();
             this->_onApplied.call();
             return true;
         }
@@ -392,6 +395,7 @@ bool NetworkTypeTag::applyData(fge::net::Packet const& pck)
     }
 
     this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return true;
 }
