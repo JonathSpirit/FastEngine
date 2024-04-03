@@ -165,6 +165,30 @@ private:
     bool g_valid;
 };
 
+class FGE_API Ipv6Address
+{
+public:
+    Ipv6Address() noexcept;
+    Ipv6Address(std::string const& address);
+    Ipv6Address(char const* address);
+    ~Ipv6Address() = default;
+
+    bool set(std::string const& address);
+    bool set(char const* address);
+
+    bool operator==(fge::net::Ipv6Address const& r) const;
+
+    [[nodiscard]] std::string toString() const;
+
+    [[nodiscard]] uint16_t const* getNetworkByteOrder() const;
+
+    static fge::net::Ipv6Address const None;
+
+private:
+    uint16_t g_address[8];
+    bool g_valid;
+};
+
 } // namespace fge::net
 
 #endif // _FGE_C_IPADDRESS_HPP_INCLUDED_
