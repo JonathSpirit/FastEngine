@@ -70,7 +70,7 @@ bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool f
     {
         for (auto& it: this->_g_tableId)
         {
-            it.second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+            it.second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
             this->applyClientCustomData(it.second._customData);
         }
         this->forceUncheck();
@@ -82,7 +82,7 @@ bool NetworkTypeBase::checkClient(fge::net::Identity const& id) const
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.cend())
     {
-        return (it->second._config & fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK) > 0;
+        return (it->second._config & fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG) > 0;
     }
     return false;
 }
@@ -91,7 +91,7 @@ void NetworkTypeBase::forceCheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
@@ -99,7 +99,7 @@ void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
@@ -107,7 +107,7 @@ void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_EXPLICIT_UPDATE;
+        it->second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG;
     }
 }
 
@@ -116,17 +116,44 @@ bool NetworkTypeBase::isForced() const
     return this->_g_force;
 }
 
-void NetworkTypeBase::clearNeedUpdateFlag()
+void NetworkTypeBase::clearExplicitUpdateFlag()
 {
-    this->_g_needUpdate = false;
+    this->_g_needExplicitUpdate = false;
 }
-void NetworkTypeBase::needUpdate()
+void NetworkTypeBase::needExplicitUpdate()
 {
-    this->_g_needUpdate = true;
+    this->_g_needExplicitUpdate = true;
 }
-bool NetworkTypeBase::isNeedingUpdate() const
+bool NetworkTypeBase::isNeedingExplicitUpdate() const
 {
-    return this->_g_needUpdate;
+    return this->_g_needExplicitUpdate;
+}
+
+void NetworkTypeBase::clearWaitingUpdateFlag()
+{
+    this->_g_waitingUpdate = false;
+}
+void NetworkTypeBase::waitingUpdate()
+{
+    if (!this->_g_waitingUpdate)
+    {
+        this->setLastUpdateTime();
+        this->_g_waitingUpdate = true;
+    }
+}
+bool NetworkTypeBase::isWaitingUpdate() const
+{
+    return this->_g_waitingUpdate;
+}
+
+std::chrono::microseconds NetworkTypeBase::getLastUpdateTime() const
+{
+    return this->_g_lastUpdateTime;
+}
+void NetworkTypeBase::setLastUpdateTime()
+{
+    this->_g_lastUpdateTime = std::chrono::duration_cast<decltype(this->_g_lastUpdateTime)>(
+            std::chrono::steady_clock::now().time_since_epoch());
 }
 
 ///NetworkTypeScene
@@ -153,6 +180,7 @@ bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
         }
     }
     this->g_typeSource->unpackWatchedEvent(pck);
+    this->setLastUpdateTime();
     this->_onApplied.call();
     return true;
 }
@@ -214,6 +242,7 @@ bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet const& pck)
         if (error >= this->g_errorRange)
         { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
+            this->setLastUpdateTime();
             this->_onApplied.call();
             return true;
         }
@@ -229,7 +258,7 @@ void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, fge::net::Ident
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
@@ -285,6 +314,7 @@ bool NetworkTypeSmoothFloat::applyData(fge::net::Packet const& pck)
         if (error >= this->g_errorRange)
         { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
+            this->setLastUpdateTime();
             this->_onApplied.call();
             return true;
         }
@@ -300,7 +330,7 @@ void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, fge::net::Identity 
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)
@@ -361,6 +391,7 @@ bool NetworkTypeTag::applyData(fge::net::Packet const& pck)
         this->g_typeSource->del(this->g_tag);
     }
 
+    this->setLastUpdateTime();
     this->_onApplied.call();
     return true;
 }
@@ -400,11 +431,23 @@ std::size_t NetworkTypeHandler::packNeededUpdate(fge::net::Packet& pck) const
     fge::net::SizeType count{0};
     for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
-        if (this->g_data[i]->isNeedingUpdate())
+        auto* net = this->g_data[i].get();
+
+        if (net->isNeedingExplicitUpdate())
         {
             pck << static_cast<fge::net::SizeType>(i);
             ++count;
-            this->g_data[i]->clearNeedUpdateFlag();
+            net->clearExplicitUpdateFlag();
+            net->clearWaitingUpdateFlag();
+            continue;
+        }
+
+        auto const lastUpdateTime = std::chrono::steady_clock::now().time_since_epoch() - net->getLastUpdateTime();
+        if (net->isWaitingUpdate() && lastUpdateTime >= FGE_NET_WAITING_UPDATE_DELAY)
+        {
+            pck << static_cast<fge::net::SizeType>(i);
+            ++count;
+            net->clearWaitingUpdateFlag();
         }
     }
 
