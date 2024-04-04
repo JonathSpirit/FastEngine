@@ -327,7 +327,7 @@ sockaddr* CreateAddress(sockaddr_in& addr4, sockaddr_in6& addr6, int& size, IpAd
         addr = reinterpret_cast<sockaddr*>(&addr4);
         size = sizeof(sockaddr_in);
 #ifdef _FGE_MACOS
-        addr4->sin_len = size;
+        addr4.sin_len = size;
 #endif
     }
     else
@@ -339,7 +339,7 @@ sockaddr* CreateAddress(sockaddr_in& addr4, sockaddr_in6& addr6, int& size, IpAd
         addr = reinterpret_cast<sockaddr*>(&addr6);
         size = sizeof(sockaddr_in6);
 #ifdef _FGE_MACOS
-        addr6->sin6_len = size;
+        addr6.sin6_len = size;
 #endif
     }
 
@@ -768,7 +768,7 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
         addr = reinterpret_cast<sockaddr*>(&addr4);
         addrSize = sizeof(sockaddr_in);
 #ifdef _FGE_MACOS
-        addr4->sin_len = addrSize;
+        addr4.sin_len = addrSize;
 #endif
     }
     else
@@ -778,7 +778,7 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
         addr = reinterpret_cast<sockaddr*>(&addr6);
         addrSize = sizeof(sockaddr_in6);
 #ifdef _FGE_MACOS
-        addr6->sin6_len = addrSize;
+        addr6.sin6_len = addrSize;
 #endif
     }
 
