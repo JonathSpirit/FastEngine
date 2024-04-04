@@ -94,7 +94,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     mainScene->setCallbackContext({&event, &guiElementHandler});
 
     //Creating the client side server
-    fge::net::ClientSideNetUdp server;
+    //Here you can swap for ipv6 if you want
+    fge::net::ClientSideNetUdp server(fge::net::IpAddress::Types::Ipv4);
 
     //Texture
     fge::texture::Init();
@@ -198,8 +199,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             fge::net::IpAddress remoteIp{textInputBoxIp->getString().c_str()};
 
             //We try to connect to the server
-            if (!server.start<fge::net::PacketLZ4>(LIFESIM_CLIENT_PORT, fge::net::IpAddress::Any, LIFESIM_SERVER_PORT,
-                                                   remoteIp))
+            if (!server.start<fge::net::PacketLZ4>(LIFESIM_CLIENT_PORT,
+                                                   fge::net::IpAddress::Any(server.getAddressType()),
+                                                   LIFESIM_SERVER_PORT, remoteIp))
             {
                 std::cout << "can't connect the server !" << std::endl;
                 return;
