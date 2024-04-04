@@ -39,7 +39,7 @@ jobs:
     
     - name: Installing cmake
       run: |
-        pacman -U "mingw-w64-${{matrix.env}}-ccmake-3.28.3-2-any.pkg.tar.zst"
+        pacman -U --noconfirm "mingw-w64-${{matrix.env}}-ccmake-3.28.3-2-any.pkg.tar.zst"
     
     - name: Create Build Environment
       run: cmake -E make_directory "${{github.workspace}}\build"
