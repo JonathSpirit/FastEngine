@@ -615,7 +615,7 @@ void NetworkTypeVector<T>::packData(fge::net::Packet& pck, fge::net::Identity co
 template<class T>
 void NetworkTypeVector<T>::packData(fge::net::Packet& pck)
 {
-    pck << *this->g_typeSource;
+    pck << PackTypes::FULL << *this->g_typeSource;
 }
 
 template<class T>
