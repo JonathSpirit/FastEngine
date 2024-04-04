@@ -132,6 +132,10 @@ std::size_t ServerSideNetUdp::getFluxSize() const
 {
     return this->g_fluxes.size();
 }
+fge::net::IpAddress::Types ServerSideNetUdp::getAddressType() const
+{
+    return this->g_socket.getAddressType();
+}
 void ServerSideNetUdp::closeFlux(fge::net::NetFluxUdp* flux)
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
@@ -289,6 +293,10 @@ fge::net::Socket::Error ClientSideNetUdp::send(fge::net::TransmissionPacketPtr& 
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     pck->applyOptions(this->_client);
     return this->g_socket.send(pck->packet());
+}
+fge::net::IpAddress::Types ClientSideNetUdp::getAddressType() const
+{
+    return this->g_socket.getAddressType();
 }
 
 bool ClientSideNetUdp::isRunning() const

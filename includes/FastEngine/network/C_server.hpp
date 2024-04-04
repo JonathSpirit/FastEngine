@@ -177,6 +177,8 @@ public:
 
     [[nodiscard]] std::size_t getFluxSize() const;
 
+    [[nodiscard]] fge::net::IpAddress::Types getAddressType() const;
+
     void closeFlux(fge::net::NetFluxUdp* flux);
     void closeAllFlux();
 
@@ -248,6 +250,7 @@ public:
 
     fge::net::Socket::Error send(fge::net::Packet& pck);
     fge::net::Socket::Error send(fge::net::TransmissionPacketPtr& pck);
+    [[nodiscard]] fge::net::IpAddress::Types getAddressType() const;
 
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
