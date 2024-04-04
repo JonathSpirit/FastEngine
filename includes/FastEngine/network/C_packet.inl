@@ -245,7 +245,7 @@ fge::net::Packet const& Packet::operator>>(std::vector<T>& data) const
 
     for (fge::net::SizeType i = 0; i < length; ++i)
     {
-        *this >> data[length];
+        *this >> data[i];
     }
     return *this;
 }

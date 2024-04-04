@@ -28,6 +28,8 @@
 #include <unordered_map>
 #include <vector>
 
+#define FGE_NET_WAITING_UPDATE_DELAY std::chrono::milliseconds(800)
+
 namespace fge
 {
 
@@ -39,8 +41,8 @@ namespace net
 
 enum PerClientConfigs : uint8_t
 {
-    CONFIG_BYTE_MODIFIED_CHECK = 1 << 0, ///< The value has been modified and must be updated
-    CONFIG_BYTE_EXPLICIT_UPDATE = 1 << 1 ///< The client require an explicit update
+    CLIENTCONFIG_MODIFIED_FLAG = 1 << 0,               ///< The value has been modified and must be updated
+    CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG = 1 << 1 ///< The client require an explicit update
 };
 
 struct PerClientConfig
@@ -55,7 +57,7 @@ using NetworkPerClientModificationTable =
 class ClientList;
 
 /**
- * \class NetworkTypebase
+ * \class NetworkTypeBase
  * \ingroup network
  * \brief Base class for a network type
  *
@@ -163,20 +165,29 @@ public:
      */
     [[nodiscard]] bool isForced() const;
 
-    /**
-     * \brief Clear the need for an explicit update
-     */
-    void clearNeedUpdateFlag();
+    void clearExplicitUpdateFlag();
     /**
      * \brief Tell that this network type need an explicit update from the server
      */
-    void needUpdate();
+    void needExplicitUpdate();
+    bool isNeedingExplicitUpdate() const;
+
+    void clearWaitingUpdateFlag();
     /**
-     * \brief Check if this network type need an explicit update from the server
+     * \brief Tell that this network type is waiting for an update
      *
-     * \return \b true if this network type need an explicit update from the server, \b false otherwise
+     * When a network type is waiting for an update, it will wait for the next update to be applied until
+     * a certain delay (FGE_NET_WAITING_UPDATE_DELAY).
+     * After this delay, the network type will automatically request an explicit update.
+     *
+     * When this method is called, the last update time is reset only if the network type is not already waiting.
+     * \see setLastUpdateTime()
      */
-    bool isNeedingUpdate() const;
+    void waitingUpdate();
+    bool isWaitingUpdate() const;
+
+    [[nodiscard]] std::chrono::microseconds getLastUpdateTime() const;
+    void setLastUpdateTime();
 
     /**
      * \brief Callback called when the value have been applied
@@ -189,8 +200,10 @@ protected:
     virtual void applyClientCustomData([[maybe_unused]] void*& ptr) const {}
 
     fge::net::NetworkPerClientModificationTable _g_tableId;
-    bool _g_needUpdate{false};
+    bool _g_needExplicitUpdate{false};
+    bool _g_waitingUpdate{false};
     bool _g_force{false};
+    std::chrono::microseconds _g_lastUpdateTime{0};
 };
 
 /**

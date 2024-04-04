@@ -36,6 +36,8 @@ bool NetworkType<T>::applyData(fge::net::Packet const& pck)
     if (pck >> this->g_typeCopy)
     {
         this->g_typeSource._setter(this->g_typeCopy);
+        this->setLastUpdateTime();
+        this->clearWaitingUpdateFlag();
         this->_onApplied.call();
         return true;
     }
@@ -48,7 +50,7 @@ void NetworkType<T>::packData(fge::net::Packet& pck, fge::net::Identity const& i
     if (it != this->_g_tableId.end())
     {
         pck << this->g_typeSource._getter();
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
@@ -76,9 +78,9 @@ void NetworkType<T>::forceUncheck()
 ///NetworkTypeProperty
 
 template<class T>
-NetworkTypeProperty<T>::NetworkTypeProperty(fge::Property* source)
+NetworkTypeProperty<T>::NetworkTypeProperty(fge::Property* source) :
+        g_typeSource(source)
 {
-    this->g_typeSource = source;
     source->setType<T>();
 }
 
@@ -93,6 +95,8 @@ bool NetworkTypeProperty<T>::applyData(fge::net::Packet const& pck)
 {
     pck >> this->g_typeSource->template setType<T>();
 
+    this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return true;
 }
@@ -104,7 +108,7 @@ void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, fge::net::Identity 
     {
         pck << this->g_typeSource->template setType<T>();
 
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
@@ -131,12 +135,11 @@ void NetworkTypeProperty<T>::forceUncheck()
 
 ///NetworkTypePropertyList
 template<class T>
-NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, std::string const& vname)
+NetworkTypePropertyList<T>::NetworkTypePropertyList(fge::PropertyList* source, std::string const& vname) :
+        g_typeSource(source),
+        g_vname(vname)
 {
-    this->g_typeSource = source;
-    this->g_vname = vname;
     fge::Property& property = source->getProperty(vname);
-
     property.setType<T>();
 }
 
@@ -153,6 +156,8 @@ bool NetworkTypePropertyList<T>::applyData(fge::net::Packet const& pck)
 
     pck >> property.setType<T>();
 
+    this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return false;
 }
@@ -166,7 +171,7 @@ void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, fge::net::Ident
 
         pck << property.setType<T>();
 
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
@@ -201,11 +206,10 @@ std::string const& NetworkTypePropertyList<T>::getValueName() const
 
 ///NetworkTypeManual
 template<class T>
-NetworkTypeManual<T>::NetworkTypeManual(T* source)
-{
-    this->g_typeSource = source;
-    this->g_trigger = false;
-}
+NetworkTypeManual<T>::NetworkTypeManual(T* source) :
+        g_typeSource(source),
+        g_trigger(false)
+{}
 
 template<class T>
 void const* NetworkTypeManual<T>::getSource() const
@@ -218,6 +222,8 @@ bool NetworkTypeManual<T>::applyData(fge::net::Packet const& pck)
 {
     if (pck >> *this->g_typeSource)
     {
+        this->setLastUpdateTime();
+        this->clearWaitingUpdateFlag();
         this->_onApplied.call();
         return true;
     }
@@ -230,7 +236,7 @@ void NetworkTypeManual<T>::packData(fge::net::Packet& pck, fge::net::Identity co
     if (it != this->_g_tableId.end())
     {
         pck << *this->g_typeSource;
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
@@ -556,6 +562,8 @@ bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
         }
     }
 
+    this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
     this->_onApplied.call();
     return true;
 }
@@ -601,13 +609,13 @@ void NetworkTypeVector<T>::packData(fge::net::Packet& pck, fge::net::Identity co
             events->clear();
         }
 
-        itId->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        itId->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
 void NetworkTypeVector<T>::packData(fge::net::Packet& pck)
 {
-    pck << *this->g_typeSource;
+    pck << PackTypes::FULL << *this->g_typeSource;
 }
 
 template<class T>
@@ -616,7 +624,7 @@ void NetworkTypeVector<T>::forceCheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second._config |= fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
         auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(it->second._customData);
         events->clear();
     }
@@ -627,7 +635,7 @@ void NetworkTypeVector<T>::forceUncheckClient(fge::net::Identity const& id)
     auto it = this->_g_tableId.find(id);
     if (it != this->_g_tableId.end())
     {
-        it->second._config &= ~fge::net::PerClientConfigs::CONFIG_BYTE_MODIFIED_CHECK;
+        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
         auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(it->second._customData);
         events->clear();
     }
