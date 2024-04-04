@@ -55,34 +55,40 @@
 namespace fge::net
 {
 
-fge::net::IpAddress const IpAddress::None{};
-fge::net::IpAddress const IpAddress::Any{0, 0, 0, 0};
-fge::net::IpAddress const IpAddress::LocalHost{127, 0, 0, 1};
-fge::net::IpAddress const IpAddress::Broadcast{255, 255, 255, 255};
+IpAddress const IpAddress::Ipv4None{};
+IpAddress const IpAddress::Ipv6None{};
+
+IpAddress const IpAddress::Ipv4Any{0, 0, 0, 0};
+IpAddress const IpAddress::Ipv6Any{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
+
+IpAddress const IpAddress::Ipv4Loopback{127, 0, 0, 1};
+IpAddress const IpAddress::Ipv6Loopback{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001};
+
+IpAddress const IpAddress::Ipv4Broadcast{255, 255, 255, 255};
 
 IpAddress::IpAddress() noexcept :
-        g_address(0),
-        g_valid(false)
+        g_address(std::monostate{})
 {}
 IpAddress::IpAddress(std::string const& address) :
-        g_address(0),
-        g_valid(false)
+        g_address(std::monostate{})
 {
     this->set(address.c_str());
 }
 IpAddress::IpAddress(char const* address) :
-        g_address(0),
-        g_valid(false)
+        g_address(std::monostate{})
 {
     this->set(address);
 }
 IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept :
-        g_address(fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0)),
-        g_valid(true)
+        g_address(fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0))
 {}
+IpAddress::IpAddress(std::initializer_list<uint16_t> words) noexcept :
+        g_address(std::monostate{})
+{
+    this->set(words);
+}
 IpAddress::IpAddress(uint32_t address) noexcept :
-        g_address(fge::SwapHostNetEndian_32(address)),
-        g_valid(true)
+        g_address(fge::SwapHostNetEndian_32(address))
 {}
 
 bool IpAddress::set(std::string const& address)
@@ -92,238 +98,230 @@ bool IpAddress::set(std::string const& address)
 bool IpAddress::set(char const* address)
 {
     if (std::strcmp(address, "255.255.255.255") == 0)
-    { //Broadcast
-        this->g_address = INADDR_BROADCAST;
-        this->g_valid = true;
+    {//Ipv4 broadcast
+        this->g_address = static_cast<Ipv4Data>(INADDR_BROADCAST);
         return true;
     }
 
     if (std::strcmp(address, "0.0.0.0") == 0)
-    { //Any
-        this->g_address = INADDR_ANY;
-        this->g_valid = true;
+    {//Ipv4 any
+        this->g_address = static_cast<Ipv4Data>(INADDR_ANY);
         return true;
     }
 
-    //IP as string xxx.xxx.xxx.xxx
-    in_addr outIp;
+    {//Ipv4 as string
+        in_addr outIp{};
 
-    if (inet_pton(AF_INET, address, &outIp) == 1)
-    {
-        this->g_address = outIp.s_addr;
-        this->g_valid = true;
-        return true;
-    }
-
-    //Maybe host name
-    addrinfo hints{};
-    hints.ai_addrlen = 0;
-    hints.ai_canonname = nullptr;
-    hints.ai_addr = nullptr;
-    hints.ai_next = nullptr;
-    hints.ai_family = AF_INET;
-    addrinfo* result = nullptr;
-
-    if (getaddrinfo(address, nullptr, &hints, &result) == 0)
-    {
-        if (result != nullptr && result->ai_family == AF_INET)
+        if (inet_pton(AF_INET, address, &outIp) == 1)
         {
-            uint32_t ip = reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr.s_addr;
-            freeaddrinfo(result);
-
-            this->g_address = ip;
-            this->g_valid = true;
+            this->g_address = static_cast<Ipv4Data>(outIp.s_addr);
             return true;
         }
     }
 
+    {//Ipv6 as string
+        in6_addr outIp{};
+
+        if (inet_pton(AF_INET6, address, &outIp) == 1)
+        {
+            this->g_address.emplace<Ipv6Data>(std::to_array<uint16_t>(outIp.u.Word));
+            return true;
+        }
+    }
+
+    //Maybe host name
+    addrinfo* result = nullptr;
+
+    if (getaddrinfo(address, nullptr, nullptr, &result) == 0 && result != nullptr)
+    {
+        if (result->ai_family == AF_INET)
+        {
+            this->g_address = static_cast<Ipv4Data>(reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr.s_addr);
+        }
+        else if (result->ai_family == AF_INET6)
+        {
+            this->g_address.emplace<Ipv6Data>(std::to_array<uint16_t>(reinterpret_cast<sockaddr_in6*>(result->ai_addr)->sin6_addr.u.Word));
+        }
+
+        freeaddrinfo(result);
+        return !std::holds_alternative<std::monostate>(this->g_address);
+    }
+
     //Invalid address
-    this->g_address = 0;
-    this->g_valid = false;
+    this->g_address = std::monostate{};
     return false;
 }
 bool IpAddress::set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0)
 {
     this->g_address = fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0);
-    this->g_valid = true;
+    return true;
+}
+bool IpAddress::set(std::initializer_list<uint16_t> words)
+{
+    if (words.size() != 8)
+    {
+        this->g_address = std::monostate{};
+        return false;
+    }
+
+    auto& array = this->g_address.emplace<Ipv6Data>();
+    std::size_t i = 0;
+    for (auto const n : words)
+    {
+        array[i++] = fge::SwapHostNetEndian_16(n);
+    }
     return true;
 }
 bool IpAddress::set(uint32_t address)
 {
     this->g_address = fge::SwapHostNetEndian_32(address);
-    this->g_valid = true;
     return true;
 }
 bool IpAddress::setNetworkByteOrdered(uint32_t address)
 {
     this->g_address = address;
-    this->g_valid = true;
     return true;
 }
 
-bool IpAddress::operator==(fge::net::IpAddress const& r) const
+bool IpAddress::operator==(IpAddress const& r) const
 {
-    return (this->g_address == r.g_address) && (this->g_valid == r.g_valid);
+    return this->g_address == r.g_address;
 }
 
-std::string IpAddress::toString() const
+std::optional<std::string> IpAddress::toString() const
 {
-    std::string result(INET_ADDRSTRLEN, '\0');
-
-    in_addr address{};
-    address.s_addr = this->g_address;
-
-    if (inet_ntop(AF_INET, &address, result.data(), result.size()) != nullptr)
+    if (std::holds_alternative<std::monostate>(this->g_address))
     {
-        auto firstNull = result.find_first_of('\0');
-        result.resize(firstNull);
-
-        return result;
+        return std::nullopt;
     }
-    return {};
-}
 
-uint32_t IpAddress::getNetworkByteOrder() const
-{
-    return this->g_address;
-}
-uint32_t IpAddress::getHostByteOrder() const
-{
-    return fge::SwapHostNetEndian_32(this->g_address);
-}
-
-std::string IpAddress::getHostName()
-{
-    char name[80];
-    if (gethostname(name, sizeof(name)) == _FGE_SOCKET_ERROR)
+    if (std::holds_alternative<Ipv4Data>(this->g_address))
     {
-        return {};
-    }
-    return {name};
-}
+        std::string result(INET_ADDRSTRLEN, '\0');
 
-void IpAddress::getLocalAddresses(std::vector<fge::net::IpAddress>& buff)
-{
-    buff.clear();
+        in_addr address{};
+        address.s_addr = std::get<Ipv4Data>(this->g_address);
 
-    addrinfo hints{};
-    hints.ai_addrlen = 0;
-    hints.ai_canonname = nullptr;
-    hints.ai_addr = nullptr;
-    hints.ai_next = nullptr;
-    hints.ai_family = AF_INET;
-    addrinfo* result = nullptr;
-
-    if (getaddrinfo("", nullptr, &hints, &result) == 0)
-    {
-        if (result != nullptr)
+        if (inet_ntop(AF_INET, &address, result.data(), result.size()) != nullptr)
         {
-            addrinfo* ptr = result;
-
-            do {
-                fge::net::IpAddress ip;
-                ip.g_address = reinterpret_cast<sockaddr_in*>(ptr->ai_addr)->sin_addr.s_addr;
-                ip.g_valid = true;
-
-                buff.push_back(ip);
-
-                ptr = ptr->ai_next;
-            } while (ptr != nullptr);
-
-            freeaddrinfo(result);
+            auto firstNull = result.find_first_of('\0');
+            result.resize(firstNull);
+            return result;
         }
-    }
-}
-
-//Ipv6Address
-
-fge::net::Ipv6Address const Ipv6Address::None{};
-
-Ipv6Address::Ipv6Address() noexcept :
-        g_address{0},
-        g_valid(false)
-{}
-Ipv6Address::Ipv6Address(std::string const& address) :
-        g_address{0},
-        g_valid(false)
-{
-    this->set(address.c_str());
-}
-Ipv6Address::Ipv6Address(char const* address) :
-        g_address{0},
-        g_valid(false)
-{
-    this->set(address);
-}
-
-bool Ipv6Address::set(std::string const& address)
-{
-    return this->set(address.c_str());
-}
-bool Ipv6Address::set(char const* address)
-{
-    in6_addr outIp{};
-
-    if (inet_pton(AF_INET6, address, &outIp) == 1)
-    {
-        std::memcpy(&this->g_address, &outIp.u.Byte, 16);
-        this->g_valid = true;
-        return true;
+        return std::nullopt;
     }
 
-    //Maybe host name
-    addrinfo hints{};
-    hints.ai_addrlen = 0;
-    hints.ai_canonname = nullptr;
-    hints.ai_addr = nullptr;
-    hints.ai_next = nullptr;
-    hints.ai_family = AF_INET6;
-    addrinfo* result = nullptr;
-
-    if (getaddrinfo(address, nullptr, &hints, &result) == 0)
-    {
-        if (result != nullptr && result->ai_family == AF_INET6)
-        {
-            uint8_t* source = reinterpret_cast<sockaddr_in6*>(result->ai_addr)->sin6_addr.u.Byte;
-            std::memcpy(&this->g_address, source, 16);
-            freeaddrinfo(result);
-
-            this->g_valid = true;
-            return true;
-        }
-    }
-
-    //Invalid address
-    std::memset(&this->g_address, 0, 16);
-    this->g_valid = false;
-    return false;
-}
-
-bool Ipv6Address::operator==(fge::net::Ipv6Address const& r) const
-{
-    return (std::memcmp(&this->g_address, &r.g_address, 16) == 0) && (this->g_valid == r.g_valid);
-}
-
-std::string Ipv6Address::toString() const
-{
     std::string result(INET6_ADDRSTRLEN, '\0');
 
     in6_addr address{};
-    std::memcpy(&address.u.Byte, &this->g_address, 16);
+    std::memcpy(&address.u.Byte, std::get<Ipv6Data>(this->g_address).data(), 16);
 
     if (inet_ntop(AF_INET6, &address, result.data(), result.size()) != nullptr)
     {
         auto firstNull = result.find_first_of('\0');
         result.resize(firstNull);
-
         return result;
     }
-    return {};
+    return std::nullopt;
 }
 
-uint16_t const* Ipv6Address::getNetworkByteOrder() const
+std::optional<IpAddress::Data> IpAddress::getNetworkByteOrder() const
 {
-    return this->g_address;
+    if (std::holds_alternative<std::monostate>(this->g_address))
+    {
+        return std::nullopt;
+    }
+
+    if (std::holds_alternative<Ipv4Data>(this->g_address))
+    {
+        return std::get<Ipv4Data>(this->g_address);
+    }
+    return std::get<Ipv6Data>(this->g_address);
+}
+std::optional<IpAddress::Data> IpAddress::getHostByteOrder() const
+{
+    if (std::holds_alternative<std::monostate>(this->g_address))
+    {
+        return std::nullopt;
+    }
+
+    if (std::holds_alternative<Ipv4Data>(this->g_address))
+    {
+        return fge::SwapHostNetEndian_32(std::get<Ipv4Data>(this->g_address));
+    }
+    auto data = std::get<Ipv6Data>(this->g_address);
+    return std::array{
+        fge::SwapHostNetEndian_16(data[0]),
+        fge::SwapHostNetEndian_16(data[1]),
+        fge::SwapHostNetEndian_16(data[2]),
+        fge::SwapHostNetEndian_16(data[3]),
+        fge::SwapHostNetEndian_16(data[4]),
+        fge::SwapHostNetEndian_16(data[5]),
+        fge::SwapHostNetEndian_16(data[6]),
+        fge::SwapHostNetEndian_16(data[7])
+    };
+}
+
+IpAddress::Types IpAddress::getType() const
+{
+    if (std::holds_alternative<Ipv4Data>(this->g_address))
+    {
+        return Types::Ipv4;
+    }
+    if (std::holds_alternative<Ipv6Data>(this->g_address))
+    {
+        return Types::Ipv6;
+    }
+    return Types::None;
+}
+
+std::optional<std::string> IpAddress::getHostName()
+{
+    /*
+     * https://learn.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-gethostname
+     * The maximum length, in bytes, of the string returned in the buffer pointed to by the name parameter is
+     * dependent on the namespace provider, but this string must be 256 bytes or less. So if a buffer of 256 bytes is
+     * passed in the name parameter and the namelen parameter is set to 256, the buffer size will always be adequate.
+     */
+    std::string name(256, '\0');
+    if (gethostname(name.data(), static_cast<int>(name.size())) == _FGE_SOCKET_ERROR)
+    {
+        return std::nullopt;
+    }
+    auto firstNull = name.find_first_of('\0');
+    name.resize(firstNull);
+    return name;
+}
+
+std::vector<IpAddress> IpAddress::getLocalAddresses(Types type)
+{
+    std::vector<IpAddress> buff;
+
+    addrinfo* result = nullptr;
+
+    if (getaddrinfo("", nullptr, nullptr, &result) == 0 && result != nullptr)
+    {
+        addrinfo const* currentResult = result;
+
+        do {
+            if (currentResult->ai_family == AF_INET && (type == Types::None || type == Types::Ipv4))
+            {
+                IpAddress& ip = buff.emplace_back();
+                ip.g_address = static_cast<Ipv4Data>(reinterpret_cast<sockaddr_in*>(currentResult->ai_addr)->sin_addr.s_addr);
+            }
+            else if (currentResult->ai_family == AF_INET6 && (type == Types::None || type == Types::Ipv6))
+            {
+                IpAddress& ip = buff.emplace_back();
+                ip.g_address.emplace<Ipv6Data>(std::to_array<uint16_t>(reinterpret_cast<sockaddr_in6*>(currentResult->ai_addr)->sin6_addr.u.Word));
+            }
+
+            currentResult = result->ai_next;
+        } while (currentResult != nullptr);
+
+        freeaddrinfo(result);
+    }
+
+    return buff;
 }
 
 } // namespace fge::net

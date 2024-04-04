@@ -21,6 +21,9 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <array>
+#include <variant>
+#include <optional>
 
 #ifndef _WIN32
     #undef None
@@ -43,21 +46,32 @@ using Port = uint16_t;
 class FGE_API IpAddress
 {
 public:
+    using Ipv4Data = uint32_t;
+    using Ipv6Data = std::array<uint16_t, 8>;
+    using Data = std::variant<Ipv4Data, Ipv6Data>;
+
+    enum class Types
+    {
+        None,
+        Ipv4,
+        Ipv6
+    };
+
     /**
      * \brief Build a default invalid IP address
      */
     IpAddress() noexcept;
     /**
-     * \brief Build an IP address from a string
+     * \brief Build an address from a string
      *
-     * The string can be in the form XXX.XXX.XXX.XXX, or a hostname.
+     * The string can be in the form XXX.XXX.XXX.XXX, ipv6, or a hostname.
      *
-     * \param address A string representing the IP address
+     * \param address A string representing the address
      */
     IpAddress(std::string const& address);
     IpAddress(char const* address);
     /**
-     * \brief Build an IP address from a 4 bytes
+     * \brief Build an ipv4 address from 4 bytes
      *
      * \param byte3 The most significant byte
      * \param byte2 The second most significant byte
@@ -66,7 +80,13 @@ public:
      */
     IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept;
     /**
-     * \brief Build an IP address from a host byte order integer
+     * \brief Build an ipv4 address from 8 words
+     *
+     * \param words The 8 words representing the ipv6 address in host byte order
+     */
+    IpAddress(std::initializer_list<uint16_t> words) noexcept;
+    /**
+     * \brief Build an ipv4 address from a host byte order integer
      *
      * \param address The host byte order integer
      */
@@ -74,17 +94,17 @@ public:
     ~IpAddress() = default;
 
     /**
-     * \brief Build an IP address from a string
+     * \brief Build an address from a string
      *
-     * The string can be in the form XXX.XXX.XXX.XXX, or a hostname.
+     * The string can be in the form XXX.XXX.XXX.XXX, ipv6, or a hostname.
      *
-     * \param address A string representing the IP address
+     * \param address A string representing the address
      * \return \b true if the address is valid, \b false otherwise
      */
     bool set(std::string const& address);
     bool set(char const* address);
     /**
-     * \brief Build an IP address from a 4 bytes
+     * \brief Build an ipv4 address from 4 bytes
      *
      * \param byte3 The most significant byte
      * \param byte2 The second most significant byte
@@ -94,99 +114,77 @@ public:
      */
     bool set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0);
     /**
-     * \brief Build an IP address from a host byte order integer
+     * \brief Build an ipv4 address from 8 words
+     *
+     * \param words The 8 words representing the ipv6 address in host byte order
+     */
+    bool set(std::initializer_list<uint16_t> words);
+    /**
+     * \brief Build an ipv4 address from a host byte order integer
      *
      * \param address The host byte order integer
      * \return \b true if the address is valid, \b false otherwise
      */
     bool set(uint32_t address);
     /**
-     * \brief Build an IP address from a network byte order integer
+     * \brief Build an ipv4 address from a network byte order integer
      *
      * \param address The network byte order integer
      * \return \b true if the address is valid, \b false otherwise
      */
     bool setNetworkByteOrdered(uint32_t address);
 
-    bool operator==(fge::net::IpAddress const& r) const;
+    [[nodiscard]] bool operator==(IpAddress const& r) const;
 
     /**
-     * \brief Get the IP address in a string format
+     * \brief Get the ip address in a string format
      *
-     * \return A string representing the IP address
+     * \return A string representing the ip address
      */
-    [[nodiscard]] std::string toString() const;
+    [[nodiscard]] std::optional<std::string> toString() const;
 
     /**
-     * \brief Get the IP address in a network byte order integer
+     * \brief Get the ip address in a network byte order
      *
      * \return The network byte order integer
      */
-    [[nodiscard]] uint32_t getNetworkByteOrder() const;
+    [[nodiscard]] std::optional<Data> getNetworkByteOrder() const;
     /**
-     * \brief Get the IP address in a host byte order integer
+     * \brief Get the ip address in host byte order
      *
      * \return The host byte order integer
      */
-    [[nodiscard]] uint32_t getHostByteOrder() const;
+    [[nodiscard]] std::optional<Data> getHostByteOrder() const;
+
+    [[nodiscard]] Types getType() const;
 
     /**
      * \brief Get the standard hostname for the local computer
      *
      * \return The hostname
      */
-    static std::string getHostName();
+    [[nodiscard]] static std::optional<std::string> getHostName();
     /**
      * \brief Get a list of local IpAddress of the local computer
      *
-     * \param buff The buffer to fill with the local IP addresses
+     * \param type The type of address to get, if None, all addresses will be returned
+     * \return A vector containing the local IP addresses or an empty vector if an error occurred
      */
-    static void getLocalAddresses(std::vector<fge::net::IpAddress>& buff);
+    [[nodiscard]] static std::vector<IpAddress> getLocalAddresses(Types type = Types::None);
 
-    /**
-     * \brief Represent an invalid IpAddress
-     */
-    static fge::net::IpAddress const None;
-    /**
-     * \brief Represent the IpAddress 0.0.0.0
-     */
-    static fge::net::IpAddress const Any;
-    /**
-     * \brief Represent the IpAddress 127.0.0.1
-     */
-    static fge::net::IpAddress const LocalHost;
-    /**
-     * \brief Represent the IpAddress 255.255.255.255
-     */
-    static fge::net::IpAddress const Broadcast;
+    static IpAddress const Ipv4None; ///< Represent an invalid ipv4 address
+    static IpAddress const Ipv6None; ///< Represent an invalid ipv6 address
+
+    static IpAddress const Ipv4Any; ///< Represent an unspecified ipv4 address "0.0.0.0"
+    static IpAddress const Ipv6Any; ///< Represent an unspecified ipv6 address "::"
+
+    static IpAddress const Ipv4Loopback; ///< Represent the local host ipv4 address "127.0.0.1"
+    static IpAddress const Ipv6Loopback; ///< Represent the local host ipv6 address "::1"
+
+    static IpAddress const Ipv4Broadcast; ///< Represent the broadcast ipv4 address "255.255.255.255"
 
 private:
-    uint32_t g_address; //Network byte order address
-    bool g_valid;
-};
-
-class FGE_API Ipv6Address
-{
-public:
-    Ipv6Address() noexcept;
-    Ipv6Address(std::string const& address);
-    Ipv6Address(char const* address);
-    ~Ipv6Address() = default;
-
-    bool set(std::string const& address);
-    bool set(char const* address);
-
-    bool operator==(fge::net::Ipv6Address const& r) const;
-
-    [[nodiscard]] std::string toString() const;
-
-    [[nodiscard]] uint16_t const* getNetworkByteOrder() const;
-
-    static fge::net::Ipv6Address const None;
-
-private:
-    uint16_t g_address[8];
-    bool g_valid;
+    std::variant<std::monostate, Ipv4Data, Ipv6Data> g_address; ///< Network byte order address
 };
 
 } // namespace fge::net
