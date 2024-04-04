@@ -59,9 +59,25 @@ IpAddress const IpAddress::None;
 
 IpAddress const IpAddress::Ipv4Any(0, 0, 0, 0);
 IpAddress const IpAddress::Ipv6Any{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
+IpAddress IpAddress::Any(Types addressType)
+{
+    if (addressType == Types::Ipv4 || addressType == Types::None)
+    {
+        return Ipv4Any;
+    }
+    return Ipv6Any;
+}
 
 IpAddress const IpAddress::Ipv4Loopback(127, 0, 0, 1);
 IpAddress const IpAddress::Ipv6Loopback{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001};
+IpAddress IpAddress::Loopback(Types addressType)
+{
+    if (addressType == Types::Ipv4 || addressType == Types::None)
+    {
+        return Ipv4Loopback;
+    }
+    return Ipv6Loopback;
+}
 
 IpAddress const IpAddress::Ipv4Broadcast(255, 255, 255, 255);
 

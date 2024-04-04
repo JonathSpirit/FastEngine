@@ -206,9 +206,11 @@ public:
 
     static IpAddress const Ipv4Any; ///< Represent an unspecified ipv4 address "0.0.0.0"
     static IpAddress const Ipv6Any; ///< Represent an unspecified ipv6 address "::"
+    static IpAddress Any(Types addressType);
 
     static IpAddress const Ipv4Loopback; ///< Represent the local host ipv4 address "127.0.0.1"
     static IpAddress const Ipv6Loopback; ///< Represent the local host ipv6 address "::1"
+    static IpAddress Loopback(Types addressType);
 
     static IpAddress const Ipv4Broadcast; ///< Represent the broadcast ipv4 address "255.255.255.255"
 
