@@ -14,13 +14,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { sys: mingw64, env: x86_64 }
+          - { sys: ucrt64, env: ucrt-x86_64 }
           - { sys: mingw32, env: i686 }
     
     runs-on: windows-latest
     defaults:
       run:
-        shell: bash
+        shell: msys2 {0}
     
     steps:
     - uses: actions/checkout@v4
@@ -31,12 +31,15 @@ jobs:
       with:
         msystem: ${{matrix.sys}}
         update: true
-        install: git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
+        install: curl git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
     
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '3.28.x'
+    - name: Downloading cmake
+      run: |
+        curl -O https://repo.msys2.org/mingw/{{matrix.sys}}/mingw-w64-{{matrix.env}}-ccmake-3.28.3-2-any.pkg.tar.zst
+    
+    - name: Installing cmake
+      run: |
+        pacman -U mingw-w64-{{matrix.env}}-ccmake-3.28.3-2-any.pkg.tar.zst
     
     - name: Create Build Environment
       run: cmake -E make_directory "${{github.workspace}}\build"
