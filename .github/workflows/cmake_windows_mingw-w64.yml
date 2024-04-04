@@ -31,7 +31,12 @@ jobs:
       with:
         msystem: ${{matrix.sys}}
         update: true
-        install: git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-cmake mingw-w64-${{matrix.env}}-make
+        install: git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
+    
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.28.x'
     
     - name: Create Build Environment
       run: cmake -E make_directory "${{github.workspace}}\build"
