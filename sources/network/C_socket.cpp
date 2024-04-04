@@ -408,18 +408,23 @@ fge::net::IpAddress Socket::getLocalAddress() const
 {
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
-        sockaddr_in address{};
-        SocketLength addressSize = sizeof(address);
-        if (getsockname(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
+        if (this->g_addressType == IpAddress::Types::Ipv4)
         {
-            if (address.sin_family == AF_INET)
+            sockaddr_in address{};
+            fge::net::SocketLength addressSize = sizeof(address);
+            if (getsockname(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
             {
                 return fge::SwapHostNetEndian_32(address.sin_addr.s_addr);
             }
-            if (address.sin_family == AF_INET6)
+        }
+        else
+        {
+            sockaddr_in6 address{};
+            fge::net::SocketLength addressSize = sizeof(address);
+            if (getsockname(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
             {
                 IpAddress ip;
-                ip.setNetworkByteOrdered(reinterpret_cast<in_addr6*>(&address.sin_addr)->u.Word);
+                ip.setNetworkByteOrdered(address.sin6_addr.s6_addr);
                 return ip;
             }
         }
@@ -443,18 +448,23 @@ fge::net::IpAddress Socket::getRemoteAddress() const
 {
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
-        sockaddr_in address{};
-        fge::net::SocketLength addressSize = sizeof(address);
-        if (getpeername(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
+        if (this->g_addressType == IpAddress::Types::Ipv4)
         {
-            if (address.sin_family == AF_INET)
+            sockaddr_in address{};
+            fge::net::SocketLength addressSize = sizeof(address);
+            if (getpeername(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
             {
                 return fge::SwapHostNetEndian_32(address.sin_addr.s_addr);
             }
-            if (address.sin_family == AF_INET6)
+        }
+        else
+        {
+            sockaddr_in6 address{};
+            fge::net::SocketLength addressSize = sizeof(address);
+            if (getpeername(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
             {
                 IpAddress ip;
-                ip.setNetworkByteOrdered(reinterpret_cast<in_addr6*>(&address.sin_addr)->u.Word);
+                ip.setNetworkByteOrdered(address.sin6_addr.s6_addr);
                 return ip;
             }
         }
