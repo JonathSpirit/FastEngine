@@ -18,6 +18,7 @@
 #define _FGE_C_IPADDRESS_HPP_INCLUDED_
 
 #include "FastEngine/fge_extern.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -30,6 +31,14 @@
 #endif
 
 #define FGE_ANYPORT 0
+
+namespace fge::net
+{
+class IpAddress;
+} // namespace fge::net
+
+template<>
+struct std::hash<fge::net::IpAddress>;
 
 namespace fge::net
 {
@@ -185,8 +194,28 @@ public:
 
 private:
     std::variant<std::monostate, Ipv4Data, Ipv6Data> g_address; ///< Network byte order address
+
+    friend struct std::hash<IpAddress>;
 };
 
 } // namespace fge::net
+
+template<>
+struct std::hash<fge::net::IpAddress>
+{
+    inline std::size_t operator()(fge::net::IpAddress const& r) const noexcept
+    {
+        if (std::holds_alternative<std::monostate>(r.g_address))
+        {
+            return std::hash<std::monostate>{}(std::monostate{});
+        }
+        if (std::holds_alternative<fge::net::IpAddress::Ipv4Data>(r.g_address))
+        {
+            return std::hash<fge::net::IpAddress::Ipv4Data>{}(std::get<fge::net::IpAddress::Ipv4Data>(r.g_address));
+        }
+        auto const& array = std::get<fge::net::IpAddress::Ipv6Data>(r.g_address);
+        return fge::Hash(array.data(), array.size()*2);
+    }
+};
 
 #endif // _FGE_C_IPADDRESS_HPP_INCLUDED_
