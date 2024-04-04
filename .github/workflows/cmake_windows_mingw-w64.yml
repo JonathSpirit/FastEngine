@@ -20,7 +20,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        shell: msys2 {0}
+        shell: bash
     
     steps:
     - uses: actions/checkout@v4
@@ -28,6 +28,7 @@ jobs:
         submodules: 'recursive'
     
     - uses: msys2/setup-msys2@v2
+      shell: msys2 {0}
       with:
         msystem: ${{matrix.sys}}
         update: true
@@ -46,29 +47,24 @@ jobs:
       id: cpu-cores
     
     - name: Handling project dependencies
-      shell: msys2 {0}
       working-directory: ${{github.workspace}}\deps
       run: |
         cmake . -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=$BUILD_TYPE
         cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
     
     - name: Configure CMake
-      shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
       run: cmake $GITHUB_WORKSPACE -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D FGE_DEPS_PATH="deps/libs"
     
     - name: Build
-      shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
       run: cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
     
     - name: Test
-      shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
       run: ctest -C $BUILD_TYPE --verbose
     
     - name: Installing
-      shell: msys2 {0}
       working-directory: ${{github.workspace}}\build
       run: cmake --install .
     
