@@ -80,9 +80,10 @@ std::size_t NetFluxUdp::getMaxPackets() const
 }
 
 //ServerUdp
-ServerSideNetUdp::ServerSideNetUdp() :
+ServerSideNetUdp::ServerSideNetUdp(IpAddress::Types type) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
+        g_socket(type),
         g_running(false)
 {}
 ServerSideNetUdp::~ServerSideNetUdp()
@@ -246,9 +247,10 @@ void ServerSideNetUdp::threadTransmission()
 }
 
 //ServerClientSideUdp
-ClientSideNetUdp::ClientSideNetUdp() :
+ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
+        g_socket(addressType),
         g_running(false)
 {}
 ClientSideNetUdp::~ClientSideNetUdp()

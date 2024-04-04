@@ -52,12 +52,13 @@ inline fge::net::Identity const& FluxPacket::getIdentity() const
 //ServerSideNetUdp
 
 template<class TPacket>
-bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp)
+bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp, IpAddress::Types addressType)
 {
     if (this->g_running)
     {
         return false;
     }
+    this->g_socket.setAddressType(addressType);
     if (this->g_socket.bind(bindPort, bindIp) == fge::net::Socket::ERR_NOERROR)
     {
         this->g_running = true;
@@ -70,12 +71,13 @@ bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const&
     return false;
 }
 template<class TPacket>
-bool ServerSideNetUdp::start()
+bool ServerSideNetUdp::start(IpAddress::Types addressType)
 {
     if (this->g_running)
     {
         return false;
     }
+    this->g_socket.setAddressType(addressType);
     if (this->g_socket.isValid())
     {
         this->g_running = true;
@@ -140,12 +142,14 @@ template<class TPacket>
 bool ClientSideNetUdp::start(fge::net::Port bindPort,
                              fge::net::IpAddress const& bindIp,
                              fge::net::Port connectRemotePort,
-                             fge::net::IpAddress const& connectRemoteAddress)
+                             fge::net::IpAddress const& connectRemoteAddress,
+                             IpAddress::Types addressType)
 {
     if (this->g_running)
     {
         return false;
     }
+    this->g_socket.setAddressType(addressType);
     if (this->g_socket.bind(bindPort, bindIp) == fge::net::Socket::ERR_NOERROR)
     {
         if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == fge::net::Socket::ERR_NOERROR)

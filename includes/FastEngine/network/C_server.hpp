@@ -139,7 +139,7 @@ public:
 class FGE_API ServerSideNetUdp
 {
 public:
-    ServerSideNetUdp();
+    explicit ServerSideNetUdp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
     ServerSideNetUdp(ServerSideNetUdp const& r) = delete;
     ServerSideNetUdp(ServerSideNetUdp&& r) noexcept = delete;
     ~ServerSideNetUdp();
@@ -148,9 +148,11 @@ public:
     ServerSideNetUdp& operator=(ServerSideNetUdp&& r) noexcept = delete;
 
     template<class TPacket = fge::net::Packet>
-    [[nodiscard]] bool start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp = fge::net::IpAddress::Any);
+    [[nodiscard]] bool start(fge::net::Port bindPort,
+                             fge::net::IpAddress const& bindIp,
+                             IpAddress::Types addressType = IpAddress::Types::None);
     template<class TPacket = fge::net::Packet>
-    [[nodiscard]] bool start();
+    [[nodiscard]] bool start(IpAddress::Types addressType = IpAddress::Types::None);
     void stop();
 
     /**
@@ -225,7 +227,7 @@ private:
 class FGE_API ClientSideNetUdp : public NetFluxUdp
 {
 public:
-    ClientSideNetUdp();
+    explicit ClientSideNetUdp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
     ClientSideNetUdp(ClientSideNetUdp const& r) = delete;
     ClientSideNetUdp(ClientSideNetUdp&& r) noexcept = delete;
     ~ClientSideNetUdp() override;
@@ -237,7 +239,8 @@ public:
     [[nodiscard]] bool start(fge::net::Port bindPort,
                              fge::net::IpAddress const& bindIp,
                              fge::net::Port connectRemotePort,
-                             fge::net::IpAddress const& connectRemoteAddress);
+                             fge::net::IpAddress const& connectRemoteAddress,
+                             IpAddress::Types addressType = IpAddress::Types::None);
     void stop();
 
     void notifyTransmission();
