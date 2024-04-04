@@ -239,7 +239,7 @@ std::optional<std::string> IpAddress::toString() const
     std::string result(INET6_ADDRSTRLEN, '\0');
 
     in6_addr address{};
-    std::memcpy(&address.u.Byte, std::get<Ipv6Data>(this->g_address).data(), 16);
+    std::memcpy(&address.s6_addr, std::get<Ipv6Data>(this->g_address).data(), 16);
 
     if (inet_ntop(AF_INET6, &address, result.data(), result.size()) != nullptr)
     {
