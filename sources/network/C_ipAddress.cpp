@@ -55,16 +55,15 @@
 namespace fge::net
 {
 
-IpAddress const IpAddress::Ipv4None{};
-IpAddress const IpAddress::Ipv6None{};
+IpAddress const IpAddress::None;
 
-IpAddress const IpAddress::Ipv4Any{0, 0, 0, 0};
+IpAddress const IpAddress::Ipv4Any(0, 0, 0, 0);
 IpAddress const IpAddress::Ipv6Any{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 
-IpAddress const IpAddress::Ipv4Loopback{127, 0, 0, 1};
+IpAddress const IpAddress::Ipv4Loopback(127, 0, 0, 1);
 IpAddress const IpAddress::Ipv6Loopback{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001};
 
-IpAddress const IpAddress::Ipv4Broadcast{255, 255, 255, 255};
+IpAddress const IpAddress::Ipv4Broadcast(255, 255, 255, 255);
 
 IpAddress::IpAddress() noexcept :
         g_address(std::monostate{})
@@ -87,6 +86,11 @@ IpAddress::IpAddress(std::initializer_list<uint16_t> words) noexcept :
 {
     this->set(words);
 }
+IpAddress::IpAddress(uint16_t const words[8]) noexcept :
+        g_address(std::monostate{})
+{
+    this->set(words);
+}
 IpAddress::IpAddress(uint32_t address) noexcept :
         g_address(fge::SwapHostNetEndian_32(address))
 {}
@@ -98,18 +102,18 @@ bool IpAddress::set(std::string const& address)
 bool IpAddress::set(char const* address)
 {
     if (std::strcmp(address, "255.255.255.255") == 0)
-    {//Ipv4 broadcast
+    { //Ipv4 broadcast
         this->g_address = static_cast<Ipv4Data>(INADDR_BROADCAST);
         return true;
     }
 
     if (std::strcmp(address, "0.0.0.0") == 0)
-    {//Ipv4 any
+    { //Ipv4 any
         this->g_address = static_cast<Ipv4Data>(INADDR_ANY);
         return true;
     }
 
-    {//Ipv4 as string
+    { //Ipv4 as string
         in_addr outIp{};
 
         if (inet_pton(AF_INET, address, &outIp) == 1)
@@ -119,12 +123,13 @@ bool IpAddress::set(char const* address)
         }
     }
 
-    {//Ipv6 as string
+    { //Ipv6 as string
         in6_addr outIp{};
 
         if (inet_pton(AF_INET6, address, &outIp) == 1)
         {
-            this->g_address.emplace<Ipv6Data>(std::to_array<uint16_t>(outIp.u.Word));
+            auto const* data = outIp.s6_addr;
+            std::memcpy(this->g_address.emplace<Ipv6Data>().data(), data, 16);
             return true;
         }
     }
@@ -140,7 +145,8 @@ bool IpAddress::set(char const* address)
         }
         else if (result->ai_family == AF_INET6)
         {
-            this->g_address.emplace<Ipv6Data>(std::to_array<uint16_t>(reinterpret_cast<sockaddr_in6*>(result->ai_addr)->sin6_addr.u.Word));
+            auto const* data = reinterpret_cast<sockaddr_in6*>(result->ai_addr)->sin6_addr.s6_addr;
+            std::memcpy(this->g_address.emplace<Ipv6Data>().data(), data, 16);
         }
 
         freeaddrinfo(result);
@@ -166,9 +172,18 @@ bool IpAddress::set(std::initializer_list<uint16_t> words)
 
     auto& array = this->g_address.emplace<Ipv6Data>();
     std::size_t i = 0;
-    for (auto const n : words)
+    for (auto const n: words)
     {
         array[i++] = fge::SwapHostNetEndian_16(n);
+    }
+    return true;
+}
+bool IpAddress::set(uint16_t const words[8])
+{
+    auto& array = this->g_address.emplace<Ipv6Data>();
+    for (std::size_t i = 8; i > 0; --i)
+    {
+        array[i - 1] = fge::SwapHostNetEndian_16(words[8 - i]);
     }
     return true;
 }
@@ -180,6 +195,16 @@ bool IpAddress::set(uint32_t address)
 bool IpAddress::setNetworkByteOrdered(uint32_t address)
 {
     this->g_address = address;
+    return true;
+}
+bool IpAddress::setNetworkByteOrdered(uint16_t const words[8])
+{
+    std::memcpy(this->g_address.emplace<Ipv6Data>().data(), words, 16);
+    return true;
+}
+bool IpAddress::setNetworkByteOrdered(uint8_t const words[16])
+{
+    std::memcpy(this->g_address.emplace<Ipv6Data>().data(), words, 16);
     return true;
 }
 
@@ -250,16 +275,10 @@ std::optional<IpAddress::Data> IpAddress::getHostByteOrder() const
         return fge::SwapHostNetEndian_32(std::get<Ipv4Data>(this->g_address));
     }
     auto data = std::get<Ipv6Data>(this->g_address);
-    return std::array{
-        fge::SwapHostNetEndian_16(data[0]),
-        fge::SwapHostNetEndian_16(data[1]),
-        fge::SwapHostNetEndian_16(data[2]),
-        fge::SwapHostNetEndian_16(data[3]),
-        fge::SwapHostNetEndian_16(data[4]),
-        fge::SwapHostNetEndian_16(data[5]),
-        fge::SwapHostNetEndian_16(data[6]),
-        fge::SwapHostNetEndian_16(data[7])
-    };
+    return std::array{fge::SwapHostNetEndian_16(data[7]), fge::SwapHostNetEndian_16(data[6]),
+                      fge::SwapHostNetEndian_16(data[5]), fge::SwapHostNetEndian_16(data[4]),
+                      fge::SwapHostNetEndian_16(data[3]), fge::SwapHostNetEndian_16(data[2]),
+                      fge::SwapHostNetEndian_16(data[1]), fge::SwapHostNetEndian_16(data[0])};
 }
 
 IpAddress::Types IpAddress::getType() const
@@ -307,12 +326,14 @@ std::vector<IpAddress> IpAddress::getLocalAddresses(Types type)
             if (currentResult->ai_family == AF_INET && (type == Types::None || type == Types::Ipv4))
             {
                 IpAddress& ip = buff.emplace_back();
-                ip.g_address = static_cast<Ipv4Data>(reinterpret_cast<sockaddr_in*>(currentResult->ai_addr)->sin_addr.s_addr);
+                ip.g_address =
+                        static_cast<Ipv4Data>(reinterpret_cast<sockaddr_in*>(currentResult->ai_addr)->sin_addr.s_addr);
             }
             else if (currentResult->ai_family == AF_INET6 && (type == Types::None || type == Types::Ipv6))
             {
                 IpAddress& ip = buff.emplace_back();
-                ip.g_address.emplace<Ipv6Data>(std::to_array<uint16_t>(reinterpret_cast<sockaddr_in6*>(currentResult->ai_addr)->sin6_addr.u.Word));
+                auto* data = reinterpret_cast<sockaddr_in6*>(currentResult->ai_addr)->sin6_addr.s6_addr;
+                std::memcpy(ip.g_address.emplace<Ipv6Data>().data(), data, 16);
             }
 
             currentResult = result->ai_next;

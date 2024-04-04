@@ -19,12 +19,12 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/extra/extra_function.hpp"
-#include <cstdint>
-#include <string>
-#include <vector>
 #include <array>
-#include <variant>
+#include <cstdint>
 #include <optional>
+#include <string>
+#include <variant>
+#include <vector>
 
 #ifndef _WIN32
     #undef None
@@ -94,6 +94,7 @@ public:
      * \param words The 8 words representing the ipv6 address in host byte order
      */
     IpAddress(std::initializer_list<uint16_t> words) noexcept;
+    IpAddress(uint16_t const words[8]) noexcept;
     /**
      * \brief Build an ipv4 address from a host byte order integer
      *
@@ -123,11 +124,23 @@ public:
      */
     bool set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0);
     /**
-     * \brief Build an ipv4 address from 8 words
+     * \brief Build an ipv6 address from 8 words
+     *
+     * Manualy build an ipv6 address with a initializer list.
+     * the first word is the most significant word.
      *
      * \param words The 8 words representing the ipv6 address in host byte order
      */
     bool set(std::initializer_list<uint16_t> words);
+    /**
+     * \brief Build an ipv6 address from 8 words
+     *
+     * \warning Contrary to the initializer list, the first word is the least significant word.
+     *
+     * \param words The 8 words representing the ipv6 address in host byte order
+     * \return \b true if the address is valid, \b false otherwise
+     */
+    bool set(uint16_t const words[8]);
     /**
      * \brief Build an ipv4 address from a host byte order integer
      *
@@ -142,6 +155,14 @@ public:
      * \return \b true if the address is valid, \b false otherwise
      */
     bool setNetworkByteOrdered(uint32_t address);
+    /**
+     * \brief Build an ipv6 address from a network byte order data
+     *
+     * \param words The network byte order data
+     * \return \b true if the address is valid, \b false otherwise
+     */
+    bool setNetworkByteOrdered(uint16_t const words[8]);
+    bool setNetworkByteOrdered(uint8_t const words[16]);
 
     [[nodiscard]] bool operator==(IpAddress const& r) const;
 
@@ -181,8 +202,7 @@ public:
      */
     [[nodiscard]] static std::vector<IpAddress> getLocalAddresses(Types type = Types::None);
 
-    static IpAddress const Ipv4None; ///< Represent an invalid ipv4 address
-    static IpAddress const Ipv6None; ///< Represent an invalid ipv6 address
+    static IpAddress const None; ///< Represent an invalid address
 
     static IpAddress const Ipv4Any; ///< Represent an unspecified ipv4 address "0.0.0.0"
     static IpAddress const Ipv6Any; ///< Represent an unspecified ipv6 address "::"
@@ -214,7 +234,7 @@ struct std::hash<fge::net::IpAddress>
             return std::hash<fge::net::IpAddress::Ipv4Data>{}(std::get<fge::net::IpAddress::Ipv4Data>(r.g_address));
         }
         auto const& array = std::get<fge::net::IpAddress::Ipv6Data>(r.g_address);
-        return fge::Hash(array.data(), array.size()*2);
+        return fge::Hash(array.data(), array.size() * 2);
     }
 };
 
