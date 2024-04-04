@@ -135,8 +135,8 @@ fge::net::Packet& Packet::operator<<(fge::Color const& data)
 
 fge::net::Packet& Packet::operator<<(fge::net::IpAddress const& data)
 {
-    uint32_t ip = data.getNetworkByteOrder();
-    return this->append(&ip, sizeof(ip));
+    ///TODO: Do not pass by string
+    return *this << data.toString().value_or("");
 }
 
 template<class TEnum, typename>
@@ -289,9 +289,17 @@ fge::net::Packet const& Packet::operator>>(fge::Color& data) const
 
 fge::net::Packet const& Packet::operator>>(fge::net::IpAddress& data) const
 {
-    uint32_t ip = 0;
-    this->read(&ip, sizeof(uint32_t));
-    data.setNetworkByteOrdered(ip);
+    ///TODO: Do not pass by string
+    std::string ip;
+    *this >> ip;
+    if (ip.empty())
+    {
+        data = fge::net::IpAddress();
+    }
+    else
+    {
+        data = fge::net::IpAddress(ip);
+    }
     return *this;
 }
 
