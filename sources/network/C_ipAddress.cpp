@@ -352,7 +352,7 @@ std::vector<IpAddress> IpAddress::getLocalAddresses(Types type)
                 std::memcpy(ip.g_address.emplace<Ipv6Data>().data(), data, 16);
             }
 
-            currentResult = result->ai_next;
+            currentResult = currentResult->ai_next;
         } while (currentResult != nullptr);
 
         freeaddrinfo(result);
