@@ -133,6 +133,7 @@ Can be found on unix and windows :
 
 namespace
 {
+
 fge::net::Socket::Error NormalizeError()
 {
 #ifdef _WIN32
@@ -313,14 +314,64 @@ fge::net::Socket::Error NormalizeError(int err)
     }
 #endif // _WIN32
 }
+
+sockaddr* CreateAddress(sockaddr_in& addr4, sockaddr_in6& addr6, int& size, IpAddress const& address, Port port)
+{
+    sockaddr* addr = nullptr;
+    size = 0;
+    if (address.getType() == IpAddress::Types::Ipv4)
+    {
+        addr4.sin_family = AF_INET;
+        addr4.sin_addr.s_addr = std::get<IpAddress::Ipv4Data>(address.getNetworkByteOrder().value());
+        addr4.sin_port = fge::SwapHostNetEndian_16(port);
+        addr = reinterpret_cast<sockaddr*>(&addr4);
+        size = sizeof(sockaddr_in);
+    }
+    else
+    {
+        addr6.sin6_family = AF_INET6;
+        auto data = std::get<IpAddress::Ipv6Data>(address.getNetworkByteOrder().value());
+        std::memcpy(&addr6.sin6_addr.s6_addr, data.data(), data.size() * 2);
+        addr6.sin6_port = fge::SwapHostNetEndian_16(port);
+        addr = reinterpret_cast<sockaddr*>(&addr6);
+        size = sizeof(sockaddr_in6);
+    }
+
+#ifdef _FGE_MACOS
+    addr->sin_len = size;
+#endif
+
+    return addr;
+}
+
+#ifdef _FGE_MACOS
+addr->sin_len = size;
+#endif
+
 } // namespace
 
 ///Socket
 
-Socket::Socket(fge::net::Socket::Type type) :
+Socket::Socket(Type type, IpAddress::Types addressType) :
         g_type(type),
+        g_addressType(addressType),
         g_socket(_FGE_SOCKET_INVALID)
 {}
+
+void Socket::setAddressType(IpAddress::Types type)
+{
+    if (this->g_addressType == type || type == IpAddress::Types::None)
+    {
+        return;
+    }
+
+    this->g_addressType = type;
+    if (this->g_socket != _FGE_SOCKET_INVALID)
+    {
+        this->close();
+        this->create();
+    }
+}
 
 void Socket::close()
 {
@@ -358,13 +409,22 @@ fge::net::IpAddress Socket::getLocalAddress() const
     if (this->g_socket != _FGE_SOCKET_INVALID)
     {
         sockaddr_in address{};
-        fge::net::SocketLength addressSize = sizeof(address);
+        SocketLength addressSize = sizeof(address);
         if (getsockname(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
         {
-            return {fge::SwapHostNetEndian_32(address.sin_addr.s_addr)};
+            if (address.sin_family == AF_INET)
+            {
+                return fge::SwapHostNetEndian_32(address.sin_addr.s_addr);
+            }
+            if (address.sin_family == AF_INET6)
+            {
+                IpAddress ip;
+                ip.setNetworkByteOrdered(reinterpret_cast<in_addr6*>(&address.sin_addr)->u.Word);
+                return ip;
+            }
         }
     }
-    return fge::net::IpAddress::None;
+    return IpAddress::None;
 }
 fge::net::Port Socket::getRemotePort() const
 {
@@ -387,10 +447,19 @@ fge::net::IpAddress Socket::getRemoteAddress() const
         fge::net::SocketLength addressSize = sizeof(address);
         if (getpeername(this->g_socket, reinterpret_cast<sockaddr*>(&address), &addressSize) != _FGE_SOCKET_ERROR)
         {
-            return {fge::SwapHostNetEndian_32(address.sin_addr.s_addr)};
+            if (address.sin_family == AF_INET)
+            {
+                return fge::SwapHostNetEndian_32(address.sin_addr.s_addr);
+            }
+            if (address.sin_family == AF_INET6)
+            {
+                IpAddress ip;
+                ip.setNetworkByteOrdered(reinterpret_cast<in_addr6*>(&address.sin_addr)->u.Word);
+                return ip;
+            }
         }
     }
-    return fge::net::IpAddress::None;
+    return IpAddress::None;
 }
 
 bool Socket::isBlocking() const
@@ -515,8 +584,8 @@ int Socket::getPlatformSpecifiedError()
 
 ///SocketUdp
 
-SocketUdp::SocketUdp() :
-        Socket(fge::net::Socket::TYPE_UDP),
+SocketUdp::SocketUdp(IpAddress::Types addressType) :
+        Socket(fge::net::Socket::TYPE_UDP, addressType),
         g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
 {
     //Create UDP socket
@@ -528,8 +597,8 @@ SocketUdp::SocketUdp() :
     //Enable broadcast by default
     this->setBroadcastOption(true);
 }
-SocketUdp::SocketUdp(bool blocking, bool broadcast) :
-        Socket(fge::net::Socket::TYPE_UDP),
+SocketUdp::SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast) :
+        Socket(fge::net::Socket::TYPE_UDP, addressType),
         g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
 {
     //Create UDP socket
@@ -548,36 +617,44 @@ SocketUdp::~SocketUdp()
 
 fge::net::Socket::Error SocketUdp::create()
 {
+    if (this->g_addressType == IpAddress::Types::None)
+    {
+        return ERR_INVALIDARGUMENT;
+    }
+
     if (this->g_socket == _FGE_SOCKET_INVALID)
     {
         //Create UDP socket
-        this->g_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        this->g_socket =
+                socket(this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 
         if (this->g_socket == _FGE_SOCKET_INVALID)
         { //Check if valid
-            return fge::net::NormalizeError();
+            return NormalizeError();
         }
     }
-    return fge::net::Socket::ERR_NOERROR;
+    return ERR_NOERROR;
 }
 
 fge::net::Socket::Error SocketUdp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
-    // Create the remote address
-    sockaddr_in addr{};
-    addr.sin_addr.s_addr = remoteAddress.getNetworkByteOrder();
-    addr.sin_family = AF_INET;
-    addr.sin_port = fge::SwapHostNetEndian_16(remotePort);
-#ifdef _FGE_MACOS
-    addr.sin_len = sizeof(addr);
-#endif
-
-    if (::connect(this->g_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == _FGE_SOCKET_ERROR)
+    if (remoteAddress.getType() == IpAddress::Types::None)
     {
-        return fge::net::NormalizeError();
+        return ERR_INVALIDARGUMENT;
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    // Create the remote address
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    int size = 0;
+    auto* addr = CreateAddress(addr4, addr6, size, remoteAddress, remotePort);
+
+    if (::connect(this->g_socket, addr, size) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+
+    return ERR_NOERROR;
 }
 fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, IpAddress const& address)
 {
@@ -588,21 +665,18 @@ fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, IpAddress const& ad
     create();
 
     // Check if the address is valid
-    if ((address == fge::net::IpAddress::None) || (address == fge::net::IpAddress::Broadcast))
+    if (address == IpAddress::None || address == IpAddress::Ipv4Broadcast)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return ERR_INVALIDARGUMENT;
     }
 
     // Bind the socket
-    sockaddr_in addr{};
-    addr.sin_addr.s_addr = address.getNetworkByteOrder();
-    addr.sin_family = AF_INET;
-    addr.sin_port = fge::SwapHostNetEndian_16(port);
-#ifdef _FGE_MACOS
-    addr.sin_len = sizeof(addr);
-#endif
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    int size = 0;
+    auto* addr = CreateAddress(addr4, addr6, size, address, port);
 
-    if (::bind(this->g_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == _FGE_SOCKET_ERROR)
+    if (::bind(this->g_socket, addr, size) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
     }
@@ -623,17 +697,14 @@ SocketUdp::sendTo(void const* data, std::size_t size, IpAddress const& remoteAdd
     }
 
     // Build the target address
-    sockaddr_in address{};
-    address.sin_addr.s_addr = remoteAddress.getNetworkByteOrder();
-    address.sin_family = AF_INET;
-    address.sin_port = fge::SwapHostNetEndian_16(remotePort);
-#ifdef _FGE_MACOS
-    address.sin_len = sizeof(address);
-#endif
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    int addrSize = 0;
+    auto* addr = CreateAddress(addr4, addr6, addrSize, remoteAddress, remotePort);
 
     // Send the data (unlike TCP, all the data is always sent in one call)
-    int sent = sendto(this->g_socket, static_cast<char const*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG,
-                      reinterpret_cast<sockaddr*>(&address), sizeof(address));
+    int sent = sendto(this->g_socket, static_cast<char const*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG, addr,
+                      addrSize);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -678,17 +749,32 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
     }
 
     // Data that will be filled with the other computer's address
-    sockaddr_in address{};
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = 0;
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    sockaddr* addr = nullptr;
+    int addrSize = 0;
+    if (this->g_addressType == IpAddress::Types::Ipv4)
+    {
+        addr4.sin_addr.s_addr = INADDR_ANY;
+        addr4.sin_port = 0;
+        addr = reinterpret_cast<sockaddr*>(&addr4);
+        addrSize = sizeof(sockaddr_in);
+    }
+    else
+    {
+        addr6.sin6_addr = in6addr_any;
+        addr6.sin6_port = 0;
+        addr = reinterpret_cast<sockaddr*>(&addr6);
+        addrSize = sizeof(sockaddr_in6);
+    }
 #ifdef _FGE_MACOS
-    address.sin_len = sizeof(address);
+    addr->sin_len = addrSize;
 #endif
 
     // Receive a chunk of bytes
-    fge::net::SocketLength addressSize = sizeof(address);
+    fge::net::SocketLength addressSize = addrSize;
     int sizeReceived = recvfrom(this->g_socket, static_cast<char*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG,
-                                reinterpret_cast<sockaddr*>(&address), &addressSize);
+                                addr, &addressSize);
 
     // Check for errors
     if (sizeReceived == _FGE_SOCKET_ERROR)
@@ -698,9 +784,16 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
 
     // Fill the sender informations
     received = static_cast<std::size_t>(sizeReceived);
-    remoteAddress.setNetworkByteOrdered(address.sin_addr.s_addr);
-    remotePort = fge::SwapHostNetEndian_16(address.sin_port);
-
+    if (this->g_addressType == IpAddress::Types::Ipv4)
+    {
+        remoteAddress.setNetworkByteOrdered(addr4.sin_addr.s_addr);
+        remotePort = fge::SwapHostNetEndian_16(addr4.sin_port);
+    }
+    else
+    {
+        remoteAddress.setNetworkByteOrdered(addr6.sin6_addr.s6_addr);
+        remotePort = fge::SwapHostNetEndian_16(addr6.sin6_port);
+    }
     return fge::net::Socket::ERR_NOERROR;
 }
 fge::net::Socket::Error SocketUdp::receive(void* data, std::size_t size, std::size_t& received)
@@ -766,13 +859,10 @@ SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge:
     }
 
     // Build the target address
-    sockaddr_in address{};
-    address.sin_addr.s_addr = remoteAddress.getNetworkByteOrder();
-    address.sin_family = AF_INET;
-    address.sin_port = fge::SwapHostNetEndian_16(remotePort);
-#ifdef _FGE_MACOS
-    address.sin_len = sizeof(address);
-#endif
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    int addrSize = 0;
+    auto* addr = CreateAddress(addr4, addr6, addrSize, remoteAddress, remotePort);
 
     if (!packet._g_lastDataValidity)
     {
@@ -782,8 +872,7 @@ SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge:
 
     // Send the data (unlike TCP, all the data is always sent in one call)
     int sent = sendto(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
-                      static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG,
-                      reinterpret_cast<sockaddr*>(&address), sizeof(address));
+                      static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG, addr, addrSize);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -831,8 +920,8 @@ fge::net::SocketUdp& SocketUdp::operator=(fge::net::SocketUdp&& r) noexcept
 
 ///SocketTcp
 
-SocketTcp::SocketTcp() :
-        Socket(fge::net::Socket::TYPE_TCP),
+SocketTcp::SocketTcp(IpAddress::Types addressType) :
+        Socket(fge::net::Socket::TYPE_TCP, addressType),
         g_receivedSize(0),
         g_wantedSize(0),
         g_buffer(FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE)
@@ -843,8 +932,8 @@ SocketTcp::SocketTcp() :
     //Set the blocking state to false by default
     this->setBlocking(false);
 }
-SocketTcp::SocketTcp(bool blocking) :
-        Socket(fge::net::Socket::TYPE_TCP),
+SocketTcp::SocketTcp(IpAddress::Types addressType, bool blocking) :
+        Socket(fge::net::Socket::TYPE_TCP, addressType),
         g_receivedSize(0),
         g_wantedSize(0),
         g_buffer(FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE)
@@ -902,10 +991,16 @@ fge::net::Socket::Error SocketTcp::create(fge::net::Socket::SocketDescriptor sck
 }
 fge::net::Socket::Error SocketTcp::create()
 {
+    if (this->g_addressType == IpAddress::Types::None)
+    {
+        return ERR_INVALIDARGUMENT;
+    }
+
     if (this->g_socket == _FGE_SOCKET_INVALID)
     {
         //Create TCP socket
-        this->g_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        this->g_socket =
+                socket(this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
         if (this->g_socket == _FGE_SOCKET_INVALID)
         { //Check if valid
@@ -940,21 +1035,18 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
     this->g_wantedSize = 0;
 
     // Create the internal socket if it doesn't exist
-    this->create();
+    this->create(this->g_type);
 
     // Create the remote address
-    sockaddr_in address{};
-    address.sin_addr.s_addr = remoteAddress.getNetworkByteOrder();
-    address.sin_family = AF_INET;
-    address.sin_port = fge::SwapHostNetEndian_16(remotePort);
-#ifdef _FGE_MACOS
-    address.sin_len = sizeof(address);
-#endif
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    int addrSize = 0;
+    auto* addr = CreateAddress(addr4, addr6, addrSize, remoteAddress, remotePort);
 
     if (timeoutms == 0)
     {
         // Connect the socket
-        if (::connect(this->g_socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == _FGE_SOCKET_ERROR)
+        if (::connect(this->g_socket, addr, addrSize) == _FGE_SOCKET_ERROR)
         {
             return fge::net::NormalizeError();
         }
@@ -972,7 +1064,7 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
     }
 
     // Try to connect to the remote address
-    if (::connect(this->g_socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != _FGE_SOCKET_ERROR)
+    if (::connect(this->g_socket, addr, addrSize) != _FGE_SOCKET_ERROR)
     {
         // We got instantly connected! (it may no happen a lot...)
         this->setBlocking(blocking);
@@ -1257,8 +1349,8 @@ fge::net::SocketTcp& SocketTcp::operator=(fge::net::SocketTcp&& r) noexcept
 
 ///SocketListenerTcp
 
-SocketListenerTcp::SocketListenerTcp() :
-        Socket(fge::net::Socket::TYPE_LISTENER_TCP)
+SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType) :
+        Socket(fge::net::Socket::TYPE_LISTENER_TCP, addressType)
 {
     //Create TCP socket
     this->create();
@@ -1266,8 +1358,8 @@ SocketListenerTcp::SocketListenerTcp() :
     //Set the blocking state to false by default
     this->setBlocking(false);
 }
-SocketListenerTcp::SocketListenerTcp(bool blocking) :
-        Socket(fge::net::Socket::TYPE_LISTENER_TCP)
+SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType, bool blocking) :
+        Socket(fge::net::Socket::TYPE_LISTENER_TCP, addressType)
 {
     //Create TCP socket
     this->create();
@@ -1282,10 +1374,16 @@ SocketListenerTcp::~SocketListenerTcp()
 
 fge::net::Socket::Error SocketListenerTcp::create()
 {
+    if (this->g_addressType == IpAddress::Types::None)
+    {
+        return ERR_INVALIDARGUMENT;
+    }
+
     if (this->g_socket == _FGE_SOCKET_INVALID)
     {
         //Create TCP socket
-        this->g_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        this->g_socket =
+                socket(this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
         if (this->g_socket == _FGE_SOCKET_INVALID)
         { //Check if valid
@@ -1319,21 +1417,18 @@ fge::net::Socket::Error SocketListenerTcp::listen(fge::net::Port port, fge::net:
     this->create();
 
     // Check if the address is valid
-    if ((address == fge::net::IpAddress::None) || (address == fge::net::IpAddress::Broadcast))
+    if (address == IpAddress::None || address == IpAddress::Ipv4Broadcast)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return ERR_INVALIDARGUMENT;
     }
 
     // Bind the socket to the specified port
-    sockaddr_in addr{};
-    addr.sin_addr.s_addr = address.getNetworkByteOrder();
-    addr.sin_family = AF_INET;
-    addr.sin_port = fge::SwapHostNetEndian_16(port);
-#ifdef _FGE_MACOS
-    addr.sin_len = sizeof(addr);
-#endif
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    int addrSize = 0;
+    auto* addr = CreateAddress(addr4, addr6, addrSize, address, port);
 
-    if (bind(this->g_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == _FGE_SOCKET_ERROR)
+    if (bind(this->g_socket, addr, addrSize) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
     }
