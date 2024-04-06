@@ -59,7 +59,7 @@ public:
     using Ipv6Data = std::array<uint16_t, 8>;
     using Data = std::variant<Ipv4Data, Ipv6Data>;
 
-    enum class Types
+    enum class Types : uint8_t
     {
         None,
         Ipv4,
@@ -96,18 +96,27 @@ public:
      */
     IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept;
     /**
-     * \brief Build an ipv4 address from 8 words
+     * \brief Build an ipv4 address from 8 words in host byte order
+     *
+     * \warning the first word is the most significant word.
      *
      * \param words The 8 words representing the ipv6 address in host byte order
      */
     IpAddress(std::initializer_list<uint16_t> words) noexcept;
-    IpAddress(uint16_t const words[8]) noexcept;
+    /**
+     * \brief Build an ipv4 address from Ipv6Data in host byte order
+     *
+     * \warning the first word is the least significant word.
+     *
+     * \param data The Ipv6Data representing the address in host byte order
+     */
+    IpAddress(Ipv6Data const& data) noexcept;
     /**
      * \brief Build an ipv4 address from a host byte order integer
      *
      * \param address The host byte order integer
      */
-    IpAddress(uint32_t address) noexcept;
+    IpAddress(Ipv4Data address) noexcept;
     ~IpAddress() = default;
 
     /**
@@ -132,45 +141,58 @@ public:
      */
     bool set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0);
     /**
-     * \brief Build an ipv6 address from 8 words
+     * \brief Build an ipv6 address from 8 words in host byte order
      *
      * Manualy build an ipv6 address with a initializer list.
-     * the first word is the most significant word.
+     * \warning the first word is the most significant word.
      *
      * \param words The 8 words representing the ipv6 address in host byte order
      */
     bool set(std::initializer_list<uint16_t> words);
     /**
-     * \brief Build an ipv6 address from 8 words
+     * \brief Build an ipv6 address from Ipv6Data in host byte order
      *
      * \warning Contrary to the initializer list, the first word is the least significant word.
      *
-     * \param words The 8 words representing the ipv6 address in host byte order
+     * \param data The Ipv6Data representing the ipv6 address in host byte order
      * \return \b true if the address is valid, \b false otherwise
      */
-    bool set(uint16_t const words[8]);
+    bool set(Ipv6Data const& data);
+    /**
+     * \brief Build an ipv6 address from a host byte order array of bytes
+     *
+     * \param bytes The host byte order array
+     * \return \b true if the address is valid, \b false otherwise
+     */
+    bool set(uint8_t const bytes[16]);
     /**
      * \brief Build an ipv4 address from a host byte order integer
      *
      * \param address The host byte order integer
      * \return \b true if the address is valid, \b false otherwise
      */
-    bool set(uint32_t address);
+    bool set(Ipv4Data address);
     /**
      * \brief Build an ipv4 address from a network byte order integer
      *
      * \param address The network byte order integer
      * \return \b true if the address is valid, \b false otherwise
      */
-    bool setNetworkByteOrdered(uint32_t address);
+    bool setNetworkByteOrdered(Ipv4Data address);
     /**
      * \brief Build an ipv6 address from a network byte order data
      *
-     * \param words The network byte order data
+     * \param data The network byte order data
      * \return \b true if the address is valid, \b false otherwise
      */
-    bool setNetworkByteOrdered(uint16_t const words[8]);
-    bool setNetworkByteOrdered(uint8_t const words[16]);
+    bool setNetworkByteOrdered(Ipv6Data const& data);
+    /**
+     * \brief Build an ipv6 address from a network byte order array of bytes
+     *
+     * \param bytes The network byte order array
+     * \return \b true if the address is valid, \b false otherwise
+     */
+    bool setNetworkByteOrdered(uint8_t const bytes[16]);
 
     [[nodiscard]] bool operator==(IpAddress const& r) const;
 

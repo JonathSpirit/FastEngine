@@ -102,12 +102,12 @@ IpAddress::IpAddress(std::initializer_list<uint16_t> words) noexcept :
 {
     this->set(words);
 }
-IpAddress::IpAddress(uint16_t const words[8]) noexcept :
+IpAddress::IpAddress(Ipv6Data const& data) noexcept :
         g_address(std::monostate{})
 {
-    this->set(words);
+    this->set(data);
 }
-IpAddress::IpAddress(uint32_t address) noexcept :
+IpAddress::IpAddress(Ipv4Data address) noexcept :
         g_address(fge::SwapHostNetEndian_32(address))
 {}
 
@@ -200,33 +200,42 @@ bool IpAddress::set(std::initializer_list<uint16_t> words)
     }
     return true;
 }
-bool IpAddress::set(uint16_t const words[8])
+bool IpAddress::set(Ipv6Data const& data)
 {
     auto& array = this->g_address.emplace<Ipv6Data>();
     for (std::size_t i = 8; i > 0; --i)
     {
-        array[i - 1] = fge::SwapHostNetEndian_16(words[8 - i]);
+        array[i - 1] = fge::SwapHostNetEndian_16(data[8 - i]);
     }
     return true;
 }
-bool IpAddress::set(uint32_t address)
+bool IpAddress::set(uint8_t const bytes[16])
+{
+    auto& array = this->g_address.emplace<Ipv6Data>();
+    for (std::size_t i = 16; i > 0; --i)
+    {
+        reinterpret_cast<uint8_t*>(array.data())[i - 1] = bytes[16 - i];
+    }
+    return true;
+}
+bool IpAddress::set(Ipv4Data address)
 {
     this->g_address = fge::SwapHostNetEndian_32(address);
     return true;
 }
-bool IpAddress::setNetworkByteOrdered(uint32_t address)
+bool IpAddress::setNetworkByteOrdered(Ipv4Data address)
 {
     this->g_address = address;
     return true;
 }
-bool IpAddress::setNetworkByteOrdered(uint16_t const words[8])
+bool IpAddress::setNetworkByteOrdered(Ipv6Data const& data)
 {
-    std::memcpy(this->g_address.emplace<Ipv6Data>().data(), words, 16);
+    this->g_address.emplace<Ipv6Data>(data);
     return true;
 }
-bool IpAddress::setNetworkByteOrdered(uint8_t const words[16])
+bool IpAddress::setNetworkByteOrdered(uint8_t const bytes[16])
 {
-    std::memcpy(this->g_address.emplace<Ipv6Data>().data(), words, 16);
+    std::memcpy(this->g_address.emplace<Ipv6Data>().data(), bytes, 16);
     return true;
 }
 
