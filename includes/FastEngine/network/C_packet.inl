@@ -143,7 +143,7 @@ template<class TEnum, typename>
 fge::net::Packet& Packet::operator<<(TEnum const& data)
 {
     using TTEnum = std::underlying_type_t<TEnum>;
-    return this->append(&reinterpret_cast<TTEnum const&>(data), sizeof(TTEnum));
+    return this->pack(&reinterpret_cast<TTEnum const&>(data), sizeof(TTEnum));
 }
 
 ///
