@@ -74,13 +74,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::string title = "Life simulator server, FastEngine " + std::string{FGE_VERSION_FULL_WITHTAG_STRING};
     fge::SetConsoleCmdTitle(title.c_str());
 
-    fge::net::ServerSideNetUdp server;
-    ///TODO: fge::net::ServerUdp should have a function to create a packet for us.
-    /// This will save some time if the user want to re-change the packet type.
+    //Creating the server
+    //Here you can choose between Ipv4 or Ipv6
+    fge::net::ServerSideNetUdp server(fge::net::IpAddress::Types::Ipv4);
 
     //Starting the server with an LZ4 compression
     std::cout << "starting the server on port " << LIFESIM_SERVER_PORT << " ..." << std::endl;
-    if (!server.start<fge::net::PacketLZ4>(LIFESIM_SERVER_PORT))
+    if (!server.start<fge::net::PacketLZ4>(LIFESIM_SERVER_PORT, fge::net::IpAddress::Any(server.getAddressType())))
     {
         std::cout << "can't start the server on this port !" << std::endl;
         TERMINUS(-1)
@@ -199,7 +199,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 auto timeout = (*it).second->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
                 if (timeout >= LIFESIM_TIMEOUT_COUNT)
                 {
-                    std::cout << "user : " << (*it).first._ip.toString() << " disconnected (timeout) !" << std::endl;
+                    std::cout << "user : " << (*it).first._ip.toString().value_or("UNDEFINED")
+                              << " disconnected (timeout) !" << std::endl;
 
                     auto packet = std::make_shared<fge::net::PacketLZ4>();
 
@@ -299,8 +300,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             //The client is valid, we can connect him
                             transmissionPacket->packet() << true;
 
-                            std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString() << " connected !"
-                                      << std::endl;
+                            std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED")
+                                      << " connected !" << std::endl;
 
                             //Create the new client with the packet identity
                             client = std::make_shared<fge::net::Client>();

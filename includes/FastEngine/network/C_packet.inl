@@ -135,15 +135,27 @@ fge::net::Packet& Packet::operator<<(fge::Color const& data)
 
 fge::net::Packet& Packet::operator<<(fge::net::IpAddress const& data)
 {
-    uint32_t ip = data.getNetworkByteOrder();
-    return this->append(&ip, sizeof(ip));
+    auto const type = data.getType();
+    *this << type;
+    if (type == IpAddress::Types::None)
+    {
+        return *this;
+    }
+
+    if (type == IpAddress::Types::Ipv4)
+    {
+        auto const ipv4 = std::get<IpAddress::Ipv4Data>(data.getNetworkByteOrder().value());
+        return this->append(&ipv4, sizeof(IpAddress::Ipv4Data));
+    }
+    auto const ipv6 = std::get<IpAddress::Ipv6Data>(data.getNetworkByteOrder().value());
+    return this->append(ipv6.data(), ipv6.size() * 2);
 }
 
 template<class TEnum, typename>
 fge::net::Packet& Packet::operator<<(TEnum const& data)
 {
     using TTEnum = std::underlying_type_t<TEnum>;
-    return this->append(&reinterpret_cast<TTEnum const&>(data), sizeof(TTEnum));
+    return this->pack(&reinterpret_cast<TTEnum const&>(data), sizeof(TTEnum));
 }
 
 ///
@@ -289,9 +301,24 @@ fge::net::Packet const& Packet::operator>>(fge::Color& data) const
 
 fge::net::Packet const& Packet::operator>>(fge::net::IpAddress& data) const
 {
-    uint32_t ip = 0;
-    this->read(&ip, sizeof(uint32_t));
-    data.setNetworkByteOrdered(ip);
+    IpAddress::Types type{IpAddress::Types::None};
+    *this >> type;
+    if (type == IpAddress::Types::None)
+    {
+        data = IpAddress::None;
+        return *this;
+    }
+
+    if (type == IpAddress::Types::Ipv4)
+    {
+        IpAddress::Ipv4Data ipv4{};
+        this->read(&ipv4, sizeof(IpAddress::Ipv4Data));
+        data.setNetworkByteOrdered(ipv4);
+        return *this;
+    }
+    IpAddress::Ipv6Data ipv6{};
+    this->read(ipv6.data(), ipv6.size() * 2);
+    data.setNetworkByteOrdered(ipv6);
     return *this;
 }
 

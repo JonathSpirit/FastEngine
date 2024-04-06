@@ -100,14 +100,30 @@ public:
      *
      * \return The type of the socket
      */
-    inline fge::net::Socket::Type getType() { return this->g_type; }
+    [[nodiscard]] inline Type getType() const { return this->g_type; }
+    /**
+     * \brief Get the address type of the socket
+     *
+     * By default, the address type is Ipv4.
+     *
+     * \return The address type of the socket (Ipv4 or Ipv6)
+     */
+    [[nodiscard]] inline IpAddress::Types getAddressType() const { return this->g_addressType; }
+    /**
+     * \brief Set the address type of the socket
+     *
+     * When the address type is changed, the socket is closed and recreated.
+     *
+     * \param type The address type of the socket (Ipv4 or Ipv6)
+     */
+    void setAddressType(IpAddress::Types type);
 
     /**
      * \brief Create a new socket
      *
      * \return If successful, Error::ERR_NOERROR is returned, otherwise an error code is returned
      */
-    virtual fge::net::Socket::Error create() = 0;
+    virtual Error create() = 0;
     /**
      * \brief Close the socket
      */
@@ -173,7 +189,7 @@ public:
      * \param mode The blocking mode to set
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error setBlocking(bool mode);
+    Error setBlocking(bool mode);
     /**
      * \brief Set if the socket reuse the address
      *
@@ -183,7 +199,7 @@ public:
      * \param mode The reuse mode to set
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error setReuseAddress(bool mode);
+    Error setReuseAddress(bool mode);
     /**
      * \brief Set if the socket support broadcast
      *
@@ -193,7 +209,7 @@ public:
      * \param mode The broadcast mode to set
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error setBroadcastOption(bool mode);
+    Error setBroadcastOption(bool mode);
 
     /**
      * \brief Check the socket for readability or writability
@@ -207,7 +223,7 @@ public:
      * \param timeoutms The timeout in milliseconds
      * \return Error::ERR_NOERROR if the socket is ready, otherwise an error code
      */
-    fge::net::Socket::Error select(bool read, uint32_t timeoutms);
+    Error select(bool read, uint32_t timeoutms);
 
     /**
      * \brief Init the low-level socket library
@@ -233,11 +249,12 @@ public:
     Socket(fge::net::Socket const& r) = delete;
 
 protected:
-    explicit Socket(fge::net::Socket::Type type);
+    explicit Socket(Type type, IpAddress::Types addressType = IpAddress::Types::Ipv4);
     virtual ~Socket() = default;
 
-    fge::net::Socket::Type g_type;
-    fge::net::Socket::SocketDescriptor g_socket;
+    Type g_type;
+    IpAddress::Types g_addressType{IpAddress::Types::Ipv4};
+    SocketDescriptor g_socket;
     bool g_isBlocking;
 };
 
@@ -249,8 +266,8 @@ protected:
 class FGE_API SocketUdp : public fge::net::Socket
 {
 public:
-    SocketUdp();
-    SocketUdp(bool blocking, bool broadcast);
+    explicit SocketUdp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
+    SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast);
     ~SocketUdp() override;
 
     fge::net::Socket::Error create() override;
@@ -278,7 +295,7 @@ public:
      * \param address The local address to bind to
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error bind(fge::net::Port port, IpAddress const& address = fge::net::IpAddress::Any);
+    fge::net::Socket::Error bind(fge::net::Port port, IpAddress const& address);
 
     /**
      * \brief Send data to the connected remote address
@@ -389,8 +406,8 @@ private:
 class FGE_API SocketTcp : public fge::net::Socket
 {
 public:
-    SocketTcp();
-    explicit SocketTcp(bool blocking);
+    explicit SocketTcp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
+    explicit SocketTcp(IpAddress::Types addressType, bool blocking);
     ~SocketTcp() override;
 
     /**
@@ -511,8 +528,8 @@ private:
 class FGE_API SocketListenerTcp : public fge::net::Socket
 {
 public:
-    SocketListenerTcp();
-    explicit SocketListenerTcp(bool blocking);
+    explicit SocketListenerTcp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
+    explicit SocketListenerTcp(IpAddress::Types addressType, bool blocking);
     ~SocketListenerTcp() override;
 
     /**
@@ -529,7 +546,7 @@ public:
      * \param address The address to listen on or fge::net::IpAddress::Any
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    fge::net::Socket::Error listen(fge::net::Port port, fge::net::IpAddress const& address = fge::net::IpAddress::Any);
+    fge::net::Socket::Error listen(fge::net::Port port, fge::net::IpAddress const& address);
     /**
      * \brief Accept a new connection
      *

@@ -17,7 +17,6 @@
 #ifndef _FGE_C_IDENTITY_HPP_INCLUDED
 #define _FGE_C_IDENTITY_HPP_INCLUDED
 
-#include "FastEngine/fge_extern.hpp"
 #include "C_ipAddress.hpp"
 
 namespace fge::net
@@ -30,10 +29,10 @@ namespace fge::net
  */
 struct Identity
 {
-    fge::net::IpAddress _ip;
-    fge::net::Port _port;
+    IpAddress _ip;
+    Port _port;
 
-    inline bool operator==(fge::net::Identity const& right) const
+    inline bool operator==(Identity const& right) const
     {
         return (this->_ip == right._ip) && (this->_port == right._port);
     }
@@ -46,10 +45,11 @@ struct Identity
  */
 struct IdentityHash
 {
-    inline std::size_t operator()(fge::net::Identity const& id) const
+    inline std::size_t operator()(Identity const& id) const
     {
-        return std::hash<uint64_t>()(static_cast<uint64_t>(id._ip.getNetworkByteOrder()) |
-                                     (static_cast<uint64_t>(id._port) << 32));
+        auto const h1 = std::hash<IpAddress>{}(id._ip);
+        auto const h2 = std::hash<Port>{}(id._port);
+        return h1 ^ (h2 << 1);
     }
 };
 
