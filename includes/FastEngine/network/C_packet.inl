@@ -135,8 +135,20 @@ fge::net::Packet& Packet::operator<<(fge::Color const& data)
 
 fge::net::Packet& Packet::operator<<(fge::net::IpAddress const& data)
 {
-    ///TODO: Do not pass by string
-    return *this << data.toString().value_or("");
+    auto const type = data.getType();
+    *this << type;
+    if (type == IpAddress::Types::None)
+    {
+        return *this;
+    }
+
+    if (type == IpAddress::Types::Ipv4)
+    {
+        auto const ipv4 = std::get<IpAddress::Ipv4Data>(data.getNetworkByteOrder().value());
+        return this->append(&ipv4, sizeof(IpAddress::Ipv4Data));
+    }
+    auto const ipv6 = std::get<IpAddress::Ipv6Data>(data.getNetworkByteOrder().value());
+    return this->append(ipv6.data(), ipv6.size() * 2);
 }
 
 template<class TEnum, typename>
@@ -289,17 +301,24 @@ fge::net::Packet const& Packet::operator>>(fge::Color& data) const
 
 fge::net::Packet const& Packet::operator>>(fge::net::IpAddress& data) const
 {
-    ///TODO: Do not pass by string
-    std::string ip;
-    *this >> ip;
-    if (ip.empty())
+    IpAddress::Types type{IpAddress::Types::None};
+    *this >> type;
+    if (type == IpAddress::Types::None)
     {
-        data = fge::net::IpAddress();
+        data = IpAddress::None;
+        return *this;
     }
-    else
+
+    if (type == IpAddress::Types::Ipv4)
     {
-        data = fge::net::IpAddress(ip);
+        IpAddress::Ipv4Data ipv4{};
+        this->read(&ipv4, sizeof(IpAddress::Ipv4Data));
+        data.setNetworkByteOrdered(ipv4);
+        return *this;
     }
+    IpAddress::Ipv6Data ipv6{};
+    this->read(ipv6.data(), ipv6.size() * 2);
+    data.setNetworkByteOrdered(ipv6);
     return *this;
 }
 
