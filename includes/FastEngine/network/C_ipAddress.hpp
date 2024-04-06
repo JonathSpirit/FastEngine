@@ -66,6 +66,12 @@ public:
         Ipv6
     };
 
+    enum class CheckHostname
+    {
+        No,
+        Yes
+    };
+
     /**
      * \brief Build a default invalid IP address
      */
@@ -73,12 +79,13 @@ public:
     /**
      * \brief Build an address from a string
      *
-     * The string can be in the form XXX.XXX.XXX.XXX, ipv6, or a hostname.
+     * The string can be in the ipv4 form XXX.XXX.XXX.XXX, ipv6, or a hostname.
      *
      * \param address A string representing the address
+     * \param check Control if the method should check if the address is a hostname or not
      */
-    IpAddress(std::string const& address);
-    IpAddress(char const* address);
+    IpAddress(std::string const& address, CheckHostname check = CheckHostname::Yes);
+    IpAddress(char const* address, CheckHostname check = CheckHostname::Yes);
     /**
      * \brief Build an ipv4 address from 4 bytes
      *
@@ -106,13 +113,14 @@ public:
     /**
      * \brief Build an address from a string
      *
-     * The string can be in the form XXX.XXX.XXX.XXX, ipv6, or a hostname.
+     * The string can be in the ipv4 form XXX.XXX.XXX.XXX, ipv6, or a hostname.
      *
      * \param address A string representing the address
+     * \param check Control if the method should check if the address is a hostname or not
      * \return \b true if the address is valid, \b false otherwise
      */
-    bool set(std::string const& address);
-    bool set(char const* address);
+    bool set(std::string const& address, CheckHostname check = CheckHostname::Yes);
+    bool set(char const* address, CheckHostname check = CheckHostname::Yes);
     /**
      * \brief Build an ipv4 address from 4 bytes
      *

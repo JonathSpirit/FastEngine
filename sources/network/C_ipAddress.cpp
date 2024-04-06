@@ -84,15 +84,15 @@ IpAddress const IpAddress::Ipv4Broadcast(255, 255, 255, 255);
 IpAddress::IpAddress() noexcept :
         g_address(std::monostate{})
 {}
-IpAddress::IpAddress(std::string const& address) :
+IpAddress::IpAddress(std::string const& address, CheckHostname check) :
         g_address(std::monostate{})
 {
-    this->set(address.c_str());
+    this->set(address.c_str(), check);
 }
-IpAddress::IpAddress(char const* address) :
+IpAddress::IpAddress(char const* address, CheckHostname check) :
         g_address(std::monostate{})
 {
-    this->set(address);
+    this->set(address, check);
 }
 IpAddress::IpAddress(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept :
         g_address(fge::SwapHostNetEndian_32((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0))
@@ -111,11 +111,11 @@ IpAddress::IpAddress(uint32_t address) noexcept :
         g_address(fge::SwapHostNetEndian_32(address))
 {}
 
-bool IpAddress::set(std::string const& address)
+bool IpAddress::set(std::string const& address, CheckHostname check)
 {
-    return this->set(address.c_str());
+    return this->set(address.c_str(), check);
 }
-bool IpAddress::set(char const* address)
+bool IpAddress::set(char const* address, CheckHostname check)
 {
     if (std::strcmp(address, "255.255.255.255") == 0)
     { //Ipv4 broadcast
@@ -151,6 +151,12 @@ bool IpAddress::set(char const* address)
     }
 
     //Maybe host name
+    if (check == CheckHostname::No)
+    {
+        this->g_address = std::monostate{};
+        return false;
+    }
+
     addrinfo* result = nullptr;
 
     if (getaddrinfo(address, nullptr, nullptr, &result) == 0 && result != nullptr)
