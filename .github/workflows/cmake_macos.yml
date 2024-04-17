@@ -17,12 +17,17 @@ jobs:
       with:
         submodules: 'recursive'
     
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{github.workspace}}/build
-    
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v2
       id: cpu-cores
+    
+    - name: actions-setup-cmake
+      uses: jwlawson/actions-setup-cmake@v2.0.2
+      with:
+        cmake-version: '3.28.x'
+    
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
     
     - name: Handling project dependencies
       shell: bash

@@ -45,6 +45,11 @@ jobs:
         libglu1-mesa-dev freeglut3-dev mesa-common-dev libflac-dev libogg-dev \
         libvorbis-dev libopenal-dev libxcursor-dev
     
+    - name: actions-setup-cmake
+      uses: jwlawson/actions-setup-cmake@v2.0.2
+      with:
+        cmake-version: '3.28.x'
+    
     - name: Handling project dependencies
       shell: bash
       working-directory: ${{github.workspace}}/deps
