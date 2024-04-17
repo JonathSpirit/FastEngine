@@ -163,5 +163,9 @@ glm::mat4 const& View::getInverseTransform() const
 
     return this->g_inverseTransform;
 }
+glm::mat4 View::getProjectionMatrix() const
+{
+    return glm::ortho<float>(0.0f, this->g_size.x, this->g_size.y, 0.0f);
+}
 
 } // namespace fge

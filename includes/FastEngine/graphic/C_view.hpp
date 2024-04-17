@@ -120,6 +120,7 @@ public:
      */
     glm::mat4 const& getTransform() const;
     glm::mat4 const& getInverseTransform() const;
+    glm::mat4 getProjectionMatrix() const;
 
 private:
     fge::Vector2f g_center;
