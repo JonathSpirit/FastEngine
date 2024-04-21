@@ -125,7 +125,7 @@ void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
                                         [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                         fge::GuiElementContext& context)
 {
-    auto mousePosition = context._handler->getRenderTarget().mapPixelToCoords(
+    auto mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(
             {context._mousePosition.x, context._mousePosition.y},
             *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
@@ -149,7 +149,7 @@ void ObjSlider::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
     {
         fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        fge::Vector2f mousePos = renderTarget.mapPixelToCoords(
+        fge::Vector2f mousePos = renderTarget.mapFramebufferCoordsToWorldSpace(
                 {arg.x, arg.y}, *this->_myObjectData.lock()->getLinkedScene()->getRelatedView());
 
         auto scale = this->getParentsScale().y * this->getScale().y;
@@ -189,11 +189,11 @@ void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
         fge::Vector2f mousePosition;
         if (customView)
         {
-            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition, *customView);
+            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition, *customView);
         }
         else
         {
-            mousePosition = context._handler->getRenderTarget().mapPixelToCoords(context._mousePosition);
+            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
         }
 
         if (scrollRect.contains(mousePosition))

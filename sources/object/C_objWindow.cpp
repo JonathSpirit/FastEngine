@@ -421,7 +421,7 @@ void ObjWindow::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
     {
         fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        fge::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, renderTarget.getDefaultView());
+        fge::Vector2f mousePos = renderTarget.mapFramebufferCoordsToWorldSpace({arg.x, arg.y}, renderTarget.getDefaultView());
 
         fge::Vector2f newPosition = mousePos + this->g_mouseClickLastPosition;
         newPosition.x = std::clamp(newPosition.x, 0.0f,
@@ -436,7 +436,7 @@ void ObjWindow::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
     {
         fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        fge::Vector2f mousePos = renderTarget.mapPixelToCoords({arg.x, arg.y}, renderTarget.getDefaultView());
+        fge::Vector2f mousePos = renderTarget.mapFramebufferCoordsToWorldSpace({arg.x, arg.y}, renderTarget.getDefaultView());
 
         fge::Vector2f mouseDiff{this->g_resizeModeX == ObjWindow::ResizeModes::MODE_FREE
                                         ? (mousePos.x - this->g_mouseClickLastPosition.x) / this->getScale().x

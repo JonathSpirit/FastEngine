@@ -43,7 +43,7 @@ void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWhe
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
     context._mouseGuiPosition =
-            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+            this->g_target->mapFramebufferCoordsToWorldSpace(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -73,7 +73,7 @@ void GuiElementHandler::onMouseButtonPressed(fge::Event const& evt, SDL_MouseBut
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
     context._mouseGuiPosition =
-            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+            this->g_target->mapFramebufferCoordsToWorldSpace(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -103,7 +103,7 @@ void GuiElementHandler::onMouseButtonReleased(fge::Event const& evt, SDL_MouseBu
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
     context._mouseGuiPosition =
-            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+            this->g_target->mapFramebufferCoordsToWorldSpace(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
@@ -133,7 +133,7 @@ void GuiElementHandler::onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent
     fge::GuiElementContext context{};
     context._mousePosition = {arg.x, arg.y};
     context._mouseGuiPosition =
-            this->g_target->mapPixelToCoords(context._mousePosition, this->g_target->getDefaultView());
+            this->g_target->mapFramebufferCoordsToWorldSpace(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
 
     std::vector<fge::ObjectDataShared> keepAliveObject;
