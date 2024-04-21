@@ -678,7 +678,7 @@ fge::Vector2f
 TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView)
 {
     fge::Vector2f const normalized = pointView.getProjectionMatrix() * pointView.getTransform() * point;
-    return newView.getInverseTransform() * normalized;
+    return newView.getInverseTransform() * newView.getInverseProjectionMatrix() * normalized;
 }
 
 fge::View ClipView(fge::View const& view,
@@ -815,20 +815,20 @@ fge::View ClipView(fge::View const& view,
 fge::RectFloat GetScreenRect(fge::RenderTarget const& target)
 {
     fge::Vector2f positions[4] = {
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, 0)),
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, 0)),
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, target.getSize().y)),
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, target.getSize().y))};
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, 0)),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, 0)),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, target.getSize().y)),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, target.getSize().y))};
 
     return fge::ToRect(positions, 4);
 }
 fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view)
 {
     fge::Vector2f positions[4] = {
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, 0), view),
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, 0), view),
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, target.getSize().y), view),
-            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, 0), view),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, 0), view),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, target.getSize().y), view),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
 }
