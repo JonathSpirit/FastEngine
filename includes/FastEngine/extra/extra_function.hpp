@@ -211,13 +211,6 @@ enum class ClipClampModes
                                          fge::ClipClampModes clampMode);
 
 ///Render
-[[nodiscard]] FGE_API fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target);
-[[nodiscard]] FGE_API fge::RectInt
-CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target, fge::View const& view);
-[[nodiscard]] FGE_API fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target);
-[[nodiscard]] FGE_API fge::RectFloat
-PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge::View const& view);
-
 [[nodiscard]] FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target);
 [[nodiscard]] FGE_API fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view);
 
