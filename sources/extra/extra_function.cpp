@@ -814,19 +814,21 @@ fge::View ClipView(fge::View const& view,
 ///Render
 fge::RectFloat GetScreenRect(fge::RenderTarget const& target)
 {
-    fge::Vector2f positions[4] = {target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, 0)),
-                                  target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, 0)),
-                                  target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, target.getSize().y)),
-                                  target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, target.getSize().y))};
+    fge::Vector2f positions[4] = {
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, 0)),
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, 0)),
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, target.getSize().y)),
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, target.getSize().y))};
 
     return fge::ToRect(positions, 4);
 }
 fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view)
 {
-    fge::Vector2f positions[4] = {target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, 0), view),
-                                  target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, 0), view),
-                                  target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, target.getSize().y), view),
-                                  target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
+    fge::Vector2f positions[4] = {
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, 0), view),
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, 0), view),
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(0, target.getSize().y), view),
+            target.mapFramebufferCoordsToViewSpace(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
 }

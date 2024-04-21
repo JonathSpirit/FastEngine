@@ -189,11 +189,13 @@ void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
         fge::Vector2f mousePosition;
         if (customView)
         {
-            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition, *customView);
+            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition,
+                                                                                                 *customView);
         }
         else
         {
-            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
+            mousePosition =
+                    context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
         }
 
         if (scrollRect.contains(mousePosition))

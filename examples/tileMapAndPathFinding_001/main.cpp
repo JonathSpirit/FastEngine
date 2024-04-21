@@ -258,7 +258,8 @@ public:
         //Create event callback for mouse button pressed
         event._onMouseButtonDown.addLambda([&](fge::Event const&, SDL_MouseButtonEvent const& mouseButtonEvent) {
             //Get the mouse position
-            auto mousePosition = renderWindow.mapFramebufferCoordsToWorldSpace(fge::Vector2i{mouseButtonEvent.x, mouseButtonEvent.y});
+            auto mousePosition = renderWindow.mapFramebufferCoordsToWorldSpace(
+                    fge::Vector2i{mouseButtonEvent.x, mouseButtonEvent.y});
 
             //Set the pathfinder goal when the left mouse button is pressed
             if (mouseButtonEvent.button == SDL_BUTTON_LEFT)

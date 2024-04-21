@@ -16,12 +16,12 @@
 
 #include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/C_texture.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
-#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
@@ -169,15 +169,13 @@ Vector2i RenderTarget::mapViewCoordsToFramebufferSpace(Vector2f const& point, Vi
     glm::vec4 ndc = view.getProjectionMatrix() * pointVec4;
 
     // Transform the NDC to framebuffer space with the viewport
-    ndc.x = (ndc.x+1.0f) / 2.0f;
-    ndc.y = (-ndc.y+1.0f) / 2.0f;
+    ndc.x = (ndc.x + 1.0f) / 2.0f;
+    ndc.y = (-ndc.y + 1.0f) / 2.0f;
 
     auto const viewport = this->getViewport(view);
 
-    Vector2i const pixel{
-        static_cast<int>(ndc.x * viewport.getWidth() + viewport.getPositionX()),
-        static_cast<int>(ndc.y * viewport.getHeight() + viewport.getPositionY())
-    };
+    Vector2i const pixel{static_cast<int>(ndc.x * viewport.getWidth() + viewport.getPositionX()),
+                         static_cast<int>(ndc.y * viewport.getHeight() + viewport.getPositionY())};
 
     return pixel;
 }
@@ -197,10 +195,10 @@ RectFloat RenderTarget::mapFramebufferRectToViewSpace(RectInt const& rect) const
 RectFloat RenderTarget::mapFramebufferRectToViewSpace(RectInt const& rect, View const& view) const
 {
     Vector2f const positions[4] = {
-        this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x, rect._y}, view),
-        this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x + rect._width, rect._y}, view),
-        this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x, rect._y + rect._height}, view),
-        this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x + rect._width, rect._y + rect._height}, view)};
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x, rect._y}, view),
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x + rect._width, rect._y}, view),
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x, rect._y + rect._height}, view),
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x + rect._width, rect._y + rect._height}, view)};
 
     return ToRect(positions, 4);
 }
@@ -211,10 +209,10 @@ RectFloat RenderTarget::mapFramebufferRectToWorldSpace(RectInt const& rect) cons
 RectFloat RenderTarget::mapFramebufferRectToWorldSpace(RectInt const& rect, View const& view) const
 {
     Vector2f const positions[4] = {
-        this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x, rect._y}, view),
-        this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x + rect._width, rect._y}, view),
-        this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x, rect._y + rect._height}, view),
-        this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x + rect._width, rect._y + rect._height}, view)};
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x, rect._y}, view),
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x + rect._width, rect._y}, view),
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x, rect._y + rect._height}, view),
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x + rect._width, rect._y + rect._height}, view)};
 
     return ToRect(positions, 4);
 }
@@ -226,10 +224,10 @@ RectInt RenderTarget::mapViewRectToFramebufferSpace(RectFloat const& rect) const
 RectInt RenderTarget::mapViewRectToFramebufferSpace(RectFloat const& rect, View const& view) const
 {
     Vector2i const positions[4] = {
-        this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x, rect._y}, view),
-        this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y}, view),
-        this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x, rect._y + rect._height}, view),
-        this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y + rect._height}, view)};
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x, rect._y}, view),
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y}, view),
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x, rect._y + rect._height}, view),
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y + rect._height}, view)};
 
     return ToRect(positions, 4);
 }
@@ -240,10 +238,10 @@ RectInt RenderTarget::mapWorldRectToFramebufferSpace(RectFloat const& rect) cons
 RectInt RenderTarget::mapWorldRectToFramebufferSpace(RectFloat const& rect, View const& view) const
 {
     Vector2i const positions[4] = {
-        this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x, rect._y}, view),
-        this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y}, view),
-        this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x, rect._y + rect._height}, view),
-        this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y + rect._height}, view)};
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x, rect._y}, view),
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y}, view),
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x, rect._y + rect._height}, view),
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y + rect._height}, view)};
 
     return ToRect(positions, 4);
 }
@@ -285,7 +283,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     //Apply view transform
     if (states._resTransform.get() != nullptr)
     {
-        states._resTransform.get()->getData()._viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+        states._resTransform.get()->getData()._viewTransform =
+                this->getView().getProjectionMatrix() * this->getView().getTransform();
     }
 
     //Updating graphicPipeline
