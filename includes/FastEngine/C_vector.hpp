@@ -19,6 +19,8 @@
 
 #include <cstdint>
 #define GLM_FORCE_CTOR_INIT
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_LEFT_HANDED
 #include "glm/glm.hpp"
 
 #define FGE_NUMERIC_LIMITS_VECTOR_MAX(_vecType) (_vecType{std::numeric_limits<_vecType::value_type>::max()})
