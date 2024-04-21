@@ -107,10 +107,25 @@ public:
     [[nodiscard]] View const& getDefaultView() const;
     [[nodiscard]] fge::vulkan::Viewport getViewport(View const& view) const;
 
-    [[nodiscard]] Vector2f mapPixelToCoords(Vector2i const& point) const;
-    [[nodiscard]] Vector2f mapPixelToCoords(Vector2i const& point, View const& view) const;
-    [[nodiscard]] Vector2i mapCoordsToPixel(Vector2f const& point) const;
-    [[nodiscard]] Vector2i mapCoordsToPixel(Vector2f const& point, View const& view) const;
+    [[nodiscard]] Vector2f mapFramebufferCoordsToViewSpace(Vector2i const& point) const;
+    [[nodiscard]] Vector2f mapFramebufferCoordsToViewSpace(Vector2i const& point, View const& view) const;
+    [[nodiscard]] Vector2f mapFramebufferCoordsToWorldSpace(Vector2i const& point) const;
+    [[nodiscard]] Vector2f mapFramebufferCoordsToWorldSpace(Vector2i const& point, View const& view) const;
+
+    [[nodiscard]] Vector2i mapViewCoordsToFramebufferSpace(Vector2f const& point) const;
+    [[nodiscard]] Vector2i mapViewCoordsToFramebufferSpace(Vector2f const& point, View const& view) const;
+    [[nodiscard]] Vector2i mapWorldCoordsToFramebufferSpace(Vector2f const& point) const;
+    [[nodiscard]] Vector2i mapWorldCoordsToFramebufferSpace(Vector2f const& point, View const& view) const;
+
+    [[nodiscard]] RectFloat mapFramebufferRectToViewSpace(RectInt const& rect) const;
+    [[nodiscard]] RectFloat mapFramebufferRectToViewSpace(RectInt const& rect, View const& view) const;
+    [[nodiscard]] RectFloat mapFramebufferRectToWorldSpace(RectInt const& rect) const;
+    [[nodiscard]] RectFloat mapFramebufferRectToWorldSpace(RectInt const& rect, View const& view) const;
+
+    [[nodiscard]] RectInt mapViewRectToFramebufferSpace(RectFloat const& rect) const;
+    [[nodiscard]] RectInt mapViewRectToFramebufferSpace(RectFloat const& rect, View const& view) const;
+    [[nodiscard]] RectInt mapWorldRectToFramebufferSpace(RectFloat const& rect) const;
+    [[nodiscard]] RectInt mapWorldRectToFramebufferSpace(RectFloat const& rect, View const& view) const;
 
     virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
