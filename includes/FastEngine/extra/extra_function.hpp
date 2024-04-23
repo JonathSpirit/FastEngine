@@ -182,6 +182,17 @@ GetNearestPoint(fge::Vector2f const& point, TIterator const& pointsBegin, TItera
 [[nodiscard]] inline constexpr float
 GetHandedness(fge::Vector2f const& vec1, fge::Vector2f const& vec2, fge::Vector2f const& vec3);
 
+//Convert a 'x' value ranging from xMin-Xmax to a 'y' value ranging from yMin-Ymax
+[[nodiscard]] inline constexpr float ConvertRange(float x, float xMin, float xMax, float yMin, float yMax);
+[[nodiscard]] inline constexpr fge::Vector2f ConvertRange(fge::Vector2f const& x,
+                                                          fge::Vector2f const& xMin,
+                                                          fge::Vector2f const& xMax,
+                                                          fge::Vector2f const& yMin,
+                                                          fge::Vector2f const& yMax);
+
+[[nodiscard]] inline constexpr fge::Vector2f MapCircleToSquareCoords(fge::Vector2f const& circleCoords);
+[[nodiscard]] inline constexpr fge::Vector2f MapSquareToCircleCoords(fge::Vector2f const& squareCoords);
+
 /*
 Implementation of Andrew's monotone chain 2D convex hull algorithm.
 Asymptotic complexity: O(n log n).

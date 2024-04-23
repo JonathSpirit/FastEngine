@@ -16,7 +16,6 @@
 
 namespace fge
 {
-
 ///Utility
 char UnicodeToChar(uint32_t unicode)
 {
@@ -210,6 +209,41 @@ inline constexpr float GetHandedness(fge::Vector2f const& vec1, fge::Vector2f co
     auto const edge2 = vec3 - vec2;
 
     return fge::Cross2d(edge1, edge2);
+}
+
+inline constexpr float ConvertRange(float x, float xMin, float xMax, float yMin, float yMax)
+{
+    float const a = (yMax - yMin) / (xMax - xMin);
+    float const b = yMin - xMin * a;
+    return a * x + b;
+}
+inline constexpr fge::Vector2f ConvertRange(fge::Vector2f const& x,
+                                            fge::Vector2f const& xMin,
+                                            fge::Vector2f const& xMax,
+                                            fge::Vector2f const& yMin,
+                                            fge::Vector2f const& yMax)
+{
+    return fge::Vector2f{ConvertRange(x.x, xMin.x, xMax.x, yMin.x, yMax.x),
+                         ConvertRange(x.y, xMin.y, xMax.y, yMin.y, yMax.y)};
+}
+
+inline constexpr fge::Vector2f MapCircleToSquareCoords(fge::Vector2f const& circleCoords)
+{
+    fge::Vector2f const circleCoordsPow2 = circleCoords * circleCoords;
+
+    return fge::Vector2f{0.5f * std::sqrt(2.0f + circleCoordsPow2.x - circleCoordsPow2.y +
+                                          2.0f * circleCoords.x * static_cast<float>(M_SQRT2)) -
+                                 0.5f * std::sqrt(2.0f + circleCoordsPow2.x - circleCoordsPow2.y -
+                                                  2.0f * circleCoords.x * static_cast<float>(M_SQRT2)),
+                         0.5f * std::sqrt(2.0f - circleCoordsPow2.x + circleCoordsPow2.y +
+                                          2.0f * circleCoords.y * static_cast<float>(M_SQRT2)) -
+                                 0.5f * std::sqrt(2.0f - circleCoordsPow2.x + circleCoordsPow2.y -
+                                                  2.0f * circleCoords.y * static_cast<float>(M_SQRT2))};
+}
+inline constexpr fge::Vector2f MapSquareToCircleCoords(fge::Vector2f const& squareCoords)
+{
+    return fge::Vector2f{squareCoords.x * std::sqrt(1.0f - 0.5f * squareCoords.y * squareCoords.y),
+                         squareCoords.y * std::sqrt(1.0f - 0.5f * squareCoords.x * squareCoords.x)};
 }
 
 ///Color
