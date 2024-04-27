@@ -95,7 +95,7 @@ public:
 
         objSliderFreq->_onSlide.addLambda([&](float ratio) {
             math_f = std::clamp(3.0f * ratio, 0.1f, 3.0f);
-            frequencyText->setString(fge::string::ToStr(math_f) + "Hz");
+            frequencyText->setString(fge::string::ToStr(math_f, 2, false) + "Hz");
         });
 
         //Add a rectangle representing the bounds of the moving text

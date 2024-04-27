@@ -353,6 +353,7 @@ FGE_API std::string ToStr(unsigned long long int val);
  * \return The converted string
  */
 FGE_API std::string ToStr(float val);
+FGE_API std::string ToStr(float val, unsigned int precision, bool keepExtraZeros = false);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a double to a string
@@ -361,6 +362,7 @@ FGE_API std::string ToStr(float val);
  * \return The converted string
  */
 FGE_API std::string ToStr(double val);
+FGE_API std::string ToStr(double val, unsigned int precision, bool keepExtraZeros = false);
 /**
  * \ingroup extraString
  * \brief Convert efficiently a long double to a string
@@ -369,6 +371,7 @@ FGE_API std::string ToStr(double val);
  * \return The converted string
  */
 FGE_API std::string ToStr(long double val);
+FGE_API std::string ToStr(long double val, unsigned int precision, bool keepExtraZeros = false);
 
 //Pointer
 /**
