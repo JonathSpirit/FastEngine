@@ -319,13 +319,55 @@ std::string ToStr(float val)
 {
     return fmt::format(FMT_COMPILE("{}"), val);
 }
+std::string ToStr(float val, unsigned int precision, bool keepExtraZeros)
+{
+    std::string result = fmt::format(FMT_COMPILE("{:.{}f}"), val, precision);
+    if (!keepExtraZeros)
+    {
+        auto pos = result.find_last_not_of('0');
+        pos += 1 + static_cast<unsigned>(result[pos] == '.');
+        if (pos < result.length())
+        {
+            result.erase(pos, std::string::npos);
+        }
+    }
+    return result;
+}
 std::string ToStr(double val)
 {
     return fmt::format(FMT_COMPILE("{}"), val);
 }
+std::string ToStr(double val, unsigned int precision, bool keepExtraZeros)
+{
+    std::string result = fmt::format(FMT_COMPILE("{:.{}f}"), val, precision);
+    if (!keepExtraZeros)
+    {
+        auto pos = result.find_last_not_of('0');
+        pos += 1 + static_cast<unsigned>(result[pos] == '.');
+        if (pos < result.length())
+        {
+            result.erase(pos, std::string::npos);
+        }
+    }
+    return result;
+}
 std::string ToStr(long double val)
 {
     return fmt::format(FMT_COMPILE("{}"), val);
+}
+std::string ToStr(long double val, unsigned int precision, bool keepExtraZeros)
+{
+    std::string result = fmt::format(FMT_COMPILE("{:.{}f}"), val, precision);
+    if (!keepExtraZeros)
+    {
+        auto pos = result.find_last_not_of('0');
+        pos += 1 + static_cast<unsigned>(result[pos] == '.');
+        if (pos < result.length())
+        {
+            result.erase(pos, std::string::npos);
+        }
+    }
+    return result;
 }
 
 //Pointer

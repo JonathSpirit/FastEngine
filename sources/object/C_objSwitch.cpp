@@ -69,7 +69,8 @@ FGE_OBJ_UPDATE_BODY(ObjSwitch) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjSwitch)
 {
-    this->g_statMouseOn = fge::IsMouseOn(screen.mapPixelToCoords(event.getMousePixelPos()), this->getGlobalBounds());
+    this->g_statMouseOn =
+            fge::IsMouseOn(screen.mapFramebufferCoordsToWorldSpace(event.getMousePixelPos()), this->getGlobalBounds());
 
     if (this->g_flag.check(event.isMouseButtonPressed(SDL_BUTTON_LEFT)))
     {

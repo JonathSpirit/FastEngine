@@ -118,9 +118,10 @@ public:
      *
      * \return A glm::mat4 of the view
      */
-    glm::mat4 const& getTransform() const;
-    glm::mat4 const& getInverseTransform() const;
-    glm::mat4 getProjectionMatrix() const;
+    [[nodiscard]] glm::mat4 const& getTransform() const;
+    [[nodiscard]] glm::mat4 const& getInverseTransform() const;
+    [[nodiscard]] glm::mat4 getProjectionMatrix() const;
+    [[nodiscard]] glm::mat4 getInverseProjectionMatrix() const;
 
 private:
     fge::Vector2f g_center;

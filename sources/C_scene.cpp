@@ -753,14 +753,16 @@ std::size_t Scene::getAllObj_ByLocalPosition(fge::Vector2i const& pos,
                                              fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByPosition(
-            target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()), buff);
+            target.mapFramebufferCoordsToWorldSpace(pos, this->g_customView ? *this->g_customView : target.getView()),
+            buff);
 }
 std::size_t Scene::getAllObj_ByLocalZone(fge::RectInt const& zone,
                                          fge::RenderTarget const& target,
                                          fge::ObjectContainer& buff) const
 {
     return this->getAllObj_ByZone(
-            fge::PixelToCoordRect(zone, target, this->g_customView ? *this->g_customView : target.getView()), buff);
+            target.mapFramebufferRectToWorldSpace(zone, this->g_customView ? *this->g_customView : target.getView()),
+            buff);
 }
 std::size_t Scene::getAllObj_FromLocalPosition(fge::Vector2i const& pos,
                                                fge::RenderTarget const& target,
@@ -769,8 +771,8 @@ std::size_t Scene::getAllObj_FromLocalPosition(fge::Vector2i const& pos,
     std::size_t objCount = 0;
     for (auto const& data: this->g_data)
     {
-        auto objBounds = fge::CoordToPixelRect(data->g_object->getGlobalBounds(), target,
-                                               this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds = target.mapViewRectToFramebufferSpace(
+                data->g_object->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.contains(pos))
         {
             ++objCount;
@@ -786,8 +788,8 @@ std::size_t Scene::getAllObj_FromLocalZone(fge::RectInt const& zone,
     std::size_t objCount = 0;
     for (auto const& data: this->g_data)
     {
-        auto objBounds = fge::CoordToPixelRect(data->g_object->getGlobalBounds(), target,
-                                               this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds = target.mapViewRectToFramebufferSpace(
+                data->g_object->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.findIntersection(zone))
         {
             ++objCount;
@@ -857,12 +859,12 @@ fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(fge::Vector2i const& po
                                                          fge::RenderTarget const& target) const
 {
     return this->getFirstObj_ByPosition(
-            target.mapPixelToCoords(pos, this->g_customView ? *this->g_customView : target.getView()));
+            target.mapFramebufferCoordsToWorldSpace(pos, this->g_customView ? *this->g_customView : target.getView()));
 }
 fge::ObjectDataShared Scene::getFirstObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const
 {
     return this->getFirstObj_ByZone(
-            fge::PixelToCoordRect(zone, target, this->g_customView ? *this->g_customView : target.getView()));
+            target.mapFramebufferRectToWorldSpace(zone, this->g_customView ? *this->g_customView : target.getView()));
 }
 fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& pos,
                                                            fge::RenderTarget const& target) const
@@ -870,8 +872,8 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& 
     for (auto const& data: this->g_data)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
-        auto objBounds = fge::CoordToPixelRect(buffObj->getGlobalBounds(), target,
-                                               this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds = target.mapViewRectToFramebufferSpace(
+                buffObj->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.contains(pos))
         {
             return data;
@@ -884,8 +886,8 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(fge::RectInt const& zone,
     for (auto const& data: this->g_data)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
-        auto objBounds = fge::CoordToPixelRect(buffObj->getGlobalBounds(), target,
-                                               this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds = target.mapViewRectToFramebufferSpace(
+                buffObj->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
         if (objBounds.findIntersection(zone))
         {
             return data;

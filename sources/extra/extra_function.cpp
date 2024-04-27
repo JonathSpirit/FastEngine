@@ -415,7 +415,7 @@ bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone)
     int x = 0;
     int y = 0;
     SDL_GetMouseState(&x, &y);
-    return zone.contains(target.mapPixelToCoords({x, y}));
+    return zone.contains(target.mapFramebufferCoordsToViewSpace({x, y}));
 }
 bool IsMouseOn(fge::Vector2f const& mousePos, fge::RectFloat const& zone)
 {
@@ -677,8 +677,8 @@ fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage, fge::View c
 fge::Vector2f
 TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView)
 {
-    fge::Vector2f const normalized = pointView.getTransform() * point;
-    return newView.getInverseTransform() * normalized;
+    fge::Vector2f const normalized = pointView.getProjectionMatrix() * pointView.getTransform() * point;
+    return newView.getInverseTransform() * newView.getInverseProjectionMatrix() * normalized;
 }
 
 fge::View ClipView(fge::View const& view,
@@ -812,62 +812,23 @@ fge::View ClipView(fge::View const& view,
 }
 
 ///Render
-fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target)
-{
-    fge::Vector2i positions[4] = {
-            target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y)),
-            target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y)),
-            target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y + rect._height)),
-            target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y + rect._height))};
-
-    return fge::ToRect(positions, 4);
-}
-fge::RectInt CoordToPixelRect(fge::RectFloat const& rect, fge::RenderTarget const& target, fge::View const& view)
-{
-    fge::Vector2i positions[4] = {
-            target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y), view),
-            target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y), view),
-            target.mapCoordsToPixel(fge::Vector2f(rect._x, rect._y + rect._height), view),
-            target.mapCoordsToPixel(fge::Vector2f(rect._x + rect._width, rect._y + rect._height), view)};
-
-    return fge::ToRect(positions, 4);
-}
-fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target)
-{
-    fge::Vector2f positions[4] = {
-            target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y)),
-            target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y)),
-            target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y + rect._height)),
-            target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y + rect._height))};
-
-    return fge::ToRect(positions, 4);
-}
-fge::RectFloat PixelToCoordRect(fge::RectInt const& rect, fge::RenderTarget const& target, fge::View const& view)
-{
-    fge::Vector2f positions[4] = {
-            target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y), view),
-            target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y), view),
-            target.mapPixelToCoords(fge::Vector2i(rect._x, rect._y + rect._height), view),
-            target.mapPixelToCoords(fge::Vector2i(rect._x + rect._width, rect._y + rect._height), view)};
-
-    return fge::ToRect(positions, 4);
-}
-
 fge::RectFloat GetScreenRect(fge::RenderTarget const& target)
 {
-    fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(0, 0)),
-                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0)),
-                                  target.mapPixelToCoords(fge::Vector2i(0, target.getSize().y)),
-                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y))};
+    fge::Vector2f positions[4] = {
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, 0)),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, 0)),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, target.getSize().y)),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, target.getSize().y))};
 
     return fge::ToRect(positions, 4);
 }
 fge::RectFloat GetScreenRect(fge::RenderTarget const& target, fge::View const& view)
 {
-    fge::Vector2f positions[4] = {target.mapPixelToCoords(fge::Vector2i(0, 0), view),
-                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, 0), view),
-                                  target.mapPixelToCoords(fge::Vector2i(0, target.getSize().y), view),
-                                  target.mapPixelToCoords(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
+    fge::Vector2f positions[4] = {
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, 0), view),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, 0), view),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(0, target.getSize().y), view),
+            target.mapFramebufferCoordsToWorldSpace(fge::Vector2i(target.getSize().x, target.getSize().y), view)};
 
     return fge::ToRect(positions, 4);
 }

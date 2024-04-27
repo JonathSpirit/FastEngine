@@ -16,6 +16,7 @@
 
 #include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/C_texture.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
@@ -131,41 +132,118 @@ fge::vulkan::Viewport RenderTarget::getViewport(View const& view) const
     return {size.x * viewport._x, size.y * viewport._y, size.x * viewport._width, size.y * viewport._height};
 }
 
-Vector2f RenderTarget::mapPixelToCoords(Vector2i const& point) const
+Vector2f RenderTarget::mapFramebufferCoordsToViewSpace(Vector2i const& point) const
 {
-    return this->mapPixelToCoords(point, this->getView());
+    return this->mapFramebufferCoordsToViewSpace(point, this->getView());
 }
-Vector2f RenderTarget::mapPixelToCoords(Vector2i const& point, View const& view) const
+Vector2f RenderTarget::mapFramebufferCoordsToViewSpace(Vector2i const& point, View const& view) const
 {
-    // First, convert from viewport coordinates to homogeneous coordinates
+    // Transform the point to normalized device coordinates (assuming it's already in homogeneous coordinates)
     glm::vec4 normalized;
-    auto viewport = this->getViewport(view);
+    auto const viewport = this->getViewport(view);
     normalized.x = -1.f + 2.f * (static_cast<float>(point.x) - viewport.getPositionX()) / viewport.getWidth();
     normalized.y = 1.f - 2.f * (static_cast<float>(point.y) - viewport.getPositionY()) / viewport.getHeight();
     normalized.z = 0.0f;
     normalized.w = 1.0f;
 
-    // Then transform by the inverse of the view matrix
-    return view.getInverseTransform() * normalized;
+    // Transform the homogeneous coordinates to world coordinates
+    return view.getInverseProjectionMatrix() * normalized;
 }
-Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point) const
+Vector2f RenderTarget::mapFramebufferCoordsToWorldSpace(Vector2i const& point) const
 {
-    return this->mapCoordsToPixel(point, this->getView());
+    return this->mapFramebufferCoordsToWorldSpace(point, this->getView());
 }
-Vector2i RenderTarget::mapCoordsToPixel(Vector2f const& point, View const& view) const
+Vector2f RenderTarget::mapFramebufferCoordsToWorldSpace(Vector2i const& point, View const& view) const
+{
+    return view.getInverseTransform() * this->mapFramebufferCoordsToViewSpace(point, view);
+}
+Vector2i RenderTarget::mapViewCoordsToFramebufferSpace(Vector2f const& point) const
+{
+    return this->mapViewCoordsToFramebufferSpace(point, this->getView());
+}
+Vector2i RenderTarget::mapViewCoordsToFramebufferSpace(Vector2f const& point, View const& view) const
 {
     glm::vec4 const pointVec4(point, 0.0f, 1.0f);
 
-    // First, transform the point by the view matrix
-    glm::vec4 const normalized = view.getTransform() * pointVec4;
+    // Transform the point to clip space (assuming it's already NDC)
+    glm::vec4 ndc = view.getProjectionMatrix() * pointVec4;
 
-    // Then convert to viewport coordinates
-    Vector2i pixel;
-    auto viewport = this->getViewport(view);
-    pixel.x = static_cast<int>((normalized.x + 1.f) / 2.f * viewport.getWidth() + viewport.getPositionX());
-    pixel.y = static_cast<int>((-normalized.y + 1.f) / 2.f * viewport.getHeight() + viewport.getPositionY());
+    // Transform the NDC to framebuffer space with the viewport
+    ndc.x = (ndc.x + 1.0f) / 2.0f;
+    ndc.y = (-ndc.y + 1.0f) / 2.0f;
+
+    auto const viewport = this->getViewport(view);
+
+    Vector2i const pixel{static_cast<int>(ndc.x * viewport.getWidth() + viewport.getPositionX()),
+                         static_cast<int>(ndc.y * viewport.getHeight() + viewport.getPositionY())};
 
     return pixel;
+}
+Vector2i RenderTarget::mapWorldCoordsToFramebufferSpace(Vector2f const& point) const
+{
+    return this->mapWorldCoordsToFramebufferSpace(point, this->getView());
+}
+Vector2i RenderTarget::mapWorldCoordsToFramebufferSpace(Vector2f const& point, View const& view) const
+{
+    return this->mapViewCoordsToFramebufferSpace(view.getTransform() * point, view);
+}
+
+RectFloat RenderTarget::mapFramebufferRectToViewSpace(RectInt const& rect) const
+{
+    return this->mapFramebufferRectToViewSpace(rect, this->getView());
+}
+RectFloat RenderTarget::mapFramebufferRectToViewSpace(RectInt const& rect, View const& view) const
+{
+    Vector2f const positions[4] = {
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x, rect._y}, view),
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x + rect._width, rect._y}, view),
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x, rect._y + rect._height}, view),
+            this->mapFramebufferCoordsToViewSpace(Vector2i{rect._x + rect._width, rect._y + rect._height}, view)};
+
+    return ToRect(positions, 4);
+}
+RectFloat RenderTarget::mapFramebufferRectToWorldSpace(RectInt const& rect) const
+{
+    return this->mapFramebufferRectToWorldSpace(rect, this->getView());
+}
+RectFloat RenderTarget::mapFramebufferRectToWorldSpace(RectInt const& rect, View const& view) const
+{
+    Vector2f const positions[4] = {
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x, rect._y}, view),
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x + rect._width, rect._y}, view),
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x, rect._y + rect._height}, view),
+            this->mapFramebufferCoordsToWorldSpace(Vector2i{rect._x + rect._width, rect._y + rect._height}, view)};
+
+    return ToRect(positions, 4);
+}
+
+RectInt RenderTarget::mapViewRectToFramebufferSpace(RectFloat const& rect) const
+{
+    return this->mapViewRectToFramebufferSpace(rect, this->getView());
+}
+RectInt RenderTarget::mapViewRectToFramebufferSpace(RectFloat const& rect, View const& view) const
+{
+    Vector2i const positions[4] = {
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x, rect._y}, view),
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y}, view),
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x, rect._y + rect._height}, view),
+            this->mapViewCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y + rect._height}, view)};
+
+    return ToRect(positions, 4);
+}
+RectInt RenderTarget::mapWorldRectToFramebufferSpace(RectFloat const& rect) const
+{
+    return this->mapWorldRectToFramebufferSpace(rect, this->getView());
+}
+RectInt RenderTarget::mapWorldRectToFramebufferSpace(RectFloat const& rect, View const& view) const
+{
+    Vector2i const positions[4] = {
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x, rect._y}, view),
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y}, view),
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x, rect._y + rect._height}, view),
+            this->mapWorldCoordsToFramebufferSpace(Vector2f{rect._x + rect._width, rect._y + rect._height}, view)};
+
+    return ToRect(positions, 4);
 }
 
 void RenderTarget::draw(Drawable const& drawable, RenderStates const& states)
@@ -205,7 +283,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     //Apply view transform
     if (states._resTransform.get() != nullptr)
     {
-        states._resTransform.get()->getData()._viewTransform = this->getView().getTransform();
+        states._resTransform.get()->getData()._viewTransform =
+                this->getView().getProjectionMatrix() * this->getView().getTransform();
     }
 
     //Updating graphicPipeline

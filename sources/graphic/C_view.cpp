@@ -139,9 +139,7 @@ glm::mat4 const& View::getTransform() const
 {
     if (!this->g_transformUpdated)
     {
-        this->g_transform = glm::ortho<float>(0.0f, this->g_size.x, this->g_size.y, 0.0f);
-
-        this->g_transform = glm::translate(this->g_transform, glm::vec3{this->g_size / 2.0f - this->g_center, 0.0f});
+        this->g_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{this->g_size / 2.0f - this->g_center, 0.0f});
 
         this->g_transform = glm::translate(this->g_transform, glm::vec3{this->g_center, 0.0f});
         this->g_transform =
@@ -166,6 +164,10 @@ glm::mat4 const& View::getInverseTransform() const
 glm::mat4 View::getProjectionMatrix() const
 {
     return glm::ortho<float>(0.0f, this->g_size.x, this->g_size.y, 0.0f);
+}
+glm::mat4 View::getInverseProjectionMatrix() const
+{
+    return glm::inverse(this->getProjectionMatrix());
 }
 
 } // namespace fge

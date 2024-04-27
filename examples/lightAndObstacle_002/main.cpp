@@ -93,7 +93,7 @@ public:
         auto* follow = scene->_properties["follow"].getPtr<std::string>();
         if (follow != nullptr && *follow == "obstacle" && !this->_tags.check("duplicate"))
         {
-            this->setPosition(screen.mapPixelToCoords(event.getMousePixelPos()));
+            this->setPosition(screen.mapFramebufferCoordsToViewSpace(event.getMousePixelPos()));
         }
     }
 
@@ -313,7 +313,7 @@ public:
             auto* follow = this->_properties["follow"].getPtr<std::string>();
             if (follow != nullptr && *follow == "light")
             {
-                light->getObject()->setPosition(renderWindow.mapPixelToCoords(event.getMousePixelPos()));
+                light->getObject()->setPosition(renderWindow.mapFramebufferCoordsToViewSpace(event.getMousePixelPos()));
             }
 
             //Drawing

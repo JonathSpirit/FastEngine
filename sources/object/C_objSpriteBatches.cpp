@@ -253,7 +253,7 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     //Update the view matrix (always the first element of the buffer)
     auto* view = static_cast<InstanceDataBuffer*>(this->g_instancesTransform.getBufferMapped());
-    view->_transform = target.getView().getTransform();
+    view->_transform = target.getView().getProjectionMatrix() * target.getView().getTransform();
 
     //Update all model matrices
     for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
