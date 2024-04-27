@@ -102,11 +102,6 @@ AddCmakeDependency(re2
         "-DRE2_BUILD_TESTING=OFF -DBUILD_TESTING=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
-AddSingleHeaderDependency(strtk
-        https://github.com/ArashPartow/strtk.git
-        d2b446bf1f7854e8b08f5295ec6f6852cae066a2
-        "strtk.hpp")
-
 AddCmakeDependency(freetype
         https://gitlab.freedesktop.org/freetype/freetype.git
         VER-2-13-2

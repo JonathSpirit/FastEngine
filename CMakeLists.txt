@@ -145,10 +145,6 @@ add_compile_definitions(VMA_VULKAN_VERSION=1001000) #VulkanMemoryAllocator
 add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0)
 add_compile_definitions(VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
 
-get_filename_component(DEPS_strtk_HEADER_FOLDER ${DEPS_strtk_HEADER_FILE} DIRECTORY) #strtk
-target_include_directories(${FGE_LIB_NAME} PRIVATE ${DEPS_strtk_HEADER_FOLDER})
-target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE ${DEPS_strtk_HEADER_FOLDER})
-
 #Compile options
 if (MSVC)
     target_compile_options(${FGE_LIB_NAME} PRIVATE /W4 /wd4251 /wd4275 /wd26812)
