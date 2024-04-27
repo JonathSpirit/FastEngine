@@ -197,7 +197,7 @@ public:
      * \brief Copy constructor that does nothing
      */
     CallbackHandler([[maybe_unused]] fge::CallbackHandler<Types...> const& n) :
-            fge::Subscription() {};
+            fge::Subscription(){};
     /**
      * \brief Move constructor prohibited
      */
