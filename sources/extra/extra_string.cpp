@@ -17,23 +17,10 @@
 #include "FastEngine/extra/extra_string.hpp"
 #include "FastEngine/C_property.hpp"
 
-#ifdef __GNUC__
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    #pragma GCC diagnostic ignored "-Wshadow"
-    #pragma GCC diagnostic ignored "-Wdeprecated-copy"
-    #pragma GCC diagnostic ignored "-Warray-bounds"
-#endif //__GNUC__
-
-#define strtk_no_tr1_or_boost
-#include "strtk.hpp"
-
-#ifdef __GNUC__
-    #pragma GCC diagnostic pop
-#endif //__GNUC__
-
 #include "fmt/compile.h"
 #include "fmt/format.h"
+#include "private/fast_float.h"
+#include <sstream>
 
 namespace fge::string
 {
@@ -83,101 +70,101 @@ bool IsValidUtf8String(std::string const& str)
 uint8_t ToUint8(std::string const& str)
 {
     uint8_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 uint16_t ToUint16(std::string const& str)
 {
     uint16_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 uint32_t ToUint32(std::string const& str)
 {
     uint32_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 uint64_t ToUint64(std::string const& str)
 {
     uint64_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 int8_t ToInt8(std::string const& str)
 {
     int8_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 int16_t ToInt16(std::string const& str)
 {
     int16_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 int32_t ToInt32(std::string const& str)
 {
     int32_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 int64_t ToInt64(std::string const& str)
 {
     int64_t result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 
 unsigned int ToUint(std::string const& str)
 {
     unsigned int result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 int ToInt(std::string const& str)
 {
     int result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 
 unsigned long long int ToUlong(std::string const& str)
 {
     unsigned long long int result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 long long int ToLong(std::string const& str)
 {
     long long int result = 0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 
 float ToFloat(std::string const& str)
 {
     float result = 0.0f;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 double ToDouble(std::string const& str)
 {
     double result = 0.0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 long double ToLongDouble(std::string const& str)
 {
     long double result = 0.0;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 
 bool ToBool(std::string const& str)
 {
     bool result = false;
-    strtk::string_to_type_converter(str, result);
+    fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
 void* ToPtr(std::string const& str)
