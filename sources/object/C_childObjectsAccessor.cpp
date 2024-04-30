@@ -47,17 +47,18 @@ void ChildObjectsAccessor::addExistingObject(fge::Object* object, std::size_t in
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
-        it = this->g_data.insert(
-                this->g_data.end(),
-                {object, fge::ObjectDataShared{new fge::ObjectData{linkedScene, fge::ObjectPtr{object}},
-                                               DataContext::NotHandledObjectDeleter{}}});
+        it = this->g_data.insert(this->g_data.end(),
+                                 {object, fge::ObjectDataShared{new fge::ObjectData{linkedScene, fge::ObjectPtr{object},
+                                                                                    owner->getSid()},
+                                                                DataContext::NotHandledObjectDeleter{}}});
     }
     else
     {
         it = this->g_data.insert(
                 this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
-                {object, fge::ObjectDataShared{new fge::ObjectData{linkedScene, fge::ObjectPtr{object}},
-                                               DataContext::NotHandledObjectDeleter{}}});
+                {object,
+                 fge::ObjectDataShared{new fge::ObjectData{linkedScene, fge::ObjectPtr{object}, owner->getSid()},
+                                       DataContext::NotHandledObjectDeleter{}}});
     }
 
     it->_objData->setParent(owner);
@@ -75,14 +76,16 @@ void ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t 
     std::vector<DataContext>::iterator it;
     if (insertionIndex >= this->g_data.size())
     {
-        it = this->g_data.insert(this->g_data.end(), {newObject.get(), std::make_shared<fge::ObjectData>(
-                                                                               linkedScene, std::move(newObject))});
+        it = this->g_data.insert(this->g_data.end(),
+                                 {newObject.get(), std::make_shared<fge::ObjectData>(linkedScene, std::move(newObject),
+                                                                                     owner->getSid())});
     }
     else
     {
         it = this->g_data.insert(
                 this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(insertionIndex),
-                {newObject.get(), std::make_shared<fge::ObjectData>(linkedScene, std::move(newObject))});
+                {newObject.get(),
+                 std::make_shared<fge::ObjectData>(linkedScene, std::move(newObject), owner->getSid())});
     }
 
     it->_objData->setParent(owner);
