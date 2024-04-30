@@ -147,34 +147,49 @@ void Scene::update(fge::RenderWindow& screen,
     for (this->g_updatedObjectIterator = this->g_data.begin(); this->g_updatedObjectIterator != this->g_data.end();
          ++this->g_updatedObjectIterator)
     {
-        if ((*this->g_updatedObjectIterator)->g_object->isNeedingAnchorUpdate())
+        auto updatedObject = *this->g_updatedObjectIterator;
+
+        if (updatedObject->g_object->isNeedingAnchorUpdate())
         {
-            (*this->g_updatedObjectIterator)->g_object->updateAnchor();
+            updatedObject->g_object->updateAnchor();
         }
 
 #ifdef FGE_DEF_SERVER
-        (*this->g_updatedObjectIterator)->g_object->update(event, deltaTime, this);
+        updatedObject->g_object->update(event, deltaTime, this);
+        if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
+        {
+            updatedObject->g_object->_children.update(event, deltaTime, this);
+        }
 #else
-        (*this->g_updatedObjectIterator)->g_object->update(screen, event, deltaTime, this);
+        updatedObject->g_object->update(screen, event, deltaTime, this);
+        if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
+        {
+            updatedObject->g_object->_children.update(screen, event, deltaTime, this);
+        }
 #endif //FGE_DEF_SERVER
+
         if (this->g_deleteMe)
         {
             this->g_deleteMe = false;
             if (this->g_enableNetworkEventsFlag)
             {
-                this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, (*this->g_updatedObjectIterator)->g_sid});
+                this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, updatedObject->g_sid});
             }
 
-            auto buff = *this->g_updatedObjectIterator;
-            buff->g_object->removed(this);
-            buff->g_linkedScene = nullptr;
-            buff->g_object->_myObjectData.reset();
+            updatedObject->g_object->removed(this);
+            if ((updatedObject->g_object->_childrenControlFlags &
+                 Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
+            {
+                updatedObject->g_object->_children.clear();
+            }
+            updatedObject->g_linkedScene = nullptr;
+            updatedObject->g_object->_myObjectData.reset();
 
-            auto objectPlan = buff->g_plan;
+            auto objectPlan = updatedObject->g_plan;
             this->hash_updatePlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
 
-            this->_onObjectRemoved.call(this, buff);
+            this->_onObjectRemoved.call(this, updatedObject);
             this->_onPlanUpdate.call(this, objectPlan);
         }
     }
@@ -247,6 +262,10 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
             }
         }
 
+        if ((object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_DRAW) > 0)
+        {
+            object->_children.draw(target, states);
+        }
         target.draw(*object, states);
     }
 
@@ -441,6 +460,11 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
         {
             fge::ObjectDataShared buff = *it->second;
             buff->g_object->removed(this);
+            if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) >
+                0)
+            {
+                buff->g_object->_children.clear();
+            }
             this->hash_updatePlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
@@ -477,6 +501,10 @@ bool Scene::delObject(fge::ObjectSid sid)
         auto buff = *it->second;
 
         buff->g_object->removed(this);
+        if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
+        {
+            buff->g_object->_children.clear();
+        }
         buff->g_linkedScene = nullptr;
         buff->g_object->_myObjectData.reset();
 
@@ -515,6 +543,10 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         }
 
         buff->g_object->removed(this);
+        if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
+        {
+            buff->g_object->_children.clear();
+        }
         buff->g_linkedScene = nullptr;
         buff->g_object->_myObjectData.reset();
         this->hash_updatePlanDataMap(buff->g_plan, it, true);
@@ -578,21 +610,25 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
             this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, (*it->second)->g_sid});
         }
 
-        (*it->second)->g_object->removed(this);
-        (*it->second)->g_linkedScene = nullptr;
-        (*it->second)->g_object->_myObjectData.reset();
+        auto buff = *it->second;
 
-        (*it->second) = std::make_shared<fge::ObjectData>(this, std::move(newObject), (*it->second)->g_sid,
-                                                          (*it->second)->g_plan, (*it->second)->g_type);
-        (*it->second)->g_object->_myObjectData = *it->second;
-        (*it->second)->g_object->first(this);
+        buff->g_object->removed(this);
+        if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
+        {
+            buff->g_object->_children.clear();
+        }
+        buff->g_linkedScene = nullptr;
+        buff->g_object->_myObjectData.reset();
 
-        if ((*it->second)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
+        buff = std::make_shared<fge::ObjectData>(this, std::move(newObject), buff->g_sid, buff->g_plan, buff->g_type);
+        buff->g_object->_myObjectData = *it->second;
+        buff->g_object->first(this);
+
+        if (buff->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
             this->g_callbackContext._event != nullptr)
         {
-            (*it->second)
-                    ->g_object->callbackRegister(*this->g_callbackContext._event,
-                                                 this->g_callbackContext._guiElementHandler);
+            buff->g_object->callbackRegister(*this->g_callbackContext._event,
+                                             this->g_callbackContext._guiElementHandler);
         }
         return true;
     }

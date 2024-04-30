@@ -271,7 +271,7 @@ public:
 
     //Scene control
 
-    fge::ObjectDataWeak _myObjectData{}; ///< The object data of the object (valid only if the object is in a scene)
+    fge::ObjectDataWeak _myObjectData; ///< The object data of the object (valid only if the object is in a scene)
 
     enum class DrawModes : uint8_t
     {
@@ -297,7 +297,18 @@ public:
 
     //Child objects
 
-    fge::ChildObjectsAccessor _children; ///< An access to child objects of this object
+    enum ChildrenControlFlags : uint8_t
+    {
+        CHILDREN_AUTO_CLEAR_ON_REMOVE = 1 << 0,
+        CHILDREN_AUTO_UPDATE = 1 << 1,
+        CHILDREN_AUTO_DRAW = 1 << 2,
+
+        CHILDREN_DEFAULT = CHILDREN_AUTO_CLEAR_ON_REMOVE
+    };
+    using ChildrenControlFlags_t = std::underlying_type_t<ChildrenControlFlags>;
+
+    ChildrenControlFlags_t _childrenControlFlags{CHILDREN_DEFAULT}; ///< The control flags of the child objects
+    fge::ChildObjectsAccessor _children;                            ///< An access to child objects of this object
 };
 
 } // namespace fge
