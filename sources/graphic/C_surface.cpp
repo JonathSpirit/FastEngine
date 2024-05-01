@@ -195,6 +195,25 @@ std::optional<fge::Color> Surface::getPixel(int x, int y) const
     return fge::Color{result};
 }
 
+void Surface::setCircle(int x, int y, unsigned int radius, fge::Color const& color)
+{
+    if (this->g_surface == nullptr || radius == 0)
+    {
+        return;
+    }
+
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            if (std::sqrt((w - x) * (w - x) + (h - y) * (h - y)) <= radius)
+            {
+                this->setPixel(w, h, color);
+            }
+        }
+    }
+}
+
 void Surface::flipHorizontally()
 {
     if (this->g_surface == nullptr)

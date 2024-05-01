@@ -103,6 +103,8 @@ public:
     bool setPixel(int x, int y, fge::Color const& color);
     [[nodiscard]] std::optional<fge::Color> getPixel(int x, int y) const;
 
+    void setCircle(int x, int y, unsigned int radius, fge::Color const& color);
+
     void flipHorizontally();
     void flipVertically();
 
