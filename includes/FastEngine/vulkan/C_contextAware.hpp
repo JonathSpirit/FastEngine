@@ -47,7 +47,7 @@ public:
     virtual void destroy() = 0;
 
 protected:
-    inline void verifyContext(ContextAware const& r)
+    inline void verifyContext(ContextAware const& r) const
     {
         if (this->g_context != r.g_context)
         {
