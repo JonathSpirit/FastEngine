@@ -248,8 +248,8 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     copyStates._vertexBuffer = &this->g_vertices;
 
     glm::uint colorIndex = FGE_OBJSHAPE_INDEX_FILLCOLOR;
-    graphicPipeline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
-                                   &colorIndex);
+    target.getCommandBuffer().pushConstants(graphicPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
+                                            sizeof(glm::uint), &colorIndex);
 
     copyStates._resInstances.setInstancesCount(this->g_instancesCount, true);
     uint32_t const sets[] = {1};
@@ -259,8 +259,8 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     //Drawing outline
     colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
-    graphicPipelineOutline->pushConstants(target.getCommandBuffer(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint),
-                                          &colorIndex);
+    target.getCommandBuffer().pushConstants(graphicPipelineOutline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
+                                            sizeof(glm::uint), &colorIndex);
 
     copyStates._resTextures.set<std::nullptr_t>(nullptr, 0);
     copyStates._vertexBuffer = &this->g_outlineVertices;

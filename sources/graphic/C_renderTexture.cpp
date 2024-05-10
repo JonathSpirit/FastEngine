@@ -28,7 +28,7 @@ RenderTexture::RenderTexture(glm::vec<2, int> const& size, fge::vulkan::Context 
         g_textureImage(context),
         g_renderPass(VK_NULL_HANDLE),
         g_framebuffer(VK_NULL_HANDLE),
-        g_commandBuffers({VK_NULL_HANDLE}),
+        g_commandBuffers({context}),
         g_currentFrame(0),
         g_isCreated(false)
 {
@@ -40,6 +40,7 @@ RenderTexture::RenderTexture(RenderTexture const& r) :
         g_textureImage(r.getContext()),
         g_renderPass(VK_NULL_HANDLE),
         g_framebuffer(VK_NULL_HANDLE),
+        g_commandBuffers({r.getContext()}),
         g_currentFrame(0),
         g_isCreated(false)
 {
@@ -105,10 +106,9 @@ void RenderTexture::destroy()
 
         VkDevice logicalDevice = this->getContext().getLogicalDevice().getDevice();
 
-        for (auto commandBuffer: this->g_commandBuffers)
+        for (auto& commandBuffer: this->g_commandBuffers)
         {
-            this->getContext()._garbageCollector.push(fge::vulkan::GarbageCommandBuffer(
-                    this->getContext().getGraphicsCommandPool(), commandBuffer, logicalDevice));
+            commandBuffer.destroy();
         }
         this->getContext()._garbageCollector.push(fge::vulkan::GarbageFramebuffer(this->g_framebuffer, logicalDevice));
         this->getContext()._garbageCollector.push(fge::vulkan::GarbageRenderPass(this->g_renderPass, logicalDevice));
@@ -125,48 +125,28 @@ void RenderTexture::destroy()
 
 uint32_t RenderTexture::prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
-    vkResetCommandBuffer(this->g_commandBuffers[this->g_currentFrame], 0);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-    beginInfo.pInheritanceInfo = inheritanceInfo;
-
-    if (vkBeginCommandBuffer(this->g_commandBuffers[this->g_currentFrame], &beginInfo) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to begin recording command buffer!");
-    }
+    this->g_commandBuffers[this->g_currentFrame].reset();
+    this->g_commandBuffers[this->g_currentFrame].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+                                                       inheritanceInfo);
 
     return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
 }
 void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 {
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = this->g_renderPass;
-    renderPassInfo.framebuffer = this->g_framebuffer;
-
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = this->g_textureImage.getExtent();
-
     VkClearValue const clearColor = {.color = this->_g_clearColor};
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues = &clearColor;
 
-    vkCmdBeginRenderPass(this->g_commandBuffers[this->g_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    this->g_commandBuffers[this->g_currentFrame].beginRenderPass(this->g_renderPass, this->g_framebuffer,
+                                                                 this->g_textureImage.getExtent(), clearColor,
+                                                                 VK_SUBPASS_CONTENTS_INLINE);
 }
 void RenderTexture::endRenderPass()
 {
-    vkCmdEndRenderPass(this->g_commandBuffers[this->g_currentFrame]);
-
-    if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to record command buffer!");
-    }
+    this->g_commandBuffers[this->g_currentFrame].endRenderPass();
+    this->g_commandBuffers[this->g_currentFrame].end();
 }
 void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
 {
-    this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame]);
+    this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame].get());
 
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
 }
@@ -180,7 +160,7 @@ VkExtent2D RenderTexture::getExtent2D() const
 {
     return this->g_textureImage.getExtent();
 }
-VkCommandBuffer RenderTexture::getCommandBuffer() const
+fge::vulkan::CommandBuffer& RenderTexture::getCommandBuffer() const
 {
     return this->g_commandBuffers[this->g_currentFrame];
 }
@@ -214,8 +194,10 @@ void RenderTexture::init(glm::vec<2, int> const& size)
     this->createFramebuffer();
 
     //create command buffers
-    this->getContext().allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->g_commandBuffers.data(),
-                                                      this->g_commandBuffers.size());
+    for (auto& commandBuffer: this->g_commandBuffers)
+    {
+        commandBuffer.create(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->getContext().getGraphicsCommandPool());
+    }
 }
 
 void RenderTexture::createRenderPass()

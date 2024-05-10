@@ -298,7 +298,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
     graphicPipeline->updateIfNeeded(this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
 
-    auto commandBuffer = this->getCommandBuffer();
+    auto& commandBuffer = this->getCommandBuffer();
 
     if (states._resDescriptors.getCount() > 0)
     {
@@ -306,7 +306,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         for (uint32_t i = 0; i < states._resDescriptors.getCount(); ++i)
         {
             auto descriptor = states._resDescriptors.getDescriptorSet(i)->get();
-            graphicPipeline->bindDescriptorSets(commandBuffer, &descriptor, 1, states._resDescriptors.getSet(i));
+            graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptor, 1, states._resDescriptors.getSet(i));
         }
     }
 
@@ -334,7 +334,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                         break;
                     }
                     auto descriptorSetTexture = textureImage->getDescriptorSet().get();
-                    graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1,
+                    graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSetTexture, 1,
                                                         FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE + i);
                 }
             }
@@ -353,20 +353,21 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                 }
 
                 auto descriptorSetTexture = textureImage->getDescriptorSet().get();
-                graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTexture, 1,
+                graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSetTexture, 1,
                                                     FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
     }
 #endif //FGE_DEF_SERVER
 
-    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
+    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer.get(), viewport, states._vertexBuffer,
+                                                    states._indexBuffer);
 
     //Binding default transform
     if (states._resTransform.get() != nullptr)
     {
         auto descriptorSetTransform = states._resTransform.get()->getDescriptorSet().get();
-        graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSetTransform, 1,
+        graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSetTransform, 1,
                                             FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
     }
 
@@ -401,7 +402,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                 }
 
                 auto descriptorSet = textureImage->getDescriptorSet().get();
-                graphicPipeline->bindDescriptorSets(commandBuffer, &descriptorSet, 1,
+                graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSet, 1,
                                                     FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
@@ -413,7 +414,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             uint32_t const dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance +
                                            states._resInstances.getDynamicBufferOffsets(i);
             auto descriptorSet = states._resInstances.getDynamicDescriptors(i)->get();
-            graphicPipeline->bindDynamicDescriptorSets(commandBuffer, &descriptorSet, 1, 1, &dynamicOffset,
+            graphicPipeline->bindDynamicDescriptorSets(commandBuffer.get(), &descriptorSet, 1, 1, &dynamicOffset,
                                                        states._resInstances.getDynamicSets(i));
         }
 
@@ -427,16 +428,16 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         {
             if (states._resInstances.getIndirectBuffer() != VK_NULL_HANDLE)
             { //Indirect draw
-                vkCmdDrawIndirect(commandBuffer, states._resInstances.getIndirectBuffer(), 0,
+                vkCmdDrawIndirect(commandBuffer.get(), states._resInstances.getIndirectBuffer(), 0,
                                   states._resInstances.getInstancesCount(), sizeof(VkDrawIndirectCommand));
             }
             else
             {
-                vkCmdDraw(commandBuffer, vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
+                vkCmdDraw(commandBuffer.get(), vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
             }
             break;
         }
-        vkCmdDraw(commandBuffer, vertexCount, 1, vertexOffset, iInstance);
+        vkCmdDraw(commandBuffer.get(), vertexCount, 1, vertexOffset, iInstance);
     }
 }
 

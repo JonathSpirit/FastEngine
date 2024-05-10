@@ -63,7 +63,7 @@ public:
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
 
     [[nodiscard]] VkExtent2D getExtent2D() const override;
-    [[nodiscard]] VkCommandBuffer getCommandBuffer() const override;
+    [[nodiscard]] fge::vulkan::CommandBuffer& getCommandBuffer() const override;
     [[nodiscard]] VkRenderPass getRenderPass() const override;
 
     [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
@@ -89,7 +89,7 @@ private:
 
     std::vector<VkFramebuffer> g_swapChainFramebuffers;
 
-    std::array<VkCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT> g_commandBuffers;
+    mutable std::array<fge::vulkan::CommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT> g_commandBuffers;
 
     std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_imageAvailableSemaphores;
     std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_renderFinishedSemaphores;

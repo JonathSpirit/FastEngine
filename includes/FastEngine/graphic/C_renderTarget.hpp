@@ -31,6 +31,7 @@
 #include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_view.hpp"
 #include "FastEngine/vulkan/C_blendMode.hpp"
+#include "FastEngine/vulkan/C_commandBuffer.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
@@ -137,7 +138,7 @@ public:
     virtual Vector2u getSize() const = 0;
 
     [[nodiscard]] virtual VkExtent2D getExtent2D() const = 0;
-    [[nodiscard]] virtual VkCommandBuffer getCommandBuffer() const = 0;
+    [[nodiscard]] virtual fge::vulkan::CommandBuffer& getCommandBuffer() const = 0;
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
 
     [[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
