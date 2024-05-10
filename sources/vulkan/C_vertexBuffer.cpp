@@ -339,7 +339,14 @@ void VertexBuffer::mapBuffer() const
         memcpy(data, this->g_vertices.data(), size);
         vmaUnmapMemory(this->getContext().getAllocator(), this->g_stagingBufferAllocation);
 
-        this->getContext().copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+        {
+            ///TODO: add submit type choice to the user
+            auto buffer = this->getContext().beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION,
+                                                           CommandBuffer::RenderPassScopes::OUTSIDE,
+                                                           CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+            buffer.copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+            this->getContext().submitCommands(std::move(buffer));
+        }
         break;
     default:
         return;
@@ -652,7 +659,14 @@ void IndexBuffer::mapBuffer() const
         memcpy(data, this->g_indices.data(), size);
         vmaUnmapMemory(this->getContext().getAllocator(), this->g_stagingBufferAllocation);
 
-        this->getContext().copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+        {
+            ///TODO: add submit type choice to the user
+            auto buffer = this->getContext().beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION,
+                                                           CommandBuffer::RenderPassScopes::OUTSIDE,
+                                                           CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+            buffer.copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+            this->getContext().submitCommands(std::move(buffer));
+        }
         break;
     default:
         return;

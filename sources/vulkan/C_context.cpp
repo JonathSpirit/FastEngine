@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/C_alloca.hpp"
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -36,9 +37,8 @@ Context::Context() :
         g_graphicsCommandPool(VK_NULL_HANDLE),
         g_isCreated(false)
 {
-    this->g_outsideRenderScopeCommandBuffers.fill(VK_NULL_HANDLE);
-    this->g_outsideRenderScopeCommandBuffersEmpty.fill(true);
-    this->g_outsideRenderScopeFinishedSemaphores.fill(VK_NULL_HANDLE);
+    this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers.fill({VK_NULL_HANDLE, false});
+    this->g_indirectFinishedSemaphores.fill(VK_NULL_HANDLE);
 }
 Context::~Context()
 {
@@ -51,8 +51,7 @@ void Context::destroy()
     {
         for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            vkDestroySemaphore(this->g_logicalDevice.getDevice(), this->g_outsideRenderScopeFinishedSemaphores[i],
-                               nullptr);
+            vkDestroySemaphore(this->g_logicalDevice.getDevice(), this->g_indirectFinishedSemaphores[i], nullptr);
         }
 
         this->g_cacheLayouts.clear();
@@ -71,9 +70,8 @@ void Context::destroy()
         this->g_logicalDevice.destroy();
         this->g_instance.destroy();
 
-        this->g_outsideRenderScopeCommandBuffers.fill(VK_NULL_HANDLE);
-        this->g_outsideRenderScopeFinishedSemaphores.fill(VK_NULL_HANDLE);
-        this->g_outsideRenderScopeCommandBuffersEmpty.fill(true);
+        this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers.fill({VK_NULL_HANDLE, false});
+        this->g_indirectFinishedSemaphores.fill(VK_NULL_HANDLE);
         this->g_currentFrame = 0;
 
         this->g_graphicsCommandPool = VK_NULL_HANDLE;
@@ -81,93 +79,148 @@ void Context::destroy()
     }
 }
 
-Context::SingleTimeCommand Context::beginSingleTimeCommands(SingleTimeCommandTypes type) const
+Context::SubmitableCommandBuffer Context::beginCommands(SubmitTypes type,
+                                                        CommandBuffer::RenderPassScopes wantedRenderPassScope,
+                                                        CommandBuffer::SupportedQueueTypes_t wantedQueue) const
 {
-    switch (type)
+    if (wantedRenderPassScope == CommandBuffer::RenderPassScopes::OUTSIDE &&
+        (wantedQueue & CommandBuffer::SUPPORTED_QUEUE_GRAPHICS) > 0 && type == SubmitTypes::INDIRECT_EXECUTION)
     {
-    case SingleTimeCommandTypes::DIRECT_EXECUTION:
-    {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = this->g_graphicsCommandPool;
-        allocInfo.commandBufferCount = 1;
+        auto& buffer = this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[this->g_currentFrame];
 
-        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-        vkAllocateCommandBuffers(this->g_logicalDevice.getDevice(), &allocInfo, &commandBuffer);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        return {type, commandBuffer};
-    }
-    break;
-    case SingleTimeCommandTypes::INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION:
-    {
-        if (this->g_outsideRenderScopeCommandBuffersEmpty[this->g_currentFrame])
+        if (!buffer._isRecording)
         {
-            vkResetCommandBuffer(this->g_outsideRenderScopeCommandBuffers[this->g_currentFrame], 0);
+            vkResetCommandBuffer(buffer._commandBuffer, 0);
             VkCommandBufferBeginInfo beginInfo{};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            vkBeginCommandBuffer(this->g_outsideRenderScopeCommandBuffers[this->g_currentFrame], &beginInfo);
+            vkBeginCommandBuffer(buffer._commandBuffer, &beginInfo);
 
-            this->g_outsideRenderScopeCommandBuffersEmpty[this->g_currentFrame] = false;
+            buffer._isRecording = true;
         }
 
-        return {type, this->g_outsideRenderScopeCommandBuffers[this->g_currentFrame]};
-    }
-    break;
+        SubmitableCommandBuffer submitBuffer{*this, VK_COMMAND_BUFFER_LEVEL_PRIMARY, buffer._commandBuffer,
+                                             VK_NULL_HANDLE};
+        submitBuffer.setSubmitType(type);
+        submitBuffer.forceSupportedQueues(CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+        submitBuffer.forceRenderPassScope(CommandBuffer::RenderPassScopes::OUTSIDE);
+        return submitBuffer;
     }
 
-    throw fge::Exception("Should be unreachable !");
+    SubmitableCommandBuffer submitBuffer{*this, VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->g_graphicsCommandPool};
+    submitBuffer.setSubmitType(type);
+    submitBuffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+    return submitBuffer;
 }
-void Context::endSingleTimeCommands(SingleTimeCommand command) const
+bool Context::submitCommands(SubmitableCommandBuffer&& buffer) const
 {
-    switch (command._type)
+    if (buffer.get() == VK_NULL_HANDLE)
     {
-    case SingleTimeCommandTypes::DIRECT_EXECUTION:
+        return false;
+    }
+
+    switch (buffer.getSubmitType())
     {
-        vkEndCommandBuffer(command._commandBuffer);
+    case SubmitTypes::DIRECT_WAIT_EXECUTION:
+    {
+        if (!buffer.isEnded())
+        {
+            buffer.end();
+        }
+
+        VkQueue queue = VK_NULL_HANDLE;
+        if ((buffer.getSupportedQueues() & CommandBuffer::SUPPORTED_QUEUE_GRAPHICS) > 0)
+        {
+            queue = this->g_logicalDevice.getGraphicQueue();
+        }
+        else if ((buffer.getSupportedQueues() & CommandBuffer::SUPPORTED_QUEUE_COMPUTE) > 0)
+        {
+            //TODO: queue = this->g_logicalDevice.getComputeQueue();
+            queue = VK_NULL_HANDLE;
+        }
+        else if ((buffer.getSupportedQueues() & CommandBuffer::SUPPORTED_QUEUE_TRANSFER) > 0)
+        {
+            //TODO: queue = this->g_logicalDevice.getTransferQueue();
+            queue = VK_NULL_HANDLE;
+        }
+
+        if (queue == VK_NULL_HANDLE)
+        {
+            break;
+        }
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &command._commandBuffer;
+        submitInfo.pCommandBuffers = buffer.getPtr();
 
-        vkQueueSubmit(this->g_logicalDevice.getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(this->g_logicalDevice.getGraphicQueue());
-
-        vkFreeCommandBuffers(this->g_logicalDevice.getDevice(), this->g_graphicsCommandPool, 1,
-                             &command._commandBuffer);
+        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(queue);
     }
     break;
-    case SingleTimeCommandTypes::INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION:
+    case SubmitTypes::INDIRECT_EXECUTION:
+        if (buffer.get() ==
+            this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[this->g_currentFrame]._commandBuffer)
+        {
+            break;
+        }
+        if (!buffer.isEnded())
+        {
+            buffer.end();
+        }
+        this->g_indirectSubmitableCommandBuffers[this->g_currentFrame].push_back(std::move(buffer));
         break;
     }
+
+    return true;
 }
 
 VkSemaphore Context::getOutsideRenderScopeSemaphore() const
 {
-    return this->g_outsideRenderScopeCommandBuffersEmpty[this->g_currentFrame]
-                   ? VK_NULL_HANDLE
-                   : this->g_outsideRenderScopeFinishedSemaphores[this->g_currentFrame];
+    return this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[this->g_currentFrame]._isRecording
+                   ? this->g_indirectFinishedSemaphores[this->g_currentFrame]
+                   : VK_NULL_HANDLE;
 }
 void Context::submit() const
 {
-    if (this->g_outsideRenderScopeCommandBuffersEmpty[this->g_currentFrame])
+    auto& indirectSubmitableCommandBuffer = this->g_indirectSubmitableCommandBuffers[this->g_currentFrame];
+    auto& indirectOutsideRenderScopeGraphicsSubmitableCommandBuffer =
+            this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[this->g_currentFrame];
+
+    if (indirectSubmitableCommandBuffer.empty() &&
+        !indirectOutsideRenderScopeGraphicsSubmitableCommandBuffer._isRecording)
     {
         return;
     }
 
-    if (vkEndCommandBuffer(this->g_outsideRenderScopeCommandBuffers[this->g_currentFrame]) != VK_SUCCESS)
+    VkCommandBuffer* commandBuffers = FGE_ALLOCA_T(VkCommandBuffer, indirectSubmitableCommandBuffer.size() + 1);
+    uint32_t commandBufferCount = 0;
+
+    if (indirectOutsideRenderScopeGraphicsSubmitableCommandBuffer._isRecording)
     {
-        throw fge::Exception("failed to record command buffer!");
+        if (vkEndCommandBuffer(indirectOutsideRenderScopeGraphicsSubmitableCommandBuffer._commandBuffer) != VK_SUCCESS)
+        {
+            throw fge::Exception("failed to record command buffer!");
+        }
+
+        commandBuffers[commandBufferCount++] = indirectOutsideRenderScopeGraphicsSubmitableCommandBuffer._commandBuffer;
+        indirectOutsideRenderScopeGraphicsSubmitableCommandBuffer._isRecording = false;
     }
-    this->g_outsideRenderScopeCommandBuffersEmpty[this->g_currentFrame] = true;
+
+    for (auto const& buffer: indirectSubmitableCommandBuffer)
+    {
+        if ((buffer.getSupportedQueues() & CommandBuffer::SUPPORTED_QUEUE_GRAPHICS) == 0)
+        { ///TODO: Only supporting graphics queue for now
+            continue;
+        }
+        commandBuffers[commandBufferCount++] = buffer.get();
+    }
+
+    if (commandBufferCount == 0)
+    {
+        indirectSubmitableCommandBuffer.clear();
+        return;
+    }
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -176,17 +229,19 @@ void Context::submit() const
     submitInfo.pWaitSemaphores = nullptr;
     submitInfo.pWaitDstStageMask = nullptr;
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &this->g_outsideRenderScopeCommandBuffers[this->g_currentFrame];
+    submitInfo.commandBufferCount = commandBufferCount;
+    submitInfo.pCommandBuffers = commandBuffers;
 
-    VkSemaphore signalSemaphores[] = {this->g_outsideRenderScopeFinishedSemaphores[this->g_currentFrame]};
+    VkSemaphore signalSemaphores[] = {this->g_indirectFinishedSemaphores[this->g_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     if (vkQueueSubmit(this->g_logicalDevice.getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
     {
-        throw fge::Exception("failed to submit outside render scope command buffer!");
+        throw fge::Exception("failed to submit indirect command buffers!");
     }
+
+    indirectSubmitableCommandBuffer.clear();
 
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
 }
@@ -263,8 +318,12 @@ void Context::initVulkan(SDL_Window* window)
     this->createTransformDescriptorPool();
     this->createSyncObjects();
 
-    this->allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                                         this->g_outsideRenderScopeCommandBuffers.data(), FGE_MAX_FRAMES_IN_FLIGHT);
+    for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        this->allocateGraphicsCommandBuffers(
+                VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                &this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[i]._commandBuffer, 1);
+    }
 
     this->g_textureLayout.create({DescriptorSetLayout::Binding(
             FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
@@ -344,174 +403,6 @@ void Context::allocateGraphicsCommandBuffers(VkCommandBufferLevel level,
     }
 }
 
-void Context::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const
-{
-    auto command = this->beginSingleTimeCommands(SingleTimeCommandTypes::INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION);
-
-    VkBufferCopy copyRegion{};
-    copyRegion.srcOffset = 0; // Optional
-    copyRegion.dstOffset = 0; // Optional
-    copyRegion.size = size;
-    vkCmdCopyBuffer(command._commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-    this->endSingleTimeCommands(command);
-}
-
-void Context::transitionImageLayout(VkImage image,
-                                    [[maybe_unused]] VkFormat format,
-                                    VkImageLayout oldLayout,
-                                    VkImageLayout newLayout,
-                                    uint32_t mipLevels) const
-{ ///TODO: format
-    auto command = beginSingleTimeCommands(SingleTimeCommandTypes::DIRECT_EXECUTION);
-
-    VkImageMemoryBarrier barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.oldLayout = oldLayout;
-    barrier.newLayout = newLayout;
-
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-    barrier.image = image;
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = mipLevels;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-
-    VkPipelineStageFlags sourceStage{};
-    VkPipelineStageFlags destinationStage{};
-
-    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-    {
-        barrier.srcAccessMask = 0;
-        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    }
-    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-    {
-        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-        sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-    }
-    else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-    {
-        barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-        sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    }
-    else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-    {
-        barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-        sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    }
-    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-    {
-        barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-        sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-    }
-    else
-    {
-        throw fge::Exception("unsupported layout transition!");
-    }
-
-    vkCmdPipelineBarrier(command._commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-
-    endSingleTimeCommands(command);
-}
-
-void Context::copyBufferToImage(VkBuffer buffer,
-                                VkImage image,
-                                uint32_t width,
-                                uint32_t height,
-                                int32_t offsetX,
-                                int32_t offsetY) const
-{
-    auto command = beginSingleTimeCommands(SingleTimeCommandTypes::DIRECT_EXECUTION);
-
-    VkBufferImageCopy region{};
-    region.bufferOffset = 0;
-    region.bufferRowLength = 0;
-    region.bufferImageHeight = 0;
-
-    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.imageSubresource.mipLevel = 0;
-    region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount = 1;
-
-    region.imageOffset = {offsetX, offsetY, 0};
-    region.imageExtent = {width, height, 1};
-
-    vkCmdCopyBufferToImage(command._commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-    endSingleTimeCommands(command);
-}
-void Context::copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height) const
-{
-    auto command = beginSingleTimeCommands(SingleTimeCommandTypes::DIRECT_EXECUTION);
-
-    VkBufferImageCopy region{};
-    region.bufferOffset = 0;
-    region.bufferRowLength = 0;
-    region.bufferImageHeight = 0;
-
-    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.imageSubresource.mipLevel = 0;
-    region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount = 1;
-
-    region.imageOffset = {0, 0, 0};
-    region.imageExtent = {width, height, 1};
-
-    vkCmdCopyImageToBuffer(command._commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer, 1, &region);
-
-    endSingleTimeCommands(command);
-}
-void Context::copyImageToImage(VkImage srcImage,
-                               VkImage dstImage,
-                               uint32_t width,
-                               uint32_t height,
-                               int32_t offsetX,
-                               int32_t offsetY) const
-{
-    auto command = beginSingleTimeCommands(SingleTimeCommandTypes::DIRECT_EXECUTION);
-
-    VkImageCopy region{};
-    region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.srcSubresource.mipLevel = 0;
-    region.srcSubresource.baseArrayLayer = 0;
-    region.srcSubresource.layerCount = 1;
-    region.srcOffset = {offsetX, offsetY, 0};
-
-    region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.dstSubresource.mipLevel = 0;
-    region.dstSubresource.baseArrayLayer = 0;
-    region.dstSubresource.layerCount = 1;
-    region.dstOffset = {0, 0, 0};
-
-    region.extent.width = width;
-    region.extent.height = height;
-    region.extent.depth = 1;
-
-    vkCmdCopyImage(command._commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage,
-                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-    endSingleTimeCommands(command);
-}
-
 fge::vulkan::DescriptorSetLayout& Context::getCacheLayout(std::string_view key) const
 {
     auto it = this->g_cacheLayouts.find(key);
@@ -552,15 +443,15 @@ VmaAllocator Context::getAllocator() const
 
 void Context::pushGraphicsCommandBuffer(VkCommandBuffer commandBuffer) const
 {
-    this->g_executableGraphicsCommandBuffers.push_back(commandBuffer);
+    this->g_graphicsSubmitableCommandBuffers.push_back(commandBuffer);
 }
 std::vector<VkCommandBuffer> const& Context::getGraphicsCommandBuffers() const
 {
-    return this->g_executableGraphicsCommandBuffers;
+    return this->g_graphicsSubmitableCommandBuffers;
 }
 void Context::clearGraphicsCommandBuffers() const
 {
-    this->g_executableGraphicsCommandBuffers.clear();
+    this->g_graphicsSubmitableCommandBuffers.clear();
 }
 
 void Context::createCommandPool()
@@ -616,7 +507,7 @@ void Context::createSyncObjects()
     for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
     {
         if (vkCreateSemaphore(this->g_logicalDevice.getDevice(), &semaphoreInfo, nullptr,
-                              &this->g_outsideRenderScopeFinishedSemaphores[i]) != VK_SUCCESS)
+                              &this->g_indirectFinishedSemaphores[i]) != VK_SUCCESS)
         {
             throw fge::Exception("failed to create semaphores!");
         }

@@ -167,14 +167,20 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_mipLevels, this->g_textureImage,
                 this->g_textureImageAllocation);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
-    context.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(size.x),
-                              static_cast<uint32_t>(size.y));
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
+    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(size.x),
+                                    static_cast<uint32_t>(size.y));
+
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+
+    context.submitCommands(std::move(commandBuffer));
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 
@@ -233,14 +239,20 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_mipLevels, this->g_textureImage,
                 this->g_textureImageAllocation);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
-    context.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(surface->w),
-                              static_cast<uint32_t>(surface->h));
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
+    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(surface->w),
+                                    static_cast<uint32_t>(surface->h));
+
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+
+    context.submitCommands(std::move(commandBuffer));
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 
@@ -309,22 +321,28 @@ SDL_Surface* TextureImage::copyToSurface() const
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, dstBuffer,
                  dstBufferAllocation);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                  this->g_mipLevels);
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
 
-    context.copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                        this->g_mipLevels);
+
+    commandBuffer.copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
 
     void* data = nullptr;
     vmaMapMemory(context.getAllocator(), dstBufferAllocation, &data);
     memcpy(surface->pixels, data, static_cast<size_t>(imageSize));
     vmaUnmapMemory(context.getAllocator(), dstBufferAllocation);
 
-    vmaDestroyBuffer(context.getAllocator(), dstBuffer, dstBufferAllocation);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
+    context.submitCommands(std::move(commandBuffer));
+
+    vmaDestroyBuffer(context.getAllocator(), dstBuffer, dstBufferAllocation);
 
     return surface;
 }
@@ -344,9 +362,13 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
 
     auto& context = this->getContext();
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  this->g_mipLevels);
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        this->g_mipLevels);
 
     VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
 
@@ -362,11 +384,13 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
     memcpy(data, surface->pixels, static_cast<size_t>(imageSize));
     vmaUnmapMemory(context.getAllocator(), stagingBufferAllocation);
 
-    context.copyBufferToImage(stagingBuffer, this->g_textureImage, surface->w, surface->h, offset.x, offset.y);
+    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, surface->w, surface->h, offset.x, offset.y);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+
+    context.submitCommands(std::move(commandBuffer));
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
@@ -386,22 +410,28 @@ void TextureImage::update(TextureImage const& textureImage, glm::vec<2, int> con
 
     auto& context = this->getContext();
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  this->g_mipLevels);
-    context.transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                  this->g_mipLevels);
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
 
-    context.copyImageToImage(textureImage.g_textureImage, this->g_textureImage, textureImage.g_textureSize.x,
-                             textureImage.g_textureSize.y, offset.x, offset.y);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        this->g_mipLevels);
+    commandBuffer.transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                        this->g_mipLevels);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
-    context.transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
+    commandBuffer.copyImageToImage(textureImage.g_textureImage, this->g_textureImage, textureImage.g_textureSize.x,
+                                   textureImage.g_textureSize.y, offset.x, offset.y);
+
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+    commandBuffer.transitionImageLayout(textureImage.g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+
+    context.submitCommands(std::move(commandBuffer));
 }
 void TextureImage::update(void* buffer,
                           std::size_t bufferSize,
@@ -421,9 +451,13 @@ void TextureImage::update(void* buffer,
 
     auto& context = this->getContext();
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  this->g_mipLevels);
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        this->g_mipLevels);
 
     VkDeviceSize const imageSize = bufferSize;
 
@@ -439,11 +473,13 @@ void TextureImage::update(void* buffer,
     memcpy(data, buffer, bufferSize);
     vmaUnmapMemory(context.getAllocator(), stagingBufferAllocation);
 
-    context.copyBufferToImage(stagingBuffer, this->g_textureImage, size.x, size.y, offset.x, offset.y);
+    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, size.x, size.y, offset.x, offset.y);
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  this->g_mipLevels);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+
+    context.submitCommands(std::move(commandBuffer));
 
     vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
 }
@@ -472,11 +508,13 @@ void TextureImage::generateMipmaps(uint32_t levels)
 
     auto const& context = this->getContext();
 
-    context.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  this->g_mipLevels);
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
 
-    auto command = context.beginSingleTimeCommands(Context::SingleTimeCommandTypes::DIRECT_EXECUTION);
+    commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        this->g_mipLevels);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -499,8 +537,8 @@ void TextureImage::generateMipmaps(uint32_t levels)
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-        vkCmdPipelineBarrier(command._commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                             0, nullptr, 0, nullptr, 1, &barrier);
+        vkCmdPipelineBarrier(commandBuffer.get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0,
+                             nullptr, 0, nullptr, 1, &barrier);
 
         VkImageBlit blit{};
         blit.srcOffsets[0] = {0, 0, 0};
@@ -516,7 +554,7 @@ void TextureImage::generateMipmaps(uint32_t levels)
         blit.dstSubresource.baseArrayLayer = 0;
         blit.dstSubresource.layerCount = 1;
 
-        vkCmdBlitImage(command._commandBuffer, this->g_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        vkCmdBlitImage(commandBuffer.get(), this->g_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                        this->g_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -524,8 +562,8 @@ void TextureImage::generateMipmaps(uint32_t levels)
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-        vkCmdPipelineBarrier(command._commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+        vkCmdPipelineBarrier(commandBuffer.get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                             0, 0, nullptr, 0, nullptr, 1, &barrier);
 
         if (mipWidth > 1)
         {
@@ -543,10 +581,10 @@ void TextureImage::generateMipmaps(uint32_t levels)
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-    vkCmdPipelineBarrier(command._commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                         0, 0, nullptr, 0, nullptr, 1, &barrier);
+    vkCmdPipelineBarrier(commandBuffer.get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                         0, nullptr, 0, nullptr, 1, &barrier);
 
-    context.endSingleTimeCommands(command);
+    context.submitCommands(std::move(commandBuffer));
 }
 uint32_t TextureImage::getMipLevels() const
 {
