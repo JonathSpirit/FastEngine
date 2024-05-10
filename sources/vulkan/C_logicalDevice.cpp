@@ -19,6 +19,7 @@
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <cstring>
+#include <set>
 #include <vector>
 
 namespace fge::vulkan
@@ -47,7 +48,9 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 {
     auto indices = physicalDevice.findQueueFamilies(surface);
 
-    std::vector<uint32_t> const uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._computeFamily.value(),
+                                              indices._transferFamily.value(), indices._presentFamily.value()};
+
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float const queuePriority = 1.0f;
@@ -123,6 +126,8 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     }
 
     vkGetDeviceQueue(this->g_device, indices._graphicsFamily.value(), 0, &this->g_graphicQueue);
+    vkGetDeviceQueue(this->g_device, indices._computeFamily.value(), 0, &this->g_computeQueue);
+    vkGetDeviceQueue(this->g_device, indices._transferFamily.value(), 0, &this->g_transferQueue);
     vkGetDeviceQueue(this->g_device, indices._presentFamily.value(), 0, &this->g_presentQueue);
 }
 void LogicalDevice::destroy()
@@ -143,6 +148,14 @@ VkDevice LogicalDevice::getDevice() const
 VkQueue LogicalDevice::getGraphicQueue() const
 {
     return this->g_graphicQueue;
+}
+VkQueue LogicalDevice::getComputeQueue() const
+{
+    return this->g_computeQueue;
+}
+VkQueue LogicalDevice::getTransferQueue() const
+{
+    return this->g_transferQueue;
 }
 VkQueue LogicalDevice::getPresentQueue() const
 {

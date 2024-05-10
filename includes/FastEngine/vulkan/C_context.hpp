@@ -357,8 +357,7 @@ private:
     mutable std::vector<VkCommandBuffer> g_graphicsSubmitableCommandBuffers;
 
     std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_indirectFinishedSemaphores{};
-    mutable std::array<std::vector<SubmitableCommandBuffer>, FGE_MAX_FRAMES_IN_FLIGHT>
-            g_indirectSubmitableCommandBuffers{};
+    mutable std::array<std::vector<CommandBuffer>, FGE_MAX_FRAMES_IN_FLIGHT> g_indirectSubmitableCommandBuffers{};
     mutable std::array<ReusableCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT>
             g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers{};
 

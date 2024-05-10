@@ -110,7 +110,7 @@ unsigned int PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
     }
 
     QueueFamilyIndices indices = this->findQueueFamilies(surface);
-    if (!indices.isComplete())
+    if (!indices._graphicsFamily.has_value() || !indices._presentFamily.has_value())
     {
         return 0;
     }
@@ -140,35 +140,46 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(this->g_device, &queueFamilyCount, queueFamilies.data());
 
-    for (uint32_t i = 0; i < queueFamilies.size(); ++i)
+    for (uint32_t iQueueFamily = 0; iQueueFamily < queueFamilies.size(); ++iQueueFamily)
     {
-        auto const& queueFamily = queueFamilies[i];
+        auto const& queueFamily = queueFamilies[iQueueFamily];
 
-        if (!indices._graphicsFamily.has_value())
+        for (uint32_t iQueue = 0; iQueue < queueFamily.queueCount; ++iQueue)
         {
-            if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) > 0)
-            {
-                indices._graphicsFamily = i;
-            }
-
-            if (queueFamily.queueCount < 2 || (queueFamily.queueFlags & VK_QUEUE_PROTECTED_BIT) == 0)
-            {
-                continue;
-            }
-        }
-
-        if (!indices._presentFamily.has_value())
-        {
-            if (queueFamily.queueFlags > VK_QUEUE_PROTECTED_BIT)
+            if (iQueue > 0 && (queueFamily.queueFlags & VK_QUEUE_PROTECTED_BIT) == 0)
             {
                 continue;
             }
 
-            VkBool32 presentSupport = VK_FALSE;
-            vkGetPhysicalDeviceSurfaceSupportKHR(this->g_device, i, surface, &presentSupport);
-            if (presentSupport == VK_TRUE)
+            if (!indices._graphicsFamily.has_value())
             {
-                indices._presentFamily = i;
+                if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) > 0)
+                {
+                    indices._graphicsFamily = iQueueFamily;
+                }
+            }
+            else if (!indices._presentFamily.has_value())
+            {
+                if (queueFamily.queueFlags > VK_QUEUE_PROTECTED_BIT)
+                {
+                    continue;
+                }
+
+                VkBool32 presentSupport = VK_FALSE;
+                vkGetPhysicalDeviceSurfaceSupportKHR(this->g_device, iQueueFamily, surface, &presentSupport);
+                if (presentSupport == VK_TRUE)
+                {
+                    indices._presentFamily = iQueueFamily;
+                }
+            }
+
+            if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) > 0)
+            {
+                indices._transferFamily = iQueueFamily;
+            }
+            if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) > 0)
+            {
+                indices._computeFamily = iQueueFamily;
             }
         }
     }

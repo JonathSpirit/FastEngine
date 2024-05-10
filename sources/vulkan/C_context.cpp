@@ -135,13 +135,11 @@ bool Context::submitCommands(SubmitableCommandBuffer&& buffer) const
         }
         else if ((buffer.getSupportedQueues() & CommandBuffer::SUPPORTED_QUEUE_COMPUTE) > 0)
         {
-            //TODO: queue = this->g_logicalDevice.getComputeQueue();
-            queue = VK_NULL_HANDLE;
+            queue = this->g_logicalDevice.getComputeQueue();
         }
         else if ((buffer.getSupportedQueues() & CommandBuffer::SUPPORTED_QUEUE_TRANSFER) > 0)
         {
-            //TODO: queue = this->g_logicalDevice.getTransferQueue();
-            queue = VK_NULL_HANDLE;
+            queue = this->g_logicalDevice.getTransferQueue();
         }
 
         if (queue == VK_NULL_HANDLE)
