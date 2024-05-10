@@ -175,9 +175,10 @@ bool Context::submitCommands(SubmitableCommandBuffer&& buffer) const
     return true;
 }
 
-VkSemaphore Context::getOutsideRenderScopeSemaphore() const
+VkSemaphore Context::getIndirectSemaphore() const
 {
-    return this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[this->g_currentFrame]._isRecording
+    return this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[this->g_currentFrame]._isRecording ||
+                           !this->g_indirectSubmitableCommandBuffers[this->g_currentFrame].empty()
                    ? this->g_indirectFinishedSemaphores[this->g_currentFrame]
                    : VK_NULL_HANDLE;
 }

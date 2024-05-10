@@ -125,22 +125,22 @@ public:
     bool submitCommands(SubmitableCommandBuffer&& buffer) const;
 
     /**
-     * \brief Retrieve the semaphore that is signaled when the outside render scope command buffer have finished executing
+     * \brief Retrieve the semaphore that is signaled when all indirect command buffers have finished executing
      *
-     * This can return VK_NULL_HANDLE if the command buffer doesn't have any command to execute.
+     * This can return VK_NULL_HANDLE if there is no command buffers to execute.
      *
      * \see submit()
      *
      * \return The semaphore
      */
-    [[nodiscard]] VkSemaphore getOutsideRenderScopeSemaphore() const;
+    [[nodiscard]] VkSemaphore getIndirectSemaphore() const;
     /**
      * \brief Submit Context command buffers
      *
-     * outsideRenderScopeCommandBuffers are submitted with a semaphore that is signaled when the command buffers have
+     * Indirect CommandBuffers are submitted with a semaphore that is signaled when the all of them have
      * finished executing.
      *
-     * The semaphore should be retrieved with getOutsideRenderScopeSemaphore() and you must wait for it to be
+     * The semaphore should be retrieved with getIndirectSemaphore() and you must wait for it to be
      * signaled before rendering commands as this buffer generally contain some buffer transfer operations.
      *
      * This also increment the internal current frame counter.
