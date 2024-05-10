@@ -162,7 +162,7 @@ void RenderWindow::display(uint32_t imageIndex)
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    auto contextSemaphore = this->getContext().getOutsideRenderScopeSemaphore();
+    auto contextSemaphore = this->getContext().getIndirectSemaphore();
 
     VkSemaphore waitSemaphores[] = {this->g_imageAvailableSemaphores[this->g_currentFrame], contextSemaphore};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
