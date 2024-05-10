@@ -146,8 +146,8 @@ std::pair<VkCommandBuffer, VkCommandPool> CommandBuffer::release()
 {
     if (this->g_commandBuffer != VK_NULL_HANDLE)
     {
-        auto* buffer = this->g_commandBuffer;
-        auto* pool = this->g_commandPool;
+        auto buffer = this->g_commandBuffer;
+        auto pool = this->g_commandPool;
 
         this->g_commandBuffer = VK_NULL_HANDLE;
         this->g_commandPool = VK_NULL_HANDLE;
