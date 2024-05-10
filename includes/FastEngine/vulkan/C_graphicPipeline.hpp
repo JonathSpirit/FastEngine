@@ -85,12 +85,6 @@ public:
                                    uint32_t const* pDynamicOffsets,
                                    uint32_t firstSet = 0) const;
 
-    void pushConstants(VkCommandBuffer commandBuffer,
-                       VkShaderStageFlags stageFlags,
-                       uint32_t offset,
-                       uint32_t size,
-                       void const* pValues) const;
-
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
 
