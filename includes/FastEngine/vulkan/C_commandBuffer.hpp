@@ -33,13 +33,6 @@ namespace fge::vulkan
 class FGE_API CommandBuffer : public ContextAware
 {
 public:
-    enum class SubmitTypes
-    {
-        DIRECT_EXECUTION,
-        INDIRECT_EXECUTION,
-        INDIRECT_ISOLATED_EXECUTION
-    };
-
     enum class RenderPassScopes
     {
         INSIDE,
@@ -57,15 +50,20 @@ public:
     };
     using SupportedQueueTypes_t = std::underlying_type_t<SupportedQueueTypes>;
 
-    CommandBuffer(Context const& context, VkCommandBufferLevel level, SubmitTypes type, VkCommandPool commandPool);
+    CommandBuffer(Context const& context, VkCommandBufferLevel level, VkCommandPool commandPool);
+    CommandBuffer(Context const& context,
+                  VkCommandBufferLevel level,
+                  VkCommandBuffer commandBuffer,
+                  VkCommandPool commandPool);
     CommandBuffer(CommandBuffer const& r) = delete;
-    CommandBuffer(CommandBuffer&& r) noexcept = delete;
+    CommandBuffer(CommandBuffer&& r) noexcept;
     ~CommandBuffer() override;
 
     CommandBuffer& operator=(CommandBuffer const& r) = delete;
-    CommandBuffer& operator=(CommandBuffer&& r) noexcept = delete;
+    CommandBuffer& operator=(CommandBuffer&& r) noexcept;
 
-    void create(VkCommandBufferLevel level, SubmitTypes type, VkCommandPool commandPool);
+    void create(VkCommandBufferLevel level, VkCommandPool commandPool);
+    void create(VkCommandBufferLevel level, VkCommandBuffer commandBuffer, VkCommandPool commandPool);
     void destroy() final;
     [[nodiscard]] std::pair<VkCommandBuffer, VkCommandPool> release();
 
@@ -73,13 +71,19 @@ public:
     void begin(VkCommandBufferUsageFlags flags);
     void end();
 
-    [[nodiscard]] SubmitTypes getSubmitType() const;
     [[nodiscard]] VkCommandBuffer get() const;
+    [[nodiscard]] VkCommandBuffer const* getPtr() const;
     [[nodiscard]] VkCommandPool getPool() const;
     [[nodiscard]] VkCommandBufferLevel getLevel() const;
     [[nodiscard]] RenderPassScopes getRenderPassScope() const;
     [[nodiscard]] SupportedQueueTypes_t getSupportedQueues() const;
+    [[nodiscard]] uint32_t getRecordedCommandsCount() const;
     [[nodiscard]] bool isEnded() const;
+
+    void forceEnd();
+    void forceRenderPassScope(RenderPassScopes scope);
+    void forceSupportedQueues(SupportedQueueTypes_t queues);
+    void forceRecordedCommandsCount(uint32_t count);
 
     /**
      * \brief Copy a buffer to another
@@ -156,12 +160,12 @@ public:
                           int32_t offsetY = 0);
 
 private:
-    SubmitTypes g_type;
     VkCommandBuffer g_commandBuffer;
     VkCommandPool g_commandPool;
     VkCommandBufferLevel g_level;
     RenderPassScopes g_renderPassScope;
     SupportedQueueTypes_t g_queueType;
+    uint32_t g_recordedCommands;
     bool g_isEnded;
 };
 

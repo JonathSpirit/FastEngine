@@ -20,32 +20,84 @@
 namespace fge::vulkan
 {
 
-CommandBuffer::CommandBuffer(Context const& context,
-                             VkCommandBufferLevel level,
-                             SubmitTypes type,
-                             VkCommandPool commandPool) :
+CommandBuffer::CommandBuffer(Context const& context, VkCommandBufferLevel level, VkCommandPool commandPool) :
         ContextAware(context),
-        g_type(type),
         g_commandBuffer(VK_NULL_HANDLE),
         g_commandPool(VK_NULL_HANDLE),
         g_level(level),
         g_renderPassScope(RenderPassScopes::BOTH),
         g_queueType(SUPPORTED_QUEUE_ALL),
+        g_recordedCommands(0),
         g_isEnded(false)
 {
-    this->create(level, type, commandPool);
+    this->create(level, commandPool);
+}
+CommandBuffer::CommandBuffer(Context const& context,
+                             VkCommandBufferLevel level,
+                             VkCommandBuffer commandBuffer,
+                             VkCommandPool commandPool) :
+        ContextAware(context),
+        g_commandBuffer(commandBuffer),
+        g_commandPool(commandPool),
+        g_level(level),
+        g_renderPassScope(RenderPassScopes::BOTH),
+        g_queueType(SUPPORTED_QUEUE_ALL),
+        g_recordedCommands(0),
+        g_isEnded(false)
+{
+    this->create(level, commandBuffer, commandPool);
+}
+CommandBuffer::CommandBuffer(CommandBuffer&& r) noexcept :
+        ContextAware(static_cast<ContextAware&&>(r)),
+        g_commandBuffer(r.g_commandBuffer),
+        g_commandPool(r.g_commandPool),
+        g_level(r.g_level),
+        g_renderPassScope(r.g_renderPassScope),
+        g_queueType(r.g_queueType),
+        g_recordedCommands(r.g_recordedCommands),
+        g_isEnded(r.g_isEnded)
+{
+    r.g_commandBuffer = VK_NULL_HANDLE;
+    r.g_commandPool = VK_NULL_HANDLE;
+    r.g_level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    r.g_renderPassScope = RenderPassScopes::BOTH;
+    r.g_queueType = SUPPORTED_QUEUE_ALL;
+    r.g_recordedCommands = 0;
+    r.g_isEnded = false;
 }
 CommandBuffer::~CommandBuffer()
 {
     this->destroy();
 }
 
-void CommandBuffer::create(VkCommandBufferLevel level, SubmitTypes type, VkCommandPool commandPool)
+CommandBuffer& CommandBuffer::operator=(CommandBuffer&& r) noexcept
+{
+    this->verifyContext(r);
+    this->destroy();
+
+    this->g_commandBuffer = r.g_commandBuffer;
+    this->g_commandPool = r.g_commandPool;
+    this->g_level = r.g_level;
+    this->g_renderPassScope = r.g_renderPassScope;
+    this->g_queueType = r.g_queueType;
+    this->g_recordedCommands = r.g_recordedCommands;
+    this->g_isEnded = r.g_isEnded;
+
+    r.g_commandBuffer = VK_NULL_HANDLE;
+    r.g_commandPool = VK_NULL_HANDLE;
+    r.g_level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    r.g_renderPassScope = RenderPassScopes::BOTH;
+    r.g_queueType = SUPPORTED_QUEUE_ALL;
+    r.g_recordedCommands = 0;
+    r.g_isEnded = false;
+    return *this;
+}
+
+void CommandBuffer::create(VkCommandBufferLevel level, VkCommandPool commandPool)
 {
     this->destroy();
 
     this->g_level = level;
-    this->g_type = type;
     this->g_commandPool = commandPool;
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -60,15 +112,34 @@ void CommandBuffer::create(VkCommandBufferLevel level, SubmitTypes type, VkComma
         throw fge::Exception("failed to allocate command buffer!");
     }
 }
+void CommandBuffer::create(VkCommandBufferLevel level, VkCommandBuffer commandBuffer, VkCommandPool commandPool)
+{
+    this->destroy();
+
+    if (commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("can't create a command buffer from a null handle!");
+    }
+
+    this->g_level = level;
+    this->g_commandPool = commandPool;
+    this->g_commandBuffer = commandBuffer;
+}
 void CommandBuffer::destroy()
 {
     if (this->g_commandBuffer != VK_NULL_HANDLE)
     {
-        vkFreeCommandBuffers(this->getContext().getLogicalDevice().getDevice(), this->g_commandPool, 1,
-                             &this->g_commandBuffer);
+        if (this->g_commandPool != VK_NULL_HANDLE)
+        {
+            vkFreeCommandBuffers(this->getContext().getLogicalDevice().getDevice(), this->g_commandPool, 1,
+                                 &this->g_commandBuffer);
+        }
         this->g_commandBuffer = VK_NULL_HANDLE;
-        this->g_commandPool = VK_NULL_HANDLE, this->g_queueType = SUPPORTED_QUEUE_ALL,
-        this->g_renderPassScope = RenderPassScopes::BOTH, this->g_isEnded = false;
+        this->g_commandPool = VK_NULL_HANDLE;
+        this->g_queueType = SUPPORTED_QUEUE_ALL;
+        this->g_renderPassScope = RenderPassScopes::BOTH;
+        this->g_recordedCommands = 0;
+        this->g_isEnded = false;
     }
 }
 std::pair<VkCommandBuffer, VkCommandPool> CommandBuffer::release()
@@ -79,8 +150,11 @@ std::pair<VkCommandBuffer, VkCommandPool> CommandBuffer::release()
         auto* pool = this->g_commandPool;
 
         this->g_commandBuffer = VK_NULL_HANDLE;
-        this->g_commandPool = VK_NULL_HANDLE, this->g_queueType = SUPPORTED_QUEUE_ALL,
-        this->g_renderPassScope = RenderPassScopes::BOTH, this->g_isEnded = false;
+        this->g_commandPool = VK_NULL_HANDLE;
+        this->g_queueType = SUPPORTED_QUEUE_ALL;
+        this->g_renderPassScope = RenderPassScopes::BOTH;
+        this->g_recordedCommands = 0;
+        this->g_isEnded = false;
 
         return {buffer, pool};
     }
@@ -125,13 +199,13 @@ void CommandBuffer::end()
     this->g_isEnded = true;
 }
 
-CommandBuffer::SubmitTypes CommandBuffer::getSubmitType() const
-{
-    return this->g_type;
-}
 VkCommandBuffer CommandBuffer::get() const
 {
     return this->g_commandBuffer;
+}
+VkCommandBuffer const* CommandBuffer::getPtr() const
+{
+    return &this->g_commandBuffer;
 }
 VkCommandPool CommandBuffer::getPool() const
 {
@@ -149,9 +223,30 @@ CommandBuffer::SupportedQueueTypes_t CommandBuffer::getSupportedQueues() const
 {
     return this->g_queueType;
 }
+uint32_t CommandBuffer::getRecordedCommandsCount() const
+{
+    return this->g_recordedCommands;
+}
 bool CommandBuffer::isEnded() const
 {
     return this->g_isEnded;
+}
+
+void CommandBuffer::forceEnd()
+{
+    this->g_isEnded = true;
+}
+void CommandBuffer::forceRenderPassScope(RenderPassScopes scope)
+{
+    this->g_renderPassScope = scope;
+}
+void CommandBuffer::forceSupportedQueues(SupportedQueueTypes_t queues)
+{
+    this->g_queueType = queues;
+}
+void CommandBuffer::forceRecordedCommandsCount(uint32_t count)
+{
+    this->g_recordedCommands = count;
 }
 
 void CommandBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
@@ -176,6 +271,7 @@ void CommandBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
     vkCmdCopyBuffer(this->g_commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
     this->g_renderPassScope = RenderPassScopes::OUTSIDE;
+    ++this->g_recordedCommands;
 }
 
 void CommandBuffer::transitionImageLayout(VkImage image,
@@ -257,6 +353,7 @@ void CommandBuffer::transitionImageLayout(VkImage image,
     }
 
     vkCmdPipelineBarrier(this->g_commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    ++this->g_recordedCommands;
 }
 
 void CommandBuffer::copyBufferToImage(VkBuffer buffer,
@@ -295,6 +392,7 @@ void CommandBuffer::copyBufferToImage(VkBuffer buffer,
     vkCmdCopyBufferToImage(this->g_commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     this->g_renderPassScope = RenderPassScopes::OUTSIDE;
+    ++this->g_recordedCommands;
 }
 void CommandBuffer::copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height)
 {
@@ -327,6 +425,7 @@ void CommandBuffer::copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t w
     vkCmdCopyImageToBuffer(this->g_commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer, 1, &region);
 
     this->g_renderPassScope = RenderPassScopes::OUTSIDE;
+    ++this->g_recordedCommands;
 }
 void CommandBuffer::copyImageToImage(VkImage srcImage,
                                      VkImage dstImage,
@@ -369,6 +468,7 @@ void CommandBuffer::copyImageToImage(VkImage srcImage,
                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     this->g_renderPassScope = RenderPassScopes::OUTSIDE;
+    ++this->g_recordedCommands;
 }
 
 } // namespace fge::vulkan
