@@ -50,6 +50,7 @@ public:
     };
     using SupportedQueueTypes_t = std::underlying_type_t<SupportedQueueTypes>;
 
+    CommandBuffer(Context const& context);
     CommandBuffer(Context const& context, VkCommandBufferLevel level, VkCommandPool commandPool);
     CommandBuffer(Context const& context,
                   VkCommandBufferLevel level,
@@ -68,7 +69,7 @@ public:
     [[nodiscard]] std::pair<VkCommandBuffer, VkCommandPool> release();
 
     void reset();
-    void begin(VkCommandBufferUsageFlags flags);
+    void begin(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo const* inheritanceInfo = nullptr);
     void end();
 
     [[nodiscard]] VkCommandBuffer get() const;
@@ -158,6 +159,29 @@ public:
                           uint32_t height,
                           int32_t offsetX = 0,
                           int32_t offsetY = 0);
+
+    /**
+     * \brief Push constants to the pipeline
+     *
+     * \param pipelineLayout The pipeline layout
+     * \param stageFlags The stage flags
+     * \param offset The offset
+     * \param size The size
+     * \param pValues The values
+     */
+    void pushConstants(VkPipelineLayout pipelineLayout,
+                       VkShaderStageFlags stageFlags,
+                       uint32_t offset,
+                       uint32_t size,
+                       void const* pValues);
+
+    void beginRenderPass(VkRenderPass renderPass,
+                         VkFramebuffer framebuffer,
+                         VkExtent2D extent,
+                         VkClearValue clearColor,
+                         VkSubpassContents contents);
+
+    void endRenderPass();
 
 private:
     VkCommandBuffer g_commandBuffer;

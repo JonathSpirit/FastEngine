@@ -20,6 +20,16 @@
 namespace fge::vulkan
 {
 
+CommandBuffer::CommandBuffer(Context const& context) :
+        ContextAware(context),
+        g_commandBuffer(VK_NULL_HANDLE),
+        g_commandPool(VK_NULL_HANDLE),
+        g_level(VK_COMMAND_BUFFER_LEVEL_PRIMARY),
+        g_renderPassScope(RenderPassScopes::BOTH),
+        g_queueType(SUPPORTED_QUEUE_ALL),
+        g_recordedCommands(0),
+        g_isEnded(false)
+{}
 CommandBuffer::CommandBuffer(Context const& context, VkCommandBufferLevel level, VkCommandPool commandPool) :
         ContextAware(context),
         g_commandBuffer(VK_NULL_HANDLE),
@@ -131,8 +141,8 @@ void CommandBuffer::destroy()
     {
         if (this->g_commandPool != VK_NULL_HANDLE)
         {
-            vkFreeCommandBuffers(this->getContext().getLogicalDevice().getDevice(), this->g_commandPool, 1,
-                                 &this->g_commandBuffer);
+            this->getContext()._garbageCollector.push(fge::vulkan::GarbageCommandBuffer(
+                    this->g_commandPool, this->g_commandBuffer, this->getContext().getLogicalDevice().getDevice()));
         }
         this->g_commandBuffer = VK_NULL_HANDLE;
         this->g_commandPool = VK_NULL_HANDLE;
@@ -171,7 +181,7 @@ void CommandBuffer::reset()
     vkResetCommandBuffer(this->g_commandBuffer, 0);
     this->g_queueType = SUPPORTED_QUEUE_ALL, this->g_renderPassScope = RenderPassScopes::BOTH, this->g_isEnded = false;
 }
-void CommandBuffer::begin(VkCommandBufferUsageFlags flags)
+void CommandBuffer::begin(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
     if (this->g_commandBuffer == VK_NULL_HANDLE)
     {
@@ -185,8 +195,12 @@ void CommandBuffer::begin(VkCommandBufferUsageFlags flags)
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = flags;
+    beginInfo.pInheritanceInfo = inheritanceInfo;
 
-    vkBeginCommandBuffer(this->g_commandBuffer, &beginInfo);
+    if (vkBeginCommandBuffer(this->g_commandBuffer, &beginInfo) != VK_SUCCESS)
+    {
+        throw fge::Exception("failed to begin recording command buffer!");
+    }
 }
 void CommandBuffer::end()
 {
@@ -195,7 +209,10 @@ void CommandBuffer::end()
         return;
     }
 
-    vkEndCommandBuffer(this->g_commandBuffer);
+    if (vkEndCommandBuffer(this->g_commandBuffer) != VK_SUCCESS)
+    {
+        throw fge::Exception("failed to record command buffer!");
+    }
     this->g_isEnded = true;
 }
 
@@ -468,6 +485,94 @@ void CommandBuffer::copyImageToImage(VkImage srcImage,
                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     this->g_renderPassScope = RenderPassScopes::OUTSIDE;
+    ++this->g_recordedCommands;
+}
+
+void CommandBuffer::pushConstants(VkPipelineLayout pipelineLayout,
+                                  VkShaderStageFlags stageFlags,
+                                  uint32_t offset,
+                                  uint32_t size,
+                                  void const* pValues)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & (SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS)) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdPushConstants(this->g_commandBuffer, pipelineLayout, stageFlags, offset, size, pValues);
+    this->g_queueType &= SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+
+void CommandBuffer::beginRenderPass(VkRenderPass renderPass,
+                                    VkFramebuffer framebuffer,
+                                    VkExtent2D extent,
+                                    VkClearValue clearColor,
+                                    VkSubpassContents contents)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if (this->g_renderPassScope == RenderPassScopes::INSIDE)
+    {
+        throw fge::Exception("Command executed inside a render pass !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = framebuffer;
+
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = extent;
+
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(this->g_commandBuffer, &renderPassInfo, contents);
+    this->g_renderPassScope = RenderPassScopes::INSIDE;
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+void CommandBuffer::endRenderPass()
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if (this->g_renderPassScope == RenderPassScopes::OUTSIDE)
+    {
+        throw fge::Exception("Command executed outside a render pass !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdEndRenderPass(this->g_commandBuffer);
+    this->g_renderPassScope = RenderPassScopes::OUTSIDE;
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
     ++this->g_recordedCommands;
 }
 
