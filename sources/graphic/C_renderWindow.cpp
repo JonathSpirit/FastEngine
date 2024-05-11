@@ -292,7 +292,6 @@ void RenderWindow::recreateSwapChain()
     this->g_swapChainFramebuffers.clear();
 
     vkDestroyRenderPass(this->getContext().getLogicalDevice().getDevice(), this->g_renderPass, nullptr);
-    this->g_swapChain.destroy();
 
     this->g_swapChain.create(this->getContext().getSurface().getWindow(), this->getContext().getLogicalDevice(),
                              this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
