@@ -207,14 +207,14 @@ void VertexBuffer::destroy()
     }
 }
 
-void VertexBuffer::bind(VkCommandBuffer commandBuffer) const
+void VertexBuffer::bind(CommandBuffer& commandBuffer) const
 {
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
         this->updateBuffer();
 
         VkDeviceSize const offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &this->g_buffer, offsets);
+        commandBuffer.bindVertexBuffers(0, 1, &this->g_buffer, offsets);
     }
 }
 
@@ -339,7 +339,14 @@ void VertexBuffer::mapBuffer() const
         memcpy(data, this->g_vertices.data(), size);
         vmaUnmapMemory(this->getContext().getAllocator(), this->g_stagingBufferAllocation);
 
-        this->getContext().copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+        {
+            ///TODO: add submit type choice to the user
+            auto buffer = this->getContext().beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION,
+                                                           CommandBuffer::RenderPassScopes::OUTSIDE,
+                                                           CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+            buffer.copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+            this->getContext().submitCommands(std::move(buffer));
+        }
         break;
     default:
         return;
@@ -572,12 +579,12 @@ void IndexBuffer::destroy()
     }
 }
 
-void IndexBuffer::bind(VkCommandBuffer commandBuffer) const
+void IndexBuffer::bind(CommandBuffer& commandBuffer) const
 {
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
         this->updateBuffer();
-        vkCmdBindIndexBuffer(commandBuffer, this->g_buffer, 0, VK_INDEX_TYPE_UINT16);
+        commandBuffer.bindIndexBuffer(this->g_buffer, 0, VK_INDEX_TYPE_UINT16);
     }
 }
 
@@ -652,7 +659,14 @@ void IndexBuffer::mapBuffer() const
         memcpy(data, this->g_indices.data(), size);
         vmaUnmapMemory(this->getContext().getAllocator(), this->g_stagingBufferAllocation);
 
-        this->getContext().copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+        {
+            ///TODO: add submit type choice to the user
+            auto buffer = this->getContext().beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION,
+                                                           CommandBuffer::RenderPassScopes::OUTSIDE,
+                                                           CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+            buffer.copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+            this->getContext().submitCommands(std::move(buffer));
+        }
         break;
     default:
         return;

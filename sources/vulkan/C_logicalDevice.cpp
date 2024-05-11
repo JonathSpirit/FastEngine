@@ -19,6 +19,7 @@
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <cstring>
+#include <set>
 #include <vector>
 
 namespace fge::vulkan
@@ -27,15 +28,21 @@ namespace fge::vulkan
 LogicalDevice::LogicalDevice() :
         g_device(VK_NULL_HANDLE),
         g_graphicQueue(VK_NULL_HANDLE),
+        g_computeQueue(VK_NULL_HANDLE),
+        g_transferQueue(VK_NULL_HANDLE),
         g_presentQueue(VK_NULL_HANDLE)
 {}
 LogicalDevice::LogicalDevice(LogicalDevice&& r) noexcept :
         g_device(r.g_device),
         g_graphicQueue(r.g_graphicQueue),
+        g_computeQueue(r.g_computeQueue),
+        g_transferQueue(r.g_transferQueue),
         g_presentQueue(r.g_presentQueue)
 {
     r.g_device = VK_NULL_HANDLE;
     r.g_graphicQueue = VK_NULL_HANDLE;
+    r.g_computeQueue = VK_NULL_HANDLE;
+    r.g_transferQueue = VK_NULL_HANDLE;
     r.g_presentQueue = VK_NULL_HANDLE;
 }
 LogicalDevice::~LogicalDevice()
@@ -47,7 +54,9 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 {
     auto indices = physicalDevice.findQueueFamilies(surface);
 
-    std::vector<uint32_t> const uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._computeFamily.value(),
+                                              indices._transferFamily.value(), indices._presentFamily.value()};
+
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float const queuePriority = 1.0f;
@@ -82,12 +91,10 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
 
-#ifdef NDEBUG
-    createInfo.enabledLayerCount = 0;
-#else
-    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-    createInfo.ppEnabledLayerNames = ValidationLayers.data();
-#endif
+    //https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#extendingvulkan-layers-devicelayerdeprecation
+    //Device Layer Deprecation, but we still need this for compatibility
+    createInfo.enabledLayerCount = static_cast<uint32_t>(InstanceLayers.size());
+    createInfo.ppEnabledLayerNames = InstanceLayers.empty() ? nullptr : InstanceLayers.data();
 
     // Extended features goes here
 
@@ -123,6 +130,8 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     }
 
     vkGetDeviceQueue(this->g_device, indices._graphicsFamily.value(), 0, &this->g_graphicQueue);
+    vkGetDeviceQueue(this->g_device, indices._computeFamily.value(), 0, &this->g_computeQueue);
+    vkGetDeviceQueue(this->g_device, indices._transferFamily.value(), 0, &this->g_transferQueue);
     vkGetDeviceQueue(this->g_device, indices._presentFamily.value(), 0, &this->g_presentQueue);
 }
 void LogicalDevice::destroy()
@@ -132,6 +141,8 @@ void LogicalDevice::destroy()
         vkDestroyDevice(this->g_device, nullptr);
         this->g_device = VK_NULL_HANDLE;
         this->g_graphicQueue = VK_NULL_HANDLE;
+        this->g_computeQueue = VK_NULL_HANDLE;
+        this->g_transferQueue = VK_NULL_HANDLE;
         this->g_presentQueue = VK_NULL_HANDLE;
     }
 }
@@ -143,6 +154,14 @@ VkDevice LogicalDevice::getDevice() const
 VkQueue LogicalDevice::getGraphicQueue() const
 {
     return this->g_graphicQueue;
+}
+VkQueue LogicalDevice::getComputeQueue() const
+{
+    return this->g_computeQueue;
+}
+VkQueue LogicalDevice::getTransferQueue() const
+{
+    return this->g_transferQueue;
 }
 VkQueue LogicalDevice::getPresentQueue() const
 {

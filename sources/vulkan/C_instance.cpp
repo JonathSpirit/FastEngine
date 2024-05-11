@@ -57,22 +57,20 @@ void Instance::create(std::string applicationName, uint16_t versionMajor, uint16
     appInfo.engineVersion = VK_MAKE_API_VERSION(0, FGE_VERSION_MAJOR, FGE_VERSION_MINOR, FGE_VERSION_REVISION);
     appInfo.apiVersion = VK_API_VERSION_1_1;
 
-#ifdef FGE_ENABLE_VALIDATION_LAYERS
-    std::vector<char const*> validValidationLayers;
-    validValidationLayers.reserve(ValidationLayers.size());
+    std::vector<char const*> validInstanceLayers;
+    validInstanceLayers.reserve(InstanceLayers.size());
 
-    for (char const* layerName: ValidationLayers)
+    for (char const* layerName: InstanceLayers)
     {
-        if (!CheckValidationLayerSupport(layerName))
+        if (!CheckInstanceLayerSupport(layerName))
         {
             std::cout << "validation layer \"" << layerName << "\" requested, but not available (will be ignored) !\n";
         }
         else
         {
-            validValidationLayers.push_back(layerName);
+            validInstanceLayers.push_back(layerName);
         }
     }
-#endif
 
     uint32_t enabled_extension_count = 0;
     if (SDL_Vulkan_GetInstanceExtensions(nullptr, &enabled_extension_count, nullptr) == SDL_FALSE)
@@ -90,12 +88,8 @@ void Instance::create(std::string applicationName, uint16_t versionMajor, uint16
     createInfo.enabledExtensionCount = enabled_extension_count;
     createInfo.ppEnabledExtensionNames = reinterpret_cast<char const* const*>(extensions.data());
 
-#ifndef FGE_ENABLE_VALIDATION_LAYERS
-    createInfo.enabledLayerCount = 0;
-#else
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validValidationLayers.size());
-    createInfo.ppEnabledLayerNames = validValidationLayers.data();
-#endif
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validInstanceLayers.size());
+    createInfo.ppEnabledLayerNames = validInstanceLayers.empty() ? nullptr : validInstanceLayers.data();
 
     VkResult const result = vkCreateInstance(&createInfo, nullptr, &this->g_instance);
 

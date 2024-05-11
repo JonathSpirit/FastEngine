@@ -42,13 +42,13 @@ class LogicalDevice;
 class PhysicalDevice;
 class Context;
 
-FGE_API extern std::vector<char const*> ValidationLayers;
+FGE_API extern std::vector<char const*> InstanceLayers;
 FGE_API extern std::vector<char const*> DeviceExtensions;
 
 FGE_API extern Context& GetActiveContext();
 FGE_API extern void SetActiveContext(Context& context);
 
-FGE_API bool CheckValidationLayerSupport(char const* layerName);
+FGE_API bool CheckInstanceLayerSupport(char const* layerName);
 
 FGE_API void CreateBuffer(Context const& context,
                           VkDeviceSize size,

@@ -49,12 +49,16 @@ public:
 
     [[nodiscard]] VkDevice getDevice() const;
     [[nodiscard]] VkQueue getGraphicQueue() const;
+    [[nodiscard]] VkQueue getComputeQueue() const;
+    [[nodiscard]] VkQueue getTransferQueue() const;
     [[nodiscard]] VkQueue getPresentQueue() const;
     [[nodiscard]] VkPhysicalDeviceFeatures getEnabledFeatures() const;
 
 private:
     VkDevice g_device;
     VkQueue g_graphicQueue;
+    VkQueue g_computeQueue;
+    VkQueue g_transferQueue;
     VkQueue g_presentQueue;
     VkPhysicalDeviceFeatures g_enabledFeatures;
 };

@@ -43,7 +43,7 @@ int ResizeCallback(void* userdata, SDL_Event* event)
 
 RenderWindow::RenderWindow(fge::vulkan::Context const& context) :
         RenderTarget(context),
-        g_commandBuffers({VK_NULL_HANDLE}),
+        g_commandBuffers({context}),
         g_imageAvailableSemaphores({VK_NULL_HANDLE}),
         g_renderFinishedSemaphores({VK_NULL_HANDLE}),
         g_inFlightFences({VK_NULL_HANDLE})
@@ -72,10 +72,9 @@ void RenderWindow::destroy()
             vkDestroySemaphore(logicalDevice, this->g_imageAvailableSemaphores[i], nullptr);
             vkDestroySemaphore(logicalDevice, this->g_renderFinishedSemaphores[i], nullptr);
             vkDestroyFence(logicalDevice, this->g_inFlightFences[i], nullptr);
+            this->g_commandBuffers[i].destroy();
         }
 
-        vkFreeCommandBuffers(logicalDevice, this->getContext().getGraphicsCommandPool(), FGE_MAX_FRAMES_IN_FLIGHT,
-                             this->g_commandBuffers.data());
         for (auto framebuffer: this->g_swapChainFramebuffers)
         {
             vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
@@ -111,58 +110,38 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
     // Only reset the fence if we are submitting work
     vkResetFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame]);
 
-    vkResetCommandBuffer(this->g_commandBuffers[this->g_currentFrame], 0);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = 0;                  // Optional
-    beginInfo.pInheritanceInfo = nullptr; // Optional
-
-    if (vkBeginCommandBuffer(this->g_commandBuffers[this->g_currentFrame], &beginInfo) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to begin recording command buffer!");
-    }
+    this->g_commandBuffers[this->g_currentFrame].reset();
+    this->g_commandBuffers[this->g_currentFrame].begin(0);
 
     return imageIndex;
 }
 void RenderWindow::beginRenderPass(uint32_t imageIndex)
 {
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = this->g_renderPass;
-    renderPassInfo.framebuffer = this->g_swapChainFramebuffers[imageIndex];
-
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = this->g_swapChain.getSwapChainExtent();
-
     VkClearValue const clearColor = {.color = this->_g_clearColor};
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues = &clearColor;
 
-    vkCmdBeginRenderPass(this->g_commandBuffers[this->g_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    this->g_commandBuffers[this->g_currentFrame].beginRenderPass(
+            this->g_renderPass, this->g_swapChainFramebuffers[imageIndex], this->g_swapChain.getSwapChainExtent(),
+            clearColor, VK_SUBPASS_CONTENTS_INLINE);
 }
 void RenderWindow::endRenderPass()
 {
-    vkCmdEndRenderPass(this->g_commandBuffers[this->g_currentFrame]);
+    this->g_commandBuffers[this->g_currentFrame].endRenderPass();
 
     if (this->_g_forceGraphicPipelineUpdate)
     {
         this->_g_forceGraphicPipelineUpdate = false;
     }
 
-    if (vkEndCommandBuffer(this->g_commandBuffers[this->g_currentFrame]) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to record command buffer!");
-    }
+    this->g_commandBuffers[this->g_currentFrame].end();
 }
 void RenderWindow::display(uint32_t imageIndex)
 {
-    this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame]);
+    this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame].get());
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    auto contextSemaphore = this->getContext().getOutsideRenderScopeSemaphore();
+    auto contextSemaphore = this->getContext().getIndirectSemaphore();
 
     VkSemaphore waitSemaphores[] = {this->g_imageAvailableSemaphores[this->g_currentFrame], contextSemaphore};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -235,7 +214,7 @@ VkExtent2D RenderWindow::getExtent2D() const
 {
     return this->g_swapChain.getSwapChainExtent();
 }
-VkCommandBuffer RenderWindow::getCommandBuffer() const
+fge::vulkan::CommandBuffer& RenderWindow::getCommandBuffer() const
 {
     return this->g_commandBuffers[this->g_currentFrame];
 }
@@ -282,8 +261,10 @@ void RenderWindow::init()
     this->createFramebuffers();
 
     //create command buffers
-    this->getContext().allocateGraphicsCommandBuffers(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->g_commandBuffers.data(),
-                                                      this->g_commandBuffers.size());
+    for (auto& commandBuffer: this->g_commandBuffers)
+    {
+        commandBuffer.create(VK_COMMAND_BUFFER_LEVEL_PRIMARY, this->getContext().getGraphicsCommandPool());
+    }
 
     this->createSyncObjects();
 
@@ -311,7 +292,6 @@ void RenderWindow::recreateSwapChain()
     this->g_swapChainFramebuffers.clear();
 
     vkDestroyRenderPass(this->getContext().getLogicalDevice().getDevice(), this->g_renderPass, nullptr);
-    this->g_swapChain.destroy();
 
     this->g_swapChain.create(this->getContext().getSurface().getWindow(), this->getContext().getLogicalDevice(),
                              this->getContext().getPhysicalDevice(), this->getContext().getSurface(),

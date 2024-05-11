@@ -31,6 +31,8 @@
 namespace fge::vulkan
 {
 
+class CommandBuffer;
+
 class FGE_API GraphicPipeline : public ContextAware
 {
 public:
@@ -66,30 +68,14 @@ public:
     void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
     [[nodiscard]] std::vector<VkPushConstantRange> const& getPushConstantRanges() const;
 
-    void recordCommandBuffer(VkCommandBuffer commandBuffer,
+    void recordCommandBuffer(CommandBuffer& commandBuffer,
                              Viewport const& viewport,
                              VertexBuffer const* vertexBuffer,
                              IndexBuffer const* indexBuffer) const;
-    void recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
+    void recordCommandBufferWithoutDraw(CommandBuffer& commandBuffer,
                                         Viewport const& viewport,
                                         VertexBuffer const* vertexBuffer,
                                         IndexBuffer const* indexBuffer) const;
-    void bindDescriptorSets(VkCommandBuffer commandBuffer,
-                            VkDescriptorSet const* descriptorSet,
-                            uint32_t descriptorCount,
-                            uint32_t firstSet = 0) const;
-    void bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
-                                   VkDescriptorSet const* descriptorSet,
-                                   uint32_t descriptorCount,
-                                   uint32_t dynamicOffsetCount,
-                                   uint32_t const* pDynamicOffsets,
-                                   uint32_t firstSet = 0) const;
-
-    void pushConstants(VkCommandBuffer commandBuffer,
-                       VkShaderStageFlags stageFlags,
-                       uint32_t offset,
-                       uint32_t size,
-                       void const* pValues) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;

@@ -37,12 +37,9 @@ public:
     struct QueueFamilyIndices
     {
         std::optional<uint32_t> _graphicsFamily;
+        std::optional<uint32_t> _computeFamily;
+        std::optional<uint32_t> _transferFamily;
         std::optional<uint32_t> _presentFamily;
-
-        [[nodiscard]] inline bool isComplete() const
-        {
-            return _graphicsFamily.has_value() && _presentFamily.has_value();
-        }
     };
     struct SwapChainSupportDetails
     {

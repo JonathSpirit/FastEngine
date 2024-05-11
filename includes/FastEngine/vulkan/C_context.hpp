@@ -23,6 +23,7 @@
 #include <map>
 #include <vector>
 
+#include "FastEngine/vulkan/C_commandBuffer.hpp"
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_garbageCollector.hpp"
@@ -54,6 +55,26 @@ namespace fge::vulkan
 class FGE_API Context
 {
 public:
+    enum class SubmitTypes
+    {
+        DIRECT_WAIT_EXECUTION, ///< The command buffer is submitted directly to the queue and vkQueueWaitIdle is called
+        INDIRECT_EXECUTION ///< The command buffer is transferred to a queue in order to be submitted later and will always be executed before the rendering
+    };
+    class SubmitableCommandBuffer : public CommandBuffer
+    {
+    public:
+        using CommandBuffer::CommandBuffer;
+
+        [[nodiscard]] inline SubmitTypes getSubmitType() const { return g_submitType; }
+
+    private:
+        inline void setSubmitType(SubmitTypes type) { this->g_submitType = type; }
+
+        SubmitTypes g_submitType;
+
+        friend class Context;
+    };
+
     Context();
     Context(Context const& r) = delete;
     Context(Context&& r) noexcept = delete;
@@ -64,68 +85,62 @@ public:
 
     void destroy();
 
-    enum class SingleTimeCommandTypes
-    {
-        DIRECT_EXECUTION,
-        INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION
-    };
-    struct SingleTimeCommand
-    {
-        SingleTimeCommandTypes _type;
-        VkCommandBuffer _commandBuffer;
-    };
-
     /**
-     * \brief Begin a single time command
+     * \brief Begin commands
      *
      * This return a command buffer that is ready to be used.
      *
-     * The DIRECT_EXECUTION type is used to execute a command buffer directly, this implies
+     * The DIRECT_WAIT_EXECUTION type is used to execute a command buffer directly, this implies
      * create the buffer,
      * submit the buffer,
-     * and waiting for all queue operations to be finished.
+     * and waiting for the coresponding queue operations to be finished.
      * This is not ideal for performance.
      *
-     * The INDIRECT_OUTSIDE_RENDER_SCOPE_EXECUTION type is used to execute your commands inside
-     * a reusable command buffer that is submitted to the graphics queue at the same time as a render command buffer
-     * in a RenderScreen. This is ideal for performance like copying staging buffers to device local buffers.
-     * 
-     * This is also synced with a semaphore that is signaled when the command buffer have finished executing so this
-     * assure that every commands are finished before rendering.
+     * The INDIRECT_EXECUTION type will create a command buffer that will be submitted later and
+     * executed with a semaphore that is signaled after every commands is done so this assure
+     * that every commands are finished before graphics commands.
+     * This is ideal for performance like copying staging buffers to device local buffers.
      *
-     * All this commands must be executed outside a render scope.
+     * On certain cases, a reusable command buffer is returned in order to optimize command buffer creation/destruction.
+     * Current case is when the command buffer is used outside a render scope and the graphics queue is wanted.
      *
-     * \warning This function must be pared with endSingleTimeCommands()
+     * \warning This function must be pared with submitCommands().
+     * CommandBuffer::begin(), CommandBuffer::end() and CommandBuffer::reset() should not be called.
      *
-     * \return The command buffer
+     * \param type The submit type of the command buffer
+     * \param wantedRenderPassScope The wanted render pass scope (for optimization purposes)
+     * \param wantedQueue The wanted queue (for optimization purposes)
+     * \return A submitable command buffer
      */
-    [[nodiscard]] SingleTimeCommand beginSingleTimeCommands(SingleTimeCommandTypes type) const;
+    [[nodiscard]] SubmitableCommandBuffer beginCommands(SubmitTypes type,
+                                                        CommandBuffer::RenderPassScopes wantedRenderPassScope,
+                                                        CommandBuffer::SupportedQueueTypes_t wantedQueue) const;
     /**
-     * \brief End a single time command
+     * \brief Submit commands
      *
-     * If the command type is DIRECT_EXECUTION, the command is queued to the graphics queue and is destroyed.
+     * \see beginCommands()
      *
-     * \param command The command to end
+     * \param buffer The command buffer to submit
      */
-    void endSingleTimeCommands(SingleTimeCommand command) const;
+    bool submitCommands(SubmitableCommandBuffer&& buffer) const;
 
     /**
-     * \brief Retrieve the semaphore that is signaled when the outside render scope command buffer have finished executing
+     * \brief Retrieve the semaphore that is signaled when all indirect command buffers have finished executing
      *
-     * This can return VK_NULL_HANDLE if the command buffer doesn't have any command to execute.
+     * This can return VK_NULL_HANDLE if there is no command buffers to execute.
      *
      * \see submit()
      *
      * \return The semaphore
      */
-    [[nodiscard]] VkSemaphore getOutsideRenderScopeSemaphore() const;
+    [[nodiscard]] VkSemaphore getIndirectSemaphore() const;
     /**
      * \brief Submit Context command buffers
      *
-     * outsideRenderScopeCommandBuffers are submitted with a semaphore that is signaled when the command buffers have
+     * Indirect CommandBuffers are submitted with a semaphore that is signaled when the all of them have
      * finished executing.
      *
-     * The semaphore should be retrieved with getOutsideRenderScopeSemaphore() and you must wait for it to be
+     * The semaphore should be retrieved with getIndirectSemaphore() and you must wait for it to be
      * signaled before rendering commands as this buffer generally contain some buffer transfer operations.
      *
      * This also increment the internal current frame counter.
@@ -201,80 +216,6 @@ public:
     void allocateGraphicsCommandBuffers(VkCommandBufferLevel level,
                                         VkCommandBuffer commandBuffers[],
                                         uint32_t commandBufferCount) const;
-
-    /**
-     * \brief Copy a buffer to another
-     *
-     * Fill a command buffer with a copy command in order to copy a buffer to another.
-     *
-     * \param srcBuffer The source buffer
-     * \param dstBuffer The destination buffer
-     * \param size The size of the buffer to copy
-     */
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
-    /**
-     * \brief Transition an image layout
-     *
-     * Fill a command buffer with a transition command in order to transition an image layout.
-     *
-     * \param image The image
-     * \param format The format of the image
-     * \param oldLayout The old layout
-     * \param newLayout The new layout
-     * \param mipLevels The number of mip the image have
-     */
-    void transitionImageLayout(VkImage image,
-                               VkFormat format,
-                               VkImageLayout oldLayout,
-                               VkImageLayout newLayout,
-                               uint32_t mipLevels) const;
-    /**
-     * \brief Copy a buffer to an image
-     *
-     * Fill a command buffer with a copy command in order to copy a buffer to an image.
-     *
-     * \param buffer The buffer
-     * \param image The image
-     * \param width Width of the image
-     * \param height Height of the image
-     * \param offsetX An offset on the X axis
-     * \param offsetY An offset on the Y axis
-     */
-    void copyBufferToImage(VkBuffer buffer,
-                           VkImage image,
-                           uint32_t width,
-                           uint32_t height,
-                           int32_t offsetX = 0,
-                           int32_t offsetY = 0) const;
-    /**
-     * \brief Copy an image to a buffer
-     *
-     * Fill a command buffer with a copy command in order to copy an image to a buffer.
-     *
-     * \param image The image
-     * \param buffer The buffer
-     * \param width The width of the image
-     * \param height The height of the image
-     */
-    void copyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height) const;
-    /**
-     * \brief Copy an image to another image
-     *
-     * Fill a command buffer with a copy command in order to copy an image to another image.
-     *
-     * \param srcImage The source image
-     * \param dstImage The destination image
-     * \param width The width of the image
-     * \param height The height of the image
-     * \param offsetX An offset on the X axis
-     * \param offsetY An offset on the Y axis
-     */
-    void copyImageToImage(VkImage srcImage,
-                          VkImage dstImage,
-                          uint32_t width,
-                          uint32_t height,
-                          int32_t offsetX = 0,
-                          int32_t offsetY = 0) const;
 
     /**
      * \brief Retrieve or create a descriptor set layout from a key
@@ -353,7 +294,7 @@ public:
     /**
      * \brief Push a graphics command buffer to a list
      *
-     * This is used to keep track of executable command buffers that will be submitted to the graphics queue.
+     * This is used to keep track of submitable command buffers that will be submitted to the graphics queue.
      * This list must be cleared once the command buffers are submitted. Generally, this is done by a RenderScreen
      * when the RenderScreen::display() method is called.
      *
@@ -361,7 +302,7 @@ public:
      */
     void pushGraphicsCommandBuffer(VkCommandBuffer commandBuffer) const;
     /**
-     * \brief Retrieve the list of executable graphics command buffers
+     * \brief Retrieve the list of submitable graphics command buffers
      *
      * \see pushGraphicsCommandBuffer()
      *
@@ -369,13 +310,13 @@ public:
      */
     [[nodiscard]] std::vector<VkCommandBuffer> const& getGraphicsCommandBuffers() const;
     /**
-     * \brief Clear the list of executable graphics command buffers
+     * \brief Clear the list of submitable graphics command buffers
      *
      * \see pushGraphicsCommandBuffer()
      */
     void clearGraphicsCommandBuffers() const;
 
-    fge::vulkan::GarbageCollector _garbageCollector;
+    GarbageCollector _garbageCollector;
 
 private:
     void createCommandPool();
@@ -384,27 +325,42 @@ private:
     void createTransformDescriptorPool();
     void createSyncObjects();
 
+    struct ReusableCommandBuffer
+    {
+        constexpr ReusableCommandBuffer() = default;
+        constexpr ReusableCommandBuffer(VkCommandBuffer commandBuffer, bool isRecording) :
+                _commandBuffer(commandBuffer),
+                _isRecording(isRecording)
+        {}
+
+        VkCommandBuffer _commandBuffer{VK_NULL_HANDLE};
+        bool _isRecording{false};
+    };
+
     Instance g_instance;
     PhysicalDevice g_physicalDevice;
     LogicalDevice g_logicalDevice;
     Surface g_surface;
 
-    mutable std::map<std::string, fge::vulkan::DescriptorSetLayout, std::less<>> g_cacheLayouts;
+    mutable std::map<std::string, DescriptorSetLayout, std::less<>> g_cacheLayouts;
     DescriptorPool g_multiUseDescriptorPool;
 
-    fge::vulkan::DescriptorSetLayout g_textureLayout;
-    fge::vulkan::DescriptorSetLayout g_transformLayout;
+    DescriptorSetLayout g_textureLayout;
+    DescriptorSetLayout g_transformLayout;
     DescriptorPool g_textureDescriptorPool;
     DescriptorPool g_transformDescriptorPool;
 
     mutable VmaAllocator g_allocator;
 
-    std::array<VkCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT> g_outsideRenderScopeCommandBuffers;
-    mutable std::array<bool, FGE_MAX_FRAMES_IN_FLIGHT> g_outsideRenderScopeCommandBuffersEmpty;
-    std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_outsideRenderScopeFinishedSemaphores;
     mutable uint32_t g_currentFrame;
 
-    mutable std::vector<VkCommandBuffer> g_executableGraphicsCommandBuffers;
+    mutable std::vector<VkCommandBuffer> g_graphicsSubmitableCommandBuffers;
+
+    std::array<VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT> g_indirectFinishedSemaphores{};
+    mutable std::array<std::vector<CommandBuffer>, FGE_MAX_FRAMES_IN_FLIGHT> g_indirectSubmitableCommandBuffers{};
+    mutable std::array<ReusableCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT>
+            g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers{};
+
     VkCommandPool g_graphicsCommandPool;
     bool g_isCreated;
 };

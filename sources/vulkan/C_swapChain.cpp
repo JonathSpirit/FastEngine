@@ -104,11 +104,22 @@ void SwapChain::create(SDL_Window* window,
     createInfo.presentMode = this->g_presentMode;
     createInfo.clipped = VK_TRUE;
 
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    auto oldSwapChain = this->g_swapChain;
+    createInfo.oldSwapchain = oldSwapChain;
 
     if (vkCreateSwapchainKHR(logicalDevice.getDevice(), &createInfo, nullptr, &this->g_swapChain) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create swap chain!");
+    }
+
+    if (oldSwapChain != VK_NULL_HANDLE)
+    {
+        for (auto imageView: this->g_swapChainImageViews)
+        {
+            vkDestroyImageView(this->g_logicalDevice->getDevice(), imageView, nullptr);
+        }
+        vkDestroySwapchainKHR(logicalDevice.getDevice(), oldSwapChain, nullptr);
+        this->g_swapChainImageViews.clear();
     }
 
     vkGetSwapchainImagesKHR(logicalDevice.getDevice(), this->g_swapChain, &imageCount, nullptr);

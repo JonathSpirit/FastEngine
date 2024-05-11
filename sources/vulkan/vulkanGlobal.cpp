@@ -29,9 +29,9 @@ namespace fge::vulkan
 {
 
 #ifdef FGE_ENABLE_VALIDATION_LAYERS
-std::vector<char const*> ValidationLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
+std::vector<char const*> InstanceLayers = {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"};
 #else
-std::vector<char const*> ValidationLayers = {};
+std::vector<char const*> InstanceLayers = {};
 #endif
 
 std::vector<char const*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
@@ -60,7 +60,7 @@ void SetActiveContext(Context& context)
     gActiveContext = &context;
 }
 
-bool CheckValidationLayerSupport(char const* layerName)
+bool CheckInstanceLayerSupport(char const* layerName)
 {
     static std::vector<VkLayerProperties> availableLayers;
 

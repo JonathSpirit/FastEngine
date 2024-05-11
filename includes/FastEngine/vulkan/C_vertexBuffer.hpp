@@ -31,6 +31,8 @@
 namespace fge::vulkan
 {
 
+class CommandBuffer;
+
 enum class BufferTypes
 {
     UNINITIALIZED,
@@ -59,7 +61,7 @@ public:
 
     void destroy() final;
 
-    void bind(VkCommandBuffer commandBuffer) const;
+    void bind(CommandBuffer& commandBuffer) const;
 
     [[nodiscard]] std::size_t getCount() const;
 
@@ -118,7 +120,7 @@ public:
 
     void destroy() final;
 
-    void bind(VkCommandBuffer commandBuffer) const;
+    void bind(CommandBuffer& commandBuffer) const;
 
     [[nodiscard]] std::size_t getCount() const;
 
