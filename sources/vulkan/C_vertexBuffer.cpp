@@ -207,14 +207,14 @@ void VertexBuffer::destroy()
     }
 }
 
-void VertexBuffer::bind(VkCommandBuffer commandBuffer) const
+void VertexBuffer::bind(CommandBuffer& commandBuffer) const
 {
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
         this->updateBuffer();
 
         VkDeviceSize const offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &this->g_buffer, offsets);
+        commandBuffer.bindVertexBuffers(0, 1, &this->g_buffer, offsets);
     }
 }
 
@@ -579,12 +579,12 @@ void IndexBuffer::destroy()
     }
 }
 
-void IndexBuffer::bind(VkCommandBuffer commandBuffer) const
+void IndexBuffer::bind(CommandBuffer& commandBuffer) const
 {
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
         this->updateBuffer();
-        vkCmdBindIndexBuffer(commandBuffer, this->g_buffer, 0, VK_INDEX_TYPE_UINT16);
+        commandBuffer.bindIndexBuffer(this->g_buffer, 0, VK_INDEX_TYPE_UINT16);
     }
 }
 

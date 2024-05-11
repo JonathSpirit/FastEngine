@@ -363,8 +363,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     }
 #endif //FGE_DEF_SERVER
 
-    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer.get(), viewport, states._vertexBuffer,
-                                                    states._indexBuffer);
+    graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 
     //Binding default transform
     if (states._resTransform.get() != nullptr)

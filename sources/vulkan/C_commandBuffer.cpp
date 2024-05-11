@@ -612,4 +612,158 @@ void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
     ++this->g_recordedCommands;
 }
 
+void CommandBuffer::bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & (SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS)) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdBindPipeline(this->g_commandBuffer, pipelineBindPoint, pipeline);
+    this->g_queueType &= SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+
+void CommandBuffer::setViewport(uint32_t firstViewport, uint32_t viewportCount, VkViewport const* pViewports)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdSetViewport(this->g_commandBuffer, firstViewport, viewportCount, pViewports);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+void CommandBuffer::setScissor(uint32_t firstScissor, uint32_t scissorCount, VkRect2D const* pScissors)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdSetScissor(this->g_commandBuffer, firstScissor, scissorCount, pScissors);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+
+void CommandBuffer::bindVertexBuffers(uint32_t firstBinding,
+                                      uint32_t bindingCount,
+                                      VkBuffer const* pBuffers,
+                                      VkDeviceSize const* pOffsets)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdBindVertexBuffers(this->g_commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+void CommandBuffer::bindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdBindIndexBuffer(this->g_commandBuffer, buffer, offset, indexType);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+
+void CommandBuffer::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if (this->g_renderPassScope == RenderPassScopes::OUTSIDE)
+    {
+        throw fge::Exception("Command executed outside a render pass !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdDraw(this->g_commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    this->g_renderPassScope = RenderPassScopes::INSIDE;
+    ++this->g_recordedCommands;
+}
+void CommandBuffer::drawIndexed(uint32_t indexCount,
+                                uint32_t instanceCount,
+                                uint32_t firstIndex,
+                                int32_t vertexOffset,
+                                uint32_t firstInstance)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if (this->g_renderPassScope == RenderPassScopes::OUTSIDE)
+    {
+        throw fge::Exception("Command executed outside a render pass !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdDrawIndexed(this->g_commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    this->g_renderPassScope = RenderPassScopes::INSIDE;
+    ++this->g_recordedCommands;
+}
+
 } // namespace fge::vulkan

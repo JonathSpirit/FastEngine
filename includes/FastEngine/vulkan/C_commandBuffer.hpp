@@ -231,6 +231,80 @@ public:
                             uint32_t const* pDynamicOffsets,
                             uint32_t firstSet);
 
+    /**
+     * \brief Bind a pipeline
+     *
+     * \param pipelineBindPoint The pipeline bind point
+     * \param pipeline The pipeline
+     */
+    void bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
+
+    /**
+     * \brief Set the viewport dynamically
+     *
+     * \warning You should use this function only if the graphic pipeline has the dynamic viewport state
+     *
+     * \param firstViewport The first viewport
+     * \param viewportCount The viewport count
+     * \param pViewports The viewports
+     */
+    void setViewport(uint32_t firstViewport, uint32_t viewportCount, VkViewport const* pViewports);
+    /**
+     * \brief Set the scissor dynamically
+     *
+     * \warning You should use this function only if the graphic pipeline has the dynamic scissor state
+     *
+     * \param firstScissor The first scissor
+     * \param scissorCount The scissor count
+     * \param pScissors The scissors
+     */
+    void setScissor(uint32_t firstScissor, uint32_t scissorCount, VkRect2D const* pScissors);
+
+    /**
+     * \brief Bind vertex buffers
+     *
+     * \param firstBinding The first binding
+     * \param bindingCount The binding count
+     * \param pBuffers The buffers
+     * \param pOffsets The offsets
+     */
+    void bindVertexBuffers(uint32_t firstBinding,
+                           uint32_t bindingCount,
+                           VkBuffer const* pBuffers,
+                           VkDeviceSize const* pOffsets);
+    /**
+     * \brief Bind an index buffer
+     *
+     * \param buffer The buffer
+     * \param offset The offset
+     * \param indexType The index type
+     */
+    void bindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType);
+
+    /**
+     * \brief Draw
+     *
+     * \param vertexCount The vertex count
+     * \param instanceCount The instance count
+     * \param firstVertex The first vertex
+     * \param firstInstance The first instance
+     */
+    void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
+    /**
+     * \brief Draw indexed
+     *
+     * \param indexCount The index count
+     * \param instanceCount The instance count
+     * \param firstIndex The first index
+     * \param vertexOffset The vertex offset
+     * \param firstInstance The first instance
+     */
+    void drawIndexed(uint32_t indexCount,
+                     uint32_t instanceCount,
+                     uint32_t firstIndex,
+                     int32_t vertexOffset,
+                     uint32_t firstInstance);
+
 private:
     VkCommandBuffer g_commandBuffer;
     VkCommandPool g_commandPool;

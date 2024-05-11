@@ -31,6 +31,8 @@
 namespace fge::vulkan
 {
 
+class CommandBuffer;
+
 class FGE_API GraphicPipeline : public ContextAware
 {
 public:
@@ -66,11 +68,11 @@ public:
     void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
     [[nodiscard]] std::vector<VkPushConstantRange> const& getPushConstantRanges() const;
 
-    void recordCommandBuffer(VkCommandBuffer commandBuffer,
+    void recordCommandBuffer(CommandBuffer& commandBuffer,
                              Viewport const& viewport,
                              VertexBuffer const* vertexBuffer,
                              IndexBuffer const* indexBuffer) const;
-    void recordCommandBufferWithoutDraw(VkCommandBuffer commandBuffer,
+    void recordCommandBufferWithoutDraw(CommandBuffer& commandBuffer,
                                         Viewport const& viewport,
                                         VertexBuffer const* vertexBuffer,
                                         IndexBuffer const* indexBuffer) const;
