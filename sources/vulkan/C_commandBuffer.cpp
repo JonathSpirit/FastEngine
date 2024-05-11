@@ -576,4 +576,40 @@ void CommandBuffer::endRenderPass()
     ++this->g_recordedCommands;
 }
 
+void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
+                                       VkPipelineBindPoint pipelineBindPoint,
+                                       VkDescriptorSet const* descriptorSet,
+                                       uint32_t descriptorCount,
+                                       uint32_t firstSet)
+{
+    this->bindDescriptorSets(pipelineLayout, pipelineBindPoint, descriptorSet, descriptorCount, 0, nullptr, firstSet);
+}
+
+void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
+                                       VkPipelineBindPoint pipelineBindPoint,
+                                       VkDescriptorSet const* descriptorSet,
+                                       uint32_t descriptorCount,
+                                       uint32_t dynamicOffsetCount,
+                                       uint32_t const* pDynamicOffsets,
+                                       uint32_t firstSet)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if ((this->g_queueType & (SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS)) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdBindDescriptorSets(this->g_commandBuffer, pipelineBindPoint, pipelineLayout, firstSet, descriptorCount,
+                            descriptorSet, dynamicOffsetCount, pDynamicOffsets);
+    this->g_queueType &= SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS;
+    ++this->g_recordedCommands;
+}
+
 } // namespace fge::vulkan

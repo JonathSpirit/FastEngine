@@ -175,13 +175,61 @@ public:
                        uint32_t size,
                        void const* pValues);
 
+    /**
+     * \brief Begin a render pass
+     *
+     * \param renderPass The render pass
+     * \param framebuffer The framebuffer
+     * \param extent The extent
+     * \param clearColor The clear color
+     * \param contents The subpass contents
+     */
     void beginRenderPass(VkRenderPass renderPass,
                          VkFramebuffer framebuffer,
                          VkExtent2D extent,
                          VkClearValue clearColor,
                          VkSubpassContents contents);
 
+    /**
+     * \brief End a render pass
+     *
+     * \warning You should call this function only if you have called beginRenderPass before
+     */
     void endRenderPass();
+
+    /**
+     * \brief Bind descriptor sets without dynamic parameters
+     *
+     * \param pipelineLayout The pipeline layout
+     * \param pipelineBindPoint The pipeline bind point
+     * \param descriptorSet The descriptor set
+     * \param descriptorCount The descriptor count
+     * \param firstSet The first set
+     */
+    void bindDescriptorSets(VkPipelineLayout pipelineLayout,
+                            VkPipelineBindPoint pipelineBindPoint,
+                            VkDescriptorSet const* descriptorSet,
+                            uint32_t descriptorCount,
+                            uint32_t firstSet);
+
+    /**
+     * \brief Bind descriptor sets with dynamic parameters
+     *
+     * \param pipelineLayout The pipeline layout
+     * \param pipelineBindPoint The pipeline bind point
+     * \param descriptorSet The descriptor set
+     * \param descriptorCount The descriptor count
+     * \param dynamicOffsetCount The dynamic offset count
+     * \param pDynamicOffsets The dynamic offsets
+     * \param firstSet The first set
+     */
+    void bindDescriptorSets(VkPipelineLayout pipelineLayout,
+                            VkPipelineBindPoint pipelineBindPoint,
+                            VkDescriptorSet const* descriptorSet,
+                            uint32_t descriptorCount,
+                            uint32_t dynamicOffsetCount,
+                            uint32_t const* pDynamicOffsets,
+                            uint32_t firstSet);
 
 private:
     VkCommandBuffer g_commandBuffer;

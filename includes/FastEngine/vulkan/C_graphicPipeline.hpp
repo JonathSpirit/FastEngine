@@ -74,16 +74,6 @@ public:
                                         Viewport const& viewport,
                                         VertexBuffer const* vertexBuffer,
                                         IndexBuffer const* indexBuffer) const;
-    void bindDescriptorSets(VkCommandBuffer commandBuffer,
-                            VkDescriptorSet const* descriptorSet,
-                            uint32_t descriptorCount,
-                            uint32_t firstSet = 0) const;
-    void bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
-                                   VkDescriptorSet const* descriptorSet,
-                                   uint32_t descriptorCount,
-                                   uint32_t dynamicOffsetCount,
-                                   uint32_t const* pDynamicOffsets,
-                                   uint32_t firstSet = 0) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;

@@ -306,7 +306,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         for (uint32_t i = 0; i < states._resDescriptors.getCount(); ++i)
         {
             auto descriptor = states._resDescriptors.getDescriptorSet(i)->get();
-            graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptor, 1, states._resDescriptors.getSet(i));
+            commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                             &descriptor, 1, states._resDescriptors.getSet(i));
         }
     }
 
@@ -334,8 +335,9 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                         break;
                     }
                     auto descriptorSetTexture = textureImage->getDescriptorSet().get();
-                    graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSetTexture, 1,
-                                                        FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE + i);
+                    commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(),
+                                                     VK_PIPELINE_BIND_POINT_GRAPHICS, &descriptorSetTexture, 1,
+                                                     FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE + i);
                 }
             }
             else
@@ -353,8 +355,9 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                 }
 
                 auto descriptorSetTexture = textureImage->getDescriptorSet().get();
-                graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSetTexture, 1,
-                                                    FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
+                commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                 &descriptorSetTexture, 1,
+                                                 FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
     }
@@ -367,8 +370,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     if (states._resTransform.get() != nullptr)
     {
         auto descriptorSetTransform = states._resTransform.get()->getDescriptorSet().get();
-        graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSetTransform, 1,
-                                            FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
+        commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                         &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
     }
 
     //Check instances
@@ -402,8 +405,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                 }
 
                 auto descriptorSet = textureImage->getDescriptorSet().get();
-                graphicPipeline->bindDescriptorSets(commandBuffer.get(), &descriptorSet, 1,
-                                                    FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
+                commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                 &descriptorSet, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
 #endif //FGE_DEF_SERVER
@@ -414,8 +417,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             uint32_t const dynamicOffset = states._resInstances.getDynamicBufferSizes(i) * iInstance +
                                            states._resInstances.getDynamicBufferOffsets(i);
             auto descriptorSet = states._resInstances.getDynamicDescriptors(i)->get();
-            graphicPipeline->bindDynamicDescriptorSets(commandBuffer.get(), &descriptorSet, 1, 1, &dynamicOffset,
-                                                       states._resInstances.getDynamicSets(i));
+            commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                             &descriptorSet, 1, 1, &dynamicOffset, 0);
         }
 
         uint32_t const vertexCount = states._resInstances.getVertexCount() == 0 ? states._vertexBuffer->getCount()

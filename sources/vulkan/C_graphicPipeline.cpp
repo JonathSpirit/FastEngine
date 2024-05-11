@@ -416,24 +416,6 @@ void GraphicPipeline::recordCommandBufferWithoutDraw(VkCommandBuffer commandBuff
         }
     }
 }
-void GraphicPipeline::bindDescriptorSets(VkCommandBuffer commandBuffer,
-                                         VkDescriptorSet const* descriptorSet,
-                                         uint32_t descriptorCount,
-                                         uint32_t firstSet) const
-{
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
-                            descriptorCount, descriptorSet, 0, nullptr);
-}
-void GraphicPipeline::bindDynamicDescriptorSets(VkCommandBuffer commandBuffer,
-                                                VkDescriptorSet const* descriptorSet,
-                                                uint32_t descriptorCount,
-                                                uint32_t dynamicOffsetCount,
-                                                uint32_t const* pDynamicOffsets,
-                                                uint32_t firstSet) const
-{
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_pipelineLayout, firstSet,
-                            descriptorCount, descriptorSet, dynamicOffsetCount, pDynamicOffsets);
-}
 
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const
 {
