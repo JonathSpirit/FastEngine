@@ -288,8 +288,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         return 1;
     }
 
-    fge::vulkan::ValidationLayers.clear();
-    fge::vulkan::ValidationLayers.push_back("VK_LAYER_LUNARG_monitor");
+    fge::vulkan::InstanceLayers.clear();
+    fge::vulkan::InstanceLayers.push_back("VK_LAYER_LUNARG_monitor");
 
     fge::vulkan::Context vulkanContext{};
     fge::vulkan::Context::initVolk();

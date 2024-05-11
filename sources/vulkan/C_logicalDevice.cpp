@@ -28,15 +28,21 @@ namespace fge::vulkan
 LogicalDevice::LogicalDevice() :
         g_device(VK_NULL_HANDLE),
         g_graphicQueue(VK_NULL_HANDLE),
+        g_computeQueue(VK_NULL_HANDLE),
+        g_transferQueue(VK_NULL_HANDLE),
         g_presentQueue(VK_NULL_HANDLE)
 {}
 LogicalDevice::LogicalDevice(LogicalDevice&& r) noexcept :
         g_device(r.g_device),
         g_graphicQueue(r.g_graphicQueue),
+        g_computeQueue(r.g_computeQueue),
+        g_transferQueue(r.g_transferQueue),
         g_presentQueue(r.g_presentQueue)
 {
     r.g_device = VK_NULL_HANDLE;
     r.g_graphicQueue = VK_NULL_HANDLE;
+    r.g_computeQueue = VK_NULL_HANDLE;
+    r.g_transferQueue = VK_NULL_HANDLE;
     r.g_presentQueue = VK_NULL_HANDLE;
 }
 LogicalDevice::~LogicalDevice()
@@ -85,12 +91,10 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
     createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
 
-#ifdef NDEBUG
-    createInfo.enabledLayerCount = 0;
-#else
-    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-    createInfo.ppEnabledLayerNames = ValidationLayers.data();
-#endif
+    //https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#extendingvulkan-layers-devicelayerdeprecation
+    //Device Layer Deprecation, but we still need this for compatibility
+    createInfo.enabledLayerCount = static_cast<uint32_t>(InstanceLayers.size());
+    createInfo.ppEnabledLayerNames = InstanceLayers.empty() ? nullptr : InstanceLayers.data();
 
     // Extended features goes here
 
@@ -137,6 +141,8 @@ void LogicalDevice::destroy()
         vkDestroyDevice(this->g_device, nullptr);
         this->g_device = VK_NULL_HANDLE;
         this->g_graphicQueue = VK_NULL_HANDLE;
+        this->g_computeQueue = VK_NULL_HANDLE;
+        this->g_transferQueue = VK_NULL_HANDLE;
         this->g_presentQueue = VK_NULL_HANDLE;
     }
 }
