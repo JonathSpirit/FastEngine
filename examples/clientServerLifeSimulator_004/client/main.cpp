@@ -348,8 +348,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     ++badPacketUpdatesCount;
 
                     std::cout << "error during unpacking modification:\n"
-                              << "\tclient[" << mainScene->getUpdateCount() << "] " << "server["
-                              << updateCountRange._last << " -> " << updateCountRange._now << "]\n"
+                              << "\tclient[" << mainScene->getUpdateCount() << "] "
+                              << "server[" << updateCountRange._last << " -> " << updateCountRange._now << "]\n"
                               << "\ttype: " << (int) err.value()._type << "\n"
                               << "\tfunction: " << err.value()._function << "\n"
                               << "\terror: " << err.value()._error << "\n"
