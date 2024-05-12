@@ -54,8 +54,16 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 {
     auto indices = physicalDevice.findQueueFamilies(surface);
 
-    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._computeFamily.value(),
-                                              indices._transferFamily.value(), indices._presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
+
+    if (indices._transferFamily)
+    {
+        uniqueQueueFamilies.insert(indices._transferFamily.value());
+    }
+    if (indices._computeFamily)
+    {
+        uniqueQueueFamilies.insert(indices._computeFamily.value());
+    }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
