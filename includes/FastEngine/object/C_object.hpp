@@ -122,6 +122,16 @@ public:
      */
     virtual void first(fge::Scene& scene);
     /**
+     * \brief Method called when the object is transferred from a scene to another.
+     *
+     * This method is called after the object is removed from the old scene and added to the new scene.
+     * The _myObjectData is updated to the new scene when this method is called.
+     *
+     * \param oldScene The old scene where the object was
+     * \param newScene The new scene where the object is
+     */
+    virtual void transfered(fge::Scene& oldScene, fge::Scene& newScene);
+    /**
      * \brief Ask the object to register all callbacks it needs to receive events.
      *
      * \param event The event system

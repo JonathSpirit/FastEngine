@@ -42,6 +42,7 @@ Object::Object(Object&& r) noexcept :
 {}
 
 void Object::first([[maybe_unused]] fge::Scene& scene) {}
+void Object::transfered([[maybe_unused]] fge::Scene& oldScene, [[maybe_unused]] fge::Scene& newScene) {}
 void Object::callbackRegister([[maybe_unused]] fge::Event& event,
                               [[maybe_unused]] fge::GuiElementHandler* guiElementHandlerPtr)
 {}
