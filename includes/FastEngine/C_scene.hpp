@@ -549,6 +549,15 @@ public:
      * The provided Scene must not have another Object with the same SID,
      * causing the method to failed and return an invalid shared pointer.
      *
+     * Events/methods are called in this order :
+     *    [Object destroyed from old Scene]
+     *    _onObjectRemoved called on old Scene
+     *    _onPlanUpdate called on old Scene
+     *    [Object is added in new Scene]
+     *    _onObjectAdded called on new Scene
+     *    _onPlanUpdate called on new Scene
+     *    Object::transfered() called
+     *
      * \warning This method is not meant to be used on the same Scene, however
      * it will work as expected.
      *

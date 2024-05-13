@@ -459,12 +459,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
         if (!newScene.isValid(sid))
         {
             fge::ObjectDataShared buff = *it->second;
-            buff->g_object->removed(*this);
-            if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) >
-                0)
-            {
-                buff->g_object->_children.clear();
-            }
+
             this->hash_updatePlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
@@ -477,7 +472,9 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
                 this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, sid});
             }
 
-            return newScene.newObject(buff);
+            buff = newScene.newObject(buff, true);
+
+            buff->g_object->transfered(*this, newScene);
         }
     }
     return nullptr;
