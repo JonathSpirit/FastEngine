@@ -173,7 +173,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
         objectData->getObject()->needAnchorUpdate(false);
     }
 }
-void ObjWindow::removed([[maybe_unused]] fge::Scene* scene)
+void ObjWindow::removed([[maybe_unused]] fge::Scene& scene)
 {
     this->detachAll();
 }

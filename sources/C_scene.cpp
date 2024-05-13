@@ -176,7 +176,7 @@ void Scene::update(fge::RenderWindow& screen,
                 this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, updatedObject->g_sid});
             }
 
-            updatedObject->g_object->removed(this);
+            updatedObject->g_object->removed(*this);
             if ((updatedObject->g_object->_childrenControlFlags &
                  Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
             {
@@ -459,7 +459,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
         if (!newScene.isValid(sid))
         {
             fge::ObjectDataShared buff = *it->second;
-            buff->g_object->removed(this);
+            buff->g_object->removed(*this);
             if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) >
                 0)
             {
@@ -500,7 +500,7 @@ bool Scene::delObject(fge::ObjectSid sid)
 
         auto buff = *it->second;
 
-        buff->g_object->removed(this);
+        buff->g_object->removed(*this);
         if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
         {
             buff->g_object->_children.clear();
@@ -542,7 +542,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
             }
         }
 
-        buff->g_object->removed(this);
+        buff->g_object->removed(*this);
         if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
         {
             buff->g_object->_children.clear();
@@ -612,7 +612,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
 
         auto buff = *it->second;
 
-        buff->g_object->removed(this);
+        buff->g_object->removed(*this);
         if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
         {
             buff->g_object->_children.clear();

@@ -44,7 +44,7 @@ public:
     void first(fge::Scene& scene) override;
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
-    void removed(fge::Scene* scene) override;
+    void removed(fge::Scene& scene) override;
 
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void load(nlohmann::json& jsonObject, fge::Scene* scene) override;

@@ -61,7 +61,7 @@ void Object::update([[maybe_unused]] fge::RenderWindow& screen,
 void Object::draw([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] fge::RenderStates const& states) const {}
 #endif //FGE_DEF_SERVER
 void Object::networkRegister() {}
-void Object::removed([[maybe_unused]] fge::Scene* scene) {}
+void Object::removed([[maybe_unused]] fge::Scene& scene) {}
 
 fge::Object* Object::copy()
 {

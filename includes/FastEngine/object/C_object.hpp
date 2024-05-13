@@ -158,9 +158,9 @@ public:
     /**
      * \brief Method called when the object is removed from a scene
      *
-     * \param scene The scene where the object is removed (can be nullptr)
+     * \param scene The scene where the object is removed
      */
-    virtual void removed(fge::Scene* scene);
+    virtual void removed(fge::Scene& scene);
 
     /**
      * \brief Save the object to a json object

@@ -105,7 +105,7 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
 }
 #endif
 
-void ObjRenderMap::removed([[maybe_unused]] fge::Scene* scene)
+void ObjRenderMap::removed([[maybe_unused]] fge::Scene& scene)
 {
     this->detachAll();
 }
