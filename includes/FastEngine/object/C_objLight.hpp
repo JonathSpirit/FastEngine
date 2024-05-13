@@ -56,7 +56,7 @@ public:
 
     fge::Color getColor() const;
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
 

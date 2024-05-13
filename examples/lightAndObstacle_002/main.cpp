@@ -75,7 +75,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Obstacle)
 
-    void first([[maybe_unused]] fge::Scene* scene) override
+    void first([[maybe_unused]] fge::Scene& scene) override
     {
         if (!this->_g_lightSystemGate.isOpen())
         {

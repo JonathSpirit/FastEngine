@@ -118,9 +118,9 @@ public:
     /**
      * \brief Method called when the object is added to a scene for initialization purposes.
      *
-     * \param scene The scene where the object is added (can be nullptr)
+     * \param scene The scene where the object is added
      */
-    virtual void first(fge::Scene* scene);
+    virtual void first(fge::Scene& scene);
     /**
      * \brief Ask the object to register all callbacks it needs to receive events.
      *

@@ -116,7 +116,7 @@ ObjWindow::ObjWindow(ObjWindow const& r) :
     this->g_spriteBatches.setTexture(this->g_tileSetWindow.getTexture());
 }
 
-void ObjWindow::first(fge::Scene* scene)
+void ObjWindow::first(fge::Scene& scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
@@ -125,7 +125,7 @@ void ObjWindow::first(fge::Scene* scene)
     this->setScale(fge::GuiElement::getGlobalGuiScale());
 
     this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
-    this->_windowScene.setLinkedRenderTarget(scene->getLinkedRenderTarget());
+    this->_windowScene.setLinkedRenderTarget(scene.getLinkedRenderTarget());
     this->_windowView.reset(new fge::View{});
     this->_windowScene.setCustomView(this->_windowView);
 

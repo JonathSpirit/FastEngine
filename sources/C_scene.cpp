@@ -374,7 +374,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
     }
     if (!silent)
     {
-        (*it)->g_object->first(this);
+        (*it)->g_object->first(*this);
     }
 
     if ((*it)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
@@ -415,7 +415,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
     }
     if (!silent)
     {
-        objectData->g_object->first(this);
+        objectData->g_object->first(*this);
     }
 
     if (objectData->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
@@ -622,7 +622,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
 
         buff = std::make_shared<fge::ObjectData>(this, std::move(newObject), buff->g_sid, buff->g_plan, buff->g_type);
         buff->g_object->_myObjectData = *it->second;
-        buff->g_object->first(this);
+        buff->g_object->first(*this);
 
         if (buff->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
             this->g_callbackContext._event != nullptr)

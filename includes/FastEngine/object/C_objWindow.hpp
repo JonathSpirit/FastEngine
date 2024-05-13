@@ -57,7 +57,7 @@ public:
 
     fge::GuiElement* getGuiElement() override { return this; }
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     void removed(fge::Scene* scene) override;
 

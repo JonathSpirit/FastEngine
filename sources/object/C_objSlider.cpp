@@ -21,7 +21,7 @@
 namespace fge
 {
 
-void ObjSlider::first([[maybe_unused]] fge::Scene* scene)
+void ObjSlider::first([[maybe_unused]] fge::Scene& scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 

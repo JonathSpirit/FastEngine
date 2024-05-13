@@ -34,7 +34,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(PathFinder)
 
-    void first([[maybe_unused]] fge::Scene* scene) override
+    void first([[maybe_unused]] fge::Scene& scene) override
     {
         this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
     }

@@ -42,13 +42,9 @@ using LightSystemGate = fge::TunnelGate<fge::LightComponent>;
  * \param scene The scene to get the light system from
  * \return The default light system
  */
-inline fge::LightSystem* GetDefaultLightSystem(fge::Scene* scene)
+inline fge::LightSystem* GetDefaultLightSystem(fge::Scene& scene)
 {
-    if (scene != nullptr)
-    {
-        return scene->_properties.getProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS).get<fge::LightSystem*>().value_or(nullptr);
-    }
-    return nullptr;
+    return scene._properties.getProperty(FGE_LIGHT_PROPERTY_DEFAULT_LS).get<fge::LightSystem*>().value_or(nullptr);
 }
 
 /**
@@ -105,7 +101,7 @@ public:
      *
      * \param scene The scene to get the light system from
      */
-    inline void setDefaultLightSystem(fge::Scene* scene)
+    inline void setDefaultLightSystem(fge::Scene& scene)
     {
         auto* ls = fge::GetDefaultLightSystem(scene);
         if (ls != nullptr)

@@ -41,7 +41,7 @@ Object::Object(Object&& r) noexcept :
         _children(this)
 {}
 
-void Object::first([[maybe_unused]] fge::Scene* scene) {}
+void Object::first([[maybe_unused]] fge::Scene& scene) {}
 void Object::callbackRegister([[maybe_unused]] fge::Event& event,
                               [[maybe_unused]] fge::GuiElementHandler* guiElementHandlerPtr)
 {}

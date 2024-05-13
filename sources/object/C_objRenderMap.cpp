@@ -61,12 +61,9 @@ fge::Color const& ObjRenderMap::getClearColor() const
     return this->g_colorClear;
 }
 
-void ObjRenderMap::first(fge::Scene* scene)
+void ObjRenderMap::first(fge::Scene& scene)
 {
-    if (scene != nullptr)
-    {
-        scene->_onDraw.addObjectFunctor(&fge::ObjRenderMap::onDraw, this, this);
-    }
+    scene._onDraw.addObjectFunctor(&fge::ObjRenderMap::onDraw, this, this);
 }
 
 #ifdef FGE_DEF_SERVER

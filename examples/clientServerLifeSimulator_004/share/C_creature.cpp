@@ -79,7 +79,7 @@ Creature::Creature(fge::Vector2f const& pos)
     this->setPosition(pos);
 }
 
-void Creature::first([[maybe_unused]] fge::Scene* scene)
+void Creature::first([[maybe_unused]] fge::Scene& scene)
 {
     this->g_animTexture.reset(new fge::texture::TextureData);
     this->g_animTexture->_valid = true;

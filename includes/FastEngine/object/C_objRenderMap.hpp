@@ -41,7 +41,7 @@ public:
     void setClearColor(fge::Color const& color);
     fge::Color const& getClearColor() const;
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
     void removed(fge::Scene* scene) override;
