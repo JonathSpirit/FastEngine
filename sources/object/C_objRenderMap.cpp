@@ -46,7 +46,7 @@ ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
-void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const* scene, [[maybe_unused]] fge::RenderTarget& target)
+void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const& scene, [[maybe_unused]] fge::RenderTarget& target)
 {
     this->_renderTexture.setClearColor(this->g_colorClear);
     this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));

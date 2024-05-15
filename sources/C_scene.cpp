@@ -189,8 +189,8 @@ void Scene::update(fge::RenderWindow& screen,
             this->hash_updatePlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
 
-            this->_onObjectRemoved.call(this, updatedObject);
-            this->_onPlanUpdate.call(this, objectPlan);
+            this->_onObjectRemoved.call(*this, updatedObject);
+            this->_onPlanUpdate.call(*this, objectPlan);
         }
     }
 
@@ -199,7 +199,7 @@ void Scene::update(fge::RenderWindow& screen,
         ++this->g_updateCount;
     }
 
-    this->_onDelayedUpdate.call(this);
+    this->_onDelayedUpdate.call(*this);
     this->_onDelayedUpdate.clear();
 }
 uint16_t Scene::getUpdateCount() const
@@ -210,7 +210,7 @@ uint16_t Scene::getUpdateCount() const
 #ifndef FGE_DEF_SERVER
 void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
-    this->_onDraw.call(this, target);
+    this->_onDraw.call(*this, target);
 
     fge::RectFloat const screenBounds = fge::GetScreenRect(target);
 
@@ -285,7 +285,7 @@ fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
         fge::ObjectPlanDepth const planDepth = std::distance(firstPlanObjectIt, it->second);
         it->second->get()->g_planDepth = planDepth;
 
-        this->_onPlanUpdate.call(this, plan);
+        this->_onPlanUpdate.call(*this, plan);
         return planDepth;
     }
     return FGE_SCENE_BAD_PLANDEPTH;
@@ -307,7 +307,7 @@ void Scene::updateAllPlanDepth(fge::ObjectPlan plan)
             (*objectIt)->g_planDepth = depthCount++;
         }
 
-        this->_onPlanUpdate.call(this, plan);
+        this->_onPlanUpdate.call(*this, plan);
     }
 }
 void Scene::updateAllPlanDepth()
@@ -330,7 +330,7 @@ void Scene::updateAllPlanDepth()
         (*objectIt)->g_planDepth = depthCount++;
     }
 
-    this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);
+    this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
 }
 
 void Scene::clear()
@@ -383,8 +383,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
         (*it)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
     }
 
-    this->_onObjectAdded.call(this, *it);
-    this->_onPlanUpdate.call(this, plan);
+    this->_onObjectAdded.call(*this, *it);
+    this->_onPlanUpdate.call(*this, plan);
 
     return *it;
 }
@@ -425,8 +425,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
                                                this->g_callbackContext._guiElementHandler);
     }
 
-    this->_onObjectAdded.call(this, objectData);
-    this->_onPlanUpdate.call(this, objectData->g_plan);
+    this->_onObjectAdded.call(*this, objectData);
+    this->_onPlanUpdate.call(*this, objectData->g_plan);
 
     return objectData;
 }
@@ -464,8 +464,8 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
 
-            this->_onObjectRemoved.call(this, buff);
-            this->_onPlanUpdate.call(this, buff->g_plan);
+            this->_onObjectRemoved.call(*this, buff);
+            this->_onPlanUpdate.call(*this, buff->g_plan);
 
             if (this->g_enableNetworkEventsFlag)
             {
@@ -511,8 +511,8 @@ bool Scene::delObject(fge::ObjectSid sid)
         this->g_data.erase(it->second);
         this->g_dataMap.erase(it);
 
-        this->_onObjectRemoved.call(this, buff);
-        this->_onPlanUpdate.call(this, objectPlan);
+        this->_onObjectRemoved.call(*this, buff);
+        this->_onPlanUpdate.call(*this, objectPlan);
 
         return true;
     }
@@ -552,10 +552,10 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         this->g_dataMap.erase(buff->g_sid);
         it = --this->g_data.erase(it);
 
-        this->_onObjectRemoved.call(this, buff);
+        this->_onObjectRemoved.call(*this, buff);
     }
 
-    this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);
+    this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
     return buffSize;
 }
 
@@ -650,9 +650,9 @@ bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
 
         if (oldPlan != newPlan)
         {
-            this->_onPlanUpdate.call(this, oldPlan);
+            this->_onPlanUpdate.call(*this, oldPlan);
         }
-        this->_onPlanUpdate.call(this, newPlan);
+        this->_onPlanUpdate.call(*this, newPlan);
         return true;
     }
     return false;
@@ -673,7 +673,7 @@ bool Scene::setObjectPlanTop(fge::ObjectSid sid)
         this->g_data.splice(newPosIt->second, this->g_data, it->second);
         this->hash_updatePlanDataMap((*it->second)->g_plan, it->second, false);
 
-        this->_onPlanUpdate.call(this, (*it->second)->g_plan);
+        this->_onPlanUpdate.call(*this, (*it->second)->g_plan);
         return true;
     }
     return false;
@@ -713,7 +713,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
             }
         }
 
-        this->_onPlanUpdate.call(this, plan);
+        this->_onPlanUpdate.call(*this, plan);
 
         return true;
     }

@@ -451,7 +451,7 @@ void ObjWindow::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
     }
 }
 
-void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan plan)
+void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene& scene, fge::ObjectPlan plan)
 {
     auto myObjectData = this->_myObjectData.lock();
     if (myObjectData->getPlan() == plan)
@@ -463,7 +463,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         this->setPriority(myObjectData->getPlan() + myObjectData->getPlanDepth());
     }
 }
-void ObjWindow::onObjectAdded([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared const& object)
+void ObjWindow::onObjectAdded([[maybe_unused]] fge::Scene& scene, fge::ObjectDataShared const& object)
 {
     object->setParent(this->_myObjectData.lock());
 }

@@ -36,7 +36,7 @@ public:
 
     fge::Object* copy() override { return new fge::ObjRenderMap(); }
 
-    void onDraw(fge::Scene const* scene, fge::RenderTarget& target);
+    void onDraw(fge::Scene const& scene, fge::RenderTarget& target);
 
     void setClearColor(fge::Color const& color);
     fge::Color const& getClearColor() const;
