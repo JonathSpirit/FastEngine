@@ -475,6 +475,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
             buff = newScene.newObject(buff, true);
 
             buff->g_object->transfered(*this, newScene);
+            return buff;
         }
     }
     return nullptr;
