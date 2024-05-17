@@ -96,18 +96,19 @@ struct CallbackContext
  */
 struct SceneNetEvent
 {
-    enum Events : uint8_t
+    enum class Events : uint8_t
     {
-        SEVT_DELOBJECT = 0,
-        SEVT_NEWOBJECT,
+        OBJECT_DELETED = 0,
+        OBJECT_CREATED,
+        OBJECT_SIGNALED,
 
-        SEVT_UNKNOWN,
-
-        SEVT_MAX_
+        LAST_ENUM_
     };
+    using Events_t = std::underlying_type_t<Events>;
 
-    fge::SceneNetEvent::Events _event;
-    fge::ObjectSid _sid;
+    Events _event;
+    ObjectSid _sid;
+    int8_t _signal{0};
 };
 
 /**
@@ -929,6 +930,14 @@ public:
     virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid = FGE_SCENE_BAD_SID) const;
 
     // Network
+    /**
+     * \brief Signal an Object over the network.
+     *
+     * \param sid The SID of the Object
+     * \param signal The signal to send
+     */
+    void signalObject(fge::ObjectSid sid, int8_t signal);
+
     /**
      * \brief Pack all the Scene data in a Packet.
      *

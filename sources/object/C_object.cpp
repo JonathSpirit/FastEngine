@@ -77,6 +77,7 @@ void Object::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::m
 void Object::draw([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] fge::RenderStates const& states) const {}
 #endif //FGE_DEF_SERVER
 void Object::networkRegister() {}
+void Object::netSignaled([[maybe_unused]] int8_t signal) {}
 void Object::removed([[maybe_unused]] fge::Scene& scene) {}
 
 fge::Object* Object::copy()

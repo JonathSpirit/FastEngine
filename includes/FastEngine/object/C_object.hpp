@@ -168,6 +168,12 @@ public:
      */
     virtual void networkRegister();
     /**
+     * \brief Method called when the object is signaled by the network
+     *
+     * \param signal The signal received
+     */
+    virtual void netSignaled(int8_t signal);
+    /**
      * \brief Method called when the object is removed from a scene
      *
      * \param scene The scene where the object is removed
