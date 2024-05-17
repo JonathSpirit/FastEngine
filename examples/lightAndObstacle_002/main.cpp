@@ -88,9 +88,9 @@ public:
     void update([[maybe_unused]] fge::RenderWindow& screen,
                 [[maybe_unused]] fge::Event& event,
                 [[maybe_unused]] std::chrono::microseconds const& deltaTime,
-                [[maybe_unused]] fge::Scene* scene) override
+                [[maybe_unused]] fge::Scene& scene) override
     {
-        auto* follow = scene->_properties["follow"].getPtr<std::string>();
+        auto* follow = scene._properties["follow"].getPtr<std::string>();
         if (follow != nullptr && *follow == "obstacle" && !this->_tags.check("duplicate"))
         {
             this->setPosition(screen.mapFramebufferCoordsToViewSpace(event.getMousePixelPos()));

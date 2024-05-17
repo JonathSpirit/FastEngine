@@ -155,16 +155,16 @@ void Scene::update(fge::RenderWindow& screen,
         }
 
 #ifdef FGE_DEF_SERVER
-        updatedObject->g_object->update(event, deltaTime, this);
+        updatedObject->g_object->update(event, deltaTime, *this);
         if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
         {
-            updatedObject->g_object->_children.update(event, deltaTime, this);
+            updatedObject->g_object->_children.update(event, deltaTime, *this);
         }
 #else
-        updatedObject->g_object->update(screen, event, deltaTime, this);
+        updatedObject->g_object->update(screen, event, deltaTime, *this);
         if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
         {
-            updatedObject->g_object->_children.update(screen, event, deltaTime, this);
+            updatedObject->g_object->_children.update(screen, event, deltaTime, *this);
         }
 #endif //FGE_DEF_SERVER
 

@@ -60,12 +60,12 @@ public:
     void remove(std::size_t first, std::size_t last);
 
 #ifdef FGE_DEF_SERVER
-    void update(fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene* scene);
+    void update(fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene& scene);
 #else
     void update(fge::RenderWindow& screen,
                 fge::Event& event,
                 std::chrono::microseconds const& deltaTime,
-                fge::Scene* scene) const;
+                fge::Scene& scene) const;
     void draw(fge::RenderTarget& target, fge::RenderStates const& states) const;
 #endif //FGE_DEF_SERVER
 

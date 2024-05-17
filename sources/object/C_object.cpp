@@ -49,12 +49,12 @@ void Object::callbackRegister([[maybe_unused]] fge::Event& event,
 #ifdef FGE_DEF_SERVER
 void Object::update([[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] std::chrono::microseconds const& deltaTime,
-                    [[maybe_unused]] fge::Scene* scene)
+                    [[maybe_unused]] fge::Scene& scene)
 #else
 void Object::update([[maybe_unused]] fge::RenderWindow& screen,
                     [[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] std::chrono::microseconds const& deltaTime,
-                    [[maybe_unused]] fge::Scene* scene)
+                    [[maybe_unused]] fge::Scene& scene)
 #endif //FGE_DEF_SERVER
 {}
 
