@@ -148,9 +148,11 @@ public:
      */
 #ifdef FGE_DEF_SERVER
     virtual void update(fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene& scene);
+    void update(fge::Event& event, std::chrono::microseconds const& deltaTime);
 #else
     virtual void
     update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene& scene);
+    void update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime);
 #endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object
