@@ -79,7 +79,7 @@ Creature::Creature(fge::Vector2f const& pos)
     this->setPosition(pos);
 }
 
-void Creature::first([[maybe_unused]] fge::Scene* scene)
+void Creature::first([[maybe_unused]] fge::Scene& scene)
 {
     this->g_animTexture.reset(new fge::texture::TextureData);
     this->g_animTexture->_valid = true;
@@ -193,7 +193,7 @@ FGE_OBJ_UPDATE_BODY(Creature)
         if (this->_data._hunger >= 10)
         { //Finding food
             fge::ObjectContainer objects;
-            if (scene->getAllObj_ByClass("LS:OBJ:FOOD", objects) > 0)
+            if (scene.getAllObj_ByClass("LS:OBJ:FOOD", objects) > 0)
             {
                 for (auto& obj: objects)
                 {
@@ -210,7 +210,7 @@ FGE_OBJ_UPDATE_BODY(Creature)
         if (this->_data._thirst >= 10)
         { //Finding drink
             fge::ObjectContainer objects;
-            if (scene->getAllObj_ByClass("LS:OBJ:DRINK", objects) > 0)
+            if (scene.getAllObj_ByClass("LS:OBJ:DRINK", objects) > 0)
             {
                 for (auto& obj: objects)
                 {
@@ -227,7 +227,7 @@ FGE_OBJ_UPDATE_BODY(Creature)
         if (this->_data._libido >= 50)
         { //Finding partner
             fge::ObjectContainer objects;
-            if (scene->getAllObj_ByClass("LS:OBJ:CREATURE", objects) > 0)
+            if (scene.getAllObj_ByClass("LS:OBJ:CREATURE", objects) > 0)
             {
                 for (auto& obj: objects)
                 {
@@ -261,7 +261,7 @@ FGE_OBJ_UPDATE_BODY(Creature)
     }
     else
     { //Pending action
-        auto targetObject = scene->getObject(this->_actionQueue.front()._target);
+        auto targetObject = scene.getObject(this->_actionQueue.front()._target);
 
         if (targetObject)
         {
@@ -279,14 +279,14 @@ FGE_OBJ_UPDATE_BODY(Creature)
                 {
                     auto nutrition = targetObject->getObject<ls::Food>()->_nutrition;
                     this->_data._hunger = std::clamp(this->_data._hunger - nutrition, 0, 100);
-                    scene->delObject(targetObject->getSid());
+                    scene.delObject(targetObject->getSid());
                 }
                 break;
                 case Action::Types::ACTION_DRINK:
                 {
                     auto nutrition = targetObject->getObject<ls::Drink>()->_nutrition;
                     this->_data._thirst = std::clamp(this->_data._thirst - nutrition, 0, 100);
-                    scene->delObject(targetObject->getSid());
+                    scene.delObject(targetObject->getSid());
                 }
                 break;
                 case Action::Types::ACTION_MAKEBABY:

@@ -36,15 +36,15 @@ public:
 
     fge::Object* copy() override { return new fge::ObjRenderMap(); }
 
-    void onDraw(fge::Scene const* scene, fge::RenderTarget& target);
+    void onDraw(fge::Scene const& scene, fge::RenderTarget& target);
 
     void setClearColor(fge::Color const& color);
     fge::Color const& getClearColor() const;
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
-    void removed(fge::Scene* scene) override;
+    void removed(fge::Scene& scene) override;
 
     void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
     void load(nlohmann::json& jsonObject, fge::Scene* scene) override;

@@ -79,7 +79,7 @@ public:
     [[nodiscard]] virtual std::size_t getPointCount() const = 0;
     [[nodiscard]] virtual Vector2f getPoint(std::size_t index) const = 0;
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
 
     FGE_OBJ_DRAW_DECLARE
 

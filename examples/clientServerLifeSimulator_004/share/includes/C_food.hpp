@@ -32,7 +32,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(Food)
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     FGE_OBJ_DRAW_DECLARE
     void networkRegister() override;
 

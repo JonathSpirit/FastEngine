@@ -46,7 +46,7 @@ ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
 }
 
-void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const* scene, [[maybe_unused]] fge::RenderTarget& target)
+void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const& scene, [[maybe_unused]] fge::RenderTarget& target)
 {
     this->_renderTexture.setClearColor(this->g_colorClear);
     this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));
@@ -61,12 +61,9 @@ fge::Color const& ObjRenderMap::getClearColor() const
     return this->g_colorClear;
 }
 
-void ObjRenderMap::first(fge::Scene* scene)
+void ObjRenderMap::first(fge::Scene& scene)
 {
-    if (scene != nullptr)
-    {
-        scene->_onDraw.addObjectFunctor(&fge::ObjRenderMap::onDraw, this, this);
-    }
+    scene._onDraw.addObjectFunctor(&fge::ObjRenderMap::onDraw, this, this);
 }
 
 #ifdef FGE_DEF_SERVER
@@ -108,7 +105,7 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
 }
 #endif
 
-void ObjRenderMap::removed([[maybe_unused]] fge::Scene* scene)
+void ObjRenderMap::removed([[maybe_unused]] fge::Scene& scene)
 {
     this->detachAll();
 }

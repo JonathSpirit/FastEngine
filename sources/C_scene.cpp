@@ -155,16 +155,16 @@ void Scene::update(fge::RenderWindow& screen,
         }
 
 #ifdef FGE_DEF_SERVER
-        updatedObject->g_object->update(event, deltaTime, this);
+        updatedObject->g_object->update(event, deltaTime, *this);
         if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
         {
-            updatedObject->g_object->_children.update(event, deltaTime, this);
+            updatedObject->g_object->_children.update(event, deltaTime, *this);
         }
 #else
-        updatedObject->g_object->update(screen, event, deltaTime, this);
+        updatedObject->g_object->update(screen, event, deltaTime, *this);
         if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
         {
-            updatedObject->g_object->_children.update(screen, event, deltaTime, this);
+            updatedObject->g_object->_children.update(screen, event, deltaTime, *this);
         }
 #endif //FGE_DEF_SERVER
 
@@ -173,10 +173,10 @@ void Scene::update(fge::RenderWindow& screen,
             this->g_deleteMe = false;
             if (this->g_enableNetworkEventsFlag)
             {
-                this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, updatedObject->g_sid});
+                this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, updatedObject->g_sid});
             }
 
-            updatedObject->g_object->removed(this);
+            updatedObject->g_object->removed(*this);
             if ((updatedObject->g_object->_childrenControlFlags &
                  Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
             {
@@ -189,8 +189,8 @@ void Scene::update(fge::RenderWindow& screen,
             this->hash_updatePlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
             this->g_updatedObjectIterator = --this->g_data.erase(this->g_updatedObjectIterator);
 
-            this->_onObjectRemoved.call(this, updatedObject);
-            this->_onPlanUpdate.call(this, objectPlan);
+            this->_onObjectRemoved.call(*this, updatedObject);
+            this->_onPlanUpdate.call(*this, objectPlan);
         }
     }
 
@@ -199,7 +199,7 @@ void Scene::update(fge::RenderWindow& screen,
         ++this->g_updateCount;
     }
 
-    this->_onDelayedUpdate.call(this);
+    this->_onDelayedUpdate.call(*this);
     this->_onDelayedUpdate.clear();
 }
 uint16_t Scene::getUpdateCount() const
@@ -210,7 +210,7 @@ uint16_t Scene::getUpdateCount() const
 #ifndef FGE_DEF_SERVER
 void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
-    this->_onDraw.call(this, target);
+    this->_onDraw.call(*this, target);
 
     fge::RectFloat const screenBounds = fge::GetScreenRect(target);
 
@@ -285,7 +285,7 @@ fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
         fge::ObjectPlanDepth const planDepth = std::distance(firstPlanObjectIt, it->second);
         it->second->get()->g_planDepth = planDepth;
 
-        this->_onPlanUpdate.call(this, plan);
+        this->_onPlanUpdate.call(*this, plan);
         return planDepth;
     }
     return FGE_SCENE_BAD_PLANDEPTH;
@@ -307,7 +307,7 @@ void Scene::updateAllPlanDepth(fge::ObjectPlan plan)
             (*objectIt)->g_planDepth = depthCount++;
         }
 
-        this->_onPlanUpdate.call(this, plan);
+        this->_onPlanUpdate.call(*this, plan);
     }
 }
 void Scene::updateAllPlanDepth()
@@ -330,7 +330,7 @@ void Scene::updateAllPlanDepth()
         (*objectIt)->g_planDepth = depthCount++;
     }
 
-    this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);
+    this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
 }
 
 void Scene::clear()
@@ -358,7 +358,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
     }
     if (this->g_enableNetworkEventsFlag)
     {
-        this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, generatedSid});
+        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, generatedSid});
     }
 
     auto it = this->hash_getInsertionIteratorFromPlanDataMap(plan);
@@ -374,7 +374,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
     }
     if (!silent)
     {
-        (*it)->g_object->first(this);
+        (*it)->g_object->first(*this);
     }
 
     if ((*it)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
@@ -383,8 +383,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
         (*it)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
     }
 
-    this->_onObjectAdded.call(this, *it);
-    this->_onPlanUpdate.call(this, plan);
+    this->_onObjectAdded.call(*this, *it);
+    this->_onPlanUpdate.call(*this, plan);
 
     return *it;
 }
@@ -397,7 +397,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
     }
     if (this->g_enableNetworkEventsFlag)
     {
-        this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, generatedSid});
+        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, generatedSid});
     }
 
     objectData->g_sid = generatedSid;
@@ -415,7 +415,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
     }
     if (!silent)
     {
-        objectData->g_object->first(this);
+        objectData->g_object->first(*this);
     }
 
     if (objectData->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
@@ -425,8 +425,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
                                                this->g_callbackContext._guiElementHandler);
     }
 
-    this->_onObjectAdded.call(this, objectData);
-    this->_onPlanUpdate.call(this, objectData->g_plan);
+    this->_onObjectAdded.call(*this, objectData);
+    this->_onPlanUpdate.call(*this, objectData->g_plan);
 
     return objectData;
 }
@@ -459,25 +459,23 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
         if (!newScene.isValid(sid))
         {
             fge::ObjectDataShared buff = *it->second;
-            buff->g_object->removed(this);
-            if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) >
-                0)
-            {
-                buff->g_object->_children.clear();
-            }
+
             this->hash_updatePlanDataMap(buff->g_plan, it->second, true);
             this->g_data.erase(it->second);
             this->g_dataMap.erase(it);
 
-            this->_onObjectRemoved.call(this, buff);
-            this->_onPlanUpdate.call(this, buff->g_plan);
+            this->_onObjectRemoved.call(*this, buff);
+            this->_onPlanUpdate.call(*this, buff->g_plan);
 
             if (this->g_enableNetworkEventsFlag)
             {
-                this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, sid});
+                this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, sid});
             }
 
-            return newScene.newObject(buff);
+            buff = newScene.newObject(buff, true);
+
+            buff->g_object->transfered(*this, newScene);
+            return buff;
         }
     }
     return nullptr;
@@ -495,12 +493,12 @@ bool Scene::delObject(fge::ObjectSid sid)
     {
         if (this->g_enableNetworkEventsFlag)
         {
-            this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, (*it->second)->g_sid});
+            this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, (*it->second)->g_sid});
         }
 
         auto buff = *it->second;
 
-        buff->g_object->removed(this);
+        buff->g_object->removed(*this);
         if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
         {
             buff->g_object->_children.clear();
@@ -513,8 +511,8 @@ bool Scene::delObject(fge::ObjectSid sid)
         this->g_data.erase(it->second);
         this->g_dataMap.erase(it);
 
-        this->_onObjectRemoved.call(this, buff);
-        this->_onPlanUpdate.call(this, objectPlan);
+        this->_onObjectRemoved.call(*this, buff);
+        this->_onPlanUpdate.call(*this, objectPlan);
 
         return true;
     }
@@ -525,7 +523,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
     if (this->g_enableNetworkEventsFlag)
     {
         this->clearNetEventsQueue();
-        this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, FGE_SCENE_BAD_SID});
+        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, FGE_SCENE_BAD_SID});
     }
 
     std::size_t buffSize = this->g_data.size();
@@ -542,7 +540,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
             }
         }
 
-        buff->g_object->removed(this);
+        buff->g_object->removed(*this);
         if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
         {
             buff->g_object->_children.clear();
@@ -554,10 +552,10 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         this->g_dataMap.erase(buff->g_sid);
         it = --this->g_data.erase(it);
 
-        this->_onObjectRemoved.call(this, buff);
+        this->_onObjectRemoved.call(*this, buff);
     }
 
-    this->_onPlanUpdate.call(this, FGE_SCENE_BAD_PLAN);
+    this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
     return buffSize;
 }
 
@@ -582,8 +580,8 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
         {
             if (this->g_enableNetworkEventsFlag)
             {
-                this->pushEvent({fge::SceneNetEvent::SEVT_DELOBJECT, (*it->second)->g_sid});
-                this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, newSid});
+                this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, (*it->second)->g_sid});
+                this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, newSid});
             }
 
             (*it->second)->g_sid = newSid;
@@ -607,12 +605,12 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
     {
         if (this->g_enableNetworkEventsFlag)
         {
-            this->pushEvent({fge::SceneNetEvent::SEVT_NEWOBJECT, (*it->second)->g_sid});
+            this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, (*it->second)->g_sid});
         }
 
         auto buff = *it->second;
 
-        buff->g_object->removed(this);
+        buff->g_object->removed(*this);
         if ((buff->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_CLEAR_ON_REMOVE) > 0)
         {
             buff->g_object->_children.clear();
@@ -622,7 +620,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
 
         buff = std::make_shared<fge::ObjectData>(this, std::move(newObject), buff->g_sid, buff->g_plan, buff->g_type);
         buff->g_object->_myObjectData = *it->second;
-        buff->g_object->first(this);
+        buff->g_object->first(*this);
 
         if (buff->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
             this->g_callbackContext._event != nullptr)
@@ -652,9 +650,9 @@ bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
 
         if (oldPlan != newPlan)
         {
-            this->_onPlanUpdate.call(this, oldPlan);
+            this->_onPlanUpdate.call(*this, oldPlan);
         }
-        this->_onPlanUpdate.call(this, newPlan);
+        this->_onPlanUpdate.call(*this, newPlan);
         return true;
     }
     return false;
@@ -675,7 +673,7 @@ bool Scene::setObjectPlanTop(fge::ObjectSid sid)
         this->g_data.splice(newPosIt->second, this->g_data, it->second);
         this->hash_updatePlanDataMap((*it->second)->g_plan, it->second, false);
 
-        this->_onPlanUpdate.call(this, (*it->second)->g_plan);
+        this->_onPlanUpdate.call(*this, (*it->second)->g_plan);
         return true;
     }
     return false;
@@ -715,7 +713,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
             }
         }
 
-        this->_onPlanUpdate.call(this, plan);
+        this->_onPlanUpdate.call(*this, plan);
 
         return true;
     }
@@ -996,6 +994,21 @@ fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid) const
 }
 
 /** Network **/
+void Scene::signalObject(fge::ObjectSid sid, int8_t signal)
+{
+    if (!this->g_enableNetworkEventsFlag)
+    {
+        return;
+    }
+
+    auto it = this->g_dataMap.find(sid);
+
+    if (it != this->g_dataMap.end())
+    {
+        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_SIGNALED, sid, signal});
+    }
+}
+
 void Scene::pack(fge::net::Packet& pck)
 {
     //update count
@@ -1493,13 +1506,20 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id
 
     while (!events.empty())
     {
-        if (events.front()._event == fge::SceneNetEvent::SEVT_NEWOBJECT)
-        { //New object
-            fge::ObjectDataShared data = this->getObject(events.front()._sid);
-            if (data)
+        auto const& event = events.front();
+
+        switch (event._event)
+        {
+        case SceneNetEvent::Events::OBJECT_DELETED:
+            pck << static_cast<fge::SceneNetEvent::Events_t>(fge::SceneNetEvent::Events::OBJECT_DELETED);
+            //SID
+            pck << event._sid;
+            ++counter;
+            break;
+        case SceneNetEvent::Events::OBJECT_CREATED:
+            if (auto const data = this->getObject(event._sid))
             {
-                pck << static_cast<std::underlying_type<fge::SceneNetEvent::Events>::type>(
-                        fge::SceneNetEvent::SEVT_NEWOBJECT);
+                pck << static_cast<fge::SceneNetEvent::Events_t>(fge::SceneNetEvent::Events::OBJECT_CREATED);
                 //SID
                 pck << data->g_sid;
                 //CLASS
@@ -1507,21 +1527,22 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id
                 //PLAN
                 pck << data->g_plan;
                 //TYPE
-                pck << static_cast<std::underlying_type<fge::ObjectType>::type>(data->g_type);
-                ;
+                pck << static_cast<std::underlying_type_t<fge::ObjectType>>(data->g_type);
 
                 data->g_object->pack(pck);
                 ++counter;
             }
-        }
-        else
-        { //Remove object
-            pck << static_cast<std::underlying_type<fge::SceneNetEvent::Events>::type>(
-                    fge::SceneNetEvent::SEVT_DELOBJECT);
+            break;
+        case SceneNetEvent::Events::OBJECT_SIGNALED:
+            pck << static_cast<fge::SceneNetEvent::Events_t>(fge::SceneNetEvent::Events::OBJECT_SIGNALED);
             //SID
-            pck << events.front()._sid;
-            ++counter;
+            pck << event._sid;
+            pck << event._signal;
+            break;
+        default:
+            throw fge::Exception("Unknown watchedEvent");
         }
+
         events.pop();
     }
 
@@ -1531,6 +1552,7 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const&
 {
     constexpr char const* const func = __func__;
     fge::ObjectSid buffSid;
+    int8_t buffSignal;
     fge::reg::ClassId buffClass;
     fge::ObjectPlan buffPlan;
     std::underlying_type_t<fge::ObjectType> buffType{fge::ObjectType::TYPE_NULL};
@@ -1540,13 +1562,30 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const&
     return RValid<fge::net::SizeType>(pck)
             .and_for_each(0, 1, [&]([[maybe_unused]] auto& chain, [[maybe_unused]] auto& i) {
         //Event type
-        return RStrictLess<std::underlying_type_t<fge::SceneNetEvent::Events>>(fge::SceneNetEvent::Events::SEVT_MAX_,
-                                                                               pck)
+        return RStrictLess<fge::SceneNetEvent::Events_t>(
+                       static_cast<fge::SceneNetEvent::Events_t>(fge::SceneNetEvent::Events::LAST_ENUM_), pck)
                 .and_then([&](auto& chain) {
-            auto event = static_cast<fge::SceneNetEvent::Events>(chain.value());
-
-            if (event == fge::SceneNetEvent::SEVT_NEWOBJECT)
-            { //New object
+            switch (static_cast<fge::SceneNetEvent::Events>(chain.value()))
+            {
+            case SceneNetEvent::Events::OBJECT_DELETED:
+                //SID
+                pck >> buffSid;
+                if (!pck.isValid())
+                {
+                    return chain.invalidate(
+                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
+                }
+                if (buffSid == FGE_SCENE_BAD_SID)
+                {
+                    this->delAllObject(true);
+                }
+                else
+                {
+                    this->delObject(buffSid);
+                }
+                break;
+            case SceneNetEvent::Events::OBJECT_CREATED:
+            {
                 //SID
                 pck >> buffSid;
                 //CLASS
@@ -1572,23 +1611,20 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const&
                 this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, static_cast<fge::ObjectType>(buffType))
                         ->g_object->unpack(pck);
             }
-            else if (event == fge::SceneNetEvent::SEVT_DELOBJECT)
-            { //Remove object
+            break;
+            case SceneNetEvent::Events::OBJECT_SIGNALED:
                 //SID
                 pck >> buffSid;
-                if (!pck.isValid())
+                pck >> buffSignal;
+
+                if (auto const object = this->getObject(buffSid))
                 {
-                    return chain.invalidate(
-                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
+                    object->getObject()->netSignaled(buffSignal);
                 }
-                if (buffSid == FGE_SCENE_BAD_SID)
-                {
-                    this->delAllObject(true);
-                }
-                else
-                {
-                    this->delObject(buffSid);
-                }
+                break;
+            default:
+                return chain.invalidate(
+                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended event", func});
             }
 
             return chain;

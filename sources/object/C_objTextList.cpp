@@ -51,7 +51,7 @@ ObjTextList::ObjTextList(ObjTextList const& r) :
     }*/
 }
 
-void ObjTextList::first([[maybe_unused]] fge::Scene* scene)
+void ObjTextList::first([[maybe_unused]] fge::Scene& scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 }

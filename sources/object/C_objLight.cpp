@@ -109,11 +109,11 @@ fge::Color ObjLight::getColor() const
     return fge::Color(this->g_vertexBuffer.getVertices()[0]._color);
 }
 
-void ObjLight::first(fge::Scene* scene)
+void ObjLight::first(fge::Scene& scene)
 {
-    if (scene != nullptr && !this->g_renderObject)
+    if (!this->g_renderObject)
     {
-        this->g_renderObject = scene->getFirstObj_ByClass(FGE_OBJRENDERMAP_CLASSNAME);
+        this->g_renderObject = scene.getFirstObj_ByClass(FGE_OBJRENDERMAP_CLASSNAME);
     }
     if (!this->_g_lightSystemGate.isOpen())
     {

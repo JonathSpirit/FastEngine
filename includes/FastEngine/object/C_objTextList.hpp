@@ -38,7 +38,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTextList)
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     FGE_OBJ_DRAW_DECLARE
 

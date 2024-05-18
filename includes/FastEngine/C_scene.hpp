@@ -96,18 +96,19 @@ struct CallbackContext
  */
 struct SceneNetEvent
 {
-    enum Events : uint8_t
+    enum class Events : uint8_t
     {
-        SEVT_DELOBJECT = 0,
-        SEVT_NEWOBJECT,
+        OBJECT_DELETED = 0,
+        OBJECT_CREATED,
+        OBJECT_SIGNALED,
 
-        SEVT_UNKNOWN,
-
-        SEVT_MAX_
+        LAST_ENUM_
     };
+    using Events_t = std::underlying_type_t<Events>;
 
-    fge::SceneNetEvent::Events _event;
-    fge::ObjectSid _sid;
+    Events _event;
+    ObjectSid _sid;
+    int8_t _signal{0};
 };
 
 /**
@@ -549,6 +550,15 @@ public:
      * The provided Scene must not have another Object with the same SID,
      * causing the method to failed and return an invalid shared pointer.
      *
+     * Events/methods are called in this order :
+     *    [Object destroyed from old Scene]
+     *    _onObjectRemoved called on old Scene
+     *    _onPlanUpdate called on old Scene
+     *    [Object is added in new Scene]
+     *    _onObjectAdded called on new Scene
+     *    _onPlanUpdate called on new Scene
+     *    Object::transfered() called
+     *
      * \warning This method is not meant to be used on the same Scene, however
      * it will work as expected.
      *
@@ -921,6 +931,14 @@ public:
 
     // Network
     /**
+     * \brief Signal an Object over the network.
+     *
+     * \param sid The SID of the Object
+     * \param signal The signal to send
+     */
+    void signalObject(fge::ObjectSid sid, int8_t signal);
+
+    /**
      * \brief Pack all the Scene data in a Packet.
      *
      * This function is useful to do a full Scene synchronisation in a network from a server.
@@ -1292,12 +1310,12 @@ public:
 
     // Event
     /// Event called when the Scene is about to be drawn
-    mutable fge::CallbackHandler<fge::Scene const*, fge::RenderTarget&> _onDraw;
+    mutable fge::CallbackHandler<fge::Scene const&, fge::RenderTarget&> _onDraw;
 
     /// Event called when a new Object has been added
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onObjectAdded;
+    mutable fge::CallbackHandler<fge::Scene&, fge::ObjectDataShared const&> _onObjectAdded;
     /// Event called when an Object has been removed
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectDataShared const&> _onObjectRemoved;
+    mutable fge::CallbackHandler<fge::Scene&, fge::ObjectDataShared const&> _onObjectRemoved;
 
     /**
      * \brief Event called when a change in the plan is detected
@@ -1305,7 +1323,7 @@ public:
      * When an Object change his plan, is created, is deleted ... this event is called.
      * The ObjectPlan argument can be FGE_SCENE_BAD_PLAN, this mean that all plans have been impacted.
      */
-    mutable fge::CallbackHandler<fge::Scene*, fge::ObjectPlan> _onPlanUpdate;
+    mutable fge::CallbackHandler<fge::Scene&, fge::ObjectPlan> _onPlanUpdate;
 
     /**
      * \brief Event called only once after a Scene update
@@ -1313,7 +1331,7 @@ public:
      * You or an Object can register a one time callback that will be called after updating the Scene.
      * Once called, callbacks is cleared.
      */
-    mutable fge::CallbackHandler<fge::Scene*> _onDelayedUpdate;
+    mutable fge::CallbackHandler<fge::Scene&> _onDelayedUpdate;
 
 private:
     struct PerClientSync

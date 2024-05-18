@@ -26,7 +26,7 @@ Food::Food(fge::Vector2f const& pos)
     this->setPosition(pos);
 }
 
-void Food::first([[maybe_unused]] fge::Scene* scene)
+void Food::first([[maybe_unused]] fge::Scene& scene)
 {
     this->_nutrition = fge::_random.range(1, 20);
     this->setOrigin({24, 19});

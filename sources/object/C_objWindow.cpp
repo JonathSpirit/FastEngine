@@ -116,7 +116,7 @@ ObjWindow::ObjWindow(ObjWindow const& r) :
     this->g_spriteBatches.setTexture(this->g_tileSetWindow.getTexture());
 }
 
-void ObjWindow::first(fge::Scene* scene)
+void ObjWindow::first(fge::Scene& scene)
 {
     this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
@@ -125,7 +125,7 @@ void ObjWindow::first(fge::Scene* scene)
     this->setScale(fge::GuiElement::getGlobalGuiScale());
 
     this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
-    this->_windowScene.setLinkedRenderTarget(scene->getLinkedRenderTarget());
+    this->_windowScene.setLinkedRenderTarget(scene.getLinkedRenderTarget());
     this->_windowView.reset(new fge::View{});
     this->_windowScene.setCustomView(this->_windowView);
 
@@ -173,7 +173,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
         objectData->getObject()->needAnchorUpdate(false);
     }
 }
-void ObjWindow::removed([[maybe_unused]] fge::Scene* scene)
+void ObjWindow::removed([[maybe_unused]] fge::Scene& scene)
 {
     this->detachAll();
 }
@@ -451,7 +451,7 @@ void ObjWindow::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
     }
 }
 
-void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan plan)
+void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene& scene, fge::ObjectPlan plan)
 {
     auto myObjectData = this->_myObjectData.lock();
     if (myObjectData->getPlan() == plan)
@@ -463,7 +463,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene* scene, fge::ObjectPlan
         this->setPriority(myObjectData->getPlan() + myObjectData->getPlanDepth());
     }
 }
-void ObjWindow::onObjectAdded([[maybe_unused]] fge::Scene* scene, fge::ObjectDataShared const& object)
+void ObjWindow::onObjectAdded([[maybe_unused]] fge::Scene& scene, fge::ObjectDataShared const& object)
 {
     object->setParent(this->_myObjectData.lock());
 }

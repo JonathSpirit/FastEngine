@@ -41,27 +41,44 @@ Object::Object(Object&& r) noexcept :
         _children(this)
 {}
 
-void Object::first([[maybe_unused]] fge::Scene* scene) {}
+void Object::first([[maybe_unused]] fge::Scene& scene) {}
+void Object::transfered([[maybe_unused]] fge::Scene& oldScene, [[maybe_unused]] fge::Scene& newScene) {}
 void Object::callbackRegister([[maybe_unused]] fge::Event& event,
                               [[maybe_unused]] fge::GuiElementHandler* guiElementHandlerPtr)
 {}
 #ifdef FGE_DEF_SERVER
 void Object::update([[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] std::chrono::microseconds const& deltaTime,
-                    [[maybe_unused]] fge::Scene* scene)
+                    [[maybe_unused]] fge::Scene& scene)
+{}
+void Object::update(fge::Event& event, std::chrono::microseconds const& deltaTime)
+{
+    if (auto myObject = this->_myObjectData.lock())
+    {
+        this->update(event, deltaTime, *myObject->getLinkedScene());
+    }
+}
 #else
 void Object::update([[maybe_unused]] fge::RenderWindow& screen,
                     [[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] std::chrono::microseconds const& deltaTime,
-                    [[maybe_unused]] fge::Scene* scene)
-#endif //FGE_DEF_SERVER
+                    [[maybe_unused]] fge::Scene& scene)
 {}
+void Object::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime)
+{
+    if (auto myObject = this->_myObjectData.lock())
+    {
+        this->update(screen, event, deltaTime, *myObject->getLinkedScene());
+    }
+}
+#endif //FGE_DEF_SERVER
 
 #ifndef FGE_DEF_SERVER
 void Object::draw([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] fge::RenderStates const& states) const {}
 #endif //FGE_DEF_SERVER
 void Object::networkRegister() {}
-void Object::removed([[maybe_unused]] fge::Scene* scene) {}
+void Object::netSignaled([[maybe_unused]] int8_t signal) {}
+void Object::removed([[maybe_unused]] fge::Scene& scene) {}
 
 fge::Object* Object::copy()
 {

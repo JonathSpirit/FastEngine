@@ -92,7 +92,7 @@ public:
     explicit Creature(fge::Vector2f const& pos);
     ~Creature() override = default;
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     bool worldTick() override;
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE

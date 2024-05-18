@@ -57,9 +57,9 @@ public:
 
     fge::GuiElement* getGuiElement() override { return this; }
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
-    void removed(fge::Scene* scene) override;
+    void removed(fge::Scene& scene) override;
 
     FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
@@ -116,8 +116,8 @@ private:
     void onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
     void onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg);
 
-    void onPlanUpdate(fge::Scene* scene, fge::ObjectPlan plan);
-    void onObjectAdded(fge::Scene* scene, fge::ObjectDataShared const& object);
+    void onPlanUpdate(fge::Scene& scene, fge::ObjectPlan plan);
+    void onObjectAdded(fge::Scene& scene, fge::ObjectDataShared const& object);
 
     void onRefreshGlobalScale(fge::Vector2f const& scale);
 

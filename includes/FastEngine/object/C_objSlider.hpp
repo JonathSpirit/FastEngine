@@ -37,7 +37,7 @@ public:
 
     fge::GuiElement* getGuiElement() override { return this; }
 
-    void first(fge::Scene* scene) override;
+    void first(fge::Scene& scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     FGE_OBJ_DRAW_DECLARE
 

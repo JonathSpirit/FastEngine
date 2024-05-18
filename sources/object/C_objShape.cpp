@@ -219,7 +219,7 @@ void ObjShape::updateShape()
     this->updateOutline();
 }
 
-void ObjShape::first([[maybe_unused]] fge::Scene* scene)
+void ObjShape::first([[maybe_unused]] fge::Scene& scene)
 {
     this->updateShape();
 }
