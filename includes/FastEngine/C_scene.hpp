@@ -318,11 +318,24 @@ public:
      * For an shared pointer Object to be considered valid he need
      * to not be \b nullptr and have a bound Scene.
      *
-     * \param dataShared The shared pointer Object
+     * \param data The shared pointer Object
+     * \return \b true if the Object is valid or \b false otherwise
      */
-    [[nodiscard]] static inline bool isValid(std::shared_ptr<fge::ObjectData> const& dataShared)
+    [[nodiscard]] static inline bool isValid(fge::ObjectDataShared const& data) { return data && data->isBound(); }
+
+    /**
+     * \brief check if the provided weak pointer Object is valid.
+     *
+     * \param data The weak pointer Object
+     * \return The shared pointer Object if valid or \b nullptr otherwise
+     */
+    [[nodiscard]] static inline fge::ObjectDataShared isValid(fge::ObjectDataWeak const& data)
     {
-        return dataShared && dataShared->isBound();
+        if (auto dataShared = data.lock())
+        {
+            return dataShared->isBound() ? dataShared : nullptr;
+        }
+        return nullptr;
     }
 
 private:
