@@ -444,7 +444,7 @@ void ObjTextInputBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
 
         auto scrollRect = transform * this->getLocalBounds();
 
-        auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+        auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
         fge::Vector2f mousePosition;
         if (customView)
         {

@@ -41,7 +41,7 @@ void ChildObjectsAccessor::addExistingObject(fge::Object* object, std::size_t in
     auto owner = this->g_owner->_myObjectData.lock();
     if (owner)
     {
-        linkedScene = owner->getLinkedScene();
+        linkedScene = owner->getScene();
     }
 
     std::vector<DataContext>::iterator it;
@@ -70,7 +70,7 @@ void ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t 
     auto owner = this->g_owner->_myObjectData.lock();
     if (owner)
     {
-        linkedScene = owner->getLinkedScene();
+        linkedScene = owner->getScene();
     }
 
     std::vector<DataContext>::iterator it;

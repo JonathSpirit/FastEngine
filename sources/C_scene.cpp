@@ -182,7 +182,7 @@ void Scene::update(fge::RenderWindow& screen,
             {
                 updatedObject->g_object->_children.clear();
             }
-            updatedObject->g_linkedScene = nullptr;
+            updatedObject->g_boundScene = nullptr;
             updatedObject->g_object->_myObjectData.reset();
 
             auto objectPlan = updatedObject->g_plan;
@@ -406,7 +406,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
 
     it = this->g_data.insert(it, objectData);
     this->g_dataMap[generatedSid] = it;
-    objectData->g_linkedScene = this;
+    objectData->g_boundScene = this;
     objectData->g_object->_myObjectData = objectData;
     this->hash_updatePlanDataMap(objectData->g_plan, it, false);
     if ((this->g_updatedObjectIterator != this->g_data.end()) && objectData->g_parent.expired())
@@ -503,7 +503,7 @@ bool Scene::delObject(fge::ObjectSid sid)
         {
             buff->g_object->_children.clear();
         }
-        buff->g_linkedScene = nullptr;
+        buff->g_boundScene = nullptr;
         buff->g_object->_myObjectData.reset();
 
         auto objectPlan = buff->g_plan;
@@ -545,7 +545,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         {
             buff->g_object->_children.clear();
         }
-        buff->g_linkedScene = nullptr;
+        buff->g_boundScene = nullptr;
         buff->g_object->_myObjectData.reset();
         this->hash_updatePlanDataMap(buff->g_plan, it, true);
 
@@ -615,7 +615,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
         {
             buff->g_object->_children.clear();
         }
-        buff->g_linkedScene = nullptr;
+        buff->g_boundScene = nullptr;
         buff->g_object->_myObjectData.reset();
 
         buff = std::make_shared<fge::ObjectData>(this, std::move(newObject), buff->g_sid, buff->g_plan, buff->g_type);

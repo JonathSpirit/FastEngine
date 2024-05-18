@@ -134,7 +134,7 @@ enum ObjectType : uint8_t
  *
  * This is the class used to store data relating to an Object in a Scene.
  * There is :
- * - the linked scene of the object.
+ * - the bound scene of the object.
  * - the object.
  * - the SID of the object
  * - the plan of the object
@@ -145,7 +145,7 @@ class ObjectData
 {
 public:
     inline ObjectData() :
-            g_linkedScene(nullptr),
+            g_boundScene(nullptr),
 
             g_object(nullptr),
             g_sid(FGE_SCENE_BAD_SID),
@@ -155,12 +155,12 @@ public:
             g_planDepth(FGE_SCENE_BAD_PLANDEPTH),
             g_requireForceClientsCheckup(true)
     {}
-    inline ObjectData(fge::Scene* linkedScene,
+    inline ObjectData(fge::Scene* boundScene,
                       fge::ObjectPtr&& newObj,
                       fge::ObjectSid newSid = FGE_SCENE_BAD_SID,
                       fge::ObjectPlan newPlan = FGE_SCENE_PLAN_DEFAULT,
                       fge::ObjectType newType = fge::ObjectType::TYPE_OBJECT) :
-            g_linkedScene(linkedScene),
+            g_boundScene(boundScene),
 
             g_object(std::move(newObj)),
             g_sid(newSid),
@@ -184,11 +184,11 @@ public:
     [[nodiscard]] inline fge::Object* releaseObject() { return this->g_object.release(); }
 
     /**
-     * \brief Get the linked Scene.
+     * \brief Get the current bound Scene.
      *
-     * \return The linked Scene pointer or \b nullptr if there is no Scene
+     * \return The bound Scene pointer or \b nullptr if there is no Scene
      */
-    [[nodiscard]] inline fge::Scene* getLinkedScene() const { return this->g_linkedScene; }
+    [[nodiscard]] inline fge::Scene* getScene() const { return this->g_boundScene; }
     /**
      * \brief Get the Object pointer.
      *
@@ -282,11 +282,11 @@ public:
     [[nodiscard]] inline fge::ObjectDataWeak getParent() const { return this->g_parent; }
 
     /**
-     * \brief Check if the Object have an linked Scene.
+     * \brief Check if the Object is bound to a Scene.
      *
-     * \return True if have a linked Scene, False otherwise
+     * \return \b true if the Object is bound, \b false otherwise
      */
-    [[nodiscard]] inline bool isLinked() const { return this->g_linkedScene != nullptr; }
+    [[nodiscard]] inline bool isBound() const { return this->g_boundScene != nullptr; }
 
     /**
      * \brief Check if the Object is a specific class.
@@ -316,17 +316,17 @@ public:
      * \brief check if the provided shared pointer Object is valid.
      *
      * For an shared pointer Object to be considered valid he need
-     * to be not \b nullptr and have a linked Scene.
+     * to not be \b nullptr and have a bound Scene.
      *
      * \param dataShared The shared pointer Object
      */
     [[nodiscard]] static inline bool isValid(std::shared_ptr<fge::ObjectData> const& dataShared)
     {
-        return dataShared && dataShared->isLinked();
+        return dataShared && dataShared->isBound();
     }
 
 private:
-    fge::Scene* g_linkedScene;
+    fge::Scene* g_boundScene;
 
     fge::ObjectPtr g_object;
     fge::ObjectSid g_sid;
@@ -518,7 +518,7 @@ public:
      * \brief Add a new Object in the Scene.
      *
      * This method add already handled shared ObjectData in the Scene.
-     * The linked Scene is automatically set to the target Scene.
+     * The bound Scene is automatically set to the target Scene.
      *
      * \warning The provided ObjectData must have a valid Object pointer.
      *

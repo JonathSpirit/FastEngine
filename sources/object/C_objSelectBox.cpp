@@ -327,7 +327,7 @@ void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] fge::Event const& evt,
         return;
     }
 
-    auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+    auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
     fge::Vector2f mousePosition;
     if (customView)
     {
@@ -390,7 +390,7 @@ void ObjSelectBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
 
         auto boxRect = transform * this->getLocalBounds();
 
-        auto customView = this->_myObjectData.lock()->getLinkedScene()->getCustomView();
+        auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
         fge::Vector2f mousePosition;
         if (customView)
         {

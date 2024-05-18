@@ -155,8 +155,7 @@ void ObjWindow::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
     this->_windowScene._onObjectAdded.addObjectFunctor(&fge::ObjWindow::onObjectAdded, this, this);
 
     fge::GuiElement::_onGlobalGuiScaleChange.addObjectFunctor(&fge::ObjWindow::onRefreshGlobalScale, this, this);
-    this->_myObjectData.lock()->getLinkedScene()->_onPlanUpdate.addObjectFunctor(&fge::ObjWindow::onPlanUpdate, this,
-                                                                                 this);
+    this->_myObjectData.lock()->getScene()->_onPlanUpdate.addObjectFunctor(&fge::ObjWindow::onPlanUpdate, this, this);
 
     this->g_guiElementHandler = guiElementHandlerPtr;
 
@@ -360,8 +359,8 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
     if (arg.button == SDL_BUTTON_LEFT)
     {
         auto myObjectData = this->_myObjectData.lock();
-        myObjectData->getLinkedScene()->setObjectPlanBot(myObjectData->getSid());
-        myObjectData->getLinkedScene()->updateAllPlanDepth(myObjectData->getPlan());
+        myObjectData->getScene()->setObjectPlanBot(myObjectData->getSid());
+        myObjectData->getScene()->updateAllPlanDepth(myObjectData->getPlan());
 
         auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -372,7 +371,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
             {
                 this->_onWindowClose.call(*this);
                 context._keepAliveObject->push_back(this->_myObjectData.lock());
-                myObjectData->getLinkedScene()->delObject(myObjectData->getSid());
+                myObjectData->getScene()->delObject(myObjectData->getSid());
                 return;
             }
         }
@@ -458,7 +457,7 @@ void ObjWindow::onPlanUpdate([[maybe_unused]] fge::Scene& scene, fge::ObjectPlan
     {
         if (myObjectData->getPlanDepth() == FGE_SCENE_BAD_PLANDEPTH)
         {
-            myObjectData->getLinkedScene()->updatePlanDepth(myObjectData->getSid());
+            myObjectData->getScene()->updatePlanDepth(myObjectData->getSid());
         }
         this->setPriority(myObjectData->getPlan() + myObjectData->getPlanDepth());
     }

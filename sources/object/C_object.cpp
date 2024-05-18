@@ -55,7 +55,7 @@ void Object::update(fge::Event& event, std::chrono::microseconds const& deltaTim
 {
     if (auto myObject = this->_myObjectData.lock())
     {
-        this->update(event, deltaTime, *myObject->getLinkedScene());
+        this->update(event, deltaTime, *myObject->getScene());
     }
 }
 #else
@@ -68,7 +68,7 @@ void Object::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::m
 {
     if (auto myObject = this->_myObjectData.lock())
     {
-        this->update(screen, event, deltaTime, *myObject->getLinkedScene());
+        this->update(screen, event, deltaTime, *myObject->getScene());
     }
 }
 #endif //FGE_DEF_SERVER

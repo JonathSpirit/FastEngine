@@ -164,7 +164,7 @@ bool Creature::worldTick()
         if (this->_timePregnant >= std::chrono::milliseconds(30000))
         {
             this->_data._pregnant = false;
-            auto* scene = this->_myObjectData.lock()->getLinkedScene();
+            auto* scene = this->_myObjectData.lock()->getScene();
             for (std::size_t i = 0; i < fge::_random.range<std::size_t>(1, 2); ++i)
             {
                 scene->newObject(FGE_NEWOBJECT(ls::Creature, this->getPosition()), FGE_SCENE_PLAN_MIDDLE);

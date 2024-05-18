@@ -61,7 +61,7 @@ void Anchor::updateAnchor(fge::Vector2f const& customTargetSize)
     {
         return;
     }
-    auto* scene = parent->getLinkedScene();
+    auto* scene = parent->getScene();
     if (scene == nullptr)
     {
         return;
