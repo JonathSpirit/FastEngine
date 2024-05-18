@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['yellow_0',['Yellow',['../classfge_1_1Color.html#a0b14a866535c4938a1f2d3e667d9e588',1,'fge::Color']]]
+  ['white_0',['White',['../classfge_1_1Color.html#ab80b0f8ec014524268eae29c726fcde1',1,'fge::Color']]]
 ];

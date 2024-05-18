@@ -151,7 +151,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    [[nodiscard]] VkPresentModeKHR getPresentMode() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    [[nodiscard]] VkExtent2D getExtent2D() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    [[nodiscard]] VkCommandBuffer getCommandBuffer() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    [[nodiscard]] <a class="code hl_class" href="classfge_1_1vulkan_1_1CommandBuffer.html">fge::vulkan::CommandBuffer</a>&amp; getCommandBuffer() <span class="keyword">const override</span>;</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    [[nodiscard]] VkRenderPass getRenderPass() <span class="keyword">const override</span>;</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) <span class="keyword">const</span>;</div>
@@ -177,7 +177,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    std::vector&lt;VkFramebuffer&gt; g_swapChainFramebuffers;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    std::array&lt;VkCommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT&gt; g_commandBuffers;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">mutable</span> std::array&lt;fge::vulkan::CommandBuffer, FGE_MAX_FRAMES_IN_FLIGHT&gt; g_commandBuffers;</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    std::array&lt;VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT&gt; g_imageAvailableSemaphores;</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    std::array&lt;VkSemaphore, FGE_MAX_FRAMES_IN_FLIGHT&gt; g_renderFinishedSemaphores;</div>
@@ -196,9 +196,10 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_GRAPHIC_C_RENDERWINDOW_HPP_INCLUDED</span></div>
-<div class="ttc" id="aclassfge_1_1RenderTarget_html"><div class="ttname"><a href="classfge_1_1RenderTarget.html">fge::RenderTarget</a></div><div class="ttdef"><b>Definition</b> C_renderTarget.hpp:57</div></div>
+<div class="ttc" id="aclassfge_1_1RenderTarget_html"><div class="ttname"><a href="classfge_1_1RenderTarget.html">fge::RenderTarget</a></div><div class="ttdef"><b>Definition</b> C_renderTarget.hpp:58</div></div>
 <div class="ttc" id="aclassfge_1_1RenderWindow_html"><div class="ttname"><a href="classfge_1_1RenderWindow.html">fge::RenderWindow</a></div><div class="ttdef"><b>Definition</b> C_renderWindow.hpp:48</div></div>
-<div class="ttc" id="aclassfge_1_1vulkan_1_1Context_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a></div><div class="ttdoc">Vulkan context.</div><div class="ttdef"><b>Definition</b> C_context.hpp:55</div></div>
+<div class="ttc" id="aclassfge_1_1vulkan_1_1CommandBuffer_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1CommandBuffer.html">fge::vulkan::CommandBuffer</a></div><div class="ttdoc">Vulkan command buffer wrapper.</div><div class="ttdef"><b>Definition</b> C_commandBuffer.hpp:34</div></div>
+<div class="ttc" id="aclassfge_1_1vulkan_1_1Context_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a></div><div class="ttdoc">Vulkan context.</div><div class="ttdef"><b>Definition</b> C_context.hpp:56</div></div>
 <div class="ttc" id="aclassfge_1_1vulkan_1_1SwapChain_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1SwapChain.html">fge::vulkan::SwapChain</a></div><div class="ttdef"><b>Definition</b> C_swapChain.hpp:33</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

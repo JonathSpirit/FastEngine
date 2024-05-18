@@ -92,21 +92,27 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a9ed5750220b0fa76670af499719689f0" id="r_a9ed5750220b0fa76670af499719689f0"><td class="memItemLeft" align="right" valign="top"><a id="a9ed5750220b0fa76670af499719689f0" name="a9ed5750220b0fa76670af499719689f0"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>Events</b> : uint8_t { <b>SEVT_DELOBJECT</b> = 0
-, <b>SEVT_NEWOBJECT</b>
-, <b>SEVT_UNKNOWN</b>
-, <b>SEVT_MAX_</b>
+<tr class="memitem:a9ed5750220b0fa76670af499719689f0" id="r_a9ed5750220b0fa76670af499719689f0"><td class="memItemLeft" align="right" valign="top"><a id="a9ed5750220b0fa76670af499719689f0" name="a9ed5750220b0fa76670af499719689f0"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>Events</b> : uint8_t { <b>OBJECT_DELETED</b> = 0
+, <b>OBJECT_CREATED</b>
+, <b>OBJECT_SIGNALED</b>
+, <b>LAST_ENUM_</b>
  }</td></tr>
 <tr class="separator:a9ed5750220b0fa76670af499719689f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefef1f78a3ddb1ff26cc3294e3ce2d00" id="r_aefef1f78a3ddb1ff26cc3294e3ce2d00"><td class="memItemLeft" align="right" valign="top"><a id="aefef1f78a3ddb1ff26cc3294e3ce2d00" name="aefef1f78a3ddb1ff26cc3294e3ce2d00"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Events_t</b> = std::underlying_type_t&lt;Events&gt;</td></tr>
+<tr class="separator:aefef1f78a3ddb1ff26cc3294e3ce2d00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a0e55bc250fcbe5c7659c346503ffd6d2" id="r_a0e55bc250fcbe5c7659c346503ffd6d2"><td class="memItemLeft" align="right" valign="top"><a id="a0e55bc250fcbe5c7659c346503ffd6d2" name="a0e55bc250fcbe5c7659c346503ffd6d2"></a>
-fge::SceneNetEvent::Events&#160;</td><td class="memItemRight" valign="bottom"><b>_event</b></td></tr>
-<tr class="separator:a0e55bc250fcbe5c7659c346503ffd6d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ecf53b6a0ce37872c554cb4828db9cd" id="r_a8ecf53b6a0ce37872c554cb4828db9cd"><td class="memItemLeft" align="right" valign="top"><a id="a8ecf53b6a0ce37872c554cb4828db9cd" name="a8ecf53b6a0ce37872c554cb4828db9cd"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>_sid</b></td></tr>
-<tr class="separator:a8ecf53b6a0ce37872c554cb4828db9cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a602896311dbc6cc5205c264dab912a3b" id="r_a602896311dbc6cc5205c264dab912a3b"><td class="memItemLeft" align="right" valign="top"><a id="a602896311dbc6cc5205c264dab912a3b" name="a602896311dbc6cc5205c264dab912a3b"></a>
+Events&#160;</td><td class="memItemRight" valign="bottom"><b>_event</b></td></tr>
+<tr class="separator:a602896311dbc6cc5205c264dab912a3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43e777d61204414184e2ac1a406c0e3d" id="r_a43e777d61204414184e2ac1a406c0e3d"><td class="memItemLeft" align="right" valign="top"><a id="a43e777d61204414184e2ac1a406c0e3d" name="a43e777d61204414184e2ac1a406c0e3d"></a>
+ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>_sid</b></td></tr>
+<tr class="separator:a43e777d61204414184e2ac1a406c0e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5398c14aab5e2333156f60050d6b2682" id="r_a5398c14aab5e2333156f60050d6b2682"><td class="memItemLeft" align="right" valign="top"><a id="a5398c14aab5e2333156f60050d6b2682" name="a5398c14aab5e2333156f60050d6b2682"></a>
+int8_t&#160;</td><td class="memItemRight" valign="bottom"><b>_signal</b> {0}</td></tr>
+<tr class="separator:a5398c14aab5e2333156f60050d6b2682"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structure that represent an network event related to <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>

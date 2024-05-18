@@ -80,7 +80,6 @@ $(function() {
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classfge_1_1Anchor-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::Anchor Class Reference</div></div>
 </div><!--header-->
@@ -131,12 +130,12 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad91f1633b879b4361272f93d86620b4e" id="r_ad91f1633b879b4361272f93d86620b4e"><td class="memItemLeft" align="right" valign="top"><a id="ad91f1633b879b4361272f93d86620b4e" name="ad91f1633b879b4361272f93d86620b4e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Anchor</b> (<a class="el" href="classfge_1_1Object.html">fge::Object</a> *parent)</td></tr>
-<tr class="separator:ad91f1633b879b4361272f93d86620b4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a04a87cda2e3e655ab0ce857d37793c" id="r_a9a04a87cda2e3e655ab0ce857d37793c"><td class="memItemLeft" align="right" valign="top"><a id="a9a04a87cda2e3e655ab0ce857d37793c" name="a9a04a87cda2e3e655ab0ce857d37793c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Anchor</b> (<a class="el" href="classfge_1_1Object.html">fge::Object</a> *parent, <a class="el" href="classfge_1_1Anchor.html">Anchor</a> const &amp;anchor)</td></tr>
-<tr class="separator:a9a04a87cda2e3e655ab0ce857d37793c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09a3c342bb4fa421b087e43342eaffad" id="r_a09a3c342bb4fa421b087e43342eaffad"><td class="memItemLeft" align="right" valign="top"><a id="a09a3c342bb4fa421b087e43342eaffad" name="a09a3c342bb4fa421b087e43342eaffad"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Anchor</b> (<a class="el" href="classfge_1_1Object.html">fge::Object</a> *owner)</td></tr>
+<tr class="separator:a09a3c342bb4fa421b087e43342eaffad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a38f320cd65a3d1c539366c938d8aa9" id="r_a1a38f320cd65a3d1c539366c938d8aa9"><td class="memItemLeft" align="right" valign="top"><a id="a1a38f320cd65a3d1c539366c938d8aa9" name="a1a38f320cd65a3d1c539366c938d8aa9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Anchor</b> (<a class="el" href="classfge_1_1Object.html">fge::Object</a> *owner, <a class="el" href="classfge_1_1Anchor.html">Anchor</a> const &amp;anchor)</td></tr>
+<tr class="separator:a1a38f320cd65a3d1c539366c938d8aa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9dbec333648a9a47e5286c8a887dd63e" id="r_a9dbec333648a9a47e5286c8a887dd63e"><td class="memItemLeft" align="right" valign="top"><a id="a9dbec333648a9a47e5286c8a887dd63e" name="a9dbec333648a9a47e5286c8a887dd63e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Anchor</b> (<a class="el" href="classfge_1_1Anchor.html">Anchor</a> const &amp;r)=delete</td></tr>
 <tr class="separator:a9dbec333648a9a47e5286c8a887dd63e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,18 +151,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1a531083a03ac9d1da196cfbcc085c6c" id="r_a1a531083a03ac9d1da196cfbcc085c6c"><td class="memItemLeft" align="right" valign="top"><a id="a1a531083a03ac9d1da196cfbcc085c6c" name="a1a531083a03ac9d1da196cfbcc085c6c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>updateAnchor</b> (fge::Vector2f const &amp;customTargetSize={0.0f, 0.0f})</td></tr>
 <tr class="separator:a1a531083a03ac9d1da196cfbcc085c6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8531594570be465563c20b3e6ce2a72" id="r_ab8531594570be465563c20b3e6ce2a72"><td class="memItemLeft" align="right" valign="top"><a id="ab8531594570be465563c20b3e6ce2a72" name="ab8531594570be465563c20b3e6ce2a72"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchor</b> (fge::Anchor::Types type, fge::Vector2&lt; fge::Anchor::Shifts &gt; const &amp;shift, fge::ObjectSid target=std::numeric_limits&lt; fge::ObjectSid &gt;::max())</td></tr>
-<tr class="separator:ab8531594570be465563c20b3e6ce2a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf96dbe421fcf5d1a010a0dd221dcd4d" id="r_abf96dbe421fcf5d1a010a0dd221dcd4d"><td class="memItemLeft" align="right" valign="top"><a id="abf96dbe421fcf5d1a010a0dd221dcd4d" name="abf96dbe421fcf5d1a010a0dd221dcd4d"></a>
-fge::Anchor::Types&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorType</b> () const</td></tr>
-<tr class="separator:abf96dbe421fcf5d1a010a0dd221dcd4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1df46895eb487bc94d872c6d2bbc02a1" id="r_a1df46895eb487bc94d872c6d2bbc02a1"><td class="memItemLeft" align="right" valign="top"><a id="a1df46895eb487bc94d872c6d2bbc02a1" name="a1df46895eb487bc94d872c6d2bbc02a1"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorTarget</b> () const</td></tr>
-<tr class="separator:a1df46895eb487bc94d872c6d2bbc02a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32477af048bb6dc7549a9a9329ed0aab" id="r_a32477af048bb6dc7549a9a9329ed0aab"><td class="memItemLeft" align="right" valign="top"><a id="a32477af048bb6dc7549a9a9329ed0aab" name="a32477af048bb6dc7549a9a9329ed0aab"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchor</b> (Types type, fge::Vector2&lt; Shifts &gt; const &amp;shift, fge::ObjectSid target=std::numeric_limits&lt; fge::ObjectSid &gt;::max())</td></tr>
+<tr class="separator:a32477af048bb6dc7549a9a9329ed0aab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78d9f12eb1e884d2e8828b0e686028c2" id="r_a78d9f12eb1e884d2e8828b0e686028c2"><td class="memItemLeft" align="right" valign="top"><a id="a78d9f12eb1e884d2e8828b0e686028c2" name="a78d9f12eb1e884d2e8828b0e686028c2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorType</b> (Types type)</td></tr>
+<tr class="separator:a78d9f12eb1e884d2e8828b0e686028c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a165733017da6a7b9588e9c8468638d20" id="r_a165733017da6a7b9588e9c8468638d20"><td class="memItemLeft" align="right" valign="top"><a id="a165733017da6a7b9588e9c8468638d20" name="a165733017da6a7b9588e9c8468638d20"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorShift</b> (fge::Vector2&lt; Shifts &gt; const &amp;shift)</td></tr>
+<tr class="separator:a165733017da6a7b9588e9c8468638d20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bebc425bd47e9ef0093922a11738a5f" id="r_a6bebc425bd47e9ef0093922a11738a5f"><td class="memItemLeft" align="right" valign="top"><a id="a6bebc425bd47e9ef0093922a11738a5f" name="a6bebc425bd47e9ef0093922a11738a5f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorTarget</b> (fge::ObjectSid target)</td></tr>
 <tr class="separator:a6bebc425bd47e9ef0093922a11738a5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52bda0ef29284c601ed08f0694513260" id="r_a52bda0ef29284c601ed08f0694513260"><td class="memItemLeft" align="right" valign="top"><a id="a52bda0ef29284c601ed08f0694513260" name="a52bda0ef29284c601ed08f0694513260"></a>
+Types&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorType</b> () const</td></tr>
+<tr class="separator:a52bda0ef29284c601ed08f0694513260"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a978d3eb4a3751822533881457f017684" id="r_a978d3eb4a3751822533881457f017684"><td class="memItemLeft" align="right" valign="top"><a id="a978d3eb4a3751822533881457f017684" name="a978d3eb4a3751822533881457f017684"></a>
+fge::Vector2&lt; Shifts &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorShift</b> () const</td></tr>
+<tr class="separator:a978d3eb4a3751822533881457f017684"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1df46895eb487bc94d872c6d2bbc02a1" id="r_a1df46895eb487bc94d872c6d2bbc02a1"><td class="memItemLeft" align="right" valign="top"><a id="a1df46895eb487bc94d872c6d2bbc02a1" name="a1df46895eb487bc94d872c6d2bbc02a1"></a>
+fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorTarget</b> () const</td></tr>
+<tr class="separator:a1df46895eb487bc94d872c6d2bbc02a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4dab974bfc90711536606085ad4b408" id="r_ab4dab974bfc90711536606085ad4b408"><td class="memItemLeft" align="right" valign="top"><a id="ab4dab974bfc90711536606085ad4b408" name="ab4dab974bfc90711536606085ad4b408"></a>
+<a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorOwner</b> () const</td></tr>
+<tr class="separator:ab4dab974bfc90711536606085ad4b408"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2448fc4598529bb898fdc70f5f153c3c" id="r_a2448fc4598529bb898fdc70f5f153c3c"><td class="memItemLeft" align="right" valign="top"><a id="a2448fc4598529bb898fdc70f5f153c3c" name="a2448fc4598529bb898fdc70f5f153c3c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorSuccessor</b> (fge::ObjectDataWeak successor)</td></tr>
 <tr class="separator:a2448fc4598529bb898fdc70f5f153c3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -176,27 +187,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>needAnchorUpdate</b> 
 <tr class="memitem:a00822e5b6bb42b1336857dbe092c9beb" id="r_a00822e5b6bb42b1336857dbe092c9beb"><td class="memItemLeft" align="right" valign="top"><a id="a00822e5b6bb42b1336857dbe092c9beb" name="a00822e5b6bb42b1336857dbe092c9beb"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>isNeedingAnchorUpdate</b> () const</td></tr>
 <tr class="separator:a00822e5b6bb42b1336857dbe092c9beb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:ae0949b33441d5b1875f41ab6ac300f29" id="r_ae0949b33441d5b1875f41ab6ac300f29"><td class="memItemLeft" align="right" valign="top"><a id="ae0949b33441d5b1875f41ab6ac300f29" name="ae0949b33441d5b1875f41ab6ac300f29"></a>
-fge::Anchor::Types&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorType</b> {fge::Anchor::Types::ANCHOR_NONE}</td></tr>
-<tr class="separator:ae0949b33441d5b1875f41ab6ac300f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4753720bdab582931799ac8b9a874d26" id="r_a4753720bdab582931799ac8b9a874d26"><td class="memItemLeft" align="right" valign="top"><a id="a4753720bdab582931799ac8b9a874d26" name="a4753720bdab582931799ac8b9a874d26"></a>
-fge::Vector2&lt; fge::Anchor::Shifts &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorShift</b> {fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE}</td></tr>
-<tr class="separator:a4753720bdab582931799ac8b9a874d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a944fbc20a4ec00b50f4b859a42055411" id="r_a944fbc20a4ec00b50f4b859a42055411"><td class="memItemLeft" align="right" valign="top"><a id="a944fbc20a4ec00b50f4b859a42055411" name="a944fbc20a4ec00b50f4b859a42055411"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorTarget</b> { std::numeric_limits&lt;fge::ObjectSid&gt;::max() }</td></tr>
-<tr class="separator:a944fbc20a4ec00b50f4b859a42055411"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e0d765bbceebe7ea6b8fe267906e549" id="r_a1e0d765bbceebe7ea6b8fe267906e549"><td class="memItemLeft" align="right" valign="top"><a id="a1e0d765bbceebe7ea6b8fe267906e549" name="a1e0d765bbceebe7ea6b8fe267906e549"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorNeedUpdate</b> {true}</td></tr>
-<tr class="separator:a1e0d765bbceebe7ea6b8fe267906e549"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33ada62649a320f80da25e8d07d68493" id="r_a33ada62649a320f80da25e8d07d68493"><td class="memItemLeft" align="right" valign="top"><a id="a33ada62649a320f80da25e8d07d68493" name="a33ada62649a320f80da25e8d07d68493"></a>
-fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorSuccessor</b> {}</td></tr>
-<tr class="separator:a33ada62649a320f80da25e8d07d68493"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff7bdf831f54789e4420cc2cff712a72" id="r_aff7bdf831f54789e4420cc2cff712a72"><td class="memItemLeft" align="right" valign="top"><a id="aff7bdf831f54789e4420cc2cff712a72" name="aff7bdf831f54789e4420cc2cff712a72"></a>
-<a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_g_objectParent</b> {}</td></tr>
-<tr class="separator:aff7bdf831f54789e4420cc2cff712a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="C__objectAnchor_8hpp_source.html">C_objectAnchor.hpp</a></li>

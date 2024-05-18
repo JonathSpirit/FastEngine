@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['red_0',['Red',['../classfge_1_1Color.html#a658ffa8fc44fea77c06ee771fe94ed70',1,'fge::Color']]]
+  ['none_0',['None',['../classfge_1_1net_1_1IpAddress.html#acf85e3bf65f064cc69b2b298a91ebdc2',1,'fge::net::IpAddress']]]
 ];

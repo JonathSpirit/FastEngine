@@ -103,6 +103,9 @@ Inheritance diagram for fge::net::ClientSideNetUdp:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ac5ede7de86b43a05a436ad0729a947d8" id="r_ac5ede7de86b43a05a436ad0729a947d8"><td class="memItemLeft" align="right" valign="top"><a id="ac5ede7de86b43a05a436ad0729a947d8" name="ac5ede7de86b43a05a436ad0729a947d8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ClientSideNetUdp</b> (IpAddress::Types addressType=IpAddress::Types::Ipv4)</td></tr>
+<tr class="separator:ac5ede7de86b43a05a436ad0729a947d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d9da3f694cd0b78867d82a915b0f3dc" id="r_a8d9da3f694cd0b78867d82a915b0f3dc"><td class="memItemLeft" align="right" valign="top"><a id="a8d9da3f694cd0b78867d82a915b0f3dc" name="a8d9da3f694cd0b78867d82a915b0f3dc"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ClientSideNetUdp</b> (<a class="el" href="classfge_1_1net_1_1ClientSideNetUdp.html">ClientSideNetUdp</a> const &amp;r)=delete</td></tr>
 <tr class="separator:a8d9da3f694cd0b78867d82a915b0f3dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -115,10 +118,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8dd15326747c504e1764f1af5dddbc2a" id="r_a8dd15326747c504e1764f1af5dddbc2a"><td class="memItemLeft" align="right" valign="top"><a id="a8dd15326747c504e1764f1af5dddbc2a" name="a8dd15326747c504e1764f1af5dddbc2a"></a>
 <a class="el" href="classfge_1_1net_1_1ClientSideNetUdp.html">ClientSideNetUdp</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1net_1_1ClientSideNetUdp.html">ClientSideNetUdp</a> &amp;&amp;r) noexcept=delete</td></tr>
 <tr class="separator:a8dd15326747c504e1764f1af5dddbc2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b9f2fb687cc239fa15ba5dd92e38831" id="r_a4b9f2fb687cc239fa15ba5dd92e38831"><td class="memTemplParams" colspan="2"><a id="a4b9f2fb687cc239fa15ba5dd92e38831" name="a4b9f2fb687cc239fa15ba5dd92e38831"></a>
+<tr class="memitem:a6b2cafa0bd3b92176e9e2377a17957b3" id="r_a6b2cafa0bd3b92176e9e2377a17957b3"><td class="memTemplParams" colspan="2"><a id="a6b2cafa0bd3b92176e9e2377a17957b3" name="a6b2cafa0bd3b92176e9e2377a17957b3"></a>
 template&lt;class TPacket  = fge::net::Packet&gt; </td></tr>
-<tr class="memitem:a4b9f2fb687cc239fa15ba5dd92e38831"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>start</b> (fge::net::Port bindPort, <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const &amp;bindIp, fge::net::Port connectRemotePort, <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const &amp;connectRemoteAddress)</td></tr>
-<tr class="separator:a4b9f2fb687cc239fa15ba5dd92e38831"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b2cafa0bd3b92176e9e2377a17957b3"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>start</b> (fge::net::Port bindPort, <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const &amp;bindIp, fge::net::Port connectRemotePort, <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const &amp;connectRemoteAddress, IpAddress::Types addressType=IpAddress::Types::None)</td></tr>
+<tr class="separator:a6b2cafa0bd3b92176e9e2377a17957b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed96cb92e4501fe4ab350c68d659a9ae" id="r_aed96cb92e4501fe4ab350c68d659a9ae"><td class="memItemLeft" align="right" valign="top"><a id="aed96cb92e4501fe4ab350c68d659a9ae" name="aed96cb92e4501fe4ab350c68d659a9ae"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>stop</b> ()</td></tr>
 <tr class="separator:aed96cb92e4501fe4ab350c68d659a9ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,6 +137,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>isRunning</b> () cons
 <tr class="memitem:aef78668239a0a55dcdcb121a659a5e05" id="r_aef78668239a0a55dcdcb121a659a5e05"><td class="memItemLeft" align="right" valign="top"><a id="aef78668239a0a55dcdcb121a659a5e05" name="aef78668239a0a55dcdcb121a659a5e05"></a>
 <a class="el" href="classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><b>send</b> (fge::net::TransmissionPacketPtr &amp;pck)</td></tr>
 <tr class="separator:aef78668239a0a55dcdcb121a659a5e05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a3130d9e3a64b29aef58ef64f2307eb" id="r_a3a3130d9e3a64b29aef58ef64f2307eb"><td class="memItemLeft" align="right" valign="top"><a id="a3a3130d9e3a64b29aef58ef64f2307eb" name="a3a3130d9e3a64b29aef58ef64f2307eb"></a>
+fge::net::IpAddress::Types&#160;</td><td class="memItemRight" valign="bottom"><b>getAddressType</b> () const</td></tr>
+<tr class="separator:a3a3130d9e3a64b29aef58ef64f2307eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addc7b78c9fe34aecb88cd432599594da" id="r_addc7b78c9fe34aecb88cd432599594da"><td class="memItemLeft" align="right" valign="top"><a id="addc7b78c9fe34aecb88cd432599594da" name="addc7b78c9fe34aecb88cd432599594da"></a>
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>waitForPackets</b> (std::chrono::milliseconds time_ms)</td></tr>
 <tr class="separator:addc7b78c9fe34aecb88cd432599594da"><td class="memSeparator" colspan="2">&#160;</td></tr>

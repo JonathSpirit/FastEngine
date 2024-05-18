@@ -143,18 +143,54 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setView</b> (<a class
 <tr class="memitem:a125b67c83304cf03e11978babed003d5" id="r_a125b67c83304cf03e11978babed003d5"><td class="memItemLeft" align="right" valign="top"><a id="a125b67c83304cf03e11978babed003d5" name="a125b67c83304cf03e11978babed003d5"></a>
 <a class="el" href="classfge_1_1vulkan_1_1Viewport.html">fge::vulkan::Viewport</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getViewport</b> (<a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
 <tr class="separator:a125b67c83304cf03e11978babed003d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95eede278f0a12b5725bfd27ba6115af" id="r_a95eede278f0a12b5725bfd27ba6115af"><td class="memItemLeft" align="right" valign="top"><a id="a95eede278f0a12b5725bfd27ba6115af" name="a95eede278f0a12b5725bfd27ba6115af"></a>
-Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>mapPixelToCoords</b> (Vector2i const &amp;point) const</td></tr>
-<tr class="separator:a95eede278f0a12b5725bfd27ba6115af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af934236449b21b79783cde5b504f82d1" id="r_af934236449b21b79783cde5b504f82d1"><td class="memItemLeft" align="right" valign="top"><a id="af934236449b21b79783cde5b504f82d1" name="af934236449b21b79783cde5b504f82d1"></a>
-Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>mapPixelToCoords</b> (Vector2i const &amp;point, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
-<tr class="separator:af934236449b21b79783cde5b504f82d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04620d661a0408aba8f604f69c204764" id="r_a04620d661a0408aba8f604f69c204764"><td class="memItemLeft" align="right" valign="top"><a id="a04620d661a0408aba8f604f69c204764" name="a04620d661a0408aba8f604f69c204764"></a>
-Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapCoordsToPixel</b> (Vector2f const &amp;point) const</td></tr>
-<tr class="separator:a04620d661a0408aba8f604f69c204764"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19639eeb946f79393cc08716f45435ff" id="r_a19639eeb946f79393cc08716f45435ff"><td class="memItemLeft" align="right" valign="top"><a id="a19639eeb946f79393cc08716f45435ff" name="a19639eeb946f79393cc08716f45435ff"></a>
-Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapCoordsToPixel</b> (Vector2f const &amp;point, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
-<tr class="separator:a19639eeb946f79393cc08716f45435ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a351f9282ee7843f464232da84e2f0ba0" id="r_a351f9282ee7843f464232da84e2f0ba0"><td class="memItemLeft" align="right" valign="top"><a id="a351f9282ee7843f464232da84e2f0ba0" name="a351f9282ee7843f464232da84e2f0ba0"></a>
+Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferCoordsToViewSpace</b> (Vector2i const &amp;point) const</td></tr>
+<tr class="separator:a351f9282ee7843f464232da84e2f0ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15761a9f1ecdc6119e4c2a059c7cd7b7" id="r_a15761a9f1ecdc6119e4c2a059c7cd7b7"><td class="memItemLeft" align="right" valign="top"><a id="a15761a9f1ecdc6119e4c2a059c7cd7b7" name="a15761a9f1ecdc6119e4c2a059c7cd7b7"></a>
+Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferCoordsToViewSpace</b> (Vector2i const &amp;point, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:a15761a9f1ecdc6119e4c2a059c7cd7b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ca2fa0baef94d484f632c0b35e2a212" id="r_a7ca2fa0baef94d484f632c0b35e2a212"><td class="memItemLeft" align="right" valign="top"><a id="a7ca2fa0baef94d484f632c0b35e2a212" name="a7ca2fa0baef94d484f632c0b35e2a212"></a>
+Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferCoordsToWorldSpace</b> (Vector2i const &amp;point) const</td></tr>
+<tr class="separator:a7ca2fa0baef94d484f632c0b35e2a212"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e8f49a003891be52109c16be1e87732" id="r_a5e8f49a003891be52109c16be1e87732"><td class="memItemLeft" align="right" valign="top"><a id="a5e8f49a003891be52109c16be1e87732" name="a5e8f49a003891be52109c16be1e87732"></a>
+Vector2f&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferCoordsToWorldSpace</b> (Vector2i const &amp;point, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:a5e8f49a003891be52109c16be1e87732"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7aa8d7e561f7b14c42cb31d42f6e55e" id="r_ad7aa8d7e561f7b14c42cb31d42f6e55e"><td class="memItemLeft" align="right" valign="top"><a id="ad7aa8d7e561f7b14c42cb31d42f6e55e" name="ad7aa8d7e561f7b14c42cb31d42f6e55e"></a>
+Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapViewCoordsToFramebufferSpace</b> (Vector2f const &amp;point) const</td></tr>
+<tr class="separator:ad7aa8d7e561f7b14c42cb31d42f6e55e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a203e0653bce4effa9eabc0159b031226" id="r_a203e0653bce4effa9eabc0159b031226"><td class="memItemLeft" align="right" valign="top"><a id="a203e0653bce4effa9eabc0159b031226" name="a203e0653bce4effa9eabc0159b031226"></a>
+Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapViewCoordsToFramebufferSpace</b> (Vector2f const &amp;point, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:a203e0653bce4effa9eabc0159b031226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf5bc6a3b532dc7f97241f309a7e7e04" id="r_adf5bc6a3b532dc7f97241f309a7e7e04"><td class="memItemLeft" align="right" valign="top"><a id="adf5bc6a3b532dc7f97241f309a7e7e04" name="adf5bc6a3b532dc7f97241f309a7e7e04"></a>
+Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapWorldCoordsToFramebufferSpace</b> (Vector2f const &amp;point) const</td></tr>
+<tr class="separator:adf5bc6a3b532dc7f97241f309a7e7e04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa10afed1af28000dd858363d39908de8" id="r_aa10afed1af28000dd858363d39908de8"><td class="memItemLeft" align="right" valign="top"><a id="aa10afed1af28000dd858363d39908de8" name="aa10afed1af28000dd858363d39908de8"></a>
+Vector2i&#160;</td><td class="memItemRight" valign="bottom"><b>mapWorldCoordsToFramebufferSpace</b> (Vector2f const &amp;point, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:aa10afed1af28000dd858363d39908de8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e5fc698c41feb02cc5d1bf5c35d7845" id="r_a5e5fc698c41feb02cc5d1bf5c35d7845"><td class="memItemLeft" align="right" valign="top"><a id="a5e5fc698c41feb02cc5d1bf5c35d7845" name="a5e5fc698c41feb02cc5d1bf5c35d7845"></a>
+<a class="el" href="classfge_1_1Rect.html">RectFloat</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferRectToViewSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectInt</a> const &amp;rect) const</td></tr>
+<tr class="separator:a5e5fc698c41feb02cc5d1bf5c35d7845"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae189f46f3789759f69d7a36f049130a4" id="r_ae189f46f3789759f69d7a36f049130a4"><td class="memItemLeft" align="right" valign="top"><a id="ae189f46f3789759f69d7a36f049130a4" name="ae189f46f3789759f69d7a36f049130a4"></a>
+<a class="el" href="classfge_1_1Rect.html">RectFloat</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferRectToViewSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectInt</a> const &amp;rect, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:ae189f46f3789759f69d7a36f049130a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19d542453198c567766dfdcee8dd8f09" id="r_a19d542453198c567766dfdcee8dd8f09"><td class="memItemLeft" align="right" valign="top"><a id="a19d542453198c567766dfdcee8dd8f09" name="a19d542453198c567766dfdcee8dd8f09"></a>
+<a class="el" href="classfge_1_1Rect.html">RectFloat</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferRectToWorldSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectInt</a> const &amp;rect) const</td></tr>
+<tr class="separator:a19d542453198c567766dfdcee8dd8f09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a84b6c9080b5bc1dc90b4e285a3a353" id="r_a1a84b6c9080b5bc1dc90b4e285a3a353"><td class="memItemLeft" align="right" valign="top"><a id="a1a84b6c9080b5bc1dc90b4e285a3a353" name="a1a84b6c9080b5bc1dc90b4e285a3a353"></a>
+<a class="el" href="classfge_1_1Rect.html">RectFloat</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapFramebufferRectToWorldSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectInt</a> const &amp;rect, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:a1a84b6c9080b5bc1dc90b4e285a3a353"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed71197da2b342b25bebfcfd95e0f7ec" id="r_aed71197da2b342b25bebfcfd95e0f7ec"><td class="memItemLeft" align="right" valign="top"><a id="aed71197da2b342b25bebfcfd95e0f7ec" name="aed71197da2b342b25bebfcfd95e0f7ec"></a>
+<a class="el" href="classfge_1_1Rect.html">RectInt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapViewRectToFramebufferSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectFloat</a> const &amp;rect) const</td></tr>
+<tr class="separator:aed71197da2b342b25bebfcfd95e0f7ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cc4aedc809e8353e81230fafd8fa99a" id="r_a8cc4aedc809e8353e81230fafd8fa99a"><td class="memItemLeft" align="right" valign="top"><a id="a8cc4aedc809e8353e81230fafd8fa99a" name="a8cc4aedc809e8353e81230fafd8fa99a"></a>
+<a class="el" href="classfge_1_1Rect.html">RectInt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapViewRectToFramebufferSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectFloat</a> const &amp;rect, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:a8cc4aedc809e8353e81230fafd8fa99a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ecaf090285a5403b40861bad8e34d5b" id="r_a3ecaf090285a5403b40861bad8e34d5b"><td class="memItemLeft" align="right" valign="top"><a id="a3ecaf090285a5403b40861bad8e34d5b" name="a3ecaf090285a5403b40861bad8e34d5b"></a>
+<a class="el" href="classfge_1_1Rect.html">RectInt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapWorldRectToFramebufferSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectFloat</a> const &amp;rect) const</td></tr>
+<tr class="separator:a3ecaf090285a5403b40861bad8e34d5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04a143e2da0fd3fd610acd4e55f62759" id="r_a04a143e2da0fd3fd610acd4e55f62759"><td class="memItemLeft" align="right" valign="top"><a id="a04a143e2da0fd3fd610acd4e55f62759" name="a04a143e2da0fd3fd610acd4e55f62759"></a>
+<a class="el" href="classfge_1_1Rect.html">RectInt</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mapWorldRectToFramebufferSpace</b> (<a class="el" href="classfge_1_1Rect.html">RectFloat</a> const &amp;rect, <a class="el" href="classfge_1_1View.html">View</a> const &amp;view) const</td></tr>
+<tr class="separator:a04a143e2da0fd3fd610acd4e55f62759"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22fb38ac990bfb55abf8a365debb5a16" id="r_a22fb38ac990bfb55abf8a365debb5a16"><td class="memItemLeft" align="right" valign="top"><a id="a22fb38ac990bfb55abf8a365debb5a16" name="a22fb38ac990bfb55abf8a365debb5a16"></a>
 virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>prepareNextFrame</b> (VkCommandBufferInheritanceInfo const *inheritanceInfo)=0</td></tr>
 <tr class="separator:a22fb38ac990bfb55abf8a365debb5a16"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,9 +215,9 @@ virtual Vector2u&#160;</td><td class="memItemRight" valign="bottom"><b>getSize</
 <tr class="memitem:a8e0a933d9e17bea7fa56b39301c82ea8" id="r_a8e0a933d9e17bea7fa56b39301c82ea8"><td class="memItemLeft" align="right" valign="top"><a id="a8e0a933d9e17bea7fa56b39301c82ea8" name="a8e0a933d9e17bea7fa56b39301c82ea8"></a>
 virtual VkExtent2D&#160;</td><td class="memItemRight" valign="bottom"><b>getExtent2D</b> () const =0</td></tr>
 <tr class="separator:a8e0a933d9e17bea7fa56b39301c82ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b164c9415adcf4c6461b1d02d2f5a3e" id="r_a5b164c9415adcf4c6461b1d02d2f5a3e"><td class="memItemLeft" align="right" valign="top"><a id="a5b164c9415adcf4c6461b1d02d2f5a3e" name="a5b164c9415adcf4c6461b1d02d2f5a3e"></a>
-virtual VkCommandBuffer&#160;</td><td class="memItemRight" valign="bottom"><b>getCommandBuffer</b> () const =0</td></tr>
-<tr class="separator:a5b164c9415adcf4c6461b1d02d2f5a3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c0ad0e1067fccd5104c7df7121ab8d6" id="r_a3c0ad0e1067fccd5104c7df7121ab8d6"><td class="memItemLeft" align="right" valign="top"><a id="a3c0ad0e1067fccd5104c7df7121ab8d6" name="a3c0ad0e1067fccd5104c7df7121ab8d6"></a>
+virtual <a class="el" href="classfge_1_1vulkan_1_1CommandBuffer.html">fge::vulkan::CommandBuffer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getCommandBuffer</b> () const =0</td></tr>
+<tr class="separator:a3c0ad0e1067fccd5104c7df7121ab8d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02b19a34395ef4bf0004a7583a315641" id="r_a02b19a34395ef4bf0004a7583a315641"><td class="memItemLeft" align="right" valign="top"><a id="a02b19a34395ef4bf0004a7583a315641" name="a02b19a34395ef4bf0004a7583a315641"></a>
 virtual VkRenderPass&#160;</td><td class="memItemRight" valign="bottom"><b>getRenderPass</b> () const =0</td></tr>
 <tr class="separator:a02b19a34395ef4bf0004a7583a315641"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -212,9 +248,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>initialize</b> ()</td
 <tr class="memitem:ab15eed2cdfa14d29dcfaf25a931df477" id="r_ab15eed2cdfa14d29dcfaf25a931df477"><td class="memItemLeft" align="right" valign="top"><a id="ab15eed2cdfa14d29dcfaf25a931df477" name="ab15eed2cdfa14d29dcfaf25a931df477"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>resetDefaultView</b> ()</td></tr>
 <tr class="separator:ab15eed2cdfa14d29dcfaf25a931df477"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a308fd261e0c68278961f6883b1e3e00e" id="r_a308fd261e0c68278961f6883b1e3e00e"><td class="memItemLeft" align="right" valign="top"><a id="a308fd261e0c68278961f6883b1e3e00e" name="a308fd261e0c68278961f6883b1e3e00e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>verifyContext</b> (ContextAware const &amp;r)</td></tr>
-<tr class="separator:a308fd261e0c68278961f6883b1e3e00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47b429e35ffb57288515e5e2902a31b4" id="r_a47b429e35ffb57288515e5e2902a31b4"><td class="memItemLeft" align="right" valign="top"><a id="a47b429e35ffb57288515e5e2902a31b4" name="a47b429e35ffb57288515e5e2902a31b4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>verifyContext</b> (ContextAware const &amp;r) const</td></tr>
+<tr class="separator:a47b429e35ffb57288515e5e2902a31b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -261,8 +297,8 @@ GraphicPipelineCache&#160;</td><td class="memItemRight" valign="bottom"><b>_g_gr
 <b>Initial value:</b><div class="fragment"><div class="line"> void (*)(<a class="code hl_class" href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a> <span class="keyword">const</span>&amp;,</div>
 <div class="line">                                                GraphicPipelineKey <span class="keyword">const</span>&amp;,</div>
 <div class="line">                                                <a class="code hl_class" href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a>*)</div>
-<div class="ttc" id="aclassfge_1_1vulkan_1_1Context_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a></div><div class="ttdoc">Vulkan context.</div><div class="ttdef"><b>Definition</b> C_context.hpp:55</div></div>
-<div class="ttc" id="aclassfge_1_1vulkan_1_1GraphicPipeline_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a></div><div class="ttdef"><b>Definition</b> C_graphicPipeline.hpp:35</div></div>
+<div class="ttc" id="aclassfge_1_1vulkan_1_1Context_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1Context.html">fge::vulkan::Context</a></div><div class="ttdoc">Vulkan context.</div><div class="ttdef"><b>Definition</b> C_context.hpp:56</div></div>
+<div class="ttc" id="aclassfge_1_1vulkan_1_1GraphicPipeline_html"><div class="ttname"><a href="classfge_1_1vulkan_1_1GraphicPipeline.html">fge::vulkan::GraphicPipeline</a></div><div class="ttdef"><b>Definition</b> C_graphicPipeline.hpp:37</div></div>
 </div><!-- fragment -->
 </div>
 </div>

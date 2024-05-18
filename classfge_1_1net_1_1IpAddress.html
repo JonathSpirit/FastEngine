@@ -78,9 +78,11 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classfge_1_1net_1_1IpAddress-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::net::IpAddress Class Reference<div class="ingroups"><a class="el" href="group__network.html">Network</a></div></div></div>
 </div><!--header-->
@@ -91,81 +93,144 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="C__ipAddress_8hpp_source.html">C_ipAddress.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a5d554ba37ee28b48e09d278f3c939025" id="r_a5d554ba37ee28b48e09d278f3c939025"><td class="memItemLeft" align="right" valign="top"><a id="a5d554ba37ee28b48e09d278f3c939025" name="a5d554ba37ee28b48e09d278f3c939025"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>Types</b> : uint8_t { <b>None</b>
+, <b>Ipv4</b>
+, <b>Ipv6</b>
+ }</td></tr>
+<tr class="separator:a5d554ba37ee28b48e09d278f3c939025"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e34c78ea4874aea50d1c4d6e5b0ba9d" id="r_a6e34c78ea4874aea50d1c4d6e5b0ba9d"><td class="memItemLeft" align="right" valign="top"><a id="a6e34c78ea4874aea50d1c4d6e5b0ba9d" name="a6e34c78ea4874aea50d1c4d6e5b0ba9d"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>CheckHostname</b> { <b>No</b>
+, <b>Yes</b>
+ }</td></tr>
+<tr class="separator:a6e34c78ea4874aea50d1c4d6e5b0ba9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9991de3c3bbba0f52923ea1566bd6878" id="r_a9991de3c3bbba0f52923ea1566bd6878"><td class="memItemLeft" align="right" valign="top"><a id="a9991de3c3bbba0f52923ea1566bd6878" name="a9991de3c3bbba0f52923ea1566bd6878"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Ipv4Data</b> = uint32_t</td></tr>
+<tr class="separator:a9991de3c3bbba0f52923ea1566bd6878"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4e3bd1954d160bd36942bdf86172718" id="r_af4e3bd1954d160bd36942bdf86172718"><td class="memItemLeft" align="right" valign="top"><a id="af4e3bd1954d160bd36942bdf86172718" name="af4e3bd1954d160bd36942bdf86172718"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Ipv6Data</b> = std::array&lt;uint16_t, 8&gt;</td></tr>
+<tr class="separator:af4e3bd1954d160bd36942bdf86172718"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73ae59dfb87423b0f051cecc7864f23e" id="r_a73ae59dfb87423b0f051cecc7864f23e"><td class="memItemLeft" align="right" valign="top"><a id="a73ae59dfb87423b0f051cecc7864f23e" name="a73ae59dfb87423b0f051cecc7864f23e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Data</b> = std::variant&lt;Ipv4Data, Ipv6Data&gt;</td></tr>
+<tr class="separator:a73ae59dfb87423b0f051cecc7864f23e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a7ca04e65a9567262c7834ee7e1ed1e0f" id="r_a7ca04e65a9567262c7834ee7e1ed1e0f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ca04e65a9567262c7834ee7e1ed1e0f">IpAddress</a> () noexcept</td></tr>
 <tr class="memdesc:a7ca04e65a9567262c7834ee7e1ed1e0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a default invalid IP address.  <br /></td></tr>
 <tr class="separator:a7ca04e65a9567262c7834ee7e1ed1e0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61e349d6e6b1c6f4726236e31eca9f05" id="r_a61e349d6e6b1c6f4726236e31eca9f05"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a61e349d6e6b1c6f4726236e31eca9f05">IpAddress</a> (std::string const &amp;address)</td></tr>
-<tr class="memdesc:a61e349d6e6b1c6f4726236e31eca9f05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a string.  <br /></td></tr>
-<tr class="separator:a61e349d6e6b1c6f4726236e31eca9f05"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bd48db721cdd86e9eb93f8c756b818d" id="r_a4bd48db721cdd86e9eb93f8c756b818d"><td class="memItemLeft" align="right" valign="top"><a id="a4bd48db721cdd86e9eb93f8c756b818d" name="a4bd48db721cdd86e9eb93f8c756b818d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>IpAddress</b> (char const *address)</td></tr>
-<tr class="separator:a4bd48db721cdd86e9eb93f8c756b818d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8decb62d138023d6e8211fc4a8e45346" id="r_a8decb62d138023d6e8211fc4a8e45346"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8decb62d138023d6e8211fc4a8e45346">IpAddress</a> (std::string const &amp;address, CheckHostname check=CheckHostname::Yes)</td></tr>
+<tr class="memdesc:a8decb62d138023d6e8211fc4a8e45346"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an address from a string.  <br /></td></tr>
+<tr class="separator:a8decb62d138023d6e8211fc4a8e45346"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b4afaadfe3cf367fe3d37eb5cc3499f" id="r_a5b4afaadfe3cf367fe3d37eb5cc3499f"><td class="memItemLeft" align="right" valign="top"><a id="a5b4afaadfe3cf367fe3d37eb5cc3499f" name="a5b4afaadfe3cf367fe3d37eb5cc3499f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>IpAddress</b> (char const *address, CheckHostname check=CheckHostname::Yes)</td></tr>
+<tr class="separator:a5b4afaadfe3cf367fe3d37eb5cc3499f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e1c6fd6c477e8dc2f9598eb8cfa22ae" id="r_a2e1c6fd6c477e8dc2f9598eb8cfa22ae"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e1c6fd6c477e8dc2f9598eb8cfa22ae">IpAddress</a> (uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept</td></tr>
-<tr class="memdesc:a2e1c6fd6c477e8dc2f9598eb8cfa22ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a 4 bytes.  <br /></td></tr>
+<tr class="memdesc:a2e1c6fd6c477e8dc2f9598eb8cfa22ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from 4 bytes.  <br /></td></tr>
 <tr class="separator:a2e1c6fd6c477e8dc2f9598eb8cfa22ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a4217753840523838ed29c3396c3b15" id="r_a3a4217753840523838ed29c3396c3b15"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a4217753840523838ed29c3396c3b15">IpAddress</a> (uint32_t address) noexcept</td></tr>
-<tr class="memdesc:a3a4217753840523838ed29c3396c3b15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a host byte order integer.  <br /></td></tr>
-<tr class="separator:a3a4217753840523838ed29c3396c3b15"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5bdf804efcaed0d5855f2887573eb783" id="r_a5bdf804efcaed0d5855f2887573eb783"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5bdf804efcaed0d5855f2887573eb783">set</a> (std::string const &amp;address)</td></tr>
-<tr class="memdesc:a5bdf804efcaed0d5855f2887573eb783"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a string.  <br /></td></tr>
-<tr class="separator:a5bdf804efcaed0d5855f2887573eb783"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4ebb4459c488a3c6e677751258d7482" id="r_af4ebb4459c488a3c6e677751258d7482"><td class="memItemLeft" align="right" valign="top"><a id="af4ebb4459c488a3c6e677751258d7482" name="af4ebb4459c488a3c6e677751258d7482"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (char const *address)</td></tr>
-<tr class="separator:af4ebb4459c488a3c6e677751258d7482"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33f3b977dfeef05d018af6b280b0d5e7" id="r_a33f3b977dfeef05d018af6b280b0d5e7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33f3b977dfeef05d018af6b280b0d5e7">IpAddress</a> (std::initializer_list&lt; uint16_t &gt; words) noexcept</td></tr>
+<tr class="memdesc:a33f3b977dfeef05d018af6b280b0d5e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from 8 words in host byte order.  <br /></td></tr>
+<tr class="separator:a33f3b977dfeef05d018af6b280b0d5e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02875e43415ff3a61bc25372ca77684a" id="r_a02875e43415ff3a61bc25372ca77684a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a02875e43415ff3a61bc25372ca77684a">IpAddress</a> (Ipv6Data const &amp;data) noexcept</td></tr>
+<tr class="memdesc:a02875e43415ff3a61bc25372ca77684a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from Ipv6Data in host byte order.  <br /></td></tr>
+<tr class="separator:a02875e43415ff3a61bc25372ca77684a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa37ec161c810569669f09d4a280600f2" id="r_aa37ec161c810569669f09d4a280600f2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa37ec161c810569669f09d4a280600f2">IpAddress</a> (Ipv4Data address) noexcept</td></tr>
+<tr class="memdesc:aa37ec161c810569669f09d4a280600f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from a host byte order integer.  <br /></td></tr>
+<tr class="separator:aa37ec161c810569669f09d4a280600f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a671b86191d31bdc1d761896dcde2e020" id="r_a671b86191d31bdc1d761896dcde2e020"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a671b86191d31bdc1d761896dcde2e020">set</a> (std::string const &amp;address, CheckHostname check=CheckHostname::Yes)</td></tr>
+<tr class="memdesc:a671b86191d31bdc1d761896dcde2e020"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an address from a string.  <br /></td></tr>
+<tr class="separator:a671b86191d31bdc1d761896dcde2e020"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ef9479aa9378b85b89fcb024d300d81" id="r_a3ef9479aa9378b85b89fcb024d300d81"><td class="memItemLeft" align="right" valign="top"><a id="a3ef9479aa9378b85b89fcb024d300d81" name="a3ef9479aa9378b85b89fcb024d300d81"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (char const *address, CheckHostname check=CheckHostname::Yes)</td></tr>
+<tr class="separator:a3ef9479aa9378b85b89fcb024d300d81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a96a97118a05c443fd49cff8303ed71" id="r_a8a96a97118a05c443fd49cff8303ed71"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8a96a97118a05c443fd49cff8303ed71">set</a> (uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0)</td></tr>
-<tr class="memdesc:a8a96a97118a05c443fd49cff8303ed71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a 4 bytes.  <br /></td></tr>
+<tr class="memdesc:a8a96a97118a05c443fd49cff8303ed71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from 4 bytes.  <br /></td></tr>
 <tr class="separator:a8a96a97118a05c443fd49cff8303ed71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37d22b0dc4cba657af8110017b40b1fd" id="r_a37d22b0dc4cba657af8110017b40b1fd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37d22b0dc4cba657af8110017b40b1fd">set</a> (uint32_t address)</td></tr>
-<tr class="memdesc:a37d22b0dc4cba657af8110017b40b1fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a host byte order integer.  <br /></td></tr>
-<tr class="separator:a37d22b0dc4cba657af8110017b40b1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab11289cf200e9309c4ad21a6eac4acf4" id="r_ab11289cf200e9309c4ad21a6eac4acf4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab11289cf200e9309c4ad21a6eac4acf4">setNetworkByteOrdered</a> (uint32_t address)</td></tr>
-<tr class="memdesc:ab11289cf200e9309c4ad21a6eac4acf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an IP address from a network byte order integer.  <br /></td></tr>
-<tr class="separator:ab11289cf200e9309c4ad21a6eac4acf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafd396cb7a87b0dcf8e208a20e341504" id="r_aafd396cb7a87b0dcf8e208a20e341504"><td class="memItemLeft" align="right" valign="top"><a id="aafd396cb7a87b0dcf8e208a20e341504" name="aafd396cb7a87b0dcf8e208a20e341504"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const &amp;r) const</td></tr>
-<tr class="separator:aafd396cb7a87b0dcf8e208a20e341504"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a044c15b2b2040c007ca57dc2466da03f" id="r_a044c15b2b2040c007ca57dc2466da03f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a044c15b2b2040c007ca57dc2466da03f">toString</a> () const</td></tr>
-<tr class="memdesc:a044c15b2b2040c007ca57dc2466da03f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the IP address in a string format.  <br /></td></tr>
-<tr class="separator:a044c15b2b2040c007ca57dc2466da03f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e0175422068c436fcf65d77f3c9d416" id="r_a0e0175422068c436fcf65d77f3c9d416"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e0175422068c436fcf65d77f3c9d416">getNetworkByteOrder</a> () const</td></tr>
-<tr class="memdesc:a0e0175422068c436fcf65d77f3c9d416"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the IP address in a network byte order integer.  <br /></td></tr>
-<tr class="separator:a0e0175422068c436fcf65d77f3c9d416"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a163607eaa1ddc03ada7928797d0bc149" id="r_a163607eaa1ddc03ada7928797d0bc149"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a163607eaa1ddc03ada7928797d0bc149">getHostByteOrder</a> () const</td></tr>
-<tr class="memdesc:a163607eaa1ddc03ada7928797d0bc149"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the IP address in a host byte order integer.  <br /></td></tr>
-<tr class="separator:a163607eaa1ddc03ada7928797d0bc149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a582c62cf232f3204c3c14cf7005efdf4" id="r_a582c62cf232f3204c3c14cf7005efdf4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a582c62cf232f3204c3c14cf7005efdf4">set</a> (std::initializer_list&lt; uint16_t &gt; words)</td></tr>
+<tr class="memdesc:a582c62cf232f3204c3c14cf7005efdf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv6 address from 8 words in host byte order.  <br /></td></tr>
+<tr class="separator:a582c62cf232f3204c3c14cf7005efdf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedc48419425f9a06848b18767c0605d5" id="r_aedc48419425f9a06848b18767c0605d5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aedc48419425f9a06848b18767c0605d5">set</a> (Ipv6Data const &amp;data)</td></tr>
+<tr class="memdesc:aedc48419425f9a06848b18767c0605d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv6 address from Ipv6Data in host byte order.  <br /></td></tr>
+<tr class="separator:aedc48419425f9a06848b18767c0605d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad497df4335068fdb2836c6ac568e0d10" id="r_ad497df4335068fdb2836c6ac568e0d10"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad497df4335068fdb2836c6ac568e0d10">set</a> (uint8_t const bytes[16])</td></tr>
+<tr class="memdesc:ad497df4335068fdb2836c6ac568e0d10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv6 address from a host byte order array of bytes.  <br /></td></tr>
+<tr class="separator:ad497df4335068fdb2836c6ac568e0d10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac053a720c18b6387c47b606af7b761fc" id="r_ac053a720c18b6387c47b606af7b761fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac053a720c18b6387c47b606af7b761fc">set</a> (Ipv4Data address)</td></tr>
+<tr class="memdesc:ac053a720c18b6387c47b606af7b761fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from a host byte order integer.  <br /></td></tr>
+<tr class="separator:ac053a720c18b6387c47b606af7b761fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed241c7ca938c7e9968050f004d2c6bc" id="r_aed241c7ca938c7e9968050f004d2c6bc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed241c7ca938c7e9968050f004d2c6bc">setNetworkByteOrdered</a> (Ipv4Data address)</td></tr>
+<tr class="memdesc:aed241c7ca938c7e9968050f004d2c6bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv4 address from a network byte order integer.  <br /></td></tr>
+<tr class="separator:aed241c7ca938c7e9968050f004d2c6bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95d3c75e879bfad9d053d6c0568c08b5" id="r_a95d3c75e879bfad9d053d6c0568c08b5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95d3c75e879bfad9d053d6c0568c08b5">setNetworkByteOrdered</a> (Ipv6Data const &amp;data)</td></tr>
+<tr class="memdesc:a95d3c75e879bfad9d053d6c0568c08b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv6 address from a network byte order data.  <br /></td></tr>
+<tr class="separator:a95d3c75e879bfad9d053d6c0568c08b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeec56dd5abb3d2a82096029615928dde" id="r_aeec56dd5abb3d2a82096029615928dde"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeec56dd5abb3d2a82096029615928dde">setNetworkByteOrdered</a> (uint8_t const bytes[16])</td></tr>
+<tr class="memdesc:aeec56dd5abb3d2a82096029615928dde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build an ipv6 address from a network byte order array of bytes.  <br /></td></tr>
+<tr class="separator:aeec56dd5abb3d2a82096029615928dde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add537ab99fd5c349e15cf222eaada2df" id="r_add537ab99fd5c349e15cf222eaada2df"><td class="memItemLeft" align="right" valign="top"><a id="add537ab99fd5c349e15cf222eaada2df" name="add537ab99fd5c349e15cf222eaada2df"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const &amp;r) const</td></tr>
+<tr class="separator:add537ab99fd5c349e15cf222eaada2df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4384459405ce68a86a3b73ecb569bfb8" id="r_a4384459405ce68a86a3b73ecb569bfb8"><td class="memItemLeft" align="right" valign="top">std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4384459405ce68a86a3b73ecb569bfb8">toString</a> () const</td></tr>
+<tr class="memdesc:a4384459405ce68a86a3b73ecb569bfb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the ip address in a string format.  <br /></td></tr>
+<tr class="separator:a4384459405ce68a86a3b73ecb569bfb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8315b125891e4fa355a2406294b22c5e" id="r_a8315b125891e4fa355a2406294b22c5e"><td class="memItemLeft" align="right" valign="top">std::optional&lt; Data &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8315b125891e4fa355a2406294b22c5e">getNetworkByteOrder</a> () const</td></tr>
+<tr class="memdesc:a8315b125891e4fa355a2406294b22c5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the ip address in a network byte order.  <br /></td></tr>
+<tr class="separator:a8315b125891e4fa355a2406294b22c5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3418fd2a32d402d3d7fce004f84595ad" id="r_a3418fd2a32d402d3d7fce004f84595ad"><td class="memItemLeft" align="right" valign="top">std::optional&lt; Data &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3418fd2a32d402d3d7fce004f84595ad">getHostByteOrder</a> () const</td></tr>
+<tr class="memdesc:a3418fd2a32d402d3d7fce004f84595ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the ip address in host byte order.  <br /></td></tr>
+<tr class="separator:a3418fd2a32d402d3d7fce004f84595ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69d2ca99a8d5b082daaa2128ae500806" id="r_a69d2ca99a8d5b082daaa2128ae500806"><td class="memItemLeft" align="right" valign="top"><a id="a69d2ca99a8d5b082daaa2128ae500806" name="a69d2ca99a8d5b082daaa2128ae500806"></a>
+Types&#160;</td><td class="memItemRight" valign="bottom"><b>getType</b> () const</td></tr>
+<tr class="separator:a69d2ca99a8d5b082daaa2128ae500806"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a9834f17667983a3594bd2668a755a924" id="r_a9834f17667983a3594bd2668a755a924"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9834f17667983a3594bd2668a755a924">getHostName</a> ()</td></tr>
-<tr class="memdesc:a9834f17667983a3594bd2668a755a924"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the standard hostname for the local computer.  <br /></td></tr>
-<tr class="separator:a9834f17667983a3594bd2668a755a924"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06f62eb807a1db644266cf4b2c118175" id="r_a06f62eb807a1db644266cf4b2c118175"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a06f62eb807a1db644266cf4b2c118175">getLocalAddresses</a> (std::vector&lt; <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> &gt; &amp;buff)</td></tr>
-<tr class="memdesc:a06f62eb807a1db644266cf4b2c118175"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of local <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> of the local computer.  <br /></td></tr>
-<tr class="separator:a06f62eb807a1db644266cf4b2c118175"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bcff19a447904bba501b559b5aee61e" id="r_a2bcff19a447904bba501b559b5aee61e"><td class="memItemLeft" align="right" valign="top">static std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2bcff19a447904bba501b559b5aee61e">getHostName</a> ()</td></tr>
+<tr class="memdesc:a2bcff19a447904bba501b559b5aee61e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the standard hostname for the local computer.  <br /></td></tr>
+<tr class="separator:a2bcff19a447904bba501b559b5aee61e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81b0405af73efa0213e58f2818983560" id="r_a81b0405af73efa0213e58f2818983560"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81b0405af73efa0213e58f2818983560">getLocalAddresses</a> (Types type=Types::None)</td></tr>
+<tr class="memdesc:a81b0405af73efa0213e58f2818983560"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of local <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> of the local computer.  <br /></td></tr>
+<tr class="separator:a81b0405af73efa0213e58f2818983560"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4869f30c9cb4970810f8c0527eb9bec" id="r_ae4869f30c9cb4970810f8c0527eb9bec"><td class="memItemLeft" align="right" valign="top"><a id="ae4869f30c9cb4970810f8c0527eb9bec" name="ae4869f30c9cb4970810f8c0527eb9bec"></a>
+static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Any</b> (Types addressType)</td></tr>
+<tr class="separator:ae4869f30c9cb4970810f8c0527eb9bec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc7400799b3520858774669956e2c7f2" id="r_adc7400799b3520858774669956e2c7f2"><td class="memItemLeft" align="right" valign="top"><a id="adc7400799b3520858774669956e2c7f2" name="adc7400799b3520858774669956e2c7f2"></a>
+static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Loopback</b> (Types addressType)</td></tr>
+<tr class="separator:adc7400799b3520858774669956e2c7f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:ada1d1fafe5862a21c9d393f1d9fbb8a1" id="r_ada1d1fafe5862a21c9d393f1d9fbb8a1"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada1d1fafe5862a21c9d393f1d9fbb8a1">None</a></td></tr>
-<tr class="memdesc:ada1d1fafe5862a21c9d393f1d9fbb8a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent an invalid <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a>.  <br /></td></tr>
-<tr class="separator:ada1d1fafe5862a21c9d393f1d9fbb8a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cd7de8165bb287002bd46db33144578" id="r_a6cd7de8165bb287002bd46db33144578"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6cd7de8165bb287002bd46db33144578">Any</a></td></tr>
-<tr class="memdesc:a6cd7de8165bb287002bd46db33144578"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent the <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> 0.0.0.0.  <br /></td></tr>
-<tr class="separator:a6cd7de8165bb287002bd46db33144578"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a46220eef0c703c54d812e6272444dd" id="r_a0a46220eef0c703c54d812e6272444dd"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a46220eef0c703c54d812e6272444dd">LocalHost</a></td></tr>
-<tr class="memdesc:a0a46220eef0c703c54d812e6272444dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent the <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> 127.0.0.1.  <br /></td></tr>
-<tr class="separator:a0a46220eef0c703c54d812e6272444dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1df47609d983641da17bc429b9544ede" id="r_a1df47609d983641da17bc429b9544ede"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1df47609d983641da17bc429b9544ede">Broadcast</a></td></tr>
-<tr class="memdesc:a1df47609d983641da17bc429b9544ede"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent the <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> 255.255.255.255.  <br /></td></tr>
-<tr class="separator:a1df47609d983641da17bc429b9544ede"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf85e3bf65f064cc69b2b298a91ebdc2" id="r_acf85e3bf65f064cc69b2b298a91ebdc2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acf85e3bf65f064cc69b2b298a91ebdc2">None</a></td></tr>
+<tr class="memdesc:acf85e3bf65f064cc69b2b298a91ebdc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent an invalid address.  <br /></td></tr>
+<tr class="separator:acf85e3bf65f064cc69b2b298a91ebdc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bf6367e19270961d00111ec16683c0f" id="r_a2bf6367e19270961d00111ec16683c0f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2bf6367e19270961d00111ec16683c0f">Ipv4Any</a></td></tr>
+<tr class="memdesc:a2bf6367e19270961d00111ec16683c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent an unspecified ipv4 address "0.0.0.0".  <br /></td></tr>
+<tr class="separator:a2bf6367e19270961d00111ec16683c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fdc62220baed72081c925677d5be184" id="r_a8fdc62220baed72081c925677d5be184"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8fdc62220baed72081c925677d5be184">Ipv6Any</a></td></tr>
+<tr class="memdesc:a8fdc62220baed72081c925677d5be184"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent an unspecified ipv6 address "::".  <br /></td></tr>
+<tr class="separator:a8fdc62220baed72081c925677d5be184"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae01981ca3537f9801f4d2895ddc4a58e" id="r_ae01981ca3537f9801f4d2895ddc4a58e"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae01981ca3537f9801f4d2895ddc4a58e">Ipv4Loopback</a></td></tr>
+<tr class="memdesc:ae01981ca3537f9801f4d2895ddc4a58e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent the local host ipv4 address "127.0.0.1".  <br /></td></tr>
+<tr class="separator:ae01981ca3537f9801f4d2895ddc4a58e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ee5932935effb62197582d0e18e8f07" id="r_a2ee5932935effb62197582d0e18e8f07"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2ee5932935effb62197582d0e18e8f07">Ipv6Loopback</a></td></tr>
+<tr class="memdesc:a2ee5932935effb62197582d0e18e8f07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent the local host ipv6 address "::1".  <br /></td></tr>
+<tr class="separator:a2ee5932935effb62197582d0e18e8f07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b7db191100b6e5c456c11149b59686d" id="r_a0b7db191100b6e5c456c11149b59686d"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b7db191100b6e5c456c11149b59686d">Ipv4Broadcast</a></td></tr>
+<tr class="memdesc:a0b7db191100b6e5c456c11149b59686d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represent the broadcast ipv4 address "255.255.255.255".  <br /></td></tr>
+<tr class="separator:a0b7db191100b6e5c456c11149b59686d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a9825819e1f89bdee3d6f4a7ce7524fc5" id="r_a9825819e1f89bdee3d6f4a7ce7524fc5"><td class="memItemLeft" align="right" valign="top"><a id="a9825819e1f89bdee3d6f4a7ce7524fc5" name="a9825819e1f89bdee3d6f4a7ce7524fc5"></a>
+struct&#160;</td><td class="memItemRight" valign="bottom"><b>std::hash&lt; IpAddress &gt;</b></td></tr>
+<tr class="separator:a9825819e1f89bdee3d6f4a7ce7524fc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A class to represent an IP address. </p>
 <p>This class will automatically handle the byte order of the IP address. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a7ca04e65a9567262c7834ee7e1ed1e0f" name="a7ca04e65a9567262c7834ee7e1ed1e0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ca04e65a9567262c7834ee7e1ed1e0f">&#9670;&#160;</a></span>IpAddress() <span class="overload">[1/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ca04e65a9567262c7834ee7e1ed1e0f">&#9670;&#160;</a></span>IpAddress() <span class="overload">[1/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -191,8 +256,8 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a61e349d6e6b1c6f4726236e31eca9f05" name="a61e349d6e6b1c6f4726236e31eca9f05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a61e349d6e6b1c6f4726236e31eca9f05">&#9670;&#160;</a></span>IpAddress() <span class="overload">[2/4]</span></h2>
+<a id="a8decb62d138023d6e8211fc4a8e45346" name="a8decb62d138023d6e8211fc4a8e45346"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8decb62d138023d6e8211fc4a8e45346">&#9670;&#160;</a></span>IpAddress() <span class="overload">[2/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -200,17 +265,22 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">fge::net::IpAddress::IpAddress </td>
           <td>(</td>
-          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
+          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>address</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">CheckHostname</td>          <td class="paramname"><span class="paramname"><em>check</em><span class="paramdefsep"> = </span><span class="paramdefval">CheckHostname::Yes</span></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build an IP address from a string. </p>
-<p>The string can be in the form XXX.XXX.XXX.XXX, or a hostname.</p>
+<p>Build an address from a string. </p>
+<p>The string can be in the ipv4 form XXX.XXX.XXX.XXX, ipv6, or a hostname.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">address</td><td>A string representing the IP address </td></tr>
+    <tr><td class="paramname">address</td><td>A string representing the address </td></tr>
+    <tr><td class="paramname">check</td><td>Control if the method should check if the address is a hostname or not </td></tr>
   </table>
   </dd>
 </dl>
@@ -218,7 +288,7 @@ Static Public Attributes</h2></td></tr>
 </div>
 </div>
 <a id="a2e1c6fd6c477e8dc2f9598eb8cfa22ae" name="a2e1c6fd6c477e8dc2f9598eb8cfa22ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e1c6fd6c477e8dc2f9598eb8cfa22ae">&#9670;&#160;</a></span>IpAddress() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e1c6fd6c477e8dc2f9598eb8cfa22ae">&#9670;&#160;</a></span>IpAddress() <span class="overload">[3/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -254,7 +324,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Build an IP address from a 4 bytes. </p>
+<p>Build an ipv4 address from 4 bytes. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">byte3</td><td>The most significant byte </td></tr>
@@ -267,8 +337,8 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a3a4217753840523838ed29c3396c3b15" name="a3a4217753840523838ed29c3396c3b15"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a4217753840523838ed29c3396c3b15">&#9670;&#160;</a></span>IpAddress() <span class="overload">[4/4]</span></h2>
+<a id="a33f3b977dfeef05d018af6b280b0d5e7" name="a33f3b977dfeef05d018af6b280b0d5e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33f3b977dfeef05d018af6b280b0d5e7">&#9670;&#160;</a></span>IpAddress() <span class="overload">[4/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -279,7 +349,7 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">fge::net::IpAddress::IpAddress </td>
           <td>(</td>
-          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
+          <td class="paramtype">std::initializer_list&lt; uint16_t &gt;</td>          <td class="paramname"><span class="paramname"><em>words</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -290,7 +360,75 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Build an IP address from a host byte order integer. </p>
+<p>Build an ipv4 address from 8 words in host byte order. </p>
+<dl class="section warning"><dt>Warning</dt><dd>the first word is the most significant word.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">words</td><td>The 8 words representing the ipv6 address in host byte order </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a02875e43415ff3a61bc25372ca77684a" name="a02875e43415ff3a61bc25372ca77684a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02875e43415ff3a61bc25372ca77684a">&#9670;&#160;</a></span>IpAddress() <span class="overload">[5/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::net::IpAddress::IpAddress </td>
+          <td>(</td>
+          <td class="paramtype">Ipv6Data const &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build an ipv4 address from Ipv6Data in host byte order. </p>
+<dl class="section warning"><dt>Warning</dt><dd>the first word is the least significant word.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The Ipv6Data representing the address in host byte order </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa37ec161c810569669f09d4a280600f2" name="aa37ec161c810569669f09d4a280600f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa37ec161c810569669f09d4a280600f2">&#9670;&#160;</a></span>IpAddress() <span class="overload">[6/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fge::net::IpAddress::IpAddress </td>
+          <td>(</td>
+          <td class="paramtype">Ipv4Data</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build an ipv4 address from a host byte order integer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">address</td><td>The host byte order integer </td></tr>
@@ -301,14 +439,14 @@ Static Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a163607eaa1ddc03ada7928797d0bc149" name="a163607eaa1ddc03ada7928797d0bc149"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a163607eaa1ddc03ada7928797d0bc149">&#9670;&#160;</a></span>getHostByteOrder()</h2>
+<a id="a3418fd2a32d402d3d7fce004f84595ad" name="a3418fd2a32d402d3d7fce004f84595ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3418fd2a32d402d3d7fce004f84595ad">&#9670;&#160;</a></span>getHostByteOrder()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t fge::net::IpAddress::getHostByteOrder </td>
+          <td class="memname">std::optional&lt; Data &gt; fge::net::IpAddress::getHostByteOrder </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -316,13 +454,13 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get the IP address in a host byte order integer. </p>
+<p>Get the ip address in host byte order. </p>
 <dl class="section return"><dt>Returns</dt><dd>The host byte order integer </dd></dl>
 
 </div>
 </div>
-<a id="a9834f17667983a3594bd2668a755a924" name="a9834f17667983a3594bd2668a755a924"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9834f17667983a3594bd2668a755a924">&#9670;&#160;</a></span>getHostName()</h2>
+<a id="a2bcff19a447904bba501b559b5aee61e" name="a2bcff19a447904bba501b559b5aee61e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bcff19a447904bba501b559b5aee61e">&#9670;&#160;</a></span>getHostName()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -331,7 +469,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static std::string fge::net::IpAddress::getHostName </td>
+          <td class="memname">static std::optional&lt; std::string &gt; fge::net::IpAddress::getHostName </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td></td>
@@ -349,8 +487,8 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a06f62eb807a1db644266cf4b2c118175" name="a06f62eb807a1db644266cf4b2c118175"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a06f62eb807a1db644266cf4b2c118175">&#9670;&#160;</a></span>getLocalAddresses()</h2>
+<a id="a81b0405af73efa0213e58f2818983560" name="a81b0405af73efa0213e58f2818983560"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81b0405af73efa0213e58f2818983560">&#9670;&#160;</a></span>getLocalAddresses()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -359,9 +497,9 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void fge::net::IpAddress::getLocalAddresses </td>
+          <td class="memname">static std::vector&lt; <a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> &gt; fge::net::IpAddress::getLocalAddresses </td>
           <td>(</td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>buff</em></span></td><td>)</td>
+          <td class="paramtype">Types</td>          <td class="paramname"><span class="paramname"><em>type</em><span class="paramdefsep"> = </span><span class="paramdefval">Types::None</span></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -375,21 +513,22 @@ Static Public Attributes</h2></td></tr>
 <p>Get a list of local <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> of the local computer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">buff</td><td>The buffer to fill with the local IP addresses </td></tr>
+    <tr><td class="paramname">type</td><td>The type of address to get, if None, all addresses will be returned </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector containing the local IP addresses or an empty vector if an error occurred </dd></dl>
 
 </div>
 </div>
-<a id="a0e0175422068c436fcf65d77f3c9d416" name="a0e0175422068c436fcf65d77f3c9d416"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0e0175422068c436fcf65d77f3c9d416">&#9670;&#160;</a></span>getNetworkByteOrder()</h2>
+<a id="a8315b125891e4fa355a2406294b22c5e" name="a8315b125891e4fa355a2406294b22c5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8315b125891e4fa355a2406294b22c5e">&#9670;&#160;</a></span>getNetworkByteOrder()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t fge::net::IpAddress::getNetworkByteOrder </td>
+          <td class="memname">std::optional&lt; Data &gt; fge::net::IpAddress::getNetworkByteOrder </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -397,13 +536,13 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get the IP address in a network byte order integer. </p>
+<p>Get the ip address in a network byte order. </p>
 <dl class="section return"><dt>Returns</dt><dd>The network byte order integer </dd></dl>
 
 </div>
 </div>
-<a id="a5bdf804efcaed0d5855f2887573eb783" name="a5bdf804efcaed0d5855f2887573eb783"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5bdf804efcaed0d5855f2887573eb783">&#9670;&#160;</a></span>set() <span class="overload">[1/3]</span></h2>
+<a id="ac053a720c18b6387c47b606af7b761fc" name="ac053a720c18b6387c47b606af7b761fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac053a720c18b6387c47b606af7b761fc">&#9670;&#160;</a></span>set() <span class="overload">[1/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -411,40 +550,13 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">bool fge::net::IpAddress::set </td>
           <td>(</td>
-          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
+          <td class="paramtype">Ipv4Data</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build an IP address from a string. </p>
-<p>The string can be in the form XXX.XXX.XXX.XXX, or a hostname.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">address</td><td>A string representing the IP address </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the address is valid, <b>false</b> otherwise </dd></dl>
-
-</div>
-</div>
-<a id="a37d22b0dc4cba657af8110017b40b1fd" name="a37d22b0dc4cba657af8110017b40b1fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37d22b0dc4cba657af8110017b40b1fd">&#9670;&#160;</a></span>set() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool fge::net::IpAddress::set </td>
-          <td>(</td>
-          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Build an IP address from a host byte order integer. </p>
+<p>Build an ipv4 address from a host byte order integer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">address</td><td>The host byte order integer </td></tr>
@@ -455,8 +567,93 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="aedc48419425f9a06848b18767c0605d5" name="aedc48419425f9a06848b18767c0605d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedc48419425f9a06848b18767c0605d5">&#9670;&#160;</a></span>set() <span class="overload">[2/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::net::IpAddress::set </td>
+          <td>(</td>
+          <td class="paramtype">Ipv6Data const &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build an ipv6 address from Ipv6Data in host byte order. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Contrary to the initializer list, the first word is the least significant word.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The Ipv6Data representing the ipv6 address in host byte order </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the address is valid, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a582c62cf232f3204c3c14cf7005efdf4" name="a582c62cf232f3204c3c14cf7005efdf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a582c62cf232f3204c3c14cf7005efdf4">&#9670;&#160;</a></span>set() <span class="overload">[3/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::net::IpAddress::set </td>
+          <td>(</td>
+          <td class="paramtype">std::initializer_list&lt; uint16_t &gt;</td>          <td class="paramname"><span class="paramname"><em>words</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build an ipv6 address from 8 words in host byte order. </p>
+<p>Manualy build an ipv6 address with a initializer list. </p><dl class="section warning"><dt>Warning</dt><dd>the first word is the most significant word.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">words</td><td>The 8 words representing the ipv6 address in host byte order </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a671b86191d31bdc1d761896dcde2e020" name="a671b86191d31bdc1d761896dcde2e020"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a671b86191d31bdc1d761896dcde2e020">&#9670;&#160;</a></span>set() <span class="overload">[4/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::net::IpAddress::set </td>
+          <td>(</td>
+          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>address</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">CheckHostname</td>          <td class="paramname"><span class="paramname"><em>check</em><span class="paramdefsep"> = </span><span class="paramdefval">CheckHostname::Yes</span></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build an address from a string. </p>
+<p>The string can be in the ipv4 form XXX.XXX.XXX.XXX, ipv6, or a hostname.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">address</td><td>A string representing the address </td></tr>
+    <tr><td class="paramname">check</td><td>Control if the method should check if the address is a hostname or not </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the address is valid, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
 <a id="a8a96a97118a05c443fd49cff8303ed71" name="a8a96a97118a05c443fd49cff8303ed71"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a96a97118a05c443fd49cff8303ed71">&#9670;&#160;</a></span>set() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a96a97118a05c443fd49cff8303ed71">&#9670;&#160;</a></span>set() <span class="overload">[5/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -484,7 +681,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build an IP address from a 4 bytes. </p>
+<p>Build an ipv4 address from 4 bytes. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">byte3</td><td>The most significant byte </td></tr>
@@ -498,8 +695,34 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ab11289cf200e9309c4ad21a6eac4acf4" name="ab11289cf200e9309c4ad21a6eac4acf4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab11289cf200e9309c4ad21a6eac4acf4">&#9670;&#160;</a></span>setNetworkByteOrdered()</h2>
+<a id="ad497df4335068fdb2836c6ac568e0d10" name="ad497df4335068fdb2836c6ac568e0d10"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad497df4335068fdb2836c6ac568e0d10">&#9670;&#160;</a></span>set() <span class="overload">[6/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::net::IpAddress::set </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t const</td>          <td class="paramname"><span class="paramname"><em>bytes</em>[16]</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build an ipv6 address from a host byte order array of bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bytes</td><td>The host byte order array </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the address is valid, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="aed241c7ca938c7e9968050f004d2c6bc" name="aed241c7ca938c7e9968050f004d2c6bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed241c7ca938c7e9968050f004d2c6bc">&#9670;&#160;</a></span>setNetworkByteOrdered() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -507,13 +730,13 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">bool fge::net::IpAddress::setNetworkByteOrdered </td>
           <td>(</td>
-          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
+          <td class="paramtype">Ipv4Data</td>          <td class="paramname"><span class="paramname"><em>address</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build an IP address from a network byte order integer. </p>
+<p>Build an ipv4 address from a network byte order integer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">address</td><td>The network byte order integer </td></tr>
@@ -524,14 +747,66 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a044c15b2b2040c007ca57dc2466da03f" name="a044c15b2b2040c007ca57dc2466da03f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a044c15b2b2040c007ca57dc2466da03f">&#9670;&#160;</a></span>toString()</h2>
+<a id="a95d3c75e879bfad9d053d6c0568c08b5" name="a95d3c75e879bfad9d053d6c0568c08b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95d3c75e879bfad9d053d6c0568c08b5">&#9670;&#160;</a></span>setNetworkByteOrdered() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string fge::net::IpAddress::toString </td>
+          <td class="memname">bool fge::net::IpAddress::setNetworkByteOrdered </td>
+          <td>(</td>
+          <td class="paramtype">Ipv6Data const &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build an ipv6 address from a network byte order data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The network byte order data </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the address is valid, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="aeec56dd5abb3d2a82096029615928dde" name="aeec56dd5abb3d2a82096029615928dde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeec56dd5abb3d2a82096029615928dde">&#9670;&#160;</a></span>setNetworkByteOrdered() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::net::IpAddress::setNetworkByteOrdered </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t const</td>          <td class="paramname"><span class="paramname"><em>bytes</em>[16]</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build an ipv6 address from a network byte order array of bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bytes</td><td>The network byte order array </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the address is valid, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a4384459405ce68a86a3b73ecb569bfb8" name="a4384459405ce68a86a3b73ecb569bfb8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4384459405ce68a86a3b73ecb569bfb8">&#9670;&#160;</a></span>toString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt; std::string &gt; fge::net::IpAddress::toString </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -539,14 +814,14 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get the IP address in a string format. </p>
-<dl class="section return"><dt>Returns</dt><dd>A string representing the IP address </dd></dl>
+<p>Get the ip address in a string format. </p>
+<dl class="section return"><dt>Returns</dt><dd>A string representing the ip address </dd></dl>
 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a6cd7de8165bb287002bd46db33144578" name="a6cd7de8165bb287002bd46db33144578"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6cd7de8165bb287002bd46db33144578">&#9670;&#160;</a></span>Any</h2>
+<a id="a2bf6367e19270961d00111ec16683c0f" name="a2bf6367e19270961d00111ec16683c0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bf6367e19270961d00111ec16683c0f">&#9670;&#160;</a></span>Ipv4Any</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -555,7 +830,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const fge::net::IpAddress::Any</td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const fge::net::IpAddress::Ipv4Any</td>
         </tr>
       </table>
   </td>
@@ -565,12 +840,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Represent the <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> 0.0.0.0. </p>
+<p>Represent an unspecified ipv4 address "0.0.0.0". </p>
 
 </div>
 </div>
-<a id="a1df47609d983641da17bc429b9544ede" name="a1df47609d983641da17bc429b9544ede"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1df47609d983641da17bc429b9544ede">&#9670;&#160;</a></span>Broadcast</h2>
+<a id="a0b7db191100b6e5c456c11149b59686d" name="a0b7db191100b6e5c456c11149b59686d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b7db191100b6e5c456c11149b59686d">&#9670;&#160;</a></span>Ipv4Broadcast</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -579,7 +854,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const fge::net::IpAddress::Broadcast</td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const fge::net::IpAddress::Ipv4Broadcast</td>
         </tr>
       </table>
   </td>
@@ -589,12 +864,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Represent the <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> 255.255.255.255. </p>
+<p>Represent the broadcast ipv4 address "255.255.255.255". </p>
 
 </div>
 </div>
-<a id="a0a46220eef0c703c54d812e6272444dd" name="a0a46220eef0c703c54d812e6272444dd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a46220eef0c703c54d812e6272444dd">&#9670;&#160;</a></span>LocalHost</h2>
+<a id="ae01981ca3537f9801f4d2895ddc4a58e" name="ae01981ca3537f9801f4d2895ddc4a58e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae01981ca3537f9801f4d2895ddc4a58e">&#9670;&#160;</a></span>Ipv4Loopback</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -603,7 +878,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const fge::net::IpAddress::LocalHost</td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const fge::net::IpAddress::Ipv4Loopback</td>
         </tr>
       </table>
   </td>
@@ -613,12 +888,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Represent the <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a> 127.0.0.1. </p>
+<p>Represent the local host ipv4 address "127.0.0.1". </p>
 
 </div>
 </div>
-<a id="ada1d1fafe5862a21c9d393f1d9fbb8a1" name="ada1d1fafe5862a21c9d393f1d9fbb8a1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada1d1fafe5862a21c9d393f1d9fbb8a1">&#9670;&#160;</a></span>None</h2>
+<a id="a8fdc62220baed72081c925677d5be184" name="a8fdc62220baed72081c925677d5be184"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fdc62220baed72081c925677d5be184">&#9670;&#160;</a></span>Ipv6Any</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -627,7 +902,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> const fge::net::IpAddress::None</td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const fge::net::IpAddress::Ipv6Any</td>
         </tr>
       </table>
   </td>
@@ -637,7 +912,55 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Represent an invalid <a class="el" href="classfge_1_1net_1_1IpAddress.html" title="A class to represent an IP address.">IpAddress</a>. </p>
+<p>Represent an unspecified ipv6 address "::". </p>
+
+</div>
+</div>
+<a id="a2ee5932935effb62197582d0e18e8f07" name="a2ee5932935effb62197582d0e18e8f07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ee5932935effb62197582d0e18e8f07">&#9670;&#160;</a></span>Ipv6Loopback</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const fge::net::IpAddress::Ipv6Loopback</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Represent the local host ipv6 address "::1". </p>
+
+</div>
+</div>
+<a id="acf85e3bf65f064cc69b2b298a91ebdc2" name="acf85e3bf65f064cc69b2b298a91ebdc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf85e3bf65f064cc69b2b298a91ebdc2">&#9670;&#160;</a></span>None</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1IpAddress.html">IpAddress</a> const fge::net::IpAddress::None</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Represent an invalid address. </p>
 
 </div>
 </div>

@@ -80,6 +80,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classfge_1_1net_1_1NetworkTypeSmoothVec2Float-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::net::NetworkTypeSmoothVec2Float Class Reference<div class="ingroups"><a class="el" href="group__network.html">Network</a></div></div></div>
@@ -96,7 +97,7 @@ Inheritance diagram for fge::net::NetworkTypeSmoothVec2Float:</div>
  <div class="center">
   <img src="classfge_1_1net_1_1NetworkTypeSmoothVec2Float.png" usemap="#fge::net::NetworkTypeSmoothVec2Float_map" alt=""/>
   <map id="fge::net::NetworkTypeSmoothVec2Float_map" name="fge::net::NetworkTypeSmoothVec2Float_map">
-<area href="classfge_1_1net_1_1NetworkTypeBase.html" alt="fge::net::NetworkTypeBase" shape="rect" coords="0,0,232,24"/>
+<area href="classfge_1_1net_1_1NetworkTypeBase.html" title="Base class for a network type." alt="fge::net::NetworkTypeBase" shape="rect" coords="0,0,232,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -153,15 +154,30 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>getErrorRange</b> ()
 <tr class="memitem:aaf849ba9221906c6fddf3fd6b6c64519" id="r_aaf849ba9221906c6fddf3fd6b6c64519"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#aaf849ba9221906c6fddf3fd6b6c64519">isForced</a> () const</td></tr>
 <tr class="memdesc:aaf849ba9221906c6fddf3fd6b6c64519"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the value is forced to be modified.  <br /></td></tr>
 <tr class="separator:aaf849ba9221906c6fddf3fd6b6c64519"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3664c28e874feb7db7b67bb89e7c7f4" id="r_af3664c28e874feb7db7b67bb89e7c7f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#af3664c28e874feb7db7b67bb89e7c7f4">clearNeedUpdateFlag</a> ()</td></tr>
-<tr class="memdesc:af3664c28e874feb7db7b67bb89e7c7f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the need for an explicit update.  <br /></td></tr>
-<tr class="separator:af3664c28e874feb7db7b67bb89e7c7f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab506bbcb666d5b5eee71e0c9b7fcbf9" id="r_aab506bbcb666d5b5eee71e0c9b7fcbf9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#aab506bbcb666d5b5eee71e0c9b7fcbf9">needUpdate</a> ()</td></tr>
-<tr class="memdesc:aab506bbcb666d5b5eee71e0c9b7fcbf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell that this network type need an explicit update from the server.  <br /></td></tr>
-<tr class="separator:aab506bbcb666d5b5eee71e0c9b7fcbf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d0526a0ef8c0c342d7939b5aaa22f01" id="r_a5d0526a0ef8c0c342d7939b5aaa22f01"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#a5d0526a0ef8c0c342d7939b5aaa22f01">isNeedingUpdate</a> () const</td></tr>
-<tr class="memdesc:a5d0526a0ef8c0c342d7939b5aaa22f01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if this network type need an explicit update from the server.  <br /></td></tr>
-<tr class="separator:a5d0526a0ef8c0c342d7939b5aaa22f01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54dafbc3e7d06a3aedabd32cb8f5d996" id="r_a54dafbc3e7d06a3aedabd32cb8f5d996"><td class="memItemLeft" align="right" valign="top"><a id="a54dafbc3e7d06a3aedabd32cb8f5d996" name="a54dafbc3e7d06a3aedabd32cb8f5d996"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clearExplicitUpdateFlag</b> ()</td></tr>
+<tr class="separator:a54dafbc3e7d06a3aedabd32cb8f5d996"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac054d819e6fdce4c141e65ca0b24d1b0" id="r_ac054d819e6fdce4c141e65ca0b24d1b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#ac054d819e6fdce4c141e65ca0b24d1b0">needExplicitUpdate</a> ()</td></tr>
+<tr class="memdesc:ac054d819e6fdce4c141e65ca0b24d1b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell that this network type need an explicit update from the server.  <br /></td></tr>
+<tr class="separator:ac054d819e6fdce4c141e65ca0b24d1b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2301c414d62baf853c72a96a75e46280" id="r_a2301c414d62baf853c72a96a75e46280"><td class="memItemLeft" align="right" valign="top"><a id="a2301c414d62baf853c72a96a75e46280" name="a2301c414d62baf853c72a96a75e46280"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isNeedingExplicitUpdate</b> () const</td></tr>
+<tr class="separator:a2301c414d62baf853c72a96a75e46280"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af065ba163ac12ed7e03188780169b73b" id="r_af065ba163ac12ed7e03188780169b73b"><td class="memItemLeft" align="right" valign="top"><a id="af065ba163ac12ed7e03188780169b73b" name="af065ba163ac12ed7e03188780169b73b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clearWaitingUpdateFlag</b> ()</td></tr>
+<tr class="separator:af065ba163ac12ed7e03188780169b73b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26f1ffaefdc82f016018d61b8d48a48b" id="r_a26f1ffaefdc82f016018d61b8d48a48b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1net_1_1NetworkTypeBase.html#a26f1ffaefdc82f016018d61b8d48a48b">waitingUpdate</a> ()</td></tr>
+<tr class="memdesc:a26f1ffaefdc82f016018d61b8d48a48b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell that this network type is waiting for an update.  <br /></td></tr>
+<tr class="separator:a26f1ffaefdc82f016018d61b8d48a48b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0fd4d3046d94adadeffbb0f1183578e" id="r_ac0fd4d3046d94adadeffbb0f1183578e"><td class="memItemLeft" align="right" valign="top"><a id="ac0fd4d3046d94adadeffbb0f1183578e" name="ac0fd4d3046d94adadeffbb0f1183578e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isWaitingUpdate</b> () const</td></tr>
+<tr class="separator:ac0fd4d3046d94adadeffbb0f1183578e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd0d1dc3921ad332111862ef8f944073" id="r_acd0d1dc3921ad332111862ef8f944073"><td class="memItemLeft" align="right" valign="top"><a id="acd0d1dc3921ad332111862ef8f944073" name="acd0d1dc3921ad332111862ef8f944073"></a>
+std::chrono::microseconds&#160;</td><td class="memItemRight" valign="bottom"><b>getLastUpdateTime</b> () const</td></tr>
+<tr class="separator:acd0d1dc3921ad332111862ef8f944073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ac14506181230cd5d7023f5fa4e9258" id="r_a7ac14506181230cd5d7023f5fa4e9258"><td class="memItemLeft" align="right" valign="top"><a id="a7ac14506181230cd5d7023f5fa4e9258" name="a7ac14506181230cd5d7023f5fa4e9258"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setLastUpdateTime</b> ()</td></tr>
+<tr class="separator:a7ac14506181230cd5d7023f5fa4e9258"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -169,17 +185,35 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:ac60abc5b07aab711a3048883afa9b612"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called when the value have been applied.  <br /></td></tr>
 <tr class="separator:ac60abc5b07aab711a3048883afa9b612"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:af9e97f002f965dc8c1eb99fe74b99709" id="r_af9e97f002f965dc8c1eb99fe74b99709"><td class="memItemLeft" align="right" valign="top"><a id="af9e97f002f965dc8c1eb99fe74b99709" name="af9e97f002f965dc8c1eb99fe74b99709"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>createClientCustomData</b> (void *&amp;ptr) const</td></tr>
+<tr class="separator:af9e97f002f965dc8c1eb99fe74b99709"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02af2e9624c4e1e49b8bef2905a692c9" id="r_a02af2e9624c4e1e49b8bef2905a692c9"><td class="memItemLeft" align="right" valign="top"><a id="a02af2e9624c4e1e49b8bef2905a692c9" name="a02af2e9624c4e1e49b8bef2905a692c9"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>destroyClientCustomData</b> (void *&amp;ptr) const</td></tr>
+<tr class="separator:a02af2e9624c4e1e49b8bef2905a692c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff3d468974bfcf37853e69b45d220313" id="r_aff3d468974bfcf37853e69b45d220313"><td class="memItemLeft" align="right" valign="top"><a id="aff3d468974bfcf37853e69b45d220313" name="aff3d468974bfcf37853e69b45d220313"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>applyClientCustomData</b> (void *&amp;ptr) const</td></tr>
+<tr class="separator:aff3d468974bfcf37853e69b45d220313"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:aa3bd0da199d3e4c0e00bb93894ec87fd" id="r_aa3bd0da199d3e4c0e00bb93894ec87fd"><td class="memItemLeft" align="right" valign="top"><a id="aa3bd0da199d3e4c0e00bb93894ec87fd" name="aa3bd0da199d3e4c0e00bb93894ec87fd"></a>
 fge::net::NetworkPerClientModificationTable&#160;</td><td class="memItemRight" valign="bottom"><b>_g_tableId</b></td></tr>
 <tr class="separator:aa3bd0da199d3e4c0e00bb93894ec87fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a7115bcb05891074930cb0fca4f58b9" id="r_a1a7115bcb05891074930cb0fca4f58b9"><td class="memItemLeft" align="right" valign="top"><a id="a1a7115bcb05891074930cb0fca4f58b9" name="a1a7115bcb05891074930cb0fca4f58b9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_needUpdate</b> {false}</td></tr>
-<tr class="separator:a1a7115bcb05891074930cb0fca4f58b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e1066c9730688d3b528cde4c8299b1" id="r_a69e1066c9730688d3b528cde4c8299b1"><td class="memItemLeft" align="right" valign="top"><a id="a69e1066c9730688d3b528cde4c8299b1" name="a69e1066c9730688d3b528cde4c8299b1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_needExplicitUpdate</b> {false}</td></tr>
+<tr class="separator:a69e1066c9730688d3b528cde4c8299b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0576dd3eeaed9dfe2c32c187d83d18d3" id="r_a0576dd3eeaed9dfe2c32c187d83d18d3"><td class="memItemLeft" align="right" valign="top"><a id="a0576dd3eeaed9dfe2c32c187d83d18d3" name="a0576dd3eeaed9dfe2c32c187d83d18d3"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_waitingUpdate</b> {false}</td></tr>
+<tr class="separator:a0576dd3eeaed9dfe2c32c187d83d18d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e7ff57cf9bc053ecc80db5ab9a1dba8" id="r_a4e7ff57cf9bc053ecc80db5ab9a1dba8"><td class="memItemLeft" align="right" valign="top"><a id="a4e7ff57cf9bc053ecc80db5ab9a1dba8" name="a4e7ff57cf9bc053ecc80db5ab9a1dba8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}</td></tr>
 <tr class="separator:a4e7ff57cf9bc053ecc80db5ab9a1dba8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae50af3cb61b54d065c9b3c20e4e7d72d" id="r_ae50af3cb61b54d065c9b3c20e4e7d72d"><td class="memItemLeft" align="right" valign="top"><a id="ae50af3cb61b54d065c9b3c20e4e7d72d" name="ae50af3cb61b54d065c9b3c20e4e7d72d"></a>
+std::chrono::microseconds&#160;</td><td class="memItemRight" valign="bottom"><b>_g_lastUpdateTime</b> {0}</td></tr>
+<tr class="separator:ae50af3cb61b54d065c9b3c20e4e7d72d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The network type for a vector2 float that wait for the error threshold in order to set the value (useful for smooth position sync) </p>
@@ -286,33 +320,6 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}<
 
 </div>
 </div>
-<a id="af3664c28e874feb7db7b67bb89e7c7f4" name="af3664c28e874feb7db7b67bb89e7c7f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af3664c28e874feb7db7b67bb89e7c7f4">&#9670;&#160;</a></span>clearNeedUpdateFlag()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::net::NetworkTypeBase::clearNeedUpdateFlag </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Clear the need for an explicit update. </p>
-
-</div>
-</div>
 <a id="a4001776bda7672c5722ec41bc5955da2" name="a4001776bda7672c5722ec41bc5955da2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4001776bda7672c5722ec41bc5955da2">&#9670;&#160;</a></span>clientsCheckup()</h2>
 
@@ -416,7 +423,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}<
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1net_1_1NetworkTypeScene.html#a86da0aa5d5c3127450a8803988ae945b">fge::net::NetworkTypeScene</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1net_1_1NetworkTypeScene.html#a86da0aa5d5c3127450a8803988ae945b">fge::net::NetworkTypeScene</a>, and <a class="el" href="classfge_1_1net_1_1NetworkTypeVector.html#ade6e1ef8ee8cdde900180ef0fb6e5045">fge::net::NetworkTypeVector&lt; T &gt;</a>.</p>
 
 </div>
 </div>
@@ -480,7 +487,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}<
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1net_1_1NetworkTypeScene.html#aa7b97196a97beb5740ed316e2ff8998f">fge::net::NetworkTypeScene</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1net_1_1NetworkTypeScene.html#aa7b97196a97beb5740ed316e2ff8998f">fge::net::NetworkTypeScene</a>, and <a class="el" href="classfge_1_1net_1_1NetworkTypeVector.html#a1a7fcfcfcfe8695e8553273a8eda8444">fge::net::NetworkTypeVector&lt; T &gt;</a>.</p>
 
 </div>
 </div>
@@ -542,8 +549,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}<
 
 </div>
 </div>
-<a id="a5d0526a0ef8c0c342d7939b5aaa22f01" name="a5d0526a0ef8c0c342d7939b5aaa22f01"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5d0526a0ef8c0c342d7939b5aaa22f01">&#9670;&#160;</a></span>isNeedingUpdate()</h2>
+<a id="ac054d819e6fdce4c141e65ca0b24d1b0" name="ac054d819e6fdce4c141e65ca0b24d1b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac054d819e6fdce4c141e65ca0b24d1b0">&#9670;&#160;</a></span>needExplicitUpdate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -552,35 +559,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}<
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool fge::net::NetworkTypeBase::isNeedingUpdate </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Check if this network type need an explicit update from the server. </p>
-<dl class="section return"><dt>Returns</dt><dd><b>true</b> if this network type need an explicit update from the server, <b>false</b> otherwise </dd></dl>
-
-</div>
-</div>
-<a id="aab506bbcb666d5b5eee71e0c9b7fcbf9" name="aab506bbcb666d5b5eee71e0c9b7fcbf9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aab506bbcb666d5b5eee71e0c9b7fcbf9">&#9670;&#160;</a></span>needUpdate()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::net::NetworkTypeBase::needUpdate </td>
+          <td class="memname">void fge::net::NetworkTypeBase::needExplicitUpdate </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td></td>
@@ -703,6 +682,35 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_force</b> {false}<
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a26f1ffaefdc82f016018d61b8d48a48b" name="a26f1ffaefdc82f016018d61b8d48a48b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26f1ffaefdc82f016018d61b8d48a48b">&#9670;&#160;</a></span>waitingUpdate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::net::NetworkTypeBase::waitingUpdate </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Tell that this network type is waiting for an update. </p>
+<p>When a network type is waiting for an update, it will wait for the next update to be applied until a certain delay (FGE_NET_WAITING_UPDATE_DELAY). After this delay, the network type will automatically request an explicit update.</p>
+<p>When this method is called, the last update time is reset only if the network type is not already waiting. </p><dl class="section see"><dt>See also</dt><dd>setLastUpdateTime() </dd></dl>
 
 </div>
 </div>

@@ -265,6 +265,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abe590c8fc034b6435c1c83c8c484be08" id="r_abe590c8fc034b6435c1c83c8c484be08"><td class="memItemLeft" align="right" valign="top">virtual fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abe590c8fc034b6435c1c83c8c484be08">generateSid</a> (fge::ObjectSid wanted_sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max()) const</td></tr>
 <tr class="memdesc:abe590c8fc034b6435c1c83c8c484be08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate an SID based on the provided wanted SID.  <br /></td></tr>
 <tr class="separator:abe590c8fc034b6435c1c83c8c484be08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b889732891d95d5ab5a72b1e1665d2b" id="r_a3b889732891d95d5ab5a72b1e1665d2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b889732891d95d5ab5a72b1e1665d2b">signalObject</a> (fge::ObjectSid sid, int8_t signal)</td></tr>
+<tr class="memdesc:a3b889732891d95d5ab5a72b1e1665d2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal an <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> over the network.  <br /></td></tr>
+<tr class="separator:a3b889732891d95d5ab5a72b1e1665d2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76a9e75a5e156fe96f28e3180f3cff7d" id="r_a76a9e75a5e156fe96f28e3180f3cff7d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76a9e75a5e156fe96f28e3180f3cff7d">pack</a> (<a class="el" href="classfge_1_1net_1_1Packet.html">fge::net::Packet</a> &amp;pck)</td></tr>
 <tr class="memdesc:a76a9e75a5e156fe96f28e3180f3cff7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack all the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> data in a Packet.  <br /></td></tr>
 <tr class="separator:a76a9e75a5e156fe96f28e3180f3cff7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -421,25 +424,25 @@ fge::ObjectContainer::const_reverse_iterator&#160;</td><td class="memItemRight" 
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ad08489fa18d103b308c7b33a992e639a" id="r_ad08489fa18d103b308c7b33a992e639a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad08489fa18d103b308c7b33a992e639a">_netList</a></td></tr>
-<tr class="separator:ad08489fa18d103b308c7b33a992e639a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9333191440808761a481e79f56cbe0c1" id="r_a9333191440808761a481e79f56cbe0c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1NetworkTypeHandler.html">fge::net::NetworkTypeHandler</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9333191440808761a481e79f56cbe0c1">_netList</a></td></tr>
+<tr class="separator:a9333191440808761a481e79f56cbe0c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa60918f884f77c90d94064d2638b676c" id="r_aa60918f884f77c90d94064d2638b676c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1PropertyList.html">fge::PropertyList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa60918f884f77c90d94064d2638b676c">_properties</a></td></tr>
 <tr class="separator:aa60918f884f77c90d94064d2638b676c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ef1b051a388cb1e614493140d546f8b" id="r_a4ef1b051a388cb1e614493140d546f8b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> const  *, <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ef1b051a388cb1e614493140d546f8b">_onDraw</a></td></tr>
-<tr class="memdesc:a4ef1b051a388cb1e614493140d546f8b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> is about to be drawn.  <br /></td></tr>
-<tr class="separator:a4ef1b051a388cb1e614493140d546f8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc54dec6f8b659e284c76423707bb95b" id="r_afc54dec6f8b659e284c76423707bb95b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *, fge::ObjectDataShared const  &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afc54dec6f8b659e284c76423707bb95b">_onObjectAdded</a></td></tr>
-<tr class="memdesc:afc54dec6f8b659e284c76423707bb95b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when a new <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> has been added.  <br /></td></tr>
-<tr class="separator:afc54dec6f8b659e284c76423707bb95b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad94e57f18a5e1f606a69a9a8931f7250" id="r_ad94e57f18a5e1f606a69a9a8931f7250"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *, fge::ObjectDataShared const  &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad94e57f18a5e1f606a69a9a8931f7250">_onObjectRemoved</a></td></tr>
-<tr class="memdesc:ad94e57f18a5e1f606a69a9a8931f7250"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when an <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> has been removed.  <br /></td></tr>
-<tr class="separator:ad94e57f18a5e1f606a69a9a8931f7250"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37ac8e8febbbde5ca7778a39edfa9848" id="r_a37ac8e8febbbde5ca7778a39edfa9848"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *, fge::ObjectPlan &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37ac8e8febbbde5ca7778a39edfa9848">_onPlanUpdate</a></td></tr>
-<tr class="memdesc:a37ac8e8febbbde5ca7778a39edfa9848"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when a change in the plan is detected.  <br /></td></tr>
-<tr class="separator:a37ac8e8febbbde5ca7778a39edfa9848"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3607c8eb643375226efb428857d9f272" id="r_a3607c8eb643375226efb428857d9f272"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3607c8eb643375226efb428857d9f272">_onDelayedUpdate</a></td></tr>
-<tr class="memdesc:a3607c8eb643375226efb428857d9f272"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called only once after a <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> update.  <br /></td></tr>
-<tr class="separator:a3607c8eb643375226efb428857d9f272"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac17d976b4057ffff7a6de0d826369685" id="r_ac17d976b4057ffff7a6de0d826369685"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> const  &amp;, <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac17d976b4057ffff7a6de0d826369685">_onDraw</a></td></tr>
+<tr class="memdesc:ac17d976b4057ffff7a6de0d826369685"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> is about to be drawn.  <br /></td></tr>
+<tr class="separator:ac17d976b4057ffff7a6de0d826369685"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa13000f64a536f8309fd7b8d36c41f3" id="r_aaa13000f64a536f8309fd7b8d36c41f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;, fge::ObjectDataShared const  &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaa13000f64a536f8309fd7b8d36c41f3">_onObjectAdded</a></td></tr>
+<tr class="memdesc:aaa13000f64a536f8309fd7b8d36c41f3"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when a new <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> has been added.  <br /></td></tr>
+<tr class="separator:aaa13000f64a536f8309fd7b8d36c41f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa991cf7d03f7fb4134316ba9bd6b0a98" id="r_aa991cf7d03f7fb4134316ba9bd6b0a98"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;, fge::ObjectDataShared const  &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa991cf7d03f7fb4134316ba9bd6b0a98">_onObjectRemoved</a></td></tr>
+<tr class="memdesc:aa991cf7d03f7fb4134316ba9bd6b0a98"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when an <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> has been removed.  <br /></td></tr>
+<tr class="separator:aa991cf7d03f7fb4134316ba9bd6b0a98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a531fd7828f1d5d9a025a005b4f37bc0b" id="r_a531fd7828f1d5d9a025a005b4f37bc0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;, fge::ObjectPlan &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a531fd7828f1d5d9a025a005b4f37bc0b">_onPlanUpdate</a></td></tr>
+<tr class="memdesc:a531fd7828f1d5d9a025a005b4f37bc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called when a change in the plan is detected.  <br /></td></tr>
+<tr class="separator:a531fd7828f1d5d9a025a005b4f37bc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12ea76d0497e9858b6026b4b6534f474" id="r_a12ea76d0497e9858b6026b4b6534f474"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt; <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a12ea76d0497e9858b6026b4b6534f474">_onDelayedUpdate</a></td></tr>
+<tr class="memdesc:a12ea76d0497e9858b6026b4b6534f474"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classfge_1_1Event.html" title="This class is a wrapper for SDL events.">Event</a> called only once after a <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> update.  <br /></td></tr>
+<tr class="separator:a12ea76d0497e9858b6026b4b6534f474"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A scene contain a collection of object and handle them. </p>
@@ -2238,13 +2241,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Add a new <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> in the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
-<p>This method add already handled shared <a class="el" href="classfge_1_1ObjectData.html" title="Data wrapper representing an Object in a Scene.">ObjectData</a> in the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. The linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> is automatically set to the target <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.</p>
+<p>This method add already handled shared <a class="el" href="classfge_1_1ObjectData.html" title="Data wrapper representing an Object in a Scene.">ObjectData</a> in the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. The bound <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> is automatically set to the target <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The provided <a class="el" href="classfge_1_1ObjectData.html" title="Data wrapper representing an Object in a Scene.">ObjectData</a> must have a valid <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> pointer.</dd></dl>
 <p>If the object is created inside the <a class="el" href="#a4b1bca7b135815669dba730aab11f61d" title="Update of the Scene.">update()</a> method from a second object, the second object become parent.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">objectData</td><td>The shared <a class="el" href="classfge_1_1ObjectData.html" title="Data wrapper representing an Object in a Scene.">ObjectData</a> </td></tr>
-    <tr><td class="paramname">silent</td><td>If <b>true</b>, the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> will not call the <a class="el" href="classfge_1_1Object.html#a84cd084ae66696cf0f33f0c3e1f68cf1" title="Method called when the object is added to a scene for initialization purposes.">Object::first</a> or <a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c" title="Ask the object to register all callbacks it needs to receive events.">Object::callbackRegister</a> methods </td></tr>
+    <tr><td class="paramname">silent</td><td>If <b>true</b>, the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> will not call the <a class="el" href="classfge_1_1Object.html#a4416b865c579750cdb884444fdc096b5" title="Method called when the object is added to a scene for initialization purposes.">Object::first</a> or <a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c" title="Ask the object to register all callbacks it needs to receive events.">Object::callbackRegister</a> methods </td></tr>
   </table>
   </dd>
 </dl>
@@ -2298,7 +2301,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
     <tr><td class="paramname">plan</td><td>The plan of the new object </td></tr>
     <tr><td class="paramname">sid</td><td>The wanted SID </td></tr>
     <tr><td class="paramname">type</td><td>The type of the new <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> </td></tr>
-    <tr><td class="paramname">silent</td><td>If <b>true</b>, the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> will not call the <a class="el" href="classfge_1_1Object.html#a84cd084ae66696cf0f33f0c3e1f68cf1" title="Method called when the object is added to a scene for initialization purposes.">Object::first</a> or <a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c" title="Ask the object to register all callbacks it needs to receive events.">Object::callbackRegister</a> methods </td></tr>
+    <tr><td class="paramname">silent</td><td>If <b>true</b>, the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> will not call the <a class="el" href="classfge_1_1Object.html#a4416b865c579750cdb884444fdc096b5" title="Method called when the object is added to a scene for initialization purposes.">Object::first</a> or <a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c" title="Ask the object to register all callbacks it needs to receive events.">Object::callbackRegister</a> methods </td></tr>
   </table>
   </dd>
 </dl>
@@ -2879,6 +2882,36 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 </div>
 </div>
+<a id="a3b889732891d95d5ab5a72b1e1665d2b" name="a3b889732891d95d5ab5a72b1e1665d2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b889732891d95d5ab5a72b1e1665d2b">&#9670;&#160;</a></span>signalObject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fge::Scene::signalObject </td>
+          <td>(</td>
+          <td class="paramtype">fge::ObjectSid</td>          <td class="paramname"><span class="paramname"><em>sid</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int8_t</td>          <td class="paramname"><span class="paramname"><em>signal</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Signal an <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> over the network. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sid</td><td>The SID of the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> </td></tr>
+    <tr><td class="paramname">signal</td><td>The signal to send </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a75d177f7c0ddb45997668532f91fc1b4" name="a75d177f7c0ddb45997668532f91fc1b4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75d177f7c0ddb45997668532f91fc1b4">&#9670;&#160;</a></span>transferObject()</h2>
 
@@ -2900,6 +2933,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 <p>Transfer the specified <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> to another <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
 <p>The provided <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> must not have another <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> with the same SID, causing the method to failed and return an invalid shared pointer.</p>
+<p>Events/methods are called in this order : [<a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> destroyed from old <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>] _onObjectRemoved called on old <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> _onPlanUpdate called on old <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> [<a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is added in new <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>] _onObjectAdded called on new <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> _onPlanUpdate called on new <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> <a class="el" href="classfge_1_1Object.html#af83167cdcf6b1759f3fec67a7d544e3b" title="Method called when the object is transferred from a scene to another.">Object::transfered()</a> called</p>
 <dl class="section warning"><dt>Warning</dt><dd>This method is not meant to be used on the same <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>, however it will work as expected.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -3066,7 +3100,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
 </div><div class="memdoc">
 
 <p>Update of the <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
-<p>This method call the <a class="el" href="classfge_1_1Object.html#ac721a6ca8d50e47955f41252f18da533" title="Main method called every frame.">Object::update</a> method of every <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> in the scene.</p>
+<p>This method call the <a class="el" href="classfge_1_1Object.html#a6cf90161161dd486dbc791f950c8473a" title="Main method called every frame.">Object::update</a> method of every <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> in the scene.</p>
 <dl class="section warning"><dt>Warning</dt><dd>If the updated <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> want to delete itself during an update, it have to use the delUpdatedObject and not any others delete methode that will cause undefined behaviour.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -3179,14 +3213,14 @@ If there is an error during the addition of the new <a class="el" href="classfge
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="ad08489fa18d103b308c7b33a992e639a" name="ad08489fa18d103b308c7b33a992e639a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad08489fa18d103b308c7b33a992e639a">&#9670;&#160;</a></span>_netList</h2>
+<a id="a9333191440808761a481e79f56cbe0c1" name="a9333191440808761a481e79f56cbe0c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9333191440808761a481e79f56cbe0c1">&#9670;&#160;</a></span>_netList</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a> fge::Scene::_netList</td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1NetworkTypeHandler.html">fge::net::NetworkTypeHandler</a> fge::Scene::_netList</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -3194,8 +3228,8 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 </div>
 </div>
-<a id="a3607c8eb643375226efb428857d9f272" name="a3607c8eb643375226efb428857d9f272"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3607c8eb643375226efb428857d9f272">&#9670;&#160;</a></span>_onDelayedUpdate</h2>
+<a id="a12ea76d0497e9858b6026b4b6534f474" name="a12ea76d0497e9858b6026b4b6534f474"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12ea76d0497e9858b6026b4b6534f474">&#9670;&#160;</a></span>_onDelayedUpdate</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3204,7 +3238,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>*&gt; fge::Scene::_onDelayedUpdate</td>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>&amp;&gt; fge::Scene::_onDelayedUpdate</td>
         </tr>
       </table>
   </td>
@@ -3219,8 +3253,8 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 </div>
 </div>
-<a id="a4ef1b051a388cb1e614493140d546f8b" name="a4ef1b051a388cb1e614493140d546f8b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ef1b051a388cb1e614493140d546f8b">&#9670;&#160;</a></span>_onDraw</h2>
+<a id="ac17d976b4057ffff7a6de0d826369685" name="ac17d976b4057ffff7a6de0d826369685"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac17d976b4057ffff7a6de0d826369685">&#9670;&#160;</a></span>_onDraw</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3229,7 +3263,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> const*, <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a>&amp;&gt; fge::Scene::_onDraw</td>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> const&amp;, <a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a>&amp;&gt; fge::Scene::_onDraw</td>
         </tr>
       </table>
   </td>
@@ -3243,8 +3277,8 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 </div>
 </div>
-<a id="afc54dec6f8b659e284c76423707bb95b" name="afc54dec6f8b659e284c76423707bb95b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc54dec6f8b659e284c76423707bb95b">&#9670;&#160;</a></span>_onObjectAdded</h2>
+<a id="aaa13000f64a536f8309fd7b8d36c41f3" name="aaa13000f64a536f8309fd7b8d36c41f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa13000f64a536f8309fd7b8d36c41f3">&#9670;&#160;</a></span>_onObjectAdded</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3253,7 +3287,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>*, fge::ObjectDataShared const&amp;&gt; fge::Scene::_onObjectAdded</td>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>&amp;, fge::ObjectDataShared const&amp;&gt; fge::Scene::_onObjectAdded</td>
         </tr>
       </table>
   </td>
@@ -3267,8 +3301,8 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 </div>
 </div>
-<a id="ad94e57f18a5e1f606a69a9a8931f7250" name="ad94e57f18a5e1f606a69a9a8931f7250"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad94e57f18a5e1f606a69a9a8931f7250">&#9670;&#160;</a></span>_onObjectRemoved</h2>
+<a id="aa991cf7d03f7fb4134316ba9bd6b0a98" name="aa991cf7d03f7fb4134316ba9bd6b0a98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa991cf7d03f7fb4134316ba9bd6b0a98">&#9670;&#160;</a></span>_onObjectRemoved</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3277,7 +3311,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>*, fge::ObjectDataShared const&amp;&gt; fge::Scene::_onObjectRemoved</td>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>&amp;, fge::ObjectDataShared const&amp;&gt; fge::Scene::_onObjectRemoved</td>
         </tr>
       </table>
   </td>
@@ -3291,8 +3325,8 @@ If there is an error during the addition of the new <a class="el" href="classfge
 
 </div>
 </div>
-<a id="a37ac8e8febbbde5ca7778a39edfa9848" name="a37ac8e8febbbde5ca7778a39edfa9848"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37ac8e8febbbde5ca7778a39edfa9848">&#9670;&#160;</a></span>_onPlanUpdate</h2>
+<a id="a531fd7828f1d5d9a025a005b4f37bc0b" name="a531fd7828f1d5d9a025a005b4f37bc0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a531fd7828f1d5d9a025a005b4f37bc0b">&#9670;&#160;</a></span>_onPlanUpdate</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3301,7 +3335,7 @@ If there is an error during the addition of the new <a class="el" href="classfge
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>*, fge::ObjectPlan&gt; fge::Scene::_onPlanUpdate</td>
+          <td class="memname"><a class="el" href="classfge_1_1CallbackHandler.html">fge::CallbackHandler</a>&lt;<a class="el" href="classfge_1_1Scene.html">fge::Scene</a>&amp;, fge::ObjectPlan&gt; fge::Scene::_onPlanUpdate</td>
         </tr>
       </table>
   </td>

@@ -140,12 +140,18 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>SocketDescriptor</b>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aead045e7c8dfc0976644854eb9a59c03" id="r_aead045e7c8dfc0976644854eb9a59c03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">fge::net::Socket::Type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aead045e7c8dfc0976644854eb9a59c03">getType</a> ()</td></tr>
-<tr class="memdesc:aead045e7c8dfc0976644854eb9a59c03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the type of the socket.  <br /></td></tr>
-<tr class="separator:aead045e7c8dfc0976644854eb9a59c03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace709acaeafecd520c9e2d4eb621e84c" id="r_ace709acaeafecd520c9e2d4eb621e84c"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ace709acaeafecd520c9e2d4eb621e84c">create</a> ()=0</td></tr>
-<tr class="memdesc:ace709acaeafecd520c9e2d4eb621e84c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new socket.  <br /></td></tr>
-<tr class="separator:ace709acaeafecd520c9e2d4eb621e84c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b62368e8f22cc41bb5980e424df89d0" id="r_a2b62368e8f22cc41bb5980e424df89d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">Type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b62368e8f22cc41bb5980e424df89d0">getType</a> () const</td></tr>
+<tr class="memdesc:a2b62368e8f22cc41bb5980e424df89d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the type of the socket.  <br /></td></tr>
+<tr class="separator:a2b62368e8f22cc41bb5980e424df89d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ab69276a76e975b68b28f824ee5c81f" id="r_a1ab69276a76e975b68b28f824ee5c81f"><td class="memItemLeft" align="right" valign="top">IpAddress::Types&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ab69276a76e975b68b28f824ee5c81f">getAddressType</a> () const</td></tr>
+<tr class="memdesc:a1ab69276a76e975b68b28f824ee5c81f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the address type of the socket.  <br /></td></tr>
+<tr class="separator:a1ab69276a76e975b68b28f824ee5c81f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80348319903359484fdff6847186d190" id="r_a80348319903359484fdff6847186d190"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a80348319903359484fdff6847186d190">setAddressType</a> (IpAddress::Types type)</td></tr>
+<tr class="memdesc:a80348319903359484fdff6847186d190"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the address type of the socket.  <br /></td></tr>
+<tr class="separator:a80348319903359484fdff6847186d190"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47e02cf78f1e05af53b6049bc707a0aa" id="r_a47e02cf78f1e05af53b6049bc707a0aa"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47e02cf78f1e05af53b6049bc707a0aa">create</a> ()=0</td></tr>
+<tr class="memdesc:a47e02cf78f1e05af53b6049bc707a0aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new socket.  <br /></td></tr>
+<tr class="separator:a47e02cf78f1e05af53b6049bc707a0aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c1a857b089ad5ae2966ceb4c8e844ea" id="r_a7c1a857b089ad5ae2966ceb4c8e844ea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7c1a857b089ad5ae2966ceb4c8e844ea">close</a> ()</td></tr>
 <tr class="memdesc:a7c1a857b089ad5ae2966ceb4c8e844ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the socket.  <br /></td></tr>
 <tr class="separator:a7c1a857b089ad5ae2966ceb4c8e844ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,18 +173,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af18a5c176e339f254111f0c894653c3f" id="r_af18a5c176e339f254111f0c894653c3f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af18a5c176e339f254111f0c894653c3f">isBlocking</a> () const</td></tr>
 <tr class="memdesc:af18a5c176e339f254111f0c894653c3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the socket is in blocking mode.  <br /></td></tr>
 <tr class="separator:af18a5c176e339f254111f0c894653c3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45531288dcd884f5b83347183f78b90d" id="r_a45531288dcd884f5b83347183f78b90d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a45531288dcd884f5b83347183f78b90d">setBlocking</a> (bool mode)</td></tr>
-<tr class="memdesc:a45531288dcd884f5b83347183f78b90d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the blocking mode of the socket.  <br /></td></tr>
-<tr class="separator:a45531288dcd884f5b83347183f78b90d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73ca40c3d08896c2e9b73a58034ee213" id="r_a73ca40c3d08896c2e9b73a58034ee213"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a73ca40c3d08896c2e9b73a58034ee213">setReuseAddress</a> (bool mode)</td></tr>
-<tr class="memdesc:a73ca40c3d08896c2e9b73a58034ee213"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set if the socket reuse the address.  <br /></td></tr>
-<tr class="separator:a73ca40c3d08896c2e9b73a58034ee213"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5426b82d8c9a6b329cdff74874be1d4" id="r_ad5426b82d8c9a6b329cdff74874be1d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5426b82d8c9a6b329cdff74874be1d4">setBroadcastOption</a> (bool mode)</td></tr>
-<tr class="memdesc:ad5426b82d8c9a6b329cdff74874be1d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set if the socket support broadcast.  <br /></td></tr>
-<tr class="separator:ad5426b82d8c9a6b329cdff74874be1d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a6885f84f185615ef6e145d81d3b96d" id="r_a6a6885f84f185615ef6e145d81d3b96d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6a6885f84f185615ef6e145d81d3b96d">select</a> (bool read, uint32_t timeoutms)</td></tr>
-<tr class="memdesc:a6a6885f84f185615ef6e145d81d3b96d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the socket for readability or writability.  <br /></td></tr>
-<tr class="separator:a6a6885f84f185615ef6e145d81d3b96d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd12e2c7855b1778564a964e340db2fb" id="r_acd12e2c7855b1778564a964e340db2fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd12e2c7855b1778564a964e340db2fb">setBlocking</a> (bool mode)</td></tr>
+<tr class="memdesc:acd12e2c7855b1778564a964e340db2fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the blocking mode of the socket.  <br /></td></tr>
+<tr class="separator:acd12e2c7855b1778564a964e340db2fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fe316fe539703aca2b84643ddb24cb3" id="r_a5fe316fe539703aca2b84643ddb24cb3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5fe316fe539703aca2b84643ddb24cb3">setReuseAddress</a> (bool mode)</td></tr>
+<tr class="memdesc:a5fe316fe539703aca2b84643ddb24cb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set if the socket reuse the address.  <br /></td></tr>
+<tr class="separator:a5fe316fe539703aca2b84643ddb24cb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a287d4155cdd2ac1f1ac535c4dad9c326" id="r_a287d4155cdd2ac1f1ac535c4dad9c326"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a287d4155cdd2ac1f1ac535c4dad9c326">setBroadcastOption</a> (bool mode)</td></tr>
+<tr class="memdesc:a287d4155cdd2ac1f1ac535c4dad9c326"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set if the socket support broadcast.  <br /></td></tr>
+<tr class="separator:a287d4155cdd2ac1f1ac535c4dad9c326"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb016f3e478422ed32769d0fc2c2ac42" id="r_acb016f3e478422ed32769d0fc2c2ac42"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acb016f3e478422ed32769d0fc2c2ac42">select</a> (bool read, uint32_t timeoutms)</td></tr>
+<tr class="memdesc:acb016f3e478422ed32769d0fc2c2ac42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the socket for readability or writability.  <br /></td></tr>
+<tr class="separator:acb016f3e478422ed32769d0fc2c2ac42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addc12dec58116858ecbee19a5fea1d16" id="r_addc12dec58116858ecbee19a5fea1d16"><td class="memItemLeft" align="right" valign="top"><a id="addc12dec58116858ecbee19a5fea1d16" name="addc12dec58116858ecbee19a5fea1d16"></a>
 <a class="el" href="classfge_1_1net_1_1Socket.html">fge::net::Socket</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classfge_1_1net_1_1Socket.html">fge::net::Socket</a> const &amp;r)=delete</td></tr>
 <tr class="separator:addc12dec58116858ecbee19a5fea1d16"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,18 +206,21 @@ Static Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a236ed44c403690b21d08bec67f00cce4" id="r_a236ed44c403690b21d08bec67f00cce4"><td class="memItemLeft" align="right" valign="top"><a id="a236ed44c403690b21d08bec67f00cce4" name="a236ed44c403690b21d08bec67f00cce4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Socket</b> (<a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">fge::net::Socket::Type</a> type)</td></tr>
-<tr class="separator:a236ed44c403690b21d08bec67f00cce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ac9fd4e7c289ee4685b0c746cdc1de2" id="r_a1ac9fd4e7c289ee4685b0c746cdc1de2"><td class="memItemLeft" align="right" valign="top"><a id="a1ac9fd4e7c289ee4685b0c746cdc1de2" name="a1ac9fd4e7c289ee4685b0c746cdc1de2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Socket</b> (<a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">Type</a> type, IpAddress::Types addressType=IpAddress::Types::Ipv4)</td></tr>
+<tr class="separator:a1ac9fd4e7c289ee4685b0c746cdc1de2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:aabd183726228d927f00ba8064ee4b4d4" id="r_aabd183726228d927f00ba8064ee4b4d4"><td class="memItemLeft" align="right" valign="top"><a id="aabd183726228d927f00ba8064ee4b4d4" name="aabd183726228d927f00ba8064ee4b4d4"></a>
-<a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">fge::net::Socket::Type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>g_type</b></td></tr>
-<tr class="separator:aabd183726228d927f00ba8064ee4b4d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49ff8813cf90fd3b29ae37aa84875055" id="r_a49ff8813cf90fd3b29ae37aa84875055"><td class="memItemLeft" align="right" valign="top"><a id="a49ff8813cf90fd3b29ae37aa84875055" name="a49ff8813cf90fd3b29ae37aa84875055"></a>
-fge::net::Socket::SocketDescriptor&#160;</td><td class="memItemRight" valign="bottom"><b>g_socket</b></td></tr>
-<tr class="separator:a49ff8813cf90fd3b29ae37aa84875055"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18c370f80c764252b9b6c439fb371f8a" id="r_a18c370f80c764252b9b6c439fb371f8a"><td class="memItemLeft" align="right" valign="top"><a id="a18c370f80c764252b9b6c439fb371f8a" name="a18c370f80c764252b9b6c439fb371f8a"></a>
+<a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">Type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>g_type</b></td></tr>
+<tr class="separator:a18c370f80c764252b9b6c439fb371f8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c5b8a6ef7641a9de13aa552a6c74eb6" id="r_a1c5b8a6ef7641a9de13aa552a6c74eb6"><td class="memItemLeft" align="right" valign="top"><a id="a1c5b8a6ef7641a9de13aa552a6c74eb6" name="a1c5b8a6ef7641a9de13aa552a6c74eb6"></a>
+IpAddress::Types&#160;</td><td class="memItemRight" valign="bottom"><b>g_addressType</b> {IpAddress::Types::Ipv4}</td></tr>
+<tr class="separator:a1c5b8a6ef7641a9de13aa552a6c74eb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a868497b6c814676b558c1d6923b33514" id="r_a868497b6c814676b558c1d6923b33514"><td class="memItemLeft" align="right" valign="top"><a id="a868497b6c814676b558c1d6923b33514" name="a868497b6c814676b558c1d6923b33514"></a>
+SocketDescriptor&#160;</td><td class="memItemRight" valign="bottom"><b>g_socket</b></td></tr>
+<tr class="separator:a868497b6c814676b558c1d6923b33514"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4058f6fc7d1b4632783e6b8ffa39ce32" id="r_a4058f6fc7d1b4632783e6b8ffa39ce32"><td class="memItemLeft" align="right" valign="top"><a id="a4058f6fc7d1b4632783e6b8ffa39ce32" name="a4058f6fc7d1b4632783e6b8ffa39ce32"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td></tr>
 <tr class="separator:a4058f6fc7d1b4632783e6b8ffa39ce32"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -271,8 +280,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 </div>
 </div>
-<a id="ace709acaeafecd520c9e2d4eb621e84c" name="ace709acaeafecd520c9e2d4eb621e84c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ace709acaeafecd520c9e2d4eb621e84c">&#9670;&#160;</a></span>create()</h2>
+<a id="a47e02cf78f1e05af53b6049bc707a0aa" name="a47e02cf78f1e05af53b6049bc707a0aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47e02cf78f1e05af53b6049bc707a0aa">&#9670;&#160;</a></span>create()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -281,7 +290,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> fge::net::Socket::create </td>
+          <td class="memname">virtual <a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a> fge::net::Socket::create </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td></td>
@@ -298,6 +307,35 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 <dl class="section return"><dt>Returns</dt><dd>If successful, Error::ERR_NOERROR is returned, otherwise an error code is returned </dd></dl>
 
 <p>Implemented in <a class="el" href="classfge_1_1net_1_1SocketUdp.html#a0b0da6ad37c0b26ce101cd4d9bd32688">fge::net::SocketUdp</a>, <a class="el" href="classfge_1_1net_1_1SocketTcp.html#af4c5a598f27b10f6b62c923f466e26a2">fge::net::SocketTcp</a>, and <a class="el" href="classfge_1_1net_1_1SocketListenerTcp.html#a134233333f3404486d46e1d317bf90d5">fge::net::SocketListenerTcp</a>.</p>
+
+</div>
+</div>
+<a id="a1ab69276a76e975b68b28f824ee5c81f" name="a1ab69276a76e975b68b28f824ee5c81f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ab69276a76e975b68b28f824ee5c81f">&#9670;&#160;</a></span>getAddressType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">IpAddress::Types fge::net::Socket::getAddressType </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the address type of the socket. </p>
+<p>By default, the address type is Ipv4.</p>
+<dl class="section return"><dt>Returns</dt><dd>The address type of the socket (Ipv4 or Ipv6) </dd></dl>
 
 </div>
 </div>
@@ -318,7 +356,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 <p>Get the local address of the socket. </p>
 <p>From MSDN: This function provide the only way to determine the local association that has been set by the system.</p>
-<dl class="section return"><dt>Returns</dt><dd>The local address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#ada1d1fafe5862a21c9d393f1d9fbb8a1" title="Represent an invalid IpAddress.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The local address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#acf85e3bf65f064cc69b2b298a91ebdc2" title="Represent an invalid address.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
 
 </div>
 </div>
@@ -388,7 +426,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 <p>Get the remote address of the socket. </p>
 <p>From MSDN: For datagram sockets, only the address of a peer specified in a previous connect call will be returned. Any address specified by a previous sendto call will not be returned.</p>
-<dl class="section return"><dt>Returns</dt><dd>The remote address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#ada1d1fafe5862a21c9d393f1d9fbb8a1" title="Represent an invalid IpAddress.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The remote address of the socket or <a class="el" href="classfge_1_1net_1_1IpAddress.html#acf85e3bf65f064cc69b2b298a91ebdc2" title="Represent an invalid address.">fge::net::IpAddress::None</a> if there was an error </dd></dl>
 
 </div>
 </div>
@@ -413,8 +451,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 </div>
 </div>
-<a id="aead045e7c8dfc0976644854eb9a59c03" name="aead045e7c8dfc0976644854eb9a59c03"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aead045e7c8dfc0976644854eb9a59c03">&#9670;&#160;</a></span>getType()</h2>
+<a id="a2b62368e8f22cc41bb5980e424df89d0" name="a2b62368e8f22cc41bb5980e424df89d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b62368e8f22cc41bb5980e424df89d0">&#9670;&#160;</a></span>getType()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -423,10 +461,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">fge::net::Socket::Type</a> fge::net::Socket::getType </td>
+          <td class="memname"><a class="el" href="#abd59a44f63a15bef995f28c7cdd93521">Type</a> fge::net::Socket::getType </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -512,14 +550,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 </div>
 </div>
-<a id="a6a6885f84f185615ef6e145d81d3b96d" name="a6a6885f84f185615ef6e145d81d3b96d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a6885f84f185615ef6e145d81d3b96d">&#9670;&#160;</a></span>select()</h2>
+<a id="acb016f3e478422ed32769d0fc2c2ac42" name="acb016f3e478422ed32769d0fc2c2ac42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb016f3e478422ed32769d0fc2c2ac42">&#9670;&#160;</a></span>select()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> fge::net::Socket::select </td>
+          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a> fge::net::Socket::select </td>
           <td>(</td>
           <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>read</em>, </span></td>
         </tr>
@@ -545,14 +583,40 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 </div>
 </div>
-<a id="a45531288dcd884f5b83347183f78b90d" name="a45531288dcd884f5b83347183f78b90d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a45531288dcd884f5b83347183f78b90d">&#9670;&#160;</a></span>setBlocking()</h2>
+<a id="a80348319903359484fdff6847186d190" name="a80348319903359484fdff6847186d190"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80348319903359484fdff6847186d190">&#9670;&#160;</a></span>setAddressType()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> fge::net::Socket::setBlocking </td>
+          <td class="memname">void fge::net::Socket::setAddressType </td>
+          <td>(</td>
+          <td class="paramtype">IpAddress::Types</td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the address type of the socket. </p>
+<p>When the address type is changed, the socket is closed and recreated.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>The address type of the socket (Ipv4 or Ipv6) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acd12e2c7855b1778564a964e340db2fb" name="acd12e2c7855b1778564a964e340db2fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd12e2c7855b1778564a964e340db2fb">&#9670;&#160;</a></span>setBlocking()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a> fge::net::Socket::setBlocking </td>
           <td>(</td>
           <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>mode</em></span></td><td>)</td>
           <td></td>
@@ -571,14 +635,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 </div>
 </div>
-<a id="ad5426b82d8c9a6b329cdff74874be1d4" name="ad5426b82d8c9a6b329cdff74874be1d4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5426b82d8c9a6b329cdff74874be1d4">&#9670;&#160;</a></span>setBroadcastOption()</h2>
+<a id="a287d4155cdd2ac1f1ac535c4dad9c326" name="a287d4155cdd2ac1f1ac535c4dad9c326"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a287d4155cdd2ac1f1ac535c4dad9c326">&#9670;&#160;</a></span>setBroadcastOption()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> fge::net::Socket::setBroadcastOption </td>
+          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a> fge::net::Socket::setBroadcastOption </td>
           <td>(</td>
           <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>mode</em></span></td><td>)</td>
           <td></td>
@@ -598,14 +662,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>g_isBlocking</b></td>
 
 </div>
 </div>
-<a id="a73ca40c3d08896c2e9b73a58034ee213" name="a73ca40c3d08896c2e9b73a58034ee213"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73ca40c3d08896c2e9b73a58034ee213">&#9670;&#160;</a></span>setReuseAddress()</h2>
+<a id="a5fe316fe539703aca2b84643ddb24cb3" name="a5fe316fe539703aca2b84643ddb24cb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fe316fe539703aca2b84643ddb24cb3">&#9670;&#160;</a></span>setReuseAddress()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">fge::net::Socket::Error</a> fge::net::Socket::setReuseAddress </td>
+          <td class="memname"><a class="el" href="#aee4fe7684ab42bfac0a803fd24b0857f">Error</a> fge::net::Socket::setReuseAddress </td>
           <td>(</td>
           <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>mode</em></span></td><td>)</td>
           <td></td>

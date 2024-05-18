@@ -114,6 +114,15 @@ Public Types</h2></td></tr>
 , <b>CONTEXT_DEFAULT</b> = CONTEXT_AUTO
  }</td></tr>
 <tr class="separator:a4bd89df03f6d658c821ec280587eaf3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42ee62627f6a1d6d0ac1eab3260c8947" id="r_a42ee62627f6a1d6d0ac1eab3260c8947"><td class="memItemLeft" align="right" valign="top"><a id="a42ee62627f6a1d6d0ac1eab3260c8947" name="a42ee62627f6a1d6d0ac1eab3260c8947"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>ChildrenControlFlags</b> : uint8_t { <b>CHILDREN_AUTO_CLEAR_ON_REMOVE</b> = 1 &lt;&lt; 0
+, <b>CHILDREN_AUTO_UPDATE</b> = 1 &lt;&lt; 1
+, <b>CHILDREN_AUTO_DRAW</b> = 1 &lt;&lt; 2
+, <b>CHILDREN_DEFAULT</b> = CHILDREN_AUTO_CLEAR_ON_REMOVE
+ }</td></tr>
+<tr class="separator:a42ee62627f6a1d6d0ac1eab3260c8947"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a935f842df7fcccbc4c66f2f2d7b3b1d4" id="r_a935f842df7fcccbc4c66f2f2d7b3b1d4"><td class="memItemLeft" align="right" valign="top"><a id="a935f842df7fcccbc4c66f2f2d7b3b1d4" name="a935f842df7fcccbc4c66f2f2d7b3b1d4"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ChildrenControlFlags_t</b> = std::underlying_type_t&lt;ChildrenControlFlags&gt;</td></tr>
+<tr class="separator:a935f842df7fcccbc4c66f2f2d7b3b1d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a548e57dcf0f0f51f92b0a9f9d72e4839" id="r_a548e57dcf0f0f51f92b0a9f9d72e4839"><td class="memItemLeft" align="right" valign="top"><a id="a548e57dcf0f0f51f92b0a9f9d72e4839" name="a548e57dcf0f0f51f92b0a9f9d72e4839"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>Types</b> : uint8_t { <br />
 &#160;&#160;<b>ANCHOR_NONE</b>
 , <b>ANCHOR_UPLEFT_CORNER</b>
@@ -171,12 +180,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setColor</b> (<a clas
 <tr class="memitem:a90184e51afea7b8c8b4be6344b7452d0" id="r_a90184e51afea7b8c8b4be6344b7452d0"><td class="memItemLeft" align="right" valign="top"><a id="a90184e51afea7b8c8b4be6344b7452d0" name="a90184e51afea7b8c8b4be6344b7452d0"></a>
 <a class="el" href="classfge_1_1Color.html">fge::Color</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getColor</b> () const</td></tr>
 <tr class="separator:a90184e51afea7b8c8b4be6344b7452d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53de80dc8a42d3b9354d31f60f99620d" id="r_a53de80dc8a42d3b9354d31f60f99620d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53de80dc8a42d3b9354d31f60f99620d">first</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene) override</td></tr>
-<tr class="memdesc:a53de80dc8a42d3b9354d31f60f99620d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is added to a scene for initialization purposes.  <br /></td></tr>
-<tr class="separator:a53de80dc8a42d3b9354d31f60f99620d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd143060b44bee285b269b8732b7bf5b" id="r_acd143060b44bee285b269b8732b7bf5b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd143060b44bee285b269b8732b7bf5b">update</a> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::microseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene) override</td></tr>
-<tr class="memdesc:acd143060b44bee285b269b8732b7bf5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main method called every frame.  <br /></td></tr>
-<tr class="separator:acd143060b44bee285b269b8732b7bf5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62f21b36c293c41a0ebbc71345fd4485" id="r_a62f21b36c293c41a0ebbc71345fd4485"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a62f21b36c293c41a0ebbc71345fd4485">first</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;scene) override</td></tr>
+<tr class="memdesc:a62f21b36c293c41a0ebbc71345fd4485"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is added to a scene for initialization purposes.  <br /></td></tr>
+<tr class="separator:a62f21b36c293c41a0ebbc71345fd4485"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa37c06189f540c612f6582e026625a55" id="r_aa37c06189f540c612f6582e026625a55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa37c06189f540c612f6582e026625a55">update</a> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, const std::chrono::microseconds &amp;deltaTime, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;scene) override</td></tr>
+<tr class="memdesc:aa37c06189f540c612f6582e026625a55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main method called every frame.  <br /></td></tr>
+<tr class="separator:aa37c06189f540c612f6582e026625a55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4d21448a110877a9b0100b284e19788" id="r_aa4d21448a110877a9b0100b284e19788"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa4d21448a110877a9b0100b284e19788">draw</a> (<a class="el" href="classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, const <a class="el" href="classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const override</td></tr>
 <tr class="memdesc:aa4d21448a110877a9b0100b284e19788"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called every frame to draw the object.  <br /></td></tr>
 <tr class="separator:aa4d21448a110877a9b0100b284e19788"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,15 +213,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setColor</b> (<a clas
 <tr class="memitem:a9db527e2b68e22e691a98c2401e41948" id="r_a9db527e2b68e22e691a98c2401e41948"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Rect.html">fge::RectFloat</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9db527e2b68e22e691a98c2401e41948">getLocalBounds</a> () const override</td></tr>
 <tr class="memdesc:a9db527e2b68e22e691a98c2401e41948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the local bounds of the object (without any transformations)  <br /></td></tr>
 <tr class="separator:a9db527e2b68e22e691a98c2401e41948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af83167cdcf6b1759f3fec67a7d544e3b" id="r_af83167cdcf6b1759f3fec67a7d544e3b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#af83167cdcf6b1759f3fec67a7d544e3b">transfered</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;oldScene, <a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;newScene)</td></tr>
+<tr class="memdesc:af83167cdcf6b1759f3fec67a7d544e3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is transferred from a scene to another.  <br /></td></tr>
+<tr class="separator:af83167cdcf6b1759f3fec67a7d544e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9f531a05d43d09501849905d1e2f00c" id="r_ae9f531a05d43d09501849905d1e2f00c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ae9f531a05d43d09501849905d1e2f00c">callbackRegister</a> (<a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, <a class="el" href="classfge_1_1GuiElementHandler.html">fge::GuiElementHandler</a> *guiElementHandlerPtr)</td></tr>
 <tr class="memdesc:ae9f531a05d43d09501849905d1e2f00c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ask the object to register all callbacks it needs to receive events.  <br /></td></tr>
 <tr class="separator:ae9f531a05d43d09501849905d1e2f00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa5f7c10133eaf97ef431e2f30942488" id="r_afa5f7c10133eaf97ef431e2f30942488"><td class="memItemLeft" align="right" valign="top"><a id="afa5f7c10133eaf97ef431e2f30942488" name="afa5f7c10133eaf97ef431e2f30942488"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (<a class="el" href="classfge_1_1RenderWindow.html">fge::RenderWindow</a> &amp;screen, <a class="el" href="classfge_1_1Event.html">fge::Event</a> &amp;event, std::chrono::microseconds const &amp;deltaTime)</td></tr>
+<tr class="separator:afa5f7c10133eaf97ef431e2f30942488"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e53c92df956b49ff7bf9b6986520f3c" id="r_a8e53c92df956b49ff7bf9b6986520f3c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a8e53c92df956b49ff7bf9b6986520f3c">networkRegister</a> ()</td></tr>
 <tr class="memdesc:a8e53c92df956b49ff7bf9b6986520f3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register all network types needed by the object.  <br /></td></tr>
 <tr class="separator:a8e53c92df956b49ff7bf9b6986520f3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a581c6d7b620521b52dd2a49e482792f7" id="r_a581c6d7b620521b52dd2a49e482792f7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a581c6d7b620521b52dd2a49e482792f7">removed</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
-<tr class="memdesc:a581c6d7b620521b52dd2a49e482792f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is removed from a scene.  <br /></td></tr>
-<tr class="separator:a581c6d7b620521b52dd2a49e482792f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa419fb1fe2aad0ddeb67767a31d5f125" id="r_aa419fb1fe2aad0ddeb67767a31d5f125"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#aa419fb1fe2aad0ddeb67767a31d5f125">netSignaled</a> (int8_t signal)</td></tr>
+<tr class="memdesc:aa419fb1fe2aad0ddeb67767a31d5f125"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is signaled by the network.  <br /></td></tr>
+<tr class="separator:aa419fb1fe2aad0ddeb67767a31d5f125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf80bcad94fbb2894986710e68cfc789" id="r_adf80bcad94fbb2894986710e68cfc789"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#adf80bcad94fbb2894986710e68cfc789">removed</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;scene)</td></tr>
+<tr class="memdesc:adf80bcad94fbb2894986710e68cfc789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method called when the object is removed from a scene.  <br /></td></tr>
+<tr class="separator:adf80bcad94fbb2894986710e68cfc789"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b8d7888a742ad19dd43cf39457109a9" id="r_a1b8d7888a742ad19dd43cf39457109a9"><td class="memItemLeft" align="right" valign="top"><a id="a1b8d7888a742ad19dd43cf39457109a9" name="a1b8d7888a742ad19dd43cf39457109a9"></a>
 virtual <a class="el" href="classfge_1_1Quad.html">fge::Quad</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getGlobalQuad</b> () const</td></tr>
 <tr class="separator:a1b8d7888a742ad19dd43cf39457109a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -282,18 +300,30 @@ glm::mat4 const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getI
 <tr class="memitem:a1a531083a03ac9d1da196cfbcc085c6c" id="r_a1a531083a03ac9d1da196cfbcc085c6c"><td class="memItemLeft" align="right" valign="top"><a id="a1a531083a03ac9d1da196cfbcc085c6c" name="a1a531083a03ac9d1da196cfbcc085c6c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>updateAnchor</b> (fge::Vector2f const &amp;customTargetSize={0.0f, 0.0f})</td></tr>
 <tr class="separator:a1a531083a03ac9d1da196cfbcc085c6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8531594570be465563c20b3e6ce2a72" id="r_ab8531594570be465563c20b3e6ce2a72"><td class="memItemLeft" align="right" valign="top"><a id="ab8531594570be465563c20b3e6ce2a72" name="ab8531594570be465563c20b3e6ce2a72"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchor</b> (fge::Anchor::Types type, fge::Vector2&lt; fge::Anchor::Shifts &gt; const &amp;shift, fge::ObjectSid target=std::numeric_limits&lt; fge::ObjectSid &gt;::max())</td></tr>
-<tr class="separator:ab8531594570be465563c20b3e6ce2a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf96dbe421fcf5d1a010a0dd221dcd4d" id="r_abf96dbe421fcf5d1a010a0dd221dcd4d"><td class="memItemLeft" align="right" valign="top"><a id="abf96dbe421fcf5d1a010a0dd221dcd4d" name="abf96dbe421fcf5d1a010a0dd221dcd4d"></a>
-fge::Anchor::Types&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorType</b> () const</td></tr>
-<tr class="separator:abf96dbe421fcf5d1a010a0dd221dcd4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1df46895eb487bc94d872c6d2bbc02a1" id="r_a1df46895eb487bc94d872c6d2bbc02a1"><td class="memItemLeft" align="right" valign="top"><a id="a1df46895eb487bc94d872c6d2bbc02a1" name="a1df46895eb487bc94d872c6d2bbc02a1"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorTarget</b> () const</td></tr>
-<tr class="separator:a1df46895eb487bc94d872c6d2bbc02a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32477af048bb6dc7549a9a9329ed0aab" id="r_a32477af048bb6dc7549a9a9329ed0aab"><td class="memItemLeft" align="right" valign="top"><a id="a32477af048bb6dc7549a9a9329ed0aab" name="a32477af048bb6dc7549a9a9329ed0aab"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchor</b> (Types type, fge::Vector2&lt; Shifts &gt; const &amp;shift, fge::ObjectSid target=std::numeric_limits&lt; fge::ObjectSid &gt;::max())</td></tr>
+<tr class="separator:a32477af048bb6dc7549a9a9329ed0aab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78d9f12eb1e884d2e8828b0e686028c2" id="r_a78d9f12eb1e884d2e8828b0e686028c2"><td class="memItemLeft" align="right" valign="top"><a id="a78d9f12eb1e884d2e8828b0e686028c2" name="a78d9f12eb1e884d2e8828b0e686028c2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorType</b> (Types type)</td></tr>
+<tr class="separator:a78d9f12eb1e884d2e8828b0e686028c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a165733017da6a7b9588e9c8468638d20" id="r_a165733017da6a7b9588e9c8468638d20"><td class="memItemLeft" align="right" valign="top"><a id="a165733017da6a7b9588e9c8468638d20" name="a165733017da6a7b9588e9c8468638d20"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorShift</b> (fge::Vector2&lt; Shifts &gt; const &amp;shift)</td></tr>
+<tr class="separator:a165733017da6a7b9588e9c8468638d20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bebc425bd47e9ef0093922a11738a5f" id="r_a6bebc425bd47e9ef0093922a11738a5f"><td class="memItemLeft" align="right" valign="top"><a id="a6bebc425bd47e9ef0093922a11738a5f" name="a6bebc425bd47e9ef0093922a11738a5f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorTarget</b> (fge::ObjectSid target)</td></tr>
 <tr class="separator:a6bebc425bd47e9ef0093922a11738a5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52bda0ef29284c601ed08f0694513260" id="r_a52bda0ef29284c601ed08f0694513260"><td class="memItemLeft" align="right" valign="top"><a id="a52bda0ef29284c601ed08f0694513260" name="a52bda0ef29284c601ed08f0694513260"></a>
+Types&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorType</b> () const</td></tr>
+<tr class="separator:a52bda0ef29284c601ed08f0694513260"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a978d3eb4a3751822533881457f017684" id="r_a978d3eb4a3751822533881457f017684"><td class="memItemLeft" align="right" valign="top"><a id="a978d3eb4a3751822533881457f017684" name="a978d3eb4a3751822533881457f017684"></a>
+fge::Vector2&lt; Shifts &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorShift</b> () const</td></tr>
+<tr class="separator:a978d3eb4a3751822533881457f017684"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1df46895eb487bc94d872c6d2bbc02a1" id="r_a1df46895eb487bc94d872c6d2bbc02a1"><td class="memItemLeft" align="right" valign="top"><a id="a1df46895eb487bc94d872c6d2bbc02a1" name="a1df46895eb487bc94d872c6d2bbc02a1"></a>
+fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorTarget</b> () const</td></tr>
+<tr class="separator:a1df46895eb487bc94d872c6d2bbc02a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4dab974bfc90711536606085ad4b408" id="r_ab4dab974bfc90711536606085ad4b408"><td class="memItemLeft" align="right" valign="top"><a id="ab4dab974bfc90711536606085ad4b408" name="ab4dab974bfc90711536606085ad4b408"></a>
+<a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getAnchorOwner</b> () const</td></tr>
+<tr class="separator:ab4dab974bfc90711536606085ad4b408"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2448fc4598529bb898fdc70f5f153c3c" id="r_a2448fc4598529bb898fdc70f5f153c3c"><td class="memItemLeft" align="right" valign="top"><a id="a2448fc4598529bb898fdc70f5f153c3c" name="a2448fc4598529bb898fdc70f5f153c3c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setAnchorSuccessor</b> (fge::ObjectDataWeak successor)</td></tr>
 <tr class="separator:a2448fc4598529bb898fdc70f5f153c3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -315,9 +345,9 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isObstacle</b
 <tr class="memitem:a69be1d8959bd36bb2fde931dad3337eb" id="r_a69be1d8959bd36bb2fde931dad3337eb"><td class="memItemLeft" align="right" valign="top"><a id="a69be1d8959bd36bb2fde931dad3337eb" name="a69be1d8959bd36bb2fde931dad3337eb"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>updateObstacleShape</b> ()</td></tr>
 <tr class="separator:a69be1d8959bd36bb2fde931dad3337eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54f483879b220df6ca243a2aab0e8547" id="r_a54f483879b220df6ca243a2aab0e8547"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1LightComponent.html#a54f483879b220df6ca243a2aab0e8547">setDefaultLightSystem</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *scene)</td></tr>
-<tr class="memdesc:a54f483879b220df6ca243a2aab0e8547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the default light system from a scene.  <br /></td></tr>
-<tr class="separator:a54f483879b220df6ca243a2aab0e8547"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4324ba297fdc100082dda57d0646a0be" id="r_a4324ba297fdc100082dda57d0646a0be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1LightComponent.html#a4324ba297fdc100082dda57d0646a0be">setDefaultLightSystem</a> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;scene)</td></tr>
+<tr class="memdesc:a4324ba297fdc100082dda57d0646a0be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the default light system from a scene.  <br /></td></tr>
+<tr class="separator:a4324ba297fdc100082dda57d0646a0be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -333,10 +363,10 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ac994bd2b561bbf05e6686ed10cf5fe75" id="r_ac994bd2b561bbf05e6686ed10cf5fe75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1PropertyList.html">fge::PropertyList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ac994bd2b561bbf05e6686ed10cf5fe75">_properties</a></td></tr>
 <tr class="memdesc:ac994bd2b561bbf05e6686ed10cf5fe75"><td class="mdescLeft">&#160;</td><td class="mdescRight">The properties of the object.  <br /></td></tr>
 <tr class="separator:ac994bd2b561bbf05e6686ed10cf5fe75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2dd40ca526ef9b1f8f7bb06d12feea4c" id="r_a2dd40ca526ef9b1f8f7bb06d12feea4c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a2dd40ca526ef9b1f8f7bb06d12feea4c">_netList</a></td></tr>
-<tr class="memdesc:a2dd40ca526ef9b1f8f7bb06d12feea4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network types container of the object.  <br /></td></tr>
-<tr class="separator:a2dd40ca526ef9b1f8f7bb06d12feea4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87aabbb175c17dec3a902513a6561c94" id="r_a87aabbb175c17dec3a902513a6561c94"><td class="memItemLeft" align="right" valign="top">fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a87aabbb175c17dec3a902513a6561c94">_myObjectData</a> {}</td></tr>
+<tr class="memitem:a0090e64ded3abfc6740d738aef796adf" id="r_a0090e64ded3abfc6740d738aef796adf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1net_1_1NetworkTypeHandler.html">fge::net::NetworkTypeHandler</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a0090e64ded3abfc6740d738aef796adf">_netList</a></td></tr>
+<tr class="memdesc:a0090e64ded3abfc6740d738aef796adf"><td class="mdescLeft">&#160;</td><td class="mdescRight">The network types container of the object.  <br /></td></tr>
+<tr class="separator:a0090e64ded3abfc6740d738aef796adf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87aabbb175c17dec3a902513a6561c94" id="r_a87aabbb175c17dec3a902513a6561c94"><td class="memItemLeft" align="right" valign="top">fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a87aabbb175c17dec3a902513a6561c94">_myObjectData</a></td></tr>
 <tr class="memdesc:a87aabbb175c17dec3a902513a6561c94"><td class="mdescLeft">&#160;</td><td class="mdescRight">The object data of the object (valid only if the object is in a scene)  <br /></td></tr>
 <tr class="separator:a87aabbb175c17dec3a902513a6561c94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf5a9a1ae1be023ba3efc58646aaa8e1" id="r_adf5a9a1ae1be023ba3efc58646aaa8e1"><td class="memItemLeft" align="right" valign="top">fge::Object::DrawModes&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#adf5a9a1ae1be023ba3efc58646aaa8e1">_drawMode</a></td></tr>
@@ -345,6 +375,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ae52935b55b19dde411191cbb69c43b5a" id="r_ae52935b55b19dde411191cbb69c43b5a"><td class="memItemLeft" align="right" valign="top">fge::Object::CallbackContextModes&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ae52935b55b19dde411191cbb69c43b5a">_callbackContextMode</a></td></tr>
 <tr class="memdesc:ae52935b55b19dde411191cbb69c43b5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell a scene how the callbackRegister must be called.  <br /></td></tr>
 <tr class="separator:ae52935b55b19dde411191cbb69c43b5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae57c90df92d32f3ef082a5bb165a3911" id="r_ae57c90df92d32f3ef082a5bb165a3911"><td class="memItemLeft" align="right" valign="top">ChildrenControlFlags_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#ae57c90df92d32f3ef082a5bb165a3911">_childrenControlFlags</a> {CHILDREN_DEFAULT}</td></tr>
+<tr class="memdesc:ae57c90df92d32f3ef082a5bb165a3911"><td class="mdescLeft">&#160;</td><td class="mdescRight">The control flags of the child objects.  <br /></td></tr>
+<tr class="separator:ae57c90df92d32f3ef082a5bb165a3911"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d2d9667224ff9b9c9d2d8efa77c5c11" id="r_a8d2d9667224ff9b9c9d2d8efa77c5c11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1ChildObjectsAccessor.html">fge::ChildObjectsAccessor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">_children</a></td></tr>
 <tr class="memdesc:a8d2d9667224ff9b9c9d2d8efa77c5c11"><td class="mdescLeft">&#160;</td><td class="mdescRight">An access to child objects of this object.  <br /></td></tr>
 <tr class="separator:a8d2d9667224ff9b9c9d2d8efa77c5c11"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -354,24 +387,6 @@ Public Attributes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:ae0949b33441d5b1875f41ab6ac300f29" id="r_ae0949b33441d5b1875f41ab6ac300f29"><td class="memItemLeft" align="right" valign="top"><a id="ae0949b33441d5b1875f41ab6ac300f29" name="ae0949b33441d5b1875f41ab6ac300f29"></a>
-fge::Anchor::Types&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorType</b> {fge::Anchor::Types::ANCHOR_NONE}</td></tr>
-<tr class="separator:ae0949b33441d5b1875f41ab6ac300f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4753720bdab582931799ac8b9a874d26" id="r_a4753720bdab582931799ac8b9a874d26"><td class="memItemLeft" align="right" valign="top"><a id="a4753720bdab582931799ac8b9a874d26" name="a4753720bdab582931799ac8b9a874d26"></a>
-fge::Vector2&lt; fge::Anchor::Shifts &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorShift</b> {fge::Anchor::Shifts::SHIFT_NONE, fge::Anchor::Shifts::SHIFT_NONE}</td></tr>
-<tr class="separator:a4753720bdab582931799ac8b9a874d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a944fbc20a4ec00b50f4b859a42055411" id="r_a944fbc20a4ec00b50f4b859a42055411"><td class="memItemLeft" align="right" valign="top"><a id="a944fbc20a4ec00b50f4b859a42055411" name="a944fbc20a4ec00b50f4b859a42055411"></a>
-fge::ObjectSid&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorTarget</b> { std::numeric_limits&lt;fge::ObjectSid&gt;::max() }</td></tr>
-<tr class="separator:a944fbc20a4ec00b50f4b859a42055411"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e0d765bbceebe7ea6b8fe267906e549" id="r_a1e0d765bbceebe7ea6b8fe267906e549"><td class="memItemLeft" align="right" valign="top"><a id="a1e0d765bbceebe7ea6b8fe267906e549" name="a1e0d765bbceebe7ea6b8fe267906e549"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorNeedUpdate</b> {true}</td></tr>
-<tr class="separator:a1e0d765bbceebe7ea6b8fe267906e549"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33ada62649a320f80da25e8d07d68493" id="r_a33ada62649a320f80da25e8d07d68493"><td class="memItemLeft" align="right" valign="top"><a id="a33ada62649a320f80da25e8d07d68493" name="a33ada62649a320f80da25e8d07d68493"></a>
-fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anchorSuccessor</b> {}</td></tr>
-<tr class="separator:a33ada62649a320f80da25e8d07d68493"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff7bdf831f54789e4420cc2cff712a72" id="r_aff7bdf831f54789e4420cc2cff712a72"><td class="memItemLeft" align="right" valign="top"><a id="aff7bdf831f54789e4420cc2cff712a72" name="aff7bdf831f54789e4420cc2cff712a72"></a>
-<a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_g_objectParent</b> {}</td></tr>
-<tr class="separator:aff7bdf831f54789e4420cc2cff712a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcef5a5876985be0e2faf26d306cac02" id="r_afcef5a5876985be0e2faf26d306cac02"><td class="memItemLeft" align="right" valign="top"><a id="afcef5a5876985be0e2faf26d306cac02" name="afcef5a5876985be0e2faf26d306cac02"></a>
 <a class="el" href="classfge_1_1TunnelGate.html">fge::LightSystemGate</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_g_lightSystemGate</b></td></tr>
 <tr class="separator:afcef5a5876985be0e2faf26d306cac02"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -488,8 +503,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="a53de80dc8a42d3b9354d31f60f99620d" name="a53de80dc8a42d3b9354d31f60f99620d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53de80dc8a42d3b9354d31f60f99620d">&#9670;&#160;</a></span>first()</h2>
+<a id="a62f21b36c293c41a0ebbc71345fd4485" name="a62f21b36c293c41a0ebbc71345fd4485"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62f21b36c293c41a0ebbc71345fd4485">&#9670;&#160;</a></span>first()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -500,7 +515,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
         <tr>
           <td class="memname">void fge::ObjLight::first </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -514,12 +529,12 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <p>Method called when the object is added to a scene for initialization purposes. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">scene</td><td>The scene where the object is added (can be nullptr) </td></tr>
+    <tr><td class="paramname">scene</td><td>The scene where the object is added </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#a84cd084ae66696cf0f33f0c3e1f68cf1">fge::Object</a>.</p>
+<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#a4416b865c579750cdb884444fdc096b5">fge::Object</a>.</p>
 
 </div>
 </div>
@@ -837,6 +852,39 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
+<a id="aa419fb1fe2aad0ddeb67767a31d5f125" name="aa419fb1fe2aad0ddeb67767a31d5f125"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa419fb1fe2aad0ddeb67767a31d5f125">&#9670;&#160;</a></span>netSignaled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void fge::Object::netSignaled </td>
+          <td>(</td>
+          <td class="paramtype">int8_t</td>          <td class="paramname"><span class="paramname"><em>signal</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Method called when the object is signaled by the network. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">signal</td><td>The signal received </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a8e53c92df956b49ff7bf9b6986520f3c" name="a8e53c92df956b49ff7bf9b6986520f3c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8e53c92df956b49ff7bf9b6986520f3c">&#9670;&#160;</a></span>networkRegister()</h2>
 
@@ -899,8 +947,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="a581c6d7b620521b52dd2a49e482792f7" name="a581c6d7b620521b52dd2a49e482792f7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a581c6d7b620521b52dd2a49e482792f7">&#9670;&#160;</a></span>removed()</h2>
+<a id="adf80bcad94fbb2894986710e68cfc789" name="adf80bcad94fbb2894986710e68cfc789"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf80bcad94fbb2894986710e68cfc789">&#9670;&#160;</a></span>removed()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -911,7 +959,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
         <tr>
           <td class="memname">virtual void fge::Object::removed </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -925,12 +973,12 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 <p>Method called when the object is removed from a scene. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">scene</td><td>The scene where the object is removed (can be nullptr) </td></tr>
+    <tr><td class="paramname">scene</td><td>The scene where the object is removed </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classfge_1_1ObjRenderMap.html#a6bfaf04ce2e6ad71225d426db9bc53cf">fge::ObjRenderMap</a>, and <a class="el" href="classfge_1_1ObjWindow.html#a780a3a445040cf52ba451591a4b8965c">fge::ObjWindow</a>.</p>
+<p>Reimplemented in <a class="el" href="classfge_1_1ObjRenderMap.html#a892e954d0ceccb826e152e02ad3f0bbc">fge::ObjRenderMap</a>, and <a class="el" href="classfge_1_1ObjWindow.html#aae6fcffe80c4fd33c00c7f6f41f139a2">fge::ObjWindow</a>.</p>
 
 </div>
 </div>
@@ -1008,8 +1056,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="a54f483879b220df6ca243a2aab0e8547" name="a54f483879b220df6ca243a2aab0e8547"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54f483879b220df6ca243a2aab0e8547">&#9670;&#160;</a></span>setDefaultLightSystem()</h2>
+<a id="a4324ba297fdc100082dda57d0646a0be" name="a4324ba297fdc100082dda57d0646a0be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4324ba297fdc100082dda57d0646a0be">&#9670;&#160;</a></span>setDefaultLightSystem()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1020,7 +1068,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
         <tr>
           <td class="memname">void fge::LightComponent::setDefaultLightSystem </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>scene</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -1074,6 +1122,45 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
+<a id="af83167cdcf6b1759f3fec67a7d544e3b" name="af83167cdcf6b1759f3fec67a7d544e3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af83167cdcf6b1759f3fec67a7d544e3b">&#9670;&#160;</a></span>transfered()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void fge::Object::transfered </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>oldScene</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>newScene</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Method called when the object is transferred from a scene to another. </p>
+<p>This method is called after the object is removed from the old scene and added to the new scene. The _myObjectData is updated to the new scene when this method is called.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">oldScene</td><td>The old scene where the object was </td></tr>
+    <tr><td class="paramname">newScene</td><td>The new scene where the object is </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a2c4d1be28c613fe34c37b14839132024" name="a2c4d1be28c613fe34c37b14839132024"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2c4d1be28c613fe34c37b14839132024">&#9670;&#160;</a></span>unpack()</h2>
 
@@ -1109,8 +1196,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="acd143060b44bee285b269b8732b7bf5b" name="acd143060b44bee285b269b8732b7bf5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acd143060b44bee285b269b8732b7bf5b">&#9670;&#160;</a></span>update()</h2>
+<a id="aa37c06189f540c612f6582e026625a55" name="aa37c06189f540c612f6582e026625a55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa37c06189f540c612f6582e026625a55">&#9670;&#160;</a></span>update()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1136,7 +1223,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *</td>          <td class="paramname"><span class="paramname"><em>scene</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>scene</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -1152,12 +1239,12 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
     <tr><td class="paramname">screen</td><td>The screen where the object is drawn </td></tr>
     <tr><td class="paramname">event</td><td>The event system </td></tr>
     <tr><td class="paramname">deltaTime</td><td>The time since the last frame </td></tr>
-    <tr><td class="paramname">scene</td><td>The scene where the object is updated (can be nullptr) </td></tr>
+    <tr><td class="paramname">scene</td><td>The scene where the object is updated </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#ac721a6ca8d50e47955f41252f18da533">fge::Object</a>.</p>
+<p>Reimplemented from <a class="el" href="classfge_1_1Object.html#a6cf90161161dd486dbc791f950c8473a">fge::Object</a>.</p>
 
 </div>
 </div>
@@ -1213,6 +1300,30 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
+<a id="ae57c90df92d32f3ef082a5bb165a3911" name="ae57c90df92d32f3ef082a5bb165a3911"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae57c90df92d32f3ef082a5bb165a3911">&#9670;&#160;</a></span>_childrenControlFlags</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ChildrenControlFlags_t fge::Object::_childrenControlFlags {CHILDREN_DEFAULT}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The control flags of the child objects. </p>
+
+</div>
+</div>
 <a id="adf5a9a1ae1be023ba3efc58646aaa8e1" name="adf5a9a1ae1be023ba3efc58646aaa8e1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adf5a9a1ae1be023ba3efc58646aaa8e1">&#9670;&#160;</a></span>_drawMode</h2>
 
@@ -1249,7 +1360,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">fge::ObjectDataWeak fge::Object::_myObjectData {}</td>
+          <td class="memname">fge::ObjectDataWeak fge::Object::_myObjectData</td>
         </tr>
       </table>
   </td>
@@ -1263,8 +1374,8 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
 
 </div>
 </div>
-<a id="a2dd40ca526ef9b1f8f7bb06d12feea4c" name="a2dd40ca526ef9b1f8f7bb06d12feea4c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2dd40ca526ef9b1f8f7bb06d12feea4c">&#9670;&#160;</a></span>_netList</h2>
+<a id="a0090e64ded3abfc6740d738aef796adf" name="a0090e64ded3abfc6740d738aef796adf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0090e64ded3abfc6740d738aef796adf">&#9670;&#160;</a></span>_netList</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1273,7 +1384,7 @@ fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><b>_g_anc
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classfge_1_1net_1_1NetworkTypeContainer.html">fge::net::NetworkTypeContainer</a> fge::Object::_netList</td>
+          <td class="memname"><a class="el" href="classfge_1_1net_1_1NetworkTypeHandler.html">fge::net::NetworkTypeHandler</a> fge::Object::_netList</td>
         </tr>
       </table>
   </td>

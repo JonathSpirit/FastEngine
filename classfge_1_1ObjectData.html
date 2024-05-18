@@ -93,15 +93,15 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a628c9e6ba0ad0757e12507395ee8a926" id="r_a628c9e6ba0ad0757e12507395ee8a926"><td class="memItemLeft" align="right" valign="top"><a id="a628c9e6ba0ad0757e12507395ee8a926" name="a628c9e6ba0ad0757e12507395ee8a926"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ObjectData</b> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *linkedScene, fge::ObjectPtr &amp;&amp;newObj, fge::ObjectSid newSid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectPlan newPlan=fge::ObjectPlan { 100 }, <a class="el" href="group__objectControl.html#ga6d371b22ba3b898839c934bd4501c284">fge::ObjectType</a> newType=fge::ObjectType::TYPE_OBJECT)</td></tr>
-<tr class="separator:a628c9e6ba0ad0757e12507395ee8a926"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6b46dc3ce0427708274ae0825adeed7" id="r_aa6b46dc3ce0427708274ae0825adeed7"><td class="memItemLeft" align="right" valign="top"><a id="aa6b46dc3ce0427708274ae0825adeed7" name="aa6b46dc3ce0427708274ae0825adeed7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ObjectData</b> (<a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *boundScene, fge::ObjectPtr &amp;&amp;newObj, fge::ObjectSid newSid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectPlan newPlan=fge::ObjectPlan { 100 }, <a class="el" href="group__objectControl.html#ga6d371b22ba3b898839c934bd4501c284">fge::ObjectType</a> newType=fge::ObjectType::TYPE_OBJECT)</td></tr>
+<tr class="separator:aa6b46dc3ce0427708274ae0825adeed7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2dbf6ed3d6d63bc498eaf4bbd7e8989" id="r_ad2dbf6ed3d6d63bc498eaf4bbd7e8989"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad2dbf6ed3d6d63bc498eaf4bbd7e8989">releaseObject</a> ()</td></tr>
 <tr class="memdesc:ad2dbf6ed3d6d63bc498eaf4bbd7e8989"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> handled by the smart pointer.  <br /></td></tr>
 <tr class="separator:ad2dbf6ed3d6d63bc498eaf4bbd7e8989"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f928ffbd9cc05ff03b0603f47765888" id="r_a9f928ffbd9cc05ff03b0603f47765888"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9f928ffbd9cc05ff03b0603f47765888">getLinkedScene</a> () const</td></tr>
-<tr class="memdesc:a9f928ffbd9cc05ff03b0603f47765888"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.  <br /></td></tr>
-<tr class="separator:a9f928ffbd9cc05ff03b0603f47765888"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0e4335267f03091b24a1f55b0db9506" id="r_ab0e4335267f03091b24a1f55b0db9506"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab0e4335267f03091b24a1f55b0db9506">getScene</a> () const</td></tr>
+<tr class="memdesc:ab0e4335267f03091b24a1f55b0db9506"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current bound <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.  <br /></td></tr>
+<tr class="separator:ab0e4335267f03091b24a1f55b0db9506"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07b0cc4c103848db688d1bb930fa497f" id="r_a07b0cc4c103848db688d1bb930fa497f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfge_1_1Object.html">fge::Object</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a07b0cc4c103848db688d1bb930fa497f">getObject</a> () const</td></tr>
 <tr class="memdesc:a07b0cc4c103848db688d1bb930fa497f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> pointer.  <br /></td></tr>
 <tr class="separator:a07b0cc4c103848db688d1bb930fa497f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,9 +133,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a56c36a9605023ef0d833630784a1692a" id="r_a56c36a9605023ef0d833630784a1692a"><td class="memItemLeft" align="right" valign="top">fge::ObjectDataWeak&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56c36a9605023ef0d833630784a1692a">getParent</a> () const</td></tr>
 <tr class="memdesc:a56c36a9605023ef0d833630784a1692a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the parent object.  <br /></td></tr>
 <tr class="separator:a56c36a9605023ef0d833630784a1692a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2402de5cb05adc4f27e20a9f4c2f2882" id="r_a2402de5cb05adc4f27e20a9f4c2f2882"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2402de5cb05adc4f27e20a9f4c2f2882">isLinked</a> () const</td></tr>
-<tr class="memdesc:a2402de5cb05adc4f27e20a9f4c2f2882"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> have an linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.  <br /></td></tr>
-<tr class="separator:a2402de5cb05adc4f27e20a9f4c2f2882"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64882704ed364e6024bafe296397ea1c" id="r_a64882704ed364e6024bafe296397ea1c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a64882704ed364e6024bafe296397ea1c">isBound</a> () const</td></tr>
+<tr class="memdesc:a64882704ed364e6024bafe296397ea1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is bound to a <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.  <br /></td></tr>
+<tr class="separator:a64882704ed364e6024bafe296397ea1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4d229138aed19d8cd5482fccdcdc322" id="r_ac4d229138aed19d8cd5482fccdcdc322"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4d229138aed19d8cd5482fccdcdc322">isClass</a> (std::string_view const className) const</td></tr>
+<tr class="memdesc:ac4d229138aed19d8cd5482fccdcdc322"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is a specific class.  <br /></td></tr>
+<tr class="separator:ac4d229138aed19d8cd5482fccdcdc322"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7b9443b06e8793815688c7c8aeff526" id="r_aa7b9443b06e8793815688c7c8aeff526"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa7b9443b06e8793815688c7c8aeff526">operator==</a> (fge::ObjectSid const &amp;sid) const</td></tr>
 <tr class="memdesc:aa7b9443b06e8793815688c7c8aeff526"><td class="mdescLeft">&#160;</td><td class="mdescRight">Comparison with another SID.  <br /></td></tr>
 <tr class="separator:aa7b9443b06e8793815688c7c8aeff526"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,9 +148,12 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a2e459e39e795e8135363920b9e78b9a0" id="r_a2e459e39e795e8135363920b9e78b9a0"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e459e39e795e8135363920b9e78b9a0">isValid</a> (std::shared_ptr&lt; <a class="el" href="classfge_1_1ObjectData.html">fge::ObjectData</a> &gt; const &amp;dataShared)</td></tr>
-<tr class="memdesc:a2e459e39e795e8135363920b9e78b9a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">check if the provided shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is valid.  <br /></td></tr>
-<tr class="separator:a2e459e39e795e8135363920b9e78b9a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60177436ca90480a4c324686f44a96fa" id="r_a60177436ca90480a4c324686f44a96fa"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a60177436ca90480a4c324686f44a96fa">isValid</a> (fge::ObjectDataShared const &amp;data)</td></tr>
+<tr class="memdesc:a60177436ca90480a4c324686f44a96fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">check if the provided shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is valid.  <br /></td></tr>
+<tr class="separator:a60177436ca90480a4c324686f44a96fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e974702603d898dd58573bcffebf992" id="r_a9e974702603d898dd58573bcffebf992"><td class="memItemLeft" align="right" valign="top">static fge::ObjectDataShared&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9e974702603d898dd58573bcffebf992">isValid</a> (fge::ObjectDataWeak const &amp;data)</td></tr>
+<tr class="memdesc:a9e974702603d898dd58573bcffebf992"><td class="mdescLeft">&#160;</td><td class="mdescRight">check if the provided weak pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is valid.  <br /></td></tr>
+<tr class="separator:a9e974702603d898dd58573bcffebf992"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -158,7 +164,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>fge::Scene</b></td><
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Data wrapper representing an <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> in a <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
 <p>This is the class used to store data relating to an <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> in a <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. There is :</p><ul>
-<li>the linked scene of the object.</li>
+<li>the bound scene of the object.</li>
 <li>the object.</li>
 <li>the SID of the object</li>
 <li>the plan of the object</li>
@@ -190,34 +196,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>fge::Scene</b></td><
 </div><div class="memdoc">
 
 <p>Clear the parent object. </p>
-
-</div>
-</div>
-<a id="a9f928ffbd9cc05ff03b0603f47765888" name="a9f928ffbd9cc05ff03b0603f47765888"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9f928ffbd9cc05ff03b0603f47765888">&#9670;&#160;</a></span>getLinkedScene()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> * fge::ObjectData::getLinkedScene </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Get the linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
-<dl class="section return"><dt>Returns</dt><dd>The linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> pointer or <b>nullptr</b> if there is no <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> </dd></dl>
 
 </div>
 </div>
@@ -373,6 +351,34 @@ template&lt;class TObject &gt; </div>
 
 </div>
 </div>
+<a id="ab0e4335267f03091b24a1f55b0db9506" name="ab0e4335267f03091b24a1f55b0db9506"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0e4335267f03091b24a1f55b0db9506">&#9670;&#160;</a></span>getScene()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfge_1_1Scene.html">fge::Scene</a> * fge::ObjectData::getScene </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the current bound <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
+<dl class="section return"><dt>Returns</dt><dd>The bound <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> pointer or <b>nullptr</b> if there is no <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a> </dd></dl>
+
+</div>
+</div>
 <a id="a5043683ed6fc13059c1873d9194c2f13" name="a5043683ed6fc13059c1873d9194c2f13"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5043683ed6fc13059c1873d9194c2f13">&#9670;&#160;</a></span>getSid()</h2>
 
@@ -436,8 +442,8 @@ template&lt;class TObject &gt; </div>
 
 </div>
 </div>
-<a id="a2402de5cb05adc4f27e20a9f4c2f2882" name="a2402de5cb05adc4f27e20a9f4c2f2882"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2402de5cb05adc4f27e20a9f4c2f2882">&#9670;&#160;</a></span>isLinked()</h2>
+<a id="a64882704ed364e6024bafe296397ea1c" name="a64882704ed364e6024bafe296397ea1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64882704ed364e6024bafe296397ea1c">&#9670;&#160;</a></span>isBound()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -446,7 +452,7 @@ template&lt;class TObject &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool fge::ObjectData::isLinked </td>
+          <td class="memname">bool fge::ObjectData::isBound </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -459,13 +465,47 @@ template&lt;class TObject &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Check if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> have an linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
-<dl class="section return"><dt>Returns</dt><dd>True if have a linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>, False otherwise </dd></dl>
+<p>Check if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is bound to a <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>. </p>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is bound, <b>false</b> otherwise </dd></dl>
 
 </div>
 </div>
-<a id="a2e459e39e795e8135363920b9e78b9a0" name="a2e459e39e795e8135363920b9e78b9a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e459e39e795e8135363920b9e78b9a0">&#9670;&#160;</a></span>isValid()</h2>
+<a id="ac4d229138aed19d8cd5482fccdcdc322" name="ac4d229138aed19d8cd5482fccdcdc322"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4d229138aed19d8cd5482fccdcdc322">&#9670;&#160;</a></span>isClass()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fge::ObjectData::isClass </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view const</td>          <td class="paramname"><span class="paramname"><em>className</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is a specific class. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">className</td><td>The class name </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is the specified class, False otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a60177436ca90480a4c324686f44a96fa" name="a60177436ca90480a4c324686f44a96fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60177436ca90480a4c324686f44a96fa">&#9670;&#160;</a></span>isValid() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -476,7 +516,7 @@ template&lt;class TObject &gt; </div>
         <tr>
           <td class="memname">static bool fge::ObjectData::isValid </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classfge_1_1ObjectData.html">fge::ObjectData</a> &gt; const &amp;</td>          <td class="paramname"><span class="paramname"><em>dataShared</em></span></td><td>)</td>
+          <td class="paramtype">fge::ObjectDataShared const &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -488,13 +528,48 @@ template&lt;class TObject &gt; </div>
 </div><div class="memdoc">
 
 <p>check if the provided shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is valid. </p>
-<p>For an shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> to be considered valid he need to be not <b>nullptr</b> and have a linked <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.</p>
+<p>For an shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> to be considered valid he need to not be <b>nullptr</b> and have a bound <a class="el" href="classfge_1_1Scene.html" title="A scene contain a collection of object and handle them.">Scene</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">dataShared</td><td>The shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> </td></tr>
+    <tr><td class="paramname">data</td><td>The shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if the <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is valid or <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a9e974702603d898dd58573bcffebf992" name="a9e974702603d898dd58573bcffebf992"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e974702603d898dd58573bcffebf992">&#9670;&#160;</a></span>isValid() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static fge::ObjectDataShared fge::ObjectData::isValid </td>
+          <td>(</td>
+          <td class="paramtype">fge::ObjectDataWeak const &amp;</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>check if the provided weak pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> is valid. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The weak pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The shared pointer <a class="el" href="classfge_1_1Object.html" title="The Object class is the base class for all objects in the engine.">Object</a> if valid or <b>nullptr</b> otherwise </dd></dl>
 
 </div>
 </div>
