@@ -434,7 +434,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             }
             else
             {
-                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
+                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset,
+                                   states._resInstances.getFirstInstance());
             }
             break;
         }

@@ -116,6 +116,15 @@ public:
     constexpr void setVertexCount(uint32_t count) { this->g_vertexCount = count; }
     constexpr void setVertexOffset(uint32_t offset) { this->g_vertexOffset = offset; }
 
+    /**
+     * \brief Set the first instance value for the draw call
+     *
+     * Only applicable if there is only one instance without indirect buffer.
+     *
+     * \param firstInstance The first instance value
+     */
+    constexpr void setFirstInstance(uint32_t firstInstance) { this->g_firstInstance = firstInstance; }
+
     [[nodiscard]] constexpr uint32_t getInstancesCount() const { return this->g_count; }
     [[nodiscard]] constexpr bool hasUniqueDrawCall() const { return this->g_uniqueDrawCall; }
     [[nodiscard]] constexpr VkBuffer getIndirectBuffer() const { return this->g_indirectBuffer; }
@@ -148,6 +157,8 @@ public:
     [[nodiscard]] constexpr uint32_t getVertexCount() const { return this->g_vertexCount; }
     [[nodiscard]] constexpr uint32_t getVertexOffset() const { return this->g_vertexOffset; }
 
+    [[nodiscard]] constexpr uint32_t getFirstInstance() const { return this->g_firstInstance; }
+
 private:
     uint32_t g_count{1};
     uint32_t const* g_textureIndices{nullptr};
@@ -160,6 +171,7 @@ private:
 
     uint32_t g_vertexCount{0};
     uint32_t g_vertexOffset{0};
+    uint32_t g_firstInstance{0};
     bool g_uniqueDrawCall{false};
     VkBuffer g_indirectBuffer{VK_NULL_HANDLE};
 };
