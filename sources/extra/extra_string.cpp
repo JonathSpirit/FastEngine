@@ -154,12 +154,6 @@ double ToDouble(std::string const& str)
     fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
 }
-long double ToLongDouble(std::string const& str)
-{
-    long double result = 0.0;
-    fast_float::from_chars(str.data(), str.data() + str.size(), result);
-    return result;
-}
 
 bool ToBool(std::string const& str)
 {

@@ -156,14 +156,6 @@ FGE_API float ToFloat(std::string const& str);
  * \return The converted value or 0 if there is an error
  */
 FGE_API double ToDouble(std::string const& str);
-/**
- * \ingroup extraString
- * \brief Convert efficiently a string to a long double
- *
- * \param str The string to convert
- * \return The converted value or 0 if there is an error
- */
-FGE_API long double ToLongDouble(std::string const& str);
 
 /**
  * \ingroup extraString
