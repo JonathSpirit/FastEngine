@@ -46,3 +46,150 @@ TEST_CASE("testing IsValidUtf8String")
         REQUIRE(result == utf8sequences[i].second);
     }
 }
+
+TEST_CASE("String to number conversion tests") {
+    SUBCASE("ToUint8 converts valid string to uint8_t correctly") {
+        REQUIRE(fge::string::ToUint8("255") == 255);
+    }
+    SUBCASE("ToUint8 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToUint8("invalid") == 0);
+    }
+
+    SUBCASE("ToUint16 converts valid string to uint16_t correctly") {
+        REQUIRE(fge::string::ToUint16("65535") == 65535);
+    }
+    SUBCASE("ToUint16 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToUint16("invalid") == 0);
+    }
+
+    SUBCASE("ToUint32 converts valid string to uint32_t correctly") {
+        REQUIRE(fge::string::ToUint32("4294967295") == 4294967295);
+    }
+    SUBCASE("ToUint32 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToUint32("invalid") == 0);
+    }
+
+    SUBCASE("ToUint64 converts valid string to uint64_t correctly") {
+        REQUIRE(fge::string::ToUint64("18446744073709551615") == 18446744073709551615ULL);
+    }
+    SUBCASE("ToUint64 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToUint64("invalid") == 0);
+    }
+
+    SUBCASE("ToInt8 converts valid string to int8_t correctly") {
+        REQUIRE(fge::string::ToInt8("-128") == -128);
+    }
+    SUBCASE("ToInt8 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToInt8("invalid") == 0);
+    }
+
+    SUBCASE("ToInt16 converts valid string to int16_t correctly") {
+        REQUIRE(fge::string::ToInt16("-32768") == -32768);
+    }
+    SUBCASE("ToInt16 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToInt16("invalid") == 0);
+    }
+
+    SUBCASE("ToInt32 converts valid string to int32_t correctly") {
+        REQUIRE(fge::string::ToInt32("-2147483648") == -2147483648);
+    }
+    SUBCASE("ToInt32 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToInt32("invalid") == 0);
+    }
+
+    SUBCASE("ToInt64 converts valid string to int64_t correctly") {
+        REQUIRE(fge::string::ToInt64("-9223372036854775808") == -9223372036854775808ULL);
+    }
+    SUBCASE("ToInt64 returns 0 for invalid string") {
+        REQUIRE(fge::string::ToInt64("invalid") == 0);
+    }
+
+    SUBCASE("ToFloat converts valid string to float correctly") {
+        REQUIRE(fge::string::ToFloat("3.14") == doctest::Approx(3.14));
+    }
+    SUBCASE("ToFloat returns 0 for invalid string") {
+        REQUIRE(fge::string::ToFloat("invalid") == 0);
+    }
+
+    SUBCASE("ToDouble converts valid string to double correctly") {
+        REQUIRE(fge::string::ToDouble("3.14") == doctest::Approx(3.14));
+    }
+    SUBCASE("ToDouble returns 0 for invalid string") {
+        REQUIRE(fge::string::ToDouble("invalid") == 0);
+    }
+
+    SUBCASE("ToBool converts valid string to bool correctly") {
+        REQUIRE(fge::string::ToBool("true") == true);
+        REQUIRE(fge::string::ToBool("TrUe") == true);
+        REQUIRE(fge::string::ToBool("TRUE") == true);
+        REQUIRE(fge::string::ToBool("1") == true);
+        REQUIRE(fge::string::ToBool("false") == false);
+        REQUIRE(fge::string::ToBool("FaLsE") == false);
+        REQUIRE(fge::string::ToBool("FALSE") == false);
+        REQUIRE(fge::string::ToBool("0") == false);
+    }
+    SUBCASE("ToBool returns false for invalid string") {
+        REQUIRE(fge::string::ToBool("invalid") == false);
+    }
+
+    SUBCASE("ToPtr converts valid string to pointer correctly") {
+        if constexpr (sizeof(void*) == 8)
+        {
+            void* ptr = reinterpret_cast<void*>(0x4242424242424242);
+            REQUIRE(fge::string::ToPtr("0x4242424242424242") == ptr);
+        }
+        else
+        {
+            void* ptr = reinterpret_cast<void*>(0x42424242);
+            REQUIRE(fge::string::ToPtr("0x42424242") == ptr);
+        }
+    }
+
+    SUBCASE("ToVec2f converts valid string to Vector2f correctly") {
+        fge::Vector2f result = fge::string::ToVec2f("3.14 2.71");
+        REQUIRE(result.x == doctest::Approx(3.14));
+        REQUIRE(result.y == doctest::Approx(2.71));
+    }
+    SUBCASE("ToVec2f returns (0,0) for invalid string") {
+        fge::Vector2f result = fge::string::ToVec2f("invalid");
+        REQUIRE(result.x == 0);
+        REQUIRE(result.y == 0);
+    }
+    SUBCASE("ToVec2f returns (0,0) for partially invalid string") {
+        fge::Vector2f result = fge::string::ToVec2f("3.14 invalid");
+        REQUIRE(result.x == doctest::Approx(3.14));
+        REQUIRE(result.y == 0);
+    }
+
+    SUBCASE("ToVec2u converts valid string to Vector2u correctly") {
+        fge::Vector2u result = fge::string::ToVec2u("42 24");
+        REQUIRE(result.x == 42);
+        REQUIRE(result.y == 24);
+    }
+    SUBCASE("ToVec2u returns (0,0) for invalid string") {
+        fge::Vector2u result = fge::string::ToVec2u("invalid");
+        REQUIRE(result.x == 0);
+        REQUIRE(result.y == 0);
+    }
+    SUBCASE("ToVec2u returns (0,0) for partially invalid string") {
+        fge::Vector2u result = fge::string::ToVec2u("42 invalid");
+        REQUIRE(result.x == 42);
+        REQUIRE(result.y == 0);
+    }
+
+    SUBCASE("ToVec2i converts valid string to Vector2i correctly") {
+        fge::Vector2i result = fge::string::ToVec2i("-42 24");
+        REQUIRE(result.x == -42);
+        REQUIRE(result.y == 24);
+    }
+    SUBCASE("ToVec2i returns (0,0) for invalid string") {
+        fge::Vector2i result = fge::string::ToVec2i("invalid");
+        REQUIRE(result.x == 0);
+        REQUIRE(result.y == 0);
+    }
+    SUBCASE("ToVec2i returns (0,0) for partially invalid string") {
+        fge::Vector2i result = fge::string::ToVec2i("-42 invalid");
+        REQUIRE(result.x == -42);
+        REQUIRE(result.y == 0);
+    }
+}
