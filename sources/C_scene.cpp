@@ -1538,6 +1538,7 @@ void Scene::packWatchedEvent(fge::net::Packet& pck, fge::net::Identity const& id
             //SID
             pck << event._sid;
             pck << event._signal;
+            ++counter;
             break;
         default:
             throw fge::Exception("Unknown watchedEvent");
