@@ -157,6 +157,18 @@ double ToDouble(std::string const& str)
 
 bool ToBool(std::string const& str)
 {
+    //String equality check with case insensitive
+    if (str.size() == 4 && (str[0] == 't' || str[0] == 'T') && (str[1] == 'r' || str[1] == 'R') &&
+        (str[2] == 'u' || str[2] == 'U') && (str[3] == 'e' || str[3] == 'E'))
+    {
+        return true;
+    }
+    if (str.size() == 5 && (str[0] == 'f' || str[0] == 'F') && (str[1] == 'a' || str[1] == 'A') &&
+        (str[2] == 'l' || str[2] == 'L') && (str[3] == 's' || str[3] == 'S') && (str[4] == 'e' || str[4] == 'E'))
+    {
+        return false;
+    }
+
     bool result = false;
     fast_float::from_chars(str.data(), str.data() + str.size(), result);
     return result;
