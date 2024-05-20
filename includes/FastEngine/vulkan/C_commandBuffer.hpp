@@ -304,6 +304,15 @@ public:
                      uint32_t firstIndex,
                      int32_t vertexOffset,
                      uint32_t firstInstance);
+    /**
+     * \brief Draw indirect
+     *
+     * \param buffer The buffer
+     * \param offset The offset
+     * \param drawCount The draw count
+     * \param stride The stride
+     */
+    void drawIndirect(VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
 
 private:
     VkCommandBuffer g_commandBuffer;

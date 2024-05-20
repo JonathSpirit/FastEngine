@@ -9,5 +9,8 @@
     <Objective-C-extensions>
       <option name="TAG_PREFIX_OF_BLOCK_COMMENT" value="BACK_SLASH" />
     </Objective-C-extensions>
+    <codeStyleSettings language="Glsl">
+      <option name="SPACE_BEFORE_COLON" value="false" />
+    </codeStyleSettings>
   </code_scheme>
 </component>

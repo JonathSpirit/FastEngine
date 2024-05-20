@@ -765,5 +765,29 @@ void CommandBuffer::drawIndexed(uint32_t indexCount,
     this->g_renderPassScope = RenderPassScopes::INSIDE;
     ++this->g_recordedCommands;
 }
+void CommandBuffer::drawIndirect(VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
+{
+    if (this->g_commandBuffer == VK_NULL_HANDLE)
+    {
+        throw fge::Exception("CommandBuffer not created !");
+    }
+    if (this->g_isEnded)
+    {
+        throw fge::Exception("CommandBuffer already ended !");
+    }
+    if (this->g_renderPassScope == RenderPassScopes::OUTSIDE)
+    {
+        throw fge::Exception("Command executed outside a render pass !");
+    }
+    if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
+    {
+        throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    vkCmdDrawIndirect(this->g_commandBuffer, buffer, offset, drawCount, stride);
+    this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
+    this->g_renderPassScope = RenderPassScopes::INSIDE;
+    ++this->g_recordedCommands;
+}
 
 } // namespace fge::vulkan

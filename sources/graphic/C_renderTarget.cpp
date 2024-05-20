@@ -425,21 +425,20 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         uint32_t const vertexOffset = (states._resInstances.getVertexCount() == 0 ? 0 : vertexCount * iInstance) +
                                       states._resInstances.getVertexOffset();
 
-        ///TODO: have in graphicPipeline, a draw method
         if (states._resInstances.hasUniqueDrawCall())
         {
             if (states._resInstances.getIndirectBuffer() != VK_NULL_HANDLE)
             { //Indirect draw
-                vkCmdDrawIndirect(commandBuffer.get(), states._resInstances.getIndirectBuffer(), 0,
-                                  states._resInstances.getInstancesCount(), sizeof(VkDrawIndirectCommand));
+                commandBuffer.drawIndirect(states._resInstances.getIndirectBuffer(), 0,
+                                           states._resInstances.getInstancesCount(), sizeof(VkDrawIndirectCommand));
             }
             else
             {
-                vkCmdDraw(commandBuffer.get(), vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
+                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset, 0);
             }
             break;
         }
-        vkCmdDraw(commandBuffer.get(), vertexCount, 1, vertexOffset, iInstance);
+        commandBuffer.draw(vertexCount, 1, vertexOffset, iInstance);
     }
 }
 
