@@ -322,6 +322,9 @@ private:
     SupportedQueueTypes_t g_queueType;
     uint32_t g_recordedCommands;
     bool g_isEnded;
+
+    //Cache
+    VkPipeline g_lastBoundPipeline{VK_NULL_HANDLE};
 };
 
 } // namespace fge::vulkan

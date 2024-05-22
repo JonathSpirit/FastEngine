@@ -180,6 +180,8 @@ void CommandBuffer::reset()
 
     vkResetCommandBuffer(this->g_commandBuffer, 0);
     this->g_queueType = SUPPORTED_QUEUE_ALL, this->g_renderPassScope = RenderPassScopes::BOTH, this->g_isEnded = false;
+
+    this->g_lastBoundPipeline = VK_NULL_HANDLE;
 }
 void CommandBuffer::begin(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
@@ -626,6 +628,12 @@ void CommandBuffer::bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeli
     {
         throw fge::Exception("Unsupported queue type for this command buffer !");
     }
+
+    if (this->g_lastBoundPipeline == pipeline)
+    {
+        return;
+    }
+    this->g_lastBoundPipeline = pipeline;
 
     vkCmdBindPipeline(this->g_commandBuffer, pipelineBindPoint, pipeline);
     this->g_queueType &= SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS;
