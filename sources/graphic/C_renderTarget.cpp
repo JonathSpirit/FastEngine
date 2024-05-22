@@ -126,10 +126,11 @@ View const& RenderTarget::getDefaultView() const
 }
 fge::vulkan::Viewport RenderTarget::getViewport(View const& view) const
 {
-    auto size = static_cast<Vector2f>(this->getSize());
-    auto const& viewport = view.getFactorViewport();
+    auto const size = static_cast<Vector2f>(this->getSize());
+    auto const& factorViewport = view.getFactorViewport();
 
-    return {size.x * viewport._x, size.y * viewport._y, size.x * viewport._width, size.y * viewport._height};
+    return {size.x * factorViewport._x, size.y * factorViewport._y, size.x * factorViewport._width,
+            size.y * factorViewport._height};
 }
 
 Vector2f RenderTarget::mapFramebufferCoordsToViewSpace(Vector2i const& point) const
@@ -288,11 +289,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     }
 
     //Updating graphicPipeline
-    auto windowSize = static_cast<fge::Vector2f>(this->getSize());
-    auto factorViewport = this->getView().getFactorViewport();
-
-    fge::vulkan::Viewport const viewport(windowSize.x * factorViewport._x, windowSize.y * factorViewport._y,
-                                         windowSize.x * factorViewport._width, windowSize.y * factorViewport._height);
+    auto const viewport = this->getViewport(this->getView());
 
     graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
 
