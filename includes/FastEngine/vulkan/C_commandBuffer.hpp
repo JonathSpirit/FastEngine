@@ -326,6 +326,7 @@ private:
     //Cache
     VkPipeline g_lastBoundPipeline{VK_NULL_HANDLE};
     VkViewport g_lastSetViewport{};
+    VkRect2D g_lastSetScissor{};
 };
 
 } // namespace fge::vulkan
