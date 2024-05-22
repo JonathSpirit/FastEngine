@@ -182,6 +182,7 @@ void CommandBuffer::reset()
     this->g_queueType = SUPPORTED_QUEUE_ALL, this->g_renderPassScope = RenderPassScopes::BOTH, this->g_isEnded = false;
 
     this->g_lastBoundPipeline = VK_NULL_HANDLE;
+    this->g_lastSetViewport = {};
 }
 void CommandBuffer::begin(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
@@ -653,6 +654,18 @@ void CommandBuffer::setViewport(uint32_t firstViewport, uint32_t viewportCount, 
     if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
     {
         throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    if (firstViewport == 0 && viewportCount == 1)
+    {
+        if (this->g_lastSetViewport.height == pViewports->height &&
+            this->g_lastSetViewport.width == pViewports->width && this->g_lastSetViewport.x == pViewports->x &&
+            this->g_lastSetViewport.y == pViewports->y && this->g_lastSetViewport.minDepth == pViewports->minDepth &&
+            this->g_lastSetViewport.maxDepth == pViewports->maxDepth)
+        {
+            return;
+        }
+        this->g_lastSetViewport = *pViewports;
     }
 
     vkCmdSetViewport(this->g_commandBuffer, firstViewport, viewportCount, pViewports);
