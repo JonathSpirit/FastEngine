@@ -19,6 +19,7 @@
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
+#include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
@@ -58,7 +59,8 @@ void DefaultGraphicPipeline_constructor(fge::vulkan::Context const& context,
 RenderTarget::RenderTarget(fge::vulkan::Context const& context) :
         fge::vulkan::ContextAware(context),
         _g_clearColor(fge::Color::White),
-        _g_forceGraphicPipelineUpdate(false)
+        _g_forceGraphicPipelineUpdate(false),
+        _g_globalTransform(context)
 {}
 
 void RenderTarget::initialize()
@@ -72,7 +74,8 @@ RenderTarget::RenderTarget(RenderTarget const& r) :
         g_defaultView(r.g_defaultView),
         g_view(r.g_view),
         _g_clearColor(r._g_clearColor),
-        _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate)
+        _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate),
+        _g_globalTransform(r.getContext())
 {}
 RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
         fge::vulkan::ContextAware(static_cast<fge::vulkan::ContextAware&&>(r)),
@@ -80,7 +83,8 @@ RenderTarget::RenderTarget(RenderTarget&& r) noexcept :
         g_view(r.g_view),
         _g_clearColor(r._g_clearColor),
         _g_forceGraphicPipelineUpdate(r._g_forceGraphicPipelineUpdate),
-        _g_graphicPipelineCache(std::move(r._g_graphicPipelineCache))
+        _g_graphicPipelineCache(std::move(r._g_graphicPipelineCache)),
+        _g_globalTransform(std::move(r._g_globalTransform))
 {}
 
 RenderTarget& RenderTarget::operator=(RenderTarget const& r)
@@ -90,6 +94,7 @@ RenderTarget& RenderTarget::operator=(RenderTarget const& r)
     this->g_view = r.g_view;
     this->_g_clearColor = r._g_clearColor;
     this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
+    this->_g_globalTransform = r._g_globalTransform;
     return *this;
 }
 RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
@@ -100,6 +105,7 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& r) noexcept
     this->_g_clearColor = r._g_clearColor;
     this->_g_forceGraphicPipelineUpdate = r._g_forceGraphicPipelineUpdate;
     this->_g_graphicPipelineCache = std::move(r._g_graphicPipelineCache);
+    this->_g_globalTransform = std::move(r._g_globalTransform);
     return *this;
 }
 
@@ -257,7 +263,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     //See if we can set a default graphicPipeline for this rendering call
     if (graphicPipeline == nullptr)
     {
-        if (states._resInstances.getInstancesCount() == 1 && states._resTransform.get() != nullptr &&
+        if (states._resInstances.getInstancesCount() == 1 && (states._resTransform.get() != nullptr || states._resTransform.useNewGlobalStorageBuffer()) &&
             states._resDescriptors.getCount() == 0 && states._vertexBuffer != nullptr)
         { //Simple rendering: There must be 1 instance, a transform, no descriptors
             if (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0)
@@ -366,11 +372,22 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     graphicPipeline->recordCommandBufferWithoutDraw(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 
     //Binding default transform
-    if (states._resTransform.get() != nullptr)
+    /*if (states._resTransform.get() != nullptr)
     {
         auto descriptorSetTransform = states._resTransform.get()->getDescriptorSet().get();
         commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
                                          &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
+    }*/
+    //Update global transforms
+    if (states._resTransform.useNewGlobalStorageBuffer())
+    {
+        if (!this->_g_alreadyBind)
+        {
+            this->_g_alreadyBind = true;
+            auto descriptorSetTransform = this->_g_globalTransform._descriptorSet.get();
+            commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                             &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
+        }
     }
 
     //Check instances
@@ -439,7 +456,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             }
             break;
         }
-        commandBuffer.draw(vertexCount, 1, vertexOffset, iInstance);
+        commandBuffer.draw(vertexCount, 1, vertexOffset, states._resInstances.getFirstInstance() + iInstance);
     }
 }
 
@@ -477,10 +494,77 @@ void RenderTarget::clearGraphicPipelineCache()
     this->_g_graphicPipelineCache.clear();
 }
 
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable, uint32_t parentGlobalTransform) const
+{
+    auto transform = this->requestGlobalTransform();
+    transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+    if (parentGlobalTransform < this->_g_globalTransform._transformsCount)
+    {
+        transform.second->_modelTransform = static_cast<fge::TransformUboData*>(this->_g_globalTransform._transforms.getBufferMapped())[parentGlobalTransform]._modelTransform *
+                                           transformable.getTransform();
+    }
+    else
+    {
+        transform.second->_modelTransform = transformable.getTransform();
+    }
+    return transform.first;
+}
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable, fge::TransformUboData const& parentTransform) const
+{
+    auto transform = this->requestGlobalTransform();
+    transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+    transform.second->_modelTransform = parentTransform._modelTransform * transformable.getTransform();
+    return transform.first;
+}
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable) const
+{
+    auto transform = this->requestGlobalTransform();
+    transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+    transform.second->_modelTransform = transformable.getTransform();
+    return transform.first;
+}
+std::pair<uint32_t, fge::TransformUboData*> RenderTarget::requestGlobalTransform() const
+{
+    auto const index = this->_g_globalTransform._transformsCount++;
+
+    auto const maxSize = this->_g_globalTransform._transforms.getBufferSize() / fge::TransformUboData::uboSize;
+    if (this->_g_globalTransform._transformsCount >= maxSize)
+    {
+        this->_g_globalTransform._transforms.resize(fge::TransformUboData::uboSize * maxSize * 2);
+        this->_g_globalTransform._needUpdate = true;
+    }
+
+    return {index, static_cast<fge::TransformUboData*>(this->_g_globalTransform._transforms.getBufferMapped()) + index};
+}
+
 void RenderTarget::resetDefaultView()
 {
     this->g_defaultView.reset(
             {0.0f, 0.0f, static_cast<float>(this->getSize().x), static_cast<float>(this->getSize().y)});
+}
+
+void RenderTarget::updateGlobalTransform() const
+{
+    if (this->_g_globalTransform._needUpdate)
+    {
+        this->_g_globalTransform._needUpdate = false;
+        vulkan::DescriptorSet::Descriptor const descriptor(this->_g_globalTransform._transforms, FGE_VULKAN_TRANSFORM_BINDING);
+        this->_g_globalTransform._descriptorSet.updateDescriptorSet(&descriptor, 1);
+    }
+}
+
+RenderTarget::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
+                _transforms(context, vulkan::UniformBuffer::Types::STORAGE_BUFFER),
+                _transformsCount(0),
+                _needUpdate(false)
+{
+    this->_transforms.resize(FGE_RENDERTARGET_TRANSFORMS_COUNT_START * fge::TransformUboData::uboSize);
+    this->_descriptorSet = context.getTransformDescriptorPool()
+                                    .allocateDescriptorSet(context.getTransformLayout().getLayout())
+                                           .value();
+
+    vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING);
+    this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
 } // namespace fge

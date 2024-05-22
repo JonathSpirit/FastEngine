@@ -234,6 +234,16 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
 
+    copyStates._resTransform.useNewGlobalStorageBuffer(true);
+    if (states._resTransform.get() == nullptr)
+    {
+        copyStates._resInstances.setFirstInstance(target.requestGlobalTransform(*this));
+    }
+    else
+    {
+        copyStates._resInstances.setFirstInstance(target.requestGlobalTransform(*this, states._resTransform.get()->getData()));
+    }
+
     fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
     fge::RenderTarget::GraphicPipelineKey key{this->g_vertices.getPrimitiveTopology(), copyStates._blendMode, 0};

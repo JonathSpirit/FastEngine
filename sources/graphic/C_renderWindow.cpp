@@ -65,6 +65,9 @@ void RenderWindow::destroy()
 
         this->clearGraphicPipelineCache();
 
+        this->_g_globalTransform._transforms.destroy();
+        this->_g_globalTransform._descriptorSet.destroy();
+
         VkDevice logicalDevice = this->getContext().getLogicalDevice().getDevice();
 
         for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
@@ -92,6 +95,10 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
 {
     vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);
+
+    this->updateGlobalTransform();
+    this->_g_globalTransform._transformsCount = 0;
+    this->_g_alreadyBind = false;
 
     uint32_t imageIndex;
     VkResult const result = vkAcquireNextImageKHR(

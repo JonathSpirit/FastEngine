@@ -327,7 +327,7 @@ void Context::initVulkan(SDL_Window* window)
     this->g_textureLayout.create({DescriptorSetLayout::Binding(
             FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
     this->g_transformLayout.create({DescriptorSetLayout::Binding(
-            FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
+            FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
 }
 void Context::enumerateExtensions()
 {
@@ -493,7 +493,7 @@ void Context::createTextureDescriptorPool()
 void Context::createTransformDescriptorPool()
 {
     std::vector<VkDescriptorPoolSize> poolSizes(1);
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     poolSizes[0].descriptorCount = 1;
 
     this->g_transformDescriptorPool.create(std::move(poolSizes), 128, false, true);

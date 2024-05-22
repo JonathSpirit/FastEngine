@@ -23,6 +23,7 @@ ObjSprite::ObjSprite() :
         g_vertices(fge::vulkan::GetActiveContext())
 {
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
+    this->_transform.destroy();
 }
 ObjSprite::ObjSprite(fge::Texture const& texture, fge::Vector2f const& position) :
         ObjSprite()
@@ -86,7 +87,10 @@ fge::Color ObjSprite::getColor() const
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSprite)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy(nullptr); //states.copy(this->_transform.start(*this, states._resTransform.get()));
+
+    copyStates._resTransform.useNewGlobalStorageBuffer(true);
+    copyStates._resInstances.setFirstInstance(target.requestGlobalTransform(*this));
 
     copyStates._vertexBuffer = &this->g_vertices;
     copyStates._resTextures.set(this->g_texture.retrieve(), 1);

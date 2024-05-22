@@ -59,8 +59,12 @@ public:
     [[nodiscard]] fge::Transform const* get() const { return this->g_transform; }
     void set(fge::Transform const* transform) { this->g_transform = transform; }
 
+    void useNewGlobalStorageBuffer(bool enable) { this->g_useNewGlobalStorageBuffer = enable; }
+    [[nodiscard]] bool useNewGlobalStorageBuffer() const { return this->g_useNewGlobalStorageBuffer; }
+
 private:
     fge::Transform const* g_transform{nullptr};
+    bool g_useNewGlobalStorageBuffer{false};
 };
 /**
  * \class RenderResourceInstances
@@ -119,7 +123,8 @@ public:
     /**
      * \brief Set the first instance value for the draw call
      *
-     * Only applicable if there is only one instance without indirect buffer.
+     * Appliqued if hasUniqueDrawCall() is \b true without indirect buffer.
+     * Appliqued has an offset if hasUniqueDrawCall() is \b false.
      *
      * \param firstInstance The first instance value
      */

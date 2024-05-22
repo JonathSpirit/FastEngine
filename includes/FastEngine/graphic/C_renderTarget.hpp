@@ -35,10 +35,12 @@
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
+#include "FastEngine/vulkan/C_uniformBuffer.hpp"
 #include "FastEngine/vulkan/C_vertex.hpp"
 #include "SDL_video.h"
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 
 #define FGE_RENDERTARGET_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
 #define FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME ""
@@ -48,11 +50,15 @@
 #define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
 #define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
 
+#define FGE_RENDERTARGET_TRANSFORMS_COUNT_START 100
+
 namespace fge
 {
 
 class Texture;
 class Drawable;
+class Transformable;
+struct TransformUboData;
 
 class FGE_API RenderTarget : public fge::vulkan::ContextAware
 {
@@ -146,11 +152,26 @@ public:
                                                                    GraphicPipelineConstructor constructor) const;
     void clearGraphicPipelineCache();
 
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, uint32_t parentGlobalTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, fge::TransformUboData const& parentTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable) const;
+    [[nodiscard]] std::pair<uint32_t, fge::TransformUboData*> requestGlobalTransform() const;
+
 private:
     View g_defaultView;
     View g_view;
 
 protected:
+    struct GlobalTransform
+    {
+        GlobalTransform(vulkan::Context const& context);
+
+        vulkan::UniformBuffer _transforms;
+        vulkan::DescriptorSet _descriptorSet;
+        uint32_t _transformsCount;
+        bool _needUpdate;
+    };
+
     void resetDefaultView();
 
     VkClearColorValue _g_clearColor;
@@ -158,6 +179,10 @@ protected:
     bool _g_forceGraphicPipelineUpdate;
 
     mutable GraphicPipelineCache _g_graphicPipelineCache;
+
+    mutable bool _g_alreadyBind{false};
+    mutable GlobalTransform _g_globalTransform;
+    void updateGlobalTransform() const;
 };
 
 } // namespace fge

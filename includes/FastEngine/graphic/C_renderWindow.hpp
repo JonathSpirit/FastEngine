@@ -78,9 +78,7 @@ private:
     void recreateSwapChain();
 
     void createRenderPass();
-
     void createFramebuffers();
-
     void createSyncObjects();
 
     fge::vulkan::SwapChain g_swapChain;
