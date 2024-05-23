@@ -98,7 +98,6 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
 
     this->updateGlobalTransform();
     this->_g_globalTransform._transformsCount = 0;
-    this->_g_alreadyBind = false;
 
     uint32_t imageIndex;
     VkResult const result = vkAcquireNextImageKHR(

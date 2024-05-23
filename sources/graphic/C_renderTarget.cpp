@@ -368,23 +368,12 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
     graphicPipeline->recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 
-    //Binding default transform
-    /*if (states._resTransform.get() != nullptr)
-    {
-        auto descriptorSetTransform = states._resTransform.get()->getDescriptorSet().get();
-        commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                         &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
-    }*/
-    //Update global transforms
+    //Binding global transforms
     if (states._resTransform.useNewGlobalStorageBuffer())
     {
-        if (!this->_g_alreadyBind)
-        {
-            this->_g_alreadyBind = true;
-            auto descriptorSetTransform = this->_g_globalTransform._descriptorSet.get();
-            commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                             &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
-        }
+        auto descriptorSetTransform = this->_g_globalTransform._descriptorSet.get();
+        commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                         &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
     }
 
     //Check instances

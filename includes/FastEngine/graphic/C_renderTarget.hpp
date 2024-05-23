@@ -180,7 +180,6 @@ protected:
 
     mutable GraphicPipelineCache _g_graphicPipelineCache;
 
-    mutable bool _g_alreadyBind{false};
     mutable GlobalTransform _g_globalTransform;
     void updateGlobalTransform() const;
 };
