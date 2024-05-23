@@ -18,9 +18,11 @@
 #define _FGE_VULKAN_C_COMMANDBUFFER_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <utility>
+#include <unordered_set>
 
 namespace fge::vulkan
 {
@@ -324,9 +326,32 @@ private:
     bool g_isEnded;
 
     //Cache
+    struct CacheDescriptorSets
+    {
+        VkPipelineBindPoint _pipelineBindPoint;
+        VkDescriptorSet _descriptorSet;
+        uint32_t _set;
+
+        [[nodiscard]] constexpr bool operator==(CacheDescriptorSets const& r) const
+        {
+            return this->_pipelineBindPoint == r._pipelineBindPoint && this->_descriptorSet == r._descriptorSet &&
+                   this->_set == r._set;
+        }
+
+        struct Hash
+        {
+            [[nodiscard]] inline std::size_t operator()(CacheDescriptorSets const& r) const
+            {
+                return std::hash<VkPipelineBindPoint>{}(r._pipelineBindPoint) ^
+                       std::hash<VkDescriptorSet>{}(r._descriptorSet) ^ std::hash<uint32_t>{}(r._set);
+            }
+        };
+    };
+
     VkPipeline g_lastBoundPipeline{VK_NULL_HANDLE};
     VkViewport g_lastSetViewport{};
     VkRect2D g_lastSetScissor{};
+    std::unordered_set<CacheDescriptorSets, CacheDescriptorSets::Hash> g_lastBoundDescriptorSets;
 };
 
 } // namespace fge::vulkan
