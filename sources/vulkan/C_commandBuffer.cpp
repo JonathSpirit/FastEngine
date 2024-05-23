@@ -180,6 +180,10 @@ void CommandBuffer::reset()
 
     vkResetCommandBuffer(this->g_commandBuffer, 0);
     this->g_queueType = SUPPORTED_QUEUE_ALL, this->g_renderPassScope = RenderPassScopes::BOTH, this->g_isEnded = false;
+
+    this->g_lastBoundPipeline = VK_NULL_HANDLE;
+    this->g_lastSetViewport = {};
+    this->g_lastSetScissor = {};
 }
 void CommandBuffer::begin(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
@@ -627,6 +631,12 @@ void CommandBuffer::bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeli
         throw fge::Exception("Unsupported queue type for this command buffer !");
     }
 
+    if (this->g_lastBoundPipeline == pipeline)
+    {
+        return;
+    }
+    this->g_lastBoundPipeline = pipeline;
+
     vkCmdBindPipeline(this->g_commandBuffer, pipelineBindPoint, pipeline);
     this->g_queueType &= SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS;
     ++this->g_recordedCommands;
@@ -647,6 +657,18 @@ void CommandBuffer::setViewport(uint32_t firstViewport, uint32_t viewportCount, 
         throw fge::Exception("Unsupported queue type for this command buffer !");
     }
 
+    if (firstViewport == 0 && viewportCount == 1)
+    {
+        if (this->g_lastSetViewport.height == pViewports->height &&
+            this->g_lastSetViewport.width == pViewports->width && this->g_lastSetViewport.x == pViewports->x &&
+            this->g_lastSetViewport.y == pViewports->y && this->g_lastSetViewport.minDepth == pViewports->minDepth &&
+            this->g_lastSetViewport.maxDepth == pViewports->maxDepth)
+        {
+            return;
+        }
+        this->g_lastSetViewport = *pViewports;
+    }
+
     vkCmdSetViewport(this->g_commandBuffer, firstViewport, viewportCount, pViewports);
     this->g_queueType &= SUPPORTED_QUEUE_GRAPHICS;
     ++this->g_recordedCommands;
@@ -664,6 +686,18 @@ void CommandBuffer::setScissor(uint32_t firstScissor, uint32_t scissorCount, VkR
     if ((this->g_queueType & SUPPORTED_QUEUE_GRAPHICS) == 0)
     {
         throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    if (firstScissor == 0 && scissorCount == 1)
+    {
+        if (this->g_lastSetScissor.extent.height == pScissors->extent.height &&
+            this->g_lastSetScissor.extent.width == pScissors->extent.width &&
+            this->g_lastSetScissor.offset.x == pScissors->offset.x &&
+            this->g_lastSetScissor.offset.y == pScissors->offset.y)
+        {
+            return;
+        }
+        this->g_lastSetScissor = *pScissors;
     }
 
     vkCmdSetScissor(this->g_commandBuffer, firstScissor, scissorCount, pScissors);

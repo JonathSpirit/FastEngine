@@ -72,10 +72,6 @@ public:
                              Viewport const& viewport,
                              VertexBuffer const* vertexBuffer,
                              IndexBuffer const* indexBuffer) const;
-    void recordCommandBufferWithoutDraw(CommandBuffer& commandBuffer,
-                                        Viewport const& viewport,
-                                        VertexBuffer const* vertexBuffer,
-                                        IndexBuffer const* indexBuffer) const;
 
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;

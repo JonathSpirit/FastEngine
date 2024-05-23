@@ -385,34 +385,6 @@ void GraphicPipeline::recordCommandBuffer(CommandBuffer& commandBuffer,
         if (indexBuffer != nullptr && indexBuffer->getType() != BufferTypes::UNINITIALIZED)
         {
             indexBuffer->bind(commandBuffer);
-            commandBuffer.drawIndexed(indexBuffer->getCount(), 1, 0, 0, 0);
-        }
-        else
-        {
-            commandBuffer.draw(vertexBuffer->getCount(), 1, 0, 0);
-        }
-    }
-    else
-    {
-        commandBuffer.draw(this->g_defaultVertexCount, 1, 0, 0);
-    }
-}
-void GraphicPipeline::recordCommandBufferWithoutDraw(CommandBuffer& commandBuffer,
-                                                     Viewport const& viewport,
-                                                     VertexBuffer const* vertexBuffer,
-                                                     IndexBuffer const* indexBuffer) const
-{
-    commandBuffer.bindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
-
-    commandBuffer.setViewport(0, 1, &viewport.getViewport());
-    commandBuffer.setScissor(0, 1, &this->g_scissor);
-
-    if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
-    {
-        vertexBuffer->bind(commandBuffer);
-        if (indexBuffer != nullptr && indexBuffer->getType() != BufferTypes::UNINITIALIZED)
-        {
-            indexBuffer->bind(commandBuffer);
         }
     }
 }
