@@ -355,6 +355,12 @@ void ObjShape::updateOutline()
 
 void ObjShape::resizeBuffer(std::size_t size) const
 {
+    bool needDescriptorUpdate = false;
+    VkDeviceSize const newSize = size * sizeof(InstanceData);
+    if (newSize > this->g_instances.getBufferCapacity())
+    {
+        needDescriptorUpdate = true;
+    }
     this->g_instances.resize(size * sizeof(InstanceData));
 
     if (size <= this->g_instancesCount)
@@ -382,7 +388,10 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
 
-    this->updateDescriptors();
+    if (needDescriptorUpdate)
+    {
+        this->updateDescriptors();
+    }
 }
 void ObjShape::updateDescriptors() const
 {
@@ -404,7 +413,7 @@ void ObjShape::updateDescriptors() const
 
     DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
                                                DescriptorSet::Descriptor::BufferTypes::STORAGE,
-                                               this->g_instances.getBufferSize()};
+                                               VK_WHOLE_SIZE};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 #endif //FGE_DEF_SERVER
 }
