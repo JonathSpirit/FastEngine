@@ -586,4 +586,20 @@ RenderTarget::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
     this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
+void RenderTarget::GlobalTransform::init(vulkan::Context const& context)
+{
+    this->_transformsCount = 0;
+    this->_needUpdate = false;
+
+    this->_transforms.create(FGE_RENDERTARGET_TRANSFORMS_COUNT_START * fge::TransformUboData::uboSize, vulkan::UniformBuffer::Types::STORAGE_BUFFER);
+
+    this->_descriptorSet = context.getTransformDescriptorPool()
+                                    .allocateDescriptorSet(context.getTransformLayout().getLayout())
+                                           .value();
+
+    vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
+        vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
+    this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
+}
+
 } // namespace fge

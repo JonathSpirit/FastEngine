@@ -181,6 +181,8 @@ protected:
     {
         GlobalTransform(vulkan::Context const& context);
 
+        void init(vulkan::Context const& context);
+
         vulkan::UniformBuffer _transforms;
         vulkan::DescriptorSet _descriptorSet;
         uint32_t _transformsCount;
