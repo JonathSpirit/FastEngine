@@ -135,7 +135,7 @@ FGE_OBJ_DRAW_BODY(ObjAnimation)
 {
     auto copyStates = states.copy();
 
-    copyStates._resTransform.set(target.requestGlobalTransform(*this, copyStates._resTransform));
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     copyStates._vertexBuffer = &this->g_vertices;
     copyStates._resTextures.set(this->g_animation.retrieveTexture().get(), 1);
     target.draw(copyStates);
