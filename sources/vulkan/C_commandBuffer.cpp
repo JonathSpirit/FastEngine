@@ -613,9 +613,24 @@ void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
 
     if (descriptorCount == 1 && dynamicOffsetCount == 0)
     {
-        if (!this->g_lastBoundDescriptorSets.emplace(pipelineLayout, pipelineBindPoint, *descriptorSet, firstSet).second)
+        auto it = this->g_lastBoundDescriptorSets.find(firstSet);
+        if (it != this->g_lastBoundDescriptorSets.end())
         {
-            return;
+            CacheDescriptorSets const cache{pipelineLayout, pipelineBindPoint, *descriptorSet};
+            if (it->second != cache)
+            {
+                it->second = cache;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            this->g_lastBoundDescriptorSets.emplace(std::piecewise_construct,
+                std::forward_as_tuple(firstSet),
+                std::forward_as_tuple(pipelineLayout, pipelineBindPoint, *descriptorSet));
         }
     }
 

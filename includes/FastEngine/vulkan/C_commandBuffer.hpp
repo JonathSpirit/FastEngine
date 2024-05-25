@@ -22,7 +22,7 @@
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <utility>
-#include <unordered_set>
+#include <unordered_map>
 
 namespace fge::vulkan
 {
@@ -330,37 +330,25 @@ private:
     {
         constexpr CacheDescriptorSets(VkPipelineLayout pipelineLayout,
                             VkPipelineBindPoint pipelineBindPoint,
-                            VkDescriptorSet descriptorSet,
-                            uint32_t set)
-            : _pipelineLayout(pipelineLayout), _pipelineBindPoint(pipelineBindPoint), _descriptorSet(descriptorSet),
-              _set(set)
+                            VkDescriptorSet descriptorSet)
+            : _pipelineLayout(pipelineLayout), _pipelineBindPoint(pipelineBindPoint), _descriptorSet(descriptorSet)
         {}
 
         VkPipelineLayout _pipelineLayout;
         VkPipelineBindPoint _pipelineBindPoint;
         VkDescriptorSet _descriptorSet;
-        uint32_t _set;
 
         [[nodiscard]] constexpr bool operator==(CacheDescriptorSets const& r) const
         {
             return this->_pipelineLayout == r._pipelineLayout && this->_pipelineBindPoint == r._pipelineBindPoint &&
-                    this->_descriptorSet == r._descriptorSet && this->_set == r._set;
+                    this->_descriptorSet == r._descriptorSet;
         }
-
-        struct Hash
-        {
-            [[nodiscard]] inline std::size_t operator()(CacheDescriptorSets const& r) const
-            {
-                return std::hash<VkPipelineLayout>{}(r._pipelineLayout) ^ std::hash<VkPipelineBindPoint>{}(r._pipelineBindPoint) ^
-                       std::hash<VkDescriptorSet>{}(r._descriptorSet) ^ std::hash<uint32_t>{}(r._set);
-            }
-        };
     };
 
     VkPipeline g_lastBoundPipeline{VK_NULL_HANDLE};
     VkViewport g_lastSetViewport{};
     VkRect2D g_lastSetScissor{};
-    std::unordered_set<CacheDescriptorSets, CacheDescriptorSets::Hash> g_lastBoundDescriptorSets;
+    std::unordered_map<uint32_t, CacheDescriptorSets> g_lastBoundDescriptorSets;
 };
 
 } // namespace fge::vulkan
