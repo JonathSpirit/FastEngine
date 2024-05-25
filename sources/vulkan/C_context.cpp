@@ -543,6 +543,13 @@ void Context::GlobalTransform::update()
     {
         this->_needUpdate = false;
 
+        //TODO
+        //Can cause flickering as descriptor set can't be updated while in use (whitout extension)
+        auto const* context = this->_descriptorSet.getContext();
+        this->_descriptorSet = context->getTransformDescriptorPool()
+                                       .allocateDescriptorSet(context->getTransformLayout().getLayout())
+                                       .value();
+
         vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
                                                            vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
                                                            VK_WHOLE_SIZE);
