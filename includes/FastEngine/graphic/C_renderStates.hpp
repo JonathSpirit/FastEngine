@@ -35,6 +35,7 @@ class IndexBuffer;
 } // namespace vulkan
 
 class Transform;
+struct TransformUboData;
 
 /**
  * \class RenderResourceTransform
@@ -51,20 +52,32 @@ class Transform;
 class RenderResourceTransform
 {
 public:
+    enum class Configs
+    {
+        GLOBAL_TRANSFORMS_INDEX_IS_ADDED_TO_FIRST_INSTANCE,
+        GLOBAL_TRANSFORMS_INDEX_OVERWRITE_FIRST_INSTANCE,
+        GLOBAL_TRANSFORMS_INDEX_IS_IGNORED,
+
+        DEFAULT = GLOBAL_TRANSFORMS_INDEX_OVERWRITE_FIRST_INSTANCE
+    };
+
     constexpr RenderResourceTransform() = default;
-    explicit constexpr RenderResourceTransform(fge::Transform const* transform) :
-            g_transform(transform)
-    {}
 
-    [[nodiscard]] fge::Transform const* get() const { return this->g_transform; }
-    void set(fge::Transform const* transform) { this->g_transform = transform; }
-
-    void useNewGlobalStorageBuffer(bool enable) { this->g_useNewGlobalStorageBuffer = enable; }
-    [[nodiscard]] bool useNewGlobalStorageBuffer() const { return this->g_useNewGlobalStorageBuffer; }
+    void set(fge::TransformUboData const& data) { this->g_transform = &data; }
+    void set(uint32_t globalTransformsIndex, Configs config=Configs::DEFAULT) { this->g_transform = globalTransformsIndex; this->g_config = config; }
+    [[nodiscard]] fge::TransformUboData const* getTransformData() const
+    {
+        return std::holds_alternative<fge::TransformUboData const*>(this->g_transform) ? std::get<fge::TransformUboData const*>(this->g_transform) : nullptr;
+    }
+    [[nodiscard]] std::optional<uint32_t> getGlobalTransformsIndex() const
+    {
+        return std::holds_alternative<uint32_t>(this->g_transform) ? std::make_optional(std::get<uint32_t>(this->g_transform)) : std::nullopt;
+    }
+    [[nodiscard]] Configs getConfig() const { return this->g_config; }
 
 private:
-    fge::Transform const* g_transform{nullptr};
-    bool g_useNewGlobalStorageBuffer{false};
+    std::variant<fge::TransformUboData const*, uint32_t> g_transform{nullptr};
+    Configs g_config{Configs::DEFAULT};
 };
 /**
  * \class RenderResourceInstances
@@ -346,27 +359,22 @@ private:
 class RenderStates
 {
 public:
-    RenderStates() = default;
     RenderStates(RenderStates const& r) = delete;
     RenderStates(RenderStates&& r) noexcept = default;
-    explicit RenderStates(fge::Transform const* transform, fge::TextureType const* textureImage = nullptr) :
-            _resTransform{transform},
+    explicit RenderStates(fge::TextureType const* textureImage = nullptr) :
             _resTextures{textureImage, 1}
     {}
-    RenderStates(fge::Transform const* transform,
-                 fge::vulkan::VertexBuffer const* vertexBuffer,
+    explicit RenderStates(fge::vulkan::VertexBuffer const* vertexBuffer,
                  fge::TextureType const* textureImage = nullptr,
                  fge::vulkan::BlendMode const& blendMode = {}) :
-            _resTransform{transform},
             _resTextures{textureImage, 1},
             _vertexBuffer(vertexBuffer),
             _blendMode(blendMode)
     {}
 
-    [[nodiscard]] RenderStates copy(fge::Transform const* transform,
-                                    fge::TextureType const* textureImage = nullptr) const
+    [[nodiscard]] RenderStates copy(fge::TextureType const* textureImage = nullptr) const
     {
-        return RenderStates{transform, nullptr, textureImage, this->_blendMode};
+        return RenderStates{nullptr, textureImage, this->_blendMode};
     }
 
     RenderStates& operator=(RenderStates const& r) = delete;
