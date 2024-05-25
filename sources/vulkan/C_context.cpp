@@ -49,6 +49,8 @@ void Context::destroy()
 {
     if (this->g_isCreated)
     {
+        this->_garbageCollector.enable(false);
+
         for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
         {
             vkDestroySemaphore(this->g_logicalDevice.getDevice(), this->g_indirectFinishedSemaphores[i], nullptr);
@@ -470,15 +472,18 @@ void Context::createCommandPool()
 }
 void Context::createMultiUseDescriptorPool()
 {
-    std::vector<VkDescriptorPoolSize> poolSizes(3);
+    std::vector<VkDescriptorPoolSize> poolSizes(4);
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSizes[0].descriptorCount = FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER;
 
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[1].descriptorCount = 1;
 
-    poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     poolSizes[2].descriptorCount = 1;
+
+    poolSizes[3].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    poolSizes[3].descriptorCount = 1;
 
     this->g_multiUseDescriptorPool.create(std::move(poolSizes), 128, false, true);
 }

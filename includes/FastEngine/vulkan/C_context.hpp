@@ -235,6 +235,7 @@ public:
      * This pool was created with the following types:
      * VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
      * VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+     * VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
      * VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
      *
      * \return The descriptor pool
@@ -261,7 +262,7 @@ public:
      *
      * This layout was created with the following:
      * binding: FGE_VULKAN_TRANSFORM_BINDING
-     * type: VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+     * type: VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
      * stage: VK_SHADER_STAGE_VERTEX_BIT
      *
      * \return The descriptor set layout
@@ -278,7 +279,7 @@ public:
     /**
      * \brief Retrieve a "transform" descriptor pool
      *
-     * This pool can only contain VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER type.
+     * This pool can only contain VK_DESCRIPTOR_TYPE_STORAGE_BUFFER type.
      *
      * \return The descriptor pool
      */
