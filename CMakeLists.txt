@@ -220,7 +220,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/graphic/C_surface.cpp
         sources/graphic/C_view.cpp
         sources/graphic/C_transformable.cpp
-        sources/graphic/C_transform.cpp
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp
@@ -332,7 +331,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/C_surface.cpp
         sources/graphic/C_view.cpp
         sources/graphic/C_transformable.cpp
-        sources/graphic/C_transform.cpp
         sources/graphic/C_renderWindow.cpp
         sources/graphic/C_renderTexture.cpp
         sources/graphic/C_renderTarget.cpp

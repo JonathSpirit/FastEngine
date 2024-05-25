@@ -28,6 +28,7 @@
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/network/C_networkType.hpp"
 #include "FastEngine/object/C_objectAnchor.hpp"
+#include "FastEngine/vulkan/C_context.hpp"
 #include "json.hpp"
 
 #include <chrono>
