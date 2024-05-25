@@ -261,10 +261,26 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 {
     bool const haveTextures = states._resTextures.getCount() != 0;
 
+    //Global transforms
+    auto const globalTransformsIndex = states._resTransform.getGlobalTransformsIndex();
+    uint32_t firstInstance{0};
+    switch (states._resTransform.getConfig())
+    {
+    case RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_ADDED_TO_FIRST_INSTANCE:
+        firstInstance = states._resInstances.getFirstInstance() + globalTransformsIndex.value_or(0);
+        break;
+    case RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_OVERWRITE_FIRST_INSTANCE:
+        firstInstance = globalTransformsIndex.value_or(states._resInstances.getFirstInstance());
+        break;
+    case RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_IGNORED:
+        firstInstance = states._resInstances.getFirstInstance();
+        break;
+    }
+
     //See if we can set a default graphicPipeline for this rendering call
     if (graphicPipeline == nullptr)
     {
-        if (states._resInstances.getInstancesCount() == 1 && (states._resTransform.get() != nullptr || states._resTransform.useNewGlobalStorageBuffer()) &&
+        if (states._resInstances.getInstancesCount() == 1 && globalTransformsIndex &&
             states._resDescriptors.getCount() == 0 && states._vertexBuffer != nullptr)
         { //Simple rendering: There must be 1 instance, a transform, no descriptors
             if (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0)
@@ -285,13 +301,6 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     if (graphicPipeline == nullptr)
     {
         return; ///TODO: error handling
-    }
-
-    //Apply view transform
-    if (states._resTransform.get() != nullptr)
-    {
-        states._resTransform.get()->getData()._viewTransform =
-                this->getView().getProjectionMatrix() * this->getView().getTransform();
     }
 
     //Updating graphicPipeline
@@ -369,7 +378,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     graphicPipeline->recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 
     //Binding global transforms
-    if (states._resTransform.useNewGlobalStorageBuffer())
+    if (globalTransformsIndex)
     {
         auto descriptorSetTransform = this->_g_globalTransform._descriptorSet.get();
         commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -438,11 +447,11 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             else
             {
                 commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset,
-                                   states._resInstances.getFirstInstance());
+                                   firstInstance);
             }
             break;
         }
-        commandBuffer.draw(vertexCount, 1, vertexOffset, states._resInstances.getFirstInstance() + iInstance);
+        commandBuffer.draw(vertexCount, 1, vertexOffset, firstInstance + iInstance);
     }
 }
 
@@ -521,6 +530,22 @@ std::pair<uint32_t, fge::TransformUboData*> RenderTarget::requestGlobalTransform
     }
 
     return {index, static_cast<fge::TransformUboData*>(this->_g_globalTransform._transforms.getBufferMapped()) + index};
+}
+fge::TransformUboData const* RenderTarget::getGlobalTransform(uint32_t index) const
+{
+    if (index >= this->_g_globalTransform._transformsCount)
+    {
+        return nullptr;
+    }
+    return static_cast<fge::TransformUboData*>(this->_g_globalTransform._transforms.getBufferMapped()) + index;
+}
+fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourceTransform const& ressource) const
+{
+    if (auto const index = ressource.getGlobalTransformsIndex())
+    {
+        return this->getGlobalTransform(*index);
+    }
+    return ressource.getTransformData();
 }
 
 void RenderTarget::resetDefaultView()
