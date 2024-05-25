@@ -137,6 +137,10 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 {
     this->g_renderMap._renderTexture.beginRenderPass(this->g_renderMap._renderTexture.prepareNextFrame(nullptr));
 
+    auto emptyTransform = target.getContext().requestGlobalTransform();
+    emptyTransform.second->_modelTransform = glm::mat4{1.0f};
+    emptyTransform.second->_viewTransform = target.getView().getProjectionMatrix() * target.getView().getTransform();
+
     auto copyStates = states.copy();
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     copyStates._resTextures.set(this->g_texture.retrieve(), 1);
@@ -144,7 +148,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 
     copyStates._vertexBuffer = &this->g_vertexBuffer;
 
-    this->g_renderMap._renderTexture.RenderTarget::draw(copyStates);
+    this->g_renderMap._renderTexture.draw(copyStates);
 
     if (this->_g_lightSystemGate.isOpen())
     {
@@ -230,10 +234,11 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                 }
 
                 auto polygonStates = fge::RenderStates(&this->g_obstacleHulls[iComponent]);
+                polygonStates._resTransform.set(emptyTransform.first);
                 polygonStates._blendMode = noLightBlend;
                 polygonStates._resInstances.setVertexCount(tmpHull.size());
                 polygonStates._resInstances.setVertexOffset(vertexOffset);
-                this->g_renderMap._renderTexture.RenderTarget::draw(polygonStates);
+                this->g_renderMap._renderTexture.draw(polygonStates);
             }
         }
     }
@@ -245,7 +250,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
     }
 
     auto targetStates = fge::RenderStates();
-    targetStates._resTransform.set(states._resTransform.getGlobalTransformsIndex().value());
+    targetStates._resTransform.set(target.requestGlobalTransform(*this));
     targetStates._blendMode = this->g_blendMode;
     finalTarget->draw(this->g_renderMap, targetStates);
 }

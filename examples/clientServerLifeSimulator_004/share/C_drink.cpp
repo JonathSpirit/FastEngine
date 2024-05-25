@@ -43,7 +43,8 @@ void Drink::first([[maybe_unused]] fge::Scene& scene)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Drink)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     target.draw(this->g_circleShape, copyStates);
 }
 #endif

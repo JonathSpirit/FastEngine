@@ -368,7 +368,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
         characterStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
 
         bool transformDataUpdated = false;
-        uint32_t firstGlobalTransformIndex = target.getGlobalTransformCount();
+        uint32_t firstGlobalTransformIndex = target.getContext().getGlobalTransform()._transformsCount;
 
         if (this->g_outlineThickness != 0.0f)
         {
@@ -378,7 +378,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
             {
                 auto& character = this->g_characters[i];
 
-                auto globalTransform = target.requestGlobalTransform();
+                auto globalTransform = target.getContext().requestGlobalTransform();
                 globalTransform.second->_modelTransform = parentModelTransform * character.getTransform();
                 globalTransform.second->_viewTransform = viewTransform;
 
@@ -405,7 +405,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
 
             if (!transformDataUpdated)
             {
-                auto globalTransform = target.requestGlobalTransform();
+                auto globalTransform = target.getContext().requestGlobalTransform();
                 globalTransform.second->_modelTransform = parentModelTransform * character.getTransform();
                 globalTransform.second->_viewTransform = viewTransform;
                 characterStates._resTransform.set(globalTransform.first);

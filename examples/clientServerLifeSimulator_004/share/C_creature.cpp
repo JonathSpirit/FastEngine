@@ -362,7 +362,8 @@ FGE_OBJ_DRAW_BODY(Creature)
     this->g_animTexture->_texture = this->_anim.retrieveTexture();
     this->g_spriteCreature.setTexture(this->g_animTexture);
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
 
     target.draw(this->g_circleSight, copyStates);
 
