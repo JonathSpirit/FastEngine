@@ -96,9 +96,6 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
     vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);
 
-    this->updateGlobalTransform();
-    this->_g_globalTransform._transformsCount = 0;
-
     uint32_t imageIndex;
     VkResult const result = vkAcquireNextImageKHR(
             this->getContext().getLogicalDevice().getDevice(), this->g_swapChain.getSwapChain(), UINT64_MAX,
@@ -124,6 +121,9 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
 void RenderWindow::beginRenderPass(uint32_t imageIndex)
 {
     VkClearValue const clearColor = {.color = this->_g_clearColor};
+
+    this->updateGlobalTransform();
+    this->_g_globalTransform._transformsCount = 0;
 
     this->g_commandBuffers[this->g_currentFrame].beginRenderPass(
             this->g_renderPass, this->g_swapChainFramebuffers[imageIndex], this->g_swapChain.getSwapChainExtent(),
