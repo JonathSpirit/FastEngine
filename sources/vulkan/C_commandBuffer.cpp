@@ -613,7 +613,7 @@ void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
 
     if (descriptorCount == 1 && dynamicOffsetCount == 0)
     {
-        if (!this->g_lastBoundDescriptorSets.insert(CacheDescriptorSets{pipelineBindPoint, *descriptorSet, firstSet}).second)
+        if (!this->g_lastBoundDescriptorSets.emplace(pipelineLayout, pipelineBindPoint, *descriptorSet, firstSet).second)
         {
             return;
         }

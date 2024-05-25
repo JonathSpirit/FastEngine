@@ -328,21 +328,30 @@ private:
     //Cache
     struct CacheDescriptorSets
     {
+        constexpr CacheDescriptorSets(VkPipelineLayout pipelineLayout,
+                            VkPipelineBindPoint pipelineBindPoint,
+                            VkDescriptorSet descriptorSet,
+                            uint32_t set)
+            : _pipelineLayout(pipelineLayout), _pipelineBindPoint(pipelineBindPoint), _descriptorSet(descriptorSet),
+              _set(set)
+        {}
+
+        VkPipelineLayout _pipelineLayout;
         VkPipelineBindPoint _pipelineBindPoint;
         VkDescriptorSet _descriptorSet;
         uint32_t _set;
 
         [[nodiscard]] constexpr bool operator==(CacheDescriptorSets const& r) const
         {
-            return this->_pipelineBindPoint == r._pipelineBindPoint && this->_descriptorSet == r._descriptorSet &&
-                   this->_set == r._set;
+            return this->_pipelineLayout == r._pipelineLayout && this->_pipelineBindPoint == r._pipelineBindPoint &&
+                    this->_descriptorSet == r._descriptorSet && this->_set == r._set;
         }
 
         struct Hash
         {
             [[nodiscard]] inline std::size_t operator()(CacheDescriptorSets const& r) const
             {
-                return std::hash<VkPipelineBindPoint>{}(r._pipelineBindPoint) ^
+                return std::hash<VkPipelineLayout>{}(r._pipelineLayout) ^ std::hash<VkPipelineBindPoint>{}(r._pipelineBindPoint) ^
                        std::hash<VkDescriptorSet>{}(r._descriptorSet) ^ std::hash<uint32_t>{}(r._set);
             }
         };
