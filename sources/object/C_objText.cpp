@@ -412,7 +412,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
             }
             else
             {
-                characterStates._resTransform.set(firstGlobalTransformIndex+i);
+                characterStates._resTransform.set(firstGlobalTransformIndex + i);
             }
 
             characterStates._vertexBuffer = &character.g_vertices;

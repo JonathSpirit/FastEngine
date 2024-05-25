@@ -77,8 +77,7 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
 
     fge::View const backupView = target.getView();
     fge::View clipView = fge::ClipView(backupView, target,
-                                       transform->_modelTransform *
-                                               fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
+                                       transform->_modelTransform * fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
                                        fge::ClipClampModes::CLIP_CLAMP_HIDE);
 
     target.setView(clipView);

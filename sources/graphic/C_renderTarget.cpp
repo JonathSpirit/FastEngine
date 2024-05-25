@@ -18,8 +18,8 @@
 #include "FastEngine/C_texture.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
-#include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
+#include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
@@ -441,8 +441,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             }
             else
             {
-                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset,
-                                   firstInstance);
+                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset, firstInstance);
             }
             break;
         }
@@ -484,7 +483,8 @@ void RenderTarget::clearGraphicPipelineCache()
     this->_g_graphicPipelineCache.clear();
 }
 
-uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable, uint32_t parentGlobalTransform) const
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
+                                              uint32_t parentGlobalTransform) const
 {
     auto transform = this->getContext().requestGlobalTransform();
     transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
@@ -500,14 +500,16 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
     }
     return transform.first;
 }
-uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable, fge::TransformUboData const& parentTransform) const
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
+                                              fge::TransformUboData const& parentTransform) const
 {
     auto transform = this->getContext().requestGlobalTransform();
     transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
     transform.second->_modelTransform = parentTransform._modelTransform * transformable.getTransform();
     return transform.first;
 }
-uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable, fge::RenderResourceTransform const& ressource) const
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
+                                              fge::RenderResourceTransform const& ressource) const
 {
     if (ressource.getTransformData() != nullptr)
     {

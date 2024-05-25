@@ -515,9 +515,9 @@ std::pair<uint32_t, fge::TransformUboData*> Context::requestGlobalTransform() co
 }
 
 Context::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
-                _transforms(context, vulkan::UniformBuffer::Types::STORAGE_BUFFER),
-                _transformsCount(0),
-                _needUpdate(false)
+        _transforms(context, vulkan::UniformBuffer::Types::STORAGE_BUFFER),
+        _transformsCount(0),
+        _needUpdate(false)
 {}
 
 void Context::GlobalTransform::init(vulkan::Context const& context)
@@ -525,14 +525,16 @@ void Context::GlobalTransform::init(vulkan::Context const& context)
     this->_transformsCount = 0;
     this->_needUpdate = false;
 
-    this->_transforms.create(FGE_CONTEXT_GLOBALTRANSFORMS_COUNT_START * fge::TransformUboData::uboSize, vulkan::UniformBuffer::Types::STORAGE_BUFFER);
+    this->_transforms.create(FGE_CONTEXT_GLOBALTRANSFORMS_COUNT_START * fge::TransformUboData::uboSize,
+                             vulkan::UniformBuffer::Types::STORAGE_BUFFER);
 
     this->_descriptorSet = context.getTransformDescriptorPool()
-                                    .allocateDescriptorSet(context.getTransformLayout().getLayout())
-                                           .value();
+                                   .allocateDescriptorSet(context.getTransformLayout().getLayout())
+                                   .value();
 
     vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
-        vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
+                                                       vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
+                                                       VK_WHOLE_SIZE);
     this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 void Context::GlobalTransform::update()
@@ -542,7 +544,8 @@ void Context::GlobalTransform::update()
         this->_needUpdate = false;
 
         vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
-            vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
+                                                           vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE,
+                                                           VK_WHOLE_SIZE);
         this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 }

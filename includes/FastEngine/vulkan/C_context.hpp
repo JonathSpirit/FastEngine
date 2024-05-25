@@ -50,7 +50,7 @@ namespace fge
 struct TransformUboData;
 class RenderTarget;
 
-}
+} // namespace fge
 
 namespace fge::vulkan
 {

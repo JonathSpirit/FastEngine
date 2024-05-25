@@ -240,7 +240,8 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     auto copyStates = states.copy();
 
-    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform), RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_IGNORED);
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform),
+                                 RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_IGNORED);
 
     fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
@@ -255,10 +256,8 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     copyStates._resTextures.set(texture, texture == nullptr ? 0 : 1);
     copyStates._vertexBuffer = &this->g_vertices;
 
-    ConstantData constantData{
-            FGE_OBJSHAPE_INDEX_FILLCOLOR,
-            copyStates._resTransform.getGlobalTransformsIndex().value()
-    };
+    ConstantData constantData{FGE_OBJSHAPE_INDEX_FILLCOLOR,
+                              copyStates._resTransform.getGlobalTransformsIndex().value()};
     target.getCommandBuffer().pushConstants(graphicPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
                                             sizeof(ConstantData), &constantData);
 
@@ -412,8 +411,7 @@ void ObjShape::updateDescriptors() const
     }
 
     DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
-                                               DescriptorSet::Descriptor::BufferTypes::STORAGE,
-                                               VK_WHOLE_SIZE};
+                                               DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 #endif //FGE_DEF_SERVER
 }

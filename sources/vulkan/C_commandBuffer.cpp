@@ -628,9 +628,9 @@ void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
         }
         else
         {
-            this->g_lastBoundDescriptorSets.emplace(std::piecewise_construct,
-                std::forward_as_tuple(firstSet),
-                std::forward_as_tuple(pipelineLayout, pipelineBindPoint, *descriptorSet));
+            this->g_lastBoundDescriptorSets.emplace(
+                    std::piecewise_construct, std::forward_as_tuple(firstSet),
+                    std::forward_as_tuple(pipelineLayout, pipelineBindPoint, *descriptorSet));
         }
     }
 

@@ -265,8 +265,8 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         instance->_textureIndex = this->g_instancesData[i]._textureIndex;
         if (parentTransform != nullptr)
         {
-            instance->_transform = parentTransform->_modelTransform *
-                                   this->g_instancesData[i]._transformable.getTransform();
+            instance->_transform =
+                    parentTransform->_modelTransform * this->g_instancesData[i]._transformable.getTransform();
         }
         else
         {

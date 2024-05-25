@@ -216,9 +216,8 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
             transform->_modelTransform *
             fge::RectFloat{fge::Vector2f{0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}, this->getDrawAreaSize()};
     *this->_windowView = fge::ClipView(*this->_windowView, target, worldCoord, fge::ClipClampModes::CLIP_CLAMP_NOTHING);
-    this->_windowView->setCenter(
-            this->_windowView->getCenter() -
-            (worldCoord.getPosition() - transform->_modelTransform * fge::Vector2f{}));
+    this->_windowView->setCenter(this->_windowView->getCenter() -
+                                 (worldCoord.getPosition() - transform->_modelTransform * fge::Vector2f{}));
 
     this->_windowScene.draw(target, copyStates);
 

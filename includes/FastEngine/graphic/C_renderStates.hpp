@@ -64,14 +64,22 @@ public:
     constexpr RenderResourceTransform() = default;
 
     void set(fge::TransformUboData const& data) { this->g_transform = &data; }
-    void set(uint32_t globalTransformsIndex, Configs config=Configs::DEFAULT) { this->g_transform = globalTransformsIndex; this->g_config = config; }
+    void set(uint32_t globalTransformsIndex, Configs config = Configs::DEFAULT)
+    {
+        this->g_transform = globalTransformsIndex;
+        this->g_config = config;
+    }
     [[nodiscard]] fge::TransformUboData const* getTransformData() const
     {
-        return std::holds_alternative<fge::TransformUboData const*>(this->g_transform) ? std::get<fge::TransformUboData const*>(this->g_transform) : nullptr;
+        return std::holds_alternative<fge::TransformUboData const*>(this->g_transform)
+                       ? std::get<fge::TransformUboData const*>(this->g_transform)
+                       : nullptr;
     }
     [[nodiscard]] std::optional<uint32_t> getGlobalTransformsIndex() const
     {
-        return std::holds_alternative<uint32_t>(this->g_transform) ? std::make_optional(std::get<uint32_t>(this->g_transform)) : std::nullopt;
+        return std::holds_alternative<uint32_t>(this->g_transform)
+                       ? std::make_optional(std::get<uint32_t>(this->g_transform))
+                       : std::nullopt;
     }
     [[nodiscard]] Configs getConfig() const { return this->g_config; }
 
@@ -365,8 +373,8 @@ public:
             _resTextures{textureImage, 1}
     {}
     explicit RenderStates(fge::vulkan::VertexBuffer const* vertexBuffer,
-                 fge::TextureType const* textureImage = nullptr,
-                 fge::vulkan::BlendMode const& blendMode = {}) :
+                          fge::TextureType const* textureImage = nullptr,
+                          fge::vulkan::BlendMode const& blendMode = {}) :
             _resTextures{textureImage, 1},
             _vertexBuffer(vertexBuffer),
             _blendMode(blendMode)

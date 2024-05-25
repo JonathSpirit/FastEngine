@@ -21,8 +21,8 @@
 
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include <utility>
 #include <unordered_map>
+#include <utility>
 
 namespace fge::vulkan
 {
@@ -329,9 +329,11 @@ private:
     struct CacheDescriptorSets
     {
         constexpr CacheDescriptorSets(VkPipelineLayout pipelineLayout,
-                            VkPipelineBindPoint pipelineBindPoint,
-                            VkDescriptorSet descriptorSet)
-            : _pipelineLayout(pipelineLayout), _pipelineBindPoint(pipelineBindPoint), _descriptorSet(descriptorSet)
+                                      VkPipelineBindPoint pipelineBindPoint,
+                                      VkDescriptorSet descriptorSet) :
+                _pipelineLayout(pipelineLayout),
+                _pipelineBindPoint(pipelineBindPoint),
+                _descriptorSet(descriptorSet)
         {}
 
         VkPipelineLayout _pipelineLayout;
@@ -341,7 +343,7 @@ private:
         [[nodiscard]] constexpr bool operator==(CacheDescriptorSets const& r) const
         {
             return this->_pipelineLayout == r._pipelineLayout && this->_pipelineBindPoint == r._pipelineBindPoint &&
-                    this->_descriptorSet == r._descriptorSet;
+                   this->_descriptorSet == r._descriptorSet;
         }
     };
 

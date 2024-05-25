@@ -150,9 +150,12 @@ public:
                                                                    GraphicPipelineConstructor constructor) const;
     void clearGraphicPipelineCache();
 
-    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, uint32_t parentGlobalTransform) const;
-    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, fge::TransformUboData const& parentTransform) const;
-    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, fge::RenderResourceTransform const& ressource) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
+                                                  uint32_t parentGlobalTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
+                                                  fge::TransformUboData const& parentTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
+                                                  fge::RenderResourceTransform const& ressource) const;
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable) const;
 
     [[nodiscard]] fge::TransformUboData const* getGlobalTransform(fge::RenderResourceTransform const& ressource) const;
