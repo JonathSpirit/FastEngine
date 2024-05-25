@@ -16,6 +16,7 @@
 
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/C_alloca.hpp"
+#include "FastEngine/graphic/C_transform.hpp"
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -28,11 +29,13 @@ namespace fge::vulkan
 {
 
 Context::Context() :
+        g_globalTransform(*this),
         g_multiUseDescriptorPool(*this),
         g_textureLayout(*this),
         g_transformLayout(*this),
         g_textureDescriptorPool(*this),
         g_transformDescriptorPool(*this),
+        g_mainRenderTarget(nullptr),
         g_currentFrame(0),
         g_graphicsCommandPool(VK_NULL_HANDLE),
         g_isCreated(false)
@@ -49,6 +52,9 @@ void Context::destroy()
 {
     if (this->g_isCreated)
     {
+        this->g_globalTransform._transforms.destroy();
+        this->g_globalTransform._descriptorSet.destroy();
+
         this->_garbageCollector.enable(false);
 
         for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
@@ -330,6 +336,8 @@ void Context::initVulkan(SDL_Window* window)
             FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
     this->g_transformLayout.create({DescriptorSetLayout::Binding(
             FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
+
+    this->g_globalTransform.init(*this);
 }
 void Context::enumerateExtensions()
 {
@@ -453,6 +461,90 @@ std::vector<VkCommandBuffer> const& Context::getGraphicsCommandBuffers() const
 void Context::clearGraphicsCommandBuffers() const
 {
     this->g_graphicsSubmitableCommandBuffers.clear();
+}
+
+void Context::startMainRenderTarget(RenderTarget& renderTarget) const
+{
+    if (this->g_mainRenderTarget == nullptr)
+    {
+        this->g_mainRenderTarget = &renderTarget;
+        this->g_globalTransform._transformsCount = 0;
+        this->g_globalTransform.update();
+    }
+}
+RenderTarget* Context::getMainRenderTarget() const
+{
+    return this->g_mainRenderTarget;
+}
+bool Context::isMainRenderTarget(RenderTarget const& renderTarget) const
+{
+    return this->g_mainRenderTarget == &renderTarget;
+}
+void Context::endMainRenderTarget(RenderTarget const& renderTarget) const
+{
+    if (this->g_mainRenderTarget == &renderTarget)
+    {
+        this->g_mainRenderTarget = nullptr;
+    }
+}
+
+Context::GlobalTransform const& Context::getGlobalTransform() const
+{
+    return this->g_globalTransform;
+}
+fge::TransformUboData const* Context::getGlobalTransform(uint32_t index) const
+{
+    if (index >= this->g_globalTransform._transformsCount)
+    {
+        return nullptr;
+    }
+    return static_cast<fge::TransformUboData*>(this->g_globalTransform._transforms.getBufferMapped()) + index;
+}
+std::pair<uint32_t, fge::TransformUboData*> Context::requestGlobalTransform() const
+{
+    auto const index = this->g_globalTransform._transformsCount++;
+
+    auto const maxSize = this->g_globalTransform._transforms.getBufferSize() / fge::TransformUboData::uboSize;
+    if (this->g_globalTransform._transformsCount >= maxSize)
+    {
+        this->g_globalTransform._transforms.resize(fge::TransformUboData::uboSize * maxSize * 2);
+        this->g_globalTransform._needUpdate = true;
+    }
+
+    return {index, static_cast<fge::TransformUboData*>(this->g_globalTransform._transforms.getBufferMapped()) + index};
+}
+
+Context::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
+                _transforms(context, vulkan::UniformBuffer::Types::STORAGE_BUFFER),
+                _transformsCount(0),
+                _needUpdate(false)
+{}
+
+void Context::GlobalTransform::init(vulkan::Context const& context)
+{
+    this->_transformsCount = 0;
+    this->_needUpdate = false;
+
+    this->_transforms.create(FGE_CONTEXT_GLOBALTRANSFORMS_COUNT_START * fge::TransformUboData::uboSize, vulkan::UniformBuffer::Types::STORAGE_BUFFER);
+
+    this->_descriptorSet = context.getTransformDescriptorPool()
+                                    .allocateDescriptorSet(context.getTransformLayout().getLayout())
+                                           .value();
+
+    vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
+        vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
+    this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
+}
+void Context::GlobalTransform::update()
+{
+    if (this->_needUpdate)
+    {
+        this->_needUpdate = false;
+
+        vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
+            vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
+        this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
+    }
 }
 
 void Context::createCommandPool()

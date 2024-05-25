@@ -125,6 +125,7 @@ void RenderTexture::destroy()
 
 uint32_t RenderTexture::prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
+    this->getContext().startMainRenderTarget(*this);
     this->g_commandBuffers[this->g_currentFrame].reset();
     this->g_commandBuffers[this->g_currentFrame].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
                                                        inheritanceInfo);
@@ -149,6 +150,7 @@ void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
     this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame].get());
 
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
+    this->getContext().endMainRenderTarget(*this);
 }
 
 Vector2u RenderTexture::getSize() const

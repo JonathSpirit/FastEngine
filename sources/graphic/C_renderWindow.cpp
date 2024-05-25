@@ -65,9 +65,6 @@ void RenderWindow::destroy()
 
         this->clearGraphicPipelineCache();
 
-        this->_g_globalTransform._transforms.destroy();
-        this->_g_globalTransform._descriptorSet.destroy();
-
         VkDevice logicalDevice = this->getContext().getLogicalDevice().getDevice();
 
         for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
@@ -93,6 +90,7 @@ void RenderWindow::destroy()
 
 uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
+    this->getContext().startMainRenderTarget(*this);
     vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);
 
@@ -121,9 +119,6 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
 void RenderWindow::beginRenderPass(uint32_t imageIndex)
 {
     VkClearValue const clearColor = {.color = this->_g_clearColor};
-
-    this->updateGlobalTransform();
-    this->_g_globalTransform._transformsCount = 0;
 
     this->g_commandBuffers[this->g_currentFrame].beginRenderPass(
             this->g_renderPass, this->g_swapChainFramebuffers[imageIndex], this->g_swapChain.getSwapChainExtent(),
@@ -199,6 +194,7 @@ void RenderWindow::display(uint32_t imageIndex)
     }
 
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
+    this->getContext().endMainRenderTarget(*this);
 }
 
 Vector2u RenderWindow::getSize() const

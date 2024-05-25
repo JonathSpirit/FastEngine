@@ -50,8 +50,6 @@
 #define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
 #define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
 
-#define FGE_RENDERTARGET_TRANSFORMS_COUNT_START 100
-
 namespace fge
 {
 
@@ -154,41 +152,16 @@ public:
 
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, uint32_t parentGlobalTransform) const;
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, fge::TransformUboData const& parentTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable, fge::RenderResourceTransform const& ressource) const;
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable) const;
-    [[nodiscard]] inline uint32_t requestGlobalTransform(fge::Transformable const& transformable, fge::RenderResourceTransform const& ressource) const
-    {
-        if (ressource.getTransformData() != nullptr)
-        {
-            return this->requestGlobalTransform(transformable, *ressource.getTransformData());
-        }
-        if (auto const index = ressource.getGlobalTransformsIndex())
-        {
-            return this->requestGlobalTransform(transformable, *index);
-        }
-        return this->requestGlobalTransform(transformable);
-    }
-    [[nodiscard]] std::pair<uint32_t, fge::TransformUboData*> requestGlobalTransform() const;
-    [[nodiscard]] fge::TransformUboData const* getGlobalTransform(uint32_t index) const;
+
     [[nodiscard]] fge::TransformUboData const* getGlobalTransform(fge::RenderResourceTransform const& ressource) const;
-    [[nodiscard]] uint32_t getGlobalTransformCount() const;
 
 private:
     View g_defaultView;
     View g_view;
 
 protected:
-    struct GlobalTransform
-    {
-        GlobalTransform(vulkan::Context const& context);
-
-        void init(vulkan::Context const& context);
-
-        vulkan::UniformBuffer _transforms;
-        vulkan::DescriptorSet _descriptorSet;
-        uint32_t _transformsCount;
-        bool _needUpdate;
-    };
-
     void resetDefaultView();
 
     VkClearColorValue _g_clearColor;
@@ -196,9 +169,6 @@ protected:
     bool _g_forceGraphicPipelineUpdate;
 
     mutable GraphicPipelineCache _g_graphicPipelineCache;
-
-    mutable GlobalTransform _g_globalTransform;
-    void updateGlobalTransform() const;
 };
 
 } // namespace fge
