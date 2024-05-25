@@ -170,6 +170,7 @@ public:
     [[nodiscard]] std::pair<uint32_t, fge::TransformUboData*> requestGlobalTransform() const;
     [[nodiscard]] fge::TransformUboData const* getGlobalTransform(uint32_t index) const;
     [[nodiscard]] fge::TransformUboData const* getGlobalTransform(fge::RenderResourceTransform const& ressource) const;
+    [[nodiscard]] uint32_t getGlobalTransformCount() const;
 
 private:
     View g_defaultView;

@@ -547,6 +547,10 @@ fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourc
     }
     return ressource.getTransformData();
 }
+uint32_t RenderTarget::getGlobalTransformCount() const
+{
+    return this->_g_globalTransform._transformsCount;
+}
 
 void RenderTarget::resetDefaultView()
 {
@@ -559,7 +563,9 @@ void RenderTarget::updateGlobalTransform() const
     if (this->_g_globalTransform._needUpdate)
     {
         this->_g_globalTransform._needUpdate = false;
-        vulkan::DescriptorSet::Descriptor const descriptor(this->_g_globalTransform._transforms, FGE_VULKAN_TRANSFORM_BINDING);
+
+        vulkan::DescriptorSet::Descriptor const descriptor(this->_g_globalTransform._transforms, FGE_VULKAN_TRANSFORM_BINDING,
+            vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
         this->_g_globalTransform._descriptorSet.updateDescriptorSet(&descriptor, 1);
     }
 }
@@ -570,11 +576,13 @@ RenderTarget::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
                 _needUpdate(false)
 {
     this->_transforms.resize(FGE_RENDERTARGET_TRANSFORMS_COUNT_START * fge::TransformUboData::uboSize);
+
     this->_descriptorSet = context.getTransformDescriptorPool()
                                     .allocateDescriptorSet(context.getTransformLayout().getLayout())
                                            .value();
 
-    vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING);
+    vulkan::DescriptorSet::Descriptor const descriptor(this->_transforms, FGE_VULKAN_TRANSFORM_BINDING,
+        vulkan::DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE);
     this->_descriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
