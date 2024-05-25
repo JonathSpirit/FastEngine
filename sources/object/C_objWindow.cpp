@@ -196,7 +196,9 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     auto backupView = target.getView();
     target.setView(*this->_windowView);
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
+    auto const* transform = target.getGlobalTransform(copyStates._resTransform);
 
     target.draw(this->g_spriteBatches, copyStates);
 
@@ -211,12 +213,12 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
 
     //Drawing elements
     auto worldCoord =
-            copyStates._resTransform.get()->getData()._modelTransform *
+            transform->_modelTransform *
             fge::RectFloat{fge::Vector2f{0.0f, FGE_WINDOW_DRAW_MOVE_RECTANGLE_HEIGHT}, this->getDrawAreaSize()};
     *this->_windowView = fge::ClipView(*this->_windowView, target, worldCoord, fge::ClipClampModes::CLIP_CLAMP_NOTHING);
     this->_windowView->setCenter(
             this->_windowView->getCenter() -
-            (worldCoord.getPosition() - copyStates._resTransform.get()->getData()._modelTransform * fge::Vector2f{}));
+            (worldCoord.getPosition() - transform->_modelTransform * fge::Vector2f{}));
 
     this->_windowScene.draw(target, copyStates);
 

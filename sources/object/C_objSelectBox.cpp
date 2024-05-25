@@ -178,7 +178,8 @@ void ObjSelectBox::callbackRegister([[maybe_unused]] fge::Event& event, fge::Gui
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSelectBox)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
 
     this->g_box.draw(target, copyStates);
     this->g_textSelected.draw(target, copyStates);

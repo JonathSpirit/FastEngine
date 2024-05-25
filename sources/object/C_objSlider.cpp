@@ -49,7 +49,8 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSlider)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, copyStates._resTransform));
 
     target.draw(this->g_scrollBaseRect, copyStates);
     target.draw(this->g_scrollRect, copyStates);

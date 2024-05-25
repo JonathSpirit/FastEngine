@@ -60,7 +60,7 @@ public:
                       fge::Vector2i const& textureSize,
                       float italicShear);
 
-    void draw(fge::Transform& externalTransform, fge::RenderTarget& target, fge::RenderStates const& states) const;
+    void draw(fge::TransformUboData const& externalTransform, fge::RenderTarget const& target, fge::RenderStates const& states) const;
 
     void setFillColor(fge::Color const& color);
     void setOutlineColor(fge::Color const& color);

@@ -137,7 +137,8 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 {
     this->g_renderMap._renderTexture.beginRenderPass(this->g_renderMap._renderTexture.prepareNextFrame(nullptr));
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     copyStates._resTextures.set(this->g_texture.retrieve(), 1);
     copyStates._blendMode = fge::vulkan::BlendNone;
 
@@ -228,7 +229,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
                     this->g_obstacleHulls[iComponent][vertexOffset + iVertex]._color = fge::Color::White;
                 }
 
-                auto polygonStates = fge::RenderStates(&this->g_emptyTransform, &this->g_obstacleHulls[iComponent]);
+                auto polygonStates = fge::RenderStates(&this->g_obstacleHulls[iComponent]);
                 polygonStates._blendMode = noLightBlend;
                 polygonStates._resInstances.setVertexCount(tmpHull.size());
                 polygonStates._resInstances.setVertexOffset(vertexOffset);
@@ -243,7 +244,8 @@ FGE_OBJ_DRAW_BODY(ObjLight)
         finalTarget = &reinterpret_cast<fge::ObjRenderMap*>(this->g_renderObject->getObject())->_renderTexture;
     }
 
-    auto targetStates = fge::RenderStates(&this->_transform);
+    auto targetStates = fge::RenderStates();
+    targetStates._resTransform.set(states._resTransform.getGlobalTransformsIndex().value());
     targetStates._blendMode = this->g_blendMode;
     finalTarget->draw(this->g_renderMap, targetStates);
 }

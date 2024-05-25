@@ -466,7 +466,7 @@ public:
      * \param states The default RenderStates to be used for every drawn Object
      */
 #ifndef FGE_DEF_SERVER
-    void draw(fge::RenderTarget& target, fge::RenderStates const& states = {}) const;
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states = fge::RenderStates{}) const;
 #endif //FGE_DEF_SERVER
 
     /**

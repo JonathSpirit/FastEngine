@@ -131,13 +131,14 @@ void Character::addGlyphQuad(bool outlineVertices,
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
 }
 
-void Character::draw(fge::Transform& externalTransform,
-                     fge::RenderTarget& target,
+void Character::draw(fge::TransformUboData const& externalTransform,
+                     fge::RenderTarget const& target,
                      fge::RenderStates const& states) const
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(externalTransform.start(*this, states._resTransform.get()));
+        auto copyStates = states.copy();
+        copyStates._resTransform.set(target.requestGlobalTransform(*this, externalTransform));
         copyStates._resTextures = states._resTextures;
 
         copyStates._vertexBuffer = &this->g_outlineVertices;
@@ -384,8 +385,10 @@ FGE_OBJ_DRAW_BODY(ObjText)
     {
         this->ensureGeometryUpdate();
 
-        auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+        auto copyStates = states.copy();
 
+        copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform), RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_IGNORED);
+        auto const* transform = target.getGlobalTransform(copyStates._resTransform);
         copyStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
 
         fge::RenderTarget::GraphicPipelineKey const graphicPipelineKey{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -408,9 +411,8 @@ FGE_OBJ_DRAW_BODY(ObjText)
                 auto& character = this->g_characters[i];
 
                 fge::TransformUboData* transformData =
-                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
-                transformData->_modelTransform =
-                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
+                        static_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
+                transformData->_modelTransform = transform->_modelTransform * character.getTransform();
                 transformData->_viewTransform =
                         target.getView().getProjectionMatrix() * target.getView().getTransform();
 
@@ -445,7 +447,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
                 fge::TransformUboData* transformData =
                         reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
                 transformData->_modelTransform =
-                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
+                        transform->_modelTransform * character.getTransform();
                 transformData->_viewTransform =
                         target.getView().getProjectionMatrix() * target.getView().getTransform();
             }

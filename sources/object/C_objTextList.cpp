@@ -69,13 +69,15 @@ void ObjTextList::callbackRegister([[maybe_unused]] fge::Event& event, fge::GuiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTextList)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
+    auto const* transform = target.getGlobalTransform(copyStates._resTransform);
 
     target.draw(this->g_box, copyStates);
 
     fge::View const backupView = target.getView();
     fge::View clipView = fge::ClipView(backupView, target,
-                                       copyStates._resTransform.get()->getData()._modelTransform *
+                                       transform->_modelTransform *
                                                fge::RectFloat{{0.0f, 0.0f}, this->g_box.getSize()},
                                        fge::ClipClampModes::CLIP_CLAMP_HIDE);
 

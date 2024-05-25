@@ -211,7 +211,8 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 
     this->g_box.setFillColor(this->g_statActive ? this->g_colorBox - fge::Color(50, 50, 50, 0) : this->g_colorBox);
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     target.draw(this->g_box, copyStates);
     target.draw(this->g_text, copyStates);
     if (this->g_statActive)
