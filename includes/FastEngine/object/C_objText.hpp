@@ -33,9 +33,6 @@
 
 #define FGE_OBJTEXT_CLASSNAME "FGE:OBJ:TEXT"
 
-#define FGE_OBJTEXT_PIPELINE_CACHE_NAME FGE_OBJTEXT_CLASSNAME
-#define FGE_OBJTEXT_ID 0
-
 namespace fge
 {
 
@@ -161,7 +158,6 @@ public:
 
 private:
     void ensureGeometryUpdate() const;
-    void updateDescriptors() const;
 
     tiny_utf8::string g_string;                         /// String to display
     fge::Font g_font;                                   /// Font used to display the string
@@ -173,8 +169,6 @@ private:
     fge::Color g_outlineColor{0, 0, 0};                 /// Text outline color
     float g_outlineThickness{0.0f};                     /// Thickness of the text's outline
 
-    mutable fge::vulkan::UniformBuffer g_charactersTransforms{fge::vulkan::GetActiveContext()};
-    mutable fge::vulkan::DescriptorSet g_charactersTransformsDescriptorSet;
     mutable std::vector<Character> g_characters;
     mutable fge::RectFloat g_bounds;                    /// Bounding rectangle of the text (in local coordinates)
     mutable bool g_geometryNeedUpdate{false};           /// Does the geometry need to be recomputed?
