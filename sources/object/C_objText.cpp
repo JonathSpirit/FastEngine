@@ -378,14 +378,15 @@ FGE_OBJ_DRAW_BODY(ObjText)
             {
                 auto& character = this->g_characters[i];
 
+                auto globalTransform = target.requestGlobalTransform();
+                globalTransform.second->_modelTransform = parentModelTransform * character.getTransform();
+                globalTransform.second->_viewTransform = viewTransform;
+
                 if (!character.g_visibility)
                 {
                     continue;
                 }
 
-                auto globalTransform = target.requestGlobalTransform();
-                globalTransform.second->_modelTransform = parentModelTransform * character.getTransform();
-                globalTransform.second->_viewTransform = viewTransform;
                 characterStates._resTransform.set(globalTransform.first);
 
                 characterStates._vertexBuffer = &character.g_outlineVertices;
@@ -411,8 +412,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
             }
             else
             {
-                characterStates._resTransform.set(firstGlobalTransformIndex-1);
-                ++firstGlobalTransformIndex;
+                characterStates._resTransform.set(firstGlobalTransformIndex+i);
             }
 
             characterStates._vertexBuffer = &character.g_vertices;
