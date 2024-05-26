@@ -266,7 +266,7 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
         {
             object->_children.draw(target, states);
         }
-        target.draw(*object, states);
+        object->draw(target, states);
     }
 
     target.setView(backupView);

@@ -134,7 +134,6 @@ public:
 
     virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
-    void draw(fge::Drawable const& drawable, fge::RenderStates const& states);
     void draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline = nullptr) const;
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;

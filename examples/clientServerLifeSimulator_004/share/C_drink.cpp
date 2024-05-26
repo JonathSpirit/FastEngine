@@ -45,7 +45,7 @@ FGE_OBJ_DRAW_BODY(Drink)
 {
     auto copyStates = states.copy();
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
-    target.draw(this->g_circleShape, copyStates);
+    this->g_circleShape.draw(target, copyStates);
 }
 #endif
 

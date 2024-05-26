@@ -365,17 +365,17 @@ FGE_OBJ_DRAW_BODY(Creature)
     auto copyStates = states.copy();
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
 
-    target.draw(this->g_circleSight, copyStates);
+    this->g_circleSight.draw(target, copyStates);
 
-    target.draw(this->g_txtGender, copyStates);
+    this->g_txtGender.draw(target, copyStates);
 
-    target.draw(this->g_rectInfoBox, copyStates);
-    target.draw(this->g_rectBarLife, copyStates);
-    target.draw(this->g_rectBarHunger, copyStates);
-    target.draw(this->g_rectBarThirst, copyStates);
-    target.draw(this->g_rectBarLibido, copyStates);
+    this->g_rectInfoBox.draw(target, copyStates);
+    this->g_rectBarLife.draw(target, copyStates);
+    this->g_rectBarHunger.draw(target, copyStates);
+    this->g_rectBarThirst.draw(target, copyStates);
+    this->g_rectBarLibido.draw(target, copyStates);
 
-    target.draw(this->g_spriteCreature, copyStates);
+    this->g_spriteCreature.draw(target, copyStates);
 }
 #endif
 

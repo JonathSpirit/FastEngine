@@ -252,7 +252,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
     auto targetStates = fge::RenderStates();
     targetStates._resTransform.set(target.requestGlobalTransform(*this));
     targetStates._blendMode = this->g_blendMode;
-    finalTarget->draw(this->g_renderMap, targetStates);
+    this->g_renderMap.draw(*finalTarget, targetStates);
 }
 #endif
 

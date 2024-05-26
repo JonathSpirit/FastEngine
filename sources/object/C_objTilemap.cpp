@@ -26,7 +26,7 @@ FGE_OBJ_DRAW_BODY(ObjTileMap)
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     for (std::size_t i = 0; i < this->g_layers.size(); ++i)
     {
-        target.draw(*this->g_layers[i], copyStates);
+        this->g_layers[i]->draw(target, copyStates);
     }
 }
 #endif

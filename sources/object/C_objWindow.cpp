@@ -200,16 +200,16 @@ FGE_OBJ_DRAW_BODY(ObjWindow)
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     auto const* transform = target.getGlobalTransform(copyStates._resTransform);
 
-    target.draw(this->g_spriteBatches, copyStates);
+    this->g_spriteBatches.draw(target, copyStates);
 
     //Others
     if (this->g_makeResizable)
     {
-        target.draw(this->g_spriteResize, copyStates);
+        this->g_spriteResize.draw(target, copyStates);
     }
 
-    target.draw(this->g_spriteClose, copyStates);
-    target.draw(this->g_spriteMinimize, copyStates);
+    this->g_spriteClose.draw(target, copyStates);
+    this->g_spriteMinimize.draw(target, copyStates);
 
     //Drawing elements
     auto worldCoord =

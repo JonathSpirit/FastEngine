@@ -73,7 +73,7 @@ FGE_OBJ_DRAW_BODY(ObjTextList)
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     auto const* transform = target.getGlobalTransform(copyStates._resTransform);
 
-    target.draw(this->g_box, copyStates);
+    this->g_box.draw(target, copyStates);
 
     fge::View const backupView = target.getView();
     fge::View clipView = fge::ClipView(backupView, target,

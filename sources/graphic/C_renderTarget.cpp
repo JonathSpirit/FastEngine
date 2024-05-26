@@ -248,10 +248,6 @@ RectInt RenderTarget::mapWorldRectToFramebufferSpace(RectFloat const& rect, View
     return ToRect(positions, 4);
 }
 
-void RenderTarget::draw(Drawable const& drawable, RenderStates const& states)
-{
-    drawable.draw(*this, states); ///TODO: Inline that
-}
 void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline) const
 {
     bool const haveTextures = states._resTextures.getCount() != 0;

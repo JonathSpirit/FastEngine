@@ -213,11 +213,11 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 
     auto copyStates = states.copy();
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
-    target.draw(this->g_box, copyStates);
-    target.draw(this->g_text, copyStates);
+    this->g_box.draw(target, copyStates);
+    this->g_text.draw(target, copyStates);
     if (this->g_statActive)
     {
-        target.draw(this->g_cursorLine, copyStates);
+        this->g_cursorLine.draw(target, copyStates);
     }
 }
 #endif
