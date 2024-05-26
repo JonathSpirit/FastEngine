@@ -360,7 +360,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
         glm::mat4 parentModelTransform{this->getTransform()};
         if (auto const* ptr = target.getGlobalTransform(states._resTransform))
         {
-            parentModelTransform *= ptr->_modelTransform;
+            parentModelTransform = ptr->_modelTransform * parentModelTransform;
         }
         auto const viewTransform = target.getView().getProjectionMatrix() * target.getView().getTransform();
 
