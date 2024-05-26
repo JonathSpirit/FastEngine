@@ -149,7 +149,7 @@ Vector2f RenderTarget::mapFramebufferCoordsToViewSpace(Vector2i const& point, Vi
     normalized.w = 1.0f;
 
     // Transform the homogeneous coordinates to world coordinates
-    return view.getInverseProjectionMatrix() * normalized;
+    return view.getInverseProjection() * normalized;
 }
 Vector2f RenderTarget::mapFramebufferCoordsToWorldSpace(Vector2i const& point) const
 {
@@ -168,7 +168,7 @@ Vector2i RenderTarget::mapViewCoordsToFramebufferSpace(Vector2f const& point, Vi
     glm::vec4 const pointVec4(point, 0.0f, 1.0f);
 
     // Transform the point to clip space (assuming it's already NDC)
-    glm::vec4 ndc = view.getProjectionMatrix() * pointVec4;
+    glm::vec4 ndc = view.getProjection() * pointVec4;
 
     // Transform the NDC to framebuffer space with the viewport
     ndc.x = (ndc.x + 1.0f) / 2.0f;
@@ -483,7 +483,7 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
                                               uint32_t parentGlobalTransform) const
 {
     auto transform = this->getContext().requestGlobalTransform();
-    transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+    transform.second->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
 
     auto const* parentTransform = this->getContext().getGlobalTransform(parentGlobalTransform);
     if (parentTransform != nullptr)
@@ -500,7 +500,7 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
                                               fge::TransformUboData const& parentTransform) const
 {
     auto transform = this->getContext().requestGlobalTransform();
-    transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+    transform.second->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
     transform.second->_modelTransform = parentTransform._modelTransform * transformable.getTransform();
     return transform.first;
 }
@@ -520,7 +520,7 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
 uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable) const
 {
     auto transform = this->getContext().requestGlobalTransform();
-    transform.second->_viewTransform = this->getView().getProjectionMatrix() * this->getView().getTransform();
+    transform.second->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
     transform.second->_modelTransform = transformable.getTransform();
     return transform.first;
 }

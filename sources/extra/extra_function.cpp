@@ -677,8 +677,8 @@ fge::Vector2f SetViewSizePercentage(fge::Vector2f const& percentage, fge::View c
 fge::Vector2f
 TransposePointFromAnotherView(fge::View const& pointView, fge::Vector2f const& point, fge::View const& newView)
 {
-    fge::Vector2f const normalized = pointView.getProjectionMatrix() * pointView.getTransform() * point;
-    return newView.getInverseTransform() * newView.getInverseProjectionMatrix() * normalized;
+    fge::Vector2f const normalized = pointView.getProjection() * pointView.getTransform() * point;
+    return newView.getInverseTransform() * newView.getInverseProjection() * normalized;
 }
 
 fge::View ClipView(fge::View const& view,

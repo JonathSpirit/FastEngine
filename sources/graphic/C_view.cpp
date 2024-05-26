@@ -26,10 +26,10 @@ View::View() :
         g_size(0.0f, 0.0f),
         g_rotation(0.0f),
         g_factorViewport({0.0f, 0.0f}, {1.0f, 1.0f}),
-        g_transform(),
-        g_inverseTransform(),
         g_transformUpdated(false),
-        g_invTransformUpdated(false)
+        g_projectionUpdated(false),
+        g_invTransformUpdated(false),
+        g_invProjectionUpdated(false)
 {
     this->reset(fge::vulkan::Viewport(0.0f, 0.0f, 1000.0f, 1000.0f));
 }
@@ -37,11 +37,10 @@ View::View(fge::vulkan::Viewport const& viewport) :
         g_center(0.0f, 0.0f),
         g_size(0.0f, 0.0f),
         g_rotation(0.0f),
-        g_factorViewport(),
-        g_transform(),
-        g_inverseTransform(),
         g_transformUpdated(false),
-        g_invTransformUpdated(false)
+        g_projectionUpdated(false),
+        g_invTransformUpdated(false),
+        g_invProjectionUpdated(false)
 {
     this->reset(viewport);
 }
@@ -50,10 +49,10 @@ View::View(Vector2f const& center, Vector2f const& size) :
         g_size(size),
         g_rotation(0.0f),
         g_factorViewport({0.0f, 0.0f}, {1.0f, 1.0f}),
-        g_transform(),
-        g_inverseTransform(),
         g_transformUpdated(false),
-        g_invTransformUpdated(false)
+        g_projectionUpdated(false),
+        g_invTransformUpdated(false),
+        g_invProjectionUpdated(false)
 {}
 
 void View::setCenter(Vector2f const& center)
@@ -73,7 +72,9 @@ void View::setSize(Vector2f const& size)
     this->g_size = size;
 
     this->g_transformUpdated = false;
+    this->g_projectionUpdated = false;
     this->g_invTransformUpdated = false;
+    this->g_invProjectionUpdated = false;
 }
 Vector2f const& View::getSize() const
 {
@@ -114,7 +115,9 @@ void View::reset(fge::vulkan::Viewport const& viewport)
     this->g_rotation = 0.0f;
 
     this->g_transformUpdated = false;
+    this->g_projectionUpdated = false;
     this->g_invTransformUpdated = false;
+    this->g_invProjectionUpdated = false;
 }
 void View::move(Vector2f const& offset)
 {
@@ -161,13 +164,25 @@ glm::mat4 const& View::getInverseTransform() const
 
     return this->g_inverseTransform;
 }
-glm::mat4 View::getProjectionMatrix() const
+glm::mat4 const& View::getProjection() const
 {
-    return glm::ortho<float>(0.0f, this->g_size.x, this->g_size.y, 0.0f);
+    if (!this->g_projectionUpdated)
+    {
+        this->g_projection = glm::ortho<float>(0.0f, this->g_size.x, this->g_size.y, 0.0f);
+        this->g_projectionUpdated = true;
+    }
+
+    return this->g_projection;
 }
-glm::mat4 View::getInverseProjectionMatrix() const
+glm::mat4 const& View::getInverseProjection() const
 {
-    return glm::inverse(this->getProjectionMatrix());
+    if (!this->g_invProjectionUpdated)
+    {
+        this->g_inverseProjection = glm::inverse(this->getProjection());
+        this->g_invProjectionUpdated = true;
+    }
+
+    return this->g_inverseProjection;
 }
 
 } // namespace fge

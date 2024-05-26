@@ -112,26 +112,38 @@ public:
     void resizeFixCenter(fge::Vector2f const& newSize);
 
     /**
-     * \brief Get the combined transform of the view
+     * \brief Get the transform of the view
      *
-     * This also apply a orthogonal projection matrix.
+     * This function returns the transform matrix.
      *
      * \return A glm::mat4 of the view
      */
     [[nodiscard]] glm::mat4 const& getTransform() const;
     [[nodiscard]] glm::mat4 const& getInverseTransform() const;
-    [[nodiscard]] glm::mat4 getProjectionMatrix() const;
-    [[nodiscard]] glm::mat4 getInverseProjectionMatrix() const;
+    /**
+     * \biref Get the projection matrix of the view
+     *
+     * This function returns the a orthogonal projection matrix.
+     *
+     * \return A glm::mat4 of the projection
+     */
+    [[nodiscard]] glm::mat4 const& getProjection() const;
+    [[nodiscard]] glm::mat4 const& getInverseProjection() const;
 
 private:
     fge::Vector2f g_center;
     fge::Vector2f g_size;
     float g_rotation; //!< Rotation angle of the view, in degrees
     fge::RectFloat g_factorViewport;
+
     mutable glm::mat4 g_transform;
+    mutable glm::mat4 g_projection;
     mutable glm::mat4 g_inverseTransform;
+    mutable glm::mat4 g_inverseProjection;
     mutable bool g_transformUpdated;
+    mutable bool g_projectionUpdated;
     mutable bool g_invTransformUpdated;
+    mutable bool g_invProjectionUpdated;
 };
 
 } // namespace fge

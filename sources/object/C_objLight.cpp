@@ -139,7 +139,7 @@ FGE_OBJ_DRAW_BODY(ObjLight)
 
     auto emptyTransform = target.getContext().requestGlobalTransform();
     emptyTransform.second->_modelTransform = glm::mat4{1.0f};
-    emptyTransform.second->_viewTransform = target.getView().getProjectionMatrix() * target.getView().getTransform();
+    emptyTransform.second->_viewTransform = target.getView().getProjection() * target.getView().getTransform();
 
     auto copyStates = states.copy();
     copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));

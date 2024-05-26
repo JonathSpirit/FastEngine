@@ -362,7 +362,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
         {
             parentModelTransform = ptr->_modelTransform * parentModelTransform;
         }
-        auto const viewTransform = target.getView().getProjectionMatrix() * target.getView().getTransform();
+        auto const viewTransform = target.getView().getProjection() * target.getView().getTransform();
 
         auto characterStates = states.copy();
         characterStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
