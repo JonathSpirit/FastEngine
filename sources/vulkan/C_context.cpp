@@ -300,7 +300,9 @@ void Context::initVulkan(SDL_Window* window)
                                        vkGetImageMemoryRequirements2,
                                        vkBindBufferMemory2,
                                        vkBindImageMemory2,
-                                       vkGetPhysicalDeviceMemoryProperties2};
+                                       vkGetPhysicalDeviceMemoryProperties2,
+                                       vkGetDeviceBufferMemoryRequirements,
+                                       vkGetDeviceImageMemoryRequirements};
 
     VmaAllocatorCreateInfo allocatorCreateInfo{0,
                                                this->g_physicalDevice.getDevice(),

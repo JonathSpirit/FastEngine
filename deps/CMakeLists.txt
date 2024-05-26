@@ -156,7 +156,7 @@ add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
         https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        5e43c795daf43dd09398d8307212e85025215052
+        eaf8fc27eeadf6f21b11183651b829e897f01957
         OFF
         "-DVMA_BUILD_DOCUMENTATION=OFF -DVMA_BUILD_SAMPLES=OFF"
         "")
