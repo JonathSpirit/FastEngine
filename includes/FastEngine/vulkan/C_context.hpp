@@ -42,6 +42,16 @@
 
 #define FGE_CONTEXT_OUTSIDE_RENDER_SCOPE_COMMAND_WAITSTAGE VK_PIPELINE_STAGE_VERTEX_INPUT_BIT
 
+#define FGE_CONTEXT_GLOBALTRANSFORMS_COUNT_START 100
+
+namespace fge
+{
+
+struct TransformUboData;
+class RenderTarget;
+
+} // namespace fge
+
 namespace fge::vulkan
 {
 
@@ -60,6 +70,7 @@ public:
         DIRECT_WAIT_EXECUTION, ///< The command buffer is submitted directly to the queue and vkQueueWaitIdle is called
         INDIRECT_EXECUTION ///< The command buffer is transferred to a queue in order to be submitted later and will always be executed before the rendering
     };
+
     class SubmitableCommandBuffer : public CommandBuffer
     {
     public:
@@ -73,6 +84,19 @@ public:
         SubmitTypes g_submitType;
 
         friend class Context;
+    };
+
+    struct GlobalTransform
+    {
+        GlobalTransform(vulkan::Context const& context);
+
+        void init(vulkan::Context const& context);
+        void update();
+
+        vulkan::UniformBuffer _transforms;
+        vulkan::DescriptorSet _descriptorSet;
+        uint32_t _transformsCount;
+        bool _needUpdate;
     };
 
     Context();
@@ -235,6 +259,7 @@ public:
      * This pool was created with the following types:
      * VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
      * VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+     * VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
      * VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
      *
      * \return The descriptor pool
@@ -261,7 +286,7 @@ public:
      *
      * This layout was created with the following:
      * binding: FGE_VULKAN_TRANSFORM_BINDING
-     * type: VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+     * type: VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
      * stage: VK_SHADER_STAGE_VERTEX_BIT
      *
      * \return The descriptor set layout
@@ -278,7 +303,7 @@ public:
     /**
      * \brief Retrieve a "transform" descriptor pool
      *
-     * This pool can only contain VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER type.
+     * This pool can only contain VK_DESCRIPTOR_TYPE_STORAGE_BUFFER type.
      *
      * \return The descriptor pool
      */
@@ -316,6 +341,15 @@ public:
      */
     void clearGraphicsCommandBuffers() const;
 
+    void startMainRenderTarget(RenderTarget& renderTarget) const;
+    [[nodiscard]] RenderTarget* getMainRenderTarget() const;
+    [[nodiscard]] bool isMainRenderTarget(RenderTarget const& renderTarget) const;
+    void endMainRenderTarget(RenderTarget const& renderTarget) const;
+
+    [[nodiscard]] GlobalTransform const& getGlobalTransform() const;
+    [[nodiscard]] fge::TransformUboData const* getGlobalTransform(uint32_t index) const;
+    [[nodiscard]] std::pair<uint32_t, fge::TransformUboData*> requestGlobalTransform() const;
+
     GarbageCollector _garbageCollector;
 
 private:
@@ -324,6 +358,8 @@ private:
     void createTextureDescriptorPool();
     void createTransformDescriptorPool();
     void createSyncObjects();
+
+    mutable GlobalTransform g_globalTransform;
 
     struct ReusableCommandBuffer
     {
@@ -349,6 +385,8 @@ private:
     DescriptorSetLayout g_transformLayout;
     DescriptorPool g_textureDescriptorPool;
     DescriptorPool g_transformDescriptorPool;
+
+    mutable RenderTarget* g_mainRenderTarget;
 
     mutable VmaAllocator g_allocator;
 

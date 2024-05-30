@@ -90,6 +90,7 @@ void RenderWindow::destroy()
 
 uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
+    this->getContext().startMainRenderTarget(*this);
     vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);
 
@@ -193,6 +194,7 @@ void RenderWindow::display(uint32_t imageIndex)
     }
 
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
+    this->getContext().endMainRenderTarget(*this);
 }
 
 Vector2u RenderWindow::getSize() const

@@ -105,7 +105,9 @@ void TileLayer::Tile::updateTexCoords()
 #ifndef FGE_DEF_SERVER
 void TileLayer::draw(fge::RenderTarget& target, fge::RenderStates const& states) const
 {
-    auto statesCopy = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto statesCopy = states.copy();
+
+    statesCopy._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
 
     for (auto const& data: this->g_data)
     {

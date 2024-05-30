@@ -111,7 +111,7 @@ AddCmakeDependency(freetype
 
 AddCmakeDependency(SDL2
         https://github.com/libsdl-org/SDL.git
-        release-2.28.5
+        release-2.30.3
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
@@ -126,7 +126,7 @@ add_dependencies(SDL2_image SDL2)
 
 AddCmakeDependency(SDL2_mixer
         https://github.com/libsdl-org/SDL_mixer.git
-        release-2.6.3
+        release-2.8.0
         ON
         "-DSDL2MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL2"
         "")
@@ -134,7 +134,7 @@ add_dependencies(SDL2_mixer SDL2)
 
 AddCmakeDependency(glm
         https://github.com/g-truc/glm.git
-        b06b775c1c80af51a1183c0e167f9de3b2351a79
+        45008b225e28eb700fa0f7d3ff69b7c1db94fadf
         OFF
         "-DGLM_BUILD_LIBRARY=OFF -DGLM_BUILD_TESTS=OFF"
         "")
@@ -156,14 +156,14 @@ add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
         https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        5e43c795daf43dd09398d8307212e85025215052
+        eaf8fc27eeadf6f21b11183651b829e897f01957
         OFF
         "-DVMA_BUILD_DOCUMENTATION=OFF -DVMA_BUILD_SAMPLES=OFF"
         "")
 
 AddCmakeDependency(glslang
         https://github.com/KhronosGroup/glslang.git
-        14.0.0
+        14.2.0
         OFF
         "-DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF"
         "")

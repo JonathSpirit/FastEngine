@@ -23,34 +23,6 @@
 namespace fge
 {
 
-namespace
-{
-
-#ifndef FGE_DEF_SERVER
-void DefaultGraphicPipelineTextWithTexture_constructor(fge::vulkan::Context const& context,
-                                                       fge::RenderTarget::GraphicPipelineKey const& key,
-                                                       fge::vulkan::GraphicPipeline* graphicPipeline)
-{
-    using namespace fge::vulkan;
-
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
-    graphicPipeline->setBlendMode(key._blendMode);
-    graphicPipeline->setPrimitiveTopology(key._topology);
-
-    auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
-    if (layout.getLayout() == VK_NULL_HANDLE)
-    {
-        layout.create({DescriptorSetLayout::Binding(
-                FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_VERTEX_BIT)});
-    }
-
-    graphicPipeline->setDescriptorSetLayouts({layout.getLayout(), context.getTextureLayout().getLayout()});
-}
-#endif // FGE_DEF_SERVER
-
-} //end namespace
-
 Character::Character() :
         g_vertices(fge::vulkan::GetActiveContext()),
         g_outlineVertices(fge::vulkan::GetActiveContext())
@@ -131,13 +103,14 @@ void Character::addGlyphQuad(bool outlineVertices,
     vertices->append(fge::vulkan::Vertex{{size.x + right - italicShear * bottom, size.y + bottom}, color, {u2, v2}});
 }
 
-void Character::draw(fge::Transform& externalTransform,
-                     fge::RenderTarget& target,
+void Character::draw(fge::TransformUboData const& externalTransform,
+                     fge::RenderTarget const& target,
                      fge::RenderStates const& states) const
 {
     if (this->g_visibility)
     {
-        auto copyStates = states.copy(externalTransform.start(*this, states._resTransform.get()));
+        auto copyStates = states.copy();
+        copyStates._resTransform.set(target.requestGlobalTransform(*this, externalTransform));
         copyStates._resTextures = states._resTextures;
 
         copyStates._vertexBuffer = &this->g_outlineVertices;
@@ -384,20 +357,18 @@ FGE_OBJ_DRAW_BODY(ObjText)
     {
         this->ensureGeometryUpdate();
 
-        auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+        glm::mat4 parentModelTransform{this->getTransform()};
+        if (auto const* ptr = target.getGlobalTransform(states._resTransform))
+        {
+            parentModelTransform = ptr->_modelTransform * parentModelTransform;
+        }
+        auto const viewTransform = target.getView().getProjection() * target.getView().getTransform();
 
-        copyStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
-
-        fge::RenderTarget::GraphicPipelineKey const graphicPipelineKey{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                                                                       copyStates._blendMode, FGE_OBJTEXT_ID};
-
-        auto* graphicPipeline = target.getGraphicPipeline(FGE_OBJTEXT_PIPELINE_CACHE_NAME, graphicPipelineKey,
-                                                          DefaultGraphicPipelineTextWithTexture_constructor);
-
-        auto characterStates = copyStates.copy(nullptr);
-        characterStates._resTextures = copyStates._resTextures;
+        auto characterStates = states.copy();
+        characterStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
 
         bool transformDataUpdated = false;
+        uint32_t firstGlobalTransformIndex = target.getContext().getGlobalTransform()._transformsCount;
 
         if (this->g_outlineThickness != 0.0f)
         {
@@ -407,27 +378,19 @@ FGE_OBJ_DRAW_BODY(ObjText)
             {
                 auto& character = this->g_characters[i];
 
-                fge::TransformUboData* transformData =
-                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
-                transformData->_modelTransform =
-                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
-                transformData->_viewTransform =
-                        target.getView().getProjectionMatrix() * target.getView().getTransform();
+                auto globalTransform = target.getContext().requestGlobalTransform();
+                globalTransform.second->_modelTransform = parentModelTransform * character.getTransform();
+                globalTransform.second->_viewTransform = viewTransform;
 
                 if (!character.g_visibility)
                 {
                     continue;
                 }
 
-                uint32_t dynamicBufferSize = fge::TransformUboData::uboSize;
-                uint32_t dynamicBufferOffsets = fge::TransformUboData::uboSize * i;
-                uint32_t dynamicSet = FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM;
-                characterStates._resInstances.setDynamicDescriptors(&this->g_charactersTransformsDescriptorSet,
-                                                                    &dynamicBufferSize, &dynamicBufferOffsets,
-                                                                    &dynamicSet, 1);
+                characterStates._resTransform.set(globalTransform.first);
 
                 characterStates._vertexBuffer = &character.g_outlineVertices;
-                target.draw(characterStates, graphicPipeline);
+                target.draw(characterStates);
             }
         }
 
@@ -442,23 +405,18 @@ FGE_OBJ_DRAW_BODY(ObjText)
 
             if (!transformDataUpdated)
             {
-                fge::TransformUboData* transformData =
-                        reinterpret_cast<fge::TransformUboData*>(this->g_charactersTransforms.getBufferMapped()) + i;
-                transformData->_modelTransform =
-                        copyStates._resTransform.get()->getData()._modelTransform * character.getTransform();
-                transformData->_viewTransform =
-                        target.getView().getProjectionMatrix() * target.getView().getTransform();
+                auto globalTransform = target.getContext().requestGlobalTransform();
+                globalTransform.second->_modelTransform = parentModelTransform * character.getTransform();
+                globalTransform.second->_viewTransform = viewTransform;
+                characterStates._resTransform.set(globalTransform.first);
+            }
+            else
+            {
+                characterStates._resTransform.set(firstGlobalTransformIndex + i);
             }
 
-            uint32_t dynamicBufferSize = fge::TransformUboData::uboSize;
-            uint32_t dynamicBufferOffsets = fge::TransformUboData::uboSize * i;
-            uint32_t dynamicSet = FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM;
-            characterStates._resInstances.setDynamicDescriptors(&this->g_charactersTransformsDescriptorSet,
-                                                                &dynamicBufferSize, &dynamicBufferOffsets, &dynamicSet,
-                                                                1);
-
             characterStates._vertexBuffer = &character.g_vertices;
-            target.draw(characterStates, graphicPipeline);
+            target.draw(characterStates);
         }
     }
 }
@@ -550,12 +508,6 @@ void ObjText::ensureGeometryUpdate() const
 
     auto const* font = this->g_font.retrieve();
     auto const& fontTexture = font->getTexture(this->g_characterSize);
-
-    if (this->g_charactersTransforms.getBuffer() != VK_NULL_HANDLE &&
-        this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
-    {
-        this->updateDescriptors();
-    }
 
     // Do nothing, if geometry has not changed and the font texture has not changed
     if (!this->g_geometryNeedUpdate && fontTexture.getModificationCount() == this->g_fontTextureModificationCount)
@@ -772,10 +724,6 @@ void ObjText::ensureGeometryUpdate() const
         position.x += characterLength;
     }
 
-    //Updating UBO
-    this->g_charactersTransforms.resize(fge::TransformUboData::uboSize * usedCharacters);
-    this->updateDescriptors();
-
     // Remove extra characters
     this->g_characters.resize(usedCharacters);
 
@@ -794,31 +742,6 @@ void ObjText::ensureGeometryUpdate() const
     this->g_bounds._y = minY;
     this->g_bounds._width = maxX - minX;
     this->g_bounds._height = maxY - minY;
-}
-void ObjText::updateDescriptors() const
-{
-    using namespace fge::vulkan;
-
-    auto const& context = GetActiveContext();
-
-    if (this->g_charactersTransformsDescriptorSet.get() == VK_NULL_HANDLE)
-    {
-        auto& layout = context.getCacheLayout(FGE_OBJTEXT_CLASSNAME);
-        if (layout.getLayout() == VK_NULL_HANDLE)
-        {
-            layout.create({DescriptorSetLayout::Binding(FGE_VULKAN_TRANSFORM_BINDING,
-                                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                                        VK_SHADER_STAGE_VERTEX_BIT)});
-        }
-
-        this->g_charactersTransformsDescriptorSet =
-                context.getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
-    }
-
-    DescriptorSet::Descriptor descriptor{this->g_charactersTransforms, FGE_VULKAN_TRANSFORM_BINDING,
-                                         DescriptorSet::Descriptor::BufferTypes::DYNAMIC,
-                                         fge::TransformUboData::uboSize};
-    this->g_charactersTransformsDescriptorSet.updateDescriptorSet(&descriptor, 1);
 }
 
 } // namespace fge

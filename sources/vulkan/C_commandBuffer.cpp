@@ -184,6 +184,7 @@ void CommandBuffer::reset()
     this->g_lastBoundPipeline = VK_NULL_HANDLE;
     this->g_lastSetViewport = {};
     this->g_lastSetScissor = {};
+    this->g_lastBoundDescriptorSets.clear();
 }
 void CommandBuffer::begin(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
@@ -608,6 +609,29 @@ void CommandBuffer::bindDescriptorSets(VkPipelineLayout pipelineLayout,
     if ((this->g_queueType & (SUPPORTED_QUEUE_COMPUTE | SUPPORTED_QUEUE_GRAPHICS)) == 0)
     {
         throw fge::Exception("Unsupported queue type for this command buffer !");
+    }
+
+    if (descriptorCount == 1 && dynamicOffsetCount == 0)
+    {
+        auto it = this->g_lastBoundDescriptorSets.find(firstSet);
+        if (it != this->g_lastBoundDescriptorSets.end())
+        {
+            CacheDescriptorSets const cache{pipelineLayout, pipelineBindPoint, *descriptorSet};
+            if (it->second != cache)
+            {
+                it->second = cache;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            this->g_lastBoundDescriptorSets.emplace(
+                    std::piecewise_construct, std::forward_as_tuple(firstSet),
+                    std::forward_as_tuple(pipelineLayout, pipelineBindPoint, *descriptorSet));
+        }
     }
 
     vkCmdBindDescriptorSets(this->g_commandBuffer, pipelineBindPoint, pipelineLayout, firstSet, descriptorCount,

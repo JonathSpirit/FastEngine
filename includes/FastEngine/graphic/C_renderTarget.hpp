@@ -35,10 +35,12 @@
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
+#include "FastEngine/vulkan/C_uniformBuffer.hpp"
 #include "FastEngine/vulkan/C_vertex.hpp"
 #include "SDL_video.h"
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 
 #define FGE_RENDERTARGET_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
 #define FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME ""
@@ -53,6 +55,8 @@ namespace fge
 
 class Texture;
 class Drawable;
+class Transformable;
+struct TransformUboData;
 
 class FGE_API RenderTarget : public fge::vulkan::ContextAware
 {
@@ -130,7 +134,6 @@ public:
 
     virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
-    void draw(fge::Drawable const& drawable, fge::RenderStates const& states);
     void draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline = nullptr) const;
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
@@ -145,6 +148,16 @@ public:
                                                                    GraphicPipelineKey const& key,
                                                                    GraphicPipelineConstructor constructor) const;
     void clearGraphicPipelineCache();
+
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
+                                                  uint32_t parentGlobalTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
+                                                  fge::TransformUboData const& parentTransform) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
+                                                  fge::RenderResourceTransform const& ressource) const;
+    [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable) const;
+
+    [[nodiscard]] fge::TransformUboData const* getGlobalTransform(fge::RenderResourceTransform const& ressource) const;
 
 private:
     View g_defaultView;

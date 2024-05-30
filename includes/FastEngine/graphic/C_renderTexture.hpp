@@ -71,7 +71,6 @@ private:
     void init(glm::vec<2, int> const& size);
 
     void createRenderPass();
-
     void createFramebuffer();
 
     fge::vulkan::TextureImage g_textureImage;

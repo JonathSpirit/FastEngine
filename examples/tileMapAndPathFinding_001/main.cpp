@@ -44,11 +44,11 @@ public:
         //Draw path circles
         for (auto const& circle: this->g_pathCircles)
         {
-            target.draw(circle, states);
+            circle.draw(target, states);
         }
 
         //Draw the start circle
-        target.draw(this->g_startCircle, states);
+        this->g_startCircle.draw(target, states);
     }
 
     void setWorldSize(fge::Vector2i const& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }

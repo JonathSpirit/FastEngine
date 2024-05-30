@@ -43,8 +43,9 @@ void Food::first([[maybe_unused]] fge::Scene& scene)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Food)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
-    target.draw(this->g_circleShape, copyStates);
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
+    this->g_circleShape.draw(target, copyStates);
 }
 #endif
 

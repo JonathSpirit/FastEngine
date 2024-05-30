@@ -18,6 +18,7 @@
 #include "FastEngine/C_texture.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_drawable.hpp"
+#include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
@@ -148,7 +149,7 @@ Vector2f RenderTarget::mapFramebufferCoordsToViewSpace(Vector2i const& point, Vi
     normalized.w = 1.0f;
 
     // Transform the homogeneous coordinates to world coordinates
-    return view.getInverseProjectionMatrix() * normalized;
+    return view.getInverseProjection() * normalized;
 }
 Vector2f RenderTarget::mapFramebufferCoordsToWorldSpace(Vector2i const& point) const
 {
@@ -167,7 +168,7 @@ Vector2i RenderTarget::mapViewCoordsToFramebufferSpace(Vector2f const& point, Vi
     glm::vec4 const pointVec4(point, 0.0f, 1.0f);
 
     // Transform the point to clip space (assuming it's already NDC)
-    glm::vec4 ndc = view.getProjectionMatrix() * pointVec4;
+    glm::vec4 ndc = view.getProjection() * pointVec4;
 
     // Transform the NDC to framebuffer space with the viewport
     ndc.x = (ndc.x + 1.0f) / 2.0f;
@@ -247,18 +248,30 @@ RectInt RenderTarget::mapWorldRectToFramebufferSpace(RectFloat const& rect, View
     return ToRect(positions, 4);
 }
 
-void RenderTarget::draw(Drawable const& drawable, RenderStates const& states)
-{
-    drawable.draw(*this, states); ///TODO: Inline that
-}
 void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline) const
 {
     bool const haveTextures = states._resTextures.getCount() != 0;
 
+    //Global transforms
+    auto const globalTransformsIndex = states._resTransform.getGlobalTransformsIndex();
+    uint32_t firstInstance{0};
+    switch (states._resTransform.getConfig())
+    {
+    case RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_ADDED_TO_FIRST_INSTANCE:
+        firstInstance = states._resInstances.getFirstInstance() + globalTransformsIndex.value_or(0);
+        break;
+    case RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_OVERWRITE_FIRST_INSTANCE:
+        firstInstance = globalTransformsIndex.value_or(states._resInstances.getFirstInstance());
+        break;
+    case RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_IGNORED:
+        firstInstance = states._resInstances.getFirstInstance();
+        break;
+    }
+
     //See if we can set a default graphicPipeline for this rendering call
     if (graphicPipeline == nullptr)
     {
-        if (states._resInstances.getInstancesCount() == 1 && states._resTransform.get() != nullptr &&
+        if (states._resInstances.getInstancesCount() == 1 && globalTransformsIndex &&
             states._resDescriptors.getCount() == 0 && states._vertexBuffer != nullptr)
         { //Simple rendering: There must be 1 instance, a transform, no descriptors
             if (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0)
@@ -282,10 +295,10 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     }
 
     //Apply view transform
-    if (states._resTransform.get() != nullptr)
+    if (globalTransformsIndex)
     {
-        states._resTransform.get()->getData()._viewTransform =
-                this->getView().getProjectionMatrix() * this->getView().getTransform();
+        auto* transform = this->getContext().getGlobalTransform(globalTransformsIndex.value());
+        transform->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
     }
 
     //Updating graphicPipeline
@@ -362,10 +375,10 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
     graphicPipeline->recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
 
-    //Binding default transform
-    if (states._resTransform.get() != nullptr)
+    //Binding global transforms
+    if (globalTransformsIndex)
     {
-        auto descriptorSetTransform = states._resTransform.get()->getDescriptorSet().get();
+        auto descriptorSetTransform = this->getContext().getGlobalTransform()._descriptorSet.get();
         commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
                                          &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
     }
@@ -431,12 +444,11 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             }
             else
             {
-                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset,
-                                   states._resInstances.getFirstInstance());
+                commandBuffer.draw(vertexCount, states._resInstances.getInstancesCount(), vertexOffset, firstInstance);
             }
             break;
         }
-        commandBuffer.draw(vertexCount, 1, vertexOffset, iInstance);
+        commandBuffer.draw(vertexCount, 1, vertexOffset, firstInstance + iInstance);
     }
 }
 
@@ -472,6 +484,58 @@ fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view 
 void RenderTarget::clearGraphicPipelineCache()
 {
     this->_g_graphicPipelineCache.clear();
+}
+
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
+                                              uint32_t parentGlobalTransform) const
+{
+    auto transform = this->getContext().requestGlobalTransform();
+
+    auto const* parentTransform = this->getContext().getGlobalTransform(parentGlobalTransform);
+    if (parentTransform != nullptr)
+    {
+        transform.second->_modelTransform = parentTransform->_modelTransform * transformable.getTransform();
+    }
+    else
+    {
+        transform.second->_modelTransform = transformable.getTransform();
+    }
+    return transform.first;
+}
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
+                                              fge::TransformUboData const& parentTransform) const
+{
+    auto transform = this->getContext().requestGlobalTransform();
+    transform.second->_modelTransform = parentTransform._modelTransform * transformable.getTransform();
+    return transform.first;
+}
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
+                                              fge::RenderResourceTransform const& ressource) const
+{
+    if (ressource.getTransformData() != nullptr)
+    {
+        return this->requestGlobalTransform(transformable, *ressource.getTransformData());
+    }
+    if (auto const index = ressource.getGlobalTransformsIndex())
+    {
+        return this->requestGlobalTransform(transformable, *index);
+    }
+    return this->requestGlobalTransform(transformable);
+}
+uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable) const
+{
+    auto transform = this->getContext().requestGlobalTransform();
+    transform.second->_modelTransform = transformable.getTransform();
+    return transform.first;
+}
+
+fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourceTransform const& ressource) const
+{
+    if (auto const index = ressource.getGlobalTransformsIndex())
+    {
+        return this->getContext().getGlobalTransform(*index);
+    }
+    return ressource.getTransformData();
 }
 
 void RenderTarget::resetDefaultView()

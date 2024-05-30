@@ -7,35 +7,39 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
-layout(set = 0, binding = 0) uniform UniformBufferObject {
+struct TransformsData {
     mat4 modelTransform;
     mat4 viewTransform;
-} uboTransform;
+};
+layout(set = 0, binding = 0) buffer GlobalTransformsData {
+    TransformsData data[];
+} globalTransforms;
 
 struct InstanceData {
     uvec4 color[2];
     vec2 offset;
 };
-
 layout(set = 1, binding = 0) buffer BufferInstanceData {
     InstanceData data[];
 } instances;
 
-layout(push_constant) uniform ConstColorSelect {
-    uint index;
-} colorSelect;
+layout(push_constant) uniform ConstantData {
+    uint colorIndex;
+    uint transformsIndex;
+} constantData;
 
 void main()
 {
     InstanceData instance = instances.data[gl_InstanceIndex];
-    vec4 position = uboTransform.viewTransform * uboTransform.modelTransform * vec4(inPosition+instance.offset, 0.0, 1.0);
+    TransformsData transforms = globalTransforms.data[constantData.transformsIndex];
+    vec4 position = transforms.viewTransform * transforms.modelTransform * vec4(inPosition+instance.offset, 0.0, 1.0);
     position[1] *= -1.0;
 
     gl_Position = position;
 
-    fragColor = vec4(float(instance.color[colorSelect.index][0])/255.0,
-                     float(instance.color[colorSelect.index][1])/255.0,
-                     float(instance.color[colorSelect.index][2])/255.0,
-                     float(instance.color[colorSelect.index][3])/255.0);
+    fragColor = vec4(float(instance.color[constantData.colorIndex][0])/255.0,
+                     float(instance.color[constantData.colorIndex][1])/255.0,
+                     float(instance.color[constantData.colorIndex][2])/255.0,
+                     float(instance.color[constantData.colorIndex][3])/255.0);
     fragTexCoord = inTexCoord;
 }

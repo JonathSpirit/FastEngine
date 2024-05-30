@@ -23,6 +23,12 @@ namespace fge
 namespace
 {
 
+struct ConstantData
+{
+    glm::uint _colorIndex;
+    glm::uint _instanceIndex;
+};
+
 #ifndef FGE_DEF_SERVER
 void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
                                       fge::RenderTarget::GraphicPipelineKey const& key,
@@ -35,7 +41,7 @@ void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
 
-    graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::uint)}});
+    graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ConstantData)}});
 
     auto& layout = context.getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
     if (layout.getLayout() == VK_NULL_HANDLE)
@@ -232,7 +238,10 @@ FGE_OBJ_DRAW_BODY(ObjShape)
         return;
     }
 
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform),
+                                 RenderResourceTransform::Configs::GLOBAL_TRANSFORMS_INDEX_IS_IGNORED);
 
     fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
@@ -247,9 +256,10 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     copyStates._resTextures.set(texture, texture == nullptr ? 0 : 1);
     copyStates._vertexBuffer = &this->g_vertices;
 
-    glm::uint colorIndex = FGE_OBJSHAPE_INDEX_FILLCOLOR;
+    ConstantData constantData{FGE_OBJSHAPE_INDEX_FILLCOLOR,
+                              copyStates._resTransform.getGlobalTransformsIndex().value()};
     target.getCommandBuffer().pushConstants(graphicPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                                            sizeof(glm::uint), &colorIndex);
+                                            sizeof(ConstantData), &constantData);
 
     copyStates._resInstances.setInstancesCount(this->g_instancesCount, true);
     uint32_t const sets[] = {1};
@@ -258,9 +268,9 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     target.draw(copyStates, graphicPipeline);
 
     //Drawing outline
-    colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
+    constantData._colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
     target.getCommandBuffer().pushConstants(graphicPipelineOutline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                                            sizeof(glm::uint), &colorIndex);
+                                            sizeof(ConstantData), &constantData);
 
     copyStates._resTextures.set<std::nullptr_t>(nullptr, 0);
     copyStates._vertexBuffer = &this->g_outlineVertices;
@@ -344,6 +354,12 @@ void ObjShape::updateOutline()
 
 void ObjShape::resizeBuffer(std::size_t size) const
 {
+    bool needDescriptorUpdate = false;
+    VkDeviceSize const newSize = size * sizeof(InstanceData);
+    if (newSize > this->g_instances.getBufferCapacity())
+    {
+        needDescriptorUpdate = true;
+    }
     this->g_instances.resize(size * sizeof(InstanceData));
 
     if (size <= this->g_instancesCount)
@@ -371,7 +387,10 @@ void ObjShape::resizeBuffer(std::size_t size) const
 
     this->g_instancesCount = size;
 
-    this->updateDescriptors();
+    if (needDescriptorUpdate)
+    {
+        this->updateDescriptors();
+    }
 }
 void ObjShape::updateDescriptors() const
 {
@@ -392,8 +411,7 @@ void ObjShape::updateDescriptors() const
     }
 
     DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
-                                               DescriptorSet::Descriptor::BufferTypes::STORAGE,
-                                               this->g_instances.getBufferSize()};
+                                               DescriptorSet::Descriptor::BufferTypes::STORAGE, VK_WHOLE_SIZE};
     this->g_descriptorSet.updateDescriptorSet(&descriptor, 1);
 #endif //FGE_DEF_SERVER
 }

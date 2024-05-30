@@ -86,8 +86,9 @@ fge::Color ObjSprite::getColor() const
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjSprite)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
 
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     copyStates._vertexBuffer = &this->g_vertices;
     copyStates._resTextures.set(this->g_texture.retrieve(), 1);
     target.draw(copyStates);

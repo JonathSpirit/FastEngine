@@ -88,9 +88,10 @@ void ObjButton::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjButton)
 {
-    auto copyStates = states.copy(this->_transform.start(*this, states._resTransform.get()));
+    auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
     this->g_sprite.setColor(this->g_statMouseOn ? (this->g_color - fge::Color(50, 50, 50, 0)) : this->g_color);
-    target.draw(this->g_sprite, copyStates);
+    this->g_sprite.draw(target, copyStates);
 }
 #endif
 
