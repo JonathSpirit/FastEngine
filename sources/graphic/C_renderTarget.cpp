@@ -294,6 +294,13 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
         return; ///TODO: error handling
     }
 
+    //Apply view transform
+    if (globalTransformsIndex)
+    {
+        auto* transform = this->getContext().getGlobalTransform(globalTransformsIndex.value());
+        transform->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
+    }
+
     //Updating graphicPipeline
     auto const viewport = this->getViewport(this->getView());
 
@@ -483,7 +490,6 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
                                               uint32_t parentGlobalTransform) const
 {
     auto transform = this->getContext().requestGlobalTransform();
-    transform.second->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
 
     auto const* parentTransform = this->getContext().getGlobalTransform(parentGlobalTransform);
     if (parentTransform != nullptr)
@@ -500,7 +506,6 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
                                               fge::TransformUboData const& parentTransform) const
 {
     auto transform = this->getContext().requestGlobalTransform();
-    transform.second->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
     transform.second->_modelTransform = parentTransform._modelTransform * transformable.getTransform();
     return transform.first;
 }
@@ -520,7 +525,6 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
 uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable) const
 {
     auto transform = this->getContext().requestGlobalTransform();
-    transform.second->_viewTransform = this->getView().getProjection() * this->getView().getTransform();
     transform.second->_modelTransform = transformable.getTransform();
     return transform.first;
 }
