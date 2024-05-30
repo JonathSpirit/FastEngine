@@ -308,7 +308,7 @@ enum class ROutputs : bool
  * The comparison is not strict for min/max.
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param min The minimum range
  * \param max The maximum range
  * \param args The chained argument
@@ -331,7 +331,7 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args);
  * \brief Must equal rule, check if the value is equal to the provided one
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param a The value that will be compared
  * \param args The chained argument
  * \return The chained argument
@@ -343,7 +343,7 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
  * \brief Strict less rule, check if the value is strictly lesser than the provided one
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param less The value that will be compared
  * \param args The chained argument
  * \return The chained argument
@@ -355,7 +355,7 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
  * \brief Less rule, check if the value is lesser than the provided one
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param less The value that will be compared
  * \param args The chained argument
  * \return The chained argument
@@ -373,7 +373,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
  * The actual value will not be extracted here.
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param min The minimum range
  * \param max The maximum range
  * \param args The chained argument
@@ -389,7 +389,7 @@ RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TVal
  * \see RSizeRange
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param a The value that will be compared
  * \param args The chained argument
  * \return The chained argument
@@ -404,7 +404,7 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
  * before in order to avoid bad extraction.
  *
  * \tparam TValue The type of the value
- * \tparam TInvertResult Invert the result of the rule
+ * \tparam TOutput Control how the rule will output
  * \param args The chained argument
  * \return The chained argument
  */
