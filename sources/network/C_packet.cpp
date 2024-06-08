@@ -32,7 +32,42 @@
 namespace fge::net
 {
 
-///Packet
+//Error
+
+void Error::dump(std::ostream& os) const
+{
+    char const* typeStr = "UNKNOWN";
+
+    switch (this->_type)
+    {
+    case Types::ERR_NONE:
+        typeStr = "NONE";
+        break;
+    case Types::ERR_ALREADY_INVALID:
+        typeStr = "ALREADY_INVALID";
+        break;
+    case Types::ERR_EXTRACT:
+        typeStr = "EXTRACT";
+        break;
+    case Types::ERR_RULE:
+        typeStr = "RULE";
+        break;
+    case Types::ERR_SCENE_NEED_CACHING:
+        typeStr = "SCENE_NEED_CACHING";
+        break;
+    case Types::ERR_SCENE_OLD_PACKET:
+        typeStr = "SCENE_OLD_PACKET";
+        break;
+    }
+
+    os << "network error :\n"
+       << "\ttype: " << typeStr << '\n'
+       << "\terror: " << (this->_error == nullptr ? "UNKNOWN" : this->_error) << '\n'
+       << "\tfunction: " << (this->_function == nullptr ? "UNKNOWN" : this->_function) << '\n'
+       << "\treadPos: " << this->_readPos << std::endl;
+}
+
+//Packet
 
 Packet::Packet() :
         _g_sendPos(0),

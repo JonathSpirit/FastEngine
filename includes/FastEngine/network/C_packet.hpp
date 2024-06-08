@@ -42,7 +42,7 @@
 namespace fge::net
 {
 
-struct Error
+struct FGE_API Error
 {
     enum class Types
     {
@@ -59,6 +59,8 @@ struct Error
     std::size_t _readPos{0};
     char const* _error{nullptr};
     char const* _function{nullptr};
+
+    void dump(std::ostream& os) const;
 };
 
 class SocketTcp;
