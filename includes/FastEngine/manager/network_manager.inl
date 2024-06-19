@@ -17,19 +17,6 @@
 namespace fge::net
 {
 
-fge::net::Packet& SetHeader(fge::net::Packet& pck, fge::net::PacketHeader header)
-{
-    pck.clear();
-    pck << header;
-    return pck;
-}
-fge::net::PacketHeader GetHeader(fge::net::Packet& pck)
-{
-    fge::net::PacketHeader header = FGE_NET_BAD_HEADER;
-    pck >> header;
-    return header;
-}
-
 bool CheckSkey(fge::net::Packet& pck, fge::net::Skey skey)
 {
     fge::net::Skey buff;

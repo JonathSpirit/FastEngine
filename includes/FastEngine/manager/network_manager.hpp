@@ -36,12 +36,6 @@ namespace fge::net
  */
 
 /**
- * \typedef PacketHeader
- * \brief Simple aliased type for packets header, useful to differentiate multiple network actions
- */
-using PacketHeader = uint16_t;
-
-/**
  * \brief Get a basic scene checksum
  *
  * The checksum is computed with every ObjectSid.
@@ -59,22 +53,6 @@ FGE_API uint32_t GetSceneChecksum(fge::Scene& scene);
  * \return \b true if no error, \b false otherwise
  */
 FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, std::string const& file);
-
-/**
- * \brief Shortcut function that will clear the Packet and write an header to it
- *
- * \param pck The Packet
- * \param header The header that will be written
- * \return A reference to the same Packet
- */
-inline fge::net::Packet& SetHeader(fge::net::Packet& pck, fge::net::PacketHeader header);
-/**
- * \brief Shortcut function that will retrieve the received Packet header
- *
- * \param pck The Packet
- * \return A packet header
- */
-inline fge::net::PacketHeader GetHeader(fge::net::Packet& pck);
 
 /**
  * \brief Shortcut function that will extract and compare the provided skey
