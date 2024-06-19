@@ -31,17 +31,17 @@ void TransmissionPacket::applyOptions(fge::net::Client const& client)
         if (option._option == fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP)
         {
             fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
-            this->g_packet->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
         else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP)
         {
             fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
-            this->g_packet->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
         else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY)
         {
             fge::net::Latency_ms correctorLatency = client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
-            this->g_packet->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+            this->g_packet.pack(option._argument, &correctorLatency, sizeof(correctorLatency));
         }
     }
 }
@@ -52,12 +52,12 @@ void TransmissionPacket::applyOptions()
         if (option._option == fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP)
         {
             fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
-            this->g_packet->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
         else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP)
         {
             fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
-            this->g_packet->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
         else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY)
         {
@@ -254,21 +254,21 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
 
     if (finishedToSendLastPacket)
     {
-        packet->_packet.unpack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
+        packet->unpack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
         this->g_syncStat |= Stats::HAVE_EXTERNAL_TIMESTAMP;
     }
     else
     {
-        packet->_packet.skip(sizeof(fge::net::Timestamp));
+        packet->skip(sizeof(fge::net::Timestamp));
     }
 
     //Retrieve external latency corrector
     fge::net::Latency_ms latencyCorrector;
-    packet->_packet.unpack(&latencyCorrector, sizeof(latencyCorrector));
+    packet->unpack(&latencyCorrector, sizeof(latencyCorrector));
 
     //Retrieve the latency computed at the other side
     fge::net::Latency_ms otherSideLatency;
-    packet->_packet.unpack(&otherSideLatency, sizeof(otherSideLatency));
+    packet->unpack(&otherSideLatency, sizeof(otherSideLatency));
     if (otherSideLatency != FGE_NET_BAD_LATENCY)
     {
         this->g_otherSideLatency = otherSideLatency;
@@ -276,18 +276,18 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
 
     //Retrieve full server timestamp
     fge::net::FullTimestamp fullTimestamp;
-    packet->_packet.unpack(&fullTimestamp, sizeof(fullTimestamp));
+    packet->unpack(&fullTimestamp, sizeof(fullTimestamp));
 
     //Retrieve external sync stat
     Stats externalSyncStat;
-    packet->_packet.unpack(&externalSyncStat, sizeof(externalSyncStat));
+    packet->unpack(&externalSyncStat, sizeof(externalSyncStat));
 
     //Does he have our timestamp ?
     if ((externalSyncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
         //Retrieve our timestamp
         fge::net::Timestamp firstTimestamp;
-        packet->_packet.unpack(&firstTimestamp, sizeof(firstTimestamp));
+        packet->unpack(&firstTimestamp, sizeof(firstTimestamp));
 
         //We didn't finish the last packet yet
         if (!finishedToSendLastPacket)

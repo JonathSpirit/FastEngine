@@ -22,6 +22,7 @@
 #include "C_packet.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_propertyList.hpp"
+#include "FastEngine/network/C_protocol.hpp"
 #include <array>
 #include <chrono>
 #include <memory>
@@ -87,10 +88,8 @@ public:
         std::size_t _argument; ///< The option argument
     };
 
-    template<class TPacket>
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create();
-    template<class TPacket>
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(TPacket&& packet);
+    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(ProtocolPacket::HeaderId headerId=FGE_NET_BAD_HEADER);
+    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;
     TransmissionPacket(TransmissionPacket&& r) noexcept = delete;
@@ -99,18 +98,22 @@ public:
     TransmissionPacket& operator=(TransmissionPacket const& r) = delete;
     TransmissionPacket& operator=(TransmissionPacket&& r) noexcept = delete;
 
-    [[nodiscard]] inline fge::net::Packet const& packet() const;
-    [[nodiscard]] inline fge::net::Packet& packet();
+    [[nodiscard]] inline ProtocolPacket const& packet() const;
+    [[nodiscard]] inline ProtocolPacket& packet();
     [[nodiscard]] inline std::vector<Option> const& options() const;
     [[nodiscard]] inline std::vector<Option>& options();
 
     void applyOptions(fge::net::Client const& client);
     void applyOptions();
 
-private:
-    inline explicit TransmissionPacket(std::unique_ptr<Packet>&& packet);
+    template<class TPacket>
+    [[nodiscard]] inline TPacket prepare();
 
-    std::unique_ptr<Packet> g_packet;
+private:
+    inline explicit TransmissionPacket(ProtocolPacket::HeaderId headerId, ProtocolPacket::Realm realmId, ProtocolPacket::CountId countId);
+    inline explicit TransmissionPacket(ProtocolPacket&& packet);
+
+    ProtocolPacket g_packet;
     std::vector<Option> g_options;
 };
 
