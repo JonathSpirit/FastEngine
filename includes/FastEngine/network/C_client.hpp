@@ -88,7 +88,7 @@ public:
         std::size_t _argument; ///< The option argument
     };
 
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(ProtocolPacket::HeaderId headerId=FGE_NET_BAD_HEADER);
+    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(ProtocolPacket::HeaderId headerId=FGE_NET_BAD_HEADERID);
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;

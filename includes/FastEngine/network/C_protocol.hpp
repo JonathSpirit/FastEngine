@@ -21,7 +21,7 @@
 #include "FastEngine/network/C_packet.hpp"
 #include <optional>
 
-#define FGE_NET_BAD_HEADER 0
+#define FGE_NET_BAD_HEADERID 0
 
 namespace fge::net
 {

@@ -25,8 +25,6 @@
 #include <optional>
 #include <variant>
 
-#define FGE_NET_BAD_HEADER 0
-
 namespace fge::net
 {
 
