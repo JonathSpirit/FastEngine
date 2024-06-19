@@ -20,23 +20,32 @@
 #include "lz4.h"
 #include "lz4hc.h"
 
-namespace fge
+namespace fge::net
 {
-namespace net
-{
-
-///Class PacketLZ4
 
 uint32_t PacketLZ4::_maxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
 PacketLZ4::PacketLZ4() :
-        fge::net::Packet(),
+        Packet(),
         g_lastCompressionSize(0)
 {}
-PacketLZ4::PacketLZ4(fge::net::PacketLZ4&& pck) noexcept :
-        fge::net::Packet(std::move(pck)),
+PacketLZ4::PacketLZ4(PacketLZ4&& pck) noexcept :
+        Packet(std::move(pck)),
         g_buffer(std::move(pck.g_buffer)),
         g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
+PacketLZ4::PacketLZ4(Packet&& pck) noexcept :
+        Packet(std::move(pck)),
+        g_lastCompressionSize(0)
+{}
+PacketLZ4::PacketLZ4(PacketLZ4 const& pck) :
+        Packet(pck),
+        g_buffer(pck.g_buffer),
+        g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
+PacketLZ4::PacketLZ4(Packet const& pck) :
+        Packet(pck),
+        g_lastCompressionSize(0)
 {}
 
 std::size_t PacketLZ4::getLastCompressionSize() const
@@ -107,15 +116,31 @@ void PacketLZ4::onReceive(void* data, std::size_t dsize)
 uint32_t PacketLZ4HC::_maxUncompressedReceivedSize = FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
 PacketLZ4HC::PacketLZ4HC() :
-        fge::net::Packet(),
+        Packet(),
         g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
         g_lastCompressionSize(0)
 {}
-PacketLZ4HC::PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept :
-        fge::net::Packet(std::move(pck)),
+PacketLZ4HC::PacketLZ4HC(PacketLZ4HC&& pck) noexcept :
+        Packet(std::move(pck)),
         g_buffer(std::move(pck.g_buffer)),
         g_compressionLevel(pck.g_compressionLevel),
         g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
+PacketLZ4HC::PacketLZ4HC(Packet&& pck) noexcept :
+        Packet(std::move(pck)),
+        g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
+        g_lastCompressionSize(0)
+{}
+PacketLZ4HC::PacketLZ4HC(PacketLZ4HC const& pck) :
+        Packet(pck),
+        g_buffer(pck.g_buffer),
+        g_compressionLevel(pck.g_compressionLevel),
+        g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
+PacketLZ4HC::PacketLZ4HC(Packet const& pck) :
+        Packet(pck),
+        g_compressionLevel(LZ4HC_CLEVEL_DEFAULT),
+        g_lastCompressionSize(0)
 {}
 
 std::size_t PacketLZ4HC::getLastCompressionSize() const
@@ -191,5 +216,4 @@ int PacketLZ4HC::getCompressionLevel() const
     return this->g_compressionLevel;
 }
 
-} // namespace net
-} // namespace fge
+} // namespace fge::net

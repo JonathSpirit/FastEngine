@@ -31,18 +31,17 @@
 #define FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
 #define FGE_PACKETLZ4_VERSION "1.9.4"
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
-class FGE_API PacketLZ4 : public fge::net::Packet
+class FGE_API PacketLZ4 : public Packet
 {
 public:
     PacketLZ4();
-    PacketLZ4(fge::net::PacketLZ4&& pck) noexcept;
-    PacketLZ4(fge::net::PacketLZ4& pck) = default;
-    PacketLZ4(fge::net::PacketLZ4 const& pck) = default;
+    PacketLZ4(PacketLZ4&& pck) noexcept;
+    PacketLZ4(Packet&& pck) noexcept;
+    PacketLZ4(PacketLZ4 const& pck);
+    PacketLZ4(Packet const& pck);
     ~PacketLZ4() override = default;
 
     static uint32_t _maxUncompressedReceivedSize;
@@ -58,13 +57,14 @@ private:
     std::size_t g_lastCompressionSize;
 };
 
-class FGE_API PacketLZ4HC : public fge::net::Packet
+class FGE_API PacketLZ4HC : public Packet
 {
 public:
     PacketLZ4HC();
-    PacketLZ4HC(fge::net::PacketLZ4HC&& pck) noexcept;
-    PacketLZ4HC(fge::net::PacketLZ4HC& pck) = default;
-    PacketLZ4HC(fge::net::PacketLZ4HC const& pck) = default;
+    PacketLZ4HC(PacketLZ4HC&& pck) noexcept;
+    PacketLZ4HC(Packet&& pck) noexcept;
+    PacketLZ4HC(PacketLZ4HC const& pck);
+    PacketLZ4HC(Packet const& pck);
     ~PacketLZ4HC() override = default;
 
     static uint32_t _maxUncompressedReceivedSize;
@@ -84,7 +84,6 @@ private:
     std::size_t g_lastCompressionSize;
 };
 
-} // namespace net
-} // namespace fge
+} // namespace fge::net
 
 #endif // _FGE_C_PACKETLZ4_HPP_INCLUDED

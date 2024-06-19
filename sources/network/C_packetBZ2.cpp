@@ -19,25 +19,42 @@
 #include "FastEngine/fge_except.hpp"
 #include "bzlib.h"
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 uint32_t PacketBZ2::_maxUncompressedReceivedSize = FGE_PACKETBZ2_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
 PacketBZ2::PacketBZ2() :
-        fge::net::Packet(),
+        Packet(),
         g_blockSize(FGE_PACKETBZ2_DEFAULT_BLOCKSIZE),
         g_workfactor(FGE_PACKETBZ2_DEFAULT_WORKFACTOR),
         g_lastCompressionSize(0)
 {}
-PacketBZ2::PacketBZ2(fge::net::PacketBZ2&& pck) noexcept :
-        fge::net::Packet(std::move(pck)),
+PacketBZ2::PacketBZ2(PacketBZ2&& pck) noexcept :
+        Packet(std::move(pck)),
         g_blockSize(pck.g_blockSize),
         g_workfactor(pck.g_workfactor),
         g_buffer(std::move(pck.g_buffer)),
         g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
+PacketBZ2::PacketBZ2(Packet&& pck) noexcept :
+        Packet(std::move(pck)),
+        g_blockSize(FGE_PACKETBZ2_DEFAULT_BLOCKSIZE),
+        g_workfactor(FGE_PACKETBZ2_DEFAULT_WORKFACTOR),
+        g_lastCompressionSize(0)
+{}
+PacketBZ2::PacketBZ2(PacketBZ2 const& pck) :
+        Packet(pck),
+        g_blockSize(pck.g_blockSize),
+        g_workfactor(pck.g_workfactor),
+        g_buffer(pck.g_buffer),
+        g_lastCompressionSize(pck.g_lastCompressionSize)
+{}
+PacketBZ2::PacketBZ2(Packet const& pck) :
+        Packet(pck),
+        g_blockSize(FGE_PACKETBZ2_DEFAULT_BLOCKSIZE),
+        g_workfactor(FGE_PACKETBZ2_DEFAULT_WORKFACTOR),
+        g_lastCompressionSize(0)
 {}
 
 void PacketBZ2::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
@@ -139,5 +156,4 @@ std::size_t PacketBZ2::getLastCompressionSize() const
     return this->g_lastCompressionSize;
 }
 
-} // namespace net
-} // namespace fge
+} // namespace fge::net
