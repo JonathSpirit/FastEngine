@@ -19,6 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_socket.hpp"
+#include "FastEngine/network/C_protocol.hpp"
 #include "FastEngine/network/C_clientList.hpp"
 #include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/network/C_packetBZ2.hpp"
@@ -41,7 +42,15 @@ namespace fge::net
 class ServerSideNetUdp;
 class ClientSideNetUdp;
 
-class FluxPacket
+/**
+ * \class FluxPacket
+ * \ingroup network
+ * \brief A received packet from a network flux
+ *
+ * This class is used to store a packet with its identity and timestamp.
+ * This also add some data used internally by the server in order to handle multiple received packets.
+ */
+class FluxPacket : public ProtocolPacket
 {
 public:
     inline FluxPacket(fge::net::Packet const& pck,
@@ -52,9 +61,8 @@ public:
                       fge::net::Identity const& id,
                       std::size_t fluxIndex = 0,
                       std::size_t fluxCount = 0);
-    ~FluxPacket() = default;
 
-    fge::net::Packet _packet;
+    ~FluxPacket() override = default;
 
     [[nodiscard]] inline fge::net::Timestamp getTimeStamp() const;
     [[nodiscard]] inline fge::net::Identity const& getIdentity() const;
@@ -202,6 +210,7 @@ public:
 private:
     template<class TPacket>
     void threadReception();
+    template<class TPacket>
     void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
@@ -261,6 +270,7 @@ public:
 private:
     template<class TPacket>
     void threadReception();
+    template<class TPacket>
     void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;

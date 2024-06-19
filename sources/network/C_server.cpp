@@ -197,59 +197,6 @@ bool ServerSideNetUdp::isRunning() const
     return this->g_running;
 }
 
-void ServerSideNetUdp::threadTransmission()
-{
-    std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
-
-    while (this->g_running)
-    {
-        this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
-
-        //Flux
-        for (std::size_t i = 0; i < this->g_fluxes.size() + 1; ++i)
-        {
-            fge::net::ClientList* clients{nullptr};
-            if (i == this->g_fluxes.size())
-            { //Doing the default flux
-                clients = &this->g_defaultFlux._clients;
-            }
-            else
-            {
-                clients = &this->g_fluxes[i]->_clients;
-            }
-
-            auto clientLock = clients->acquireLock();
-
-            for (auto itClient = clients->begin(clientLock); itClient != clients->end(clientLock); ++itClient)
-            {
-                if (itClient->second->isPendingPacketsEmpty())
-                {
-                    continue;
-                }
-
-                if (itClient->second->getLastPacketElapsedTime() < itClient->second->getSTOCLatency_ms())
-                {
-                    continue;
-                }
-
-                auto transmissionPacket = itClient->second->popPacket();
-
-                if (!transmissionPacket->packet())
-                { //Last verification of the packet
-                    continue;
-                }
-
-                //Applying options
-                transmissionPacket->applyOptions(*itClient->second);
-
-                //Sending the packet
-                this->sendTo(transmissionPacket->packet(), itClient->first);
-                itClient->second->resetLastPacketTimePoint();
-            }
-        }
-    }
-}
-
 //ServerClientSideUdp
 ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_threadReception(nullptr),
@@ -320,37 +267,6 @@ std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 
     this->g_receptionNotifier.wait_for(lock, time_ms);
     return this->_g_packets.size();
-}
-
-void ClientSideNetUdp::threadTransmission()
-{
-    std::unique_lock<std::mutex> lckServer(this->_g_mutexFlux);
-
-    while (this->g_running)
-    {
-        this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
-
-        //Flux
-        if (!this->_client.isPendingPacketsEmpty())
-        {
-            if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
-            { //Ready to send !
-                auto transmissionPacket = this->_client.popPacket();
-
-                if (!transmissionPacket->packet())
-                { //Last verification of the packet
-                    continue;
-                }
-
-                //Applying options
-                transmissionPacket->applyOptions(this->_client);
-
-                //Sending the packet
-                this->send(transmissionPacket->packet());
-                this->_client.resetLastPacketTimePoint();
-            }
-        }
-    }
 }
 
 } // namespace fge::net
