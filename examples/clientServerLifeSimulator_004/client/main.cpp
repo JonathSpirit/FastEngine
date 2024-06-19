@@ -207,9 +207,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
-            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME)
-                    << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
+            auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+            transmissionPacket->packet() << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
             //Ask the server thread to automatically update the timestamp just before sending it
             server._client._latencyPlanner.pack(transmissionPacket);
@@ -239,9 +238,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         {
             clockUpdate.restart();
 
-            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
-
-            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_UPDATE);
+            auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_C_UPDATE);
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
             //The LatencyPlanner class will do all the work for that.
@@ -271,10 +268,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto fluxPacket = server.popNextPacket();
 
             //Prepare a sending packet
-            auto transmissionPacket = fge::net::TransmissionPacket::create<fge::net::PacketLZ4>();
+            auto transmissionPacket = fge::net::TransmissionPacket::create();
 
             //Retrieve the packet header
-            switch (fge::net::GetHeader(fluxPacket->_packet))
+            switch (fluxPacket->retrieveHeaderId().value())
             {
             case ls::LS_PROTOCOL_ALL_GOODBYE:
                 server.stop();
@@ -286,9 +283,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
                 bool valid = false;
-                fluxPacket->_packet >> valid;
+                *fluxPacket >> valid;
 
-                if (fluxPacket->_packet && valid)
+                if (fluxPacket->isValid() && valid)
                 {
                     //Get latency
                     server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
@@ -342,7 +339,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                 //And then unpack all modification made by the server scene
                 fge::UpdateCountRange updateCountRange{};
-                auto err = mainScene->unpackModification(fluxPacket->_packet, updateCountRange, false);
+                auto err = mainScene->unpackModification(*fluxPacket, updateCountRange, false);
                 if (err)
                 {
                     ++badPacketUpdatesCount;
@@ -363,10 +360,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         while (updateCache.isRetrievable(mainScene->getUpdateCount()))
                         {
                             auto cachedPacket = updateCache.pop();
-                            mainScene->unpackModification(cachedPacket._fluxPacket->_packet,
+                            mainScene->unpackModification(*cachedPacket._fluxPacket,
                                                           cachedPacket._updateCountRange, true);
                             //And unpack all watched events
-                            err = mainScene->unpackWatchedEvent(cachedPacket._fluxPacket->_packet);
+                            err = mainScene->unpackWatchedEvent(*cachedPacket._fluxPacket);
                             if (err)
                             {
                                 ++badPacketUpdatesCount;
@@ -377,7 +374,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         }
                         if (forced)
                         { //Here we consider that the scene is lost and we ask the server a full update
-                            fge::net::SetHeader(transmissionPacket->packet(), ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
+                            transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
                             server._client.pushPacket(std::move(transmissionPacket));
                             server.notifyTransmission();
                         }
@@ -386,7 +383,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 else
                 {
                     //And unpack all watched events
-                    err = mainScene->unpackWatchedEvent(fluxPacket->_packet);
+                    err = mainScene->unpackWatchedEvent(*fluxPacket);
                     if (err)
                     {
                         ++badPacketUpdatesCount;
@@ -396,7 +393,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 //Do a full scene update
-                mainScene->unpack(fluxPacket->_packet);
+                mainScene->unpack(*fluxPacket);
                 updateCache.clear();
 
                 std::cout << "received full scene update [" << mainScene->getUpdateCount() << "]" << std::endl;
