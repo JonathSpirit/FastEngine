@@ -19,20 +19,21 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/network/C_packet.hpp"
+#include <memory>
 #include <optional>
+#include <queue>
+#include <vector>
 
 #define FGE_NET_BAD_HEADERID 0
+#define FGE_NET_DEFAULT_REALM 0
+#define FGE_NET_PACKET_REORDERER_CACHE_MAX 10
 
 namespace fge::net
 {
 
 /**
- * \ingroup network
- * @{
- */
-
-/**
  * \class ProtocolPacket
+ * \ingroup network
  * \brief A special inheritance of Packet with a predefined communication protocol
  *
  * This class is used to handle the communication between the server and the client.
@@ -66,6 +67,59 @@ public:
     inline void setHeaderId(HeaderId headerId);
     inline void setRealm(Realm realmId);
     inline void setCountId(CountId countId);
+};
+
+class FluxPacket;
+using FluxPacketPtr = std::unique_ptr<FluxPacket>;
+
+/**
+ * \class PacketReorderer
+ * \ingroup network
+ * \brief A packet reorderer
+ *
+ * This class is used to cache unordered packets and retrieve them in order later.
+ */
+class FGE_API PacketReorderer
+{
+public:
+    PacketReorderer() = default;
+    PacketReorderer(PacketReorderer const& r) = delete;
+    PacketReorderer(PacketReorderer&& r) noexcept = default;
+    ~PacketReorderer() = default;
+
+    PacketReorderer& operator=(PacketReorderer const& r) = delete;
+    PacketReorderer& operator=(PacketReorderer&& r) noexcept = default;
+
+    void clear();
+
+    void push(FluxPacketPtr fluxPacket);
+    [[nodiscard]] bool isRetrievable(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm);
+    [[nodiscard]] FluxPacketPtr pop();
+
+private:
+    struct Data
+    {
+        explicit Data(FluxPacketPtr&& fluxPacket);
+
+        FluxPacketPtr _fluxPacket;
+        ProtocolPacket::CountId _countId;
+        ProtocolPacket::Realm _realm;
+
+        struct Compare
+        {
+            [[nodiscard]] constexpr bool operator()(Data const& l, Data const& r) const
+            {
+                if (l._realm == r._realm)
+                {
+                    return l._countId > r._countId;
+                }
+                return l._realm > r._realm;
+            }
+        };
+    };
+
+    std::priority_queue<Data, std::vector<Data>, Data::Compare> g_cache;
+    mutable bool g_retrievable{false};
 };
 
 } // namespace fge::net
