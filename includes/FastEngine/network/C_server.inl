@@ -191,9 +191,10 @@ void ServerSideNetUdp::threadTransmission()
 
                 //Applying options
                 transmissionPacket->applyOptions(*itClient->second);
+                transmissionPacket->packet().setCountId(itClient->second->advanceCurrentPacketCountId());
 
                 //Sending the packet
-                auto packet = transmissionPacket->prepare<TPacket>();
+                TPacket packet(transmissionPacket->packet());
                 this->sendTo(packet, itClient->first);
                 itClient->second->resetLastPacketTimePoint();
             }
@@ -292,9 +293,10 @@ void ClientSideNetUdp::threadTransmission()
 
                 //Applying options
                 transmissionPacket->applyOptions(this->_client);
+                transmissionPacket->packet().setCountId(this->_client.advanceCurrentPacketCountId());
 
                 //Sending the packet
-                auto packet = transmissionPacket->prepare<TPacket>();
+                TPacket packet = transmissionPacket->packet();
                 this->send(packet);
                 this->_client.resetLastPacketTimePoint();
             }
