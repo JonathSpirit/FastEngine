@@ -35,7 +35,11 @@
 #endif
 
 #define FGE_SERVER_DEFAULT_MAXPACKET 200
-#define FGE_SERVER_MAX_TIME_DIFFERENCE_REALM std::chrono::milliseconds{2000}
+#define FGE_SERVER_MAX_TIME_DIFFERENCE_REALM                                                                           \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        2000                                                                                                           \
+    }
 
 namespace fge::net
 {
@@ -141,7 +145,8 @@ public:
     {}
     ~ServerNetFluxUdp() override = default;
 
-    [[nodiscard]] FluxProcessResults process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient);
+    [[nodiscard]] FluxProcessResults
+    process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient);
 
     fge::net::ClientList _clients;
 
@@ -228,7 +233,8 @@ public:
 
     fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::Identity const& id);
     template<class TPacket>
-    fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
+    fge::net::Socket::Error
+    sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
     template<class TPacket>
     fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id);
 
@@ -300,6 +306,8 @@ private:
     template<class TPacket>
     void threadTransmission();
 
+    [[nodiscard]] bool verifyRealm(FluxPacketPtr const& refFluxPacket);
+
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
 
@@ -312,6 +320,8 @@ private:
     bool g_running;
 
     fge::net::Identity g_clientIdentity;
+    bool g_startRetrieveOrderedPacket;
+    std::size_t g_remainingPackets{0};
 };
 
 } // namespace fge::net

@@ -81,15 +81,17 @@ std::size_t NetFluxUdp::getMaxPackets() const
 }
 
 //ServerNetFluxUdp
-FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient)
+FluxProcessResults
+ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient)
 {
     refClient.reset();
     refFluxPacket.reset();
 
     if (this->g_clientWithRetrievableOrderedPacket)
-    {//All packets cached from a client must be retrieved first
+    { //All packets cached from a client must be retrieved first
         auto const clientCountId = this->g_clientWithRetrievableOrderedPacket->getClientPacketCountId();
-        if (!this->g_clientWithRetrievableOrderedPacket->getPacketReorderer().isRetrievable(clientCountId, this->g_clientWithRetrievableOrderedPacket->getCurrentRealm()))
+        if (!this->g_clientWithRetrievableOrderedPacket->getPacketReorderer().isRetrievable(
+                    clientCountId, this->g_clientWithRetrievableOrderedPacket->getCurrentRealm()))
         {
             this->g_clientWithRetrievableOrderedPacket.reset();
             std::cout << "finish reordering" << std::endl;
@@ -135,7 +137,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPac
     {
         auto const headerId = refFluxPacket->retrieveHeaderId().value();
 
-        if ((headerId&FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+        if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
         {
             std::cout << "packet with do not reorder flag" << std::endl;
             return FluxProcessResults::RETRIEVABLE;
@@ -143,7 +145,8 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPac
 
         //Reorder the packet if needed
         refClient->getPacketReorderer().push(std::move(refFluxPacket));
-        if (!refClient->getPacketReorderer().isRetrievable(refClient->getClientPacketCountId(), refClient->getCurrentRealm()))
+        if (!refClient->getPacketReorderer().isRetrievable(refClient->getClientPacketCountId(),
+                                                           refClient->getCurrentRealm()))
         {
             std::cout << "packet need reorder" << std::endl;
             return FluxProcessResults::NOT_RETRIEVABLE;
@@ -176,14 +179,15 @@ bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, FluxPacketP
 {
     auto const headerId = refFluxPacket->retrieveHeaderId().value();
 
-    if ((headerId&FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
+    if ((headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
     {
         return true;
     }
 
     auto const clientProvidedRealm = refFluxPacket->retrieveRealm().value();
 
-    if (clientProvidedRealm != refClient->getCurrentRealm() && refClient->getLastRealmChangeElapsedTime() >= FGE_SERVER_MAX_TIME_DIFFERENCE_REALM)
+    if (clientProvidedRealm != refClient->getCurrentRealm() &&
+        refClient->getLastRealmChangeElapsedTime() >= FGE_SERVER_MAX_TIME_DIFFERENCE_REALM)
     {
         this->_onClientBadRealm.call(refClient);
         return false;
@@ -301,7 +305,8 @@ ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
         g_socket(addressType),
-        g_running(false)
+        g_running(false),
+        g_startRetrieveOrderedPacket(false)
 {}
 ClientSideNetUdp::~ClientSideNetUdp()
 {
@@ -357,7 +362,104 @@ fge::net::Identity const& ClientSideNetUdp::getClientIdentity() const
 
 FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
 {
+    refFluxPacket.reset();
 
+    if (this->g_startRetrieveOrderedPacket)
+    { //All packets cached must be retrieved first
+        auto const currentRealm = this->_client.getCurrentRealm();
+        auto const clientCountId = this->_client.getCurrentPacketCountId();
+        if (!this->_client.getPacketReorderer().isRetrievable(clientCountId, currentRealm))
+        {
+            this->g_startRetrieveOrderedPacket = false;
+            std::cout << "finish reordering" << std::endl;
+            return FluxProcessResults::BAD_REORDER;
+        }
+
+        refFluxPacket = this->_client.getPacketReorderer().pop();
+
+        //Verify the realm
+        if (!this->verifyRealm(refFluxPacket))
+        {
+            std::cout << "bad realm during reorder" << std::endl;
+            return FluxProcessResults::BAD_REALM;
+        }
+
+        auto const serverRealm = refFluxPacket->retrieveRealm().value();
+        auto const serverCountId = refFluxPacket->retrieveCountId().value();
+
+        this->_client.setCurrentPacketCountId(serverCountId);
+        this->_client.setCurrentRealm(serverRealm);
+        std::cout << "getting packet from reorder" << std::endl;
+        return FluxProcessResults::RETRIEVABLE;
+    }
+
+    if (this->g_remainingPackets == 0)
+    {
+        this->g_remainingPackets = this->getPacketsSize();
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    //Popping the next packet
+    refFluxPacket = this->popNextPacket();
+    --this->g_remainingPackets;
+
+    auto const headerId = refFluxPacket->retrieveHeaderId().value();
+
+    if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+    {
+        std::cout << "packet with do not reorder flag" << std::endl;
+        return FluxProcessResults::RETRIEVABLE;
+    }
+
+    //Reorder the packet if needed
+    this->_client.getPacketReorderer().push(std::move(refFluxPacket));
+    if (!this->_client.getPacketReorderer().isRetrievable(this->_client.getCurrentPacketCountId(),
+                                                          this->_client.getCurrentRealm()))
+    {
+        std::cout << "packet need reorder" << std::endl;
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    refFluxPacket = this->_client.getPacketReorderer().pop();
+
+    if (!this->_client.getPacketReorderer().isEmpty())
+    {
+        std::cout << "getting into packet ordered retrieve" << std::endl;
+        this->g_startRetrieveOrderedPacket = true;
+    }
+
+    //Verify the realm
+    if (!this->verifyRealm(refFluxPacket))
+    {
+        std::cout << "bad realm during reorder" << std::endl;
+        return FluxProcessResults::BAD_REALM;
+    }
+
+    auto const serverRealm = refFluxPacket->retrieveRealm().value();
+    auto const serverCountId = refFluxPacket->retrieveCountId().value();
+
+    this->_client.setCurrentPacketCountId(serverCountId);
+    this->_client.setCurrentRealm(serverRealm);
+
+    std::cout << "getting packet" << std::endl;
+    return FluxProcessResults::RETRIEVABLE;
+}
+bool ClientSideNetUdp::verifyRealm(FluxPacketPtr const& refFluxPacket)
+{
+    auto const headerId = refFluxPacket->retrieveHeaderId().value();
+
+    if ((headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
+    {
+        return true;
+    }
+
+    auto const serverProvidedRealm = refFluxPacket->retrieveRealm().value();
+
+    if (serverProvidedRealm < this->_client.getCurrentRealm() && this->_client.getCurrentRealm() + 1 != 0)
+    {
+        return false;
+    }
+    return true;
 }
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)

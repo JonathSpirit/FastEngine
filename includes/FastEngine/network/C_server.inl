@@ -142,7 +142,7 @@ void ServerSideNetUdp::threadReception()
 
                 //Verify headerId
                 auto const headerId = fluxPacket->retrieveHeaderId().value();
-                if (headerId&~FGE_NET_HEADERID_FLAGS_MASK == FGE_NET_BAD_HEADERID)
+                if (headerId & ~FGE_NET_HEADERID_FLAGS_MASK == FGE_NET_BAD_HEADERID)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
@@ -161,7 +161,7 @@ void ServerSideNetUdp::threadReception()
                     pushingIndex = (pushingIndex + 1) % this->g_fluxes.size();
                     fluxPacket->g_fluxIndex = pushingIndex;
                     if (this->g_fluxes[pushingIndex]->pushPacket(std::move(fluxPacket)))
-                    {//Packet is correctly pushed
+                    { //Packet is correctly pushed
                         break;
                     }
                 }
@@ -285,9 +285,14 @@ void ClientSideNetUdp::threadReception()
 
                 //Skip the header
                 pckReceive.skip(ProtocolPacket::HeaderSize);
-
                 auto fluxPacket = std::make_unique<FluxPacket>(std::move(pckReceive), this->g_clientIdentity);
-                ///TODO: Control the realm and countId
+
+                //Verify headerId
+                auto const headerId = fluxPacket->retrieveHeaderId().value();
+                if (headerId & ~FGE_NET_HEADERID_FLAGS_MASK == FGE_NET_BAD_HEADERID)
+                { //Bad headerId, packet is dismissed
+                    continue;
+                }
 
                 this->pushPacket(std::move(fluxPacket));
                 this->g_receptionNotifier.notify_all();

@@ -261,12 +261,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Handling server packets
-        std::size_t pckSize = server.getPacketsSize();
-        for (std::size_t i = 0; i < pckSize; ++i)
+        fge::net::FluxPacketPtr fluxPacket;
+        while (server.process(fluxPacket) == fge::net::FluxProcessResults::RETRIEVABLE)
         {
-            //Popping the next packet
-            auto fluxPacket = server.popNextPacket();
-
             //Prepare a sending packet
             auto transmissionPacket = fge::net::TransmissionPacket::create();
 
@@ -275,7 +272,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             {
             case ls::LS_PROTOCOL_ALL_GOODBYE:
                 server.stop();
-                pckSize = 0;
                 mainScene->delAllObject(true);
                 connectionValid = false;
                 createConnectionWindow();

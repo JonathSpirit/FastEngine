@@ -245,8 +245,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_UPDATE:
                 if (client)
                 {
-                    std::cout << "received update from : " << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED")
-                              << std::endl;
+                    std::cout << "received update from : "
+                              << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED") << std::endl;
 
                     //We compute the latency with the LatencyPlanner help class
                     client->_latencyPlanner.unpack(fluxPacket.get(), *client);

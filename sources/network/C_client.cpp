@@ -230,15 +230,18 @@ ProtocolPacket::Realm Client::getCurrentRealm() const
 std::chrono::milliseconds Client::getLastRealmChangeElapsedTime() const
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::steady_clock::now() - this->g_lastRealmChangeTimePoint);
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
+                                                                 this->g_lastRealmChangeTimePoint);
 }
 void Client::setCurrentRealm(ProtocolPacket::Realm realm)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    this->g_currentRealm = realm;
-    this->g_currentPacketCountId = 0;
-    this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
+    if (this->g_currentRealm != realm)
+    {
+        this->g_currentPacketCountId = 0;
+        this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
+        this->g_currentRealm = realm;
+    }
 }
 
 ProtocolPacket::CountId Client::getCurrentPacketCountId() const
@@ -249,7 +252,7 @@ ProtocolPacket::CountId Client::getCurrentPacketCountId() const
 ProtocolPacket::CountId Client::advanceCurrentPacketCountId()
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    return this->g_currentPacketCountId++;
+    return ++this->g_currentPacketCountId;
 }
 void Client::setCurrentPacketCountId(ProtocolPacket::CountId countId)
 {
