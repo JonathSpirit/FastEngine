@@ -19,11 +19,11 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_socket.hpp"
-#include "FastEngine/network/C_protocol.hpp"
 #include "FastEngine/network/C_clientList.hpp"
 #include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/network/C_packetBZ2.hpp"
 #include "FastEngine/network/C_packetLZ4.hpp"
+#include "FastEngine/network/C_protocol.hpp"
 #include <condition_variable>
 #include <memory>
 #include <mutex>

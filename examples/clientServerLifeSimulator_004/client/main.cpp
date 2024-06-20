@@ -360,8 +360,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         while (updateCache.isRetrievable(mainScene->getUpdateCount()))
                         {
                             auto cachedPacket = updateCache.pop();
-                            mainScene->unpackModification(*cachedPacket._fluxPacket,
-                                                          cachedPacket._updateCountRange, true);
+                            mainScene->unpackModification(*cachedPacket._fluxPacket, cachedPacket._updateCountRange,
+                                                          true);
                             //And unpack all watched events
                             err = mainScene->unpackWatchedEvent(*cachedPacket._fluxPacket);
                             if (err)

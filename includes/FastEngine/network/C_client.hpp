@@ -88,7 +88,8 @@ public:
         std::size_t _argument; ///< The option argument
     };
 
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(ProtocolPacket::HeaderId headerId=FGE_NET_BAD_HEADERID);
+    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket>
+    create(ProtocolPacket::HeaderId headerId = FGE_NET_BAD_HEADERID);
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;
@@ -107,7 +108,9 @@ public:
     void applyOptions();
 
 private:
-    inline explicit TransmissionPacket(ProtocolPacket::HeaderId headerId, ProtocolPacket::Realm realmId, ProtocolPacket::CountId countId);
+    inline explicit TransmissionPacket(ProtocolPacket::HeaderId headerId,
+                                       ProtocolPacket::Realm realmId,
+                                       ProtocolPacket::CountId countId);
     inline explicit TransmissionPacket(ProtocolPacket&& packet);
 
     ProtocolPacket g_packet;

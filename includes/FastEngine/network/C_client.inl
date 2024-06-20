@@ -26,7 +26,9 @@ inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(Packet&& p
     return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::move(packet))};
 }
 
-inline TransmissionPacket::TransmissionPacket(ProtocolPacket::HeaderId headerId, ProtocolPacket::Realm realmId, ProtocolPacket::CountId countId) :
+inline TransmissionPacket::TransmissionPacket(ProtocolPacket::HeaderId headerId,
+                                              ProtocolPacket::Realm realmId,
+                                              ProtocolPacket::CountId countId) :
         g_packet(headerId, realmId, countId)
 {}
 inline TransmissionPacket::TransmissionPacket(ProtocolPacket&& packet) :

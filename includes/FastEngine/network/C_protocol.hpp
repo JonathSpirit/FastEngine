@@ -51,9 +51,13 @@ public:
 
     inline ProtocolPacket(HeaderId headerId, Realm realmId, CountId countId);
     inline ProtocolPacket(ProtocolPacket const& r) = default;
-    inline ProtocolPacket(Packet const& r) : Packet(r) {}
+    inline ProtocolPacket(Packet const& r) :
+            Packet(r)
+    {}
     inline ProtocolPacket(ProtocolPacket&& r) noexcept = default;
-    inline ProtocolPacket(Packet&& r) noexcept : Packet(std::move(r)) {}
+    inline ProtocolPacket(Packet&& r) noexcept :
+            Packet(std::move(r))
+    {}
     inline ~ProtocolPacket() override = default;
 
     [[nodiscard]] inline Packet& packet() noexcept { return *this; }

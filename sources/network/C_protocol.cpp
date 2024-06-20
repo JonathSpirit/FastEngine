@@ -50,7 +50,7 @@ bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId, Prot
         return true;
     }
 
-    if (this->g_cache.top()._realm < currentRealm && currentRealm+1 != 0)
+    if (this->g_cache.top()._realm < currentRealm && currentRealm + 1 != 0)
     {
         //pop the packet if the realm is lower than the current realm
         this->g_cache.pop();
@@ -62,12 +62,12 @@ bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId, Prot
     }
 
     if (currentRealm != this->g_cache.top()._realm && this->g_cache.top()._countId != 0)
-    {//Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
+    { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
         return false;
     }
 
-    if (this->g_cache.top()._countId == currentCountId+1)
-    {//Same realm, we can switch to the next countId
+    if (this->g_cache.top()._countId == currentCountId + 1)
+    { //Same realm, we can switch to the next countId
         return true;
     }
 

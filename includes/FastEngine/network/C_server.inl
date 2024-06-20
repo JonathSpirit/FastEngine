@@ -64,7 +64,8 @@ bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const&
         this->g_running = true;
 
         this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception<TPacket>, this);
-        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission<TPacket>, this);
+        this->g_threadTransmission =
+                std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission<TPacket>, this);
 
         return true;
     }
@@ -83,7 +84,8 @@ bool ServerSideNetUdp::start(IpAddress::Types addressType)
         this->g_running = true;
 
         this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception<TPacket>, this);
-        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission<TPacket>, this);
+        this->g_threadTransmission =
+                std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission<TPacket>, this);
 
         return true;
     }
@@ -113,7 +115,7 @@ void ServerSideNetUdp::threadReception()
                 std::scoped_lock<std::mutex> const lck(this->g_mutexServer);
 
                 if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
-                {//Bad header, packet is dismissed
+                { //Bad header, packet is dismissed
                     continue;
                 }
 
@@ -226,7 +228,8 @@ bool ClientSideNetUdp::start(fge::net::Port bindPort,
             this->g_running = true;
 
             this->g_threadReception = std::make_unique<std::thread>(&ClientSideNetUdp::threadReception<TPacket>, this);
-            this->g_threadTransmission = std::make_unique<std::thread>(&ClientSideNetUdp::threadTransmission<TPacket>, this);
+            this->g_threadTransmission =
+                    std::make_unique<std::thread>(&ClientSideNetUdp::threadTransmission<TPacket>, this);
 
             return true;
         }
@@ -254,7 +257,7 @@ void ClientSideNetUdp::threadReception()
 #endif
 
                 if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
-                {//Bad header, packet is dismissed
+                { //Bad header, packet is dismissed
                     continue;
                 }
 
