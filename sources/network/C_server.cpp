@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/network/C_server.hpp"
+#include <iostream>
 
 namespace fge::net
 {
@@ -79,10 +80,122 @@ std::size_t NetFluxUdp::getMaxPackets() const
     return this->g_maxPackets;
 }
 
+//ServerNetFluxUdp
+FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient)
+{
+    refClient.reset();
+    refFluxPacket.reset();
+
+    if (this->g_clientWithRetrievableOrderedPacket)
+    {//All packets cached from a client must be retrieved first
+        auto const clientCountId = this->g_clientWithRetrievableOrderedPacket->getClientPacketCountId();
+        if (!this->g_clientWithRetrievableOrderedPacket->getPacketReorderer().isRetrievable(clientCountId, this->g_clientWithRetrievableOrderedPacket->getCurrentRealm()))
+        {
+            this->g_clientWithRetrievableOrderedPacket.reset();
+            std::cout << "finish reordering" << std::endl;
+            return FluxProcessResults::BAD_REORDER;
+        }
+
+        refClient = this->g_clientWithRetrievableOrderedPacket;
+        refFluxPacket = this->g_clientWithRetrievableOrderedPacket->getPacketReorderer().pop();
+
+        //Verify the realm
+        if (!this->verifyRealm(refClient, refFluxPacket))
+        {
+            std::cout << "bad realm during reorder" << std::endl;
+            return FluxProcessResults::BAD_REALM;
+        }
+        std::cout << "getting packet from reorder" << std::endl;
+        auto const countId = refFluxPacket->retrieveCountId().value();
+        refClient->setClientPacketCountId(countId);
+        return FluxProcessResults::RETRIEVABLE;
+    }
+
+    if (this->g_remainingPackets == 0)
+    {
+        this->g_remainingPackets = this->getPacketsSize();
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    //Popping the next packet
+    refFluxPacket = this->popNextPacket();
+    --this->g_remainingPackets;
+
+    //Verify if the client is known
+    refClient = this->_clients.get(refFluxPacket->getIdentity());
+
+    if (!refClient && !allowUnknownClient)
+    {
+        this->g_server->repushPacket(std::move(refFluxPacket));
+        std::cout << "unknown client, repushing" << std::endl;
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    if (refClient)
+    {
+        auto const headerId = refFluxPacket->retrieveHeaderId().value();
+
+        if ((headerId&FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+        {
+            std::cout << "packet with do not reorder flag" << std::endl;
+            return FluxProcessResults::RETRIEVABLE;
+        }
+
+        //Reorder the packet if needed
+        refClient->getPacketReorderer().push(std::move(refFluxPacket));
+        if (!refClient->getPacketReorderer().isRetrievable(refClient->getClientPacketCountId(), refClient->getCurrentRealm()))
+        {
+            std::cout << "packet need reorder" << std::endl;
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+
+        refFluxPacket = refClient->getPacketReorderer().pop();
+
+        if (!refClient->getPacketReorderer().isEmpty())
+        {
+            std::cout << "getting into packet ordered retrieve" << std::endl;
+            this->g_clientWithRetrievableOrderedPacket = refClient;
+        }
+
+        //Verify the realm
+        if (!this->verifyRealm(refClient, refFluxPacket))
+        {
+            std::cout << "bad realm during reorder" << std::endl;
+            return FluxProcessResults::BAD_REALM;
+        }
+
+        auto const countId = refFluxPacket->retrieveCountId().value();
+        refClient->setClientPacketCountId(countId);
+    }
+
+    std::cout << "getting packet" << std::endl;
+    return FluxProcessResults::RETRIEVABLE;
+}
+
+bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket)
+{
+    auto const headerId = refFluxPacket->retrieveHeaderId().value();
+
+    if ((headerId&FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
+    {
+        return true;
+    }
+
+    auto const clientProvidedRealm = refFluxPacket->retrieveRealm().value();
+
+    if (clientProvidedRealm != refClient->getCurrentRealm() && refClient->getLastRealmChangeElapsedTime() >= FGE_SERVER_MAX_TIME_DIFFERENCE_REALM)
+    {
+        this->_onClientBadRealm.call(refClient);
+        return false;
+    }
+    return true;
+}
+
 //ServerUdp
 ServerSideNetUdp::ServerSideNetUdp(IpAddress::Types type) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
+        g_defaultFlux(*this),
         g_socket(type),
         g_running(false)
 {}
@@ -111,7 +224,7 @@ fge::net::ServerNetFluxUdp* ServerSideNetUdp::newFlux()
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
-    this->g_fluxes.push_back(std::make_unique<fge::net::ServerNetFluxUdp>());
+    this->g_fluxes.push_back(std::make_unique<fge::net::ServerNetFluxUdp>(*this));
     return this->g_fluxes.back().get();
 }
 fge::net::ServerNetFluxUdp* ServerSideNetUdp::getFlux(std::size_t index)
@@ -177,20 +290,6 @@ fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::Packet& pck, fge::net
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.sendTo(pck, id._ip, id._port);
 }
-fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::TransmissionPacketPtr& pck,
-                                                 fge::net::Client const& client,
-                                                 fge::net::Identity const& id)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    pck->applyOptions(client);
-    return this->g_socket.sendTo(pck->packet(), id._ip, id._port);
-}
-fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    pck->applyOptions();
-    return this->g_socket.sendTo(pck->packet(), id._ip, id._port);
-}
 
 bool ServerSideNetUdp::isRunning() const
 {
@@ -254,6 +353,11 @@ bool ClientSideNetUdp::isRunning() const
 fge::net::Identity const& ClientSideNetUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
+}
+
+FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
+{
+
 }
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)

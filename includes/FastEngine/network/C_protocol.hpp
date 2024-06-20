@@ -24,7 +24,14 @@
 #include <queue>
 #include <vector>
 
+#define FGE_NET_HEADERID_TYPE uint16_t
+#define FGE_NET_HEADERID_MAX 0x3FFE
+#define FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG 0x8000
+#define FGE_NET_HEADERID_DO_NOT_REORDER_FLAG 0x4000
+#define FGE_NET_HEADERID_FLAGS_MASK 0xC000
+#define FGE_NET_HEADERID_START 1
 #define FGE_NET_BAD_HEADERID 0
+
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_PACKET_REORDERER_CACHE_MAX 10
 
@@ -41,7 +48,7 @@ namespace fge::net
 class ProtocolPacket : public Packet
 {
 public:
-    using HeaderId = uint16_t;
+    using HeaderId = FGE_NET_HEADERID_TYPE;
     using Realm = uint8_t;
     using CountId = uint16_t;
     constexpr static std::size_t HeaderSize = sizeof(HeaderId) + sizeof(Realm) + sizeof(CountId);
@@ -96,9 +103,11 @@ public:
 
     void clear();
 
-    void push(FluxPacketPtr fluxPacket);
+    void push(FluxPacketPtr&& fluxPacket);
     [[nodiscard]] bool isRetrievable(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm);
     [[nodiscard]] FluxPacketPtr pop();
+
+    [[nodiscard]] bool isEmpty() const;
 
 private:
     struct Data

@@ -205,7 +205,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_ALL_GOODBYE);
 
                     transmissionPacket->packet() << "timeout";
-                    server.sendTo(
+                    server.sendTo<fge::net::PacketLZ4>(
                             transmissionPacket,
                             (*it).first); ///TODO: we have to stop using .sendTo method and let the server thread handle all packets
 
@@ -220,15 +220,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Handling clients packets
-        std::size_t pckSize = serverFlux->getPacketsSize();
-        for (std::size_t i = 0; i < pckSize; ++i)
+        fge::net::ClientSharedPtr client;
+        fge::net::FluxPacketPtr fluxPacket;
+        while (serverFlux->process(client, fluxPacket, true) == fge::net::FluxProcessResults::RETRIEVABLE)
         {
-            //Popping the next packet
-            auto fluxPacket = serverFlux->popNextPacket();
-
-            //Check if we already know the packet identity
-            auto client = clients.get(fluxPacket->getIdentity());
-
             //Prepare a sending packet
             auto transmissionPacket = fge::net::TransmissionPacket::create();
 
@@ -250,6 +245,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_UPDATE:
                 if (client)
                 {
+                    std::cout << "received update from : " << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED")
+                              << std::endl;
+
                     //We compute the latency with the LatencyPlanner help class
                     client->_latencyPlanner.unpack(fluxPacket.get(), *client);
                     if (auto latency = client->_latencyPlanner.getLatency())
@@ -263,6 +261,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                     //We reset the timeout count
                     client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
+                }
+                else
+                {
+                    std::cout << "received update from someone" << std::endl;
                 }
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:

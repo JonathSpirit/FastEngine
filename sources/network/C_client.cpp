@@ -73,14 +73,22 @@ Client::Client() :
         g_CTOSLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_STOCLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
-        g_skey(FGE_NET_BAD_SKEY)
+        g_skey(FGE_NET_BAD_SKEY),
+        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
+        g_currentRealm(FGE_NET_DEFAULT_REALM),
+        g_currentPacketCountId(0),
+        g_clientPacketCountId(0)
 {}
 Client::Client(fge::net::Latency_ms CTOSLatency, fge::net::Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
         g_CTOSLatency_ms(CTOSLatency),
         g_STOCLatency_ms(STOCLatency),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
-        g_skey(FGE_NET_BAD_SKEY)
+        g_skey(FGE_NET_BAD_SKEY),
+        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
+        g_currentRealm(FGE_NET_DEFAULT_REALM),
+        g_currentPacketCountId(0),
+        g_clientPacketCountId(0)
 {}
 
 fge::net::Skey Client::GenerateSkey()
@@ -219,11 +227,18 @@ ProtocolPacket::Realm Client::getCurrentRealm() const
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     return this->g_currentRealm;
 }
+std::chrono::milliseconds Client::getLastRealmChangeElapsedTime() const
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::steady_clock::now() - this->g_lastRealmChangeTimePoint);
+}
 void Client::setCurrentRealm(ProtocolPacket::Realm realm)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->g_currentRealm = realm;
     this->g_currentPacketCountId = 0;
+    this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
 }
 
 ProtocolPacket::CountId Client::getCurrentPacketCountId() const
@@ -240,6 +255,31 @@ void Client::setCurrentPacketCountId(ProtocolPacket::CountId countId)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     this->g_currentPacketCountId = countId;
+}
+
+ProtocolPacket::CountId Client::getClientPacketCountId() const
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_clientPacketCountId;
+}
+ProtocolPacket::CountId Client::advanceClientPacketCountId()
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_clientPacketCountId++;
+}
+void Client::setClientPacketCountId(ProtocolPacket::CountId countId)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_clientPacketCountId = countId;
+}
+
+PacketReorderer& Client::getPacketReorderer()
+{
+    return this->g_packetReorderer;
+}
+PacketReorderer const& Client::getPacketReorderer() const
+{
+    return this->g_packetReorderer;
 }
 
 //OneWayLatencyPlanner

@@ -35,6 +35,7 @@
 #endif
 
 #define FGE_SERVER_DEFAULT_MAXPACKET 200
+#define FGE_SERVER_MAX_TIME_DIFFERENCE_REALM std::chrono::milliseconds{2000}
 
 namespace fge::net
 {
@@ -122,13 +123,36 @@ private:
 
     friend class ServerSideNetUdp;
 };
+
+enum class FluxProcessResults
+{
+    RETRIEVABLE,
+    BAD_REALM,
+    BAD_REORDER,
+    NOT_RETRIEVABLE
+};
+
 class FGE_API ServerNetFluxUdp : public NetFluxUdp
 {
 public:
-    ServerNetFluxUdp() = default;
+    explicit ServerNetFluxUdp(ServerSideNetUdp& server) :
+            NetFluxUdp(),
+            g_server(&server)
+    {}
     ~ServerNetFluxUdp() override = default;
 
+    [[nodiscard]] FluxProcessResults process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient);
+
     fge::net::ClientList _clients;
+
+    fge::CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
+
+private:
+    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket);
+
+    std::size_t g_remainingPackets{0};
+    ClientSharedPtr g_clientWithRetrievableOrderedPacket;
+    ServerSideNetUdp* g_server{nullptr};
 };
 
 /**
@@ -203,8 +227,9 @@ public:
     [[nodiscard]] bool isRunning() const;
 
     fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::Identity const& id);
-    fge::net::Socket::Error
-    sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
+    template<class TPacket>
+    fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
+    template<class TPacket>
     fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id);
 
 private:
@@ -221,10 +246,10 @@ private:
     mutable std::mutex g_mutexTransmission;
     mutable std::mutex g_mutexServer;
 
-    std::vector<std::unique_ptr<fge::net::ServerNetFluxUdp>> g_fluxes;
-    fge::net::ServerNetFluxUdp g_defaultFlux;
+    std::vector<std::unique_ptr<ServerNetFluxUdp>> g_fluxes;
+    ServerNetFluxUdp g_defaultFlux;
 
-    fge::net::SocketUdp g_socket;
+    SocketUdp g_socket;
     bool g_running;
 };
 
@@ -264,6 +289,8 @@ public:
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
     [[nodiscard]] fge::net::Identity const& getClientIdentity() const;
+
+    [[nodiscard]] FluxProcessResults process(FluxPacketPtr& refFluxPacket);
 
     fge::net::Client _client; //But it is the server :O
 

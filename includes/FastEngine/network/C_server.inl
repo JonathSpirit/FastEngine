@@ -93,6 +93,23 @@ bool ServerSideNetUdp::start(IpAddress::Types addressType)
 }
 
 template<class TPacket>
+Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id)
+{
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
+    pck->applyOptions(client);
+    TPacket packet(pck->packet());
+    return this->g_socket.sendTo(packet, id._ip, id._port);
+}
+template<class TPacket>
+Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
+{
+    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
+    pck->applyOptions();
+    TPacket packet(pck->packet());
+    return this->g_socket.sendTo(packet, id._ip, id._port);
+}
+
+template<class TPacket>
 void ServerSideNetUdp::threadReception()
 {
     fge::net::Identity idReceive;
@@ -119,11 +136,18 @@ void ServerSideNetUdp::threadReception()
                     continue;
                 }
 
-                //Skip the header
+                //Skip the header for reading
                 pckReceive.skip(ProtocolPacket::HeaderSize);
-
                 auto fluxPacket = std::make_unique<FluxPacket>(std::move(pckReceive), idReceive);
-                ///TODO: Control the realm and countId
+
+                //Verify headerId
+                auto const headerId = fluxPacket->retrieveHeaderId().value();
+                if (headerId&~FGE_NET_HEADERID_FLAGS_MASK == FGE_NET_BAD_HEADERID)
+                { //Bad headerId, packet is dismissed
+                    continue;
+                }
+
+                //Realm and countId is verified by the flux who have the corresponding client
 
                 if (this->g_fluxes.empty())
                 {
@@ -131,15 +155,13 @@ void ServerSideNetUdp::threadReception()
                     continue;
                 }
 
-                pushingIndex = (pushingIndex + 1) % this->g_fluxes.size(); ///TODO: Weird duplication of code
                 //Try to push packet in a flux
                 for (std::size_t i = 0; i < this->g_fluxes.size(); ++i)
                 {
                     pushingIndex = (pushingIndex + 1) % this->g_fluxes.size();
                     fluxPacket->g_fluxIndex = pushingIndex;
                     if (this->g_fluxes[pushingIndex]->pushPacket(std::move(fluxPacket)))
-                    {
-                        //Packet is correctly pushed
+                    {//Packet is correctly pushed
                         break;
                     }
                 }
@@ -296,7 +318,7 @@ void ClientSideNetUdp::threadTransmission()
 
                 //Applying options
                 transmissionPacket->applyOptions(this->_client);
-                transmissionPacket->packet().setCountId(this->_client.advanceCurrentPacketCountId());
+                transmissionPacket->packet().setCountId(this->_client.advanceClientPacketCountId());
 
                 //Sending the packet
                 TPacket packet = transmissionPacket->packet();

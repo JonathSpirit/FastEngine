@@ -26,7 +26,7 @@ void PacketReorderer::clear()
     decltype(this->g_cache)().swap(this->g_cache);
 }
 
-void PacketReorderer::push(FluxPacketPtr fluxPacket)
+void PacketReorderer::push(FluxPacketPtr&& fluxPacket)
 {
     this->g_cache.emplace(std::move(fluxPacket));
     if (this->g_cache.size() >= FGE_NET_PACKET_REORDERER_CACHE_MAX)
@@ -84,6 +84,11 @@ FluxPacketPtr PacketReorderer::pop()
     auto fluxPacket = std::move(const_cast<FluxPacketPtr&>(this->g_cache.top()._fluxPacket));
     this->g_cache.pop();
     return fluxPacket;
+}
+
+bool PacketReorderer::isEmpty() const
+{
+    return this->g_cache.empty();
 }
 
 PacketReorderer::Data::Data(FluxPacketPtr&& fluxPacket) :

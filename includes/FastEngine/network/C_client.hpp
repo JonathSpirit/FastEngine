@@ -390,11 +390,19 @@ public:
     bool isPendingPacketsEmpty();
 
     [[nodiscard]] ProtocolPacket::Realm getCurrentRealm() const;
+    [[nodiscard]] std::chrono::milliseconds getLastRealmChangeElapsedTime() const;
     void setCurrentRealm(ProtocolPacket::Realm realm);
 
     [[nodiscard]] ProtocolPacket::CountId getCurrentPacketCountId() const;
     [[nodiscard]] ProtocolPacket::CountId advanceCurrentPacketCountId();
     void setCurrentPacketCountId(ProtocolPacket::CountId countId);
+
+    [[nodiscard]] ProtocolPacket::CountId getClientPacketCountId() const;
+    [[nodiscard]] ProtocolPacket::CountId advanceClientPacketCountId();
+    void setClientPacketCountId(ProtocolPacket::CountId countId);
+
+    [[nodiscard]] PacketReorderer& getPacketReorderer();
+    [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
 
     fge::Event _event;       ///< Optional client-side event that can be synchronized with the server
     fge::PropertyList _data; ///< Some user-defined client properties
@@ -411,8 +419,12 @@ private:
 
     fge::net::Skey g_skey;
 
+    std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
     ProtocolPacket::Realm g_currentRealm;
     ProtocolPacket::CountId g_currentPacketCountId;
+    ProtocolPacket::CountId g_clientPacketCountId;
+
+    PacketReorderer g_packetReorderer;
 };
 
 /**
