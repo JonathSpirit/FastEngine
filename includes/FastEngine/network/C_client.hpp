@@ -106,9 +106,6 @@ public:
     void applyOptions(fge::net::Client const& client);
     void applyOptions();
 
-    template<class TPacket>
-    [[nodiscard]] inline TPacket prepare();
-
 private:
     inline explicit TransmissionPacket(ProtocolPacket::HeaderId headerId, ProtocolPacket::Realm realmId, ProtocolPacket::CountId countId);
     inline explicit TransmissionPacket(ProtocolPacket&& packet);
@@ -389,6 +386,13 @@ public:
      */
     bool isPendingPacketsEmpty();
 
+    [[nodiscard]] ProtocolPacket::Realm getCurrentRealm() const;
+    void setCurrentRealm(ProtocolPacket::Realm realm);
+
+    [[nodiscard]] ProtocolPacket::CountId getCurrentPacketCountId() const;
+    [[nodiscard]] ProtocolPacket::CountId advanceCurrentPacketCountId();
+    void setCurrentPacketCountId(ProtocolPacket::CountId countId);
+
     fge::Event _event;       ///< Optional client-side event that can be synchronized with the server
     fge::PropertyList _data; ///< Some user-defined client properties
     fge::net::OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
@@ -403,6 +407,9 @@ private:
     mutable std::recursive_mutex g_mutex;
 
     fge::net::Skey g_skey;
+
+    ProtocolPacket::Realm g_currentRealm;
+    ProtocolPacket::CountId g_currentPacketCountId;
 };
 
 /**

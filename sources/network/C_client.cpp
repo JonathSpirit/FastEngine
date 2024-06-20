@@ -214,6 +214,34 @@ bool Client::isPendingPacketsEmpty()
     return this->g_pendingTransmitPackets.empty();
 }
 
+ProtocolPacket::Realm Client::getCurrentRealm() const
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_currentRealm;
+}
+void Client::setCurrentRealm(ProtocolPacket::Realm realm)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_currentRealm = realm;
+    this->g_currentPacketCountId = 0;
+}
+
+ProtocolPacket::CountId Client::getCurrentPacketCountId() const
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_currentPacketCountId;
+}
+ProtocolPacket::CountId Client::advanceCurrentPacketCountId()
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_currentPacketCountId++;
+}
+void Client::setCurrentPacketCountId(ProtocolPacket::CountId countId)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_currentPacketCountId = countId;
+}
+
 //OneWayLatencyPlanner
 
 void OneWayLatencyPlanner::pack(fge::net::TransmissionPacketPtr& tPacket)

@@ -50,10 +50,4 @@ inline std::vector<TransmissionPacket::Option>& TransmissionPacket::options()
     return this->g_options;
 }
 
-template<class TPacket>
-inline TPacket TransmissionPacket::prepare()
-{
-    return TPacket(this->g_packet);
-}
-
 } // namespace fge::net
