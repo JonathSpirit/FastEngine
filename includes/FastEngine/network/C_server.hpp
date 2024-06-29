@@ -118,9 +118,10 @@ public:
 protected:
     bool pushPacket(FluxPacketPtr&& fluxPck);
     void forcePushPacket(FluxPacketPtr fluxPck);
+    void forcePushPacketFront(FluxPacketPtr fluxPck);
 
     mutable std::mutex _g_mutexFlux;
-    std::queue<FluxPacketPtr> _g_packets;
+    std::deque<FluxPacketPtr> _g_packets;
 
 private:
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
@@ -320,7 +321,6 @@ private:
     bool g_running;
 
     fge::net::Identity g_clientIdentity;
-    bool g_startRetrieveOrderedPacket;
     std::size_t g_remainingPackets{0};
 };
 
