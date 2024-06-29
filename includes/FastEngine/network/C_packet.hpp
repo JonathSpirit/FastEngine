@@ -51,7 +51,6 @@ struct FGE_API Error
         ERR_EXTRACT,
         ERR_RULE,
 
-        ERR_SCENE_NEED_CACHING,
         ERR_SCENE_OLD_PACKET
     };
 

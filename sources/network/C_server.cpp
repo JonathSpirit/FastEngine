@@ -163,7 +163,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
         //Verify the realm
         if (!this->verifyRealm(refClient, refFluxPacket))
         {
-            std::cout << "bad realm during reorder" << std::endl;
+            std::cout << "bad realm" << std::endl;
             return FluxProcessResults::BAD_REALM;
         }
 
@@ -171,7 +171,6 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
         refClient->setClientPacketCountId(countId);
     }
 
-    std::cout << "getting packet" << std::endl;
     return FluxProcessResults::RETRIEVABLE;
 }
 
@@ -431,7 +430,7 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
     //Verify the realm
     if (!this->verifyRealm(refFluxPacket))
     {
-        std::cout << "bad realm during reorder" << std::endl;
+        std::cout << "bad realm" << std::endl;
         return FluxProcessResults::BAD_REALM;
     }
 
@@ -441,7 +440,6 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
     this->_client.setCurrentPacketCountId(serverCountId);
     this->_client.setCurrentRealm(serverRealm);
 
-    std::cout << "getting packet" << std::endl;
     return FluxProcessResults::RETRIEVABLE;
 }
 bool ClientSideNetUdp::verifyRealm(FluxPacketPtr const& refFluxPacket)

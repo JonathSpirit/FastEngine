@@ -1212,40 +1212,27 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     pck.shrink(reservedSize);
     pck.pack(countObjectPos, &countObject, sizeof(countObject)); //Rewriting size
 }
-std::optional<fge::net::Error>
-Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket)
+std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& range)
 {
     constexpr char const* const func = __func__;
 
     using namespace fge::net::rules;
 
     //update count range
-    if (!isPreExtractedPacket)
+    pck >> range._last >> range._now;
+    if (!pck)
     {
-        pck >> updateCountRange._last >> updateCountRange._now;
-        if (!pck)
-        {
-            return net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad update count range",
-                              func};
-        }
-
-        //Check if the pack is not old
-        if (updateCountRange._last < this->g_updateCount ||
-            (updateCountRange._last > this->g_updateCount && updateCountRange._now < this->g_updateCount))
-        {
-            return net::Error{net::Error::Types::ERR_SCENE_OLD_PACKET, pck.getReadPos(),
-                              "old network updates for this scene", func};
-        }
-
-        //Check if the pack is continuous
-        if (updateCountRange._last != this->g_updateCount)
-        {
-            return net::Error{net::Error::Types::ERR_SCENE_NEED_CACHING, pck.getReadPos(),
-                              "discontinuity in the network updates for this scene", func};
-        }
+        return net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad update count range", func};
     }
 
-    this->g_updateCount = updateCountRange._now;
+    //Check if the pack is not old
+    if (range._last < this->g_updateCount || (range._last > this->g_updateCount && range._now < this->g_updateCount))
+    {
+        return net::Error{net::Error::Types::ERR_SCENE_OLD_PACKET, pck.getReadPos(),
+                          "old network updates for this scene", func};
+    }
+
+    this->g_updateCount = range._now;
 
     //scene name
     return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))

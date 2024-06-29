@@ -169,15 +169,11 @@ void const* NetworkTypeScene::getSource() const
 
 bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
 {
-    fge::UpdateCountRange updateCountRange{};
-    auto err = this->g_typeSource->unpackModification(pck, updateCountRange, false);
+    Scene::UpdateCountRange updateRange{};
+    auto err = this->g_typeSource->unpackModification(pck, updateRange);
     if (err)
     {
-        if (err.value()._type == fge::net::Error::Types::ERR_SCENE_NEED_CACHING ||
-            err.value()._type == fge::net::Error::Types::ERR_SCENE_OLD_PACKET)
-        {
-            this->g_typeSource->unpackModification(pck, updateCountRange, true);
-        }
+        return false; //TODO : handle error
     }
     this->g_typeSource->unpackWatchedEvent(pck);
     this->setLastUpdateTime();

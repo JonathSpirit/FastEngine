@@ -52,9 +52,6 @@ void Error::dump(std::ostream& os) const
     case Types::ERR_RULE:
         typeStr = "RULE";
         break;
-    case Types::ERR_SCENE_NEED_CACHING:
-        typeStr = "SCENE_NEED_CACHING";
-        break;
     case Types::ERR_SCENE_OLD_PACKET:
         typeStr = "SCENE_OLD_PACKET";
         break;

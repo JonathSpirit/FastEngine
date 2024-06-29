@@ -404,6 +404,9 @@ public:
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
 
+    void setErrorCount(unsigned int count);
+    [[nodiscard]] unsigned int getErrorCount() const;
+
     fge::Event _event;       ///< Optional client-side event that can be synchronized with the server
     fge::PropertyList _data; ///< Some user-defined client properties
     fge::net::OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
@@ -425,6 +428,7 @@ private:
     ProtocolPacket::CountId g_clientPacketCountId;
 
     PacketReorderer g_packetReorderer;
+    unsigned int g_errorCount;
 };
 
 /**
