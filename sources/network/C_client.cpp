@@ -296,6 +296,41 @@ unsigned int Client::getErrorCount() const
     return this->g_errorCount;
 }
 
+void Client::clearLostPacketCount()
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_lostPacketCount = 0;
+}
+uint32_t Client::advanceLostPacketCount()
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    ++this->g_lostPacketCount;
+    if (this->g_lostPacketCount != 0 && this->g_lostPacketCount % this->g_lostPacketThreshold == 0)
+    {
+        this->_onThresholdLostPacket.call(*this);
+    }
+    return this->g_lostPacketCount;
+}
+void Client::setLostPacketThreshold(uint32_t threshold)
+{
+    if (threshold == 0)
+    {
+        return;
+    }
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_lostPacketThreshold = threshold;
+}
+uint32_t Client::getLostPacketThreshold() const
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_lostPacketThreshold;
+}
+uint32_t Client::getLostPacketCount() const
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    return this->g_lostPacketCount;
+}
+
 //OneWayLatencyPlanner
 
 void OneWayLatencyPlanner::pack(fge::net::TransmissionPacketPtr& tPacket)

@@ -33,11 +33,13 @@ void PacketReorderer::push(FluxPacketPtr&& fluxPacket)
     {
         //We can't wait anymore for the correct packet to arrive
         //as the cache is full, the waiting packet is considered lost
-        //and we can move on.
+        //and we can move on. (if he is still missing)
         this->g_retrievable = true;
     }
 }
-bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm)
+bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId,
+                                    ProtocolPacket::Realm currentRealm,
+                                    Client& client)
 {
     if (this->g_cache.empty())
     {
@@ -45,14 +47,23 @@ bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId, Prot
         return false;
     }
 
-    if (this->g_retrievable)
-    {
-        return true;
-    }
+    auto const stat = this->g_cache.top().checkStat(currentCountId, currentRealm);
 
-    if (this->g_cache.top()._realm < currentRealm && currentRealm + 1 != 0)
+#ifdef FGE_DEF_SERVER
+    if (stat == Data::Stats::OLD_COUNTID)
+#else
+    if (stat == Data::Stats::OLD_REALM || stat == Data::Stats::OLD_COUNTID)
+#endif
     {
-        //pop the packet if the realm is lower than the current realm
+        //check discard flag
+        auto const headerId = this->g_cache.top()._fluxPacket->retrieveHeaderId().value();
+        if ((headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
+        {
+            return false;
+        }
+
+        //pop the old packet
+        client.advanceLostPacketCount();
         this->g_cache.pop();
         if (this->g_cache.empty())
         {
@@ -61,14 +72,44 @@ bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId, Prot
         return false;
     }
 
-    if (currentRealm != this->g_cache.top()._realm && this->g_cache.top()._countId != 0)
+    if (this->g_retrievable)
+    {
+        return true;
+    }
+
+    return stat == Data::Stats::RETRIEVABLE;
+}
+bool PacketReorderer::verifyContinuity(FluxPacketPtr const& fluxPacket,
+                                       ProtocolPacket::CountId currentCountId,
+                                       ProtocolPacket::Realm currentRealm)
+{
+    auto const headerId = fluxPacket->retrieveHeaderId().value();
+    if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+    {
+        return true;
+    }
+
+    auto const countId = fluxPacket->retrieveCountId().value();
+    auto const realm = fluxPacket->retrieveRealm().value();
+
+    if (realm < currentRealm && currentRealm + 1 != 0)
+    {
+        return false;
+    }
+
+    if (currentRealm != realm && countId != 0)
     { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
         return false;
     }
 
-    if (this->g_cache.top()._countId == currentCountId + 1)
+    if (countId == currentCountId + 1)
     { //Same realm, we can switch to the next countId
         return true;
+    }
+
+    if (currentCountId < countId)
+    { //We are missing a packet
+        return false;
     }
 
     //We can't switch to the next countId, we wait for the correct packet to arrive
@@ -96,5 +137,32 @@ PacketReorderer::Data::Data(FluxPacketPtr&& fluxPacket) :
         _countId(_fluxPacket->retrieveCountId().value()),
         _realm(_fluxPacket->retrieveRealm().value())
 {}
+
+PacketReorderer::Data::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CountId currentCountId,
+                                                              ProtocolPacket::Realm currentRealm) const
+{
+    if (this->_realm < currentRealm && currentRealm + 1 != 0)
+    {
+        return Stats::OLD_REALM;
+    }
+
+    if (currentRealm != this->_realm && this->_countId != 0)
+    { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
+        return Stats::WAIT_NEXT_REALM;
+    }
+
+    if (this->_countId == currentCountId + 1)
+    { //Same realm, we can switch to the next countId
+        return Stats::RETRIEVABLE;
+    }
+
+    if (this->_countId < currentCountId)
+    { //We are missing a packet
+        return Stats::OLD_COUNTID;
+    }
+
+    //We can't switch to the next countId, we wait for the correct packet to arrive
+    return Stats::WAIT_NEXT_COUNTID;
+}
 
 } // namespace fge::net

@@ -53,6 +53,68 @@ void NetFluxUdp::forcePushPacketFront(FluxPacketPtr fluxPck)
     this->_g_packets.push_front(std::move(fluxPck));
 }
 
+FluxProcessResults
+NetFluxUdp::processReorder(Client& client, FluxPacketPtr& refFluxPacket, ProtocolPacket::CountId currentCountId)
+{
+    //Reorder the packet if needed
+    if (client.getPacketReorderer().isEmpty())
+    {
+        client.getPacketReorderer().push(std::move(refFluxPacket));
+
+        if (!client.getPacketReorderer().isRetrievable(currentCountId, client.getCurrentRealm(), client))
+        {
+            std::cout << "packet need reorder" << std::endl;
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+
+        //If the packet is directly retrievable, we can continue the process ...
+        refFluxPacket = client.getPacketReorderer().pop();
+    }
+    else
+    {
+        client.getPacketReorderer().push(std::move(refFluxPacket));
+
+        std::size_t containerInversedSize = 0;
+        auto* containerInversed = FGE_ALLOCA_T(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
+        FGE_PLACE_CONSTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+
+        //We already have packets in cache, we check the retrievability with a loop
+        while (client.getPacketReorderer().isRetrievable(currentCountId, client.getCurrentRealm(), client))
+        {
+            auto reorderedPacket = client.getPacketReorderer().pop();
+
+            //Add the LOCAL_REORDERED_FLAG to the headerId
+            reorderedPacket->addHeaderFlags(FGE_NET_HEADERID_LOCAL_REORDERED_FLAG);
+
+            //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
+            containerInversed[containerInversedSize++] = std::move(reorderedPacket);
+        }
+
+        if (containerInversedSize == 0)
+        {
+            //No packet to retrieve
+            std::cout << "packet need reorder" << std::endl;
+            FGE_PLACE_DESTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+            return FluxProcessResults::BAD_REORDER;
+        }
+
+        std::cout << "reorder complete with " << containerInversedSize << " packets" << std::endl;
+
+        //Now we push the packets (until the last one) in the correct order in the flux queue
+        for (std::size_t i = containerInversedSize; i != 1; --i)
+        {
+            this->forcePushPacketFront(std::move(containerInversed[i - 1]));
+            ++this->_g_remainingPackets;
+        }
+
+        refFluxPacket = std::move(containerInversed[0]);
+
+        FGE_PLACE_DESTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+    }
+
+    return FluxProcessResults::RETRIEVABLE;
+}
+
 FluxPacketPtr NetFluxUdp::popNextPacket()
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
@@ -93,15 +155,15 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
     refClient.reset();
     refFluxPacket.reset();
 
-    if (this->g_remainingPackets == 0)
+    if (this->_g_remainingPackets == 0)
     {
-        this->g_remainingPackets = this->getPacketsSize();
+        this->_g_remainingPackets = this->getPacketsSize();
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
     //Popping the next packet
     refFluxPacket = this->popNextPacket();
-    --this->g_remainingPackets;
+    --this->_g_remainingPackets;
 
     //Verify if the client is known
     refClient = this->_clients.get(refFluxPacket->getIdentity());
@@ -128,63 +190,10 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
 
     if ((headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) == 0)
     {
-        //Reorder the packet if needed
-        if (refClient->getPacketReorderer().isEmpty())
+        auto reorderResult = this->processReorder(*refClient, refFluxPacket, refClient->getClientPacketCountId());
+        if (reorderResult != FluxProcessResults::RETRIEVABLE)
         {
-            refClient->getPacketReorderer().push(std::move(refFluxPacket));
-
-            if (!refClient->getPacketReorderer().isRetrievable(refClient->getClientPacketCountId(),
-                                                               refClient->getCurrentRealm()))
-            {
-                std::cout << "packet need reorder" << std::endl;
-                return FluxProcessResults::NOT_RETRIEVABLE;
-            }
-
-            //If the packet is directly retrievable, we can continue the process ...
-            refFluxPacket = refClient->getPacketReorderer().pop();
-        }
-        else
-        {
-            refClient->getPacketReorderer().push(std::move(refFluxPacket));
-
-            std::size_t containerInversedSize = 0;
-            auto* containerInversed = FGE_ALLOCA_T(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
-            FGE_PLACE_CONSTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
-
-            //We already have packets in cache, we check the retrievability with a loop
-            while (refClient->getPacketReorderer().isRetrievable(refClient->getClientPacketCountId(),
-                                                                 refClient->getCurrentRealm()))
-            {
-                auto reorderedPacket = refClient->getPacketReorderer().pop();
-
-                //Add the LOCAL_REORDERED_FLAG to the headerId
-                reorderedPacket->setHeaderId(reorderedPacket->retrieveHeaderId().value() |
-                                             FGE_NET_HEADERID_LOCAL_REORDERED_FLAG);
-
-                //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
-                containerInversed[containerInversedSize++] = std::move(reorderedPacket);
-            }
-
-            if (containerInversedSize == 0)
-            {
-                //No packet to retrieve
-                std::cout << "packet need reorder" << std::endl;
-                FGE_PLACE_DESTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
-                return FluxProcessResults::BAD_REORDER;
-            }
-
-            std::cout << "reorder complete with " << containerInversedSize << " packets" << std::endl;
-
-            //Now we push the packets (until the last one) in the correct order in the flux queue
-            for (std::size_t i = containerInversedSize; i != 1; --i)
-            {
-                this->forcePushPacketFront(std::move(containerInversed[i - 1]));
-                ++this->g_remainingPackets;
-            }
-
-            refFluxPacket = std::move(containerInversed[0]);
-
-            FGE_PLACE_DESTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+            return reorderResult;
         }
     }
     else
@@ -199,6 +208,12 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
         return FluxProcessResults::BAD_REALM;
     }
 
+    if (!PacketReorderer::verifyContinuity(refFluxPacket, refClient->getClientPacketCountId(),
+                                           refClient->getCurrentRealm()))
+    {
+        refClient->advanceLostPacketCount();
+    }
+
     auto const countId = refFluxPacket->retrieveCountId().value();
     refClient->setClientPacketCountId(countId);
 
@@ -208,19 +223,13 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
 bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket)
 {
     auto const headerId = refFluxPacket->retrieveHeaderId().value();
-
-    if ((headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
-    {
-        return true;
-    }
-
     auto const clientProvidedRealm = refFluxPacket->retrieveRealm().value();
 
     if (clientProvidedRealm != refClient->getCurrentRealm() &&
         refClient->getLastRealmChangeElapsedTime() >= FGE_SERVER_MAX_TIME_DIFFERENCE_REALM)
     {
         this->_onClientBadRealm.call(refClient);
-        return false;
+        return (headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0;
     }
     return true;
 }
@@ -394,15 +403,15 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
 {
     refFluxPacket.reset();
 
-    if (this->g_remainingPackets == 0)
+    if (this->_g_remainingPackets == 0)
     {
-        this->g_remainingPackets = this->getPacketsSize();
+        this->_g_remainingPackets = this->getPacketsSize();
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
     //Popping the next packet
     refFluxPacket = this->popNextPacket();
-    --this->g_remainingPackets;
+    --this->_g_remainingPackets;
 
     auto const headerId = refFluxPacket->retrieveHeaderId().value();
 
@@ -414,63 +423,11 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
 
     if ((headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) == 0)
     {
-        //Reorder the packet if needed
-        if (this->_client.getPacketReorderer().isEmpty())
+        auto reorderResult =
+                this->processReorder(this->_client, refFluxPacket, this->_client.getCurrentPacketCountId());
+        if (reorderResult != FluxProcessResults::RETRIEVABLE)
         {
-            this->_client.getPacketReorderer().push(std::move(refFluxPacket));
-
-            if (!this->_client.getPacketReorderer().isRetrievable(this->_client.getCurrentPacketCountId(),
-                                                                  this->_client.getCurrentRealm()))
-            {
-                std::cout << "packet need reorder" << std::endl;
-                return FluxProcessResults::NOT_RETRIEVABLE;
-            }
-
-            //If the packet is directly retrievable, we can continue the process ...
-            refFluxPacket = this->_client.getPacketReorderer().pop();
-        }
-        else
-        {
-            this->_client.getPacketReorderer().push(std::move(refFluxPacket));
-
-            std::size_t containerInversedSize = 0;
-            auto* containerInversed = FGE_ALLOCA_T(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
-            FGE_PLACE_CONSTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
-
-            //We already have packets in cache, we check the retrievability with a loop
-            while (this->_client.getPacketReorderer().isRetrievable(this->_client.getCurrentPacketCountId(),
-                                                                    this->_client.getCurrentRealm()))
-            {
-                auto reorderedPacket = this->_client.getPacketReorderer().pop();
-
-                //Add the LOCAL_REORDERED_FLAG to the headerId
-                reorderedPacket->setHeaderId(reorderedPacket->retrieveHeaderId().value() |
-                                             FGE_NET_HEADERID_LOCAL_REORDERED_FLAG);
-
-                //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
-                containerInversed[containerInversedSize++] = std::move(reorderedPacket);
-            }
-
-            if (containerInversedSize == 0)
-            {
-                //No packet to retrieve
-                std::cout << "packet need reorder" << std::endl;
-                FGE_PLACE_DESTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
-                return FluxProcessResults::BAD_REORDER;
-            }
-
-            std::cout << "reorder complete with " << containerInversedSize << " packets" << std::endl;
-
-            //Now we push the packets (until the last one) in the correct order in the flux queue
-            for (std::size_t i = containerInversedSize; i != 1; --i)
-            {
-                this->forcePushPacketFront(std::move(containerInversed[i - 1]));
-                ++this->g_remainingPackets;
-            }
-
-            refFluxPacket = std::move(containerInversed[0]);
-
-            FGE_PLACE_DESTRUCT(FluxPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+            return reorderResult;
         }
     }
     else
@@ -478,11 +435,10 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
         std::cout << "getting into an reordered packet" << std::endl;
     }
 
-    //Verify the realm
-    if (!this->verifyRealm(refFluxPacket))
+    if (!PacketReorderer::verifyContinuity(refFluxPacket, this->_client.getCurrentPacketCountId(),
+                                           this->_client.getCurrentRealm()))
     {
-        std::cout << "bad realm" << std::endl;
-        return FluxProcessResults::BAD_REALM;
+        this->_client.advanceLostPacketCount();
     }
 
     auto const serverRealm = refFluxPacket->retrieveRealm().value();
@@ -492,23 +448,6 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
     this->_client.setCurrentRealm(serverRealm);
 
     return FluxProcessResults::RETRIEVABLE;
-}
-bool ClientSideNetUdp::verifyRealm(FluxPacketPtr const& refFluxPacket)
-{
-    auto const headerId = refFluxPacket->retrieveHeaderId().value();
-
-    if ((headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
-    {
-        return true;
-    }
-
-    auto const serverProvidedRealm = refFluxPacket->retrieveRealm().value();
-
-    if (serverProvidedRealm < this->_client.getCurrentRealm() && this->_client.getCurrentRealm() + 1 != 0)
-    {
-        return false;
-    }
-    return true;
 }
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)

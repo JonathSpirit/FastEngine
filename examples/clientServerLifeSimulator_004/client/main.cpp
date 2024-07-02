@@ -151,7 +151,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                     "ping: %d\n"
                                     "RTT: %s\n"
                                     "Update count: %d\n"
-                                    "Bad packets: %d";
+                                    "Bad packets: %d\n"
+                                    "Lost packets: %d";
     auto* latencyText = mainScene
                                 ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}, 15),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
@@ -324,13 +325,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Updating the latencyText
-                auto const size =
-                        snprintf(latencyTextBuffer, LATENCY_TEXT_BUFFER_SIZE, latencyTextFormat,
-                                 fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                                 server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                 server._client.getPing_ms(),
-                                 fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                                 mainScene->getUpdateCount(), badPacketUpdatesCount);
+                auto const size = snprintf(
+                        latencyTextBuffer, LATENCY_TEXT_BUFFER_SIZE, latencyTextFormat,
+                        fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                        server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
+                        server._client.getPing_ms(),
+                        fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
+                        mainScene->getUpdateCount(), badPacketUpdatesCount, server._client.getLostPacketCount());
                 latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
 
                 //And then unpack all modification made by the server scene

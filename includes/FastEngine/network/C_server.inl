@@ -144,7 +144,8 @@ void ServerSideNetUdp::threadReception()
 
                 //Verify headerId
                 auto const headerId = fluxPacket->retrieveHeaderId().value();
-                if (headerId & ~FGE_NET_HEADERID_FLAGS_MASK == FGE_NET_BAD_HEADERID)
+                if ((headerId & ~FGE_NET_HEADERID_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                    (headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
@@ -210,14 +211,19 @@ void ServerSideNetUdp::threadTransmission()
 
                 auto transmissionPacket = itClient->second->popPacket();
 
-                if (!transmissionPacket->packet())
+                if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
                 { //Last verification of the packet
                     continue;
                 }
 
                 //Applying options
                 transmissionPacket->applyOptions(*itClient->second);
-                transmissionPacket->packet().setCountId(itClient->second->advanceCurrentPacketCountId());
+
+                auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
+                if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) == 0)
+                {
+                    transmissionPacket->packet().setCountId(itClient->second->advanceCurrentPacketCountId());
+                }
 
                 //Sending the packet
                 TPacket packet(transmissionPacket->packet());
@@ -291,7 +297,8 @@ void ClientSideNetUdp::threadReception()
 
                 //Verify headerId
                 auto const headerId = fluxPacket->retrieveHeaderId().value();
-                if (headerId & ~FGE_NET_HEADERID_FLAGS_MASK == FGE_NET_BAD_HEADERID)
+                if ((headerId & ~FGE_NET_HEADERID_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                    (headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
@@ -318,14 +325,19 @@ void ClientSideNetUdp::threadTransmission()
             { //Ready to send !
                 auto transmissionPacket = this->_client.popPacket();
 
-                if (!transmissionPacket->packet())
+                if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
                 { //Last verification of the packet
                     continue;
                 }
 
                 //Applying options
                 transmissionPacket->applyOptions(this->_client);
-                transmissionPacket->packet().setCountId(this->_client.advanceClientPacketCountId());
+
+                auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
+                if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) == 0)
+                {
+                    transmissionPacket->packet().setCountId(this->_client.advanceClientPacketCountId());
+                }
 
                 //Sending the packet
                 TPacket packet = transmissionPacket->packet();

@@ -36,6 +36,7 @@
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_LATENCY_PLANNER_MEAN 6
+#define FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD 15
 
 namespace fge::net
 {
@@ -407,6 +408,14 @@ public:
     void setErrorCount(unsigned int count);
     [[nodiscard]] unsigned int getErrorCount() const;
 
+    void clearLostPacketCount();
+    uint32_t advanceLostPacketCount();
+    void setLostPacketThreshold(uint32_t threshold);
+    [[nodiscard]] uint32_t getLostPacketThreshold() const;
+    [[nodiscard]] uint32_t getLostPacketCount() const;
+
+    fge::CallbackHandler<Client&> _onThresholdLostPacket;
+
     fge::Event _event;       ///< Optional client-side event that can be synchronized with the server
     fge::PropertyList _data; ///< Some user-defined client properties
     fge::net::OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
@@ -429,6 +438,8 @@ private:
 
     PacketReorderer g_packetReorderer;
     unsigned int g_errorCount;
+    uint32_t g_lostPacketCount{0};
+    uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
 };
 
 /**

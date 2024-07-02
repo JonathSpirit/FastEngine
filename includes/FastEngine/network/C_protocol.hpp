@@ -39,6 +39,8 @@
 namespace fge::net
 {
 
+class Client;
+
 /**
  * \class ProtocolPacket
  * \ingroup network
@@ -108,7 +110,11 @@ public:
     void clear();
 
     void push(FluxPacketPtr&& fluxPacket);
-    [[nodiscard]] bool isRetrievable(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm);
+    [[nodiscard]] bool
+    isRetrievable(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm, Client& client);
+    [[nodiscard]] static bool verifyContinuity(FluxPacketPtr const& fluxPacket,
+                                               ProtocolPacket::CountId currentCountId,
+                                               ProtocolPacket::Realm currentRealm);
     [[nodiscard]] FluxPacketPtr pop();
 
     [[nodiscard]] bool isEmpty() const;
@@ -116,7 +122,18 @@ public:
 private:
     struct Data
     {
+        enum class Stats
+        {
+            OLD_REALM,
+            OLD_COUNTID,
+            WAIT_NEXT_REALM,
+            WAIT_NEXT_COUNTID,
+            RETRIEVABLE
+        };
+
         explicit Data(FluxPacketPtr&& fluxPacket);
+
+        [[nodiscard]] Stats checkStat(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm) const;
 
         FluxPacketPtr _fluxPacket;
         ProtocolPacket::CountId _countId;
@@ -136,7 +153,7 @@ private:
     };
 
     std::priority_queue<Data, std::vector<Data>, Data::Compare> g_cache;
-    mutable bool g_retrievable{false};
+    bool g_retrievable{false};
 };
 
 } // namespace fge::net

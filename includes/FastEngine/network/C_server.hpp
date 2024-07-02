@@ -84,6 +84,14 @@ private:
 };
 using FluxPacketPtr = std::unique_ptr<fge::net::FluxPacket>;
 
+enum class FluxProcessResults
+{
+    RETRIEVABLE,
+    BAD_REALM,
+    BAD_REORDER,
+    NOT_RETRIEVABLE
+};
+
 /**
  * \class NetFluxUdp
  * \ingroup network
@@ -119,22 +127,17 @@ protected:
     bool pushPacket(FluxPacketPtr&& fluxPck);
     void forcePushPacket(FluxPacketPtr fluxPck);
     void forcePushPacketFront(FluxPacketPtr fluxPck);
+    [[nodiscard]] FluxProcessResults
+    processReorder(Client& client, FluxPacketPtr& refFluxPacket, ProtocolPacket::CountId currentCountId);
 
     mutable std::mutex _g_mutexFlux;
     std::deque<FluxPacketPtr> _g_packets;
+    std::size_t _g_remainingPackets{0};
 
 private:
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
 
     friend class ServerSideNetUdp;
-};
-
-enum class FluxProcessResults
-{
-    RETRIEVABLE,
-    BAD_REALM,
-    BAD_REORDER,
-    NOT_RETRIEVABLE
 };
 
 class FGE_API ServerNetFluxUdp : public NetFluxUdp
@@ -156,7 +159,6 @@ public:
 private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket);
 
-    std::size_t g_remainingPackets{0};
     ServerSideNetUdp* g_server{nullptr};
 };
 
@@ -306,8 +308,6 @@ private:
     template<class TPacket>
     void threadTransmission();
 
-    [[nodiscard]] bool verifyRealm(FluxPacketPtr const& refFluxPacket);
-
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
 
@@ -320,7 +320,6 @@ private:
     bool g_running;
 
     fge::net::Identity g_clientIdentity;
-    std::size_t g_remainingPackets{0};
 };
 
 } // namespace fge::net
