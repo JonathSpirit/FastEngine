@@ -61,6 +61,36 @@ inline void ProtocolPacket::setHeaderId(HeaderId headerId)
 {
     this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
 }
+inline void ProtocolPacket::setHeaderFlags(HeaderId headerFlags)
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        HeaderId headerId;
+        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+        headerId = (headerId & ~FGE_NET_HEADERID_FLAGS_MASK) | (headerFlags & FGE_NET_HEADERID_FLAGS_MASK);
+        this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+    }
+}
+inline void ProtocolPacket::addHeaderFlags(HeaderId headerFlags)
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        HeaderId headerId;
+        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+        headerId |= headerFlags & FGE_NET_HEADERID_FLAGS_MASK;
+        this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+    }
+}
+inline void ProtocolPacket::removeHeaderFlags(HeaderId headerFlags)
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        HeaderId headerId;
+        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+        headerId &= ~headerFlags & FGE_NET_HEADERID_FLAGS_MASK;
+        this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+    }
+}
 inline void ProtocolPacket::setRealm(Realm realmId)
 {
     this->pack(RealmPosition, &realmId, sizeof(Realm));

@@ -29,7 +29,7 @@
 #define FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG 0x8000
 #define FGE_NET_HEADERID_DO_NOT_REORDER_FLAG 0x4000
 #define FGE_NET_HEADERID_LOCAL_REORDERED_FLAG 0x2000
-#define FGE_NET_HEADERID_FLAGS_MASK 0xC000
+#define FGE_NET_HEADERID_FLAGS_MASK 0xE000
 #define FGE_NET_HEADERID_START 1
 #define FGE_NET_BAD_HEADERID 0
 
@@ -77,6 +77,9 @@ public:
     [[nodiscard]] inline std::optional<CountId> retrieveCountId() const;
 
     inline void setHeaderId(HeaderId headerId);
+    inline void setHeaderFlags(HeaderId headerFlags);
+    inline void addHeaderFlags(HeaderId headerFlags);
+    inline void removeHeaderFlags(HeaderId headerFlags);
     inline void setRealm(Realm realmId);
     inline void setCountId(CountId countId);
 };
