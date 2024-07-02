@@ -157,7 +157,6 @@ private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket);
 
     std::size_t g_remainingPackets{0};
-    ClientSharedPtr g_clientWithRetrievableOrderedPacket;
     ServerSideNetUdp* g_server{nullptr};
 };
 

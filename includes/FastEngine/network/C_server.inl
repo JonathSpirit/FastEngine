@@ -97,6 +97,7 @@ Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const&
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     pck->applyOptions(client);
+    pck->packet().addHeaderFlags(FGE_NET_HEADERID_DO_NOT_REORDER_FLAG);
     TPacket packet(pck->packet());
     return this->g_socket.sendTo(packet, id._ip, id._port);
 }
@@ -105,6 +106,7 @@ Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity cons
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     pck->applyOptions();
+    pck->packet().addHeaderFlags(FGE_NET_HEADERID_DO_NOT_REORDER_FLAG);
     TPacket packet(pck->packet());
     return this->g_socket.sendTo(packet, id._ip, id._port);
 }
