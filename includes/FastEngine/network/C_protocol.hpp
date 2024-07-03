@@ -41,8 +41,6 @@
 namespace fge::net
 {
 
-class Client;
-
 /**
  * \class ProtocolPacket
  * \ingroup network
@@ -103,6 +101,15 @@ using FluxPacketPtr = std::unique_ptr<FluxPacket>;
 class FGE_API PacketReorderer
 {
 public:
+    enum class Stats
+    {
+        OLD_REALM,
+        OLD_COUNTID,
+        WAITING_NEXT_REALM,
+        WAITING_NEXT_COUNTID,
+        RETRIEVABLE
+    };
+
     PacketReorderer() = default;
     PacketReorderer(PacketReorderer const& r) = delete;
     PacketReorderer(PacketReorderer&& r) noexcept = default;
@@ -114,11 +121,12 @@ public:
     void clear();
 
     void push(FluxPacketPtr&& fluxPacket);
-    [[nodiscard]] bool
-    isRetrievable(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm, Client& client);
-    [[nodiscard]] static bool verifyContinuity(FluxPacketPtr const& fluxPacket,
-                                               ProtocolPacket::CountId currentCountId,
-                                               ProtocolPacket::Realm currentRealm);
+    [[nodiscard]] static Stats checkStat(FluxPacketPtr const& fluxPacket,
+                                         ProtocolPacket::CountId currentCountId,
+                                         ProtocolPacket::Realm currentRealm);
+    [[nodiscard]] bool isForced() const;
+    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CountId currentCountId,
+                                                 ProtocolPacket::Realm currentRealm) const;
     [[nodiscard]] FluxPacketPtr pop();
 
     [[nodiscard]] bool isEmpty() const;
@@ -126,15 +134,6 @@ public:
 private:
     struct Data
     {
-        enum class Stats
-        {
-            OLD_REALM,
-            OLD_COUNTID,
-            WAIT_NEXT_REALM,
-            WAIT_NEXT_COUNTID,
-            RETRIEVABLE
-        };
-
         explicit Data(FluxPacketPtr&& fluxPacket);
 
         [[nodiscard]] Stats checkStat(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm) const;
@@ -157,7 +156,7 @@ private:
     };
 
     std::priority_queue<Data, std::vector<Data>, Data::Compare> g_cache;
-    bool g_retrievable{false};
+    bool g_forceRetrieve{false};
 };
 
 } // namespace fge::net

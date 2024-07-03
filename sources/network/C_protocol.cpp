@@ -22,7 +22,7 @@ namespace fge::net
 
 void PacketReorderer::clear()
 {
-    this->g_retrievable = false;
+    this->g_forceRetrieve = false;
     decltype(this->g_cache)().swap(this->g_cache);
 }
 
@@ -34,86 +34,52 @@ void PacketReorderer::push(FluxPacketPtr&& fluxPacket)
         //We can't wait anymore for the correct packet to arrive
         //as the cache is full, the waiting packet is considered lost
         //and we can move on. (if he is still missing)
-        this->g_retrievable = true;
+        this->g_forceRetrieve = true;
     }
 }
-bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId,
-                                    ProtocolPacket::Realm currentRealm,
-                                    Client& client)
+PacketReorderer::Stats PacketReorderer::checkStat(FluxPacketPtr const& fluxPacket,
+                                                  ProtocolPacket::CountId currentCountId,
+                                                  ProtocolPacket::Realm currentRealm)
 {
-    if (this->g_cache.empty())
-    {
-        this->g_retrievable = false;
-        return false;
-    }
-
-    auto const stat = this->g_cache.top().checkStat(currentCountId, currentRealm);
-
-#ifdef FGE_DEF_SERVER
-    if (stat == Data::Stats::OLD_COUNTID)
-#else
-    if (stat == Data::Stats::OLD_REALM || stat == Data::Stats::OLD_COUNTID)
-#endif
-    {
-        //check discard flag
-        auto const header = this->g_cache.top()._fluxPacket->retrieveHeader().value();
-        if ((header & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) > 0)
-        {
-            return false;
-        }
-
-        //pop the old packet
-        client.advanceLostPacketCount();
-        this->g_cache.pop();
-        if (this->g_cache.empty())
-        {
-            this->g_retrievable = false;
-        }
-        return false;
-    }
-
-    if (this->g_retrievable)
-    {
-        return true;
-    }
-
-    return stat == Data::Stats::RETRIEVABLE;
-}
-bool PacketReorderer::verifyContinuity(FluxPacketPtr const& fluxPacket,
-                                       ProtocolPacket::CountId currentCountId,
-                                       ProtocolPacket::Realm currentRealm)
-{
-    auto const header = fluxPacket->retrieveHeader().value();
-    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
-    {
-        return true;
-    }
-
     auto const countId = fluxPacket->retrieveCountId().value();
     auto const realm = fluxPacket->retrieveRealm().value();
 
     if (realm < currentRealm && currentRealm + 1 != 0)
     {
-        return false;
+        return Stats::OLD_REALM;
     }
 
     if (currentRealm != realm && countId != 0)
     { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
-        return false;
+        return Stats::WAITING_NEXT_REALM;
     }
 
     if (countId == currentCountId + 1)
     { //Same realm, we can switch to the next countId
-        return true;
+        return Stats::RETRIEVABLE;
     }
 
-    if (currentCountId < countId)
+    if (countId < currentCountId)
     { //We are missing a packet
-        return false;
+        return Stats::OLD_COUNTID;
     }
 
     //We can't switch to the next countId, we wait for the correct packet to arrive
-    return false;
+    return Stats::WAITING_NEXT_COUNTID;
+}
+bool PacketReorderer::isForced() const
+{
+    return this->g_forceRetrieve;
+}
+std::optional<PacketReorderer::Stats> PacketReorderer::checkStat(ProtocolPacket::CountId currentCountId,
+                                                                 ProtocolPacket::Realm currentRealm) const
+{
+    if (this->g_cache.empty())
+    {
+        return std::nullopt;
+    }
+
+    return this->g_cache.top().checkStat(currentCountId, currentRealm);
 }
 FluxPacketPtr PacketReorderer::pop()
 {
@@ -124,6 +90,12 @@ FluxPacketPtr PacketReorderer::pop()
 
     auto fluxPacket = std::move(const_cast<FluxPacketPtr&>(this->g_cache.top()._fluxPacket));
     this->g_cache.pop();
+
+    if (this->g_cache.empty())
+    {
+        this->g_forceRetrieve = false;
+    }
+
     return fluxPacket;
 }
 
@@ -138,8 +110,8 @@ PacketReorderer::Data::Data(FluxPacketPtr&& fluxPacket) :
         _realm(_fluxPacket->retrieveRealm().value())
 {}
 
-PacketReorderer::Data::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CountId currentCountId,
-                                                              ProtocolPacket::Realm currentRealm) const
+PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CountId currentCountId,
+                                                        ProtocolPacket::Realm currentRealm) const
 {
     if (this->_realm < currentRealm && currentRealm + 1 != 0)
     {
@@ -148,7 +120,7 @@ PacketReorderer::Data::Stats PacketReorderer::Data::checkStat(ProtocolPacket::Co
 
     if (currentRealm != this->_realm && this->_countId != 0)
     { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
-        return Stats::WAIT_NEXT_REALM;
+        return Stats::WAITING_NEXT_REALM;
     }
 
     if (this->_countId == currentCountId + 1)
@@ -162,7 +134,7 @@ PacketReorderer::Data::Stats PacketReorderer::Data::checkStat(ProtocolPacket::Co
     }
 
     //We can't switch to the next countId, we wait for the correct packet to arrive
-    return Stats::WAIT_NEXT_COUNTID;
+    return Stats::WAITING_NEXT_COUNTID;
 }
 
 } // namespace fge::net
