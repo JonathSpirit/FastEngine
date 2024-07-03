@@ -73,7 +73,7 @@
 namespace ls
 {
 
-enum ProtocolHeaders : fge::net::ProtocolPacket::HeaderId
+enum ProtocolHeaders : fge::net::ProtocolPacket::Header
 {
     LS_PROTOCOL_ALL_PING = FGE_NET_HEADERID_START,
     /* check if the receiver is alive

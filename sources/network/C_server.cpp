@@ -85,7 +85,7 @@ NetFluxUdp::processReorder(Client& client, FluxPacketPtr& refFluxPacket, Protoco
             auto reorderedPacket = client.getPacketReorderer().pop();
 
             //Add the LOCAL_REORDERED_FLAG to the headerId
-            reorderedPacket->addHeaderFlags(FGE_NET_HEADERID_LOCAL_REORDERED_FLAG);
+            reorderedPacket->addHeaderFlags(FGE_NET_HEADER_LOCAL_REORDERED_FLAG);
 
             //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
             containerInversed[containerInversedSize++] = std::move(reorderedPacket);
@@ -186,15 +186,15 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
-    auto const headerId = refFluxPacket->retrieveHeaderId().value();
+    auto const header = refFluxPacket->retrieveHeader().value();
 
-    if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
     {
         std::cout << "packet with do not reorder flag" << std::endl;
         return FluxProcessResults::RETRIEVABLE;
     }
 
-    if ((headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) == 0)
+    if ((header & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) == 0)
     {
         auto reorderResult = this->processReorder(*refClient, refFluxPacket, refClient->getClientPacketCountId());
         if (reorderResult != FluxProcessResults::RETRIEVABLE)
@@ -228,14 +228,14 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
 
 bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket)
 {
-    auto const headerId = refFluxPacket->retrieveHeaderId().value();
+    auto const header = refFluxPacket->retrieveHeader().value();
     auto const clientProvidedRealm = refFluxPacket->retrieveRealm().value();
 
     if (clientProvidedRealm != refClient->getCurrentRealm() &&
         refClient->getLastRealmChangeElapsedTime() >= FGE_SERVER_MAX_TIME_DIFFERENCE_REALM)
     {
         this->_onClientBadRealm.call(refClient);
-        return (headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0;
+        return (header & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) > 0;
     }
     return true;
 }
@@ -400,7 +400,7 @@ fge::net::Socket::Error ClientSideNetUdp::send(fge::net::TransmissionPacketPtr& 
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     pck->applyOptions(this->_client);
-    pck->packet().addHeaderFlags(FGE_NET_HEADERID_DO_NOT_REORDER_FLAG);
+    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
     return this->g_socket.send(pck->packet());
 }
 fge::net::IpAddress::Types ClientSideNetUdp::getAddressType() const
@@ -438,15 +438,15 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
     }
     --this->_g_remainingPackets;
 
-    auto const headerId = refFluxPacket->retrieveHeaderId().value();
+    auto const header = refFluxPacket->retrieveHeader().value();
 
-    if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
     {
         std::cout << "packet with do not reorder flag" << std::endl;
         return FluxProcessResults::RETRIEVABLE;
     }
 
-    if ((headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) == 0)
+    if ((header & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) == 0)
     {
         auto reorderResult =
                 this->processReorder(this->_client, refFluxPacket, this->_client.getCurrentPacketCountId());

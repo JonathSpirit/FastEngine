@@ -17,22 +17,32 @@
 namespace fge::net
 {
 
-inline ProtocolPacket::ProtocolPacket(HeaderId headerId, Realm realmId, CountId countId)
+inline ProtocolPacket::ProtocolPacket(Header header, Realm realmId, CountId countId)
 {
-    this->operator<<(headerId) << realmId << countId;
+    this->operator<<(header) << realmId << countId;
 }
 
 inline bool ProtocolPacket::haveCorrectHeaderSize() const
 {
     return this->getDataSize() >= HeaderSize;
 }
-inline std::optional<ProtocolPacket::HeaderId> ProtocolPacket::retrieveHeaderId() const
+inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeader() const
 {
     if (this->haveCorrectHeaderSize())
     {
-        HeaderId headerId;
-        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
-        return headerId;
+        Header header;
+        this->unpack(HeaderIdPosition, &header, sizeof(Header));
+        return header;
+    }
+    return std::nullopt;
+}
+inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeaderId() const
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        Header headerId;
+        this->unpack(HeaderIdPosition, &headerId, sizeof(Header));
+        return headerId & ~FGE_NET_HEADER_FLAGS_MASK;
     }
     return std::nullopt;
 }
@@ -57,38 +67,48 @@ inline std::optional<ProtocolPacket::CountId> ProtocolPacket::retrieveCountId() 
     return std::nullopt;
 }
 
-inline void ProtocolPacket::setHeaderId(HeaderId headerId)
+inline void ProtocolPacket::setHeader(Header header)
 {
-    this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+    this->pack(HeaderIdPosition, &header, sizeof(Header));
 }
-inline void ProtocolPacket::setHeaderFlags(HeaderId headerFlags)
+inline void ProtocolPacket::setHeaderId(Header headerId)
 {
     if (this->haveCorrectHeaderSize())
     {
-        HeaderId headerId;
-        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
-        headerId = (headerId & ~FGE_NET_HEADERID_FLAGS_MASK) | (headerFlags & FGE_NET_HEADERID_FLAGS_MASK);
-        this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+        Header header;
+        this->unpack(HeaderIdPosition, &header, sizeof(Header));
+        header = (header & FGE_NET_HEADER_FLAGS_MASK) | (headerId & ~FGE_NET_HEADER_FLAGS_MASK);
+        this->pack(HeaderIdPosition, &header, sizeof(Header));
     }
 }
-inline void ProtocolPacket::addHeaderFlags(HeaderId headerFlags)
+inline void ProtocolPacket::setHeaderFlags(Header headerFlags)
 {
     if (this->haveCorrectHeaderSize())
     {
-        HeaderId headerId;
-        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
-        headerId |= headerFlags & FGE_NET_HEADERID_FLAGS_MASK;
-        this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+        Header header;
+        this->unpack(HeaderIdPosition, &header, sizeof(Header));
+        header = (header & ~FGE_NET_HEADER_FLAGS_MASK) | (headerFlags & FGE_NET_HEADER_FLAGS_MASK);
+        this->pack(HeaderIdPosition, &header, sizeof(Header));
     }
 }
-inline void ProtocolPacket::removeHeaderFlags(HeaderId headerFlags)
+inline void ProtocolPacket::addHeaderFlags(Header headerFlags)
 {
     if (this->haveCorrectHeaderSize())
     {
-        HeaderId headerId;
-        this->unpack(HeaderIdPosition, &headerId, sizeof(HeaderId));
-        headerId &= ~headerFlags & FGE_NET_HEADERID_FLAGS_MASK;
-        this->pack(HeaderIdPosition, &headerId, sizeof(HeaderId));
+        Header headerId;
+        this->unpack(HeaderIdPosition, &headerId, sizeof(Header));
+        headerId |= headerFlags & FGE_NET_HEADER_FLAGS_MASK;
+        this->pack(HeaderIdPosition, &headerId, sizeof(Header));
+    }
+}
+inline void ProtocolPacket::removeHeaderFlags(Header headerFlags)
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        Header headerId;
+        this->unpack(HeaderIdPosition, &headerId, sizeof(Header));
+        headerId &= ~headerFlags & FGE_NET_HEADER_FLAGS_MASK;
+        this->pack(HeaderIdPosition, &headerId, sizeof(Header));
     }
 }
 inline void ProtocolPacket::setRealm(Realm realmId)

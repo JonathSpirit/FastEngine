@@ -17,19 +17,19 @@
 namespace fge::net
 {
 
-inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(ProtocolPacket::HeaderId headerId)
+inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(ProtocolPacket::Header header)
 {
-    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(headerId, 0, 0)};
+    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(header, 0, 0)};
 }
 inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(Packet&& packet)
 {
     return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::move(packet))};
 }
 
-inline TransmissionPacket::TransmissionPacket(ProtocolPacket::HeaderId headerId,
+inline TransmissionPacket::TransmissionPacket(ProtocolPacket::Header header,
                                               ProtocolPacket::Realm realmId,
                                               ProtocolPacket::CountId countId) :
-        g_packet(headerId, realmId, countId)
+        g_packet(header, realmId, countId)
 {}
 inline TransmissionPacket::TransmissionPacket(ProtocolPacket&& packet) :
         g_packet(std::move(packet))

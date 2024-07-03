@@ -24,14 +24,16 @@
 #include <queue>
 #include <vector>
 
-#define FGE_NET_HEADERID_TYPE uint16_t
+#define FGE_NET_HEADER_TYPE uint16_t
+
 #define FGE_NET_HEADERID_MAX 0x1FFE
-#define FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG 0x8000
-#define FGE_NET_HEADERID_DO_NOT_REORDER_FLAG 0x4000
-#define FGE_NET_HEADERID_LOCAL_REORDERED_FLAG 0x2000
-#define FGE_NET_HEADERID_FLAGS_MASK 0xE000
 #define FGE_NET_HEADERID_START 1
 #define FGE_NET_BAD_HEADERID 0
+
+#define FGE_NET_HEADER_DO_NOT_DISCARD_FLAG 0x8000
+#define FGE_NET_HEADER_DO_NOT_REORDER_FLAG 0x4000
+#define FGE_NET_HEADER_LOCAL_REORDERED_FLAG 0x2000
+#define FGE_NET_HEADER_FLAGS_MASK 0xE000
 
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_PACKET_REORDERER_CACHE_MAX 5
@@ -51,15 +53,15 @@ class Client;
 class ProtocolPacket : public Packet
 {
 public:
-    using HeaderId = FGE_NET_HEADERID_TYPE;
+    using Header = FGE_NET_HEADER_TYPE;
     using Realm = uint8_t;
     using CountId = uint16_t;
-    constexpr static std::size_t HeaderSize = sizeof(HeaderId) + sizeof(Realm) + sizeof(CountId);
+    constexpr static std::size_t HeaderSize = sizeof(Header) + sizeof(Realm) + sizeof(CountId);
     constexpr static std::size_t HeaderIdPosition = 0;
-    constexpr static std::size_t RealmPosition = sizeof(HeaderId);
-    constexpr static std::size_t CountIdPosition = sizeof(HeaderId) + sizeof(Realm);
+    constexpr static std::size_t RealmPosition = sizeof(Header);
+    constexpr static std::size_t CountIdPosition = sizeof(Header) + sizeof(Realm);
 
-    inline ProtocolPacket(HeaderId headerId, Realm realmId, CountId countId);
+    inline ProtocolPacket(Header header, Realm realmId, CountId countId);
     inline ProtocolPacket(ProtocolPacket const& r) = default;
     inline ProtocolPacket(Packet const& r) :
             Packet(r)
@@ -74,14 +76,16 @@ public:
     [[nodiscard]] inline Packet const& packet() const noexcept { return *this; }
 
     [[nodiscard]] inline bool haveCorrectHeaderSize() const;
-    [[nodiscard]] inline std::optional<HeaderId> retrieveHeaderId() const;
+    [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
+    [[nodiscard]] inline std::optional<Header> retrieveHeaderId() const;
     [[nodiscard]] inline std::optional<Realm> retrieveRealm() const;
     [[nodiscard]] inline std::optional<CountId> retrieveCountId() const;
 
-    inline void setHeaderId(HeaderId headerId);
-    inline void setHeaderFlags(HeaderId headerFlags);
-    inline void addHeaderFlags(HeaderId headerFlags);
-    inline void removeHeaderFlags(HeaderId headerFlags);
+    inline void setHeader(Header header);
+    inline void setHeaderId(Header headerId);
+    inline void setHeaderFlags(Header headerFlags);
+    inline void addHeaderFlags(Header headerFlags);
+    inline void removeHeaderFlags(Header headerFlags);
     inline void setRealm(Realm realmId);
     inline void setCountId(CountId countId);
 };

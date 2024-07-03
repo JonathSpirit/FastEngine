@@ -97,7 +97,7 @@ Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const&
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     pck->applyOptions(client);
-    pck->packet().addHeaderFlags(FGE_NET_HEADERID_DO_NOT_REORDER_FLAG);
+    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
     TPacket packet(pck->packet());
     return this->g_socket.sendTo(packet, id._ip, id._port);
 }
@@ -106,7 +106,7 @@ Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity cons
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     pck->applyOptions();
-    pck->packet().addHeaderFlags(FGE_NET_HEADERID_DO_NOT_REORDER_FLAG);
+    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
     TPacket packet(pck->packet());
     return this->g_socket.sendTo(packet, id._ip, id._port);
 }
@@ -143,9 +143,9 @@ void ServerSideNetUdp::threadReception()
                 auto fluxPacket = std::make_unique<FluxPacket>(std::move(pckReceive), idReceive);
 
                 //Verify headerId
-                auto const headerId = fluxPacket->retrieveHeaderId().value();
-                if ((headerId & ~FGE_NET_HEADERID_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
-                    (headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) > 0)
+                auto const header = fluxPacket->retrieveHeader().value();
+                if ((header & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                    (header & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
@@ -219,8 +219,8 @@ void ServerSideNetUdp::threadTransmission()
                 //Applying options
                 transmissionPacket->applyOptions(*itClient->second);
 
-                auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
-                if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) == 0)
+                auto const header = transmissionPacket->packet().retrieveHeader().value();
+                if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
                 {
                     transmissionPacket->packet().setCountId(itClient->second->advanceCurrentPacketCountId());
                 }
@@ -296,9 +296,9 @@ void ClientSideNetUdp::threadReception()
                 auto fluxPacket = std::make_unique<FluxPacket>(std::move(pckReceive), this->g_clientIdentity);
 
                 //Verify headerId
-                auto const headerId = fluxPacket->retrieveHeaderId().value();
-                if ((headerId & ~FGE_NET_HEADERID_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
-                    (headerId & FGE_NET_HEADERID_LOCAL_REORDERED_FLAG) > 0)
+                auto const header = fluxPacket->retrieveHeader().value();
+                if ((header & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                    (header & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
@@ -333,8 +333,8 @@ void ClientSideNetUdp::threadTransmission()
                 //Applying options
                 transmissionPacket->applyOptions(this->_client);
 
-                auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
-                if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) == 0)
+                auto const header = transmissionPacket->packet().retrieveHeader().value();
+                if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
                 {
                     transmissionPacket->packet().setCountId(this->_client.advanceClientPacketCountId());
                 }

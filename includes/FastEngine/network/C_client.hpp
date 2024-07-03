@@ -90,7 +90,7 @@ public:
     };
 
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket>
-    create(ProtocolPacket::HeaderId headerId = FGE_NET_BAD_HEADERID);
+    create(ProtocolPacket::Header header = FGE_NET_BAD_HEADERID);
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;
@@ -109,7 +109,7 @@ public:
     void applyOptions();
 
 private:
-    inline explicit TransmissionPacket(ProtocolPacket::HeaderId headerId,
+    inline explicit TransmissionPacket(ProtocolPacket::Header header,
                                        ProtocolPacket::Realm realmId,
                                        ProtocolPacket::CountId countId);
     inline explicit TransmissionPacket(ProtocolPacket&& packet);

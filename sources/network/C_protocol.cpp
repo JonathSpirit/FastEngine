@@ -56,8 +56,8 @@ bool PacketReorderer::isRetrievable(ProtocolPacket::CountId currentCountId,
 #endif
     {
         //check discard flag
-        auto const headerId = this->g_cache.top()._fluxPacket->retrieveHeaderId().value();
-        if ((headerId & FGE_NET_HEADERID_DO_NOT_DISCARD_FLAG) > 0)
+        auto const header = this->g_cache.top()._fluxPacket->retrieveHeader().value();
+        if ((header & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) > 0)
         {
             return false;
         }
@@ -83,8 +83,8 @@ bool PacketReorderer::verifyContinuity(FluxPacketPtr const& fluxPacket,
                                        ProtocolPacket::CountId currentCountId,
                                        ProtocolPacket::Realm currentRealm)
 {
-    auto const headerId = fluxPacket->retrieveHeaderId().value();
-    if ((headerId & FGE_NET_HEADERID_DO_NOT_REORDER_FLAG) > 0)
+    auto const header = fluxPacket->retrieveHeader().value();
+    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
     {
         return true;
     }

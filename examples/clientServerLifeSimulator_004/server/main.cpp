@@ -235,6 +235,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                 if (client)
                 {
+                    transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
                     client->pushPacket(std::move(transmissionPacket));
                 }
                 else
@@ -270,6 +271,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
                 transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+                transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 
                 if (client != nullptr)
                 {
@@ -336,6 +338,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 if (client)
                 {
                     transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                    transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
                     mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
                     client->pushPacket(std::move(transmissionPacket));
                     server.notifyTransmission();
