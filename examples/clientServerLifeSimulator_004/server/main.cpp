@@ -303,6 +303,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         {
                             //The client is valid, we can connect him
                             transmissionPacket->packet() << true;
+                            transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 
                             std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED")
                                       << " connected !" << std::endl;
@@ -319,7 +320,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                             //We will send a full scene update to the client too
                             transmissionPacket = fge::net::TransmissionPacket::create();
-                            transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            transmissionPacket->packet().setHeader(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
                             mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
 
                             client->pushPacket(std::move(transmissionPacket));
