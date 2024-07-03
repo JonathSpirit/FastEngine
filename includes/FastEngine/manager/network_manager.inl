@@ -166,6 +166,30 @@ ChainedArguments<TValue>::and_for_each(TIndex iStart, TIndex iIncrement, TInvoka
 }
 template<class TValue>
 template<class TInvokable>
+constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::and_for_each(TInvokable&& f)
+{
+    if (!this->g_pck->isValid())
+    {
+        return *this;
+    }
+
+    auto& value = this->value();
+
+    for (TValue iIndex = 0; iIndex != value; ++iIndex)
+    {
+        std::optional<Error> err =
+                std::invoke(std::forward<TInvokable>(f), const_cast<ChainedArguments<TValue> const&>(*this), iIndex);
+
+        if (err)
+        {
+            this->invalidate(std::move(err.value()));
+            return *this;
+        }
+    }
+    return *this;
+}
+template<class TValue>
+template<class TInvokable>
 constexpr std::optional<Error> ChainedArguments<TValue>::on_error(TInvokable&& f)
 {
     if (!this->g_pck->isValid())
@@ -332,8 +356,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
 }
 
 template<class TValue, ROutputs TOutput>
-constexpr ChainedArguments<TValue>
-RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args)
+constexpr ChainedArguments<TValue> RSizeRange(SizeType min, SizeType max, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
