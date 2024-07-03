@@ -383,6 +383,10 @@ void ClientSideNetUdp::stop()
         this->clearPackets();
         //Clear client
         this->_client.clearPackets();
+        this->_client.clearLostPacketCount();
+        this->_client.setClientPacketCountId(0);
+        this->_client.setCurrentRealm(FGE_NET_DEFAULT_REALM);
+        this->_client.setCurrentPacketCountId(0);
     }
 }
 
