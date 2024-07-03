@@ -22,6 +22,7 @@
 #include "FastEngine/manager/reg_manager.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
+#include "FastEngine/manager/timer_manager.hpp"
 #include "FastEngine/network/C_packetLZ4.hpp"
 #include "FastEngine/network/C_server.hpp"
 #include "FastEngine/object/C_objButton.hpp"
@@ -121,6 +122,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::audio::LoadFromFile("ugandan1", "resources/audio/ugandan1.ogg");
     fge::audio::LoadFromFile("ugandan2", "resources/audio/ugandan2.ogg");
 
+    //Timer
+    fge::timer::Init();
+    //Prepare a timer for timeout
+    fge::timer::TimerShared timerTimeout =
+            std::make_shared<fge::Timer>(LIFESIM_TIME_CONNECTION_TIMEOUT, "timeout", true);
+    fge::timer::Create(timerTimeout);
+    fge::timer::TimerShared timerConnectionTimeout =
+            std::make_shared<fge::Timer>(LIFESIM_TIME_CONNECTION_TIMEOUT, "connectionTimeout", true);
+    fge::timer::Create(timerConnectionTimeout);
+
     //We must register all classes that we will use
     std::cout << "registering all classes ..." << std::endl;
     {
@@ -160,11 +171,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     latencyText->setFillColor(fge::Color::Black);
 
     bool connectionValid = false;
-    bool connectionTimeoutCheck = false;
-    fge::Clock connectionTimeout;
 
     //Lambda that create a GUI window for connection
     auto createConnectionWindow = [&]() {
+        //First check if the window already exists
+        if (mainScene->getFirstObj_ByClass(FGE_OBJWINDOW_CLASSNAME))
+        {
+            return;
+        }
+
         //Creating window
         auto* window = mainScene
                                ->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID,
@@ -192,8 +207,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Handle button pressing
         buttonValid->_onButtonPressed.addLambda([&, textInputBoxIp]([[maybe_unused]] fge::ObjButton* button) {
-            if (connectionTimeoutCheck)
-            {
+            if (!timerConnectionTimeout->isPaused())
+            { //Timer is running, that means we are already trying to connect
                 return;
             }
 
@@ -216,8 +231,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             server._client.pushPacket(std::move(transmissionPacket));
 
-            connectionTimeoutCheck = true;
-            connectionTimeout.restart();
+            timerConnectionTimeout->restart();
+            timerConnectionTimeout->resume();
         });
     };
 
@@ -248,17 +263,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Check if the connection is unsuccessful
-        if (connectionTimeoutCheck)
+        if (timerConnectionTimeout->goalReached())
         {
-            if (connectionTimeout.reached(LIFESIM_TIME_CONNECTION_TIMEOUT))
-            {
-                if (!connectionValid)
-                {
-                    std::cout << "no response (timeout) !" << std::endl;
-                    server.stop();
-                }
-                connectionTimeoutCheck = false;
-            }
+            std::cout << "no response (timeout) !" << std::endl;
+
+            connectionValid = false;
+
+            server.stop();
+            mainScene->delAllObject(true);
+            createConnectionWindow();
+
+            timerConnectionTimeout->pause();
+            timerConnectionTimeout->restart();
+            fge::timer::Create(timerConnectionTimeout); ///TODO: timer system need a refactor
+        }
+
+        //Check if the connection is lost
+        if (timerTimeout->goalReached())
+        {
+            std::cout << "connection lost !" << std::endl;
+
+            connectionValid = false;
+
+            server.stop();
+            mainScene->delAllObject(true);
+            createConnectionWindow();
+
+            timerTimeout->pause();
+            timerTimeout->restart();
+            fge::timer::Create(timerTimeout); ///TODO: timer system need a refactor
         }
 
         //Handling server packets
@@ -272,10 +305,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             switch (fluxPacket->retrieveHeaderId().value())
             {
             case ls::LS_PROTOCOL_ALL_GOODBYE:
+                std::cout << "goodbye from server !" << std::endl;
+
                 server.stop();
                 mainScene->delAllObject(true);
-                connectionValid = false;
                 createConnectionWindow();
+
+                timerConnectionTimeout->pause();
+                timerConnectionTimeout->restart();
+
+                timerTimeout->pause();
+                timerTimeout->restart();
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
@@ -303,6 +343,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     }
                     connectionValid = true;
                     clockUpdate.restart();
+
+                    timerConnectionTimeout->pause();
+                    timerConnectionTimeout->restart();
+
+                    timerTimeout->restart();
+                    timerTimeout->resume();
                 }
                 else
                 {
@@ -313,6 +359,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             break;
             case ls::LS_PROTOCOL_S_UPDATE:
             {
+                timerTimeout->restart();
+
                 //Get latency
                 server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
                 if (auto latency = server._client._latencyPlanner.getLatency())
@@ -403,6 +451,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     mainScene.reset();
 
+    fge::timer::Uninit();
     fge::audio::Uninit();
     fge::shader::Uninit();
     fge::font::Uninit();
