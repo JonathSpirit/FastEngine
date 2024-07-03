@@ -31,6 +31,7 @@ void NetFluxUdp::clearPackets()
 {
     std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
     this->_g_packets.clear();
+    this->_g_remainingPackets = 0;
 }
 bool NetFluxUdp::pushPacket(FluxPacketPtr&& fluxPck)
 {
@@ -163,6 +164,11 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
 
     //Popping the next packet
     refFluxPacket = this->popNextPacket();
+    if (!refFluxPacket)
+    {
+        this->_g_remainingPackets = this->getPacketsSize();
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
     --this->_g_remainingPackets;
 
     //Verify if the client is known
@@ -260,6 +266,14 @@ void ServerSideNetUdp::stop()
         this->g_threadTransmission = nullptr;
 
         this->g_socket.close();
+
+        //Clear the flux
+        std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+        for (auto& flux: this->g_fluxes)
+        {
+            flux->clearPackets();
+        }
+        this->g_defaultFlux.clearPackets();
     }
 }
 
@@ -364,6 +378,11 @@ void ClientSideNetUdp::stop()
         this->g_threadTransmission = nullptr;
 
         this->g_socket.close();
+
+        //Clear the flux
+        this->clearPackets();
+        //Clear client
+        this->_client.clearPackets();
     }
 }
 
@@ -401,6 +420,7 @@ fge::net::Identity const& ClientSideNetUdp::getClientIdentity() const
 
 FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
 {
+    ///TODO: no lock ?
     refFluxPacket.reset();
 
     if (this->_g_remainingPackets == 0)
@@ -411,6 +431,11 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
 
     //Popping the next packet
     refFluxPacket = this->popNextPacket();
+    if (!refFluxPacket)
+    {
+        this->_g_remainingPackets = this->getPacketsSize();
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
     --this->_g_remainingPackets;
 
     auto const headerId = refFluxPacket->retrieveHeaderId().value();
