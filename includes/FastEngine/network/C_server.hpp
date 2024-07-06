@@ -291,6 +291,7 @@ public:
     [[nodiscard]] bool isRunning() const;
 
     fge::net::Socket::Error send(fge::net::Packet& pck);
+    template<class TPacket>
     fge::net::Socket::Error send(fge::net::TransmissionPacketPtr& pck);
     [[nodiscard]] fge::net::IpAddress::Types getAddressType() const;
 

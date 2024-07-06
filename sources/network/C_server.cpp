@@ -184,6 +184,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
     {
         if (allowUnknownClient)
         {
+            std::cout << "getting unknown client packet" << std::endl;
             return FluxProcessResults::RETRIEVABLE;
         }
 
@@ -205,6 +206,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
         auto reorderResult = this->processReorder(*refClient, refFluxPacket, refClient->getClientPacketCountId());
         if (reorderResult != FluxProcessResults::RETRIEVABLE)
         {
+            std::cout << "bad reorder" << std::endl;
             return reorderResult;
         }
     }
@@ -227,6 +229,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPack
     {
         if (stat == PacketReorderer::Stats::OLD_COUNTID)
         {
+            std::cout << "bad countID" << std::endl;
             refClient->advanceLostPacketCount();
             --this->_g_remainingPackets;
             return FluxProcessResults::NOT_RETRIEVABLE;
@@ -417,13 +420,6 @@ fge::net::Socket::Error ClientSideNetUdp::send(fge::net::Packet& pck)
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
     return this->g_socket.send(pck);
-}
-fge::net::Socket::Error ClientSideNetUdp::send(fge::net::TransmissionPacketPtr& pck)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    pck->applyOptions(this->_client);
-    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
-    return this->g_socket.send(pck->packet());
 }
 fge::net::IpAddress::Types ClientSideNetUdp::getAddressType() const
 {
