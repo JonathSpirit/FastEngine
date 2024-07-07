@@ -252,51 +252,51 @@ public:
      * \param CTOSLatency The "Client To Server" latency
      * \param STOCLatency The "Server To Client" latency
      */
-    explicit Client(fge::net::Latency_ms CTOSLatency, fge::net::Latency_ms STOCLatency);
+    explicit Client(Latency_ms CTOSLatency, Latency_ms STOCLatency);
 
     /**
      * \brief Generate a new random session key
      *
      * \return The generated session key
      */
-    static fge::net::Skey GenerateSkey();
+    static Skey GenerateSkey();
     /**
      * \brief Set the session key for this client
      *
      * \param key The session key
      */
-    void setSkey(fge::net::Skey key);
+    void setSkey(Skey key);
     /**
      * \brief Get the session key for this client
      *
      * \return The session key
      */
-    fge::net::Skey getSkey() const;
+    Skey getSkey() const;
 
     /**
      * \brief Set the "Client To Server" latency
      *
      * \param latency Latency in milliseconds
      */
-    void setCTOSLatency_ms(fge::net::Latency_ms latency);
+    void setCTOSLatency_ms(Latency_ms latency);
     /**
      * \brief Set the "Server To Client" latency
      *
      * \param latency Latency in milliseconds
      */
-    void setSTOCLatency_ms(fge::net::Latency_ms latency);
+    void setSTOCLatency_ms(Latency_ms latency);
     /**
      * \brief Get the "Client To Server" latency
      *
      * \return Latency in milliseconds
      */
-    fge::net::Latency_ms getCTOSLatency_ms() const;
+    Latency_ms getCTOSLatency_ms() const;
     /**
      * \brief Get the "Server To Client" latency
      *
      * \return Latency in milliseconds
      */
-    fge::net::Latency_ms getSTOCLatency_ms() const;
+    Latency_ms getSTOCLatency_ms() const;
     /**
      * \brief Compute the ping
      *
@@ -304,7 +304,7 @@ public:
      *
      * \return Pin in milliseconds
      */
-    fge::net::Latency_ms getPing_ms() const;
+    Latency_ms getPing_ms() const;
 
     /**
      * \brief Set the corrector timestamp
@@ -316,7 +316,7 @@ public:
      *
      * \param timestamp The corrector timestamp
      */
-    void setCorrectorTimestamp(fge::net::Timestamp timestamp);
+    void setCorrectorTimestamp(Timestamp timestamp);
     /**
      * \brief Get the corrector timestamp
      *
@@ -328,7 +328,7 @@ public:
      *
      * \return The corrector timestamp
      */
-    std::optional<fge::net::Timestamp> getCorrectorTimestamp() const;
+    std::optional<Timestamp> getCorrectorTimestamp() const;
     /**
      * \brief Compute the corrector latency
      *
@@ -340,7 +340,7 @@ public:
      *
      * \return The corrector latency
      */
-    std::optional<fge::net::Latency_ms> getCorrectorLatency() const;
+    std::optional<Latency_ms> getCorrectorLatency() const;
 
     /**
      * \brief Reset the time point for limiting the packets sending frequency
@@ -353,21 +353,21 @@ public:
      *
      * \return The delta time in milliseconds
      */
-    fge::net::Latency_ms getLastPacketElapsedTime();
+    Latency_ms getLastPacketElapsedTime() const;
 
     /**
      * \brief Get a modulated timestamp of the current time
      *
      * \return The modulated timestamp
      */
-    static fge::net::Timestamp getTimestamp_ms();
-    static fge::net::Timestamp getTimestamp_ms(fge::net::FullTimestamp fullTimestamp);
+    static Timestamp getTimestamp_ms();
+    static Timestamp getTimestamp_ms(FullTimestamp fullTimestamp);
     /**
      * \brief Get a timestamp of the current time
      *
      * \return The timestamp
      */
-    static fge::net::FullTimestamp getFullTimestamp_ms();
+    static FullTimestamp getFullTimestamp_ms();
     /**
      * \brief Compute the latency for the client->server / server->client with the given timestamps
      *
@@ -375,8 +375,7 @@ public:
      * \param receivedTimestamp The received timestamp
      * \return Latency in milliseconds
      */
-    static fge::net::Latency_ms computeLatency_ms(fge::net::Timestamp const& sentTimestamp,
-                                                  fge::net::Timestamp const& receivedTimestamp);
+    static Latency_ms computeLatency_ms(Timestamp const& sentTimestamp, Timestamp const& receivedTimestamp);
 
     /**
      * \brief Clear the packet queue
@@ -391,19 +390,19 @@ public:
      *
      * \param pck The packet to send with eventual options
      */
-    void pushPacket(fge::net::TransmissionPacketPtr pck);
+    void pushPacket(TransmissionPacketPtr pck);
     /**
      * \brief Pop a packet from the queue
      *
      * \return The popped packet or nullptr if the queue is empty
      */
-    fge::net::TransmissionPacketPtr popPacket();
+    TransmissionPacketPtr popPacket();
     /**
      * \brief Check if the packet queue is empty
      *
      * \return True if the queue is empty, false otherwise
      */
-    bool isPendingPacketsEmpty();
+    bool isPendingPacketsEmpty() const;
 
     [[nodiscard]] ProtocolPacket::Realm getCurrentRealm() const;
     [[nodiscard]] std::chrono::milliseconds getLastRealmChangeElapsedTime() const;
@@ -426,22 +425,22 @@ public:
     [[nodiscard]] uint32_t getLostPacketThreshold() const;
     [[nodiscard]] uint32_t getLostPacketCount() const;
 
-    fge::CallbackHandler<Client&> _onThresholdLostPacket;
+    CallbackHandler<Client&> _onThresholdLostPacket;
 
-    fge::Event _event;       ///< Optional client-side event that can be synchronized with the server
-    fge::PropertyList _data; ///< Some user-defined client properties
-    fge::net::OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
+    Event _event;                         ///< Optional client-side event that can be synchronized with the server
+    PropertyList _data;                   ///< Some user-defined client properties
+    OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
 
 private:
-    mutable std::optional<fge::net::Timestamp> g_correctorTimestamp;
-    fge::net::Latency_ms g_CTOSLatency_ms;
-    fge::net::Latency_ms g_STOCLatency_ms;
+    mutable std::optional<Timestamp> g_correctorTimestamp;
+    Latency_ms g_CTOSLatency_ms;
+    Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
-    std::queue<fge::net::TransmissionPacketPtr> g_pendingTransmitPackets;
+    std::queue<TransmissionPacketPtr> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
 
-    fge::net::Skey g_skey;
+    Skey g_skey;
 
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
     ProtocolPacket::Realm g_currentRealm;

@@ -79,7 +79,7 @@ Client::Client() :
         g_currentPacketCountId(0),
         g_clientPacketCountId(0)
 {}
-Client::Client(fge::net::Latency_ms CTOSLatency, fge::net::Latency_ms STOCLatency) :
+Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
         g_CTOSLatency_ms(CTOSLatency),
         g_STOCLatency_ms(STOCLatency),
@@ -91,57 +91,56 @@ Client::Client(fge::net::Latency_ms CTOSLatency, fge::net::Latency_ms STOCLatenc
         g_clientPacketCountId(0)
 {}
 
-fge::net::Skey Client::GenerateSkey()
+Skey Client::GenerateSkey()
 {
-    return fge::_random.range<fge::net::Skey>(1, std::numeric_limits<fge::net::Skey>::max());
+    return _random.range<Skey>(1, std::numeric_limits<Skey>::max());
 }
-void Client::setSkey(fge::net::Skey key)
+void Client::setSkey(Skey key)
 {
     this->g_skey = key;
 }
-fge::net::Skey Client::getSkey() const
+Skey Client::getSkey() const
 {
     return this->g_skey;
 }
 
-void Client::setCTOSLatency_ms(fge::net::Latency_ms latency)
+void Client::setCTOSLatency_ms(Latency_ms latency)
 {
     this->g_CTOSLatency_ms = latency;
 }
-void Client::setSTOCLatency_ms(fge::net::Latency_ms latency)
+void Client::setSTOCLatency_ms(Latency_ms latency)
 {
     this->g_STOCLatency_ms = latency;
 }
-fge::net::Latency_ms Client::getCTOSLatency_ms() const
+Latency_ms Client::getCTOSLatency_ms() const
 {
     return this->g_CTOSLatency_ms;
 }
-fge::net::Latency_ms Client::getSTOCLatency_ms() const
+Latency_ms Client::getSTOCLatency_ms() const
 {
     return this->g_STOCLatency_ms;
 }
-fge::net::Latency_ms Client::getPing_ms() const
+Latency_ms Client::getPing_ms() const
 {
     return this->g_CTOSLatency_ms + this->g_STOCLatency_ms;
 }
 
-void Client::setCorrectorTimestamp(fge::net::Timestamp timestamp)
+void Client::setCorrectorTimestamp(Timestamp timestamp)
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_correctorTimestamp = timestamp;
 }
-std::optional<fge::net::Timestamp> Client::getCorrectorTimestamp() const
+std::optional<Timestamp> Client::getCorrectorTimestamp() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_correctorTimestamp;
 }
-std::optional<fge::net::Latency_ms> Client::getCorrectorLatency() const
+std::optional<Latency_ms> Client::getCorrectorLatency() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     if (this->g_correctorTimestamp.has_value())
     {
-        auto latency = fge::net::Client::computeLatency_ms(this->g_correctorTimestamp.value(),
-                                                           fge::net::Client::getTimestamp_ms());
+        auto latency = Client::computeLatency_ms(this->g_correctorTimestamp.value(), Client::getTimestamp_ms());
         this->g_correctorTimestamp = std::nullopt;
         return latency;
     }
@@ -150,63 +149,62 @@ std::optional<fge::net::Latency_ms> Client::getCorrectorLatency() const
 
 void Client::resetLastPacketTimePoint()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
-fge::net::Latency_ms Client::getLastPacketElapsedTime()
+Latency_ms Client::getLastPacketElapsedTime() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
 
     std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
     uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - this->g_lastPacketTimePoint).count();
-    return (t >= std::numeric_limits<fge::net::Latency_ms>::max()) ? std::numeric_limits<fge::net::Latency_ms>::max()
-                                                                   : static_cast<fge::net::Latency_ms>(t);
+    return (t >= std::numeric_limits<Latency_ms>::max()) ? std::numeric_limits<Latency_ms>::max()
+                                                         : static_cast<Latency_ms>(t);
 }
 
-fge::net::Timestamp Client::getTimestamp_ms()
+Timestamp Client::getTimestamp_ms()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch())
                    .count() %
            FGE_NET_CLIENT_TIMESTAMP_MODULO;
 }
-fge::net::Timestamp Client::getTimestamp_ms(fge::net::FullTimestamp fullTimestamp)
+Timestamp Client::getTimestamp_ms(FullTimestamp fullTimestamp)
 {
     return fullTimestamp % FGE_NET_CLIENT_TIMESTAMP_MODULO;
 }
-fge::net::FullTimestamp Client::getFullTimestamp_ms()
+FullTimestamp Client::getFullTimestamp_ms()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch())
             .count();
 }
 
-fge::net::Latency_ms Client::computeLatency_ms(fge::net::Timestamp const& sentTimestamp,
-                                               fge::net::Timestamp const& receivedTimestamp)
+Latency_ms Client::computeLatency_ms(Timestamp const& sentTimestamp, Timestamp const& receivedTimestamp)
 {
     int32_t t = static_cast<int32_t>(receivedTimestamp) - static_cast<int32_t>(sentTimestamp);
     if (t < 0)
     {
         t += FGE_NET_CLIENT_TIMESTAMP_MODULO;
     }
-    return static_cast<fge::net::Latency_ms>(t);
+    return static_cast<Latency_ms>(t);
 }
 
 void Client::clearPackets()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
 
     for (std::size_t i = 0; i < this->g_pendingTransmitPackets.size(); ++i)
     {
         this->g_pendingTransmitPackets.pop();
     }
 }
-void Client::pushPacket(fge::net::TransmissionPacketPtr pck)
+void Client::pushPacket(TransmissionPacketPtr pck)
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_pendingTransmitPackets.push(std::move(pck));
 }
-fge::net::TransmissionPacketPtr Client::popPacket()
+TransmissionPacketPtr Client::popPacket()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
 
     if (this->g_pendingTransmitPackets.empty())
     {
@@ -216,26 +214,26 @@ fge::net::TransmissionPacketPtr Client::popPacket()
     this->g_pendingTransmitPackets.pop();
     return packet;
 }
-bool Client::isPendingPacketsEmpty()
+bool Client::isPendingPacketsEmpty() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
 }
 
 ProtocolPacket::Realm Client::getCurrentRealm() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_currentRealm;
 }
 std::chrono::milliseconds Client::getLastRealmChangeElapsedTime() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
                                                                  this->g_lastRealmChangeTimePoint);
 }
 void Client::setCurrentRealm(ProtocolPacket::Realm realm)
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     if (this->g_currentRealm != realm)
     {
         this->g_currentPacketCountId = 0;
@@ -246,33 +244,33 @@ void Client::setCurrentRealm(ProtocolPacket::Realm realm)
 
 ProtocolPacket::CountId Client::getCurrentPacketCountId() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_currentPacketCountId;
 }
 ProtocolPacket::CountId Client::advanceCurrentPacketCountId()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return ++this->g_currentPacketCountId;
 }
 void Client::setCurrentPacketCountId(ProtocolPacket::CountId countId)
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_currentPacketCountId = countId;
 }
 
 ProtocolPacket::CountId Client::getClientPacketCountId() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_clientPacketCountId;
 }
 ProtocolPacket::CountId Client::advanceClientPacketCountId()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_clientPacketCountId++;
 }
 void Client::setClientPacketCountId(ProtocolPacket::CountId countId)
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_clientPacketCountId = countId;
 }
 
@@ -287,12 +285,12 @@ PacketReorderer const& Client::getPacketReorderer() const
 
 void Client::clearLostPacketCount()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_lostPacketCount = 0;
 }
 uint32_t Client::advanceLostPacketCount()
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     ++this->g_lostPacketCount;
     if (this->g_lostPacketCount != 0 && this->g_lostPacketCount % this->g_lostPacketThreshold == 0)
     {
@@ -306,17 +304,17 @@ void Client::setLostPacketThreshold(uint32_t threshold)
     {
         return;
     }
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     this->g_lostPacketThreshold = threshold;
 }
 uint32_t Client::getLostPacketThreshold() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_lostPacketThreshold;
 }
 uint32_t Client::getLostPacketCount() const
 {
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    std::scoped_lock const lck(this->g_mutex);
     return this->g_lostPacketCount;
 }
 
