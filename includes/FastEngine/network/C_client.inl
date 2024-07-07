@@ -52,4 +52,15 @@ inline std::vector<TransmissionPacket::Option>& TransmissionPacket::options()
     return this->g_options;
 }
 
+inline TransmissionPacket& TransmissionPacket::doNotDiscard()
+{
+    this->g_packet.addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+    return *this;
+}
+inline TransmissionPacket& TransmissionPacket::doNotReorder()
+{
+    this->g_packet.addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+    return *this;
+}
+
 } // namespace fge::net

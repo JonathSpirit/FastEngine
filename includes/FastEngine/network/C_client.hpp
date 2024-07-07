@@ -105,6 +105,9 @@ public:
     [[nodiscard]] inline std::vector<Option> const& options() const;
     [[nodiscard]] inline std::vector<Option>& options();
 
+    inline TransmissionPacket& doNotDiscard();
+    inline TransmissionPacket& doNotReorder();
+
     void applyOptions(fge::net::Client const& client);
     void applyOptions();
 
