@@ -24,23 +24,23 @@ namespace fge::net
 
 //TransmissionPacket
 
-void TransmissionPacket::applyOptions(fge::net::Client const& client)
+void TransmissionPacket::applyOptions(Client const& client)
 {
     for (auto const& option: this->g_options)
     {
-        if (option._option == fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP)
+        if (option._option == Options::UPDATE_TIMESTAMP)
         {
-            fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+            Timestamp updatedTimestamp = Client::getTimestamp_ms();
             this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
-        else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP)
+        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
         {
-            fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
+            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
             this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
-        else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY)
+        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
         {
-            fge::net::Latency_ms correctorLatency = client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+            Latency_ms correctorLatency = client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
             this->g_packet.pack(option._argument, &correctorLatency, sizeof(correctorLatency));
         }
     }
@@ -49,19 +49,19 @@ void TransmissionPacket::applyOptions()
 {
     for (auto const& option: this->g_options)
     {
-        if (option._option == fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP)
+        if (option._option == Options::UPDATE_TIMESTAMP)
         {
-            fge::net::Timestamp updatedTimestamp = fge::net::Client::getTimestamp_ms();
+            Timestamp updatedTimestamp = Client::getTimestamp_ms();
             this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
-        else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP)
+        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
         {
-            fge::net::FullTimestamp updatedTimestamp = fge::net::Client::getFullTimestamp_ms();
+            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
             this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
         }
-        else if (option._option == fge::net::TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY)
+        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
         {
-            throw fge::Exception("Cannot apply correction latency without a client");
+            throw Exception("Cannot apply correction latency without a client");
         }
     }
 }
