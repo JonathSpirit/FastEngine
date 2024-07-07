@@ -133,7 +133,7 @@ private:
     std::vector<Option> g_options;
 };
 
-using TransmissionPacketPtr = std::shared_ptr<fge::net::TransmissionPacket>;
+using TransmissionPacketPtr = std::shared_ptr<TransmissionPacket>;
 
 /**
  * \struct OneWayLatencyPlanner
@@ -160,14 +160,14 @@ public:
      *
      * \param tPacket A TransmissionPacket
      */
-    void pack(fge::net::TransmissionPacketPtr& tPacket);
+    void pack(TransmissionPacketPtr& tPacket);
     /**
      * \brief Unpack the data received by another client/server planner
      *
      * \param packet A received packet
      * \param client A client
      */
-    void unpack(fge::net::FluxPacket* packet, fge::net::Client& client);
+    void unpack(FluxPacket* packet, Client& client);
 
     /**
      * \brief Retrieve the clock offset
@@ -177,13 +177,13 @@ public:
      *
      * \return Optionally a full timestamp offset
      */
-    [[nodiscard]] std::optional<fge::net::FullTimestampOffset> getClockOffset() const;
+    [[nodiscard]] std::optional<FullTimestampOffset> getClockOffset() const;
     /**
      * \brief Retrieve the latency
      *
      * \return Optionally a latency
      */
-    [[nodiscard]] std::optional<fge::net::Latency_ms> getLatency() const;
+    [[nodiscard]] std::optional<Latency_ms> getLatency() const;
     /**
      * \brief Retrieve the other side latency
      *
@@ -191,7 +191,7 @@ public:
      *
      * \return Optionally a latency
      */
-    [[nodiscard]] std::optional<fge::net::Latency_ms> getOtherSideLatency() const;
+    [[nodiscard]] std::optional<Latency_ms> getOtherSideLatency() const;
     /**
      * \brief Retrieve the RTT (Round Trip Time)
      *
@@ -222,19 +222,19 @@ public:
      *
      * \return Optionally a RTT in ms
      */
-    [[nodiscard]] std::optional<fge::net::Latency_ms> getRoundTripTime() const;
+    [[nodiscard]] std::optional<Latency_ms> getRoundTripTime() const;
 
 private:
-    std::optional<fge::net::Latency_ms> g_latency;
-    std::optional<fge::net::Latency_ms> g_otherSideLatency;
+    std::optional<Latency_ms> g_latency;
+    std::optional<Latency_ms> g_otherSideLatency;
 
-    std::optional<fge::net::FullTimestampOffset> g_meanClockOffset;
-    std::array<fge::net::FullTimestampOffset, FGE_NET_LATENCY_PLANNER_MEAN> g_clockOffsets{};
+    std::optional<FullTimestampOffset> g_meanClockOffset;
+    std::array<FullTimestampOffset, FGE_NET_LATENCY_PLANNER_MEAN> g_clockOffsets{};
     std::size_t g_clockOffsetCount{0};
 
-    std::optional<fge::net::Latency_ms> g_roundTripTime;
+    std::optional<Latency_ms> g_roundTripTime;
 
-    fge::net::Timestamp g_externalStoredTimestamp{0};
+    Timestamp g_externalStoredTimestamp{0};
     std::underlying_type_t<Stats> g_syncStat{0};
 };
 

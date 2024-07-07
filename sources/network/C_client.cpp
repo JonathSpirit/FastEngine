@@ -333,16 +333,16 @@ uint32_t Client::getLostPacketCount() const
 
 //OneWayLatencyPlanner
 
-void OneWayLatencyPlanner::pack(fge::net::TransmissionPacketPtr& tPacket)
+void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
 {
     //Append timestamp
     auto const myTimestampPos = tPacket->packet().getDataSize();
-    tPacket->packet().append(sizeof(fge::net::Timestamp));
-    tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
+    tPacket->packet().append(sizeof(Timestamp));
+    tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
 
     //Append latency corrector
     auto const myLatencyCorrectorPos = tPacket->packet().getDataSize();
-    tPacket->packet().append(sizeof(fge::net::Latency_ms));
+    tPacket->packet().append(sizeof(Latency_ms));
 
     //Pack computed latency
     auto const myComputedLatency = this->g_latency.value_or(FGE_NET_BAD_LATENCY);
@@ -350,41 +350,40 @@ void OneWayLatencyPlanner::pack(fge::net::TransmissionPacketPtr& tPacket)
 
     //Append full timestamp
     std::size_t const myFullTimestampPos = tPacket->packet().getDataSize();
-    tPacket->packet().append(sizeof(fge::net::FullTimestamp));
-    tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
+    tPacket->packet().append(sizeof(FullTimestamp));
+    tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
 
     //Pack sync stat
     tPacket->packet().pack(&this->g_syncStat, sizeof(this->g_syncStat));
 
     //Pack external stored timestamp (if exist)
-    if ((this->g_syncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
+    if ((this->g_syncStat & HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
         tPacket->packet().pack(&this->g_externalStoredTimestamp, sizeof(this->g_externalStoredTimestamp));
-        tPacket->options().emplace_back(fge::net::TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY,
-                                        myLatencyCorrectorPos);
-        this->g_syncStat &= ~Stats::HAVE_EXTERNAL_TIMESTAMP;
+        tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
+        this->g_syncStat &= ~HAVE_EXTERNAL_TIMESTAMP;
     }
 }
-void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client& client)
+void OneWayLatencyPlanner::unpack(FluxPacket* packet, Client& client)
 {
     bool const finishedToSendLastPacket = !client.getCorrectorTimestamp().has_value();
 
     if (finishedToSendLastPacket)
     {
-        packet->unpack(&this->g_externalStoredTimestamp, sizeof(fge::net::Timestamp));
-        this->g_syncStat |= Stats::HAVE_EXTERNAL_TIMESTAMP;
+        packet->unpack(&this->g_externalStoredTimestamp, sizeof(Timestamp));
+        this->g_syncStat |= HAVE_EXTERNAL_TIMESTAMP;
     }
     else
     {
-        packet->skip(sizeof(fge::net::Timestamp));
+        packet->skip(sizeof(Timestamp));
     }
 
     //Retrieve external latency corrector
-    fge::net::Latency_ms latencyCorrector;
+    Latency_ms latencyCorrector;
     packet->unpack(&latencyCorrector, sizeof(latencyCorrector));
 
     //Retrieve the latency computed at the other side
-    fge::net::Latency_ms otherSideLatency;
+    Latency_ms otherSideLatency;
     packet->unpack(&otherSideLatency, sizeof(otherSideLatency));
     if (otherSideLatency != FGE_NET_BAD_LATENCY)
     {
@@ -392,7 +391,7 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
     }
 
     //Retrieve full server timestamp
-    fge::net::FullTimestamp fullTimestamp;
+    FullTimestamp fullTimestamp;
     packet->unpack(&fullTimestamp, sizeof(fullTimestamp));
 
     //Retrieve external sync stat
@@ -400,10 +399,10 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
     packet->unpack(&externalSyncStat, sizeof(externalSyncStat));
 
     //Does he have our timestamp ?
-    if ((externalSyncStat & Stats::HAVE_EXTERNAL_TIMESTAMP) > 0)
+    if ((externalSyncStat & HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
         //Retrieve our timestamp
-        fge::net::Timestamp firstTimestamp;
+        Timestamp firstTimestamp;
         packet->unpack(&firstTimestamp, sizeof(firstTimestamp));
 
         //We didn't finish the last packet yet
@@ -421,7 +420,7 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         }
 
         //Compute RTT
-        this->g_roundTripTime = fge::net::Client::computeLatency_ms(firstTimestamp, packet->getTimeStamp());
+        this->g_roundTripTime = Client::computeLatency_ms(firstTimestamp, packet->getTimeStamp());
 
         //Compute new latency
         this->g_latency = (this->g_roundTripTime.value() < latencyCorrector)
@@ -429,9 +428,9 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
                                   : ((this->g_roundTripTime.value() - latencyCorrector) / 2);
 
         //Compute time offset
-        fge::net::FullTimestampOffset const clockOffset =
-                static_cast<fge::net::FullTimestampOffset>(fge::net::Client::getFullTimestamp_ms()) -
-                static_cast<fge::net::FullTimestampOffset>(fullTimestamp) + this->g_latency.value();
+        FullTimestampOffset const clockOffset = static_cast<FullTimestampOffset>(Client::getFullTimestamp_ms()) -
+                                                static_cast<FullTimestampOffset>(fullTimestamp) +
+                                                this->g_latency.value();
         if (this->g_clockOffsetCount == this->g_clockOffsets.max_size())
         {
             //Shift the array by 1
@@ -449,7 +448,7 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
         }
 
         //Compute new offset
-        fge::net::FullTimestamp result = 0;
+        FullTimestamp result = 0;
         for (std::size_t i = 0; i < this->g_clockOffsetCount; ++i)
         {
             result += this->g_clockOffsets[i];
@@ -458,19 +457,19 @@ void OneWayLatencyPlanner::unpack(fge::net::FluxPacket* packet, fge::net::Client
     }
 }
 
-std::optional<fge::net::FullTimestampOffset> OneWayLatencyPlanner::getClockOffset() const
+std::optional<FullTimestampOffset> OneWayLatencyPlanner::getClockOffset() const
 {
     return this->g_meanClockOffset;
 }
-std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getLatency() const
+std::optional<Latency_ms> OneWayLatencyPlanner::getLatency() const
 {
     return this->g_latency;
 }
-std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getOtherSideLatency() const
+std::optional<Latency_ms> OneWayLatencyPlanner::getOtherSideLatency() const
 {
     return this->g_otherSideLatency;
 }
-std::optional<fge::net::Latency_ms> OneWayLatencyPlanner::getRoundTripTime() const
+std::optional<Latency_ms> OneWayLatencyPlanner::getRoundTripTime() const
 {
     return this->g_roundTripTime;
 }
