@@ -285,17 +285,6 @@ PacketReorderer const& Client::getPacketReorderer() const
     return this->g_packetReorderer;
 }
 
-void Client::setErrorCount(unsigned int count)
-{
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    this->g_errorCount = count;
-}
-unsigned int Client::getErrorCount() const
-{
-    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
-    return this->g_errorCount;
-}
-
 void Client::clearLostPacketCount()
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);

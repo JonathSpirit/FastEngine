@@ -420,9 +420,6 @@ public:
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
 
-    void setErrorCount(unsigned int count);
-    [[nodiscard]] unsigned int getErrorCount() const;
-
     void clearLostPacketCount();
     uint32_t advanceLostPacketCount();
     void setLostPacketThreshold(uint32_t threshold);
@@ -452,7 +449,6 @@ private:
     ProtocolPacket::CountId g_clientPacketCountId;
 
     PacketReorderer g_packetReorderer;
-    unsigned int g_errorCount;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
 };
