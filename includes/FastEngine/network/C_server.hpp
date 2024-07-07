@@ -233,12 +233,8 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::Identity const& id);
-    template<class TPacket>
-    fge::net::Socket::Error
-    sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
-    template<class TPacket>
-    fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id);
+    void sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
+    void sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id);
 
 private:
     template<class TPacket>
@@ -251,11 +247,11 @@ private:
 
     std::condition_variable g_transmissionNotifier;
 
-    mutable std::mutex g_mutexTransmission;
     mutable std::mutex g_mutexServer;
 
     std::vector<std::unique_ptr<ServerNetFluxUdp>> g_fluxes;
     ServerNetFluxUdp g_defaultFlux;
+    std::queue<std::pair<TransmissionPacketPtr, Identity>> g_transmissionQueue;
 
     SocketUdp g_socket;
     bool g_running;

@@ -295,6 +295,7 @@ void ServerSideNetUdp::stop()
             flux->clearPackets();
         }
         this->g_defaultFlux.clearPackets();
+        decltype(this->g_transmissionQueue)().swap(this->g_transmissionQueue);
     }
 }
 
@@ -363,15 +364,32 @@ void ServerSideNetUdp::notifyTransmission()
     this->g_transmissionNotifier.notify_one();
 }
 
-fge::net::Socket::Error ServerSideNetUdp::sendTo(fge::net::Packet& pck, fge::net::Identity const& id)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    return this->g_socket.sendTo(pck, id._ip, id._port);
-}
-
 bool ServerSideNetUdp::isRunning() const
 {
     return this->g_running;
+}
+
+void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id)
+{
+    pck->applyOptions(client);
+    pck->doNotReorder();
+
+    {
+        std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+        this->g_transmissionQueue.emplace(std::move(pck), id);
+    }
+    this->g_transmissionNotifier.notify_one();
+}
+void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
+{
+    pck->applyOptions();
+    pck->doNotReorder();
+
+    {
+        std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+        this->g_transmissionQueue.emplace(std::move(pck), id);
+    }
+    this->g_transmissionNotifier.notify_one();
 }
 
 //ServerClientSideUdp

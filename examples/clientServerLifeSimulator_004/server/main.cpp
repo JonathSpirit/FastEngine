@@ -205,9 +205,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_ALL_GOODBYE);
 
                     transmissionPacket->packet() << "timeout";
-                    server.sendTo<fge::net::PacketLZ4>(
-                            transmissionPacket,
-                            (*it).first); ///TODO: we have to stop using .sendTo method and let the server thread handle all packets
+                    server.sendTo(transmissionPacket, it->first);
 
                     it = clients.remove(it, clientsLock);
                 }
@@ -240,7 +238,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
                 else
                 {
-                    server.sendTo(transmissionPacket->packet(), fluxPacket->getIdentity());
+                    server.sendTo(transmissionPacket, fluxPacket->getIdentity());
                 }
                 break;
             case ls::LS_PROTOCOL_C_UPDATE:
@@ -331,7 +329,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     }).on_error([&]([[maybe_unused]] auto& chain) {
                         //Something is not right, we will send "false" to the potential client
                         transmissionPacket->packet() << false;
-                        server.sendTo(transmissionPacket->packet(), fluxPacket->getIdentity());
+                        server.sendTo(transmissionPacket, fluxPacket->getIdentity());
                     });
                 }
             }

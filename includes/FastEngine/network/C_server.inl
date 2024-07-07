@@ -93,25 +93,6 @@ bool ServerSideNetUdp::start(IpAddress::Types addressType)
 }
 
 template<class TPacket>
-Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    pck->applyOptions(client);
-    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
-    TPacket packet(pck->packet());
-    return this->g_socket.sendTo(packet, id._ip, id._port);
-}
-template<class TPacket>
-Socket::Error ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    pck->applyOptions();
-    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
-    TPacket packet(pck->packet());
-    return this->g_socket.sendTo(packet, id._ip, id._port);
-}
-
-template<class TPacket>
 void ServerSideNetUdp::threadReception()
 {
     fge::net::Identity idReceive;
@@ -182,7 +163,7 @@ void ServerSideNetUdp::threadTransmission()
     {
         this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
 
-        //Flux
+        //Checking fluxes
         for (std::size_t i = 0; i < this->g_fluxes.size() + 1; ++i)
         {
             ClientList* clients{nullptr};
@@ -227,9 +208,25 @@ void ServerSideNetUdp::threadTransmission()
 
                 //Sending the packet
                 TPacket packet(transmissionPacket->packet());
-                this->sendTo(packet, itClient->first);
+                this->g_socket.sendTo(packet, itClient->first._ip, itClient->first._port);
                 itClient->second->resetLastPacketTimePoint();
             }
+        }
+
+        //Checking isolated transmission queue
+        while (!this->g_transmissionQueue.empty())
+        {
+            auto data = std::move(this->g_transmissionQueue.front());
+            this->g_transmissionQueue.pop();
+
+            if (!data.first->packet() || !data.first->packet().haveCorrectHeaderSize())
+            { //Last verification of the packet
+                continue;
+            }
+
+            //Sending the packet
+            TPacket packet(data.first->packet());
+            this->g_socket.sendTo(packet, data.second._ip, data.second._port);
         }
     }
 }
