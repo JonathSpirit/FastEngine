@@ -34,7 +34,6 @@
 #define FGE_NET_DEFAULT_LATENCY 20
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
-#define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_LATENCY_PLANNER_MEAN 6
 #define FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD 15
 
