@@ -107,7 +107,20 @@ public:
     inline TransmissionPacket& doNotDiscard();
     inline TransmissionPacket& doNotReorder();
 
-    void applyOptions(fge::net::Client const& client);
+    /**
+     * \brief Apply packet options to the packet
+     *
+     * \see Options
+     *
+     * \param client The client to apply the options
+     */
+    void applyOptions(Client const& client);
+    /**
+     * \brief Apply packet options to the packet
+     *
+     * Same as applyOptions(Client const& client) but without the client parameter.
+     * UPDATE_CORRECTION_LATENCY will throw.
+     */
     void applyOptions();
 
 private:
