@@ -341,20 +341,11 @@ void ClientSideNetUdp::threadTransmission()
 
                 //Sending the packet
                 TPacket packet = transmissionPacket->packet();
-                this->send(packet);
+                this->g_socket.send(packet);
                 this->_client.resetLastPacketTimePoint();
             }
         }
     }
-}
-template<class TPacket>
-fge::net::Socket::Error ClientSideNetUdp::send(fge::net::TransmissionPacketPtr& pck)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    pck->applyOptions(this->_client);
-    pck->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
-    TPacket packet(pck->packet());
-    return this->g_socket.send(packet);
 }
 
 } // namespace fge::net

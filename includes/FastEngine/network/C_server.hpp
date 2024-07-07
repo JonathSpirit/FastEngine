@@ -290,9 +290,6 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    fge::net::Socket::Error send(fge::net::Packet& pck);
-    template<class TPacket>
-    fge::net::Socket::Error send(fge::net::TransmissionPacketPtr& pck);
     [[nodiscard]] fge::net::IpAddress::Types getAddressType() const;
 
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
@@ -314,8 +311,6 @@ private:
 
     std::condition_variable g_transmissionNotifier;
     std::condition_variable g_receptionNotifier;
-
-    mutable std::mutex g_mutexTransmission;
 
     fge::net::SocketUdp g_socket;
     bool g_running;

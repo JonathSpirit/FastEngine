@@ -416,11 +416,6 @@ void ClientSideNetUdp::notifyTransmission()
     this->g_transmissionNotifier.notify_one();
 }
 
-fge::net::Socket::Error ClientSideNetUdp::send(fge::net::Packet& pck)
-{
-    std::scoped_lock<std::mutex> const lock(this->g_mutexTransmission);
-    return this->g_socket.send(pck);
-}
 fge::net::IpAddress::Types ClientSideNetUdp::getAddressType() const
 {
     return this->g_socket.getAddressType();
