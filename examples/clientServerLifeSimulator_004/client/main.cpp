@@ -151,18 +151,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::Clock deltaTime;
 
     //Create a latency text
-    std::vector<char> latencyTextBuffer;
-    char const* latencyTextFormat = "clock offset: %s\n"
-                                    "latency CTOS: %d\n"
-                                    "latency STOC: %d\n"
-                                    "ping: %d\n"
-                                    "RTT: %s\n"
-                                    "Update count: %d\n"
-                                    "Lost packets: %d\n"
-                                    "Realm: %d, CurrentCountId: %d, ClientCountId: %d";
+    std::ostringstream latencyTextStream;
 
     auto* latencyText = mainScene
-                                ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}, 15),
+                                ->newObject(FGE_NEWOBJECT(fge::ObjText, "waiting for server", "default", {}, 15),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
                                 ->getObject<fge::ObjText>();
     latencyText->setFillColor(fge::Color::Black);
@@ -380,31 +372,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Updating the latencyText
-                auto const size =
-                        snprintf(nullptr, 0, latencyTextFormat,
-                                 fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                                 server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                 server._client.getPing_ms(),
-                                 fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                                 mainScene->getUpdateCount(), server._client.getLostPacketCount(),
-                                 server._client.getCurrentRealm(), server._client.getCurrentPacketCountId(),
-                                 server._client.getClientPacketCountId());
+                latencyTextStream.str(std::string{});
+                latencyTextStream << "clock offset: "
+                                  << fge::string::ToStr(server._client._latencyPlanner.getClockOffset()) << '\n'
+                                  << "latency CTOS: " << server._client.getCTOSLatency_ms() << '\n'
+                                  << "latency STOC: " << server._client.getSTOCLatency_ms() << '\n'
+                                  << "ping: " << server._client.getPing_ms() << '\n'
+                                  << "RTT: " << fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime())
+                                  << '\n'
+                                  << "Update count: " << mainScene->getUpdateCount() << '\n'
+                                  << "Lost packets: " << server._client.getLostPacketCount() << '\n'
+                                  << "Realm: " << static_cast<unsigned int>(server._client.getCurrentRealm())
+                                  << ", CurrentCountId: " << server._client.getCurrentPacketCountId()
+                                  << ", ClientCountId: " << server._client.getClientPacketCountId();
 
-                if (size > 0)
-                {
-                    latencyTextBuffer.resize(size + 1);
-
-                    (void) snprintf(latencyTextBuffer.data(), latencyTextBuffer.size(), latencyTextFormat,
-                                    fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                                    server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                                    server._client.getPing_ms(),
-                                    fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                                    mainScene->getUpdateCount(), server._client.getLostPacketCount(),
-                                    server._client.getCurrentRealm(), server._client.getCurrentPacketCountId(),
-                                    server._client.getClientPacketCountId());
-
-                    latencyText->setString(tiny_utf8::string(latencyTextBuffer.data(), size));
-                }
+                latencyText->setString(tiny_utf8::string(latencyTextStream.str()));
 
                 //And then unpack all modification made by the server scene
                 fge::Scene::UpdateCountRange updateRange{};
