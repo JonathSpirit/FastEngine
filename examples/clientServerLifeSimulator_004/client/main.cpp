@@ -146,9 +146,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         std::cout << "OK !" << std::endl;
     }
 
-    //Networking
-    uint32_t badPacketUpdatesCount = 0;
-
     //Clock
     fge::Clock clockUpdate;
     fge::Clock deltaTime;
@@ -161,8 +158,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                     "ping: %d\n"
                                     "RTT: %s\n"
                                     "Update count: %d\n"
-                                    "Bad packets: %d\n"
-                                    "Lost packets: %d";
+                                    "Lost packets: %d\n"
+                                    "Realm: %d, CurrentCountId: %d, ClientCountId: %d";
+
     auto* latencyText = mainScene
                                 ->newObject(FGE_NEWOBJECT(fge::ObjText, latencyTextFormat, "default", {}, 15),
                                             FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
@@ -236,6 +234,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     };
 
     createConnectionWindow();
+
+    server._client._onThresholdLostPacket.addLambda([&]([[maybe_unused]] fge::net::Client& client) {
+        //Here we consider that the scene is lost and we ask the server a full update
+        auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
+        transmissionPacket->doNotDiscard();
+        server._client.pushPacket(std::move(transmissionPacket));
+        server.notifyTransmission();
+    });
 
     //Begin loop
     bool running = true;
@@ -374,13 +380,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Updating the latencyText
-                auto const size = snprintf(
-                        nullptr, 0, latencyTextFormat,
-                        fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
-                        server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
-                        server._client.getPing_ms(),
-                        fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                        mainScene->getUpdateCount(), badPacketUpdatesCount, server._client.getLostPacketCount());
+                auto const size =
+                        snprintf(nullptr, 0, latencyTextFormat,
+                                 fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                                 server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
+                                 server._client.getPing_ms(),
+                                 fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
+                                 mainScene->getUpdateCount(), server._client.getLostPacketCount(),
+                                 server._client.getCurrentRealm(), server._client.getCurrentPacketCountId(),
+                                 server._client.getClientPacketCountId());
 
                 if (size > 0)
                 {
@@ -391,8 +399,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                     server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
                                     server._client.getPing_ms(),
                                     fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
-                                    mainScene->getUpdateCount(), badPacketUpdatesCount,
-                                    server._client.getLostPacketCount());
+                                    mainScene->getUpdateCount(), server._client.getLostPacketCount(),
+                                    server._client.getCurrentRealm(), server._client.getCurrentPacketCountId(),
+                                    server._client.getClientPacketCountId());
 
                     latencyText->setString(tiny_utf8::string(latencyTextBuffer.data(), size));
                 }
@@ -402,7 +411,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 auto err = mainScene->unpackModification(*fluxPacket, updateRange);
                 if (err)
                 {
-                    ++badPacketUpdatesCount;
+                    server._client.advanceLostPacketCount();
 
                     err->dump(std::cout);
                     std::cout << "\tclient[" << mainScene->getUpdateCount() << "] "
@@ -415,17 +424,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     err = mainScene->unpackWatchedEvent(*fluxPacket);
                     if (err)
                     {
-                        ++badPacketUpdatesCount;
+                        server._client.advanceLostPacketCount();
                     }
-                }
-
-                if (badPacketUpdatesCount >= MAX_BAD_PACKET)
-                {
-                    //Here we consider that the scene is lost and we ask the server a full update
-                    transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
-                    server._client.pushPacket(std::move(transmissionPacket));
-                    server.notifyTransmission();
-                    badPacketUpdatesCount = 0;
                 }
             }
             break;
