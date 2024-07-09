@@ -32,7 +32,7 @@
 
 #define TERMINUS(returnValue_)                                                                                         \
     fge::Sleep(std::chrono::seconds(2));                                                                               \
-    return returnValue_;
+    return returnValue_
 
 namespace
 {
@@ -64,7 +64,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     if (!fge::net::Socket::initSocket())
     {
         std::cout << "can't init socket system !" << std::endl;
-        TERMINUS(-1)
+        TERMINUS(-1);
     }
 
     //Enable virtual terminal sequence support
@@ -83,7 +83,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     if (!server.start<fge::net::PacketLZ4>(LIFESIM_SERVER_PORT, fge::net::IpAddress::Any(server.getAddressType())))
     {
         std::cout << "can't start the server on this port !" << std::endl;
-        TERMINUS(-1)
+        TERMINUS(-1);
     }
     std::cout << "OK !" << std::endl << std::endl;
 
@@ -102,7 +102,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         if (!valid)
         {
             std::cout << "error during class registrations !" << std::endl;
-            TERMINUS(-1)
+            TERMINUS(-1);
         }
         std::cout << "OK !" << std::endl;
     }
@@ -196,10 +196,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock);)
             {
-                auto timeout = (*it).second->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
+                auto timeout = it->second->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
                 if (timeout >= LIFESIM_TIMEOUT_COUNT)
                 {
-                    std::cout << "user : " << (*it).first._ip.toString().value_or("UNDEFINED")
+                    std::cout << "user : " << it->first._ip.toString().value_or("UNDEFINED")
                               << " disconnected (timeout) !" << std::endl;
 
                     auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_ALL_GOODBYE);
@@ -211,7 +211,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
                 else
                 {
-                    (*it).second->_data[LIFESIM_CLIENTDATA_TIMEOUT].set(timeout);
+                    it->second->_data[LIFESIM_CLIENTDATA_TIMEOUT].set(timeout);
                     ++it;
                 }
             }
@@ -233,7 +233,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                 if (client)
                 {
-                    transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+                    transmissionPacket->doNotReorder();
                     client->pushPacket(std::move(transmissionPacket));
                 }
                 else
@@ -301,7 +301,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         {
                             //The client is valid, we can connect him
                             transmissionPacket->packet() << true;
-                            transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+                            transmissionPacket->doNotReorder();
 
                             std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED")
                                       << " connected !" << std::endl;
@@ -319,7 +319,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             //We will send a full scene update to the client too
                             transmissionPacket = fge::net::TransmissionPacket::create();
                             transmissionPacket->packet().setHeader(ls::LS_PROTOCOL_S_UPDATE_ALL);
-                            transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+                            transmissionPacket->doNotDiscard();
                             mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
 
                             client->pushPacket(std::move(transmissionPacket));
@@ -338,8 +338,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 if (client)
                 {
                     transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
-                    transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+                    transmissionPacket->doNotDiscard();
                     mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
+                    client->advanceCurrentRealm();
                     client->pushPacket(std::move(transmissionPacket));
                     server.notifyTransmission();
                 }
@@ -364,7 +365,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
                 //Make sure that the client is not busy with another packet
-                if (!(*it).second->isPendingPacketsEmpty())
+                if (!it->second->isPendingPacketsEmpty())
                 {
                     continue;
                 }
@@ -373,15 +374,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE);
 
                 //Pack data required by the LatencyPlanner in order to compute latency
-                (*it).second->_latencyPlanner.pack(transmissionPacket);
+                it->second->_latencyPlanner.pack(transmissionPacket);
 
                 //We can now push all scene modification by clients
-                mainScene.packModification(transmissionPacket->packet(), (*it).first);
+                mainScene.packModification(transmissionPacket->packet(), it->first);
                 //And push all scene events by clients
-                mainScene.packWatchedEvent(transmissionPacket->packet(), (*it).first);
+                mainScene.packWatchedEvent(transmissionPacket->packet(), it->first);
 
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
-                (*it).second->pushPacket(std::move(transmissionPacket));
+                it->second->pushPacket(std::move(transmissionPacket));
 
                 //Notify the server that a packet as been pushed
                 server.notifyTransmission();
@@ -400,5 +401,5 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::net::Socket::uninitSocket();
 
-    TERMINUS(0)
+    TERMINUS(0);
 }
