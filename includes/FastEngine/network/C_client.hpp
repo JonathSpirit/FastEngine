@@ -407,13 +407,14 @@ public:
     [[nodiscard]] ProtocolPacket::Realm getCurrentRealm() const;
     [[nodiscard]] std::chrono::milliseconds getLastRealmChangeElapsedTime() const;
     void setCurrentRealm(ProtocolPacket::Realm realm);
+    ProtocolPacket::Realm advanceCurrentRealm();
 
     [[nodiscard]] ProtocolPacket::CountId getCurrentPacketCountId() const;
-    [[nodiscard]] ProtocolPacket::CountId advanceCurrentPacketCountId();
+    ProtocolPacket::CountId advanceCurrentPacketCountId();
     void setCurrentPacketCountId(ProtocolPacket::CountId countId);
 
     [[nodiscard]] ProtocolPacket::CountId getClientPacketCountId() const;
-    [[nodiscard]] ProtocolPacket::CountId advanceClientPacketCountId();
+    ProtocolPacket::CountId advanceClientPacketCountId();
     void setClientPacketCountId(ProtocolPacket::CountId countId);
 
     [[nodiscard]] PacketReorderer& getPacketReorderer();

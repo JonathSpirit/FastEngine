@@ -241,6 +241,13 @@ void Client::setCurrentRealm(ProtocolPacket::Realm realm)
         this->g_currentRealm = realm;
     }
 }
+ProtocolPacket::Realm Client::advanceCurrentRealm()
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_currentPacketCountId = 0;
+    this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
+    return ++this->g_currentRealm;
+}
 
 ProtocolPacket::CountId Client::getCurrentPacketCountId() const
 {
