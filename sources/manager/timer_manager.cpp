@@ -148,7 +148,7 @@ bool Destroy(fge::timer::TimerShared const& timer)
     }
     return false;
 }
-bool Destroy(std::string const& timerName)
+bool Remove(std::string const& timerName)
 {
     std::scoped_lock<std::mutex> const lck(_dataMutex);
     for (auto it = _dataTimers.begin(); it != _dataTimers.end(); ++it)
@@ -163,7 +163,7 @@ bool Destroy(std::string const& timerName)
     return false;
 }
 
-void DestroyAll()
+void RemoveAll()
 {
     std::scoped_lock<std::mutex> const lck(_dataMutex);
     _dataTimers.clear();
