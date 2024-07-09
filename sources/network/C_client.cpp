@@ -200,6 +200,17 @@ void Client::clearPackets()
 void Client::pushPacket(TransmissionPacketPtr pck)
 {
     std::scoped_lock const lck(this->g_mutex);
+    auto const header = pck->packet().retrieveHeader().value();
+    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
+    {
+#ifdef FGE_DEF_SERVER
+        pck->packet().setCountId(this->advanceCurrentPacketCountId());
+#else
+        pck->packet().setCountId(this->advanceClientPacketCountId());
+#endif
+
+        pck->packet().setRealm(this->getCurrentRealm());
+    }
     this->g_pendingTransmitPackets.push(std::move(pck));
 }
 TransmissionPacketPtr Client::popPacket()

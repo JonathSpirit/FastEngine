@@ -200,12 +200,6 @@ void ServerSideNetUdp::threadTransmission()
                 //Applying options
                 transmissionPacket->applyOptions(*itClient->second);
 
-                auto const header = transmissionPacket->packet().retrieveHeader().value();
-                if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
-                {
-                    transmissionPacket->packet().setCountId(itClient->second->advanceCurrentPacketCountId());
-                }
-
                 //Sending the packet
                 TPacket packet(transmissionPacket->packet());
                 this->g_socket.sendTo(packet, itClient->first._ip, itClient->first._port);
@@ -329,12 +323,6 @@ void ClientSideNetUdp::threadTransmission()
 
                 //Applying options
                 transmissionPacket->applyOptions(this->_client);
-
-                auto const header = transmissionPacket->packet().retrieveHeader().value();
-                if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
-                {
-                    transmissionPacket->packet().setCountId(this->_client.advanceClientPacketCountId());
-                }
 
                 //Sending the packet
                 TPacket packet = transmissionPacket->packet();

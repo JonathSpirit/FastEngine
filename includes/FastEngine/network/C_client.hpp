@@ -388,6 +388,10 @@ public:
      * The network thread is ready to send a packet when the time interval between the last sent packet
      * is greater than the latency of the server->client.
      *
+     * The current realm will be set and the current countId will be incremented and set to the packet.
+     * - on the client side, advanceClientPacketCountId() will be called
+     * - on the server side, advanceCurrentPacketCountId() will be called
+     *
      * \param pck The packet to send with eventual options
      */
     void pushPacket(TransmissionPacketPtr pck);
