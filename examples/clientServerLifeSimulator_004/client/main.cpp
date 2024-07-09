@@ -38,7 +38,6 @@
 
 #include <iostream>
 
-#define LATENCY_TEXT_BUFFER_SIZE 200
 #define MAX_BAD_PACKET 20
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
@@ -155,7 +154,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::Clock deltaTime;
 
     //Create a latency text
-    char latencyTextBuffer[LATENCY_TEXT_BUFFER_SIZE];
+    std::vector<char> latencyTextBuffer;
     char const* latencyTextFormat = "clock offset: %s\n"
                                     "latency CTOS: %d\n"
                                     "latency STOC: %d\n"
@@ -376,13 +375,27 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                 //Updating the latencyText
                 auto const size = snprintf(
-                        latencyTextBuffer, LATENCY_TEXT_BUFFER_SIZE, latencyTextFormat,
+                        nullptr, 0, latencyTextFormat,
                         fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
                         server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
                         server._client.getPing_ms(),
                         fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
                         mainScene->getUpdateCount(), badPacketUpdatesCount, server._client.getLostPacketCount());
-                latencyText->setString(tiny_utf8::string(latencyTextBuffer, size));
+
+                if (size > 0)
+                {
+                    latencyTextBuffer.resize(size + 1);
+
+                    (void) snprintf(latencyTextBuffer.data(), latencyTextBuffer.size(), latencyTextFormat,
+                                    fge::string::ToStr(server._client._latencyPlanner.getClockOffset()).c_str(),
+                                    server._client.getCTOSLatency_ms(), server._client.getSTOCLatency_ms(),
+                                    server._client.getPing_ms(),
+                                    fge::string::ToStr(server._client._latencyPlanner.getRoundTripTime()).c_str(),
+                                    mainScene->getUpdateCount(), badPacketUpdatesCount,
+                                    server._client.getLostPacketCount());
+
+                    latencyText->setString(tiny_utf8::string(latencyTextBuffer.data(), size));
+                }
 
                 //And then unpack all modification made by the server scene
                 fge::Scene::UpdateCountRange updateRange{};
