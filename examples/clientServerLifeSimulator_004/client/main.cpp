@@ -37,6 +37,7 @@
 #include "C_food.hpp"
 
 #include <iostream>
+#include <sstream>
 
 #define MAX_BAD_PACKET 20
 
