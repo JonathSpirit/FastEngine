@@ -106,7 +106,7 @@ void ServerSideNetUdp::threadReception()
                 }
 #endif
 
-                std::scoped_lock<std::mutex> const lck(this->g_mutexServer);
+                std::scoped_lock const lck(this->g_mutexServer);
 
                 if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
                 { //Bad header, packet is dismissed
@@ -151,7 +151,7 @@ void ServerSideNetUdp::threadReception()
 template<class TPacket>
 void ServerSideNetUdp::threadTransmission()
 {
-    std::unique_lock<std::mutex> lckServer(this->g_mutexServer);
+    std::unique_lock lckServer(this->g_mutexServer);
 
     while (this->g_running)
     {
@@ -297,7 +297,7 @@ void ClientSideNetUdp::threadReception()
 template<class TPacket>
 void ClientSideNetUdp::threadTransmission()
 {
-    std::unique_lock<std::mutex> lckServer(this->_g_mutexFlux);
+    std::unique_lock lckServer(this->_g_mutexFlux);
 
     while (this->g_running)
     {

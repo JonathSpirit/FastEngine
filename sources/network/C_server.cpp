@@ -28,13 +28,13 @@ NetFluxUdp::~NetFluxUdp()
 
 void NetFluxUdp::clearPackets()
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     this->_g_packets.clear();
     this->_g_remainingPackets = 0;
 }
 bool NetFluxUdp::pushPacket(FluxPacketPtr&& fluxPck)
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     if (this->_g_packets.size() >= this->g_maxPackets)
     {
         return false;
@@ -44,12 +44,12 @@ bool NetFluxUdp::pushPacket(FluxPacketPtr&& fluxPck)
 }
 void NetFluxUdp::forcePushPacket(FluxPacketPtr fluxPck)
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     this->_g_packets.push_back(std::move(fluxPck));
 }
 void NetFluxUdp::forcePushPacketFront(FluxPacketPtr fluxPck)
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     this->_g_packets.push_front(std::move(fluxPck));
 }
 
@@ -122,7 +122,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
 
 FluxPacketPtr NetFluxUdp::popNextPacket()
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     if (!this->_g_packets.empty())
     {
         FluxPacketPtr tmpPck = std::move(this->_g_packets.front());
@@ -133,23 +133,23 @@ FluxPacketPtr NetFluxUdp::popNextPacket()
 }
 std::size_t NetFluxUdp::getPacketsSize() const
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     return this->_g_packets.size();
 }
 bool NetFluxUdp::isEmpty() const
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     return this->_g_packets.empty();
 }
 
 void NetFluxUdp::setMaxPackets(std::size_t n)
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     this->g_maxPackets = n;
 }
 std::size_t NetFluxUdp::getMaxPackets() const
 {
-    std::scoped_lock<std::mutex> const lock(this->_g_mutexFlux);
+    std::scoped_lock const lock(this->_g_mutexFlux);
     return this->g_maxPackets;
 }
 
@@ -277,7 +277,7 @@ void ServerSideNetUdp::stop()
         this->g_socket.close();
 
         //Clear the flux
-        std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+        std::scoped_lock const lock(this->g_mutexServer);
         for (auto& flux: this->g_fluxes)
         {
             flux->clearPackets();
@@ -289,14 +289,14 @@ void ServerSideNetUdp::stop()
 
 ServerNetFluxUdp* ServerSideNetUdp::newFlux()
 {
-    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+    std::scoped_lock const lock(this->g_mutexServer);
 
     this->g_fluxes.push_back(std::make_unique<ServerNetFluxUdp>(*this));
     return this->g_fluxes.back().get();
 }
 ServerNetFluxUdp* ServerSideNetUdp::getFlux(std::size_t index)
 {
-    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+    std::scoped_lock const lock(this->g_mutexServer);
 
     if (index >= this->g_fluxes.size())
     {
@@ -318,7 +318,7 @@ IpAddress::Types ServerSideNetUdp::getAddressType() const
 }
 void ServerSideNetUdp::closeFlux(NetFluxUdp* flux)
 {
-    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+    std::scoped_lock const lock(this->g_mutexServer);
 
     for (std::size_t i = 0; i < this->g_fluxes.size(); ++i)
     {
@@ -331,7 +331,7 @@ void ServerSideNetUdp::closeFlux(NetFluxUdp* flux)
 }
 void ServerSideNetUdp::closeAllFlux()
 {
-    std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+    std::scoped_lock const lock(this->g_mutexServer);
     this->g_fluxes.clear();
 }
 
@@ -363,7 +363,7 @@ void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const& client, 
     pck->doNotReorder();
 
     {
-        std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+        std::scoped_lock const lock(this->g_mutexServer);
         this->g_transmissionQueue.emplace(std::move(pck), id);
     }
     this->g_transmissionNotifier.notify_one();
@@ -374,7 +374,7 @@ void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
     pck->doNotReorder();
 
     {
-        std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
+        std::scoped_lock const lock(this->g_mutexServer);
         this->g_transmissionQueue.emplace(std::move(pck), id);
     }
     this->g_transmissionNotifier.notify_one();
@@ -503,7 +503,7 @@ FluxProcessResults ClientSideNetUdp::process(FluxPacketPtr& refFluxPacket)
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 {
-    std::unique_lock<std::mutex> lock(this->_g_mutexFlux);
+    std::unique_lock lock(this->_g_mutexFlux);
     auto packetSize = this->_g_packets.size();
     if (packetSize > 0)
     {
