@@ -287,14 +287,14 @@ void ServerSideNetUdp::stop()
     }
 }
 
-fge::net::ServerNetFluxUdp* ServerSideNetUdp::newFlux()
+ServerNetFluxUdp* ServerSideNetUdp::newFlux()
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
-    this->g_fluxes.push_back(std::make_unique<fge::net::ServerNetFluxUdp>(*this));
+    this->g_fluxes.push_back(std::make_unique<ServerNetFluxUdp>(*this));
     return this->g_fluxes.back().get();
 }
-fge::net::ServerNetFluxUdp* ServerSideNetUdp::getFlux(std::size_t index)
+ServerNetFluxUdp* ServerSideNetUdp::getFlux(std::size_t index)
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
@@ -304,7 +304,7 @@ fge::net::ServerNetFluxUdp* ServerSideNetUdp::getFlux(std::size_t index)
     }
     return this->g_fluxes[index].get();
 }
-fge::net::ServerNetFluxUdp* ServerSideNetUdp::getDefaultFlux()
+ServerNetFluxUdp* ServerSideNetUdp::getDefaultFlux()
 {
     return &this->g_defaultFlux;
 }
@@ -312,11 +312,11 @@ std::size_t ServerSideNetUdp::getFluxSize() const
 {
     return this->g_fluxes.size();
 }
-fge::net::IpAddress::Types ServerSideNetUdp::getAddressType() const
+IpAddress::Types ServerSideNetUdp::getAddressType() const
 {
     return this->g_socket.getAddressType();
 }
-void ServerSideNetUdp::closeFlux(fge::net::NetFluxUdp* flux)
+void ServerSideNetUdp::closeFlux(NetFluxUdp* flux)
 {
     std::scoped_lock<std::mutex> const lock(this->g_mutexServer);
 
@@ -422,7 +422,7 @@ void ClientSideNetUdp::notifyTransmission()
     this->g_transmissionNotifier.notify_one();
 }
 
-fge::net::IpAddress::Types ClientSideNetUdp::getAddressType() const
+IpAddress::Types ClientSideNetUdp::getAddressType() const
 {
     return this->g_socket.getAddressType();
 }
@@ -432,7 +432,7 @@ bool ClientSideNetUdp::isRunning() const
     return this->g_running;
 }
 
-fge::net::Identity const& ClientSideNetUdp::getClientIdentity() const
+Identity const& ClientSideNetUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
 }

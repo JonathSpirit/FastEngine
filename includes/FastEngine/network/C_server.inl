@@ -19,32 +19,26 @@ namespace fge::net
 
 //FluxPacket
 
-inline FluxPacket::FluxPacket(fge::net::Packet const& pck,
-                              fge::net::Identity const& id,
-                              std::size_t fluxIndex,
-                              std::size_t fluxCount) :
+inline FluxPacket::FluxPacket(Packet const& pck, Identity const& id, std::size_t fluxIndex, std::size_t fluxCount) :
         ProtocolPacket(pck),
         g_id(id),
-        g_timestamp(fge::net::Client::getTimestamp_ms()),
+        g_timestamp(Client::getTimestamp_ms()),
         g_fluxIndex(fluxIndex),
         g_fluxCount(fluxCount)
 {}
-inline FluxPacket::FluxPacket(fge::net::Packet&& pck,
-                              fge::net::Identity const& id,
-                              std::size_t fluxIndex,
-                              std::size_t fluxCount) :
+inline FluxPacket::FluxPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex, std::size_t fluxCount) :
         ProtocolPacket(std::move(pck)),
         g_id(id),
-        g_timestamp(fge::net::Client::getTimestamp_ms()),
+        g_timestamp(Client::getTimestamp_ms()),
         g_fluxIndex(fluxIndex),
         g_fluxCount(fluxCount)
 {}
 
-inline fge::net::Timestamp FluxPacket::getTimeStamp() const
+inline Timestamp FluxPacket::getTimeStamp() const
 {
     return this->g_timestamp;
 }
-inline fge::net::Identity const& FluxPacket::getIdentity() const
+inline Identity const& FluxPacket::getIdentity() const
 {
     return this->g_id;
 }
@@ -52,14 +46,14 @@ inline fge::net::Identity const& FluxPacket::getIdentity() const
 //ServerSideNetUdp
 
 template<class TPacket>
-bool ServerSideNetUdp::start(fge::net::Port bindPort, fge::net::IpAddress const& bindIp, IpAddress::Types addressType)
+bool ServerSideNetUdp::start(Port bindPort, IpAddress const& bindIp, IpAddress::Types addressType)
 {
     if (this->g_running)
     {
         return false;
     }
     this->g_socket.setAddressType(addressType);
-    if (this->g_socket.bind(bindPort, bindIp) == fge::net::Socket::ERR_NOERROR)
+    if (this->g_socket.bind(bindPort, bindIp) == Socket::ERR_NOERROR)
     {
         this->g_running = true;
 
@@ -95,15 +89,15 @@ bool ServerSideNetUdp::start(IpAddress::Types addressType)
 template<class TPacket>
 void ServerSideNetUdp::threadReception()
 {
-    fge::net::Identity idReceive;
+    Identity idReceive;
     TPacket pckReceive;
     std::size_t pushingIndex = 0;
 
     while (this->g_running)
     {
-        if (this->g_socket.select(true, 500) == fge::net::Socket::ERR_NOERROR)
+        if (this->g_socket.select(true, 500) == Socket::ERR_NOERROR)
         {
-            if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == fge::net::Socket::ERR_NOERROR)
+            if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == Socket::ERR_NOERROR)
             {
 #ifdef FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST
                 if (fge::_random.range(0, 1000) <= 10)
@@ -228,10 +222,10 @@ void ServerSideNetUdp::threadTransmission()
 //ClientSideNetUdp
 
 template<class TPacket>
-bool ClientSideNetUdp::start(fge::net::Port bindPort,
-                             fge::net::IpAddress const& bindIp,
-                             fge::net::Port connectRemotePort,
-                             fge::net::IpAddress const& connectRemoteAddress,
+bool ClientSideNetUdp::start(Port bindPort,
+                             IpAddress const& bindIp,
+                             Port connectRemotePort,
+                             IpAddress const& connectRemoteAddress,
                              IpAddress::Types addressType)
 {
     if (this->g_running)
@@ -239,9 +233,9 @@ bool ClientSideNetUdp::start(fge::net::Port bindPort,
         return false;
     }
     this->g_socket.setAddressType(addressType);
-    if (this->g_socket.bind(bindPort, bindIp) == fge::net::Socket::ERR_NOERROR)
+    if (this->g_socket.bind(bindPort, bindIp) == Socket::ERR_NOERROR)
     {
-        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == fge::net::Socket::ERR_NOERROR)
+        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == Socket::ERR_NOERROR)
         {
             this->g_clientIdentity._ip = connectRemoteAddress;
             this->g_clientIdentity._port = connectRemotePort;
@@ -266,9 +260,9 @@ void ClientSideNetUdp::threadReception()
 
     while (this->g_running)
     {
-        if (this->g_socket.select(true, 500) == fge::net::Socket::ERR_NOERROR)
+        if (this->g_socket.select(true, 500) == Socket::ERR_NOERROR)
         {
-            if (this->g_socket.receive(pckReceive) == fge::net::Socket::ERR_NOERROR)
+            if (this->g_socket.receive(pckReceive) == Socket::ERR_NOERROR)
             {
 #ifdef FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST
                 if (fge::_random.range(0, 1000) <= 10)
