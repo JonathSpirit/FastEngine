@@ -127,8 +127,10 @@ protected:
     bool pushPacket(FluxPacketPtr&& fluxPck);
     void forcePushPacket(FluxPacketPtr fluxPck);
     void forcePushPacketFront(FluxPacketPtr fluxPck);
-    [[nodiscard]] FluxProcessResults
-    processReorder(Client& client, FluxPacketPtr& refFluxPacket, ProtocolPacket::CountId currentCountId);
+    [[nodiscard]] FluxProcessResults processReorder(Client& client,
+                                                    FluxPacketPtr& refFluxPacket,
+                                                    ProtocolPacket::CountId currentCountId,
+                                                    bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
     std::deque<FluxPacketPtr> _g_packets;
