@@ -1064,7 +1064,7 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
     return RValid<decltype(this->g_updateCount)>({pck, &this->g_updateCount})
             .and_then([&](auto& chain) {
         //scene name
-        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain.template newChain(&this->g_name)));
+        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain.newChain(&this->g_name)));
     })
             .and_then([&](auto& chain) {
         //scene data
