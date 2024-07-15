@@ -232,13 +232,13 @@ inline constexpr fge::Vector2f MapCircleToSquareCoords(fge::Vector2f const& circ
     fge::Vector2f const circleCoordsPow2 = circleCoords * circleCoords;
 
     return fge::Vector2f{0.5f * std::sqrt(2.0f + circleCoordsPow2.x - circleCoordsPow2.y +
-                                          2.0f * circleCoords.x * static_cast<float>(M_SQRT2)) -
+                                          2.0f * circleCoords.x * static_cast<float>(FGE_MATH_SQRT2)) -
                                  0.5f * std::sqrt(2.0f + circleCoordsPow2.x - circleCoordsPow2.y -
-                                                  2.0f * circleCoords.x * static_cast<float>(M_SQRT2)),
+                                                  2.0f * circleCoords.x * static_cast<float>(FGE_MATH_SQRT2)),
                          0.5f * std::sqrt(2.0f - circleCoordsPow2.x + circleCoordsPow2.y +
-                                          2.0f * circleCoords.y * static_cast<float>(M_SQRT2)) -
+                                          2.0f * circleCoords.y * static_cast<float>(FGE_MATH_SQRT2)) -
                                  0.5f * std::sqrt(2.0f - circleCoordsPow2.x + circleCoordsPow2.y -
-                                                  2.0f * circleCoords.y * static_cast<float>(M_SQRT2))};
+                                                  2.0f * circleCoords.y * static_cast<float>(FGE_MATH_SQRT2))};
 }
 inline constexpr fge::Vector2f MapSquareToCircleCoords(fge::Vector2f const& squareCoords)
 {
