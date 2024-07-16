@@ -132,9 +132,15 @@ public:
     [[nodiscard]] bool isEmpty() const;
 
 private:
-    struct Data
+    struct FGE_API Data
     {
         explicit Data(FluxPacketPtr&& fluxPacket);
+        Data(Data const& r) = delete;
+        Data(Data&& r) noexcept;
+        ~Data();
+
+        Data& operator=(Data const& r) = delete;
+        Data& operator=(Data&& r) noexcept;
 
         [[nodiscard]] Stats checkStat(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm) const;
 

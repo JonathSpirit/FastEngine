@@ -109,6 +109,20 @@ PacketReorderer::Data::Data(FluxPacketPtr&& fluxPacket) :
         _countId(_fluxPacket->retrieveCountId().value()),
         _realm(_fluxPacket->retrieveRealm().value())
 {}
+PacketReorderer::Data::Data(Data&& r) noexcept :
+        _fluxPacket(std::move(r._fluxPacket)),
+        _countId(r._countId),
+        _realm(r._realm)
+{}
+PacketReorderer::Data::~Data() = default;
+
+PacketReorderer::Data& PacketReorderer::Data::operator=(Data&& r) noexcept
+{
+    this->_fluxPacket = std::move(r._fluxPacket);
+    this->_countId = r._countId;
+    this->_realm = r._realm;
+    return *this;
+}
 
 PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CountId currentCountId,
                                                         ProtocolPacket::Realm currentRealm) const
