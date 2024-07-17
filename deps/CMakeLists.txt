@@ -146,12 +146,13 @@ AddCmakeDependency(VulkanHeaders
         "-DBUILD_TESTS=OFF"
         "")
 
-AddCmakeDependency(volk
+AddPatchedDependency(volk
         https://github.com/zeux/volk.git
         443b10b6d4cd4c889565e8478b3e512ee02ea898
         OFF
         "-DVOLK_INSTALL=ON -DVOLK_HEADERS_ONLY=ON -DVOLK_PULL_IN_VULKAN=ON -DVULKAN_HEADERS_INSTALL_DIR=${CMAKE_CURRENT_BINARY_DIR}/libs/VulkanHeaders"
-        "")
+        ""
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-volk-avoid_vulkan_headers_paths.patch")
 add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
