@@ -31,7 +31,7 @@ function(AddCmakeDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR)
     file(APPEND ${DEPS_GLOBAL_CMAKE_FILE} "find_package(${NAME} REQUIRED NO_DEFAULT_PATH PATHS \"\$\{CMAKE_CURRENT_LIST_DIR\}/${NAME}\")\n")
 endfunction()
 
-function(AddPatchedDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR PATCH)
+function(AddPatchedDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR PATCH APPEND_ASTERISK)
     separate_arguments(ARGS UNIX_COMMAND "${ARGS}")
 
     ExternalProject_Add(${NAME}
@@ -50,7 +50,11 @@ function(AddPatchedDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR PATCH)
     ExternalProject_Get_Property(${NAME} INSTALL_DIR)
     message("Install dir for ${NAME} : ${INSTALL_DIR}")
     
-    file(APPEND ${DEPS_GLOBAL_CMAKE_FILE} "find_package(${NAME} REQUIRED NO_DEFAULT_PATH PATHS \"\$\{CMAKE_CURRENT_LIST_DIR\}/${NAME}/*\")\n")
+    if (APPEND_ASTERISK)
+        file(APPEND ${DEPS_GLOBAL_CMAKE_FILE} "find_package(${NAME} REQUIRED NO_DEFAULT_PATH PATHS \"\$\{CMAKE_CURRENT_LIST_DIR\}/${NAME}/*\")\n")
+    else()
+        file(APPEND ${DEPS_GLOBAL_CMAKE_FILE} "find_package(${NAME} REQUIRED NO_DEFAULT_PATH PATHS \"\$\{CMAKE_CURRENT_LIST_DIR\}/${NAME}\")\n")
+    endif()
 endfunction()
 
 function(AddSingleHeaderDependency NAME URL TAG HEADER_PATH)
@@ -79,7 +83,8 @@ AddPatchedDependency(bzip2
         OFF
         "-DENABLE_LIB_ONLY=ON -DENABLE_APP=OFF -DENABLE_STATIC_LIB=ON"
         ""
-        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-Bzip2-cmake-package.patch")
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-Bzip2-cmake-package.patch"
+        ON)
 
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
@@ -152,7 +157,8 @@ AddPatchedDependency(volk
         OFF
         "-DVOLK_INSTALL=ON -DVOLK_HEADERS_ONLY=ON -DVOLK_PULL_IN_VULKAN=ON -DVULKAN_HEADERS_INSTALL_DIR=${CMAKE_CURRENT_BINARY_DIR}/libs/VulkanHeaders"
         ""
-        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-volk-avoid_vulkan_headers_paths.patch")
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-volk-avoid_vulkan_headers_paths.patch"
+        OFF)
 add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
