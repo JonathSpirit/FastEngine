@@ -1,0 +1,27 @@
+From f13a59a7d972425f4618078f3573e025ed26daeb Mon Sep 17 00:00:00 2001
+From: "GuillaumeG." <guillaume.guillet.jo@gmail.com>
+Date: Wed, 17 Jul 2024 21:01:06 +0200
+Subject: [PATCH] volk-avoid_vulkan_headers_paths
+
+---
+ CMakeLists.txt | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 761ac9a..7cdd1d6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -81,9 +81,8 @@ if(VOLK_PULL_IN_VULKAN)
+ 
+   if(VOLK_INCLUDES)
+     if(TARGET volk)
+-      target_include_directories(volk PUBLIC "${VOLK_INCLUDES}")
++      target_include_directories(volk PRIVATE "${VOLK_INCLUDES}")
+     endif()
+-    target_include_directories(volk_headers INTERFACE "${VOLK_INCLUDES}")
+   endif()
+ endif()
+ 
+-- 
+2.45.1.windows.1
+
