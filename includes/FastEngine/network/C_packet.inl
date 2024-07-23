@@ -158,6 +158,12 @@ fge::net::Packet& Packet::operator<<(TEnum const& data)
     return this->pack(&reinterpret_cast<TTEnum const&>(data), sizeof(TTEnum));
 }
 
+template<class TData>
+fge::net::Packet& Packet::operator<<(std::unique_ptr<TData> const& data)
+{
+    return *this << *data;
+}
+
 ///
 
 fge::net::Packet const& Packet::operator>>(bool& data) const
@@ -327,6 +333,16 @@ fge::net::Packet const& Packet::operator>>(TEnum& data) const
 {
     using TTEnum = std::underlying_type_t<TEnum>;
     return this->unpack(&reinterpret_cast<TTEnum&>(data), sizeof(TTEnum));
+}
+
+template<class TData>
+fge::net::Packet const& Packet::operator>>(std::unique_ptr<TData>& data) const
+{
+    if (!data)
+    {
+        data = std::make_unique<TData>();
+    }
+    return *this >> *data;
 }
 
 } // namespace net
