@@ -90,6 +90,18 @@ void RenderWindow::destroy()
 
 uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo)
 {
+    if (this->g_targetFrameRate != FGE_FPS_NOT_LIMITED)
+    {
+        auto const now = std::chrono::steady_clock::now();
+        auto const duration = std::chrono::duration_cast<std::chrono::microseconds>(now - this->g_lastFrameTime);
+        auto const targetDuration = std::chrono::microseconds{std::chrono::microseconds::period::den / this->g_targetFrameRate};
+        if (duration < targetDuration)
+        {
+            return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
+        }
+        this->g_lastFrameTime = now;
+    }
+
     this->getContext().startMainRenderTarget(*this);
     vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
                     VK_TRUE, UINT64_MAX);
@@ -210,6 +222,16 @@ void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)
 VkPresentModeKHR RenderWindow::getPresentMode() const
 {
     return this->g_presentMode;
+}
+
+void RenderWindow::setTargetFrameRate(unsigned int frameRate)
+{
+    this->g_targetFrameRate = frameRate;
+    this->g_lastFrameTime = std::chrono::steady_clock::now();
+}
+unsigned int RenderWindow::getTargetFrameRate() const
+{
+    return this->g_targetFrameRate;
 }
 
 VkExtent2D RenderWindow::getExtent2D() const

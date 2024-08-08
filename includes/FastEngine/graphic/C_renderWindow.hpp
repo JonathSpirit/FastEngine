@@ -34,6 +34,8 @@
 #include <array>
 #include <string>
 
+#define FGE_FPS_NOT_LIMITED std::numeric_limits<unsigned int>::max()
+
 namespace fge
 {
 
@@ -61,6 +63,9 @@ public:
 
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
+
+    void setTargetFrameRate(unsigned int frameRate);
+    [[nodiscard]] unsigned int getTargetFrameRate() const;
 
     [[nodiscard]] VkExtent2D getExtent2D() const override;
     [[nodiscard]] fge::vulkan::CommandBuffer& getCommandBuffer() const override;
@@ -96,6 +101,8 @@ private:
     uint32_t g_currentFrame = 0;
 
     VkPresentModeKHR g_presentMode = VK_PRESENT_MODE_FIFO_KHR;
+    std::chrono::steady_clock::time_point g_lastFrameTime;
+    unsigned int g_targetFrameRate = FGE_FPS_NOT_LIMITED;
 
     bool g_framebufferResized = false;
     bool g_isCreated = false;
