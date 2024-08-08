@@ -92,7 +92,7 @@ void RenderWindow::destroy()
 uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo,
                                         uint64_t timeout_ns)
 {
-    if (this->g_targetFrameRate != FGE_FPS_NOT_LIMITED)
+    if (this->g_targetFrameRate != FGE_RENDER_FPS_NOT_LIMITED)
     {
         auto const duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() -
                                                                                     this->g_lastFrameTime);
@@ -110,7 +110,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
             else
             {
                 fge::Sleep(timeout);
-                return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
+                return FGE_RENDER_BAD_IMAGE_INDEX;
             }
         }
 
@@ -120,10 +120,10 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
     this->getContext().startMainRenderTarget(*this);
     VkResult result = vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1,
                                       &this->g_inFlightFences[this->g_currentFrame], VK_TRUE,
-                                      this->g_targetFrameRate != FGE_FPS_NOT_LIMITED ? 0 : timeout_ns);
+                                      this->g_targetFrameRate != FGE_RENDER_FPS_NOT_LIMITED ? 0 : timeout_ns);
     if (result == VK_TIMEOUT)
     {
-        return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
+        return FGE_RENDER_BAD_IMAGE_INDEX;
     }
 
     uint32_t imageIndex;
@@ -133,7 +133,7 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         this->recreateSwapChain();
-        return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
+        return FGE_RENDER_BAD_IMAGE_INDEX;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {

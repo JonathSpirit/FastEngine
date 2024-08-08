@@ -136,7 +136,7 @@ FGE_OBJ_UPDATE_BODY(ObjLight)
 FGE_OBJ_DRAW_BODY(ObjLight)
 {
     this->g_renderMap._renderTexture.beginRenderPass(
-            this->g_renderMap._renderTexture.prepareNextFrame(nullptr, FGE_RENDERTARGET_TIMEOUT_BLOCKING));
+            this->g_renderMap._renderTexture.prepareNextFrame(nullptr, FGE_RENDER_TIMEOUT_BLOCKING));
 
     auto emptyTransform = target.getContext().requestGlobalTransform();
     emptyTransform.second->_modelTransform = glm::mat4{1.0f};

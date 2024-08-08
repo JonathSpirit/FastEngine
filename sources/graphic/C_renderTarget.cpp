@@ -278,12 +278,11 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
             { //1 or no texture
                 GraphicPipelineKey const graphicPipelineKey{
                         states._vertexBuffer->getPrimitiveTopology(), states._blendMode,
-                        uint8_t(haveTextures ? FGE_RENDERTARGET_DEFAULT_ID_TEXTURE : FGE_RENDERTARGET_DEFAULT_ID)};
+                        uint8_t(haveTextures ? FGE_RENDER_DEFAULT_ID_TEXTURE : FGE_RENDER_DEFAULT_ID)};
 
-                graphicPipeline =
-                        this->getGraphicPipeline(FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
-                                                 haveTextures ? DefaultGraphicPipelineWithTexture_constructor
-                                                              : DefaultGraphicPipeline_constructor);
+                graphicPipeline = this->getGraphicPipeline(FGE_RENDER_DEFAULT_PIPELINE_CACHE_NAME, graphicPipelineKey,
+                                                           haveTextures ? DefaultGraphicPipelineWithTexture_constructor
+                                                                        : DefaultGraphicPipeline_constructor);
             }
         }
     }
@@ -347,7 +346,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
                     auto descriptorSetTexture = textureImage->getDescriptorSet().get();
                     commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(),
                                                      VK_PIPELINE_BIND_POINT_GRAPHICS, &descriptorSetTexture, 1,
-                                                     FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE + i);
+                                                     FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TEXTURE + i);
                 }
             }
             else
@@ -366,8 +365,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
                 auto descriptorSetTexture = textureImage->getDescriptorSet().get();
                 commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                                 &descriptorSetTexture, 1,
-                                                 FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
+                                                 &descriptorSetTexture, 1, FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
     }
@@ -380,7 +378,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     {
         auto descriptorSetTransform = this->getContext().getGlobalTransform()._descriptorSet.get();
         commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                         &descriptorSetTransform, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
+                                         &descriptorSetTransform, 1, FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TRANSFORM);
     }
 
     //Check instances
@@ -415,7 +413,7 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
                 auto descriptorSet = textureImage->getDescriptorSet().get();
                 commandBuffer.bindDescriptorSets(graphicPipeline->getPipelineLayout(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                                 &descriptorSet, 1, FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE);
+                                                 &descriptorSet, 1, FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TEXTURE);
             }
         }
 #endif //FGE_DEF_SERVER

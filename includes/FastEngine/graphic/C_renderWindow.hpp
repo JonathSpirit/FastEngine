@@ -34,7 +34,7 @@
 #include <array>
 #include <string>
 
-#define FGE_FPS_NOT_LIMITED std::numeric_limits<unsigned int>::max()
+#define FGE_RENDER_FPS_NOT_LIMITED std::numeric_limits<unsigned int>::max()
 
 namespace fge
 {
@@ -103,7 +103,7 @@ private:
 
     VkPresentModeKHR g_presentMode = VK_PRESENT_MODE_FIFO_KHR;
     std::chrono::steady_clock::time_point g_lastFrameTime;
-    unsigned int g_targetFrameRate = FGE_FPS_NOT_LIMITED;
+    unsigned int g_targetFrameRate = FGE_RENDER_FPS_NOT_LIMITED;
 
     bool g_framebufferResized = false;
     bool g_isCreated = false;
