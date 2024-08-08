@@ -123,7 +123,8 @@ void RenderTexture::destroy()
     }
 }
 
-uint32_t RenderTexture::prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo)
+uint32_t RenderTexture::prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo,
+                                         [[maybe_unused]] uint64_t timeout_ns)
 {
     this->getContext().startMainRenderTarget(*this);
     this->g_commandBuffers[this->g_currentFrame].reset();

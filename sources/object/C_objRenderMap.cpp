@@ -49,7 +49,8 @@ ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
 void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const& scene, [[maybe_unused]] fge::RenderTarget& target)
 {
     this->_renderTexture.setClearColor(this->g_colorClear);
-    this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));
+    this->_renderTexture.beginRenderPass(
+            this->_renderTexture.prepareNextFrame(nullptr, FGE_RENDERTARGET_TIMEOUT_BLOCKING));
 }
 
 void ObjRenderMap::setClearColor(fge::Color const& color)

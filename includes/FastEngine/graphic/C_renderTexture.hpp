@@ -52,7 +52,7 @@ public:
     void resize(glm::vec<2, int> const& size);
     void destroy() final;
 
-    uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) override;
+    uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo, uint64_t timeout_ns) override;
     void beginRenderPass(uint32_t imageIndex) override;
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;

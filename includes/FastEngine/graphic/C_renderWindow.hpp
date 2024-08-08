@@ -54,7 +54,8 @@ public:
 
     void destroy() final;
 
-    [[nodiscard]] uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) override;
+    [[nodiscard]] uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo,
+                                            uint64_t timeout_ns) override;
     void beginRenderPass(uint32_t imageIndex) override;
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;

@@ -50,6 +50,11 @@
 #define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
 #define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
 
+#define FGE_RENDERTARGET_TIMEOUT_BLOCKING UINT64_MAX
+#define FGE_RENDERTARGET_NO_TIMEOUT 0
+
+//TODO: rename RENDERTARGET -> RENDER
+
 namespace fge
 {
 
@@ -132,7 +137,7 @@ public:
     [[nodiscard]] RectInt mapWorldRectToFramebufferSpace(RectFloat const& rect) const;
     [[nodiscard]] RectInt mapWorldRectToFramebufferSpace(RectFloat const& rect, View const& view) const;
 
-    virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) = 0;
+    virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo, uint64_t timeout_ns) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline = nullptr) const;
     virtual void endRenderPass() = 0;

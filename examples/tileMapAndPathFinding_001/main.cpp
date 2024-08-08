@@ -289,7 +289,7 @@ public:
             this->update(renderWindow, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
             //Drawing
-            auto imageIndex = renderWindow.prepareNextFrame(nullptr);
+            auto imageIndex = renderWindow.prepareNextFrame(nullptr, FGE_RENDERTARGET_TIMEOUT_BLOCKING);
             if (imageIndex != FGE_RENDERTARGET_BAD_IMAGE_INDEX)
             {
                 fge::vulkan::GetActiveContext()._garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
