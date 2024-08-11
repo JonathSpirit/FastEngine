@@ -148,7 +148,7 @@ AddCmakeDependency(VulkanHeaders
         https://github.com/KhronosGroup/Vulkan-Headers.git
         vulkan-sdk-1.3.290.0
         OFF
-        "-DBUILD_TESTS=OFF"
+        "-DBUILD_TESTS=OFF -DVULKAN_HEADERS_ENABLE_MODULE=OFF"
         "")
 
 AddPatchedDependency(volk
