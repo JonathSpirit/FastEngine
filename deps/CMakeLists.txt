@@ -88,14 +88,14 @@ AddPatchedDependency(bzip2
 
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
-        10.2.1
+        11.0.2
         OFF
         "-DFMT_TEST=OFF"
         "")
 
 AddCmakeDependency(lz4
         https://github.com/lz4/lz4.git
-        v1.9.4
+        v1.10.0
         OFF
         "-DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF"
         "build/cmake")
@@ -116,7 +116,7 @@ AddCmakeDependency(freetype
 
 AddCmakeDependency(SDL2
         https://github.com/libsdl-org/SDL.git
-        release-2.30.3
+        release-2.30.6
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
@@ -146,14 +146,14 @@ AddCmakeDependency(glm
 
 AddCmakeDependency(VulkanHeaders
         https://github.com/KhronosGroup/Vulkan-Headers.git
-        vulkan-sdk-1.3.268.0
+        vulkan-sdk-1.3.290.0
         OFF
         "-DBUILD_TESTS=OFF"
         "")
 
 AddPatchedDependency(volk
         https://github.com/zeux/volk.git
-        443b10b6d4cd4c889565e8478b3e512ee02ea898
+        8a7395421421be5fb79ec84182540bc5934853e6
         OFF
         "-DVOLK_INSTALL=ON -DVOLK_HEADERS_ONLY=ON -DVOLK_PULL_IN_VULKAN=ON -DVULKAN_HEADERS_INSTALL_DIR=${CMAKE_CURRENT_BINARY_DIR}/libs/VulkanHeaders"
         ""
@@ -163,14 +163,14 @@ add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
         https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        eaf8fc27eeadf6f21b11183651b829e897f01957
+        871913da6a4b132b567d7b65c509600363c0041e
         OFF
         "-DVMA_BUILD_DOCUMENTATION=OFF -DVMA_BUILD_SAMPLES=OFF"
         "")
 
 AddCmakeDependency(glslang
         https://github.com/KhronosGroup/glslang.git
-        14.2.0
+        14.3.0
         OFF
         "-DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF"
         "")
