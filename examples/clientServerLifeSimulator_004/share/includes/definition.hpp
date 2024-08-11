@@ -17,7 +17,7 @@
 #ifndef _EXFGE_DEFINITION_HPP_INCLUDED
 #define _EXFGE_DEFINITION_HPP_INCLUDED
 
-#include "FastEngine/manager/network_manager.hpp"
+#include "FastEngine/network/C_protocol.hpp"
 
 #define LIFESIM_VERSION 1
 #define LIFESIM_CLIENT_PORT 42047
@@ -73,9 +73,9 @@
 namespace ls
 {
 
-enum ProtocolHeaders : fge::net::PacketHeader
+enum ProtocolHeaders : fge::net::ProtocolPacket::Header
 {
-    LS_PROTOCOL_ALL_PING = 0,
+    LS_PROTOCOL_ALL_PING = FGE_NET_HEADERID_START,
     /* check if the receiver is alive
     IN:
         -

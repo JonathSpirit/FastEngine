@@ -25,8 +25,6 @@
 #include <optional>
 #include <variant>
 
-#define FGE_NET_BAD_HEADER 0
-
 namespace fge::net
 {
 
@@ -34,12 +32,6 @@ namespace fge::net
  * \ingroup network
  * @{
  */
-
-/**
- * \typedef PacketHeader
- * \brief Simple aliased type for packets header, useful to differentiate multiple network actions
- */
-using PacketHeader = uint16_t;
 
 /**
  * \brief Get a basic scene checksum
@@ -59,22 +51,6 @@ FGE_API uint32_t GetSceneChecksum(fge::Scene& scene);
  * \return \b true if no error, \b false otherwise
  */
 FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, std::string const& file);
-
-/**
- * \brief Shortcut function that will clear the Packet and write an header to it
- *
- * \param pck The Packet
- * \param header The header that will be written
- * \return A reference to the same Packet
- */
-inline fge::net::Packet& SetHeader(fge::net::Packet& pck, fge::net::PacketHeader header);
-/**
- * \brief Shortcut function that will retrieve the received Packet header
- *
- * \param pck The Packet
- * \return A packet header
- */
-inline fge::net::PacketHeader GetHeader(fge::net::Packet& pck);
 
 /**
  * \brief Shortcut function that will extract and compare the provided skey
@@ -188,6 +164,19 @@ public:
      */
     template<class TInvokable, class TIndex>
     [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TIndex iStart, TIndex iIncrement, TInvokable&& f);
+    /**
+     * \brief Chain up some code in a for loop after a successful extraction
+     *
+     * This is the same as and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncrement, TInvokable&& f)
+     * but you don't have to provide any index arguments as the end value of the index as it will be got from the last
+     * chain result and the start is 0.
+     *
+     * \tparam TInvokable The type of the invokable argument
+     * \param f The invokable argument
+     * \return A reference to the same ChainedArguments or a new one with a different value type
+     */
+    template<class TInvokable>
+    [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TInvokable&& f);
     /**
      * \brief Chain up some code after a unsuccessful extraction
      *
@@ -380,8 +369,7 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
  * \return The chained argument
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
-constexpr ChainedArguments<TValue>
-RSizeRange(fge::net::SizeType min, fge::net::SizeType max, ChainedArguments<TValue>&& args);
+constexpr ChainedArguments<TValue> RSizeRange(SizeType min, SizeType max, ChainedArguments<TValue>&& args);
 
 /**
  * \brief Size must equal rule, check if the size is equal to the provided one

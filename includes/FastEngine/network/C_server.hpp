@@ -23,6 +23,7 @@
 #include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/network/C_packetBZ2.hpp"
 #include "FastEngine/network/C_packetLZ4.hpp"
+#include "FastEngine/network/C_protocol.hpp"
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -34,6 +35,11 @@
 #endif
 
 #define FGE_SERVER_DEFAULT_MAXPACKET 200
+#define FGE_SERVER_MAX_TIME_DIFFERENCE_REALM                                                                           \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        2000                                                                                                           \
+    }
 
 namespace fge::net
 {
@@ -41,35 +47,44 @@ namespace fge::net
 class ServerSideNetUdp;
 class ClientSideNetUdp;
 
-class FluxPacket
+/**
+ * \class FluxPacket
+ * \ingroup network
+ * \brief A received packet from a network flux
+ *
+ * This class is used to store a packet with its identity and timestamp.
+ * This also add some data used internally by the server in order to handle multiple received packets.
+ */
+class FluxPacket : public ProtocolPacket
 {
 public:
-    inline FluxPacket(fge::net::Packet const& pck,
-                      fge::net::Identity const& id,
-                      std::size_t fluxIndex = 0,
-                      std::size_t fluxCount = 0);
-    inline FluxPacket(fge::net::Packet&& pck,
-                      fge::net::Identity const& id,
-                      std::size_t fluxIndex = 0,
-                      std::size_t fluxCount = 0);
-    ~FluxPacket() = default;
+    inline FluxPacket(Packet const& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxCount = 0);
+    inline FluxPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxCount = 0);
 
-    fge::net::Packet _packet;
+    ~FluxPacket() override = default;
 
-    [[nodiscard]] inline fge::net::Timestamp getTimeStamp() const;
-    [[nodiscard]] inline fge::net::Identity const& getIdentity() const;
+    [[nodiscard]] inline Timestamp getTimeStamp() const;
+    [[nodiscard]] inline Identity const& getIdentity() const;
 
 private:
     friend class ServerSideNetUdp;
     friend class ClientSideNetUdp;
 
-    fge::net::Identity g_id;
-    fge::net::Timestamp g_timestamp;
+    Identity g_id;
+    Timestamp g_timestamp;
 
     std::size_t g_fluxIndex;
     std::size_t g_fluxCount;
 };
-using FluxPacketPtr = std::unique_ptr<fge::net::FluxPacket>;
+using FluxPacketPtr = std::unique_ptr<FluxPacket>;
+
+enum class FluxProcessResults
+{
+    RETRIEVABLE,
+    BAD_REALM,
+    BAD_REORDER,
+    NOT_RETRIEVABLE
+};
 
 /**
  * \class NetFluxUdp
@@ -105,22 +120,42 @@ public:
 protected:
     bool pushPacket(FluxPacketPtr&& fluxPck);
     void forcePushPacket(FluxPacketPtr fluxPck);
+    void forcePushPacketFront(FluxPacketPtr fluxPck);
+    [[nodiscard]] FluxProcessResults processReorder(Client& client,
+                                                    FluxPacketPtr& refFluxPacket,
+                                                    ProtocolPacket::CountId currentCountId,
+                                                    bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
-    std::queue<FluxPacketPtr> _g_packets;
+    std::deque<FluxPacketPtr> _g_packets;
+    std::size_t _g_remainingPackets{0};
 
 private:
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
 
     friend class ServerSideNetUdp;
 };
+
 class FGE_API ServerNetFluxUdp : public NetFluxUdp
 {
 public:
-    ServerNetFluxUdp() = default;
+    explicit ServerNetFluxUdp(ServerSideNetUdp& server) :
+            NetFluxUdp(),
+            g_server(&server)
+    {}
     ~ServerNetFluxUdp() override = default;
 
-    fge::net::ClientList _clients;
+    [[nodiscard]] FluxProcessResults
+    process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient);
+
+    ClientList _clients;
+
+    fge::CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
+
+private:
+    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket);
+
+    ServerSideNetUdp* g_server{nullptr};
 };
 
 /**
@@ -147,11 +182,10 @@ public:
     ServerSideNetUdp& operator=(ServerSideNetUdp const& r) = delete;
     ServerSideNetUdp& operator=(ServerSideNetUdp&& r) noexcept = delete;
 
-    template<class TPacket = fge::net::Packet>
-    [[nodiscard]] bool start(fge::net::Port bindPort,
-                             fge::net::IpAddress const& bindIp,
-                             IpAddress::Types addressType = IpAddress::Types::None);
-    template<class TPacket = fge::net::Packet>
+    template<class TPacket = Packet>
+    [[nodiscard]] bool
+    start(Port bindPort, IpAddress const& bindIp, IpAddress::Types addressType = IpAddress::Types::None);
+    template<class TPacket = Packet>
     [[nodiscard]] bool start(IpAddress::Types addressType = IpAddress::Types::None);
     void stop();
 
@@ -170,16 +204,16 @@ public:
      *
      * \return A pointer to the new flux
      */
-    [[nodiscard]] fge::net::ServerNetFluxUdp* newFlux();
+    [[nodiscard]] ServerNetFluxUdp* newFlux();
 
-    [[nodiscard]] fge::net::ServerNetFluxUdp* getFlux(std::size_t index);
-    [[nodiscard]] fge::net::ServerNetFluxUdp* getDefaultFlux();
+    [[nodiscard]] ServerNetFluxUdp* getFlux(std::size_t index);
+    [[nodiscard]] ServerNetFluxUdp* getDefaultFlux();
 
     [[nodiscard]] std::size_t getFluxSize() const;
 
-    [[nodiscard]] fge::net::IpAddress::Types getAddressType() const;
+    [[nodiscard]] IpAddress::Types getAddressType() const;
 
-    void closeFlux(fge::net::NetFluxUdp* flux);
+    void closeFlux(NetFluxUdp* flux);
     void closeAllFlux();
 
     void repushPacket(FluxPacketPtr&& fluxPck);
@@ -194,14 +228,13 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    fge::net::Socket::Error sendTo(fge::net::Packet& pck, fge::net::Identity const& id);
-    fge::net::Socket::Error
-    sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Client const& client, fge::net::Identity const& id);
-    fge::net::Socket::Error sendTo(fge::net::TransmissionPacketPtr& pck, fge::net::Identity const& id);
+    void sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id);
+    void sendTo(TransmissionPacketPtr& pck, Identity const& id);
 
 private:
     template<class TPacket>
     void threadReception();
+    template<class TPacket>
     void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
@@ -209,13 +242,13 @@ private:
 
     std::condition_variable g_transmissionNotifier;
 
-    mutable std::mutex g_mutexTransmission;
     mutable std::mutex g_mutexServer;
 
-    std::vector<std::unique_ptr<fge::net::ServerNetFluxUdp>> g_fluxes;
-    fge::net::ServerNetFluxUdp g_defaultFlux;
+    std::vector<std::unique_ptr<ServerNetFluxUdp>> g_fluxes;
+    ServerNetFluxUdp g_defaultFlux;
+    std::queue<std::pair<TransmissionPacketPtr, Identity>> g_transmissionQueue;
 
-    fge::net::SocketUdp g_socket;
+    SocketUdp g_socket;
     bool g_running;
 };
 
@@ -237,30 +270,31 @@ public:
     ClientSideNetUdp& operator=(ClientSideNetUdp const& r) = delete;
     ClientSideNetUdp& operator=(ClientSideNetUdp&& r) noexcept = delete;
 
-    template<class TPacket = fge::net::Packet>
-    [[nodiscard]] bool start(fge::net::Port bindPort,
-                             fge::net::IpAddress const& bindIp,
-                             fge::net::Port connectRemotePort,
-                             fge::net::IpAddress const& connectRemoteAddress,
+    template<class TPacket = Packet>
+    [[nodiscard]] bool start(Port bindPort,
+                             IpAddress const& bindIp,
+                             Port connectRemotePort,
+                             IpAddress const& connectRemoteAddress,
                              IpAddress::Types addressType = IpAddress::Types::None);
     void stop();
 
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    fge::net::Socket::Error send(fge::net::Packet& pck);
-    fge::net::Socket::Error send(fge::net::TransmissionPacketPtr& pck);
-    [[nodiscard]] fge::net::IpAddress::Types getAddressType() const;
+    [[nodiscard]] IpAddress::Types getAddressType() const;
 
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
-    [[nodiscard]] fge::net::Identity const& getClientIdentity() const;
+    [[nodiscard]] Identity const& getClientIdentity() const;
 
-    fge::net::Client _client; //But it is the server :O
+    [[nodiscard]] FluxProcessResults process(FluxPacketPtr& refFluxPacket);
+
+    Client _client; //But it is the server :O
 
 private:
     template<class TPacket>
     void threadReception();
+    template<class TPacket>
     void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
@@ -269,12 +303,10 @@ private:
     std::condition_variable g_transmissionNotifier;
     std::condition_variable g_receptionNotifier;
 
-    mutable std::mutex g_mutexTransmission;
-
-    fge::net::SocketUdp g_socket;
+    SocketUdp g_socket;
     bool g_running;
 
-    fge::net::Identity g_clientIdentity;
+    Identity g_clientIdentity;
 };
 
 } // namespace fge::net

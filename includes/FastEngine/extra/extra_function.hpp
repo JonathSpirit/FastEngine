@@ -29,6 +29,7 @@
 #include <filesystem>
 #include <list>
 
+#define FGE_MATH_SQRT2 1.41421356237309504880
 #define FGE_MATH_PI 3.14159265358979323846
 
 namespace fge

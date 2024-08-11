@@ -76,12 +76,12 @@ FGE_API bool Destroy(fge::timer::TimerShared const& timer);
  * \param timerName The timer name to destroy
  * \return \b true if the timer was destroyed, \b false otherwise
  */
-FGE_API bool Destroy(std::string const& timerName);
+FGE_API bool Remove(std::string const& timerName);
 
 /**
  * \brief Destroy all timers
  */
-FGE_API void DestroyAll();
+FGE_API void RemoveAll();
 
 /**
  * \brief Check if the given timer pointer exist in the manager.

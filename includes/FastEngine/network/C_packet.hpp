@@ -51,7 +51,6 @@ struct FGE_API Error
         ERR_EXTRACT,
         ERR_RULE,
 
-        ERR_SCENE_NEED_CACHING,
         ERR_SCENE_OLD_PACKET
     };
 
@@ -162,6 +161,9 @@ public:
     template<class TEnum, typename = std::enable_if_t<std::is_enum_v<TEnum>>>
     inline fge::net::Packet& operator<<(TEnum const& data);
 
+    template<class TData>
+    inline fge::net::Packet& operator<<(std::unique_ptr<TData> const& data);
+
     ///
 
     inline fge::net::Packet const& operator>>(bool& data) const;
@@ -207,6 +209,9 @@ public:
 
     template<class TEnum, typename = std::enable_if_t<std::is_enum_v<TEnum>>>
     inline fge::net::Packet const& operator>>(TEnum& data) const;
+
+    template<class TData>
+    inline fge::net::Packet const& operator>>(std::unique_ptr<TData>& data) const;
 
     bool operator==(Packet const& right) const = delete;
     bool operator!=(Packet const& right) const = delete;

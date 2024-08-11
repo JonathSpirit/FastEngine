@@ -19,11 +19,15 @@
 
 #if defined(_MSC_VER)
     #include <malloc.h>
-    #define FGE_ALLOCA_T(type, size) reinterpret_cast<type*>(_alloca(sizeof(type) * size))
-    #define FGE_ALLOCA(size) _alloca(size)
+    #define FGE_ALLOCA_T(_type, _size) reinterpret_cast<_type*>(_alloca(sizeof(_type) * _size))
+    #define FGE_ALLOCA(_size) _alloca(_size)
 #else
-    #define FGE_ALLOCA_T(type, size) reinterpret_cast<type*>(__builtin_alloca(sizeof(type) * size))
-    #define FGE_ALLOCA(size) __builtin_alloca(size)
+    #define FGE_ALLOCA_T(_type, _size) reinterpret_cast<_type*>(__builtin_alloca(sizeof(_type) * _size))
+    #define FGE_ALLOCA(_size) __builtin_alloca(_size)
 #endif
+
+#define FGE_PLACE_CONSTRUCT(_type, _size, _ptr) new (_ptr) _type[_size]
+#define FGE_PLACE_DESTRUCT(_type, _size, _ptr)                                                                         \
+    for (std::size_t _iii = 0; _iii < _size; ++_iii) (_ptr)[_iii].~_type()
 
 #endif // _FGE_C_ALLOCA_HPP_INCLUDED

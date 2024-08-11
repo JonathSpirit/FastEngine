@@ -24,7 +24,6 @@
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/network/C_identity.hpp"
-#include "FastEngine/network/C_sceneUpdateCache.hpp"
 #include "FastEngine/object/C_object.hpp"
 #include <memory>
 #include <queue>
@@ -375,6 +374,12 @@ class FGE_API Scene : public fge::CommandHandler
 {
 public:
     using NetworkEventQueue = std::queue<fge::SceneNetEvent>;
+    using UpdateCount = uint16_t;
+    struct UpdateCountRange
+    {
+        UpdateCount _last;
+        UpdateCount _now;
+    };
 
     enum UpdateFlags : uint32_t
     {
@@ -1005,21 +1010,12 @@ public:
      *
      * This function only extract Scene partial data, for full Scene sync please see pack and unpack.
      *
-     * Packets can arrive in any order, so this function will check if the packet continuity is respected.
-     * When returning an net::Error::ERR_SCENE_NEED_CACHING, use should stop extraction and push the
-     * received packet into a SceneUpdateCache class.
-     *
-     * The packet after returning an net::Error::ERR_SCENE_NEED_CACHING is considered pre-extracted and
-     * the next time you call this function, you have to set the isPreExtractedPacket argument to \b true.
-     *
      * \see packModification
      *
      * \param pck The network packet
-     * \param updateCountRange A reference that will be used to extract update count range
-     * \param isPreExtractedPacket If \b true, the packet has already pre-extracted and is coming from a cache
+     * \param range The UpdateCountRange from the server
      */
-    std::optional<fge::net::Error>
-    unpackModification(fge::net::Packet const& pck, UpdateCountRange& updateCountRange, bool isPreExtractedPacket);
+    std::optional<fge::net::Error> unpackModification(fge::net::Packet const& pck, UpdateCountRange& range);
 
     /**
      * \brief Pack object that need an explicit update from the server.
@@ -1349,11 +1345,11 @@ public:
 private:
     struct PerClientSync
     {
-        inline PerClientSync(uint16_t updateCount) :
+        inline explicit PerClientSync(UpdateCount updateCount) :
                 _lastUpdateCount(updateCount)
         {}
 
-        uint16_t _lastUpdateCount;
+        UpdateCount _lastUpdateCount;
         NetworkEventQueue _networkEvents;
     };
     using PerClientSyncMap = std::unordered_map<fge::net::Identity, PerClientSync, fge::net::IdentityHash>;

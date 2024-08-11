@@ -335,7 +335,7 @@ fge::Vector2f ObjText::findCharacterPos(std::size_t index) const
     // Adjust the index if it's out of range
     if (index >= this->g_characters.size())
     {
-        index = this->g_characters.size();
+        index = this->g_characters.size() - 1;
     }
 
     return this->getTransform() * this->g_characters[index].getPosition();

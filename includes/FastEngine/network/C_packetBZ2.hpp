@@ -32,18 +32,17 @@
 #define FGE_PACKETBZ2_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
 #define FGE_PACKETBZ2_VERSION "1.0.8"
 
-namespace fge
-{
-namespace net
+namespace fge::net
 {
 
 class FGE_API PacketBZ2 : public fge::net::Packet
 {
 public:
     PacketBZ2();
-    PacketBZ2(fge::net::PacketBZ2&& pck) noexcept;
-    PacketBZ2(fge::net::PacketBZ2& pck) = default;
-    PacketBZ2(fge::net::PacketBZ2 const& pck) = default;
+    PacketBZ2(PacketBZ2&& pck) noexcept;
+    PacketBZ2(Packet&& pck) noexcept;
+    PacketBZ2(PacketBZ2 const& pck);
+    PacketBZ2(Packet const& pck);
     ~PacketBZ2() override = default;
 
     static uint32_t _maxUncompressedReceivedSize;
@@ -67,7 +66,6 @@ private:
     std::size_t g_lastCompressionSize;
 };
 
-} // namespace net
-} // namespace fge
+} // namespace fge::net
 
 #endif // _FGE_C_PACKETBZ2_HPP_INCLUDED

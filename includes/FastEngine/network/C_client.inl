@@ -17,29 +17,31 @@
 namespace fge::net
 {
 
-template<class TPacket>
-inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create()
+inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(ProtocolPacket::Header header)
 {
-    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::make_unique<TPacket>())};
+    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(header, 0, 0)};
 }
-template<class TPacket>
-inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(TPacket&& packet)
+inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(Packet&& packet)
 {
-    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::make_unique<TPacket>(std::move(packet)))};
+    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::move(packet))};
 }
 
-inline TransmissionPacket::TransmissionPacket(std::unique_ptr<Packet>&& packet) :
-        g_packet(std::move(packet)),
-        g_options()
+inline TransmissionPacket::TransmissionPacket(ProtocolPacket::Header header,
+                                              ProtocolPacket::Realm realmId,
+                                              ProtocolPacket::CountId countId) :
+        g_packet(header, realmId, countId)
+{}
+inline TransmissionPacket::TransmissionPacket(ProtocolPacket&& packet) :
+        g_packet(std::move(packet))
 {}
 
-inline fge::net::Packet const& TransmissionPacket::packet() const
+inline ProtocolPacket const& TransmissionPacket::packet() const
 {
-    return *this->g_packet;
+    return this->g_packet;
 }
-inline fge::net::Packet& TransmissionPacket::packet()
+inline ProtocolPacket& TransmissionPacket::packet()
 {
-    return *this->g_packet;
+    return this->g_packet;
 }
 inline std::vector<TransmissionPacket::Option> const& TransmissionPacket::options() const
 {
@@ -48,6 +50,17 @@ inline std::vector<TransmissionPacket::Option> const& TransmissionPacket::option
 inline std::vector<TransmissionPacket::Option>& TransmissionPacket::options()
 {
     return this->g_options;
+}
+
+inline TransmissionPacket& TransmissionPacket::doNotDiscard()
+{
+    this->g_packet.addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+    return *this;
+}
+inline TransmissionPacket& TransmissionPacket::doNotReorder()
+{
+    this->g_packet.addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+    return *this;
 }
 
 } // namespace fge::net
