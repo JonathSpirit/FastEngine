@@ -428,8 +428,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                           std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime.restart()));
 
         //Drawing
-        auto imageIndex = renderWindow.prepareNextFrame(nullptr);
-        if (imageIndex != FGE_RENDERTARGET_BAD_IMAGE_INDEX)
+        auto imageIndex = renderWindow.prepareNextFrame(nullptr, FGE_RENDER_TIMEOUT_BLOCKING);
+        if (imageIndex != FGE_RENDER_BAD_IMAGE_INDEX)
         {
             fge::vulkan::GetActiveContext()._garbageCollector.setCurrentFrame(renderWindow.getCurrentFrame());
 

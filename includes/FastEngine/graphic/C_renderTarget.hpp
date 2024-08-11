@@ -42,13 +42,16 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#define FGE_RENDERTARGET_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
-#define FGE_RENDERTARGET_DEFAULT_PIPELINE_CACHE_NAME ""
-#define FGE_RENDERTARGET_DEFAULT_ID 0
-#define FGE_RENDERTARGET_DEFAULT_ID_TEXTURE 1
+#define FGE_RENDER_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
+#define FGE_RENDER_DEFAULT_PIPELINE_CACHE_NAME ""
+#define FGE_RENDER_DEFAULT_ID 0
+#define FGE_RENDER_DEFAULT_ID_TEXTURE 1
 
-#define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
-#define FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
+#define FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
+#define FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
+
+#define FGE_RENDER_TIMEOUT_BLOCKING UINT64_MAX
+#define FGE_RENDER_NO_TIMEOUT 0
 
 namespace fge
 {
@@ -132,7 +135,7 @@ public:
     [[nodiscard]] RectInt mapWorldRectToFramebufferSpace(RectFloat const& rect) const;
     [[nodiscard]] RectInt mapWorldRectToFramebufferSpace(RectFloat const& rect, View const& view) const;
 
-    virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo) = 0;
+    virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo, uint64_t timeout_ns) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
     void draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline = nullptr) const;
     virtual void endRenderPass() = 0;

@@ -49,7 +49,7 @@ ObjRenderMap::ObjRenderMap(fge::ObjRenderMap& r) :
 void ObjRenderMap::onDraw([[maybe_unused]] fge::Scene const& scene, [[maybe_unused]] fge::RenderTarget& target)
 {
     this->_renderTexture.setClearColor(this->g_colorClear);
-    this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr));
+    this->_renderTexture.beginRenderPass(this->_renderTexture.prepareNextFrame(nullptr, FGE_RENDER_TIMEOUT_BLOCKING));
 }
 
 void ObjRenderMap::setClearColor(fge::Color const& color)
@@ -92,7 +92,7 @@ FGE_OBJ_DRAW_BODY(ObjRenderMap)
 {
     this->_renderTexture.setView(target.getView());
     this->_renderTexture.endRenderPass();
-    this->_renderTexture.display(FGE_RENDERTARGET_BAD_IMAGE_INDEX);
+    this->_renderTexture.display(FGE_RENDER_BAD_IMAGE_INDEX);
 
     target.setView(this->g_windowView);
 

@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
@@ -88,20 +89,51 @@ void RenderWindow::destroy()
     }
 }
 
-uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo)
+uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInheritanceInfo const* inheritanceInfo,
+                                        uint64_t timeout_ns)
 {
+    if (this->g_targetFrameRate != FGE_RENDER_FPS_NOT_LIMITED)
+    {
+        auto const duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() -
+                                                                                    this->g_lastFrameTime);
+        auto const targetDuration =
+                std::chrono::microseconds{std::chrono::microseconds::period::den / this->g_targetFrameRate};
+
+        auto const timeout = std::chrono::microseconds{timeout_ns / 1000};
+
+        if (duration < targetDuration)
+        {
+            if (duration + timeout >= targetDuration)
+            {
+                fge::Sleep(targetDuration - duration);
+            }
+            else
+            {
+                fge::Sleep(timeout);
+                return FGE_RENDER_BAD_IMAGE_INDEX;
+            }
+        }
+
+        this->g_lastFrameTime = std::chrono::steady_clock::now();
+    }
+
     this->getContext().startMainRenderTarget(*this);
-    vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1, &this->g_inFlightFences[this->g_currentFrame],
-                    VK_TRUE, UINT64_MAX);
+    VkResult result = vkWaitForFences(this->getContext().getLogicalDevice().getDevice(), 1,
+                                      &this->g_inFlightFences[this->g_currentFrame], VK_TRUE,
+                                      this->g_targetFrameRate != FGE_RENDER_FPS_NOT_LIMITED ? 0 : timeout_ns);
+    if (result == VK_TIMEOUT)
+    {
+        return FGE_RENDER_BAD_IMAGE_INDEX;
+    }
 
     uint32_t imageIndex;
-    VkResult const result = vkAcquireNextImageKHR(
-            this->getContext().getLogicalDevice().getDevice(), this->g_swapChain.getSwapChain(), UINT64_MAX,
-            this->g_imageAvailableSemaphores[this->g_currentFrame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(this->getContext().getLogicalDevice().getDevice(), this->g_swapChain.getSwapChain(),
+                                   UINT64_MAX, this->g_imageAvailableSemaphores[this->g_currentFrame], VK_NULL_HANDLE,
+                                   &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         this->recreateSwapChain();
-        return FGE_RENDERTARGET_BAD_IMAGE_INDEX;
+        return FGE_RENDER_BAD_IMAGE_INDEX;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
@@ -210,6 +242,16 @@ void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)
 VkPresentModeKHR RenderWindow::getPresentMode() const
 {
     return this->g_presentMode;
+}
+
+void RenderWindow::setTargetFrameRate(unsigned int frameRate)
+{
+    this->g_targetFrameRate = frameRate;
+    this->g_lastFrameTime = std::chrono::steady_clock::now();
+}
+unsigned int RenderWindow::getTargetFrameRate() const
+{
+    return this->g_targetFrameRate;
 }
 
 VkExtent2D RenderWindow::getExtent2D() const
