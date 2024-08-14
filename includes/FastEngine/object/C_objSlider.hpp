@@ -35,21 +35,21 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjSlider)
 
-    fge::GuiElement* getGuiElement() override { return this; }
+    [[nodiscard]] fge::GuiElement* getGuiElement() override { return this; }
 
     void first(fge::Scene& scene) override;
     void callbackRegister(fge::Event& event, fge::GuiElementHandler* guiElementHandlerPtr) override;
     FGE_OBJ_DRAW_DECLARE
 
     void setSize(fge::DynamicSize const& size);
-    fge::Vector2f getSize() const;
+    [[nodiscard]] fge::Vector2f getSize() const;
 
     void setScrollInversion(bool inverted);
     void setCursorPosition(float position);
     void setCursorRatio(float ratio);
-    float getCursorRatio() const;
-    bool isScrollPressed() const;
-    bool isScrollInverted() const;
+    [[nodiscard]] float getCursorRatio() const;
+    [[nodiscard]] bool isScrollPressed() const;
+    [[nodiscard]] bool isScrollInverted() const;
 
     void refreshSize();
 
@@ -57,11 +57,11 @@ public:
     void setScrollRectOutlineColor(fge::Color color);
     void setScrollBaseRectFillColor(fge::Color color);
 
-    char const* getClassName() const override;
-    char const* getReadableClassName() const override;
+    [[nodiscard]] char const* getClassName() const override;
+    [[nodiscard]] char const* getReadableClassName() const override;
 
-    fge::RectFloat getGlobalBounds() const override;
-    fge::RectFloat getLocalBounds() const override;
+    [[nodiscard]] fge::RectFloat getGlobalBounds() const override;
+    [[nodiscard]] fge::RectFloat getLocalBounds() const override;
 
     fge::CallbackHandler<float> _onSlide;
 
