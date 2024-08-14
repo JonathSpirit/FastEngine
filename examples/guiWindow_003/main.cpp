@@ -100,6 +100,7 @@ public:
 
         //Linking the slide ratio with the text list scroll ratio
         objSlider->_onSlide.addObjectFunctor(&fge::ObjTextList::setTextScrollRatio, objTextList, objTextList);
+        objSlider->setScrollInversion(true);
 
         //Create a slider object for the scaling
         auto* objSlider2 = this->newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
@@ -132,6 +133,7 @@ public:
                                             ->_windowScene.getFirstObj_ByClass(FGE_OBJTEXTLIST_CLASSNAME)
                                             ->getObject<fge::ObjTextList>();
                 newSlider->_onSlide.addObjectFunctor(&fge::ObjTextList::setTextScrollRatio, newTextList, newTextList);
+                newSlider->setScrollInversion(true);
             }
         });
 

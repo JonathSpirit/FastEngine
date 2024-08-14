@@ -23,7 +23,7 @@ namespace fge
 
 void ObjSlider::first([[maybe_unused]] fge::Scene& scene)
 {
-    this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
+    this->_drawMode = DrawModes::DRAW_ALWAYS_DRAWN;
 
     this->g_scrollBaseRect.setFillColor(fge::Color{100, 100, 100, 80});
     this->g_scrollRect.setFillColor(fge::Color{60, 60, 60, 140});
@@ -67,6 +67,17 @@ fge::Vector2f ObjSlider::getSize() const
     return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
 
+void ObjSlider::setScrollInversion(bool inverted)
+{
+    if (this->g_scrollInverted == inverted)
+    {
+        return;
+    }
+
+    auto const ratio = 1.0f - this->getCursorRatio();
+    this->g_scrollInverted = inverted;
+    this->_onSlide.call(ratio);
+}
 void ObjSlider::setCursorPosition(float position)
 {
     auto const oldRatio = this->getCursorRatio();
@@ -87,7 +98,8 @@ void ObjSlider::setCursorRatio(float ratio)
 
     auto const oldRatio = this->getCursorRatio();
 
-    this->g_scrollPositionY = ratio * (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
+    this->g_scrollPositionY = (this->g_scrollInverted ? 1.0f - ratio : ratio) *
+                              (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
     this->refreshSize(this->g_guiElementHandler->_lastSize);
 
     if (oldRatio != this->getCursorRatio())
@@ -97,14 +109,20 @@ void ObjSlider::setCursorRatio(float ratio)
 }
 float ObjSlider::getCursorRatio() const
 {
-    auto const ratio = std::clamp(
+    auto ratio = std::clamp(
             std::abs(this->g_scrollPositionY / (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y)),
             0.0f, 1.0f);
-    return std::isnan(ratio) ? 0.0f : ratio;
+    ratio = std::isnan(ratio) ? 0.0f : ratio;
+
+    return this->g_scrollInverted ? 1.0f - ratio : ratio;
 }
 bool ObjSlider::isScrollPressed() const
 {
     return this->g_scrollPressed;
+}
+bool ObjSlider::isScrollInverted() const
+{
+    return this->g_scrollInverted;
 }
 
 void ObjSlider::refreshSize()
