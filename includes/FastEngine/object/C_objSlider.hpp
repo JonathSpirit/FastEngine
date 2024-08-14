@@ -44,6 +44,7 @@ public:
     void setSize(fge::DynamicSize const& size);
     fge::Vector2f getSize() const;
 
+    void setCursorPosition(float position);
     void setCursorRatio(float ratio);
     float getCursorRatio() const;
     bool isScrollPressed() const;

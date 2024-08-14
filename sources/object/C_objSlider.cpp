@@ -67,12 +67,33 @@ fge::Vector2f ObjSlider::getSize() const
     return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
 
+void ObjSlider::setCursorPosition(float position)
+{
+    auto const oldRatio = this->getCursorRatio();
+
+    this->g_scrollPositionY =
+            std::clamp(position, 0.0f, this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
+
+    this->refreshSize(this->g_guiElementHandler->_lastSize);
+
+    if (oldRatio != this->getCursorRatio())
+    {
+        this->_onSlide.call(this->getCursorRatio());
+    }
+}
 void ObjSlider::setCursorRatio(float ratio)
 {
     ratio = std::clamp(ratio, 0.0f, 1.0f);
 
+    auto const oldRatio = this->getCursorRatio();
+
     this->g_scrollPositionY = ratio * (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
     this->refreshSize(this->g_guiElementHandler->_lastSize);
+
+    if (oldRatio != this->getCursorRatio())
+    {
+        this->_onSlide.call(this->getCursorRatio());
+    }
 }
 float ObjSlider::getCursorRatio() const
 {
@@ -118,8 +139,6 @@ void ObjSlider::refreshSize(fge::Vector2f const& targetSize)
 
     this->g_scrollBaseRect.setOrigin({0.0f, 0.0f});
     this->g_scrollRect.setOrigin({0.0f, 0.0f});
-
-    this->_onSlide.call(this->getCursorRatio());
 }
 
 void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
@@ -150,13 +169,12 @@ void ObjSlider::onMouseMoved([[maybe_unused]] fge::Event const& evt, SDL_MouseMo
     {
         fge::RenderTarget const& renderTarget = this->g_guiElementHandler->getRenderTarget();
 
-        fge::Vector2f mousePos = renderTarget.mapFramebufferCoordsToWorldSpace(
+        fge::Vector2f const mousePos = renderTarget.mapFramebufferCoordsToWorldSpace(
                 {arg.x, arg.y}, *this->_myObjectData.lock()->getScene()->getRelatedView());
 
         auto scale = this->getParentsScale().y * this->getScale().y;
-        this->g_scrollPositionY = this->g_scrollLastPositionY + (mousePos.y - this->g_lastMousePositionY) / scale;
 
-        this->refreshSize(this->g_guiElementHandler->_lastSize);
+        this->setCursorPosition(this->g_scrollLastPositionY + (mousePos.y - this->g_lastMousePositionY) / scale);
     }
 }
 
@@ -167,8 +185,7 @@ void ObjSlider::onGuiResized([[maybe_unused]] fge::GuiElementHandler const& hand
     this->updateAnchor(size);
     this->refreshSize(size);
 
-    this->g_scrollPositionY = oldRatio * (this->g_scrollBaseRect.getSize().y - this->g_scrollRect.getSize().y);
-    this->refreshSize(size);
+    this->setCursorRatio(oldRatio);
 }
 
 void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
