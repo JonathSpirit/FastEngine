@@ -508,13 +508,13 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
     return transform.first;
 }
 uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transformable,
-                                              fge::RenderResourceTransform const& ressource) const
+                                              fge::RenderResourceTransform const& resource) const
 {
-    if (ressource.getTransformData() != nullptr)
+    if (resource.getTransformData() != nullptr)
     {
-        return this->requestGlobalTransform(transformable, *ressource.getTransformData());
+        return this->requestGlobalTransform(transformable, *resource.getTransformData());
     }
-    if (auto const index = ressource.getGlobalTransformsIndex())
+    if (auto const index = resource.getGlobalTransformsIndex())
     {
         return this->requestGlobalTransform(transformable, *index);
     }
@@ -527,13 +527,13 @@ uint32_t RenderTarget::requestGlobalTransform(fge::Transformable const& transfor
     return transform.first;
 }
 
-fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourceTransform const& ressource) const
+fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourceTransform const& resource) const
 {
-    if (auto const index = ressource.getGlobalTransformsIndex())
+    if (auto const index = resource.getGlobalTransformsIndex())
     {
         return this->getContext().getGlobalTransform(*index);
     }
-    return ressource.getTransformData();
+    return resource.getTransformData();
 }
 
 void RenderTarget::resetDefaultView()

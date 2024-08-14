@@ -157,10 +157,10 @@ public:
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
                                                   fge::TransformUboData const& parentTransform) const;
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
-                                                  fge::RenderResourceTransform const& ressource) const;
+                                                  fge::RenderResourceTransform const& resource) const;
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable) const;
 
-    [[nodiscard]] fge::TransformUboData const* getGlobalTransform(fge::RenderResourceTransform const& ressource) const;
+    [[nodiscard]] fge::TransformUboData const* getGlobalTransform(fge::RenderResourceTransform const& resource) const;
 
 private:
     View g_defaultView;

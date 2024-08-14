@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_GRAPHIC_SHADERRESSOURCES_HPP_INCLUDED
-#define _FGE_GRAPHIC_SHADERRESSOURCES_HPP_INCLUDED
+#ifndef _FGE_GRAPHIC_SHADERRESOURCES_HPP_INCLUDED
+#define _FGE_GRAPHIC_SHADERRESOURCES_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
 
@@ -42,4 +42,4 @@ FGE_API extern unsigned int const gDefaultFragmentTextureShaderSize;
 
 } // namespace fge::res
 
-#endif //_FGE_GRAPHIC_SHADERRESSOURCES_HPP_INCLUDED
+#endif //_FGE_GRAPHIC_SHADERRESOURCES_HPP_INCLUDED
