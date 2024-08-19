@@ -48,6 +48,7 @@ public:
     void setScrollInversion(bool inverted);
     void setCursorPosition(float position);
     void setCursorRatio(float ratio);
+    void scroll(float deltaRatio);
     [[nodiscard]] float getCursorRatio() const;
     [[nodiscard]] bool isScrollPressed() const;
     [[nodiscard]] bool isScrollInverted() const;
@@ -70,6 +71,8 @@ public:
 private:
     void
     onGuiMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg, fge::GuiElementContext& context);
+    void
+    onGuiMouseWheelScrolled(fge::Event const& evt, SDL_MouseWheelEvent const& arg, fge::GuiElementContext& context);
     void onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg);
     void onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg);
 

@@ -39,6 +39,7 @@ void ObjSlider::callbackRegister(fge::Event& event, fge::GuiElementHandler* guiE
 
     guiElementHandlerPtr->_onGuiResized.addObjectFunctor(&fge::ObjSlider::onGuiResized, this, this);
     this->_onGuiMouseButtonPressed.addObjectFunctor(&fge::ObjSlider::onGuiMouseButtonPressed, this, this);
+    this->_onGuiMouseWheelScrolled.addObjectFunctor(&fge::ObjSlider::onGuiMouseWheelScrolled, this, this);
 
     event._onMouseMotion.addObjectFunctor(&fge::ObjSlider::onMouseMoved, this, this);
     event._onMouseButtonUp.addObjectFunctor(&fge::ObjSlider::onMouseButtonReleased, this, this);
@@ -111,6 +112,10 @@ void ObjSlider::setCursorRatio(float ratio)
         this->_onSlide.call(this->getCursorRatio());
     }
 }
+void ObjSlider::scroll(float deltaRatio)
+{
+    this->setCursorRatio(this->getCursorRatio() + deltaRatio);
+}
 float ObjSlider::getCursorRatio() const
 {
     auto ratio = std::clamp(
@@ -171,6 +176,11 @@ void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
                                         [[maybe_unused]] SDL_MouseButtonEvent const& arg,
                                         fge::GuiElementContext& context)
 {
+    if (arg.button != SDL_BUTTON_LEFT)
+    {
+        return;
+    }
+
     auto mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(
             {context._mousePosition.x, context._mousePosition.y},
             *this->_myObjectData.lock()->getScene()->getRelatedView());
@@ -193,6 +203,12 @@ void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
     this->g_scrollLastPositionY = this->g_scrollPositionY;
     this->g_lastMousePositionY = mousePosition.y;
     this->g_scrollRect.setOutlineThickness(2.0f);
+}
+void ObjSlider::onGuiMouseWheelScrolled([[maybe_unused]] fge::Event const& evt,
+                                        SDL_MouseWheelEvent const& arg,
+                                        [[maybe_unused]] fge::GuiElementContext& context)
+{
+    this->scroll(static_cast<float>(arg.y) * 0.1f);
 }
 void ObjSlider::onMouseButtonReleased([[maybe_unused]] fge::Event const& evt,
                                       [[maybe_unused]] SDL_MouseButtonEvent const& arg)
@@ -229,10 +245,10 @@ void ObjSlider::onGuiResized([[maybe_unused]] fge::GuiElementHandler const& hand
 }
 
 void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
-                            SDL_EventType evtType,
+                            [[maybe_unused]] SDL_EventType evtType,
                             fge::GuiElementContext& context)
 {
-    if (evtType != SDL_MOUSEBUTTONDOWN)
+    if (evtType != SDL_MOUSEBUTTONDOWN && evtType != SDL_MOUSEWHEEL)
     {
         return;
     }
