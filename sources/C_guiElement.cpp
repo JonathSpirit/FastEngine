@@ -41,7 +41,7 @@ void GuiElementHandler::setEventCallback()
 void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWheelEvent const& arg)
 {
     fge::GuiElementContext context{};
-    context._mousePosition = {arg.x, arg.y};
+    context._mousePosition = {arg.mouseX, arg.mouseY};
     context._mouseGuiPosition =
             this->g_target->mapFramebufferCoordsToWorldSpace(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
