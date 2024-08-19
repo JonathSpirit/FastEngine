@@ -44,12 +44,14 @@ public:
     void setSize(fge::DynamicSize const& size);
     [[nodiscard]] fge::Vector2f getSize() const;
 
+    void allowJump(bool allow);
     void setScrollInversion(bool inverted);
     void setCursorPosition(float position);
     void setCursorRatio(float ratio);
     [[nodiscard]] float getCursorRatio() const;
     [[nodiscard]] bool isScrollPressed() const;
     [[nodiscard]] bool isScrollInverted() const;
+    [[nodiscard]] bool isAllowingJump() const;
 
     void refreshSize();
 
@@ -89,6 +91,7 @@ private:
     float g_scrollLastPositionY{0.0f};
     float g_lastMousePositionY{0.0f};
     bool g_scrollInverted{false};
+    bool g_allowJump{true};
 };
 
 } // namespace fge

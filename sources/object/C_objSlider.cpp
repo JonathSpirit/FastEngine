@@ -67,6 +67,10 @@ fge::Vector2f ObjSlider::getSize() const
     return this->g_size.getSize(this->getPosition(), this->g_guiElementHandler->_lastSize);
 }
 
+void ObjSlider::allowJump(bool allow)
+{
+    this->g_allowJump = allow;
+}
 void ObjSlider::setScrollInversion(bool inverted)
 {
     if (this->g_scrollInverted == inverted)
@@ -124,6 +128,10 @@ bool ObjSlider::isScrollInverted() const
 {
     return this->g_scrollInverted;
 }
+bool ObjSlider::isAllowingJump() const
+{
+    return this->g_allowJump;
+}
 
 void ObjSlider::refreshSize()
 {
@@ -166,6 +174,20 @@ void ObjSlider::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
     auto mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(
             {context._mousePosition.x, context._mousePosition.y},
             *this->_myObjectData.lock()->getScene()->getRelatedView());
+
+    auto transform = this->getParentsTransform() * this->getTransform();
+    auto scrollRect = transform * this->g_scrollRect.getGlobalBounds();
+    if (!scrollRect.contains(mousePosition))
+    {
+        if (!this->g_allowJump)
+        {
+            return;
+        }
+        auto scrollBaseRect = transform * this->g_scrollBaseRect.getGlobalBounds();
+        auto scale = this->getParentsScale().y * this->getScale().y;
+
+        this->setCursorPosition((mousePosition.y - (scrollBaseRect._y + scrollRect._height / 2.0f)) / scale);
+    }
 
     this->g_scrollPressed = true;
     this->g_scrollLastPositionY = this->g_scrollPositionY;
@@ -219,7 +241,7 @@ void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
     {
         auto transform = this->getParentsTransform() * this->getTransform();
 
-        auto scrollRect = transform * this->g_scrollRect.getGlobalBounds();
+        auto scrollRect = transform * this->g_scrollBaseRect.getGlobalBounds();
 
         auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
         fge::Vector2f mousePosition;
