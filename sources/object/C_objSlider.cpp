@@ -208,7 +208,7 @@ void ObjSlider::onGuiMouseWheelScrolled([[maybe_unused]] fge::Event const& evt,
                                         SDL_MouseWheelEvent const& arg,
                                         [[maybe_unused]] fge::GuiElementContext& context)
 {
-    this->scroll(static_cast<float>(arg.y) * 0.1f);
+    this->scroll(static_cast<float>(arg.y) * FGE_OBJSLIDER_SCROLL_RATIO_DEFAULT);
 }
 void ObjSlider::onMouseButtonReleased([[maybe_unused]] fge::Event const& evt,
                                       [[maybe_unused]] SDL_MouseButtonEvent const& arg)

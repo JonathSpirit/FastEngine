@@ -115,25 +115,47 @@ public:
 
         objSlider2->setCursorRatio(0.25f);
 
+        //Add sliding when cursor is on the window but not on the slider
+        objWindow->_onGuiMouseWheelScrolled.addLambda([objSlider, objWindow]([[maybe_unused]] fge::Event const& evt,
+                                                                             SDL_MouseWheelEvent const& arg,
+                                                                             fge::GuiElementContext& context) {
+            if (context._prioritizedElement == objWindow)
+            {
+                //The _onGuiMouseWheelScrolled on a window is always called even if another element is prioritized
+                //So we need to check if the window is the prioritized element. (happens on recursive gui element)
+                objSlider->scroll(static_cast<float>(arg.y) * FGE_OBJSLIDER_SCROLL_RATIO_DEFAULT);
+            }
+        });
+
         fge::GuiElement::setGlobalGuiScale({1.0f, 1.0f});
 
         //Add a callback to duplicate the window
         event._onKeyDown.addLambda([&]([[maybe_unused]] fge::Event const& event, SDL_KeyboardEvent const& keyEvent) {
             if (keyEvent.keysym.sym == SDLK_SPACE)
             {
-                auto newObject = this->duplicateObject(objWindow->_myObjectData.lock()->getSid());
-                newObject->getObject<fge::ObjWindow>()->showExitButton(true);
-                newObject->getObject()->move({20.0f, 20.0f});
+                auto* newWindow =
+                        this->duplicateObject(objWindow->_myObjectData.lock()->getSid())->getObject<fge::ObjWindow>();
+                newWindow->showExitButton(true);
+                newWindow->move({20.0f, 20.0f});
 
                 //Linking the slide ratio with the text list scroll ratio
-                auto* newSlider = newObject->getObject<fge::ObjWindow>()
-                                          ->_windowScene.getFirstObj_ByClass(FGE_OBJSLIDER_CLASSNAME)
+                auto* newSlider = newWindow->_windowScene.getFirstObj_ByClass(FGE_OBJSLIDER_CLASSNAME)
                                           ->getObject<fge::ObjSlider>();
-                auto* newTextList = newObject->getObject<fge::ObjWindow>()
-                                            ->_windowScene.getFirstObj_ByClass(FGE_OBJTEXTLIST_CLASSNAME)
+                auto* newTextList = newWindow->_windowScene.getFirstObj_ByClass(FGE_OBJTEXTLIST_CLASSNAME)
                                             ->getObject<fge::ObjTextList>();
                 newSlider->_onSlide.addObjectFunctor(&fge::ObjTextList::setTextScrollRatio, newTextList, newTextList);
                 newSlider->setScrollInversion(true);
+
+                newWindow->_onGuiMouseWheelScrolled.addLambda(
+                        [newSlider, newWindow]([[maybe_unused]] fge::Event const& evt, SDL_MouseWheelEvent const& arg,
+                                               fge::GuiElementContext& context) {
+                    if (context._prioritizedElement == newWindow)
+                    {
+                        //The _onGuiMouseWheelScrolled on a window is always called even if another element is prioritized
+                        //So we need to check if the window is the prioritized element. (happens on recursive gui element)
+                        newSlider->scroll(static_cast<float>(arg.y) * FGE_OBJSLIDER_SCROLL_RATIO_DEFAULT);
+                    }
+                });
             }
         });
 

@@ -23,6 +23,7 @@
 #include "FastEngine/object/C_object.hpp"
 
 #define FGE_OBJSLIDER_CLASSNAME "FGE:OBJ:SLIDER"
+#define FGE_OBJSLIDER_SCROLL_RATIO_DEFAULT 0.1f
 
 namespace fge
 {
