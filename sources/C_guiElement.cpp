@@ -53,19 +53,18 @@ void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWhe
 
     if (context._prioritizedElement != nullptr)
     {
-        context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
-
         if (context._prioritizedElement->isRecursive())
         {
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
             element->onGuiVerify(evt, SDL_MOUSEWHEEL, context);
-            if (context._prioritizedElement != nullptr)
+            if (context._prioritizedElement == nullptr)
             {
-                context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
+                context._prioritizedElement = element;
             }
         }
+        context._prioritizedElement->_onGuiMouseWheelScrolled.call(evt, arg, context);
     }
 }
 void GuiElementHandler::onMouseButtonPressed(fge::Event const& evt, SDL_MouseButtonEvent const& arg)
@@ -83,19 +82,18 @@ void GuiElementHandler::onMouseButtonPressed(fge::Event const& evt, SDL_MouseBut
 
     if (context._prioritizedElement != nullptr)
     {
-        context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
-
         if (context._prioritizedElement->isRecursive())
         {
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
             element->onGuiVerify(evt, SDL_MOUSEBUTTONDOWN, context);
-            if (context._prioritizedElement != nullptr)
+            if (context._prioritizedElement == nullptr)
             {
-                context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
+                context._prioritizedElement = element;
             }
         }
+        context._prioritizedElement->_onGuiMouseButtonPressed.call(evt, arg, context);
     }
 }
 void GuiElementHandler::onMouseButtonReleased(fge::Event const& evt, SDL_MouseButtonEvent const& arg)
@@ -113,19 +111,18 @@ void GuiElementHandler::onMouseButtonReleased(fge::Event const& evt, SDL_MouseBu
 
     if (context._prioritizedElement != nullptr)
     {
-        context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
-
         if (context._prioritizedElement->isRecursive())
         {
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
             element->onGuiVerify(evt, SDL_MOUSEBUTTONUP, context);
-            if (context._prioritizedElement != nullptr)
+            if (context._prioritizedElement == nullptr)
             {
-                context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
+                context._prioritizedElement = element;
             }
         }
+        context._prioritizedElement->_onGuiMouseButtonReleased.call(evt, arg, context);
     }
 }
 void GuiElementHandler::onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent const& arg)
@@ -143,19 +140,18 @@ void GuiElementHandler::onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent
 
     if (context._prioritizedElement != nullptr)
     {
-        context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
-
         if (context._prioritizedElement->isRecursive())
         {
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
             element->onGuiVerify(evt, SDL_MOUSEMOTION, context);
-            if (context._prioritizedElement != nullptr)
+            if (context._prioritizedElement == nullptr)
             {
-                context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
+                context._prioritizedElement = element;
             }
         }
+        context._prioritizedElement->_onGuiMouseMoved.call(evt, arg, context);
     }
 }
 
