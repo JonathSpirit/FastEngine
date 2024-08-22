@@ -121,7 +121,7 @@ public:
     [[nodiscard]] glm::mat4 const& getTransform() const;
     [[nodiscard]] glm::mat4 const& getInverseTransform() const;
     /**
-     * \biref Get the projection matrix of the view
+     * \brief Get the projection matrix of the view
      *
      * This function returns the a orthogonal projection matrix.
      *
