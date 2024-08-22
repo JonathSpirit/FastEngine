@@ -1,32 +1,4 @@
 var searchData=
 [
-  ['data_0',['Data',['../unionfge_1_1Property_1_1Data.html',1,'fge::Property::Data'],['../structfge_1_1SceneUpdateCache_1_1Data.html',1,'fge::SceneUpdateCache::Data']]],
-  ['dataaccessor_1',['DataAccessor',['../structfge_1_1DataAccessor.html',1,'fge']]],
-  ['dataaccessor_3c_20fge_3a_3avector2f_20_3e_2',['DataAccessor&lt; fge::Vector2f &gt;',['../structfge_1_1DataAccessor.html',1,'fge']]],
-  ['dataaccessor_3c_20float_20_3e_3',['DataAccessor&lt; float &gt;',['../structfge_1_1DataAccessor.html',1,'fge']]],
-  ['decimal_5fpoint_4',['decimal_point',['../structfast__float_1_1parse__options__t.html#acca85326b9845f339ed302d8ce404a37',1,'fast_float::parse_options_t']]],
-  ['del_5',['del',['../classfge_1_1CallbackHandler.html#a41a8982a51f66e2ec3a3ed62b017e744',1,'fge::CallbackHandler::del()'],['../classfge_1_1EventList.html#a8c920965e42025fe11a48a036c6cca45',1,'fge::EventList::del(std::string const &amp;name)']]],
-  ['delall_6',['delAll',['../classfge_1_1EventList.html#a3350bd0798bc44208a470425f2540640',1,'fge::EventList']]],
-  ['delallobject_7',['delAllObject',['../classfge_1_1Scene.html#a5fd52b6a9ba0b39f4e66114e1abf37c2',1,'fge::Scene']]],
-  ['delcmd_8',['delCmd',['../classfge_1_1CommandHandler.html#a044f3a48f1b43087bf5473a933c76513',1,'fge::CommandHandler']]],
-  ['delcustomview_9',['delCustomView',['../classfge_1_1Scene.html#a1843d797109901ad654b3687691bd6e3',1,'fge::Scene']]],
-  ['delobject_10',['delObject',['../classfge_1_1Scene.html#a6058721874450172e3b8c0dfe5ef793a',1,'fge::Scene']]],
-  ['delptr_11',['delPtr',['../classfge_1_1CallbackHandler.html#a138ff92d078bfba5f4cbfd8fb1d98f00',1,'fge::CallbackHandler']]],
-  ['delsub_12',['delSub',['../classfge_1_1CallbackHandler.html#ac525e56c2e6a6e4f85e5d886b115f1bc',1,'fge::CallbackHandler']]],
-  ['delupdatedobject_13',['delUpdatedObject',['../classfge_1_1Scene.html#ac3b92bf6ebe18b65e05548e14bd22798',1,'fge::Scene']]],
-  ['descriptor_14',['Descriptor',['../structfge_1_1vulkan_1_1DescriptorSet_1_1Descriptor.html',1,'fge::vulkan::DescriptorSet']]],
-  ['descriptorpool_15',['DescriptorPool',['../classfge_1_1vulkan_1_1DescriptorPool.html',1,'fge::vulkan']]],
-  ['descriptorset_16',['DescriptorSet',['../classfge_1_1vulkan_1_1DescriptorSet.html',1,'fge::vulkan']]],
-  ['descriptorsetlayout_17',['DescriptorSetLayout',['../classfge_1_1vulkan_1_1DescriptorSetLayout.html',1,'fge::vulkan']]],
-  ['destroy_18',['Destroy',['../group__time.html#ga89464c551f7f35a4ef320699a21fff84',1,'fge::timer::Destroy(fge::timer::TimerShared const &amp;timer)'],['../group__time.html#gaba19345a1e56db89e2e38fc983d1ea7a',1,'fge::timer::Destroy(std::string const &amp;timerName)']]],
-  ['destroyall_19',['DestroyAll',['../group__time.html#ga08cea401dada38a24a0375682dbf3344',1,'fge::timer']]],
-  ['detach_20',['detach',['../classfge_1_1Subscription.html#ad7f209c78bb094c210499334fbe908fe',1,'fge::Subscription::detach()'],['../classfge_1_1Subscriber.html#aac0718c7adac75fa7f8969d8f61dfa15',1,'fge::Subscriber::detach()']]],
-  ['detachall_21',['detachAll',['../classfge_1_1Subscription.html#a6c6f9739e6a05e23ec6e1c226fa2014f',1,'fge::Subscription::detachAll()'],['../classfge_1_1Subscriber.html#a6e1372c85fa9bfdbd4ca2855660149d6',1,'fge::Subscriber::detachAll()']]],
-  ['detachonce_22',['detachOnce',['../classfge_1_1Subscription.html#a2750507b3dd297219da4f1d7a67ee5f3',1,'fge::Subscription']]],
-  ['direct_5fwait_5fexecution_23',['DIRECT_WAIT_EXECUTION',['../classfge_1_1vulkan_1_1Context.html#a2846dcb5335fe2a880291d52b521bbe7af94ebaaca78c83cc6cc0093319f468f5',1,'fge::vulkan::Context']]],
-  ['draw_24',['draw',['../classfge_1_1Scene.html#a81a158566c6cb15351ad5957809fac14',1,'fge::Scene::draw()'],['../classfge_1_1ObjAnimation.html#aa648de3ddc83a2a7b242ca0fbee1d5b6',1,'fge::ObjAnimation::draw()'],['../classfge_1_1ObjButton.html#a7b8c50424cd4a279afe97d045d1732d8',1,'fge::ObjButton::draw()'],['../classfge_1_1Object.html#a11f9cc4ffa3e2881475bb475c1632422',1,'fge::Object::draw()'],['../classfge_1_1ObjLight.html#aa4d21448a110877a9b0100b284e19788',1,'fge::ObjLight::draw()'],['../classfge_1_1ObjRenderMap.html#a7abf70a38a5ad97d2b42b4f6d5e2363c',1,'fge::ObjRenderMap::draw()'],['../classfge_1_1ObjShape.html#ae9e68b10df57a33d890830490753ec31',1,'fge::ObjShape::draw()'],['../classfge_1_1ObjSprite.html#a7b6ab379bbbc0a8ff43b9fdabf1ea49e',1,'fge::ObjSprite::draw()'],['../classfge_1_1ObjSpriteBatches.html#abf95fdb174b7080ae0b77d45721ade04',1,'fge::ObjSpriteBatches::draw()'],['../classfge_1_1ObjSpriteCluster.html#ad870d4d577471a5cd845900e5327d296',1,'fge::ObjSpriteCluster::draw()'],['../classfge_1_1ObjSwitch.html#a78f80b965abeac4c91da4e991c690221',1,'fge::ObjSwitch::draw()'],['../classfge_1_1ObjText.html#acf8daa90829a50a26167b91dec72ca60',1,'fge::ObjText::draw()'],['../classfge_1_1ObjTileMap.html#a41dfc8c85d8800fa1282504c9a932a1c',1,'fge::ObjTileMap::draw()'],['../classfge_1_1vulkan_1_1CommandBuffer.html#aad4a9b6181aa9b4f7e69012a015faa54',1,'fge::vulkan::CommandBuffer::draw()']]],
-  ['drawable_25',['Drawable',['../classfge_1_1Drawable.html',1,'fge']]],
-  ['drawindexed_26',['drawIndexed',['../classfge_1_1vulkan_1_1CommandBuffer.html#ae6f435483bb9c7f020e07cc6f03758c2',1,'fge::vulkan::CommandBuffer']]],
-  ['duplicateobject_27',['duplicateObject',['../classfge_1_1Scene.html#a2b67037f9d1674d42139454ee0dd56f4',1,'fge::Scene']]],
-  ['dynamicsize_28',['DynamicSize',['../structfge_1_1DynamicSize.html',1,'fge']]]
+  ['5_20_3a_20deep_20text_0',['Example 5 : deep text',['../index.html#autotoc_md17',1,'']]]
 ];
