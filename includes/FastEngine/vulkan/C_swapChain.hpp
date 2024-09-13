@@ -19,7 +19,6 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
-#include "SDL_vulkan.h"
 #include <vector>
 
 namespace fge::vulkan
@@ -40,7 +39,7 @@ public:
     SwapChain& operator=(SwapChain const& r) = delete;
     SwapChain& operator=(SwapChain&& r) noexcept = delete;
 
-    void create(SDL_Window* window,
+    void create(VkExtent2D actualExtent,
                 LogicalDevice const& logicalDevice,
                 PhysicalDevice const& physicalDevice,
                 Surface const& surface,
@@ -59,7 +58,7 @@ public:
     static VkSurfaceFormatKHR chooseSwapSurfaceFormat(std::vector<VkSurfaceFormatKHR> const& availableFormats);
     static VkPresentModeKHR chooseSwapPresentMode(std::vector<VkPresentModeKHR> const& availablePresentModes,
                                                   VkPresentModeKHR wantedPresentMode);
-    static VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR const& capabilities, SDL_Window* window);
+    static VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR const& capabilities, VkExtent2D actualExtent);
 
 private:
     void createImageViews();
