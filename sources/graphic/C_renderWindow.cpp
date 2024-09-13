@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/C_alloca.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
@@ -42,8 +43,9 @@ int ResizeCallback(void* userdata, SDL_Event* event)
 
 } // namespace
 
-RenderWindow::RenderWindow(fge::vulkan::Context const& context) :
+RenderWindow::RenderWindow(fge::vulkan::Context const& context, fge::vulkan::SurfaceWindow& surfaceWindow) :
         RenderTarget(context),
+        g_surfaceWindow(&surfaceWindow),
         g_commandBuffers({context}),
         g_imageAvailableSemaphores({VK_NULL_HANDLE}),
         g_renderFinishedSemaphores({VK_NULL_HANDLE}),
@@ -229,9 +231,9 @@ void RenderWindow::display(uint32_t imageIndex)
     this->getContext().endMainRenderTarget(*this);
 }
 
-Vector2u RenderWindow::getSize() const
+[[nodiscard]] Vector2u RenderWindow::getSize() const
 {
-    return static_cast<Vector2u>(this->getContext().getSurface().getWindowSize());
+    return static_cast<Vector2u>(this->g_surfaceWindow->getSize());
 }
 
 void RenderWindow::setPresentMode(VkPresentModeKHR presentMode)
@@ -266,6 +268,10 @@ VkRenderPass RenderWindow::getRenderPass() const
 {
     return this->g_renderPass;
 }
+fge::vulkan::SurfaceWindow& RenderWindow::getSurface() const
+{
+    return *this->g_surfaceWindow;
+}
 
 VkCommandBufferInheritanceInfo RenderWindow::getInheritanceInfo(uint32_t imageIndex) const
 {
@@ -296,7 +302,7 @@ void RenderWindow::init()
     }
     this->g_isCreated = true;
 
-    this->g_swapChain.create(this->getContext().getSurface().getWindow(), this->getContext().getLogicalDevice(),
+    this->g_swapChain.create(this->g_surfaceWindow->getExtent(), this->getContext().getLogicalDevice(),
                              this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
                              this->g_presentMode);
 
@@ -317,13 +323,13 @@ void RenderWindow::init()
 
 void RenderWindow::recreateSwapChain()
 {
-    auto windowSize = this->getContext().getSurface().getWindowSize();
+    auto windowSize = this->g_surfaceWindow->getSize();
 
     SDL_Event event;
 
     while (windowSize.x == 0 || windowSize.y == 0)
     {
-        windowSize = this->getContext().getSurface().getWindowSize();
+        windowSize = this->g_surfaceWindow->getSize();
         SDL_WaitEvent(&event);
     }
 
@@ -337,7 +343,7 @@ void RenderWindow::recreateSwapChain()
 
     vkDestroyRenderPass(this->getContext().getLogicalDevice().getDevice(), this->g_renderPass, nullptr);
 
-    this->g_swapChain.create(this->getContext().getSurface().getWindow(), this->getContext().getLogicalDevice(),
+    this->g_swapChain.create(this->g_surfaceWindow->getExtent(), this->getContext().getLogicalDevice(),
                              this->getContext().getPhysicalDevice(), this->getContext().getSurface(),
                              this->g_presentMode);
     this->createRenderPass();

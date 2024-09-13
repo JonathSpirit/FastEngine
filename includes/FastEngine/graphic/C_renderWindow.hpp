@@ -43,13 +43,14 @@ namespace vulkan
 {
 
 class Context;
+class SurfaceWindow;
 
 } // namespace vulkan
 
 class FGE_API RenderWindow : public fge::RenderTarget
 {
 public:
-    explicit RenderWindow(fge::vulkan::Context const& context);
+    explicit RenderWindow(fge::vulkan::Context const& context, fge::vulkan::SurfaceWindow& surfaceWindow);
     ~RenderWindow() override;
 
     void destroy() final;
@@ -60,7 +61,7 @@ public:
     void endRenderPass() override;
     void display(uint32_t imageIndex) override;
 
-    Vector2u getSize() const override;
+    [[nodiscard]] Vector2u getSize() const override;
 
     void setPresentMode(VkPresentModeKHR presentMode);
     [[nodiscard]] VkPresentModeKHR getPresentMode() const;
@@ -71,6 +72,7 @@ public:
     [[nodiscard]] VkExtent2D getExtent2D() const override;
     [[nodiscard]] fge::vulkan::CommandBuffer& getCommandBuffer() const override;
     [[nodiscard]] VkRenderPass getRenderPass() const override;
+    [[nodiscard]] fge::vulkan::SurfaceWindow& getSurface() const;
 
     [[nodiscard]] VkCommandBufferInheritanceInfo getInheritanceInfo(uint32_t imageIndex) const;
 
@@ -86,6 +88,8 @@ private:
     void createRenderPass();
     void createFramebuffers();
     void createSyncObjects();
+
+    fge::vulkan::SurfaceWindow* g_surfaceWindow;
 
     fge::vulkan::SwapChain g_swapChain;
 

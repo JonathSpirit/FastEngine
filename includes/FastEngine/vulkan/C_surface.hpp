@@ -21,6 +21,7 @@
 #include "volk.h"
 #include "FastEngine/C_vector.hpp"
 #include "SDL_vulkan.h"
+#include <string_view>
 
 namespace fge::vulkan
 {
@@ -30,28 +31,76 @@ class Instance;
 class FGE_API Surface
 {
 public:
-    Surface();
+    explicit Surface(Instance& instance);
     Surface(Surface const& r) = delete;
     Surface(Surface&& r) noexcept;
-    ~Surface();
+    virtual ~Surface() = default;
 
     Surface& operator=(Surface const& r) = delete;
     Surface& operator=(Surface&& r) noexcept = delete;
 
-    void create(SDL_Window* window, Instance& instance);
-    void destroy();
+    virtual void destroy() = 0;
 
-    [[nodiscard]] VkSurfaceKHR getSurface() const;
+    [[nodiscard]] VkSurfaceKHR get() const;
+    [[nodiscard]] bool isCreated() const;
 
     [[nodiscard]] Instance& getInstance();
     [[nodiscard]] Instance const& getInstance() const;
 
-    [[nodiscard]] SDL_Window* getWindow() const;
-    [[nodiscard]] fge::Vector2i getWindowSize() const;
+    [[nodiscard]] virtual VkExtent2D getExtent() const;
+
+protected:
+    VkSurfaceKHR _g_surface;
 
 private:
-    VkSurfaceKHR g_surface;
     Instance* g_instance;
+};
+
+class SurfaceWindow : public Surface
+{
+public:
+    enum class Types
+    {
+        UNKNOWN,
+        SDL
+    };
+
+    inline explicit SurfaceWindow(Instance& instance) :
+            Surface(instance)
+    {}
+
+    [[nodiscard]] inline VkExtent2D getExtent() const override
+    {
+        auto const size = this->getSize();
+        return {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)};
+    }
+
+    [[nodiscard]] virtual Types getType() const = 0;
+
+    [[nodiscard]] virtual fge::Vector2i getSize() const = 0;
+};
+
+class FGE_API SurfaceSDLWindow final : public SurfaceWindow
+{
+public:
+    inline explicit SurfaceSDLWindow(Instance& instance) :
+            SurfaceWindow(instance),
+            g_window(nullptr)
+    {}
+    SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept;
+    ~SurfaceSDLWindow() final;
+
+    bool create(SDL_Window* window);
+    bool create(std::string_view title, fge::Vector2i const& position, fge::Vector2i const& size, uint32_t flags);
+    void destroy() final;
+
+    [[nodiscard]] Types getType() const override;
+
+    [[nodiscard]] fge::Vector2i getSize() const override;
+
+    [[nodiscard]] SDL_Window* getWindow() const;
+
+private:
     SDL_Window* g_window;
 };
 

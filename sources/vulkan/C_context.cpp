@@ -74,7 +74,7 @@ void Context::destroy()
 
         vmaDestroyAllocator(this->g_allocator);
 
-        this->g_surface.destroy();
+        this->g_surface = nullptr;
         this->g_logicalDevice.destroy();
         this->g_instance.destroy();
 
@@ -262,20 +262,20 @@ void Context::initVolk()
     }
 }
 
-void Context::initVulkan(SDL_Window* window)
+void Context::initVulkan(Surface const& surface)
 {
     this->g_isCreated = true;
 
-    this->g_instance.create("VulkanTest");
+    this->g_instance.create("VulkanTest"); //TODO: Add parameter for app name
 
-    this->g_surface.create(window, this->g_instance);
-    auto physicalDevice = this->g_instance.pickPhysicalDevice(this->g_surface.getSurface());
+    this->g_surface = &surface;
+    auto physicalDevice = this->g_instance.pickPhysicalDevice(this->g_surface->get());
     if (!physicalDevice.has_value())
     {
         throw fge::Exception("failed to find a suitable GPU!");
     }
     this->g_physicalDevice = std::move(physicalDevice.value());
-    this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface.getSurface());
+    this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface->get());
 
     VmaVulkanFunctions vulkanFunctions{vkGetInstanceProcAddr,
                                        vkGetDeviceProcAddr,
@@ -383,7 +383,7 @@ Instance const& Context::getInstance() const
 }
 Surface const& Context::getSurface() const
 {
-    return this->g_surface;
+    return *this->g_surface;
 }
 LogicalDevice const& Context::getLogicalDevice() const
 {
@@ -561,7 +561,7 @@ void Context::GlobalTransform::update()
 
 void Context::createCommandPool()
 {
-    auto queueFamilyIndices = this->g_physicalDevice.findQueueFamilies(this->g_surface.getSurface());
+    auto queueFamilyIndices = this->g_physicalDevice.findQueueFamilies(this->g_surface->get());
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

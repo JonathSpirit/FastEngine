@@ -18,19 +18,20 @@
 #include "FastEngine/graphic/C_renderWindow.hpp"
 #include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
+#include "FastEngine/vulkan/C_surface.hpp"
 #include "tinyutf8.h"
 
 namespace fge
 {
 
 #ifndef FGE_DEF_SERVER
-Event::Event(SDL_Window* window)
+Event::Event(SDL_Window* window) //TODO: Use SurfaceWindow instead of SDL_Window
 {
     SDL_GetWindowSize(window, &this->g_windowSize.x, &this->g_windowSize.y);
     SDL_GetWindowPosition(window, &this->g_windowPosition.x, &this->g_windowPosition.y);
 }
 Event::Event(fge::RenderWindow const& renderWindow) :
-        Event(renderWindow.getContext().getSurface().getWindow())
+        Event(reinterpret_cast<fge::vulkan::SurfaceSDLWindow*>(&renderWindow.getSurface())->getWindow())
 {}
 #endif //FGE_DEF_SERVER
 

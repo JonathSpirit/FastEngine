@@ -187,7 +187,7 @@ public:
      *
      * \param window The SDL window
      */
-    void initVulkan(SDL_Window* window);
+    void initVulkan(Surface const& surface);
 
     /**
      * \brief Enumerate to standard output the available extensions
@@ -376,7 +376,7 @@ private:
     Instance g_instance;
     PhysicalDevice g_physicalDevice;
     LogicalDevice g_logicalDevice;
-    Surface g_surface;
+    Surface const* g_surface;
 
     mutable std::map<std::string, DescriptorSetLayout, std::less<>> g_cacheLayouts;
     DescriptorPool g_multiUseDescriptorPool;
