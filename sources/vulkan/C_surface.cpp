@@ -76,7 +76,7 @@ SurfaceSDLWindow::SurfaceSDLWindow(Instance& instance,
                                    uint32_t flags) :
         SurfaceSDLWindow(instance)
 {
-    this->create(instance.getApplicationName(), position, size, flags);
+    this->create(instance.getApplicationName().cpp_str_view(), position, size, flags);
 }
 SurfaceSDLWindow::SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept :
         SurfaceWindow(std::move(r)),

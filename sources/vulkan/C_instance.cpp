@@ -28,10 +28,13 @@ namespace fge::vulkan
 Instance::Instance() :
         g_instance(VK_NULL_HANDLE)
 {}
-Instance::Instance(std::string applicationName, uint16_t versionMajor, uint16_t versionMinor, uint16_t versionPatch) :
+Instance::Instance(std::string_view applicationName,
+                   uint16_t versionMajor,
+                   uint16_t versionMinor,
+                   uint16_t versionPatch) :
         g_instance(VK_NULL_HANDLE)
 {
-    this->create(std::move(applicationName), versionMajor, versionMinor, versionPatch);
+    this->create(applicationName, versionMajor, versionMinor, versionPatch);
 }
 Instance::Instance(Instance&& r) noexcept :
         g_instance(r.g_instance),
@@ -45,14 +48,17 @@ Instance::~Instance()
     this->destroy();
 }
 
-void Instance::create(std::string applicationName, uint16_t versionMajor, uint16_t versionMinor, uint16_t versionPatch)
+void Instance::create(std::string_view applicationName,
+                      uint16_t versionMajor,
+                      uint16_t versionMinor,
+                      uint16_t versionPatch)
 {
     if (this->g_instance != VK_NULL_HANDLE)
     {
         throw fge::Exception{"instance already created !"};
     }
 
-    this->g_applicationName = std::move(applicationName);
+    this->g_applicationName = applicationName;
 
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -117,7 +123,7 @@ void Instance::destroy()
     }
 }
 
-std::string const& Instance::getApplicationName() const
+tiny_utf8::string const& Instance::getApplicationName() const
 {
     return this->g_applicationName;
 }

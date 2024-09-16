@@ -20,7 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
 #include "C_physicalDevice.hpp"
-#include "SDL_vulkan.h"
+#include "tinyutf8.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -39,7 +39,7 @@ class FGE_API Instance
 {
 public:
     Instance();
-    explicit Instance(std::string applicationName,
+    explicit Instance(std::string_view applicationName,
                       uint16_t versionMajor = 1,
                       uint16_t versionMinor = 0,
                       uint16_t versionPatch = 0);
@@ -58,13 +58,13 @@ public:
      * \param versionMinor The application version minor
      * \param versionPatch The application version patch
      */
-    void create(std::string applicationName,
+    void create(std::string_view applicationName,
                 uint16_t versionMajor = 1,
                 uint16_t versionMinor = 0,
                 uint16_t versionPatch = 0);
     void destroy();
 
-    [[nodiscard]] std::string const& getApplicationName() const;
+    [[nodiscard]] tiny_utf8::string const& getApplicationName() const;
 
     [[nodiscard]] VkInstance get() const;
 
@@ -91,7 +91,7 @@ private:
     void enumeratePhysicalDevices();
 
     VkInstance g_instance;
-    std::string g_applicationName;
+    tiny_utf8::string g_applicationName;
 
     std::vector<PhysicalDevice> g_physicalDevices;
 };
