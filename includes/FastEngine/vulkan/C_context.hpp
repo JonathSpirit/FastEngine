@@ -373,7 +373,6 @@ private:
         bool _isRecording{false};
     };
 
-    Instance g_instance;
     PhysicalDevice g_physicalDevice;
     LogicalDevice g_logicalDevice;
     Surface const* g_surface;

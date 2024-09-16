@@ -76,7 +76,6 @@ void Context::destroy()
 
         this->g_surface = nullptr;
         this->g_logicalDevice.destroy();
-        this->g_instance.destroy();
 
         this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers.fill({VK_NULL_HANDLE, false});
         this->g_indirectFinishedSemaphores.fill(VK_NULL_HANDLE);
@@ -264,12 +263,8 @@ void Context::initVolk()
 
 void Context::initVulkan(Surface const& surface)
 {
-    this->g_isCreated = true;
-
-    this->g_instance.create("VulkanTest"); //TODO: Add parameter for app name
-
     this->g_surface = &surface;
-    auto physicalDevice = this->g_instance.pickPhysicalDevice(this->g_surface->get());
+    auto physicalDevice = this->g_surface->getInstance().pickPhysicalDevice(this->g_surface->get());
     if (!physicalDevice.has_value())
     {
         throw fge::Exception("failed to find a suitable GPU!");
@@ -312,7 +307,7 @@ void Context::initVulkan(Surface const& surface)
                                                nullptr,
                                                nullptr,
                                                &vulkanFunctions,
-                                               this->g_instance.get(),
+                                               this->g_surface->getInstance().get(),
                                                VK_API_VERSION_1_1,
                                                nullptr};
 
@@ -340,6 +335,7 @@ void Context::initVulkan(Surface const& surface)
             FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
 
     this->g_globalTransform.init(*this);
+    this->g_isCreated = true;
 }
 void Context::enumerateExtensions()
 {
@@ -379,7 +375,7 @@ void Context::waitIdle()
 
 Instance const& Context::getInstance() const
 {
-    return this->g_instance;
+    return this->g_surface->getInstance();
 }
 Surface const& Context::getSurface() const
 {
