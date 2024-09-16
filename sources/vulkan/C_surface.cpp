@@ -70,6 +70,14 @@ SurfaceSDLWindow::SurfaceSDLWindow(Instance& instance,
 {
     this->create(title, position, size, flags);
 }
+SurfaceSDLWindow::SurfaceSDLWindow(Instance& instance,
+                                   fge::Vector2i const& position,
+                                   fge::Vector2i const& size,
+                                   uint32_t flags) :
+        SurfaceSDLWindow(instance)
+{
+    this->create(instance.getApplicationName(), position, size, flags);
+}
 SurfaceSDLWindow::SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept :
         SurfaceWindow(std::move(r)),
         g_window(r.g_window)
@@ -140,7 +148,7 @@ void SurfaceSDLWindow::destroy()
 
 SurfaceWindow::Types SurfaceSDLWindow::getType() const
 {
-    return SurfaceWindow::Types::SDL;
+    return Types::SDL;
 }
 
 fge::Vector2i SurfaceSDLWindow::getSize() const

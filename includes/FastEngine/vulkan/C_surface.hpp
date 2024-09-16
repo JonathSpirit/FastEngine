@@ -23,6 +23,9 @@
 #include "SDL_vulkan.h"
 #include <string_view>
 
+#define FGE_WINDOWPOS_UNDEFINED {SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
+#define FGE_WINDOWPOS_CENTERED {SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED}
+
 namespace fge::vulkan
 {
 
@@ -93,6 +96,7 @@ public:
                      fge::Vector2i const& position,
                      fge::Vector2i const& size,
                      uint32_t flags);
+    SurfaceSDLWindow(Instance& instance, fge::Vector2i const& position, fge::Vector2i const& size, uint32_t flags);
     SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept;
     ~SurfaceSDLWindow() override;
 
