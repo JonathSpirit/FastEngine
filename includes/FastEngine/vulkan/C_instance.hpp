@@ -39,6 +39,10 @@ class FGE_API Instance
 {
 public:
     Instance();
+    explicit Instance(std::string applicationName,
+                      uint16_t versionMajor = 1,
+                      uint16_t versionMinor = 0,
+                      uint16_t versionPatch = 0);
     Instance(Instance const& r) = delete;
     Instance(Instance&& r) noexcept;
     ~Instance();
@@ -81,7 +85,7 @@ public:
      * \param surface The surface
      * \return The physical device or VK_NULL_HANDLE if no physical device is found
      */
-    [[nodiscard]] std::optional<PhysicalDevice> pickPhysicalDevice(VkSurfaceKHR surface);
+    [[nodiscard]] std::optional<PhysicalDevice> pickPhysicalDevice(VkSurfaceKHR surface) const;
 
 private:
     void enumeratePhysicalDevices();

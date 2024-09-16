@@ -28,6 +28,11 @@ namespace fge::vulkan
 Instance::Instance() :
         g_instance(VK_NULL_HANDLE)
 {}
+Instance::Instance(std::string applicationName, uint16_t versionMajor, uint16_t versionMinor, uint16_t versionPatch) :
+        g_instance(VK_NULL_HANDLE)
+{
+    this->create(std::move(applicationName), versionMajor, versionMinor, versionPatch);
+}
 Instance::Instance(Instance&& r) noexcept :
         g_instance(r.g_instance),
         g_applicationName(std::move(r.g_applicationName)),
@@ -126,7 +131,7 @@ std::vector<PhysicalDevice> const& Instance::getPhysicalDevices() const
 {
     return this->g_physicalDevices;
 }
-std::optional<PhysicalDevice> Instance::pickPhysicalDevice(VkSurfaceKHR surface)
+std::optional<PhysicalDevice> Instance::pickPhysicalDevice(VkSurfaceKHR surface) const
 {
     // Use an ordered map to automatically sort candidates by increasing score
     std::multimap<unsigned int, PhysicalDevice const*> candidates;
