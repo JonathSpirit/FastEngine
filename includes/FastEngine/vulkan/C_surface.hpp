@@ -78,6 +78,7 @@ public:
     [[nodiscard]] virtual Types getType() const = 0;
 
     [[nodiscard]] virtual fge::Vector2i getSize() const = 0;
+    [[nodiscard]] virtual fge::Vector2i getPosition() const = 0;
 };
 
 class FGE_API SurfaceSDLWindow final : public SurfaceWindow
@@ -87,16 +88,22 @@ public:
             SurfaceWindow(instance),
             g_window(nullptr)
     {}
+    SurfaceSDLWindow(Instance& instance,
+                     std::string_view title,
+                     fge::Vector2i const& position,
+                     fge::Vector2i const& size,
+                     uint32_t flags);
     SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept;
-    ~SurfaceSDLWindow() final;
+    ~SurfaceSDLWindow() override;
 
     bool create(SDL_Window* window);
     bool create(std::string_view title, fge::Vector2i const& position, fge::Vector2i const& size, uint32_t flags);
-    void destroy() final;
+    void destroy() override;
 
     [[nodiscard]] Types getType() const override;
 
     [[nodiscard]] fge::Vector2i getSize() const override;
+    [[nodiscard]] fge::Vector2i getPosition() const override;
 
     [[nodiscard]] SDL_Window* getWindow() const;
 

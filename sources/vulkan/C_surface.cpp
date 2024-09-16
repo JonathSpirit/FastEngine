@@ -61,6 +61,15 @@ VkExtent2D Surface::getExtent() const
 
 //SurfaceSDLWindow
 
+SurfaceSDLWindow::SurfaceSDLWindow(Instance& instance,
+                                   std::string_view title,
+                                   fge::Vector2i const& position,
+                                   fge::Vector2i const& size,
+                                   uint32_t flags) :
+        SurfaceSDLWindow(instance)
+{
+    this->create(title, position, size, flags);
+}
 SurfaceSDLWindow::SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept :
         SurfaceWindow(std::move(r)),
         g_window(r.g_window)
@@ -139,6 +148,12 @@ fge::Vector2i SurfaceSDLWindow::getSize() const
     fge::Vector2i size{0};
     SDL_GetWindowSize(this->g_window, &size.x, &size.y);
     return size;
+}
+fge::Vector2i SurfaceSDLWindow::getPosition() const
+{
+    fge::Vector2i position{0};
+    SDL_GetWindowPosition(this->g_window, &position.x, &position.y);
+    return position;
 }
 
 SDL_Window* SurfaceSDLWindow::getWindow() const
