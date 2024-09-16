@@ -62,7 +62,7 @@ public:
 
     [[nodiscard]] std::string const& getApplicationName() const;
 
-    [[nodiscard]] VkInstance getInstance() const; //TODO: rename to get()
+    [[nodiscard]] VkInstance get() const;
 
     /**
      * \brief Get a list of physical devices

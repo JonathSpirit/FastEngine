@@ -76,7 +76,7 @@ bool SurfaceSDLWindow::create(SDL_Window* window)
 {
     this->destroy();
 
-    if (SDL_Vulkan_CreateSurface(window, this->getInstance().getInstance(), &this->_g_surface) == SDL_FALSE)
+    if (SDL_Vulkan_CreateSurface(window, this->getInstance().get(), &this->_g_surface) == SDL_FALSE)
     {
         return false;
     }
@@ -103,7 +103,7 @@ bool SurfaceSDLWindow::create(std::string_view title,
         return false;
     }
 
-    if (SDL_Vulkan_CreateSurface(this->g_window, this->getInstance().getInstance(), &this->_g_surface) == SDL_FALSE)
+    if (SDL_Vulkan_CreateSurface(this->g_window, this->getInstance().get(), &this->_g_surface) == SDL_FALSE)
     {
         SDL_DestroyWindow(this->g_window);
         this->g_window = nullptr;
@@ -116,12 +116,12 @@ void SurfaceSDLWindow::destroy()
 {
     if (this->isCreated())
     {
-        if (this->getInstance().getInstance() == VK_NULL_HANDLE)
+        if (this->getInstance().get() == VK_NULL_HANDLE)
         {
             throw fge::Exception("surface must be destroyed before the instance !");
         }
 
-        vkDestroySurfaceKHR(this->getInstance().getInstance(), this->_g_surface, nullptr);
+        vkDestroySurfaceKHR(this->getInstance().get(), this->_g_surface, nullptr);
         this->_g_surface = VK_NULL_HANDLE;
 
         SDL_DestroyWindow(this->g_window);

@@ -312,7 +312,7 @@ void Context::initVulkan(Surface const& surface)
                                                nullptr,
                                                nullptr,
                                                &vulkanFunctions,
-                                               this->g_instance.getInstance(),
+                                               this->g_instance.get(),
                                                VK_API_VERSION_1_1,
                                                nullptr};
 

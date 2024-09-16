@@ -117,7 +117,7 @@ std::string const& Instance::getApplicationName() const
     return this->g_applicationName;
 }
 
-VkInstance Instance::getInstance() const
+VkInstance Instance::get() const
 {
     return this->g_instance;
 }
