@@ -25,13 +25,13 @@ namespace fge
 {
 
 #ifndef FGE_DEF_SERVER
-Event::Event(SDL_Window* window) //TODO: Use SurfaceWindow instead of SDL_Window
+Event::Event(fge::vulkan::SurfaceWindow const& surfaceWindow)
 {
-    SDL_GetWindowSize(window, &this->g_windowSize.x, &this->g_windowSize.y);
-    SDL_GetWindowPosition(window, &this->g_windowPosition.x, &this->g_windowPosition.y);
+    this->g_windowSize = surfaceWindow.getSize();
+    this->g_windowPosition = surfaceWindow.getPosition();
 }
 Event::Event(fge::RenderWindow const& renderWindow) :
-        Event(reinterpret_cast<fge::vulkan::SurfaceSDLWindow*>(&renderWindow.getSurface())->getWindow())
+        Event(renderWindow.getSurface())
 {}
 #endif //FGE_DEF_SERVER
 
