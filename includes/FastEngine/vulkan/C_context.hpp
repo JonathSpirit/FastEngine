@@ -27,12 +27,10 @@
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_garbageCollector.hpp"
-#include "FastEngine/vulkan/C_graphicPipeline.hpp"
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include "FastEngine/vulkan/C_surface.hpp"
-#include "FastEngine/vulkan/C_swapChain.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
 #include "FastEngine/vulkan/C_uniformBuffer.hpp"
 
@@ -100,6 +98,14 @@ public:
     };
 
     Context();
+    /**
+     * \brief Shortcut to initVulkan(surface)
+     *
+     * \see initVulkan()
+     *
+     * \param surface A valid Surface
+     */
+    explicit Context(Surface const& surface);
     Context(Context const& r) = delete;
     Context(Context&& r) noexcept = delete;
     ~Context();
@@ -117,12 +123,12 @@ public:
      * The DIRECT_WAIT_EXECUTION type is used to execute a command buffer directly, this implies
      * create the buffer,
      * submit the buffer,
-     * and waiting for the coresponding queue operations to be finished.
+     * and waiting for the corresponding queue operations to be finished.
      * This is not ideal for performance.
      *
      * The INDIRECT_EXECUTION type will create a command buffer that will be submitted later and
-     * executed with a semaphore that is signaled after every commands is done so this assure
-     * that every commands are finished before graphics commands.
+     * executed with a semaphore that is signaled after every command is done so this assures
+     * that every command are finished before graphics commands.
      * This is ideal for performance like copying staging buffers to device local buffers.
      *
      * On certain cases, a reusable command buffer is returned in order to optimize command buffer creation/destruction.
@@ -174,6 +180,28 @@ public:
     void submit() const;
 
     /**
+     * \brief Helper to init SDL, volk and create an Instance
+     *
+     * This function do that in order :
+     * - SDL_Init()
+     * - SDL_Vulkan_LoadLibrary()
+     * - Context::initVolk()
+     * - and create an instance with 'applicationName'
+     *
+     * \param sdlFlag SDL flag passed to SDL_Init()
+     * \param applicationName The name of the application
+     * \param versionMajor
+     * \param versionMinor
+     * \param versionPatch
+     * \return A valid Instance or throw on error
+     */
+    [[nodiscard]] static Instance init(uint32_t sdlFlag,
+                                       std::string_view applicationName,
+                                       uint16_t versionMajor = 1,
+                                       uint16_t versionMinor = 0,
+                                       uint16_t versionPatch = 0);
+
+    /**
      * \brief Initialize Volk (Vulkan loader)
      *
      * \warning This function must be called once before any other graphics usage, generally at the start of the program
@@ -183,9 +211,10 @@ public:
     /**
      * \brief Initialize Vulkan
      *
-     * Once a SDL window is correctly created, this function must be called to initialize Vulkan.
+     * Once a surface is correctly created, this function must be called to initialize Vulkan.
+     * Automatically call SetActiveContext() when no error.
      *
-     * \param window The SDL window
+     * \param surface A valid surface
      */
     void initVulkan(Surface const& surface);
 

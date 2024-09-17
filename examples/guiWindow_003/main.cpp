@@ -207,13 +207,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     using namespace fge::vulkan;
 
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_Vulkan_LoadLibrary(nullptr);
-
-    Context::initVolk();
+    auto instance = Context::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS, "example 003: guiWindow");
     Context::enumerateExtensions();
 
-    Instance instance("example 003: guiWindow");
     SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
@@ -224,10 +220,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         return 1;
     }
 
-    Context vulkanContext{};
-    vulkanContext.initVulkan(window);
-    SetActiveContext(vulkanContext);
-
+    Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
     fge::shader::Init();

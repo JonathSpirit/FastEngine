@@ -17,6 +17,7 @@
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
+#include "SDL.h"
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -30,18 +31,25 @@ namespace fge::vulkan
 
 Context::Context() :
         g_globalTransform(*this),
+        g_surface(nullptr),
         g_multiUseDescriptorPool(*this),
         g_textureLayout(*this),
         g_transformLayout(*this),
         g_textureDescriptorPool(*this),
         g_transformDescriptorPool(*this),
         g_mainRenderTarget(nullptr),
+        g_allocator(),
         g_currentFrame(0),
         g_graphicsCommandPool(VK_NULL_HANDLE),
         g_isCreated(false)
 {
     this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers.fill({VK_NULL_HANDLE, false});
     this->g_indirectFinishedSemaphores.fill(VK_NULL_HANDLE);
+}
+Context::Context(Surface const& surface) :
+        Context()
+{
+    this->initVulkan(surface);
 }
 Context::~Context()
 {
@@ -252,6 +260,26 @@ void Context::submit() const
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
 }
 
+Instance Context::init(uint32_t sdlFlag,
+                       std::string_view applicationName,
+                       uint16_t versionMajor,
+                       uint16_t versionMinor,
+                       uint16_t versionPatch)
+{
+    if (SDL_Init(sdlFlag) != 0)
+    {
+        throw fge::Exception("failed to initialize SDL!");
+    }
+    if (SDL_Vulkan_LoadLibrary(nullptr) != 0)
+    {
+        throw fge::Exception("failed to load sdl Vulkan library!");
+    }
+
+    Context::initVolk();
+
+    return Instance(applicationName, versionMajor, versionMinor, versionPatch);
+}
+
 void Context::initVolk()
 {
     auto result = volkInitialize();
@@ -336,6 +364,8 @@ void Context::initVulkan(Surface const& surface)
 
     this->g_globalTransform.init(*this);
     this->g_isCreated = true;
+
+    SetActiveContext(*this);
 }
 void Context::enumerateExtensions()
 {
