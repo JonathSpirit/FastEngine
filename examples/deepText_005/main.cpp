@@ -181,32 +181,29 @@ public:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_Window* window = SDL_CreateWindow("example 005: deepText", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
-                                          600, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    using namespace fge::vulkan;
+
+    auto instance = Context::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS, "example 005: deepText");
+    Context::enumerateExtensions();
+
+    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
-    if (window == nullptr)
+    if (!window.isCreated())
     {
         // In the case that the window could not be made...
         std::cout << "Could not create window: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    fge::vulkan::Context vulkanContext{};
-    fge::vulkan::Context::initVolk();
-    fge::vulkan::Context::enumerateExtensions();
-    vulkanContext.initVulkan(window);
-
-    fge::vulkan::SetActiveContext(vulkanContext);
-
+    Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
     fge::shader::Init();
     fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
                               fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
 
-    fge::RenderWindow renderWindow(vulkanContext);
+    fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
 
     std::unique_ptr<MainScene> scene = std::make_unique<MainScene>();
@@ -221,8 +218,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     vulkanContext.destroy();
 
-    SDL_DestroyWindow(window);
-
+    window.destroy();
+    instance.destroy();
     SDL_Quit();
 
     return 0;

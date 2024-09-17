@@ -247,9 +247,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     vulkanContext.destroy();
 
     window.destroy();
-
     instance.destroy();
-
     SDL_Quit();
 
     return 0;

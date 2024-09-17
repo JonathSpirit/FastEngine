@@ -20,7 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
 #include "FastEngine/C_vector.hpp"
-#include "SDL_vulkan.h"
+#include "SDL_video.h"
 #include <string_view>
 
 #define FGE_WINDOWPOS_UNDEFINED {SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
