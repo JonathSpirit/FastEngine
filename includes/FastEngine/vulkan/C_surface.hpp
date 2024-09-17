@@ -31,6 +31,13 @@ namespace fge::vulkan
 
 class Instance;
 
+/**
+ * \class Surface
+ * \ingroup vulkan
+ * \brief Vulkan surface abstraction
+ *
+ * This base class is used to create a Vulkan surface.
+ */
 class FGE_API Surface
 {
 public:
@@ -59,6 +66,14 @@ private:
     Instance* g_instance;
 };
 
+/**
+ * \class SurfaceWindow
+ * \ingroup vulkan
+ * \brief Vulkan OS window surface
+ *
+ * This base class is used to create a Vulkan surface on a window.
+ * It's also an abstraction on multiple window creation library classes.
+ */
 class SurfaceWindow : public Surface
 {
 public:
@@ -84,6 +99,13 @@ public:
     [[nodiscard]] virtual fge::Vector2i getPosition() const = 0;
 };
 
+/**
+ * \class SurfaceSDLWindow
+ * \ingroup vulkan
+ * \brief Vulkan OS window surface made with SDL
+ *
+ * This class is used to create a Vulkan surface on a SDL window.
+ */
 class FGE_API SurfaceSDLWindow final : public SurfaceWindow
 {
 public:
@@ -100,7 +122,26 @@ public:
     SurfaceSDLWindow(SurfaceSDLWindow&& r) noexcept;
     ~SurfaceSDLWindow() override;
 
+    /**
+     * \brief Create a surface by taking an already created SDL_Window.
+     *
+     * The window must be created with no error and with the SDL_WINDOW_VULKAN flag.
+     * This method take the ownership of the SDL window, that means it will automatically destroy it.
+     *
+     * \param window The SDL window handle
+     * \return \b true if created successfully, \b false otherwise
+     */
     bool create(SDL_Window* window);
+    /**
+     * \brief Create a surface and the SDL_Window.
+     *
+     * You can use FGE_WINDOWPOS_UNDEFINED or FGE_WINDOWPOS_CENTERED helpers for the position.
+     *
+     * \param title A valid UTF8 string view
+     * \param position The position of the window when created
+     * \param size The size of the window
+     * \param flags The flag passed to SDL_CreateWindow
+     */
     bool create(std::string_view title, fge::Vector2i const& position, fge::Vector2i const& size, uint32_t flags);
     void destroy() override;
 

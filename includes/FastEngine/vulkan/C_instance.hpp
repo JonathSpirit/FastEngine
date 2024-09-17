@@ -39,6 +39,9 @@ class FGE_API Instance
 {
 public:
     Instance();
+    /**
+     * \see create()
+     */
     explicit Instance(std::string_view applicationName,
                       uint16_t versionMajor = 1,
                       uint16_t versionMinor = 0,

@@ -72,7 +72,7 @@ public:
     /**
      * \brief Constructor to apply window data
      *
-     * \param window The window
+     * \param surfaceWindow The surface window
      */
 #ifndef FGE_DEF_SERVER
     explicit Event(fge::vulkan::SurfaceWindow const& surfaceWindow);
