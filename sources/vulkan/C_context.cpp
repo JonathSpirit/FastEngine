@@ -277,6 +277,8 @@ Instance Context::init(uint32_t sdlFlag,
 
     Context::initVolk();
 
+    Context::enumerateExtensions();
+
     return Instance(applicationName, versionMajor, versionMinor, versionPatch);
 }
 
@@ -292,7 +294,8 @@ void Context::initVolk()
 void Context::initVulkan(Surface const& surface)
 {
     this->g_surface = &surface;
-    auto physicalDevice = this->g_surface->getInstance().pickPhysicalDevice(this->g_surface->get());
+    this->g_instance = &this->g_surface->getInstance();
+    auto physicalDevice = this->g_instance->pickPhysicalDevice(this->g_surface->get());
     if (!physicalDevice.has_value())
     {
         throw fge::Exception("failed to find a suitable GPU!");
@@ -335,7 +338,86 @@ void Context::initVulkan(Surface const& surface)
                                                nullptr,
                                                nullptr,
                                                &vulkanFunctions,
-                                               this->g_surface->getInstance().get(),
+                                               this->g_instance->get(),
+                                               VK_API_VERSION_1_1,
+                                               nullptr};
+
+    if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
+    {
+        throw fge::Exception("failed to create allocator!");
+    }
+
+    this->createCommandPool();
+    this->createMultiUseDescriptorPool();
+    this->createTextureDescriptorPool();
+    this->createTransformDescriptorPool();
+    this->createSyncObjects();
+
+    for (std::size_t i = 0; i < FGE_MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        this->allocateGraphicsCommandBuffers(
+                VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                &this->g_indirectOutsideRenderScopeGraphicsSubmitableCommandBuffers[i]._commandBuffer, 1);
+    }
+
+    this->g_textureLayout.create({DescriptorSetLayout::Binding(
+            FGE_VULKAN_TEXTURE_BINDING, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)});
+    this->g_transformLayout.create({DescriptorSetLayout::Binding(
+            FGE_VULKAN_TRANSFORM_BINDING, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
+
+    this->g_globalTransform.init(*this);
+    this->g_isCreated = true;
+
+    SetActiveContext(*this);
+}
+void Context::initVulkanSurfaceless(Instance const& instance)
+{
+    this->g_surface = nullptr;
+    this->g_instance = &instance;
+    auto physicalDevice = this->g_instance->pickPhysicalDevice(VK_NULL_HANDLE);
+    if (!physicalDevice.has_value())
+    {
+        throw fge::Exception("failed to find a suitable GPU!");
+    }
+    this->g_physicalDevice = std::move(physicalDevice.value());
+    this->g_logicalDevice.create(this->g_physicalDevice, VK_NULL_HANDLE);
+
+    VmaVulkanFunctions vulkanFunctions{vkGetInstanceProcAddr,
+                                       vkGetDeviceProcAddr,
+                                       vkGetPhysicalDeviceProperties,
+                                       vkGetPhysicalDeviceMemoryProperties,
+                                       vkAllocateMemory,
+                                       vkFreeMemory,
+                                       vkMapMemory,
+                                       vkUnmapMemory,
+                                       vkFlushMappedMemoryRanges,
+                                       vkInvalidateMappedMemoryRanges,
+                                       vkBindBufferMemory,
+                                       vkBindImageMemory,
+                                       vkGetBufferMemoryRequirements,
+                                       vkGetImageMemoryRequirements,
+                                       vkCreateBuffer,
+                                       vkDestroyBuffer,
+                                       vkCreateImage,
+                                       vkDestroyImage,
+                                       vkCmdCopyBuffer,
+                                       vkGetBufferMemoryRequirements2,
+                                       vkGetImageMemoryRequirements2,
+                                       vkBindBufferMemory2,
+                                       vkBindImageMemory2,
+                                       vkGetPhysicalDeviceMemoryProperties2,
+                                       vkGetDeviceBufferMemoryRequirements,
+                                       vkGetDeviceImageMemoryRequirements};
+
+    VmaAllocatorCreateInfo allocatorCreateInfo{0,
+                                               this->g_physicalDevice.getDevice(),
+                                               this->g_logicalDevice.getDevice(),
+                                               0,
+                                               nullptr,
+                                               nullptr,
+                                               nullptr,
+                                               &vulkanFunctions,
+                                               this->g_instance->get(),
                                                VK_API_VERSION_1_1,
                                                nullptr};
 
@@ -405,7 +487,7 @@ void Context::waitIdle()
 
 Instance const& Context::getInstance() const
 {
-    return this->g_surface->getInstance();
+    return *this->g_instance;
 }
 Surface const& Context::getSurface() const
 {
@@ -587,7 +669,10 @@ void Context::GlobalTransform::update()
 
 void Context::createCommandPool()
 {
-    auto queueFamilyIndices = this->g_physicalDevice.findQueueFamilies(this->g_surface->get());
+    auto queueFamilyIndices = this->g_physicalDevice.findQueueFamilies(
+            this->g_surface == nullptr
+                    ? VK_NULL_HANDLE
+                    : this->g_surface->get()); //TODO: do not do that, it's already done in logicalDevice
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

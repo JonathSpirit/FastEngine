@@ -217,6 +217,7 @@ public:
      * \param surface A valid surface
      */
     void initVulkan(Surface const& surface);
+    void initVulkanSurfaceless(Instance const& instance);
 
     /**
      * \brief Enumerate to standard output the available extensions
@@ -405,6 +406,7 @@ private:
     PhysicalDevice g_physicalDevice;
     LogicalDevice g_logicalDevice;
     Surface const* g_surface;
+    Instance const* g_instance;
 
     mutable std::map<std::string, DescriptorSetLayout, std::less<>> g_cacheLayouts;
     DescriptorPool g_multiUseDescriptorPool;
