@@ -93,10 +93,13 @@ void Instance::create(std::string_view applicationName,
 
     SDL_Vulkan_GetInstanceExtensions(nullptr, &enabled_extension_count, extensions.data());
 
+    //Additional user extensions
+    extensions.insert(extensions.end(), InstanceExtensions.begin(), InstanceExtensions.end());
+
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledExtensionCount = enabled_extension_count;
+    createInfo.enabledExtensionCount = extensions.size();
     createInfo.ppEnabledExtensionNames = reinterpret_cast<char const* const*>(extensions.data());
 
     createInfo.enabledLayerCount = static_cast<uint32_t>(validInstanceLayers.size());
