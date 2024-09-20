@@ -80,7 +80,8 @@ public:
 
         //Update scene
         auto deltaTick = tick.restart();
-        //this->update(renderTexture, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
+        fge::RenderWindow* window; //TODO: don't do that
+        this->update(*window, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
         //Update text characters
         auto& characters = movingText->getCharacters();
@@ -109,10 +110,8 @@ public:
 
         fge::vulkan::GetActiveContext()._garbageCollector.enable(false);
 
-        SDL_Surface* surface = renderTexture.getTextureImage()
-                                       .copyToSurface(); //TODO: It should return fge::SurfaceImage not SDL_Surface
-        SDL_SaveBMP(surface, "output.bmp");
-        SDL_FreeSurface(surface);
+        fge::Surface surface{renderTexture.getTextureImage().copyToSurface()};
+        surface.saveToFile("output.png");
     }
 };
 

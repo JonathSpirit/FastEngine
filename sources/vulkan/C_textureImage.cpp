@@ -331,16 +331,16 @@ SDL_Surface* TextureImage::copyToSurface() const
 
     commandBuffer.copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
 
-    void* data = nullptr;
-    vmaMapMemory(context.getAllocator(), dstBufferAllocation, &data);
-    memcpy(surface->pixels, data, static_cast<size_t>(imageSize));
-    vmaUnmapMemory(context.getAllocator(), dstBufferAllocation);
-
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                         this->g_mipLevels);
 
     context.submitCommands(std::move(commandBuffer));
+
+    void* data = nullptr;
+    vmaMapMemory(context.getAllocator(), dstBufferAllocation, &data);
+    memcpy(surface->pixels, data, static_cast<size_t>(imageSize));
+    vmaUnmapMemory(context.getAllocator(), dstBufferAllocation);
 
     vmaDestroyBuffer(context.getAllocator(), dstBuffer, dstBufferAllocation);
 
