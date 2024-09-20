@@ -131,7 +131,7 @@ uint32_t RenderTexture::prepareNextFrame(VkCommandBufferInheritanceInfo const* i
     this->g_commandBuffers[this->g_currentFrame].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
                                                        inheritanceInfo);
 
-    return FGE_RENDER_BAD_IMAGE_INDEX;
+    return 0;
 }
 void RenderTexture::beginRenderPass([[maybe_unused]] uint32_t imageIndex)
 {
