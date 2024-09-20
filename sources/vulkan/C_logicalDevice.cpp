@@ -54,8 +54,12 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 {
     auto indices = physicalDevice.findQueueFamilies(surface);
 
-    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value(), indices._presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {indices._graphicsFamily.value()};
 
+    if (indices._presentFamily)
+    {
+        uniqueQueueFamilies.insert(indices._presentFamily.value());
+    }
     if (indices._transferFamily)
     {
         uniqueQueueFamilies.insert(indices._transferFamily.value());
@@ -137,10 +141,22 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
         throw fge::Exception("failed to create logical device!");
     }
 
+    this->g_presentQueue = VK_NULL_HANDLE;
+    if (indices._presentFamily)
+    {
+        vkGetDeviceQueue(this->g_device, indices._presentFamily.value(), 0, &this->g_presentQueue);
+    }
+    this->g_transferQueue = VK_NULL_HANDLE;
+    if (indices._transferFamily)
+    {
+        vkGetDeviceQueue(this->g_device, indices._transferFamily.value(), 0, &this->g_transferQueue);
+    }
+    this->g_computeQueue = VK_NULL_HANDLE;
+    if (indices._computeFamily)
+    {
+        vkGetDeviceQueue(this->g_device, indices._computeFamily.value(), 0, &this->g_computeQueue);
+    }
     vkGetDeviceQueue(this->g_device, indices._graphicsFamily.value(), 0, &this->g_graphicQueue);
-    vkGetDeviceQueue(this->g_device, indices._computeFamily.value(), 0, &this->g_computeQueue);
-    vkGetDeviceQueue(this->g_device, indices._transferFamily.value(), 0, &this->g_transferQueue);
-    vkGetDeviceQueue(this->g_device, indices._presentFamily.value(), 0, &this->g_presentQueue);
 }
 void LogicalDevice::destroy()
 {
