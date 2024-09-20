@@ -66,6 +66,25 @@ private:
     Instance* g_instance;
 };
 
+class FGE_API SurfaceHeadless final : public Surface
+{
+public:
+    explicit SurfaceHeadless(Instance& instance, VkExtent2D extent = {0, 0});
+    SurfaceHeadless(SurfaceHeadless&& r) noexcept;
+    ~SurfaceHeadless() override;
+
+    bool create(VkExtent2D extent);
+
+    void setExtent(VkExtent2D extent);
+
+    void destroy() override;
+
+    [[nodiscard]] VkExtent2D getExtent() const override;
+
+private:
+    VkExtent2D g_extent;
+};
+
 /**
  * \class SurfaceWindow
  * \ingroup vulkan

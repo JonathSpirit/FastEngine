@@ -59,6 +59,72 @@ VkExtent2D Surface::getExtent() const
     return {0, 0};
 }
 
+//SurfaceHeadless
+
+SurfaceHeadless::SurfaceHeadless(Instance& instance, VkExtent2D extent) :
+        Surface(instance)
+{
+    this->create(extent);
+}
+
+SurfaceHeadless::SurfaceHeadless(SurfaceHeadless&& r) noexcept :
+        Surface(std::move(r))
+{
+    this->g_extent = r.g_extent;
+}
+
+SurfaceHeadless::~SurfaceHeadless()
+{
+    this->destroy();
+}
+
+bool SurfaceHeadless::create(VkExtent2D extent)
+{
+    this->destroy();
+
+    VkHeadlessSurfaceCreateInfoEXT createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
+
+    if (vkCreateHeadlessSurfaceEXT == nullptr)
+    {
+        throw fge::Exception("VK_EXT_HEADLESS_SURFACE: Vulkan headless surface extension not loaded!");
+    }
+
+    if (vkCreateHeadlessSurfaceEXT(this->getInstance().get(), &createInfo, nullptr, &this->_g_surface) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    this->g_extent = extent;
+    return true;
+}
+
+void SurfaceHeadless::setExtent(VkExtent2D extent)
+{
+    this->g_extent = extent;
+}
+
+void SurfaceHeadless::destroy()
+{
+    if (this->isCreated())
+    {
+        if (this->getInstance().get() == VK_NULL_HANDLE)
+        {
+            throw fge::Exception("surface must be destroyed before the instance !");
+        }
+
+        vkDestroySurfaceKHR(this->getInstance().get(), this->_g_surface, nullptr);
+        this->_g_surface = VK_NULL_HANDLE;
+    }
+}
+
+VkExtent2D SurfaceHeadless::getExtent() const
+{
+    return this->g_extent;
+}
+
 //SurfaceSDLWindow
 
 SurfaceSDLWindow::SurfaceSDLWindow(Instance& instance,
