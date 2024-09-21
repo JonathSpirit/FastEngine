@@ -110,8 +110,15 @@ public:
 
         fge::vulkan::GetActiveContext()._garbageCollector.enable(false);
 
-        fge::Surface surface{renderTexture.getTextureImage().copyToSurface()};
-        surface.saveToFile("output.png");
+        fge::Surface const surface{renderTexture.getTextureImage().copyToSurface()};
+        if (surface.saveToFile("output.png"))
+        {
+            std::cout << "file is successfully saved to ./output.png" << std::endl;
+        }
+        else
+        {
+            std::cout << "error saving file" << std::endl;
+        }
     }
 };
 

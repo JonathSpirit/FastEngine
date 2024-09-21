@@ -150,6 +150,37 @@ void RenderTexture::display([[maybe_unused]] uint32_t imageIndex)
 {
     this->getContext().pushGraphicsCommandBuffer(this->g_commandBuffers[this->g_currentFrame].get());
 
+    if (this->getContext().isMainRenderTarget(*this))
+    {
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        auto contextSemaphore = this->getContext().getIndirectSemaphore();
+
+        VkSemaphore waitSemaphores[] = {contextSemaphore};
+        VkPipelineStageFlags waitStages[] = {FGE_CONTEXT_OUTSIDE_RENDER_SCOPE_COMMAND_WAITSTAGE};
+        submitInfo.waitSemaphoreCount = contextSemaphore == VK_NULL_HANDLE ? 0 : 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+
+        submitInfo.commandBufferCount = this->getContext().getGraphicsCommandBuffers().size();
+        submitInfo.pCommandBuffers = this->getContext().getGraphicsCommandBuffers().data();
+
+        //VkSemaphore signalSemaphores[] = {};
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = nullptr;
+
+        this->getContext().submit();
+
+        if (vkQueueSubmit(this->getContext().getLogicalDevice().getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE) !=
+            VK_SUCCESS)
+        {
+            throw fge::Exception("failed to submit draw command buffer!");
+        }
+
+        this->getContext().clearGraphicsCommandBuffers();
+    }
+
     this->g_currentFrame = (this->g_currentFrame + 1) % FGE_MAX_FRAMES_IN_FLIGHT;
     this->getContext().endMainRenderTarget(*this);
 }
