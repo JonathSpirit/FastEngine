@@ -277,8 +277,6 @@ Instance Context::init(uint32_t sdlFlag,
 
     Context::initVolk();
 
-    Context::enumerateExtensions();
-
     return Instance(applicationName, versionMajor, versionMinor, versionPatch);
 }
 
