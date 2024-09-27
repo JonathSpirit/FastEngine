@@ -327,6 +327,8 @@ float ObjText::getOutlineThickness() const
 
 fge::Vector2f ObjText::findCharacterPos(std::size_t index) const
 {
+    this->ensureGeometryUpdate();
+
     if (this->g_characters.empty())
     {
         return {};
