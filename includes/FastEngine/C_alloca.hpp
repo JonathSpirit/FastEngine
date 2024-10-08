@@ -30,4 +30,9 @@
 #define FGE_PLACE_DESTRUCT(_type, _size, _ptr)                                                                         \
     for (std::size_t _iii = 0; _iii < _size; ++_iii) (_ptr)[_iii].~_type()
 
+#define FGE_ALLOCA_STRINGVIEW_TO_CSTRING(_var, _str)                                                                   \
+    _var = FGE_ALLOCA_T(char, _str.size() + 1);                                                                        \
+    std::memcpy(_var, _str.data(), _str.size());                                                                       \
+    _var[_str.size()] = '\0'
+
 #endif // _FGE_C_ALLOCA_HPP_INCLUDED

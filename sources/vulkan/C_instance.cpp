@@ -28,6 +28,14 @@ namespace fge::vulkan
 Instance::Instance() :
         g_instance(VK_NULL_HANDLE)
 {}
+Instance::Instance(std::string_view applicationName,
+                   uint16_t versionMajor,
+                   uint16_t versionMinor,
+                   uint16_t versionPatch) :
+        g_instance(VK_NULL_HANDLE)
+{
+    this->create(applicationName, versionMajor, versionMinor, versionPatch);
+}
 Instance::Instance(Instance&& r) noexcept :
         g_instance(r.g_instance),
         g_applicationName(std::move(r.g_applicationName)),
@@ -40,14 +48,17 @@ Instance::~Instance()
     this->destroy();
 }
 
-void Instance::create(std::string applicationName, uint16_t versionMajor, uint16_t versionMinor, uint16_t versionPatch)
+void Instance::create(std::string_view applicationName,
+                      uint16_t versionMajor,
+                      uint16_t versionMinor,
+                      uint16_t versionPatch)
 {
     if (this->g_instance != VK_NULL_HANDLE)
     {
         throw fge::Exception{"instance already created !"};
     }
 
-    this->g_applicationName = std::move(applicationName);
+    this->g_applicationName = applicationName;
 
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -82,10 +93,13 @@ void Instance::create(std::string applicationName, uint16_t versionMajor, uint16
 
     SDL_Vulkan_GetInstanceExtensions(nullptr, &enabled_extension_count, extensions.data());
 
+    //Additional user extensions
+    extensions.insert(extensions.end(), InstanceExtensions.begin(), InstanceExtensions.end());
+
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledExtensionCount = enabled_extension_count;
+    createInfo.enabledExtensionCount = extensions.size();
     createInfo.ppEnabledExtensionNames = reinterpret_cast<char const* const*>(extensions.data());
 
     createInfo.enabledLayerCount = static_cast<uint32_t>(validInstanceLayers.size());
@@ -112,12 +126,12 @@ void Instance::destroy()
     }
 }
 
-std::string const& Instance::getApplicationName() const
+tiny_utf8::string const& Instance::getApplicationName() const
 {
     return this->g_applicationName;
 }
 
-VkInstance Instance::getInstance() const
+VkInstance Instance::get() const
 {
     return this->g_instance;
 }
@@ -126,7 +140,7 @@ std::vector<PhysicalDevice> const& Instance::getPhysicalDevices() const
 {
     return this->g_physicalDevices;
 }
-std::optional<PhysicalDevice> Instance::pickPhysicalDevice(VkSurfaceKHR surface)
+std::optional<PhysicalDevice> Instance::pickPhysicalDevice(VkSurfaceKHR surface) const
 {
     // Use an ordered map to automatically sort candidates by increasing score
     std::multimap<unsigned int, PhysicalDevice const*> candidates;

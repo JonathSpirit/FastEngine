@@ -21,7 +21,6 @@
 #include "C_vector.hpp"
 #include "FastEngine/C_callback.hpp"
 #include "SDL_events.h"
-#include "SDL_video.h"
 
 #define FGE_EVENT_KEYCODES_SIZE 12
 #define FGE_EVENT_DEFAULT_MAXEVENTCOUNT 20
@@ -30,6 +29,13 @@ namespace fge
 {
 
 class RenderWindow;
+
+namespace vulkan
+{
+
+class SurfaceWindow;
+
+} // namespace vulkan
 
 namespace net
 {
@@ -66,10 +72,10 @@ public:
     /**
      * \brief Constructor to apply window data
      *
-     * \param window The window
+     * \param surfaceWindow The surface window
      */
 #ifndef FGE_DEF_SERVER
-    explicit Event(SDL_Window* window);
+    explicit Event(fge::vulkan::SurfaceWindow const& surfaceWindow);
     explicit Event(fge::RenderWindow const& renderWindow);
 #endif //FGE_DEF_SERVER
     ~Event() = default;

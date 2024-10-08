@@ -37,6 +37,8 @@ std::vector<char const*> InstanceLayers = {};
 std::vector<char const*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                              VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME};
 
+std::vector<char const*> InstanceExtensions = {};
+
 namespace
 {
 

@@ -52,17 +52,17 @@ SwapChain::~SwapChain()
     this->destroy();
 }
 
-void SwapChain::create(SDL_Window* window,
+void SwapChain::create(VkExtent2D actualExtent,
                        LogicalDevice const& logicalDevice,
                        PhysicalDevice const& physicalDevice,
                        Surface const& surface,
                        VkPresentModeKHR wantedPresentMode)
 {
-    auto swapChainSupport = physicalDevice.querySwapChainSupport(surface.getSurface());
+    auto swapChainSupport = physicalDevice.querySwapChainSupport(surface.get());
 
     VkSurfaceFormatKHR const surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport._formats);
     this->g_presentMode = SwapChain::chooseSwapPresentMode(swapChainSupport._presentModes, wantedPresentMode);
-    VkExtent2D const extent = SwapChain::chooseSwapExtent(swapChainSupport._capabilities, window);
+    VkExtent2D const extent = SwapChain::chooseSwapExtent(swapChainSupport._capabilities, actualExtent);
 
     uint32_t imageCount = swapChainSupport._capabilities.minImageCount + 1;
 
@@ -73,7 +73,7 @@ void SwapChain::create(SDL_Window* window,
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = surface.getSurface();
+    createInfo.surface = surface.get();
 
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
@@ -82,7 +82,7 @@ void SwapChain::create(SDL_Window* window,
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-    auto indices = physicalDevice.findQueueFamilies(surface.getSurface());
+    auto indices = physicalDevice.findQueueFamilies(surface.get());
     uint32_t queueFamilyIndices[] = {indices._graphicsFamily.value(), indices._presentFamily.value()};
 
     if (indices._graphicsFamily != indices._presentFamily)
@@ -219,27 +219,19 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(std::vector<VkPresentModeKHR> 
 
     return VK_PRESENT_MODE_FIFO_KHR;
 }
-VkExtent2D SwapChain::chooseSwapExtent(VkSurfaceCapabilitiesKHR const& capabilities, SDL_Window* window)
+VkExtent2D SwapChain::chooseSwapExtent(VkSurfaceCapabilitiesKHR const& capabilities, VkExtent2D actualExtent)
 {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
         return capabilities.currentExtent;
     }
-    else
-    {
-        int width = 0;
-        int height = 0;
-        SDL_GetWindowSize(window, &width, &height);
 
-        VkExtent2D actualExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    actualExtent.width =
+            std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+    actualExtent.height =
+            std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
-        actualExtent.width =
-                std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-        actualExtent.height =
-                std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-        return actualExtent;
-    }
+    return actualExtent;
 }
 
 } // namespace fge::vulkan

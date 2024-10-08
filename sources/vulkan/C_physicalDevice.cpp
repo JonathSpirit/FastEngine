@@ -110,14 +110,23 @@ unsigned int PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
     }
 
     QueueFamilyIndices indices = this->findQueueFamilies(surface);
-    if (!indices._graphicsFamily.has_value() || !indices._presentFamily.has_value())
+    if (!indices._graphicsFamily.has_value())
     {
+        return 0;
+    }
+    if (!indices._presentFamily.has_value() && surface != VK_NULL_HANDLE)
+    { //Allow no present family if no surface
         return 0;
     }
 
     if (!this->checkDeviceExtensionSupport())
     {
         return 0;
+    }
+
+    if (surface == VK_NULL_HANDLE)
+    {
+        return score;
     }
 
     SwapChainSupportDetails swapChainSupport = this->querySwapChainSupport(surface);
@@ -158,7 +167,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
                     indices._graphicsFamily = iQueueFamily;
                 }
             }
-            else if (!indices._presentFamily.has_value())
+            else if (!indices._presentFamily.has_value() && surface != VK_NULL_HANDLE)
             {
                 if (queueFamily.queueFlags > VK_QUEUE_PROTECTED_BIT)
                 {
