@@ -27,7 +27,7 @@ ObjAnimation::ObjAnimation() :
         g_paused(false)
 {
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
-    this->setTextureRect(this->g_animation);
+    this->setTextureRect(this->g_animation.retrieveTextureRect());
 }
 ObjAnimation::ObjAnimation(fge::Animation const& animation, fge::Vector2f const& position) :
         g_vertices(fge::vulkan::GetActiveContext()),
@@ -39,13 +39,13 @@ ObjAnimation::ObjAnimation(fge::Animation const& animation, fge::Vector2f const&
 {
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
     this->setPosition(position);
-    this->setTextureRect(this->g_animation);
+    this->setTextureRect(this->g_animation.retrieveTextureRect());
 }
 
 void ObjAnimation::setAnimation(fge::Animation const& animation)
 {
     this->g_animation = animation;
-    this->setTextureRect(this->g_animation);
+    this->setTextureRect(this->g_animation.retrieveTextureRect());
 }
 void ObjAnimation::setTextureRect(fge::RectInt const& rectangle)
 {
@@ -77,7 +77,7 @@ bool ObjAnimation::isPaused() const
 void ObjAnimation::refresh()
 {
     this->g_nextFrameTime = std::chrono::milliseconds{0};
-    this->setTextureRect(this->g_animation);
+    this->setTextureRect(this->g_animation.retrieveTextureRect());
 }
 
 void ObjAnimation::setTickDuration(std::chrono::milliseconds const& tms)
@@ -118,7 +118,7 @@ FGE_OBJ_UPDATE_BODY(ObjAnimation)
             if (this->g_nextFrameTime >= std::chrono::microseconds{this->g_tickDuration * frame->_ticks})
             {
                 this->g_animation.nextFrame();
-                this->setTextureRect(this->g_animation);
+                this->setTextureRect(this->g_animation.retrieveTextureRect());
                 this->g_nextFrameTime = std::chrono::milliseconds{0};
             }
         }
@@ -163,7 +163,7 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->g_tickDuration =
             std::chrono::milliseconds(jsonObject.value<uint16_t>("tickDuration", FGE_OBJANIM_DEFAULT_TICKDURATION_MS));
 
-    this->setTextureRect(this->g_animation);
+    this->setTextureRect(this->g_animation.retrieveTextureRect());
 }
 void ObjAnimation::pack(fge::net::Packet& pck)
 {
@@ -187,7 +187,7 @@ void ObjAnimation::unpack(fge::net::Packet const& pck)
     pck >> tmpTick;
     this->g_tickDuration = std::chrono::milliseconds(tmpTick);
 
-    this->setTextureRect(this->g_animation);
+    this->setTextureRect(this->g_animation.retrieveTextureRect());
 }
 
 char const* ObjAnimation::getClassName() const

@@ -59,31 +59,13 @@ bool CallbackObjectFunctor<TObject, Types...>::check(void* ptr)
 
 //CallbackLambda
 
-namespace
-{
-
-template<typename T>
-struct lambda_traits : public lambda_traits<decltype(&T::operator())>
-{};
-
-template<typename ClassType, typename ReturnType, typename... Args>
-struct lambda_traits<ReturnType (ClassType::*)(Args...) const>
-{
-    enum : std::size_t
-    {
-        ArgCount = sizeof...(Args)
-    };
-};
-
-} // namespace
-
 template<class... Types>
 template<typename TLambda>
 CallbackLambda<Types...>::CallbackLambda(TLambda const& lambda) :
         g_lambda(new TLambda(lambda))
 {
     this->g_executeLambda = [](void* lambdaPtr, [[maybe_unused]] Types... arguments) {
-        if constexpr (lambda_traits<TLambda>::ArgCount != 0)
+        if constexpr (std::is_invocable_v<TLambda, Types...>)
         {
             return (*reinterpret_cast<TLambda*>(lambdaPtr))(arguments...);
         }

@@ -419,7 +419,7 @@ std::shared_ptr<fge::TextureType> const& Animation::retrieveTexture() const
     return fge::texture::GetBadTexture()->_texture;
 }
 
-Animation::operator fge::RectInt() const
+fge::RectInt Animation::retrieveTextureRect() const
 {
     if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
