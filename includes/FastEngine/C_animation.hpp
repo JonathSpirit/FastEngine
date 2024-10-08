@@ -252,7 +252,7 @@ public:
      *
      * \return The texture rectangle or {0,0,16,16} if something is invalid
      */
-    operator fge::RectInt() const;
+    [[nodiscard]] fge::RectInt retrieveTextureRect() const;
 
 private:
     fge::anim::AnimationDataPtr g_data;
