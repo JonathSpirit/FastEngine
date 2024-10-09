@@ -23,14 +23,16 @@ namespace fge
 
 ObjButton::ObjButton() :
         g_color(fge::Color::White)
-{}
+{
+    this->setActiveStat(false);
+}
 ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, fge::Vector2f const& pos) :
         g_textureOn(std::move(textureOn)),
         g_textureOff(std::move(textureOff)),
         g_color(fge::Color::White)
 {
     this->setPosition(pos);
-    this->g_sprite.setTexture(this->g_textureOff);
+    this->setActiveStat(false);
 }
 ObjButton::ObjButton(fge::Texture const& texture, fge::Vector2f const& pos) :
         g_textureOn(texture),
@@ -38,7 +40,7 @@ ObjButton::ObjButton(fge::Texture const& texture, fge::Vector2f const& pos) :
         g_color(fge::Color::White)
 {
     this->setPosition(pos);
-    this->g_sprite.setTexture(this->g_textureOff);
+    this->setActiveStat(false);
 }
 
 fge::Texture const& ObjButton::getTextureOn() const
@@ -52,10 +54,18 @@ fge::Texture const& ObjButton::getTextureOff() const
 void ObjButton::setTextureOn(fge::Texture const& textureOn)
 {
     this->g_textureOn = textureOn;
+    if (this->g_statActive)
+    {
+        this->g_sprite.setTexture(this->g_textureOn);
+    }
 }
 void ObjButton::setTextureOff(fge::Texture const& textureOff)
 {
     this->g_textureOff = textureOff;
+    if (!this->g_statActive)
+    {
+        this->g_sprite.setTexture(this->g_textureOff);
+    }
 }
 
 void ObjButton::setColor(fge::Color const& color)
