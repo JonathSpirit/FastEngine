@@ -166,14 +166,6 @@ public:
     ///\warning Move operator prohibited
     fge::Subscriber& operator=(fge::Subscriber&& n) noexcept = delete;
 
-protected:
-    /**
-     * \brief Callback called when a subscription is detached
-     *
-     * \param subscription The subscription that was detached
-     */
-    virtual void onDetach([[maybe_unused]] fge::Subscription* subscription) {}
-
     /**
      * \brief Detach from all subscriptions
      */
@@ -184,6 +176,14 @@ protected:
      * \param subscription
      */
     void detach(fge::Subscription* subscription);
+
+protected:
+    /**
+     * \brief Callback called when a subscription is detached
+     *
+     * \param subscription The subscription that was detached
+     */
+    virtual void onDetach([[maybe_unused]] fge::Subscription* subscription) {}
 
 private:
     using SubscriberDataType = std::unordered_set<fge::Subscription*>;
