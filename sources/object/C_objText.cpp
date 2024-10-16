@@ -345,10 +345,12 @@ fge::Vector2f ObjText::findCharacterPos(std::size_t index) const
 
 std::vector<fge::Character>& ObjText::getCharacters()
 {
+    this->ensureGeometryUpdate();
     return this->g_characters;
 }
 std::vector<fge::Character> const& ObjText::getCharacters() const
 {
+    this->ensureGeometryUpdate();
     return this->g_characters;
 }
 
