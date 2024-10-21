@@ -351,7 +351,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
     {
         return nullptr;
     }
-    fge::ObjectSid generatedSid = this->generateSid(sid);
+    fge::ObjectSid generatedSid = this->generateSid(sid, type);
     if (generatedSid == FGE_SCENE_BAD_SID)
     {
         return nullptr;
@@ -390,7 +390,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
 }
 fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, bool silent)
 {
-    fge::ObjectSid generatedSid = this->generateSid(objectData->g_sid);
+    fge::ObjectSid generatedSid = this->generateSid(objectData->g_sid, objectData->g_type);
     if (generatedSid == FGE_SCENE_BAD_SID)
     {
         return nullptr;
@@ -967,26 +967,44 @@ fge::ObjectSid Scene::getSid(fge::Object const* ptr) const
     return FGE_SCENE_BAD_SID;
 }
 
-fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid) const
+fge::ObjectSid Scene::generateSid(fge::ObjectSid wanted_sid, fge::ObjectType type) const
 {
+    if (type == ObjectType::TYPE_MAX_ || type == ObjectType::TYPE_NULL)
+    {
+        return FGE_SCENE_BAD_SID;
+    }
+
     if (wanted_sid != FGE_SCENE_BAD_SID)
     {
         if (this->g_dataMap.find(wanted_sid) == this->g_dataMap.cend())
         {
             return wanted_sid;
         }
-        else
-        {
-            return FGE_SCENE_BAD_SID;
-        }
+        return FGE_SCENE_BAD_SID;
     }
 
-    fge::ObjectSid new_sid;
-    while (true)
+    while (true) ///TODO: not that great
     {
-        new_sid = fge::_random.range<fge::ObjectSid>(0, FGE_SCENE_BAD_SID);
+        auto new_sid = _random.range<ObjectSid>(0, (FGE_SCENE_BAD_SID - 1) &
+                                                           ~static_cast<DefaultSIDRanges_t>(DefaultSIDRanges::MASK));
 
-        if (this->g_dataMap.find(wanted_sid) == this->g_dataMap.cend())
+        switch (type)
+        {
+        case TYPE_OBJECT:
+            new_sid |= static_cast<DefaultSIDRanges_t>(DefaultSIDRanges::POS_OBJECT);
+            break;
+        case TYPE_DECAY:
+            new_sid |= static_cast<DefaultSIDRanges_t>(DefaultSIDRanges::POS_DECAY);
+            break;
+        case TYPE_GUI:
+            new_sid |= static_cast<DefaultSIDRanges_t>(DefaultSIDRanges::POS_GUI);
+            break;
+        default:
+            //Should never go here !
+            return FGE_SCENE_BAD_SID;
+        }
+
+        if (!this->g_dataMap.contains(wanted_sid))
         {
             return new_sid;
         }

@@ -126,6 +126,21 @@ enum ObjectType : uint8_t
     TYPE_MAX_
 };
 
+static_assert(sizeof(fge::ObjectSid) == sizeof(uint32_t), "fge::ObjectSid must be the same size as uint32_t");
+static_assert(ObjectType::TYPE_MAX_ <= 4, "Too many ObjectTypes, DefaultSIDRanges must change");
+enum class DefaultSIDRanges : ObjectSid
+{
+    MASK_SIZE = 2,
+    MASK_POS = 30,
+    MASK = ObjectSid{0x3} << MASK_POS,
+
+    POS_NULL = ObjectSid{ObjectType::TYPE_NULL} << MASK_POS,
+    POS_OBJECT = ObjectSid{ObjectType::TYPE_OBJECT} << MASK_POS,
+    POS_DECAY = ObjectSid{ObjectType::TYPE_DECAY} << MASK_POS,
+    POS_GUI = ObjectSid{ObjectType::TYPE_GUI} << MASK_POS
+};
+using DefaultSIDRanges_t = std::underlying_type_t<DefaultSIDRanges>;
+
 /**
  * \class ObjectData
  * \ingroup objectControl
@@ -939,13 +954,14 @@ public:
      *
      * By default, if the wanted SID is FGE_SCENE_BAD_SID, this function
      * try to generate one with random value using fge::_random.
+     * The last 2bits in the SID is also here to separate from each of ObjectType.
      *
-     * If the wanted SID is already taken, this will cause an random SID generation.
+     * If the wanted SID is already taken, this will cause a random SID generation.
      *
      * \param wanted_sid The wanted SID
      * \return The SID generated
      */
-    virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid = FGE_SCENE_BAD_SID) const;
+    virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid, fge::ObjectType type) const;
 
     // Network
     /**
