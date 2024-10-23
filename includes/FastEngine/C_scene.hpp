@@ -959,6 +959,7 @@ public:
      * If the wanted SID is already taken, this will cause a random SID generation.
      *
      * \param wanted_sid The wanted SID
+     * \param type The type of the Object
      * \return The SID generated
      */
     virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid, fge::ObjectType type) const;
