@@ -19,7 +19,6 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
-#include "SDL_vulkan.h"
 #include <variant>
 
 namespace fge::vulkan

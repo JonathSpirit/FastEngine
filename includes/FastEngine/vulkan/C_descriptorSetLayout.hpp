@@ -20,7 +20,6 @@
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
 #include "FastEngine/vulkan/C_contextAware.hpp"
-#include "SDL_vulkan.h"
 #include <initializer_list>
 #include <vector>
 

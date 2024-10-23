@@ -17,6 +17,7 @@
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_swapChain.hpp"
+#include "FastEngine/vulkan/C_vertex.hpp"
 
 namespace fge::vulkan
 {
