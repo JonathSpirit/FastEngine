@@ -22,7 +22,6 @@
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "SDL_vulkan.h"
 #include <limits>
 #include <vector>
 

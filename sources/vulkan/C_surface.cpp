@@ -18,6 +18,7 @@
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_instance.hpp"
+#include "SDL_vulkan.h"
 #include <cstring>
 
 namespace fge::vulkan
@@ -188,6 +189,10 @@ bool SurfaceSDLWindow::create(std::string_view title,
 
     if (SDL_Vulkan_CreateSurface(this->g_window, this->getInstance().get(), &this->_g_surface) == SDL_FALSE)
     {
+        //TODO: maybe wait for a valid instance in order to create Surface.
+        // The instance need some info like SDL_Vulkan_GetInstanceExtensions() that will be abstracted here
+        // This order of creation :
+        // create SurfaceSDLWindow with no valid Surface -> create instance -> create surface -> create context
         SDL_DestroyWindow(this->g_window);
         this->g_window = nullptr;
         return false;

@@ -20,7 +20,6 @@
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "SDL_vulkan.h"
 #include <cstdint>
 #ifdef FGE_DEF_SERVER
     #include <vector>

@@ -19,6 +19,7 @@
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/fge_version.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
+#include "SDL_vulkan.h"
 #include <iostream>
 #include <map>
 
@@ -85,7 +86,7 @@ void Instance::create(std::string_view applicationName,
 
     uint32_t enabled_extension_count = 0;
     if (SDL_Vulkan_GetInstanceExtensions(nullptr, &enabled_extension_count, nullptr) == SDL_FALSE)
-    {
+    { //TODO: This should be abstracted into the Surface, removing SDL_vulkan.h
         throw fge::Exception{"instance: not all required extension was available !"};
     }
 

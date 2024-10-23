@@ -18,6 +18,7 @@
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
 #include "SDL.h"
+#include "SDL_vulkan.h"
 #include <iostream>
 #include <optional>
 #include <vector>
