@@ -23,6 +23,7 @@ ObjSprite::ObjSprite() :
         g_vertices(fge::vulkan::GetActiveContext())
 {
     this->g_vertices.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::LOCAL);
+    this->setTextureRect(fge::RectInt({0, 0}, {FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H}));
 }
 ObjSprite::ObjSprite(fge::Texture const& texture, fge::Vector2f const& position) :
         ObjSprite()
@@ -56,8 +57,10 @@ void ObjSprite::setTextureRect(fge::RectInt const& rectangle)
     if (rectangle != this->g_textureRect)
     {
         this->g_textureRect = rectangle;
+#ifndef FGE_DEF_SERVER
         this->updatePositions();
         this->updateTexCoords();
+#endif
     }
 }
 
