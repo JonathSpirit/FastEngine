@@ -35,7 +35,7 @@ void ChildObjectsAccessor::clear()
     this->g_data.clear();
 }
 
-void ChildObjectsAccessor::addExistingObject(fge::Object* object, std::size_t insertionIndex)
+fge::ObjectDataShared ChildObjectsAccessor::addExistingObject(fge::Object* object, std::size_t insertionIndex)
 {
     fge::Scene* linkedScene = nullptr;
     auto owner = this->g_owner->_myObjectData.lock();
@@ -63,8 +63,9 @@ void ChildObjectsAccessor::addExistingObject(fge::Object* object, std::size_t in
 
     it->_objData->setParent(owner);
     it->_objPtr->_myObjectData = it->_objData;
+    return it->_objData;
 }
-void ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t insertionIndex)
+fge::ObjectDataShared ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t insertionIndex)
 {
     fge::Scene* linkedScene = nullptr;
     auto owner = this->g_owner->_myObjectData.lock();
@@ -90,6 +91,7 @@ void ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t 
 
     it->_objData->setParent(owner);
     it->_objPtr->_myObjectData = it->_objData;
+    return it->_objData;
 }
 
 std::size_t ChildObjectsAccessor::getSize() const

@@ -48,8 +48,10 @@ public:
 
     void clear();
 
-    void addExistingObject(fge::Object* object, std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
-    void addNewObject(fge::ObjectPtr&& newObject, std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
+    fge::ObjectDataShared addExistingObject(fge::Object* object,
+                                            std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
+    fge::ObjectDataShared addNewObject(fge::ObjectPtr&& newObject,
+                                       std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
 
     [[nodiscard]] std::size_t getSize() const;
     [[nodiscard]] fge::Object const* get(std::size_t index) const;
