@@ -63,6 +63,12 @@ fge::ObjectDataShared ChildObjectsAccessor::addExistingObject(fge::Object* objec
 
     it->_objData->setParent(owner);
     it->_objPtr->_myObjectData = it->_objData;
+
+    if (linkedScene != nullptr)
+    {
+        it->_objPtr->first(*linkedScene);
+    }
+
     return it->_objData;
 }
 fge::ObjectDataShared ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObject, std::size_t insertionIndex)
@@ -91,6 +97,12 @@ fge::ObjectDataShared ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObj
 
     it->_objData->setParent(owner);
     it->_objPtr->_myObjectData = it->_objData;
+
+    if (linkedScene != nullptr)
+    {
+        it->_objPtr->first(*linkedScene);
+    }
+
     return it->_objData;
 }
 
