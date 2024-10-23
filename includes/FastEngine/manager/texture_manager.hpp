@@ -29,6 +29,10 @@
 
 #define FGE_TEXTURE_DEFAULT FGE_TEXTURE_BAD
 #define FGE_TEXTURE_BAD ""
+#define FGE_TEXTURE_BAD_W 32
+#define FGE_TEXTURE_BAD_H 32
+#define FGE_TEXTURE_BAD_COLOR_1 fge::Color::Black
+#define FGE_TEXTURE_BAD_COLOR_2 fge::Color::Magenta
 
 namespace fge::texture
 {

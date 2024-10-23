@@ -40,19 +40,19 @@ void Init()
 
         fge::Surface tmpSurface;
 
-        tmpSurface.create(32, 32, fge::Color::Black);
-        for (int y = 0; y < 16; ++y)
+        tmpSurface.create(FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H, FGE_TEXTURE_BAD_COLOR_1);
+        for (int y = 0; y < FGE_TEXTURE_BAD_H / 2; ++y)
         {
-            for (int x = 0; x < 16; ++x)
+            for (int x = 0; x < FGE_TEXTURE_BAD_W / 2; ++x)
             {
-                tmpSurface.setPixel(x, y, fge::Color::Magenta);
+                tmpSurface.setPixel(x, y, FGE_TEXTURE_BAD_COLOR_2);
             }
         }
-        for (int y = 16; y < 32; ++y)
+        for (int y = FGE_TEXTURE_BAD_H / 2; y < FGE_TEXTURE_BAD_H; ++y)
         {
-            for (int x = 16; x < 32; ++x)
+            for (int x = FGE_TEXTURE_BAD_W / 2; x < FGE_TEXTURE_BAD_W; ++x)
             {
-                tmpSurface.setPixel(x, y, fge::Color::Magenta);
+                tmpSurface.setPixel(x, y, FGE_TEXTURE_BAD_COLOR_2);
             }
         }
 
