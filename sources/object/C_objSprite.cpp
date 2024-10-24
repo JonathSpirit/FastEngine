@@ -63,6 +63,24 @@ void ObjSprite::setTextureRect(fge::RectInt const& rectangle)
 #endif
     }
 }
+void ObjSprite::flipHorizontal()
+{
+    this->g_textureRect = {{this->g_textureRect._x + this->g_textureRect._width, this->g_textureRect._y},
+                           {-this->g_textureRect._width, this->g_textureRect._height}};
+#ifndef FGE_DEF_SERVER
+    this->updatePositions();
+    this->updateTexCoords();
+#endif
+}
+void ObjSprite::flipVertical()
+{
+    this->g_textureRect = {{this->g_textureRect._x, this->g_textureRect._y + this->g_textureRect._height},
+                           {this->g_textureRect._width, -this->g_textureRect._height}};
+#ifndef FGE_DEF_SERVER
+    this->updatePositions();
+    this->updateTexCoords();
+#endif
+}
 
 void ObjSprite::setColor(fge::Color const& color)
 {

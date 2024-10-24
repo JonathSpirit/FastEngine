@@ -39,6 +39,8 @@ public:
 
     void setTexture(fge::Texture const& texture, bool resetRect = false);
     void setTextureRect(fge::RectInt const& rectangle);
+    void flipHorizontal();
+    void flipVertical();
 
     void setColor(fge::Color const& color);
 
