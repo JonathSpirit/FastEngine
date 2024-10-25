@@ -22,6 +22,18 @@ char UnicodeToChar(uint32_t unicode)
     return (unicode < 128) ? static_cast<char>(unicode) : 0;
 }
 
+template<typename TFloat>
+inline TFloat LimitRangeAngle(TFloat angleDegree)
+{
+    static_assert(std::is_floating_point_v<TFloat>, "TFloat must be a floating point value");
+    angleDegree = static_cast<TFloat>(std::fmod(angleDegree, static_cast<TFloat>(360)));
+    if (angleDegree < static_cast<TFloat>(0))
+    {
+        angleDegree += static_cast<TFloat>(360.f);
+    }
+    return angleDegree;
+}
+
 ///Detection
 inline bool
 IsVertexInCone(fge::Line const& line1, fge::Line const& line2, fge::Vector2f const& origin, fge::Vector2f const& vertex)

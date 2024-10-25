@@ -15,8 +15,9 @@
  */
 
 #include "FastEngine/graphic/C_transformable.hpp"
+
+#include "FastEngine/extra/extra_function.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include <cmath>
 
 namespace fge
 {
@@ -49,11 +50,7 @@ void Transformable::move(Vector2f const& offset)
 
 void Transformable::setRotation(float angle)
 {
-    this->g_rotation = std::fmod(angle, 360.f);
-    if (this->g_rotation < 0.0f)
-    {
-        this->g_rotation += 360.f;
-    }
+    this->g_rotation = fge::LimitRangeAngle(angle);
 
     this->g_transformNeedUpdate = true;
     this->g_inverseTransformNeedUpdate = true;

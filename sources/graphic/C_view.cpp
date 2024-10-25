@@ -15,8 +15,9 @@
  */
 
 #include "FastEngine/graphic/C_view.hpp"
+
+#include "FastEngine/extra/extra_function.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include <cmath>
 
 namespace fge
 {
@@ -83,11 +84,7 @@ Vector2f const& View::getSize() const
 
 void View::setRotation(float angleDeg)
 {
-    this->g_rotation = std::fmod(angleDeg, 360.f);
-    if (this->g_rotation < 0)
-    {
-        this->g_rotation += 360.f;
-    }
+    this->g_rotation = fge::LimitRangeAngle(angleDeg);
 
     this->g_transformUpdated = false;
     this->g_invTransformUpdated = false;

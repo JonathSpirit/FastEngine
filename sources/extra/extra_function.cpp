@@ -538,16 +538,8 @@ fge::Vector2f ReachVector(fge::Vector2f const& position, fge::Vector2f const& ta
 }
 float ReachRotation(float rotation, float target, float speed, float deltaTime, fge::TurnMode turnMode)
 {
-    rotation = static_cast<float>(std::fmod(rotation, 360));
-    if (rotation < 0)
-    {
-        rotation += 360.0f;
-    }
-    target = static_cast<float>(std::fmod(target, 360));
-    if (target < 0)
-    {
-        target += 360.0f;
-    }
+    rotation = fge::LimitRangeAngle(rotation);
+    target = fge::LimitRangeAngle(target);
 
     float travelDistance = speed * deltaTime;
     float actualDistance;
@@ -610,12 +602,7 @@ float ReachRotation(float rotation, float target, float speed, float deltaTime, 
         rotation += travelDistance;
     }
 
-    rotation = static_cast<float>(std::fmod(rotation, 360));
-    if (rotation < 0)
-    {
-        return rotation + 360.0f;
-    }
-    return rotation;
+    return fge::LimitRangeAngle(rotation);
 }
 
 ///2D Math

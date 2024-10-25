@@ -102,6 +102,9 @@ public domain
 */
 [[nodiscard]] FGE_API std::size_t Hash(void const* key, std::size_t len, std::size_t seed = 0xc70f6907UL);
 
+template<typename TFloat>
+[[nodiscard]] inline TFloat LimitRangeAngle(TFloat angleDegree);
+
 ///Detection
 #ifndef FGE_DEF_SERVER
 [[nodiscard]] FGE_API bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone);
