@@ -45,6 +45,18 @@ IsVertexInCone(fge::Line const& line1, fge::Line const& line2, fge::Vector2f con
 
     return line1Product < 0.0f && line2Product > 0.0f;
 }
+inline bool IsVertexInCone(float coneAngle,
+                           fge::Vector2f const& direction,
+                           fge::Vector2f const& origin,
+                           fge::Vector2f const& vertex)
+{
+    auto const demiConeAngle = glm::radians(coneAngle / 2.0f);
+
+    fge::Line const lineLeft{origin, glm::rotate(direction, -demiConeAngle), 1.0f};
+    fge::Line const lineRight{origin, glm::rotate(direction, demiConeAngle), 1.0f};
+
+    return fge::IsVertexInCone(lineLeft, lineRight, origin, vertex);
+}
 
 ///Position/Rectangle
 template<typename T>

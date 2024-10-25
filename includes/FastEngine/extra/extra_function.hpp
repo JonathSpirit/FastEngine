@@ -25,6 +25,8 @@
 #include "FastEngine/graphic/C_view.hpp"
 #include "SDL_mouse.h"
 #include "json.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/rotate_vector.hpp"
 #include <array>
 #include <filesystem>
 #include <list>
@@ -44,6 +46,10 @@ struct Line
     inline Line(fge::Vector2f const& start, fge::Vector2f const& end) :
             _start(start),
             _end(end)
+    {}
+    inline Line(fge::Vector2f const& origin, fge::Vector2f const& direction, float length) :
+            _start(origin),
+            _end(origin + direction * length)
     {}
 
     [[nodiscard]] inline fge::Vector2f getDirection() const { return glm::normalize(this->_end - this->_start); }
@@ -137,6 +143,10 @@ CheckIntersection(fge::Vector2f const& position,
 
 [[nodiscard]] inline bool IsVertexInCone(fge::Line const& line1,
                                          fge::Line const& line2,
+                                         fge::Vector2f const& origin,
+                                         fge::Vector2f const& vertex);
+[[nodiscard]] inline bool IsVertexInCone(float coneAngle,
+                                         fge::Vector2f const& direction,
                                          fge::Vector2f const& origin,
                                          fge::Vector2f const& vertex);
 
