@@ -77,6 +77,8 @@
 
 #define FGE_OBJ_DRAW_BODY(class_) void class_::draw(fge::RenderTarget& target, const fge::RenderStates& states) const
 
+#define FGE_OBJ_INHERITANCE_MAX 12
+
 namespace fge
 {
 
@@ -89,15 +91,102 @@ class ObjectData;
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 
+class ObjectInheritanceAccessor
+{
+    static_assert(FGE_OBJ_INHERITANCE_MAX > 0, "FGE_OBJ_INHERITANCE_MAX must be greater than 0");
+
+public:
+    template<class T>
+    inline T const* getInheritance() const
+    {
+        static_assert(std::is_base_of_v<fge::ObjectInheritanceAccessor, T>,
+                      "T must be a subclass of fge::ObjectInheritanceAccessor");
+        for (auto const& info: g_inheritanceInfos)
+        {
+            if (info._typeInfo == &typeid(T))
+            {
+                return static_cast<T const*>(info._ptr);
+            }
+        }
+        return nullptr;
+    }
+    template<class T>
+    inline T* getInheritance()
+    {
+        static_assert(std::is_base_of_v<fge::ObjectInheritanceAccessor, T>,
+                      "T must be a subclass of fge::ObjectInheritanceAccessor");
+        for (auto const& info: g_inheritanceInfos)
+        {
+            if (info._typeInfo == &typeid(T))
+            {
+                return static_cast<T*>(info._ptr);
+            }
+        }
+        return nullptr;
+    }
+
+    template<class T = fge::Object>
+    inline T* getObjectOwner()
+    {
+        static_assert(std::is_base_of_v<fge::Object, T>, "T must be a subclass of fge::Object");
+        return static_cast<T*>(this->g_objectOwner);
+    }
+    template<class T = fge::Object>
+    inline T const* getObjectOwner() const
+    {
+        static_assert(std::is_base_of_v<fge::Object, T>, "T must be a subclass of fge::Object");
+        return static_cast<T*>(this->g_objectOwner);
+    }
+
+protected:
+    inline ObjectInheritanceAccessor()
+    {
+        for (auto& info: g_inheritanceInfos)
+        {
+            info = {nullptr, nullptr};
+        }
+    }
+
+    template<class T>
+    inline void addInheritance(T* ptr)
+    {
+        for (auto& info: g_inheritanceInfos)
+        {
+            if (info._typeInfo == nullptr)
+            {
+                info = {&typeid(T), ptr};
+                return;
+            }
+        }
+        throw fge::Exception("ObjectInheritanceAccessor::addInheritance: Too many inheritance");
+    }
+
+private:
+    inline void setObjectOwner(fge::Object* object) { this->g_objectOwner = object; }
+
+    struct InheritanceInfo
+    {
+        std::type_info const* _typeInfo;
+        void* _ptr;
+    };
+    std::array<InheritanceInfo, FGE_OBJ_INHERITANCE_MAX> g_inheritanceInfos{};
+    fge::Object* g_objectOwner{nullptr};
+
+    friend class fge::Object;
+};
+
 /**
  * \class Object
  * \ingroup objectControl
  * \brief The Object class is the base class for all objects in the engine.
  */
 #ifdef FGE_DEF_SERVER
-class FGE_API Object : public fge::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Transformable, public fge::Anchor, public virtual fge::ObjectInheritanceAccessor
 #else
-class FGE_API Object : public fge::Drawable, public fge::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Drawable,
+                       public fge::Transformable,
+                       public fge::Anchor,
+                       public virtual fge::ObjectInheritanceAccessor
 #endif //FGE_DEF_SERVER
 {
 public:
@@ -112,7 +201,7 @@ public:
      * By default, if the copy method is not overridden, the object is duplicated with
      * the help of the register manager (and the object class have to be registered).
      *
-     * \return A allocated pointer to the duplicated object
+     * \return An allocated pointer to the duplicated object
      */
     virtual fge::Object* copy();
 
