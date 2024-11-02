@@ -98,7 +98,8 @@ public:
                      std::less<>>;
     using GraphicPipelineConstructor = void (*)(fge::vulkan::Context const&,
                                                 GraphicPipelineKey const&,
-                                                fge::vulkan::GraphicPipeline*);
+                                                fge::vulkan::GraphicPipeline*,
+                                                void*);
 
     RenderTarget(RenderTarget const& r);
     RenderTarget(RenderTarget&& r) noexcept;
@@ -149,7 +150,8 @@ public:
 
     [[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
                                                                    GraphicPipelineKey const& key,
-                                                                   GraphicPipelineConstructor constructor) const;
+                                                                   GraphicPipelineConstructor constructor,
+                                                                   void* customData = nullptr) const;
     void clearGraphicPipelineCache();
 
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,

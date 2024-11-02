@@ -29,7 +29,8 @@ namespace
 #ifndef FGE_DEF_SERVER
 void DefaultGraphicPipelineBatchesWithTexture_constructor(fge::vulkan::Context const& context,
                                                           fge::RenderTarget::GraphicPipelineKey const& key,
-                                                          fge::vulkan::GraphicPipeline* graphicPipeline)
+                                                          fge::vulkan::GraphicPipeline* graphicPipeline,
+                                                          [[maybe_unused]] void* customData)
 {
     using namespace fge::vulkan;
 
@@ -56,7 +57,8 @@ void DefaultGraphicPipelineBatchesWithTexture_constructor(fge::vulkan::Context c
 }
 void DefaultGraphicPipelineBatches_constructor(fge::vulkan::Context const& context,
                                                fge::RenderTarget::GraphicPipelineKey const& key,
-                                               fge::vulkan::GraphicPipeline* graphicPipeline)
+                                               fge::vulkan::GraphicPipeline* graphicPipeline,
+                                               [[maybe_unused]] void* customData)
 {
     using namespace fge::vulkan;
 

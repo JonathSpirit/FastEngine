@@ -32,7 +32,8 @@ namespace
 
 void DefaultGraphicPipelineWithTexture_constructor(fge::vulkan::Context const& context,
                                                    fge::RenderTarget::GraphicPipelineKey const& key,
-                                                   fge::vulkan::GraphicPipeline* graphicPipeline)
+                                                   fge::vulkan::GraphicPipeline* graphicPipeline,
+                                                   [[maybe_unused]] void* customData)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
@@ -44,7 +45,8 @@ void DefaultGraphicPipelineWithTexture_constructor(fge::vulkan::Context const& c
 }
 void DefaultGraphicPipeline_constructor(fge::vulkan::Context const& context,
                                         fge::RenderTarget::GraphicPipelineKey const& key,
-                                        fge::vulkan::GraphicPipeline* graphicPipeline)
+                                        fge::vulkan::GraphicPipeline* graphicPipeline,
+                                        [[maybe_unused]] void* customData)
 {
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
     graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader);
@@ -452,7 +454,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
 
 fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view name,
                                                                GraphicPipelineKey const& key,
-                                                               GraphicPipelineConstructor constructor) const
+                                                               GraphicPipelineConstructor constructor,
+                                                               void* customData) const
 {
     fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
 
@@ -473,7 +476,7 @@ fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view 
 
         if (constructor != nullptr)
         {
-            constructor(this->getContext(), key, graphicPipeline);
+            constructor(this->getContext(), key, graphicPipeline, customData);
         }
     }
 
