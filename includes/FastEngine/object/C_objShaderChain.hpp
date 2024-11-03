@@ -41,6 +41,9 @@ public:
     void setVertexShader(std::string_view name);
     void setFragmentShader(std::string_view name);
 
+    void setVertexCount(uint32_t count);
+    [[nodiscard]] uint32_t getVertexCount() const;
+
     [[nodiscard]] fge::shader::ShaderDataPtr getGeometryShader() const;
     [[nodiscard]] fge::shader::ShaderDataPtr getVertexShader() const;
     [[nodiscard]] fge::shader::ShaderDataPtr getFragmentShader() const;
@@ -55,6 +58,7 @@ private:
     fge::shader::ShaderDataPtr g_geometryShader;
     fge::shader::ShaderDataPtr g_vertexShader;
     fge::shader::ShaderDataPtr g_fragmentShader;
+    uint32_t g_vertexCount;
 };
 
 } // namespace fge

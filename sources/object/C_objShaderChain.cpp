@@ -52,7 +52,8 @@ void GraphicPipeline_constructor([[maybe_unused]] fge::vulkan::Context const& co
 ObjShaderChain::ObjShaderChain() :
         g_geometryShader(fge::shader::GetBadShader()),
         g_vertexShader(fge::shader::GetBadShader()),
-        g_fragmentShader(fge::shader::GetBadShader())
+        g_fragmentShader(fge::shader::GetBadShader()),
+        g_vertexCount(3)
 {}
 
 void ObjShaderChain::first([[maybe_unused]] fge::Scene& scene)
@@ -68,7 +69,7 @@ FGE_OBJ_DRAW_BODY(ObjShaderChain)
 
     copyStates._resInstances.setFirstInstance(0);
     copyStates._resInstances.setInstancesCount(1, true);
-    copyStates._resInstances.setVertexCount(3);
+    copyStates._resInstances.setVertexCount(this->g_vertexCount);
 
     RenderTarget::GraphicPipelineKey const key{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BlendNone, 0};
     CustomData customData{&this->g_geometryShader->_shader, &this->g_vertexShader->_shader,
@@ -92,6 +93,15 @@ void ObjShaderChain::setVertexShader(std::string_view name)
 void ObjShaderChain::setFragmentShader(std::string_view name)
 {
     this->g_fragmentShader = fge::shader::GetShader(name);
+}
+
+void ObjShaderChain::setVertexCount(uint32_t count)
+{
+    this->g_vertexCount = count;
+}
+uint32_t ObjShaderChain::getVertexCount() const
+{
+    return this->g_vertexCount;
 }
 
 fge::shader::ShaderDataPtr ObjShaderChain::getGeometryShader() const
