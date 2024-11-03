@@ -416,6 +416,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp")
 
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/private/spirv_reflect.cpp")
+
 #Linking library
 if(WIN32)
     target_link_libraries(${FGE_LIB_NAME} PUBLIC user32 ws2_32 winmm)
