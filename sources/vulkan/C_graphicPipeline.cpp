@@ -388,6 +388,12 @@ void GraphicPipeline::recordCommandBuffer(CommandBuffer& commandBuffer,
             indexBuffer->bind(commandBuffer);
         }
     }
+    else
+    {
+        VkDeviceSize const offset = 0;
+        VkBuffer buffer = VK_NULL_HANDLE;
+        commandBuffer.bindVertexBuffers(0, 1, &buffer, &offset);
+    }
 }
 
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const
