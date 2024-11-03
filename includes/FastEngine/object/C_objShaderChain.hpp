@@ -35,6 +35,8 @@ public:
 
     FGE_OBJ_DRAW_DECLARE
 
+    void first(fge::Scene& scene) override;
+
     void setGeometryShader(std::string_view name);
     void setVertexShader(std::string_view name);
     void setFragmentShader(std::string_view name);

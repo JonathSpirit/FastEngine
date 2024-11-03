@@ -22,6 +22,7 @@ namespace fge
 namespace
 {
 
+#ifndef FGE_DEF_SERVER
 struct CustomData
 {
     fge::vulkan::Shader const* _geometryShader;
@@ -41,7 +42,10 @@ void GraphicPipeline_constructor([[maybe_unused]] fge::vulkan::Context const& co
     graphicPipeline->setShader(*custom->_fragmentShader);
     graphicPipeline->setBlendMode(key._blendMode);
     graphicPipeline->setPrimitiveTopology(key._topology);
+
+    graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout()});
 }
+#endif
 
 } // namespace
 
@@ -51,10 +55,20 @@ ObjShaderChain::ObjShaderChain() :
         g_fragmentShader(fge::shader::GetBadShader())
 {}
 
+void ObjShaderChain::first([[maybe_unused]] fge::Scene& scene)
+{
+    this->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
+}
+
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjShaderChain)
 {
     auto copyStates = states.copy();
+    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
+
+    copyStates._resInstances.setFirstInstance(0);
+    copyStates._resInstances.setInstancesCount(1, true);
+    copyStates._resInstances.setVertexCount(3);
 
     RenderTarget::GraphicPipelineKey const key{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BlendNone, 0};
     CustomData customData{&this->g_geometryShader->_shader, &this->g_vertexShader->_shader,
