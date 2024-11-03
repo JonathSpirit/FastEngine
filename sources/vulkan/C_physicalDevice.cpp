@@ -289,15 +289,29 @@ VkDeviceSize PhysicalDevice::getMaxMemoryAllocationSize() const
 }
 uint32_t PhysicalDevice::getMaxMemoryAllocationCount() const
 {
-    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceProperties deviceProperties{};
     vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
     return deviceProperties.limits.maxMemoryAllocationCount;
 }
 VkPhysicalDeviceFeatures PhysicalDevice::getFeatures() const
 {
-    VkPhysicalDeviceFeatures features;
+    VkPhysicalDeviceFeatures features{};
     vkGetPhysicalDeviceFeatures(this->g_device, &features);
     return features;
+}
+VkPhysicalDeviceFeatures2 PhysicalDevice::getFeatures2() const
+{
+    VkPhysicalDeviceFeatures2 features2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, nullptr, {}};
+    vkGetPhysicalDeviceFeatures2(this->g_device, &features2);
+    return features2;
+}
+VkPhysicalDeviceRobustness2FeaturesEXT PhysicalDevice::getRobustness2Features() const
+{
+    VkPhysicalDeviceRobustness2FeaturesEXT
+            featuresRobustness2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT, nullptr, {}, {}, {}};
+    VkPhysicalDeviceFeatures2 features2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &featuresRobustness2, {}};
+    vkGetPhysicalDeviceFeatures2(this->g_device, &features2);
+    return featuresRobustness2;
 }
 
 } // namespace fge::vulkan
