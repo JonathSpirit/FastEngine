@@ -19,36 +19,6 @@
 namespace fge
 {
 
-namespace
-{
-
-#ifndef FGE_DEF_SERVER
-struct CustomData
-{
-    fge::vulkan::Shader const* _geometryShader;
-    fge::vulkan::Shader const* _vertexShader;
-    fge::vulkan::Shader const* _fragmentShader;
-};
-
-void GraphicPipeline_constructor([[maybe_unused]] fge::vulkan::Context const& context,
-                                 fge::RenderTarget::GraphicPipelineKey const& key,
-                                 fge::vulkan::GraphicPipeline* graphicPipeline,
-                                 void* customData)
-{
-    auto const* custom = static_cast<CustomData*>(customData);
-
-    graphicPipeline->setShader(*custom->_geometryShader);
-    graphicPipeline->setShader(*custom->_vertexShader);
-    graphicPipeline->setShader(*custom->_fragmentShader);
-    graphicPipeline->setBlendMode(key._blendMode);
-    graphicPipeline->setPrimitiveTopology(key._topology);
-
-    graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout()});
-}
-#endif
-
-} // namespace
-
 ObjShaderChain::ObjShaderChain() :
         g_geometryShader(fge::shader::GetBadShader()),
         g_vertexShader(fge::shader::GetBadShader()),
@@ -71,14 +41,14 @@ FGE_OBJ_DRAW_BODY(ObjShaderChain)
     copyStates._resInstances.setInstancesCount(1, true);
     copyStates._resInstances.setVertexCount(this->g_vertexCount);
 
-    RenderTarget::GraphicPipelineKey const key{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, fge::vulkan::BlendNone, 0};
-    CustomData customData{&this->g_geometryShader->_shader, &this->g_vertexShader->_shader,
-                          &this->g_fragmentShader->_shader};
+    copyStates._shaderVertex = &this->g_vertexShader->_shader;
+    copyStates._shaderFragment = &this->g_fragmentShader->_shader;
+    copyStates._shaderGeometry = &this->g_geometryShader->_shader;
 
-    auto* graphicPipeline =
-            target.getGraphicPipeline(FGE_OBJSHADERCHAIN_CLASSNAME, key, GraphicPipeline_constructor, &customData);
+    copyStates._blendMode = fge::vulkan::BlendNone;
+    //TODO: set topology when no VertexBuffer
 
-    target.draw(copyStates, graphicPipeline);
+    target.draw(copyStates);
 }
 #endif
 

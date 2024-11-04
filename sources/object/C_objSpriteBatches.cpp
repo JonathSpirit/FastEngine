@@ -23,62 +23,6 @@
 namespace fge
 {
 
-namespace
-{
-
-#ifndef FGE_DEF_SERVER
-void DefaultGraphicPipelineBatchesWithTexture_constructor(fge::vulkan::Context const& context,
-                                                          fge::RenderTarget::GraphicPipelineKey const& key,
-                                                          fge::vulkan::GraphicPipeline* graphicPipeline,
-                                                          [[maybe_unused]] void* customData)
-{
-    using namespace fge::vulkan;
-
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader);
-    graphicPipeline->setBlendMode(key._blendMode);
-    graphicPipeline->setPrimitiveTopology(key._topology);
-
-    auto& layout = context.getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
-    if (layout.getLayout() == VK_NULL_HANDLE)
-    {
-        layout.create({DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
-    }
-
-    auto& textureLayout = fge::vulkan::GetActiveContext().getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES);
-    if (textureLayout.getLayout() == VK_NULL_HANDLE)
-    {
-        textureLayout.create({DescriptorSetLayout::Binding(
-                0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT,
-                FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT)});
-    }
-
-    graphicPipeline->setDescriptorSetLayouts({layout.getLayout(), textureLayout.getLayout()});
-}
-void DefaultGraphicPipelineBatches_constructor(fge::vulkan::Context const& context,
-                                               fge::RenderTarget::GraphicPipelineKey const& key,
-                                               fge::vulkan::GraphicPipeline* graphicPipeline,
-                                               [[maybe_unused]] void* customData)
-{
-    using namespace fge::vulkan;
-
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader); ///TODO
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader);
-    graphicPipeline->setBlendMode(key._blendMode);
-    graphicPipeline->setPrimitiveTopology(key._topology);
-
-    auto& layout = context.getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
-    if (layout.getLayout() == VK_NULL_HANDLE)
-    {
-        layout.create({DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
-    }
-
-    graphicPipeline->setDescriptorSetLayouts({layout.getLayout()});
-}
-#endif //FGE_DEF_SERVER
-
-} // end namespace
-
 ObjSpriteBatches::ObjSpriteBatches() :
         g_instancesTransform(fge::vulkan::GetActiveContext(), vulkan::UniformBuffer::Types::STORAGE_BUFFER),
         g_instancesIndirectCommands(fge::vulkan::GetActiveContext(), vulkan::UniformBuffer::Types::INDIRECT_BUFFER),
@@ -294,15 +238,13 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     bool const haveTexture = !this->g_textures.empty();
 
-    fge::RenderTarget::GraphicPipelineKey const graphicPipelineKey{
-            this->g_instancesVertices.getPrimitiveTopology(), copyStates._blendMode,
-            uint8_t(haveTexture ? FGE_OBJSPRITEBATCHES_ID_TEXTURE : FGE_OBJSPRITEBATCHES_ID)};
+    copyStates._shaderVertex = &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader;
+    //TODO: FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT
+    copyStates._shaderFragment = &fge::shader::GetShader(haveTexture ? FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT
+                                                                     : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
+                                          ->_shader;
 
-    auto* graphicPipeline = target.getGraphicPipeline(FGE_OBJSPRITEBATCHES_PIPELINE_CACHE_NAME, graphicPipelineKey,
-                                                      haveTexture ? DefaultGraphicPipelineBatchesWithTexture_constructor
-                                                                  : DefaultGraphicPipelineBatches_constructor);
-
-    target.draw(copyStates, graphicPipeline);
+    target.draw(copyStates);
 }
 #endif
 

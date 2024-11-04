@@ -69,38 +69,6 @@ protected:
     void initialize();
 
 public:
-    struct GraphicPipelineKey
-    {
-        [[nodiscard]] inline std::size_t operator()(GraphicPipelineKey const& k) const
-        {
-            uint64_t const val = (static_cast<uint64_t>(k._topology) << 38) | (static_cast<uint64_t>(k._id) << 30) |
-                                 (static_cast<uint64_t>(k._blendMode._srcColorBlendFactor) << 25) |
-                                 (static_cast<uint64_t>(k._blendMode._dstColorBlendFactor) << 20) |
-                                 (static_cast<uint64_t>(k._blendMode._colorBlendOp) << 15) |
-                                 (static_cast<uint64_t>(k._blendMode._srcAlphaBlendFactor) << 10) |
-                                 (static_cast<uint64_t>(k._blendMode._dstAlphaBlendFactor) << 5) |
-                                 (static_cast<uint64_t>(k._blendMode._alphaBlendOp));
-            return std::hash<uint64_t>{}(val);
-        }
-        [[nodiscard]] inline bool operator==(GraphicPipelineKey const& k) const
-        {
-            return this->_topology == k._topology && this->_blendMode == k._blendMode && this->_id == k._id;
-        }
-
-        VkPrimitiveTopology _topology;
-        fge::vulkan::BlendMode _blendMode;
-        uint8_t _id{0};
-    };
-
-    using GraphicPipelineCache =
-            std::map<std::string,
-                     std::unordered_map<GraphicPipelineKey, fge::vulkan::GraphicPipeline, GraphicPipelineKey>,
-                     std::less<>>;
-    using GraphicPipelineConstructor = void (*)(fge::vulkan::Context const&,
-                                                GraphicPipelineKey const&,
-                                                fge::vulkan::GraphicPipeline*,
-                                                void*);
-
     RenderTarget(RenderTarget const& r);
     RenderTarget(RenderTarget&& r) noexcept;
     ~RenderTarget() override = default;
@@ -138,7 +106,7 @@ public:
 
     virtual uint32_t prepareNextFrame(VkCommandBufferInheritanceInfo const* inheritanceInfo, uint64_t timeout_ns) = 0;
     virtual void beginRenderPass(uint32_t imageIndex) = 0;
-    void draw(fge::RenderStates const& states, fge::vulkan::GraphicPipeline const* graphicPipeline = nullptr) const;
+    void draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline* graphicPipeline = nullptr) const;
     virtual void endRenderPass() = 0;
     virtual void display(uint32_t imageIndex) = 0;
 
@@ -148,10 +116,12 @@ public:
     [[nodiscard]] virtual fge::vulkan::CommandBuffer& getCommandBuffer() const = 0;
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
 
-    [[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
+    /*[[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
                                                                    GraphicPipelineKey const& key,
                                                                    GraphicPipelineConstructor constructor,
-                                                                   void* customData = nullptr) const;
+                                                                   void* customData = nullptr) const;*/
+    [[nodiscard]] std::pair<fge::vulkan::GraphicPipeline*, bool>
+    requestGraphicPipeline(vulkan::GraphicPipeline::Key const& key) const;
     void clearGraphicPipelineCache();
 
     [[nodiscard]] uint32_t requestGlobalTransform(fge::Transformable const& transformable,
@@ -175,7 +145,11 @@ protected:
 
     bool _g_forceGraphicPipelineUpdate;
 
-    mutable GraphicPipelineCache _g_graphicPipelineCache;
+    mutable std::unordered_map<vulkan::GraphicPipeline::Key,
+                               vulkan::GraphicPipeline,
+                               vulkan::GraphicPipeline::Key::Hash,
+                               vulkan::GraphicPipeline::Key::Compare>
+            _g_graphicPipelineCache;
 };
 
 } // namespace fge

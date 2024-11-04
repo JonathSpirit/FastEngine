@@ -27,9 +27,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_texture.hpp"
-#include "FastEngine/manager/shader_manager.hpp"
 
-#define FGE_OBJSHAPE_PIPELINE_CACHE_NAME typeid(fge::ObjShape).name()
 #define FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX "FGE:OBJ:SHAPE:VERTEX"
 #define FGE_OBJSHAPE_INSTANCES_LAYOUT "FGE:OBJ:SHAPE:LAYOUT"
 #define FGE_OBJSHAPE_INDEX_FILLCOLOR 0
