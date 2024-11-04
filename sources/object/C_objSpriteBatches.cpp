@@ -350,7 +350,7 @@ void ObjSpriteBatches::updateBuffers() const
         if (this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].get() == VK_NULL_HANDLE)
         {
             this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES] =
-                    GetActiveContext().requestDescriptorSet(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, 0).value();
+                    GetActiveContext().createDescriptorSet(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, 0).value();
         }
 
         if (!this->g_instancesData.empty())
@@ -391,7 +391,7 @@ void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
     {
         this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES] =
                 GetActiveContext()
-                        .requestDescriptorSet(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, 0, this->g_textures.size())
+                        .createDescriptorSet(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, 0, this->g_textures.size())
                         .value();
     }
 

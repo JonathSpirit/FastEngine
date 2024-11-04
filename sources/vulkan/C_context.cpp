@@ -723,7 +723,7 @@ std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader 
 }
 
 std::optional<DescriptorSet>
-Context::requestDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements) const
+Context::createDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements) const
 {
     auto shader = fge::shader::GetShader(shaderName);
     if (!shader->_valid)

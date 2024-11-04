@@ -234,7 +234,7 @@ FGE_OBJ_DRAW_BODY(ObjShape)
     fge::RenderResourcePushConstants::PushConstantData const pushConstant{VK_SHADER_STAGE_VERTEX_BIT, 0,
                                                                           sizeof(ConstantData), &constantData};
 
-    copyStates._resPushConstants.push(&pushConstant, 1);
+    copyStates._resPushConstants.set(&pushConstant, 1);
 
     copyStates._resInstances.setInstancesCount(this->g_instancesCount, true);
     uint32_t const sets[] = {1};
@@ -373,8 +373,7 @@ void ObjShape::updateDescriptors() const
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
         //BufferInstanceData in the vertex shader
-        this->g_descriptorSet =
-                GetActiveContext().requestDescriptorSet(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, 1).value();
+        this->g_descriptorSet = GetActiveContext().createDescriptorSet(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, 1).value();
     }
 
     DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,
