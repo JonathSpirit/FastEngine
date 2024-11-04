@@ -17,6 +17,7 @@
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 #include "SDL.h"
 #include "SDL_vulkan.h"
 #include <iostream>
@@ -719,6 +720,42 @@ std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader 
                             .first->second;
     return &layouts;
 #endif
+}
+
+std::optional<DescriptorSet>
+Context::requestDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements) const
+{
+    auto shader = fge::shader::GetShader(shaderName);
+    if (!shader->_valid)
+    {
+        return std::nullopt;
+    }
+
+    auto const* descriptorLayouts = this->requestDescriptorLayout(&shader->_shader);
+    if (descriptorLayouts == nullptr || setIndex >= descriptorLayouts->size())
+    {
+        return std::nullopt;
+    }
+
+    auto const& descriptorLayout = (*descriptorLayouts)[setIndex];
+
+    if (descriptorLayout.getBindingsCount() == 1)
+    {
+        auto type = descriptorLayout.getBindings().begin()->getDescriptorType();
+        if (descriptorLayout.getBindings().begin()->getDescriptorCount() == 1)
+        {
+            if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+            {
+                return this->g_textureDescriptorPool.allocateDescriptorSet(descriptorLayout.getLayout());
+            }
+            if (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+            {
+                return this->g_transformDescriptorPool.allocateDescriptorSet(descriptorLayout.getLayout());
+            }
+        }
+    }
+
+    return this->g_multiUseDescriptorPool.allocateDescriptorSet(descriptorLayout.getLayout(), variableElements);
 }
 
 Context::GlobalTransform::GlobalTransform(vulkan::Context const& context) :

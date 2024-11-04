@@ -376,6 +376,9 @@ public:
     void clearDescriptorLayoutCache() const;
     [[nodiscard]] std::vector<DescriptorSetLayout> const* requestDescriptorLayout(Shader const* shader) const;
 
+    [[nodiscard]] std::optional<DescriptorSet>
+    requestDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements = 0) const;
+
     GarbageCollector _garbageCollector;
 
 private:

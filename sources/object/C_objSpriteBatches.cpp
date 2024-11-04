@@ -349,18 +349,8 @@ void ObjSpriteBatches::updateBuffers() const
 
         if (this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].get() == VK_NULL_HANDLE)
         {
-            auto const* descriptorLayout = GetActiveContext().requestDescriptorLayout(
-                    &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader);
-            if (descriptorLayout == nullptr)
-            {
-                return;
-            }
-
             this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES] =
-                    GetActiveContext()
-                            .getMultiUseDescriptorPool()
-                            .allocateDescriptorSet(descriptorLayout->begin()->getLayout())
-                            .value();
+                    GetActiveContext().requestDescriptorSet(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, 0).value();
         }
 
         if (!this->g_instancesData.empty())
@@ -399,17 +389,9 @@ void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
 
     if (sizeHasChanged || this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES].get() == VK_NULL_HANDLE)
     {
-        auto const* descriptorLayout = GetActiveContext().requestDescriptorLayout(
-                &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT)->_shader);
-        if (descriptorLayout == nullptr)
-        {
-            return;
-        }
-
         this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES] =
                 GetActiveContext()
-                        .getMultiUseDescriptorPool()
-                        .allocateDescriptorSet(descriptorLayout->begin()->getLayout(), this->g_textures.size())
+                        .requestDescriptorSet(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, 0, this->g_textures.size())
                         .value();
     }
 
