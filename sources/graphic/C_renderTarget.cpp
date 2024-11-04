@@ -468,36 +468,6 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
     }
 }
 
-/*fge::vulkan::GraphicPipeline* RenderTarget::getGraphicPipeline(std::string_view name,
-                                                               GraphicPipelineKey const& key,
-                                                               GraphicPipelineConstructor constructor,
-                                                               void* customData) const
-{
-    fge::vulkan::GraphicPipeline* graphicPipeline = nullptr;
-
-    auto itName = this->_g_graphicPipelineCache.find(name);
-    if (itName == this->_g_graphicPipelineCache.end())
-    {
-        itName = this->_g_graphicPipelineCache.insert({std::string(name), {}}).first;
-    }
-
-    auto itPipeline = itName->second.find(key);
-    if (itPipeline != itName->second.end())
-    {
-        graphicPipeline = &itPipeline->second;
-    }
-    else
-    {
-        graphicPipeline = &itName->second.emplace(key, fge::vulkan::GraphicPipeline{this->getContext()}).first->second;
-
-        if (constructor != nullptr)
-        {
-            constructor(this->getContext(), key, graphicPipeline, customData);
-        }
-    }
-
-    return graphicPipeline;
-}*/
 std::pair<fge::vulkan::GraphicPipeline*, bool>
 RenderTarget::requestGraphicPipeline(vulkan::GraphicPipeline::Key const& key) const
 {

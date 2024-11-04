@@ -43,9 +43,6 @@
 #include <unordered_set>
 
 #define FGE_RENDER_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
-#define FGE_RENDER_DEFAULT_PIPELINE_CACHE_NAME ""
-#define FGE_RENDER_DEFAULT_ID 0
-#define FGE_RENDER_DEFAULT_ID_TEXTURE 1
 
 #define FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TRANSFORM 0
 #define FGE_RENDER_DEFAULT_DESCRIPTOR_SET_TEXTURE 1
@@ -116,10 +113,6 @@ public:
     [[nodiscard]] virtual fge::vulkan::CommandBuffer& getCommandBuffer() const = 0;
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
 
-    /*[[nodiscard]] fge::vulkan::GraphicPipeline* getGraphicPipeline(std::string_view name,
-                                                                   GraphicPipelineKey const& key,
-                                                                   GraphicPipelineConstructor constructor,
-                                                                   void* customData = nullptr) const;*/
     [[nodiscard]] std::pair<fge::vulkan::GraphicPipeline*, bool>
     requestGraphicPipeline(vulkan::GraphicPipeline::Key const& key) const;
     void clearGraphicPipelineCache();
