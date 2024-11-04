@@ -358,6 +358,38 @@ private:
     uint32_t g_count{0};
 };
 
+class RenderResourcePushConstants
+{
+public:
+    struct PushConstantData
+    {
+        VkShaderStageFlags g_stages;
+        uint32_t g_offset;
+        uint32_t g_size;
+        void const* g_data;
+    };
+
+    constexpr RenderResourcePushConstants() = default;
+
+    constexpr void push(PushConstantData const* data, uint32_t count)
+    {
+        assert(count == 0 || data != nullptr);
+
+        this->g_pushConstants = data;
+        this->count = count;
+    }
+
+    [[nodiscard]] constexpr PushConstantData const* getPushConstants(uint32_t index) const
+    {
+        return this->g_pushConstants + index;
+    }
+    [[nodiscard]] constexpr uint32_t getCount() const { return this->count; }
+
+private:
+    PushConstantData const* g_pushConstants{nullptr};
+    uint32_t count{0};
+};
+
 /**
  * \class RenderStates
  * \ingroup graphics
@@ -393,6 +425,7 @@ public:
     RenderResourceTextures _resTextures{};
     RenderResourceInstances _resInstances{};
     RenderResourceDescriptors _resDescriptors{};
+    RenderResourcePushConstants _resPushConstants{};
 
     fge::vulkan::VertexBuffer const* _vertexBuffer{nullptr};
     fge::vulkan::IndexBuffer const* _indexBuffer{nullptr};
