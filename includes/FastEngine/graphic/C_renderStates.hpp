@@ -29,6 +29,7 @@ namespace fge
 namespace vulkan
 {
 
+class Shader;
 class VertexBuffer;
 class IndexBuffer;
 
@@ -45,7 +46,7 @@ struct TransformUboData;
  * A transform is a default uniform buffer containing a model matrix and a view matrix. It is generally used in every
  * object that needs to be rendered.
  * The transform is optional, if set to \b nullptr, no transform descriptor will be bound and the user have to
- * provide there own descriptors in RenderResourceInstances (dynamic descriptors) or in RenderResourceDescriptors.
+ * provide their own descriptors in RenderResourceInstances (dynamic descriptors) or in RenderResourceDescriptors.
  *
  * The transform descriptor is bound to the FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM set, binding 0.
  */
@@ -396,6 +397,9 @@ public:
     fge::vulkan::VertexBuffer const* _vertexBuffer{nullptr};
     fge::vulkan::IndexBuffer const* _indexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};
+    fge::vulkan::Shader const* _shaderVertex{nullptr};
+    fge::vulkan::Shader const* _shaderGeometry{nullptr};
+    fge::vulkan::Shader const* _shaderFragment{nullptr};
 };
 
 } // namespace fge

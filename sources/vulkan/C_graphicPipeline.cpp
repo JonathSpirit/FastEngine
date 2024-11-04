@@ -34,8 +34,6 @@ GraphicPipeline::GraphicPipeline(Context const& context) :
         g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
         g_defaultVertexCount(3),
 
-        g_scissor(),
-
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE)
 {}
@@ -52,7 +50,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline const& r) :
         g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_blendMode(r.g_blendMode),
-        g_scissor(r.g_scissor),
 
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE),
@@ -73,7 +70,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_blendMode(r.g_blendMode),
-        g_scissor(r.g_scissor),
 
         g_pipelineLayout(r.g_pipelineLayout),
         g_graphicsPipeline(r.g_graphicsPipeline),
@@ -92,7 +88,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_defaultVertexCount = 3;
 
     r.g_blendMode = {};
-    r.g_scissor = {};
 
     r.g_pipelineLayout = VK_NULL_HANDLE;
     r.g_graphicsPipeline = VK_NULL_HANDLE;
@@ -349,15 +344,6 @@ uint32_t GraphicPipeline::getDefaultVertexCount() const
     return this->g_defaultVertexCount;
 }
 
-void GraphicPipeline::setScissor(VkRect2D const& scissor) const
-{
-    this->g_scissor = scissor;
-}
-VkRect2D const& GraphicPipeline::getScissor() const
-{
-    return this->g_scissor;
-}
-
 void GraphicPipeline::setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges)
 {
     this->cleanPipelineLayout();
@@ -372,13 +358,14 @@ std::vector<VkPushConstantRange> const& GraphicPipeline::getPushConstantRanges()
 
 void GraphicPipeline::recordCommandBuffer(CommandBuffer& commandBuffer,
                                           Viewport const& viewport,
+                                          VkRect2D const& scissor,
                                           VertexBuffer const* vertexBuffer,
                                           IndexBuffer const* indexBuffer) const
 {
     commandBuffer.bindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, this->g_graphicsPipeline);
 
     commandBuffer.setViewport(0, 1, &viewport.getViewport());
-    commandBuffer.setScissor(0, 1, &this->g_scissor);
+    commandBuffer.setScissor(0, 1, &scissor);
 
     if (vertexBuffer != nullptr && vertexBuffer->getType() != BufferTypes::UNINITIALIZED)
     {

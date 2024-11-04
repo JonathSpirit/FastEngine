@@ -60,14 +60,12 @@ public:
     void setDefaultVertexCount(uint32_t count) const;
     [[nodiscard]] uint32_t getDefaultVertexCount() const;
 
-    void setScissor(VkRect2D const& scissor) const;
-    [[nodiscard]] VkRect2D const& getScissor() const;
-
     void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
     [[nodiscard]] std::vector<VkPushConstantRange> const& getPushConstantRanges() const;
 
     void recordCommandBuffer(CommandBuffer& commandBuffer,
                              Viewport const& viewport,
+                             VkRect2D const& scissor,
                              VertexBuffer const* vertexBuffer,
                              IndexBuffer const* indexBuffer) const;
 
@@ -92,7 +90,6 @@ private:
     mutable uint32_t g_defaultVertexCount;
 
     mutable BlendMode g_blendMode;
-    mutable VkRect2D g_scissor;
 
     mutable VkPipelineLayout g_pipelineLayout;
     mutable VkPipeline g_graphicsPipeline;

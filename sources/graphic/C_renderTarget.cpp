@@ -305,8 +305,6 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     //Updating graphicPipeline
     auto const viewport = this->getViewport(this->getView());
 
-    graphicPipeline->setScissor({{0, 0}, this->getExtent2D()});
-
     graphicPipeline->updateIfNeeded(this->getRenderPass(), this->_g_forceGraphicPipelineUpdate);
 
     auto& commandBuffer = this->getCommandBuffer();
@@ -373,7 +371,8 @@ void RenderTarget::draw(fge::RenderStates const& states, fge::vulkan::GraphicPip
     }
 #endif //FGE_DEF_SERVER
 
-    graphicPipeline->recordCommandBuffer(commandBuffer, viewport, states._vertexBuffer, states._indexBuffer);
+    graphicPipeline->recordCommandBuffer(commandBuffer, viewport, {{0, 0}, this->getExtent2D()}, states._vertexBuffer,
+                                         states._indexBuffer);
 
     //Binding global transforms
     if (globalTransformsIndex)
