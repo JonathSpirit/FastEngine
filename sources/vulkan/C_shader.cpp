@@ -16,6 +16,9 @@
 
 #include "FastEngine/vulkan/C_shader.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
+#ifndef FGE_DEF_SERVER
+    #include "private/spirv_reflect.h"
+#endif
 #include <fstream>
 #include <vector>
 
@@ -55,6 +58,7 @@ Shader::Shader(Shader&& r) noexcept :
         g_shaderModule(r.g_shaderModule),
         g_pipelineShaderStageCreateInfo(r.g_pipelineShaderStageCreateInfo),
         g_type(r.g_type),
+        g_spirvBuffer(std::move(r.g_spirvBuffer)),
         g_logicalDevice(r.g_logicalDevice)
 {
     r.g_shaderModule = VK_NULL_HANDLE;
@@ -74,6 +78,7 @@ Shader& Shader::operator=(Shader&& r) noexcept
     this->g_shaderModule = r.g_shaderModule;
     this->g_pipelineShaderStageCreateInfo = r.g_pipelineShaderStageCreateInfo;
     this->g_type = r.g_type;
+    this->g_spirvBuffer = std::move(r.g_spirvBuffer);
     this->g_logicalDevice = r.g_logicalDevice;
 
     r.g_shaderModule = VK_NULL_HANDLE;
@@ -113,14 +118,14 @@ bool Shader::loadFromSpirVBuffer(LogicalDevice const& logicalDevice,
     this->g_pipelineShaderStageCreateInfo.pName = "main";
 
     this->g_type = type;
-
     this->g_logicalDevice = &logicalDevice;
+    this->g_spirvBuffer = buffer;
 
     return true;
 }
-bool Shader::loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::path const& filepath, Shader::Type type)
+bool Shader::loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::path const& filepath, Type type)
 {
-    if (type == Shader::Type::SHADER_NONE)
+    if (type == Type::SHADER_NONE)
     {
         return false;
     }
@@ -158,6 +163,7 @@ void Shader::destroy()
         this->g_pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         this->g_type = Shader::Type::SHADER_NONE;
         this->g_logicalDevice = nullptr;
+        this->g_spirvBuffer.clear();
     }
 }
 
@@ -173,5 +179,77 @@ Shader::Type Shader::getType() const
 {
     return this->g_type;
 }
+
+#ifndef FGE_DEF_SERVER
+std::vector<std::vector<DescriptorSetLayout::Binding>> Shader::retrieveBindings() const
+{
+    if (this->g_shaderModule == VK_NULL_HANDLE)
+    {
+        return {};
+    }
+
+    SpvReflectShaderModule module;
+    if (spvReflectCreateShaderModule(this->g_spirvBuffer.size() * sizeof(decltype(this->g_spirvBuffer)::value_type),
+                                     this->g_spirvBuffer.data(), &module) != SPV_REFLECT_RESULT_SUCCESS)
+    {
+        return {};
+    }
+
+    std::vector<std::vector<DescriptorSetLayout::Binding>> setResults;
+    setResults.reserve(module.descriptor_set_count);
+
+    for (uint32_t i = 0; i < module.descriptor_set_count; ++i)
+    {
+        auto& bindingResults = setResults.emplace_back();
+        SpvReflectDescriptorSet const* set = &module.descriptor_sets[i];
+        for (uint32_t j = 0; j < set->binding_count; ++j)
+        {
+            SpvReflectDescriptorBinding const* binding = set->bindings[j];
+
+            VkDescriptorBindingFlagsEXT const flags = binding->array.dims_count == 1 && binding->array.dims[0] == 0
+                                                              ? VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT
+                                                              : 0;
+            uint32_t const count = binding->array.dims_count == 1 && binding->array.dims[0] == 0
+                                           ? FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT
+                                           : binding->count;
+
+            bindingResults.emplace_back(binding->binding, static_cast<VkDescriptorType>(binding->descriptor_type),
+                                        static_cast<VkShaderStageFlags>(module.shader_stage), count, flags);
+        }
+    }
+
+    spvReflectDestroyShaderModule(&module);
+
+    return setResults;
+}
+std::vector<VkPushConstantRange> Shader::retrievePushConstantRanges() const
+{
+    if (this->g_shaderModule == VK_NULL_HANDLE)
+    {
+        return {};
+    }
+
+    SpvReflectShaderModule module;
+    if (spvReflectCreateShaderModule(this->g_spirvBuffer.size() * sizeof(decltype(this->g_spirvBuffer)::value_type),
+                                     this->g_spirvBuffer.data(), &module) != SPV_REFLECT_RESULT_SUCCESS)
+    {
+        return {};
+    }
+
+    std::vector<VkPushConstantRange> result;
+    result.reserve(module.push_constant_block_count);
+
+    for (uint32_t i = 0; i < module.push_constant_block_count; ++i)
+    {
+        SpvReflectBlockVariable const* block = &module.push_constant_blocks[i];
+        result.emplace_back(
+                VkPushConstantRange{static_cast<VkShaderStageFlags>(module.shader_stage), block->offset, block->size});
+    }
+
+    spvReflectDestroyShaderModule(&module);
+
+    return result;
+}
+#endif
 
 } // namespace fge::vulkan

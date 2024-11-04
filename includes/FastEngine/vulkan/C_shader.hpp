@@ -19,8 +19,12 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "volk.h"
+
+#include "C_descriptorSetLayout.hpp"
 #include <filesystem>
 #include <vector>
+
+#define FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT 64
 
 namespace fge::vulkan
 {
@@ -47,20 +51,25 @@ public:
     Shader& operator=(Shader const& r) = delete;
     Shader& operator=(Shader&& r) noexcept;
 
-    bool
-    loadFromSpirVBuffer(LogicalDevice const& logicalDevice, std::vector<uint32_t> const& buffer, Shader::Type type);
-    bool loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::path const& filepath, Shader::Type type);
+    bool loadFromSpirVBuffer(LogicalDevice const& logicalDevice, std::vector<uint32_t> const& buffer, Type type);
+    bool loadFromFile(LogicalDevice const& logicalDevice, std::filesystem::path const& filepath, Type type);
 
     void destroy();
 
     [[nodiscard]] VkShaderModule getShaderModule() const;
     [[nodiscard]] VkPipelineShaderStageCreateInfo const& getPipelineShaderStageCreateInfo() const;
-    [[nodiscard]] Shader::Type getType() const;
+    [[nodiscard]] Type getType() const;
+
+#ifndef FGE_DEF_SERVER
+    [[nodiscard]] std::vector<std::vector<DescriptorSetLayout::Binding>> retrieveBindings() const;
+    [[nodiscard]] std::vector<VkPushConstantRange> retrievePushConstantRanges() const;
+#endif
 
 private:
     VkShaderModule g_shaderModule;
     VkPipelineShaderStageCreateInfo g_pipelineShaderStageCreateInfo;
-    Shader::Type g_type{Shader::Type::SHADER_NONE};
+    Type g_type{Type::SHADER_NONE};
+    std::vector<uint32_t> g_spirvBuffer;
 
     LogicalDevice const* g_logicalDevice;
 };
