@@ -276,8 +276,8 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
                                                               layoutPipeline.get()};
 
         auto cacheResultGraphicPipeline = this->requestGraphicPipeline(graphicPipelineKey);
-        graphicPipeline = cacheResultGraphicPipeline.first;
-        if (!cacheResultGraphicPipeline.second)
+        graphicPipeline = &cacheResultGraphicPipeline.first;
+        if (cacheResultGraphicPipeline.second == RequestResults::UNINITIALIZED)
         {
             if (states._shaderVertex != nullptr)
             {
@@ -468,21 +468,21 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
     }
 }
 
-std::pair<fge::vulkan::GraphicPipeline*, bool>
+std::pair<fge::vulkan::GraphicPipeline&, RenderTarget::RequestResults>
 RenderTarget::requestGraphicPipeline(vulkan::GraphicPipeline::Key const& key) const
 {
     auto it = this->_g_graphicPipelineCache.find(key);
     if (it != this->_g_graphicPipelineCache.end())
     {
-        return {&it->second, true};
+        return {it->second, RequestResults::ALREADY_INITIALIZED};
     }
 
-    auto* graphicPipeline = &this->_g_graphicPipelineCache
-                                     .emplace(std::piecewise_construct, std::forward_as_tuple(key),
-                                              std::forward_as_tuple(this->getContext()))
-                                     .first->second;
+    auto& graphicPipeline = this->_g_graphicPipelineCache
+                                    .emplace(std::piecewise_construct, std::forward_as_tuple(key),
+                                             std::forward_as_tuple(this->getContext()))
+                                    .first->second;
 
-    return {graphicPipeline, false};
+    return {graphicPipeline, RequestResults::UNINITIALIZED};
 }
 void RenderTarget::clearGraphicPipelineCache()
 {

@@ -106,7 +106,13 @@ public:
     [[nodiscard]] virtual fge::vulkan::CommandBuffer& getCommandBuffer() const = 0;
     [[nodiscard]] virtual VkRenderPass getRenderPass() const = 0;
 
-    [[nodiscard]] std::pair<fge::vulkan::GraphicPipeline*, bool>
+    enum class RequestResults
+    {
+        ALREADY_INITIALIZED,
+        UNINITIALIZED
+    };
+
+    [[nodiscard]] std::pair<fge::vulkan::GraphicPipeline&, RequestResults>
     requestGraphicPipeline(vulkan::GraphicPipeline::Key const& key) const;
     void clearGraphicPipelineCache();
 
