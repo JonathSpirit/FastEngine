@@ -30,17 +30,10 @@
 #include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_view.hpp"
-#include "FastEngine/vulkan/C_blendMode.hpp"
 #include "FastEngine/vulkan/C_commandBuffer.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"
-#include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
-#include "FastEngine/vulkan/C_uniformBuffer.hpp"
-#include "FastEngine/vulkan/C_vertex.hpp"
-#include "SDL_video.h"
-#include <map>
 #include <unordered_map>
-#include <unordered_set>
 
 #define FGE_RENDER_BAD_IMAGE_INDEX std::numeric_limits<uint32_t>::max()
 
