@@ -18,6 +18,7 @@
 #define _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <array>
 #include <map>
@@ -27,6 +28,7 @@
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_garbageCollector.hpp"
+#include "FastEngine/vulkan/C_graphicPipeline.hpp"
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
@@ -36,7 +38,7 @@
 
 #define FGE_VULKAN_TEXTURE_BINDING 0
 #define FGE_VULKAN_TRANSFORM_BINDING 0
-#define FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER 64
+#define FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT
 
 #define FGE_CONTEXT_OUTSIDE_RENDER_SCOPE_COMMAND_WAITSTAGE VK_PIPELINE_STAGE_VERTEX_INPUT_BIT
 
@@ -282,7 +284,7 @@ public:
      * \param key The key to retrieve the descriptor set layout
      * \return The descriptor set layout
      */
-    [[nodiscard]] fge::vulkan::DescriptorSetLayout& getCacheLayout(std::string_view key) const;
+    [[nodiscard]] DescriptorSetLayout& getCacheLayout(std::string_view key) const;
     /**
      * \brief Retrieve a "multi-usage" descriptor pool
      *
@@ -308,7 +310,7 @@ public:
      *
      * \return The descriptor set layout
      */
-    [[nodiscard]] fge::vulkan::DescriptorSetLayout const& getTextureLayout() const;
+    [[nodiscard]] DescriptorSetLayout const& getTextureLayout() const;
     /**
      * \brief Retrieve a "transform" descriptor set layout
      *
@@ -321,7 +323,7 @@ public:
      *
      * \return The descriptor set layout
      */
-    [[nodiscard]] fge::vulkan::DescriptorSetLayout const& getTransformLayout() const;
+    [[nodiscard]] DescriptorSetLayout const& getTransformLayout() const;
     /**
      * \brief Retrieve a "texture" descriptor pool
      *
@@ -380,6 +382,12 @@ public:
     [[nodiscard]] fge::TransformUboData const* getGlobalTransform(uint32_t index) const;
     [[nodiscard]] std::pair<uint32_t, fge::TransformUboData*> requestGlobalTransform() const;
 
+    void clearLayoutPipelineCache() const;
+    [[nodiscard]] LayoutPipeline&
+    requestLayoutPipeline(Shader const* vertexShader, Shader const* geometryShader, Shader const* fragmentShader) const;
+    void clearDescriptorLayoutCache() const;
+    [[nodiscard]] std::vector<DescriptorSetLayout> const* requestDescriptorLayout(Shader const* shader) const;
+
     GarbageCollector _garbageCollector;
 
 private:
@@ -408,6 +416,10 @@ private:
     Surface const* g_surface;
     Instance const* g_instance;
 
+    mutable std::unordered_map<VkShaderModule, std::vector<DescriptorSetLayout>> g_cacheDescriptorLayouts;
+    mutable std::
+            unordered_map<LayoutPipeline::Key, LayoutPipeline, LayoutPipeline::Key::Hash, LayoutPipeline::Key::Compare>
+                    g_cachePipelineLayouts;
     mutable std::map<std::string, DescriptorSetLayout, std::less<>> g_cacheLayouts;
     DescriptorPool g_multiUseDescriptorPool;
 

@@ -75,6 +75,9 @@ void Context::destroy()
         this->g_textureLayout.destroy();
         this->g_transformLayout.destroy();
 
+        this->g_cachePipelineLayouts.clear();
+        this->g_cacheDescriptorLayouts.clear();
+
         this->g_multiUseDescriptorPool.destroy();
         this->g_textureDescriptorPool.destroy();
         this->g_transformDescriptorPool.destroy();
@@ -621,6 +624,115 @@ std::pair<uint32_t, fge::TransformUboData*> Context::requestGlobalTransform() co
     }
 
     return {index, static_cast<fge::TransformUboData*>(this->g_globalTransform._transforms.getBufferMapped()) + index};
+}
+
+void Context::clearLayoutPipelineCache() const
+{
+    this->g_cachePipelineLayouts.clear();
+}
+LayoutPipeline& Context::requestLayoutPipeline(Shader const* vertexShader,
+                                               Shader const* geometryShader,
+                                               Shader const* fragmentShader) const
+{
+    LayoutPipeline::Key key{vertexShader == nullptr ? VK_NULL_HANDLE : vertexShader->getShaderModule(),
+                            geometryShader == nullptr ? VK_NULL_HANDLE : geometryShader->getShaderModule(),
+                            fragmentShader == nullptr ? VK_NULL_HANDLE : fragmentShader->getShaderModule()};
+
+    auto it = this->g_cachePipelineLayouts.find(key);
+    if (it != this->g_cachePipelineLayouts.end())
+    {
+        return it->second;
+    }
+
+    auto& layout = this->g_cachePipelineLayouts
+                           .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this))
+                           .first->second;
+
+    if (auto const* layoutVertexShader = this->requestDescriptorLayout(vertexShader))
+    {
+        for (auto const& descriptorSetLayout: *layoutVertexShader)
+        {
+            layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
+        }
+    }
+    if (auto const* layoutFragmentShader = this->requestDescriptorLayout(geometryShader))
+    {
+        for (auto const& descriptorSetLayout: *layoutFragmentShader)
+        {
+            layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
+        }
+    }
+    if (auto const* layoutGeometryShader = this->requestDescriptorLayout(fragmentShader))
+    {
+        for (auto const& descriptorSetLayout: *layoutGeometryShader)
+        {
+            layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
+        }
+    }
+
+#ifndef FGE_DEF_SERVER
+    if (vertexShader != nullptr)
+    {
+        layout.addPushConstantRanges(vertexShader->retrievePushConstantRanges());
+    }
+    if (fragmentShader != nullptr)
+    {
+        layout.addPushConstantRanges(fragmentShader->retrievePushConstantRanges());
+    }
+    if (geometryShader != nullptr)
+    {
+        layout.addPushConstantRanges(geometryShader->retrievePushConstantRanges());
+    }
+#endif
+
+    return layout;
+}
+void Context::clearDescriptorLayoutCache() const
+{
+    this->g_cacheDescriptorLayouts.clear();
+}
+std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader const* shader) const
+{
+    if (shader == nullptr || shader->getShaderModule() == VK_NULL_HANDLE)
+    {
+        return nullptr;
+    }
+
+    auto it = this->g_cacheDescriptorLayouts.find(shader->getShaderModule());
+    if (it != this->g_cacheDescriptorLayouts.end())
+    {
+        return &it->second;
+    }
+
+#ifndef FGE_DEF_SERVER
+    auto bindingsPerSet = shader->retrieveBindings();
+
+    if (bindingsPerSet.empty())
+    {
+        auto& layouts = this->g_cacheDescriptorLayouts
+                                .emplace(std::piecewise_construct, std::forward_as_tuple(shader->getShaderModule()),
+                                         std::forward_as_tuple())
+                                .first->second;
+        return &layouts;
+    }
+
+    auto& layouts = this->g_cacheDescriptorLayouts
+                            .emplace(std::piecewise_construct, std::forward_as_tuple(shader->getShaderModule()),
+                                     std::forward_as_tuple())
+                            .first->second;
+    for (auto const& bindings: bindingsPerSet)
+    {
+        auto& layout = layouts.emplace_back(*this);
+        layout.create(bindings.data(), bindings.size());
+    }
+    return &layouts;
+#else
+    auto& layouts = this->g_cacheDescriptorLayouts
+                            .emplace(std::piecewise_construct, std::forward_as_tuple(shader->getShaderModule()),
+                                     std::forward_as_tuple())
+                            .first->second;
+    return &layouts;
+#endif
 }
 
 Context::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
