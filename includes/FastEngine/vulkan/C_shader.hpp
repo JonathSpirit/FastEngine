@@ -66,12 +66,21 @@ public:
 #endif
 
 private:
+#ifndef FGE_DEF_SERVER
+    void reflect() const;
+#endif
+
     VkShaderModule g_shaderModule;
     VkPipelineShaderStageCreateInfo g_pipelineShaderStageCreateInfo;
     Type g_type{Type::SHADER_NONE};
     std::vector<uint32_t> g_spirvBuffer;
 
     LogicalDevice const* g_logicalDevice;
+
+#ifndef FGE_DEF_SERVER
+    mutable std::vector<std::vector<DescriptorSetLayout::Binding>> g_reflectBindings;
+    mutable std::vector<VkPushConstantRange> g_reflectPushConstantRanges;
+#endif
 };
 
 } // namespace fge::vulkan

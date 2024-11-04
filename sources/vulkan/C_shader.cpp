@@ -60,6 +60,11 @@ Shader::Shader(Shader&& r) noexcept :
         g_type(r.g_type),
         g_spirvBuffer(std::move(r.g_spirvBuffer)),
         g_logicalDevice(r.g_logicalDevice)
+#ifndef FGE_DEF_SERVER
+        ,
+        g_reflectBindings(std::move(r.g_reflectBindings)),
+        g_reflectPushConstantRanges(std::move(r.g_reflectPushConstantRanges))
+#endif
 {
     r.g_shaderModule = VK_NULL_HANDLE;
     r.g_pipelineShaderStageCreateInfo = {};
@@ -80,6 +85,11 @@ Shader& Shader::operator=(Shader&& r) noexcept
     this->g_type = r.g_type;
     this->g_spirvBuffer = std::move(r.g_spirvBuffer);
     this->g_logicalDevice = r.g_logicalDevice;
+
+#ifndef FGE_DEF_SERVER
+    this->g_reflectBindings = std::move(r.g_reflectBindings);
+    this->g_reflectPushConstantRanges = std::move(r.g_reflectPushConstantRanges);
+#endif
 
     r.g_shaderModule = VK_NULL_HANDLE;
     r.g_pipelineShaderStageCreateInfo = {};
@@ -120,6 +130,10 @@ bool Shader::loadFromSpirVBuffer(LogicalDevice const& logicalDevice,
     this->g_type = type;
     this->g_logicalDevice = &logicalDevice;
     this->g_spirvBuffer = buffer;
+
+#ifndef FGE_DEF_SERVER
+    this->reflect();
+#endif
 
     return true;
 }
@@ -164,6 +178,10 @@ void Shader::destroy()
         this->g_type = Shader::Type::SHADER_NONE;
         this->g_logicalDevice = nullptr;
         this->g_spirvBuffer.clear();
+#ifndef FGE_DEF_SERVER
+        this->g_reflectBindings.clear();
+        this->g_reflectPushConstantRanges.clear();
+#endif
     }
 }
 
@@ -250,6 +268,58 @@ std::vector<VkPushConstantRange> Shader::retrievePushConstantRanges() const
 
     return result;
 }
+
+void Shader::reflect() const
+{
+    this->g_reflectBindings.clear();
+    this->g_reflectPushConstantRanges.clear();
+
+    if (this->g_shaderModule == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
+    SpvReflectShaderModule module;
+    if (spvReflectCreateShaderModule(this->g_spirvBuffer.size() * sizeof(decltype(this->g_spirvBuffer)::value_type),
+                                     this->g_spirvBuffer.data(), &module) != SPV_REFLECT_RESULT_SUCCESS)
+    {
+        return;
+    }
+
+    this->g_reflectBindings.reserve(module.descriptor_set_count);
+
+    for (uint32_t i = 0; i < module.descriptor_set_count; ++i)
+    {
+        auto& bindingResults = this->g_reflectBindings.emplace_back();
+        SpvReflectDescriptorSet const* set = &module.descriptor_sets[i];
+        for (uint32_t j = 0; j < set->binding_count; ++j)
+        {
+            SpvReflectDescriptorBinding const* binding = set->bindings[j];
+
+            VkDescriptorBindingFlagsEXT const flags = binding->array.dims_count == 1 && binding->array.dims[0] == 0
+                                                              ? VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT
+                                                              : 0;
+            uint32_t const count = binding->array.dims_count == 1 && binding->array.dims[0] == 0
+                                           ? FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT
+                                           : binding->count;
+
+            bindingResults.emplace_back(binding->binding, static_cast<VkDescriptorType>(binding->descriptor_type),
+                                        static_cast<VkShaderStageFlags>(module.shader_stage), count, flags);
+        }
+    }
+
+    this->g_reflectPushConstantRanges.reserve(module.push_constant_block_count);
+
+    for (uint32_t i = 0; i < module.push_constant_block_count; ++i)
+    {
+        SpvReflectBlockVariable const* block = &module.push_constant_blocks[i];
+        this->g_reflectPushConstantRanges.emplace_back(
+                VkPushConstantRange{static_cast<VkShaderStageFlags>(module.shader_stage), block->offset, block->size});
+    }
+
+    spvReflectDestroyShaderModule(&module);
+}
+
 #endif
 
 } // namespace fge::vulkan
