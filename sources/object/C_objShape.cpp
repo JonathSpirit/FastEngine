@@ -372,15 +372,18 @@ void ObjShape::updateDescriptors() const
 
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
-        auto& layout = GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
-        if (layout.getLayout() == VK_NULL_HANDLE)
+        auto const* descriptorLayout = GetActiveContext().requestDescriptorLayout(
+                &fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader);
+        if (descriptorLayout == nullptr)
         {
-            layout.create(
-                    {DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
+            return;
         }
 
-        this->g_descriptorSet =
-                GetActiveContext().getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
+        //BufferInstanceData in the vertex shader
+        this->g_descriptorSet = GetActiveContext()
+                                        .getMultiUseDescriptorPool()
+                                        .allocateDescriptorSet(descriptorLayout->at(1).getLayout())
+                                        .value();
     }
 
     DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,

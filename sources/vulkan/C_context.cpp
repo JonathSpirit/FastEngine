@@ -20,8 +20,6 @@
 #include "SDL.h"
 #include "SDL_vulkan.h"
 #include <iostream>
-#include <optional>
-#include <vector>
 
 //https://docs.tizen.org/application/native/guides/graphics/vulkan/
 
@@ -71,7 +69,6 @@ void Context::destroy()
             vkDestroySemaphore(this->g_logicalDevice.getDevice(), this->g_indirectFinishedSemaphores[i], nullptr);
         }
 
-        this->g_cacheLayouts.clear();
         this->g_textureLayout.destroy();
         this->g_transformLayout.destroy();
 
@@ -524,17 +521,6 @@ void Context::allocateGraphicsCommandBuffers(VkCommandBufferLevel level,
     }
 }
 
-fge::vulkan::DescriptorSetLayout& Context::getCacheLayout(std::string_view key) const
-{
-    auto it = this->g_cacheLayouts.find(key);
-    if (it != this->g_cacheLayouts.end())
-    {
-        return it->second;
-    }
-    return this->g_cacheLayouts
-            .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this))
-            .first->second;
-}
 DescriptorPool const& Context::getMultiUseDescriptorPool() const
 {
     return this->g_multiUseDescriptorPool;

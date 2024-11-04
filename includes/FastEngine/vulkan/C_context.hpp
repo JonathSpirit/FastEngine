@@ -21,7 +21,7 @@
 
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <array>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "FastEngine/vulkan/C_commandBuffer.hpp"
@@ -274,18 +274,6 @@ public:
                                         uint32_t commandBufferCount) const;
 
     /**
-     * \brief Retrieve or create a descriptor set layout from a key
-     *
-     * Certain objects need a custom descriptor set layout to be created for custom shaders.
-     *
-     * If the descriptor set layout is not already created, it will be created and cached and
-     * you will be able to fill it with the necessary bindings.
-     *
-     * \param key The key to retrieve the descriptor set layout
-     * \return The descriptor set layout
-     */
-    [[nodiscard]] DescriptorSetLayout& getCacheLayout(std::string_view key) const;
-    /**
      * \brief Retrieve a "multi-usage" descriptor pool
      *
      * This pool was created with the following types:
@@ -420,7 +408,6 @@ private:
     mutable std::
             unordered_map<LayoutPipeline::Key, LayoutPipeline, LayoutPipeline::Key::Hash, LayoutPipeline::Key::Compare>
                     g_cachePipelineLayouts;
-    mutable std::map<std::string, DescriptorSetLayout, std::less<>> g_cacheLayouts;
     DescriptorPool g_multiUseDescriptorPool;
 
     DescriptorSetLayout g_textureLayout;

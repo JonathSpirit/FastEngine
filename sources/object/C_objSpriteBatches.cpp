@@ -349,15 +349,18 @@ void ObjSpriteBatches::updateBuffers() const
 
         if (this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES].get() == VK_NULL_HANDLE)
         {
-            auto& layout = GetActiveContext().getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT);
-            if (layout.getLayout() == VK_NULL_HANDLE)
+            auto const* descriptorLayout = GetActiveContext().requestDescriptorLayout(
+                    &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader);
+            if (descriptorLayout == nullptr)
             {
-                layout.create({DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                                            VK_SHADER_STAGE_VERTEX_BIT)});
+                return;
             }
 
             this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_INSTANCES] =
-                    GetActiveContext().getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
+                    GetActiveContext()
+                            .getMultiUseDescriptorPool()
+                            .allocateDescriptorSet(descriptorLayout->begin()->getLayout())
+                            .value();
         }
 
         if (!this->g_instancesData.empty())
@@ -396,18 +399,17 @@ void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
 
     if (sizeHasChanged || this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES].get() == VK_NULL_HANDLE)
     {
-        auto& layout = GetActiveContext().getCacheLayout(FGE_OBJSPRITEBATCHES_LAYOUT_TEXTURES);
-        if (layout.getLayout() == VK_NULL_HANDLE)
+        auto const* descriptorLayout = GetActiveContext().requestDescriptorLayout(
+                &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT)->_shader);
+        if (descriptorLayout == nullptr)
         {
-            layout.create({DescriptorSetLayout::Binding(
-                    0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT,
-                    FGE_OBJSPRITEBATCHES_MAXIMUM_TEXTURES, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT)});
+            return;
         }
 
         this->g_descriptorSets[FGE_OBJSPRITEBATCHES_DESCRIPTORSET_TEXTURES] =
                 GetActiveContext()
                         .getMultiUseDescriptorPool()
-                        .allocateDescriptorSet(layout.getLayout(), this->g_textures.size())
+                        .allocateDescriptorSet(descriptorLayout->begin()->getLayout(), this->g_textures.size())
                         .value();
     }
 
