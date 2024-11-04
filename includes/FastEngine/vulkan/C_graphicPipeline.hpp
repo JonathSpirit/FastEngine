@@ -109,9 +109,6 @@ public:
     void setPrimitiveTopology(VkPrimitiveTopology topology) const;
     [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
 
-    void setDefaultVertexCount(uint32_t count) const;
-    [[nodiscard]] uint32_t getDefaultVertexCount() const;
-
     void recordCommandBuffer(CommandBuffer& commandBuffer,
                              Viewport const& viewport,
                              VkRect2D const& scissor,
@@ -159,7 +156,6 @@ private:
     Shader const* g_shaderGeometry;
 
     mutable VkPrimitiveTopology g_primitiveTopology;
-    mutable uint32_t g_defaultVertexCount;
 
     mutable BlendMode g_blendMode;
 

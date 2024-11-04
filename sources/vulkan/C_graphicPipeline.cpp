@@ -174,7 +174,6 @@ GraphicPipeline::GraphicPipeline(Context const& context) :
         g_shaderGeometry(nullptr),
 
         g_primitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
-        g_defaultVertexCount(3),
 
         g_pipelineLayout(VK_NULL_HANDLE),
         g_graphicsPipeline(VK_NULL_HANDLE)
@@ -189,7 +188,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline const& r) :
         g_shaderGeometry(r.g_shaderGeometry),
 
         g_primitiveTopology(r.g_primitiveTopology),
-        g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_blendMode(r.g_blendMode),
 
@@ -206,7 +204,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_shaderGeometry(r.g_shaderGeometry),
 
         g_primitiveTopology(r.g_primitiveTopology),
-        g_defaultVertexCount(r.g_defaultVertexCount),
 
         g_blendMode(r.g_blendMode),
 
@@ -221,7 +218,6 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
     r.g_shaderGeometry = nullptr;
 
     r.g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    r.g_defaultVertexCount = 3;
 
     r.g_blendMode = {};
 
@@ -457,15 +453,6 @@ void GraphicPipeline::setPrimitiveTopology(VkPrimitiveTopology topology) const
     return this->g_primitiveTopology;
 }
 
-void GraphicPipeline::setDefaultVertexCount(uint32_t count) const
-{
-    this->g_defaultVertexCount = count;
-}
-uint32_t GraphicPipeline::getDefaultVertexCount() const
-{
-    return this->g_defaultVertexCount;
-}
-
 void GraphicPipeline::recordCommandBuffer(CommandBuffer& commandBuffer,
                                           Viewport const& viewport,
                                           VkRect2D const& scissor,
@@ -537,7 +524,6 @@ void GraphicPipeline::destroy()
     this->g_shaderGeometry = nullptr;
 
     this->g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    this->g_defaultVertexCount = 3;
 
     this->g_blendMode = {};
 
