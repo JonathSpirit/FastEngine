@@ -358,6 +358,13 @@ private:
     uint32_t g_count{0};
 };
 
+/**
+ * \class RenderResourcePushConstants
+ * \ingroup graphics
+ * \brief Resource containing push constants information for rendering
+ *
+ * Push constants are used to send small amounts of data to the shader with a fast path.
+ */
 class RenderResourcePushConstants
 {
 public:
@@ -371,7 +378,7 @@ public:
 
     constexpr RenderResourcePushConstants() = default;
 
-    constexpr void push(PushConstantData const* data, uint32_t count)
+    constexpr void set(PushConstantData const* data, uint32_t count)
     {
         assert(count == 0 || data != nullptr);
 
