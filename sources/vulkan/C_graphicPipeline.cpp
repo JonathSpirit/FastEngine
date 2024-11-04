@@ -15,12 +15,154 @@
  */
 
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
+
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_swapChain.hpp"
 #include "FastEngine/vulkan/C_vertex.hpp"
 
 namespace fge::vulkan
 {
+
+//LayoutPipeline
+
+LayoutPipeline::LayoutPipeline(Context const& context) :
+        ContextAware(context),
+        g_needUpdate(true),
+        g_pipeline(VK_NULL_HANDLE)
+{}
+LayoutPipeline::LayoutPipeline(LayoutPipeline const& r) :
+        ContextAware(r),
+        g_needUpdate(true),
+        g_pipeline(VK_NULL_HANDLE),
+        g_pushConstantRanges(r.g_pushConstantRanges),
+        g_descriptorSetLayouts(r.g_descriptorSetLayouts)
+{}
+LayoutPipeline::LayoutPipeline(LayoutPipeline&& r) noexcept :
+        ContextAware(static_cast<ContextAware&&>(r)),
+        g_needUpdate(r.g_needUpdate),
+        g_pipeline(r.g_pipeline),
+        g_pushConstantRanges(std::move(r.g_pushConstantRanges)),
+        g_descriptorSetLayouts(std::move(r.g_descriptorSetLayouts))
+{
+    r.g_needUpdate = true;
+    r.g_pipeline = VK_NULL_HANDLE;
+}
+LayoutPipeline::~LayoutPipeline()
+{
+    this->destroy();
+}
+
+bool LayoutPipeline::updateIfNeeded(bool force)
+{
+    if (this->g_needUpdate || force)
+    {
+        this->clean();
+        this->g_needUpdate = false;
+
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = this->g_descriptorSetLayouts.size();
+        pipelineLayoutInfo.pSetLayouts = this->g_descriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
+        pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
+
+        if (vkCreatePipelineLayout(this->getContext().getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
+                                   &this->g_pipeline) != VK_SUCCESS)
+        {
+            throw fge::Exception("failed to create pipeline layout!");
+        }
+        return true;
+    }
+    return false;
+}
+
+void LayoutPipeline::addDescriptorSetLayout(VkDescriptorSetLayout descriptorSetLayout)
+{
+    this->g_descriptorSetLayouts.push_back(descriptorSetLayout);
+    this->g_needUpdate = true;
+}
+void LayoutPipeline::setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts)
+{
+    this->g_descriptorSetLayouts = descriptorSetLayouts;
+    this->g_needUpdate = true;
+}
+void LayoutPipeline::setDescriptorSetLayouts(std::vector<VkDescriptorSetLayout> const& descriptorSetLayouts)
+{
+    this->g_descriptorSetLayouts = descriptorSetLayouts;
+    this->g_needUpdate = true;
+}
+std::vector<VkDescriptorSetLayout> const& LayoutPipeline::getDescriptorSetLayouts() const
+{
+    return this->g_descriptorSetLayouts;
+}
+
+void LayoutPipeline::addPushConstantRanges(std::vector<VkPushConstantRange> const& pushConstantRanges)
+{
+    this->g_pushConstantRanges.insert(this->g_pushConstantRanges.end(), pushConstantRanges.begin(),
+                                      pushConstantRanges.end());
+    this->g_needUpdate = true;
+}
+void LayoutPipeline::setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges)
+{
+    this->g_pushConstantRanges = pushConstantRanges;
+    this->g_needUpdate = true;
+}
+void LayoutPipeline::setPushConstantRanges(std::vector<VkPushConstantRange> const& pushConstantRanges)
+{
+    this->g_pushConstantRanges = pushConstantRanges;
+    this->g_needUpdate = true;
+}
+std::vector<VkPushConstantRange> const& LayoutPipeline::getPushConstantRanges() const
+{
+    return this->g_pushConstantRanges;
+}
+
+VkPipelineLayout LayoutPipeline::get() const
+{
+    return this->g_pipeline;
+}
+
+void LayoutPipeline::clean()
+{
+    if (this->g_pipeline != VK_NULL_HANDLE)
+    {
+        this->getContext()._garbageCollector.push(
+                GarbagePipelineLayout(this->g_pipeline, this->getContext().getLogicalDevice().getDevice()));
+
+        this->g_pipeline = VK_NULL_HANDLE;
+    }
+
+    this->g_needUpdate = true;
+}
+void LayoutPipeline::destroy()
+{
+    if (this->g_pipeline != VK_NULL_HANDLE)
+    {
+        this->getContext()._garbageCollector.push(
+                GarbagePipelineLayout(this->g_pipeline, this->getContext().getLogicalDevice().getDevice()));
+
+        this->g_pipeline = VK_NULL_HANDLE;
+    }
+
+    this->g_needUpdate = true;
+
+    this->g_descriptorSetLayouts.clear();
+    this->g_pushConstantRanges.clear();
+}
+
+std::size_t LayoutPipeline::Key::Hash::operator()(Key const& r) const
+{
+    return fge::Hash(&r, sizeof(Key));
+}
+
+bool LayoutPipeline::Key::Compare::operator()(Key const& lhs, Key const& rhs) const
+{
+    return lhs._vertexShader == rhs._vertexShader && lhs._geometryShader == rhs._geometryShader &&
+           lhs._fragmentShader == rhs._fragmentShader;
+}
+
+//GraphicPipeline
 
 GraphicPipeline::GraphicPipeline(Context const& context) :
         ContextAware(context),
@@ -51,11 +193,8 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline const& r) :
 
         g_blendMode(r.g_blendMode),
 
-        g_pipelineLayout(VK_NULL_HANDLE),
-        g_graphicsPipeline(VK_NULL_HANDLE),
-
-        g_pushConstantRanges(r.g_pushConstantRanges),
-        g_descriptorSetLayouts(r.g_descriptorSetLayouts)
+        g_pipelineLayout(r.g_pipelineLayout),
+        g_graphicsPipeline(VK_NULL_HANDLE)
 {}
 GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
@@ -72,10 +211,7 @@ GraphicPipeline::GraphicPipeline(GraphicPipeline&& r) noexcept :
         g_blendMode(r.g_blendMode),
 
         g_pipelineLayout(r.g_pipelineLayout),
-        g_graphicsPipeline(r.g_graphicsPipeline),
-
-        g_pushConstantRanges(std::move(r.g_pushConstantRanges)),
-        g_descriptorSetLayouts(std::move(r.g_descriptorSetLayouts))
+        g_graphicsPipeline(r.g_graphicsPipeline)
 {
     r.g_needUpdate = true;
 
@@ -97,11 +233,11 @@ GraphicPipeline::~GraphicPipeline()
     this->destroy();
 }
 
-bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
+bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force)
 {
-    if (this->g_needUpdate || force)
+    if ((this->g_needUpdate || force) && this->g_pipelineLayout != VK_NULL_HANDLE)
     {
-        this->cleanPipeline();
+        this->clean();
 
         this->g_needUpdate = false;
 
@@ -196,8 +332,6 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
 
-        this->updatePipelineLayout();
-
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
 
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -235,18 +369,6 @@ bool GraphicPipeline::updateIfNeeded(VkRenderPass renderPass, bool force) const
         return true;
     }
     return false;
-}
-
-void GraphicPipeline::setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts)
-{
-    this->cleanPipelineLayout();
-    this->g_descriptorSetLayouts = descriptorSetLayouts;
-    this->updatePipelineLayout();
-    this->g_needUpdate = true;
-}
-std::vector<VkDescriptorSetLayout> const& GraphicPipeline::getDescriptorSetLayouts() const
-{
-    return this->g_descriptorSetLayouts;
 }
 
 void GraphicPipeline::clearShader(Shader::Type type)
@@ -344,18 +466,6 @@ uint32_t GraphicPipeline::getDefaultVertexCount() const
     return this->g_defaultVertexCount;
 }
 
-void GraphicPipeline::setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges)
-{
-    this->cleanPipelineLayout();
-    this->g_pushConstantRanges = pushConstantRanges;
-    this->updatePipelineLayout();
-    this->g_needUpdate = true;
-}
-std::vector<VkPushConstantRange> const& GraphicPipeline::getPushConstantRanges() const
-{
-    return this->g_pushConstantRanges;
-}
-
 void GraphicPipeline::recordCommandBuffer(CommandBuffer& commandBuffer,
                                           Viewport const& viewport,
                                           VkRect2D const& scissor,
@@ -383,6 +493,11 @@ void GraphicPipeline::recordCommandBuffer(CommandBuffer& commandBuffer,
     }
 }
 
+void GraphicPipeline::setPipelineLayout(LayoutPipeline const& layoutPipeline) const
+{
+    this->g_pipelineLayout = layoutPipeline.get();
+    this->g_needUpdate = true;
+}
 VkPipelineLayout GraphicPipeline::getPipelineLayout() const
 {
     return this->g_pipelineLayout;
@@ -392,36 +507,7 @@ VkPipeline GraphicPipeline::getPipeline() const
     return this->g_graphicsPipeline;
 }
 
-void GraphicPipeline::updatePipelineLayout() const
-{
-    if (this->g_pipelineLayout == VK_NULL_HANDLE)
-    {
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = this->g_descriptorSetLayouts.size();
-        pipelineLayoutInfo.pSetLayouts = this->g_descriptorSetLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = this->g_pushConstantRanges.size();
-        pipelineLayoutInfo.pPushConstantRanges = this->g_pushConstantRanges.data();
-
-        if (vkCreatePipelineLayout(this->getContext().getLogicalDevice().getDevice(), &pipelineLayoutInfo, nullptr,
-                                   &this->g_pipelineLayout) != VK_SUCCESS)
-        {
-            throw fge::Exception("failed to create pipeline layout!");
-        }
-    }
-}
-
-void GraphicPipeline::cleanPipelineLayout() const
-{
-    if (this->g_pipelineLayout != VK_NULL_HANDLE)
-    {
-        this->getContext()._garbageCollector.push(
-                GarbagePipelineLayout(this->g_pipelineLayout, this->getContext().getLogicalDevice().getDevice()));
-
-        this->g_pipelineLayout = VK_NULL_HANDLE;
-    }
-}
-void GraphicPipeline::cleanPipeline() const
+void GraphicPipeline::clean()
 {
     if (this->g_graphicsPipeline != VK_NULL_HANDLE)
     {
@@ -430,12 +516,18 @@ void GraphicPipeline::cleanPipeline() const
 
         this->g_graphicsPipeline = VK_NULL_HANDLE;
     }
-}
 
+    this->g_needUpdate = true;
+}
 void GraphicPipeline::destroy()
 {
-    this->cleanPipeline();
-    this->cleanPipelineLayout();
+    if (this->g_graphicsPipeline != VK_NULL_HANDLE)
+    {
+        this->getContext()._garbageCollector.push(
+                GarbageGraphicPipeline(this->g_graphicsPipeline, this->getContext().getLogicalDevice().getDevice()));
+
+        this->g_graphicsPipeline = VK_NULL_HANDLE;
+    }
 
     this->g_needUpdate = true;
 
@@ -444,7 +536,25 @@ void GraphicPipeline::destroy()
     this->g_shaderFragment = nullptr;
     this->g_shaderGeometry = nullptr;
 
+    this->g_primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     this->g_defaultVertexCount = 3;
+
+    this->g_blendMode = {};
+
+    this->g_pipelineLayout = VK_NULL_HANDLE;
+}
+
+std::size_t GraphicPipeline::Key::Hash::operator()(Key const& r) const
+{
+    return fge::Hash(&r, sizeof(Key));
+}
+
+bool GraphicPipeline::Key::Compare::operator()(Key const& lhs, Key const& rhs) const
+{
+    return lhs._shaderCompute == rhs._shaderCompute && lhs._shaderVertex == rhs._shaderVertex &&
+           lhs._shaderFragment == rhs._shaderFragment && lhs._shaderGeometry == rhs._shaderGeometry &&
+           lhs._primitiveTopology == rhs._primitiveTopology && lhs._blendMode == rhs._blendMode &&
+           lhs._pipelineLayout == rhs._pipelineLayout;
 }
 
 } // namespace fge::vulkan

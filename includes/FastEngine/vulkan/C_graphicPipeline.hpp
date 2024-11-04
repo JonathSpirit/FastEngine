@@ -31,6 +31,61 @@ namespace fge::vulkan
 
 class CommandBuffer;
 
+class FGE_API LayoutPipeline : public ContextAware
+{
+public:
+    explicit LayoutPipeline(Context const& context);
+    LayoutPipeline(LayoutPipeline const& r);
+    LayoutPipeline(LayoutPipeline&& r) noexcept;
+    ~LayoutPipeline() override;
+
+    LayoutPipeline& operator=(LayoutPipeline const& r) = delete;
+    LayoutPipeline& operator=(LayoutPipeline&& r) noexcept = delete;
+
+    bool updateIfNeeded(bool force = false);
+
+    void addDescriptorSetLayout(VkDescriptorSetLayout descriptorSetLayout);
+    void setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts);
+    void setDescriptorSetLayouts(std::vector<VkDescriptorSetLayout> const& descriptorSetLayouts);
+    [[nodiscard]] std::vector<VkDescriptorSetLayout> const& getDescriptorSetLayouts() const;
+
+    void addPushConstantRanges(std::vector<VkPushConstantRange> const& pushConstantRanges);
+    void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
+    void setPushConstantRanges(std::vector<VkPushConstantRange> const& pushConstantRanges);
+    [[nodiscard]] std::vector<VkPushConstantRange> const& getPushConstantRanges() const;
+
+    [[nodiscard]] VkPipelineLayout get() const;
+
+    void destroy() final;
+
+    struct Key
+    {
+        VkShaderModule _vertexShader;
+        VkShaderModule _geometryShader;
+        VkShaderModule _fragmentShader;
+
+        struct Hash
+        {
+            [[nodiscard]] std::size_t operator()(Key const& r) const;
+        };
+
+        struct Compare
+        {
+            [[nodiscard]] bool operator()(Key const& lhs, Key const& rhs) const;
+        };
+    };
+
+private:
+    void clean();
+
+    mutable bool g_needUpdate;
+
+    mutable VkPipelineLayout g_pipeline;
+
+    std::vector<VkPushConstantRange> g_pushConstantRanges;
+    std::vector<VkDescriptorSetLayout> g_descriptorSetLayouts;
+};
+
 class FGE_API GraphicPipeline : public ContextAware
 {
 public:
@@ -42,10 +97,7 @@ public:
     GraphicPipeline& operator=(GraphicPipeline const& r) = delete;
     GraphicPipeline& operator=(GraphicPipeline&& r) noexcept = delete;
 
-    bool updateIfNeeded(VkRenderPass renderPass, bool force = false) const;
-
-    void setDescriptorSetLayouts(std::initializer_list<VkDescriptorSetLayout> descriptorSetLayouts);
-    [[nodiscard]] std::vector<VkDescriptorSetLayout> const& getDescriptorSetLayouts() const;
+    bool updateIfNeeded(VkRenderPass renderPass, bool force = false);
 
     void clearShader(Shader::Type type = Shader::Type::SHADER_NONE);
     void setShader(Shader const& shader);
@@ -60,24 +112,44 @@ public:
     void setDefaultVertexCount(uint32_t count) const;
     [[nodiscard]] uint32_t getDefaultVertexCount() const;
 
-    void setPushConstantRanges(std::initializer_list<VkPushConstantRange> pushConstantRanges);
-    [[nodiscard]] std::vector<VkPushConstantRange> const& getPushConstantRanges() const;
-
     void recordCommandBuffer(CommandBuffer& commandBuffer,
                              Viewport const& viewport,
                              VkRect2D const& scissor,
                              VertexBuffer const* vertexBuffer,
                              IndexBuffer const* indexBuffer) const;
 
+    void setPipelineLayout(LayoutPipeline const& layoutPipeline) const;
     [[nodiscard]] VkPipelineLayout getPipelineLayout() const;
     [[nodiscard]] VkPipeline getPipeline() const;
 
     void destroy() final;
 
+    struct Key
+    {
+        VkShaderModule _shaderCompute;
+        VkShaderModule _shaderVertex;
+        VkShaderModule _shaderFragment;
+        VkShaderModule _shaderGeometry;
+
+        VkPrimitiveTopology _primitiveTopology;
+
+        BlendMode _blendMode;
+
+        VkPipelineLayout _pipelineLayout;
+
+        struct Hash
+        {
+            [[nodiscard]] std::size_t operator()(Key const& r) const;
+        };
+
+        struct Compare
+        {
+            [[nodiscard]] bool operator()(Key const& lhs, Key const& rhs) const;
+        };
+    };
+
 private:
-    void updatePipelineLayout() const;
-    void cleanPipelineLayout() const;
-    void cleanPipeline() const;
+    void clean();
 
     mutable bool g_needUpdate;
 
@@ -93,9 +165,6 @@ private:
 
     mutable VkPipelineLayout g_pipelineLayout;
     mutable VkPipeline g_graphicsPipeline;
-
-    std::vector<VkPushConstantRange> g_pushConstantRanges;
-    std::vector<VkDescriptorSetLayout> g_descriptorSetLayouts;
 };
 
 } // namespace fge::vulkan
