@@ -63,16 +63,14 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
-                                                         "Use WASD/Arrow keys to move the view around\n"
-                                                         "Use the mouse wheel to zoom in and out",
-                                                         "base", {}, 18),
-                                           FGE_SCENE_PLAN_HIGH_TOP);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP},
+                                                          "Use WASD/Arrow keys to move the view around\n"
+                                                          "Use the mouse wheel to zoom in and out",
+                                                          "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Create a window to select and load geometry, vertex and fragment shaders
-        auto* windowShaders =
-                this->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_GUI)->getObject<fge::ObjWindow>();
+        auto* windowShaders = this->newObject<fge::ObjWindow>({FGE_SCENE_PLAN_GUI});
         windowShaders->setTextureClose("close");
         windowShaders->setTextureMinimize("minimize");
         windowShaders->setTextureResize("resize");
@@ -81,51 +79,31 @@ public:
         windowShaders->showExitButton(false);
 
         //Prepare window content
-        auto* textInputGeometryPath =
-                windowShaders->_windowScene
-                        .newObject(FGE_NEWOBJECT(fge::ObjTextInputBox, "base", 30), FGE_SCENE_PLAN_DEFAULT)
-                        ->getObject<fge::ObjTextInputBox>();
+        auto* textInputGeometryPath = windowShaders->_windowScene.newObject<fge::ObjTextInputBox>("base", 30);
         textInputGeometryPath->setBoxSize({200.0f, 20.0f});
         textInputGeometryPath->move({10.0f, 50.0f});
         textInputGeometryPath->setString("./shaders/shader.geom");
 
-        auto* textInputVertexPath =
-                windowShaders->_windowScene
-                        .newObject(FGE_NEWOBJECT(fge::ObjTextInputBox, "base", 30), FGE_SCENE_PLAN_DEFAULT)
-                        ->getObject<fge::ObjTextInputBox>();
+        auto* textInputVertexPath = windowShaders->_windowScene.newObject<fge::ObjTextInputBox>("base", 30);
         textInputVertexPath->setBoxSize({200.0f, 20.0f});
         textInputVertexPath->move({10.0f, 100.0f});
         textInputVertexPath->setString("./shaders/shader.vert");
 
-        auto* textInputFragmentPath =
-                windowShaders->_windowScene
-                        .newObject(FGE_NEWOBJECT(fge::ObjTextInputBox, "base", 30), FGE_SCENE_PLAN_DEFAULT)
-                        ->getObject<fge::ObjTextInputBox>();
+        auto* textInputFragmentPath = windowShaders->_windowScene.newObject<fge::ObjTextInputBox>("base", 30);
         textInputFragmentPath->setBoxSize({200.0f, 20.0f});
         textInputFragmentPath->move({10.0f, 150.0f});
         textInputFragmentPath->setString("./shaders/shader.frag");
 
-        auto* buttonLoadGeometry =
-                windowShaders->_windowScene
-                        .newObject(FGE_NEWOBJECT(fge::ObjButton, "arrow", "arrow"), FGE_SCENE_PLAN_DEFAULT)
-                        ->getObject<fge::ObjButton>();
+        auto* buttonLoadGeometry = windowShaders->_windowScene.newObject<fge::ObjButton>("arrow", "arrow");
         buttonLoadGeometry->move({10.0f, textInputGeometryPath->getPosition().y - 20.0f});
 
-        auto* buttonLoadVertex =
-                windowShaders->_windowScene
-                        .newObject(FGE_NEWOBJECT(fge::ObjButton, "arrow", "arrow"), FGE_SCENE_PLAN_DEFAULT)
-                        ->getObject<fge::ObjButton>();
+        auto* buttonLoadVertex = windowShaders->_windowScene.newObject<fge::ObjButton>("arrow", "arrow");
         buttonLoadVertex->move({10.0f, textInputVertexPath->getPosition().y - 20.0f});
 
-        auto* buttonLoadFragment =
-                windowShaders->_windowScene
-                        .newObject(FGE_NEWOBJECT(fge::ObjButton, "arrow", "arrow"), FGE_SCENE_PLAN_DEFAULT)
-                        ->getObject<fge::ObjButton>();
+        auto* buttonLoadFragment = windowShaders->_windowScene.newObject<fge::ObjButton>("arrow", "arrow");
         buttonLoadFragment->move({10.0f, textInputFragmentPath->getPosition().y - 20.0f});
 
-        auto* textOutput = windowShaders->_windowScene
-                                   .newObject(FGE_NEWOBJECT(fge::ObjText, "", "base", {}, 18), FGE_SCENE_PLAN_DEFAULT)
-                                   ->getObject<fge::ObjText>();
+        auto* textOutput = windowShaders->_windowScene.newObject<fge::ObjText>("", "base", fge::Vector2f{}, 18);
         textOutput->setFillColor(fge::Color::Red);
         textOutput->setOutlineColor(fge::Color::Black);
         textOutput->setOutlineThickness(1.0f);
