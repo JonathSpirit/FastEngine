@@ -109,14 +109,14 @@ AddCmakeDependency(re2
 
 AddCmakeDependency(freetype
         https://gitlab.freedesktop.org/freetype/freetype.git
-        VER-2-13-2
+        VER-2-13-3
         OFF
         "-DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
 AddCmakeDependency(SDL2
         https://github.com/libsdl-org/SDL.git
-        release-2.30.6
+        release-2.30.9
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
@@ -170,7 +170,7 @@ AddCmakeDependency(VulkanMemoryAllocator
 
 AddCmakeDependency(glslang
         https://github.com/KhronosGroup/glslang.git
-        14.3.0
+        15.0.0
         OFF
         "-DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF"
         "")
