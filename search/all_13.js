@@ -1,12 +1,21 @@
 var searchData=
 [
-  ['mac_20os_0',['Mac OS',['../index.html#autotoc_md10',1,'']]],
-  ['magenta_1',['Magenta',['../df/d85/classfge_1_1Color.html#a56ad3593e9488213301c5f5c1c9755fc',1,'fge::Color']]],
-  ['matrix_2',['Matrix',['../d9/d29/classfge_1_1Matrix.html',1,'fge::Matrix&lt; T &gt;'],['../d9/d29/classfge_1_1Matrix.html#a2a5df3fd44f2dba3a4cfe2be8b427085',1,'fge::Matrix::Matrix()'],['../d9/d29/classfge_1_1Matrix.html#a87dcd43578057830bfaf4ae7c81b9f25',1,'fge::Matrix::Matrix(std::initializer_list&lt; std::initializer_list&lt; T &gt; &gt; data)'],['../d9/d29/classfge_1_1Matrix.html#a795a323310b9b563c97c6c963e99c406',1,'fge::Matrix::Matrix(fge::Vector2&lt; Tvec &gt; const &amp;msize)'],['../d9/d29/classfge_1_1Matrix.html#adfb9acac3bbe065a6ede481b463b149c',1,'fge::Matrix::Matrix(std::size_t sizex, std::size_t sizey)'],['../d9/d29/classfge_1_1Matrix.html#aa952ff72e31169a92e4990186c82bca3',1,'fge::Matrix::Matrix(fge::Vector2&lt; Tvec &gt; const &amp;msize, T const &amp;defaultValue)'],['../d9/d29/classfge_1_1Matrix.html#a8ae3f0e6f155eabb2b57731aea927391',1,'fge::Matrix::Matrix(std::size_t sizex, std::size_t sizey, T const &amp;defaultValue)']]],
-  ['matrix_3c_20fge_3a_3atilelayer_3a_3atile_20_3e_3',['Matrix&lt; fge::TileLayer::Tile &gt;',['../d9/d29/classfge_1_1Matrix.html',1,'fge']]],
-  ['mipmaps_4',['Example 7 : mipmaps',['../index.html#autotoc_md19',1,'']]],
-  ['mixerchunkdeleter_5',['MixerChunkDeleter',['../d1/d07/structfge_1_1audio_1_1MixerChunkDeleter.html',1,'fge::audio']]],
-  ['move_6',['move',['../d8/dc8/classfge_1_1View.html#a09ced1e5d73db997e5352316c2336ee4',1,'fge::View']]],
-  ['multiplayer_20example_20with_20a_20life_20simulator_7',['Example 4 : multiplayer example with a &quot;life&quot; simulator',['../index.html#autotoc_md16',1,'']]],
-  ['multiple_20ways_20to_20render_20sprites_8',['Example 6 : multiple ways to render sprites',['../index.html#autotoc_md18',1,'']]]
+  ['latency_5fms_0',['Latency_ms',['../db/d3a/group__network.html#gabdf29dee9c68cd69ac800a42a23047bc',1,'fge::net']]],
+  ['layoutpipeline_1',['LayoutPipeline',['../d8/d4e/classfge_1_1vulkan_1_1LayoutPipeline.html',1,'fge::vulkan']]],
+  ['life_20simulator_2',['Example 4 : multiplayer example with a &quot;life&quot; simulator',['../index.html#autotoc_md16',1,'']]],
+  ['lightcomponent_3',['LightComponent',['../da/d08/classfge_1_1LightComponent.html',1,'fge']]],
+  ['lightobstacle_4',['LightObstacle',['../d0/dae/classfge_1_1LightObstacle.html',1,'fge']]],
+  ['lights_20and_20obstacles_5',['Example 2 : lights and obstacles',['../index.html#autotoc_md14',1,'']]],
+  ['lightsystem_6',['LightSystem',['../d6/de0/group__graphics.html#ga8d72c9e8be078e8167914190f0fef5c7',1,'fge']]],
+  ['line_7',['Line',['../dc/d30/structfge_1_1Line.html',1,'fge']]],
+  ['linux_8',['Linux',['../index.html#autotoc_md9',1,'']]],
+  ['listen_9',['listen',['../d3/d0c/classfge_1_1net_1_1SocketListenerTcp.html#aec67298f9d666b903ab57f505fd526ae',1,'fge::net::SocketListenerTcp']]],
+  ['load_10',['load',['../d5/d52/classfge_1_1ObjAnimation.html#ad8c322acfa7a87c5e1aa4e28e830933c',1,'fge::ObjAnimation::load()'],['../d6/d6e/classfge_1_1ObjButton.html#a0993797a1faa7ffc85f96500cda3cb4e',1,'fge::ObjButton::load()'],['../dc/d05/classfge_1_1Object.html#ae4df5200aafaf19af9912e7d4bec9ab5',1,'fge::Object::load()'],['../dd/da2/classfge_1_1ObjLight.html#a9bf90fcd7cbfbb8c3eb1b521e0afb73c',1,'fge::ObjLight::load()'],['../d0/d5b/classfge_1_1ObjRenderMap.html#a9a49b0f48fbc8c9723d9c3312dbc3751',1,'fge::ObjRenderMap::load()'],['../de/d1a/classfge_1_1ObjSelectBox.html#a6b7832824fe37b752a05cedca4ea59ad',1,'fge::ObjSelectBox::load()'],['../d6/dec/classfge_1_1ObjSprite.html#ae6b85a08945fdf3ed99902f7096ca217',1,'fge::ObjSprite::load()'],['../d0/d03/classfge_1_1ObjSpriteBatches.html#a13bfaba69fdbc875d28fa5db7141e3ae',1,'fge::ObjSpriteBatches::load()'],['../d4/db8/classfge_1_1ObjSpriteCluster.html#a2066f5bac837f60e0e2c7365cd72ea9f',1,'fge::ObjSpriteCluster::load()'],['../d2/d98/classfge_1_1ObjSwitch.html#a195dfe6770cf4e9bb1b3f1c493b91280',1,'fge::ObjSwitch::load()'],['../d8/d8a/classfge_1_1ObjText.html#af5a9eafea99bba06fee97573312e711a',1,'fge::ObjText::load()'],['../d6/dd4/classfge_1_1ObjTextInputBox.html#a8cd95aa81c4bbb4cd12c3c232de65dd8',1,'fge::ObjTextInputBox::load()'],['../db/d71/classfge_1_1ObjTileMap.html#a41ceac7e0195c099b01b14848befc61c',1,'fge::ObjTileMap::load()']]],
+  ['loadcustomdata_11',['loadCustomData',['../dc/dd6/classfge_1_1Scene.html#a6029e8c9aea4e5cc2a94603bcbaefa10',1,'fge::Scene']]],
+  ['loadfromfile_12',['LoadFromFile',['../dc/d05/classfge_1_1Object.html#aa87dbafb68444083914c73d7b3b0584f',1,'fge::Object::LoadFromFile()'],['../d8/d70/group__animation.html#gac3d85ae7169a467acb6a3f68802fe200',1,'fge::anim::LoadFromFile()'],['../d1/d4d/group__audio.html#gac36f5ed0f4941ef86cbbf768aafd624d',1,'fge::audio::LoadFromFile()'],['../d6/de0/group__graphics.html#ga360c5b7f7bcd84e4f9f335ac47168ad2',1,'fge::shader::LoadFromFile()'],['../d6/de0/group__graphics.html#gacb132811636c4a9ba92b51e789cf981a',1,'fge::texture::LoadFromFile()']]],
+  ['loadfromfile_13',['loadFromFile',['../dc/dd6/classfge_1_1Scene.html#a2355bd9912b4ed5b1fd7707a046cfcea',1,'fge::Scene::loadFromFile()'],['../dc/d05/classfge_1_1Object.html#a3ad79ee29328238b096dcc064cb95482',1,'fge::Object::loadFromFile()']]],
+  ['loadfrommemory_14',['LoadFromMemory',['../d6/de0/group__graphics.html#gad0e9f10059ed8d98903fe01273597f9f',1,'fge::shader']]],
+  ['loadfromsurface_15',['LoadFromSurface',['../d6/de0/group__graphics.html#ga5f2931175799a5abb210033091909a51',1,'fge::texture']]],
+  ['localsize_16',['LocalSize',['../d4/d3a/structSpvReflectEntryPoint_1_1LocalSize.html',1,'SpvReflectEntryPoint']]],
+  ['logicaldevice_17',['LogicalDevice',['../d8/dcf/classfge_1_1vulkan_1_1LogicalDevice.html',1,'fge::vulkan']]]
 ];

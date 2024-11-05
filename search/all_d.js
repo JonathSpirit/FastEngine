@@ -6,7 +6,7 @@ var searchData=
   ['enumerateextensions_3',['enumerateExtensions',['../d4/d8a/classfge_1_1vulkan_1_1Context.html#a2c2b48b2ad5cfac87a465e238372d2aa',1,'fge::vulkan::Context']]],
   ['equalexists_4',['EqualExists',['../d2/d0b/structfge_1_1comparisonCheck_1_1EqualExists.html',1,'fge::comparisonCheck']]],
   ['error_5',['Error',['../d8/d73/structfge_1_1net_1_1Error.html',1,'fge::net::Error'],['../dd/d1d/classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f',1,'fge::net::Socket::Error']]],
-  ['event_6',['Event',['../d0/dbb/classfge_1_1Event.html',1,'fge::Event'],['../d0/dbb/classfge_1_1Event.html#aa02425d4aa443cc7193b32e5ea27fa57',1,'fge::Event::Event(fge::Vector2i const &amp;windowSize, fge::Vector2i const &amp;windowPosition)'],['../d0/dbb/classfge_1_1Event.html#a539a35698eeab000e273fc37aea8c374',1,'fge::Event::Event(SDL_Window *window)']]],
+  ['event_6',['Event',['../d0/dbb/classfge_1_1Event.html',1,'fge::Event'],['../d0/dbb/classfge_1_1Event.html#aa02425d4aa443cc7193b32e5ea27fa57',1,'fge::Event::Event(fge::Vector2i const &amp;windowSize, fge::Vector2i const &amp;windowPosition)'],['../d0/dbb/classfge_1_1Event.html#aed35f2fef505b7138615ba4f2ff957c6',1,'fge::Event::Event(fge::vulkan::SurfaceWindow const &amp;surfaceWindow)']]],
   ['eventlist_7',['EventList',['../d7/d60/classfge_1_1EventList.html',1,'fge']]],
   ['example_201_20_3a_20tilemap_20and_20pathfinding_8',['Example 1 : tilemap and pathfinding',['../index.html#autotoc_md13',1,'']]],
   ['example_202_20_3a_20lights_20and_20obstacles_9',['Example 2 : lights and obstacles',['../index.html#autotoc_md14',1,'']]],

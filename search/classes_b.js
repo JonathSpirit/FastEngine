@@ -1,19 +1,6 @@
 var searchData=
 [
-  ['netfluxudp_0',['NetFluxUdp',['../dc/db1/classfge_1_1net_1_1NetFluxUdp.html',1,'fge::net']]],
-  ['networktype_1',['NetworkType',['../d3/d70/classfge_1_1net_1_1NetworkType.html',1,'fge::net']]],
-  ['networktypebase_2',['NetworkTypeBase',['../d8/daf/classfge_1_1net_1_1NetworkTypeBase.html',1,'fge::net']]],
-  ['networktypehandler_3',['NetworkTypeHandler',['../df/dfd/classfge_1_1net_1_1NetworkTypeHandler.html',1,'fge::net']]],
-  ['networktypemanual_4',['NetworkTypeManual',['../dd/d98/classfge_1_1net_1_1NetworkTypeManual.html',1,'fge::net']]],
-  ['networktypeproperty_5',['NetworkTypeProperty',['../df/dcd/classfge_1_1net_1_1NetworkTypeProperty.html',1,'fge::net']]],
-  ['networktypepropertylist_6',['NetworkTypePropertyList',['../d9/d69/classfge_1_1net_1_1NetworkTypePropertyList.html',1,'fge::net']]],
-  ['networktypescene_7',['NetworkTypeScene',['../df/dd6/classfge_1_1net_1_1NetworkTypeScene.html',1,'fge::net']]],
-  ['networktypesmoothfloat_8',['NetworkTypeSmoothFloat',['../d4/dc0/classfge_1_1net_1_1NetworkTypeSmoothFloat.html',1,'fge::net']]],
-  ['networktypesmoothvec2float_9',['NetworkTypeSmoothVec2Float',['../d2/de2/classfge_1_1net_1_1NetworkTypeSmoothVec2Float.html',1,'fge::net']]],
-  ['networktypetag_10',['NetworkTypeTag',['../d3/d4b/classfge_1_1net_1_1NetworkTypeTag.html',1,'fge::net']]],
-  ['networktypetasks_11',['NetworkTypeTasks',['../d1/dd2/classfge_1_1NetworkTypeTasks.html',1,'fge']]],
-  ['networktypevector_12',['NetworkTypeVector',['../d2/dae/classfge_1_1net_1_1NetworkTypeVector.html',1,'fge::net']]],
-  ['no_13',['No',['../dc/dea/structfge_1_1comparisonCheck_1_1No.html',1,'fge::comparisonCheck']]],
-  ['node_14',['Node',['../db/ddd/structfge_1_1AStar_1_1Node.html',1,'fge::AStar']]],
-  ['nothandledobjectdeleter_15',['NotHandledObjectDeleter',['../d3/d18/structfge_1_1ChildObjectsAccessor_1_1DataContext_1_1NotHandledObjectDeleter.html',1,'fge::ChildObjectsAccessor::DataContext']]]
+  ['matrix_0',['Matrix',['../d9/d29/classfge_1_1Matrix.html',1,'fge::Matrix&lt; T &gt;'],['../dc/de3/structSpvReflectNumericTraits_1_1Matrix.html',1,'SpvReflectNumericTraits::Matrix']]],
+  ['matrix_3c_20fge_3a_3atilelayer_3a_3atile_20_3e_1',['Matrix&lt; fge::TileLayer::Tile &gt;',['../d9/d29/classfge_1_1Matrix.html',1,'fge']]],
+  ['mixerchunkdeleter_2',['MixerChunkDeleter',['../d1/d07/structfge_1_1audio_1_1MixerChunkDeleter.html',1,'fge::audio']]]
 ];

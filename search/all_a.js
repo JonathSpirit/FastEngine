@@ -16,10 +16,16 @@ var searchData=
   ['bindvertexbuffers_13',['bindVertexBuffers',['../d3/d2e/classfge_1_1vulkan_1_1CommandBuffer.html#a21309b1f1d8ad49b973d4004052d215c',1,'fge::vulkan::CommandBuffer']]],
   ['bitbank_14',['BitBank',['../d9/dc8/classfge_1_1BitBank.html',1,'fge']]],
   ['black_15',['Black',['../df/d85/classfge_1_1Color.html#a09f5d30e9b59ef138d5fd9be38bc3776',1,'fge::Color']]],
-  ['blendmode_16',['BlendMode',['../de/d37/structfge_1_1vulkan_1_1BlendMode.html',1,'fge::vulkan']]],
-  ['blitsurface_17',['blitSurface',['../d5/df6/classfge_1_1Surface.html#a3943aa4161baf23dc78b0ccb46b2ffd3',1,'fge::Surface']]],
-  ['blue_18',['Blue',['../df/d85/classfge_1_1Color.html#a1e34364021a0b5461c5deb9ced935284',1,'fge::Color']]],
-  ['bold_19',['Bold',['../d8/d8a/classfge_1_1ObjText.html#a74bc37969a615a28cff428895e3477cbac52a76a77fd382ff5f0140a25ff65cec',1,'fge::ObjText']]],
-  ['build_20build_20details_20',['How to build / Build details',['../index.html#autotoc_md5',1,'']]],
-  ['build_20details_21',['How to build / Build details',['../index.html#autotoc_md5',1,'']]]
+  ['blendadd_16',['BlendAdd',['../d2/de0/C__blendMode_8hpp.html#a4c9f2f7c5922bd59beec7e6422820bd5',1,'fge::vulkan']]],
+  ['blendalpha_17',['BlendAlpha',['../d2/de0/C__blendMode_8hpp.html#aff3bf8cc02c77734a09ceedff4aaa0c0',1,'fge::vulkan']]],
+  ['blendmax_18',['BlendMax',['../d2/de0/C__blendMode_8hpp.html#a6aa29996deefa34e8566aec06aa2b4e2',1,'fge::vulkan']]],
+  ['blendmin_19',['BlendMin',['../d2/de0/C__blendMode_8hpp.html#ae99b8dad5580ce10457f3a3392b212df',1,'fge::vulkan']]],
+  ['blendmode_20',['BlendMode',['../de/d37/structfge_1_1vulkan_1_1BlendMode.html',1,'fge::vulkan']]],
+  ['blendmultiply_21',['BlendMultiply',['../d2/de0/C__blendMode_8hpp.html#ae87054d68add9a67fd8f93787c5ef551',1,'fge::vulkan']]],
+  ['blendnone_22',['BlendNone',['../d2/de0/C__blendMode_8hpp.html#a7423997a2268d2f6e08329b3effb31f5',1,'fge::vulkan']]],
+  ['blitsurface_23',['blitSurface',['../d5/df6/classfge_1_1Surface.html#a3943aa4161baf23dc78b0ccb46b2ffd3',1,'fge::Surface']]],
+  ['blue_24',['Blue',['../df/d85/classfge_1_1Color.html#a1e34364021a0b5461c5deb9ced935284',1,'fge::Color']]],
+  ['bold_25',['Bold',['../d8/d8a/classfge_1_1ObjText.html#a74bc37969a615a28cff428895e3477cbac52a76a77fd382ff5f0140a25ff65cec',1,'fge::ObjText']]],
+  ['build_20build_20details_26',['How to build / Build details',['../index.html#autotoc_md5',1,'']]],
+  ['build_20details_27',['How to build / Build details',['../index.html#autotoc_md5',1,'']]]
 ];

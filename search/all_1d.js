@@ -1,12 +1,13 @@
 var searchData=
 [
-  ['waitidle_0',['waitIdle',['../d4/d8a/classfge_1_1vulkan_1_1Context.html#a4839c3c2698193424d930eb0b9ef7138',1,'fge::vulkan::Context']]],
-  ['waitingupdate_1',['waitingUpdate',['../d8/daf/classfge_1_1net_1_1NetworkTypeBase.html#a26f1ffaefdc82f016018d61b8d48a48b',1,'fge::net::NetworkTypeBase']]],
-  ['watchevent_2',['watchEvent',['../dc/dd6/classfge_1_1Scene.html#ae238766ad9a6fddfcec948bfe3d1e2e1',1,'fge::Scene::watchEvent()'],['../d6/dea/classfge_1_1net_1_1ClientList.html#a70475bf80bead69e0de7265fe73deebb',1,'fge::net::ClientList::watchEvent()']]],
-  ['ways_20to_20render_20sprites_3',['Example 6 : multiple ways to render sprites',['../index.html#autotoc_md18',1,'']]],
-  ['white_4',['White',['../df/d85/classfge_1_1Color.html#ab80b0f8ec014524268eae29c726fcde1',1,'fge::Color']]],
-  ['window_5',['Example 3 : GUI and window',['../index.html#autotoc_md15',1,'']]],
-  ['windows_6',['Windows',['../index.html#autotoc_md8',1,'']]],
-  ['with_20a_20life_20simulator_7',['Example 4 : multiplayer example with a &quot;life&quot; simulator',['../index.html#autotoc_md16',1,'']]],
-  ['writepacketdatatofile_8',['WritePacketDataToFile',['../db/d3a/group__network.html#ga96912bfa33f0bff874d4c65187d66838',1,'fge::net']]]
+  ['valid_0',['valid',['../dd/ddd/classfge_1_1Animation.html#a849ac19237e0e75eb81957e2b7f40655',1,'fge::Animation::valid()'],['../d4/d36/classfge_1_1Font.html#a3a107e98548e592789ca1f4c84bb2230',1,'fge::Font::valid()'],['../d5/dac/classfge_1_1Texture.html#af56d0ac82d34dd859cbec47d84a6f984',1,'fge::Texture::valid()'],['../d4/df6/classfge_1_1TileSet.html#aa9b1fa6d5dca6b97fea14a3c62c28376',1,'fge::TileSet::valid()']]],
+  ['value128_1',['value128',['../d2/d28/structfast__float_1_1value128.html',1,'fast_float']]],
+  ['vector_2',['Vector',['../d6/dba/structSpvReflectNumericTraits_1_1Vector.html',1,'SpvReflectNumericTraits']]],
+  ['vector2ihash_3',['Vector2iHash',['../dd/dc8/structfge_1_1AStar_1_1Vector2iHash.html',1,'fge::AStar']]],
+  ['verifypriority_4',['verifyPriority',['../d8/dca/classfge_1_1GuiElement.html#ab9f41a5aec961e94dc3e00480877eb2a',1,'fge::GuiElement']]],
+  ['vertex_5',['Vertex',['../d6/d26/structfge_1_1vulkan_1_1Vertex.html',1,'fge::vulkan']]],
+  ['vertexbuffer_6',['VertexBuffer',['../da/d75/classfge_1_1vulkan_1_1VertexBuffer.html',1,'fge::vulkan']]],
+  ['view_7',['View',['../d8/dc8/classfge_1_1View.html',1,'fge']]],
+  ['viewport_8',['Viewport',['../d8/db7/classfge_1_1vulkan_1_1Viewport.html',1,'fge::vulkan']]],
+  ['vulkan_20abstraction_9',['Vulkan abstraction',['../db/de0/group__vulkan.html',1,'']]]
 ];

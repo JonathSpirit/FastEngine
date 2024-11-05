@@ -12,11 +12,12 @@ var searchData=
   ['newflux_9',['newFlux',['../d7/dfb/classfge_1_1net_1_1ServerSideNetUdp.html#a74be9a0623d5efc8ab63d620d21babb0',1,'fge::net::ServerSideNetUdp']]],
   ['newfunctor_10',['newFunctor',['../d1/d7c/structfge_1_1CallbackStaticHelpers.html#ab4d3a7f5ae8e78b1e8a47e91528bdd77',1,'fge::CallbackStaticHelpers']]],
   ['newlambda_11',['newLambda',['../d1/d7c/structfge_1_1CallbackStaticHelpers.html#a012528805addd3626037a00bfc20aab5',1,'fge::CallbackStaticHelpers']]],
-  ['newobject_12',['newObject',['../dc/dd6/classfge_1_1Scene.html#a9ccfa1288c2909a7b1e9bea3c4ae12cd',1,'fge::Scene::newObject(fge::ObjectPtr &amp;&amp;newObject, fge::ObjectPlan plan=fge::ObjectPlan { 100 }, fge::ObjectSid sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectType type=fge::ObjectType::TYPE_OBJECT, bool silent=false)'],['../dc/dd6/classfge_1_1Scene.html#af590bed5f9b9cbc4b80f839da1c2b3fa',1,'fge::Scene::newObject(fge::ObjectDataShared const &amp;objectData, bool silent=false)']]],
+  ['newobject_12',['newObject',['../da/d5e/classfge_1_1ObjectContainerHashMap.html#afbb2a12b625a23e92be28e86857f81f4',1,'fge::ObjectContainerHashMap::newObject()'],['../dc/dd6/classfge_1_1Scene.html#a9ccfa1288c2909a7b1e9bea3c4ae12cd',1,'fge::Scene::newObject(fge::ObjectPtr &amp;&amp;newObject, fge::ObjectPlan plan=fge::ObjectPlan { 100 }, fge::ObjectSid sid=std::numeric_limits&lt; fge::ObjectSid &gt;::max(), fge::ObjectType type=fge::ObjectType::TYPE_OBJECT, bool silent=false)'],['../dc/dd6/classfge_1_1Scene.html#af590bed5f9b9cbc4b80f839da1c2b3fa',1,'fge::Scene::newObject(fge::ObjectDataShared const &amp;objectData, bool silent=false)']]],
   ['newobjectfunctor_13',['newObjectFunctor',['../d1/d7c/structfge_1_1CallbackStaticHelpers.html#afa0f9bf3020a3ac65f6230a9aaa099f4',1,'fge::CallbackStaticHelpers']]],
-  ['nextframe_14',['nextFrame',['../dd/ddd/classfge_1_1Animation.html#aeb19180e73c5af730f7a5e19e87daea2',1,'fge::Animation']]],
-  ['normalizetexturecoords_15',['normalizeTextureCoords',['../d5/df6/classfge_1_1Surface.html#ad3ed76d697bc48ee461dfe704435878a',1,'fge::Surface']]],
-  ['normalizetexturerect_16',['normalizeTextureRect',['../d5/df6/classfge_1_1Surface.html#a779cd7b56c760a96cbfaa0de808828e4',1,'fge::Surface']]],
-  ['notify_17',['Notify',['../d9/d7d/group__time.html#ga12e90004953aa1af2b1a5a7e73bfd5d6',1,'fge::timer']]],
-  ['notifytransmission_18',['notifyTransmission',['../d7/dfb/classfge_1_1net_1_1ServerSideNetUdp.html#a5bff4b4d9b87dc0035d2d5294b6589c7',1,'fge::net::ServerSideNetUdp']]]
+  ['newsid_14',['newSid',['../da/d5e/classfge_1_1ObjectContainerHashMap.html#aa6838b3232c8d2a873847aa0bb3f0227',1,'fge::ObjectContainerHashMap']]],
+  ['nextframe_15',['nextFrame',['../dd/ddd/classfge_1_1Animation.html#aeb19180e73c5af730f7a5e19e87daea2',1,'fge::Animation']]],
+  ['normalizetexturecoords_16',['normalizeTextureCoords',['../d5/df6/classfge_1_1Surface.html#ad3ed76d697bc48ee461dfe704435878a',1,'fge::Surface']]],
+  ['normalizetexturerect_17',['normalizeTextureRect',['../d5/df6/classfge_1_1Surface.html#a779cd7b56c760a96cbfaa0de808828e4',1,'fge::Surface']]],
+  ['notify_18',['Notify',['../d9/d7d/group__time.html#ga12e90004953aa1af2b1a5a7e73bfd5d6',1,'fge::timer']]],
+  ['notifytransmission_19',['notifyTransmission',['../d7/dfb/classfge_1_1net_1_1ServerSideNetUdp.html#a5bff4b4d9b87dc0035d2d5294b6589c7',1,'fge::net::ServerSideNetUdp']]]
 ];
