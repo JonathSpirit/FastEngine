@@ -372,8 +372,69 @@ private:
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectContainer = std::list<fge::ObjectDataShared>;
-using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
 using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
+
+/**
+ * \class ObjectContainerHashMap
+ * \ingroup objectControl
+ * \brief A hash map to have direct access to an Object in a Scene
+ */
+class FGE_API ObjectContainerHashMap
+{
+public:
+    using Map = std::unordered_map<ObjectSid, ObjectContainer::iterator>;
+
+    ObjectContainerHashMap() = default;
+    explicit ObjectContainerHashMap(ObjectContainer& objects);
+    ObjectContainerHashMap(ObjectContainerHashMap const& r) = delete;
+    ObjectContainerHashMap(ObjectContainerHashMap&& r) noexcept = default;
+    ~ObjectContainerHashMap() = default;
+
+    ObjectContainerHashMap& operator=(ObjectContainerHashMap const& r) = delete;
+    ObjectContainerHashMap& operator=(ObjectContainerHashMap&& r) noexcept = default;
+
+    void clear();
+    void reMap(ObjectContainer& objects);
+
+    /**
+     * \brief Announce a new SID for an Object.
+     *
+     * If return \b false, the Scene will call the reMap method as
+     * something went wrong.
+     *
+     * \param oldSid The old SID of the Object
+     * \param newSid The new SID of the Object
+     * \return \b true if the SID is changed, \b false otherwise
+     */
+    [[nodiscard]] bool newSid(ObjectSid oldSid, ObjectSid newSid);
+    /**
+     * \brief Announce a new Object in the hash map.
+     *
+     * If return \b false, the Scene will call the reMap method as
+     * something went wrong.
+     *
+     * \param sid The SID of the Object
+     * \param it A valid iterator of the Object from the ObjectContainer
+     * \return \b true if the Object is added, \b false otherwise
+     */
+    [[nodiscard]] bool newObject(ObjectSid sid, ObjectContainer::iterator it);
+    /**
+     * \brief Announce the deletion of an Object.
+     *
+     * \param sid The SID of the Object
+     */
+    void delObject(ObjectSid sid);
+
+    [[nodiscard]] std::optional<ObjectContainer::iterator> find(ObjectSid sid);
+    [[nodiscard]] std::optional<ObjectContainer::const_iterator> find(ObjectSid sid) const;
+    [[nodiscard]] fge::ObjectContainer::value_type retrieve(ObjectSid sid) const;
+    [[nodiscard]] bool contains(ObjectSid sid) const;
+
+    [[nodiscard]] std::size_t size() const;
+
+private:
+    Map g_objectMap;
+};
 
 /**
  * \class Scene
@@ -1429,7 +1490,7 @@ private:
     fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object
 
     fge::ObjectContainer g_objects;
-    fge::ObjectDataMap g_dataMap;
+    fge::ObjectContainerHashMap g_objectsHashMap;
     fge::ObjectPlanDataMap g_planDataMap;
 
     fge::CallbackContext g_callbackContext;
