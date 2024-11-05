@@ -754,7 +754,7 @@ public:
      *
      * \return The size of the Scene.
      */
-    inline std::size_t getObjectSize() const { return this->g_data.size(); }
+    inline std::size_t getObjectSize() const { return this->g_objects.size(); }
 
     // Search function
     /**
@@ -988,7 +988,7 @@ public:
      * \param sid The Object SID
      * \return \b true if the SID correspond
      */
-    inline bool isValid(fge::ObjectSid sid) const { return this->find(sid) != this->g_data.cend(); }
+    inline bool isValid(fge::ObjectSid sid) const { return this->find(sid) != this->g_objects.cend(); }
 
     /**
      * \brief Generate an SID based on the provided wanted SID.
@@ -1335,10 +1335,10 @@ public:
     bool loadFromFile(std::string const& path);
 
     // Iterator
-    inline fge::ObjectContainer::const_iterator begin() const { return this->g_data.begin(); }
-    inline fge::ObjectContainer::const_iterator end() const { return this->g_data.end(); }
-    inline fge::ObjectContainer::const_reverse_iterator rbegin() const { return this->g_data.rbegin(); }
-    inline fge::ObjectContainer::const_reverse_iterator rend() const { return this->g_data.rend(); }
+    inline fge::ObjectContainer::const_iterator begin() const { return this->g_objects.begin(); }
+    inline fge::ObjectContainer::const_iterator end() const { return this->g_objects.end(); }
+    inline fge::ObjectContainer::const_reverse_iterator rbegin() const { return this->g_objects.rbegin(); }
+    inline fge::ObjectContainer::const_reverse_iterator rend() const { return this->g_objects.rend(); }
 
     /**
      * \brief Find an Object with the specified SID.
@@ -1428,7 +1428,7 @@ private:
     bool g_deleteMe;                                        //Delete an object while updating flag
     fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object
 
-    fge::ObjectContainer g_data;
+    fge::ObjectContainer g_objects;
     fge::ObjectDataMap g_dataMap;
     fge::ObjectPlanDataMap g_planDataMap;
 
