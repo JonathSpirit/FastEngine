@@ -22,7 +22,6 @@
 
 namespace fge::texture
 {
-
 namespace
 {
 
@@ -172,7 +171,18 @@ bool LoadFromSurface(std::string_view name, fge::Surface const& surface)
     _dataTexture[std::string{name}] = std::move(buff);
     return true;
 }
-bool LoadFromFile(std::string_view name, std::filesystem::path path)
+bool LoadFromFile(std::string_view name, std::filesystem::path const& path)
+{
+    fge::Surface tmpSurface;
+
+    if (!tmpSurface.loadFromFile(path))
+    {
+        return false;
+    }
+
+    return LoadFromSurface(name, tmpSurface);
+}
+bool LoadToGroupFromSurface(std::string_view name, fge::Surface const& surface)
 {
     if (name == FGE_TEXTURE_BAD)
     {
@@ -182,38 +192,44 @@ bool LoadFromFile(std::string_view name, std::filesystem::path path)
     std::scoped_lock<std::mutex> const lck(_dataMutex);
     auto it = _dataTexture.find(name);
 
-    if (it != _dataTexture.end())
+    if (it == _dataTexture.end())
     {
         return false;
     }
-
-    fge::Surface tmpSurface;
-
-    if (!tmpSurface.loadFromFile(path))
-    {
-        return false;
-    }
-
-    auto tmpTexture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
 
 #ifdef FGE_DEF_SERVER
-    *tmpTexture = std::move(tmpSurface);
+    auto tmpTexture = std::make_shared<fge::TextureType>(surface);
 #else
-    if (!tmpTexture->create(tmpSurface.get()))
+    auto tmpTexture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
+
+    if (!tmpTexture->create(surface.get()))
     {
         return false;
     }
 #endif //FGE_DEF_SERVER
 
-    fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
-    buff->_texture = std::move(tmpTexture);
-    buff->_valid = true;
-    buff->_path = std::move(path);
-
-    _dataTexture[std::string{name}] = std::move(buff);
+    it->second->_group.push_back(std::move(tmpTexture));
     return true;
 }
 
+bool UnloadGroup(std::string_view name)
+{
+    if (name == FGE_TEXTURE_BAD)
+    {
+        return false;
+    }
+
+    std::scoped_lock<std::mutex> const lck(_dataMutex);
+    auto it = _dataTexture.find(name);
+
+    if (it == _dataTexture.end())
+    {
+        return false;
+    }
+
+    it->second->_group.clear();
+    return true;
+}
 bool Unload(std::string_view name)
 {
     if (name == FGE_TEXTURE_BAD)

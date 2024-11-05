@@ -153,6 +153,33 @@ fge::TextureType const* Texture::retrieve() const
     return fge::texture::GetBadTexture()->_texture.get();
 }
 
+fge::TextureType* Texture::retrieveGroup(std::size_t index)
+{
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        auto& group = std::get<SharedTextureDataType>(this->g_data)->_group;
+        return index < group.size() ? group[index].get() : nullptr;
+    }
+    return nullptr;
+}
+fge::TextureType const* Texture::retrieveGroup(std::size_t index) const
+{
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        auto& group = std::get<SharedTextureDataType>(this->g_data)->_group;
+        return index < group.size() ? group[index].get() : nullptr;
+    }
+    return nullptr;
+}
+std::size_t Texture::groupSize() const
+{
+    if (std::holds_alternative<SharedTextureDataType>(this->g_data))
+    {
+        return std::get<SharedTextureDataType>(this->g_data)->_group.size();
+    }
+    return 0;
+}
+
 fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Texture& data)
 {
     std::string textureName;

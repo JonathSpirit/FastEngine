@@ -145,6 +145,16 @@ public:
     [[nodiscard]] fge::TextureType* retrieve();
     [[nodiscard]] fge::TextureType const* retrieve() const;
 
+    /**
+     * \brief Retrieve a sub-texture inside this texture group
+     *
+     * \param index The index of the sub-texture
+     * \return The sub-texture type pointer or \b nullptr if the index is out of range
+     */
+    [[nodiscard]] fge::TextureType* retrieveGroup(std::size_t index);
+    [[nodiscard]] fge::TextureType const* retrieveGroup(std::size_t index) const;
+    [[nodiscard]] std::size_t groupSize() const;
+
 private:
     std::variant<SharedTextureDataType, SharedTextureType> g_data;
     std::string g_name;

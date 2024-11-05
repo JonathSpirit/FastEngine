@@ -44,6 +44,7 @@ namespace fge::texture
  */
 struct TextureData
 {
+    std::vector<std::shared_ptr<fge::TextureType>> _group;
     std::shared_ptr<fge::TextureType> _texture;
     bool _valid;
     std::filesystem::path _path;
@@ -97,7 +98,7 @@ FGE_API std::unique_lock<std::mutex> AcquireLock();
  * You have to provide a valid reference to a unique lock acquire with
  * the function AcquireLock().
  * This function will throw if one of this is not respected :
- * - The lock does not owned the associated mutex.
+ * - The lock does not own the associated mutex.
  * - The mutex pointer of the lock does not correspond to this mutex.
  *
  * \param lock A unique lock bound to this mutex
@@ -137,7 +138,7 @@ FGE_API fge::texture::TextureDataPtr GetTexture(std::string_view name);
 FGE_API bool Check(std::string_view name);
 
 /**
- * \brief Load a texture from an surface
+ * \brief Load a texture from a surface
  *
  * \param name The name of the texture to load
  * \param surface The surface to load
@@ -151,7 +152,22 @@ FGE_API bool LoadFromSurface(std::string_view name, fge::Surface const& surface)
  * \param path The path of the file to load
  * \return \b true if the texture was loaded, \b false otherwise
  */
-FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path path);
+FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path const& path);
+/**
+ * \brief Load a texture from a surface and add it to a group
+ *
+ * \param name The name of the texture to load
+ * \param surface The surface to load
+ * \return \b true if the texture was loaded, \b false otherwise
+ */
+FGE_API bool LoadToGroupFromSurface(std::string_view name, fge::Surface const& surface);
+/**
+ * \brief Unload all textures in the given group
+ *
+ * \param name The name of texture that contains the group to unload
+ * \return \b true if the group was unloaded, \b false otherwise
+ */
+FGE_API bool UnloadGroup(std::string_view name);
 /**
  * \brief Unload the texture with the given name
  *
