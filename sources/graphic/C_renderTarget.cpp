@@ -265,15 +265,14 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
         layoutPipeline.updateIfNeeded();
 
         //Set a default graphicPipeline for this rendering call
-        vulkan::GraphicPipeline::Key const graphicPipelineKey{VK_NULL_HANDLE,
-                                                              states._shaderVertex->getShaderModule(),
-                                                              states._shaderFragment->getShaderModule(),
-                                                              VK_NULL_HANDLE,
-                                                              states._vertexBuffer == nullptr
-                                                                      ? VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
-                                                                      : states._vertexBuffer->getPrimitiveTopology(),
-                                                              states._blendMode,
-                                                              layoutPipeline.get()};
+        vulkan::GraphicPipeline::Key const graphicPipelineKey{
+                VK_NULL_HANDLE,
+                states._shaderVertex->getShaderModule(),
+                states._shaderFragment->getShaderModule(),
+                VK_NULL_HANDLE,
+                states._vertexBuffer == nullptr ? states._topology : states._vertexBuffer->getPrimitiveTopology(),
+                states._blendMode,
+                layoutPipeline.get()};
 
         auto cacheResultGraphicPipeline = this->requestGraphicPipeline(graphicPipelineKey);
         graphicPipeline = &cacheResultGraphicPipeline.first;

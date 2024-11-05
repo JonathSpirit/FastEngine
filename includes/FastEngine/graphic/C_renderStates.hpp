@@ -437,6 +437,7 @@ public:
     fge::vulkan::VertexBuffer const* _vertexBuffer{nullptr};
     fge::vulkan::IndexBuffer const* _indexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};
+    VkPrimitiveTopology _topology{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST}; //!< Only used if no vertex buffer is set
     fge::vulkan::Shader const* _shaderVertex{nullptr};
     fge::vulkan::Shader const* _shaderGeometry{nullptr};
     fge::vulkan::Shader const* _shaderFragment{nullptr};
