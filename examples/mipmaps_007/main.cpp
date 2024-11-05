@@ -56,17 +56,15 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
-                                                         "Use WASD/Arrow keys to move the view around\n"
-                                                         "Use Q/E to increase/decrease the mipmap min value\n"
-                                                         "Use the mouse wheel to zoom in and out",
-                                                         "base", {}, 18),
-                                           FGE_SCENE_PLAN_HIGH_TOP);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP},
+                                                          "Use WASD/Arrow keys to move the view around\n"
+                                                          "Use Q/E to increase/decrease the mipmap min value\n"
+                                                          "Use the mouse wheel to zoom in and out",
+                                                          "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Create a select box in order to switch between test objects
-        auto* sprite = this->newObject(FGE_NEWOBJECT(fge::ObjSprite, "texture"), FGE_SCENE_PLAN_HIGH_TOP)
-                               ->getObject<fge::ObjSprite>();
+        auto* sprite = this->newObject<fge::ObjSprite>({FGE_SCENE_PLAN_HIGH_TOP}, "texture");
         sprite->setOrigin(static_cast<fge::Vector2f>(sprite->getTexture().getTextureSize()) / 2.0f);
         sprite->move({400.0f, 300.0f});
 

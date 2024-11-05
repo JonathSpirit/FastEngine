@@ -188,36 +188,35 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
-                                                         "Use WASD/Arrow keys to move the view around\n"
-                                                         "Use the left mouse button to set the goal position\n"
-                                                         "Use the right mouse button to set the start position\n"
-                                                         "Use the mouse wheel to zoom in and out",
-                                                         "base", {}, 18),
-                                           FGE_SCENE_PLAN_HIGH_TOP);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP},
+                                                          "Use WASD/Arrow keys to move the view around\n"
+                                                          "Use the left mouse button to set the goal position\n"
+                                                          "Use the right mouse button to set the start position\n"
+                                                          "Use the mouse wheel to zoom in and out",
+                                                          "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Create a tileMap object
-        auto tileMap = this->newObject(FGE_NEWOBJECT(fge::ObjTileMap), FGE_SCENE_PLAN_BACK);
+        auto* tileMap = this->newObject<fge::ObjTileMap>({FGE_SCENE_PLAN_BACK});
 
         //Make sure it's always drawn
-        tileMap->getObject()->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
+        tileMap->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
         //Load the "tiled" json
         nlohmann::json json;
         fge::LoadJsonFromFile("resources/tilemaps/tilemap_basic_1.json", json);
 
         //Load the tileMap from a "tiled" json
-        tileMap->getObject()->load(json, this);
+        tileMap->load(json, this);
 
         //Get the tileMap size
-        auto tileMapSize = tileMap->getObject<fge::ObjTileMap>()->getTileLayers().front()->getTiles().getSize();
+        auto tileMapSize = tileMap->getTileLayers().front()->getTiles().getSize();
 
         //Create a pathfinder object
-        auto pathFinder = this->newObject(FGE_NEWOBJECT(PathFinder), FGE_SCENE_PLAN_TOP);
-        pathFinder->getObject<PathFinder>()->setWorldSize(static_cast<fge::Vector2i>(tileMapSize));
-        pathFinder->getObject<PathFinder>()->setTileSize({32, 32});
-        pathFinder->getObject<PathFinder>()->setObstacle(reinterpret_cast<fge::ObjTileMap*>(tileMap->getObject()));
+        auto* pathFinder = this->newObject<PathFinder>({FGE_SCENE_PLAN_TOP});
+        pathFinder->setWorldSize(static_cast<fge::Vector2i>(tileMapSize));
+        pathFinder->setTileSize({32, 32});
+        pathFinder->setObstacle(tileMap);
 
         //Create event callback for moving the view
         event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
@@ -264,12 +263,12 @@ public:
             //Set the pathfinder goal when the left mouse button is pressed
             if (mouseButtonEvent.button == SDL_BUTTON_LEFT)
             {
-                pathFinder->getObject<PathFinder>()->setGoal(mousePosition);
+                pathFinder->setGoal(mousePosition);
             }
             //Set the pathfinder start when the right mouse button is pressed
             else if (mouseButtonEvent.button == SDL_BUTTON_RIGHT)
             {
-                pathFinder->getObject<PathFinder>()->setStart(mousePosition);
+                pathFinder->setStart(mousePosition);
             }
         });
 

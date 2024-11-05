@@ -52,16 +52,14 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(
-                FGE_NEWOBJECT(fge::ObjText, "All of this scene should be rendered inside a texture in the GPU", "base",
-                              {}, 18),
-                FGE_SCENE_PLAN_HIGH_TOP + 1);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>(
+                {FGE_SCENE_PLAN_HIGH_TOP + 1}, "All of this scene should be rendered inside a texture in the GPU",
+                "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Add a text with characters that will be moved
-        auto* movingText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "hello world, I'm a super text !\ttab\nnewLine",
-                                                         "base", {200.0f, 200.0f}))
-                                   ->getObject<fge::ObjText>();
+        auto* movingText = this->newObject<fge::ObjText>("hello world, I'm a super text !\ttab\nnewLine", "base",
+                                                         fge::Vector2f{200.0f, 200.0f});
         movingText->setFillColor(fge::Color::Black);
         movingText->setOutlineThickness(2.0f);
         movingText->setOutlineColor(fge::Color::Yellow);
@@ -69,7 +67,7 @@ public:
                              fge::ObjText::Style::Bold | fge::ObjText::Style::Underlined);
 
         //Add a rectangle representing the bounds of the moving text
-        auto* rectText = this->newObject(FGE_NEWOBJECT(fge::ObjRectangleShape))->getObject<fge::ObjRectangleShape>();
+        auto* rectText = this->newObject<fge::ObjRectangleShape>();
 
         auto rect = movingText->getGlobalBounds();
         rectText->setPosition(rect.getPosition());

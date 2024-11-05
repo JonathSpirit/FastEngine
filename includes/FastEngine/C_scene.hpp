@@ -372,8 +372,69 @@ private:
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 using ObjectContainer = std::list<fge::ObjectDataShared>;
-using ObjectDataMap = std::unordered_map<fge::ObjectSid, fge::ObjectContainer::iterator>;
 using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
+
+/**
+ * \class ObjectContainerHashMap
+ * \ingroup objectControl
+ * \brief A hash map to have direct access to an Object in a Scene
+ */
+class FGE_API ObjectContainerHashMap
+{
+public:
+    using Map = std::unordered_map<ObjectSid, ObjectContainer::iterator>;
+
+    ObjectContainerHashMap() = default;
+    explicit ObjectContainerHashMap(ObjectContainer& objects);
+    ObjectContainerHashMap(ObjectContainerHashMap const& r) = delete;
+    ObjectContainerHashMap(ObjectContainerHashMap&& r) noexcept = default;
+    ~ObjectContainerHashMap() = default;
+
+    ObjectContainerHashMap& operator=(ObjectContainerHashMap const& r) = delete;
+    ObjectContainerHashMap& operator=(ObjectContainerHashMap&& r) noexcept = default;
+
+    void clear();
+    void reMap(ObjectContainer& objects);
+
+    /**
+     * \brief Announce a new SID for an Object.
+     *
+     * If return \b false, the Scene will call the reMap method as
+     * something went wrong.
+     *
+     * \param oldSid The old SID of the Object
+     * \param newSid The new SID of the Object
+     * \return \b true if the SID is changed, \b false otherwise
+     */
+    [[nodiscard]] bool newSid(ObjectSid oldSid, ObjectSid newSid);
+    /**
+     * \brief Announce a new Object in the hash map.
+     *
+     * If return \b false, the Scene will call the reMap method as
+     * something went wrong.
+     *
+     * \param sid The SID of the Object
+     * \param it A valid iterator of the Object from the ObjectContainer
+     * \return \b true if the Object is added, \b false otherwise
+     */
+    [[nodiscard]] bool newObject(ObjectSid sid, ObjectContainer::iterator it);
+    /**
+     * \brief Announce the deletion of an Object.
+     *
+     * \param sid The SID of the Object
+     */
+    void delObject(ObjectSid sid);
+
+    [[nodiscard]] std::optional<ObjectContainer::iterator> find(ObjectSid sid);
+    [[nodiscard]] std::optional<ObjectContainer::const_iterator> find(ObjectSid sid) const;
+    [[nodiscard]] fge::ObjectContainer::value_type retrieve(ObjectSid sid) const;
+    [[nodiscard]] bool contains(ObjectSid sid) const;
+
+    [[nodiscard]] std::size_t size() const;
+
+private:
+    Map g_objectMap;
+};
 
 /**
  * \class Scene
@@ -479,7 +540,7 @@ public:
      * This behaviour can be surpassed by setting Object::_drawMode.
      * \see Object::getGlobalBounds
      *
-     * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.
+     * During the draw, the depth plan is re-assigned depending on the Object plan and position in the list.
      * \see ObjectData::getPlanDepth
      *
      * \param target A RenderTarget
@@ -492,7 +553,7 @@ public:
     /**
      * \brief update the ObjectPlanDepth for one object
      *
-     * \param sid The object sid the will be updated
+     * \param sid The object sid that will be updated
      * \return The new ObjectPlanDepth
      */
     fge::ObjectPlanDepth updatePlanDepth(fge::ObjectSid sid);
@@ -521,6 +582,24 @@ public:
     void clear();
 
     // Object
+
+    /**
+     * \struct NewObjectParameters
+     * \brief Parameters for the newObject method
+     *
+     * - _plan: The plan of the new object
+     * - _sid: The wanted SID of the new object
+     * - _type: The type of the new Object
+     * - _silent: If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
+     */
+    struct NewObjectParameters
+    {
+        fge::ObjectPlan _plan{FGE_SCENE_PLAN_DEFAULT};
+        fge::ObjectSid _sid{FGE_SCENE_BAD_SID};
+        fge::ObjectType _type{fge::ObjectType::TYPE_OBJECT};
+        bool _silent{false};
+    };
+
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -540,13 +619,36 @@ public:
      * \param sid The wanted SID
      * \param type The type of the new Object
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
-     * \return An shared pointer of the ObjectData
+     * \return A shared pointer of the ObjectData
      */
     fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject,
                                     fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT,
                                     fge::ObjectSid sid = FGE_SCENE_BAD_SID,
                                     fge::ObjectType type = fge::ObjectType::TYPE_OBJECT,
                                     bool silent = false);
+
+    template<class TObject, class... TArgs>
+    inline TObject* newObject(NewObjectParameters const& parameters, TArgs&&... args)
+    {
+        static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
+        auto object = this->newObject(std::make_unique<TObject>(std::forward<TArgs>(args)...), parameters._plan,
+                                      parameters._sid, parameters._type, parameters._silent);
+        return object ? object->template getObject<TObject>() : nullptr;
+    }
+    template<class TObject, class... TArgs>
+    inline TObject* newObject(TArgs&&... args)
+    {
+        static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
+        auto object = this->newObject(std::make_unique<TObject>(std::forward<TArgs>(args)...));
+        return object ? object->template getObject<TObject>() : nullptr;
+    }
+    template<class TObject>
+    inline TObject* newObject()
+    {
+        static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
+        auto object = this->newObject(std::make_unique<TObject>());
+        return object ? object->template getObject<TObject>() : nullptr;
+    }
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -559,21 +661,21 @@ public:
      *
      * \param objectData The shared ObjectData
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
-     * \return An shared pointer of the ObjectData
+     * \return A shared pointer of the ObjectData
      */
     fge::ObjectDataShared newObject(fge::ObjectDataShared const& objectData, bool silent = false);
 
     /**
      * \brief Duplicate the provided Object SID.
      *
-     * This method duplicate the Object corresponding to the provided SID by giving an new SID
+     * This method duplicate the Object corresponding to the provided SID by giving a new SID
      * to the freshly duplicated Object.
      *
      * This method call the Object::copy method.
      *
      * \param sid The SID of the Object to be duplicated
      * \param newSid The new SID of the duplicated Object
-     * \return An shared pointer of the new ObjectData
+     * \return A shared pointer of the new ObjectData
      */
     fge::ObjectDataShared duplicateObject(fge::ObjectSid sid, fge::ObjectSid newSid = FGE_SCENE_BAD_SID);
 
@@ -597,7 +699,7 @@ public:
      *
      * \param sid The SID of the Object to be transferred
      * \param newScene The Scene that will get the Object
-     * \return An shared pointer of the transferred Object from the new scene
+     * \return A shared pointer of the transferred Object from the new scene
      */
     fge::ObjectDataShared transferObject(fge::ObjectSid sid, fge::Scene& newScene);
 
@@ -607,7 +709,7 @@ public:
      * This method mark the actual Object to be deleted internally. When the actual Object has
      * finished is update, the update() method correctly delete it.
      *
-     * \warning This method is not meant to be used outside of an update and will cause
+     * \warning This method is not meant to be used outside an update and will cause
      * weird behaviour if not respected. (like deleting the first updated Object)
      *
      * \see update
@@ -713,7 +815,7 @@ public:
      *
      * \return The size of the Scene.
      */
-    inline std::size_t getObjectSize() const { return this->g_data.size(); }
+    inline std::size_t getObjectSize() const { return this->g_objects.size(); }
 
     // Search function
     /**
@@ -947,7 +1049,7 @@ public:
      * \param sid The Object SID
      * \return \b true if the SID correspond
      */
-    inline bool isValid(fge::ObjectSid sid) const { return this->find(sid) != this->g_data.cend(); }
+    inline bool isValid(fge::ObjectSid sid) const { return this->find(sid) != this->g_objects.cend(); }
 
     /**
      * \brief Generate an SID based on the provided wanted SID.
@@ -1294,10 +1396,10 @@ public:
     bool loadFromFile(std::string const& path);
 
     // Iterator
-    inline fge::ObjectContainer::const_iterator begin() const { return this->g_data.begin(); }
-    inline fge::ObjectContainer::const_iterator end() const { return this->g_data.end(); }
-    inline fge::ObjectContainer::const_reverse_iterator rbegin() const { return this->g_data.rbegin(); }
-    inline fge::ObjectContainer::const_reverse_iterator rend() const { return this->g_data.rend(); }
+    inline fge::ObjectContainer::const_iterator begin() const { return this->g_objects.begin(); }
+    inline fge::ObjectContainer::const_iterator end() const { return this->g_objects.end(); }
+    inline fge::ObjectContainer::const_reverse_iterator rbegin() const { return this->g_objects.rbegin(); }
+    inline fge::ObjectContainer::const_reverse_iterator rend() const { return this->g_objects.rend(); }
 
     /**
      * \brief Find an Object with the specified SID.
@@ -1387,8 +1489,8 @@ private:
     bool g_deleteMe;                                        //Delete an object while updating flag
     fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object
 
-    fge::ObjectContainer g_data;
-    fge::ObjectDataMap g_dataMap;
+    fge::ObjectContainer g_objects;
+    fge::ObjectContainerHashMap g_objectsHashMap;
     fge::ObjectPlanDataMap g_planDataMap;
 
     fge::CallbackContext g_callbackContext;

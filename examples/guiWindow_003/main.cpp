@@ -58,16 +58,14 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
-                                                         "Use your mouse to play with a window\n"
-                                                         "Use space in order to duplicate the window",
-                                                         "base", {}, 18),
-                                           FGE_SCENE_PLAN_HIGH_TOP + 1);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP + 1},
+                                                          "Use your mouse to play with a window\n"
+                                                          "Use space in order to duplicate the window",
+                                                          "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Create the window
-        auto* objWindow =
-                this->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP)->getObject<fge::ObjWindow>();
+        auto* objWindow = this->newObject<fge::ObjWindow>({FGE_SCENE_PLAN_HIGH_TOP});
         objWindow->setTextureClose("close");
         objWindow->setTextureMinimize("minimize");
         objWindow->setTextureResize("resize");
@@ -76,8 +74,7 @@ public:
         objWindow->showExitButton(false);
 
         //Create a text list object
-        auto* objTextList =
-                objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextList))->getObject<fge::ObjTextList>();
+        auto* objTextList = objWindow->_windowScene.newObject<fge::ObjTextList>();
         objTextList->addText("this is a text");
         objTextList->addText("hello world");
         objTextList->addText("good morning");
@@ -90,7 +87,7 @@ public:
                                  {-20.0f, 0.0f}});
 
         //Create a slider object
-        auto* objSlider = objWindow->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
+        auto* objSlider = objWindow->_windowScene.newObject<fge::ObjSlider>();
         objSlider->setSize({{10.0f, 0.0f},
                             {fge::DynamicSize::SizeModes::SIZE_FIXED, fge::DynamicSize::SizeModes::SIZE_AUTO},
                             {0.0f, -50.0f}});
@@ -103,7 +100,7 @@ public:
         objSlider->setScrollInversion(true);
 
         //Create a slider object for the scaling
-        auto* objSlider2 = this->newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
+        auto* objSlider2 = this->newObject<fge::ObjSlider>();
         objSlider2->setSize(
                 {{10.0f, 0.0f}, {fge::DynamicSize::SizeModes::SIZE_FIXED, fge::DynamicSize::SizeModes::SIZE_AUTO}});
         objSlider2->setAnchor(fge::Anchor::Types::ANCHOR_UPLEFT_CORNER,
