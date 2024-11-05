@@ -54,6 +54,9 @@ FGE_OBJ_DRAW_BODY(ObjShaderChain)
 
     target.draw(copyStates);
 }
+void ObjShaderChain::drawSubsidiary([[maybe_unused]] fge::RenderTarget& target,
+                                    [[maybe_unused]] fge::RenderStates& states) const
+{}
 #endif
 
 void ObjShaderChain::setGeometryShader(std::string_view name)
@@ -108,10 +111,6 @@ fge::shader::ShaderDataPtr ObjShaderChain::getFragmentShader() const
 {
     return this->g_fragmentShader;
 }
-
-void ObjShaderChain::drawSubsidiary([[maybe_unused]] fge::RenderTarget& target,
-                                    [[maybe_unused]] fge::RenderStates& states) const
-{}
 
 char const* ObjShaderChain::getClassName() const
 {
