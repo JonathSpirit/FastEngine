@@ -44,6 +44,12 @@ public:
     void setVertexCount(uint32_t count);
     [[nodiscard]] uint32_t getVertexCount() const;
 
+    void setBlendMode(fge::vulkan::BlendMode const& blendMode);
+    [[nodiscard]] fge::vulkan::BlendMode const& getBlendMode() const;
+
+    void setTopology(VkPrimitiveTopology topology);
+    [[nodiscard]] VkPrimitiveTopology getTopology() const;
+
     [[nodiscard]] fge::shader::ShaderDataPtr getGeometryShader() const;
     [[nodiscard]] fge::shader::ShaderDataPtr getVertexShader() const;
     [[nodiscard]] fge::shader::ShaderDataPtr getFragmentShader() const;
@@ -59,6 +65,8 @@ private:
     fge::shader::ShaderDataPtr g_vertexShader;
     fge::shader::ShaderDataPtr g_fragmentShader;
     uint32_t g_vertexCount;
+    fge::vulkan::BlendMode g_blendMode;
+    VkPrimitiveTopology g_topology;
 };
 
 } // namespace fge

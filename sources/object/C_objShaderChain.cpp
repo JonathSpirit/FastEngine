@@ -23,7 +23,9 @@ ObjShaderChain::ObjShaderChain() :
         g_geometryShader(fge::shader::GetBadShader()),
         g_vertexShader(fge::shader::GetBadShader()),
         g_fragmentShader(fge::shader::GetBadShader()),
-        g_vertexCount(3)
+        g_vertexCount(3),
+        g_blendMode(fge::vulkan::BlendNone),
+        g_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 {}
 
 void ObjShaderChain::first([[maybe_unused]] fge::Scene& scene)
@@ -45,8 +47,8 @@ FGE_OBJ_DRAW_BODY(ObjShaderChain)
     copyStates._shaderFragment = &this->g_fragmentShader->_shader;
     copyStates._shaderGeometry = &this->g_geometryShader->_shader;
 
-    copyStates._blendMode = fge::vulkan::BlendNone;
-    //TODO: set topology when no VertexBuffer
+    copyStates._blendMode = this->g_blendMode;
+    copyStates._topology = this->g_topology;
 
     target.draw(copyStates);
 }
@@ -72,6 +74,24 @@ void ObjShaderChain::setVertexCount(uint32_t count)
 uint32_t ObjShaderChain::getVertexCount() const
 {
     return this->g_vertexCount;
+}
+
+void ObjShaderChain::setBlendMode(fge::vulkan::BlendMode const& blendMode)
+{
+    this->g_blendMode = blendMode;
+}
+fge::vulkan::BlendMode const& ObjShaderChain::getBlendMode() const
+{
+    return this->g_blendMode;
+}
+
+void ObjShaderChain::setTopology(VkPrimitiveTopology topology)
+{
+    this->g_topology = topology;
+}
+VkPrimitiveTopology ObjShaderChain::getTopology() const
+{
+    return this->g_topology;
 }
 
 fge::shader::ShaderDataPtr ObjShaderChain::getGeometryShader() const
