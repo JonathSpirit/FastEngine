@@ -60,6 +60,11 @@ public:
     fge::RectFloat getGlobalBounds() const override;
     fge::RectFloat getLocalBounds() const override;
 
+#ifndef FGE_DEF_SERVER
+protected:
+    virtual void drawSubsidiary(fge::RenderTarget& target, fge::RenderStates& states) const;
+#endif
+
 private:
     fge::shader::ShaderDataPtr g_geometryShader;
     fge::shader::ShaderDataPtr g_vertexShader;

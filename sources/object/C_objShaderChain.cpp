@@ -50,6 +50,8 @@ FGE_OBJ_DRAW_BODY(ObjShaderChain)
     copyStates._blendMode = this->g_blendMode;
     copyStates._topology = this->g_topology;
 
+    this->drawSubsidiary(target, copyStates);
+
     target.draw(copyStates);
 }
 #endif
@@ -106,6 +108,10 @@ fge::shader::ShaderDataPtr ObjShaderChain::getFragmentShader() const
 {
     return this->g_fragmentShader;
 }
+
+void ObjShaderChain::drawSubsidiary([[maybe_unused]] fge::RenderTarget& target,
+                                    [[maybe_unused]] fge::RenderStates& states) const
+{}
 
 char const* ObjShaderChain::getClassName() const
 {
