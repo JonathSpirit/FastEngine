@@ -479,7 +479,7 @@ public:
      * This behaviour can be surpassed by setting Object::_drawMode.
      * \see Object::getGlobalBounds
      *
-     * During the draw, the depth plan is re-assigned depending of the Object plan and position in the list.
+     * During the draw, the depth plan is re-assigned depending on the Object plan and position in the list.
      * \see ObjectData::getPlanDepth
      *
      * \param target A RenderTarget
@@ -492,7 +492,7 @@ public:
     /**
      * \brief update the ObjectPlanDepth for one object
      *
-     * \param sid The object sid the will be updated
+     * \param sid The object sid that will be updated
      * \return The new ObjectPlanDepth
      */
     fge::ObjectPlanDepth updatePlanDepth(fge::ObjectSid sid);
@@ -521,6 +521,24 @@ public:
     void clear();
 
     // Object
+
+    /**
+     * \struct NewObjectParameters
+     * \brief Parameters for the newObject method
+     *
+     * - _plan: The plan of the new object
+     * - _sid: The wanted SID of the new object
+     * - _type: The type of the new Object
+     * - _silent: If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
+     */
+    struct NewObjectParameters
+    {
+        fge::ObjectPlan _plan{FGE_SCENE_PLAN_DEFAULT};
+        fge::ObjectSid _sid{FGE_SCENE_BAD_SID};
+        fge::ObjectType _type{fge::ObjectType::TYPE_OBJECT};
+        bool _silent{false};
+    };
+
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -540,13 +558,36 @@ public:
      * \param sid The wanted SID
      * \param type The type of the new Object
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
-     * \return An shared pointer of the ObjectData
+     * \return A shared pointer of the ObjectData
      */
     fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject,
                                     fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT,
                                     fge::ObjectSid sid = FGE_SCENE_BAD_SID,
                                     fge::ObjectType type = fge::ObjectType::TYPE_OBJECT,
                                     bool silent = false);
+
+    template<class TObject, class... TArgs>
+    inline TObject* newObject(NewObjectParameters const& parameters, TArgs&&... args)
+    {
+        static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
+        auto object = this->newObject(std::make_unique<TObject>(std::forward<TArgs>(args)...), parameters._plan,
+                                      parameters._sid, parameters._type, parameters._silent);
+        return object ? object->template getObject<TObject>() : nullptr;
+    }
+    template<class TObject, class... TArgs>
+    inline TObject* newObject(TArgs&&... args)
+    {
+        static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
+        auto object = this->newObject(std::make_unique<TObject>(std::forward<TArgs>(args)...));
+        return object ? object->template getObject<TObject>() : nullptr;
+    }
+    template<class TObject>
+    inline TObject* newObject()
+    {
+        static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
+        auto object = this->newObject(std::make_unique<TObject>());
+        return object ? object->template getObject<TObject>() : nullptr;
+    }
     /**
      * \brief Add a new Object in the Scene.
      *
@@ -559,21 +600,21 @@ public:
      *
      * \param objectData The shared ObjectData
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
-     * \return An shared pointer of the ObjectData
+     * \return A shared pointer of the ObjectData
      */
     fge::ObjectDataShared newObject(fge::ObjectDataShared const& objectData, bool silent = false);
 
     /**
      * \brief Duplicate the provided Object SID.
      *
-     * This method duplicate the Object corresponding to the provided SID by giving an new SID
+     * This method duplicate the Object corresponding to the provided SID by giving a new SID
      * to the freshly duplicated Object.
      *
      * This method call the Object::copy method.
      *
      * \param sid The SID of the Object to be duplicated
      * \param newSid The new SID of the duplicated Object
-     * \return An shared pointer of the new ObjectData
+     * \return A shared pointer of the new ObjectData
      */
     fge::ObjectDataShared duplicateObject(fge::ObjectSid sid, fge::ObjectSid newSid = FGE_SCENE_BAD_SID);
 
@@ -597,7 +638,7 @@ public:
      *
      * \param sid The SID of the Object to be transferred
      * \param newScene The Scene that will get the Object
-     * \return An shared pointer of the transferred Object from the new scene
+     * \return A shared pointer of the transferred Object from the new scene
      */
     fge::ObjectDataShared transferObject(fge::ObjectSid sid, fge::Scene& newScene);
 
@@ -607,7 +648,7 @@ public:
      * This method mark the actual Object to be deleted internally. When the actual Object has
      * finished is update, the update() method correctly delete it.
      *
-     * \warning This method is not meant to be used outside of an update and will cause
+     * \warning This method is not meant to be used outside an update and will cause
      * weird behaviour if not respected. (like deleting the first updated Object)
      *
      * \see update

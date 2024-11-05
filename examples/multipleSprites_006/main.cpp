@@ -58,16 +58,14 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
-                                                         "Use WASD/Arrow keys to move the view around\n"
-                                                         "Use the mouse wheel to zoom in and out",
-                                                         "base", {}, 18),
-                                           FGE_SCENE_PLAN_HIGH_TOP);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP},
+                                                          "Use WASD/Arrow keys to move the view around\n"
+                                                          "Use the mouse wheel to zoom in and out",
+                                                          "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Create a select box in order to switch between test objects
-        auto* selectBox = this->newObject(FGE_NEWOBJECT(fge::ObjSelectBox, "base"), FGE_SCENE_PLAN_HIGH_TOP)
-                                  ->getObject<fge::ObjSelectBox>();
+        auto* selectBox = this->newObject<fge::ObjSelectBox>({FGE_SCENE_PLAN_HIGH_TOP}, "base");
         selectBox->move({0.0f, 60.0f});
         selectBox->addItem("ObjSpriteBatches");
         selectBox->addItem("ObjSpriteCluster");
@@ -85,8 +83,7 @@ public:
 
             if (itemIndex == 0)
             { //Create a sprite batches
-                auto* spriteBatches =
-                        this->newObject(FGE_NEWOBJECT(fge::ObjSpriteBatches))->getObject<fge::ObjSpriteBatches>();
+                auto* spriteBatches = this->newObject<fge::ObjSpriteBatches>();
                 spriteBatches->resize(MAP_SIZE_W * MAP_SIZE_H);
                 spriteBatches->addTexture("grid");
                 spriteBatches->_tags.add(MULTISPRITES_OBJECT_TAG);
@@ -112,8 +109,7 @@ public:
             }
             else if (itemIndex == 1)
             { //Create a sprite cluster
-                auto* spriteCluster =
-                        this->newObject(FGE_NEWOBJECT(fge::ObjSpriteCluster))->getObject<fge::ObjSpriteCluster>();
+                auto* spriteCluster = this->newObject<fge::ObjSpriteCluster>();
                 spriteCluster->resize(MAP_SIZE_W * MAP_SIZE_H);
                 spriteCluster->setTexture("grid");
                 spriteCluster->_tags.add(MULTISPRITES_OBJECT_TAG);
@@ -145,7 +141,7 @@ public:
                 {
                     for (std::size_t x = 0; x < MAP_SIZE_W; ++x)
                     {
-                        auto* sprite = this->newObject(FGE_NEWOBJECT(fge::ObjSprite))->getObject<fge::ObjSprite>();
+                        auto* sprite = this->newObject<fge::ObjSprite>();
                         sprite->setTexture(texture);
                         sprite->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
                         sprite->_tags.add(MULTISPRITES_OBJECT_TAG);
@@ -156,8 +152,7 @@ public:
             }
             else if (itemIndex == 3)
             { //Create a RectangleShape
-                auto* rectangleShape =
-                        this->newObject(FGE_NEWOBJECT(fge::ObjRectangleShape))->getObject<fge::ObjRectangleShape>();
+                auto* rectangleShape = this->newObject<fge::ObjRectangleShape>();
                 rectangleShape->setInstancesCount(MAP_SIZE_W * MAP_SIZE_H);
                 rectangleShape->_tags.add(MULTISPRITES_OBJECT_TAG);
                 rectangleShape->setSize({16.0f, 16.0f});

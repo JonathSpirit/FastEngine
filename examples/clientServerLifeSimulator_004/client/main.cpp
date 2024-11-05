@@ -149,10 +149,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     //Create a latency text
     std::ostringstream latencyTextStream;
 
-    auto* latencyText = mainScene
-                                ->newObject(FGE_NEWOBJECT(fge::ObjText, "waiting for server", "default", {}, 15),
-                                            FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI)
-                                ->getObject<fge::ObjText>();
+    auto* latencyText =
+            mainScene->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI},
+                                               "waiting for server", "default", fge::Vector2f{}, 15);
     latencyText->setFillColor(fge::Color::Black);
 
     bool connectionValid = false;
@@ -166,10 +165,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Creating window
-        auto* window = mainScene
-                               ->newObject(FGE_NEWOBJECT(fge::ObjWindow), FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID,
-                                           fge::ObjectType::TYPE_GUI)
-                               ->getObject<fge::ObjWindow>();
+        auto* window = mainScene->newObject<fge::ObjWindow>(
+                {FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI});
         window->setTextureClose("close");
         window->setTextureMinimize("minimize");
         window->setTextureResize("resize");
@@ -179,15 +176,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         window->showExitButton(false);
 
         //Creating a text input box for the IP
-        auto* textInputBoxIp = window->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjTextInputBox, "default", 20))
-                                       ->getObject<fge::ObjTextInputBox>();
+        auto* textInputBoxIp = window->_windowScene.newObject<fge::ObjTextInputBox>("default", 20);
         textInputBoxIp->move({20.0f, 20.0f});
         textInputBoxIp->setMaxLength(15);
         textInputBoxIp->setString("127.0.0.1");
 
         //Creating a button for validation
-        auto* buttonValid = window->_windowScene.newObject(FGE_NEWOBJECT(fge::ObjButton, "button_2", "button_1"))
-                                    ->getObject<fge::ObjButton>();
+        auto* buttonValid = window->_windowScene.newObject<fge::ObjButton>("button_2", "button_1");
         buttonValid->move({20.0f, 100.0f});
 
         //Handle button pressing

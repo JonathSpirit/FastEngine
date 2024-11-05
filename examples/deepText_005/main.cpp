@@ -57,22 +57,19 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText =
-                this->newObject(FGE_NEWOBJECT(fge::ObjText, "Use the slider to change the frequency", "base", {}, 18),
-                                FGE_SCENE_PLAN_HIGH_TOP + 1);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::Black);
+        auto* explainText = this->newObject<fge::ObjText>(
+                {FGE_SCENE_PLAN_HIGH_TOP + 1}, "Use the slider to change the frequency", "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::Black);
 
         //Create a text object that display frequency
         auto* frequencyText =
-                this->newObject(FGE_NEWOBJECT(fge::ObjText, "", "base", {}, 18), FGE_SCENE_PLAN_HIGH_TOP + 1)
-                        ->getObject<fge::ObjText>();
+                this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP + 1}, "", "base", fge::Vector2f{}, 18);
         frequencyText->setFillColor(fge::Color::Black);
         frequencyText->setPosition({40.0f, 300.0f});
 
         //Add a text with characters that will be moved
-        auto* movingText = this->newObject(FGE_NEWOBJECT(fge::ObjText, "hello world, I'm a moving text !\ttab\nnewLine",
-                                                         "base", {200.0f, 200.0f}))
-                                   ->getObject<fge::ObjText>();
+        auto* movingText = this->newObject<fge::ObjText>("hello world, I'm a moving text !\ttab\nnewLine", "base",
+                                                         fge::Vector2f{200.0f, 200.0f});
         movingText->setFillColor(fge::Color::Black);
         movingText->setOutlineThickness(2.0f);
         movingText->setOutlineColor(fge::Color::Yellow);
@@ -86,7 +83,7 @@ public:
         frequencyText->setString(fge::string::ToStr(math_f) + "Hz");
 
         //Create a slider object for the frequency
-        auto* objSliderFreq = this->newObject(FGE_NEWOBJECT(fge::ObjSlider))->getObject<fge::ObjSlider>();
+        auto* objSliderFreq = this->newObject<fge::ObjSlider>();
         objSliderFreq->setSize(
                 {{10.0f, 0.0f}, {fge::DynamicSize::SizeModes::SIZE_FIXED, fge::DynamicSize::SizeModes::SIZE_AUTO}});
         objSliderFreq->setAnchor(fge::Anchor::Types::ANCHOR_UPLEFT_CORNER,
@@ -99,7 +96,7 @@ public:
         });
 
         //Add a rectangle representing the bounds of the moving text
-        auto* rectText = this->newObject(FGE_NEWOBJECT(fge::ObjRectangleShape))->getObject<fge::ObjRectangleShape>();
+        auto* rectText = this->newObject<fge::ObjRectangleShape>();
 
         auto rect = movingText->getGlobalBounds();
         rectText->setPosition(rect.getPosition());
@@ -109,8 +106,7 @@ public:
         rectText->setOutlineThickness(2.0f);
 
         //Add a text input box
-        auto* textInputBox = this->newObject(FGE_NEWOBJECT(fge::ObjTextInputBox, "base", 20, {200.0f, 400.0f}))
-                                     ->getObject<fge::ObjTextInputBox>();
+        auto* textInputBox = this->newObject<fge::ObjTextInputBox>("base", 20, fge::Vector2f{200.0f, 400.0f});
         textInputBox->setString("type here");
 
         fge::Clock changeTextColorClock;

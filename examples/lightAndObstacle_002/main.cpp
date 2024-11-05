@@ -182,16 +182,15 @@ public:
         fge::Clock tick;
 
         //Create a text object with explanation
-        auto explainText = this->newObject(FGE_NEWOBJECT(fge::ObjText,
-                                                         "Use Q/E to switch between light and obstacle follow up\n"
-                                                         "Use A/D to rotate the obstacle\n"
-                                                         "Use 1/2/3/4 to change the obstacle form\n"
-                                                         "Use left mouse click to duplicate the obstacle/light\n"
-                                                         "Use space to delete all duplicated objects\n"
-                                                         "Use right click to change the light color\n",
-                                                         "base", {}, 18),
-                                           FGE_SCENE_PLAN_HIGH_TOP + 1);
-        explainText->getObject<fge::ObjText>()->setFillColor(fge::Color::White);
+        auto* explainText = this->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP + 1},
+                                                          "Use Q/E to switch between light and obstacle follow up\n"
+                                                          "Use A/D to rotate the obstacle\n"
+                                                          "Use 1/2/3/4 to change the obstacle form\n"
+                                                          "Use left mouse click to duplicate the obstacle/light\n"
+                                                          "Use space to delete all duplicated objects\n"
+                                                          "Use right click to change the light color\n",
+                                                          "base", fge::Vector2f{}, 18);
+        explainText->setFillColor(fge::Color::White);
 
         //Create the light system
         fge::LightSystem lightSystem;
@@ -202,8 +201,8 @@ public:
         obstacle->getObject<Obstacle>()->scale({2.0f, 2.0f});
 
         //Create a render map
-        auto renderMap = this->newObject(FGE_NEWOBJECT(fge::ObjRenderMap), FGE_SCENE_PLAN_HIGH_TOP);
-        renderMap->getObject<fge::ObjRenderMap>()->setClearColor(fge::Color{10, 10, 10, 240});
+        auto* renderMap = this->newObject<fge::ObjRenderMap>({FGE_SCENE_PLAN_HIGH_TOP});
+        renderMap->setClearColor(fge::Color{10, 10, 10, 240});
 
         //Create the light
         auto light =
