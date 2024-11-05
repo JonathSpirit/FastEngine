@@ -90,6 +90,7 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
         throw fge::Exception("Device does not support samplerAnisotropy feature !");
     }
     this->g_enabledFeatures.samplerAnisotropy = VK_TRUE;
+    this->g_enabledFeatures.geometryShader = availableFeatures.geometryShader;
     this->g_enabledFeatures.multiDrawIndirect = availableFeatures.multiDrawIndirect;
 
     VkDeviceCreateInfo createInfo{};
@@ -110,9 +111,17 @@ void LogicalDevice::create(PhysicalDevice& physicalDevice, VkSurfaceKHR surface)
 
     // Extended features goes here
 
-    VkPhysicalDeviceDescriptorIndexingFeaturesEXT const descriptorIndexingFeatures{
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT,
+    auto const availableRobustness2Features = physicalDevice.getRobustness2Features();
+    VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT,
             .pNext = nullptr,
+            .robustBufferAccess2 = VK_FALSE,
+            .robustImageAccess2 = VK_FALSE,
+            .nullDescriptor = availableRobustness2Features.nullDescriptor};
+
+    VkPhysicalDeviceDescriptorIndexingFeaturesEXT descriptorIndexingFeatures{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT,
+            .pNext = &robustness2Features,
             .shaderInputAttachmentArrayDynamicIndexing = VK_FALSE,
             .shaderUniformTexelBufferArrayDynamicIndexing = VK_FALSE,
             .shaderStorageTexelBufferArrayDynamicIndexing = VK_FALSE,

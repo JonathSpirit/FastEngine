@@ -16,6 +16,7 @@
 
 #include "FastEngine/object/C_objShape.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 
 namespace fge
 {
@@ -28,30 +29,6 @@ struct ConstantData
     glm::uint _colorIndex;
     glm::uint _instanceIndex;
 };
-
-#ifndef FGE_DEF_SERVER
-void InstanceVertexShader_constructor(fge::vulkan::Context const& context,
-                                      fge::RenderTarget::GraphicPipelineKey const& key,
-                                      fge::vulkan::GraphicPipeline* graphicPipeline)
-{
-    using namespace fge::vulkan;
-
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader);
-    graphicPipeline->setShader(fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader);
-    graphicPipeline->setBlendMode(key._blendMode);
-    graphicPipeline->setPrimitiveTopology(key._topology);
-
-    graphicPipeline->setPushConstantRanges({VkPushConstantRange{VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ConstantData)}});
-
-    auto& layout = context.getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
-    if (layout.getLayout() == VK_NULL_HANDLE)
-    {
-        layout.create({DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
-    }
-
-    graphicPipeline->setDescriptorSetLayouts({context.getTransformLayout().getLayout(), layout.getLayout()});
-}
-#endif
 
 } //end namespace
 
@@ -245,12 +222,8 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
-    fge::RenderTarget::GraphicPipelineKey key{this->g_vertices.getPrimitiveTopology(), copyStates._blendMode, 0};
-    auto* graphicPipeline =
-            target.getGraphicPipeline(FGE_OBJSHAPE_PIPELINE_CACHE_NAME, key, &InstanceVertexShader_constructor);
-    key._topology = this->g_outlineVertices.getPrimitiveTopology();
-    auto* graphicPipelineOutline =
-            target.getGraphicPipeline(FGE_OBJSHAPE_PIPELINE_CACHE_NAME, key, &InstanceVertexShader_constructor);
+    copyStates._shaderVertex = &fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader;
+    copyStates._shaderFragment = &fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader;
 
     //Drawing inline
     copyStates._resTextures.set(texture, texture == nullptr ? 0 : 1);
@@ -258,24 +231,24 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     ConstantData constantData{FGE_OBJSHAPE_INDEX_FILLCOLOR,
                               copyStates._resTransform.getGlobalTransformsIndex().value()};
-    target.getCommandBuffer().pushConstants(graphicPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                                            sizeof(ConstantData), &constantData);
+    fge::RenderResourcePushConstants::PushConstantData const pushConstant{VK_SHADER_STAGE_VERTEX_BIT, 0,
+                                                                          sizeof(ConstantData), &constantData};
+
+    copyStates._resPushConstants.set(&pushConstant, 1);
 
     copyStates._resInstances.setInstancesCount(this->g_instancesCount, true);
     uint32_t const sets[] = {1};
     copyStates._resDescriptors.set(&this->g_descriptorSet, sets, 1);
 
-    target.draw(copyStates, graphicPipeline);
+    target.draw(copyStates);
 
     //Drawing outline
     constantData._colorIndex = FGE_OBJSHAPE_INDEX_OUTLINECOLOR;
-    target.getCommandBuffer().pushConstants(graphicPipelineOutline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                                            sizeof(ConstantData), &constantData);
 
     copyStates._resTextures.set<std::nullptr_t>(nullptr, 0);
     copyStates._vertexBuffer = &this->g_outlineVertices;
 
-    target.draw(copyStates, graphicPipelineOutline);
+    target.draw(copyStates);
 }
 #endif
 
@@ -399,15 +372,8 @@ void ObjShape::updateDescriptors() const
 
     if (this->g_descriptorSet.get() == VK_NULL_HANDLE)
     {
-        auto& layout = GetActiveContext().getCacheLayout(FGE_OBJSHAPE_INSTANCES_LAYOUT);
-        if (layout.getLayout() == VK_NULL_HANDLE)
-        {
-            layout.create(
-                    {DescriptorSetLayout::Binding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)});
-        }
-
-        this->g_descriptorSet =
-                GetActiveContext().getMultiUseDescriptorPool().allocateDescriptorSet(layout.getLayout()).value();
+        //BufferInstanceData in the vertex shader
+        this->g_descriptorSet = GetActiveContext().createDescriptorSet(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, 1).value();
     }
 
     DescriptorSet::Descriptor const descriptor{this->g_instances, FGE_VULKAN_TRANSFORM_BINDING,

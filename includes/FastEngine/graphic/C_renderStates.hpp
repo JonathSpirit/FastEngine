@@ -29,6 +29,7 @@ namespace fge
 namespace vulkan
 {
 
+class Shader;
 class VertexBuffer;
 class IndexBuffer;
 
@@ -45,7 +46,7 @@ struct TransformUboData;
  * A transform is a default uniform buffer containing a model matrix and a view matrix. It is generally used in every
  * object that needs to be rendered.
  * The transform is optional, if set to \b nullptr, no transform descriptor will be bound and the user have to
- * provide there own descriptors in RenderResourceInstances (dynamic descriptors) or in RenderResourceDescriptors.
+ * provide their own descriptors in RenderResourceInstances (dynamic descriptors) or in RenderResourceDescriptors.
  *
  * The transform descriptor is bound to the FGE_RENDERTARGET_DEFAULT_DESCRIPTOR_SET_TRANSFORM set, binding 0.
  */
@@ -358,6 +359,45 @@ private:
 };
 
 /**
+ * \class RenderResourcePushConstants
+ * \ingroup graphics
+ * \brief Resource containing push constants information for rendering
+ *
+ * Push constants are used to send small amounts of data to the shader with a fast path.
+ */
+class RenderResourcePushConstants
+{
+public:
+    struct PushConstantData
+    {
+        VkShaderStageFlags g_stages;
+        uint32_t g_offset;
+        uint32_t g_size;
+        void const* g_data;
+    };
+
+    constexpr RenderResourcePushConstants() = default;
+
+    constexpr void set(PushConstantData const* data, uint32_t count)
+    {
+        assert(count == 0 || data != nullptr);
+
+        this->g_pushConstants = data;
+        this->count = count;
+    }
+
+    [[nodiscard]] constexpr PushConstantData const* getPushConstants(uint32_t index) const
+    {
+        return this->g_pushConstants + index;
+    }
+    [[nodiscard]] constexpr uint32_t getCount() const { return this->count; }
+
+private:
+    PushConstantData const* g_pushConstants{nullptr};
+    uint32_t count{0};
+};
+
+/**
  * \class RenderStates
  * \ingroup graphics
  * \brief The RenderStates class contains all the information needed to render something.
@@ -392,10 +432,15 @@ public:
     RenderResourceTextures _resTextures{};
     RenderResourceInstances _resInstances{};
     RenderResourceDescriptors _resDescriptors{};
+    RenderResourcePushConstants _resPushConstants{};
 
     fge::vulkan::VertexBuffer const* _vertexBuffer{nullptr};
     fge::vulkan::IndexBuffer const* _indexBuffer{nullptr};
     fge::vulkan::BlendMode _blendMode{};
+    VkPrimitiveTopology _topology{VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST}; //!< Only used if no vertex buffer is set
+    fge::vulkan::Shader const* _shaderVertex{nullptr};
+    fge::vulkan::Shader const* _shaderGeometry{nullptr};
+    fge::vulkan::Shader const* _shaderFragment{nullptr};
 };
 
 } // namespace fge

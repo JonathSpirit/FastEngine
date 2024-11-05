@@ -18,15 +18,17 @@
 #define _FGE_VULKAN_C_CONTEXT_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <array>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "FastEngine/vulkan/C_commandBuffer.hpp"
 #include "FastEngine/vulkan/C_descriptorPool.hpp"
 #include "FastEngine/vulkan/C_descriptorSetLayout.hpp"
 #include "FastEngine/vulkan/C_garbageCollector.hpp"
+#include "FastEngine/vulkan/C_graphicPipeline.hpp"
 #include "FastEngine/vulkan/C_instance.hpp"
 #include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/C_physicalDevice.hpp"
@@ -36,7 +38,7 @@
 
 #define FGE_VULKAN_TEXTURE_BINDING 0
 #define FGE_VULKAN_TRANSFORM_BINDING 0
-#define FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER 64
+#define FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT
 
 #define FGE_CONTEXT_OUTSIDE_RENDER_SCOPE_COMMAND_WAITSTAGE VK_PIPELINE_STAGE_VERTEX_INPUT_BIT
 
@@ -272,18 +274,6 @@ public:
                                         uint32_t commandBufferCount) const;
 
     /**
-     * \brief Retrieve or create a descriptor set layout from a key
-     *
-     * Certain objects need a custom descriptor set layout to be created for custom shaders.
-     *
-     * If the descriptor set layout is not already created, it will be created and cached and
-     * you will be able to fill it with the necessary bindings.
-     *
-     * \param key The key to retrieve the descriptor set layout
-     * \return The descriptor set layout
-     */
-    [[nodiscard]] fge::vulkan::DescriptorSetLayout& getCacheLayout(std::string_view key) const;
-    /**
      * \brief Retrieve a "multi-usage" descriptor pool
      *
      * This pool was created with the following types:
@@ -308,7 +298,7 @@ public:
      *
      * \return The descriptor set layout
      */
-    [[nodiscard]] fge::vulkan::DescriptorSetLayout const& getTextureLayout() const;
+    [[nodiscard]] DescriptorSetLayout const& getTextureLayout() const;
     /**
      * \brief Retrieve a "transform" descriptor set layout
      *
@@ -321,7 +311,7 @@ public:
      *
      * \return The descriptor set layout
      */
-    [[nodiscard]] fge::vulkan::DescriptorSetLayout const& getTransformLayout() const;
+    [[nodiscard]] DescriptorSetLayout const& getTransformLayout() const;
     /**
      * \brief Retrieve a "texture" descriptor pool
      *
@@ -380,6 +370,48 @@ public:
     [[nodiscard]] fge::TransformUboData const* getGlobalTransform(uint32_t index) const;
     [[nodiscard]] std::pair<uint32_t, fge::TransformUboData*> requestGlobalTransform() const;
 
+    void clearLayoutPipelineCache() const;
+    /**
+     * \brief Retrieve a layout pipeline
+     *
+     * This function will create a new layout pipeline if it doesn't exist.
+     * The layout pipeline is created with the provided shaders with reflection of
+     * the SPIR-V code to retrieve the descriptor set layouts and push constant ranges.
+     *
+     * \param vertexShader The vertex shader, can be \b nullptr
+     * \param geometryShader The geometry shader, can be \b nullptr
+     * \param fragmentShader The fragment shader, can be \b nullptr
+     * \return The layout pipeline
+     */
+    [[nodiscard]] LayoutPipeline&
+    requestLayoutPipeline(Shader const* vertexShader, Shader const* geometryShader, Shader const* fragmentShader) const;
+    void clearDescriptorLayoutCache() const;
+    /**
+     * \brief Retrieve a descriptor set layout
+     *
+     * This function will create a new descriptor set layout if it doesn't exist.
+     * The descriptor set layout is created with the provided shader with reflection of
+     * the SPIR-V code to retrieve the descriptor set layouts.
+     *
+     * \param shader The shader, can be \b nullptr
+     * \return The descriptor set layout or \b nullptr if the shader is invalid
+     */
+    [[nodiscard]] std::vector<DescriptorSetLayout> const* requestDescriptorLayout(Shader const* shader) const;
+
+    /**
+     * \brief Helper to request a descriptor set
+     *
+     * This function will create a new descriptor set with the provided shader and set index.
+     * This will also select for you the correct descriptor pool to use.
+     *
+     * \param shaderName The name of the shader from the manager
+     * \param setIndex The index of the wanted set in the shader (not the set number)
+     * \param variableElements The number of elements in the descriptor set (for variable descriptor sets)
+     * \return The descriptor set or \b std::nullopt if the something went wrong
+     */
+    [[nodiscard]] std::optional<DescriptorSet>
+    createDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements = 0) const;
+
     GarbageCollector _garbageCollector;
 
 private:
@@ -408,7 +440,10 @@ private:
     Surface const* g_surface;
     Instance const* g_instance;
 
-    mutable std::map<std::string, DescriptorSetLayout, std::less<>> g_cacheLayouts;
+    mutable std::unordered_map<VkShaderModule, std::vector<DescriptorSetLayout>> g_cacheDescriptorLayouts;
+    mutable std::
+            unordered_map<LayoutPipeline::Key, LayoutPipeline, LayoutPipeline::Key::Hash, LayoutPipeline::Key::Compare>
+                    g_cachePipelineLayouts;
     DescriptorPool g_multiUseDescriptorPool;
 
     DescriptorSetLayout g_textureLayout;

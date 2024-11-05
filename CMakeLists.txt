@@ -255,6 +255,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objShape.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objRectangleShape.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objCircleShape.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objLineShape.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_objShaderChain.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -366,6 +367,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objShape.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objRectangleShape.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objCircleShape.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objLineShape.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_objShaderChain.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_guiElement.cpp")
 
@@ -413,6 +415,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/task_manager.cpp")
+
+target_sources(${FGE_LIB_NAME} PRIVATE "sources/private/spirv_reflect.cpp")
 
 #Linking library
 if(WIN32)
@@ -558,4 +562,5 @@ if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/multipleSprites_006)
     add_subdirectory(examples/mipmaps_007)
     add_subdirectory(examples/noWindowOnlyRenderTexture_008)
+    add_subdirectory(examples/shaderChain_009)
 endif()

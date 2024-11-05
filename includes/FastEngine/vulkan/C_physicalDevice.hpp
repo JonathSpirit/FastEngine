@@ -100,6 +100,8 @@ public:
     [[nodiscard]] VkDeviceSize getMaxMemoryAllocationSize() const;
     [[nodiscard]] uint32_t getMaxMemoryAllocationCount() const;
     [[nodiscard]] VkPhysicalDeviceFeatures getFeatures() const;
+    [[nodiscard]] VkPhysicalDeviceFeatures2 getFeatures2() const;
+    [[nodiscard]] VkPhysicalDeviceRobustness2FeaturesEXT getRobustness2Features() const;
 
 private:
     void updateDeviceExtensionSupport();
