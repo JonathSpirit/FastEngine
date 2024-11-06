@@ -48,7 +48,7 @@ public:
      * Every descriptor must have a binding. The binding is used to link the descriptor
      * to the descriptor set layout.
      */
-    struct Descriptor
+    struct FGE_API Descriptor
     {
         enum class BufferTypes
         {
