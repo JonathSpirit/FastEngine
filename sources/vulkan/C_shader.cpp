@@ -199,27 +199,26 @@ Shader::Type Shader::getType() const
 }
 
 #ifndef FGE_DEF_SERVER
-std::vector<std::vector<DescriptorSetLayout::Binding>> Shader::retrieveBindings() const
+void Shader::retrieveBindings(ReflectSets& buffer) const
 {
     if (this->g_shaderModule == VK_NULL_HANDLE)
     {
-        return {};
+        return;
     }
 
     SpvReflectShaderModule module;
     if (spvReflectCreateShaderModule(this->g_spirvBuffer.size() * sizeof(decltype(this->g_spirvBuffer)::value_type),
                                      this->g_spirvBuffer.data(), &module) != SPV_REFLECT_RESULT_SUCCESS)
     {
-        return {};
+        return;
     }
-
-    std::vector<std::vector<DescriptorSetLayout::Binding>> setResults;
-    setResults.reserve(module.descriptor_set_count);
 
     for (uint32_t i = 0; i < module.descriptor_set_count; ++i)
     {
-        auto& bindingResults = setResults.emplace_back();
         SpvReflectDescriptorSet const* set = &module.descriptor_sets[i];
+
+        ReflectBindings& bindings = buffer[set->set];
+
         for (uint32_t j = 0; j < set->binding_count; ++j)
         {
             SpvReflectDescriptorBinding const* binding = set->bindings[j];
@@ -231,14 +230,27 @@ std::vector<std::vector<DescriptorSetLayout::Binding>> Shader::retrieveBindings(
                                            ? FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT
                                            : binding->count;
 
-            bindingResults.emplace_back(binding->binding, static_cast<VkDescriptorType>(binding->descriptor_type),
-                                        static_cast<VkShaderStageFlags>(module.shader_stage), count, flags);
+            bool found{false};
+            for (auto& bufferBinding: bindings)
+            {
+                if (bufferBinding.getBinding() == binding->binding)
+                { //TODO: for now, if the binding is already in the set, we just overwrite it
+                    found = true;
+                    bufferBinding = DescriptorSetLayout::Binding(
+                            binding->binding, static_cast<VkDescriptorType>(binding->descriptor_type),
+                            static_cast<VkShaderStageFlags>(module.shader_stage), count, flags);
+                    break;
+                }
+            }
+            if (!found)
+            {
+                bindings.emplace_back(binding->binding, static_cast<VkDescriptorType>(binding->descriptor_type),
+                                      static_cast<VkShaderStageFlags>(module.shader_stage), count, flags);
+            }
         }
     }
 
     spvReflectDestroyShaderModule(&module);
-
-    return setResults;
 }
 std::vector<VkPushConstantRange> Shader::retrievePushConstantRanges() const
 {

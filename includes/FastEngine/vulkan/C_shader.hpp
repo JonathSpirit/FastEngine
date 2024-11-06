@@ -22,6 +22,7 @@
 
 #include "C_descriptorSetLayout.hpp"
 #include <filesystem>
+#include <map>
 #include <vector>
 
 #define FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT 64
@@ -61,7 +62,10 @@ public:
     [[nodiscard]] Type getType() const;
 
 #ifndef FGE_DEF_SERVER
-    [[nodiscard]] std::vector<std::vector<DescriptorSetLayout::Binding>> retrieveBindings() const;
+    using ReflectBindings = std::vector<DescriptorSetLayout::Binding>;
+    using ReflectSets = std::map<uint32_t, ReflectBindings, std::less<>>;
+
+    void retrieveBindings(ReflectSets& buffer) const;
     [[nodiscard]] std::vector<VkPushConstantRange> retrievePushConstantRanges() const;
 #endif
 
