@@ -635,23 +635,23 @@ LayoutPipeline& Context::requestLayoutPipeline(Shader const* vertexShader,
                            .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this))
                            .first->second;
 
-    if (auto const* layoutVertexShader = this->requestDescriptorLayout(vertexShader))
+    if (auto const* layouts = this->requestDescriptorLayout(vertexShader))
     {
-        for (auto const& descriptorSetLayout: *layoutVertexShader)
+        for (auto const& descriptorSetLayout: *layouts)
         {
             layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
         }
     }
-    if (auto const* layoutFragmentShader = this->requestDescriptorLayout(geometryShader))
+    if (auto const* layouts = this->requestDescriptorLayout(fragmentShader))
     {
-        for (auto const& descriptorSetLayout: *layoutFragmentShader)
+        for (auto const& descriptorSetLayout: *layouts)
         {
             layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
         }
     }
-    if (auto const* layoutGeometryShader = this->requestDescriptorLayout(fragmentShader))
+    if (auto const* layouts = this->requestDescriptorLayout(geometryShader))
     {
-        for (auto const& descriptorSetLayout: *layoutGeometryShader)
+        for (auto const& descriptorSetLayout: *layouts)
         {
             layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
         }
