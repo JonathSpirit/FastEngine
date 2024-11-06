@@ -321,26 +321,26 @@ private:
 class RenderResourceDescriptors
 {
 public:
+    using ArrayOfDescriptorSet = fge::vulkan::DescriptorSet const*;
+    using ArrayOfDescriptorSetPointer = fge::vulkan::DescriptorSet const**;
+    using ArrayVariant = std::variant<ArrayOfDescriptorSet, ArrayOfDescriptorSetPointer>;
+
     constexpr RenderResourceDescriptors() = default;
 
-    constexpr RenderResourceDescriptors(fge::vulkan::DescriptorSet const* descriptors,
-                                        uint32_t const* sets,
-                                        uint32_t count) :
+    constexpr RenderResourceDescriptors(ArrayVariant const& descriptors, uint32_t const* sets, uint32_t count) :
             g_descriptors(descriptors),
             g_sets(sets),
             g_count(count)
     {
-        assert(count == 0 || descriptors != nullptr);
         assert(count == 0 || sets != nullptr);
     }
 
-    constexpr void set(fge::vulkan::DescriptorSet const* descriptors, uint32_t const* sets, uint32_t count)
+    constexpr void set(ArrayVariant const& descriptors, uint32_t const* sets, uint32_t count)
     {
         this->g_descriptors = descriptors;
         this->g_sets = sets;
         this->g_count = count;
 
-        assert(count == 0 || descriptors != nullptr);
         assert(count == 0 || sets != nullptr);
     }
 
@@ -348,12 +348,16 @@ public:
 
     [[nodiscard]] constexpr fge::vulkan::DescriptorSet const* getDescriptorSet(uint32_t index) const
     {
-        return this->g_descriptors + index;
+        if (std::holds_alternative<ArrayOfDescriptorSet>(this->g_descriptors))
+        {
+            return &std::get<ArrayOfDescriptorSet>(this->g_descriptors)[index];
+        }
+        return std::get<ArrayOfDescriptorSetPointer>(this->g_descriptors)[index];
     }
     [[nodiscard]] constexpr uint32_t getSet(uint32_t index) const { return this->g_sets[index]; }
 
 private:
-    fge::vulkan::DescriptorSet const* g_descriptors{nullptr};
+    ArrayVariant g_descriptors{ArrayOfDescriptorSet{nullptr}};
     uint32_t const* g_sets{nullptr};
     uint32_t g_count{0};
 };
