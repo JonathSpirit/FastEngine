@@ -327,7 +327,6 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
 
     if (states._resDescriptors.getCount() > 0)
     {
-        ///TODO: test that
         for (uint32_t i = 0; i < states._resDescriptors.getCount(); ++i)
         {
             auto descriptor = states._resDescriptors.getDescriptorSet(i)->get();
