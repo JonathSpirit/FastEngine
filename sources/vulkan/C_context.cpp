@@ -635,21 +635,7 @@ LayoutPipeline& Context::requestLayoutPipeline(Shader const* vertexShader,
                            .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this))
                            .first->second;
 
-    if (auto const* layouts = this->requestDescriptorLayout(vertexShader))
-    {
-        for (auto const& descriptorSetLayout: *layouts)
-        {
-            layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
-        }
-    }
-    if (auto const* layouts = this->requestDescriptorLayout(fragmentShader))
-    {
-        for (auto const& descriptorSetLayout: *layouts)
-        {
-            layout.addDescriptorSetLayout(descriptorSetLayout.getLayout());
-        }
-    }
-    if (auto const* layouts = this->requestDescriptorLayout(geometryShader))
+    if (auto const* layouts = this->requestDescriptorLayout(vertexShader, geometryShader, fragmentShader))
     {
         for (auto const& descriptorSetLayout: *layouts)
         {
@@ -678,6 +664,67 @@ void Context::clearDescriptorLayoutCache() const
 {
     this->g_cacheDescriptorLayouts.clear();
 }
+std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader const* vertexShader,
+                                                                         Shader const* geometryShader,
+                                                                         Shader const* fragmentShader) const
+{
+    if (vertexShader == nullptr && geometryShader == nullptr && fragmentShader == nullptr)
+    {
+        return nullptr;
+    }
+
+    LayoutPipeline::Key key{vertexShader == nullptr ? VK_NULL_HANDLE : vertexShader->getShaderModule(),
+                            geometryShader == nullptr ? VK_NULL_HANDLE : geometryShader->getShaderModule(),
+                            fragmentShader == nullptr ? VK_NULL_HANDLE : fragmentShader->getShaderModule()};
+
+    auto it = this->g_cacheDescriptorLayouts.find(key);
+    if (it != this->g_cacheDescriptorLayouts.end())
+    {
+        return &it->second;
+    }
+
+#ifndef FGE_DEF_SERVER
+    //Retrieve bindings per set
+    Shader::ReflectSets bindingsPerSet;
+    if (vertexShader != nullptr)
+    {
+        vertexShader->retrieveBindings(bindingsPerSet);
+    }
+    if (geometryShader != nullptr)
+    {
+        geometryShader->retrieveBindings(bindingsPerSet);
+    }
+    if (fragmentShader != nullptr)
+    {
+        fragmentShader->retrieveBindings(bindingsPerSet);
+    }
+
+    if (bindingsPerSet.empty())
+    {
+        auto& layouts = this->g_cacheDescriptorLayouts
+                                .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple())
+                                .first->second;
+        layouts.emplace_back(*this).create(nullptr, 0);
+        return &layouts;
+    }
+
+    auto& layouts = this->g_cacheDescriptorLayouts
+                            .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple())
+                            .first->second;
+
+    for (auto const& bindings: bindingsPerSet)
+    {
+        auto& layout = layouts.emplace_back(*this);
+        layout.create(bindings.second.data(), bindings.second.size());
+    }
+    return &layouts;
+#else
+    auto& layouts = this->g_cacheDescriptorLayouts
+                            .emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple())
+                            .first->second;
+    return &layouts;
+#endif
+}
 std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader const* shader) const
 {
     if (shader == nullptr || shader->getShaderModule() == VK_NULL_HANDLE)
@@ -685,41 +732,17 @@ std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader 
         return nullptr;
     }
 
-    auto it = this->g_cacheDescriptorLayouts.find(shader->getShaderModule());
-    if (it != this->g_cacheDescriptorLayouts.end())
+    switch (shader->getType())
     {
-        return &it->second;
+    case Shader::Type::SHADER_VERTEX:
+        return this->requestDescriptorLayout(shader, nullptr, nullptr);
+    case Shader::Type::SHADER_FRAGMENT:
+        return this->requestDescriptorLayout(nullptr, nullptr, shader);
+    case Shader::Type::SHADER_GEOMETRY:
+        return this->requestDescriptorLayout(nullptr, shader, nullptr);
+    default:
+        return nullptr;
     }
-
-#ifndef FGE_DEF_SERVER
-    auto bindingsPerSet = shader->retrieveBindings();
-
-    if (bindingsPerSet.empty())
-    {
-        auto& layouts = this->g_cacheDescriptorLayouts
-                                .emplace(std::piecewise_construct, std::forward_as_tuple(shader->getShaderModule()),
-                                         std::forward_as_tuple())
-                                .first->second;
-        return &layouts;
-    }
-
-    auto& layouts = this->g_cacheDescriptorLayouts
-                            .emplace(std::piecewise_construct, std::forward_as_tuple(shader->getShaderModule()),
-                                     std::forward_as_tuple())
-                            .first->second;
-    for (auto const& bindings: bindingsPerSet)
-    {
-        auto& layout = layouts.emplace_back(*this);
-        layout.create(bindings.data(), bindings.size());
-    }
-    return &layouts;
-#else
-    auto& layouts = this->g_cacheDescriptorLayouts
-                            .emplace(std::piecewise_construct, std::forward_as_tuple(shader->getShaderModule()),
-                                     std::forward_as_tuple())
-                            .first->second;
-    return &layouts;
-#endif
 }
 
 std::optional<DescriptorSet>

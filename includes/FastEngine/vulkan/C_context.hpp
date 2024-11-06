@@ -397,9 +397,14 @@ public:
      * The descriptor set layout is created with the provided shader with reflection of
      * the SPIR-V code to retrieve the descriptor set layouts.
      *
-     * \param shader The shader, can be \b nullptr
+     * \param vertexShader The vertex shader, can be \b nullptr
+     * \param geometryShader The geometry shader, can be \b nullptr
+     * \param fragmentShader The fragment shader, can be \b nullptr
      * \return The descriptor set layout or \b nullptr if the shader is invalid
      */
+    [[nodiscard]] std::vector<DescriptorSetLayout> const* requestDescriptorLayout(Shader const* vertexShader,
+                                                                                  Shader const* geometryShader,
+                                                                                  Shader const* fragmentShader) const;
     [[nodiscard]] std::vector<DescriptorSetLayout> const* requestDescriptorLayout(Shader const* shader) const;
 
     /**
@@ -444,7 +449,11 @@ private:
     Surface const* g_surface;
     Instance const* g_instance;
 
-    mutable std::unordered_map<VkShaderModule, std::vector<DescriptorSetLayout>> g_cacheDescriptorLayouts;
+    mutable std::unordered_map<LayoutPipeline::Key,
+                               std::vector<DescriptorSetLayout>,
+                               LayoutPipeline::Key::Hash,
+                               LayoutPipeline::Key::Compare>
+            g_cacheDescriptorLayouts;
     mutable std::
             unordered_map<LayoutPipeline::Key, LayoutPipeline, LayoutPipeline::Key::Hash, LayoutPipeline::Key::Compare>
                     g_cachePipelineLayouts;
