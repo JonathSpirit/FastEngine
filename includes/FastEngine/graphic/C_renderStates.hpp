@@ -370,10 +370,10 @@ class RenderResourcePushConstants
 public:
     struct PushConstantData
     {
-        VkShaderStageFlags g_stages;
-        uint32_t g_offset;
-        uint32_t g_size;
-        void const* g_data;
+        VkShaderStageFlags g_stages{VK_SHADER_STAGE_ALL};
+        uint32_t g_offset{0};
+        uint32_t g_size{0};
+        void const* g_data{nullptr};
     };
 
     constexpr RenderResourcePushConstants() = default;
