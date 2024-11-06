@@ -36,6 +36,10 @@
 #include "FastEngine/vulkan/C_textureImage.hpp"
 #include "FastEngine/vulkan/C_uniformBuffer.hpp"
 
+///If set to 1, the stage flags of the bindings are checked to be the same as the shader stage flags
+///If set to 0, VK_SHADER_STAGE_ALL is used for every binding
+#define FGE_VULKAN_USE_STRICT_LAYOUT_BINDINGS_STAGE 0
+
 #define FGE_VULKAN_TEXTURE_BINDING 0
 #define FGE_VULKAN_TRANSFORM_BINDING 0
 #define FGE_MULTIUSE_POOL_MAX_COMBINED_IMAGE_SAMPLER FGE_SHADER_MAX_BINDING_VARIABLE_DESCRIPTOR_COUNT

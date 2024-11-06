@@ -84,6 +84,9 @@ void DescriptorSetLayout::create(Binding const* bindings, uint32_t bindingCount)
     for (uint32_t i = 0; i < bindingCount; ++i)
     {
         layoutBindings[i] = static_cast<VkDescriptorSetLayoutBinding>(this->g_bindings[i]);
+#if FGE_VULKAN_USE_STRICT_LAYOUT_BINDINGS_STAGE == 0
+        layoutBindings[i].stageFlags = VK_SHADER_STAGE_ALL;
+#endif
         layoutBindingFlags[i] = this->g_bindings[i].getBindingFlags();
         haveBindingFlags |= layoutBindingFlags[i] != 0;
     }
