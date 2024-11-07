@@ -30,6 +30,7 @@
 #include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/graphic/C_renderStates.hpp"
 #include "FastEngine/graphic/C_view.hpp"
+#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/vulkan/C_commandBuffer.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_graphicPipeline.hpp"
@@ -131,7 +132,12 @@ private:
     View g_view;
 
 protected:
+    void refreshShaderCache();
     void resetDefaultView();
+
+    shader::ShaderDataPtr _g_defaultFragmentShader;
+    shader::ShaderDataPtr _g_defaultNoTextureFragmentShader;
+    shader::ShaderDataPtr _g_defaultVertexShader;
 
     VkClearColorValue _g_clearColor;
 

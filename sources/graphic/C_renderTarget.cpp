@@ -20,7 +20,6 @@
 #include "FastEngine/graphic/C_drawable.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
-#include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/C_textureImage.hpp"
 
@@ -247,10 +246,9 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
             states._resDescriptors.getCount() == 0 && states._vertexBuffer != nullptr &&
             (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0))
         {
-            states._shaderFragment = &shader::GetShader(haveTextures ? FGE_SHADER_DEFAULT_FRAGMENT
-                                                                     : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
-                                              ->_shader;
-            states._shaderVertex = &shader::GetShader(FGE_SHADER_DEFAULT_VERTEX)->_shader;
+            states._shaderFragment = haveTextures ? &this->_g_defaultFragmentShader->_shader
+                                                  : &this->_g_defaultNoTextureFragmentShader->_shader;
+            states._shaderVertex = &this->_g_defaultVertexShader->_shader;
         }
         else
         {
@@ -539,6 +537,12 @@ fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourc
     return resource.getTransformData();
 }
 
+void RenderTarget::refreshShaderCache()
+{
+    this->_g_defaultFragmentShader = shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT);
+    this->_g_defaultNoTextureFragmentShader = shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT);
+    this->_g_defaultVertexShader = shader::GetShader(FGE_SHADER_DEFAULT_VERTEX);
+}
 void RenderTarget::resetDefaultView()
 {
     this->g_defaultView.reset(

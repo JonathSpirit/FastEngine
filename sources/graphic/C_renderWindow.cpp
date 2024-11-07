@@ -67,6 +67,9 @@ void RenderWindow::destroy()
         SDL_DelEventWatch(&ResizeCallback, this);
 
         this->clearGraphicPipelineCache();
+        this->_g_defaultFragmentShader.reset();
+        this->_g_defaultVertexShader.reset();
+        this->_g_defaultNoTextureFragmentShader.reset();
 
         VkDevice logicalDevice = this->getContext().getLogicalDevice().getDevice();
 
@@ -152,6 +155,8 @@ uint32_t RenderWindow::prepareNextFrame([[maybe_unused]] VkCommandBufferInherita
 }
 void RenderWindow::beginRenderPass(uint32_t imageIndex)
 {
+    this->refreshShaderCache();
+
     VkClearValue const clearColor = {.color = this->_g_clearColor};
 
     this->g_commandBuffers[this->g_currentFrame].beginRenderPass(
