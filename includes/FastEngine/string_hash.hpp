@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef _FGE_STRING_HASH_HPP_INCLUDED
+#define _FGE_STRING_HASH_HPP_INCLUDED
+
 #include <string>
 
 namespace fge
@@ -34,3 +37,5 @@ struct StringHash
 };
 
 } // namespace fge
+
+#endif //_FGE_STRING_HASH_HPP_INCLUDED

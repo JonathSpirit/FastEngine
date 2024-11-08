@@ -18,6 +18,7 @@
 #define _FGE_C_BASEMANAGER_HPP_INCLUDED
 
 #include "FastEngine/fge_except.hpp"
+#include "FastEngine/string_hash.hpp"
 #include <cstddef>
 #include <filesystem>
 #include <map>
@@ -50,9 +51,7 @@ class BaseManager
 public:
     using DataType = TData;
     using DataBlockPointer = std::shared_ptr<TDataBlock>;
-    using Map = std::map<std::string,
-                         DataBlockPointer,
-                         std::less<>>; //TODO: should be std::unordered_map once fge drop c++17 compatibility
+    using Map = std::unordered_map<std::string, DataBlockPointer, StringHash, std::equal_to<>>;
 
     BaseManager() = default;
     BaseManager(BaseManager const& r) = delete;
