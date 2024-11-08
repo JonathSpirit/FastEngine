@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/manager/font_manager.hpp"
-#include "private/string_hash.hpp"
+#include "FastEngine/string_hash.hpp"
 
 #include "ft2build.h"
 #include FT_FREETYPE_H
@@ -27,7 +27,7 @@ namespace
 {
 
 fge::font::FontDataPtr _dataFontBad;
-std::unordered_map<std::string, fge::font::FontDataPtr, fge::priv::string_hash, std::equal_to<>> _dataFont;
+std::unordered_map<std::string, fge::font::FontDataPtr, fge::StringHash, std::equal_to<>> _dataFont;
 std::mutex _dataMutex;
 
 FT_Library _freetypeLibrary = nullptr;

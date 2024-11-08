@@ -57,7 +57,7 @@ Working/supported architecture :
 - 64bits
 - ARM
 
-FastEngine is built under C++20 but game/software that link to this library can be C++17 minimum
+FastEngine is built under C++20 and game/software that link to this library must be too.
 
 <a id="documentation"></a>
 ### Documentation
