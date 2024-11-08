@@ -444,7 +444,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::shader::Uninit();
     fge::font::Uninit();
     fge::anim::Uninit();
-    fge::texture::gManager.destroy();
+    fge::texture::gManager.uninitialize();
 
     renderWindow.destroy();
 

@@ -142,7 +142,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderTexture);
     scene.reset();
 
-    fge::texture::gManager.destroy();
+    fge::texture::gManager.uninitialize();
     fge::font::Uninit();
     fge::shader::Uninit();
 

@@ -63,7 +63,7 @@ public:
 
     virtual bool initialize() = 0;
     [[nodiscard]] virtual bool isInitialized() = 0;
-    virtual void destroy() = 0;
+    virtual void uninitialize() = 0;
 
     [[nodiscard]] std::size_t size() const;
 

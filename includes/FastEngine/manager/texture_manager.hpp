@@ -53,7 +53,7 @@ public:
 
     bool initialize() override;
     [[nodiscard]] bool isInitialized() override;
-    void destroy() override;
+    void uninitialize() override;
 
     /**
      * \brief Load a texture from a surface

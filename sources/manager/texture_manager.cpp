@@ -64,7 +64,7 @@ bool TextureManager::isInitialized()
     return this->_g_badElement != nullptr;
 }
 
-void TextureManager::destroy()
+void TextureManager::uninitialize()
 {
     if (!this->isInitialized())
     {
