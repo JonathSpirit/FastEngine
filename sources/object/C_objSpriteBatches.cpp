@@ -323,7 +323,7 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
     if (index < this->g_instancesData.size())
     {
         auto const textureIndex = this->g_instancesData[index]._textureIndex;
-        fge::TextureType const* texture = fge::texture::GetBadTexture()->_texture.get();
+        fge::TextureType const* texture = texture::gManager.getBadElement()->_ptr.get();
         if (textureIndex < this->g_textures.size())
         {
             texture = this->g_textures[textureIndex].getSharedTexture().get();

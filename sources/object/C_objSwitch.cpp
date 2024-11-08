@@ -111,8 +111,8 @@ void ObjSwitch::load(nlohmann::json& jsonObject, fge::Scene* scene)
 
     this->g_color = fge::Color(jsonObject.value<uint32_t>("color", 0));
 
-    this->g_textureOn = jsonObject.value<std::string>("textureOn", FGE_TEXTURE_BAD);
-    this->g_textureOff = jsonObject.value<std::string>("textureOff", FGE_TEXTURE_BAD);
+    this->g_textureOn = jsonObject.value<std::string>("textureOn", std::string{FGE_TEXTURE_BAD});
+    this->g_textureOff = jsonObject.value<std::string>("textureOff", std::string{FGE_TEXTURE_BAD});
 
     this->g_statMouseOn = jsonObject.value<bool>("statMouseOn", false);
     this->g_statActive = jsonObject.value<bool>("statActive", false);

@@ -41,8 +41,8 @@ class Packet;
 class FGE_API Texture
 {
 public:
-    using SharedTextureDataType = fge::texture::TextureDataPtr;
-    using SharedTextureType = std::shared_ptr<fge::TextureType>;
+    using SharedTextureDataType = fge::texture::TextureManager::DataBlockPointer;
+    using SharedTextureType = fge::texture::DataBlock::DataPointer;
 
     Texture();
     /**

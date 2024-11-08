@@ -167,7 +167,7 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
 
         buffAnimData->_tilesetPath =
                 fge::MakeRelativePathToBasePathIfExist(buffAnimData->_path, itPath->get<std::filesystem::path>());
-        buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
+        buffAnimData->_tilesetTexture = fge::texture::gManager.getBadElement()->_ptr;
 
         fge::Surface textureSurface;
         if (textureSurface.loadFromFile(buffAnimData->_tilesetPath))
@@ -214,7 +214,7 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
             }
 
             fge::anim::AnimationFrame frame{};
-            frame._texture = fge::texture::GetBadTexture()->_texture;
+            frame._texture = fge::texture::gManager.getBadElement()->_ptr;
 
             switch (type)
             {

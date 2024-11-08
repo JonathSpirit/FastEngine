@@ -20,16 +20,18 @@
 namespace fge
 {
 
+using namespace fge::texture;
+
 Texture::Texture() :
-        g_data(fge::texture::GetBadTexture()),
+        g_data(gManager.getBadElement()),
         g_name(FGE_TEXTURE_BAD)
 {}
 Texture::Texture(std::string name) :
-        g_data(fge::texture::GetTexture(name)),
+        g_data(gManager.getElement(name)),
         g_name(std::move(name))
 {}
 Texture::Texture(char const* name) :
-        g_data(fge::texture::GetTexture(name)),
+        g_data(gManager.getElement(name)),
         g_name(name)
 {}
 Texture::Texture(SharedTextureDataType data) :
@@ -43,12 +45,12 @@ Texture::Texture(SharedTextureType data) :
 
 void Texture::clear()
 {
-    this->g_data = fge::texture::GetBadTexture();
+    this->g_data = gManager.getBadElement();
     this->g_name = FGE_TEXTURE_BAD;
 }
 void Texture::refresh()
 {
-    this->g_data = fge::texture::GetTexture(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
 }
 
 bool Texture::valid() const
@@ -71,20 +73,20 @@ Texture::SharedTextureDataType const& Texture::getSharedData() const
     {
         return std::get<SharedTextureDataType>(this->g_data);
     }
-    return fge::texture::GetBadTexture();
+    return gManager.getBadElement();
 }
 Texture::SharedTextureType const& Texture::getSharedTexture() const
 {
     if (std::holds_alternative<SharedTextureDataType>(this->g_data))
     {
-        return std::get<SharedTextureDataType>(this->g_data)->_texture;
+        return std::get<SharedTextureDataType>(this->g_data)->_ptr;
     }
 
     if (std::get<SharedTextureType>(this->g_data))
     {
         return std::get<SharedTextureType>(this->g_data);
     }
-    return fge::texture::GetBadTexture()->_texture;
+    return gManager.getBadElement()->_ptr;
 }
 std::string const& Texture::getName() const
 {
@@ -99,7 +101,7 @@ fge::Texture& Texture::operator=(std::string name)
     }
 
     this->g_name = std::move(name);
-    this->g_data = fge::texture::GetTexture(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
     return *this;
 }
 fge::Texture& Texture::operator=(char const* name)
@@ -110,7 +112,7 @@ fge::Texture& Texture::operator=(char const* name)
     }
 
     this->g_name = name;
-    this->g_data = fge::texture::GetTexture(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
     return *this;
 }
 fge::Texture& Texture::operator=(SharedTextureDataType data)
@@ -130,27 +132,27 @@ fge::TextureType* Texture::retrieve()
 {
     if (std::holds_alternative<SharedTextureDataType>(this->g_data))
     {
-        return std::get<SharedTextureDataType>(this->g_data)->_texture.get();
+        return std::get<SharedTextureDataType>(this->g_data)->_ptr.get();
     }
 
     if (std::get<SharedTextureType>(this->g_data))
     {
         return std::get<SharedTextureType>(this->g_data).get();
     }
-    return fge::texture::GetBadTexture()->_texture.get();
+    return gManager.getBadElement()->_ptr.get();
 }
 fge::TextureType const* Texture::retrieve() const
 {
     if (std::holds_alternative<SharedTextureDataType>(this->g_data))
     {
-        return std::get<SharedTextureDataType>(this->g_data)->_texture.get();
+        return std::get<SharedTextureDataType>(this->g_data)->_ptr.get();
     }
 
     if (std::get<SharedTextureType>(this->g_data))
     {
         return std::get<SharedTextureType>(this->g_data).get();
     }
-    return fge::texture::GetBadTexture()->_texture.get();
+    return gManager.getBadElement()->_ptr.get();
 }
 
 fge::TextureType* Texture::retrieveGroup(std::size_t index)

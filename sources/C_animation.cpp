@@ -416,7 +416,7 @@ std::shared_ptr<fge::TextureType> const& Animation::retrieveTexture() const
             return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
         }
     }
-    return fge::texture::GetBadTexture()->_texture;
+    return fge::texture::gManager.getBadElement()->_ptr;
 }
 
 fge::RectInt Animation::retrieveTextureRect() const
@@ -456,7 +456,7 @@ fge::RectInt Animation::retrieveTextureRect() const
             return rect;
         }
     }
-    return {{0, 0}, static_cast<fge::Vector2i>(fge::texture::GetBadTexture()->_texture->getSize())};
+    return {{0, 0}, static_cast<fge::Vector2i>(fge::texture::gManager.getBadElement()->_ptr->getSize())};
 }
 
 fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& data)

@@ -164,7 +164,7 @@ void ObjSpriteCluster::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
+    this->g_texture = jsonObject.value<std::string>("texture", std::string{FGE_TEXTURE_BAD});
 }
 
 void ObjSpriteCluster::pack(fge::net::Packet& pck)

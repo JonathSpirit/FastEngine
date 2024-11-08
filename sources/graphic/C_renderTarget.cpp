@@ -422,7 +422,7 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
                 }
                 else
                 {
-                    textureImage = fge::texture::GetBadTexture()->_texture.get();
+                    textureImage = fge::texture::gManager.getBadElement()->_ptr.get();
                 }
 
                 auto descriptorSet = textureImage->getDescriptorSet().get();

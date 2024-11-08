@@ -20,15 +20,12 @@
 #include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/graphic/C_surface.hpp"
+#include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/textureType.hpp"
-#include <filesystem>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <unordered_map>
+#include <vector>
 
+#define FGE_TEXTURE_BAD FGE_MANAGER_BAD
 #define FGE_TEXTURE_DEFAULT FGE_TEXTURE_BAD
-#define FGE_TEXTURE_BAD ""
 #define FGE_TEXTURE_BAD_W 32
 #define FGE_TEXTURE_BAD_H 32
 #define FGE_TEXTURE_BAD_COLOR_1 fge::Color::Black
@@ -38,156 +35,53 @@ namespace fge::texture
 {
 
 /**
- * \struct TextureData
- * \ingroup graphics
- * \brief Structure that safely contains the texture data with his path and validity
- */
-struct TextureData
-{
-    std::vector<std::shared_ptr<fge::TextureType>> _group;
-    std::shared_ptr<fge::TextureType> _texture;
-    bool _valid;
-    std::filesystem::path _path;
-};
-
-using TextureDataPtr = std::shared_ptr<fge::texture::TextureData>;
-using TextureDataType = std::unordered_map<std::string, fge::texture::TextureDataPtr>;
-
-/**
  * \ingroup graphics
  * @{
  */
 
-/**
- * \brief Initialize the texture manager
- *
- * A bad texture is created with this function, it is used when a texture is not found.
- */
-FGE_API void Init();
-/**
- * \brief Check if the texture manager is initialized
- *
- * \return \b true if the texture manager is initialized, \b false otherwise
- */
-FGE_API bool IsInit();
-/**
- * \brief Un-initialize the texture manager
- */
-FGE_API void Uninit();
+struct FGE_API DataBlock : manager::BaseDataBlock<TextureType>
+{
+    inline void unload() override { this->_group.clear(); }
 
-/**
- * \brief Get the total number of loaded textures
- *
- * \return The total number of loaded textures
- */
-FGE_API std::size_t GetTextureSize();
+    std::vector<DataPointer> _group;
+};
 
-/**
- * \brief Acquire a unique lock, with the texture manager mutex
- *
- * In order to use iterators, you have to acquire a unique lock from this
- * function.
- * The lock is not differed and will lock the mutex.
- *
- * \return A unique lock bound to this mutex
- */
-FGE_API std::unique_lock<std::mutex> AcquireLock();
-/**
- * \brief Get the begin iterator of the texture manager
- *
- * You have to provide a valid reference to a unique lock acquire with
- * the function AcquireLock().
- * This function will throw if one of this is not respected :
- * - The lock does not own the associated mutex.
- * - The mutex pointer of the lock does not correspond to this mutex.
- *
- * \param lock A unique lock bound to this mutex
- * \return The begin iterator of the texture manager
- */
-FGE_API fge::texture::TextureDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock);
-/**
- * \brief Get the end iterator of the texture manager
- *
- * \see fge::texture::IteratorBegin()
- *
- * \param lock A unique lock bound to this mutex
- * \return The begin iterator of the texture manager
- */
-FGE_API fge::texture::TextureDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock);
+class FGE_API TextureManager : public manager::BaseManager<TextureType, DataBlock>
+{
+public:
+    using BaseManager::BaseManager;
 
-/**
- * \brief Get the bad texture
- *
- * \return The bad texture
- */
-FGE_API fge::texture::TextureDataPtr const& GetBadTexture();
-/**
- * \brief Get the texture with the given name
- *
- * \param name The name of the texture to get
- * \return The texture with the given name or the bad texture if not found
- */
-FGE_API fge::texture::TextureDataPtr GetTexture(std::string_view name);
+    bool initialize() override;
+    [[nodiscard]] bool isInitialized() override;
+    void destroy() override;
 
-/**
- * \brief Check if the texture with the given name exist
- *
- * \param name The name of the texture to check
- * \return \b true if the texture exist, \b false otherwise
- */
-FGE_API bool Check(std::string_view name);
+    /**
+     * \brief Load a texture from a surface
+     *
+     * \param name The name of the texture to load
+     * \param surface The surface to load
+     * \return \b true if the texture was loaded, \b false otherwise
+     */
+    bool loadFromSurface(std::string_view name, fge::Surface const& surface);
+    /**
+     * \brief Load a texture from a file
+     *
+     * \param name The name of the texture to load
+     * \param path The path of the file to load
+     * \return \b true if the texture was loaded, \b false otherwise
+     */
+    bool loadFromFile(std::string_view name, std::filesystem::path const& path);
+    /**
+     * \brief Load a texture from a surface and add it to a group
+     *
+     * \param name The name of the texture to load
+     * \param surface The surface to load
+     * \return \b true if the texture was loaded, \b false otherwise
+     */
+    bool loadToGroupFromSurface(std::string_view name, fge::Surface const& surface) const;
+};
 
-/**
- * \brief Load a texture from a surface
- *
- * \param name The name of the texture to load
- * \param surface The surface to load
- * \return \b true if the texture was loaded, \b false otherwise
- */
-FGE_API bool LoadFromSurface(std::string_view name, fge::Surface const& surface);
-/**
- * \brief Load a texture from a file
- *
- * \param name The name of the texture to load
- * \param path The path of the file to load
- * \return \b true if the texture was loaded, \b false otherwise
- */
-FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path const& path);
-/**
- * \brief Load a texture from a surface and add it to a group
- *
- * \param name The name of the texture to load
- * \param surface The surface to load
- * \return \b true if the texture was loaded, \b false otherwise
- */
-FGE_API bool LoadToGroupFromSurface(std::string_view name, fge::Surface const& surface);
-/**
- * \brief Unload all textures in the given group
- *
- * \param name The name of texture that contains the group to unload
- * \return \b true if the group was unloaded, \b false otherwise
- */
-FGE_API bool UnloadGroup(std::string_view name);
-/**
- * \brief Unload the texture with the given name
- *
- * \param name The name of the texture to unload
- * \return \b true if the texture was unloaded, \b false otherwise
- */
-FGE_API bool Unload(std::string_view name);
-/**
- * \brief Unload all textures
- */
-FGE_API void UnloadAll();
-
-/**
- * \brief Add a user handled texture
- *
- * \param name The name of the texture to add
- * \param data The texture data to add
- * \return \b true if the texture was added, \b false otherwise
- */
-FGE_API bool Push(std::string_view name, fge::texture::TextureDataPtr const& data);
+FGE_API extern TextureManager gManager;
 
 /**
  * @}

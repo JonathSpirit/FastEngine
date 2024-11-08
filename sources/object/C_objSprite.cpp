@@ -128,7 +128,7 @@ void ObjSprite::load(nlohmann::json& jsonObject, fge::Scene* scene)
     fge::Object::load(jsonObject, scene);
 
     this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
-    this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
+    this->g_texture = jsonObject.value<std::string>("texture", std::string{FGE_TEXTURE_BAD});
     this->setTexture(this->g_texture, true);
 }
 
