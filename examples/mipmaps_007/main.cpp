@@ -38,16 +38,16 @@ public:
         this->setCallbackContext({&event, &guiElementHandler});
 
         //Init texture manager
-        fge::texture::Init();
+        fge::texture::gManager.initialize();
         //Init font manager
         fge::font::Init();
 
         //Load texture
-        fge::texture::LoadFromFile("texture", "resources/textures/texture.jpg");
-        auto textureData = fge::texture::GetTexture("texture");
-        textureData->_texture->generateMipmaps(FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
+        fge::texture::gManager.loadFromFile("texture", "resources/textures/texture.jpg");
+        auto textureData = fge::texture::gManager.getElement("texture");
+        textureData->_ptr->generateMipmaps(FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
 
-        std::cout << "Mipmap levels : " << textureData->_texture->getMipLevels() << std::endl;
+        std::cout << "Mipmap levels : " << textureData->_ptr->getMipLevels() << std::endl;
         float mipMinLod = 0.0f;
 
         //Load font
@@ -94,19 +94,17 @@ public:
                 {
                     mipMinLod = 0.0f;
                 }
-                textureData->_texture->forceMipLod(0.0f, mipMinLod,
-                                                   static_cast<float>(textureData->_texture->getMipLevels()));
+                textureData->_ptr->forceMipLod(0.0f, mipMinLod, static_cast<float>(textureData->_ptr->getMipLevels()));
                 std::cout << "Mipmap min lod : " << mipMinLod << std::endl;
             }
             else if (keyEvent.keysym.sym == SDLK_e)
             {
                 mipMinLod += 1.0f;
-                if (mipMinLod > static_cast<float>(textureData->_texture->getMipLevels()))
+                if (mipMinLod > static_cast<float>(textureData->_ptr->getMipLevels()))
                 {
-                    mipMinLod = static_cast<float>(textureData->_texture->getMipLevels());
+                    mipMinLod = static_cast<float>(textureData->_ptr->getMipLevels());
                 }
-                textureData->_texture->forceMipLod(0.0f, mipMinLod,
-                                                   static_cast<float>(textureData->_texture->getMipLevels()));
+                textureData->_ptr->forceMipLod(0.0f, mipMinLod, static_cast<float>(textureData->_ptr->getMipLevels()));
                 std::cout << "Mipmap min lod : " << mipMinLod << std::endl;
             }
             renderWindow.setView(view);
@@ -193,7 +191,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderWindow);
     scene.reset();
 
-    fge::texture::Uninit();
+    fge::texture::gManager.destroy();
     fge::font::Uninit();
     fge::shader::Uninit();
 

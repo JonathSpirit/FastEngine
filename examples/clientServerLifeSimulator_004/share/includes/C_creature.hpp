@@ -133,7 +133,7 @@ private:
     void refreshStats();
 
     mutable fge::ObjSprite g_spriteCreature;
-    fge::texture::TextureDataPtr g_animTexture;
+    fge::texture::TextureManager::DataBlockPointer g_animTexture;
 
     fge::ObjCircleShape g_circleSight;
 

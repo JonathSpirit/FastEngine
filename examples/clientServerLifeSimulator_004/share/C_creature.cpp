@@ -81,7 +81,7 @@ Creature::Creature(fge::Vector2f const& pos)
 
 void Creature::first([[maybe_unused]] fge::Scene& scene)
 {
-    this->g_animTexture.reset(new fge::texture::TextureData);
+    this->g_animTexture.reset(new fge::texture::DataBlock);
     this->g_animTexture->_valid = true;
 
 #ifndef FGE_DEF_SERVER
@@ -359,7 +359,7 @@ FGE_OBJ_UPDATE_BODY(Creature)
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(Creature)
 {
-    this->g_animTexture->_texture = this->_anim.retrieveTexture();
+    this->g_animTexture->_ptr = this->_anim.retrieveTexture();
     this->g_spriteCreature.setTexture(this->g_animTexture);
 
     auto copyStates = states.copy();

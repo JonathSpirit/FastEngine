@@ -50,7 +50,7 @@ bool TextureManager::initialize()
 
     this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
 #ifdef FGE_DEF_SERVER
-    this->_g_badElement->_texture = std::make_shared<DataType>(badSurface);
+    this->_g_badElement->_ptr = std::make_shared<DataType>(badSurface);
 #else
     this->_g_badElement->_ptr = std::make_shared<DataType>(vulkan::GetActiveContext());
     this->_g_badElement->_ptr->create(badSurface.get());

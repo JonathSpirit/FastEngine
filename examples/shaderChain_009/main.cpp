@@ -45,17 +45,17 @@ public:
         this->setCallbackContext({&event, &guiElementHandler});
 
         //Init texture manager
-        fge::texture::Init();
+        fge::texture::gManager.initialize();
         //Init font manager
         fge::font::Init();
 
         //Load texture
-        fge::texture::LoadFromFile("close", "resources/images/window/close.png");
-        fge::texture::LoadFromFile("minimize", "resources/images/window/minimize.png");
-        fge::texture::LoadFromFile("resize", "resources/images/window/resize.png");
-        fge::texture::LoadFromFile("window", "resources/images/window/window.png");
+        fge::texture::gManager.loadFromFile("close", "resources/images/window/close.png");
+        fge::texture::gManager.loadFromFile("minimize", "resources/images/window/minimize.png");
+        fge::texture::gManager.loadFromFile("resize", "resources/images/window/resize.png");
+        fge::texture::gManager.loadFromFile("window", "resources/images/window/window.png");
 
-        fge::texture::LoadFromFile("arrow", "resources/images/arrow_1.png");
+        fge::texture::gManager.loadFromFile("arrow", "resources/images/arrow_1.png");
 
         //Load font
         fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
@@ -293,7 +293,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderWindow);
     scene.reset();
 
-    fge::texture::Uninit();
+    fge::texture::gManager.destroy();
     fge::font::Uninit();
     fge::shader::Uninit();
 

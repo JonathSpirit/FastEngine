@@ -42,7 +42,7 @@ public:
         this->setLinkedRenderTarget(&renderTexture);
 
         //Init texture manager
-        fge::texture::Init();
+        fge::texture::gManager.initialize();
         //Init font manager
         fge::font::Init();
 
@@ -142,7 +142,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderTexture);
     scene.reset();
 
-    fge::texture::Uninit();
+    fge::texture::gManager.destroy();
     fge::font::Uninit();
     fge::shader::Uninit();
 

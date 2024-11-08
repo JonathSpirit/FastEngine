@@ -95,14 +95,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::net::ClientSideNetUdp server(fge::net::IpAddress::Types::Ipv4);
 
     //Texture
-    fge::texture::Init();
-    fge::texture::LoadFromFile("close", "resources/images/window/close.png");
-    fge::texture::LoadFromFile("minimize", "resources/images/window/minimize.png");
-    fge::texture::LoadFromFile("resize", "resources/images/window/resize.png");
-    fge::texture::LoadFromFile("window", "resources/images/window/window.png");
+    fge::texture::gManager.initialize();
+    fge::texture::gManager.loadFromFile("close", "resources/images/window/close.png");
+    fge::texture::gManager.loadFromFile("minimize", "resources/images/window/minimize.png");
+    fge::texture::gManager.loadFromFile("resize", "resources/images/window/resize.png");
+    fge::texture::gManager.loadFromFile("window", "resources/images/window/window.png");
 
-    fge::texture::LoadFromFile("button_1", "resources/images/button_1.png");
-    fge::texture::LoadFromFile("button_2", "resources/images/button_2.png");
+    fge::texture::gManager.loadFromFile("button_1", "resources/images/button_1.png");
+    fge::texture::gManager.loadFromFile("button_2", "resources/images/button_2.png");
 
     //Font
     fge::font::Init();
@@ -444,7 +444,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::shader::Uninit();
     fge::font::Uninit();
     fge::anim::Uninit();
-    fge::texture::Uninit();
+    fge::texture::gManager.destroy();
 
     renderWindow.destroy();
 

@@ -45,12 +45,12 @@ public:
         this->setCallbackContext({&event, &guiElementHandler});
 
         //Init texture manager
-        fge::texture::Init();
+        fge::texture::gManager.initialize();
         //Init font manager
         fge::font::Init();
 
         //Load texture
-        fge::texture::LoadFromFile("grid", "resources/images/grid_1.png");
+        fge::texture::gManager.loadFromFile("grid", "resources/images/grid_1.png");
 
         //Load font
         fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
@@ -307,7 +307,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderWindow);
     scene.reset();
 
-    fge::texture::Uninit();
+    fge::texture::gManager.destroy();
     fge::font::Uninit();
     fge::shader::Uninit();
 
