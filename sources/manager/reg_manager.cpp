@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/manager/reg_manager.hpp"
-#include "private/string_hash.hpp"
+#include "FastEngine/string_hash.hpp"
 
 #include "FastEngine/C_scene.hpp"
 #include <unordered_map>
@@ -27,7 +27,7 @@ namespace fge::reg
 namespace
 {
 
-using ClassNameMapType = std::unordered_map<std::string, fge::reg::ClassId, fge::priv::string_hash, std::equal_to<>>;
+using ClassNameMapType = std::unordered_map<std::string, fge::reg::ClassId, fge::StringHash, std::equal_to<>>;
 using ClassIdMapType = std::vector<std::unique_ptr<fge::reg::BaseStamp>>;
 
 ClassNameMapType _dataClassNameMap;

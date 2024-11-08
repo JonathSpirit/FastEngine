@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/manager/path_manager.hpp"
-#include "private/string_hash.hpp"
+#include "FastEngine/string_hash.hpp"
 #include <mutex>
 #include <unordered_map>
 
@@ -25,7 +25,7 @@ namespace fge::path
 namespace
 {
 
-std::unordered_map<std::string, std::filesystem::path, fge::priv::string_hash, std::equal_to<>> _dataPath;
+std::unordered_map<std::string, std::filesystem::path, fge::StringHash, std::equal_to<>> _dataPath;
 std::filesystem::path const _dataPathBad;
 std::mutex _dataMutex;
 

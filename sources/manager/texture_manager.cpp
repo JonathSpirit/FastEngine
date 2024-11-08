@@ -16,9 +16,9 @@
 
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/fge_except.hpp"
+#include "FastEngine/string_hash.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_image.h"
-#include "private/string_hash.hpp"
 
 namespace fge::texture
 {
@@ -26,7 +26,7 @@ namespace
 {
 
 fge::texture::TextureDataPtr _dataTextureBad;
-std::unordered_map<std::string, fge::texture::TextureDataPtr, fge::priv::string_hash, std::equal_to<>> _dataTexture;
+std::unordered_map<std::string, fge::texture::TextureDataPtr, fge::StringHash, std::equal_to<>> _dataTexture;
 std::mutex _dataMutex;
 
 } // namespace

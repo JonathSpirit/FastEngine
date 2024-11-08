@@ -16,9 +16,9 @@
 
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/graphic/shaderResources.hpp"
+#include "FastEngine/string_hash.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "private/string_hash.hpp"
 
 #include "glslang/Public/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
@@ -36,7 +36,7 @@ namespace
 {
 
 fge::shader::ShaderDataPtr _dataShaderBad;
-std::unordered_map<std::string, fge::shader::ShaderDataPtr, fge::priv::string_hash, std::equal_to<>> _dataShader;
+std::unordered_map<std::string, fge::shader::ShaderDataPtr, fge::StringHash, std::equal_to<>> _dataShader;
 std::mutex _dataMutex;
 
 #ifdef FGE_DEF_DEBUG
