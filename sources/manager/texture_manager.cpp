@@ -32,7 +32,11 @@ bool TextureManager::initialize()
 
     fge::Surface badSurface;
 
-    badSurface.create(FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H, FGE_TEXTURE_BAD_COLOR_1);
+    if (!badSurface.create(FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H, FGE_TEXTURE_BAD_COLOR_1))
+    {
+        return false;
+    }
+
     for (int y = 0; y < FGE_TEXTURE_BAD_H / 2; ++y)
     {
         for (int x = 0; x < FGE_TEXTURE_BAD_W / 2; ++x)
