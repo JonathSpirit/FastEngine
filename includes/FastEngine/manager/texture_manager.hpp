@@ -34,18 +34,22 @@
 namespace fge::texture
 {
 
-/**
- * \ingroup graphics
- * @{
- */
-
-struct FGE_API DataBlock : manager::BaseDataBlock<TextureType>
+struct DataBlock : manager::BaseDataBlock<TextureType>
 {
     inline void unload() override { this->_group.clear(); }
 
     std::vector<DataPointer> _group;
 };
 
+/**
+ * \class TextureManager
+ * \ingroup graphics
+ * \brief Manage textures
+ *
+ * This class is used to manage textures. It can load textures from files or surfaces.
+ * On initialization, a bad texture is created.
+ * This texture is used when a texture is not found in order to always return a "valid" texture.
+ */
 class FGE_API TextureManager : public manager::BaseManager<TextureType, DataBlock>
 {
 public:
@@ -81,11 +85,11 @@ public:
     bool loadToGroupFromSurface(std::string_view name, fge::Surface const& surface) const;
 };
 
-FGE_API extern TextureManager gManager;
-
 /**
- * @}
+ * \ingroup managers
+ * \brief The global texture manager
  */
+FGE_API extern TextureManager gManager;
 
 } // namespace fge::texture
 
