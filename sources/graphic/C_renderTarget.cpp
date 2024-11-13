@@ -246,9 +246,9 @@ void RenderTarget::draw(fge::RenderStates& states, fge::vulkan::GraphicPipeline*
             states._resDescriptors.getCount() == 0 && states._vertexBuffer != nullptr &&
             (states._resTextures.getCount() == 1 || states._resTextures.getCount() == 0))
         {
-            states._shaderFragment = haveTextures ? &this->_g_defaultFragmentShader->_shader
-                                                  : &this->_g_defaultNoTextureFragmentShader->_shader;
-            states._shaderVertex = &this->_g_defaultVertexShader->_shader;
+            states._shaderFragment = haveTextures ? this->_g_defaultFragmentShader->_ptr.get()
+                                                  : this->_g_defaultNoTextureFragmentShader->_ptr.get();
+            states._shaderVertex = this->_g_defaultVertexShader->_ptr.get();
         }
         else
         {
@@ -539,9 +539,9 @@ fge::TransformUboData const* RenderTarget::getGlobalTransform(fge::RenderResourc
 
 void RenderTarget::refreshShaderCache()
 {
-    this->_g_defaultFragmentShader = shader::GetShader(FGE_SHADER_DEFAULT_FRAGMENT);
-    this->_g_defaultNoTextureFragmentShader = shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT);
-    this->_g_defaultVertexShader = shader::GetShader(FGE_SHADER_DEFAULT_VERTEX);
+    this->_g_defaultFragmentShader = shader::gManager.getElement(FGE_SHADER_DEFAULT_FRAGMENT);
+    this->_g_defaultNoTextureFragmentShader = shader::gManager.getElement(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT);
+    this->_g_defaultVertexShader = shader::gManager.getElement(FGE_SHADER_DEFAULT_VERTEX);
 }
 void RenderTarget::resetDefaultView()
 {

@@ -748,13 +748,13 @@ std::vector<DescriptorSetLayout> const* Context::requestDescriptorLayout(Shader 
 std::optional<DescriptorSet>
 Context::createDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements) const
 {
-    auto shader = fge::shader::GetShader(shaderName);
+    auto shader = fge::shader::gManager.getElement(shaderName);
     if (!shader->_valid)
     {
         return std::nullopt;
     }
 
-    auto const* descriptorLayouts = this->requestDescriptorLayout(&shader->_shader);
+    auto const* descriptorLayouts = this->requestDescriptorLayout(shader->_ptr.get());
     if (descriptorLayouts == nullptr || setIndex >= descriptorLayouts->size())
     {
         return std::nullopt;

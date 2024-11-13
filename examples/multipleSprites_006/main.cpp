@@ -291,13 +291,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::Init();
-    fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
-                              fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, "resources/shaders/objSpriteBatches_fragment.frag",
-                              fge::vulkan::Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, "resources/shaders/objSpriteBatches_vertex.vert",
-                              fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.initialize();
+    fge::shader::gManager.loadFromFile(
+            FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
+            fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(
+            FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, "resources/shaders/objSpriteBatches_fragment.frag",
+            fge::vulkan::Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(
+            FGE_OBJSPRITEBATCHES_SHADER_VERTEX, "resources/shaders/objSpriteBatches_vertex.vert",
+            fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
 
     fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
@@ -309,7 +312,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::texture::gManager.uninitialize();
     fge::font::gManager.uninitialize();
-    fge::shader::Uninit();
+    fge::shader::gManager.uninitialize();
 
     renderWindow.destroy();
 

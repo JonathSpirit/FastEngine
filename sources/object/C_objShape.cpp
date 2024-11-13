@@ -222,8 +222,8 @@ FGE_OBJ_DRAW_BODY(ObjShape)
 
     fge::TextureType const* const texture = this->g_texture.valid() ? this->g_texture.retrieve() : nullptr;
 
-    copyStates._shaderVertex = &fge::shader::GetShader(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_shader;
-    copyStates._shaderFragment = &fge::shader::GetShader(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_shader;
+    copyStates._shaderVertex = fge::shader::gManager.getElement(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX)->_ptr.get();
+    copyStates._shaderFragment = fge::shader::gManager.getElement(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)->_ptr.get();
 
     //Drawing inline
     copyStates._resTextures.set(texture, texture == nullptr ? 0 : 1);

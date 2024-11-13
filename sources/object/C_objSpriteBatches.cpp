@@ -238,11 +238,12 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     bool const haveTexture = !this->g_textures.empty();
 
-    copyStates._shaderVertex = &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader;
+    copyStates._shaderVertex = fge::shader::gManager.getElement(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_ptr.get();
     //TODO: FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT
-    copyStates._shaderFragment = &fge::shader::GetShader(haveTexture ? FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT
-                                                                     : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
-                                          ->_shader;
+    copyStates._shaderFragment = fge::shader::gManager
+                                         .getElement(haveTexture ? FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT
+                                                                 : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
+                                         ->_ptr.get();
 
     target.draw(copyStates);
 }

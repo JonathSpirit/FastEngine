@@ -131,11 +131,11 @@ public:
         };
 
         buttonLoadGeometry->_onButtonPressed.addLambda([&](auto* button) {
-            fge::shader::Unload("custom_geometry");
+            fge::shader::gManager.unload("custom_geometry");
 
-            auto output = fge::shader::LoadFromFile("custom_geometry", textInputGeometryPath->getString().cpp_str(),
-                                                    fge::vulkan::Shader::Type::SHADER_GEOMETRY,
-                                                    fge::shader::ShaderInputTypes::SHADER_GLSL, true);
+            auto output = fge::shader::gManager.loadFromFile(
+                    "custom_geometry", textInputGeometryPath->getString().cpp_str(),
+                    fge::vulkan::Shader::Type::SHADER_GEOMETRY, fge::shader::ShaderInputTypes::SHADER_GLSL, true);
 
             if (output)
             {
@@ -149,11 +149,11 @@ public:
         });
 
         buttonLoadVertex->_onButtonPressed.addLambda([&](auto* button) {
-            fge::shader::Unload("custom_vertex");
+            fge::shader::gManager.unload("custom_vertex");
 
-            auto output = fge::shader::LoadFromFile("custom_vertex", textInputVertexPath->getString().cpp_str(),
-                                                    fge::vulkan::Shader::Type::SHADER_VERTEX,
-                                                    fge::shader::ShaderInputTypes::SHADER_GLSL, true);
+            auto output = fge::shader::gManager.loadFromFile(
+                    "custom_vertex", textInputVertexPath->getString().cpp_str(),
+                    fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL, true);
 
             if (output)
             {
@@ -167,11 +167,11 @@ public:
         });
 
         buttonLoadFragment->_onButtonPressed.addLambda([&](auto* button) {
-            fge::shader::Unload("custom_fragment");
+            fge::shader::gManager.unload("custom_fragment");
 
-            auto output = fge::shader::LoadFromFile("custom_fragment", textInputFragmentPath->getString().cpp_str(),
-                                                    fge::vulkan::Shader::Type::SHADER_FRAGMENT,
-                                                    fge::shader::ShaderInputTypes::SHADER_GLSL, true);
+            auto output = fge::shader::gManager.loadFromFile(
+                    "custom_fragment", textInputFragmentPath->getString().cpp_str(),
+                    fge::vulkan::Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL, true);
 
             if (output)
             {
@@ -277,13 +277,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::Init();
-    fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
-                              Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, "resources/shaders/objSpriteBatches_fragment.frag",
-                              Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, "resources/shaders/objSpriteBatches_vertex.vert",
-                              Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.initialize();
+    fge::shader::gManager.loadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX,
+                                       "resources/shaders/objShapeInstances_vertex.vert", Shader::Type::SHADER_VERTEX,
+                                       fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT,
+                                       "resources/shaders/objSpriteBatches_fragment.frag",
+                                       Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(FGE_OBJSPRITEBATCHES_SHADER_VERTEX,
+                                       "resources/shaders/objSpriteBatches_vertex.vert", Shader::Type::SHADER_VERTEX,
+                                       fge::shader::ShaderInputTypes::SHADER_GLSL);
 
     fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
@@ -295,7 +298,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::texture::gManager.uninitialize();
     fge::font::gManager.uninitialize();
-    fge::shader::Uninit();
+    fge::shader::gManager.uninitialize();
 
     renderWindow.destroy();
 

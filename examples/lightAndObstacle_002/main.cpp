@@ -358,7 +358,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::Init();
+    fge::shader::gManager.initialize();
 
     fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
@@ -369,7 +369,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     fge::texture::gManager.uninitialize();
     fge::font::gManager.uninitialize();
-    fge::shader::Uninit();
+    fge::shader::gManager.uninitialize();
 
     renderWindow.destroy();
 

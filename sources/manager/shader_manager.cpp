@@ -16,7 +16,6 @@
 
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/graphic/shaderResources.hpp"
-#include "FastEngine/string_hash.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 
@@ -34,10 +33,6 @@ namespace fge::shader
 
 namespace
 {
-
-fge::shader::ShaderDataPtr _dataShaderBad;
-std::unordered_map<std::string, fge::shader::ShaderDataPtr, fge::StringHash, std::equal_to<>> _dataShader;
-std::mutex _dataMutex;
 
 #ifdef FGE_DEF_DEBUG
 bool IsInfoLogEmpty(char const* infoLog)
@@ -226,144 +221,79 @@ bool SaveSpirVToBinaryFile(std::vector<uint32_t> const& spirv, std::filesystem::
     for (std::size_t i = 0; i < spirv.size(); ++i)
     {
         uint32_t word = spirv[i];
-        file.write((char const*) &word, 4);
+        file.write(reinterpret_cast<char const*>(&word), 4);
     }
     file.close();
     return true;
 }
 
-bool Init(bool dontLoadDefaultShaders)
+bool ShaderManager::initialize()
 {
-    if (_dataShaderBad == nullptr)
+    if (this->isInitialized())
     {
-        if (!glslang::InitializeProcess())
-        {
-            return false;
-        }
-
-        *GetResources() = *GetDefaultResources();
-
-        _dataShaderBad = std::make_shared<fge::shader::ShaderData>();
-        _dataShaderBad->_valid = false;
-
-        if (!dontLoadDefaultShaders)
-        {
-            if (!fge::shader::LoadFromMemory(FGE_SHADER_DEFAULT_VERTEX, fge::res::gDefaultVertexShader,
-                                             static_cast<int>(fge::res::gDefaultVertexShaderSize),
-                                             fge::vulkan::Shader::Type::SHADER_VERTEX, ShaderInputTypes::SHADER_GLSL))
-            {
-                Uninit();
-                return false;
-            }
-            if (!fge::shader::LoadFromMemory(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, fge::res::gDefaultFragmentShader,
-                                             static_cast<int>(fge::res::gDefaultFragmentShaderSize),
-                                             fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
-            {
-                Uninit();
-                return false;
-            }
-            if (!fge::shader::LoadFromMemory(FGE_SHADER_DEFAULT_FRAGMENT, fge::res::gDefaultFragmentTextureShader,
-                                             static_cast<int>(fge::res::gDefaultFragmentTextureShaderSize),
-                                             fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
-            {
-                Uninit();
-                return false;
-            }
-        }
-
         return true;
     }
-    return false;
-}
-bool IsInit()
-{
-    return _dataShaderBad != nullptr;
-}
-void Uninit()
-{
-    _dataShader.clear();
-    _dataShaderBad = nullptr;
 
-    glslang::FinalizeProcess();
-}
-
-std::size_t GetShaderSize()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    return _dataShader.size();
-}
-
-std::unique_lock<std::mutex> AcquireLock()
-{
-    return std::unique_lock<std::mutex>(_dataMutex);
-}
-fge::shader::ShaderDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock)
-{
-    if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
-    {
-        throw fge::Exception("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
-    }
-    return _dataShader.begin();
-}
-fge::shader::ShaderDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock)
-{
-    if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
-    {
-        throw fge::Exception("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
-    }
-    return _dataShader.end();
-}
-
-fge::shader::ShaderDataPtr const& GetBadShader()
-{
-    return _dataShaderBad;
-}
-fge::shader::ShaderDataPtr GetShader(std::string_view name)
-{
-    if (name == FGE_SHADER_BAD)
-    {
-        return _dataShaderBad;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataShader.find(name);
-
-    if (it != _dataShader.end())
-    {
-        return it->second;
-    }
-    return _dataShaderBad;
-}
-
-bool Check(std::string_view name)
-{
-    if (name == FGE_SHADER_BAD)
+    if (!glslang::InitializeProcess())
     {
         return false;
     }
 
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataShader.find(name);
+    *GetResources() = *GetDefaultResources();
 
-    return it != _dataShader.end();
-}
+    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement->_valid = false;
 
-FGE_API bool LoadFromMemory(std::string_view name,
-                            void const* data,
-                            int size,
-                            fge::vulkan::Shader::Type type,
-                            ShaderInputTypes input,
-                            bool debugBuild)
-{
-    if (name == FGE_SHADER_BAD || size <= 0 || data == nullptr)
+    if (!this->loadFromMemory(FGE_SHADER_DEFAULT_VERTEX, fge::res::gDefaultVertexShader,
+                              static_cast<int>(fge::res::gDefaultVertexShaderSize),
+                              fge::vulkan::Shader::Type::SHADER_VERTEX, ShaderInputTypes::SHADER_GLSL))
     {
+        this->unloadAll();
+        this->_g_badElement.reset();
+        return false;
+    }
+    if (!this->loadFromMemory(FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT, fge::res::gDefaultFragmentShader,
+                              static_cast<int>(fge::res::gDefaultFragmentShaderSize),
+                              fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
+    {
+        this->unloadAll();
+        this->_g_badElement.reset();
+        return false;
+    }
+    if (!this->loadFromMemory(FGE_SHADER_DEFAULT_FRAGMENT, fge::res::gDefaultFragmentTextureShader,
+                              static_cast<int>(fge::res::gDefaultFragmentTextureShaderSize),
+                              fge::vulkan::Shader::Type::SHADER_FRAGMENT, ShaderInputTypes::SHADER_GLSL))
+    {
+        this->unloadAll();
+        this->_g_badElement.reset();
         return false;
     }
 
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataShader.find(name);
+    return true;
+}
+bool ShaderManager::isInitialized()
+{
+    return this->_g_badElement != nullptr;
+}
+void ShaderManager::uninitialize()
+{
+    if (!this->isInitialized())
+    {
+        return;
+    }
 
-    if (it != _dataShader.end())
+    this->unloadAll();
+    this->_g_badElement.reset();
+}
+
+bool ShaderManager::loadFromMemory(std::string_view name,
+                                   void const* data,
+                                   int size,
+                                   vulkan::Shader::Type type,
+                                   ShaderInputTypes input,
+                                   bool debugBuild)
+{
+    if (name.empty() || size <= 0 || data == nullptr)
     {
         return false;
     }
@@ -388,7 +318,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
         break;
     }
 
-    fge::vulkan::Shader tmpShader;
+    DataBlock::DataPointer tmpShader = std::make_shared<DataType>();
     std::string shaderName(name);
     bool isHlsl = false;
 
@@ -407,7 +337,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
             return false;
         }
 
-        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shaderOut, type))
+        if (!tmpShader->loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shaderOut, type))
         {
             return false;
         }
@@ -423,7 +353,7 @@ FGE_API bool LoadFromMemory(std::string_view name,
         std::vector<uint32_t> const shader(reinterpret_cast<uint32_t const*>(data),
                                            reinterpret_cast<uint32_t const*>(data) + size / 4);
 
-        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shader, type))
+        if (!tmpShader->loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shader, type))
         {
             return false;
         }
@@ -431,28 +361,20 @@ FGE_API bool LoadFromMemory(std::string_view name,
     break;
     }
 
-    fge::shader::ShaderDataPtr buff = std::make_shared<fge::shader::ShaderData>();
-    buff->_shader = std::move(tmpShader);
-    buff->_valid = true;
+    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    block->_ptr = std::move(tmpShader);
+    block->_valid = true;
 
-    _dataShader[std::move(shaderName)] = std::move(buff);
-    return true;
+    return this->push(name, std::move(block));
 }
-bool LoadFromFile(std::string_view name,
-                  std::filesystem::path path,
-                  fge::vulkan::Shader::Type type,
-                  ShaderInputTypes input,
-                  bool debugBuild)
+
+bool ShaderManager::loadFromFile(std::string_view name,
+                                 std::filesystem::path path,
+                                 fge::vulkan::Shader::Type type,
+                                 ShaderInputTypes input,
+                                 bool debugBuild)
 {
-    if (name == FGE_SHADER_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataShader.find(name);
-
-    if (it != _dataShader.end())
+    if (name.empty())
     {
         return false;
     }
@@ -477,7 +399,7 @@ bool LoadFromFile(std::string_view name,
         break;
     }
 
-    fge::vulkan::Shader tmpShader;
+    DataBlock::DataPointer tmpShader = std::make_shared<DataType>();
     std::string shaderName(name);
     bool isHlsl = false;
 
@@ -512,76 +434,28 @@ bool LoadFromFile(std::string_view name,
             return false;
         }
 
-        if (!tmpShader.loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shaderOut, type))
+        if (!tmpShader->loadFromSpirVBuffer(fge::vulkan::GetActiveContext().getLogicalDevice(), shaderOut, type))
         {
             return false;
         }
     }
     break;
     case ShaderInputTypes::SHADER_SPIRV:
-        if (!tmpShader.loadFromFile(fge::vulkan::GetActiveContext().getLogicalDevice(), path, type))
+        if (!tmpShader->loadFromFile(fge::vulkan::GetActiveContext().getLogicalDevice(), path, type))
         {
             return false;
         }
         break;
     }
 
-    fge::shader::ShaderDataPtr buff = std::make_shared<fge::shader::ShaderData>();
-    buff->_shader = std::move(tmpShader);
-    buff->_valid = true;
-    buff->_path = std::move(path);
+    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    block->_ptr = std::move(tmpShader);
+    block->_valid = true;
+    block->_path = std::move(path);
 
-    _dataShader[std::move(shaderName)] = std::move(buff);
-    return true;
+    return this->push(name, std::move(block));
 }
 
-bool Unload(std::string_view name)
-{
-    if (name == FGE_SHADER_BAD || name == FGE_SHADER_DEFAULT_FRAGMENT ||
-        name == FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT || name == FGE_SHADER_DEFAULT_VERTEX)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataShader.find(name);
-
-    if (it != _dataShader.end())
-    {
-        it->second->_valid = false;
-        it->second->_shader.destroy();
-        _dataShader.erase(it);
-        return true;
-    }
-    return false;
-}
-void UnloadAll()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-
-    for (auto& data: _dataShader)
-    {
-        data.second->_valid = false;
-        data.second->_shader.destroy();
-    }
-    _dataShader.clear();
-}
-
-bool Push(std::string_view name, fge::shader::ShaderDataPtr const& data)
-{
-    if (name == FGE_SHADER_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    if (fge::shader::Check(name))
-    {
-        return false;
-    }
-
-    _dataShader.emplace(name, data);
-    return true;
-}
+ShaderManager gManager;
 
 } // namespace fge::shader

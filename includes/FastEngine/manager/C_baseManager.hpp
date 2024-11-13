@@ -139,7 +139,7 @@ public:
      */
     [[nodiscard]] DataBlockPointer getElement(std::string_view name) const;
     [[nodiscard]] bool contains(std::string_view name) const;
-    [[nodiscard]] bool unload(std::string_view name);
+    bool unload(std::string_view name);
     void unloadAll();
 
     /**
