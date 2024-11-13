@@ -24,28 +24,22 @@ std::size_t BaseManager<TData, TDataBlock>::size() const
 }
 
 template<class TData, class TDataBlock>
-std::unique_lock<std::mutex> BaseManager<TData, TDataBlock>::acquireLock() const
+AccessLock<std::mutex> BaseManager<TData, TDataBlock>::acquireLock() const
 {
-    return std::unique_lock<std::mutex>(this->g_mutex);
+    return AccessLock<std::mutex>(this->g_mutex);
 }
 template<class TData, class TDataBlock>
 typename BaseManager<TData, TDataBlock>::Map::const_iterator
-BaseManager<TData, TDataBlock>::begin(std::unique_lock<std::mutex> const& lock) const
+BaseManager<TData, TDataBlock>::begin(AccessLock<std::mutex> const& lock) const
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw Exception("BaseManager::begin : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     return this->g_data.begin();
 }
 template<class TData, class TDataBlock>
 typename BaseManager<TData, TDataBlock>::Map::const_iterator
-BaseManager<TData, TDataBlock>::end(std::unique_lock<std::mutex> const& lock) const
+BaseManager<TData, TDataBlock>::end(AccessLock<std::mutex> const& lock) const
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw Exception("BaseManager::end : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     return this->g_data.end();
 }
 

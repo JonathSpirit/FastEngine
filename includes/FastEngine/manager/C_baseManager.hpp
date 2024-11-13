@@ -17,6 +17,7 @@
 #ifndef _FGE_C_BASEMANAGER_HPP_INCLUDED
 #define _FGE_C_BASEMANAGER_HPP_INCLUDED
 
+#include "FastEngine/C_accessLock.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/string_hash.hpp"
 #include <cstddef>
@@ -91,37 +92,36 @@ public:
     [[nodiscard]] std::size_t size() const;
 
     /**
-     * \brief Acquire a unique lock, with the manager mutex
+     * \brief Acquire a AccessLock, with the manager mutex
      *
      * In order to use iterators, you have to acquire a unique lock from this
      * function.
      * The lock is not differed and will lock the mutex.
      *
-     * \return A unique lock bound to this mutex
+     * \return A AccessLock bound to this mutex
      */
-    [[nodiscard]] std::unique_lock<std::mutex> acquireLock() const;
+    [[nodiscard]] AccessLock<std::mutex> acquireLock() const;
     /**
      * \brief Get the "begin" iterator of the manager
      *
-     * You have to provide a valid reference to a unique lock acquire with
+     * You have to provide a valid reference to a AccessLock acquired with
      * the function AcquireLock().
      * This function will throw if one of this is not respected :
-     * - The lock does not own the associated mutex.
      * - The mutex pointer of the lock does not correspond to this mutex.
      *
-     * \param lock A unique lock bound to this mutex
+     * \param lock A AccessLock bound to this mutex
      * \return The "begin" iterator of the texture manager
      */
-    [[nodiscard]] typename Map::const_iterator begin(std::unique_lock<std::mutex> const& lock) const;
+    [[nodiscard]] typename Map::const_iterator begin(AccessLock<std::mutex> const& lock) const;
     /**
      * \brief Get the "end" iterator of the manager
      *
      * \see begin()
      *
-     * \param lock A unique lock bound to this mutex
+     * \param lock A AccessLock bound to this mutex
      * \return The "end" iterator of the manager
      */
-    [[nodiscard]] typename Map::const_iterator end(std::unique_lock<std::mutex> const& lock) const;
+    [[nodiscard]] typename Map::const_iterator end(AccessLock<std::mutex> const& lock) const;
 
     /**
      * \brief Get the "bad" element
