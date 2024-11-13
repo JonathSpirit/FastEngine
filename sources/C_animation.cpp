@@ -21,8 +21,10 @@
 namespace fge
 {
 
+using namespace fge::anim;
+
 Animation::Animation() :
-        g_data(fge::anim::GetBadAnimation()),
+        g_data(gManager.getBadElement()),
         g_name(FGE_ANIM_BAD),
 
         g_groupIndex(0),
@@ -33,7 +35,7 @@ Animation::Animation() :
         g_flipHorizontal(false)
 {}
 Animation::Animation(std::string name, std::size_t frame) :
-        g_data(fge::anim::GetAnimation(name)),
+        g_data(gManager.getElement(name)),
         g_name(std::move(name)),
 
         g_groupIndex(0),
@@ -44,7 +46,7 @@ Animation::Animation(std::string name, std::size_t frame) :
         g_flipHorizontal(false)
 {}
 Animation::Animation(std::string name, std::string const& group, Index frame) :
-        g_data(fge::anim::GetAnimation(name)),
+        g_data(gManager.getElement(name)),
         g_name(std::move(name)),
 
         g_groupIndex(0),
@@ -57,7 +59,7 @@ Animation::Animation(std::string name, std::string const& group, Index frame) :
     this->setGroup(group);
 }
 Animation::Animation(char const* name, Index frame) :
-        g_data(fge::anim::GetAnimation(std::string(name))),
+        g_data(gManager.getElement(std::string(name))),
         g_name(name),
 
         g_groupIndex(0),
@@ -68,7 +70,7 @@ Animation::Animation(char const* name, Index frame) :
         g_flipHorizontal(false)
 {}
 Animation::Animation(char const* name, char const* group, Index frame) :
-        g_data(fge::anim::GetAnimation(std::string(name))),
+        g_data(gManager.getElement(std::string(name))),
         g_name(name),
 
         g_groupIndex(0),
@@ -80,7 +82,7 @@ Animation::Animation(char const* name, char const* group, Index frame) :
 {
     this->setGroup(std::string{group});
 }
-Animation::Animation(fge::anim::AnimationDataPtr data, Index frame) :
+Animation::Animation(SharedDataType data, Index frame) :
         g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
@@ -91,7 +93,7 @@ Animation::Animation(fge::anim::AnimationDataPtr data, Index frame) :
         g_reverse(false),
         g_flipHorizontal(false)
 {}
-Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group, Index frame) :
+Animation::Animation(SharedDataType data, std::string const& group, Index frame) :
         g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
@@ -104,7 +106,7 @@ Animation::Animation(fge::anim::AnimationDataPtr data, std::string const& group,
 {
     this->setGroup(group);
 }
-Animation::Animation(fge::anim::AnimationDataPtr data, char const* group, Index frame) :
+Animation::Animation(SharedDataType data, char const* group, Index frame) :
         g_data(std::move(data)),
         g_name(FGE_ANIM_BAD),
 
@@ -120,7 +122,7 @@ Animation::Animation(fge::anim::AnimationDataPtr data, char const* group, Index 
 
 void Animation::clear()
 {
-    this->g_data = fge::anim::GetBadAnimation();
+    this->g_data = gManager.getBadElement();
     this->g_name = FGE_ANIM_BAD;
 
     this->g_groupIndex = 0;
@@ -143,22 +145,22 @@ std::string const& Animation::getName() const
 
 fge::anim::AnimationType Animation::getType() const
 {
-    return this->g_data->_type;
+    return this->g_data->_ptr->_type;
 }
 
 bool Animation::setGroup(std::string const& groupName)
 {
     if (this->isGroupValid())
     { //If same group, we do nothing
-        if (this->g_data->_groups[this->g_groupIndex]._groupName == groupName)
+        if (this->g_data->_ptr->_groups[this->g_groupIndex]._groupName == groupName)
         {
             return false;
         }
     }
 
-    for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data->_ptr->_groups.size(); ++i)
     {
-        if (this->g_data->_groups[i]._groupName == groupName)
+        if (this->g_data->_ptr->_groups[i]._groupName == groupName)
         {
             this->g_groupIndex = i;
             this->g_frameIndex = 0;
@@ -174,7 +176,7 @@ bool Animation::setGroup(Index groupIndex)
         return false;
     }
 
-    if (groupIndex < this->g_data->_groups.size())
+    if (groupIndex < this->g_data->_ptr->_groups.size())
     {
         this->g_groupIndex = groupIndex;
         this->g_frameIndex = 0;
@@ -185,62 +187,62 @@ bool Animation::setGroup(Index groupIndex)
 
 fge::anim::AnimationGroup const* Animation::getGroup() const
 {
-    if (this->g_groupIndex < this->g_data->_groups.size())
+    if (this->g_groupIndex < this->g_data->_ptr->_groups.size())
     {
-        return &this->g_data->_groups[this->g_groupIndex];
+        return &this->g_data->_ptr->_groups[this->g_groupIndex];
     }
     return nullptr;
 }
 fge::anim::AnimationGroup* Animation::getGroup()
 {
-    if (this->g_groupIndex < this->g_data->_groups.size())
+    if (this->g_groupIndex < this->g_data->_ptr->_groups.size())
     {
-        return &this->g_data->_groups[this->g_groupIndex];
+        return &this->g_data->_ptr->_groups[this->g_groupIndex];
     }
     return nullptr;
 }
 fge::anim::AnimationGroup const* Animation::getGroup(std::string const& groupName) const
 {
-    for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data->_ptr->_groups.size(); ++i)
     {
-        if (this->g_data->_groups[i]._groupName == groupName)
+        if (this->g_data->_ptr->_groups[i]._groupName == groupName)
         {
-            return &this->g_data->_groups[i];
+            return &this->g_data->_ptr->_groups[i];
         }
     }
     return nullptr;
 }
 fge::anim::AnimationGroup* Animation::getGroup(std::string const& groupName)
 {
-    for (std::size_t i = 0; i < this->g_data->_groups.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data->_ptr->_groups.size(); ++i)
     {
-        if (this->g_data->_groups[i]._groupName == groupName)
+        if (this->g_data->_ptr->_groups[i]._groupName == groupName)
         {
-            return &this->g_data->_groups[i];
+            return &this->g_data->_ptr->_groups[i];
         }
     }
     return nullptr;
 }
 fge::anim::AnimationGroup const* Animation::getGroup(Index groupIndex) const
 {
-    if (groupIndex < this->g_data->_groups.size())
+    if (groupIndex < this->g_data->_ptr->_groups.size())
     {
-        return &this->g_data->_groups[groupIndex];
+        return &this->g_data->_ptr->_groups[groupIndex];
     }
     return nullptr;
 }
 fge::anim::AnimationGroup* Animation::getGroup(Index groupIndex)
 {
-    if (groupIndex < this->g_data->_groups.size())
+    if (groupIndex < this->g_data->_ptr->_groups.size())
     {
-        return &this->g_data->_groups[groupIndex];
+        return &this->g_data->_ptr->_groups[groupIndex];
     }
     return nullptr;
 }
 
 bool Animation::isGroupValid() const
 {
-    return this->g_groupIndex < this->g_data->_groups.size();
+    return this->g_groupIndex < this->g_data->_ptr->_groups.size();
 }
 
 Animation::Index Animation::nextFrame()
@@ -254,7 +256,7 @@ Animation::Index Animation::nextFrame()
                 if (this->g_loop)
                 {
                     this->g_frameIndex =
-                            static_cast<Index>(this->g_data->_groups[this->g_groupIndex]._frames.size() - 1);
+                            static_cast<Index>(this->g_data->_ptr->_groups[this->g_groupIndex]._frames.size() - 1);
                 }
             }
             else
@@ -264,7 +266,8 @@ Animation::Index Animation::nextFrame()
         }
         else
         {
-            if (this->g_frameIndex + 1 >= static_cast<Index>(this->g_data->_groups[this->g_groupIndex]._frames.size()))
+            if (this->g_frameIndex + 1 >=
+                static_cast<Index>(this->g_data->_ptr->_groups[this->g_groupIndex]._frames.size()))
             {
                 if (this->g_loop)
                 {
@@ -297,7 +300,7 @@ fge::anim::AnimationFrame const* Animation::getFrame() const
 {
     if (this->isFrameValid())
     {
-        return &this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex];
+        return &this->g_data->_ptr->_groups[this->g_groupIndex]._frames[this->g_frameIndex];
     }
     return nullptr;
 }
@@ -305,7 +308,7 @@ fge::anim::AnimationFrame* Animation::getFrame()
 {
     if (this->isFrameValid())
     {
-        return &this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex];
+        return &this->g_data->_ptr->_groups[this->g_groupIndex]._frames[this->g_frameIndex];
     }
     return nullptr;
 }
@@ -313,9 +316,9 @@ fge::anim::AnimationFrame const* Animation::getFrame(Index frameIndex) const
 {
     if (this->isGroupValid())
     {
-        if (frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
+        if (frameIndex < this->g_data->_ptr->_groups[this->g_groupIndex]._frames.size())
         {
-            return &this->g_data->_groups[this->g_groupIndex]._frames[frameIndex];
+            return &this->g_data->_ptr->_groups[this->g_groupIndex]._frames[frameIndex];
         }
     }
     return nullptr;
@@ -324,9 +327,9 @@ fge::anim::AnimationFrame* Animation::getFrame(Index frameIndex)
 {
     if (this->isGroupValid())
     {
-        if (frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
+        if (frameIndex < this->g_data->_ptr->_groups[this->g_groupIndex]._frames.size())
         {
-            return &this->g_data->_groups[this->g_groupIndex]._frames[frameIndex];
+            return &this->g_data->_ptr->_groups[this->g_groupIndex]._frames[frameIndex];
         }
     }
     return nullptr;
@@ -336,11 +339,11 @@ bool Animation::isFrameValid() const
 {
     if (this->isGroupValid())
     {
-        if (this->g_frameIndex < this->g_data->_groups[this->g_groupIndex]._frames.size())
+        if (this->g_frameIndex < this->g_data->_ptr->_groups[this->g_groupIndex]._frames.size())
         {
-            if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+            if (this->g_data->_ptr->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
             {
-                return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition !=
+                return this->g_data->_ptr->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition !=
                        FGE_NUMERIC_LIMITS_VECTOR_MAX(fge::Vector2u);
             }
             return true;
@@ -376,7 +379,7 @@ bool Animation::isHorizontalFlipped() const
     return this->g_flipHorizontal;
 }
 
-fge::anim::AnimationDataPtr const& Animation::getData() const
+Animation::SharedDataType const& Animation::getData() const
 {
     return this->g_data;
 }
@@ -384,16 +387,16 @@ fge::anim::AnimationDataPtr const& Animation::getData() const
 fge::Animation& Animation::operator=(std::string name)
 {
     this->g_name = std::move(name);
-    this->g_data = fge::anim::GetAnimation(name);
+    this->g_data = gManager.getElement(name);
     return *this;
 }
 fge::Animation& Animation::operator=(char const* name)
 {
     this->g_name = std::string{name};
-    this->g_data = fge::anim::GetAnimation(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
     return *this;
 }
-fge::Animation& Animation::operator=(fge::anim::AnimationDataPtr data)
+fge::Animation& Animation::operator=(SharedDataType data)
 {
     this->g_name = FGE_ANIM_BAD;
     this->g_data = std::move(data);
@@ -402,18 +405,18 @@ fge::Animation& Animation::operator=(fge::anim::AnimationDataPtr data)
 
 std::shared_ptr<fge::TextureType> const& Animation::retrieveTexture() const
 {
-    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    if (this->g_data->_ptr->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
         if (this->isFrameValid())
         {
-            return this->g_data->_tilesetTexture;
+            return this->g_data->_ptr->_tilesetTexture;
         }
     }
     else
     {
         if (this->isFrameValid())
         {
-            return this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
+            return this->g_data->_ptr->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture;
         }
     }
     return fge::texture::gManager.getBadElement()->_ptr;
@@ -421,13 +424,13 @@ std::shared_ptr<fge::TextureType> const& Animation::retrieveTexture() const
 
 fge::RectInt Animation::retrieveTextureRect() const
 {
-    if (this->g_data->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    if (this->g_data->_ptr->_type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
     {
         if (this->isFrameValid())
         {
-            auto gridSize = static_cast<fge::Vector2i>(this->g_data->_tilesetGridSize);
+            auto gridSize = static_cast<fge::Vector2i>(this->g_data->_ptr->_tilesetGridSize);
             auto gridPosition = static_cast<fge::Vector2i>(
-                    this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
+                    this->g_data->_ptr->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texturePosition);
             gridPosition.x *= gridSize.x;
             gridPosition.y *= gridSize.y;
 
@@ -445,7 +448,7 @@ fge::RectInt Animation::retrieveTextureRect() const
         if (this->isFrameValid())
         {
             auto gridSize = static_cast<fge::Vector2i>(
-                    this->g_data->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
+                    this->g_data->_ptr->_groups[this->g_groupIndex]._frames[this->g_frameIndex]._texture->getSize());
 
             auto rect = fge::RectInt{{0, 0}, gridSize};
             if (this->g_flipHorizontal)

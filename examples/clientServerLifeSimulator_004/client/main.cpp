@@ -109,8 +109,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::font::LoadFromFile("default", "resources/fonts/SourceSansPro-Regular.ttf");
 
     //Animation
-    fge::anim::Init();
-    fge::anim::LoadFromFile("ugandan", "resources/animations/ugandan_1/ugandan.json");
+    fge::anim::gManager.initialize();
+    fge::anim::gManager.loadFromFile("ugandan", "resources/animations/ugandan_1/ugandan.json");
 
     //Audio
     fge::audio::Init();
@@ -443,7 +443,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::audio::Uninit();
     fge::shader::Uninit();
     fge::font::Uninit();
-    fge::anim::Uninit();
+    fge::anim::gManager.uninitialize();
     fge::texture::gManager.uninitialize();
 
     renderWindow.destroy();

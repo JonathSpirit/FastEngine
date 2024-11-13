@@ -155,7 +155,7 @@ void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene)
     fge::Object::load(jsonObject, scene);
 
     this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
-    this->g_animation = jsonObject.value<std::string>("animation", FGE_ANIM_BAD);
+    this->g_animation = jsonObject.value<std::string>("animation", std::string(FGE_ANIM_BAD));
     this->g_animation.setGroup(jsonObject.value<std::size_t>("animationGroup", 0));
     this->g_animation.setFrame(jsonObject.value<std::size_t>("animationFrame", 0));
     this->g_animation.setLoop(jsonObject.value<bool>("animationLoop", false));

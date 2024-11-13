@@ -40,6 +40,7 @@ class Packet;
 class FGE_API Animation
 {
 public:
+    using SharedDataType = anim::AnimationManager::DataBlockPointer;
     using Index = uint16_t;
 
     Animation();
@@ -66,9 +67,9 @@ public:
     Animation(std::string name, std::string const& group, Index frame = 0);
     Animation(char const* name, Index frame = 0);
     Animation(char const* name, char const* group, Index frame = 0);
-    Animation(fge::anim::AnimationDataPtr data, Index frame = 0);
-    Animation(fge::anim::AnimationDataPtr data, std::string const& group, Index frame = 0);
-    Animation(fge::anim::AnimationDataPtr data, char const* group, Index frame = 0);
+    Animation(SharedDataType data, Index frame = 0);
+    Animation(SharedDataType data, std::string const& group, Index frame = 0);
+    Animation(SharedDataType data, char const* group, Index frame = 0);
 
     /**
      * \brief Clear the animation
@@ -234,11 +235,11 @@ public:
      *
      * \return The animation data
      */
-    [[nodiscard]] fge::anim::AnimationDataPtr const& getData() const;
+    [[nodiscard]] SharedDataType const& getData() const;
 
     fge::Animation& operator=(std::string name);
     fge::Animation& operator=(char const* name);
-    fge::Animation& operator=(fge::anim::AnimationDataPtr data);
+    fge::Animation& operator=(SharedDataType data);
 
     /**
      * \brief Retrieve the texture of the actual frame
@@ -255,7 +256,7 @@ public:
     [[nodiscard]] fge::RectInt retrieveTextureRect() const;
 
 private:
-    fge::anim::AnimationDataPtr g_data;
+    SharedDataType g_data;
     std::string g_name;
 
     Index g_groupIndex;

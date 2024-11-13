@@ -19,18 +19,14 @@
 
 #include "FastEngine/fge_extern.hpp"
 
-#include "FastEngine/C_accessLock.hpp"
 #include "FastEngine/C_vector.hpp"
+#include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/textureType.hpp"
-#include <filesystem>
-#include <memory>
-#include <unordered_map>
 #include <vector>
 
 #define FGE_ANIM_DEFAULT_TICKS 100
 
-#define FGE_ANIM_DEFAULT FGE_ANIM_BAD
-#define FGE_ANIM_BAD ""
+#define FGE_ANIM_BAD FGE_MANAGER_BAD
 
 namespace fge::anim
 {
@@ -67,8 +63,8 @@ struct AnimationFrame
  */
 struct AnimationGroup
 {
-    std::vector<fge::anim::AnimationFrame> _frames; ///< The vector of frames of the group
-    std::string _groupName;                         ///< The name of the group
+    std::vector<AnimationFrame> _frames; ///< The vector of frames of the group
+    std::string _groupName;              ///< The name of the group
 };
 
 /**
@@ -78,168 +74,78 @@ struct AnimationGroup
  */
 struct AnimationData
 {
-    std::vector<fge::anim::AnimationGroup> _groups; ///< The vector of groups of the animation
-    bool _valid;                                    ///< The validity of the animation
-    std::filesystem::path _path;                    ///< The file path of the animation
+    std::vector<AnimationGroup> _groups; ///< The vector of groups of the animation
 
-    fge::anim::AnimationType _type; ///< The type of the animation
-    fge::Vector2u _tilesetGridSize; ///< The tileset grid size, only useful if the type is ANIM_TYPE_TILESET
-    std::shared_ptr<fge::TextureType>
-            _tilesetTexture;            ///< The tileset texture, only useful if the type is ANIM_TYPE_TILESET
+    AnimationType _type;       ///< The type of the animation
+    Vector2u _tilesetGridSize; ///< The tileset grid size, only useful if the type is ANIM_TYPE_TILESET
+    std::shared_ptr<TextureType> _tilesetTexture; ///< The tileset texture, only useful if the type is ANIM_TYPE_TILESET
     std::filesystem::path _tilesetPath; ///< The tileset texture path, only useful if the type is ANIM_TYPE_TILESET
 };
 
-using AnimationDataPtr = std::shared_ptr<fge::anim::AnimationData>;
-using AnimationDataType = std::unordered_map<std::string, fge::anim::AnimationDataPtr>;
+struct DataBlock : manager::BaseDataBlock<AnimationData>
+{
+    inline void unload() override {}
+};
 
 /**
- * \ingroup animation
- * @{
+ * \class AnimationManager
+ * \ingroup graphics
+ * \brief Manage animations
+ *
+ * \see TextureManager
  */
+class FGE_API AnimationManager : public manager::BaseManager<AnimationData, DataBlock>
+{
+public:
+    using BaseManager::BaseManager;
+
+    bool initialize() override;
+    [[nodiscard]] bool isInitialized() override;
+    void uninitialize() override;
+
+    /**
+     * \brief Load the animation with the given name from the given file path
+     *
+     * The specified file must be a valid json file that contains the information of the animation
+     * and its groups.
+     *
+     * Here is an example of a valid json file:
+     * \code{.json}
+     * {
+     *    "type": "tileset" or "separate",
+     *    "gridSize": {"x": 32, "y": 32}, (not necessary if the type is separate)
+     *    "tileset": "test/tileset_test.png", (not necessary if the type is separate)
+     *
+     *    "animationGroup1": [
+     *    {
+     *    "path": "path/to/the/texture1", (not necessary if the type is tileset)
+     *    "ticks": 10,
+     *    "position": {"x": 0, "y": 0} (not necessary if the type is separate)
+     *    },
+     *    {
+     *    "path": "path/to/the/texture2", (not necessary if the type is tileset)
+     *    "ticks": 10,
+     *    "position": {"x": 1, "y": 0} (not necessary if the type is separate)
+     *    }
+     *    ],
+     *    "animationGroup2": [
+     *    ...
+     *    ]
+     * }
+     * \endcode
+     *
+     * \param name The name of the animation to load
+     * \param path The file path of the animation to load
+     * \return \b true if the animation is loaded, \b false otherwise
+     */
+    bool loadFromFile(std::string_view name, std::filesystem::path const& path);
+};
 
 /**
- * \brief Initialize the animation manager
- *
- * This function must be called before any attempt to use animations.
- * The animation manager is a global thread safe storage of animations.
- *
- * \warning The texture manager must be initialized before the animation manager.
+ * \ingroup managers
+ * \brief The global animation manager
  */
-FGE_API void Init();
-/**
- * \brief Check if the animation manager is initialized
- *
- * \return \b true if the animation manager is initialized, \b false otherwise
- */
-FGE_API bool IsInit();
-/**
- * \brief Un-initialize the animation manager
- */
-FGE_API void Uninit();
-
-/**
- * \brief Get the total number of loaded animations
- *
- * \return The total number of loaded animations
- */
-FGE_API std::size_t GetAnimationSize();
-
-/**
- * \brief Acquire a AccessLock, with the texture manager mutex
- *
- * In order to use iterators, you have to acquire a lock from this function.
- * The lock is not differed and will lock the mutex.
- *
- * \return A AccessLock bound to this mutex
- */
-[[nodiscard]] FGE_API fge::AccessLock<std::mutex> AcquireLock();
-/**
- * \brief Get the begin iterator of the animation manager
- *
- * You have to provide a valid reference to a AccessLock acquired with
- * the function AcquireLock().
- * This function will throw if one of this is not respected :
- * - The mutex pointer of the lock does not correspond to this mutex.
- *
- * \param lock A AccessLock bound to this mutex
- * \return The begin iterator of the texture manager
- */
-[[nodiscard]] FGE_API fge::anim::AnimationDataType::const_iterator
-IteratorBegin(fge::AccessLock<std::mutex> const& lock);
-/**
- * \brief Get the end iterator of the animation manager
- *
- * \see IteratorBegin()
- *
- * \param lock A AccessLock bound to this mutex
- * \return The begin iterator of the texture manager
- */
-[[nodiscard]] FGE_API fge::anim::AnimationDataType::const_iterator IteratorEnd(fge::AccessLock<std::mutex> const& lock);
-
-/**
- * \brief Get the bad animation
- *
- * A bad animation is an animation that is not valid and is default returned when an animation is not found.
- *
- * \return The bad animation
- */
-FGE_API fge::anim::AnimationDataPtr const& GetBadAnimation();
-/**
- * \brief Get the animation with the given name
- *
- * \param name The name of the animation to get
- * \return The animation with the given name or the bad animation if not found
- */
-FGE_API fge::anim::AnimationDataPtr GetAnimation(std::string const& name);
-
-/**
- * \brief Check if the animation with the given name exist
- *
- * \param name The name of the animation to check
- * \return \b true if the animation exist, \b false otherwise
- */
-FGE_API bool Check(std::string const& name);
-
-/**
- * \brief Load the animation with the given name from the given file path
- *
- * The specified file must be a valid json file that contains the information of the animation
- * and its groups.
- *
- * Here is an example of a valid json file:
- * \code{.json}
- * {
- *    "type": "tileset" or "separate",
- *    "gridSize": {"x": 32, "y": 32}, (not necessary if the type is separate)
- *    "tileset": "test/tileset_test.png", (not necessary if the type is separate)
- *
- *    "animationGroup1": [
- *    {
- *    "path": "path/to/the/texture1", (not necessary if the type is tileset)
- *    "ticks": 10,
- *    "position": {"x": 0, "y": 0} (not necessary if the type is separate)
- *    },
- *    {
- *    "path": "path/to/the/texture2", (not necessary if the type is tileset)
- *    "ticks": 10,
- *    "position": {"x": 1, "y": 0} (not necessary if the type is separate)
- *    }
- *    ],
- *    "animationGroup2": [
- *    ...
- *    ]
- * }
- * \endcode
- *
- * \param name The name of the animation to load
- * \param path The file path of the animation to load
- * \return \b true if the animation is loaded, \b false otherwise
- */
-FGE_API bool LoadFromFile(std::string const& name, std::filesystem::path path);
-/**
- * \brief Unload the animation with the given name
- *
- * \param name The name of the animation to unload
- * \return \b true if the animation is unloaded, \b false otherwise
- */
-FGE_API bool Unload(std::string const& name);
-/**
- * \brief Unload all the animations
- */
-FGE_API void UnloadAll();
-
-/**
- * \brief Push a user handled animation to the animation manager
- *
- * \param name The name of the animation to push
- * \param data The animation to push
- * \return \b true if the animation is pushed, \b false otherwise
- */
-FGE_API bool Push(std::string const& name, fge::anim::AnimationDataPtr const& data);
-
-/**
- * @}
- */
+FGE_API extern AnimationManager gManager;
 
 } // namespace fge::anim
 
