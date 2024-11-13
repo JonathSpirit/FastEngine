@@ -19,26 +19,28 @@
 namespace fge
 {
 
+using namespace fge::audio;
+
 SoundBuffer::SoundBuffer() :
-        g_data(fge::audio::GetBadAudio()),
+        g_data(gManager.getBadElement()),
         g_name(FGE_AUDIO_BAD)
 {}
 SoundBuffer::SoundBuffer(std::string const& name) :
-        g_data(fge::audio::GetAudio(name)),
+        g_data(gManager.getElement(name)),
         g_name(name)
 {}
 SoundBuffer::SoundBuffer(char const* name) :
-        g_data(fge::audio::GetAudio(std::string(name))),
+        g_data(gManager.getElement(std::string(name))),
         g_name(name)
 {}
-SoundBuffer::SoundBuffer(fge::audio::AudioDataPtr const& data) :
+SoundBuffer::SoundBuffer(SharedDataType const& data) :
         g_data(data),
         g_name(FGE_AUDIO_BAD)
 {}
 
 void SoundBuffer::clear()
 {
-    this->g_data = fge::audio::GetBadAudio();
+    this->g_data = gManager.getBadElement();
     this->g_name = FGE_AUDIO_BAD;
 }
 
@@ -47,7 +49,7 @@ bool SoundBuffer::valid() const
     return this->g_data->_valid;
 }
 
-fge::audio::AudioDataPtr const& SoundBuffer::getData() const
+SoundBuffer::SharedDataType const& SoundBuffer::getData() const
 {
     return this->g_data;
 }
@@ -59,14 +61,14 @@ std::string const& SoundBuffer::getName() const
 void SoundBuffer::operator=(std::string const& name)
 {
     this->g_name = name;
-    this->g_data = fge::audio::GetAudio(name);
+    this->g_data = gManager.getElement(name);
 }
 void SoundBuffer::operator=(char const* name)
 {
     this->g_name = std::string(name);
-    this->g_data = fge::audio::GetAudio(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
 }
-void SoundBuffer::operator=(fge::audio::AudioDataPtr const& data)
+void SoundBuffer::operator=(SharedDataType const& data)
 {
     this->g_name = FGE_AUDIO_BAD;
     this->g_data = data;
@@ -74,11 +76,11 @@ void SoundBuffer::operator=(fge::audio::AudioDataPtr const& data)
 
 SoundBuffer::operator Mix_Chunk*()
 {
-    return this->g_data->_audio.get();
+    return this->g_data->_ptr.get();
 }
 SoundBuffer::operator Mix_Chunk const*() const
 {
-    return this->g_data->_audio.get();
+    return this->g_data->_ptr.get();
 }
 
 SoundBuffer::operator std::string&()

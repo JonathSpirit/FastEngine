@@ -113,9 +113,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::anim::gManager.loadFromFile("ugandan", "resources/animations/ugandan_1/ugandan.json");
 
     //Audio
-    fge::audio::Init();
-    fge::audio::LoadFromFile("ugandan1", "resources/audio/ugandan1.ogg");
-    fge::audio::LoadFromFile("ugandan2", "resources/audio/ugandan2.ogg");
+    fge::audio::gManager.initialize();
+    fge::audio::gManager.loadFromFile("ugandan1", "resources/audio/ugandan1.ogg");
+    fge::audio::gManager.loadFromFile("ugandan2", "resources/audio/ugandan2.ogg");
 
     //Timer
     fge::timer::Init();
@@ -440,7 +440,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     mainScene.reset();
 
     fge::timer::Uninit();
-    fge::audio::Uninit();
+    fge::audio::gManager.uninitialize();
     fge::shader::Uninit();
     fge::font::gManager.uninitialize();
     fge::anim::gManager.uninitialize();

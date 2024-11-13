@@ -19,183 +19,69 @@
 namespace fge::audio
 {
 
-namespace
+bool AudioManager::initialize()
 {
-
-fge::audio::AudioDataPtr _dataAudioBad;
-fge::audio::AudioDataType _dataAudio;
-std::mutex _dataMutex;
-
-} // namespace
-
-void Init()
-{
-    if (_dataAudioBad == nullptr)
+    if (this->isInitialized())
     {
-        Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID | MIX_INIT_OPUS);
-
-        Mix_OpenAudioDevice(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048, nullptr,
-                            SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
-
-        //Taken from https://cable.ayra.ch/empty/
-        uint8_t emptyWaveFile[] = {0x52, 0x49, 0x46, 0x46, 0x25, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45,
-                                   0x66, 0x6D, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
-                                   0x44, 0xAC, 0x00, 0x00, 0x88, 0x58, 0x01, 0x00, 0x02, 0x00, 0x10, 0x00,
-                                   0x64, 0x61, 0x74, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00};
-
-        _dataAudioBad = std::make_shared<fge::audio::AudioData>();
-        _dataAudioBad->_audio = std::shared_ptr<Mix_Chunk>(Mix_QuickLoad_WAV(emptyWaveFile), MixerChunkDeleter());
-        _dataAudioBad->_valid = false;
+        return true;
     }
+
+    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID | MIX_INIT_OPUS);
+
+    Mix_OpenAudioDevice(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048, nullptr,
+                        SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+
+    //Taken from https://cable.ayra.ch/empty/
+    uint8_t emptyWaveFile[] = {0x52, 0x49, 0x46, 0x46, 0x25, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45,
+                               0x66, 0x6D, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
+                               0x44, 0xAC, 0x00, 0x00, 0x88, 0x58, 0x01, 0x00, 0x02, 0x00, 0x10, 0x00,
+                               0x64, 0x61, 0x74, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00};
+
+    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement->_ptr = std::shared_ptr<Mix_Chunk>(Mix_QuickLoad_WAV(emptyWaveFile), MixerChunkDeleter());
+    this->_g_badElement->_valid = false;
+    return true;
 }
-bool IsInit()
+bool AudioManager::isInitialized()
 {
-    return _dataAudioBad != nullptr;
+    return this->_g_badElement != nullptr;
 }
-void Uninit()
+void AudioManager::uninitialize()
 {
-    _dataAudio.clear();
-    _dataAudioBad = nullptr;
+    if (!this->isInitialized())
+    {
+        return;
+    }
+
+    this->unloadAll();
+    this->_g_badElement.reset();
 
     Mix_CloseAudio();
     Mix_Quit();
 }
 
-std::size_t GetAudioSize()
+bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
 {
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    return _dataAudio.size();
-}
-
-std::mutex& GetMutex()
-{
-    return _dataMutex;
-}
-
-fge::audio::AudioDataType::const_iterator GetCBegin()
-{
-    return _dataAudio.cbegin();
-}
-fge::audio::AudioDataType::const_iterator GetCEnd()
-{
-    return _dataAudio.cend();
-}
-
-fge::audio::AudioDataPtr const& GetBadAudio()
-{
-    return _dataAudioBad;
-}
-fge::audio::AudioDataPtr GetAudio(std::string const& name)
-{
-    if (name == FGE_AUDIO_BAD)
-    {
-        return _dataAudioBad;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAudio.find(name);
-
-    if (it != _dataAudio.end())
-    {
-        return it->second;
-    }
-    return _dataAudioBad;
-}
-
-bool Check(std::string const& name)
-{
-    if (name == FGE_AUDIO_BAD)
+    if (name.empty())
     {
         return false;
     }
 
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAudio.find(name);
-
-    if (it != _dataAudio.end())
-    {
-        return true;
-    }
-    return false;
-}
-
-bool LoadFromFile(std::string const& name, std::string const& path)
-{
-    if (name == FGE_AUDIO_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAudio.find(name);
-
-    if (it != _dataAudio.end())
-    {
-        return false;
-    }
-
-    Mix_Chunk* tmpAudio = Mix_LoadWAV(path.c_str());
+    Mix_Chunk* tmpAudio = Mix_LoadWAV(path.string().c_str());
 
     if (tmpAudio == nullptr)
     {
         return false;
     }
 
-    fge::audio::AudioDataPtr buff = std::make_shared<fge::audio::AudioData>();
-    buff->_audio = std::shared_ptr<Mix_Chunk>(tmpAudio, MixerChunkDeleter());
-    buff->_valid = true;
-    buff->_path = path;
+    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    block->_ptr = std::shared_ptr<Mix_Chunk>(tmpAudio, MixerChunkDeleter());
+    block->_valid = true;
+    block->_path = path;
 
-    _dataAudio[name] = std::move(buff);
-    return true;
+    return this->push(name, std::move(block));
 }
 
-bool Unload(std::string const& name)
-{
-    if (name == FGE_AUDIO_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAudio.find(name);
-
-    if (it != _dataAudio.end())
-    {
-        it->second->_valid = false;
-        it->second->_audio = _dataAudioBad->_audio;
-        _dataAudio.erase(it);
-        return true;
-    }
-    return false;
-}
-void UnloadAll()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-
-    for (auto& data: _dataAudio)
-    {
-        data.second->_valid = false;
-        data.second->_audio = _dataAudioBad->_audio;
-    }
-    _dataAudio.clear();
-}
-
-bool Push(std::string const& name, fge::audio::AudioDataPtr const& data)
-{
-    if (name == FGE_AUDIO_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    if (fge::audio::Check(name))
-    {
-        return false;
-    }
-
-    _dataAudio.emplace(name, data);
-    return true;
-}
+AudioManager gManager;
 
 } // namespace fge::audio

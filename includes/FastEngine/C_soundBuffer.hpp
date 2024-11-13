@@ -26,21 +26,23 @@ namespace fge
 class FGE_API SoundBuffer
 {
 public:
+    using SharedDataType = fge::audio::AudioManager::DataBlockPointer;
+
     SoundBuffer();
     SoundBuffer(std::string const& name);
     SoundBuffer(char const* name);
-    SoundBuffer(fge::audio::AudioDataPtr const& data);
+    SoundBuffer(SharedDataType const& data);
 
     void clear();
 
     bool valid() const;
 
-    fge::audio::AudioDataPtr const& getData() const;
+    SharedDataType const& getData() const;
     std::string const& getName() const;
 
     void operator=(std::string const& name);
     void operator=(char const* name);
-    void operator=(fge::audio::AudioDataPtr const& data);
+    void operator=(SharedDataType const& data);
 
     operator Mix_Chunk*();
     operator Mix_Chunk const*() const;
@@ -49,7 +51,7 @@ public:
     operator std::string const&() const;
 
 private:
-    fge::audio::AudioDataPtr g_data;
+    SharedDataType g_data;
     std::string g_name;
 };
 
