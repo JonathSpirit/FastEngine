@@ -83,9 +83,7 @@ struct AnimationData
 };
 
 struct DataBlock : manager::BaseDataBlock<AnimationData>
-{
-    inline void unload() override {}
-};
+{};
 
 /**
  * \class AnimationManager

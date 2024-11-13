@@ -47,13 +47,13 @@ public:
         //Init texture manager
         fge::texture::gManager.initialize();
         //Init font manager
-        fge::font::Init();
+        fge::font::gManager.initialize();
 
         //Load texture
         fge::texture::gManager.loadFromFile("grid", "resources/images/grid_1.png");
 
         //Load font
-        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
+        fge::font::gManager.loadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
 
         fge::Clock tick;
 
@@ -308,7 +308,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene.reset();
 
     fge::texture::gManager.uninitialize();
-    fge::font::Uninit();
+    fge::font::gManager.uninitialize();
     fge::shader::Uninit();
 
     renderWindow.destroy();

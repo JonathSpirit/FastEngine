@@ -20,26 +20,32 @@
 namespace fge
 {
 
+using namespace fge::font;
+
 Font::Font() :
-        g_data(fge::font::GetBadFont()),
+        g_data(gManager.getBadElement()),
         g_name(FGE_FONT_BAD)
 {}
 Font::Font(std::string name) :
-        g_data(fge::font::GetFont(name)),
+        g_data(gManager.getElement(name)),
         g_name(std::move(name))
 {}
 Font::Font(char const* name) :
-        g_data(fge::font::GetFont(name)),
+        g_data(gManager.getElement(name)),
         g_name(name)
 {}
-Font::Font(fge::font::FontDataPtr data) :
+Font::Font(std::string_view name) :
+        g_data(gManager.getElement(name)),
+        g_name(name)
+{}
+Font::Font(SharedDataType data) :
         g_data(std::move(data)),
         g_name(FGE_FONT_BAD)
 {}
 
 void Font::clear()
 {
-    this->g_data = fge::font::GetBadFont();
+    this->g_data = gManager.getBadElement();
     this->g_name = FGE_FONT_BAD;
 }
 
@@ -48,7 +54,7 @@ bool Font::valid() const
     return this->g_data->_valid;
 }
 
-fge::font::FontDataPtr const& Font::getData() const
+Font::SharedDataType const& Font::getData() const
 {
     return this->g_data;
 }
@@ -60,16 +66,16 @@ std::string const& Font::getName() const
 fge::Font& Font::operator=(std::string name)
 {
     this->g_name = std::move(name);
-    this->g_data = fge::font::GetFont(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
     return *this;
 }
 fge::Font& Font::operator=(char const* name)
 {
     this->g_name = name;
-    this->g_data = fge::font::GetFont(this->g_name);
+    this->g_data = gManager.getElement(this->g_name);
     return *this;
 }
-fge::Font& Font::operator=(fge::font::FontDataPtr data)
+fge::Font& Font::operator=(SharedDataType data)
 {
     this->g_name = FGE_FONT_BAD;
     this->g_data = std::move(data);
@@ -78,11 +84,11 @@ fge::Font& Font::operator=(fge::font::FontDataPtr data)
 
 fge::FreeTypeFont* Font::retrieve()
 {
-    return this->g_data->_font.get();
+    return this->g_data->_ptr.get();
 }
 fge::FreeTypeFont const* Font::retrieve() const
 {
-    return this->g_data->_font.get();
+    return this->g_data->_ptr.get();
 }
 
 fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Font& data)

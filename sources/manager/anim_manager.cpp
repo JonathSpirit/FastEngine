@@ -87,7 +87,7 @@ bool AnimationManager::loadFromFile(std::string_view name, std::filesystem::path
     }
 
     DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
-    block->_path = std::move(path);
+    block->_path = path;
     block->_valid = true;
     block->_ptr = std::make_shared<DataType>();
     block->_ptr->_type = type;

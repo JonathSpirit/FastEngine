@@ -20,50 +20,49 @@
 #include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/graphic/C_ftFont.hpp"
-#include <filesystem>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <unordered_map>
+#include "FastEngine/manager/C_baseManager.hpp"
 
-#define FGE_FONT_DEFAULT FGE_FONT_BAD
-#define FGE_FONT_BAD ""
+#define FGE_FONT_BAD FGE_MANAGER_BAD
 
 namespace fge::font
 {
 
-struct FontData
+struct DataBlock : manager::BaseDataBlock<FreeTypeFont>
+{};
+
+/**
+ * \class FontManager
+ * \ingroup graphics
+ * \brief Manage fonts
+ *
+ * \see TextureManager
+ */
+class FGE_API FontManager : public manager::BaseManager<FreeTypeFont, DataBlock>
 {
-    std::shared_ptr<fge::FreeTypeFont> _font;
-    bool _valid;
-    std::filesystem::path _path;
+public:
+    using BaseManager::BaseManager;
+
+    bool initialize() override;
+    [[nodiscard]] bool isInitialized() override;
+    void uninitialize() override;
+
+    /**
+     * \brief Load a font from a file
+     *
+     * \param name The name of the font to load
+     * \param path The path of the font to load
+     * \return \b true if the font was loaded, \b false otherwise
+     */
+    bool loadFromFile(std::string_view name, std::filesystem::path const& path);
 };
 
-using FontDataPtr = std::shared_ptr<fge::font::FontData>;
-using FontDataType = std::unordered_map<std::string, fge::font::FontDataPtr>;
-
-FGE_API bool Init();
-FGE_API bool IsInit();
-FGE_API void Uninit();
+/**
+ * \ingroup managers
+ * \brief The global font manager
+ */
+FGE_API extern FontManager gManager;
 
 FGE_API void* GetFreetypeLibrary();
-
-FGE_API std::size_t GetFontSize();
-
-FGE_API std::mutex& GetMutex();
-FGE_API fge::font::FontDataType::const_iterator GetCBegin();
-FGE_API fge::font::FontDataType::const_iterator GetCEnd();
-
-FGE_API fge::font::FontDataPtr const& GetBadFont();
-FGE_API fge::font::FontDataPtr GetFont(std::string_view name);
-
-FGE_API bool Check(std::string_view name);
-
-FGE_API bool LoadFromFile(std::string_view name, std::filesystem::path path);
-FGE_API bool Unload(std::string_view name);
-FGE_API void UnloadAll();
-
-FGE_API bool Push(std::string_view name, fge::font::FontDataPtr const& data);
 
 } // namespace fge::font
 

@@ -105,8 +105,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::texture::gManager.loadFromFile("button_2", "resources/images/button_2.png");
 
     //Font
-    fge::font::Init();
-    fge::font::LoadFromFile("default", "resources/fonts/SourceSansPro-Regular.ttf");
+    fge::font::gManager.initialize();
+    fge::font::gManager.loadFromFile("default", "resources/fonts/SourceSansPro-Regular.ttf");
 
     //Animation
     fge::anim::gManager.initialize();
@@ -442,7 +442,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::timer::Uninit();
     fge::audio::Uninit();
     fge::shader::Uninit();
-    fge::font::Uninit();
+    fge::font::gManager.uninitialize();
     fge::anim::gManager.uninitialize();
     fge::texture::gManager.uninitialize();
 

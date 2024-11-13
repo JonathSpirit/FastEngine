@@ -41,8 +41,8 @@ class Packet;
 class FGE_API Texture
 {
 public:
-    using SharedTextureDataType = fge::texture::TextureManager::DataBlockPointer;
-    using SharedTextureType = fge::texture::DataBlock::DataPointer;
+    using SharedDataType = fge::texture::TextureManager::DataBlockPointer;
+    using SharedType = fge::texture::DataBlock::DataPointer;
 
     Texture();
     /**
@@ -57,13 +57,13 @@ public:
      *
      * \param data The texture manager data pointer
      */
-    Texture(SharedTextureDataType data);
+    Texture(SharedDataType data);
     /**
      * \brief Copy a custom texture pointer.
      *
      * \param data The custom texture pointer
      */
-    Texture(SharedTextureType data);
+    Texture(SharedType data);
 
     /**
      * \brief Clear the texture data
@@ -97,7 +97,7 @@ public:
      *
      * \return The texture data
      */
-    [[nodiscard]] SharedTextureDataType const& getSharedData() const;
+    [[nodiscard]] SharedDataType const& getSharedData() const;
     /**
      * \brief Get the texture
      *
@@ -105,7 +105,7 @@ public:
      *
      * \return The managed texture data
      */
-    [[nodiscard]] SharedTextureType const& getSharedTexture() const;
+    [[nodiscard]] SharedType const& getSharedTexture() const;
     /**
      * \brief Get the name of the texture
      *
@@ -125,13 +125,13 @@ public:
      *
      * \param data The texture manager data pointer
      */
-    fge::Texture& operator=(SharedTextureDataType data);
+    fge::Texture& operator=(SharedDataType data);
     /**
      * \brief Copy a custom texture pointer.
      *
      * \param data The custom texture pointer
      */
-    fge::Texture& operator=(SharedTextureType data);
+    fge::Texture& operator=(SharedType data);
 
     /**
      * \brief Retrieve the internal texture type pointer
@@ -156,7 +156,7 @@ public:
     [[nodiscard]] std::size_t groupSize() const;
 
 private:
-    std::variant<SharedTextureDataType, SharedTextureType> g_data;
+    std::variant<SharedDataType, SharedType> g_data;
     std::string g_name;
 };
 

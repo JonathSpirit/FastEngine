@@ -39,6 +39,8 @@ class Packet;
 class FGE_API Font
 {
 public:
+    using SharedDataType = fge::font::FontManager::DataBlockPointer;
+
     Font();
     /**
      * \brief Get the font data by its name
@@ -47,12 +49,13 @@ public:
      */
     Font(std::string name);
     Font(char const* name);
+    Font(std::string_view name);
     /**
      * \brief Copy a custom font data pointer.
      *
      * \param data The custom font data pointer
      */
-    Font(fge::font::FontDataPtr data);
+    Font(SharedDataType data);
 
     /**
      * \brief Clear the font data
@@ -73,7 +76,7 @@ public:
      *
      * \return The font data
      */
-    [[nodiscard]] fge::font::FontDataPtr const& getData() const;
+    [[nodiscard]] SharedDataType const& getData() const;
     /**
      * \brief Get the name of the font
      *
@@ -93,7 +96,7 @@ public:
      *
      * \param data The custom font data pointer
      */
-    fge::Font& operator=(fge::font::FontDataPtr data);
+    fge::Font& operator=(SharedDataType data);
 
     /**
      * \brief Retrieve the internal FreeType font pointer
@@ -106,7 +109,7 @@ public:
     [[nodiscard]] fge::FreeTypeFont const* retrieve() const;
 
 private:
-    fge::font::FontDataPtr g_data;
+    SharedDataType g_data;
     std::string g_name;
 };
 

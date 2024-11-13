@@ -261,7 +261,7 @@ void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
     this->setString(jsonObject.value<tiny_utf8::string>("string", {}));
 
     this->g_text.setCharacterSize(jsonObject.value<fge::CharacterSize>("characterSize", 12));
-    this->g_text.setFont(jsonObject.value<std::string>("font", FGE_FONT_BAD));
+    this->g_text.setFont(jsonObject.value<std::string>("font", std::string(FGE_FONT_BAD)));
 
     this->g_boxSize.x = jsonObject.value<float>("boxSizeX", 120);
     this->g_boxSize.y = jsonObject.value<float>("boxSizeY", 18);
