@@ -25,7 +25,6 @@
  */
 
 #include "FastEngine/fge_extern.hpp"
-#include "C_ipAddress.hpp"
 #include "FastEngine/C_matrix.hpp"
 #include "tinyutf8.h"
 #include <cstdint>
@@ -139,8 +138,6 @@ public:
     fge::net::Packet& operator<<(wchar_t const* data);
     fge::net::Packet& operator<<(std::wstring const& data);
 
-    inline fge::net::Packet& operator<<(fge::net::IpAddress const& data);
-
     template<typename T>
     fge::net::Packet& operator<<(std::forward_list<T> const& data);
     template<typename T>
@@ -187,8 +184,6 @@ public:
     fge::net::Packet const& operator>>(tiny_utf8::string& data) const;
     fge::net::Packet const& operator>>(wchar_t* data) const;
     fge::net::Packet const& operator>>(std::wstring& data) const;
-
-    inline fge::net::Packet const& operator>>(fge::net::IpAddress& data) const;
 
     template<typename T>
     fge::net::Packet const& operator>>(std::forward_list<T>& data) const;
