@@ -28,7 +28,7 @@ namespace fge
 /**
  * \class Texture
  * \ingroup graphics
- * \brief This class is a wrapper for the texture manger to allow easy manipulation
+ * \brief This class is a wrapper for the texture manager to allow easy manipulation
  */
 class FGE_API Texture : public manager::BaseDataAccessor<
                                 manager::GlobalDataAccessorManagerInfo<texture::TextureManager, &texture::gManager>,
@@ -51,8 +51,8 @@ public:
      * \param index The index of the sub-texture
      * \return The sub-texture type pointer or \b nullptr if the index is out of range
      */
-    [[nodiscard]] fge::TextureType* retrieveGroup(std::size_t index);
-    [[nodiscard]] fge::TextureType const* retrieveGroup(std::size_t index) const;
+    [[nodiscard]] SharedType::element_type* retrieveGroup(std::size_t index);
+    [[nodiscard]] SharedType::element_type const* retrieveGroup(std::size_t index) const;
     [[nodiscard]] std::size_t groupSize() const;
 };
 

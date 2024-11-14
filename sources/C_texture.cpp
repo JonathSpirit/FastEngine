@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/C_texture.hpp"
-#include "FastEngine/network/C_packet.hpp"
 
 namespace fge
 {
@@ -25,7 +24,7 @@ fge::Vector2u Texture::getTextureSize() const
     return this->retrieve()->getSize();
 }
 
-fge::TextureType* Texture::retrieveGroup(std::size_t index)
+Texture::SharedType::element_type* Texture::retrieveGroup(std::size_t index)
 {
     auto const& data = this->getSharedBlock();
 
@@ -36,7 +35,7 @@ fge::TextureType* Texture::retrieveGroup(std::size_t index)
 
     return index < data->_group.size() ? data->_group[index].get() : nullptr;
 }
-fge::TextureType const* Texture::retrieveGroup(std::size_t index) const
+Texture::SharedType::element_type const* Texture::retrieveGroup(std::size_t index) const
 {
     auto const& data = this->getSharedBlock();
 
