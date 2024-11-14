@@ -206,13 +206,14 @@ public:
      */
     BaseDataAccessor(SharedType data)
         requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER);
+    virtual ~BaseDataAccessor() = default;
 
     /**
      * \brief Clear the resource
      *
      * This method clear the resource by setting it to the default/bad "valid" resource.
      */
-    void clear();
+    virtual void clear();
 
     /**
      * \brief Reload the cached resource from the same name
@@ -267,7 +268,7 @@ public:
 
 private:
     using VariantType = std::variant<SharedDataType, SharedType>;
-    using Type = std::conditional_t<TOption == DataAccessorOptions::BLOCKPOINTER_ONLY, SharedType, VariantType>;
+    using Type = std::conditional_t<TOption == DataAccessorOptions::BLOCKPOINTER_ONLY, SharedDataType, VariantType>;
 
     Type g_data;
     std::string g_name;

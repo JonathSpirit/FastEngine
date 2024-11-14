@@ -19,31 +19,26 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_rect.hpp"
+#include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
-#include "json.hpp"
 
 namespace fge
 {
-
-namespace net
-{
-
-class Packet;
-
-} // namespace net
 
 /**
  * \class Animation
  * \ingroup animation
  * \brief Class that represent/handle an animation
  */
-class FGE_API Animation
+class FGE_API Animation : public manager::BaseDataAccessor<
+                                  manager::GlobalDataAccessorManagerInfo<anim::AnimationManager, &anim::gManager>,
+                                  manager::DataAccessorOptions::BLOCKPOINTER_ONLY>
 {
 public:
-    using SharedDataType = anim::AnimationManager::DataBlockPointer;
+    using BaseDataAccessor::operator=;
     using Index = uint16_t;
 
-    Animation();
+    Animation() = default;
     /**
      * \brief Constructor that takes the name of the animation
      *
@@ -53,7 +48,7 @@ public:
      * \param name The name of the animation
      * \param frame The beginning frame of the animation
      */
-    Animation(std::string name, std::size_t frame = 0); ///TODO: use string_view ?
+    Animation(std::string_view name, Index frame = 0);
     /**
      * \brief Constructor that takes the name of the animation and the group name
      *
@@ -64,46 +59,32 @@ public:
      * \param group The name of the group
      * \param frame The beginning frame of the animation
      */
-    Animation(std::string name, std::string const& group, Index frame = 0);
-    Animation(char const* name, Index frame = 0);
-    Animation(char const* name, char const* group, Index frame = 0);
+    Animation(std::string_view name, std::string_view group, Index frame = 0);
+    Animation(char const name[], Index frame = 0);
+    Animation(char const name[], char const group[], Index frame = 0);
     Animation(SharedDataType data, Index frame = 0);
-    Animation(SharedDataType data, std::string const& group, Index frame = 0);
-    Animation(SharedDataType data, char const* group, Index frame = 0);
+    Animation(SharedDataType data, std::string_view group, Index frame = 0);
+    Animation(SharedDataType data, char const group[], Index frame = 0);
 
     /**
      * \brief Clear the animation
      */
-    void clear();
-
-    /**
-     * \brief Check if the animation data is valid
-     *
-     * \return The validity of the animation data
-     */
-    [[nodiscard]] bool valid() const;
-
-    /**
-     * \brief Get the name of the loaded animation
-     *
-     * \return The name of the loaded animation
-     */
-    [[nodiscard]] std::string const& getName() const;
+    void clear() override;
 
     /**
      * \brief Get the type of the loaded animation
      *
      * \return The type of the loaded animation
      */
-    [[nodiscard]] fge::anim::AnimationType getType() const;
+    [[nodiscard]] anim::AnimationType getType() const;
 
     /**
      * \brief Set the group of the animation by its name
      *
-     * \param groupName The name of the group
+     * \param group The name of the group
      * \return \b true if the group was found, \b false otherwise
      */
-    bool setGroup(std::string const& groupName);
+    bool setGroup(std::string_view group);
     /**
      * \brief Set the group of the animation by its index
      *
@@ -117,24 +98,24 @@ public:
      *
      * \return The group data or nullptr
      */
-    [[nodiscard]] fge::anim::AnimationGroup const* getGroup() const;
-    [[nodiscard]] fge::anim::AnimationGroup* getGroup();
+    [[nodiscard]] anim::AnimationGroup const* getGroup() const;
+    [[nodiscard]] anim::AnimationGroup* getGroup();
     /**
      * \brief Get the group of the animation by its name
      *
-     * \param groupName The name of the group
+     * \param group The name of the group
      * \return The group data or nullptr
      */
-    [[nodiscard]] fge::anim::AnimationGroup const* getGroup(std::string const& groupName) const;
-    [[nodiscard]] fge::anim::AnimationGroup* getGroup(std::string const& groupName);
+    [[nodiscard]] anim::AnimationGroup const* getGroup(std::string_view group) const;
+    [[nodiscard]] anim::AnimationGroup* getGroup(std::string_view group);
     /**
      * \brief Get the group of the animation by its index
      *
      * \param groupIndex The index of the group
      * \return The group data or nullptr
      */
-    [[nodiscard]] fge::anim::AnimationGroup const* getGroup(Index groupIndex) const;
-    [[nodiscard]] fge::anim::AnimationGroup* getGroup(Index groupIndex);
+    [[nodiscard]] anim::AnimationGroup const* getGroup(Index groupIndex) const;
+    [[nodiscard]] anim::AnimationGroup* getGroup(Index groupIndex);
 
     /**
      * \brief Check if the actual group is valid
@@ -231,17 +212,6 @@ public:
     [[nodiscard]] bool isHorizontalFlipped() const;
 
     /**
-     * \brief Get the animation data
-     *
-     * \return The animation data
-     */
-    [[nodiscard]] SharedDataType const& getData() const;
-
-    fge::Animation& operator=(std::string name);
-    fge::Animation& operator=(char const* name);
-    fge::Animation& operator=(SharedDataType data);
-
-    /**
      * \brief Retrieve the texture of the actual frame
      *
      * \return The texture or texture::GetBadTexture if something is invalid
@@ -256,15 +226,12 @@ public:
     [[nodiscard]] fge::RectInt retrieveTextureRect() const;
 
 private:
-    SharedDataType g_data;
-    std::string g_name;
+    Index g_groupIndex{0};
+    Index g_frameIndex{0};
 
-    Index g_groupIndex;
-    Index g_frameIndex;
-
-    bool g_loop;
-    bool g_reverse;
-    bool g_flipHorizontal;
+    bool g_loop{false};
+    bool g_reverse{false};
+    bool g_flipHorizontal{false};
 };
 
 FGE_API fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Animation& data);
