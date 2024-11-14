@@ -52,7 +52,7 @@ bool TextureManager::initialize()
         }
     }
 
-    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement = std::make_shared<DataBlockType>();
 #ifdef FGE_DEF_SERVER
     this->_g_badElement->_ptr = std::make_shared<DataType>(badSurface);
 #else
@@ -99,7 +99,7 @@ bool TextureManager::loadFromSurface(std::string_view name, fge::Surface const& 
     }
 #endif //FGE_DEF_SERVER
 
-    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    DataBlockPointer block = std::make_shared<DataBlockType>();
     block->_ptr = std::move(tmpTexture);
     block->_valid = true;
 

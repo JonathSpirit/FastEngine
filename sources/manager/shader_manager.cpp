@@ -241,7 +241,7 @@ bool ShaderManager::initialize()
 
     *GetResources() = *GetDefaultResources();
 
-    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement = std::make_shared<DataBlockType>();
     this->_g_badElement->_valid = false;
 
     if (!this->loadFromMemory(FGE_SHADER_DEFAULT_VERTEX, fge::res::gDefaultVertexShader,
@@ -361,7 +361,7 @@ bool ShaderManager::loadFromMemory(std::string_view name,
     break;
     }
 
-    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    DataBlockPointer block = std::make_shared<DataBlockType>();
     block->_ptr = std::move(tmpShader);
     block->_valid = true;
 
@@ -448,7 +448,7 @@ bool ShaderManager::loadFromFile(std::string_view name,
         break;
     }
 
-    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    DataBlockPointer block = std::make_shared<DataBlockType>();
     block->_ptr = std::move(tmpShader);
     block->_valid = true;
     block->_path = std::move(path);

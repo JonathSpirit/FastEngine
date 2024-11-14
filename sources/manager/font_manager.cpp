@@ -47,7 +47,7 @@ bool FontManager::initialize()
         }
     }
 
-    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement = std::make_shared<DataBlockType>();
     this->_g_badElement->_ptr = std::make_shared<DataType>();
     this->_g_badElement->_valid = false;
 
@@ -91,7 +91,7 @@ bool FontManager::loadFromFile(std::string_view name, std::filesystem::path cons
         return false;
     }
 
-    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    DataBlockPointer block = std::make_shared<DataBlockType>();
     block->_ptr = std::move(newFont);
     block->_valid = true;
     block->_path = path;

@@ -32,7 +32,7 @@ bool AnimationManager::initialize()
         return true;
     }
 
-    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement = std::make_shared<DataBlockType>();
     this->_g_badElement->_valid = false;
     return true;
 }
@@ -86,7 +86,7 @@ bool AnimationManager::loadFromFile(std::string_view name, std::filesystem::path
         return false;
     }
 
-    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    DataBlockPointer block = std::make_shared<DataBlockType>();
     block->_path = path;
     block->_valid = true;
     block->_ptr = std::make_shared<DataType>();

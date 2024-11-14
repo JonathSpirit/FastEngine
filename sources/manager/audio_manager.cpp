@@ -37,7 +37,7 @@ bool AudioManager::initialize()
                                0x44, 0xAC, 0x00, 0x00, 0x88, 0x58, 0x01, 0x00, 0x02, 0x00, 0x10, 0x00,
                                0x64, 0x61, 0x74, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00};
 
-    this->_g_badElement = std::make_shared<DataBlockPointer::element_type>();
+    this->_g_badElement = std::make_shared<DataBlockType>();
     this->_g_badElement->_ptr = std::shared_ptr<Mix_Chunk>(Mix_QuickLoad_WAV(emptyWaveFile), MixerChunkDeleter());
     this->_g_badElement->_valid = false;
     return true;
@@ -74,7 +74,7 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
         return false;
     }
 
-    DataBlockPointer block = std::make_shared<DataBlockPointer::element_type>();
+    DataBlockPointer block = std::make_shared<DataBlockType>();
     block->_ptr = std::shared_ptr<Mix_Chunk>(tmpAudio, MixerChunkDeleter());
     block->_valid = true;
     block->_path = path;
