@@ -290,13 +290,11 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/extra/extra_pathFinding.c
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/fge_endian.cpp")
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/anim_manager.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/crash_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/font_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/log_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/network_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/path_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
-#target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
@@ -404,13 +402,11 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/fge_endian.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/anim_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/audio_manager.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/crash_manager.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/font_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/log_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/network_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/path_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/reg_manager.cpp")
-#target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/screen_manager.cpp") TODO
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/texture_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/shader_manager.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/manager/timer_manager.cpp")
