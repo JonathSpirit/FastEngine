@@ -18,106 +18,25 @@
 #define _FGE_C_FONT_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+#include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/manager/font_manager.hpp"
-#include "json.hpp"
 
 namespace fge
 {
 
-namespace net
-{
-
-class Packet;
-
-} // namespace net
-
 /**
  * \class Font
  * \ingroup graphics
- * \brief This class is a wrapper for the font manger to allow easy manipulation
+ * \brief This class is a wrapper for the font manager to allow easy manipulation
  */
 class FGE_API Font
+        : public manager::BaseDataAccessor<manager::GlobalDataAccessorManagerInfo<font::FontManager, &font::gManager>,
+                                           manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
 {
 public:
-    using SharedDataType = fge::font::FontManager::DataBlockPointer;
-
-    Font();
-    /**
-     * \brief Get the font data by its name
-     *
-     * \param name The name of the loaded font
-     */
-    Font(std::string name);
-    Font(char const* name);
-    Font(std::string_view name);
-    /**
-     * \brief Copy a custom font data pointer.
-     *
-     * \param data The custom font data pointer
-     */
-    Font(SharedDataType data);
-
-    /**
-     * \brief Clear the font data
-     *
-     * This function clear the font data by setting it to the default font.
-     */
-    void clear();
-
-    /**
-     * \brief Check if the font is valid (not unloaded)
-     *
-     * \return True if the font is valid, false otherwise
-     */
-    [[nodiscard]] bool valid() const;
-
-    /**
-     * \brief Get the font data
-     *
-     * \return The font data
-     */
-    [[nodiscard]] SharedDataType const& getData() const;
-    /**
-     * \brief Get the name of the font
-     *
-     * \return The name of the font
-     */
-    [[nodiscard]] std::string const& getName() const;
-
-    /**
-     * \brief Get the font data by its name
-     *
-     * \param name The name of the loaded font
-     */
-    fge::Font& operator=(std::string name);
-    fge::Font& operator=(char const* name);
-    /**
-     * \brief Copy a custom font data pointer.
-     *
-     * \param data The custom font data pointer
-     */
-    fge::Font& operator=(SharedDataType data);
-
-    /**
-     * \brief Retrieve the internal FreeType font pointer
-     *
-     * \warning Will never be \b nullptr if the font manager was correctly initialized.
-     *
-     * \return The FreeType font pointer
-     */
-    [[nodiscard]] fge::FreeTypeFont* retrieve();
-    [[nodiscard]] fge::FreeTypeFont const* retrieve() const;
-
-private:
-    SharedDataType g_data;
-    std::string g_name;
+    using BaseDataAccessor::BaseDataAccessor;
+    using BaseDataAccessor::operator=;
 };
-
-FGE_API fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Font& data);
-FGE_API fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Font const& data);
-
-FGE_API void to_json(nlohmann::json& j, fge::Font const& p);
-FGE_API void from_json(nlohmann::json const& j, fge::Font& p);
 
 } // namespace fge
 

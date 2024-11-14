@@ -297,7 +297,7 @@ float ObjText::getLineSpacingFactor() const
 }
 float ObjText::getLineSpacing() const
 {
-    return this->g_font.getData()->_ptr->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
+    return this->g_font.retrieve()->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
 }
 float ObjText::getGlyphAdvance(uint32_t c) const
 {
@@ -369,7 +369,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
         auto const viewTransform = target.getView().getProjection() * target.getView().getTransform();
 
         auto characterStates = states.copy();
-        characterStates._resTextures.set(&this->g_font.getData()->_ptr->getTexture(this->g_characterSize), 1);
+        characterStates._resTextures.set(&this->g_font.retrieve()->getTexture(this->g_characterSize), 1);
 
         bool transformDataUpdated = false;
         uint32_t firstGlobalTransformIndex = target.getContext().getGlobalTransform()._transformsCount;
