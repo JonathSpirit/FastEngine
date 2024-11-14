@@ -295,7 +295,7 @@ public:
         else
         {
 #ifndef FGE_DEF_SERVER
-            return static_cast<fge::Texture const*>(this->g_textures)[index].getSharedTexture().get();
+            return static_cast<fge::Texture const*>(this->g_textures)[index].getSharedData().get();
 #else
             return nullptr;
 #endif

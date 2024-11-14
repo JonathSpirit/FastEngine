@@ -17,6 +17,8 @@
 namespace fge::manager
 {
 
+//BaseManager
+
 template<class TData, class TDataBlock>
 std::size_t BaseManager<TData, TDataBlock>::size() const
 {
@@ -127,6 +129,233 @@ bool BaseManager<TData, TDataBlock>::push(std::string_view name, DataBlockPointe
     std::scoped_lock const lck(this->g_mutex);
     this->g_data.emplace(name, std::move(block));
     return true;
+}
+
+//BaseDataAccessor
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor() :
+        g_data(TDataAccessorManagerInfo()().getBadElement()),
+        g_name(FGE_MANAGER_BAD)
+{}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(std::string_view name) :
+        g_data(TDataAccessorManagerInfo()().getElement(name)),
+        g_name(name)
+{}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(char const name[]) :
+        g_data(TDataAccessorManagerInfo()().getElement(name)),
+        g_name(name)
+{}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(std::string&& name) :
+        g_data(TDataAccessorManagerInfo()().getElement(name)),
+        g_name(std::move(name))
+{}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(SharedDataType data) :
+        g_data(std::move(data)),
+        g_name(FGE_MANAGER_BAD)
+{}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(SharedType data)
+    requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER)
+        :
+        g_data(std::move(data)),
+        g_name(FGE_MANAGER_BAD)
+{}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+void BaseDataAccessor<TDataAccessorManagerInfo, TOption>::clear()
+{
+    this->g_data = TDataAccessorManagerInfo()().getBadElement();
+    this->g_name = FGE_MANAGER_BAD;
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+void BaseDataAccessor<TDataAccessorManagerInfo, TOption>::reload()
+{
+    this->g_data = TDataAccessorManagerInfo()().getElement(this->g_name);
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+bool BaseDataAccessor<TDataAccessorManagerInfo, TOption>::valid() const
+{
+    if constexpr (TOption == DataAccessorOptions::BLOCKPOINTER_ONLY)
+    {
+        return this->g_data->_valid;
+    }
+    else
+    {
+        if (std::holds_alternative<SharedDataType>(this->g_data))
+        {
+            return std::get<SharedDataType>(this->g_data)->_valid;
+        }
+        return static_cast<bool>(std::get<SharedType>(this->g_data));
+    }
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename BaseDataAccessor<TDataAccessorManagerInfo, TOption>::SharedDataType const&
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::getSharedBlock() const
+{
+    if constexpr (TOption == DataAccessorOptions::BLOCKPOINTER_ONLY)
+    {
+        return this->g_data;
+    }
+    else
+    {
+        if (std::holds_alternative<SharedDataType>(this->g_data))
+        {
+            return std::get<SharedDataType>(this->g_data);
+        }
+        return TDataAccessorManagerInfo()().getBadElement();
+    }
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename BaseDataAccessor<TDataAccessorManagerInfo, TOption>::SharedType const&
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::getSharedData() const
+    requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER)
+{
+    if (std::holds_alternative<SharedDataType>(this->g_data))
+    {
+        return std::get<SharedDataType>(this->g_data)->_ptr;
+    }
+
+    if (std::get<SharedType>(this->g_data))
+    {
+        return std::get<SharedType>(this->g_data);
+    }
+    return TDataAccessorManagerInfo()().getBadElement()->_ptr;
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+std::string const& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::getName() const
+{
+    return this->g_name;
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(std::string_view name)
+{
+    if (this->g_name == name)
+    {
+        return *this;
+    }
+
+    this->g_name = name;
+    this->g_data = TDataAccessorManagerInfo()().getElement(name);
+    return *this;
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(char const name[])
+{
+    if (this->g_name == name)
+    {
+        return *this;
+    }
+
+    this->g_name = name;
+    this->g_data = TDataAccessorManagerInfo()().getElement(name);
+    return *this;
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(std::string&& name)
+{
+    if (this->g_name == name)
+    {
+        return *this;
+    }
+
+    this->g_name = std::move(name);
+    this->g_data = TDataAccessorManagerInfo()().getElement(this->g_name);
+    return *this;
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(SharedDataType data)
+{
+    this->g_name = FGE_MANAGER_BAD;
+    this->g_data = std::move(data);
+    return *this;
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(SharedType data)
+    requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER)
+{
+    this->g_name = FGE_MANAGER_BAD;
+    this->g_data = std::move(data);
+    return *this;
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename TDataAccessorManagerInfo::Manager::DataType* BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieve()
+{
+    if constexpr (TOption == DataAccessorOptions::BLOCKPOINTER_ONLY)
+    {
+        return this->g_data->_ptr.get();
+    }
+    else
+    {
+        if (std::holds_alternative<SharedDataType>(this->g_data))
+        {
+            return std::get<SharedDataType>(this->g_data)->_ptr.get();
+        }
+
+        if (std::get<SharedType>(this->g_data))
+        {
+            return std::get<SharedType>(this->g_data).get();
+        }
+        return TDataAccessorManagerInfo()().getBadElement()->_ptr.get();
+    }
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename TDataAccessorManagerInfo::Manager::DataType const*
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieve() const
+{
+    if constexpr (TOption == DataAccessorOptions::BLOCKPOINTER_ONLY)
+    {
+        return this->g_data->_ptr.get();
+    }
+    else
+    {
+        if (std::holds_alternative<SharedDataType>(this->g_data))
+        {
+            return std::get<SharedDataType>(this->g_data)->_ptr.get();
+        }
+
+        if (std::get<SharedType>(this->g_data))
+        {
+            return std::get<SharedType>(this->g_data).get();
+        }
+        return TDataAccessorManagerInfo()().getBadElement()->_ptr.get();
+    }
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static net::Packet const& operator>>(net::Packet const& pck, BaseDataAccessor<TDataAccessorManagerInfo, TOption>& data)
+{
+    std::string name;
+    pck >> name;
+    data = std::move(name);
+    return pck;
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static net::Packet& operator<<(net::Packet& pck, BaseDataAccessor<TDataAccessorManagerInfo, TOption> const& data)
+{
+    return pck << data.getName();
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static void to_json(nlohmann::json& j, BaseDataAccessor<TDataAccessorManagerInfo, TOption> const& p)
+{
+    j = p.getName();
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static void from_json(nlohmann::json const& j, BaseDataAccessor<TDataAccessorManagerInfo, TOption>& p)
+{
+    std::string name;
+    j.get_to(name);
+    p = std::move(name);
 }
 
 } // namespace fge::manager

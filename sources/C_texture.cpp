@@ -20,189 +20,41 @@
 namespace fge
 {
 
-using namespace fge::texture;
-
-Texture::Texture() :
-        g_data(gManager.getBadElement()),
-        g_name(FGE_TEXTURE_BAD)
-{}
-Texture::Texture(std::string name) :
-        g_data(gManager.getElement(name)),
-        g_name(std::move(name))
-{}
-Texture::Texture(char const* name) :
-        g_data(gManager.getElement(name)),
-        g_name(name)
-{}
-Texture::Texture(SharedDataType data) :
-        g_data(std::move(data)),
-        g_name(FGE_TEXTURE_BAD)
-{}
-Texture::Texture(SharedType data) :
-        g_data(std::move(data)),
-        g_name(FGE_TEXTURE_BAD)
-{}
-
-void Texture::clear()
-{
-    this->g_data = gManager.getBadElement();
-    this->g_name = FGE_TEXTURE_BAD;
-}
-void Texture::refresh()
-{
-    this->g_data = gManager.getElement(this->g_name);
-}
-
-bool Texture::valid() const
-{
-    if (std::holds_alternative<SharedDataType>(this->g_data))
-    {
-        return std::get<SharedDataType>(this->g_data)->_valid;
-    }
-    return static_cast<bool>(std::get<SharedType>(this->g_data));
-}
-
 fge::Vector2u Texture::getTextureSize() const
 {
     return this->retrieve()->getSize();
 }
 
-Texture::SharedDataType const& Texture::getSharedData() const
-{
-    if (std::holds_alternative<SharedDataType>(this->g_data))
-    {
-        return std::get<SharedDataType>(this->g_data);
-    }
-    return gManager.getBadElement();
-}
-Texture::SharedType const& Texture::getSharedTexture() const
-{
-    if (std::holds_alternative<SharedDataType>(this->g_data))
-    {
-        return std::get<SharedDataType>(this->g_data)->_ptr;
-    }
-
-    if (std::get<SharedType>(this->g_data))
-    {
-        return std::get<SharedType>(this->g_data);
-    }
-    return gManager.getBadElement()->_ptr;
-}
-std::string const& Texture::getName() const
-{
-    return this->g_name;
-}
-
-fge::Texture& Texture::operator=(std::string name)
-{
-    if (this->g_name == name)
-    {
-        return *this;
-    }
-
-    this->g_name = std::move(name);
-    this->g_data = gManager.getElement(this->g_name);
-    return *this;
-}
-fge::Texture& Texture::operator=(char const* name)
-{
-    if (this->g_name == name)
-    {
-        return *this;
-    }
-
-    this->g_name = name;
-    this->g_data = gManager.getElement(this->g_name);
-    return *this;
-}
-fge::Texture& Texture::operator=(SharedDataType data)
-{
-    this->g_name = FGE_TEXTURE_BAD;
-    this->g_data = std::move(data);
-    return *this;
-}
-fge::Texture& Texture::operator=(SharedType data)
-{
-    this->g_name = FGE_TEXTURE_BAD;
-    this->g_data = std::move(data);
-    return *this;
-}
-
-fge::TextureType* Texture::retrieve()
-{
-    if (std::holds_alternative<SharedDataType>(this->g_data))
-    {
-        return std::get<SharedDataType>(this->g_data)->_ptr.get();
-    }
-
-    if (std::get<SharedType>(this->g_data))
-    {
-        return std::get<SharedType>(this->g_data).get();
-    }
-    return gManager.getBadElement()->_ptr.get();
-}
-fge::TextureType const* Texture::retrieve() const
-{
-    if (std::holds_alternative<SharedDataType>(this->g_data))
-    {
-        return std::get<SharedDataType>(this->g_data)->_ptr.get();
-    }
-
-    if (std::get<SharedType>(this->g_data))
-    {
-        return std::get<SharedType>(this->g_data).get();
-    }
-    return gManager.getBadElement()->_ptr.get();
-}
-
 fge::TextureType* Texture::retrieveGroup(std::size_t index)
 {
-    if (std::holds_alternative<SharedDataType>(this->g_data))
+    auto const& data = this->getSharedBlock();
+
+    if (!data->_valid)
     {
-        auto& group = std::get<SharedDataType>(this->g_data)->_group;
-        return index < group.size() ? group[index].get() : nullptr;
+        return nullptr;
     }
-    return nullptr;
+
+    return index < data->_group.size() ? data->_group[index].get() : nullptr;
 }
 fge::TextureType const* Texture::retrieveGroup(std::size_t index) const
 {
-    if (std::holds_alternative<SharedDataType>(this->g_data))
+    auto const& data = this->getSharedBlock();
+
+    if (!data->_valid)
     {
-        auto& group = std::get<SharedDataType>(this->g_data)->_group;
-        return index < group.size() ? group[index].get() : nullptr;
+        return nullptr;
     }
-    return nullptr;
+    return index < data->_group.size() ? data->_group[index].get() : nullptr;
 }
 std::size_t Texture::groupSize() const
 {
-    if (std::holds_alternative<SharedDataType>(this->g_data))
+    auto const& data = this->getSharedBlock();
+
+    if (!data->_valid)
     {
-        return std::get<SharedDataType>(this->g_data)->_group.size();
+        return 0;
     }
-    return 0;
-}
-
-fge::net::Packet const& operator>>(fge::net::Packet const& pck, fge::Texture& data)
-{
-    std::string textureName;
-    pck >> textureName;
-    data = std::move(textureName);
-    return pck;
-}
-fge::net::Packet& operator<<(fge::net::Packet& pck, fge::Texture const& data)
-{
-    return pck << data.getName();
-}
-
-void to_json(nlohmann::json& j, fge::Texture const& p)
-{
-    j = p.getName();
-}
-void from_json(nlohmann::json const& j, fge::Texture& p)
-{
-    std::string textureName;
-    j.get_to(textureName);
-    p = std::move(textureName);
+    return data->_group.size();
 }
 
 } // namespace fge

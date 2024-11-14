@@ -180,7 +180,7 @@ void ObjSprite::updatePositions()
 
 void ObjSprite::updateTexCoords()
 {
-    auto const rect = this->g_texture.getSharedTexture()->normalizeTextureRect(this->g_textureRect);
+    auto const rect = this->g_texture.getSharedData()->normalizeTextureRect(this->g_textureRect);
 
     this->g_vertices[0]._texCoords = fge::Vector2f(rect._x, rect._y);
     this->g_vertices[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);

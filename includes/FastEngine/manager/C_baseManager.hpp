@@ -19,14 +19,18 @@
 
 #include "FastEngine/C_accessLock.hpp"
 #include "FastEngine/fge_except.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include "FastEngine/string_hash.hpp"
+#include "json.hpp"
 #include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <unordered_map>
+#include <variant>
 
 #define FGE_MANAGER_BAD std::string_view()
 
@@ -59,6 +63,7 @@ class BaseManager
 {
 public:
     using DataType = TData;
+    using DataBlockType = TDataBlock;
     using DataBlockPointer = std::shared_ptr<TDataBlock>;
     using Map = std::unordered_map<std::string, DataBlockPointer, StringHash, std::equal_to<>>;
 
@@ -158,6 +163,125 @@ private:
 protected:
     DataBlockPointer _g_badElement;
 };
+
+enum class DataAccessorOptions
+{
+    BLOCKPOINTER_ONLY,
+    ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER
+};
+
+template<class TManager, TManager* TGlobalManager>
+struct GlobalDataAccessorManagerInfo
+{
+    using Manager = TManager;
+    [[nodiscard]] inline constexpr TManager& operator()() const { return *TGlobalManager; }
+};
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+class BaseDataAccessor
+{
+public:
+    using SharedDataType = typename TDataAccessorManagerInfo::Manager::DataBlockPointer;
+    using SharedType = typename TDataAccessorManagerInfo::Manager::DataBlockType::DataPointer;
+
+    BaseDataAccessor();
+    /**
+     * \brief Get resource by its name
+     *
+     * \param name The name of the loaded resource
+     */
+    BaseDataAccessor(std::string_view name);
+    BaseDataAccessor(char const name[]);
+    BaseDataAccessor(std::string&& name);
+    /**
+     * \brief Get resource from a user provided data block.
+     *
+     * \param data The user provided data block
+     */
+    BaseDataAccessor(SharedDataType data);
+    /**
+     * \brief Get resource from a user provided data pointer.
+     *
+     * \param data The user provided data pointer
+     */
+    BaseDataAccessor(SharedType data)
+        requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER);
+
+    /**
+     * \brief Clear the resource
+     *
+     * This method clear the resource by setting it to the default/bad "valid" resource.
+     */
+    void clear();
+
+    /**
+     * \brief Reload the cached resource from the same name
+     */
+    void reload();
+
+    /**
+     * \brief Check if the font is valid (not unloaded)
+     *
+     * \return \b True if the font is valid, \b false otherwise
+     */
+    [[nodiscard]] bool valid() const;
+
+    /**
+     * \brief Get the resource block data
+     *
+     * \warning If ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER is set, this method can a "bad" element.
+     *
+     * \return The resource block data
+     */
+    [[nodiscard]] SharedDataType const& getSharedBlock() const;
+    /**
+     * \brief Get the shared resource data
+     *
+     * \return The shared resource data
+     */
+    [[nodiscard]] SharedType const& getSharedData() const
+        requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER);
+    /**
+     * \brief Get the name of the resource
+     *
+     * \return The name of the resource, or an empty string if the resource is not valid
+     */
+    [[nodiscard]] std::string const& getName() const;
+
+    auto& operator=(std::string_view name);
+    auto& operator=(char const name[]);
+    auto& operator=(std::string&& name);
+    auto& operator=(SharedDataType data);
+    auto& operator=(SharedType data)
+        requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER);
+
+    /**
+     * \brief Retrieve the raw shared pointer from the current resource
+     *
+     * \warning Will never be \b nullptr if the manager was correctly initialized.
+     *
+     * \return The raw resource pointer
+     */
+    [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType* retrieve();
+    [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType const* retrieve() const;
+
+private:
+    using VariantType = std::variant<SharedDataType, SharedType>;
+    using Type = std::conditional_t<TOption == DataAccessorOptions::BLOCKPOINTER_ONLY, SharedType, VariantType>;
+
+    Type g_data;
+    std::string g_name;
+};
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static net::Packet const& operator>>(net::Packet const& pck, BaseDataAccessor<TDataAccessorManagerInfo, TOption>& data);
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static net::Packet& operator<<(net::Packet& pck, BaseDataAccessor<TDataAccessorManagerInfo, TOption> const& data);
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static void to_json(nlohmann::json& j, BaseDataAccessor<TDataAccessorManagerInfo, TOption> const& p);
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+static void from_json(nlohmann::json const& j, BaseDataAccessor<TDataAccessorManagerInfo, TOption>& p);
 
 } // namespace fge::manager
 
