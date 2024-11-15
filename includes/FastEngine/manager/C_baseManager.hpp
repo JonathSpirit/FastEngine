@@ -192,7 +192,7 @@ public:
      */
     BaseDataAccessor(std::string_view name);
     BaseDataAccessor(char const name[]);
-    BaseDataAccessor(std::string&& name);
+    BaseDataAccessor(std::string name);
     /**
      * \brief Get resource from a user provided data block.
      *
@@ -251,7 +251,7 @@ public:
 
     auto& operator=(std::string_view name);
     auto& operator=(char const name[]);
-    auto& operator=(std::string&& name);
+    auto& operator=(std::string name);
     auto& operator=(SharedDataType data);
     auto& operator=(SharedType data)
         requires(TOption == DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER);

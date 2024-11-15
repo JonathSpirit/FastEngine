@@ -149,7 +149,7 @@ BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(char const
         g_name(name)
 {}
 template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
-BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(std::string&& name) :
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::BaseDataAccessor(std::string name) :
         g_data(TDataAccessorManagerInfo()().getElement(name)),
         g_name(std::move(name))
 {}
@@ -260,7 +260,7 @@ auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(char const 
     return *this;
 }
 template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
-auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(std::string&& name)
+auto& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::operator=(std::string name)
 {
     if (this->g_name == name)
     {
