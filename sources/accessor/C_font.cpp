@@ -14,28 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_STRING_HASH_HPP_INCLUDED
-#define _FGE_STRING_HASH_HPP_INCLUDED
-
-#include <string>
+#include "FastEngine/accessor/C_font.hpp"
 
 namespace fge
-{
-
-struct StringHash
-{
-    using is_transparent = void;
-
-    [[nodiscard]] inline std::size_t operator()(char const* str) const { return std::hash<std::string_view>{}(str); }
-
-    [[nodiscard]] inline std::size_t operator()(std::string_view str) const
-    {
-        return std::hash<std::string_view>{}(str);
-    }
-
-    [[nodiscard]] inline std::size_t operator()(std::string const& str) const { return std::hash<std::string>{}(str); }
-};
-
-} // namespace fge
-
-#endif //_FGE_STRING_HASH_HPP_INCLUDED
+{} // namespace fge

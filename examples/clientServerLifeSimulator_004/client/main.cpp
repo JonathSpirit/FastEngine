@@ -69,13 +69,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::Init();
-    fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
-                              fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, "resources/shaders/objSpriteBatches_fragment.frag",
-                              fge::vulkan::Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, "resources/shaders/objSpriteBatches_vertex.vert",
-                              fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.initialize();
+    fge::shader::gManager.loadFromFile(
+            FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
+            fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(
+            FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, "resources/shaders/objSpriteBatches_fragment.frag",
+            fge::vulkan::Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(
+            FGE_OBJSPRITEBATCHES_SHADER_VERTEX, "resources/shaders/objSpriteBatches_vertex.vert",
+            fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
 
     fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
@@ -95,27 +98,27 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fge::net::ClientSideNetUdp server(fge::net::IpAddress::Types::Ipv4);
 
     //Texture
-    fge::texture::Init();
-    fge::texture::LoadFromFile("close", "resources/images/window/close.png");
-    fge::texture::LoadFromFile("minimize", "resources/images/window/minimize.png");
-    fge::texture::LoadFromFile("resize", "resources/images/window/resize.png");
-    fge::texture::LoadFromFile("window", "resources/images/window/window.png");
+    fge::texture::gManager.initialize();
+    fge::texture::gManager.loadFromFile("close", "resources/images/window/close.png");
+    fge::texture::gManager.loadFromFile("minimize", "resources/images/window/minimize.png");
+    fge::texture::gManager.loadFromFile("resize", "resources/images/window/resize.png");
+    fge::texture::gManager.loadFromFile("window", "resources/images/window/window.png");
 
-    fge::texture::LoadFromFile("button_1", "resources/images/button_1.png");
-    fge::texture::LoadFromFile("button_2", "resources/images/button_2.png");
+    fge::texture::gManager.loadFromFile("button_1", "resources/images/button_1.png");
+    fge::texture::gManager.loadFromFile("button_2", "resources/images/button_2.png");
 
     //Font
-    fge::font::Init();
-    fge::font::LoadFromFile("default", "resources/fonts/SourceSansPro-Regular.ttf");
+    fge::font::gManager.initialize();
+    fge::font::gManager.loadFromFile("default", "resources/fonts/SourceSansPro-Regular.ttf");
 
     //Animation
-    fge::anim::Init();
-    fge::anim::LoadFromFile("ugandan", "resources/animations/ugandan_1/ugandan.json");
+    fge::anim::gManager.initialize();
+    fge::anim::gManager.loadFromFile("ugandan", "resources/animations/ugandan_1/ugandan.json");
 
     //Audio
-    fge::audio::Init();
-    fge::audio::LoadFromFile("ugandan1", "resources/audio/ugandan1.ogg");
-    fge::audio::LoadFromFile("ugandan2", "resources/audio/ugandan2.ogg");
+    fge::audio::gManager.initialize();
+    fge::audio::gManager.loadFromFile("ugandan1", "resources/audio/ugandan1.ogg");
+    fge::audio::gManager.loadFromFile("ugandan2", "resources/audio/ugandan2.ogg");
 
     //Timer
     fge::timer::Init();
@@ -440,11 +443,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     mainScene.reset();
 
     fge::timer::Uninit();
-    fge::audio::Uninit();
-    fge::shader::Uninit();
-    fge::font::Uninit();
-    fge::anim::Uninit();
-    fge::texture::Uninit();
+    fge::audio::gManager.uninitialize();
+    fge::shader::gManager.uninitialize();
+    fge::font::gManager.uninitialize();
+    fge::anim::gManager.uninitialize();
+    fge::texture::gManager.uninitialize();
 
     renderWindow.destroy();
 

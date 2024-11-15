@@ -19,7 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
-#include "FastEngine/C_texture.hpp"
+#include "FastEngine/accessor/C_texture.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 
 #define FGE_OBJSPRITECLUSTER_CLASSNAME "FGE:OBJ:SPRITECLUSTER"

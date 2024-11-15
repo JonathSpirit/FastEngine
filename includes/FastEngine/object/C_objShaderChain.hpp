@@ -50,9 +50,9 @@ public:
     void setTopology(VkPrimitiveTopology topology);
     [[nodiscard]] VkPrimitiveTopology getTopology() const;
 
-    [[nodiscard]] fge::shader::ShaderDataPtr getGeometryShader() const;
-    [[nodiscard]] fge::shader::ShaderDataPtr getVertexShader() const;
-    [[nodiscard]] fge::shader::ShaderDataPtr getFragmentShader() const;
+    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getGeometryShader() const;
+    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getVertexShader() const;
+    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getFragmentShader() const;
 
     char const* getClassName() const override;
     char const* getReadableClassName() const override;
@@ -66,9 +66,9 @@ protected:
 #endif
 
 private:
-    fge::shader::ShaderDataPtr g_geometryShader;
-    fge::shader::ShaderDataPtr g_vertexShader;
-    fge::shader::ShaderDataPtr g_fragmentShader;
+    fge::shader::ShaderManager::DataBlockPointer g_geometryShader;
+    fge::shader::ShaderManager::DataBlockPointer g_vertexShader;
+    fge::shader::ShaderManager::DataBlockPointer g_fragmentShader;
     uint32_t g_vertexCount;
     fge::vulkan::BlendMode g_blendMode;
     VkPrimitiveTopology g_topology;

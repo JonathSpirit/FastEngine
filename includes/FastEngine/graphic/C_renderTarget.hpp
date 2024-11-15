@@ -135,9 +135,9 @@ protected:
     void refreshShaderCache();
     void resetDefaultView();
 
-    shader::ShaderDataPtr _g_defaultFragmentShader;
-    shader::ShaderDataPtr _g_defaultNoTextureFragmentShader;
-    shader::ShaderDataPtr _g_defaultVertexShader;
+    shader::ShaderManager::DataBlockPointer _g_defaultFragmentShader;
+    shader::ShaderManager::DataBlockPointer _g_defaultNoTextureFragmentShader;
+    shader::ShaderManager::DataBlockPointer _g_defaultVertexShader;
 
     VkClearColorValue _g_clearColor;
 

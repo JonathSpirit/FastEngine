@@ -22,7 +22,7 @@
 #include "C_objRenderMap.hpp"
 #include "C_object.hpp"
 #include "FastEngine/C_scene.hpp"
-#include "FastEngine/C_texture.hpp"
+#include "FastEngine/accessor/C_texture.hpp"
 
 #define FGE_OBJLIGHT_CLASSNAME "FGE:OBJ:LIGHT"
 

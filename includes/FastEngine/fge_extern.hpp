@@ -65,4 +65,7 @@
  *
  * \defgroup vulkan Vulkan abstraction
  * \brief Everything related to the Vulkan abstraction
+ *
+ * \defgroup managers Global managers
+ * \brief Everything related to global managers
  */

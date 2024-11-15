@@ -15,148 +15,83 @@
  */
 
 #include "FastEngine/manager/texture_manager.hpp"
-#include "FastEngine/fge_except.hpp"
-#include "FastEngine/string_hash.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL_image.h"
 
 namespace fge::texture
 {
-namespace
+
+bool TextureManager::initialize()
 {
-
-fge::texture::TextureDataPtr _dataTextureBad;
-std::unordered_map<std::string, fge::texture::TextureDataPtr, fge::StringHash, std::equal_to<>> _dataTexture;
-std::mutex _dataMutex;
-
-} // namespace
-
-void Init()
-{
-    if (_dataTextureBad == nullptr)
+    if (this->isInitialized())
     {
-        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
-
-        fge::Surface tmpSurface;
-
-        tmpSurface.create(FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H, FGE_TEXTURE_BAD_COLOR_1);
-        for (int y = 0; y < FGE_TEXTURE_BAD_H / 2; ++y)
-        {
-            for (int x = 0; x < FGE_TEXTURE_BAD_W / 2; ++x)
-            {
-                tmpSurface.setPixel(x, y, FGE_TEXTURE_BAD_COLOR_2);
-            }
-        }
-        for (int y = FGE_TEXTURE_BAD_H / 2; y < FGE_TEXTURE_BAD_H; ++y)
-        {
-            for (int x = FGE_TEXTURE_BAD_W / 2; x < FGE_TEXTURE_BAD_W; ++x)
-            {
-                tmpSurface.setPixel(x, y, FGE_TEXTURE_BAD_COLOR_2);
-            }
-        }
-
-        _dataTextureBad = std::make_shared<fge::texture::TextureData>();
-#ifdef FGE_DEF_SERVER
-        _dataTextureBad->_texture = std::make_shared<fge::TextureType>(tmpSurface);
-#else
-        _dataTextureBad->_texture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
-        _dataTextureBad->_texture->create(tmpSurface.get());
-#endif //FGE_DEF_SERVER
-        _dataTextureBad->_valid = false;
+        return true;
     }
+
+    IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
+
+    fge::Surface badSurface;
+
+    if (!badSurface.create(FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H, FGE_TEXTURE_BAD_COLOR_1))
+    {
+        return false;
+    }
+
+    for (int y = 0; y < FGE_TEXTURE_BAD_H / 2; ++y)
+    {
+        for (int x = 0; x < FGE_TEXTURE_BAD_W / 2; ++x)
+        {
+            badSurface.setPixel(x, y, FGE_TEXTURE_BAD_COLOR_2);
+        }
+    }
+    for (int y = FGE_TEXTURE_BAD_H / 2; y < FGE_TEXTURE_BAD_H; ++y)
+    {
+        for (int x = FGE_TEXTURE_BAD_W / 2; x < FGE_TEXTURE_BAD_W; ++x)
+        {
+            badSurface.setPixel(x, y, FGE_TEXTURE_BAD_COLOR_2);
+        }
+    }
+
+    this->_g_badElement = std::make_shared<DataBlockType>();
+#ifdef FGE_DEF_SERVER
+    this->_g_badElement->_ptr = std::make_shared<DataType>(badSurface);
+#else
+    this->_g_badElement->_ptr = std::make_shared<DataType>(vulkan::GetActiveContext());
+    this->_g_badElement->_ptr->create(badSurface.get());
+#endif //FGE_DEF_SERVER
+    this->_g_badElement->_valid = false;
+    return true;
 }
-bool IsInit()
+
+bool TextureManager::isInitialized()
 {
-    return _dataTextureBad != nullptr;
+    return this->_g_badElement != nullptr;
 }
-void Uninit()
+
+void TextureManager::uninitialize()
 {
-    _dataTexture.clear();
-    _dataTextureBad = nullptr;
+    if (!this->isInitialized())
+    {
+        return;
+    }
+
+    this->unloadAll();
+    this->_g_badElement.reset();
 
     IMG_Quit();
 }
 
-std::size_t GetTextureSize()
+bool TextureManager::loadFromSurface(std::string_view name, fge::Surface const& surface)
 {
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    return _dataTexture.size();
-}
-
-std::unique_lock<std::mutex> AcquireLock()
-{
-    return std::unique_lock<std::mutex>(_dataMutex);
-}
-fge::texture::TextureDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock)
-{
-    if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
-    {
-        throw fge::Exception("texture_manager::IteratorBegin : lock is not owned or not my mutex !");
-    }
-    return _dataTexture.begin();
-}
-fge::texture::TextureDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock)
-{
-    if (!lock.owns_lock() || lock.mutex() != &_dataMutex)
-    {
-        throw fge::Exception("texture_manager::IteratorEnd : lock is not owned or not my mutex !");
-    }
-    return _dataTexture.end();
-}
-
-fge::texture::TextureDataPtr const& GetBadTexture()
-{
-    return _dataTextureBad;
-}
-fge::texture::TextureDataPtr GetTexture(std::string_view name)
-{
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return _dataTextureBad;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataTexture.find(name);
-
-    if (it != _dataTexture.end())
-    {
-        return it->second;
-    }
-    return _dataTextureBad;
-}
-
-bool Check(std::string_view name)
-{
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataTexture.find(name);
-
-    return it != _dataTexture.end();
-}
-
-bool LoadFromSurface(std::string_view name, fge::Surface const& surface)
-{
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataTexture.find(name);
-
-    if (it != _dataTexture.end())
+    if (name.empty() || surface.get() == nullptr)
     {
         return false;
     }
 
 #ifdef FGE_DEF_SERVER
-    auto tmpTexture = std::make_shared<fge::TextureType>(surface);
+    auto tmpTexture = std::make_shared<DataType>(surface);
 #else
-    auto tmpTexture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
+    auto tmpTexture = std::make_shared<DataType>(vulkan::GetActiveContext());
 
     if (!tmpTexture->create(surface.get()))
     {
@@ -164,14 +99,14 @@ bool LoadFromSurface(std::string_view name, fge::Surface const& surface)
     }
 #endif //FGE_DEF_SERVER
 
-    fge::texture::TextureDataPtr buff = std::make_shared<fge::texture::TextureData>();
-    buff->_texture = std::move(tmpTexture);
-    buff->_valid = true;
+    DataBlockPointer block = std::make_shared<DataBlockType>();
+    block->_ptr = std::move(tmpTexture);
+    block->_valid = true;
 
-    _dataTexture[std::string{name}] = std::move(buff);
-    return true;
+    return this->push(name, std::move(block));
 }
-bool LoadFromFile(std::string_view name, std::filesystem::path const& path)
+
+bool TextureManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
 {
     fge::Surface tmpSurface;
 
@@ -180,27 +115,21 @@ bool LoadFromFile(std::string_view name, std::filesystem::path const& path)
         return false;
     }
 
-    return LoadFromSurface(name, tmpSurface);
+    return this->loadFromSurface(name, tmpSurface);
 }
-bool LoadToGroupFromSurface(std::string_view name, fge::Surface const& surface)
+
+bool TextureManager::loadToGroupFromSurface(std::string_view name, fge::Surface const& surface) const
 {
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataTexture.find(name);
-
-    if (it == _dataTexture.end())
+    auto data = this->getElement(name);
+    if (!data)
     {
         return false;
     }
 
 #ifdef FGE_DEF_SERVER
-    auto tmpTexture = std::make_shared<fge::TextureType>(surface);
+    auto tmpTexture = std::make_shared<DataType>(surface);
 #else
-    auto tmpTexture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
+    auto tmpTexture = std::make_shared<DataType>(vulkan::GetActiveContext());
 
     if (!tmpTexture->create(surface.get()))
     {
@@ -208,74 +137,10 @@ bool LoadToGroupFromSurface(std::string_view name, fge::Surface const& surface)
     }
 #endif //FGE_DEF_SERVER
 
-    it->second->_group.push_back(std::move(tmpTexture));
+    data->_group.push_back(std::move(tmpTexture));
     return true;
 }
 
-bool UnloadGroup(std::string_view name)
-{
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataTexture.find(name);
-
-    if (it == _dataTexture.end())
-    {
-        return false;
-    }
-
-    it->second->_group.clear();
-    return true;
-}
-bool Unload(std::string_view name)
-{
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataTexture.find(name);
-
-    if (it != _dataTexture.end())
-    {
-        it->second->_valid = false;
-        it->second->_texture = _dataTextureBad->_texture;
-        _dataTexture.erase(it);
-        return true;
-    }
-    return false;
-}
-void UnloadAll()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-
-    for (auto& data: _dataTexture)
-    {
-        data.second->_valid = false;
-        data.second->_texture = _dataTextureBad->_texture;
-    }
-    _dataTexture.clear();
-}
-
-bool Push(std::string_view name, fge::texture::TextureDataPtr const& data)
-{
-    if (name == FGE_TEXTURE_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    if (fge::texture::Check(name))
-    {
-        return false;
-    }
-
-    _dataTexture.emplace(name, data);
-    return true;
-}
+TextureManager gManager;
 
 } // namespace fge::texture

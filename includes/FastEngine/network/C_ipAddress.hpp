@@ -35,6 +35,7 @@
 namespace fge::net
 {
 class IpAddress;
+class Packet;
 } // namespace fge::net
 
 template<>
@@ -249,6 +250,9 @@ private:
 
     friend struct std::hash<IpAddress>;
 };
+
+FGE_API Packet const& operator>>(Packet const& pck, IpAddress& data);
+FGE_API Packet& operator<<(Packet& pck, IpAddress const& data);
 
 } // namespace fge::net
 

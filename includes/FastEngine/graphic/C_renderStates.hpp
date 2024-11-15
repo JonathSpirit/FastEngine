@@ -17,8 +17,8 @@
 #ifndef _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
 #define _FGE_GRAPHIC_C_RENDERSTATES_HPP_INCLUDED
 
-#include "FastEngine/C_texture.hpp"
 #include "FastEngine/C_vector.hpp"
+#include "FastEngine/accessor/C_texture.hpp"
 #include "FastEngine/textureType.hpp"
 #include "FastEngine/vulkan/C_blendMode.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
@@ -295,7 +295,7 @@ public:
         else
         {
 #ifndef FGE_DEF_SERVER
-            return static_cast<fge::Texture const*>(this->g_textures)[index].getSharedTexture().get();
+            return static_cast<fge::Texture const*>(this->g_textures)[index].getSharedData().get();
 #else
             return nullptr;
 #endif

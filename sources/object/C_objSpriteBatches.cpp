@@ -238,11 +238,12 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 
     bool const haveTexture = !this->g_textures.empty();
 
-    copyStates._shaderVertex = &fge::shader::GetShader(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_shader;
+    copyStates._shaderVertex = fge::shader::gManager.getElement(FGE_OBJSPRITEBATCHES_SHADER_VERTEX)->_ptr.get();
     //TODO: FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT
-    copyStates._shaderFragment = &fge::shader::GetShader(haveTexture ? FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT
-                                                                     : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
-                                          ->_shader;
+    copyStates._shaderFragment = fge::shader::gManager
+                                         .getElement(haveTexture ? FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT
+                                                                 : FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT)
+                                         ->_ptr.get();
 
     target.draw(copyStates);
 }
@@ -323,10 +324,10 @@ void ObjSpriteBatches::updateTexCoords(std::size_t index)
     if (index < this->g_instancesData.size())
     {
         auto const textureIndex = this->g_instancesData[index]._textureIndex;
-        fge::TextureType const* texture = fge::texture::GetBadTexture()->_texture.get();
+        fge::TextureType const* texture = texture::gManager.getBadElement()->_ptr.get();
         if (textureIndex < this->g_textures.size())
         {
-            texture = this->g_textures[textureIndex].getSharedTexture().get();
+            texture = this->g_textures[textureIndex].getSharedData().get();
         }
 
         auto const rect = texture->normalizeTextureRect(this->g_instancesData[index]._textureRect);
@@ -400,7 +401,7 @@ void ObjSpriteBatches::updateTextures(bool sizeHasChanged)
     descriptors.reserve(this->g_textures.size());
     for (std::size_t i = 0; i < this->g_textures.size(); ++i)
     {
-        descriptors.emplace_back(*this->g_textures[i].getSharedTexture(), 0);
+        descriptors.emplace_back(*this->g_textures[i].getSharedData(), 0);
         descriptors.back()._dstArrayElement = i;
     }
 

@@ -45,20 +45,20 @@ public:
         this->setCallbackContext({&event, &guiElementHandler});
 
         //Init texture manager
-        fge::texture::Init();
+        fge::texture::gManager.initialize();
         //Init font manager
-        fge::font::Init();
+        fge::font::gManager.initialize();
 
         //Load texture
-        fge::texture::LoadFromFile("close", "resources/images/window/close.png");
-        fge::texture::LoadFromFile("minimize", "resources/images/window/minimize.png");
-        fge::texture::LoadFromFile("resize", "resources/images/window/resize.png");
-        fge::texture::LoadFromFile("window", "resources/images/window/window.png");
+        fge::texture::gManager.loadFromFile("close", "resources/images/window/close.png");
+        fge::texture::gManager.loadFromFile("minimize", "resources/images/window/minimize.png");
+        fge::texture::gManager.loadFromFile("resize", "resources/images/window/resize.png");
+        fge::texture::gManager.loadFromFile("window", "resources/images/window/window.png");
 
-        fge::texture::LoadFromFile("arrow", "resources/images/arrow_1.png");
+        fge::texture::gManager.loadFromFile("arrow", "resources/images/arrow_1.png");
 
         //Load font
-        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
+        fge::font::gManager.loadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
 
         fge::Clock tick;
 
@@ -131,11 +131,11 @@ public:
         };
 
         buttonLoadGeometry->_onButtonPressed.addLambda([&](auto* button) {
-            fge::shader::Unload("custom_geometry");
+            fge::shader::gManager.unload("custom_geometry");
 
-            auto output = fge::shader::LoadFromFile("custom_geometry", textInputGeometryPath->getString().cpp_str(),
-                                                    fge::vulkan::Shader::Type::SHADER_GEOMETRY,
-                                                    fge::shader::ShaderInputTypes::SHADER_GLSL, true);
+            auto output = fge::shader::gManager.loadFromFile(
+                    "custom_geometry", textInputGeometryPath->getString().cpp_str(),
+                    fge::vulkan::Shader::Type::SHADER_GEOMETRY, fge::shader::ShaderInputTypes::SHADER_GLSL, true);
 
             if (output)
             {
@@ -149,11 +149,11 @@ public:
         });
 
         buttonLoadVertex->_onButtonPressed.addLambda([&](auto* button) {
-            fge::shader::Unload("custom_vertex");
+            fge::shader::gManager.unload("custom_vertex");
 
-            auto output = fge::shader::LoadFromFile("custom_vertex", textInputVertexPath->getString().cpp_str(),
-                                                    fge::vulkan::Shader::Type::SHADER_VERTEX,
-                                                    fge::shader::ShaderInputTypes::SHADER_GLSL, true);
+            auto output = fge::shader::gManager.loadFromFile(
+                    "custom_vertex", textInputVertexPath->getString().cpp_str(),
+                    fge::vulkan::Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL, true);
 
             if (output)
             {
@@ -167,11 +167,11 @@ public:
         });
 
         buttonLoadFragment->_onButtonPressed.addLambda([&](auto* button) {
-            fge::shader::Unload("custom_fragment");
+            fge::shader::gManager.unload("custom_fragment");
 
-            auto output = fge::shader::LoadFromFile("custom_fragment", textInputFragmentPath->getString().cpp_str(),
-                                                    fge::vulkan::Shader::Type::SHADER_FRAGMENT,
-                                                    fge::shader::ShaderInputTypes::SHADER_GLSL, true);
+            auto output = fge::shader::gManager.loadFromFile(
+                    "custom_fragment", textInputFragmentPath->getString().cpp_str(),
+                    fge::vulkan::Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL, true);
 
             if (output)
             {
@@ -277,13 +277,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::Init();
-    fge::shader::LoadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX, "resources/shaders/objShapeInstances_vertex.vert",
-                              Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT, "resources/shaders/objSpriteBatches_fragment.frag",
-                              Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
-    fge::shader::LoadFromFile(FGE_OBJSPRITEBATCHES_SHADER_VERTEX, "resources/shaders/objSpriteBatches_vertex.vert",
-                              Shader::Type::SHADER_VERTEX, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.initialize();
+    fge::shader::gManager.loadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX,
+                                       "resources/shaders/objShapeInstances_vertex.vert", Shader::Type::SHADER_VERTEX,
+                                       fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(FGE_OBJSPRITEBATCHES_SHADER_FRAGMENT,
+                                       "resources/shaders/objSpriteBatches_fragment.frag",
+                                       Shader::Type::SHADER_FRAGMENT, fge::shader::ShaderInputTypes::SHADER_GLSL);
+    fge::shader::gManager.loadFromFile(FGE_OBJSPRITEBATCHES_SHADER_VERTEX,
+                                       "resources/shaders/objSpriteBatches_vertex.vert", Shader::Type::SHADER_VERTEX,
+                                       fge::shader::ShaderInputTypes::SHADER_GLSL);
 
     fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
@@ -293,9 +296,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderWindow);
     scene.reset();
 
-    fge::texture::Uninit();
-    fge::font::Uninit();
-    fge::shader::Uninit();
+    fge::texture::gManager.uninitialize();
+    fge::font::gManager.uninitialize();
+    fge::shader::gManager.uninitialize();
 
     renderWindow.destroy();
 

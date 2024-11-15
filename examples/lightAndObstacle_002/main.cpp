@@ -169,15 +169,15 @@ public:
         fge::Event event(renderWindow);
 
         //Init texture manager
-        fge::texture::Init();
+        fge::texture::gManager.initialize();
         //Init font manager
-        fge::font::Init();
+        fge::font::gManager.initialize();
 
         //Load texture
-        fge::texture::LoadFromFile("light_test", "resources/images/light_test.png");
+        fge::texture::gManager.loadFromFile("light_test", "resources/images/light_test.png");
 
         //Load font
-        fge::font::LoadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
+        fge::font::gManager.loadFromFile("base", "resources/fonts/SourceSansPro-Regular.ttf");
 
         fge::Clock tick;
 
@@ -358,7 +358,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::Init();
+    fge::shader::gManager.initialize();
 
     fge::RenderWindow renderWindow(vulkanContext, window);
     renderWindow.setClearColor(fge::Color::White);
@@ -367,9 +367,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scene->start(renderWindow);
     scene.reset();
 
-    fge::texture::Uninit();
-    fge::font::Uninit();
-    fge::shader::Uninit();
+    fge::texture::gManager.uninitialize();
+    fge::font::gManager.uninitialize();
+    fge::shader::gManager.uninitialize();
 
     renderWindow.destroy();
 

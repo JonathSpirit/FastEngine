@@ -164,7 +164,7 @@ void ObjSpriteCluster::load(nlohmann::json& jsonObject, fge::Scene* scene)
 {
     fge::Object::load(jsonObject, scene);
 
-    this->g_texture = jsonObject.value<std::string>("texture", FGE_TEXTURE_BAD);
+    this->g_texture = jsonObject.value<std::string>("texture", std::string{FGE_TEXTURE_BAD});
 }
 
 void ObjSpriteCluster::pack(fge::net::Packet& pck)
@@ -240,7 +240,7 @@ void ObjSpriteCluster::updateTexCoords(std::size_t index)
     if (index < this->g_instancesData.size())
     {
         auto const rect =
-                this->g_texture.getSharedTexture()->normalizeTextureRect(this->g_instancesData[index]._textureRect);
+                this->g_texture.getSharedData()->normalizeTextureRect(this->g_instancesData[index]._textureRect);
         std::size_t const startIndex = index * 6;
 
         this->g_instancesVertices[startIndex]._texCoords = fge::Vector2f(rect._x, rect._y);

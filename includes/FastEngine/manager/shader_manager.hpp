@@ -19,14 +19,10 @@
 
 #include "FastEngine/fge_extern.hpp"
 
+#include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/vulkan/C_shader.hpp"
-#include <filesystem>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <unordered_map>
 
-#define FGE_SHADER_BAD ""
+#define FGE_SHADER_BAD FGE_MANAGER_BAD
 #define FGE_SHADER_DEFAULT_VERTEX "FGE:VERTEX"
 #define FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT "FGE:NT_FRAG"
 #define FGE_SHADER_DEFAULT_FRAGMENT "FGE:FRAG"
@@ -34,20 +30,8 @@
 namespace fge::shader
 {
 
-/**
- * \struct ShaderData
- * \ingroup graphics
- * \brief Structure that safely contains the shader data with his path and validity
- */
-struct ShaderData
-{
-    fge::vulkan::Shader _shader;
-    bool _valid;
-    std::filesystem::path _path;
-};
-
-using ShaderDataPtr = std::shared_ptr<fge::shader::ShaderData>;
-using ShaderDataType = std::unordered_map<std::string, fge::shader::ShaderDataPtr>;
+struct DataBlock : manager::BaseDataBlock<vulkan::Shader>
+{};
 
 enum class ShaderInputTypes
 {
@@ -57,153 +41,81 @@ enum class ShaderInputTypes
 };
 
 /**
+ * \class ShaderManager
+ * \ingroup graphics
+ * \brief Manage shaders
+ *
+ * \see TextureManager
+ */
+class FGE_API ShaderManager : public manager::BaseManager<vulkan::Shader, DataBlock>
+{
+public:
+    using BaseManager::BaseManager;
+
+    /**
+     * \brief Initialize the shader manager
+     *
+     * A bad shader is created with this function, it is used when a shader is not found.
+     * You also have to provide a default vertex and fragments shaders.
+     *
+     * 3 default shaders are created :
+     * FGE_SHADER_DEFAULT_VERTEX : The default vertex shader (in shaderResources.hpp gDefaultVertexShader)
+     * FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT : The default fragment shader with no texture attached (in shaderResources.hpp gDefaultFragmentShader)
+     * FGE_SHADER_DEFAULT_FRAGMENT : The default fragment shader (in shaderResources.hpp gDefaultFragmentTextureShader)
+     *
+     * \return \b true if the shader manager is correctly initialized, \b false otherwise
+     */
+    bool initialize() override;
+    [[nodiscard]] bool isInitialized() override;
+    void uninitialize() override;
+
+    /**
+     * \brief Load a shader from the memory
+     *
+     * \warning if you pass a SPIR-V binary data, the size must
+     * be a multiple of 4.
+     *
+     * \param name The name of the shader to load
+     * \param data The data address to load
+     * \param size The data size to load
+     * \param type The shader type
+     * \param input The input file type
+     * \param debugBuild If the input must be compiled into SPIR-V, then it will be compiled with debug symbols
+     * \return \b true if the shader was loaded, \b false otherwise
+     */
+    bool loadFromMemory(std::string_view name,
+                        void const* data,
+                        int size,
+                        fge::vulkan::Shader::Type type,
+                        ShaderInputTypes input,
+                        bool debugBuild = false);
+    /**
+     * \brief Load a shader from a file
+     *
+     * \param name The name of the shader to load
+     * \param path The path of the file to load
+     * \param type The shader type
+     * \param input The input file type
+     * \param debugBuild If the input must be compiled into SPIR-V, then it will be compiled with debug symbols
+     * \return \b true if the shader was loaded, \b false otherwise
+     */
+    bool loadFromFile(std::string_view name,
+                      std::filesystem::path path,
+                      fge::vulkan::Shader::Type type,
+                      ShaderInputTypes input,
+                      bool debugBuild = false);
+};
+
+/**
+ * \ingroup managers
+ * \brief The global shader manager
+ */
+FGE_API extern ShaderManager gManager;
+
+/**
  * \ingroup graphics
  * @{
  */
-
-/**
- * \brief Initialize the shader manager
- *
- * A bad shader is created with this function, it is used when a shader is not found.
- * You also have to provide a default vertex and fragments shaders.
- *
- * 3 default shaders are created :
- * FGE_SHADER_DEFAULT_VERTEX : The default vertex shader (in shaderResources.hpp gDefaultVertexShader)
- * FGE_SHADER_DEFAULT_NOTEXTURE_FRAGMENT : The default fragment shader with no texture attached (in shaderResources.hpp gDefaultFragmentShader)
- * FGE_SHADER_DEFAULT_FRAGMENT : The default fragment shader (in shaderResources.hpp gDefaultFragmentTextureShader)
- *
- * \param dontLoadDefaultShaders if \b true, default shaders is not loaded (should not really be used)
- * \return \b true if the shader manager is correctly initialized, \b false otherwise
- */
-FGE_API bool Init(bool dontLoadDefaultShaders = false);
-/**
- * \brief Check if the shader manager is initialized
- *
- * \return \b true if the shader manager is initialized, \b false otherwise
- */
-FGE_API bool IsInit();
-/**
- * \brief Un-initialize the shader manager
- */
-FGE_API void Uninit();
-
-/**
- * \brief Get the total number of loaded shaders
- *
- * \return The total number of loaded shaders
- */
-FGE_API std::size_t GetShaderSize();
-
-/**
- * \brief Acquire a unique lock, with the shader manager mutex
- *
- * In order to use iterators, you have to acquire a unique lock from this
- * function.
- * The lock is not differed and will lock the mutex.
- *
- * \return A unique lock bound to this mutex
- */
-FGE_API std::unique_lock<std::mutex> AcquireLock();
-/**
- * \brief Get the begin iterator of the shader manager
- *
- * You have to provide a valid reference to a unique lock acquire with
- * the function AcquireLock().
- * This function will throw if one of this is not respected :
- * - The lock does not owned the associated mutex.
- * - The mutex pointer of the lock does not correspond to this mutex.
- *
- * \param lock A unique lock bound to this mutex
- * \return The begin iterator of the shader manager
- */
-FGE_API fge::shader::ShaderDataType::const_iterator IteratorBegin(std::unique_lock<std::mutex> const& lock);
-/**
- * \brief Get the end iterator of the shader manager
- *
- * \see fge::texture::IteratorBegin()
- *
- * \param lock A unique lock bound to this mutex
- * \return The begin iterator of the shader manager
- */
-FGE_API fge::shader::ShaderDataType::const_iterator IteratorEnd(std::unique_lock<std::mutex> const& lock);
-
-/**
- * \brief Get the bad shader
- *
- * \return The bad shader
- */
-FGE_API fge::shader::ShaderDataPtr const& GetBadShader();
-/**
- * \brief Get the shader with the given name
- *
- * \param name The name of the shader to get
- * \return The shader with the given name or the bad shader if not found
- */
-FGE_API fge::shader::ShaderDataPtr GetShader(std::string_view name);
-
-/**
- * \brief Check if the shader with the given name exist
- *
- * \param name The name of the shader to check
- * \return \b true if the shader exist, \b false otherwise
- */
-FGE_API bool Check(std::string_view name);
-
-/**
- * \brief Load a shader from the memory
- *
- * \warning if you pass a SPIR-V binary data, the size must
- * be a multiple of 4.
- *
- * \param name The name of the shader to load
- * \param data The data address to load
- * \param size The data size to load
- * \param type The shader type
- * \param input The input file type
- * \param debugBuild If the input must be compiled into SPIR-V, then it will be compiled with debug symbols
- * \return \b true if the shader was loaded, \b false otherwise
- */
-FGE_API bool LoadFromMemory(std::string_view name,
-                            void const* data,
-                            int size,
-                            fge::vulkan::Shader::Type type,
-                            ShaderInputTypes input,
-                            bool debugBuild = false);
-/**
- * \brief Load a shader from a file
- *
- * \param name The name of the shader to load
- * \param path The path of the file to load
- * \param type The shader type
- * \param input The input file type
- * \param debugBuild If the input must be compiled into SPIR-V, then it will be compiled with debug symbols
- * \return \b true if the shader was loaded, \b false otherwise
- */
-FGE_API bool LoadFromFile(std::string_view name,
-                          std::filesystem::path path,
-                          fge::vulkan::Shader::Type type,
-                          ShaderInputTypes input,
-                          bool debugBuild = false);
-/**
- * \brief Unload the shader with the given name
- *
- * \param name The name of the shader to unload
- * \return \b true if the shader was unloaded, \b false otherwise
- */
-FGE_API bool Unload(std::string_view name);
-/**
- * \brief Unload all shaders
- */
-FGE_API void UnloadAll();
-
-/**
- * \brief Add a user handled shader
- *
- * \param name The name of the shader to add
- * \param data The shader data to add
- * \return \b true if the shader was added, \b false otherwise
- */
-FGE_API bool Push(std::string_view name, fge::shader::ShaderDataPtr const& data);
 
 /**
  * \brief Public API access to glslang

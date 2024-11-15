@@ -297,7 +297,7 @@ float ObjText::getLineSpacingFactor() const
 }
 float ObjText::getLineSpacing() const
 {
-    return this->g_font.getData()->_font->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
+    return this->g_font.retrieve()->getLineSpacing(this->g_characterSize) * this->g_lineSpacingFactor;
 }
 float ObjText::getGlyphAdvance(uint32_t c) const
 {
@@ -369,7 +369,7 @@ FGE_OBJ_DRAW_BODY(ObjText)
         auto const viewTransform = target.getView().getProjection() * target.getView().getTransform();
 
         auto characterStates = states.copy();
-        characterStates._resTextures.set(&this->g_font.getData()->_font->getTexture(this->g_characterSize), 1);
+        characterStates._resTextures.set(&this->g_font.retrieve()->getTexture(this->g_characterSize), 1);
 
         bool transformDataUpdated = false;
         uint32_t firstGlobalTransformIndex = target.getContext().getGlobalTransform()._transformsCount;
@@ -445,11 +445,11 @@ void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
     fge::Object::load(jsonObject, scene);
 
     this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
-    this->g_font = jsonObject.value<fge::Font>("font", FGE_FONT_BAD);
+    this->g_font = jsonObject.value<std::string>("font", std::string(FGE_FONT_BAD));
     this->g_characterSize = jsonObject.value<CharacterSize>("characterSize", 30);
     this->g_letterSpacingFactor = jsonObject.value<float>("letterSpacing", 1.0f);
     this->g_lineSpacingFactor = jsonObject.value<float>("lineSpacing", 1.0f);
-    this->g_style = jsonObject.value<std::underlying_type<Style>::type>("style", Regular);
+    this->g_style = jsonObject.value<std::underlying_type_t<Style>>("style", Regular);
     this->g_fillColor = fge::Color{jsonObject.value<uint32_t>("fillColor", fge::Color::White.toInteger())};
     this->g_outlineColor = fge::Color{jsonObject.value<uint32_t>("outlineColor", fge::Color::Black.toInteger())};
     this->g_outlineThickness = jsonObject.value<float>("outlineThickness", 0.0f);

@@ -26,7 +26,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
-#include "FastEngine/C_font.hpp"
+#include "FastEngine/accessor/C_font.hpp"
 #include "FastEngine/graphic/C_glyph.hpp"
 #include "tinyutf8.h"
 #include <vector>

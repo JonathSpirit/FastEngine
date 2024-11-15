@@ -19,8 +19,8 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
-#include "FastEngine/C_texture.hpp"
 #include "FastEngine/C_tilelayer.hpp"
+#include "FastEngine/accessor/C_texture.hpp"
 
 #define FGE_OBJTILEMAP_CLASSNAME "FGE:OBJ:TILEMAP"
 

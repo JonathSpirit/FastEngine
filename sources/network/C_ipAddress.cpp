@@ -16,6 +16,7 @@
 
 #include "FastEngine/network/C_ipAddress.hpp"
 #include "FastEngine/fge_endian.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include <cstring>
 
 #ifdef _WIN32
@@ -374,6 +375,46 @@ std::vector<IpAddress> IpAddress::getLocalAddresses(Types type)
     }
 
     return buff;
+}
+
+Packet const& operator>>(Packet const& pck, IpAddress& data)
+{
+    IpAddress::Types type{IpAddress::Types::None};
+    pck >> type;
+    if (type == IpAddress::Types::None)
+    {
+        data = IpAddress::None;
+        return pck;
+    }
+
+    if (type == IpAddress::Types::Ipv4)
+    {
+        IpAddress::Ipv4Data ipv4{};
+        pck.read(&ipv4, sizeof(IpAddress::Ipv4Data));
+        data.setNetworkByteOrdered(ipv4);
+        return pck;
+    }
+    IpAddress::Ipv6Data ipv6{};
+    pck.read(ipv6.data(), ipv6.size() * 2);
+    data.setNetworkByteOrdered(ipv6);
+    return pck;
+}
+Packet& operator<<(Packet& pck, IpAddress const& data)
+{
+    auto const type = data.getType();
+    pck << type;
+    if (type == IpAddress::Types::None)
+    {
+        return pck;
+    }
+
+    if (type == IpAddress::Types::Ipv4)
+    {
+        auto const ipv4 = std::get<IpAddress::Ipv4Data>(data.getNetworkByteOrder().value());
+        return pck.append(&ipv4, sizeof(IpAddress::Ipv4Data));
+    }
+    auto const ipv6 = std::get<IpAddress::Ipv6Data>(data.getNetworkByteOrder().value());
+    return pck.append(ipv6.data(), ipv6.size() * 2);
 }
 
 } // namespace fge::net

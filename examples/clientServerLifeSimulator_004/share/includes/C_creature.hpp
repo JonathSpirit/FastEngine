@@ -18,11 +18,11 @@
 #define _EXFGE_C_CREATURE_HPP_INCLUDED
 
 #include "C_customObject.hpp"
-#include "FastEngine/C_animation.hpp"
 #include "FastEngine/C_clock.hpp"
-#include "FastEngine/C_font.hpp"
+#include "FastEngine/accessor/C_animation.hpp"
+#include "FastEngine/accessor/C_font.hpp"
 #ifndef FGE_DEF_SERVER
-    #include "FastEngine/C_soundBuffer.hpp"
+    #include "FastEngine/accessor/C_soundBuffer.hpp"
 #endif // FGE_DEF_SERVER
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/network/C_packet.hpp"
@@ -133,7 +133,7 @@ private:
     void refreshStats();
 
     mutable fge::ObjSprite g_spriteCreature;
-    fge::texture::TextureDataPtr g_animTexture;
+    fge::texture::TextureManager::DataBlockPointer g_animTexture;
 
     fge::ObjCircleShape g_circleSight;
 

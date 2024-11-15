@@ -15,10 +15,11 @@
  */
 
 #include "FastEngine/manager/font_manager.hpp"
-#include "FastEngine/string_hash.hpp"
 
 #include "ft2build.h"
 #include FT_FREETYPE_H
+
+#include <atomic>
 
 namespace fge::font
 {
@@ -26,180 +27,83 @@ namespace fge::font
 namespace
 {
 
-fge::font::FontDataPtr _dataFontBad;
-std::unordered_map<std::string, fge::font::FontDataPtr, fge::StringHash, std::equal_to<>> _dataFont;
-std::mutex _dataMutex;
-
-FT_Library _freetypeLibrary = nullptr;
+FT_Library gFreetypeLibrary = nullptr;
+std::atomic<unsigned int> gCounter = 0;
 
 } // namespace
 
-bool Init()
+bool FontManager::initialize()
 {
-    if (_dataFontBad == nullptr)
+    if (this->isInitialized())
     {
-        if (FT_Init_FreeType(&_freetypeLibrary) != 0)
+        return true;
+    }
+
+    if (gFreetypeLibrary == nullptr)
+    {
+        if (FT_Init_FreeType(&gFreetypeLibrary) != 0)
         {
             return false;
         }
-
-        _dataFontBad = std::make_shared<fge::font::FontData>();
-        _dataFontBad->_font = std::make_shared<fge::FreeTypeFont>();
-        _dataFontBad->_valid = false;
     }
+
+    this->_g_badElement = std::make_shared<DataBlockType>();
+    this->_g_badElement->_ptr = std::make_shared<DataType>();
+    this->_g_badElement->_valid = false;
+
+    ++gCounter;
     return true;
 }
-bool IsInit()
-{
-    return _dataFontBad != nullptr;
-}
-void Uninit()
-{
-    _dataFont.clear();
-    _dataFontBad = nullptr;
 
-    if (_freetypeLibrary != nullptr)
+bool FontManager::isInitialized()
+{
+    return this->_g_badElement != nullptr;
+}
+
+void FontManager::uninitialize()
+{
+    if (!this->isInitialized())
     {
-        FT_Done_FreeType(_freetypeLibrary);
+        return;
+    }
+
+    this->unloadAll();
+    this->_g_badElement.reset();
+
+    if (--gCounter == 0)
+    {
+        FT_Done_FreeType(gFreetypeLibrary);
+        gFreetypeLibrary = nullptr;
     }
 }
+
+bool FontManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
+{
+    if (name.empty())
+    {
+        return false;
+    }
+
+    auto newFont = std::make_shared<DataType>();
+
+    if (!newFont->loadFromFile(path.string()))
+    {
+        return false;
+    }
+
+    DataBlockPointer block = std::make_shared<DataBlockType>();
+    block->_ptr = std::move(newFont);
+    block->_valid = true;
+    block->_path = path;
+
+    return this->push(name, std::move(block));
+}
+
+FontManager gManager;
 
 void* GetFreetypeLibrary()
 {
-    return _freetypeLibrary;
-}
-
-std::size_t GetFontSize()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    return _dataFont.size();
-}
-
-std::mutex& GetMutex()
-{
-    return _dataMutex;
-}
-
-fge::font::FontDataType::const_iterator GetCBegin()
-{
-    return _dataFont.cbegin();
-}
-fge::font::FontDataType::const_iterator GetCEnd()
-{
-    return _dataFont.cend();
-}
-
-fge::font::FontDataPtr const& GetBadFont()
-{
-    return _dataFontBad;
-}
-fge::font::FontDataPtr GetFont(std::string_view name)
-{
-    if (name == FGE_FONT_BAD)
-    {
-        return _dataFontBad;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataFont.find(name);
-
-    if (it != _dataFont.end())
-    {
-        return it->second;
-    }
-    return _dataFontBad;
-}
-
-bool Check(std::string_view name)
-{
-    if (name == FGE_FONT_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataFont.find(name);
-
-    return it != _dataFont.end();
-}
-
-bool LoadFromFile(std::string_view name, std::filesystem::path path)
-{
-    if (name == FGE_FONT_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataFont.find(name);
-
-    if (it != _dataFont.end())
-    {
-        return false;
-    }
-
-    auto tmpFont = std::make_shared<fge::FreeTypeFont>();
-
-    if (!tmpFont->loadFromFile(path.string()))
-    {
-        return false;
-    }
-
-    fge::font::FontDataPtr buff = std::make_shared<fge::font::FontData>();
-    buff->_font = std::move(tmpFont);
-    buff->_valid = true;
-    buff->_path = std::move(path);
-
-    _dataFont[std::string{name}] = std::move(buff);
-    return true;
-}
-
-bool Unload(std::string_view name)
-{
-    if (name == FGE_FONT_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataFont.find(name);
-
-    if (it != _dataFont.end())
-    {
-        it->second->_valid = false;
-        it->second->_font = _dataFontBad->_font;
-        _dataFont.erase(it);
-        return true;
-    }
-    return false;
-}
-void UnloadAll()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-
-    for (auto& data: _dataFont)
-    {
-        data.second->_valid = false;
-        data.second->_font = _dataFontBad->_font;
-    }
-    _dataFont.clear();
-}
-
-bool Push(std::string_view name, fge::font::FontDataPtr const& data)
-{
-    if (name == FGE_FONT_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    if (fge::font::Check(name))
-    {
-        return false;
-    }
-
-    _dataFont.emplace(name, data);
-    return true;
+    return gFreetypeLibrary;
 }
 
 } // namespace fge::font

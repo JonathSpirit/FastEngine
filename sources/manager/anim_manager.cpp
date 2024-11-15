@@ -20,106 +20,42 @@
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 
-#include <fstream>
-
 #include "json.hpp"
 
 namespace fge::anim
 {
 
-namespace
+bool AnimationManager::initialize()
 {
-
-fge::anim::AnimationDataPtr _dataAnimBad;
-fge::anim::AnimationDataType _dataAnim;
-std::mutex _dataMutex;
-
-} // namespace
-
-void Init()
-{
-    if (_dataAnimBad == nullptr)
+    if (this->isInitialized())
     {
-        _dataAnimBad = std::make_shared<fge::anim::AnimationData>();
-        _dataAnimBad->_valid = false;
-    }
-}
-bool IsInit()
-{
-    return _dataAnimBad != nullptr;
-}
-void Uninit()
-{
-    _dataAnim.clear();
-    _dataAnimBad = nullptr;
-}
-
-std::size_t GetAnimationSize()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    return _dataAnim.size();
-}
-
-fge::AccessLock<std::mutex> AcquireLock()
-{
-    return fge::AccessLock<std::mutex>{_dataMutex};
-}
-fge::anim::AnimationDataType::const_iterator IteratorBegin(fge::AccessLock<std::mutex> const& lock)
-{
-    lock.throwIfDifferent(_dataMutex);
-    return _dataAnim.cbegin();
-}
-fge::anim::AnimationDataType::const_iterator IteratorEnd(fge::AccessLock<std::mutex> const& lock)
-{
-    lock.throwIfDifferent(_dataMutex);
-    return _dataAnim.cend();
-}
-
-fge::anim::AnimationDataPtr const& GetBadAnimation()
-{
-    return _dataAnimBad;
-}
-fge::anim::AnimationDataPtr GetAnimation(std::string const& name)
-{
-    if (name == FGE_ANIM_BAD)
-    {
-        return _dataAnimBad;
+        return true;
     }
 
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAnim.find(name);
-
-    if (it != _dataAnim.end())
+    this->_g_badElement = std::make_shared<DataBlockType>();
+    this->_g_badElement->_ptr = std::make_shared<DataType>();
+    this->_g_badElement->_ptr->_type = AnimationType::ANIM_TYPE_SEPARATE_FILES;
+    this->_g_badElement->_valid = false;
+    return true;
+}
+bool AnimationManager::isInitialized()
+{
+    return this->_g_badElement != nullptr;
+}
+void AnimationManager::uninitialize()
+{
+    if (!this->isInitialized())
     {
-        return it->second;
+        return;
     }
-    return _dataAnimBad;
+
+    this->unloadAll();
+    this->_g_badElement.reset();
 }
 
-bool Check(std::string const& name)
+bool AnimationManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
 {
-    if (name == FGE_ANIM_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAnim.find(name);
-
-    return it != _dataAnim.end();
-}
-
-bool LoadFromFile(std::string const& name, std::filesystem::path path)
-{
-    if (name == FGE_ANIM_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAnim.find(name);
-
-    if (it != _dataAnim.end())
+    if (name.empty())
     {
         return false;
     }
@@ -138,26 +74,29 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
     }
 
     std::string typeString = itType->get<std::string>();
-    fge::anim::AnimationType type;
+    AnimationType type;
     if (typeString == "tileset")
     {
-        type = fge::anim::AnimationType::ANIM_TYPE_TILESET;
+        type = AnimationType::ANIM_TYPE_TILESET;
     }
     else if (typeString == "separate")
     {
-        type = fge::anim::AnimationType::ANIM_TYPE_SEPARATE_FILES;
+        type = AnimationType::ANIM_TYPE_SEPARATE_FILES;
     }
     else
     {
         return false;
     }
 
-    fge::anim::AnimationDataPtr buffAnimData = std::make_shared<fge::anim::AnimationData>();
-    buffAnimData->_path = std::move(path);
-    buffAnimData->_valid = true;
-    buffAnimData->_type = type;
+    DataBlockPointer block = std::make_shared<DataBlockType>();
+    block->_path = path;
+    block->_valid = true;
+    block->_ptr = std::make_shared<DataType>();
+    block->_ptr->_type = type;
 
-    if (type == fge::anim::AnimationType::ANIM_TYPE_TILESET)
+    auto& animData = *block->_ptr.get();
+
+    if (type == AnimationType::ANIM_TYPE_TILESET)
     {
         auto itPath = inputJson.find("tileset");
         if (itPath == inputJson.end() || !itPath->is_string())
@@ -165,25 +104,25 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
             return false;
         }
 
-        buffAnimData->_tilesetPath =
-                fge::MakeRelativePathToBasePathIfExist(buffAnimData->_path, itPath->get<std::filesystem::path>());
-        buffAnimData->_tilesetTexture = fge::texture::GetBadTexture()->_texture;
+        animData._tilesetPath =
+                fge::MakeRelativePathToBasePathIfExist(block->_path, itPath->get<std::filesystem::path>());
+        animData._tilesetTexture = fge::texture::gManager.getBadElement()->_ptr;
 
         fge::Surface textureSurface;
-        if (textureSurface.loadFromFile(buffAnimData->_tilesetPath))
+        if (textureSurface.loadFromFile(animData._tilesetPath))
         {
 #ifdef FGE_DEF_SERVER
-            buffAnimData->_tilesetTexture = std::make_shared<fge::TextureType>(std::move(textureSurface));
+            animData._tilesetTexture = std::make_shared<fge::TextureType>(std::move(textureSurface));
 #else
             auto texture = std::make_shared<fge::TextureType>(vulkan::GetActiveContext());
             if (texture->create(textureSurface.get()))
             {
-                buffAnimData->_tilesetTexture = std::move(texture);
+                animData._tilesetTexture = std::move(texture);
             }
 #endif // FGE_DEF_SERVER
         }
 
-        buffAnimData->_tilesetGridSize = inputJson.value<fge::Vector2u>("gridSize", {0, 0});
+        animData._tilesetGridSize = inputJson.value<fge::Vector2u>("gridSize", {0, 0});
     }
 
     auto itData = inputJson.find("data");
@@ -192,7 +131,7 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
         return false;
     }
 
-    buffAnimData->_groups.reserve(itData->size());
+    animData._groups.reserve(itData->size());
 
     for (auto const& [dataKey, dataValue]: itData->items())
     {
@@ -201,7 +140,7 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
             continue;
         }
 
-        fge::anim::AnimationGroup group{};
+        AnimationGroup group{};
 
         group._groupName = dataKey;
         group._frames.reserve(dataValue.size());
@@ -213,19 +152,18 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
                 continue;
             }
 
-            fge::anim::AnimationFrame frame{};
-            frame._texture = fge::texture::GetBadTexture()->_texture;
+            AnimationFrame frame{};
+            frame._texture = fge::texture::gManager.getBadElement()->_ptr;
 
             switch (type)
             {
             case AnimationType::ANIM_TYPE_TILESET:
-                std::numeric_limits<fge::Vector2u>::max();
                 frame._texturePosition =
                         jsonFrame.value<fge::Vector2u>("position", FGE_NUMERIC_LIMITS_VECTOR_MAX(fge::Vector2u));
                 break;
             case AnimationType::ANIM_TYPE_SEPARATE_FILES:
                 frame._path = fge::MakeRelativePathToBasePathIfExist(
-                        buffAnimData->_path, jsonFrame.value<std::filesystem::path>("path", {}));
+                        block->_path, jsonFrame.value<std::filesystem::path>("path", {}));
                 {
                     fge::Surface textureSurface;
                     if (textureSurface.loadFromFile(frame._path))
@@ -247,58 +185,12 @@ bool LoadFromFile(std::string const& name, std::filesystem::path path)
             frame._ticks = jsonFrame.value<uint32_t>("ticks", FGE_ANIM_DEFAULT_TICKS);
             group._frames.push_back(std::move(frame));
         }
-        buffAnimData->_groups.push_back(std::move(group));
+        animData._groups.push_back(std::move(group));
     }
 
-    _dataAnim[name] = std::move(buffAnimData);
-    return true;
-}
-bool Unload(std::string const& name)
-{
-    if (name == FGE_ANIM_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    auto it = _dataAnim.find(name);
-
-    if (it != _dataAnim.end())
-    {
-        it->second->_valid = false;
-        it->second->_groups.clear();
-        _dataAnim.erase(it);
-        return true;
-    }
-    return false;
-}
-void UnloadAll()
-{
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-
-    for (auto& it: _dataAnim)
-    {
-        it.second->_valid = false;
-        it.second->_groups.clear();
-    }
-    _dataAnim.clear();
+    return this->push(name, std::move(block));
 }
 
-bool Push(std::string const& name, fge::anim::AnimationDataPtr const& data)
-{
-    if (name == FGE_ANIM_BAD)
-    {
-        return false;
-    }
-
-    std::scoped_lock<std::mutex> const lck(_dataMutex);
-    if (fge::anim::Check(name))
-    {
-        return false;
-    }
-
-    _dataAnim.emplace(name, data);
-    return true;
-}
+AnimationManager gManager;
 
 } // namespace fge::anim
