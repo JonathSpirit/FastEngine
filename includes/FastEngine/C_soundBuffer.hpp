@@ -18,41 +18,24 @@
 #define _FGE_C_SOUNDBUFFER_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+#include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 
 namespace fge
 {
 
-class FGE_API SoundBuffer
+/**
+ * \class SoundBuffer
+ * \ingroup audio
+ * \brief This class is a wrapper for the audio manager to allow easy manipulation
+ */
+class FGE_API SoundBuffer : public manager::BaseDataAccessor<
+                                    manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
+                                    manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
 {
 public:
-    using SharedDataType = fge::audio::AudioManager::DataBlockPointer;
-
-    SoundBuffer();
-    SoundBuffer(std::string const& name);
-    SoundBuffer(char const* name);
-    SoundBuffer(SharedDataType const& data);
-
-    void clear();
-
-    bool valid() const;
-
-    SharedDataType const& getData() const;
-    std::string const& getName() const;
-
-    void operator=(std::string const& name);
-    void operator=(char const* name);
-    void operator=(SharedDataType const& data);
-
-    operator Mix_Chunk*();
-    operator Mix_Chunk const*() const;
-
-    operator std::string&();
-    operator std::string const&() const;
-
-private:
-    SharedDataType g_data;
-    std::string g_name;
+    using BaseDataAccessor::BaseDataAccessor;
+    using BaseDataAccessor::operator=;
 };
 
 } // namespace fge

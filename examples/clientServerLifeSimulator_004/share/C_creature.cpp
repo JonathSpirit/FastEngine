@@ -349,7 +349,7 @@ FGE_OBJ_UPDATE_BODY(Creature)
         this->_speakDelay = std::chrono::milliseconds(fge::_random.range(6000, 50000));
         this->_speakSound = "ugandan" + fge::string::ToStr(fge::_random.range(1, 2));
 
-        Mix_PlayChannel(-1, this->_speakSound, 0);
+        Mix_PlayChannel(-1, this->_speakSound.retrieve(), 0);
     }
 
     this->updateMoveable(*this, deltaTime);
