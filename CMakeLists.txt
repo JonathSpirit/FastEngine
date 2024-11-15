@@ -341,7 +341,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/accessor/C_animation.cpp
         sources/accessor/C_font.cpp
-        sources/accessor/C_texture.cpp)
+        sources/accessor/C_texture.cpp
+        sources/accessor/C_soundBuffer.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_event.cpp")
@@ -390,7 +391,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_task.cpp")
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/object/C_childObjectsAccessor.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_scene.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_soundBuffer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tileset.cpp")

@@ -22,7 +22,7 @@
 #include "FastEngine/accessor/C_animation.hpp"
 #include "FastEngine/accessor/C_font.hpp"
 #ifndef FGE_DEF_SERVER
-    #include "FastEngine/C_soundBuffer.hpp"
+    #include "FastEngine/accessor/C_soundBuffer.hpp"
 #endif // FGE_DEF_SERVER
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/network/C_packet.hpp"
