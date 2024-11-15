@@ -33,6 +33,8 @@ bool AnimationManager::initialize()
     }
 
     this->_g_badElement = std::make_shared<DataBlockType>();
+    this->_g_badElement->_ptr = std::make_shared<DataType>();
+    this->_g_badElement->_ptr->_type = AnimationType::ANIM_TYPE_SEPARATE_FILES;
     this->_g_badElement->_valid = false;
     return true;
 }
