@@ -332,6 +332,53 @@ BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieve() const
 }
 
 template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename TDataAccessorManagerInfo::Manager::DataType*
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieveValid()
+{
+    if constexpr (TOption == DataAccessorOptions::BLOCKPOINTER_ONLY)
+    {
+        return this->g_data->_valid ? this->g_data->_ptr.get() : nullptr;
+    }
+    else
+    {
+        if (std::holds_alternative<SharedDataType>(this->g_data))
+        {
+            return std::get<SharedDataType>(this->g_data)->_valid ? std::get<SharedDataType>(this->g_data)->_ptr.get()
+                                                                  : nullptr;
+        }
+
+        if (std::get<SharedType>(this->g_data))
+        {
+            return std::get<SharedType>(this->g_data).get();
+        }
+        return nullptr;
+    }
+}
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename TDataAccessorManagerInfo::Manager::DataType const*
+BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieveValid() const
+{
+    if constexpr (TOption == DataAccessorOptions::BLOCKPOINTER_ONLY)
+    {
+        return this->g_data->_valid ? this->g_data->_ptr.get() : nullptr;
+    }
+    else
+    {
+        if (std::holds_alternative<SharedDataType>(this->g_data))
+        {
+            return std::get<SharedDataType>(this->g_data)->_valid ? std::get<SharedDataType>(this->g_data)->_ptr.get()
+                                                                  : nullptr;
+        }
+
+        if (std::get<SharedType>(this->g_data))
+        {
+            return std::get<SharedType>(this->g_data).get();
+        }
+        return nullptr;
+    }
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
 static net::Packet const& operator>>(net::Packet const& pck, BaseDataAccessor<TDataAccessorManagerInfo, TOption>& data)
 {
     std::string name;

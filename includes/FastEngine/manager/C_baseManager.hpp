@@ -266,6 +266,14 @@ public:
     [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType* retrieve();
     [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType const* retrieve() const;
 
+    /**
+     * \brief Retrieve the raw shared pointer from the current resource only if the resource is valid
+     *
+     * \return The raw resource pointer, or \b nullptr if the resource is not valid
+     */
+    [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType* retrieveValid();
+    [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType const* retrieveValid() const;
+
 private:
     using VariantType = std::variant<SharedDataType, SharedType>;
     using Type = std::conditional_t<TOption == DataAccessorOptions::BLOCKPOINTER_ONLY, SharedDataType, VariantType>;
