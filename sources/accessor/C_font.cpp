@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "FastEngine/C_font.hpp"
+#include "FastEngine/accessor/C_font.hpp"
 
 namespace fge
 {} // namespace fge

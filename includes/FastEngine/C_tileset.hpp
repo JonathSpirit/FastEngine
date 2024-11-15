@@ -20,7 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_rect.hpp"
 #include "FastEngine/C_propertyList.hpp"
-#include "FastEngine/C_texture.hpp"
+#include "FastEngine/accessor/C_texture.hpp"
 #include "json.hpp"
 #include <optional>
 #include <set>

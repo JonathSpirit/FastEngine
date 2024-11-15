@@ -19,7 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
-#include "FastEngine/C_animation.hpp"
+#include "FastEngine/accessor/C_animation.hpp"
 #include <chrono>
 #include <string>
 

@@ -226,11 +226,14 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/graphic/shaderResources.cpp
         sources/graphic/C_ftFont.cpp)
 
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_animation.cpp")
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
+        sources/accessor/C_animation.cpp
+        sources/accessor/C_font.cpp
+        sources/accessor/C_texture.cpp)
+
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_event.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_property.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_concavePolygon.cpp")
 
@@ -277,7 +280,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/object/C_childObjectsAcce
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_scene.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
-target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_texture.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_tilelayer.cpp")
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_timer.cpp")
@@ -336,11 +338,14 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/graphic/shaderResources.cpp
         sources/graphic/C_ftFont.cpp)
 
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_animation.cpp")
+target_sources(${FGE_LIB_NAME} PRIVATE
+        sources/accessor/C_animation.cpp
+        sources/accessor/C_font.cpp
+        sources/accessor/C_texture.cpp)
+
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_event.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_eventList.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_font.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_property.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_concavePolygon.cpp")
 
@@ -388,7 +393,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_scene.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_soundBuffer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_subscription.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tagList.cpp")
-target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_texture.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tileset.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_tilelayer.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_timer.cpp")
