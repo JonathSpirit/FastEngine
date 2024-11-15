@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['string_20utility_20tools_0',['Extra string utility/tools',['../d3/ddc/group__extraString.html',1,'']]]
+  ['rules_0',['Network rules',['../df/d38/group__networkRules.html',1,'']]]
 ];

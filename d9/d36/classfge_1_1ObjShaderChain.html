@@ -95,6 +95,7 @@ $(function(){ initResizable(false); });
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="../../d8/d09/classfge_1_1ObjShaderChain-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::ObjShaderChain Class Reference</div></div>
 </div><!--header-->
@@ -188,15 +189,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setTopology</b> (VkPr
 <tr class="memitem:a2587bbcc0342d9494df68332dd56620e" id="r_a2587bbcc0342d9494df68332dd56620e"><td class="memItemLeft" align="right" valign="top"><a id="a2587bbcc0342d9494df68332dd56620e" name="a2587bbcc0342d9494df68332dd56620e"></a>
 VkPrimitiveTopology&#160;</td><td class="memItemRight" valign="bottom"><b>getTopology</b> () const</td></tr>
 <tr class="separator:a2587bbcc0342d9494df68332dd56620e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcaded6dae2fa394387a53b6cf77fdeb" id="r_adcaded6dae2fa394387a53b6cf77fdeb"><td class="memItemLeft" align="right" valign="top"><a id="adcaded6dae2fa394387a53b6cf77fdeb" name="adcaded6dae2fa394387a53b6cf77fdeb"></a>
-fge::shader::ShaderDataPtr&#160;</td><td class="memItemRight" valign="bottom"><b>getGeometryShader</b> () const</td></tr>
-<tr class="separator:adcaded6dae2fa394387a53b6cf77fdeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ac2800e09e51f56ca66c8ef205cd265" id="r_a7ac2800e09e51f56ca66c8ef205cd265"><td class="memItemLeft" align="right" valign="top"><a id="a7ac2800e09e51f56ca66c8ef205cd265" name="a7ac2800e09e51f56ca66c8ef205cd265"></a>
-fge::shader::ShaderDataPtr&#160;</td><td class="memItemRight" valign="bottom"><b>getVertexShader</b> () const</td></tr>
-<tr class="separator:a7ac2800e09e51f56ca66c8ef205cd265"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af92933e55325aa31a57e5ff259895fa7" id="r_af92933e55325aa31a57e5ff259895fa7"><td class="memItemLeft" align="right" valign="top"><a id="af92933e55325aa31a57e5ff259895fa7" name="af92933e55325aa31a57e5ff259895fa7"></a>
-fge::shader::ShaderDataPtr&#160;</td><td class="memItemRight" valign="bottom"><b>getFragmentShader</b> () const</td></tr>
-<tr class="separator:af92933e55325aa31a57e5ff259895fa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fa33239f4132ed4901409c2daac086f" id="r_a2fa33239f4132ed4901409c2daac086f"><td class="memItemLeft" align="right" valign="top"><a id="a2fa33239f4132ed4901409c2daac086f" name="a2fa33239f4132ed4901409c2daac086f"></a>
+fge::shader::ShaderManager::DataBlockPointer&#160;</td><td class="memItemRight" valign="bottom"><b>getGeometryShader</b> () const</td></tr>
+<tr class="separator:a2fa33239f4132ed4901409c2daac086f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a474f00a84e3748003651b992284738f9" id="r_a474f00a84e3748003651b992284738f9"><td class="memItemLeft" align="right" valign="top"><a id="a474f00a84e3748003651b992284738f9" name="a474f00a84e3748003651b992284738f9"></a>
+fge::shader::ShaderManager::DataBlockPointer&#160;</td><td class="memItemRight" valign="bottom"><b>getVertexShader</b> () const</td></tr>
+<tr class="separator:a474f00a84e3748003651b992284738f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab594fa49b95dddff657c8bfe2d605ca7" id="r_ab594fa49b95dddff657c8bfe2d605ca7"><td class="memItemLeft" align="right" valign="top"><a id="ab594fa49b95dddff657c8bfe2d605ca7" name="ab594fa49b95dddff657c8bfe2d605ca7"></a>
+fge::shader::ShaderManager::DataBlockPointer&#160;</td><td class="memItemRight" valign="bottom"><b>getFragmentShader</b> () const</td></tr>
+<tr class="separator:ab594fa49b95dddff657c8bfe2d605ca7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae20933e6457691e34ab1cb6e89302985" id="r_ae20933e6457691e34ab1cb6e89302985"><td class="memItemLeft" align="right" valign="top">char const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae20933e6457691e34ab1cb6e89302985">getClassName</a> () const override</td></tr>
 <tr class="memdesc:ae20933e6457691e34ab1cb6e89302985"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the unique class name of the object.  <br /></td></tr>
 <tr class="separator:ae20933e6457691e34ab1cb6e89302985"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -380,6 +381,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a8d2d9667224ff9b9c9d2d8efa77c5c11" id="r_a8d2d9667224ff9b9c9d2d8efa77c5c11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d9/d06/classfge_1_1ChildObjectsAccessor.html">fge::ChildObjectsAccessor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d05/classfge_1_1Object.html#a8d2d9667224ff9b9c9d2d8efa77c5c11">_children</a></td></tr>
 <tr class="memdesc:a8d2d9667224ff9b9c9d2d8efa77c5c11"><td class="mdescLeft">&#160;</td><td class="mdescRight">An access to child objects of this object.  <br /></td></tr>
 <tr class="separator:a8d2d9667224ff9b9c9d2d8efa77c5c11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:ab9eab42edb2c649b32650a8529b68c8a" id="r_ab9eab42edb2c649b32650a8529b68c8a"><td class="memItemLeft" align="right" valign="top"><a id="ab9eab42edb2c649b32650a8529b68c8a" name="ab9eab42edb2c649b32650a8529b68c8a"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>drawSubsidiary</b> (<a class="el" href="../../da/d15/classfge_1_1RenderTarget.html">fge::RenderTarget</a> &amp;target, <a class="el" href="../../d4/d7f/classfge_1_1RenderStates.html">fge::RenderStates</a> &amp;states) const</td></tr>
+<tr class="separator:ab9eab42edb2c649b32650a8529b68c8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="ae9f531a05d43d09501849905d1e2f00c" name="ae9f531a05d43d09501849905d1e2f00c"></a>

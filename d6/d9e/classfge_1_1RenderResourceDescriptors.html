@@ -91,6 +91,7 @@ $(function(){ initResizable(false); });
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="../../de/d4d/classfge_1_1RenderResourceDescriptors-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::RenderResourceDescriptors Class Reference<div class="ingroups"><a class="el" href="../../d6/de0/group__graphics.html">Graphics utility/tools</a></div></div></div>
@@ -102,14 +103,26 @@ $(function(){ initResizable(false); });
 
 <p><code>#include &lt;<a class="el" href="../../d7/d2f/C__renderStates_8hpp_source.html">C_renderStates.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a282541af50afe8d276136b72b34b0c1b" id="r_a282541af50afe8d276136b72b34b0c1b"><td class="memItemLeft" align="right" valign="top"><a id="a282541af50afe8d276136b72b34b0c1b" name="a282541af50afe8d276136b72b34b0c1b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ArrayOfDescriptorSet</b> = <a class="el" href="../../d9/d33/classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> const*</td></tr>
+<tr class="separator:a282541af50afe8d276136b72b34b0c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51b93ca14fb7bd6a05bffe31859718b2" id="r_a51b93ca14fb7bd6a05bffe31859718b2"><td class="memItemLeft" align="right" valign="top"><a id="a51b93ca14fb7bd6a05bffe31859718b2" name="a51b93ca14fb7bd6a05bffe31859718b2"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ArrayOfDescriptorSetPointer</b> = <a class="el" href="../../d9/d33/classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> const**</td></tr>
+<tr class="separator:a51b93ca14fb7bd6a05bffe31859718b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74d63f3586262d8439019761f91f030e" id="r_a74d63f3586262d8439019761f91f030e"><td class="memItemLeft" align="right" valign="top"><a id="a74d63f3586262d8439019761f91f030e" name="a74d63f3586262d8439019761f91f030e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ArrayVariant</b> = std::variant&lt;ArrayOfDescriptorSet, ArrayOfDescriptorSetPointer&gt;</td></tr>
+<tr class="separator:a74d63f3586262d8439019761f91f030e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a449c1ea5133eb61ff534a0a86052df86" id="r_a449c1ea5133eb61ff534a0a86052df86"><td class="memItemLeft" align="right" valign="top"><a id="a449c1ea5133eb61ff534a0a86052df86" name="a449c1ea5133eb61ff534a0a86052df86"></a>
-constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>RenderResourceDescriptors</b> (<a class="el" href="../../d9/d33/classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> const *descriptors, uint32_t const *sets, uint32_t count)</td></tr>
-<tr class="separator:a449c1ea5133eb61ff534a0a86052df86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68018ba5763237222dc4845f61fabedd" id="r_a68018ba5763237222dc4845f61fabedd"><td class="memItemLeft" align="right" valign="top"><a id="a68018ba5763237222dc4845f61fabedd" name="a68018ba5763237222dc4845f61fabedd"></a>
-constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (<a class="el" href="../../d9/d33/classfge_1_1vulkan_1_1DescriptorSet.html">fge::vulkan::DescriptorSet</a> const *descriptors, uint32_t const *sets, uint32_t count)</td></tr>
-<tr class="separator:a68018ba5763237222dc4845f61fabedd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83dc50c4d6e1ae77ace3c75fb0c971db" id="r_a83dc50c4d6e1ae77ace3c75fb0c971db"><td class="memItemLeft" align="right" valign="top"><a id="a83dc50c4d6e1ae77ace3c75fb0c971db" name="a83dc50c4d6e1ae77ace3c75fb0c971db"></a>
+constexpr&#160;</td><td class="memItemRight" valign="bottom"><b>RenderResourceDescriptors</b> (ArrayVariant const &amp;descriptors, uint32_t const *sets, uint32_t count)</td></tr>
+<tr class="separator:a83dc50c4d6e1ae77ace3c75fb0c971db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0ada8a57f76f4058ac62bafb7a1ad84" id="r_ae0ada8a57f76f4058ac62bafb7a1ad84"><td class="memItemLeft" align="right" valign="top"><a id="ae0ada8a57f76f4058ac62bafb7a1ad84" name="ae0ada8a57f76f4058ac62bafb7a1ad84"></a>
+constexpr void&#160;</td><td class="memItemRight" valign="bottom"><b>set</b> (ArrayVariant const &amp;descriptors, uint32_t const *sets, uint32_t count)</td></tr>
+<tr class="separator:ae0ada8a57f76f4058ac62bafb7a1ad84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81e5747ea50c4ed586a8d4f3a90e3a6b" id="r_a81e5747ea50c4ed586a8d4f3a90e3a6b"><td class="memItemLeft" align="right" valign="top"><a id="a81e5747ea50c4ed586a8d4f3a90e3a6b" name="a81e5747ea50c4ed586a8d4f3a90e3a6b"></a>
 constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>getCount</b> () const</td></tr>
 <tr class="separator:a81e5747ea50c4ed586a8d4f3a90e3a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>

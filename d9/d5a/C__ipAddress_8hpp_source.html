@@ -130,113 +130,118 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">namespace </span>fge::net</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>{</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keyword">class </span>IpAddress;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>} <span class="comment">// namespace fge::net</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">struct </span>std::hash&lt;fge::net::IpAddress&gt;;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>namespace fge::net</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>{</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">using </span>Port = uint16_t;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="foldopen" id="foldopen00055" data-start="{" data-end="};">
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">   55</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>{</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">using </span>Ipv4Data = uint32_t;</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">using </span>Ipv6Data = std::array&lt;uint16_t, 8&gt;;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">using </span>Data = std::variant&lt;Ipv4Data, Ipv6Data&gt;;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">enum class</span> Types : uint8_t</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    {</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        None,</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        Ipv4,</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        Ipv6</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    };</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keyword">enum class</span> CheckHostname</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    {</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        No,</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        Yes</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    };</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a7ca04e65a9567262c7834ee7e1ed1e0f">   78</a></span>    <a class="code hl_function" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a7ca04e65a9567262c7834ee7e1ed1e0f">IpAddress</a>() noexcept;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8decb62d138023d6e8211fc4a8e45346">   87</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(std::<span class="keywordtype">string</span> const&amp; address, CheckHostname check = CheckHostname::Yes);</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(<span class="keywordtype">char</span> const* address, CheckHostname check = CheckHostname::Yes);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2e1c6fd6c477e8dc2f9598eb8cfa22ae">   97</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a33f3b977dfeef05d018af6b280b0d5e7">  105</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(std::initializer_list&lt;uint16_t&gt; words) noexcept;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a02875e43415ff3a61bc25372ca77684a">  113</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(Ipv6Data const&amp; data) noexcept;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aa37ec161c810569669f09d4a280600f2">  119</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(Ipv4Data address) noexcept;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    ~<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>() = default;</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a671b86191d31bdc1d761896dcde2e020">  131</a></span>    <span class="keywordtype">bool</span> set(std::<span class="keywordtype">string</span> const&amp; address, CheckHostname check = CheckHostname::Yes);</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keywordtype">bool</span> set(<span class="keywordtype">char</span> const* address, CheckHostname check = CheckHostname::Yes);</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8a96a97118a05c443fd49cff8303ed71">  142</a></span>    <span class="keywordtype">bool</span> set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0);</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a582c62cf232f3204c3c14cf7005efdf4">  151</a></span>    <span class="keywordtype">bool</span> set(std::initializer_list&lt;uint16_t&gt; words);</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aedc48419425f9a06848b18767c0605d5">  160</a></span>    <span class="keywordtype">bool</span> set(Ipv6Data const&amp; data);</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#ad497df4335068fdb2836c6ac568e0d10">  167</a></span>    <span class="keywordtype">bool</span> set(uint8_t const bytes[16]);</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#ac053a720c18b6387c47b606af7b761fc">  174</a></span>    <span class="keywordtype">bool</span> set(Ipv4Data address);</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aed241c7ca938c7e9968050f004d2c6bc">  181</a></span>    <span class="keywordtype">bool</span> setNetworkByteOrdered(Ipv4Data address);</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a95d3c75e879bfad9d053d6c0568c08b5">  188</a></span>    <span class="keywordtype">bool</span> setNetworkByteOrdered(Ipv6Data const&amp; data);</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aeec56dd5abb3d2a82096029615928dde">  195</a></span>    <span class="keywordtype">bool</span> setNetworkByteOrdered(uint8_t const bytes[16]);</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    [[nodiscard]] <span class="keywordtype">bool</span> operator==(<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&amp; r) const;</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a4384459405ce68a86a3b73ecb569bfb8">  204</a></span>    [[nodiscard]] std::optional&lt;std::<span class="keywordtype">string</span>&gt; toString() const;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8315b125891e4fa355a2406294b22c5e">  211</a></span>    [[nodiscard]] std::optional&lt;Data&gt; getNetworkByteOrder() const;</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a3418fd2a32d402d3d7fce004f84595ad">  217</a></span>    [[nodiscard]] std::optional&lt;Data&gt; getHostByteOrder() const;</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    [[nodiscard]] Types getType() const;</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2bcff19a447904bba501b559b5aee61e">  226</a></span>    [[nodiscard]] static std::optional&lt;std::<span class="keywordtype">string</span>&gt; getHostName();</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a81b0405af73efa0213e58f2818983560">  233</a></span>    [[nodiscard]] static std::vector&lt;<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>&gt; getLocalAddresses(Types type = Types::None);</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#acf85e3bf65f064cc69b2b298a91ebdc2">  235</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const None; </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2bf6367e19270961d00111ec16683c0f">  237</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv4Any; </div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8fdc62220baed72081c925677d5be184">  238</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv6Any; </div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> Any(Types addressType);</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#ae01981ca3537f9801f4d2895ddc4a58e">  241</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv4Loopback; </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2ee5932935effb62197582d0e18e8f07">  242</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv6Loopback; </div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> Loopback(Types addressType);</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a0b7db191100b6e5c456c11149b59686d">  245</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv4Broadcast; </div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>private:</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    std::variant&lt;std::monostate, Ipv4Data, Ipv6Data&gt; g_address; </div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    friend struct std::hash&lt;<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>&gt;;</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>};</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">class </span>Packet;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>} <span class="comment">// namespace fge::net</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">struct </span>std::hash&lt;fge::net::IpAddress&gt;;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>namespace fge::net</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>{</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">using </span>Port = uint16_t;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="foldopen" id="foldopen00056" data-start="{" data-end="};">
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">   56</a></span><span class="keyword">class </span>FGE_API <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>{</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">using </span>Ipv4Data = uint32_t;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">using </span>Ipv6Data = std::array&lt;uint16_t, 8&gt;;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">using </span>Data = std::variant&lt;Ipv4Data, Ipv6Data&gt;;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keyword">enum class</span> Types : uint8_t</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    {</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        None,</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        Ipv4,</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        Ipv6</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    };</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keyword">enum class</span> CheckHostname</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    {</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        No,</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        Yes</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    };</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a7ca04e65a9567262c7834ee7e1ed1e0f">   79</a></span>    <a class="code hl_function" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a7ca04e65a9567262c7834ee7e1ed1e0f">IpAddress</a>() noexcept;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8decb62d138023d6e8211fc4a8e45346">   88</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(std::<span class="keywordtype">string</span> const&amp; address, CheckHostname check = CheckHostname::Yes);</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(<span class="keywordtype">char</span> const* address, CheckHostname check = CheckHostname::Yes);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2e1c6fd6c477e8dc2f9598eb8cfa22ae">   98</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0) noexcept;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a33f3b977dfeef05d018af6b280b0d5e7">  106</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(std::initializer_list&lt;uint16_t&gt; words) noexcept;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a02875e43415ff3a61bc25372ca77684a">  114</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(Ipv6Data const&amp; data) noexcept;</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aa37ec161c810569669f09d4a280600f2">  120</a></span>    <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>(Ipv4Data address) noexcept;</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    ~<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>() = default;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a671b86191d31bdc1d761896dcde2e020">  132</a></span>    <span class="keywordtype">bool</span> set(std::<span class="keywordtype">string</span> const&amp; address, CheckHostname check = CheckHostname::Yes);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="keywordtype">bool</span> set(<span class="keywordtype">char</span> const* address, CheckHostname check = CheckHostname::Yes);</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8a96a97118a05c443fd49cff8303ed71">  143</a></span>    <span class="keywordtype">bool</span> set(uint8_t byte3, uint8_t byte2, uint8_t byte1, uint8_t byte0);</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a582c62cf232f3204c3c14cf7005efdf4">  152</a></span>    <span class="keywordtype">bool</span> set(std::initializer_list&lt;uint16_t&gt; words);</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aedc48419425f9a06848b18767c0605d5">  161</a></span>    <span class="keywordtype">bool</span> set(Ipv6Data const&amp; data);</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#ad497df4335068fdb2836c6ac568e0d10">  168</a></span>    <span class="keywordtype">bool</span> set(uint8_t const bytes[16]);</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#ac053a720c18b6387c47b606af7b761fc">  175</a></span>    <span class="keywordtype">bool</span> set(Ipv4Data address);</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aed241c7ca938c7e9968050f004d2c6bc">  182</a></span>    <span class="keywordtype">bool</span> setNetworkByteOrdered(Ipv4Data address);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a95d3c75e879bfad9d053d6c0568c08b5">  189</a></span>    <span class="keywordtype">bool</span> setNetworkByteOrdered(Ipv6Data const&amp; data);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#aeec56dd5abb3d2a82096029615928dde">  196</a></span>    <span class="keywordtype">bool</span> setNetworkByteOrdered(uint8_t const bytes[16]);</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    [[nodiscard]] <span class="keywordtype">bool</span> operator==(<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&amp; r) const;</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a4384459405ce68a86a3b73ecb569bfb8">  205</a></span>    [[nodiscard]] std::optional&lt;std::<span class="keywordtype">string</span>&gt; toString() const;</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8315b125891e4fa355a2406294b22c5e">  212</a></span>    [[nodiscard]] std::optional&lt;Data&gt; getNetworkByteOrder() const;</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a3418fd2a32d402d3d7fce004f84595ad">  218</a></span>    [[nodiscard]] std::optional&lt;Data&gt; getHostByteOrder() const;</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    [[nodiscard]] Types getType() const;</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2bcff19a447904bba501b559b5aee61e">  227</a></span>    [[nodiscard]] static std::optional&lt;std::<span class="keywordtype">string</span>&gt; getHostName();</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a81b0405af73efa0213e58f2818983560">  234</a></span>    [[nodiscard]] static std::vector&lt;<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>&gt; getLocalAddresses(Types type = Types::None);</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#acf85e3bf65f064cc69b2b298a91ebdc2">  236</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const None; </div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2bf6367e19270961d00111ec16683c0f">  238</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv4Any; </div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a8fdc62220baed72081c925677d5be184">  239</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv6Any; </div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> Any(Types addressType);</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#ae01981ca3537f9801f4d2895ddc4a58e">  242</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv4Loopback; </div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a2ee5932935effb62197582d0e18e8f07">  243</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv6Loopback; </div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> Loopback(Types addressType);</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno"><a class="line" href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a0b7db191100b6e5c456c11149b59686d">  246</a></span>    static <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const Ipv4Broadcast; </div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>private:</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    std::variant&lt;std::monostate, Ipv4Data, Ipv6Data&gt; g_address; </div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    friend struct std::hash&lt;<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>&gt;;</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>};</div>
 </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>} <span class="comment">// namespace fge::net</span></div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>template&lt;&gt;</div>
-<div class="foldopen" id="foldopen00256" data-start="{" data-end="};">
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno"><a class="line" href="../../d6/d1a/structstd_1_1hash_3_01fge_1_1net_1_1IpAddress_01_4.html">  256</a></span>struct std::hash&lt;fge::net::IpAddress&gt;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>{</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="keyword">inline</span> std::size_t operator()(<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> <span class="keyword">const</span>&amp; r) <span class="keyword">const</span> <span class="keyword">noexcept</span></div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    {</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>        <span class="keywordflow">if</span> (std::holds_alternative&lt;std::monostate&gt;(r.g_address))</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>        {</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>            <span class="keywordflow">return</span> std::hash&lt;std::monostate&gt;{}(std::monostate{});</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>        }</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>        <span class="keywordflow">if</span> (std::holds_alternative&lt;fge::net::IpAddress::Ipv4Data&gt;(r.g_address))</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>FGE_API <a class="code hl_class" href="../../de/d3e/classfge_1_1net_1_1Packet.html">Packet</a> const&amp; operator&gt;&gt;(<a class="code hl_class" href="../../de/d3e/classfge_1_1net_1_1Packet.html">Packet</a> const&amp; pck, <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a>&amp; data);</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>FGE_API <a class="code hl_class" href="../../de/d3e/classfge_1_1net_1_1Packet.html">Packet</a>&amp; operator&lt;&lt;(<a class="code hl_class" href="../../de/d3e/classfge_1_1net_1_1Packet.html">Packet</a>&amp; pck, <a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">IpAddress</a> const&amp; data);</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>} <span class="comment">// namespace fge::net</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>template&lt;&gt;</div>
+<div class="foldopen" id="foldopen00260" data-start="{" data-end="};">
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno"><a class="line" href="../../d6/d1a/structstd_1_1hash_3_01fge_1_1net_1_1IpAddress_01_4.html">  260</a></span>struct std::hash&lt;fge::net::IpAddress&gt;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>{</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keyword">inline</span> std::size_t operator()(<a class="code hl_class" href="../../db/da0/classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a> <span class="keyword">const</span>&amp; r) <span class="keyword">const</span> <span class="keyword">noexcept</span></div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    {</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>        <span class="keywordflow">if</span> (std::holds_alternative&lt;std::monostate&gt;(r.g_address))</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>        {</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>            <span class="keywordflow">return</span> std::hash&lt;fge::net::IpAddress::Ipv4Data&gt;{}(std::get&lt;fge::net::IpAddress::Ipv4Data&gt;(r.g_address));</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>            <span class="keywordflow">return</span> std::hash&lt;std::monostate&gt;{}(std::monostate{});</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>        }</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>        <span class="keyword">auto</span> <span class="keyword">const</span>&amp; array = std::get&lt;fge::net::IpAddress::Ipv6Data&gt;(r.g_address);</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>        <span class="keywordflow">return</span> fge::Hash(array.data(), array.size() * 2);</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    }</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>};</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>        <span class="keywordflow">if</span> (std::holds_alternative&lt;fge::net::IpAddress::Ipv4Data&gt;(r.g_address))</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>        {</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>            <span class="keywordflow">return</span> std::hash&lt;fge::net::IpAddress::Ipv4Data&gt;{}(std::get&lt;fge::net::IpAddress::Ipv4Data&gt;(r.g_address));</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>        }</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>        <span class="keyword">auto</span> <span class="keyword">const</span>&amp; array = std::get&lt;fge::net::IpAddress::Ipv6Data&gt;(r.g_address);</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>        <span class="keywordflow">return</span> fge::Hash(array.data(), array.size() * 2);</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    }</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>};</div>
 </div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_IPADDRESS_HPP_INCLUDED_</span></div>
-<div class="ttc" id="aclassfge_1_1net_1_1IpAddress_html"><div class="ttname"><a href="../../db/da0/classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a></div><div class="ttdoc">A class to represent an IP address.</div><div class="ttdef"><b>Definition</b> C_ipAddress.hpp:56</div></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_IPADDRESS_HPP_INCLUDED_</span></div>
+<div class="ttc" id="aclassfge_1_1net_1_1IpAddress_html"><div class="ttname"><a href="../../db/da0/classfge_1_1net_1_1IpAddress.html">fge::net::IpAddress</a></div><div class="ttdoc">A class to represent an IP address.</div><div class="ttdef"><b>Definition</b> C_ipAddress.hpp:57</div></div>
 <div class="ttc" id="aclassfge_1_1net_1_1IpAddress_html_a7ca04e65a9567262c7834ee7e1ed1e0f"><div class="ttname"><a href="../../db/da0/classfge_1_1net_1_1IpAddress.html#a7ca04e65a9567262c7834ee7e1ed1e0f">fge::net::IpAddress::IpAddress</a></div><div class="ttdeci">IpAddress() noexcept</div><div class="ttdoc">Build a default invalid IP address.</div></div>
+<div class="ttc" id="aclassfge_1_1net_1_1Packet_html"><div class="ttname"><a href="../../de/d3e/classfge_1_1net_1_1Packet.html">fge::net::Packet</a></div><div class="ttdef"><b>Definition</b> C_packet.hpp:70</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

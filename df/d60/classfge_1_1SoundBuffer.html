@@ -91,57 +91,263 @@ $(function(){ initResizable(false); });
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="../../d4/dd0/classfge_1_1SoundBuffer-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fge::SoundBuffer Class Reference</div></div>
+  <div class="headertitle"><div class="title">fge::SoundBuffer Class Reference<div class="ingroups"><a class="el" href="../../d1/d4d/group__audio.html">Audio utility/tools</a></div></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>This class is a wrapper for the audio manager to allow easy manipulation.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="../../d7/da2/C__soundBuffer_8hpp_source.html">C_soundBuffer.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for fge::SoundBuffer:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="../../df/d60/classfge_1_1SoundBuffer.png" usemap="#fge::SoundBuffer_map" alt=""/>
+  <map id="fge::SoundBuffer_map" name="fge::SoundBuffer_map">
+<area href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html" alt="fge::manager::BaseDataAccessor&lt; manager::GlobalDataAccessorManagerInfo&lt; audio::AudioManager, &amp;audio::gManager &gt;, manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER &gt;" shape="rect" coords="0,0,1277,24"/>
+  </map>
+</div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:af709f028019eb2e2301d49c6e73ba4d1" id="r_af709f028019eb2e2301d49c6e73ba4d1"><td class="memItemLeft" align="right" valign="top"><a id="af709f028019eb2e2301d49c6e73ba4d1" name="af709f028019eb2e2301d49c6e73ba4d1"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedDataType</b></td></tr>
+<tr class="separator:af709f028019eb2e2301d49c6e73ba4d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78522843fff92b32ed0542589ca9a46b" id="r_a78522843fff92b32ed0542589ca9a46b"><td class="memItemLeft" align="right" valign="top"><a id="a78522843fff92b32ed0542589ca9a46b" name="a78522843fff92b32ed0542589ca9a46b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedType</b></td></tr>
+<tr class="separator:a78522843fff92b32ed0542589ca9a46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afad7f6cbe7908f72211ccfbd517db6be" id="r_afad7f6cbe7908f72211ccfbd517db6be"><td class="memItemLeft" align="right" valign="top"><a id="afad7f6cbe7908f72211ccfbd517db6be" name="afad7f6cbe7908f72211ccfbd517db6be"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SoundBuffer</b> (std::string const &amp;name)</td></tr>
-<tr class="separator:afad7f6cbe7908f72211ccfbd517db6be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f2bb07e5e32e7a05f925c3c6c27ae56" id="r_a7f2bb07e5e32e7a05f925c3c6c27ae56"><td class="memItemLeft" align="right" valign="top"><a id="a7f2bb07e5e32e7a05f925c3c6c27ae56" name="a7f2bb07e5e32e7a05f925c3c6c27ae56"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SoundBuffer</b> (char const *name)</td></tr>
-<tr class="separator:a7f2bb07e5e32e7a05f925c3c6c27ae56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f0832eb8781c06a401d765203a941b1" id="r_a0f0832eb8781c06a401d765203a941b1"><td class="memItemLeft" align="right" valign="top"><a id="a0f0832eb8781c06a401d765203a941b1" name="a0f0832eb8781c06a401d765203a941b1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SoundBuffer</b> (fge::audio::AudioDataPtr const &amp;data)</td></tr>
-<tr class="separator:a0f0832eb8781c06a401d765203a941b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeed7831df367810532ce8f5d2c2feae9" id="r_aeed7831df367810532ce8f5d2c2feae9"><td class="memItemLeft" align="right" valign="top"><a id="aeed7831df367810532ce8f5d2c2feae9" name="aeed7831df367810532ce8f5d2c2feae9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
-<tr class="separator:aeed7831df367810532ce8f5d2c2feae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbcdb0adfd675e6017ff9ff18bc277e1" id="r_acbcdb0adfd675e6017ff9ff18bc277e1"><td class="memItemLeft" align="right" valign="top"><a id="acbcdb0adfd675e6017ff9ff18bc277e1" name="acbcdb0adfd675e6017ff9ff18bc277e1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> () const</td></tr>
-<tr class="separator:acbcdb0adfd675e6017ff9ff18bc277e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b010bd4f95620c0bea095ed04a13af2" id="r_a2b010bd4f95620c0bea095ed04a13af2"><td class="memItemLeft" align="right" valign="top"><a id="a2b010bd4f95620c0bea095ed04a13af2" name="a2b010bd4f95620c0bea095ed04a13af2"></a>
-fge::audio::AudioDataPtr const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getData</b> () const</td></tr>
-<tr class="separator:a2b010bd4f95620c0bea095ed04a13af2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a550f6dee6fd2b696a568a20b688a0d79" id="r_a550f6dee6fd2b696a568a20b688a0d79"><td class="memItemLeft" align="right" valign="top"><a id="a550f6dee6fd2b696a568a20b688a0d79" name="a550f6dee6fd2b696a568a20b688a0d79"></a>
-std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getName</b> () const</td></tr>
-<tr class="separator:a550f6dee6fd2b696a568a20b688a0d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed6205444c0b04c513a7b278714ab084" id="r_aed6205444c0b04c513a7b278714ab084"><td class="memItemLeft" align="right" valign="top"><a id="aed6205444c0b04c513a7b278714ab084" name="aed6205444c0b04c513a7b278714ab084"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (std::string const &amp;name)</td></tr>
-<tr class="separator:aed6205444c0b04c513a7b278714ab084"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11ad913f8b5af9367c1f407f88015c98" id="r_a11ad913f8b5af9367c1f407f88015c98"><td class="memItemLeft" align="right" valign="top"><a id="a11ad913f8b5af9367c1f407f88015c98" name="a11ad913f8b5af9367c1f407f88015c98"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (char const *name)</td></tr>
-<tr class="separator:a11ad913f8b5af9367c1f407f88015c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69341a8a33682bbc3121afa222bb82b1" id="r_a69341a8a33682bbc3121afa222bb82b1"><td class="memItemLeft" align="right" valign="top"><a id="a69341a8a33682bbc3121afa222bb82b1" name="a69341a8a33682bbc3121afa222bb82b1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (fge::audio::AudioDataPtr const &amp;data)</td></tr>
-<tr class="separator:a69341a8a33682bbc3121afa222bb82b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92697b4e4d087b7f6ea507fbfc5f29d3" id="r_a92697b4e4d087b7f6ea507fbfc5f29d3"><td class="memItemLeft" align="right" valign="top"><a id="a92697b4e4d087b7f6ea507fbfc5f29d3" name="a92697b4e4d087b7f6ea507fbfc5f29d3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator Mix_Chunk *</b> ()</td></tr>
-<tr class="separator:a92697b4e4d087b7f6ea507fbfc5f29d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f88b5e4cf8ac595bfca9279763a4ea0" id="r_a2f88b5e4cf8ac595bfca9279763a4ea0"><td class="memItemLeft" align="right" valign="top"><a id="a2f88b5e4cf8ac595bfca9279763a4ea0" name="a2f88b5e4cf8ac595bfca9279763a4ea0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator Mix_Chunk const *</b> () const</td></tr>
-<tr class="separator:a2f88b5e4cf8ac595bfca9279763a4ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08beb1ab067ed1a9a7a51b757003d247" id="r_a08beb1ab067ed1a9a7a51b757003d247"><td class="memItemLeft" align="right" valign="top"><a id="a08beb1ab067ed1a9a7a51b757003d247" name="a08beb1ab067ed1a9a7a51b757003d247"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator std::string &amp;</b> ()</td></tr>
-<tr class="separator:a08beb1ab067ed1a9a7a51b757003d247"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e748a179509231cfd205ee72bba47d0" id="r_a0e748a179509231cfd205ee72bba47d0"><td class="memItemLeft" align="right" valign="top"><a id="a0e748a179509231cfd205ee72bba47d0" name="a0e748a179509231cfd205ee72bba47d0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>operator std::string const &amp;</b> () const</td></tr>
-<tr class="separator:a0e748a179509231cfd205ee72bba47d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a451ea6c562286faa2f8e2a6324a85197" id="r_a451ea6c562286faa2f8e2a6324a85197"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a451ea6c562286faa2f8e2a6324a85197">clear</a> ()</td></tr>
+<tr class="memdesc:a451ea6c562286faa2f8e2a6324a85197"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the resource.  <br /></td></tr>
+<tr class="separator:a451ea6c562286faa2f8e2a6324a85197"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5113719b02aa0646c844a2891607cf1" id="r_ad5113719b02aa0646c844a2891607cf1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#ad5113719b02aa0646c844a2891607cf1">reload</a> ()</td></tr>
+<tr class="memdesc:ad5113719b02aa0646c844a2891607cf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reload the cached resource from the same name.  <br /></td></tr>
+<tr class="separator:ad5113719b02aa0646c844a2891607cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e08d42398bc9686ef15c92f1d4329fa" id="r_a2e08d42398bc9686ef15c92f1d4329fa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a2e08d42398bc9686ef15c92f1d4329fa">valid</a> () const</td></tr>
+<tr class="memdesc:a2e08d42398bc9686ef15c92f1d4329fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the font is valid (not unloaded)  <br /></td></tr>
+<tr class="separator:a2e08d42398bc9686ef15c92f1d4329fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3631fac8d229745dc12aad8a17768429" id="r_a3631fac8d229745dc12aad8a17768429"><td class="memItemLeft" align="right" valign="top">SharedDataType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a3631fac8d229745dc12aad8a17768429">getSharedBlock</a> () const</td></tr>
+<tr class="memdesc:a3631fac8d229745dc12aad8a17768429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the resource block data.  <br /></td></tr>
+<tr class="separator:a3631fac8d229745dc12aad8a17768429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a285705feb9ec8831b1310f43fcb96146" id="r_a285705feb9ec8831b1310f43fcb96146"><td class="memItemLeft" align="right" valign="top">SharedType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a285705feb9ec8831b1310f43fcb96146">getSharedData</a> () const</td></tr>
+<tr class="memdesc:a285705feb9ec8831b1310f43fcb96146"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the shared resource data.  <br /></td></tr>
+<tr class="separator:a285705feb9ec8831b1310f43fcb96146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a688f1c9bb082625121b8ad6a68a2f621" id="r_a688f1c9bb082625121b8ad6a68a2f621"><td class="memItemLeft" align="right" valign="top">std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a688f1c9bb082625121b8ad6a68a2f621">getName</a> () const</td></tr>
+<tr class="memdesc:a688f1c9bb082625121b8ad6a68a2f621"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the name of the resource.  <br /></td></tr>
+<tr class="separator:a688f1c9bb082625121b8ad6a68a2f621"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33cf7f16c019b1272ec56fe8c958d769" id="r_a33cf7f16c019b1272ec56fe8c958d769"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;::Manager::DataType *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a33cf7f16c019b1272ec56fe8c958d769">retrieve</a> ()</td></tr>
+<tr class="memdesc:a33cf7f16c019b1272ec56fe8c958d769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the raw shared pointer from the current resource.  <br /></td></tr>
+<tr class="separator:a33cf7f16c019b1272ec56fe8c958d769"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4a080755a8851cc323db5eb7bfad665" id="r_ac4a080755a8851cc323db5eb7bfad665"><td class="memItemLeft" align="right" valign="top"><a id="ac4a080755a8851cc323db5eb7bfad665" name="ac4a080755a8851cc323db5eb7bfad665"></a>
+<a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;::Manager::DataType const *&#160;</td><td class="memItemRight" valign="bottom"><b>retrieve</b> () const</td></tr>
+<tr class="separator:ac4a080755a8851cc323db5eb7bfad665"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class is a wrapper for the audio manager to allow easy manipulation. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a451ea6c562286faa2f8e2a6324a85197" name="a451ea6c562286faa2f8e2a6324a85197"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a451ea6c562286faa2f8e2a6324a85197">&#9670;&#160;</a></span>clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::clear </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Clear the resource. </p>
+<p>This method clear the resource by setting it to the default/bad "valid" resource. </p>
+
+</div>
+</div>
+<a id="a688f1c9bb082625121b8ad6a68a2f621" name="a688f1c9bb082625121b8ad6a68a2f621"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a688f1c9bb082625121b8ad6a68a2f621">&#9670;&#160;</a></span>getName()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::getName </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the name of the resource. </p>
+<dl class="section return"><dt>Returns</dt><dd>The name of the resource, or an empty string if the resource is not valid </dd></dl>
+
+</div>
+</div>
+<a id="a3631fac8d229745dc12aad8a17768429" name="a3631fac8d229745dc12aad8a17768429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3631fac8d229745dc12aad8a17768429">&#9670;&#160;</a></span>getSharedBlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">BaseDataAccessor&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::SharedDataType const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::getSharedBlock </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the resource block data. </p>
+<dl class="section warning"><dt>Warning</dt><dd>If ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER is set, this method can a "bad" element.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The resource block data </dd></dl>
+
+</div>
+</div>
+<a id="a285705feb9ec8831b1310f43fcb96146" name="a285705feb9ec8831b1310f43fcb96146"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a285705feb9ec8831b1310f43fcb96146">&#9670;&#160;</a></span>getSharedData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">BaseDataAccessor&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::SharedType const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::getSharedData </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the shared resource data. </p>
+<dl class="section return"><dt>Returns</dt><dd>The shared resource data </dd></dl>
+
+</div>
+</div>
+<a id="ad5113719b02aa0646c844a2891607cf1" name="ad5113719b02aa0646c844a2891607cf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5113719b02aa0646c844a2891607cf1">&#9670;&#160;</a></span>reload()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::reload </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reload the cached resource from the same name. </p>
+
+</div>
+</div>
+<a id="a33cf7f16c019b1272ec56fe8c958d769" name="a33cf7f16c019b1272ec56fe8c958d769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33cf7f16c019b1272ec56fe8c958d769">&#9670;&#160;</a></span>retrieve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;::Manager::DataType * <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::retrieve </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieve the raw shared pointer from the current resource. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Will never be <b>nullptr</b> if the manager was correctly initialized.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The raw resource pointer </dd></dl>
+
+</div>
+</div>
+<a id="a2e08d42398bc9686ef15c92f1d4329fa" name="a2e08d42398bc9686ef15c92f1d4329fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e08d42398bc9686ef15c92f1d4329fa">&#9670;&#160;</a></span>valid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d3/dc2/classfge_1_1audio_1_1AudioManager.html">audio::AudioManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga13e49b1cac49bc423484fb44afcafaab">audio::gManager</a> &gt;, TOption &gt;::valid </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if the font is valid (not unloaded) </p>
+<dl class="section return"><dt>Returns</dt><dd><b>True</b> if the font is valid, <b>false</b> otherwise </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="../../d7/da2/C__soundBuffer_8hpp_source.html">C_soundBuffer.hpp</a></li>
 </ul>

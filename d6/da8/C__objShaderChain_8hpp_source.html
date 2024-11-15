@@ -146,9 +146,9 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordtype">void</span> setTopology(VkPrimitiveTopology topology);</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    [[nodiscard]] VkPrimitiveTopology getTopology() const;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    [[nodiscard]] fge::shader::ShaderDataPtr getGeometryShader() const;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    [[nodiscard]] fge::shader::ShaderDataPtr getVertexShader() const;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] fge::shader::ShaderDataPtr getFragmentShader() const;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getGeometryShader() const;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getVertexShader() const;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getFragmentShader() const;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="../../d9/d36/classfge_1_1ObjShaderChain.html#ae20933e6457691e34ab1cb6e89302985">   57</a></span>    <span class="keywordtype">char</span> const* getClassName() const override;</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d9/d36/classfge_1_1ObjShaderChain.html#af01d5609cbd5d5fb07f65ae7756ec79f">   58</a></span>    <span class="keywordtype">char</span> const* getReadableClassName() const override;</div>
@@ -156,23 +156,31 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d9/d36/classfge_1_1ObjShaderChain.html#a25b9dbdd7714a38effa517b5b2b141fb">   60</a></span>    fge::<a class="code hl_class" href="../../d8/d5f/classfge_1_1Rect.html">RectFloat</a> getGlobalBounds() const override;</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d9/d36/classfge_1_1ObjShaderChain.html#a19f96b52585f7f32771c09dea0a8bd8e">   61</a></span>    fge::<a class="code hl_class" href="../../d8/d5f/classfge_1_1Rect.html">RectFloat</a> getLocalBounds() const override;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>private:</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    fge::shader::ShaderDataPtr g_geometryShader;</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    fge::shader::ShaderDataPtr g_vertexShader;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    fge::shader::ShaderDataPtr g_fragmentShader;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    uint32_t g_vertexCount;</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    fge::vulkan::BlendMode g_blendMode;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    VkPrimitiveTopology g_topology;</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>};</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#ifndef FGE_DEF_SERVER</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> drawSubsidiary(<a class="code hl_class" href="../../da/d15/classfge_1_1RenderTarget.html">fge::RenderTarget</a>&amp; target, <a class="code hl_class" href="../../d4/d7f/classfge_1_1RenderStates.html">fge::RenderStates</a>&amp; states) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    fge::shader::ShaderManager::DataBlockPointer g_geometryShader;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    fge::shader::ShaderManager::DataBlockPointer g_vertexShader;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    fge::shader::ShaderManager::DataBlockPointer g_fragmentShader;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    uint32_t g_vertexCount;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <a class="code hl_struct" href="../../de/d37/structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a> g_blendMode;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    VkPrimitiveTopology g_topology;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>};</div>
 </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>} <span class="comment">// namespace fge</span></div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJSHADERCHAIN_HPP_INCLUDED</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>} <span class="comment">// namespace fge</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor">#endif </span><span class="comment">// _FGE_C_OBJSHADERCHAIN_HPP_INCLUDED</span></div>
 <div class="ttc" id="aclassfge_1_1ObjShaderChain_html"><div class="ttname"><a href="../../d9/d36/classfge_1_1ObjShaderChain.html">fge::ObjShaderChain</a></div><div class="ttdef"><b>Definition</b> C_objShaderChain.hpp:30</div></div>
 <div class="ttc" id="aclassfge_1_1Object_html"><div class="ttname"><a href="../../dc/d05/classfge_1_1Object.html">fge::Object</a></div><div class="ttdoc">The Object class is the base class for all objects in the engine.</div><div class="ttdef"><b>Definition</b> C_object.hpp:102</div></div>
 <div class="ttc" id="aclassfge_1_1Rect_html"><div class="ttname"><a href="../../d8/d5f/classfge_1_1Rect.html">fge::Rect&lt; float &gt;</a></div></div>
+<div class="ttc" id="aclassfge_1_1RenderStates_html"><div class="ttname"><a href="../../d4/d7f/classfge_1_1RenderStates.html">fge::RenderStates</a></div><div class="ttdoc">The RenderStates class contains all the information needed to render something.</div><div class="ttdef"><b>Definition</b> C_renderStates.hpp:412</div></div>
+<div class="ttc" id="aclassfge_1_1RenderTarget_html"><div class="ttname"><a href="../../da/d15/classfge_1_1RenderTarget.html">fge::RenderTarget</a></div><div class="ttdef"><b>Definition</b> C_renderTarget.hpp:56</div></div>
 <div class="ttc" id="aclassfge_1_1Scene_html"><div class="ttname"><a href="../../dc/dd6/classfge_1_1Scene.html">fge::Scene</a></div><div class="ttdoc">A scene contain a collection of object and handle them.</div><div class="ttdef"><b>Definition</b> C_scene.hpp:450</div></div>
+<div class="ttc" id="astructfge_1_1vulkan_1_1BlendMode_html"><div class="ttname"><a href="../../de/d37/structfge_1_1vulkan_1_1BlendMode.html">fge::vulkan::BlendMode</a></div><div class="ttdoc">This is a simple abstraction class for VkBlendFactor, VkBlendOp.</div><div class="ttdef"><b>Definition</b> C_blendMode.hpp:37</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

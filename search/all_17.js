@@ -27,12 +27,11 @@ var searchData=
   ['propertylist_24',['PropertyList',['../de/d39/classfge_1_1PropertyList.html',1,'fge']]],
   ['protocolpacket_25',['ProtocolPacket',['../d4/d7e/classfge_1_1net_1_1ProtocolPacket.html',1,'fge::net']]],
   ['ptrtypes_26',['PtrTypes',['../dd/db2/classfge_1_1RenderResourceTextures.html#a7a5e0adbb32c67bc2bb1f48c983eb381',1,'fge::RenderResourceTextures']]],
-  ['push_27',['Push',['../d8/d70/group__animation.html#ga8d45605c344c8a3eb2f0038b734c0394',1,'fge::anim::Push()'],['../d1/d4d/group__audio.html#ga37d2c6853c5c8348a6250422f91a13de',1,'fge::audio::Push()'],['../d6/de0/group__graphics.html#gaad1c0dfe1c8396eabc1b9ad84199165a',1,'fge::shader::Push()'],['../d6/de0/group__graphics.html#ga6c316c770b87fd1a385b6d0ac55e296d',1,'fge::texture::Push()']]],
-  ['push_28',['push',['../d6/d0b/classfge_1_1vulkan_1_1GarbageCollector.html#a84d67afb3e5aae70395af28fba9aaae4',1,'fge::vulkan::GarbageCollector']]],
-  ['pushclientevent_29',['pushClientEvent',['../d6/dea/classfge_1_1net_1_1ClientList.html#ac4051f34e84d56df83aad146e993c3eb',1,'fge::net::ClientList']]],
-  ['pushconstantdata_30',['PushConstantData',['../d0/d20/structfge_1_1RenderResourcePushConstants_1_1PushConstantData.html',1,'fge::RenderResourcePushConstants']]],
-  ['pushconstants_31',['pushConstants',['../d3/d2e/classfge_1_1vulkan_1_1CommandBuffer.html#a4f11a0d6091e93b0708c22b51c06fa1b',1,'fge::vulkan::CommandBuffer']]],
-  ['pushevent_32',['pushEvent',['../dc/dd6/classfge_1_1Scene.html#ac37b60110653eb4c1d878fa815dd98bc',1,'fge::Scene::pushEvent(fge::SceneNetEvent const &amp;netEvent)'],['../dc/dd6/classfge_1_1Scene.html#a31a8f36085235ebfb900a4d66abb11ce',1,'fge::Scene::pushEvent(fge::SceneNetEvent const &amp;netEvent, fge::net::Identity const &amp;id)']]],
-  ['pushgraphicscommandbuffer_33',['pushGraphicsCommandBuffer',['../d4/d8a/classfge_1_1vulkan_1_1Context.html#a59403de6ca040b775692b411b433f218',1,'fge::vulkan::Context']]],
-  ['pushpacket_34',['pushPacket',['../de/dae/classfge_1_1net_1_1Client.html#afa0c8c9580f8a0c6a1b6cf56048d33be',1,'fge::net::Client']]]
+  ['push_27',['push',['../dc/db6/classfge_1_1manager_1_1BaseManager.html#aa8ea17db93a39c16ceb458ed126eba2a',1,'fge::manager::BaseManager::push()'],['../d6/d0b/classfge_1_1vulkan_1_1GarbageCollector.html#a84d67afb3e5aae70395af28fba9aaae4',1,'fge::vulkan::GarbageCollector::push()']]],
+  ['pushclientevent_28',['pushClientEvent',['../d6/dea/classfge_1_1net_1_1ClientList.html#ac4051f34e84d56df83aad146e993c3eb',1,'fge::net::ClientList']]],
+  ['pushconstantdata_29',['PushConstantData',['../d0/d20/structfge_1_1RenderResourcePushConstants_1_1PushConstantData.html',1,'fge::RenderResourcePushConstants']]],
+  ['pushconstants_30',['pushConstants',['../d3/d2e/classfge_1_1vulkan_1_1CommandBuffer.html#a4f11a0d6091e93b0708c22b51c06fa1b',1,'fge::vulkan::CommandBuffer']]],
+  ['pushevent_31',['pushEvent',['../dc/dd6/classfge_1_1Scene.html#ac37b60110653eb4c1d878fa815dd98bc',1,'fge::Scene::pushEvent(fge::SceneNetEvent const &amp;netEvent)'],['../dc/dd6/classfge_1_1Scene.html#a31a8f36085235ebfb900a4d66abb11ce',1,'fge::Scene::pushEvent(fge::SceneNetEvent const &amp;netEvent, fge::net::Identity const &amp;id)']]],
+  ['pushgraphicscommandbuffer_32',['pushGraphicsCommandBuffer',['../d4/d8a/classfge_1_1vulkan_1_1Context.html#a59403de6ca040b775692b411b433f218',1,'fge::vulkan::Context']]],
+  ['pushpacket_33',['pushPacket',['../de/dae/classfge_1_1net_1_1Client.html#afa0c8c9580f8a0c6a1b6cf56048d33be',1,'fge::net::Client']]]
 ];

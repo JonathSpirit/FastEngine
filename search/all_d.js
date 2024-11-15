@@ -1,7 +1,7 @@
 var searchData=
 [
   ['enable_0',['enable',['../d6/d0b/classfge_1_1vulkan_1_1GarbageCollector.html#a3e3a3a69c5ef9d3ddfcdb8e4903b6532',1,'fge::vulkan::GarbageCollector']]],
-  ['end_1',['end',['../d7/d76/classfge_1_1net_1_1rules_1_1ChainedArguments.html#ae5091a3d52b20851b20949ca08482fbb',1,'fge::net::rules::ChainedArguments::end()'],['../d7/d76/classfge_1_1net_1_1rules_1_1ChainedArguments.html#aa4070f27618e804d033dfe7875e4a365',1,'fge::net::rules::ChainedArguments::end(std::nullopt_t nullopt) const'],['../d7/d76/classfge_1_1net_1_1rules_1_1ChainedArguments.html#a4d32c4ee6cf63c85523c43d1de7f9c4a',1,'fge::net::rules::ChainedArguments::end(Error &amp;&amp;err) const']]],
+  ['end_1',['end',['../dc/db6/classfge_1_1manager_1_1BaseManager.html#aca551ba7db6808720cb9a2588bbfcd31',1,'fge::manager::BaseManager::end()'],['../d7/d76/classfge_1_1net_1_1rules_1_1ChainedArguments.html#ae5091a3d52b20851b20949ca08482fbb',1,'fge::net::rules::ChainedArguments::end()'],['../d7/d76/classfge_1_1net_1_1rules_1_1ChainedArguments.html#aa4070f27618e804d033dfe7875e4a365',1,'fge::net::rules::ChainedArguments::end(std::nullopt_t nullopt) const'],['../d7/d76/classfge_1_1net_1_1rules_1_1ChainedArguments.html#a4d32c4ee6cf63c85523c43d1de7f9c4a',1,'fge::net::rules::ChainedArguments::end(Error &amp;&amp;err) const']]],
   ['endrenderpass_2',['endRenderPass',['../d3/d2e/classfge_1_1vulkan_1_1CommandBuffer.html#a6db6eb264c911d4e34d1d860e5c9e2a6',1,'fge::vulkan::CommandBuffer']]],
   ['enumerateextensions_3',['enumerateExtensions',['../d4/d8a/classfge_1_1vulkan_1_1Context.html#a2c2b48b2ad5cfac87a465e238372d2aa',1,'fge::vulkan::Context']]],
   ['equalexists_4',['EqualExists',['../d2/d0b/structfge_1_1comparisonCheck_1_1EqualExists.html',1,'fge::comparisonCheck']]],

@@ -7,5 +7,6 @@ var searchData=
   ['animationdata_4',['AnimationData',['../db/dba/structfge_1_1anim_1_1AnimationData.html',1,'fge::anim']]],
   ['animationframe_5',['AnimationFrame',['../df/d68/structfge_1_1anim_1_1AnimationFrame.html',1,'fge::anim']]],
   ['animationgroup_6',['AnimationGroup',['../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html',1,'fge::anim']]],
-  ['audiodata_7',['AudioData',['../df/d9f/structfge_1_1audio_1_1AudioData.html',1,'fge::audio']]]
+  ['animationmanager_7',['AnimationManager',['../d0/d35/classfge_1_1anim_1_1AnimationManager.html',1,'fge::anim']]],
+  ['audiomanager_8',['AudioManager',['../d3/dc2/classfge_1_1audio_1_1AudioManager.html',1,'fge::audio']]]
 ];

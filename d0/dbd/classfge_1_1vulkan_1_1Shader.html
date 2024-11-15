@@ -110,6 +110,12 @@ Public Types</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a5637b0c919449601b50c14175bfcf4de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f06b05a3b49fa4802913a18d5cd93de" id="r_a4f06b05a3b49fa4802913a18d5cd93de"><td class="memItemLeft" align="right" valign="top"><a id="a4f06b05a3b49fa4802913a18d5cd93de" name="a4f06b05a3b49fa4802913a18d5cd93de"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ReflectBindings</b> = std::vector&lt;<a class="el" href="../../db/ddb/classfge_1_1vulkan_1_1DescriptorSetLayout_1_1Binding.html">DescriptorSetLayout::Binding</a>&gt;</td></tr>
+<tr class="separator:a4f06b05a3b49fa4802913a18d5cd93de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab48646dbba77e74542bf03265492e8f6" id="r_ab48646dbba77e74542bf03265492e8f6"><td class="memItemLeft" align="right" valign="top"><a id="ab48646dbba77e74542bf03265492e8f6" name="ab48646dbba77e74542bf03265492e8f6"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>ReflectSets</b> = std::map&lt;uint32_t, ReflectBindings, std::less&lt;&gt;&gt;</td></tr>
+<tr class="separator:ab48646dbba77e74542bf03265492e8f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -143,9 +149,9 @@ VkPipelineShaderStageCreateInfo const &amp;&#160;</td><td class="memItemRight" v
 <tr class="memitem:a3f0db171bba1d144e08238a810024247" id="r_a3f0db171bba1d144e08238a810024247"><td class="memItemLeft" align="right" valign="top"><a id="a3f0db171bba1d144e08238a810024247" name="a3f0db171bba1d144e08238a810024247"></a>
 Type&#160;</td><td class="memItemRight" valign="bottom"><b>getType</b> () const</td></tr>
 <tr class="separator:a3f0db171bba1d144e08238a810024247"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a503f42c22854b6caa327e93a6dc2e801" id="r_a503f42c22854b6caa327e93a6dc2e801"><td class="memItemLeft" align="right" valign="top"><a id="a503f42c22854b6caa327e93a6dc2e801" name="a503f42c22854b6caa327e93a6dc2e801"></a>
-std::vector&lt; std::vector&lt; <a class="el" href="../../db/ddb/classfge_1_1vulkan_1_1DescriptorSetLayout_1_1Binding.html">DescriptorSetLayout::Binding</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>retrieveBindings</b> () const</td></tr>
-<tr class="separator:a503f42c22854b6caa327e93a6dc2e801"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a049c792b279a5f2f9b859a861dd1f36c" id="r_a049c792b279a5f2f9b859a861dd1f36c"><td class="memItemLeft" align="right" valign="top"><a id="a049c792b279a5f2f9b859a861dd1f36c" name="a049c792b279a5f2f9b859a861dd1f36c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>retrieveBindings</b> (ReflectSets &amp;buffer) const</td></tr>
+<tr class="separator:a049c792b279a5f2f9b859a861dd1f36c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82fab9c081872b3482c4bbefc139b68c" id="r_a82fab9c081872b3482c4bbefc139b68c"><td class="memItemLeft" align="right" valign="top"><a id="a82fab9c081872b3482c4bbefc139b68c" name="a82fab9c081872b3482c4bbefc139b68c"></a>
 std::vector&lt; VkPushConstantRange &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>retrievePushConstantRanges</b> () const</td></tr>
 <tr class="separator:a82fab9c081872b3482c4bbefc139b68c"><td class="memSeparator" colspan="2">&#160;</td></tr>

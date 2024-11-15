@@ -102,72 +102,81 @@ $(function(){ initResizable(false); });
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="../../de/df0/C__animation_8hpp_source.html">C_animation.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for fge::Animation:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="../../dd/ddd/classfge_1_1Animation.png" usemap="#fge::Animation_map" alt=""/>
+  <map id="fge::Animation_map" name="fge::Animation_map">
+<area href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html" alt="fge::manager::BaseDataAccessor&lt; manager::GlobalDataAccessorManagerInfo&lt; anim::AnimationManager, &amp;anim::gManager &gt;, manager::DataAccessorOptions::BLOCKPOINTER_ONLY &gt;" shape="rect" coords="0,0,1066,24"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a516664b2eaef1db516b7773e21186ecb" id="r_a516664b2eaef1db516b7773e21186ecb"><td class="memItemLeft" align="right" valign="top"><a id="a516664b2eaef1db516b7773e21186ecb" name="a516664b2eaef1db516b7773e21186ecb"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>Index</b> = uint16_t</td></tr>
 <tr class="separator:a516664b2eaef1db516b7773e21186ecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af709f028019eb2e2301d49c6e73ba4d1" id="r_af709f028019eb2e2301d49c6e73ba4d1"><td class="memItemLeft" align="right" valign="top"><a id="af709f028019eb2e2301d49c6e73ba4d1" name="af709f028019eb2e2301d49c6e73ba4d1"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedDataType</b></td></tr>
+<tr class="separator:af709f028019eb2e2301d49c6e73ba4d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78522843fff92b32ed0542589ca9a46b" id="r_a78522843fff92b32ed0542589ca9a46b"><td class="memItemLeft" align="right" valign="top"><a id="a78522843fff92b32ed0542589ca9a46b" name="a78522843fff92b32ed0542589ca9a46b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedType</b></td></tr>
+<tr class="separator:a78522843fff92b32ed0542589ca9a46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1b89378b566f81ee893fb6041f4c33ee" id="r_a1b89378b566f81ee893fb6041f4c33ee"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b89378b566f81ee893fb6041f4c33ee">Animation</a> (std::string name, std::size_t frame=0)</td></tr>
-<tr class="memdesc:a1b89378b566f81ee893fb6041f4c33ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor that takes the name of the animation.  <br /></td></tr>
-<tr class="separator:a1b89378b566f81ee893fb6041f4c33ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab05fb9bb1ea241d12535b4d6fcd08e91" id="r_ab05fb9bb1ea241d12535b4d6fcd08e91"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab05fb9bb1ea241d12535b4d6fcd08e91">Animation</a> (std::string name, std::string const &amp;group, Index frame=0)</td></tr>
-<tr class="memdesc:ab05fb9bb1ea241d12535b4d6fcd08e91"><td class="mdescLeft">&#160;</td><td class="mdescRight">TODO: use string_view ?  <br /></td></tr>
-<tr class="separator:ab05fb9bb1ea241d12535b4d6fcd08e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fa7241176e9a8ac04ce1e1b114b9681" id="r_a3fa7241176e9a8ac04ce1e1b114b9681"><td class="memItemLeft" align="right" valign="top"><a id="a3fa7241176e9a8ac04ce1e1b114b9681" name="a3fa7241176e9a8ac04ce1e1b114b9681"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (char const *name, Index frame=0)</td></tr>
-<tr class="separator:a3fa7241176e9a8ac04ce1e1b114b9681"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71a088006daa69b271ddad01bbd7b7f9" id="r_a71a088006daa69b271ddad01bbd7b7f9"><td class="memItemLeft" align="right" valign="top"><a id="a71a088006daa69b271ddad01bbd7b7f9" name="a71a088006daa69b271ddad01bbd7b7f9"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (char const *name, char const *group, Index frame=0)</td></tr>
-<tr class="separator:a71a088006daa69b271ddad01bbd7b7f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf9192768edb43f7f9eee18b63d9305b" id="r_adf9192768edb43f7f9eee18b63d9305b"><td class="memItemLeft" align="right" valign="top"><a id="adf9192768edb43f7f9eee18b63d9305b" name="adf9192768edb43f7f9eee18b63d9305b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (fge::anim::AnimationDataPtr data, Index frame=0)</td></tr>
-<tr class="separator:adf9192768edb43f7f9eee18b63d9305b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf59cf43b12040b7408c3ff372fd88c2" id="r_acf59cf43b12040b7408c3ff372fd88c2"><td class="memItemLeft" align="right" valign="top"><a id="acf59cf43b12040b7408c3ff372fd88c2" name="acf59cf43b12040b7408c3ff372fd88c2"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (fge::anim::AnimationDataPtr data, std::string const &amp;group, Index frame=0)</td></tr>
-<tr class="separator:acf59cf43b12040b7408c3ff372fd88c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4341580d9337e022f25b1aca876f86da" id="r_a4341580d9337e022f25b1aca876f86da"><td class="memItemLeft" align="right" valign="top"><a id="a4341580d9337e022f25b1aca876f86da" name="a4341580d9337e022f25b1aca876f86da"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (fge::anim::AnimationDataPtr data, char const *group, Index frame=0)</td></tr>
-<tr class="separator:a4341580d9337e022f25b1aca876f86da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7add9eb9acaa39ec50d1517c755ce53" id="r_ad7add9eb9acaa39ec50d1517c755ce53"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7add9eb9acaa39ec50d1517c755ce53">clear</a> ()</td></tr>
-<tr class="memdesc:ad7add9eb9acaa39ec50d1517c755ce53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the animation.  <br /></td></tr>
-<tr class="separator:ad7add9eb9acaa39ec50d1517c755ce53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a849ac19237e0e75eb81957e2b7f40655" id="r_a849ac19237e0e75eb81957e2b7f40655"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a849ac19237e0e75eb81957e2b7f40655">valid</a> () const</td></tr>
-<tr class="memdesc:a849ac19237e0e75eb81957e2b7f40655"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the animation data is valid.  <br /></td></tr>
-<tr class="separator:a849ac19237e0e75eb81957e2b7f40655"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b0b74338307c10f0fba8e120804fb30" id="r_a3b0b74338307c10f0fba8e120804fb30"><td class="memItemLeft" align="right" valign="top">std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b0b74338307c10f0fba8e120804fb30">getName</a> () const</td></tr>
-<tr class="memdesc:a3b0b74338307c10f0fba8e120804fb30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the name of the loaded animation.  <br /></td></tr>
-<tr class="separator:a3b0b74338307c10f0fba8e120804fb30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb99655f0fd27255e386d252cf00a779" id="r_afb99655f0fd27255e386d252cf00a779"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/d70/group__animation.html#ga022b12a26e6fe8616d52be54cb85b8ed">fge::anim::AnimationType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb99655f0fd27255e386d252cf00a779">getType</a> () const</td></tr>
-<tr class="memdesc:afb99655f0fd27255e386d252cf00a779"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the type of the loaded animation.  <br /></td></tr>
-<tr class="separator:afb99655f0fd27255e386d252cf00a779"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8e182efc77e7d67bdc921fc0a6c7f3e" id="r_ae8e182efc77e7d67bdc921fc0a6c7f3e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae8e182efc77e7d67bdc921fc0a6c7f3e">setGroup</a> (std::string const &amp;groupName)</td></tr>
-<tr class="memdesc:ae8e182efc77e7d67bdc921fc0a6c7f3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the group of the animation by its name.  <br /></td></tr>
-<tr class="separator:ae8e182efc77e7d67bdc921fc0a6c7f3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a192fe6c1943585fbab392b06bb83378b" id="r_a192fe6c1943585fbab392b06bb83378b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a192fe6c1943585fbab392b06bb83378b">Animation</a> (std::string_view name, Index frame=0)</td></tr>
+<tr class="memdesc:a192fe6c1943585fbab392b06bb83378b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor that takes the name of the animation.  <br /></td></tr>
+<tr class="separator:a192fe6c1943585fbab392b06bb83378b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a487d13770480533d8e2946a9a86465f2" id="r_a487d13770480533d8e2946a9a86465f2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a487d13770480533d8e2946a9a86465f2">Animation</a> (std::string_view name, std::string_view group, Index frame=0)</td></tr>
+<tr class="memdesc:a487d13770480533d8e2946a9a86465f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor that takes the name of the animation and the group name.  <br /></td></tr>
+<tr class="separator:a487d13770480533d8e2946a9a86465f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a819240fba806c416a53e612b71c02ea5" id="r_a819240fba806c416a53e612b71c02ea5"><td class="memItemLeft" align="right" valign="top"><a id="a819240fba806c416a53e612b71c02ea5" name="a819240fba806c416a53e612b71c02ea5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (char const name[], Index frame=0)</td></tr>
+<tr class="separator:a819240fba806c416a53e612b71c02ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb39b44bd2fe5c931947e8cccdd63efc" id="r_adb39b44bd2fe5c931947e8cccdd63efc"><td class="memItemLeft" align="right" valign="top"><a id="adb39b44bd2fe5c931947e8cccdd63efc" name="adb39b44bd2fe5c931947e8cccdd63efc"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (char const name[], char const group[], Index frame=0)</td></tr>
+<tr class="separator:adb39b44bd2fe5c931947e8cccdd63efc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50428bc562786e638037ae2c88c3671f" id="r_a50428bc562786e638037ae2c88c3671f"><td class="memItemLeft" align="right" valign="top"><a id="a50428bc562786e638037ae2c88c3671f" name="a50428bc562786e638037ae2c88c3671f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (SharedDataType data, Index frame=0)</td></tr>
+<tr class="separator:a50428bc562786e638037ae2c88c3671f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa83da5eb34a56ab6fd3ba21732d22ce6" id="r_aa83da5eb34a56ab6fd3ba21732d22ce6"><td class="memItemLeft" align="right" valign="top"><a id="aa83da5eb34a56ab6fd3ba21732d22ce6" name="aa83da5eb34a56ab6fd3ba21732d22ce6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (SharedDataType data, std::string_view group, Index frame=0)</td></tr>
+<tr class="separator:aa83da5eb34a56ab6fd3ba21732d22ce6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a611ad576a6d14c68a83baa3be9ec1999" id="r_a611ad576a6d14c68a83baa3be9ec1999"><td class="memItemLeft" align="right" valign="top"><a id="a611ad576a6d14c68a83baa3be9ec1999" name="a611ad576a6d14c68a83baa3be9ec1999"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Animation</b> (SharedDataType data, char const group[], Index frame=0)</td></tr>
+<tr class="separator:a611ad576a6d14c68a83baa3be9ec1999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe9b7a7340963c117ee6d90edf1fb558" id="r_afe9b7a7340963c117ee6d90edf1fb558"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afe9b7a7340963c117ee6d90edf1fb558">clear</a> () override</td></tr>
+<tr class="memdesc:afe9b7a7340963c117ee6d90edf1fb558"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the animation.  <br /></td></tr>
+<tr class="separator:afe9b7a7340963c117ee6d90edf1fb558"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ca408f48498f083ac29f4a7b458ca46" id="r_a7ca408f48498f083ac29f4a7b458ca46"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/d70/group__animation.html#ga022b12a26e6fe8616d52be54cb85b8ed">anim::AnimationType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ca408f48498f083ac29f4a7b458ca46">getType</a> () const</td></tr>
+<tr class="memdesc:a7ca408f48498f083ac29f4a7b458ca46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the type of the loaded animation.  <br /></td></tr>
+<tr class="separator:a7ca408f48498f083ac29f4a7b458ca46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ded85a12da4a7ad3819ee8a8645e0dd" id="r_a7ded85a12da4a7ad3819ee8a8645e0dd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ded85a12da4a7ad3819ee8a8645e0dd">setGroup</a> (std::string_view group)</td></tr>
+<tr class="memdesc:a7ded85a12da4a7ad3819ee8a8645e0dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the group of the animation by its name.  <br /></td></tr>
+<tr class="separator:a7ded85a12da4a7ad3819ee8a8645e0dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe970182b586e3e6691d5c533eb66574" id="r_abe970182b586e3e6691d5c533eb66574"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abe970182b586e3e6691d5c533eb66574">setGroup</a> (Index groupIndex)</td></tr>
 <tr class="memdesc:abe970182b586e3e6691d5c533eb66574"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the group of the animation by its index.  <br /></td></tr>
 <tr class="separator:abe970182b586e3e6691d5c533eb66574"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff5b64e402f0660ce2e8dbfeee21e3f4" id="r_aff5b64e402f0660ce2e8dbfeee21e3f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aff5b64e402f0660ce2e8dbfeee21e3f4">getGroup</a> () const</td></tr>
-<tr class="memdesc:aff5b64e402f0660ce2e8dbfeee21e3f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the actual group of the animation.  <br /></td></tr>
-<tr class="separator:aff5b64e402f0660ce2e8dbfeee21e3f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a7586b88b9d2edc5f4d701c67101015" id="r_a5a7586b88b9d2edc5f4d701c67101015"><td class="memItemLeft" align="right" valign="top"><a id="a5a7586b88b9d2edc5f4d701c67101015" name="a5a7586b88b9d2edc5f4d701c67101015"></a>
-<a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGroup</b> ()</td></tr>
-<tr class="separator:a5a7586b88b9d2edc5f4d701c67101015"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0745a1ecddca3fc70165e8f5c5996bbb" id="r_a0745a1ecddca3fc70165e8f5c5996bbb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0745a1ecddca3fc70165e8f5c5996bbb">getGroup</a> (std::string const &amp;groupName) const</td></tr>
-<tr class="memdesc:a0745a1ecddca3fc70165e8f5c5996bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the group of the animation by its name.  <br /></td></tr>
-<tr class="separator:a0745a1ecddca3fc70165e8f5c5996bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4508b0887411b7c20549334c6a2e76f" id="r_af4508b0887411b7c20549334c6a2e76f"><td class="memItemLeft" align="right" valign="top"><a id="af4508b0887411b7c20549334c6a2e76f" name="af4508b0887411b7c20549334c6a2e76f"></a>
-<a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGroup</b> (std::string const &amp;groupName)</td></tr>
-<tr class="separator:af4508b0887411b7c20549334c6a2e76f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a3b6eae5a62e5d5f76b5dd2bf48258e" id="r_a3a3b6eae5a62e5d5f76b5dd2bf48258e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a3b6eae5a62e5d5f76b5dd2bf48258e">getGroup</a> (Index groupIndex) const</td></tr>
-<tr class="memdesc:a3a3b6eae5a62e5d5f76b5dd2bf48258e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the group of the animation by its index.  <br /></td></tr>
-<tr class="separator:a3a3b6eae5a62e5d5f76b5dd2bf48258e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab16ec3c646ba883522021bdf0ddcde7" id="r_aab16ec3c646ba883522021bdf0ddcde7"><td class="memItemLeft" align="right" valign="top"><a id="aab16ec3c646ba883522021bdf0ddcde7" name="aab16ec3c646ba883522021bdf0ddcde7"></a>
-<a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGroup</b> (Index groupIndex)</td></tr>
-<tr class="separator:aab16ec3c646ba883522021bdf0ddcde7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acca01ca7b81ba8c1f8b886be870a6187" id="r_acca01ca7b81ba8c1f8b886be870a6187"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acca01ca7b81ba8c1f8b886be870a6187">getGroup</a> () const</td></tr>
+<tr class="memdesc:acca01ca7b81ba8c1f8b886be870a6187"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the actual group of the animation.  <br /></td></tr>
+<tr class="separator:acca01ca7b81ba8c1f8b886be870a6187"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad084925bb5fbe0a00d4df19bdd7c1710" id="r_ad084925bb5fbe0a00d4df19bdd7c1710"><td class="memItemLeft" align="right" valign="top"><a id="ad084925bb5fbe0a00d4df19bdd7c1710" name="ad084925bb5fbe0a00d4df19bdd7c1710"></a>
+<a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGroup</b> ()</td></tr>
+<tr class="separator:ad084925bb5fbe0a00d4df19bdd7c1710"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65b3766c5bd7d1614d07aa3865662788" id="r_a65b3766c5bd7d1614d07aa3865662788"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a65b3766c5bd7d1614d07aa3865662788">getGroup</a> (std::string_view group) const</td></tr>
+<tr class="memdesc:a65b3766c5bd7d1614d07aa3865662788"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the group of the animation by its name.  <br /></td></tr>
+<tr class="separator:a65b3766c5bd7d1614d07aa3865662788"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9455071ab6d195bd4af3c7faf49a52a" id="r_af9455071ab6d195bd4af3c7faf49a52a"><td class="memItemLeft" align="right" valign="top"><a id="af9455071ab6d195bd4af3c7faf49a52a" name="af9455071ab6d195bd4af3c7faf49a52a"></a>
+<a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGroup</b> (std::string_view group)</td></tr>
+<tr class="separator:af9455071ab6d195bd4af3c7faf49a52a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaff07fa9a9dcb643d142e3032469a291" id="r_aaff07fa9a9dcb643d142e3032469a291"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaff07fa9a9dcb643d142e3032469a291">getGroup</a> (Index groupIndex) const</td></tr>
+<tr class="memdesc:aaff07fa9a9dcb643d142e3032469a291"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the group of the animation by its index.  <br /></td></tr>
+<tr class="separator:aaff07fa9a9dcb643d142e3032469a291"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32f19d927d4954a6bb3741288089ec36" id="r_a32f19d927d4954a6bb3741288089ec36"><td class="memItemLeft" align="right" valign="top"><a id="a32f19d927d4954a6bb3741288089ec36" name="a32f19d927d4954a6bb3741288089ec36"></a>
+<a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getGroup</b> (Index groupIndex)</td></tr>
+<tr class="separator:a32f19d927d4954a6bb3741288089ec36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74ccbf1d24df62e9e6f2dde5f7345a9b" id="r_a74ccbf1d24df62e9e6f2dde5f7345a9b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74ccbf1d24df62e9e6f2dde5f7345a9b">isGroupValid</a> () const</td></tr>
 <tr class="memdesc:a74ccbf1d24df62e9e6f2dde5f7345a9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the actual group is valid.  <br /></td></tr>
 <tr class="separator:a74ccbf1d24df62e9e6f2dde5f7345a9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,30 +225,39 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a68272dd87c0f8ae5face5f007cee056a" id="r_a68272dd87c0f8ae5face5f007cee056a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a68272dd87c0f8ae5face5f007cee056a">isHorizontalFlipped</a> () const</td></tr>
 <tr class="memdesc:a68272dd87c0f8ae5face5f007cee056a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the horizontal flip mode is active.  <br /></td></tr>
 <tr class="separator:a68272dd87c0f8ae5face5f007cee056a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ecaf5c66211b954d3d03db263d52250" id="r_a8ecaf5c66211b954d3d03db263d52250"><td class="memItemLeft" align="right" valign="top">fge::anim::AnimationDataPtr const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8ecaf5c66211b954d3d03db263d52250">getData</a> () const</td></tr>
-<tr class="memdesc:a8ecaf5c66211b954d3d03db263d52250"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the animation data.  <br /></td></tr>
-<tr class="separator:a8ecaf5c66211b954d3d03db263d52250"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac23b22ea1c5e3ff3cff8c9c29bee1326" id="r_ac23b22ea1c5e3ff3cff8c9c29bee1326"><td class="memItemLeft" align="right" valign="top"><a id="ac23b22ea1c5e3ff3cff8c9c29bee1326" name="ac23b22ea1c5e3ff3cff8c9c29bee1326"></a>
-<a class="el" href="../../dd/ddd/classfge_1_1Animation.html">fge::Animation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (std::string name)</td></tr>
-<tr class="separator:ac23b22ea1c5e3ff3cff8c9c29bee1326"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a999017ff88b9b8e6b808a6543ac3f23a" id="r_a999017ff88b9b8e6b808a6543ac3f23a"><td class="memItemLeft" align="right" valign="top"><a id="a999017ff88b9b8e6b808a6543ac3f23a" name="a999017ff88b9b8e6b808a6543ac3f23a"></a>
-<a class="el" href="../../dd/ddd/classfge_1_1Animation.html">fge::Animation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (char const *name)</td></tr>
-<tr class="separator:a999017ff88b9b8e6b808a6543ac3f23a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac58b73a235efce5f5af2c276176f79dd" id="r_ac58b73a235efce5f5af2c276176f79dd"><td class="memItemLeft" align="right" valign="top"><a id="ac58b73a235efce5f5af2c276176f79dd" name="ac58b73a235efce5f5af2c276176f79dd"></a>
-<a class="el" href="../../dd/ddd/classfge_1_1Animation.html">fge::Animation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (fge::anim::AnimationDataPtr data)</td></tr>
-<tr class="separator:ac58b73a235efce5f5af2c276176f79dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6e188423c03a5861c3a76d07329ec3c" id="r_ae6e188423c03a5861c3a76d07329ec3c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="../../df/de6/classfge_1_1vulkan_1_1TextureImage.html">fge::TextureType</a> &gt; const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae6e188423c03a5861c3a76d07329ec3c">retrieveTexture</a> () const</td></tr>
 <tr class="memdesc:ae6e188423c03a5861c3a76d07329ec3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the texture of the actual frame.  <br /></td></tr>
 <tr class="separator:ae6e188423c03a5861c3a76d07329ec3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af241f798aea6cff8bb4e4c1fd4baa928" id="r_af241f798aea6cff8bb4e4c1fd4baa928"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/d5f/classfge_1_1Rect.html">fge::RectInt</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af241f798aea6cff8bb4e4c1fd4baa928">retrieveTextureRect</a> () const</td></tr>
 <tr class="memdesc:af241f798aea6cff8bb4e4c1fd4baa928"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the texture rectangle if the type of the animation is <a class="el" href="../../d8/d70/group__animation.html#gga022b12a26e6fe8616d52be54cb85b8eda27034df7cb017b23001756052db2bf5f" title="Tileset type, you have just one texture with multiple frame in it.">fge::anim::ANIM_TYPE_TILESET</a> of the actual frame.  <br /></td></tr>
 <tr class="separator:af241f798aea6cff8bb4e4c1fd4baa928"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5113719b02aa0646c844a2891607cf1" id="r_ad5113719b02aa0646c844a2891607cf1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#ad5113719b02aa0646c844a2891607cf1">reload</a> ()</td></tr>
+<tr class="memdesc:ad5113719b02aa0646c844a2891607cf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reload the cached resource from the same name.  <br /></td></tr>
+<tr class="separator:ad5113719b02aa0646c844a2891607cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e08d42398bc9686ef15c92f1d4329fa" id="r_a2e08d42398bc9686ef15c92f1d4329fa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a2e08d42398bc9686ef15c92f1d4329fa">valid</a> () const</td></tr>
+<tr class="memdesc:a2e08d42398bc9686ef15c92f1d4329fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the font is valid (not unloaded)  <br /></td></tr>
+<tr class="separator:a2e08d42398bc9686ef15c92f1d4329fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3631fac8d229745dc12aad8a17768429" id="r_a3631fac8d229745dc12aad8a17768429"><td class="memItemLeft" align="right" valign="top">SharedDataType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a3631fac8d229745dc12aad8a17768429">getSharedBlock</a> () const</td></tr>
+<tr class="memdesc:a3631fac8d229745dc12aad8a17768429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the resource block data.  <br /></td></tr>
+<tr class="separator:a3631fac8d229745dc12aad8a17768429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a285705feb9ec8831b1310f43fcb96146" id="r_a285705feb9ec8831b1310f43fcb96146"><td class="memItemLeft" align="right" valign="top">SharedType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a285705feb9ec8831b1310f43fcb96146">getSharedData</a> () const</td></tr>
+<tr class="memdesc:a285705feb9ec8831b1310f43fcb96146"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the shared resource data.  <br /></td></tr>
+<tr class="separator:a285705feb9ec8831b1310f43fcb96146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a688f1c9bb082625121b8ad6a68a2f621" id="r_a688f1c9bb082625121b8ad6a68a2f621"><td class="memItemLeft" align="right" valign="top">std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a688f1c9bb082625121b8ad6a68a2f621">getName</a> () const</td></tr>
+<tr class="memdesc:a688f1c9bb082625121b8ad6a68a2f621"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the name of the resource.  <br /></td></tr>
+<tr class="separator:a688f1c9bb082625121b8ad6a68a2f621"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33cf7f16c019b1272ec56fe8c958d769" id="r_a33cf7f16c019b1272ec56fe8c958d769"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;::Manager::DataType *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a33cf7f16c019b1272ec56fe8c958d769">retrieve</a> ()</td></tr>
+<tr class="memdesc:a33cf7f16c019b1272ec56fe8c958d769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the raw shared pointer from the current resource.  <br /></td></tr>
+<tr class="separator:a33cf7f16c019b1272ec56fe8c958d769"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4a080755a8851cc323db5eb7bfad665" id="r_ac4a080755a8851cc323db5eb7bfad665"><td class="memItemLeft" align="right" valign="top"><a id="ac4a080755a8851cc323db5eb7bfad665" name="ac4a080755a8851cc323db5eb7bfad665"></a>
+<a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;::Manager::DataType const *&#160;</td><td class="memItemRight" valign="bottom"><b>retrieve</b> () const</td></tr>
+<tr class="separator:ac4a080755a8851cc323db5eb7bfad665"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class that represent/handle an animation. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a1b89378b566f81ee893fb6041f4c33ee" name="a1b89378b566f81ee893fb6041f4c33ee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b89378b566f81ee893fb6041f4c33ee">&#9670;&#160;</a></span>Animation() <span class="overload">[1/2]</span></h2>
+<a id="a192fe6c1943585fbab392b06bb83378b" name="a192fe6c1943585fbab392b06bb83378b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a192fe6c1943585fbab392b06bb83378b">&#9670;&#160;</a></span>Animation() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -247,12 +265,12 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">fge::Animation::Animation </td>
           <td>(</td>
-          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::size_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0</span>&#160;)</td>
+          <td class="paramtype">Index</td>          <td class="paramname"><span class="paramname"><em>frame</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0</span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -269,8 +287,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab05fb9bb1ea241d12535b4d6fcd08e91" name="ab05fb9bb1ea241d12535b4d6fcd08e91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab05fb9bb1ea241d12535b4d6fcd08e91">&#9670;&#160;</a></span>Animation() <span class="overload">[2/2]</span></h2>
+<a id="a487d13770480533d8e2946a9a86465f2" name="a487d13770480533d8e2946a9a86465f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a487d13770480533d8e2946a9a86465f2">&#9670;&#160;</a></span>Animation() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -278,12 +296,12 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">fge::Animation::Animation </td>
           <td>(</td>
-          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>group</em></span>, </td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>group</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -293,8 +311,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>TODO: use string_view ? </p>
-<p>Constructor that takes the name of the animation and the group name</p>
+<p>Constructor that takes the name of the animation and the group name. </p>
 <p>This function will get the animation data from the animation manager and load the wanted group by its name.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -308,27 +325,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ad7add9eb9acaa39ec50d1517c755ce53" name="ad7add9eb9acaa39ec50d1517c755ce53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad7add9eb9acaa39ec50d1517c755ce53">&#9670;&#160;</a></span>clear()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::Animation::clear </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Clear the animation. </p>
-
-</div>
-</div>
-<a id="a8ecaf5c66211b954d3d03db263d52250" name="a8ecaf5c66211b954d3d03db263d52250"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ecaf5c66211b954d3d03db263d52250">&#9670;&#160;</a></span>getData()</h2>
+<a id="afe9b7a7340963c117ee6d90edf1fb558" name="afe9b7a7340963c117ee6d90edf1fb558"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe9b7a7340963c117ee6d90edf1fb558">&#9670;&#160;</a></span>clear()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -337,21 +335,22 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">fge::anim::AnimationDataPtr const  &amp; fge::Animation::getData </td>
+          <td class="memname">void fge::Animation::clear </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the animation data. </p>
-<dl class="section return"><dt>Returns</dt><dd>The animation data </dd></dl>
+<p>Clear the animation. </p>
+
+<p>Reimplemented from <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a451ea6c562286faa2f8e2a6324a85197">fge::manager::BaseDataAccessor&lt; manager::GlobalDataAccessorManagerInfo&lt; anim::AnimationManager, &amp;anim::gManager &gt;, manager::DataAccessorOptions::BLOCKPOINTER_ONLY &gt;</a>.</p>
 
 </div>
 </div>
@@ -439,8 +438,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aff5b64e402f0660ce2e8dbfeee21e3f4" name="aff5b64e402f0660ce2e8dbfeee21e3f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff5b64e402f0660ce2e8dbfeee21e3f4">&#9670;&#160;</a></span>getGroup() <span class="overload">[1/3]</span></h2>
+<a id="acca01ca7b81ba8c1f8b886be870a6187" name="acca01ca7b81ba8c1f8b886be870a6187"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acca01ca7b81ba8c1f8b886be870a6187">&#9670;&#160;</a></span>getGroup() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -449,7 +448,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> const  * fge::Animation::getGroup </td>
+          <td class="memname"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> const  * fge::Animation::getGroup </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -467,8 +466,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3a3b6eae5a62e5d5f76b5dd2bf48258e" name="a3a3b6eae5a62e5d5f76b5dd2bf48258e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a3b6eae5a62e5d5f76b5dd2bf48258e">&#9670;&#160;</a></span>getGroup() <span class="overload">[2/3]</span></h2>
+<a id="aaff07fa9a9dcb643d142e3032469a291" name="aaff07fa9a9dcb643d142e3032469a291"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaff07fa9a9dcb643d142e3032469a291">&#9670;&#160;</a></span>getGroup() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -477,7 +476,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> const  * fge::Animation::getGroup </td>
+          <td class="memname"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> const  * fge::Animation::getGroup </td>
           <td>(</td>
           <td class="paramtype">Index</td>          <td class="paramname"><span class="paramname"><em>groupIndex</em></span></td><td>)</td>
           <td> const</td>
@@ -501,8 +500,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0745a1ecddca3fc70165e8f5c5996bbb" name="a0745a1ecddca3fc70165e8f5c5996bbb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0745a1ecddca3fc70165e8f5c5996bbb">&#9670;&#160;</a></span>getGroup() <span class="overload">[3/3]</span></h2>
+<a id="a65b3766c5bd7d1614d07aa3865662788" name="a65b3766c5bd7d1614d07aa3865662788"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65b3766c5bd7d1614d07aa3865662788">&#9670;&#160;</a></span>getGroup() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -511,9 +510,9 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">fge::anim::AnimationGroup</a> const  * fge::Animation::getGroup </td>
+          <td class="memname"><a class="el" href="../../d7/dbb/structfge_1_1anim_1_1AnimationGroup.html">anim::AnimationGroup</a> const  * fge::Animation::getGroup </td>
           <td>(</td>
-          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>groupName</em></span></td><td>)</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>group</em></span></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -527,7 +526,7 @@ Public Member Functions</h2></td></tr>
 <p>Get the group of the animation by its name. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">groupName</td><td>The name of the group </td></tr>
+    <tr><td class="paramname">group</td><td>The name of the group </td></tr>
   </table>
   </dd>
 </dl>
@@ -563,8 +562,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3b0b74338307c10f0fba8e120804fb30" name="a3b0b74338307c10f0fba8e120804fb30"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3b0b74338307c10f0fba8e120804fb30">&#9670;&#160;</a></span>getName()</h2>
+<a id="a688f1c9bb082625121b8ad6a68a2f621" name="a688f1c9bb082625121b8ad6a68a2f621"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a688f1c9bb082625121b8ad6a68a2f621">&#9670;&#160;</a></span>getName()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -573,7 +572,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string const  &amp; fge::Animation::getName </td>
+          <td class="memname">std::string const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::getName </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -581,18 +580,18 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the name of the loaded animation. </p>
-<dl class="section return"><dt>Returns</dt><dd>The name of the loaded animation </dd></dl>
+<p>Get the name of the resource. </p>
+<dl class="section return"><dt>Returns</dt><dd>The name of the resource, or an empty string if the resource is not valid </dd></dl>
 
 </div>
 </div>
-<a id="afb99655f0fd27255e386d252cf00a779" name="afb99655f0fd27255e386d252cf00a779"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afb99655f0fd27255e386d252cf00a779">&#9670;&#160;</a></span>getType()</h2>
+<a id="a3631fac8d229745dc12aad8a17768429" name="a3631fac8d229745dc12aad8a17768429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3631fac8d229745dc12aad8a17768429">&#9670;&#160;</a></span>getSharedBlock()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -601,7 +600,64 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/d70/group__animation.html#ga022b12a26e6fe8616d52be54cb85b8ed">fge::anim::AnimationType</a> fge::Animation::getType </td>
+          <td class="memname">BaseDataAccessor&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::SharedDataType const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::getSharedBlock </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the resource block data. </p>
+<dl class="section warning"><dt>Warning</dt><dd>If ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER is set, this method can a "bad" element.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The resource block data </dd></dl>
+
+</div>
+</div>
+<a id="a285705feb9ec8831b1310f43fcb96146" name="a285705feb9ec8831b1310f43fcb96146"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a285705feb9ec8831b1310f43fcb96146">&#9670;&#160;</a></span>getSharedData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">BaseDataAccessor&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::SharedType const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::getSharedData </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the shared resource data. </p>
+<dl class="section return"><dt>Returns</dt><dd>The shared resource data </dd></dl>
+
+</div>
+</div>
+<a id="a7ca408f48498f083ac29f4a7b458ca46" name="a7ca408f48498f083ac29f4a7b458ca46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ca408f48498f083ac29f4a7b458ca46">&#9670;&#160;</a></span>getType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/d70/group__animation.html#ga022b12a26e6fe8616d52be54cb85b8ed">anim::AnimationType</a> fge::Animation::getType </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -779,6 +835,62 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ad5113719b02aa0646c844a2891607cf1" name="ad5113719b02aa0646c844a2891607cf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5113719b02aa0646c844a2891607cf1">&#9670;&#160;</a></span>reload()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::reload </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reload the cached resource from the same name. </p>
+
+</div>
+</div>
+<a id="a33cf7f16c019b1272ec56fe8c958d769" name="a33cf7f16c019b1272ec56fe8c958d769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33cf7f16c019b1272ec56fe8c958d769">&#9670;&#160;</a></span>retrieve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;::Manager::DataType * <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::retrieve </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieve the raw shared pointer from the current resource. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Will never be <b>nullptr</b> if the manager was correctly initialized.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The raw resource pointer </dd></dl>
+
+</div>
+</div>
 <a id="ae6e188423c03a5861c3a76d07329ec3c" name="ae6e188423c03a5861c3a76d07329ec3c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae6e188423c03a5861c3a76d07329ec3c">&#9670;&#160;</a></span>retrieveTexture()</h2>
 
@@ -803,7 +915,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Retrieve the texture of the actual frame. </p>
-<dl class="section return"><dt>Returns</dt><dd>The texture or <a class="el" href="../../d6/de0/group__graphics.html#gade190b08b4ff07555ff025d0da369293" title="Get the bad texture.">texture::GetBadTexture</a> if something is invalid </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The texture or texture::GetBadTexture if something is invalid </dd></dl>
 
 </div>
 </div>
@@ -886,8 +998,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ae8e182efc77e7d67bdc921fc0a6c7f3e" name="ae8e182efc77e7d67bdc921fc0a6c7f3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8e182efc77e7d67bdc921fc0a6c7f3e">&#9670;&#160;</a></span>setGroup() <span class="overload">[2/2]</span></h2>
+<a id="a7ded85a12da4a7ad3819ee8a8645e0dd" name="a7ded85a12da4a7ad3819ee8a8645e0dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ded85a12da4a7ad3819ee8a8645e0dd">&#9670;&#160;</a></span>setGroup() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -895,7 +1007,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">bool fge::Animation::setGroup </td>
           <td>(</td>
-          <td class="paramtype">std::string const &amp;</td>          <td class="paramname"><span class="paramname"><em>groupName</em></span></td><td>)</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>group</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -904,7 +1016,7 @@ Public Member Functions</h2></td></tr>
 <p>Set the group of the animation by its name. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">groupName</td><td>The name of the group </td></tr>
+    <tr><td class="paramname">group</td><td>The name of the group </td></tr>
   </table>
   </dd>
 </dl>
@@ -987,8 +1099,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a849ac19237e0e75eb81957e2b7f40655" name="a849ac19237e0e75eb81957e2b7f40655"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a849ac19237e0e75eb81957e2b7f40655">&#9670;&#160;</a></span>valid()</h2>
+<a id="a2e08d42398bc9686ef15c92f1d4329fa" name="a2e08d42398bc9686ef15c92f1d4329fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e08d42398bc9686ef15c92f1d4329fa">&#9670;&#160;</a></span>valid()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -997,7 +1109,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool fge::Animation::valid </td>
+          <td class="memname">bool <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d0/d35/classfge_1_1anim_1_1AnimationManager.html">anim::AnimationManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#gacfdb65ef82b00a6bbcb29f426596ae65">anim::gManager</a> &gt;, TOption &gt;::valid </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -1005,13 +1117,13 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Check if the animation data is valid. </p>
-<dl class="section return"><dt>Returns</dt><dd>The validity of the animation data </dd></dl>
+<p>Check if the font is valid (not unloaded) </p>
+<dl class="section return"><dt>Returns</dt><dd><b>True</b> if the font is valid, <b>false</b> otherwise </dd></dl>
 
 </div>
 </div>

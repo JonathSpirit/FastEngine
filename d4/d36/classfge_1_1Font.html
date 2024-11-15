@@ -91,132 +91,68 @@ $(function(){ initResizable(false); });
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="../../db/dc3/classfge_1_1Font-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fge::Font Class Reference<div class="ingroups"><a class="el" href="../../d6/de0/group__graphics.html">Graphics utility/tools</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>This class is a wrapper for the font manger to allow easy manipulation.  
+<p>This class is a wrapper for the font manager to allow easy manipulation.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="../../de/de2/C__font_8hpp_source.html">C_font.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for fge::Font:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="../../d4/d36/classfge_1_1Font.png" usemap="#fge::Font_map" alt=""/>
+  <map id="fge::Font_map" name="fge::Font_map">
+<area href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html" alt="fge::manager::BaseDataAccessor&lt; manager::GlobalDataAccessorManagerInfo&lt; font::FontManager, &amp;font::gManager &gt;, manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER &gt;" shape="rect" coords="0,0,1249,24"/>
+  </map>
+</div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:af709f028019eb2e2301d49c6e73ba4d1" id="r_af709f028019eb2e2301d49c6e73ba4d1"><td class="memItemLeft" align="right" valign="top"><a id="af709f028019eb2e2301d49c6e73ba4d1" name="af709f028019eb2e2301d49c6e73ba4d1"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedDataType</b></td></tr>
+<tr class="separator:af709f028019eb2e2301d49c6e73ba4d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78522843fff92b32ed0542589ca9a46b" id="r_a78522843fff92b32ed0542589ca9a46b"><td class="memItemLeft" align="right" valign="top"><a id="a78522843fff92b32ed0542589ca9a46b" name="a78522843fff92b32ed0542589ca9a46b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SharedType</b></td></tr>
+<tr class="separator:a78522843fff92b32ed0542589ca9a46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1dfa92f55782719edc29f05cfd59f2c8" id="r_a1dfa92f55782719edc29f05cfd59f2c8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1dfa92f55782719edc29f05cfd59f2c8">Font</a> (std::string name)</td></tr>
-<tr class="memdesc:a1dfa92f55782719edc29f05cfd59f2c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the font data by its name.  <br /></td></tr>
-<tr class="separator:a1dfa92f55782719edc29f05cfd59f2c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af395ed492e70c1bb17a3f2274112b98a" id="r_af395ed492e70c1bb17a3f2274112b98a"><td class="memItemLeft" align="right" valign="top"><a id="af395ed492e70c1bb17a3f2274112b98a" name="af395ed492e70c1bb17a3f2274112b98a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Font</b> (char const *name)</td></tr>
-<tr class="separator:af395ed492e70c1bb17a3f2274112b98a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2db13bae83ae4ef816bb7a645caa6ff3" id="r_a2db13bae83ae4ef816bb7a645caa6ff3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2db13bae83ae4ef816bb7a645caa6ff3">Font</a> (fge::font::FontDataPtr data)</td></tr>
-<tr class="memdesc:a2db13bae83ae4ef816bb7a645caa6ff3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a custom font data pointer.  <br /></td></tr>
-<tr class="separator:a2db13bae83ae4ef816bb7a645caa6ff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa74e80ec615942dd2ed147758b5e13ef" id="r_aa74e80ec615942dd2ed147758b5e13ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa74e80ec615942dd2ed147758b5e13ef">clear</a> ()</td></tr>
-<tr class="memdesc:aa74e80ec615942dd2ed147758b5e13ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the font data.  <br /></td></tr>
-<tr class="separator:aa74e80ec615942dd2ed147758b5e13ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a107e98548e592789ca1f4c84bb2230" id="r_a3a107e98548e592789ca1f4c84bb2230"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a107e98548e592789ca1f4c84bb2230">valid</a> () const</td></tr>
-<tr class="memdesc:a3a107e98548e592789ca1f4c84bb2230"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the font is valid (not unloaded)  <br /></td></tr>
-<tr class="separator:a3a107e98548e592789ca1f4c84bb2230"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec556ddc42aed24dd8d62b82c6960f88" id="r_aec556ddc42aed24dd8d62b82c6960f88"><td class="memItemLeft" align="right" valign="top">fge::font::FontDataPtr const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aec556ddc42aed24dd8d62b82c6960f88">getData</a> () const</td></tr>
-<tr class="memdesc:aec556ddc42aed24dd8d62b82c6960f88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the font data.  <br /></td></tr>
-<tr class="separator:aec556ddc42aed24dd8d62b82c6960f88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5534f7e2e33520e0dc960b6aea4a54f1" id="r_a5534f7e2e33520e0dc960b6aea4a54f1"><td class="memItemLeft" align="right" valign="top">std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5534f7e2e33520e0dc960b6aea4a54f1">getName</a> () const</td></tr>
-<tr class="memdesc:a5534f7e2e33520e0dc960b6aea4a54f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the name of the font.  <br /></td></tr>
-<tr class="separator:a5534f7e2e33520e0dc960b6aea4a54f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fe14c496ae7e6605171d1ca39f4488b" id="r_a9fe14c496ae7e6605171d1ca39f4488b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d4/d36/classfge_1_1Font.html">fge::Font</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fe14c496ae7e6605171d1ca39f4488b">operator=</a> (std::string name)</td></tr>
-<tr class="memdesc:a9fe14c496ae7e6605171d1ca39f4488b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the font data by its name.  <br /></td></tr>
-<tr class="separator:a9fe14c496ae7e6605171d1ca39f4488b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a695498da1b49078d8382f11ebab66341" id="r_a695498da1b49078d8382f11ebab66341"><td class="memItemLeft" align="right" valign="top"><a id="a695498da1b49078d8382f11ebab66341" name="a695498da1b49078d8382f11ebab66341"></a>
-<a class="el" href="../../d4/d36/classfge_1_1Font.html">fge::Font</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (char const *name)</td></tr>
-<tr class="separator:a695498da1b49078d8382f11ebab66341"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa1146f7d16b03950ea7f90d0958941a" id="r_afa1146f7d16b03950ea7f90d0958941a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d4/d36/classfge_1_1Font.html">fge::Font</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa1146f7d16b03950ea7f90d0958941a">operator=</a> (fge::font::FontDataPtr data)</td></tr>
-<tr class="memdesc:afa1146f7d16b03950ea7f90d0958941a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a custom font data pointer.  <br /></td></tr>
-<tr class="separator:afa1146f7d16b03950ea7f90d0958941a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeabe026fce2645a01c635267d3976baf" id="r_aeabe026fce2645a01c635267d3976baf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../da/d49/classfge_1_1FreeTypeFont.html">fge::FreeTypeFont</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeabe026fce2645a01c635267d3976baf">retrieve</a> ()</td></tr>
-<tr class="memdesc:aeabe026fce2645a01c635267d3976baf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the internal FreeType font pointer.  <br /></td></tr>
-<tr class="separator:aeabe026fce2645a01c635267d3976baf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b92b275a499a658a1339c4f46860c52" id="r_a3b92b275a499a658a1339c4f46860c52"><td class="memItemLeft" align="right" valign="top"><a id="a3b92b275a499a658a1339c4f46860c52" name="a3b92b275a499a658a1339c4f46860c52"></a>
-<a class="el" href="../../da/d49/classfge_1_1FreeTypeFont.html">fge::FreeTypeFont</a> const *&#160;</td><td class="memItemRight" valign="bottom"><b>retrieve</b> () const</td></tr>
-<tr class="separator:a3b92b275a499a658a1339c4f46860c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a451ea6c562286faa2f8e2a6324a85197" id="r_a451ea6c562286faa2f8e2a6324a85197"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a451ea6c562286faa2f8e2a6324a85197">clear</a> ()</td></tr>
+<tr class="memdesc:a451ea6c562286faa2f8e2a6324a85197"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the resource.  <br /></td></tr>
+<tr class="separator:a451ea6c562286faa2f8e2a6324a85197"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5113719b02aa0646c844a2891607cf1" id="r_ad5113719b02aa0646c844a2891607cf1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#ad5113719b02aa0646c844a2891607cf1">reload</a> ()</td></tr>
+<tr class="memdesc:ad5113719b02aa0646c844a2891607cf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reload the cached resource from the same name.  <br /></td></tr>
+<tr class="separator:ad5113719b02aa0646c844a2891607cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e08d42398bc9686ef15c92f1d4329fa" id="r_a2e08d42398bc9686ef15c92f1d4329fa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a2e08d42398bc9686ef15c92f1d4329fa">valid</a> () const</td></tr>
+<tr class="memdesc:a2e08d42398bc9686ef15c92f1d4329fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the font is valid (not unloaded)  <br /></td></tr>
+<tr class="separator:a2e08d42398bc9686ef15c92f1d4329fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3631fac8d229745dc12aad8a17768429" id="r_a3631fac8d229745dc12aad8a17768429"><td class="memItemLeft" align="right" valign="top">SharedDataType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a3631fac8d229745dc12aad8a17768429">getSharedBlock</a> () const</td></tr>
+<tr class="memdesc:a3631fac8d229745dc12aad8a17768429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the resource block data.  <br /></td></tr>
+<tr class="separator:a3631fac8d229745dc12aad8a17768429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a285705feb9ec8831b1310f43fcb96146" id="r_a285705feb9ec8831b1310f43fcb96146"><td class="memItemLeft" align="right" valign="top">SharedType const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a285705feb9ec8831b1310f43fcb96146">getSharedData</a> () const</td></tr>
+<tr class="memdesc:a285705feb9ec8831b1310f43fcb96146"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the shared resource data.  <br /></td></tr>
+<tr class="separator:a285705feb9ec8831b1310f43fcb96146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a688f1c9bb082625121b8ad6a68a2f621" id="r_a688f1c9bb082625121b8ad6a68a2f621"><td class="memItemLeft" align="right" valign="top">std::string const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a688f1c9bb082625121b8ad6a68a2f621">getName</a> () const</td></tr>
+<tr class="memdesc:a688f1c9bb082625121b8ad6a68a2f621"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the name of the resource.  <br /></td></tr>
+<tr class="separator:a688f1c9bb082625121b8ad6a68a2f621"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33cf7f16c019b1272ec56fe8c958d769" id="r_a33cf7f16c019b1272ec56fe8c958d769"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;::Manager::DataType *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html#a33cf7f16c019b1272ec56fe8c958d769">retrieve</a> ()</td></tr>
+<tr class="memdesc:a33cf7f16c019b1272ec56fe8c958d769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the raw shared pointer from the current resource.  <br /></td></tr>
+<tr class="separator:a33cf7f16c019b1272ec56fe8c958d769"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4a080755a8851cc323db5eb7bfad665" id="r_ac4a080755a8851cc323db5eb7bfad665"><td class="memItemLeft" align="right" valign="top"><a id="ac4a080755a8851cc323db5eb7bfad665" name="ac4a080755a8851cc323db5eb7bfad665"></a>
+<a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;::Manager::DataType const *&#160;</td><td class="memItemRight" valign="bottom"><b>retrieve</b> () const</td></tr>
+<tr class="separator:ac4a080755a8851cc323db5eb7bfad665"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This class is a wrapper for the font manger to allow easy manipulation. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a1dfa92f55782719edc29f05cfd59f2c8" name="a1dfa92f55782719edc29f05cfd59f2c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1dfa92f55782719edc29f05cfd59f2c8">&#9670;&#160;</a></span>Font() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">fge::Font::Font </td>
-          <td>(</td>
-          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>name</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the font data by its name. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">name</td><td>The name of the loaded font </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a2db13bae83ae4ef816bb7a645caa6ff3" name="a2db13bae83ae4ef816bb7a645caa6ff3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2db13bae83ae4ef816bb7a645caa6ff3">&#9670;&#160;</a></span>Font() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">fge::Font::Font </td>
-          <td>(</td>
-          <td class="paramtype">fge::font::FontDataPtr</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Copy a custom font data pointer. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>The custom font data pointer </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa74e80ec615942dd2ed147758b5e13ef" name="aa74e80ec615942dd2ed147758b5e13ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa74e80ec615942dd2ed147758b5e13ef">&#9670;&#160;</a></span>clear()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void fge::Font::clear </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Clear the font data. </p>
-<p>This function clear the font data by setting it to the default font. </p>
-
-</div>
-</div>
-<a id="aec556ddc42aed24dd8d62b82c6960f88" name="aec556ddc42aed24dd8d62b82c6960f88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec556ddc42aed24dd8d62b82c6960f88">&#9670;&#160;</a></span>getData()</h2>
+<div class="textblock"><p>This class is a wrapper for the font manager to allow easy manipulation. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a451ea6c562286faa2f8e2a6324a85197" name="a451ea6c562286faa2f8e2a6324a85197"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a451ea6c562286faa2f8e2a6324a85197">&#9670;&#160;</a></span>clear()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -225,7 +161,35 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">fge::font::FontDataPtr const  &amp; fge::Font::getData </td>
+          <td class="memname">void <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::clear </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Clear the resource. </p>
+<p>This method clear the resource by setting it to the default/bad "valid" resource. </p>
+
+</div>
+</div>
+<a id="a688f1c9bb082625121b8ad6a68a2f621" name="a688f1c9bb082625121b8ad6a68a2f621"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a688f1c9bb082625121b8ad6a68a2f621">&#9670;&#160;</a></span>getName()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::getName </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -233,18 +197,18 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the font data. </p>
-<dl class="section return"><dt>Returns</dt><dd>The font data </dd></dl>
+<p>Get the name of the resource. </p>
+<dl class="section return"><dt>Returns</dt><dd>The name of the resource, or an empty string if the resource is not valid </dd></dl>
 
 </div>
 </div>
-<a id="a5534f7e2e33520e0dc960b6aea4a54f1" name="a5534f7e2e33520e0dc960b6aea4a54f1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5534f7e2e33520e0dc960b6aea4a54f1">&#9670;&#160;</a></span>getName()</h2>
+<a id="a3631fac8d229745dc12aad8a17768429" name="a3631fac8d229745dc12aad8a17768429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3631fac8d229745dc12aad8a17768429">&#9670;&#160;</a></span>getSharedBlock()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -253,7 +217,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string const  &amp; fge::Font::getName </td>
+          <td class="memname">BaseDataAccessor&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::SharedDataType const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::getSharedBlock </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -261,68 +225,19 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the name of the font. </p>
-<dl class="section return"><dt>Returns</dt><dd>The name of the font </dd></dl>
+<p>Get the resource block data. </p>
+<dl class="section warning"><dt>Warning</dt><dd>If ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER is set, this method can a "bad" element.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The resource block data </dd></dl>
 
 </div>
 </div>
-<a id="afa1146f7d16b03950ea7f90d0958941a" name="afa1146f7d16b03950ea7f90d0958941a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa1146f7d16b03950ea7f90d0958941a">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d4/d36/classfge_1_1Font.html">fge::Font</a> &amp; fge::Font::operator= </td>
-          <td>(</td>
-          <td class="paramtype">fge::font::FontDataPtr</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Copy a custom font data pointer. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>The custom font data pointer </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a9fe14c496ae7e6605171d1ca39f4488b" name="a9fe14c496ae7e6605171d1ca39f4488b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9fe14c496ae7e6605171d1ca39f4488b">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d4/d36/classfge_1_1Font.html">fge::Font</a> &amp; fge::Font::operator= </td>
-          <td>(</td>
-          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>name</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the font data by its name. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">name</td><td>The name of the loaded font </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="aeabe026fce2645a01c635267d3976baf" name="aeabe026fce2645a01c635267d3976baf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeabe026fce2645a01c635267d3976baf">&#9670;&#160;</a></span>retrieve()</h2>
+<a id="a285705feb9ec8831b1310f43fcb96146" name="a285705feb9ec8831b1310f43fcb96146"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a285705feb9ec8831b1310f43fcb96146">&#9670;&#160;</a></span>getSharedData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -331,36 +246,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../da/d49/classfge_1_1FreeTypeFont.html">fge::FreeTypeFont</a> * fge::Font::retrieve </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Retrieve the internal FreeType font pointer. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Will never be <b>nullptr</b> if the font manager was correctly initialized.</dd></dl>
-<dl class="section return"><dt>Returns</dt><dd>The FreeType font pointer </dd></dl>
-
-</div>
-</div>
-<a id="a3a107e98548e592789ca1f4c84bb2230" name="a3a107e98548e592789ca1f4c84bb2230"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a107e98548e592789ca1f4c84bb2230">&#9670;&#160;</a></span>valid()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool fge::Font::valid </td>
+          <td class="memname">BaseDataAccessor&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::SharedType const &amp; <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::getSharedData </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -368,13 +254,97 @@ Public Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">nodiscard</span></span>  </td>
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the shared resource data. </p>
+<dl class="section return"><dt>Returns</dt><dd>The shared resource data </dd></dl>
+
+</div>
+</div>
+<a id="ad5113719b02aa0646c844a2891607cf1" name="ad5113719b02aa0646c844a2891607cf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5113719b02aa0646c844a2891607cf1">&#9670;&#160;</a></span>reload()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::reload </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reload the cached resource from the same name. </p>
+
+</div>
+</div>
+<a id="a33cf7f16c019b1272ec56fe8c958d769" name="a33cf7f16c019b1272ec56fe8c958d769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33cf7f16c019b1272ec56fe8c958d769">&#9670;&#160;</a></span>retrieve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;::Manager::DataType * <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::retrieve </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieve the raw shared pointer from the current resource. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Will never be <b>nullptr</b> if the manager was correctly initialized.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The raw resource pointer </dd></dl>
+
+</div>
+</div>
+<a id="a2e08d42398bc9686ef15c92f1d4329fa" name="a2e08d42398bc9686ef15c92f1d4329fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e08d42398bc9686ef15c92f1d4329fa">&#9670;&#160;</a></span>valid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="../../df/d14/classfge_1_1manager_1_1BaseDataAccessor.html">fge::manager::BaseDataAccessor</a>&lt; <a class="el" href="../../d1/dd5/structfge_1_1manager_1_1GlobalDataAccessorManagerInfo.html">manager::GlobalDataAccessorManagerInfo</a>&lt; <a class="el" href="../../d9/d43/classfge_1_1font_1_1FontManager.html">font::FontManager</a>, &amp;<a class="el" href="../../dd/da4/group__managers.html#ga1a063ad31d4d7dd044b4f014ce02d2c2">font::gManager</a> &gt;, TOption &gt;::valid </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">nodiscard</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 <p>Check if the font is valid (not unloaded) </p>
-<dl class="section return"><dt>Returns</dt><dd>True if the font is valid, false otherwise </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><b>True</b> if the font is valid, <b>false</b> otherwise </dd></dl>
 
 </div>
 </div>
