@@ -43,9 +43,9 @@ FGE_OBJ_DRAW_BODY(ObjShaderChain)
     copyStates._resInstances.setInstancesCount(1, true);
     copyStates._resInstances.setVertexCount(this->g_vertexCount);
 
-    copyStates._shaderVertex = this->g_vertexShader->_ptr.get();
-    copyStates._shaderFragment = this->g_fragmentShader->_ptr.get();
-    copyStates._shaderGeometry = this->g_geometryShader->_ptr.get();
+    copyStates._shaderVertex = this->g_vertexShader.retrieveValid();
+    copyStates._shaderFragment = this->g_fragmentShader.retrieveValid();
+    copyStates._shaderGeometry = this->g_geometryShader.retrieveValid();
 
     copyStates._blendMode = this->g_blendMode;
     copyStates._topology = this->g_topology;
@@ -59,17 +59,17 @@ void ObjShaderChain::drawSubsidiary([[maybe_unused]] fge::RenderTarget& target,
 {}
 #endif
 
-void ObjShaderChain::setGeometryShader(std::string_view name)
+void ObjShaderChain::setGeometryShader(fge::Shader shader)
 {
-    this->g_geometryShader = fge::shader::gManager.getElement(name);
+    this->g_geometryShader = std::move(shader);
 }
-void ObjShaderChain::setVertexShader(std::string_view name)
+void ObjShaderChain::setVertexShader(fge::Shader shader)
 {
-    this->g_vertexShader = fge::shader::gManager.getElement(name);
+    this->g_vertexShader = std::move(shader);
 }
-void ObjShaderChain::setFragmentShader(std::string_view name)
+void ObjShaderChain::setFragmentShader(fge::Shader shader)
 {
-    this->g_fragmentShader = fge::shader::gManager.getElement(name);
+    this->g_fragmentShader = std::move(shader);
 }
 
 void ObjShaderChain::setVertexCount(uint32_t count)
@@ -99,15 +99,15 @@ VkPrimitiveTopology ObjShaderChain::getTopology() const
     return this->g_topology;
 }
 
-fge::shader::ShaderManager::DataBlockPointer ObjShaderChain::getGeometryShader() const
+fge::Shader const& ObjShaderChain::getGeometryShader() const
 {
     return this->g_geometryShader;
 }
-fge::shader::ShaderManager::DataBlockPointer ObjShaderChain::getVertexShader() const
+fge::Shader const& ObjShaderChain::getVertexShader() const
 {
     return this->g_vertexShader;
 }
-fge::shader::ShaderManager::DataBlockPointer ObjShaderChain::getFragmentShader() const
+fge::Shader const& ObjShaderChain::getFragmentShader() const
 {
     return this->g_fragmentShader;
 }

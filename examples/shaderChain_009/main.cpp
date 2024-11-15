@@ -123,8 +123,8 @@ public:
             obj->setFragmentShader("custom_fragment");
             obj->_tags.add("chain");
 
-            if (!obj->getGeometryShader()->_valid || !obj->getVertexShader()->_valid ||
-                !obj->getFragmentShader()->_valid)
+            if (!obj->getGeometryShader().valid() || !obj->getVertexShader().valid() ||
+                !obj->getFragmentShader().valid())
             {
                 this->delObject(obj->_myObjectData.lock()->getSid());
             }

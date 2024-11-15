@@ -19,7 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_object.hpp"
-#include "FastEngine/manager/shader_manager.hpp"
+#include "FastEngine/accessor/C_shader.hpp"
 
 #define FGE_OBJSHADERCHAIN_CLASSNAME "FGE:OBJ:SHADERCHAIN"
 
@@ -37,9 +37,9 @@ public:
 
     void first(fge::Scene& scene) override;
 
-    void setGeometryShader(std::string_view name);
-    void setVertexShader(std::string_view name);
-    void setFragmentShader(std::string_view name);
+    void setGeometryShader(fge::Shader shader);
+    void setVertexShader(fge::Shader shader);
+    void setFragmentShader(fge::Shader shader);
 
     void setVertexCount(uint32_t count);
     [[nodiscard]] uint32_t getVertexCount() const;
@@ -50,9 +50,9 @@ public:
     void setTopology(VkPrimitiveTopology topology);
     [[nodiscard]] VkPrimitiveTopology getTopology() const;
 
-    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getGeometryShader() const;
-    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getVertexShader() const;
-    [[nodiscard]] fge::shader::ShaderManager::DataBlockPointer getFragmentShader() const;
+    [[nodiscard]] fge::Shader const& getGeometryShader() const;
+    [[nodiscard]] fge::Shader const& getVertexShader() const;
+    [[nodiscard]] fge::Shader const& getFragmentShader() const;
 
     char const* getClassName() const override;
     char const* getReadableClassName() const override;
@@ -66,9 +66,9 @@ protected:
 #endif
 
 private:
-    fge::shader::ShaderManager::DataBlockPointer g_geometryShader;
-    fge::shader::ShaderManager::DataBlockPointer g_vertexShader;
-    fge::shader::ShaderManager::DataBlockPointer g_fragmentShader;
+    fge::Shader g_geometryShader;
+    fge::Shader g_vertexShader;
+    fge::Shader g_fragmentShader;
     uint32_t g_vertexCount;
     fge::vulkan::BlendMode g_blendMode;
     VkPrimitiveTopology g_topology;
