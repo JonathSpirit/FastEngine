@@ -29,7 +29,7 @@ namespace fge
  * \ingroup graphics
  * \brief This class is a wrapper for the font manager to allow easy manipulation
  */
-class FGE_API Font
+class Font
         : public manager::BaseDataAccessor<manager::GlobalDataAccessorManagerInfo<font::FontManager, &font::gManager>,
                                            manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
 {

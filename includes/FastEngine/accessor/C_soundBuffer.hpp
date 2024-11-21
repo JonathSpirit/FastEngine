@@ -29,9 +29,9 @@ namespace fge
  * \ingroup audio
  * \brief This class is a wrapper for the audio manager to allow easy manipulation
  */
-class FGE_API SoundBuffer : public manager::BaseDataAccessor<
-                                    manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
-                                    manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
+class SoundBuffer : public manager::BaseDataAccessor<
+                            manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
+                            manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
 {
 public:
     using BaseDataAccessor::BaseDataAccessor;
