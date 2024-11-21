@@ -17,7 +17,6 @@
 #ifndef _FGE_C_SOUNDBUFFER_HPP_INCLUDED
 #define _FGE_C_SOUNDBUFFER_HPP_INCLUDED
 
-#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 
