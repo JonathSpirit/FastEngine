@@ -224,7 +224,7 @@ Scene& Scene::operator=(Scene const& r)
 #ifdef FGE_DEF_SERVER
 void Scene::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, std::underlying_type_t<UpdateFlags> flags)
 #else
-void Scene::update(fge::RenderWindow& screen,
+void Scene::update(fge::RenderTarget& target,
                    fge::Event& event,
                    FGE_DELTA_TIME const& deltaTime,
                    std::underlying_type_t<UpdateFlags> flags)
@@ -247,10 +247,10 @@ void Scene::update(fge::RenderWindow& screen,
             updatedObject->g_object->_children.update(event, deltaTime, *this);
         }
 #else
-        updatedObject->g_object->update(screen, event, deltaTime, *this);
+        updatedObject->g_object->update(target, event, deltaTime, *this);
         if ((updatedObject->g_object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_UPDATE) > 0)
         {
-            updatedObject->g_object->_children.update(screen, event, deltaTime, *this);
+            updatedObject->g_object->_children.update(target, event, deltaTime, *this);
         }
 #endif //FGE_DEF_SERVER
 

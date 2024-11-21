@@ -185,7 +185,7 @@ FGE_OBJ_UPDATE_BODY(ObjWindow)
 #else
 FGE_OBJ_UPDATE_BODY(ObjWindow)
 {
-    this->_windowScene.update(screen, event, deltaTime);
+    this->_windowScene.update(target, event, deltaTime);
 }
 #endif
 

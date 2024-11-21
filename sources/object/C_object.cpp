@@ -59,16 +59,16 @@ void Object::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime)
     }
 }
 #else
-void Object::update([[maybe_unused]] fge::RenderWindow& screen,
+void Object::update([[maybe_unused]] fge::RenderTarget& target,
                     [[maybe_unused]] fge::Event& event,
                     [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
                     [[maybe_unused]] fge::Scene& scene)
 {}
-void Object::update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime)
+void Object::update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime)
 {
     if (auto myObject = this->_myObjectData.lock())
     {
-        this->update(screen, event, deltaTime, *myObject->getScene());
+        this->update(target, event, deltaTime, *myObject->getScene());
     }
 }
 #endif //FGE_DEF_SERVER

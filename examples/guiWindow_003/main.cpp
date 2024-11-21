@@ -18,6 +18,7 @@
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/graphic/C_renderWindow.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objSlider.hpp"

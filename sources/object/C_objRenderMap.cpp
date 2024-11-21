@@ -71,15 +71,15 @@ FGE_OBJ_UPDATE_BODY(ObjRenderMap) {}
 #else
 FGE_OBJ_UPDATE_BODY(ObjRenderMap)
 {
-    if (screen.getSize() != this->g_windowSize)
+    if (target.getSize() != this->g_windowSize)
     {
-        this->g_windowSize = screen.getSize();
+        this->g_windowSize = target.getSize();
         this->_renderTexture.resize({this->g_windowSize.x, this->g_windowSize.y});
 
         this->updatePositions();
         this->updateTexCoords();
 
-        this->g_windowView = screen.getDefaultView();
+        this->g_windowView = target.getDefaultView();
         this->g_windowView.setSize(static_cast<fge::Vector2f>(this->g_windowSize));
         this->g_windowView.setCenter(
                 {static_cast<float>(this->g_windowSize.x) / 2.0f, static_cast<float>(this->g_windowSize.y) / 2.0f});

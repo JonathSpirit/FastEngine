@@ -501,7 +501,7 @@ public:
      * the delUpdatedObject and not any others delete methode that will cause
      * undefined behaviour.
      *
-     * \param screen A RenderWindow
+     * \param target A RenderTarget
      * \param event The FastEngine Event class
      * \param deltaTime The time in microseconds between two updates
      * \param flags Some flags to control the update like the update count
@@ -511,7 +511,7 @@ public:
                 FGE_DELTA_TIME const& deltaTime,
                 std::underlying_type_t<UpdateFlags> flags = UpdateFlags::INCREMENT_UPDATE_COUNT);
 #else
-    void update(fge::RenderWindow& screen,
+    void update(fge::RenderTarget& target,
                 fge::Event& event,
                 FGE_DELTA_TIME const& deltaTime,
                 std::underlying_type_t<UpdateFlags> flags = UpdateFlags::NONE);

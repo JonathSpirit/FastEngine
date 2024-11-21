@@ -17,6 +17,7 @@
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/graphic/C_renderWindow.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objLight.hpp"
@@ -85,7 +86,7 @@ public:
         this->setObstacle(this->g_type);
     }
 
-    void update([[maybe_unused]] fge::RenderWindow& screen,
+    void update([[maybe_unused]] fge::RenderTarget& target,
                 [[maybe_unused]] fge::Event& event,
                 [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
                 [[maybe_unused]] fge::Scene& scene) override
@@ -93,7 +94,7 @@ public:
         auto* follow = scene._properties["follow"].getPtr<std::string>();
         if (follow != nullptr && *follow == "obstacle" && !this->_tags.check("duplicate"))
         {
-            this->setPosition(screen.mapFramebufferCoordsToViewSpace(event.getMousePixelPos()));
+            this->setPosition(target.mapFramebufferCoordsToViewSpace(event.getMousePixelPos()));
         }
     }
 

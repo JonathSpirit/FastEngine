@@ -149,7 +149,7 @@ void ChildObjectsAccessor::update(fge::Event& event, FGE_DELTA_TIME const& delta
     }
 }
 #else
-void ChildObjectsAccessor::update(fge::RenderWindow& screen,
+void ChildObjectsAccessor::update(fge::RenderTarget& target,
                                   fge::Event& event,
                                   FGE_DELTA_TIME const& deltaTime,
                                   fge::Scene& scene) const
@@ -157,7 +157,7 @@ void ChildObjectsAccessor::update(fge::RenderWindow& screen,
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
          ++this->g_actualIteratedIndex)
     {
-        this->g_data[this->g_actualIteratedIndex]._objPtr->update(screen, event, deltaTime, scene);
+        this->g_data[this->g_actualIteratedIndex]._objPtr->update(target, event, deltaTime, scene);
     }
 }
 void ChildObjectsAccessor::draw(fge::RenderTarget& target, fge::RenderStates const& states) const

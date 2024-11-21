@@ -19,7 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/graphic/C_renderStates.hpp"
-#include "FastEngine/graphic/C_renderWindow.hpp"
+#include "FastEngine/graphic/C_renderTarget.hpp"
 #include <chrono>
 #include <limits>
 #include <memory>
@@ -66,7 +66,7 @@ public:
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene);
 #else
-    void update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene) const;
+    void update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene) const;
     void draw(fge::RenderTarget& target, fge::RenderStates const& states) const;
 #endif //FGE_DEF_SERVER
 

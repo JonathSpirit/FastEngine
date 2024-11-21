@@ -25,7 +25,6 @@
 #include "FastEngine/object/C_objRectangleShape.hpp"
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "SDL.h"
 #include <cmath>
@@ -78,8 +77,7 @@ public:
 
         //Update scene
         auto deltaTick = tick.restart();
-        fge::RenderWindow* window; //TODO: don't do that
-        this->update(*window, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
+        this->update(renderTexture, event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTick));
 
         //Update text characters
         auto& characters = movingText->getCharacters();

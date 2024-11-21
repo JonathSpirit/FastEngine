@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/C_clock.hpp"
+#include "FastEngine/graphic/C_renderWindow.hpp"
 #include "FastEngine/manager/anim_manager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 #include "FastEngine/manager/font_manager.hpp"

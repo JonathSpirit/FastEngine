@@ -48,7 +48,7 @@
         void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene) override;
 #else
     #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
-        void update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene)  \
+        void update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene)  \
                 override;
 #endif //FGE_DEF_SERVER
 
@@ -61,11 +61,11 @@
     #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(event, deltaTime, scene)
 #else
     #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
-        void class_::update([[maybe_unused]] fge::RenderWindow& screen, [[maybe_unused]] fge::Event& event,            \
+        void class_::update([[maybe_unused]] fge::RenderTarget& target, [[maybe_unused]] fge::Event& event,            \
                             [[maybe_unused]] FGE_DELTA_TIME const& deltaTime, [[maybe_unused]] fge::Scene& scene)
 
-    #define FGE_OBJ_UPDATE_CALL(object_) object_.update(screen, event, deltaTime, scene)
-    #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(screen, event, deltaTime, scene)
+    #define FGE_OBJ_UPDATE_CALL(object_) object_.update(target, event, deltaTime, scene)
+    #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(target, event, deltaTime, scene)
 #endif //FGE_DEF_SERVER
 
 #ifdef FGE_DEF_SERVER
@@ -111,7 +111,7 @@ public:
      * By default, if the copy method is not overridden, the object is duplicated with
      * the help of the register manager (and the object class have to be registered).
      *
-     * \return A allocated pointer to the duplicated object
+     * \return An allocated pointer to the duplicated object
      */
     virtual fge::Object* copy();
 
@@ -141,7 +141,7 @@ public:
     /**
      * \brief Main method called every frame.
      *
-     * \param screen The screen where the object is drawn
+     * \param target The target where the object is drawn
      * \param event The event system
      * \param deltaTime The time since the last frame
      * \param scene The scene where the object is updated
@@ -151,8 +151,8 @@ public:
     void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime);
 #else
     virtual void
-    update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene);
-    void update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime);
+    update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene);
+    void update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime);
 #endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object
