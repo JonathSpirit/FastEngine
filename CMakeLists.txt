@@ -228,7 +228,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/accessor/C_animation.cpp
-        sources/accessor/C_font.cpp
         sources/accessor/C_texture.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
@@ -340,9 +339,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/accessor/C_animation.cpp
-        sources/accessor/C_font.cpp
-        sources/accessor/C_texture.cpp
-        sources/accessor/C_soundBuffer.cpp)
+        sources/accessor/C_texture.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_commandHandler.cpp")
 target_sources(${FGE_LIB_NAME} PRIVATE "sources/C_event.cpp")
