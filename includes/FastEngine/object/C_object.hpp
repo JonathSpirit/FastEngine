@@ -34,6 +34,7 @@
 #include <chrono>
 #include <string>
 
+#define FGE_DELTA_TIME std::chrono::microseconds
 #define FGE_OBJ_BADCLASSNAME "NULL"
 #define FGE_OBJ_NOSCENE nullptr
 #define FGE_OBJ_DEFAULT_COPYMETHOD(objClass)                                                                           \
@@ -44,17 +45,16 @@
 
 #ifdef FGE_DEF_SERVER
     #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
-        void update(fge::Event& event, const std::chrono::microseconds& deltaTime, fge::Scene& scene) override;
+        void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene) override;
 #else
     #define FGE_OBJ_UPDATE_DECLARE                                                                                     \
-        void update(fge::RenderWindow& screen, fge::Event& event, const std::chrono::microseconds& deltaTime,          \
-                    fge::Scene& scene) override;
+        void update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene)  \
+                override;
 #endif //FGE_DEF_SERVER
 
 #ifdef FGE_DEF_SERVER
     #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
-        void class_::update([[maybe_unused]] fge::Event& event,                                                        \
-                            [[maybe_unused]] const std::chrono::microseconds& deltaTime,                               \
+        void class_::update([[maybe_unused]] fge::Event& event, [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,      \
                             [[maybe_unused]] fge::Scene& scene)
 
     #define FGE_OBJ_UPDATE_CALL(object_) object_.update(event, deltaTime, scene)
@@ -62,8 +62,7 @@
 #else
     #define FGE_OBJ_UPDATE_BODY(class_)                                                                                \
         void class_::update([[maybe_unused]] fge::RenderWindow& screen, [[maybe_unused]] fge::Event& event,            \
-                            [[maybe_unused]] const std::chrono::microseconds& deltaTime,                               \
-                            [[maybe_unused]] fge::Scene& scene)
+                            [[maybe_unused]] FGE_DELTA_TIME const& deltaTime, [[maybe_unused]] fge::Scene& scene)
 
     #define FGE_OBJ_UPDATE_CALL(object_) object_.update(screen, event, deltaTime, scene)
     #define FGE_OBJ_UPDATE_PTRCALL(object_) object_->update(screen, event, deltaTime, scene)
@@ -148,12 +147,12 @@ public:
      * \param scene The scene where the object is updated
      */
 #ifdef FGE_DEF_SERVER
-    virtual void update(fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene& scene);
-    void update(fge::Event& event, std::chrono::microseconds const& deltaTime);
+    virtual void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene);
+    void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime);
 #else
     virtual void
-    update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene& scene);
-    void update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime);
+    update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene);
+    void update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime);
 #endif //FGE_DEF_SERVER
     /**
      * \brief Method called every frame to draw the object

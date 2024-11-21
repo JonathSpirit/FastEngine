@@ -48,10 +48,10 @@ void Object::callbackRegister([[maybe_unused]] fge::Event& event,
 {}
 #ifdef FGE_DEF_SERVER
 void Object::update([[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] std::chrono::microseconds const& deltaTime,
+                    [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
                     [[maybe_unused]] fge::Scene& scene)
 {}
-void Object::update(fge::Event& event, std::chrono::microseconds const& deltaTime)
+void Object::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime)
 {
     if (auto myObject = this->_myObjectData.lock())
     {
@@ -61,10 +61,10 @@ void Object::update(fge::Event& event, std::chrono::microseconds const& deltaTim
 #else
 void Object::update([[maybe_unused]] fge::RenderWindow& screen,
                     [[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] std::chrono::microseconds const& deltaTime,
+                    [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
                     [[maybe_unused]] fge::Scene& scene)
 {}
-void Object::update(fge::RenderWindow& screen, fge::Event& event, std::chrono::microseconds const& deltaTime)
+void Object::update(fge::RenderWindow& screen, fge::Event& event, FGE_DELTA_TIME const& deltaTime)
 {
     if (auto myObject = this->_myObjectData.lock())
     {

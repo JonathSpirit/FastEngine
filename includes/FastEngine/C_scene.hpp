@@ -508,12 +508,12 @@ public:
      */
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event,
-                std::chrono::microseconds const& deltaTime,
+                FGE_DELTA_TIME const& deltaTime,
                 std::underlying_type_t<UpdateFlags> flags = UpdateFlags::INCREMENT_UPDATE_COUNT);
 #else
     void update(fge::RenderWindow& screen,
                 fge::Event& event,
-                std::chrono::microseconds const& deltaTime,
+                FGE_DELTA_TIME const& deltaTime,
                 std::underlying_type_t<UpdateFlags> flags = UpdateFlags::NONE);
 #endif
     /**

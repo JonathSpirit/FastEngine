@@ -222,13 +222,11 @@ Scene& Scene::operator=(Scene const& r)
 
 /** Scene **/
 #ifdef FGE_DEF_SERVER
-void Scene::update(fge::Event& event,
-                   std::chrono::microseconds const& deltaTime,
-                   std::underlying_type_t<UpdateFlags> flags)
+void Scene::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, std::underlying_type_t<UpdateFlags> flags)
 #else
 void Scene::update(fge::RenderWindow& screen,
                    fge::Event& event,
-                   std::chrono::microseconds const& deltaTime,
+                   FGE_DELTA_TIME const& deltaTime,
                    std::underlying_type_t<UpdateFlags> flags)
 #endif //FGE_DEF_SERVER
 {

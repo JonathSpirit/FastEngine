@@ -140,7 +140,7 @@ void ChildObjectsAccessor::remove(std::size_t first, std::size_t last)
 }
 
 #ifdef FGE_DEF_SERVER
-void ChildObjectsAccessor::update(fge::Event& event, std::chrono::microseconds const& deltaTime, fge::Scene& scene)
+void ChildObjectsAccessor::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene)
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
          ++this->g_actualIteratedIndex)
@@ -151,7 +151,7 @@ void ChildObjectsAccessor::update(fge::Event& event, std::chrono::microseconds c
 #else
 void ChildObjectsAccessor::update(fge::RenderWindow& screen,
                                   fge::Event& event,
-                                  std::chrono::microseconds const& deltaTime,
+                                  FGE_DELTA_TIME const& deltaTime,
                                   fge::Scene& scene) const
 {
     for (this->g_actualIteratedIndex = 0; this->g_actualIteratedIndex < this->g_data.size();
