@@ -25,7 +25,7 @@ void Moveable::setTargetPos(fge::Vector2f const& pos)
     this->_g_targetPos = pos;
     this->_g_finish = false;
 }
-bool Moveable::updateMoveable(fge::Transformable& transformable, FGE_DELTA_TIME const& deltaTime)
+bool Moveable::updateMoveable(fge::Transformable& transformable, fge::DeltaTime const& deltaTime)
 {
     if (this->_g_finish)
     {

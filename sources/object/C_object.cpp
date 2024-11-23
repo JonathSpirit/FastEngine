@@ -48,10 +48,10 @@ void Object::callbackRegister([[maybe_unused]] fge::Event& event,
 {}
 #ifdef FGE_DEF_SERVER
 void Object::update([[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
+                    [[maybe_unused]] fge::DeltaTime const& deltaTime,
                     [[maybe_unused]] fge::Scene& scene)
 {}
-void Object::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime)
+void Object::update(fge::Event& event, fge::DeltaTime const& deltaTime)
 {
     if (auto myObject = this->_myObjectData.lock())
     {
@@ -61,10 +61,10 @@ void Object::update(fge::Event& event, FGE_DELTA_TIME const& deltaTime)
 #else
 void Object::update([[maybe_unused]] fge::RenderTarget& target,
                     [[maybe_unused]] fge::Event& event,
-                    [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
+                    [[maybe_unused]] fge::DeltaTime const& deltaTime,
                     [[maybe_unused]] fge::Scene& scene)
 {}
-void Object::update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime)
+void Object::update(fge::RenderTarget& target, fge::Event& event, fge::DeltaTime const& deltaTime)
 {
     if (auto myObject = this->_myObjectData.lock())
     {

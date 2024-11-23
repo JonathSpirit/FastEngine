@@ -25,10 +25,10 @@
 #include <memory>
 #include <vector>
 
-#define FGE_DELTA_TIME std::chrono::microseconds
-
 namespace fge
 {
+
+using DeltaTime = std::chrono::microseconds;
 
 class Event;
 class Scene;
@@ -64,9 +64,9 @@ public:
     void remove(std::size_t first, std::size_t last);
 
 #ifdef FGE_DEF_SERVER
-    void update(fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene);
+    void update(fge::Event& event, fge::DeltaTime const& deltaTime, fge::Scene& scene);
 #else
-    void update(fge::RenderTarget& target, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene& scene) const;
+    void update(fge::RenderTarget& target, fge::Event& event, fge::DeltaTime const& deltaTime, fge::Scene& scene) const;
     void draw(fge::RenderTarget& target, fge::RenderStates const& states) const;
 #endif //FGE_DEF_SERVER
 

@@ -88,7 +88,7 @@ public:
 
     void update([[maybe_unused]] fge::RenderTarget& target,
                 [[maybe_unused]] fge::Event& event,
-                [[maybe_unused]] FGE_DELTA_TIME const& deltaTime,
+                [[maybe_unused]] fge::DeltaTime const& deltaTime,
                 [[maybe_unused]] fge::Scene& scene) override
     {
         auto* follow = scene._properties["follow"].getPtr<std::string>();

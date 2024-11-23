@@ -116,9 +116,9 @@ public:
     fge::Animation _anim;
 #endif // FGE_DEF_SERVER
 
-    FGE_DELTA_TIME _timeAnimation{0};
-    FGE_DELTA_TIME _timeRandomMove{0};
-    FGE_DELTA_TIME _timePregnant{0};
+    fge::DeltaTime _timeAnimation{0};
+    fge::DeltaTime _timeRandomMove{0};
+    fge::DeltaTime _timePregnant{0};
     std::queue<Action> _actionQueue;
 
     CreatureData _data;

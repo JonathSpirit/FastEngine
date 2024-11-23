@@ -24,8 +24,6 @@
 #include <optional>
 #include <vector>
 
-#define FGE_DELTA_TIME std::chrono::microseconds
-
 #define FGE_TASK_DEFAULT_GETTER(type_)                                                                                 \
     [[nodiscard]] fge::TaskTypeIndex getTypeIndex() const override                                                     \
     {                                                                                                                  \
@@ -38,6 +36,8 @@
 
 namespace fge
 {
+
+using DeltaTime = std::chrono::microseconds;
 
 class Object;
 
@@ -131,7 +131,7 @@ public:
      * \return The result of the update
      */
     virtual fge::TaskResult
-    update(fge::TaskHandler& taskHandler, fge::Event& event, FGE_DELTA_TIME const& deltaTime, fge::Scene* scenePtr) = 0;
+    update(fge::TaskHandler& taskHandler, fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr) = 0;
 
     /**
      * \brief Get the type index of the task
