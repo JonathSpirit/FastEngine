@@ -1206,6 +1206,15 @@ fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::si
         return fge::net::NormalizeError();
     }
 }
+fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::size_t& received, uint32_t timeoutms)
+{
+    fge::net::Socket::Error error = this->select(true, timeoutms);
+    if (error == fge::net::Socket::ERR_NOERROR)
+    {
+        return this->receive(data, size, received);
+    }
+    return error;
+}
 
 fge::net::Socket::Error SocketTcp::send(fge::net::Packet& packet)
 {

@@ -474,6 +474,7 @@ public:
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
     fge::net::Socket::Error receive(void* data, std::size_t size, std::size_t& received);
+    fge::net::Socket::Error receive(void* data, std::size_t size, std::size_t& received, uint32_t timeoutms);
 
     /**
      * \brief Send a fge::net::Packet to the connected remote address
