@@ -146,7 +146,7 @@ public:
      *
      * \return The local port of the socket or 0 if there was an error
      */
-    [[nodiscard]] fge::net::Port getLocalPort() const;
+    [[nodiscard]] Port getLocalPort() const;
     /**
      * \brief Get the local address of the socket
      *
@@ -155,7 +155,7 @@ public:
      *
      * \return The local address of the socket or fge::net::IpAddress::None if there was an error
      */
-    [[nodiscard]] fge::net::IpAddress getLocalAddress() const;
+    [[nodiscard]] IpAddress getLocalAddress() const;
     /**
      * \brief Get the remote port of the socket
      *
@@ -165,7 +165,7 @@ public:
      *
      * \return The remote port of the socket or 0 if there was an error
      */
-    [[nodiscard]] fge::net::Port getRemotePort() const;
+    [[nodiscard]] Port getRemotePort() const;
     /**
      * \brief Get the remote address of the socket
      *
@@ -175,7 +175,7 @@ public:
      *
      * \return The remote address of the socket or fge::net::IpAddress::None if there was an error
      */
-    [[nodiscard]] fge::net::IpAddress getRemoteAddress() const;
+    [[nodiscard]] IpAddress getRemoteAddress() const;
 
     /**
      * \brief Check if the socket is in blocking mode
@@ -246,12 +246,12 @@ public:
      */
     [[nodiscard]] static int getPlatformSpecifiedError();
 
-    fge::net::Socket& operator=(fge::net::Socket const& r) = delete;
-    Socket(fge::net::Socket const& r) = delete;
+    Socket& operator=(Socket const& r) = delete;
+    Socket(Socket const& r) = delete;
 
 protected:
     explicit Socket(Types type, IpAddress::Types addressType = IpAddress::Types::Ipv4);
-    virtual ~Socket() = default;
+    virtual ~Socket();
 
     Types g_type;
     IpAddress::Types g_addressType{IpAddress::Types::Ipv4};
@@ -269,7 +269,7 @@ class FGE_API SocketUdp : public fge::net::Socket
 public:
     explicit SocketUdp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
     SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast);
-    ~SocketUdp() override;
+    ~SocketUdp() override = default;
 
     fge::net::Socket::Error create() override;
 
@@ -409,7 +409,7 @@ class FGE_API SocketTcp : public fge::net::Socket
 public:
     explicit SocketTcp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
     explicit SocketTcp(IpAddress::Types addressType, bool blocking);
-    ~SocketTcp() override;
+    ~SocketTcp() override = default;
 
     /**
      * \brief Flush the internal data buffer
@@ -532,7 +532,7 @@ class FGE_API SocketListenerTcp : public fge::net::Socket
 public:
     explicit SocketListenerTcp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
     explicit SocketListenerTcp(IpAddress::Types addressType, bool blocking);
-    ~SocketListenerTcp() override;
+    ~SocketListenerTcp() override = default;
 
     /**
      * \brief Create the socket listener

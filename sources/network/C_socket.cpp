@@ -355,6 +355,10 @@ Socket::Socket(Types type, IpAddress::Types addressType) :
         g_addressType(addressType),
         g_socket(_FGE_SOCKET_INVALID)
 {}
+Socket::~Socket()
+{
+    this->close();
+}
 
 void Socket::setAddressType(IpAddress::Types type)
 {
@@ -617,10 +621,6 @@ SocketUdp::SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast
 
     //Enable/Disable broadcast
     this->setBroadcastOption(broadcast);
-}
-SocketUdp::~SocketUdp()
-{
-    this->close();
 }
 
 fge::net::Socket::Error SocketUdp::create()
@@ -954,10 +954,6 @@ SocketTcp::SocketTcp(IpAddress::Types addressType, bool blocking) :
 
     //Set the blocking state
     this->setBlocking(blocking);
-}
-SocketTcp::~SocketTcp()
-{
-    this->close();
 }
 
 void SocketTcp::flush()
@@ -1386,10 +1382,6 @@ SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType, bool blocking
 
     //Set the blocking state
     this->setBlocking(blocking);
-}
-SocketListenerTcp::~SocketListenerTcp()
-{
-    this->close();
 }
 
 fge::net::Socket::Error SocketListenerTcp::create()
