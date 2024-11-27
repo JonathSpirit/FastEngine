@@ -350,7 +350,7 @@ sockaddr* CreateAddress(sockaddr_in& addr4, sockaddr_in6& addr6, int& size, IpAd
 
 ///Socket
 
-Socket::Socket(Type type, IpAddress::Types addressType) :
+Socket::Socket(Types type, IpAddress::Types addressType) :
         g_type(type),
         g_addressType(addressType),
         g_socket(_FGE_SOCKET_INVALID)
@@ -593,7 +593,7 @@ int Socket::getPlatformSpecifiedError()
 ///SocketUdp
 
 SocketUdp::SocketUdp(IpAddress::Types addressType) :
-        Socket(fge::net::Socket::TYPE_UDP, addressType),
+        Socket(Types::UDP, addressType),
         g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
 {
     //Create UDP socket
@@ -606,7 +606,7 @@ SocketUdp::SocketUdp(IpAddress::Types addressType) :
     this->setBroadcastOption(true);
 }
 SocketUdp::SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast) :
-        Socket(fge::net::Socket::TYPE_UDP, addressType),
+        Socket(Types::UDP, addressType),
         g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
 {
     //Create UDP socket
@@ -932,7 +932,7 @@ fge::net::SocketUdp& SocketUdp::operator=(fge::net::SocketUdp&& r) noexcept
 ///SocketTcp
 
 SocketTcp::SocketTcp(IpAddress::Types addressType) :
-        Socket(fge::net::Socket::TYPE_TCP, addressType),
+        Socket(Types::TCP, addressType),
         g_receivedSize(0),
         g_wantedSize(0),
         g_buffer(FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE)
@@ -944,7 +944,7 @@ SocketTcp::SocketTcp(IpAddress::Types addressType) :
     this->setBlocking(false);
 }
 SocketTcp::SocketTcp(IpAddress::Types addressType, bool blocking) :
-        Socket(fge::net::Socket::TYPE_TCP, addressType),
+        Socket(Types::TCP, addressType),
         g_receivedSize(0),
         g_wantedSize(0),
         g_buffer(FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE)
@@ -1046,7 +1046,7 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
     this->g_wantedSize = 0;
 
     // Create the internal socket if it doesn't exist
-    this->create(this->g_type);
+    this->create();
 
     // Create the remote address
     sockaddr_in addr4{};
@@ -1370,7 +1370,7 @@ fge::net::SocketTcp& SocketTcp::operator=(fge::net::SocketTcp&& r) noexcept
 ///SocketListenerTcp
 
 SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType) :
-        Socket(fge::net::Socket::TYPE_LISTENER_TCP, addressType)
+        Socket(Types::TCP_LISTENER, addressType)
 {
     //Create TCP socket
     this->create();
@@ -1379,7 +1379,7 @@ SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType) :
     this->setBlocking(false);
 }
 SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType, bool blocking) :
-        Socket(fge::net::Socket::TYPE_LISTENER_TCP, addressType)
+        Socket(Types::TCP_LISTENER, addressType)
 {
     //Create TCP socket
     this->create();

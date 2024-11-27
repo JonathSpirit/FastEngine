@@ -56,14 +56,15 @@ public:
 #endif
 
     /**
-     * \enum Type
+     * \enum Types
      * \brief The possible types of sockets
      */
-    enum Type
+    enum class Types
     {
-        TYPE_UDP,
-        TYPE_TCP,
-        TYPE_LISTENER_TCP
+        UDP,
+        TCP,
+        TCP_LISTENER,
+        UNKNOWN
     };
 
     /**
@@ -100,7 +101,7 @@ public:
      *
      * \return The type of the socket
      */
-    [[nodiscard]] inline Type getType() const { return this->g_type; }
+    [[nodiscard]] inline Types getType() const { return this->g_type; }
     /**
      * \brief Get the address type of the socket
      *
@@ -249,10 +250,10 @@ public:
     Socket(fge::net::Socket const& r) = delete;
 
 protected:
-    explicit Socket(Type type, IpAddress::Types addressType = IpAddress::Types::Ipv4);
+    explicit Socket(Types type, IpAddress::Types addressType = IpAddress::Types::Ipv4);
     virtual ~Socket() = default;
 
-    Type g_type;
+    Types g_type;
     IpAddress::Types g_addressType{IpAddress::Types::Ipv4};
     SocketDescriptor g_socket;
     bool g_isBlocking;
