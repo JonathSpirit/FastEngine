@@ -134,98 +134,6 @@ Can be found on unix and windows :
 namespace
 {
 
-Socket::Errors NormalizeError()
-{
-#ifdef _WIN32
-    int err = WSAGetLastError();
-
-    switch (err)
-    {
-    case WSANOTINITIALISED:
-        return Socket::Errors::ERR_NOTINIT;
-
-    case WSAEWOULDBLOCK:
-        return Socket::Errors::ERR_NOTREADY;
-    case WSAEALREADY:
-        return Socket::Errors::ERR_NOTREADY;
-    case WSAEINPROGRESS:
-        return Socket::Errors::ERR_NOTREADY;
-
-    case WSAETIMEDOUT:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case WSAECONNABORTED:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case WSAECONNRESET:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case WSAENETRESET:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case WSAENOTCONN:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case WSAENETUNREACH:
-        return Socket::Errors::ERR_DISCONNECTED;
-
-    case WSAECONNREFUSED:
-        return Socket::Errors::ERR_REFUSED;
-
-    case WSAEADDRINUSE:
-        return Socket::Errors::ERR_ALREADYUSED;
-    case WSAEISCONN:
-        return Socket::Errors::ERR_ALREADYCONNECTED;
-
-    case WSAEMFILE:
-        return Socket::Errors::ERR_TOOMANYSOCKET;
-
-    default:
-        return Socket::Errors::ERR_UNSUCCESS;
-    }
-#else
-    int err = errno;
-
-    if ((err == EAGAIN) || (err == EINPROGRESS))
-    {
-        return Socket::Errors::ERR_NOTREADY;
-    }
-
-    switch (err)
-    {
-    case EWOULDBLOCK:
-        return Socket::Errors::ERR_NOTREADY;
-    case EALREADY:
-        return Socket::Errors::ERR_NOTREADY;
-    case EINPROGRESS:
-        return Socket::Errors::ERR_NOTREADY;
-
-    case ETIMEDOUT:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case ECONNABORTED:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case ECONNRESET:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case ENETRESET:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case ENOTCONN:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case ENETUNREACH:
-        return Socket::Errors::ERR_DISCONNECTED;
-    case EPIPE:
-        return Socket::Errors::ERR_DISCONNECTED;
-
-    case ECONNREFUSED:
-        return Socket::Errors::ERR_REFUSED;
-
-    case EADDRINUSE:
-        return Socket::Errors::ERR_ALREADYUSED;
-    case EISCONN:
-        return Socket::Errors::ERR_ALREADYCONNECTED;
-
-    case EMFILE:
-        return Socket::Errors::ERR_TOOMANYSOCKET;
-
-    default:
-        return Socket::Errors::ERR_UNSUCCESS;
-    }
-#endif // _WIN32
-}
 Socket::Errors NormalizeError(int err)
 {
 #ifdef _WIN32
@@ -312,6 +220,14 @@ Socket::Errors NormalizeError(int err)
     default:
         return Socket::Errors::ERR_UNSUCCESS;
     }
+#endif // _WIN32
+}
+Socket::Errors NormalizeError()
+{
+#ifdef _WIN32
+    return NormalizeError(WSAGetLastError());
+#else
+    return NormalizeError(errno);
 #endif // _WIN32
 }
 
