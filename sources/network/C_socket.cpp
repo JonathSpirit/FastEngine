@@ -134,7 +134,7 @@ Can be found on unix and windows :
 namespace
 {
 
-fge::net::Socket::Error NormalizeError()
+Socket::Errors NormalizeError()
 {
 #ifdef _WIN32
     int err = WSAGetLastError();
@@ -142,175 +142,175 @@ fge::net::Socket::Error NormalizeError()
     switch (err)
     {
     case WSANOTINITIALISED:
-        return fge::net::Socket::Error::ERR_NOTINIT;
+        return Socket::Errors::ERR_NOTINIT;
 
     case WSAEWOULDBLOCK:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case WSAEALREADY:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case WSAEINPROGRESS:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
 
     case WSAETIMEDOUT:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAECONNABORTED:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAECONNRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAENETRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAENOTCONN:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAENETUNREACH:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
 
     case WSAECONNREFUSED:
-        return fge::net::Socket::Error::ERR_REFUSED;
+        return Socket::Errors::ERR_REFUSED;
 
     case WSAEADDRINUSE:
-        return fge::net::Socket::Error::ERR_ALREADYUSED;
+        return Socket::Errors::ERR_ALREADYUSED;
     case WSAEISCONN:
-        return fge::net::Socket::Error::ERR_ALREADYCONNECTED;
+        return Socket::Errors::ERR_ALREADYCONNECTED;
 
     case WSAEMFILE:
-        return fge::net::Socket::Error::ERR_TOOMANYSOCKET;
+        return Socket::Errors::ERR_TOOMANYSOCKET;
 
     default:
-        return fge::net::Socket::Error::ERR_UNSUCCESS;
+        return Socket::Errors::ERR_UNSUCCESS;
     }
 #else
     int err = errno;
 
     if ((err == EAGAIN) || (err == EINPROGRESS))
     {
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     }
 
     switch (err)
     {
     case EWOULDBLOCK:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case EALREADY:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case EINPROGRESS:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
 
     case ETIMEDOUT:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ECONNABORTED:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ECONNRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ENETRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ENOTCONN:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ENETUNREACH:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case EPIPE:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
 
     case ECONNREFUSED:
-        return fge::net::Socket::Error::ERR_REFUSED;
+        return Socket::Errors::ERR_REFUSED;
 
     case EADDRINUSE:
-        return fge::net::Socket::Error::ERR_ALREADYUSED;
+        return Socket::Errors::ERR_ALREADYUSED;
     case EISCONN:
-        return fge::net::Socket::Error::ERR_ALREADYCONNECTED;
+        return Socket::Errors::ERR_ALREADYCONNECTED;
 
     case EMFILE:
-        return fge::net::Socket::Error::ERR_TOOMANYSOCKET;
+        return Socket::Errors::ERR_TOOMANYSOCKET;
 
     default:
-        return fge::net::Socket::Error::ERR_UNSUCCESS;
+        return Socket::Errors::ERR_UNSUCCESS;
     }
 #endif // _WIN32
 }
-fge::net::Socket::Error NormalizeError(int err)
+Socket::Errors NormalizeError(int err)
 {
 #ifdef _WIN32
     switch (err)
     {
     case WSANOTINITIALISED:
-        return fge::net::Socket::Error::ERR_NOTINIT;
+        return Socket::Errors::ERR_NOTINIT;
 
     case WSAEWOULDBLOCK:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case WSAEALREADY:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case WSAEINPROGRESS:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
 
     case WSAETIMEDOUT:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAECONNABORTED:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAECONNRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAENETRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAENOTCONN:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case WSAENETUNREACH:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
 
     case WSAECONNREFUSED:
-        return fge::net::Socket::Error::ERR_REFUSED;
+        return Socket::Errors::ERR_REFUSED;
 
     case WSAEADDRINUSE:
-        return fge::net::Socket::Error::ERR_ALREADYUSED;
+        return Socket::Errors::ERR_ALREADYUSED;
     case WSAEISCONN:
-        return fge::net::Socket::Error::ERR_ALREADYCONNECTED;
+        return Socket::Errors::ERR_ALREADYCONNECTED;
 
     case WSAEMFILE:
-        return fge::net::Socket::Error::ERR_TOOMANYSOCKET;
+        return Socket::Errors::ERR_TOOMANYSOCKET;
 
     default:
-        return fge::net::Socket::Error::ERR_UNSUCCESS;
+        return Socket::Errors::ERR_UNSUCCESS;
     }
 #else
     if ((err == EAGAIN) || (err == EINPROGRESS))
     {
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     }
 
     switch (err)
     {
     case EWOULDBLOCK:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case EALREADY:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
     case EINPROGRESS:
-        return fge::net::Socket::Error::ERR_NOTREADY;
+        return Socket::Errors::ERR_NOTREADY;
 
     case ETIMEDOUT:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ECONNABORTED:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ECONNRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ENETRESET:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ENOTCONN:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case ENETUNREACH:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
     case EPIPE:
-        return fge::net::Socket::Error::ERR_DISCONNECTED;
+        return Socket::Errors::ERR_DISCONNECTED;
 
     case ECONNREFUSED:
-        return fge::net::Socket::Error::ERR_REFUSED;
+        return Socket::Errors::ERR_REFUSED;
 
     case EADDRINUSE:
-        return fge::net::Socket::Error::ERR_ALREADYUSED;
+        return Socket::Errors::ERR_ALREADYUSED;
     case EISCONN:
-        return fge::net::Socket::Error::ERR_ALREADYCONNECTED;
+        return Socket::Errors::ERR_ALREADYCONNECTED;
 
     case EMFILE:
-        return fge::net::Socket::Error::ERR_TOOMANYSOCKET;
+        return Socket::Errors::ERR_TOOMANYSOCKET;
 
     default:
-        return fge::net::Socket::Error::ERR_UNSUCCESS;
+        return Socket::Errors::ERR_UNSUCCESS;
     }
 #endif // _WIN32
 }
@@ -479,7 +479,7 @@ bool Socket::isBlocking() const
     return this->g_isBlocking;
 }
 
-fge::net::Socket::Error Socket::setBlocking(bool mode)
+Socket::Errors Socket::setBlocking(bool mode)
 {
 #ifdef _WIN32
     unsigned long iMode = mode ? 0 : 1;
@@ -488,7 +488,7 @@ fge::net::Socket::Error Socket::setBlocking(bool mode)
         return fge::net::NormalizeError();
     }
     this->g_isBlocking = mode;
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 #else
     int status = fcntl(this->g_socket, F_GETFL);
     if (mode)
@@ -506,29 +506,29 @@ fge::net::Socket::Error Socket::setBlocking(bool mode)
         }
     }
     this->g_isBlocking = mode;
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 #endif //_WIN32
 }
-fge::net::Socket::Error Socket::setReuseAddress(bool mode)
+Socket::Errors Socket::setReuseAddress(bool mode)
 {
     char const optval = mode ? 1 : 0;
     if (setsockopt(this->g_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
     }
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error Socket::setBroadcastOption(bool mode)
+Socket::Errors Socket::setBroadcastOption(bool mode)
 {
     char const optval = mode ? 1 : 0;
     if (setsockopt(this->g_socket, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return fge::net::NormalizeError();
     }
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
-fge::net::Socket::Error Socket::select(bool read, uint32_t timeoutms)
+Socket::Errors Socket::select(bool read, uint32_t timeoutms)
 {
     // Setup the selector
     fd_set selector;
@@ -563,7 +563,7 @@ fge::net::Socket::Error Socket::select(bool read, uint32_t timeoutms)
         {
             return fge::net::NormalizeError(optval);
         }
-        return fge::net::Socket::ERR_NOERROR;
+        return Errors::ERR_NOERROR;
     }
     // Failed to connect before timeout is over
     return fge::net::NormalizeError();
@@ -623,11 +623,11 @@ SocketUdp::SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast
     this->setBroadcastOption(broadcast);
 }
 
-fge::net::Socket::Error SocketUdp::create()
+Socket::Errors SocketUdp::create()
 {
     if (this->g_addressType == IpAddress::Types::None)
     {
-        return ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     if (this->g_socket == _FGE_SOCKET_INVALID)
@@ -641,14 +641,14 @@ fge::net::Socket::Error SocketUdp::create()
             return NormalizeError();
         }
     }
-    return ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
-fge::net::Socket::Error SocketUdp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort)
+Socket::Errors SocketUdp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
     if (remoteAddress.getType() == IpAddress::Types::None)
     {
-        return ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     // Create the remote address
@@ -662,9 +662,9 @@ fge::net::Socket::Error SocketUdp::connect(fge::net::IpAddress const& remoteAddr
         return NormalizeError();
     }
 
-    return ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, IpAddress const& address)
+Socket::Errors SocketUdp::bind(fge::net::Port port, IpAddress const& address)
 {
     // Close the socket if it is already bound
     close();
@@ -675,7 +675,7 @@ fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, IpAddress const& ad
     // Check if the address is valid
     if (address == IpAddress::None || address == IpAddress::Ipv4Broadcast)
     {
-        return ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     // Bind the socket
@@ -689,10 +689,10 @@ fge::net::Socket::Error SocketUdp::bind(fge::net::Port port, IpAddress const& ad
         return fge::net::NormalizeError();
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
-fge::net::Socket::Error
+Socket::Errors
 SocketUdp::sendTo(void const* data, std::size_t size, IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
     // Create the internal socket if it doesn't exist
@@ -701,7 +701,7 @@ SocketUdp::sendTo(void const* data, std::size_t size, IpAddress const& remoteAdd
     // Make sure that all the data will fit in one datagram
     if (size > FGE_SOCKET_MAXDATAGRAMSIZE)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     // Build the target address
@@ -720,13 +720,13 @@ SocketUdp::sendTo(void const* data, std::size_t size, IpAddress const& remoteAdd
         return fge::net::NormalizeError();
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketUdp::send(void const* data, std::size_t size)
+Socket::Errors SocketUdp::send(void const* data, std::size_t size)
 {
     if ((data == nullptr) || (size == 0))
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     int sent = ::send(this->g_socket, static_cast<char const*>(data), static_cast<int>(size), _FGE_SEND_RECV_FLAG);
@@ -737,13 +737,13 @@ fge::net::Socket::Error SocketUdp::send(void const* data, std::size_t size)
         return fge::net::NormalizeError();
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
-                                               std::size_t size,
-                                               std::size_t& received,
-                                               fge::net::IpAddress& remoteAddress,
-                                               fge::net::Port& remotePort)
+Socket::Errors SocketUdp::receiveFrom(void* data,
+                                      std::size_t size,
+                                      std::size_t& received,
+                                      fge::net::IpAddress& remoteAddress,
+                                      fge::net::Port& remotePort)
 {
     // First clear the variables to fill
     received = 0;
@@ -753,7 +753,7 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
     // Check the destination buffer
     if (data == nullptr)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     // Data that will be filled with the other computer's address
@@ -805,9 +805,9 @@ fge::net::Socket::Error SocketUdp::receiveFrom(void* data,
         remoteAddress.setNetworkByteOrdered(addr6.sin6_addr.s6_addr);
         remotePort = fge::SwapHostNetEndian_16(addr6.sin6_port);
     }
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketUdp::receive(void* data, std::size_t size, std::size_t& received)
+Socket::Errors SocketUdp::receive(void* data, std::size_t size, std::size_t& received)
 {
     // First clear the variables to fill
     received = 0;
@@ -815,7 +815,7 @@ fge::net::Socket::Error SocketUdp::receive(void* data, std::size_t size, std::si
     // Check the destination buffer
     if (data == nullptr)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     // Receive a chunk of bytes
@@ -830,14 +830,14 @@ fge::net::Socket::Error SocketUdp::receive(void* data, std::size_t size, std::si
     // Fill the sender informations
     received = static_cast<std::size_t>(sizeReceived);
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
-fge::net::Socket::Error SocketUdp::send(fge::net::Packet& packet)
+Socket::Errors SocketUdp::send(fge::net::Packet& packet)
 {
     if (packet.getDataSize() == 0)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     if (!packet._g_lastDataValidity)
@@ -855,10 +855,9 @@ fge::net::Socket::Error SocketUdp::send(fge::net::Packet& packet)
         return fge::net::NormalizeError();
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error
-SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge::net::Port remotePort)
+Socket::Errors SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge::net::Port remotePort)
 {
     // Create the internal socket if it doesn't exist
     create();
@@ -866,7 +865,7 @@ SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge:
     // Make sure that all the data will fit in one datagram
     if (packet.getDataSize() > FGE_SOCKET_MAXDATAGRAMSIZE)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     // Build the target address
@@ -891,29 +890,29 @@ SocketUdp::sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge:
         return fge::net::NormalizeError();
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error
+Socket::Errors
 SocketUdp::receiveFrom(fge::net::Packet& packet, fge::net::IpAddress& remoteAddress, fge::net::Port& remotePort)
 {
     size_t received = 0;
-    fge::net::Socket::Error status =
+    Socket::Errors status =
             this->receiveFrom(this->g_buffer.data(), this->g_buffer.size(), received, remoteAddress, remotePort);
 
     packet.clear();
-    if ((status == fge::net::Socket::ERR_NOERROR) && (received > 0))
+    if ((status == Errors::ERR_NOERROR) && (received > 0))
     {
         packet.onReceive(this->g_buffer.data(), received);
     }
     return status;
 }
-fge::net::Socket::Error SocketUdp::receive(fge::net::Packet& packet)
+Socket::Errors SocketUdp::receive(fge::net::Packet& packet)
 {
     size_t received = 0;
-    fge::net::Socket::Error status = this->receive(this->g_buffer.data(), this->g_buffer.size(), received);
+    Socket::Errors status = this->receive(this->g_buffer.data(), this->g_buffer.size(), received);
 
     packet.clear();
-    if ((status == fge::net::Socket::ERR_NOERROR) && (received > 0))
+    if ((status == Errors::ERR_NOERROR) && (received > 0))
     {
         packet.onReceive(this->g_buffer.data(), received);
     }
@@ -964,11 +963,11 @@ void SocketTcp::flush()
     this->g_buffer.resize(FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE);
 }
 
-fge::net::Socket::Error SocketTcp::create(fge::net::Socket::SocketDescriptor sck)
+Socket::Errors SocketTcp::create(fge::net::Socket::SocketDescriptor sck)
 {
     if (sck == _FGE_SOCKET_INVALID)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     this->close();
@@ -996,11 +995,11 @@ fge::net::Socket::Error SocketTcp::create(fge::net::Socket::SocketDescriptor sck
 
     return this->setBlocking(this->g_isBlocking);
 }
-fge::net::Socket::Error SocketTcp::create()
+Socket::Errors SocketTcp::create()
 {
     if (this->g_addressType == IpAddress::Types::None)
     {
-        return ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     if (this->g_socket == _FGE_SOCKET_INVALID)
@@ -1029,10 +1028,10 @@ fge::net::Socket::Error SocketTcp::create()
         }
 #endif
     }
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
-fge::net::Socket::Error
+Socket::Errors
 SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort, uint32_t timeoutms)
 {
     // Disconnect the socket if it is already connected
@@ -1059,7 +1058,7 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
         }
 
         // Connection succeeded
-        return fge::net::Socket::ERR_NOERROR;
+        return Errors::ERR_NOERROR;
     }
     // Save the previous blocking state
     bool blocking = this->isBlocking();
@@ -1075,11 +1074,11 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
     {
         // We got instantly connected! (it may no happen a lot...)
         this->setBlocking(blocking);
-        return fge::net::Socket::ERR_NOERROR;
+        return Errors::ERR_NOERROR;
     }
 
     // Get the error status
-    fge::net::Socket::Error status = fge::net::NormalizeError();
+    Socket::Errors status = fge::net::NormalizeError();
 
     // If we were in non-blocking mode, return immediately
     if (!blocking)
@@ -1088,7 +1087,7 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
     }
 
     // Otherwise, wait until something happens to our socket (success, timeout or error)
-    if (status == fge::net::Socket::ERR_NOTREADY)
+    if (status == Errors::ERR_NOTREADY)
     {
         // Setup the selector
         fd_set selector;
@@ -1122,7 +1121,7 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
             {
                 return fge::net::NormalizeError(optval);
             }
-            status = fge::net::Socket::ERR_NOERROR;
+            status = Errors::ERR_NOERROR;
         }
         else
         {
@@ -1137,17 +1136,17 @@ SocketTcp::connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remo
     return status;
 }
 
-fge::net::Socket::Error SocketTcp::send(void const* data, std::size_t size)
+Socket::Errors SocketTcp::send(void const* data, std::size_t size)
 {
     std::size_t sent;
     return this->send(data, size, sent);
 }
-fge::net::Socket::Error SocketTcp::send(void const* data, std::size_t size, std::size_t& sent)
+Socket::Errors SocketTcp::send(void const* data, std::size_t size, std::size_t& sent)
 {
     // Check the parameters
     if ((data == nullptr) || (size == 0))
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return fge::net::Socket::Errors::ERR_INVALIDARGUMENT;
     }
 
     // Loop until every byte has been sent
@@ -1161,19 +1160,19 @@ fge::net::Socket::Error SocketTcp::send(void const* data, std::size_t size, std:
         // Check for errors
         if (result == _FGE_SOCKET_ERROR)
         {
-            fge::net::Socket::Error status = fge::net::NormalizeError();
+            Socket::Errors status = fge::net::NormalizeError();
 
-            if ((status == fge::net::Socket::ERR_NOTREADY) && (sent > 0))
+            if ((status == Errors::ERR_NOTREADY) && (sent > 0))
             {
-                return fge::net::Socket::ERR_PARTIAL;
+                return Errors::ERR_PARTIAL;
             }
             return status;
         }
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::size_t& received)
+Socket::Errors SocketTcp::receive(void* data, std::size_t size, std::size_t& received)
 {
     // First clear the variables to fill
     received = 0;
@@ -1181,7 +1180,7 @@ fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::si
     // Check the destination buffer
     if (data == nullptr)
     {
-        return fge::net::Socket::ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     // Receive a chunk of bytes
@@ -1191,28 +1190,28 @@ fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::si
     if (sizeReceived > 0)
     {
         received = static_cast<std::size_t>(sizeReceived);
-        return fge::net::Socket::ERR_NOERROR;
+        return Errors::ERR_NOERROR;
     }
     else if (sizeReceived == 0)
     {
-        return fge::net::Socket::ERR_DISCONNECTED;
+        return Errors::ERR_DISCONNECTED;
     }
     else
     {
         return fge::net::NormalizeError();
     }
 }
-fge::net::Socket::Error SocketTcp::receive(void* data, std::size_t size, std::size_t& received, uint32_t timeoutms)
+Socket::Errors SocketTcp::receive(void* data, std::size_t size, std::size_t& received, uint32_t timeoutms)
 {
-    fge::net::Socket::Error error = this->select(true, timeoutms);
-    if (error == fge::net::Socket::ERR_NOERROR)
+    Socket::Errors error = this->select(true, timeoutms);
+    if (error == Errors::ERR_NOERROR)
     {
         return this->receive(data, size, received);
     }
     return error;
 }
 
-fge::net::Socket::Error SocketTcp::send(fge::net::Packet& packet)
+Socket::Errors SocketTcp::send(fge::net::Packet& packet)
 {
     if (!packet._g_lastDataValidity)
     { // New packet that gonna be sent
@@ -1223,29 +1222,29 @@ fge::net::Socket::Error SocketTcp::send(fge::net::Packet& packet)
 
     // Send the data block
     std::size_t sent;
-    fge::net::Socket::Error status = this->send(packet._g_lastData.data() + packet._g_sendPos,
-                                                packet._g_lastData.size() - packet._g_sendPos, sent);
+    Errors status = this->send(packet._g_lastData.data() + packet._g_sendPos,
+                               packet._g_lastData.size() - packet._g_sendPos, sent);
 
     // In the case of a partial send, record the location to resume from
-    if (status == fge::net::Socket::ERR_PARTIAL)
+    if (status == Errors::ERR_PARTIAL)
     {
         packet._g_sendPos += sent;
     }
-    else if (status == fge::net::Socket::ERR_NOERROR)
+    else if (status == Errors::ERR_NOERROR)
     {
         packet._g_sendPos = 0;
     }
 
     return status;
 }
-fge::net::Socket::Error SocketTcp::receive(fge::net::Packet& packet)
+Socket::Errors SocketTcp::receive(fge::net::Packet& packet)
 {
     if (this->g_receivedSize == 0)
     { // New packet is here
         std::size_t received;
 
         this->g_buffer.resize(sizeof(uint32_t));
-        fge::net::Socket::Error status = this->receive(this->g_buffer.data(), sizeof(uint32_t), received);
+        Socket::Errors status = this->receive(this->g_buffer.data(), sizeof(uint32_t), received);
 
         if (received == 0)
         {
@@ -1261,20 +1260,20 @@ fge::net::Socket::Error SocketTcp::receive(fge::net::Packet& packet)
             { // Received a bad size
                 this->g_receivedSize = 0;
                 this->g_wantedSize = 0;
-                return fge::net::Socket::ERR_UNSUCCESS;
+                return Errors::ERR_UNSUCCESS;
             }
             this->g_buffer.resize(this->g_wantedSize + sizeof(uint32_t));
         }
 
-        return fge::net::Socket::ERR_PARTIAL;
+        return Errors::ERR_PARTIAL;
     }
     else
     { // Already on a pending packet
         if (this->g_wantedSize > 0)
         { // We have already the wanted size
             std::size_t received;
-            fge::net::Socket::Error status = this->receive(this->g_buffer.data() + this->g_receivedSize,
-                                                           this->g_buffer.size() - this->g_receivedSize, received);
+            Errors status = this->receive(this->g_buffer.data() + this->g_receivedSize,
+                                          this->g_buffer.size() - this->g_receivedSize, received);
 
             if (received == 0)
             {
@@ -1289,16 +1288,16 @@ fge::net::Socket::Error SocketTcp::receive(fge::net::Packet& packet)
                 packet.onReceive(this->g_buffer.data() + sizeof(uint32_t), this->g_wantedSize - sizeof(uint32_t));
                 this->g_receivedSize = 0;
                 this->g_wantedSize = 0;
-                return fge::net::Socket::ERR_DONE;
+                return Errors::ERR_DONE;
             }
 
-            return fge::net::Socket::ERR_PARTIAL;
+            return Errors::ERR_PARTIAL;
         }
         else
         { // We don't have the wanted size
             std::size_t received;
-            fge::net::Socket::Error status = this->receive(this->g_buffer.data() + this->g_receivedSize,
-                                                           sizeof(uint32_t) - this->g_receivedSize, received);
+            Socket::Errors status = this->receive(this->g_buffer.data() + this->g_receivedSize,
+                                                  sizeof(uint32_t) - this->g_receivedSize, received);
 
             if (received == 0)
             {
@@ -1314,34 +1313,34 @@ fge::net::Socket::Error SocketTcp::receive(fge::net::Packet& packet)
                 { // Received a bad size
                     this->g_receivedSize = 0;
                     this->g_wantedSize = 0;
-                    return fge::net::Socket::ERR_UNSUCCESS;
+                    return Errors::ERR_UNSUCCESS;
                 }
                 this->g_buffer.resize(this->g_wantedSize + sizeof(uint32_t));
             }
 
-            return fge::net::Socket::ERR_PARTIAL;
+            return Errors::ERR_PARTIAL;
         }
     }
 }
 
-fge::net::Socket::Error
+Socket::Errors
 SocketTcp::sendAndReceive(fge::net::Packet& sendPacket, fge::net::Packet& receivePacket, uint32_t timeoutms)
 {
-    fge::net::Socket::Error error = this->send(sendPacket);
-    if (error == fge::net::Socket::ERR_NOERROR)
+    Socket::Errors error = this->send(sendPacket);
+    if (error == Errors::ERR_NOERROR)
     {
         error = this->select(true, timeoutms);
-        if (error == fge::net::Socket::ERR_NOERROR)
+        if (error == Errors::ERR_NOERROR)
         {
             return this->receive(receivePacket);
         }
     }
     return error;
 }
-fge::net::Socket::Error SocketTcp::receive(fge::net::Packet& packet, uint32_t timeoutms)
+Socket::Errors SocketTcp::receive(fge::net::Packet& packet, uint32_t timeoutms)
 {
-    fge::net::Socket::Error error = this->select(true, timeoutms);
-    if (error == fge::net::Socket::ERR_NOERROR)
+    Socket::Errors error = this->select(true, timeoutms);
+    if (error == Errors::ERR_NOERROR)
     {
         return this->receive(packet);
     }
@@ -1384,11 +1383,11 @@ SocketListenerTcp::SocketListenerTcp(IpAddress::Types addressType, bool blocking
     this->setBlocking(blocking);
 }
 
-fge::net::Socket::Error SocketListenerTcp::create()
+Socket::Errors SocketListenerTcp::create()
 {
     if (this->g_addressType == IpAddress::Types::None)
     {
-        return ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     if (this->g_socket == _FGE_SOCKET_INVALID)
@@ -1417,10 +1416,10 @@ fge::net::Socket::Error SocketListenerTcp::create()
         }
 #endif
     }
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
-fge::net::Socket::Error SocketListenerTcp::listen(fge::net::Port port, fge::net::IpAddress const& address)
+Socket::Errors SocketListenerTcp::listen(fge::net::Port port, fge::net::IpAddress const& address)
 {
     // Close the socket if it is already bound
     this->close();
@@ -1431,7 +1430,7 @@ fge::net::Socket::Error SocketListenerTcp::listen(fge::net::Port port, fge::net:
     // Check if the address is valid
     if (address == IpAddress::None || address == IpAddress::Ipv4Broadcast)
     {
-        return ERR_INVALIDARGUMENT;
+        return Errors::ERR_INVALIDARGUMENT;
     }
 
     // Bind the socket to the specified port
@@ -1451,14 +1450,14 @@ fge::net::Socket::Error SocketListenerTcp::listen(fge::net::Port port, fge::net:
         return fge::net::NormalizeError();
     }
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
-fge::net::Socket::Error SocketListenerTcp::accept(fge::net::SocketTcp& socket)
+Socket::Errors SocketListenerTcp::accept(fge::net::SocketTcp& socket)
 {
     // Make sure that we're listening
     if (this->g_socket == _FGE_SOCKET_INVALID)
     {
-        return fge::net::Socket::ERR_DISCONNECTED;
+        return Errors::ERR_DISCONNECTED;
     }
 
     // Accept a new connection
@@ -1477,7 +1476,7 @@ fge::net::Socket::Error SocketListenerTcp::accept(fge::net::SocketTcp& socket)
     socket.close();
     socket.create(remote);
 
-    return fge::net::Socket::ERR_NOERROR;
+    return Errors::ERR_NOERROR;
 }
 
 fge::net::SocketListenerTcp& SocketListenerTcp::operator=(fge::net::SocketListenerTcp&& r) noexcept

@@ -53,7 +53,7 @@ bool ServerSideNetUdp::start(Port bindPort, IpAddress const& bindIp, IpAddress::
         return false;
     }
     this->g_socket.setAddressType(addressType);
-    if (this->g_socket.bind(bindPort, bindIp) == Socket::ERR_NOERROR)
+    if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
     {
         this->g_running = true;
 
@@ -95,9 +95,9 @@ void ServerSideNetUdp::threadReception()
 
     while (this->g_running)
     {
-        if (this->g_socket.select(true, 500) == Socket::ERR_NOERROR)
+        if (this->g_socket.select(true, 500) == Socket::Errors::ERR_NOERROR)
         {
-            if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == Socket::ERR_NOERROR)
+            if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == Socket::Errors::ERR_NOERROR)
             {
 #ifdef FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST
                 if (fge::_random.range(0, 1000) <= 10)
@@ -233,9 +233,9 @@ bool ClientSideNetUdp::start(Port bindPort,
         return false;
     }
     this->g_socket.setAddressType(addressType);
-    if (this->g_socket.bind(bindPort, bindIp) == Socket::ERR_NOERROR)
+    if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
     {
-        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == Socket::ERR_NOERROR)
+        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == Socket::Errors::ERR_NOERROR)
         {
             this->g_clientIdentity._ip = connectRemoteAddress;
             this->g_clientIdentity._port = connectRemotePort;
@@ -260,9 +260,9 @@ void ClientSideNetUdp::threadReception()
 
     while (this->g_running)
     {
-        if (this->g_socket.select(true, 500) == Socket::ERR_NOERROR)
+        if (this->g_socket.select(true, 500) == Socket::Errors::ERR_NOERROR)
         {
-            if (this->g_socket.receive(pckReceive) == Socket::ERR_NOERROR)
+            if (this->g_socket.receive(pckReceive) == Socket::Errors::ERR_NOERROR)
             {
 #ifdef FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST
                 if (fge::_random.range(0, 1000) <= 10)
