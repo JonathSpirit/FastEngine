@@ -153,7 +153,7 @@ public:
      * From MSDN:
      * This function provide the only way to determine the local association that has been set by the system.
      *
-     * \return The local address of the socket or fge::net::IpAddress::None if there was an error
+     * \return The local address of the socket or IpAddress::None if there was an error
      */
     [[nodiscard]] IpAddress getLocalAddress() const;
     /**
@@ -173,7 +173,7 @@ public:
      * For datagram sockets, only the address of a peer specified in a previous connect call will be returned.
      * Any address specified by a previous sendto call will not be returned.
      *
-     * \return The remote address of the socket or fge::net::IpAddress::None if there was an error
+     * \return The remote address of the socket or IpAddress::None if there was an error
      */
     [[nodiscard]] IpAddress getRemoteAddress() const;
 
@@ -264,7 +264,7 @@ protected:
  * \ingroup network
  * \brief A wrapper for UDP sockets inheriting from Socket
  */
-class FGE_API SocketUdp : public fge::net::Socket
+class FGE_API SocketUdp : public Socket
 {
 public:
     explicit SocketUdp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
@@ -285,7 +285,7 @@ public:
      * \param remotePort The remote port to connect to
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort);
+    Errors connect(IpAddress const& remoteAddress, Port remotePort);
     /**
      * \brief Bind the socket to a local address and port
      *
@@ -296,14 +296,14 @@ public:
      * \param address The local address to bind to
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors bind(fge::net::Port port, IpAddress const& address);
+    Errors bind(Port port, IpAddress const& address);
 
     /**
      * \brief Send data to the connected remote address
      *
      * The connect function must be called before calling this function.
      *
-     * \see fge::net::SocketUdp::connect
+     * \see SocketUdp::connect
      *
      * \param data The data to send
      * \param size The size of the data to send
@@ -319,7 +319,7 @@ public:
      * \param remotePort The remote port to send to
      * \return Errors::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors sendTo(void const* data, std::size_t size, IpAddress const& remoteAddress, fge::net::Port remotePort);
+    Errors sendTo(void const* data, std::size_t size, IpAddress const& remoteAddress, Port remotePort);
     /**
      * \brief Receive data from an unspecified remote address
      *
@@ -330,17 +330,13 @@ public:
      * \param remotePort The remote port of the sender
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors receiveFrom(void* data,
-                       std::size_t size,
-                       std::size_t& received,
-                       fge::net::IpAddress& remoteAddress,
-                       fge::net::Port& remotePort);
+    Errors receiveFrom(void* data, std::size_t size, std::size_t& received, IpAddress& remoteAddress, Port& remotePort);
     /**
      * \brief Receive data from the connected remote address
      *
      * The connect function must be called before calling this function.
      *
-     * \see fge::net::SocketUdp::connect
+     * \see SocketUdp::connect
      *
      * \param data The data buffer to receive into
      * \param size The size of the data buffer
@@ -350,48 +346,48 @@ public:
     Errors receive(void* data, std::size_t size, std::size_t& received);
 
     /**
-     * \brief Send a fge::net::Packet to the connected remote address
+     * \brief Send a Packet to the connected remote address
      *
      * The connect function must be called before calling this function.
      *
-     * \see fge::net::SocketUdp::connect
-     * \see fge::net::Packet
+     * \see SocketUdp::connect
+     * \see Packet
      *
      * \param packet The packet to send
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors send(fge::net::Packet& packet);
+    Errors send(Packet& packet);
     /**
-     * \brief Send a fge::net::Packet to the specified address
+     * \brief Send a Packet to the specified address
      *
      * \param packet The packet to send
      * \param remoteAddress The remote address to send to
      * \param remotePort The remote port to send to
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors sendTo(fge::net::Packet& packet, IpAddress const& remoteAddress, fge::net::Port remotePort);
+    Errors sendTo(Packet& packet, IpAddress const& remoteAddress, Port remotePort);
     /**
-     * \brief Receive a fge::net::Packet from an unspecified remote address
+     * \brief Receive a Packet from an unspecified remote address
      *
      * \param packet The packet to receive into
      * \param remoteAddress The remote address of the sender
      * \param remotePort The remote port of the sender
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors receiveFrom(fge::net::Packet& packet, fge::net::IpAddress& remoteAddress, fge::net::Port& remotePort);
+    Errors receiveFrom(Packet& packet, IpAddress& remoteAddress, Port& remotePort);
     /**
-     * \brief Receive a fge::net::Packet from the connected remote address
+     * \brief Receive a Packet from the connected remote address
      *
      * The connect function must be called before calling this function.
      *
-     * \see fge::net::SocketUdp::connect
+     * \see SocketUdp::connect
      *
      * \param packet The packet to receive into
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors receive(fge::net::Packet& packet);
+    Errors receive(Packet& packet);
 
-    fge::net::SocketUdp& operator=(fge::net::SocketUdp&& r) noexcept;
+    SocketUdp& operator=(SocketUdp&& r) noexcept;
 
 private:
     std::vector<uint8_t> g_buffer;
@@ -402,7 +398,7 @@ private:
  * \ingroup network
  * \brief A wrapper for TCP sockets inheriting from Socket
  */
-class FGE_API SocketTcp : public fge::net::Socket
+class FGE_API SocketTcp : public Socket
 {
 public:
     explicit SocketTcp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
@@ -425,7 +421,7 @@ public:
      * \param sck The socket descriptor
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors create(fge::net::Socket::SocketDescriptor sck);
+    Errors create(SocketDescriptor sck);
     /**
      * \brief Create a socket
      *
@@ -444,7 +440,7 @@ public:
      * \param timeoutms The timeout in milliseconds
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors connect(fge::net::IpAddress const& remoteAddress, fge::net::Port remotePort, uint32_t timeoutms);
+    Errors connect(IpAddress const& remoteAddress, Port remotePort, uint32_t timeoutms);
 
     /**
      * \brief Send data to the connected remote address
@@ -475,22 +471,22 @@ public:
     Errors receive(void* data, std::size_t size, std::size_t& received, uint32_t timeoutms);
 
     /**
-     * \brief Send a fge::net::Packet to the connected remote address
+     * \brief Send a Packet to the connected remote address
      *
      * \param packet The packet to send
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors send(fge::net::Packet& packet);
+    Errors send(Packet& packet);
     /**
-     * \brief Receive a fge::net::Packet from the connected remote address
+     * \brief Receive a Packet from the connected remote address
      *
-     * If this function return fge::net::Socket::ERR_PARTIAL then the packet
-     * is not complete and you should call this function again to receive the rest of the data.
+     * If this function return Socket::ERR_PARTIAL then the packet
+     * is not complete, and you should call this function again to receive the rest of the data.
      *
      * \param packet The packet to receive into
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors receive(fge::net::Packet& packet);
+    Errors receive(Packet& packet);
 
     /**
      * \brief Utility function to send and receive data
@@ -500,7 +496,7 @@ public:
      * \param timeoutms The timeout in milliseconds
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors sendAndReceive(fge::net::Packet& sendPacket, fge::net::Packet& receivePacket, uint32_t timeoutms);
+    Errors sendAndReceive(Packet& sendPacket, Packet& receivePacket, uint32_t timeoutms);
     /**
      * \brief Receive a packet from the connected remote address with a timeout
      *
@@ -508,9 +504,9 @@ public:
      * \param timeoutms The timeout in milliseconds
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors receive(fge::net::Packet& packet, uint32_t timeoutms);
+    Errors receive(Packet& packet, uint32_t timeoutms);
 
-    fge::net::SocketTcp& operator=(fge::net::SocketTcp&& r) noexcept;
+    SocketTcp& operator=(SocketTcp&& r) noexcept;
 
 private:
     std::size_t g_receivedSize;
@@ -523,7 +519,7 @@ private:
  * \ingroup network
  * \brief A wrapper for TCP listener sockets inheriting from Socket
  */
-class FGE_API SocketListenerTcp : public fge::net::Socket
+class FGE_API SocketListenerTcp : public Socket
 {
 public:
     explicit SocketListenerTcp(IpAddress::Types addressType = IpAddress::Types::Ipv4);
@@ -541,19 +537,19 @@ public:
      * \brief Start listening for new connections from a port
      *
      * \param port The port to listen on
-     * \param address The address to listen on or fge::net::IpAddress::Any
+     * \param address The address to listen on or IpAddress::Any
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors listen(fge::net::Port port, fge::net::IpAddress const& address);
+    Errors listen(Port port, IpAddress const& address);
     /**
      * \brief Accept a new connection
      *
      * \param socket The socket to accept the connection into
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
-    Errors accept(fge::net::SocketTcp& socket);
+    Errors accept(SocketTcp& socket);
 
-    fge::net::SocketListenerTcp& operator=(fge::net::SocketListenerTcp&& r) noexcept;
+    SocketListenerTcp& operator=(SocketListenerTcp&& r) noexcept;
 };
 
 } // namespace fge::net
