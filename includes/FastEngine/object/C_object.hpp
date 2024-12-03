@@ -239,23 +239,26 @@ public:
      * \brief Save the object in a file
      *
      * \param path The path of the file
+     * \param fieldWidth The width of the fields in the file
+     * \param saveClassName If the class name must be saved
      * \return \b true if the object was saved, \b false otherwise
      */
-    bool saveInFile(std::string const& path);
+    bool saveInFile(std::filesystem::path const& path, int fieldWidth = 2, bool saveClassName = true);
     /**
      * \brief Load the object from a file
      *
      * \param path The path of the file
+     * \param loadClassName Load and verify the class name
      * \return \b true if the object was loaded, \b false otherwise
      */
-    bool loadFromFile(std::string const& path);
+    bool loadFromFile(std::filesystem::path const& path, bool loadClassName = true);
     /**
      * \brief Static form of the loadFromFile method
      *
      * \param path The path of the file
      * \return The allocated pointer of the loaded object or nullptr if the object was not loaded
      */
-    static fge::Object* LoadFromFile(std::string const& path);
+    [[nodiscard]] static std::unique_ptr<fge::Object> LoadFromFile(std::filesystem::path const& path);
 
     /**
      * \brief Get the GuiElement attached to this object if there is one

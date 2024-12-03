@@ -17,11 +17,9 @@
 #include "FastEngine/object/C_object.hpp"
 #include "FastEngine/C_scene.hpp"
 #include "FastEngine/arbitraryJsonTypes.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 #include "FastEngine/manager/reg_manager.hpp"
 #include "FastEngine/network/C_packet.hpp"
-
-#include <fstream>
-#include <iomanip>
 
 namespace fge
 {
@@ -158,68 +156,73 @@ fge::Quad Object::getLocalQuad() const
     return fge::Quad(this->getLocalBounds());
 }
 
-bool Object::saveInFile(std::string const& path)
+bool Object::saveInFile(std::filesystem::path const& path, int fieldWidth, bool saveClassName)
 {
     nlohmann::json objNewJson = nlohmann::json::object();
-    nlohmann::json& objJson = objNewJson[this->getClassName()];
 
-    objJson = nlohmann::json::object();
-
-    this->save(objJson);
-
-    std::ofstream outFile(path);
-    if (outFile)
+    if (saveClassName)
     {
-        outFile << std::setw(2) << objNewJson << std::endl;
-        outFile.close();
-        return true;
+        nlohmann::json& objJson = objNewJson[this->getClassName()];
+        objJson = nlohmann::json::object();
+        this->save(objJson);
     }
-    outFile.close();
-    return false;
-}
-bool Object::loadFromFile(std::string const& path)
-{
-    std::ifstream inFile(path);
-    if (!inFile)
+    else
     {
-        inFile.close();
+        this->save(objNewJson);
+    }
+    return SaveJsonToFile(path, objNewJson, fieldWidth);
+}
+bool Object::loadFromFile(std::filesystem::path const& path, bool loadClassName)
+{
+    nlohmann::json inputJson;
+    if (!LoadJsonFromFile(path, inputJson))
+    {
         return false;
     }
 
-    nlohmann::json inputJson;
-    inFile >> inputJson;
-    inFile.close();
-
-    std::string className = inputJson.begin().key();
-
-    if (className == this->getClassName())
+    if (!inputJson.is_object() || inputJson.size() == 0)
     {
+        return false;
+    }
+
+    if (loadClassName)
+    {
+        if (inputJson.begin().key() != this->getClassName())
+        {
+            return false;
+        }
+
         nlohmann::json& objJson = inputJson.begin().value();
 
         this->load(objJson);
         return true;
     }
-    return false;
+
+    this->load(inputJson);
+    return true;
 }
-fge::Object* Object::LoadFromFile(std::string const& path)
+std::unique_ptr<fge::Object> Object::LoadFromFile(std::filesystem::path const& path)
 {
-    std::ifstream inFile(path);
-    if (!inFile)
+    nlohmann::json inputJson;
+    if (!LoadJsonFromFile(path, inputJson))
     {
-        inFile.close();
         return nullptr;
     }
 
-    nlohmann::json inputJson;
-    inFile >> inputJson;
+    if (!inputJson.is_object() || inputJson.size() == 0)
+    {
+        return nullptr;
+    }
 
-    fge::Object* buffObj = fge::reg::GetNewClassOf(inputJson.begin().key());
-    if (buffObj != nullptr)
+    auto const& className = inputJson.begin().key();
+
+    auto newObject = std::unique_ptr<fge::Object>(fge::reg::GetNewClassOf(className));
+    if (newObject)
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
-        buffObj->load(objJson);
-        return buffObj;
+        newObject->load(objJson);
+        return newObject;
     }
     return nullptr;
 }

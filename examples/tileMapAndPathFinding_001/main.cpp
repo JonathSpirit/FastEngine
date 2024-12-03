@@ -203,12 +203,8 @@ public:
         //Make sure it's always drawn
         tileMap->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
 
-        //Load the "tiled" json
-        nlohmann::json json;
-        fge::LoadJsonFromFile("resources/tilemaps/tilemap_basic_1.json", json);
-
         //Load the tileMap from a "tiled" json
-        tileMap->load(json);
+        tileMap->loadFromFile("resources/tilemaps/tilemap_basic_1.json", false);
 
         //Get the tileMap size
         auto tileMapSize = tileMap->getTileLayers().front()->getTiles().getSize();
