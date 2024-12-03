@@ -111,8 +111,8 @@ void ObjRenderMap::removed([[maybe_unused]] fge::Scene& scene)
     this->detachAll();
 }
 
-void ObjRenderMap::save([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene) {}
-void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene) {}
+void ObjRenderMap::save([[maybe_unused]] nlohmann::json& jsonObject) {}
+void ObjRenderMap::load([[maybe_unused]] nlohmann::json& jsonObject) {}
 void ObjRenderMap::pack([[maybe_unused]] fge::net::Packet& pck) {}
 void ObjRenderMap::unpack([[maybe_unused]] fge::net::Packet const& pck) {}
 

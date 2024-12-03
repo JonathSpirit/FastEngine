@@ -222,9 +222,9 @@ FGE_OBJ_DRAW_BODY(ObjTextInputBox)
 }
 #endif
 
-void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjTextInputBox::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["cursor"] = this->g_cursor;
     jsonObject["maxLength"] = this->g_maxLength;
@@ -244,9 +244,9 @@ void ObjTextInputBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
 
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjTextInputBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjTextInputBox::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->g_cursor = jsonObject.value<uint16_t>("cursor", 0);
     this->g_maxLength = jsonObject.value<uint16_t>("maxLength", 10);

@@ -55,7 +55,7 @@ TileLayerList const& ObjTileMap::getTileLayers() const
     return this->g_layers;
 }
 
-void ObjTileMap::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
+void ObjTileMap::save(nlohmann::json& jsonObject)
 {
     jsonObject = nlohmann::json{{"infinite", false},
                                 {"orientation", "orthogonal"},
@@ -82,7 +82,7 @@ void ObjTileMap::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* s
         obj = *layer;
     }
 }
-void ObjTileMap::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
+void ObjTileMap::load(nlohmann::json& jsonObject)
 {
     auto const& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())

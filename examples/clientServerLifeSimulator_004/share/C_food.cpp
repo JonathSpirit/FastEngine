@@ -56,13 +56,13 @@ void Food::networkRegister()
                                               [&](fge::Vector2f const& pos) { this->setPosition(pos); });
 }
 
-void Food::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void Food::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 }
-void Food::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void Food::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 }
 void Food::pack(fge::net::Packet& pck)
 {

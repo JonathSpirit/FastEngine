@@ -154,15 +154,15 @@ FGE_OBJ_DRAW_BODY(ObjSpriteCluster)
 }
 #endif
 
-void ObjSpriteCluster::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSpriteCluster::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["texture"] = this->g_texture;
 }
-void ObjSpriteCluster::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSpriteCluster::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->g_texture = jsonObject.value<std::string>("texture", std::string{FGE_TEXTURE_BAD});
 }

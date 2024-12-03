@@ -194,9 +194,9 @@ FGE_OBJ_DRAW_BODY(ObjSelectBox)
 }
 #endif
 
-void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSelectBox::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["colorBox"] = this->g_colorBox.toInteger();
     jsonObject["colorBoxOutline"] = this->g_colorBoxOutline.toInteger();
@@ -220,9 +220,9 @@ void ObjSelectBox::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["statActive"] = this->g_statActive;
     jsonObject["statMouseOn"] = this->g_statMouseOn;
 }
-void ObjSelectBox::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSelectBox::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->g_colorBox = fge::Color(jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF));
     this->g_colorBoxOutline = fge::Color(jsonObject.value<uint32_t>("colorBoxOutline", 0));

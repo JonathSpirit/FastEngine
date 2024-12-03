@@ -249,13 +249,13 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
 }
 #endif
 
-void ObjSpriteBatches::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSpriteBatches::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 }
-void ObjSpriteBatches::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSpriteBatches::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 }
 
 void ObjSpriteBatches::pack(fge::net::Packet& pck)

@@ -185,16 +185,14 @@ public:
      * \brief Save the object to a json object
      *
      * \param jsonObject The json object where the object is saved
-     * \param scene The scene where the object is saved (can be nullptr)
      */
-    virtual void save(nlohmann::json& jsonObject, fge::Scene* scene);
+    virtual void save(nlohmann::json& jsonObject);
     /**
      * \brief Load the object from a json object
      *
      * \param jsonObject The json object where the object is loaded
-     * \param scene The scene where the object is loaded (can be nullptr)
      */
-    virtual void load(nlohmann::json& jsonObject, fge::Scene* scene);
+    virtual void load(nlohmann::json& jsonObject);
     /**
      * \brief Pack the object into a packet
      *

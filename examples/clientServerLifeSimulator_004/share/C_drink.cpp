@@ -56,13 +56,13 @@ void Drink::networkRegister()
                                               [&](fge::Vector2f const& pos) { this->setPosition(pos); });
 }
 
-void Drink::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void Drink::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 }
-void Drink::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void Drink::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 }
 void Drink::pack(fge::net::Packet& pck)
 {

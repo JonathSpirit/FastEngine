@@ -208,7 +208,7 @@ public:
         fge::LoadJsonFromFile("resources/tilemaps/tilemap_basic_1.json", json);
 
         //Load the tileMap from a "tiled" json
-        tileMap->load(json, this);
+        tileMap->load(json);
 
         //Get the tileMap size
         auto tileMapSize = tileMap->getTileLayers().front()->getTiles().getSize();

@@ -105,9 +105,9 @@ FGE_OBJ_DRAW_BODY(ObjButton)
 }
 #endif
 
-void ObjButton::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjButton::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["color"] = this->g_color.toInteger();
 
@@ -117,9 +117,9 @@ void ObjButton::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["statMouseOn"] = this->g_statMouseOn;
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjButton::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjButton::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->g_color = fge::Color(jsonObject.value<uint32_t>("color", 0));
 

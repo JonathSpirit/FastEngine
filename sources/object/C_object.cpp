@@ -85,7 +85,7 @@ fge::Object* Object::copy()
     return fge::reg::Duplicate(this);
 }
 
-void Object::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
+void Object::save(nlohmann::json& jsonObject)
 {
     jsonObject["_pos"] = this->getPosition();
     jsonObject["_rotation"] = this->getRotation();
@@ -98,7 +98,7 @@ void Object::save(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene
         jsonObject["tags"] += tag;
     }
 }
-void Object::load(nlohmann::json& jsonObject, [[maybe_unused]] fge::Scene* scene)
+void Object::load(nlohmann::json& jsonObject)
 {
     this->setPosition(jsonObject["_pos"].get<fge::Vector2f>());
     this->setRotation(jsonObject["_rotation"].get<float>());
@@ -165,7 +165,7 @@ bool Object::saveInFile(std::string const& path)
 
     objJson = nlohmann::json::object();
 
-    this->save(objJson, FGE_OBJ_NOSCENE);
+    this->save(objJson);
 
     std::ofstream outFile(path);
     if (outFile)
@@ -196,7 +196,7 @@ bool Object::loadFromFile(std::string const& path)
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
-        this->load(objJson, FGE_OBJ_NOSCENE);
+        this->load(objJson);
         return true;
     }
     return false;
@@ -218,7 +218,7 @@ fge::Object* Object::LoadFromFile(std::string const& path)
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
-        buffObj->load(objJson, FGE_OBJ_NOSCENE);
+        buffObj->load(objJson);
         return buffObj;
     }
     return nullptr;

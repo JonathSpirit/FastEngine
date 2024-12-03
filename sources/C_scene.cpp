@@ -1808,7 +1808,7 @@ bool Scene::saveInFile(std::string const& path)
         objJson["_plan"] = data->getPlan();
         objJson["_type"] = data->getType();
 
-        data->getObject()->save(objJson, this);
+        data->getObject()->save(objJson);
         outputJson["Objects"] += objNewJson;
     }
 
@@ -1851,7 +1851,7 @@ bool Scene::loadFromFile(std::string const& path)
 
             this->newObject(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(),
                             objJson["_sid"].get<fge::ObjectSid>(), objJson["_type"].get<fge::ObjectType>())
-                    ->g_object->load(objJson, this);
+                    ->g_object->load(objJson);
         }
         else
         {

@@ -93,9 +93,9 @@ FGE_OBJ_DRAW_BODY(ObjSwitch)
 }
 #endif
 
-void ObjSwitch::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSwitch::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["color"] = this->g_color.toInteger();
 
@@ -105,9 +105,9 @@ void ObjSwitch::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["statMouseOn"] = this->g_statMouseOn;
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjSwitch::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjSwitch::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->g_color = fge::Color(jsonObject.value<uint32_t>("color", 0));
 

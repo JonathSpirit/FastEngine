@@ -426,9 +426,9 @@ FGE_OBJ_DRAW_BODY(ObjText)
 }
 #endif
 
-void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjText::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["string"] = this->g_string;
     jsonObject["font"] = this->g_font;
@@ -440,9 +440,9 @@ void ObjText::save(nlohmann::json& jsonObject, fge::Scene* scene)
     jsonObject["outlineColor"] = static_cast<uint32_t>(this->g_outlineColor.toInteger());
     jsonObject["outlineThickness"] = this->g_outlineThickness;
 }
-void ObjText::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjText::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
     this->g_font = jsonObject.value<std::string>("font", std::string(FGE_FONT_BAD));

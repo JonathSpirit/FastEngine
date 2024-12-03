@@ -142,17 +142,17 @@ FGE_OBJ_DRAW_BODY(ObjAnimation)
 }
 #endif
 
-void ObjAnimation::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjAnimation::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 
     jsonObject["color"] = fge::Color(this->g_vertices[0]._color).toInteger();
     jsonObject["animation"] = this->g_animation;
     jsonObject["tickDuration"] = static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void ObjAnimation::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void ObjAnimation::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 
     this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_animation = jsonObject.value<std::string>("animation", std::string(FGE_ANIM_BAD));

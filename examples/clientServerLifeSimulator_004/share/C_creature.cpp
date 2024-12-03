@@ -400,13 +400,13 @@ void Creature::networkRegister()
     this->_data.networkRegister(this->_netList, this, &Creature::refreshStats);
 }
 
-void Creature::save(nlohmann::json& jsonObject, fge::Scene* scene)
+void Creature::save(nlohmann::json& jsonObject)
 {
-    fge::Object::save(jsonObject, scene);
+    fge::Object::save(jsonObject);
 }
-void Creature::load(nlohmann::json& jsonObject, fge::Scene* scene)
+void Creature::load(nlohmann::json& jsonObject)
 {
-    fge::Object::load(jsonObject, scene);
+    fge::Object::load(jsonObject);
 }
 void Creature::pack(fge::net::Packet& pck)
 {

@@ -66,8 +66,8 @@ public:
 
     FGE_OBJ_DRAW_DECLARE
 
-    void save(nlohmann::json& jsonObject, fge::Scene* scene) override;
-    void load(nlohmann::json& jsonObject, fge::Scene* scene) override;
+    void save(nlohmann::json& jsonObject) override;
+    void load(nlohmann::json& jsonObject) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet const& pck) override;
 
