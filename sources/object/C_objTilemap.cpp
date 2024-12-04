@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/object/C_objTilemap.hpp"
+#include "FastEngine/extra/extra_function.hpp"
 
 namespace fge
 {
@@ -89,8 +90,25 @@ void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& f
     {
         for (auto const& tileSet: tileSetsArray)
         {
-            this->g_tileSets.emplace_back(std::make_shared<fge::TileSet>());
-            tileSet.get_to(*this->g_tileSets.back());
+            if (tileSet.contains("source"))
+            { //TileSet data is in another json file
+                auto const externFilePath = filePath.parent_path() / tileSet.at("source").get<std::filesystem::path>();
+                nlohmann::json externJson;
+                if (!LoadJsonFromFile(externFilePath, externJson))
+                {
+                    throw fge::Exception("Failed to load tileset file: " + externFilePath.string());
+                }
+
+                auto newTileSet = std::make_shared<TileSet>();
+                externJson.get_to(*newTileSet);
+                this->g_tileSets.emplace_back(std::move(newTileSet));
+            }
+            else
+            {
+                auto newTileSet = std::make_shared<TileSet>();
+                tileSet.get_to(*newTileSet);
+                this->g_tileSets.emplace_back(std::move(newTileSet));
+            }
         }
     }
 
