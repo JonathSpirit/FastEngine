@@ -105,9 +105,9 @@ void ObjSwitch::save(nlohmann::json& jsonObject)
     jsonObject["statMouseOn"] = this->g_statMouseOn;
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjSwitch::load(nlohmann::json& jsonObject)
+void ObjSwitch::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->g_color = fge::Color(jsonObject.value<uint32_t>("color", 0));
 

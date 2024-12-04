@@ -1787,7 +1787,7 @@ fge::CallbackContext Scene::getCallbackContext() const
 
 /** Save/Load in file **/
 
-bool Scene::saveInFile(std::string const& path)
+bool Scene::saveInFile(std::filesystem::path const& path)
 {
     nlohmann::json outputJson;
 
@@ -1822,7 +1822,7 @@ bool Scene::saveInFile(std::string const& path)
     outFile.close();
     return false;
 }
-bool Scene::loadFromFile(std::string const& path)
+bool Scene::loadFromFile(std::filesystem::path const& path)
 {
     std::ifstream inFile(path);
     if (!inFile)
@@ -1851,7 +1851,7 @@ bool Scene::loadFromFile(std::string const& path)
 
             this->newObject(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(),
                             objJson["_sid"].get<fge::ObjectSid>(), objJson["_type"].get<fge::ObjectType>())
-                    ->g_object->load(objJson);
+                    ->g_object->load(objJson, path);
         }
         else
         {

@@ -160,9 +160,9 @@ void ObjSpriteCluster::save(nlohmann::json& jsonObject)
 
     jsonObject["texture"] = this->g_texture;
 }
-void ObjSpriteCluster::load(nlohmann::json& jsonObject)
+void ObjSpriteCluster::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->g_texture = jsonObject.value<std::string>("texture", std::string{FGE_TEXTURE_BAD});
 }

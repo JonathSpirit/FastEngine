@@ -191,8 +191,9 @@ public:
      * \brief Load the object from a json object
      *
      * \param jsonObject The json object where the object is loaded
+     * \param filePath The path of the main file where the object is loaded from
      */
-    virtual void load(nlohmann::json& jsonObject);
+    virtual void load(nlohmann::json& jsonObject, std::filesystem::path const& filePath);
     /**
      * \brief Pack the object into a packet
      *

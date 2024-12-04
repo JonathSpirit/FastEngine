@@ -96,7 +96,7 @@ void Object::save(nlohmann::json& jsonObject)
         jsonObject["tags"] += tag;
     }
 }
-void Object::load(nlohmann::json& jsonObject)
+void Object::load(nlohmann::json& jsonObject, [[maybe_unused]] std::filesystem::path const& filePath)
 {
     this->setPosition(jsonObject["_pos"].get<fge::Vector2f>());
     this->setRotation(jsonObject["_rotation"].get<float>());
@@ -194,11 +194,11 @@ bool Object::loadFromFile(std::filesystem::path const& path, bool loadClassName)
 
         nlohmann::json& objJson = inputJson.begin().value();
 
-        this->load(objJson);
+        this->load(objJson, path);
         return true;
     }
 
-    this->load(inputJson);
+    this->load(inputJson, path);
     return true;
 }
 std::unique_ptr<fge::Object> Object::LoadFromFile(std::filesystem::path const& path)
@@ -221,7 +221,7 @@ std::unique_ptr<fge::Object> Object::LoadFromFile(std::filesystem::path const& p
     {
         nlohmann::json& objJson = inputJson.begin().value();
 
-        newObject->load(objJson);
+        newObject->load(objJson, path);
         return newObject;
     }
     return nullptr;

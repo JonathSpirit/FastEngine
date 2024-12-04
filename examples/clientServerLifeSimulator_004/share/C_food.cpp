@@ -60,9 +60,9 @@ void Food::save(nlohmann::json& jsonObject)
 {
     fge::Object::save(jsonObject);
 }
-void Food::load(nlohmann::json& jsonObject)
+void Food::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 }
 void Food::pack(fge::net::Packet& pck)
 {

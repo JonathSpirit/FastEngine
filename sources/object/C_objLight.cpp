@@ -264,9 +264,9 @@ void ObjLight::save(nlohmann::json& jsonObject)
     jsonObject["color"] = this->g_vertexBuffer.getVertices()[0]._color;
     jsonObject["texture"] = this->g_texture;
 }
-void ObjLight::load(nlohmann::json& jsonObject)
+void ObjLight::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_texture = jsonObject.value<std::string>("texture", std::string{FGE_TEXTURE_BAD});

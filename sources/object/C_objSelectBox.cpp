@@ -220,9 +220,9 @@ void ObjSelectBox::save(nlohmann::json& jsonObject)
     jsonObject["statActive"] = this->g_statActive;
     jsonObject["statMouseOn"] = this->g_statMouseOn;
 }
-void ObjSelectBox::load(nlohmann::json& jsonObject)
+void ObjSelectBox::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->g_colorBox = fge::Color(jsonObject.value<uint32_t>("colorBox", 0xFFFFFFFF));
     this->g_colorBoxOutline = fge::Color(jsonObject.value<uint32_t>("colorBoxOutline", 0));

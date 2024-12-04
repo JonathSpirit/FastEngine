@@ -60,9 +60,9 @@ void Drink::save(nlohmann::json& jsonObject)
 {
     fge::Object::save(jsonObject);
 }
-void Drink::load(nlohmann::json& jsonObject)
+void Drink::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 }
 void Drink::pack(fge::net::Packet& pck)
 {

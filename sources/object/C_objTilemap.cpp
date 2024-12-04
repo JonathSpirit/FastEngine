@@ -82,7 +82,7 @@ void ObjTileMap::save(nlohmann::json& jsonObject)
         obj = *layer;
     }
 }
-void ObjTileMap::load(nlohmann::json& jsonObject)
+void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
     auto const& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())

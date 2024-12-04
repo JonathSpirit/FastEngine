@@ -1379,7 +1379,7 @@ public:
      * \param path The path of the file
      * \return \b true if successful, \b false otherwise
      */
-    bool saveInFile(std::string const& path);
+    bool saveInFile(std::filesystem::path const& path);
     /**
      * \brief Load all the Scene data from a json file.
      *
@@ -1393,7 +1393,7 @@ public:
      * \param path The path of the file
      * \return \b true if successful, \b false otherwise
      */
-    bool loadFromFile(std::string const& path);
+    bool loadFromFile(std::filesystem::path const& path);
 
     // Iterator
     inline fge::ObjectContainer::const_iterator begin() const { return this->g_objects.begin(); }

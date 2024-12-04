@@ -150,9 +150,9 @@ void ObjAnimation::save(nlohmann::json& jsonObject)
     jsonObject["animation"] = this->g_animation;
     jsonObject["tickDuration"] = static_cast<uint16_t>(this->g_tickDuration.count());
 }
-void ObjAnimation::load(nlohmann::json& jsonObject)
+void ObjAnimation::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->setColor(fge::Color(jsonObject.value<uint32_t>("color", 0)));
     this->g_animation = jsonObject.value<std::string>("animation", std::string(FGE_ANIM_BAD));

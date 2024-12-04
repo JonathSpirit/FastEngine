@@ -48,7 +48,7 @@ public:
     TileLayerList const& getTileLayers() const;
 
     void save(nlohmann::json& jsonObject) override;
-    void load(nlohmann::json& jsonObject) override;
+    void load(nlohmann::json& jsonObject, std::filesystem::path const& filePath) override;
     void pack(fge::net::Packet& pck) override;
     void unpack(fge::net::Packet const& pck) override;
 

@@ -253,9 +253,9 @@ void ObjSpriteBatches::save(nlohmann::json& jsonObject)
 {
     fge::Object::save(jsonObject);
 }
-void ObjSpriteBatches::load(nlohmann::json& jsonObject)
+void ObjSpriteBatches::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 }
 
 void ObjSpriteBatches::pack(fge::net::Packet& pck)

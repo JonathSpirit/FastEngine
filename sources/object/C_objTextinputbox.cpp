@@ -244,9 +244,9 @@ void ObjTextInputBox::save(nlohmann::json& jsonObject)
 
     jsonObject["statActive"] = this->g_statActive;
 }
-void ObjTextInputBox::load(nlohmann::json& jsonObject)
+void ObjTextInputBox::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->g_cursor = jsonObject.value<uint16_t>("cursor", 0);
     this->g_maxLength = jsonObject.value<uint16_t>("maxLength", 10);

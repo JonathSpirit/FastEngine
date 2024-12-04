@@ -440,9 +440,9 @@ void ObjText::save(nlohmann::json& jsonObject)
     jsonObject["outlineColor"] = static_cast<uint32_t>(this->g_outlineColor.toInteger());
     jsonObject["outlineThickness"] = this->g_outlineThickness;
 }
-void ObjText::load(nlohmann::json& jsonObject)
+void ObjText::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
-    fge::Object::load(jsonObject);
+    fge::Object::load(jsonObject, filePath);
 
     this->g_string = jsonObject.value<tiny_utf8::string>("string", {});
     this->g_font = jsonObject.value<std::string>("font", std::string(FGE_FONT_BAD));
