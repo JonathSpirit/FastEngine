@@ -81,12 +81,18 @@ public:
     /**
      * \brief Set the group of the animation by its name
      *
+     * If the frame index overflow in the new group, it will be reset to 0.
+     * Else the frame index will be kept.
+     *
      * \param group The name of the group
      * \return \b true if the group was found, \b false otherwise
      */
     bool setGroup(std::string_view group);
     /**
      * \brief Set the group of the animation by its index
+     *
+     * If the frame index overflow in the new group, it will be reset to 0.
+     * Else the frame index will be kept.
      *
      * \param groupIndex The index of the group
      * \return \b true if the group was found, \b false otherwise

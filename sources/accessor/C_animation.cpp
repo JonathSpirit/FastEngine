@@ -83,7 +83,6 @@ bool Animation::setGroup(std::string_view group)
     { //Same group
         if (data->_groups[this->g_groupIndex]._groupName == group)
         {
-            this->g_frameIndex = 0;
             return true;
         }
     }
@@ -93,7 +92,10 @@ bool Animation::setGroup(std::string_view group)
         if (data->_groups[i]._groupName == group)
         {
             this->g_groupIndex = i;
-            this->g_frameIndex = 0;
+            if (this->g_frameIndex >= data->_groups[i]._frames.size())
+            {
+                this->g_frameIndex = 0;
+            }
             return true;
         }
     }
@@ -103,14 +105,17 @@ bool Animation::setGroup(Index groupIndex)
 {
     if (this->g_groupIndex == groupIndex)
     { //Same group
-        this->g_frameIndex = 0;
         return true;
     }
 
-    if (groupIndex < this->retrieve()->_groups.size())
+    auto data = this->retrieve();
+    if (groupIndex < data->_groups.size())
     {
         this->g_groupIndex = groupIndex;
-        this->g_frameIndex = 0;
+        if (this->g_frameIndex >= data->_groups[groupIndex]._frames.size())
+        {
+            this->g_frameIndex = 0;
+        }
         return true;
     }
     return false;
