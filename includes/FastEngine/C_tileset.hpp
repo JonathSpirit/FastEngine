@@ -41,6 +41,7 @@ struct TileData
 {
     TileId _id{0};
     fge::RectInt _rect;
+    mutable std::vector<fge::RectInt> _collisionRects{};
     mutable fge::PropertyList _properties{};
 };
 

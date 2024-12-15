@@ -282,6 +282,7 @@ void from_json(nlohmann::json const& j, fge::TileSet& p)
             auto const* actualTile = p.getTile(newTile._id);
             if (actualTile != nullptr)
             {
+                actualTile->_collisionRects = std::move(newTile._collisionRects);
                 actualTile->_properties = std::move(newTile._properties);
             }
         }
@@ -325,6 +326,29 @@ void from_json(nlohmann::json const& j, fge::TileData& p)
 {
     j.at("id").get_to(p._id);
 
+    //Collision rects
+    p._collisionRects.clear();
+    auto itObjectGroup = j.find("objectgroup");
+    if (itObjectGroup != j.end() && itObjectGroup->is_object())
+    {
+        auto itObjects = itObjectGroup->find("objects");
+        for (auto const& object: *itObjects)
+        {
+            if (object.is_object())
+            {
+                fge::RectInt rect;
+                rect._x = object.value<int>("x", 0);
+                rect._y = object.value<int>("y", 0);
+                rect._width = object.value<int>("width", 0);
+                rect._height = object.value<int>("height", 0);
+
+                p._collisionRects.push_back(rect);
+            }
+        }
+    }
+
+    //Properties
+    p._properties.delAllProperties();
     auto itProperties = j.find("properties");
     if (itProperties != j.end() && itProperties->is_array())
     {
