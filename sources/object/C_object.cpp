@@ -261,5 +261,11 @@ fge::Vector2f Object::getParentsScale() const
     }
     return parentsScale;
 }
+void Object::centerOriginFromLocalBounds()
+{
+    auto const bounds = this->getLocalBounds();
+    auto const origin = bounds.getPosition() + bounds.getSize() / 2.0f;
+    this->setOrigin(origin);
+}
 
 } // namespace fge

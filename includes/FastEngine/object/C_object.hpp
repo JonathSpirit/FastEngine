@@ -280,6 +280,10 @@ public:
      * \return Parents scale
      */
     fge::Vector2f getParentsScale() const;
+    /**
+     * \brief Center the origin of the object from its local bounds
+     */
+    void centerOriginFromLocalBounds();
 
     //Data
 
