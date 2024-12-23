@@ -21,6 +21,14 @@
 namespace fge::texture
 {
 
+namespace
+{
+
+std::mutex gSDLImageHandlerMutex;
+unsigned int gSDLImageHandlerCounter = 0;
+
+} // namespace
+
 bool TextureManager::initialize()
 {
     if (this->isInitialized())
@@ -28,7 +36,13 @@ bool TextureManager::initialize()
         return true;
     }
 
-    IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
+    gSDLImageHandlerMutex.lock();
+    if (gSDLImageHandlerCounter == 0)
+    {
+        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF);
+    }
+    ++gSDLImageHandlerCounter;
+    gSDLImageHandlerMutex.unlock();
 
     fge::Surface badSurface;
 
@@ -66,7 +80,12 @@ bool TextureManager::initialize()
 void TextureManager::uninitialize()
 {
     BaseManager::uninitialize();
-    IMG_Quit();
+    gSDLImageHandlerMutex.lock();
+    if (--gSDLImageHandlerCounter == 0)
+    {
+        IMG_Quit();
+    }
+    gSDLImageHandlerMutex.unlock();
 }
 
 bool TextureManager::loadFromSurface(std::string_view name, fge::Surface const& surface)
