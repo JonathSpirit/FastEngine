@@ -42,16 +42,6 @@ bool AnimationManager::isInitialized()
 {
     return this->_g_badElement != nullptr;
 }
-void AnimationManager::uninitialize()
-{
-    if (!this->isInitialized())
-    {
-        return;
-    }
-
-    this->unloadAll();
-    this->_g_badElement.reset();
-}
 
 bool AnimationManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
 {

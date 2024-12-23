@@ -70,14 +70,7 @@ bool TextureManager::isInitialized()
 
 void TextureManager::uninitialize()
 {
-    if (!this->isInitialized())
-    {
-        return;
-    }
-
-    this->unloadAll();
-    this->_g_badElement.reset();
-
+    BaseManager::uninitialize();
     IMG_Quit();
 }
 

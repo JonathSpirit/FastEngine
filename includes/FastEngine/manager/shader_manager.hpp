@@ -67,7 +67,6 @@ public:
      */
     bool initialize() override;
     [[nodiscard]] bool isInitialized() override;
-    void uninitialize() override;
 
     /**
      * \brief Load a shader from the memory

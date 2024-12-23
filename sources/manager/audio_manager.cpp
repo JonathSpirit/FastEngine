@@ -48,14 +48,7 @@ bool AudioManager::isInitialized()
 }
 void AudioManager::uninitialize()
 {
-    if (!this->isInitialized())
-    {
-        return;
-    }
-
-    this->unloadAll();
-    this->_g_badElement.reset();
-
+    BaseManager::uninitialize();
     Mix_CloseAudio();
     Mix_Quit();
 }

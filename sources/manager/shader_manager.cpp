@@ -275,16 +275,6 @@ bool ShaderManager::isInitialized()
 {
     return this->_g_badElement != nullptr;
 }
-void ShaderManager::uninitialize()
-{
-    if (!this->isInitialized())
-    {
-        return;
-    }
-
-    this->unloadAll();
-    this->_g_badElement.reset();
-}
 
 bool ShaderManager::loadFromMemory(std::string_view name,
                                    void const* data,

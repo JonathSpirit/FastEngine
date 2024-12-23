@@ -20,6 +20,18 @@ namespace fge::manager
 //BaseManager
 
 template<class TData, class TDataBlock>
+void BaseManager<TData, TDataBlock>::uninitialize()
+{
+    if (!this->isInitialized())
+    {
+        return;
+    }
+
+    this->unloadAll();
+    this->_g_badElement.reset();
+}
+
+template<class TData, class TDataBlock>
 std::size_t BaseManager<TData, TDataBlock>::size() const
 {
     return this->g_data.size();

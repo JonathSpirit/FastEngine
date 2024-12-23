@@ -99,7 +99,6 @@ public:
 
     bool initialize() override;
     [[nodiscard]] bool isInitialized() override;
-    void uninitialize() override;
 
     /**
      * \brief Load the animation with the given name from the given file path

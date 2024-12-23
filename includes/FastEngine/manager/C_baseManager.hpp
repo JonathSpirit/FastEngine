@@ -87,7 +87,7 @@ public:
      */
     virtual bool initialize() = 0;
     [[nodiscard]] virtual bool isInitialized() = 0;
-    virtual void uninitialize() = 0;
+    virtual void uninitialize();
 
     /**
      * \brief Get the number of elements in the manager

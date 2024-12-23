@@ -62,13 +62,7 @@ bool FontManager::isInitialized()
 
 void FontManager::uninitialize()
 {
-    if (!this->isInitialized())
-    {
-        return;
-    }
-
-    this->unloadAll();
-    this->_g_badElement.reset();
+    BaseManager::uninitialize();
 
     if (--gCounter == 0)
     {
