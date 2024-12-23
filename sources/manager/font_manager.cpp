@@ -19,8 +19,6 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-#include <atomic>
-
 namespace fge::font
 {
 
@@ -28,7 +26,8 @@ namespace
 {
 
 FT_Library gFreetypeLibrary = nullptr;
-std::atomic<unsigned int> gCounter = 0;
+std::mutex gFreetypeLibraryMutex;
+unsigned int gFreeTypeLibraryCounter = 0;
 
 } // namespace
 
@@ -39,19 +38,22 @@ bool FontManager::initialize()
         return true;
     }
 
-    if (gFreetypeLibrary == nullptr)
+    gFreetypeLibraryMutex.lock();
+    if (gFreeTypeLibraryCounter == 0)
     {
         if (FT_Init_FreeType(&gFreetypeLibrary) != 0)
         {
+            gFreetypeLibraryMutex.unlock();
             return false;
         }
     }
+    ++gFreeTypeLibraryCounter;
+    gFreetypeLibraryMutex.unlock();
 
     this->_g_badElement = std::make_shared<DataBlockType>();
     this->_g_badElement->_ptr = std::make_shared<DataType>();
     this->_g_badElement->_valid = false;
 
-    ++gCounter;
     return true;
 }
 
@@ -59,11 +61,13 @@ void FontManager::uninitialize()
 {
     BaseManager::uninitialize();
 
-    if (--gCounter == 0)
+    gFreetypeLibraryMutex.lock();
+    if (--gFreeTypeLibraryCounter == 0)
     {
         FT_Done_FreeType(gFreetypeLibrary);
         gFreetypeLibrary = nullptr;
     }
+    gFreetypeLibraryMutex.unlock();
 }
 
 bool FontManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
