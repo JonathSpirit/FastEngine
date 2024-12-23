@@ -43,7 +43,6 @@ public:
     using BaseManager::BaseManager;
 
     bool initialize() override;
-    [[nodiscard]] bool isInitialized() override;
     void uninitialize() override;
 
     /**

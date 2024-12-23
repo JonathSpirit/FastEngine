@@ -66,7 +66,6 @@ public:
      * \return \b true if the shader manager is correctly initialized, \b false otherwise
      */
     bool initialize() override;
-    [[nodiscard]] bool isInitialized() override;
 
     /**
      * \brief Load a shader from the memory

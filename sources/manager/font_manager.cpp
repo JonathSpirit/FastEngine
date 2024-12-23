@@ -55,11 +55,6 @@ bool FontManager::initialize()
     return true;
 }
 
-bool FontManager::isInitialized()
-{
-    return this->_g_badElement != nullptr;
-}
-
 void FontManager::uninitialize()
 {
     BaseManager::uninitialize();

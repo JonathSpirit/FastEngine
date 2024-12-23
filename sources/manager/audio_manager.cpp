@@ -42,10 +42,6 @@ bool AudioManager::initialize()
     this->_g_badElement->_valid = false;
     return true;
 }
-bool AudioManager::isInitialized()
-{
-    return this->_g_badElement != nullptr;
-}
 void AudioManager::uninitialize()
 {
     BaseManager::uninitialize();

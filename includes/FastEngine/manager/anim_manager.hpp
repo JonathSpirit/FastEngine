@@ -98,7 +98,6 @@ public:
     using BaseManager::BaseManager;
 
     bool initialize() override;
-    [[nodiscard]] bool isInitialized() override;
 
     /**
      * \brief Load the animation with the given name from the given file path

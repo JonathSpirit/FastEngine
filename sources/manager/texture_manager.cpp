@@ -63,11 +63,6 @@ bool TextureManager::initialize()
     return true;
 }
 
-bool TextureManager::isInitialized()
-{
-    return this->_g_badElement != nullptr;
-}
-
 void TextureManager::uninitialize()
 {
     BaseManager::uninitialize();

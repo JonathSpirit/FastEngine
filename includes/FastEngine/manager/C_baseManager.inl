@@ -20,6 +20,11 @@ namespace fge::manager
 //BaseManager
 
 template<class TData, class TDataBlock>
+bool BaseManager<TData, TDataBlock>::isInitialized()
+{
+    return this->_g_badElement != nullptr;
+}
+template<class TData, class TDataBlock>
 void BaseManager<TData, TDataBlock>::uninitialize()
 {
     if (!this->isInitialized())

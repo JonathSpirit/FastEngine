@@ -271,10 +271,6 @@ bool ShaderManager::initialize()
 
     return true;
 }
-bool ShaderManager::isInitialized()
-{
-    return this->_g_badElement != nullptr;
-}
 
 bool ShaderManager::loadFromMemory(std::string_view name,
                                    void const* data,

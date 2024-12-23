@@ -86,7 +86,7 @@ public:
      * return \b true if the manager is initialized, \b false otherwise
      */
     virtual bool initialize() = 0;
-    [[nodiscard]] virtual bool isInitialized() = 0;
+    [[nodiscard]] virtual bool isInitialized();
     virtual void uninitialize();
 
     /**

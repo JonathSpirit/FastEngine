@@ -38,10 +38,6 @@ bool AnimationManager::initialize()
     this->_g_badElement->_valid = false;
     return true;
 }
-bool AnimationManager::isInitialized()
-{
-    return this->_g_badElement != nullptr;
-}
 
 bool AnimationManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
 {
