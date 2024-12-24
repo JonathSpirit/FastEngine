@@ -201,7 +201,8 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
     auto* view = static_cast<InstanceDataBuffer*>(this->g_instancesTransform.getBufferMapped());
     view->_transform = target.getView().getProjection() * target.getView().getTransform();
 
-    fge::TransformUboData const* parentTransform = target.getGlobalTransform(states._resTransform);
+    auto globalTransformIndex = target.requestGlobalTransform(*this, states._resTransform);
+    fge::TransformUboData const* parentTransform = target.getContext().getGlobalTransform(globalTransformIndex);
 
     //Update all model matrices
     for (std::size_t i = 0; i < this->g_instancesData.size(); ++i)
@@ -209,15 +210,8 @@ FGE_OBJ_DRAW_BODY(ObjSpriteBatches)
         auto* instance = static_cast<InstanceDataBuffer*>(this->g_instancesTransform.getBufferMapped()) + i + 1;
 
         instance->_textureIndex = this->g_instancesData[i]._textureIndex;
-        if (parentTransform != nullptr)
-        {
-            instance->_transform =
-                    parentTransform->_modelTransform * this->g_instancesData[i]._transformable.getTransform();
-        }
-        else
-        {
-            instance->_transform = this->g_instancesData[i]._transformable.getTransform();
-        }
+        instance->_transform =
+                parentTransform->_modelTransform * this->g_instancesData[i]._transformable.getTransform();
     }
 
     auto copyStates = states.copy();
