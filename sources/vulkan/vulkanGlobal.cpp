@@ -17,8 +17,6 @@
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
-#include "FastEngine/vulkan/C_logicalDevice.hpp"
-#include "FastEngine/vulkan/C_physicalDevice.hpp"
 #include <cstring>
 
 extern "C" {
@@ -83,28 +81,6 @@ bool CheckInstanceLayerSupport(char const* layerName)
         }
     }
     return false;
-}
-
-VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, VkFormat format, uint32_t mipLevels)
-{
-    VkImageViewCreateInfo viewInfo{};
-    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = image;
-    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = format;
-    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = mipLevels;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;
-
-    VkImageView imageView = VK_NULL_HANDLE;
-    if (vkCreateImageView(logicalDevice.getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to create texture image view!");
-    }
-
-    return imageView;
 }
 
 } // namespace fge::vulkan

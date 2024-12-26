@@ -175,8 +175,8 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 
     vmaDestroyBuffer(context.getAllocator(), stagingBufferInfo._buffer, stagingBufferInfo._allocation);
 
-    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_imageInfo._image,
-                                               FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
+    this->g_textureImageView = context.getLogicalDevice().createImageView(
+            this->g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
 
     this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
 
@@ -245,8 +245,8 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 
     vmaDestroyBuffer(context.getAllocator(), stagingBufferInfo._buffer, stagingBufferInfo._allocation);
 
-    this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_imageInfo._image,
-                                               FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
+    this->g_textureImageView = context.getLogicalDevice().createImageView(
+            this->g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
 
     this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
 

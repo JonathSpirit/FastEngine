@@ -205,4 +205,25 @@ VkPhysicalDeviceFeatures LogicalDevice::getEnabledFeatures() const
     return this->g_enabledFeatures;
 }
 
+VkImageView LogicalDevice::createImageView(VkImage image, VkFormat format, uint32_t mipLevels) const
+{
+    VkImageViewCreateInfo viewInfo{};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image = image;
+    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = format;
+    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = mipLevels;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView = VK_NULL_HANDLE;
+    if (vkCreateImageView(this->g_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    {
+        return VK_NULL_HANDLE;
+    }
+    return imageView;
+}
+
 } // namespace fge::vulkan

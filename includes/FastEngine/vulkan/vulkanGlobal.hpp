@@ -38,8 +38,6 @@
 namespace fge::vulkan
 {
 
-class LogicalDevice;
-class PhysicalDevice;
 class Context;
 
 struct BufferInfo
@@ -82,11 +80,6 @@ FGE_API extern Context& GetActiveContext();
 FGE_API extern void SetActiveContext(Context& context);
 
 FGE_API bool CheckInstanceLayerSupport(char const* layerName);
-
-FGE_API VkImageView CreateImageView(LogicalDevice const& logicalDevice,
-                                    VkImage image,
-                                    VkFormat format,
-                                    uint32_t mipLevels);
 
 } // namespace fge::vulkan
 
