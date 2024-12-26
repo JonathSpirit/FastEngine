@@ -31,8 +31,8 @@ Garbage::~Garbage()
                              &this->g_data._descriptorSet._descriptorSet);
         break;
     case GarbageType::GARBAGE_VERTEX_BUFFER:
-        vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._buffer,
-                         this->g_data._buffer._bufferAllocation);
+        vmaDestroyBuffer(this->g_data._buffer._allocator, this->g_data._buffer._bufferInfo._buffer,
+                         this->g_data._buffer._bufferInfo._allocation);
         break;
     case GarbageType::GARBAGE_GRAPHIC_PIPELINE:
         vkDestroyPipeline(this->g_data._graphicPipeline._logicalDevice, this->g_data._graphicPipeline._pipeline,

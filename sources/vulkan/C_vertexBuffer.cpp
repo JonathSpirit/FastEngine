@@ -350,9 +350,7 @@ void VertexBuffer::cleanBuffer() const
 #ifndef FGE_DEF_SERVER
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        //TODO: use Context::BufferInfo in the GarbageCollector
-        this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(
-                this->g_bufferInfo._buffer, this->g_bufferInfo._allocation, this->getContext().getAllocator()));
+        this->getContext()._garbageCollector.push(GarbageBuffer(this->g_bufferInfo, this->getContext().getAllocator()));
         this->g_bufferInfo.clear();
 
         if (this->g_type == BufferTypes::DEVICE)
