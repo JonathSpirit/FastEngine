@@ -85,34 +85,6 @@ bool CheckInstanceLayerSupport(char const* layerName)
     return false;
 }
 
-void CreateBuffer(Context const& context,
-                  VkDeviceSize size,
-                  VkBufferUsageFlags usage,
-                  VkMemoryPropertyFlags properties,
-                  VkBuffer& buffer,
-                  VmaAllocation& allocation)
-{
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    VmaAllocationCreateInfo allocationCreateInfo{};
-    allocationCreateInfo.flags =
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
-    allocationCreateInfo.requiredFlags = properties;
-    allocationCreateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
-
-    auto result =
-            vmaCreateBuffer(context.getAllocator(), &bufferInfo, &allocationCreateInfo, &buffer, &allocation, nullptr);
-
-    if (result != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to create buffer!");
-    }
-}
-
 void CreateImage(Context const& context,
                  uint32_t width,
                  uint32_t height,

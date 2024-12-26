@@ -67,13 +67,6 @@ FGE_API extern void SetActiveContext(Context& context);
 
 FGE_API bool CheckInstanceLayerSupport(char const* layerName);
 
-[[deprecated("see Context::createBuffer()")]] FGE_API void CreateBuffer(Context const& context,
-                                                                        VkDeviceSize size,
-                                                                        VkBufferUsageFlags usage,
-                                                                        VkMemoryPropertyFlags properties,
-                                                                        VkBuffer& buffer,
-                                                                        VmaAllocation& allocation);
-
 FGE_API void CreateImage(Context const& context,
                          uint32_t width,
                          uint32_t height,

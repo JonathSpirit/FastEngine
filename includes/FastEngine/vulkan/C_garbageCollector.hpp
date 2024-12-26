@@ -66,13 +66,6 @@ struct GarbageDescriptorSet
 };
 struct GarbageBuffer
 {
-    [[deprecated("see BufferInfo")]] constexpr GarbageBuffer(VkBuffer buffer,
-                                                             VmaAllocation bufferAllocation,
-                                                             VmaAllocator allocator) :
-            _type(GarbageType::GARBAGE_VERTEX_BUFFER),
-            _bufferInfo(buffer, bufferAllocation),
-            _allocator(allocator)
-    {}
     constexpr GarbageBuffer(BufferInfo bufferInfo, VmaAllocator allocator) :
             _type(GarbageType::GARBAGE_VERTEX_BUFFER),
             _bufferInfo(bufferInfo),
