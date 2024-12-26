@@ -34,8 +34,8 @@ std::vector<char const*> InstanceLayers = {"VK_LAYER_KHRONOS_validation", "VK_LA
 std::vector<char const*> InstanceLayers = {};
 #endif
 
-std::vector<char const*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                             VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME};
+std::vector<char const*> DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+                                             VK_EXT_ROBUSTNESS_2_EXTENSION_NAME};
 
 std::vector<char const*> InstanceExtensions = {};
 
