@@ -85,51 +85,6 @@ bool CheckInstanceLayerSupport(char const* layerName)
     return false;
 }
 
-void CreateImage(Context const& context,
-                 uint32_t width,
-                 uint32_t height,
-                 VkFormat format,
-                 VkImageTiling tiling,
-                 VkImageUsageFlags usage,
-                 VkMemoryPropertyFlags properties,
-                 uint32_t mipLevels,
-                 VkImage& image,
-                 VmaAllocation& allocation)
-{
-    VkImageCreateInfo imageInfo{};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = mipLevels;
-    imageInfo.arrayLayers = 1;
-
-    imageInfo.format = format;
-    imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = usage;
-
-    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-    imageInfo.flags = 0; // Optional
-
-    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    VmaAllocationCreateInfo allocationCreateInfo{};
-    allocationCreateInfo.flags =
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
-    allocationCreateInfo.requiredFlags = properties;
-    allocationCreateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
-
-    auto result =
-            vmaCreateImage(context.getAllocator(), &imageInfo, &allocationCreateInfo, &image, &allocation, nullptr);
-
-    if (result != VK_SUCCESS)
-    {
-        throw fge::Exception("failed to create image!");
-    }
-}
-
 VkImageView CreateImageView(LogicalDevice const& logicalDevice, VkImage image, VkFormat format, uint32_t mipLevels)
 {
     VkImageViewCreateInfo viewInfo{};

@@ -58,6 +58,22 @@ struct BufferInfo
     }
 };
 
+struct ImageInfo
+{
+    VkImage _image{VK_NULL_HANDLE};
+    VmaAllocation _allocation{VK_NULL_HANDLE};
+
+    [[nodiscard]] inline constexpr bool valid() const
+    {
+        return this->_image != VK_NULL_HANDLE && this->_allocation != VK_NULL_HANDLE;
+    }
+    inline constexpr void clear()
+    {
+        this->_image = VK_NULL_HANDLE;
+        this->_allocation = VK_NULL_HANDLE;
+    }
+};
+
 FGE_API extern std::vector<char const*> InstanceLayers;
 FGE_API extern std::vector<char const*> DeviceExtensions;
 FGE_API extern std::vector<char const*> InstanceExtensions;
@@ -66,17 +82,6 @@ FGE_API extern Context& GetActiveContext();
 FGE_API extern void SetActiveContext(Context& context);
 
 FGE_API bool CheckInstanceLayerSupport(char const* layerName);
-
-FGE_API void CreateImage(Context const& context,
-                         uint32_t width,
-                         uint32_t height,
-                         VkFormat format,
-                         VkImageTiling tiling,
-                         VkImageUsageFlags usage,
-                         VkMemoryPropertyFlags properties,
-                         uint32_t mipLevels,
-                         VkImage& image,
-                         VmaAllocation& allocation);
 
 FGE_API VkImageView CreateImageView(LogicalDevice const& logicalDevice,
                                     VkImage image,
