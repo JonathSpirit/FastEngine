@@ -24,6 +24,7 @@
 #include "glm/glm.hpp"
 
 #define FGE_NUMERIC_LIMITS_VECTOR_MAX(_vecType) (_vecType{std::numeric_limits<_vecType::value_type>::max()})
+#define FGE_NUMERIC_LIMITS_VECTOR_MIN(_vecType) (_vecType{std::numeric_limits<_vecType::value_type>::min()})
 
 namespace fge
 {
