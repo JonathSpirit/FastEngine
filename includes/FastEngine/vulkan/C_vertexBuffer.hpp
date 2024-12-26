@@ -87,9 +87,8 @@ private:
 
     std::vector<Vertex> g_vertices;
 
-    mutable VkBuffer g_buffer;
+    mutable BufferInfo g_bufferInfo;
     mutable VkBuffer g_stagingBuffer;
-    mutable VmaAllocation g_bufferAllocation;
     mutable VmaAllocation g_stagingBufferAllocation;
     mutable std::size_t g_bufferCapacity;
 

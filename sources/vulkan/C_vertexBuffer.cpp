@@ -26,9 +26,7 @@ namespace fge::vulkan
 
 VertexBuffer::VertexBuffer(Context const& context) :
         ContextAware(context),
-        g_buffer(VK_NULL_HANDLE),
         g_stagingBuffer(VK_NULL_HANDLE),
-        g_bufferAllocation(VK_NULL_HANDLE),
         g_stagingBufferAllocation(VK_NULL_HANDLE),
         g_bufferCapacity(0),
 
@@ -42,9 +40,7 @@ VertexBuffer::VertexBuffer(VertexBuffer const& r) :
         ContextAware(r),
         g_vertices(r.g_vertices),
 
-        g_buffer(VK_NULL_HANDLE),
         g_stagingBuffer(VK_NULL_HANDLE),
-        g_bufferAllocation(VK_NULL_HANDLE),
         g_stagingBufferAllocation(VK_NULL_HANDLE),
         g_bufferCapacity(0),
 
@@ -58,9 +54,8 @@ VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
         g_vertices(std::move(r.g_vertices)),
 
-        g_buffer(r.g_buffer),
+        g_bufferInfo(r.g_bufferInfo),
         g_stagingBuffer(r.g_stagingBuffer),
-        g_bufferAllocation(r.g_bufferAllocation),
         g_stagingBufferAllocation(r.g_stagingBufferAllocation),
         g_bufferCapacity(r.g_bufferCapacity),
 
@@ -70,9 +65,8 @@ VertexBuffer::VertexBuffer(VertexBuffer&& r) noexcept :
 
         g_primitiveTopology(r.g_primitiveTopology)
 {
-    r.g_buffer = VK_NULL_HANDLE;
+    r.g_bufferInfo.clear();
     r.g_stagingBuffer = VK_NULL_HANDLE;
-    r.g_bufferAllocation = VK_NULL_HANDLE;
     r.g_stagingBufferAllocation = VK_NULL_HANDLE;
     r.g_bufferCapacity = 0;
 
@@ -113,9 +107,8 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
 
     this->g_vertices = std::move(r.g_vertices);
 
-    this->g_buffer = r.g_buffer;
+    this->g_bufferInfo = r.g_bufferInfo;
     this->g_stagingBuffer = r.g_stagingBuffer;
-    this->g_bufferAllocation = r.g_bufferAllocation;
     this->g_stagingBufferAllocation = r.g_stagingBufferAllocation;
     this->g_bufferCapacity = r.g_bufferCapacity;
 
@@ -125,9 +118,8 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& r) noexcept
 
     this->g_primitiveTopology = r.g_primitiveTopology;
 
-    r.g_buffer = VK_NULL_HANDLE;
+    r.g_bufferInfo.clear();
     r.g_stagingBuffer = VK_NULL_HANDLE;
-    r.g_bufferAllocation = VK_NULL_HANDLE;
     r.g_stagingBufferAllocation = VK_NULL_HANDLE;
     r.g_bufferCapacity = 0;
 
@@ -214,7 +206,7 @@ void VertexBuffer::bind(CommandBuffer& commandBuffer) const
         this->updateBuffer();
 
         VkDeviceSize const offsets[] = {0};
-        commandBuffer.bindVertexBuffers(0, 1, &this->g_buffer, offsets);
+        commandBuffer.bindVertexBuffers(0, 1, &this->g_bufferInfo._buffer, offsets);
     }
 }
 
@@ -256,11 +248,11 @@ VkPrimitiveTopology VertexBuffer::getPrimitiveTopology() const
 
 VkBuffer VertexBuffer::getVerticesBuffer() const
 {
-    return this->g_buffer;
+    return this->g_bufferInfo._buffer;
 }
 VmaAllocation VertexBuffer::getVerticesBufferAllocation() const
 {
-    return this->g_bufferAllocation;
+    return this->g_bufferInfo._allocation;
 }
 
 BufferTypes VertexBuffer::getType() const
@@ -330,9 +322,9 @@ void VertexBuffer::mapBuffer() const
     switch (this->g_type)
     {
     case BufferTypes::LOCAL:
-        vmaMapMemory(this->getContext().getAllocator(), this->g_bufferAllocation, &data);
+        vmaMapMemory(this->getContext().getAllocator(), this->g_bufferInfo._allocation, &data);
         memcpy(data, this->g_vertices.data(), size);
-        vmaUnmapMemory(this->getContext().getAllocator(), this->g_bufferAllocation);
+        vmaUnmapMemory(this->getContext().getAllocator(), this->g_bufferInfo._allocation);
         break;
     case BufferTypes::DEVICE:
         vmaMapMemory(this->getContext().getAllocator(), this->g_stagingBufferAllocation, &data);
@@ -344,7 +336,7 @@ void VertexBuffer::mapBuffer() const
             auto buffer = this->getContext().beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION,
                                                            CommandBuffer::RenderPassScopes::OUTSIDE,
                                                            CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
-            buffer.copyBuffer(this->g_stagingBuffer, this->g_buffer, size);
+            buffer.copyBuffer(this->g_stagingBuffer, this->g_bufferInfo._buffer, size);
             this->getContext().submitCommands(std::move(buffer));
         }
         break;
@@ -358,10 +350,10 @@ void VertexBuffer::cleanBuffer() const
 #ifndef FGE_DEF_SERVER
     if (this->g_type != BufferTypes::UNINITIALIZED)
     {
-        this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(this->g_buffer, this->g_bufferAllocation,
-                                                                             this->getContext().getAllocator()));
-        this->g_buffer = VK_NULL_HANDLE;
-        this->g_bufferAllocation = VK_NULL_HANDLE;
+        //TODO: use Context::BufferInfo in the GarbageCollector
+        this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(
+                this->g_bufferInfo._buffer, this->g_bufferInfo._allocation, this->getContext().getAllocator()));
+        this->g_bufferInfo.clear();
 
         if (this->g_type == BufferTypes::DEVICE)
         {
@@ -384,7 +376,7 @@ void VertexBuffer::updateBuffer() const
         return;
     }
 
-    if (this->g_vertices.size() > this->g_bufferCapacity || this->g_buffer == VK_NULL_HANDLE)
+    if (this->g_vertices.size() > this->g_bufferCapacity || !this->g_bufferInfo.valid())
     {
         this->cleanBuffer();
 
@@ -395,9 +387,10 @@ void VertexBuffer::updateBuffer() const
         switch (this->g_type)
         {
         case BufferTypes::LOCAL:
-            CreateBuffer(this->getContext(), bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, this->g_buffer,
-                         this->g_bufferAllocation);
+            this->g_bufferInfo = *this->getContext().createBuffer(
+                    bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                    VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
             break;
         case BufferTypes::DEVICE:
             CreateBuffer(this->getContext(), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -406,7 +399,8 @@ void VertexBuffer::updateBuffer() const
 
             CreateBuffer(this->getContext(), bufferSize,
                          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_buffer, this->g_bufferAllocation);
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->g_bufferInfo._buffer,
+                         this->g_bufferInfo._allocation);
             break;
         default:
             throw fge::Exception("unexpected code path !");
