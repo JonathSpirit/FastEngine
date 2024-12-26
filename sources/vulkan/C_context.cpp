@@ -548,6 +548,31 @@ VmaAllocator Context::getAllocator() const
 {
     return this->g_allocator;
 }
+std::optional<BufferInfo> Context::createBuffer(VkDeviceSize size,
+                                                VkBufferUsageFlags usage,
+                                                VmaAllocationCreateFlags flags,
+                                                VkMemoryPropertyFlags requiredProperties) const
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo allocationCreateInfo{};
+    allocationCreateInfo.flags = flags;
+    allocationCreateInfo.requiredFlags = requiredProperties;
+    allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+    BufferInfo info{};
+    auto result = vmaCreateBuffer(this->getAllocator(), &bufferInfo, &allocationCreateInfo, &info._buffer,
+                                  &info._allocation, nullptr);
+    if (result != VK_SUCCESS)
+    {
+        return std::nullopt;
+    }
+    return info;
+}
 
 void Context::pushGraphicsCommandBuffer(VkCommandBuffer commandBuffer) const
 {

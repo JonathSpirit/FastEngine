@@ -340,6 +340,13 @@ public:
      */
     [[nodiscard]] VmaAllocator getAllocator() const;
 
+    [[nodiscard]] std::optional<BufferInfo>
+    createBuffer(VkDeviceSize size,
+                 VkBufferUsageFlags usage,
+                 VmaAllocationCreateFlags flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                                                  VMA_ALLOCATION_CREATE_MAPPED_BIT,
+                 VkMemoryPropertyFlags requiredProperties = 0) const;
+
     /**
      * \brief Push a graphics command buffer to a list
      *
