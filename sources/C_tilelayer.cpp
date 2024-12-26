@@ -25,12 +25,12 @@ TileLayer::Tile::Tile() :
     this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::DEVICE);
 }
 
-void TileLayer::Tile::setGid(TileId gid)
+void TileLayer::Tile::setGid(GlobalTileId gid)
 {
     this->g_gid = gid;
     this->updateTexCoords();
 }
-TileId TileLayer::Tile::getGid() const
+GlobalTileId TileLayer::Tile::getGid() const
 {
     return this->g_gid;
 }
@@ -126,11 +126,11 @@ void TileLayer::clear()
     this->g_data.clear();
 }
 
-void TileLayer::setId(TileId id)
+void TileLayer::setId(GlobalTileId id)
 {
     this->g_id = id;
 }
-TileId TileLayer::getId() const
+GlobalTileId TileLayer::getId() const
 {
     return this->g_id;
 }
@@ -148,7 +148,7 @@ fge::Matrix<TileLayer::Tile> const& TileLayer::getTiles() const
 {
     return this->g_data;
 }
-void TileLayer::setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, TileId gid)
+void TileLayer::setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, GlobalTileId gid)
 {
     auto* data = this->g_data.getPtr(x, y);
     if (data != nullptr)
@@ -164,7 +164,7 @@ void TileLayer::setGid(std::size_t x, std::size_t y, TileSetList const& tileSets
         data->updateTexCoords();
     }
 }
-void TileLayer::setGid(std::size_t x, std::size_t y, TileId gid)
+void TileLayer::setGid(std::size_t x, std::size_t y, GlobalTileId gid)
 {
     auto* data = this->g_data.getPtr(x, y);
     if (data != nullptr)
@@ -198,11 +198,11 @@ void TileLayer::refreshTextures(TileSetList const& tileSets)
     }
 }
 
-std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(TileSetList const& tileSets, TileId gid)
+std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(TileSetList const& tileSets, GlobalTileId gid)
 {
     for (auto const& tileSet: tileSets)
     {
-        if (tileSet->isGidContained(gid))
+        if (tileSet->containsGlobal(gid))
         {
             return tileSet;
         }

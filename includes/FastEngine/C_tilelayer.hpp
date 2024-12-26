@@ -29,7 +29,8 @@
 namespace fge
 {
 
-using TileId = int32_t;
+using GlobalTileId = int32_t;
+using LocalTileId = int32_t;
 using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
 
 /**
@@ -63,13 +64,13 @@ public:
          *
          * \param gid The global id of the tile
          */
-        void setGid(TileId gid);
+        void setGid(GlobalTileId gid);
         /**
          * \brief Get the global id of the tile
          *
          * \return The global id of the tile
          */
-        [[nodiscard]] TileId getGid() const;
+        [[nodiscard]] GlobalTileId getGid() const;
 
         /**
          * \brief Set the local position of the tile
@@ -116,7 +117,7 @@ public:
         void updatePositions();
         void updateTexCoords();
 
-        TileId g_gid{0};
+        GlobalTileId g_gid{0};
         std::shared_ptr<fge::TileSet> g_tileSet;
         fge::vulkan::VertexBuffer g_vertexBuffer;
         fge::Vector2f g_position;
@@ -140,13 +141,13 @@ public:
      *
      * \param id The id of the layer
      */
-    void setId(TileId id);
+    void setId(GlobalTileId id);
     /**
      * \brief Get the id of the layer
      *
      * \return The id of the layer
      */
-    [[nodiscard]] TileId getId() const;
+    [[nodiscard]] GlobalTileId getId() const;
 
     /**
      * \brief Set the name of the layer
@@ -175,7 +176,7 @@ public:
      * \param tileSets The list of tilesets
      * \param gid The global tile id
      */
-    void setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, TileId gid);
+    void setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, GlobalTileId gid);
     /**
      * \brief Shortcut to set a global tile id
      *
@@ -183,7 +184,7 @@ public:
      * \param y The y position of the tile
      * \param gid The global tile id
      */
-    void setGid(std::size_t x, std::size_t y, TileId gid);
+    void setGid(std::size_t x, std::size_t y, GlobalTileId gid);
     /**
      * \brief Set the tiles matrix size
      *
@@ -200,9 +201,9 @@ public:
     void refreshTextures(TileSetList const& tileSets);
 
 private:
-    static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(TileSetList const& tileSets, TileId gid);
+    static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(TileSetList const& tileSets, GlobalTileId gid);
 
-    TileId g_id{1};
+    GlobalTileId g_id{1};
     std::string g_name;
     fge::Matrix<TileLayer::Tile> g_data;
 };
