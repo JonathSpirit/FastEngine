@@ -147,19 +147,16 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
     this->g_textureBytesPerPixel = 4;
     this->g_mipLevels = levels;
 
-    VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
-
-    CreateBuffer(context, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-                 stagingBufferAllocation);
+    auto const stagingBufferInfo = *context.createBuffer(
+            imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     std::vector<uint8_t> pixels(imageSize, 0);
 
     void* data = nullptr;
-    vmaMapMemory(context.getAllocator(), stagingBufferAllocation, &data);
-    memcpy(data, pixels.data(), static_cast<size_t>(imageSize));
-    vmaUnmapMemory(context.getAllocator(), stagingBufferAllocation);
+    vmaMapMemory(context.getAllocator(), stagingBufferInfo._allocation, &data);
+    memcpy(data, pixels.data(), static_cast<std::size_t>(imageSize));
+    vmaUnmapMemory(context.getAllocator(), stagingBufferInfo._allocation);
 
     CreateImage(context, size.x, size.y, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
@@ -173,7 +170,7 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
-    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(size.x),
+    commandBuffer.copyBufferToImage(stagingBufferInfo._buffer, this->g_textureImage, static_cast<uint32_t>(size.x),
                                     static_cast<uint32_t>(size.y));
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
@@ -182,7 +179,7 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 
     context.submitCommands(std::move(commandBuffer));
 
-    vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
+    vmaDestroyBuffer(context.getAllocator(), stagingBufferInfo._buffer, stagingBufferInfo._allocation);
 
     this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage,
                                                FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
@@ -221,17 +218,14 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
     this->g_textureBytesPerPixel = surface->format->BytesPerPixel;
     this->g_mipLevels = levels;
 
-    VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
-
-    CreateBuffer(context, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-                 stagingBufferAllocation);
+    auto const stagingBufferInfo = *context.createBuffer(
+            imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data = nullptr;
-    vmaMapMemory(context.getAllocator(), stagingBufferAllocation, &data);
-    memcpy(data, surface->pixels, static_cast<size_t>(imageSize));
-    vmaUnmapMemory(context.getAllocator(), stagingBufferAllocation);
+    vmaMapMemory(context.getAllocator(), stagingBufferInfo._allocation, &data);
+    memcpy(data, surface->pixels, static_cast<std::size_t>(imageSize));
+    vmaUnmapMemory(context.getAllocator(), stagingBufferInfo._allocation);
 
     CreateImage(context, surface->w, surface->h, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
@@ -245,7 +239,7 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_LAYOUT_UNDEFINED,
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->g_mipLevels);
-    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, static_cast<uint32_t>(surface->w),
+    commandBuffer.copyBufferToImage(stagingBufferInfo._buffer, this->g_textureImage, static_cast<uint32_t>(surface->w),
                                     static_cast<uint32_t>(surface->h));
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
@@ -254,7 +248,7 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 
     context.submitCommands(std::move(commandBuffer));
 
-    vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
+    vmaDestroyBuffer(context.getAllocator(), stagingBufferInfo._buffer, stagingBufferInfo._allocation);
 
     this->g_textureImageView = CreateImageView(context.getLogicalDevice(), this->g_textureImage,
                                                FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
@@ -312,14 +306,11 @@ SDL_Surface* TextureImage::copyToSurface() const
     VkDeviceSize const imageSize =
             static_cast<VkDeviceSize>(this->g_textureSize.x) * this->g_textureSize.y * this->g_textureBytesPerPixel;
 
-    VkBuffer dstBuffer = VK_NULL_HANDLE;
-    VmaAllocation dstBufferAllocation = VK_NULL_HANDLE;
-
     auto& context = this->getContext();
 
-    CreateBuffer(context, imageSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, dstBuffer,
-                 dstBufferAllocation);
+    auto const dstBufferInfo = *context.createBuffer(
+            imageSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     auto commandBuffer =
             context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
@@ -329,7 +320,8 @@ SDL_Surface* TextureImage::copyToSurface() const
                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                         this->g_mipLevels);
 
-    commandBuffer.copyImageToBuffer(this->g_textureImage, dstBuffer, this->g_textureSize.x, this->g_textureSize.y);
+    commandBuffer.copyImageToBuffer(this->g_textureImage, dstBufferInfo._buffer, this->g_textureSize.x,
+                                    this->g_textureSize.y);
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -338,11 +330,11 @@ SDL_Surface* TextureImage::copyToSurface() const
     context.submitCommands(std::move(commandBuffer));
 
     void* data = nullptr;
-    vmaMapMemory(context.getAllocator(), dstBufferAllocation, &data);
-    memcpy(surface->pixels, data, static_cast<size_t>(imageSize));
-    vmaUnmapMemory(context.getAllocator(), dstBufferAllocation);
+    vmaMapMemory(context.getAllocator(), dstBufferInfo._allocation, &data);
+    memcpy(surface->pixels, data, static_cast<std::size_t>(imageSize));
+    vmaUnmapMemory(context.getAllocator(), dstBufferInfo._allocation);
 
-    vmaDestroyBuffer(context.getAllocator(), dstBuffer, dstBufferAllocation);
+    vmaDestroyBuffer(context.getAllocator(), dstBufferInfo._buffer, dstBufferInfo._allocation);
 
     return surface;
 }
@@ -372,19 +364,17 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
 
     VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
 
-    VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
-
-    CreateBuffer(context, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-                 stagingBufferAllocation);
+    auto const stagingBufferInfo = *context.createBuffer(
+            imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data = nullptr;
-    vmaMapMemory(context.getAllocator(), stagingBufferAllocation, &data);
-    memcpy(data, surface->pixels, static_cast<size_t>(imageSize));
-    vmaUnmapMemory(context.getAllocator(), stagingBufferAllocation);
+    vmaMapMemory(context.getAllocator(), stagingBufferInfo._allocation, &data);
+    memcpy(data, surface->pixels, static_cast<std::size_t>(imageSize));
+    vmaUnmapMemory(context.getAllocator(), stagingBufferInfo._allocation);
 
-    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, surface->w, surface->h, offset.x, offset.y);
+    commandBuffer.copyBufferToImage(stagingBufferInfo._buffer, this->g_textureImage, surface->w, surface->h, offset.x,
+                                    offset.y);
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -392,7 +382,7 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
 
     context.submitCommands(std::move(commandBuffer));
 
-    vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
+    vmaDestroyBuffer(context.getAllocator(), stagingBufferInfo._buffer, stagingBufferInfo._allocation);
 }
 void TextureImage::update(TextureImage const& textureImage, glm::vec<2, int> const& offset)
 {
@@ -461,19 +451,17 @@ void TextureImage::update(void* buffer,
 
     VkDeviceSize const imageSize = bufferSize;
 
-    VkBuffer stagingBuffer = VK_NULL_HANDLE;
-    VmaAllocation stagingBufferAllocation = VK_NULL_HANDLE;
-
-    CreateBuffer(context, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-                 stagingBufferAllocation);
+    auto const stagingBufferInfo = *context.createBuffer(
+            imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data = nullptr;
-    vmaMapMemory(context.getAllocator(), stagingBufferAllocation, &data);
+    vmaMapMemory(context.getAllocator(), stagingBufferInfo._allocation, &data);
     memcpy(data, buffer, bufferSize);
-    vmaUnmapMemory(context.getAllocator(), stagingBufferAllocation);
+    vmaUnmapMemory(context.getAllocator(), stagingBufferInfo._allocation);
 
-    commandBuffer.copyBufferToImage(stagingBuffer, this->g_textureImage, size.x, size.y, offset.x, offset.y);
+    commandBuffer.copyBufferToImage(stagingBufferInfo._buffer, this->g_textureImage, size.x, size.y, offset.x,
+                                    offset.y);
 
     commandBuffer.transitionImageLayout(this->g_textureImage, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -481,7 +469,7 @@ void TextureImage::update(void* buffer,
 
     context.submitCommands(std::move(commandBuffer));
 
-    vmaDestroyBuffer(context.getAllocator(), stagingBuffer, stagingBufferAllocation);
+    vmaDestroyBuffer(context.getAllocator(), stagingBufferInfo._buffer, stagingBufferInfo._allocation);
 }
 
 void TextureImage::generateMipmaps(uint32_t levels)
