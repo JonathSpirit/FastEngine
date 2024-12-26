@@ -42,6 +42,22 @@ class LogicalDevice;
 class PhysicalDevice;
 class Context;
 
+struct BufferInfo
+{
+    VkBuffer _buffer{VK_NULL_HANDLE};
+    VmaAllocation _allocation{VK_NULL_HANDLE};
+
+    [[nodiscard]] inline constexpr bool valid() const
+    {
+        return this->_buffer != VK_NULL_HANDLE && this->_allocation != VK_NULL_HANDLE;
+    }
+    inline constexpr void clear()
+    {
+        this->_buffer = VK_NULL_HANDLE;
+        this->_allocation = VK_NULL_HANDLE;
+    }
+};
+
 FGE_API extern std::vector<char const*> InstanceLayers;
 FGE_API extern std::vector<char const*> DeviceExtensions;
 FGE_API extern std::vector<char const*> InstanceExtensions;
@@ -51,12 +67,12 @@ FGE_API extern void SetActiveContext(Context& context);
 
 FGE_API bool CheckInstanceLayerSupport(char const* layerName);
 
-FGE_API void CreateBuffer(Context const& context,
-                          VkDeviceSize size,
-                          VkBufferUsageFlags usage,
-                          VkMemoryPropertyFlags properties,
-                          VkBuffer& buffer,
-                          VmaAllocation& allocation);
+[[deprecated("see Context::createBuffer()")]] FGE_API void CreateBuffer(Context const& context,
+                                                                        VkDeviceSize size,
+                                                                        VkBufferUsageFlags usage,
+                                                                        VkMemoryPropertyFlags properties,
+                                                                        VkBuffer& buffer,
+                                                                        VmaAllocation& allocation);
 
 FGE_API void CreateImage(Context const& context,
                          uint32_t width,
