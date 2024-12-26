@@ -202,6 +202,9 @@ public:
      */
     void refreshTextures(TileSetList const& tileSets);
 
+    [[nodiscard]] fge::RectFloat getGlobalBounds() const;
+    [[nodiscard]] fge::RectFloat getLocalBounds() const;
+
 private:
     static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(TileSetList const& tileSets, GlobalTileId gid);
 

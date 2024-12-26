@@ -206,6 +206,29 @@ void TileLayer::refreshTextures(TileSetList const& tileSets)
     }
 }
 
+fge::RectFloat TileLayer::getGlobalBounds() const
+{
+    return this->getTransform() * this->getLocalBounds();
+}
+fge::RectFloat TileLayer::getLocalBounds() const
+{
+    fge::RectFloat bounds{FGE_NUMERIC_LIMITS_VECTOR_MAX(fge::Vector2f), FGE_NUMERIC_LIMITS_VECTOR_MIN(fge::Vector2f)};
+    for (auto const& tile: this->g_data)
+    {
+        if (tile.g_tileSet && tile.g_gid != 0)
+        {
+            auto const size = static_cast<fge::Vector2f>(tile.g_tileSet->getTileSize());
+            auto const& position = tile.getPosition();
+
+            bounds._x = std::min(bounds._x, position.x);
+            bounds._y = std::min(bounds._y, position.y);
+            bounds._width = std::max(bounds._width, position.x + size.x);
+            bounds._height = std::max(bounds._height, position.y + size.y);
+        }
+    }
+    return bounds;
+}
+
 std::shared_ptr<fge::TileSet> TileLayer::retrieveAssociatedTileSet(TileSetList const& tileSets, GlobalTileId gid)
 {
     for (auto const& tileSet: tileSets)
