@@ -25,8 +25,6 @@ namespace fge::vulkan
 UniformBuffer::UniformBuffer(Context const& context, Types type) :
 #ifndef FGE_DEF_SERVER
         ContextAware(context),
-        g_uniformBuffer(VK_NULL_HANDLE),
-        g_uniformBufferAllocation(VK_NULL_HANDLE),
         g_uniformBufferMapped(nullptr),
         g_bufferSize(0),
         g_bufferCapacity(0),
@@ -45,8 +43,7 @@ UniformBuffer::UniformBuffer(UniformBuffer const& r) :
 UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
 #ifndef FGE_DEF_SERVER
-        g_uniformBuffer(r.g_uniformBuffer),
-        g_uniformBufferAllocation(r.g_uniformBufferAllocation),
+        g_uniformBufferInfo(r.g_uniformBufferInfo),
         g_uniformBufferMapped(r.g_uniformBufferMapped),
         g_bufferSize(r.g_bufferSize),
         g_bufferCapacity(r.g_bufferCapacity),
@@ -57,8 +54,7 @@ UniformBuffer::UniformBuffer(UniformBuffer&& r) noexcept :
 #endif
 {
 #ifndef FGE_DEF_SERVER
-    r.g_uniformBuffer = VK_NULL_HANDLE;
-    r.g_uniformBufferAllocation = VK_NULL_HANDLE;
+    r.g_uniformBufferInfo.clear();
     r.g_uniformBufferMapped = nullptr;
     r.g_bufferSize = 0;
     r.g_bufferCapacity = 0;
@@ -82,14 +78,12 @@ UniformBuffer& UniformBuffer::operator=(UniformBuffer&& r) noexcept
     this->verifyContext(r);
     this->destroy();
 #ifndef FGE_DEF_SERVER
-    this->g_uniformBuffer = r.g_uniformBuffer;
-    this->g_uniformBufferAllocation = r.g_uniformBufferAllocation;
+    this->g_uniformBufferInfo = r.g_uniformBufferInfo;
     this->g_uniformBufferMapped = r.g_uniformBufferMapped;
     this->g_bufferSize = r.g_bufferSize;
     this->g_bufferCapacity = r.g_bufferCapacity;
 
-    r.g_uniformBuffer = VK_NULL_HANDLE;
-    r.g_uniformBufferAllocation = VK_NULL_HANDLE;
+    r.g_uniformBufferInfo.clear();
     r.g_uniformBufferMapped = nullptr;
     r.g_bufferSize = 0;
     r.g_bufferCapacity = 0;
@@ -123,11 +117,12 @@ void UniformBuffer::create(VkDeviceSize bufferSize, Types type)
 
     this->destroy();
 
-    this->createBuffer(bufferSize, this->g_uniformBuffer, this->g_uniformBufferAllocation);
+    this->g_uniformBufferInfo = this->createBuffer(bufferSize);
     this->g_bufferSize = bufferSize;
     this->g_bufferCapacity = bufferSize;
 
-    vmaMapMemory(this->getContext().getAllocator(), this->g_uniformBufferAllocation, &this->g_uniformBufferMapped);
+    vmaMapMemory(this->getContext().getAllocator(), this->g_uniformBufferInfo._allocation,
+                 &this->g_uniformBufferMapped);
 #endif
 }
 void UniformBuffer::resize(VkDeviceSize bufferSize, bool shrink)
@@ -165,21 +160,17 @@ void UniformBuffer::resize(VkDeviceSize bufferSize, bool shrink)
     }
     else
     {
-        VkBuffer newBuffer{VK_NULL_HANDLE};
-        VmaAllocation newBufferAllocation{VK_NULL_HANDLE};
+        auto const newBufferInfo = this->createBuffer(bufferSize);
+
         void* newBufferMapped{nullptr};
-
-        this->createBuffer(bufferSize, newBuffer, newBufferAllocation);
-        vmaMapMemory(this->getContext().getAllocator(), newBufferAllocation, &newBufferMapped);
-
+        vmaMapMemory(this->getContext().getAllocator(), newBufferInfo._allocation, &newBufferMapped);
         std::memcpy(newBufferMapped, this->g_uniformBufferMapped, static_cast<std::size_t>(this->g_bufferSize));
 
-        vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferAllocation);
-        this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(
-                this->g_uniformBuffer, this->g_uniformBufferAllocation, this->getContext().getAllocator()));
+        vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferInfo._allocation);
+        this->getContext()._garbageCollector.push(
+                GarbageBuffer(this->g_uniformBufferInfo, this->getContext().getAllocator()));
 
-        this->g_uniformBuffer = newBuffer;
-        this->g_uniformBufferAllocation = newBufferAllocation;
+        this->g_uniformBufferInfo = newBufferInfo;
         this->g_uniformBufferMapped = newBufferMapped;
         this->g_bufferSize = bufferSize;
         this->g_bufferCapacity = bufferSize;
@@ -201,22 +192,19 @@ void UniformBuffer::shrinkToFit()
         return;
     }
 
-    VkBuffer newBuffer{VK_NULL_HANDLE};
-    VmaAllocation newBufferAllocation{VK_NULL_HANDLE};
+    auto const newBufferInfo = this->createBuffer(this->g_bufferSize);
+
     void* newBufferMapped{nullptr};
-
-    this->createBuffer(this->g_bufferSize, newBuffer, newBufferAllocation);
-    vmaMapMemory(this->getContext().getAllocator(), newBufferAllocation, &newBufferMapped);
-
+    vmaMapMemory(this->getContext().getAllocator(), newBufferInfo._allocation, &newBufferMapped);
     std::memcpy(newBufferMapped, this->g_uniformBufferMapped, static_cast<std::size_t>(this->g_bufferSize));
 
-    vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferAllocation);
-    this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(
-            this->g_uniformBuffer, this->g_uniformBufferAllocation, this->getContext().getAllocator()));
-
-    this->g_uniformBuffer = newBuffer;
-    this->g_uniformBufferAllocation = newBufferAllocation;
+    vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferInfo._allocation);
     this->g_uniformBufferMapped = newBufferMapped;
+
+    this->getContext()._garbageCollector.push(
+            GarbageBuffer(this->g_uniformBufferInfo, this->getContext().getAllocator()));
+
+    this->g_uniformBufferInfo = newBufferInfo;
     this->g_bufferCapacity = this->g_bufferSize;
 #endif
 }
@@ -227,14 +215,13 @@ void UniformBuffer::destroy()
     this->g_uniformBuffer.clear();
     this->g_type = Types::UNIFORM_BUFFER;
 #else
-    if (this->g_uniformBuffer != VK_NULL_HANDLE)
+    if (this->g_uniformBufferInfo.valid())
     {
-        vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferAllocation);
-        this->getContext()._garbageCollector.push(fge::vulkan::GarbageBuffer(
-                this->g_uniformBuffer, this->g_uniformBufferAllocation, this->getContext().getAllocator()));
+        vmaUnmapMemory(this->getContext().getAllocator(), this->g_uniformBufferInfo._allocation);
+        this->getContext()._garbageCollector.push(
+                GarbageBuffer(this->g_uniformBufferInfo, this->getContext().getAllocator()));
 
-        this->g_uniformBuffer = VK_NULL_HANDLE;
-        this->g_uniformBufferAllocation = VK_NULL_HANDLE;
+        this->g_uniformBufferInfo.clear();
         this->g_uniformBufferMapped = nullptr;
         this->g_bufferSize = 0;
         this->g_bufferCapacity = 0;
@@ -246,11 +233,11 @@ void UniformBuffer::destroy()
 #ifndef FGE_DEF_SERVER
 VkBuffer UniformBuffer::getBuffer() const
 {
-    return this->g_uniformBuffer;
+    return this->g_uniformBufferInfo._buffer;
 }
 VmaAllocation UniformBuffer::getBufferAllocation() const
 {
-    return this->g_uniformBufferAllocation;
+    return this->g_uniformBufferInfo._allocation;
 }
 void* UniformBuffer::getBufferMapped() const
 {
@@ -265,16 +252,9 @@ VkDeviceSize UniformBuffer::getBufferCapacity() const
     return this->g_bufferCapacity;
 }
 
-void UniformBuffer::createBuffer(VkDeviceSize bufferSize, VkBuffer& buffer, VmaAllocation& bufferAllocation)
+BufferInfo UniformBuffer::createBuffer(VkDeviceSize bufferSize) const
 {
-    if (bufferSize == 0)
-    {
-        buffer = VK_NULL_HANDLE;
-        bufferAllocation = VK_NULL_HANDLE;
-        return;
-    }
-
-    VkBufferUsageFlags usageFlags = 0;
+    VkBufferUsageFlags usageFlags{0};
     switch (this->g_type)
     {
     case Types::UNIFORM_BUFFER:
@@ -288,8 +268,9 @@ void UniformBuffer::createBuffer(VkDeviceSize bufferSize, VkBuffer& buffer, VmaA
         break;
     }
 
-    CreateBuffer(this->getContext(), bufferSize, usageFlags,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer, bufferAllocation);
+    return *this->getContext().createBuffer(
+            bufferSize, usageFlags, VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 #else
 VkBuffer UniformBuffer::getBuffer() const

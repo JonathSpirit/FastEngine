@@ -62,10 +62,9 @@ public:
 
 private:
 #ifndef FGE_DEF_SERVER
-    void createBuffer(VkDeviceSize bufferSize, VkBuffer& buffer, VmaAllocation& bufferAllocation);
+    [[nodiscard]] BufferInfo createBuffer(VkDeviceSize bufferSize) const;
 
-    VkBuffer g_uniformBuffer;
-    VmaAllocation g_uniformBufferAllocation;
+    BufferInfo g_uniformBufferInfo;
     void* g_uniformBufferMapped;
     VkDeviceSize g_bufferSize;
     VkDeviceSize g_bufferCapacity;
