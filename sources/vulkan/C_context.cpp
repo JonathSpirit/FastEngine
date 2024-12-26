@@ -573,6 +573,49 @@ std::optional<BufferInfo> Context::createBuffer(VkDeviceSize size,
     }
     return info;
 }
+std::optional<ImageInfo> Context::createImage(uint32_t width,
+                                              uint32_t height,
+                                              VkFormat format,
+                                              VkImageTiling tiling,
+                                              uint32_t mipLevels,
+                                              VkImageUsageFlags usage,
+                                              VmaAllocationCreateFlags flags,
+                                              VkMemoryPropertyFlags requiredProperties) const
+{
+    VkImageCreateInfo imageInfo{};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = mipLevels;
+    imageInfo.arrayLayers = 1;
+
+    imageInfo.format = format;
+    imageInfo.tiling = tiling;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.usage = usage;
+
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.flags = 0; // Optional
+
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo allocationCreateInfo{};
+    allocationCreateInfo.flags = flags;
+    allocationCreateInfo.requiredFlags = requiredProperties;
+    allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+    ImageInfo info{};
+    auto result = vmaCreateImage(this->getAllocator(), &imageInfo, &allocationCreateInfo, &info._image,
+                                 &info._allocation, nullptr);
+
+    if (result != VK_SUCCESS)
+    {
+        return std::nullopt;
+    }
+    return info;
+}
 
 void Context::pushGraphicsCommandBuffer(VkCommandBuffer commandBuffer) const
 {
