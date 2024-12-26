@@ -67,6 +67,14 @@ std::shared_ptr<fge::TileSet> const& TileLayer::Tile::getTileSet() const
 {
     return this->g_tileSet;
 }
+TileData const* TileLayer::Tile::getTileData() const
+{
+    if (this->g_tileSet)
+    {
+        return this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
+    }
+    return nullptr;
+}
 
 void TileLayer::Tile::updatePositions()
 {

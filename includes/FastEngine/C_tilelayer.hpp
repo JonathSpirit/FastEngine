@@ -113,6 +113,8 @@ public:
          */
         [[nodiscard]] std::shared_ptr<fge::TileSet> const& getTileSet() const;
 
+        [[nodiscard]] TileData const* getTileData() const;
+
     private:
         void updatePositions();
         void updateTexCoords();
