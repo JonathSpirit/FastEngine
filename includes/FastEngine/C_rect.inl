@@ -70,6 +70,30 @@ bool Rect<T>::contains(Vector2<T> const& point) const
 
     return (point.x >= minX) && (point.x < maxX) && (point.y >= minY) && (point.y < maxY);
 }
+template<class T>
+bool Rect<T>::contains(Rect<T> const& rectangle) const
+{
+    // Rectangles with negative dimensions are allowed, so we must handle them correctly
+    T const r1FarX = static_cast<T>(this->_x + this->_width);
+    T const r1FarY = static_cast<T>(this->_y + this->_height);
+
+    T const r2FarX = static_cast<T>(rectangle._x + rectangle._width);
+    T const r2FarY = static_cast<T>(rectangle._y + rectangle._height);
+
+    // Compute the min and max of the first rectangle on both axes
+    T const r1MinX = (this->_x < r1FarX) ? this->_x : r1FarX;
+    T const r1MaxX = (this->_x > r1FarX) ? this->_x : r1FarX;
+    T const r1MinY = (this->_y < r1FarY) ? this->_y : r1FarY;
+    T const r1MaxY = (this->_y > r1FarY) ? this->_y : r1FarY;
+
+    // Compute the min and max of the second rectangle on both axes
+    T const r2MinX = (rectangle._x < r2FarX) ? rectangle._x : r2FarX;
+    T const r2MaxX = (rectangle._x > r2FarX) ? rectangle._x : r2FarX;
+    T const r2MinY = (rectangle._y < r2FarY) ? rectangle._y : r2FarY;
+    T const r2MaxY = (rectangle._y > r2FarY) ? rectangle._y : r2FarY;
+
+    return (r1MinX <= r2MinX) && (r1MaxX >= r2MaxX) && (r1MinY <= r2MinY) && (r1MaxY >= r2MaxY);
+}
 
 template<class T>
 std::optional<Rect<T>> Rect<T>::findIntersection(Rect<T> const& rectangle) const

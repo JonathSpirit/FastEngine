@@ -47,6 +47,7 @@ public:
     [[nodiscard]] bool operator!=(Rect<T> const& right) const;
 
     [[nodiscard]] bool contains(Vector2<T> const& point) const;
+    [[nodiscard]] bool contains(Rect<T> const& rectangle) const;
     [[nodiscard]] std::optional<Rect<T>> findIntersection(Rect<T> const& rectangle) const;
 
     [[nodiscard]] Vector2<T> getPosition() const;
