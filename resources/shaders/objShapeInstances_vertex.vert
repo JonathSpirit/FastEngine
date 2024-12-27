@@ -11,7 +11,7 @@ struct TransformsData {
     mat4 modelTransform;
     mat4 viewTransform;
 };
-layout(set = 0, binding = 0) buffer GlobalTransformsData {
+layout(set = 0, binding = 0) buffer readonly GlobalTransformsData {
     TransformsData data[];
 } globalTransforms;
 
@@ -19,7 +19,7 @@ struct InstanceData {
     uvec4 color[2];
     vec2 offset;
 };
-layout(set = 1, binding = 0) buffer BufferInstanceData {
+layout(set = 1, binding = 0) buffer readonly BufferInstanceData {
     InstanceData data[];
 } instances;
 

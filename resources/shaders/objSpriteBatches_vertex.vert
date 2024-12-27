@@ -13,7 +13,7 @@ struct InstanceData {
     uint textureIndex;
 };
 
-layout(set = 0, binding = 0) buffer BufferInstanceData {
+layout(set = 0, binding = 0) buffer readonly BufferInstanceData {
     InstanceData data[];
 } instances;
 
