@@ -27,11 +27,83 @@
 #include "json.hpp"
 #include <span>
 
+#define FGE_LAYER_BAD_ID 0
+
 namespace fge
 {
 
 using GlobalTileId = int32_t;
 using LocalTileId = int32_t;
+
+#ifdef FGE_DEF_SERVER
+class FGE_API BaseLayer : public fge::Transformable
+#else
+class FGE_API BaseLayer : public fge::Transformable, public fge::Drawable
+#endif
+{
+public:
+    enum class Types
+    {
+        TILE_LAYER,
+        OBJECT_GROUP
+    };
+
+    BaseLayer() = default;
+    ~BaseLayer() override = default;
+
+    [[nodiscard]] virtual Types getType() const = 0;
+
+    virtual void clear();
+
+    /**
+     * \brief Set the id of the layer (mostly for "Tiled" map editor compatibility)
+     *
+     * \param id The id of the layer
+     */
+    void setId(GlobalTileId id);
+    /**
+     * \brief Get the id of the layer
+     *
+     * \return The id of the layer
+     */
+    [[nodiscard]] GlobalTileId getId() const;
+
+    /**
+     * \brief Set the name of the layer
+     *
+     * \param name The name of the layer
+     */
+    void setName(std::string_view name);
+    /**
+     * \brief Get the name of the layer
+     *
+     * \return The name of the layer
+     */
+    [[nodiscard]] std::string const& getName() const;
+
+    virtual void save(nlohmann::json& jsonObject);
+    virtual void load(nlohmann::json const& jsonObject, std::filesystem::path const& filePath);
+
+    [[nodiscard]] static std::shared_ptr<BaseLayer> loadLayer(nlohmann::json const& jsonObject,
+                                                              std::filesystem::path const& filePath);
+
+    template<class T>
+    constexpr T const* as() const
+    {
+        static_assert(std::is_base_of_v<BaseLayer, T>, "T must inherit from BaseLayer");
+        return static_cast<T*>(this);
+    }
+    template<class T>
+    constexpr T* as()
+    {
+        static_assert(std::is_base_of_v<BaseLayer, T>, "T must inherit from BaseLayer");
+        return static_cast<T*>(this);
+    }
+
+private:
+    std::string g_name;
+    GlobalTileId g_id{FGE_LAYER_BAD_ID};
+};
 
 /**
  * \class TileLayer
@@ -40,11 +112,7 @@ using LocalTileId = int32_t;
  *
  * This class is compatible with the "Tiled" map editor.
  */
-#ifdef FGE_DEF_SERVER
-class FGE_API TileLayer : public fge::Transformable
-#else
-class FGE_API TileLayer : public fge::Transformable, public fge::Drawable
-#endif
+class FGE_API TileLayer : public BaseLayer
 {
 public:
     /**
@@ -133,36 +201,9 @@ public:
     void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override;
 #endif
 
-    /**
-     * \brief Clear the matrix of tiles
-     */
-    void clear();
+    [[nodiscard]] Types getType() const override;
 
-    /**
-     * \brief Set the id of the layer (mostly for "Tiled" map editor compatibility)
-     *
-     * \param id The id of the layer
-     */
-    void setId(GlobalTileId id);
-    /**
-     * \brief Get the id of the layer
-     *
-     * \return The id of the layer
-     */
-    [[nodiscard]] GlobalTileId getId() const;
-
-    /**
-     * \brief Set the name of the layer
-     *
-     * \param name The name of the layer
-     */
-    void setName(std::string name);
-    /**
-     * \brief Get the name of the layer
-     *
-     * \return The name of the layer
-     */
-    [[nodiscard]] std::string const& getName() const;
+    void clear() override;
 
     /**
      * \brief Get the matrix of tiles
@@ -178,8 +219,8 @@ public:
      * \param gid The global tile id
      */
     void setGid(fge::Vector2size position, std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid);
-    [[nodiscard]] GlobalTileId getGid(fge::Vector2size position);
-    [[nodiscard]] GlobalTileId getGid(fge::Vector2f position);
+    [[nodiscard]] GlobalTileId getGid(fge::Vector2size position) const;
+    [[nodiscard]] std::optional<fge::Vector2size> getGridPosition(fge::Vector2f position) const;
     /**
      * \brief Shortcut to set a global tile id
      *
@@ -206,14 +247,55 @@ public:
     [[nodiscard]] fge::RectFloat getGlobalBounds() const;
     [[nodiscard]] fge::RectFloat getLocalBounds() const;
 
+    void save(nlohmann::json& jsonObject) override;
+    void load(nlohmann::json const& jsonObject, std::filesystem::path const& filePath) override;
+
 private:
-    GlobalTileId g_id{1};
-    std::string g_name;
     fge::Matrix<Tile> g_tiles;
 };
 
-FGE_API void to_json(nlohmann::json& j, fge::TileLayer const& p);
-FGE_API void from_json(nlohmann::json const& j, fge::TileLayer& p);
+/**
+ * \class ObjectGroupLayer
+ * \brief An object group layer contain some objects defined by the user
+ * \ingroup graphics
+ *
+ * This class is compatible with the "Tiled" map editor.
+ */
+class FGE_API ObjectGroupLayer : public BaseLayer
+{
+public:
+    ObjectGroupLayer() = default;
+
+    struct Object
+    {
+        fge::Vector2f _position;
+        fge::Vector2f _size;
+        std::string _name;
+        LocalTileId _id;
+        float _rotation;
+        bool _point;
+    };
+
+#ifndef FGE_DEF_SERVER
+    void draw(fge::RenderTarget& target, fge::RenderStates const& states) const override;
+#endif
+
+    [[nodiscard]] Types getType() const override;
+
+    void clear() override;
+
+    [[nodiscard]] std::vector<Object> const& getObjects() const;
+    [[nodiscard]] std::vector<Object>& getObjects();
+
+    [[nodiscard]] Object* findObjectName(std::string_view name);
+    [[nodiscard]] Object const* findObjectName(std::string_view name) const;
+
+    void save(nlohmann::json& jsonObject) override;
+    void load(nlohmann::json const& jsonObject, std::filesystem::path const& filePath) override;
+
+private:
+    std::vector<Object> g_objects;
+};
 
 } // namespace fge
 

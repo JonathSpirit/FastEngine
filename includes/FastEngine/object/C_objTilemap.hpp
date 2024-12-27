@@ -27,8 +27,8 @@
 namespace fge
 {
 
-using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
-using TileLayerList = std::vector<std::shared_ptr<fge::TileLayer>>;
+using TileSetList = std::vector<std::shared_ptr<TileSet>>;
+using TileLayerList = std::vector<std::shared_ptr<BaseLayer>>;
 
 class FGE_API ObjTileMap : public fge::Object
 {
@@ -41,11 +41,14 @@ public:
 
     void clear();
 
-    TileSetList& getTileSets();
-    TileSetList const& getTileSets() const;
+    [[nodiscard]] TileSetList& getTileSets();
+    [[nodiscard]] TileSetList const& getTileSets() const;
 
-    TileLayerList& getTileLayers();
-    TileLayerList const& getTileLayers() const;
+    [[nodiscard]] TileLayerList& getTileLayers();
+    [[nodiscard]] TileLayerList const& getTileLayers() const;
+
+    [[nodiscard]] TileLayerList::value_type* findLayerName(std::string_view name);
+    [[nodiscard]] TileLayerList::value_type const* findLayerName(std::string_view name) const;
 
     void save(nlohmann::json& jsonObject) override;
     void load(nlohmann::json& jsonObject, std::filesystem::path const& filePath) override;
