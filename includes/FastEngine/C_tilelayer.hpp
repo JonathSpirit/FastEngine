@@ -173,27 +173,26 @@ public:
     /**
      * \brief Shortcut to set a global tile id and a new tileset
      *
-     * \param x The x position of the tile
-     * \param y The y position of the tile
+     * \param position The position of the tile
      * \param tileSets The list of tilesets
      * \param gid The global tile id
      */
-    void setGid(std::size_t x, std::size_t y, std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid);
+    void setGid(fge::Vector2size position, std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid);
+    [[nodiscard]] GlobalTileId getGid(fge::Vector2size position);
+    [[nodiscard]] GlobalTileId getGid(fge::Vector2f position);
     /**
      * \brief Shortcut to set a global tile id
      *
-     * \param x The x position of the tile
-     * \param y The y position of the tile
+     * \param position The position of the tile
      * \param gid The global tile id
      */
-    void setGid(std::size_t x, std::size_t y, GlobalTileId gid);
+    void setGid(fge::Vector2size position, GlobalTileId gid);
     /**
      * \brief Set the tiles matrix size
      *
-     * \param x The x size of the matrix
-     * \param y The y size of the matrix
+     * \param size The size of the matrix
      */
-    void setGridSize(std::size_t x, std::size_t y);
+    void setGridSize(fge::Vector2size size);
 
     /**
      * \brief Refresh all tiles with a list of tilesets

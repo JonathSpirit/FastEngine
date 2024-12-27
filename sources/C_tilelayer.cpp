@@ -156,34 +156,60 @@ fge::Matrix<TileLayer::Tile> const& TileLayer::getTiles() const
 {
     return this->g_tiles;
 }
-void TileLayer::setGid(std::size_t x, std::size_t y, std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid)
+void TileLayer::setGid(fge::Vector2size position, std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid)
 {
-    auto* tile = this->g_tiles.getPtr(x, y);
+    auto* tile = this->g_tiles.getPtr(position.x, position.y);
     if (tile != nullptr)
     {
         tile->g_gid = gid;
         tile->g_tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, gid);
         if (tile->g_tileSet)
         {
-            tile->g_position = {static_cast<float>(tile->g_tileSet->getTileSize().x * x),
-                                static_cast<float>(tile->g_tileSet->getTileSize().y * y)};
+            tile->g_position = {static_cast<float>(tile->g_tileSet->getTileSize().x * position.x),
+                                static_cast<float>(tile->g_tileSet->getTileSize().y * position.y)};
         }
         tile->updatePositions();
         tile->updateTexCoords();
     }
 }
-void TileLayer::setGid(std::size_t x, std::size_t y, GlobalTileId gid)
+GlobalTileId TileLayer::getGid(fge::Vector2size position)
 {
-    auto* data = this->g_tiles.getPtr(x, y);
+    auto* tile = this->g_tiles.getPtr(position.x, position.y);
+    if (tile != nullptr)
+    {
+        return tile->g_gid;
+    }
+    return 0;
+}
+GlobalTileId TileLayer::getGid(fge::Vector2f position)
+{
+    auto const bounds = this->getLocalBounds();
+    auto const tileLocalPosition = this->getInverseTransform() * position;
+
+    auto const size = this->g_tiles.getSize();
+
+    fge::Vector2size const positionIndex{
+            static_cast<std::size_t>(static_cast<float>(size.x) * tileLocalPosition.x / bounds._width),
+            static_cast<std::size_t>(static_cast<float>(size.y) * tileLocalPosition.y / bounds._height)};
+
+    if (positionIndex.x < this->g_tiles.getSizeX() && positionIndex.y < this->g_tiles.getSizeY())
+    {
+        return this->getGid(positionIndex);
+    }
+    return 0;
+}
+void TileLayer::setGid(fge::Vector2size position, GlobalTileId gid)
+{
+    auto* data = this->g_tiles.getPtr(position.x, position.y);
     if (data != nullptr)
     {
         data->g_gid = gid;
     }
 }
-void TileLayer::setGridSize(std::size_t x, std::size_t y)
+void TileLayer::setGridSize(fge::Vector2size size)
 {
     this->g_tiles.clear();
-    this->g_tiles.setSize(x, y);
+    this->g_tiles.setSize(size.x, size.y);
 }
 
 void TileLayer::refreshTextures(std::span<std::shared_ptr<TileSet>> tileSets)
@@ -278,7 +304,7 @@ void from_json(nlohmann::json const& j, fge::TileLayer& p)
     j.at("height").get_to(h);
 
     p.clear();
-    p.setGridSize(w, h);
+    p.setGridSize({w, h});
 
     auto const& dataArray = j.at("data");
     if (dataArray.is_array() && dataArray.size() == (w * h))
@@ -289,7 +315,7 @@ void from_json(nlohmann::json const& j, fge::TileLayer& p)
             for (std::size_t iw = 0; iw < w; ++iw)
             {
                 int gid = it->get<int>();
-                p.setGid(iw, ih, gid);
+                p.setGid({iw, ih}, gid);
                 ++it;
             }
         }
