@@ -87,10 +87,8 @@ private:
 
     std::vector<Vertex> g_vertices;
 
-    mutable VkBuffer g_buffer;
-    mutable VkBuffer g_stagingBuffer;
-    mutable VmaAllocation g_bufferAllocation;
-    mutable VmaAllocation g_stagingBufferAllocation;
+    mutable BufferInfo g_bufferInfo;
+    mutable BufferInfo g_stagingBufferInfo;
     mutable std::size_t g_bufferCapacity;
 
     mutable bool g_needUpdate;
@@ -141,10 +139,8 @@ private:
 
     std::vector<uint16_t> g_indices;
 
-    mutable VkBuffer g_buffer;
-    mutable VkBuffer g_stagingBuffer;
-    mutable VmaAllocation g_bufferAllocation;
-    mutable VmaAllocation g_stagingBufferAllocation;
+    mutable BufferInfo g_bufferInfo;
+    mutable BufferInfo g_stagingBufferInfo;
     mutable std::size_t g_bufferCapacity;
 
     mutable bool g_needUpdate;

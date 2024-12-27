@@ -54,6 +54,8 @@ public:
     [[nodiscard]] VkQueue getPresentQueue() const;
     [[nodiscard]] VkPhysicalDeviceFeatures getEnabledFeatures() const;
 
+    [[nodiscard]] VkImageView createImageView(VkImage image, VkFormat format, uint32_t mipLevels) const;
+
 private:
     VkDevice g_device;
     VkQueue g_graphicQueue;

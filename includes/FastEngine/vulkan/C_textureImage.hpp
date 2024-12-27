@@ -81,8 +81,7 @@ public:
 private:
     void createTextureSampler(float mipLodBias, float mipLodMin, float mipLodMax);
 
-    VkImage g_textureImage;
-    VmaAllocation g_textureImageAllocation;
+    ImageInfo g_imageInfo;
 
     VkImageView g_textureImageView;
     VkSampler g_textureSampler;
