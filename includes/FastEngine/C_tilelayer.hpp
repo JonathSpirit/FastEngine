@@ -25,13 +25,13 @@
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/vulkan/C_vertexBuffer.hpp"
 #include "json.hpp"
+#include <span>
 
 namespace fge
 {
 
 using GlobalTileId = int32_t;
 using LocalTileId = int32_t;
-using TileSetList = std::vector<std::shared_ptr<fge::TileSet>>;
 
 /**
  * \class TileLayer
@@ -169,7 +169,7 @@ public:
      *
      * \return The matrix of tiles
      */
-    [[nodiscard]] fge::Matrix<TileLayer::Tile> const& getTiles() const;
+    [[nodiscard]] fge::Matrix<Tile> const& getTiles() const;
     /**
      * \brief Shortcut to set a global tile id and a new tileset
      *
@@ -178,7 +178,7 @@ public:
      * \param tileSets The list of tilesets
      * \param gid The global tile id
      */
-    void setGid(std::size_t x, std::size_t y, TileSetList const& tileSets, GlobalTileId gid);
+    void setGid(std::size_t x, std::size_t y, std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid);
     /**
      * \brief Shortcut to set a global tile id
      *
@@ -200,17 +200,17 @@ public:
      *
      * \param tileSets The list of tilesets
      */
-    void refreshTextures(TileSetList const& tileSets);
+    void refreshTextures(std::span<std::shared_ptr<TileSet>> tileSets);
+    [[nodiscard]] static std::shared_ptr<TileSet>
+    retrieveAssociatedTileSet(std::span<std::shared_ptr<TileSet>> tileSets, GlobalTileId gid);
 
     [[nodiscard]] fge::RectFloat getGlobalBounds() const;
     [[nodiscard]] fge::RectFloat getLocalBounds() const;
 
 private:
-    static std::shared_ptr<fge::TileSet> retrieveAssociatedTileSet(TileSetList const& tileSets, GlobalTileId gid);
-
     GlobalTileId g_id{1};
     std::string g_name;
-    fge::Matrix<TileLayer::Tile> g_data;
+    fge::Matrix<Tile> g_tiles;
 };
 
 FGE_API void to_json(nlohmann::json& j, fge::TileLayer const& p);
