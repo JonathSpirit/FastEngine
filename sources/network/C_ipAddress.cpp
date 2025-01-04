@@ -326,6 +326,62 @@ IpAddress::Types IpAddress::getType() const
     return Types::None;
 }
 
+std::optional<IpAddress> IpAddress::mapToIpv6() const
+{
+    if (std::holds_alternative<std::monostate>(this->g_address))
+    {
+        return std::nullopt;
+    }
+
+    if (std::holds_alternative<Ipv4Data>(this->g_address))
+    {
+        Ipv6Data data{};
+        data[0] = 0x0000;
+        data[1] = 0x0000;
+        data[2] = 0x0000;
+        data[3] = 0x0000;
+        data[4] = 0x0000;
+        data[5] = 0xFFFF;
+
+        auto const ipv4 = fge::SwapHostNetEndian_32(std::get<Ipv4Data>(this->g_address));
+
+        data[6] = static_cast<uint16_t>(ipv4 >> 16);
+        data[7] = static_cast<uint16_t>(ipv4 & 0xFFFF);
+
+        return IpAddress(data);
+    }
+    return *this;
+}
+std::optional<IpAddress> IpAddress::mapToIpv4() const
+{
+    if (std::holds_alternative<std::monostate>(this->g_address))
+    {
+        return std::nullopt;
+    }
+
+    if (std::holds_alternative<Ipv6Data>(this->g_address))
+    {
+        if (this->isIpv4MappedIpv6())
+        {
+            auto const data = std::get<Ipv6Data>(this->g_address);
+            Ipv4Data ipv4 = static_cast<Ipv4Data>(fge::SwapHostNetEndian_16(data[6])) << 16 |
+                            static_cast<Ipv4Data>(fge::SwapHostNetEndian_16(data[7]));
+            return IpAddress(ipv4);
+        }
+    }
+    return *this;
+}
+bool IpAddress::isIpv4MappedIpv6() const
+{
+    if (std::holds_alternative<Ipv6Data>(this->g_address))
+    {
+        auto const data = std::get<Ipv6Data>(this->g_address);
+        return data[0] == 0x0000 && data[1] == 0x0000 && data[2] == 0x0000 && data[3] == 0x0000 && data[4] == 0x0000 &&
+               data[5] == 0xFFFF;
+    }
+    return false;
+}
+
 std::optional<std::string> IpAddress::getHostName()
 {
     /*

@@ -220,6 +220,30 @@ public:
     [[nodiscard]] Types getType() const;
 
     /**
+     * \brief Map an ipv4 address to an ipv6 address
+     *
+     * When using a socket that can communicate with both ipv4 and ipv6, you have to map the ipv4 address to an ipv6 address.
+     *
+     * FROM MSDN:
+     *
+     * Dual-stack sockets always require IPv6 addresses. The ability to interact with an IPv4 address requires the use of the IPv4-mapped IPv6 address format.
+     * Any IPv4 addresses must be represented in the IPv4-mapped IPv6 address format which enables an IPv6 only application to communicate with an IPv4 node.
+     * The IPv4-mapped IPv6 address format allows the IPv4 address of an IPv4 node to be represented as an IPv6 address.
+     * The IPv4 address is encoded into the low-order 32 bits of the IPv6 address, and the high-order 96 bits hold the fixed prefix 0:0:0:0:0:FFFF.
+     * The IPv4-mapped IPv6 address format is specified in RFC 4291.
+     *
+     * \return The mapped ipv6 address or an empty optional if the address is not an ipv4 address
+     */
+    [[nodiscard]] std::optional<IpAddress> mapToIpv6() const;
+    /**
+     * \brief Map an ipv6 (ipv4-mapped) address back to an ipv4 address
+     *
+     * \return The mapped ipv4 address or an empty optional if the address is not an ipv6 address
+     */
+    [[nodiscard]] std::optional<IpAddress> mapToIpv4() const;
+    [[nodiscard]] bool isIpv4MappedIpv6() const;
+
+    /**
      * \brief Get the standard hostname for the local computer
      *
      * \return The hostname
