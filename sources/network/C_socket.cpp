@@ -443,6 +443,15 @@ Socket::Errors Socket::setBroadcastOption(bool mode)
     }
     return Errors::ERR_NOERROR;
 }
+Socket::Errors Socket::setIpv6Only(bool mode)
+{
+    char const optval = mode ? 1 : 0;
+    if (setsockopt(this->g_socket, IPPROTO_IPV6, IPV6_V6ONLY, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+    return Errors::ERR_NOERROR;
+}
 
 Socket::Errors Socket::select(bool read, uint32_t timeoutms)
 {
@@ -572,6 +581,35 @@ Socket::Errors SocketUdp::connect(IpAddress const& remoteAddress, Port remotePor
     sockaddr_in6 addr6{};
     int size = 0;
     auto* addr = CreateAddress(addr4, addr6, size, remoteAddress, remotePort);
+
+    if (::connect(this->g_socket, addr, size) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+
+    return Errors::ERR_NOERROR;
+}
+Socket::Errors SocketUdp::disconnect()
+{
+    //MSDN: If the address member of the structure specified by name is filled with zeros, the socket will be disconnected.
+
+    sockaddr_in addr4{};
+    sockaddr_in6 addr6{};
+    sockaddr* addr = nullptr;
+    int size = 0;
+
+    if (this->g_addressType == IpAddress::Types::Ipv4)
+    {
+        addr = reinterpret_cast<sockaddr*>(&addr4);
+        size = sizeof(addr4);
+    }
+    else
+    {
+        addr = reinterpret_cast<sockaddr*>(&addr6);
+        size = sizeof(addr6);
+    }
+
+    std::memset(addr, 0, size);
 
     if (::connect(this->g_socket, addr, size) == _FGE_SOCKET_ERROR)
     {

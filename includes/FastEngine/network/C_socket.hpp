@@ -211,6 +211,16 @@ public:
      * \return Errors::ERR_NOERROR if successful, otherwise an error code
      */
     Errors setBroadcastOption(bool mode);
+    /**
+     * \brief Set if ipv6 socket should only use ipv6
+     *
+     * From MSDN:
+     * The IPV6_V6ONLY socket option indicates if a socket created for the AF_INET6 address family is restricted to IPv6 communications only.
+     *
+     * \param mode The ipv6 only mode to set
+     * \return Errors::ERR_NOERROR if successful, otherwise an error code
+     */
+    Errors setIpv6Only(bool mode);
 
     /**
      * \brief Check the socket for readability or writability
@@ -286,6 +296,7 @@ public:
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
     Errors connect(IpAddress const& remoteAddress, Port remotePort);
+    Errors disconnect();
     /**
      * \brief Bind the socket to a local address and port
      *
