@@ -287,6 +287,9 @@ public:
 
     [[nodiscard]] Identity const& getClientIdentity() const;
 
+    template<class TPacket = Packet>
+    void sendTo(TransmissionPacketPtr& pck, Identity const& id);
+
     [[nodiscard]] FluxProcessResults process(FluxPacketPtr& refFluxPacket);
 
     Client _client; //But it is the server :O

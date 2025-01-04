@@ -233,24 +233,47 @@ bool ClientSideNetUdp::start(Port bindPort,
         return false;
     }
     this->g_socket.setAddressType(addressType);
+    if (addressType == IpAddress::Types::Ipv6)
+    {
+        this->g_socket.setIpv6Only(false);
+    }
+
     if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
     {
-        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) == Socket::Errors::ERR_NOERROR)
+        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) != Socket::Errors::ERR_NOERROR)
         {
-            this->g_clientIdentity._ip = connectRemoteAddress;
-            this->g_clientIdentity._port = connectRemotePort;
-
-            this->g_running = true;
-
-            this->g_threadReception = std::make_unique<std::thread>(&ClientSideNetUdp::threadReception<TPacket>, this);
-            this->g_threadTransmission =
-                    std::make_unique<std::thread>(&ClientSideNetUdp::threadTransmission<TPacket>, this);
-
-            return true;
+            this->g_socket.close();
+            return false;
         }
+
+        this->g_clientIdentity._ip = connectRemoteAddress;
+        this->g_clientIdentity._port = connectRemotePort;
+
+        this->g_running = true;
+
+        this->g_threadReception = std::make_unique<std::thread>(&ClientSideNetUdp::threadReception<TPacket>, this);
+        this->g_threadTransmission =
+                std::make_unique<std::thread>(&ClientSideNetUdp::threadTransmission<TPacket>, this);
+
+        return true;
     }
     this->g_socket.close();
     return false;
+}
+
+template<class TPacket>
+void ClientSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
+{ ///TODO: have a transmission queue ?
+    if (!pck->packet() || !pck->packet().haveCorrectHeaderSize())
+    { //Last verification of the packet
+        return;
+    }
+
+    pck->doNotReorder();
+
+    std::scoped_lock const lock(this->_g_mutexFlux);
+    TPacket packet = pck->packet();
+    this->g_socket.send(pck->packet());
 }
 
 template<class TPacket>
