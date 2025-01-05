@@ -28,7 +28,8 @@
 namespace fge
 {
 
-using TileId = int32_t;
+using GlobalTileId = int32_t;
+using LocalTileId = int32_t;
 
 /**
  * \struct TileData
@@ -39,7 +40,7 @@ using TileId = int32_t;
  */
 struct TileData
 {
-    TileId _id{0};
+    LocalTileId _id{0};
     fge::RectInt _rect;
     mutable std::vector<fge::RectInt> _collisionRects{};
     mutable fge::PropertyList _properties{};
@@ -71,7 +72,7 @@ public:
     using TileListType = std::set<fge::TileData, std::less<>>;
 
     TileSet() = default;
-    TileSet(fge::Texture texture);
+    explicit TileSet(fge::Texture texture);
     TileSet(fge::Texture texture, fge::Vector2i const& tileSize);
     TileSet(fge::Texture texture, fge::Vector2i const& tileSize, fge::Vector2i const& offset);
 
@@ -156,7 +157,7 @@ public:
      * \param id The local id of the tile
      * \return The tile pointer if found, \b nullptr otherwise
      */
-    [[nodiscard]] fge::TileData const* getTile(TileId id) const;
+    [[nodiscard]] fge::TileData const* getTile(LocalTileId id) const;
 
     /**
      * \brief Get the local id of a tile by its grid position
@@ -164,7 +165,7 @@ public:
      * \param position The grid position of the tile
      * \return The local id of the tile if found, \b -1 otherwise
      */
-    [[nodiscard]] TileId getLocalId(fge::Vector2i const& position) const;
+    [[nodiscard]] LocalTileId getLocalId(fge::Vector2i const& position) const;
     /**
      * \brief Get the local id of a tile by its global id
      *
@@ -174,14 +175,16 @@ public:
      * \param gid The global id of the tile
      * \return The local id of the tile if found, \b -1 otherwise
      */
-    [[nodiscard]] TileId getLocalId(TileId gid) const;
+    [[nodiscard]] LocalTileId getLocalId(GlobalTileId gid) const;
+    [[nodiscard]] GlobalTileId getGlobalId(LocalTileId id) const;
     /**
      * \brief Check if the global id is in the tileset
      *
      * \param gid The global id of the tile
      * \return \b true if the global id is in the tileset, \b false otherwise
      */
-    [[nodiscard]] bool isGidContained(TileId gid) const;
+    [[nodiscard]] bool containsGlobal(GlobalTileId gid) const;
+    [[nodiscard]] bool containsLocal(LocalTileId id) const;
     /**
      * \brief Set the first global id of the tileset
      *
@@ -189,13 +192,13 @@ public:
      *
      * \param gid The first global id of the tileset
      */
-    void setFirstGid(TileId gid);
+    void setFirstGid(GlobalTileId gid);
     /**
      * \brief Get the first global id of the tileset
      *
      * \return The first global id of the tileset
      */
-    [[nodiscard]] TileId getFirstGid() const;
+    [[nodiscard]] GlobalTileId getFirstGid() const;
 
     [[nodiscard]] TileListType::const_iterator begin() const;
     [[nodiscard]] TileListType::const_iterator end() const;
@@ -229,14 +232,14 @@ public:
      * \param id The local id of the tile
      * \return The texture rectangle of the tile if found, \b std::nullopt otherwise
      */
-    [[nodiscard]] std::optional<fge::RectInt> getTextureRect(TileId id) const;
+    [[nodiscard]] std::optional<fge::RectInt> getTextureRect(LocalTileId id) const;
     /**
      * \brief Compute the supposed texture rectangle with a local id
      *
      * \param id The local id of the tile
      * \return The supposed texture rectangle of the tile
      */
-    [[nodiscard]] fge::RectInt computeTextureRect(TileId id) const;
+    [[nodiscard]] fge::RectInt computeTextureRect(LocalTileId id) const;
 
     fge::TileSet& operator=(fge::Texture texture);
 
@@ -249,7 +252,7 @@ private:
     fge::Vector2i g_tileSize;
     fge::Vector2i g_offset{0, 0};
     TileListType g_tiles;
-    TileId g_firstGid{1};
+    GlobalTileId g_firstGid{1};
     int g_columns{0};
     int g_rows{0};
 };

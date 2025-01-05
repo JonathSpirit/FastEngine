@@ -56,6 +56,29 @@ TileLayerList const& ObjTileMap::getTileLayers() const
     return this->g_layers;
 }
 
+TileLayerList::value_type* ObjTileMap::findLayerName(std::string_view name)
+{
+    for (auto& layer: this->g_layers)
+    {
+        if (layer->getName() == name)
+        {
+            return &layer;
+        }
+    }
+    return nullptr;
+}
+TileLayerList::value_type const* ObjTileMap::findLayerName(std::string_view name) const
+{
+    for (auto const& layer: this->g_layers)
+    {
+        if (layer->getName() == name)
+        {
+            return &layer;
+        }
+    }
+    return nullptr;
+}
+
 void ObjTileMap::save(nlohmann::json& jsonObject)
 {
     jsonObject = nlohmann::json{{"infinite", false},
@@ -80,7 +103,7 @@ void ObjTileMap::save(nlohmann::json& jsonObject)
     for (auto& layer: this->g_layers)
     {
         auto& obj = layersArray.emplace_back(nlohmann::json::object());
-        obj = *layer;
+        layer->save(obj);
     }
 }
 void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
@@ -117,9 +140,15 @@ void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& f
     {
         for (auto const& layer: layersArray)
         {
-            this->g_layers.emplace_back(std::make_shared<fge::TileLayer>());
-            layer.get_to(*this->g_layers.back());
-            this->g_layers.back()->refreshTextures(this->g_tileSets);
+            auto newLayer = BaseLayer::loadLayer(layer, filePath);
+            if (newLayer)
+            {
+                this->g_layers.push_back(std::move(newLayer));
+                if (this->g_layers.back()->getType() == BaseLayer::Types::TILE_LAYER)
+                {
+                    this->g_layers.back()->as<TileLayer>()->refreshTextures(this->g_tileSets);
+                }
+            }
         }
     }
 }

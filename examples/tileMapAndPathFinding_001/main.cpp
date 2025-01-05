@@ -60,7 +60,7 @@ public:
         this->g_pathGenerator.clearCollisions();
 
         //Get the front tile layer
-        auto tileLayer = tileMap->getTileLayers().front();
+        auto tileLayer = tileMap->getTileLayers().front()->as<fge::TileLayer>();
 
         //For every tiles
         for (std::size_t x = 0; x < tileLayer->getTiles().getSizeX(); ++x)
@@ -207,7 +207,7 @@ public:
         tileMap->loadFromFile("resources/tilemaps/tilemap_basic_1.json", false);
 
         //Get the tileMap size
-        auto tileMapSize = tileMap->getTileLayers().front()->getTiles().getSize();
+        auto tileMapSize = tileMap->getTileLayers().front()->as<fge::TileLayer>()->getTiles().getSize();
 
         //Create a pathfinder object
         auto* pathFinder = this->newObject<PathFinder>({FGE_SCENE_PLAN_TOP});

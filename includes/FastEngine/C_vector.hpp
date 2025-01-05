@@ -24,6 +24,7 @@
 #include "glm/glm.hpp"
 
 #define FGE_NUMERIC_LIMITS_VECTOR_MAX(_vecType) (_vecType{std::numeric_limits<_vecType::value_type>::max()})
+#define FGE_NUMERIC_LIMITS_VECTOR_MIN(_vecType) (_vecType{std::numeric_limits<_vecType::value_type>::min()})
 
 namespace fge
 {
@@ -36,6 +37,7 @@ using Vector3 = glm::vec<3, T>;
 using Vector2i = Vector2<int32_t>;
 using Vector2u = Vector2<uint32_t>;
 using Vector2f = Vector2<float>;
+using Vector2size = Vector2<std::size_t>;
 
 using Vector3i = Vector3<int32_t>;
 using Vector3u = Vector3<uint32_t>;

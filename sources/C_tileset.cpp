@@ -92,7 +92,7 @@ std::size_t TileSet::getTileCount() const
     return this->g_tiles.size();
 }
 
-fge::TileData const* TileSet::getTile(TileId id) const
+fge::TileData const* TileSet::getTile(LocalTileId id) const
 {
     auto it = this->g_tiles.find(id);
     return it != this->g_tiles.end() ? &(*it) : nullptr;
@@ -116,28 +116,36 @@ void TileSet::pushTile(fge::TileData tile)
     }
 }
 
-TileId TileSet::getLocalId(fge::Vector2i const& position) const
+LocalTileId TileSet::getLocalId(fge::Vector2i const& position) const
 {
     if (position.x < 0 || position.y < 0)
     {
         return -1;
     }
-    fge::TileId localId = position.x + (this->g_columns * position.y);
-    return localId < static_cast<fge::TileId>(this->g_tiles.size()) ? localId : -1;
+    fge::LocalTileId localId = position.x + (this->g_columns * position.y);
+    return localId < static_cast<fge::LocalTileId>(this->g_tiles.size()) ? localId : -1;
 }
-TileId TileSet::getLocalId(TileId gid) const
+LocalTileId TileSet::getLocalId(GlobalTileId gid) const
 {
-    return this->isGidContained(gid) ? (gid - this->g_firstGid) : -1;
+    return this->containsGlobal(gid) ? (gid - this->g_firstGid) : -1;
 }
-bool TileSet::isGidContained(TileId gid) const
+GlobalTileId TileSet::getGlobalId(LocalTileId id) const
 {
-    return gid >= this->g_firstGid && gid < (this->g_firstGid + static_cast<TileId>(this->g_tiles.size()));
+    return this->containsLocal(id) ? (id + this->g_firstGid) : -1;
 }
-void TileSet::setFirstGid(TileId gid)
+bool TileSet::containsGlobal(GlobalTileId gid) const
+{
+    return gid >= this->g_firstGid && gid < (this->g_firstGid + static_cast<GlobalTileId>(this->g_tiles.size()));
+}
+bool TileSet::containsLocal(LocalTileId id) const
+{
+    return id >= 0 && id < static_cast<LocalTileId>(this->g_tiles.size());
+}
+void TileSet::setFirstGid(GlobalTileId gid)
 {
     this->g_firstGid = gid;
 }
-TileId TileSet::getFirstGid() const
+GlobalTileId TileSet::getFirstGid() const
 {
     return this->g_firstGid;
 }
@@ -153,7 +161,7 @@ TileSet::TileListType::const_iterator TileSet::end() const
 
 void TileSet::slice()
 {
-    TileId id = 0;
+    LocalTileId id = 0;
     this->clearTiles();
     if (this->g_texture.valid() && this->g_tileSize.x > 0 && this->g_tileSize.y > 0)
     {
@@ -181,7 +189,7 @@ int TileSet::getRows() const
     return this->g_rows;
 }
 
-std::optional<fge::RectInt> TileSet::getTextureRect(TileId id) const
+std::optional<fge::RectInt> TileSet::getTextureRect(LocalTileId id) const
 {
     auto it = this->g_tiles.find(id);
     if (it != this->g_tiles.end())
@@ -190,7 +198,7 @@ std::optional<fge::RectInt> TileSet::getTextureRect(TileId id) const
     }
     return std::nullopt;
 }
-fge::RectInt TileSet::computeTextureRect(TileId id) const
+fge::RectInt TileSet::computeTextureRect(LocalTileId id) const
 {
     if (id < 0)
     {
@@ -255,7 +263,7 @@ void from_json(nlohmann::json const& j, fge::TileSet& p)
 {
     p.clearTiles();
 
-    p.setFirstGid(j.value<TileId>("firstgid", 1));
+    p.setFirstGid(j.value<GlobalTileId>("firstgid", 1));
     p.setName(j.value<std::string>("name", {}));
 
     std::filesystem::path path = j.at("image").get<std::filesystem::path>();
