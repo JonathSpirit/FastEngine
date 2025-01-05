@@ -273,7 +273,7 @@ void ClientSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
 
     std::scoped_lock const lock(this->_g_mutexFlux);
     TPacket packet = pck->packet();
-    this->g_socket.send(pck->packet());
+    this->g_socket.send(packet);
 }
 
 template<class TPacket>
