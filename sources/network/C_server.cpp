@@ -216,7 +216,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet,
 
     if ((headerFlags & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) == 0)
     {
-        if (stat == PacketReorderer::Stats::OLD_COUNTID)
+        if (stat == PacketReorderer::Stats::OLD_COUNTER)
         {
             refClient->advanceLostPacketCount();
             --this->_g_remainingPackets;
@@ -224,7 +224,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet,
         }
     }
 
-    if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTID)
+    if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
         refClient->advanceLostPacketCount(); //We are missing a packet
     }
@@ -477,7 +477,7 @@ FluxProcessResults ClientSideNetUdp::process(ProtocolPacketPtr& packet)
 
     if ((headerFlags & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) == 0)
     {
-        if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTID)
+        if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)
         {
             this->_client.advanceLostPacketCount();
             --this->_g_remainingPackets;
@@ -485,7 +485,7 @@ FluxProcessResults ClientSideNetUdp::process(ProtocolPacketPtr& packet)
         }
     }
 
-    if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTID)
+    if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
         this->_client.advanceLostPacketCount(); //We are missing a packet
     }

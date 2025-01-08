@@ -61,11 +61,11 @@ PacketReorderer::Stats PacketReorderer::checkStat(ProtocolPacketPtr const& packe
 
     if (counter < currentCounter)
     { //We are missing a packet
-        return Stats::OLD_COUNTID;
+        return Stats::OLD_COUNTER;
     }
 
     //We can't switch to the next counter, we wait for the correct packet to arrive
-    return Stats::WAITING_NEXT_COUNTID;
+    return Stats::WAITING_NEXT_COUNTER;
 }
 bool PacketReorderer::isForced() const
 {
@@ -144,11 +144,11 @@ PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterT
 
     if (this->_counter < currentCounter)
     { //We are missing a packet
-        return Stats::OLD_COUNTID;
+        return Stats::OLD_COUNTER;
     }
 
     //We can't switch to the next counter, we wait for the correct packet to arrive
-    return Stats::WAITING_NEXT_COUNTID;
+    return Stats::WAITING_NEXT_COUNTER;
 }
 
 } // namespace fge::net

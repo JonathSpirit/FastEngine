@@ -148,9 +148,9 @@ public:
     enum class Stats
     {
         OLD_REALM,
-        OLD_COUNTID,
+        OLD_COUNTER,
         WAITING_NEXT_REALM,
-        WAITING_NEXT_COUNTID,
+        WAITING_NEXT_COUNTER,
         RETRIEVABLE
     };
 
