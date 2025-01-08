@@ -51,7 +51,6 @@ using FullTimestamp = uint64_t;      ///< An timestamp represent current time in
 using FullTimestampOffset = int64_t; ///< An timestamp offset
 using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
 
-class FluxPacket;
 class Client;
 
 /**
@@ -89,7 +88,7 @@ public:
     };
 
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket>
-    create(ProtocolPacket::Header header = FGE_NET_BAD_HEADERID);
+    create(ProtocolPacket::IdType headerId = FGE_NET_BAD_HEADERID);
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;
@@ -124,9 +123,9 @@ public:
     void applyOptions();
 
 private:
-    inline explicit TransmissionPacket(ProtocolPacket::Header header,
-                                       ProtocolPacket::Realm realmId,
-                                       ProtocolPacket::CountId countId);
+    inline explicit TransmissionPacket(ProtocolPacket::IdType headerId,
+                                       ProtocolPacket::RealmType realm,
+                                       ProtocolPacket::CounterType counter);
     inline explicit TransmissionPacket(ProtocolPacket&& packet);
 
     ProtocolPacket g_packet;
@@ -167,7 +166,7 @@ public:
      * \param packet A received packet
      * \param client A client
      */
-    void unpack(FluxPacket* packet, Client& client);
+    void unpack(ProtocolPacket* packet, Client& client);
 
     /**
      * \brief Retrieve the clock offset
@@ -408,18 +407,18 @@ public:
      */
     bool isPendingPacketsEmpty() const;
 
-    [[nodiscard]] ProtocolPacket::Realm getCurrentRealm() const;
+    [[nodiscard]] ProtocolPacket::RealmType getCurrentRealm() const;
     [[nodiscard]] std::chrono::milliseconds getLastRealmChangeElapsedTime() const;
-    void setCurrentRealm(ProtocolPacket::Realm realm);
-    ProtocolPacket::Realm advanceCurrentRealm();
+    void setCurrentRealm(ProtocolPacket::RealmType realm);
+    ProtocolPacket::RealmType advanceCurrentRealm();
 
-    [[nodiscard]] ProtocolPacket::CountId getCurrentPacketCountId() const;
-    ProtocolPacket::CountId advanceCurrentPacketCountId();
-    void setCurrentPacketCountId(ProtocolPacket::CountId countId);
+    [[nodiscard]] ProtocolPacket::CounterType getCurrentPacketCounter() const;
+    ProtocolPacket::CounterType advanceCurrentPacketCounter();
+    void setCurrentPacketCounter(ProtocolPacket::CounterType counter);
 
-    [[nodiscard]] ProtocolPacket::CountId getClientPacketCountId() const;
-    ProtocolPacket::CountId advanceClientPacketCountId();
-    void setClientPacketCountId(ProtocolPacket::CountId countId);
+    [[nodiscard]] ProtocolPacket::CounterType getClientPacketCounter() const;
+    ProtocolPacket::CounterType advanceClientPacketCounter();
+    void setClientPacketCounter(ProtocolPacket::CounterType counter);
 
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
@@ -448,9 +447,9 @@ private:
     Skey g_skey;
 
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
-    ProtocolPacket::Realm g_currentRealm;
-    ProtocolPacket::CountId g_currentPacketCountId;
-    ProtocolPacket::CountId g_clientPacketCountId;
+    ProtocolPacket::RealmType g_currentRealm;
+    ProtocolPacket::CounterType g_currentPacketCounter;
+    ProtocolPacket::CounterType g_clientPacketCounter;
 
     PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};

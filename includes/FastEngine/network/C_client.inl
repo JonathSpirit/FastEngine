@@ -17,19 +17,19 @@
 namespace fge::net
 {
 
-inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(ProtocolPacket::Header header)
+inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(ProtocolPacket::IdType headerId)
 {
-    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(header, 0, 0)};
+    return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(headerId, 0, 0)};
 }
 inline std::shared_ptr<TransmissionPacket> TransmissionPacket::create(Packet&& packet)
 {
     return std::shared_ptr<TransmissionPacket>{new TransmissionPacket(std::move(packet))};
 }
 
-inline TransmissionPacket::TransmissionPacket(ProtocolPacket::Header header,
-                                              ProtocolPacket::Realm realmId,
-                                              ProtocolPacket::CountId countId) :
-        g_packet(header, realmId, countId)
+inline TransmissionPacket::TransmissionPacket(ProtocolPacket::IdType headerId,
+                                              ProtocolPacket::RealmType realm,
+                                              ProtocolPacket::CounterType counter) :
+        g_packet(headerId, realm, counter)
 {}
 inline TransmissionPacket::TransmissionPacket(ProtocolPacket&& packet) :
         g_packet(std::move(packet))
@@ -54,12 +54,12 @@ inline std::vector<TransmissionPacket::Option>& TransmissionPacket::options()
 
 inline TransmissionPacket& TransmissionPacket::doNotDiscard()
 {
-    this->g_packet.addHeaderFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+    this->g_packet.addFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
     return *this;
 }
 inline TransmissionPacket& TransmissionPacket::doNotReorder()
 {
-    this->g_packet.addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+    this->g_packet.addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
     return *this;
 }
 

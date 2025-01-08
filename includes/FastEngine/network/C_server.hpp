@@ -47,37 +47,6 @@ namespace fge::net
 class ServerSideNetUdp;
 class ClientSideNetUdp;
 
-/**
- * \class FluxPacket
- * \ingroup network
- * \brief A received packet from a network flux
- *
- * This class is used to store a packet with its identity and timestamp.
- * This also add some data used internally by the server in order to handle multiple received packets.
- */
-class FluxPacket : public ProtocolPacket
-{
-public:
-    inline FluxPacket(Packet const& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxCount = 0);
-    inline FluxPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxCount = 0);
-
-    ~FluxPacket() override = default;
-
-    [[nodiscard]] inline Timestamp getTimeStamp() const;
-    [[nodiscard]] inline Identity const& getIdentity() const;
-
-private:
-    friend class ServerSideNetUdp;
-    friend class ClientSideNetUdp;
-
-    Identity g_id;
-    Timestamp g_timestamp;
-
-    std::size_t g_fluxIndex;
-    std::size_t g_fluxCount;
-};
-using FluxPacketPtr = std::unique_ptr<FluxPacket>;
-
 enum class FluxProcessResults
 {
     RETRIEVABLE,
@@ -109,7 +78,7 @@ public:
     NetFluxUdp& operator=(NetFluxUdp&& r) noexcept = delete;
 
     void clearPackets();
-    [[nodiscard]] FluxPacketPtr popNextPacket();
+    [[nodiscard]] ProtocolPacketPtr popNextPacket();
 
     [[nodiscard]] std::size_t getPacketsSize() const;
     [[nodiscard]] bool isEmpty() const;
@@ -118,16 +87,16 @@ public:
     [[nodiscard]] std::size_t getMaxPackets() const;
 
 protected:
-    bool pushPacket(FluxPacketPtr&& fluxPck);
-    void forcePushPacket(FluxPacketPtr fluxPck);
-    void forcePushPacketFront(FluxPacketPtr fluxPck);
+    bool pushPacket(ProtocolPacketPtr&& fluxPck);
+    void forcePushPacket(ProtocolPacketPtr fluxPck);
+    void forcePushPacketFront(ProtocolPacketPtr fluxPck);
     [[nodiscard]] FluxProcessResults processReorder(Client& client,
-                                                    FluxPacketPtr& refFluxPacket,
-                                                    ProtocolPacket::CountId currentCountId,
+                                                    ProtocolPacketPtr& packet,
+                                                    ProtocolPacket::CounterType currentCounter,
                                                     bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
-    std::deque<FluxPacketPtr> _g_packets;
+    std::deque<ProtocolPacketPtr> _g_packets;
     std::size_t _g_remainingPackets{0};
 
 private:
@@ -146,14 +115,14 @@ public:
     ~ServerNetFluxUdp() override = default;
 
     [[nodiscard]] FluxProcessResults
-    process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient);
+    process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet, bool allowUnknownClient);
 
     ClientList _clients;
 
     fge::CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
 
 private:
-    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket);
+    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ProtocolPacketPtr const& packet);
 
     ServerSideNetUdp* g_server{nullptr};
 };
@@ -216,7 +185,7 @@ public:
     void closeFlux(NetFluxUdp* flux);
     void closeAllFlux();
 
-    void repushPacket(FluxPacketPtr&& fluxPck);
+    void repushPacket(ProtocolPacketPtr&& packet);
 
     /**
      * \brief Notify the transmission thread
@@ -290,7 +259,7 @@ public:
     template<class TPacket = Packet>
     void sendTo(TransmissionPacketPtr& pck, Identity const& id);
 
-    [[nodiscard]] FluxProcessResults process(FluxPacketPtr& refFluxPacket);
+    [[nodiscard]] FluxProcessResults process(ProtocolPacketPtr& packet);
 
     Client _client; //But it is the server :O
 

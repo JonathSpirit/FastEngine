@@ -219,14 +219,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Handling clients packets
         fge::net::ClientSharedPtr client;
-        fge::net::FluxPacketPtr fluxPacket;
-        while (serverFlux->process(client, fluxPacket, true) == fge::net::FluxProcessResults::RETRIEVABLE)
+        fge::net::ProtocolPacketPtr packet;
+        while (serverFlux->process(client, packet, true) == fge::net::FluxProcessResults::RETRIEVABLE)
         {
             //Prepare a sending packet
             auto transmissionPacket = fge::net::TransmissionPacket::create();
 
             //Retrieve the packet header
-            switch (fluxPacket->retrieveHeaderId().value())
+            switch (packet->retrieveHeaderId().value())
             {
             case ls::LS_PROTOCOL_ALL_PING:
                 transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_ALL_PONG);
@@ -238,17 +238,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
                 else
                 {
-                    server.sendTo(transmissionPacket, fluxPacket->getIdentity());
+                    server.sendTo(transmissionPacket, packet->getIdentity());
                 }
                 break;
             case ls::LS_PROTOCOL_C_UPDATE:
                 if (client)
                 {
-                    std::cout << "received update from : "
-                              << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED") << std::endl;
+                    std::cout << "received update from : " << packet->getIdentity()._ip.toString().value_or("UNDEFINED")
+                              << std::endl;
 
                     //We compute the latency with the LatencyPlanner help class
-                    client->_latencyPlanner.unpack(fluxPacket.get(), *client);
+                    client->_latencyPlanner.unpack(packet.get(), *client);
                     if (auto latency = client->_latencyPlanner.getLatency())
                     {
                         client->setSTOCLatency_ms(latency.value());
@@ -269,7 +269,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
                 transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
-                transmissionPacket->packet().addHeaderFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+                transmissionPacket->packet().addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 
                 if (client != nullptr)
                 {
@@ -288,7 +288,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     //will have a valid size range.
                     fge::net::rules::RValid(
                             fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1,
-                                                                         {fluxPacket->packet(), &connectionText1}))
+                                                                         {packet->packet(), &connectionText1}))
                             .and_then([&](auto& chain) {
                         return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
                                 sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
@@ -303,12 +303,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             transmissionPacket->packet() << true;
                             transmissionPacket->doNotReorder();
 
-                            std::cout << "new user : " << fluxPacket->getIdentity()._ip.toString().value_or("UNDEFINED")
+                            std::cout << "new user : " << packet->getIdentity()._ip.toString().value_or("UNDEFINED")
                                       << " connected !" << std::endl;
 
                             //Create the new client with the packet identity
                             client = std::make_shared<fge::net::Client>();
-                            clients.add(fluxPacket->getIdentity(), client);
+                            clients.add(packet->getIdentity(), client);
 
                             //Pack data required by the LatencyPlanner in order to compute latency
                             client->_latencyPlanner.pack(transmissionPacket);
@@ -318,9 +318,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                             //We will send a full scene update to the client too
                             transmissionPacket = fge::net::TransmissionPacket::create();
-                            transmissionPacket->packet().setHeader(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
                             transmissionPacket->doNotDiscard();
-                            mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
+                            mainScene.pack(transmissionPacket->packet(), packet->getIdentity());
 
                             client->pushPacket(std::move(transmissionPacket));
                         }
@@ -329,7 +329,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     }).on_error([&]([[maybe_unused]] auto& chain) {
                         //Something is not right, we will send "false" to the potential client
                         transmissionPacket->packet() << false;
-                        server.sendTo(transmissionPacket, fluxPacket->getIdentity());
+                        server.sendTo(transmissionPacket, packet->getIdentity());
                     });
                 }
             }
@@ -339,7 +339,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 {
                     transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
                     transmissionPacket->doNotDiscard();
-                    mainScene.pack(transmissionPacket->packet(), fluxPacket->getIdentity());
+                    mainScene.pack(transmissionPacket->packet(), packet->getIdentity());
                     client->advanceCurrentRealm();
                     client->pushPacket(std::move(transmissionPacket));
                     server.notifyTransmission();

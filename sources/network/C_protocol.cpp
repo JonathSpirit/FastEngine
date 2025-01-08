@@ -26,9 +26,9 @@ void PacketReorderer::clear()
     decltype(this->g_cache)().swap(this->g_cache);
 }
 
-void PacketReorderer::push(FluxPacketPtr&& fluxPacket)
+void PacketReorderer::push(ProtocolPacketPtr&& packet)
 {
-    this->g_cache.emplace(std::move(fluxPacket));
+    this->g_cache.emplace(std::move(packet));
     if (this->g_cache.size() >= FGE_NET_PACKET_REORDERER_CACHE_MAX)
     {
         //We can't wait anymore for the correct packet to arrive
@@ -37,58 +37,58 @@ void PacketReorderer::push(FluxPacketPtr&& fluxPacket)
         this->g_forceRetrieve = true;
     }
 }
-PacketReorderer::Stats PacketReorderer::checkStat(FluxPacketPtr const& fluxPacket,
-                                                  ProtocolPacket::CountId currentCountId,
-                                                  ProtocolPacket::Realm currentRealm)
+PacketReorderer::Stats PacketReorderer::checkStat(ProtocolPacketPtr const& packet,
+                                                  ProtocolPacket::CounterType currentCounter,
+                                                  ProtocolPacket::RealmType currentRealm)
 {
-    auto const countId = fluxPacket->retrieveCountId().value();
-    auto const realm = fluxPacket->retrieveRealm().value();
+    auto const counter = packet->retrieveCounter().value();
+    auto const realm = packet->retrieveRealm().value();
 
     if (realm < currentRealm && currentRealm + 1 != 0)
     {
         return Stats::OLD_REALM;
     }
 
-    if (currentRealm != realm && countId != 0)
-    { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
+    if (currentRealm != realm && counter != 0)
+    { //Different realm, we can switch to the new realm only if the counter is 0 (first packet of the new realm)
         return Stats::WAITING_NEXT_REALM;
     }
 
-    if (countId == currentCountId + 1)
-    { //Same realm, we can switch to the next countId
+    if (counter == currentCounter + 1)
+    { //Same realm, we can switch to the next counter
         return Stats::RETRIEVABLE;
     }
 
-    if (countId < currentCountId)
+    if (counter < currentCounter)
     { //We are missing a packet
         return Stats::OLD_COUNTID;
     }
 
-    //We can't switch to the next countId, we wait for the correct packet to arrive
+    //We can't switch to the next counter, we wait for the correct packet to arrive
     return Stats::WAITING_NEXT_COUNTID;
 }
 bool PacketReorderer::isForced() const
 {
     return this->g_forceRetrieve;
 }
-std::optional<PacketReorderer::Stats> PacketReorderer::checkStat(ProtocolPacket::CountId currentCountId,
-                                                                 ProtocolPacket::Realm currentRealm) const
+std::optional<PacketReorderer::Stats> PacketReorderer::checkStat(ProtocolPacket::CounterType currentCounter,
+                                                                 ProtocolPacket::RealmType currentRealm) const
 {
     if (this->g_cache.empty())
     {
         return std::nullopt;
     }
 
-    return this->g_cache.top().checkStat(currentCountId, currentRealm);
+    return this->g_cache.top().checkStat(currentCounter, currentRealm);
 }
-FluxPacketPtr PacketReorderer::pop()
+ProtocolPacketPtr PacketReorderer::pop()
 {
     if (this->g_cache.empty())
     {
         return nullptr;
     }
 
-    auto fluxPacket = std::move(const_cast<FluxPacketPtr&>(this->g_cache.top()._fluxPacket));
+    auto packet = std::move(const_cast<ProtocolPacketPtr&>(this->g_cache.top()._packet));
     this->g_cache.pop();
 
     if (this->g_cache.empty())
@@ -96,7 +96,7 @@ FluxPacketPtr PacketReorderer::pop()
         this->g_forceRetrieve = false;
     }
 
-    return fluxPacket;
+    return packet;
 }
 
 bool PacketReorderer::isEmpty() const
@@ -104,50 +104,50 @@ bool PacketReorderer::isEmpty() const
     return this->g_cache.empty();
 }
 
-PacketReorderer::Data::Data(FluxPacketPtr&& fluxPacket) :
-        _fluxPacket(std::move(fluxPacket)),
-        _countId(_fluxPacket->retrieveCountId().value()),
-        _realm(_fluxPacket->retrieveRealm().value())
+PacketReorderer::Data::Data(ProtocolPacketPtr&& packet) :
+        _packet(std::move(packet)),
+        _counter(_packet->retrieveCounter().value()),
+        _realm(_packet->retrieveRealm().value())
 {}
 PacketReorderer::Data::Data(Data&& r) noexcept :
-        _fluxPacket(std::move(r._fluxPacket)),
-        _countId(r._countId),
+        _packet(std::move(r._packet)),
+        _counter(r._counter),
         _realm(r._realm)
 {}
 PacketReorderer::Data::~Data() = default;
 
 PacketReorderer::Data& PacketReorderer::Data::operator=(Data&& r) noexcept
 {
-    this->_fluxPacket = std::move(r._fluxPacket);
-    this->_countId = r._countId;
+    this->_packet = std::move(r._packet);
+    this->_counter = r._counter;
     this->_realm = r._realm;
     return *this;
 }
 
-PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CountId currentCountId,
-                                                        ProtocolPacket::Realm currentRealm) const
+PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterType currentCounter,
+                                                        ProtocolPacket::RealmType currentRealm) const
 {
     if (this->_realm < currentRealm && currentRealm + 1 != 0)
     {
         return Stats::OLD_REALM;
     }
 
-    if (currentRealm != this->_realm && this->_countId != 0)
-    { //Different realm, we can switch to the new realm only if the countId is 0 (first packet of the new realm)
+    if (currentRealm != this->_realm && this->_counter != 0)
+    { //Different realm, we can switch to the new realm only if the counter is 0 (first packet of the new realm)
         return Stats::WAITING_NEXT_REALM;
     }
 
-    if (this->_countId == currentCountId + 1)
-    { //Same realm, we can switch to the next countId
+    if (this->_counter == currentCounter + 1)
+    { //Same realm, we can switch to the next counter
         return Stats::RETRIEVABLE;
     }
 
-    if (this->_countId < currentCountId)
+    if (this->_counter < currentCounter)
     { //We are missing a packet
         return Stats::OLD_COUNTID;
     }
 
-    //We can't switch to the next countId, we wait for the correct packet to arrive
+    //We can't switch to the next counter, we wait for the correct packet to arrive
     return Stats::WAITING_NEXT_COUNTID;
 }
 

@@ -17,32 +17,6 @@
 namespace fge::net
 {
 
-//FluxPacket
-
-inline FluxPacket::FluxPacket(Packet const& pck, Identity const& id, std::size_t fluxIndex, std::size_t fluxCount) :
-        ProtocolPacket(pck),
-        g_id(id),
-        g_timestamp(Client::getTimestamp_ms()),
-        g_fluxIndex(fluxIndex),
-        g_fluxCount(fluxCount)
-{}
-inline FluxPacket::FluxPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex, std::size_t fluxCount) :
-        ProtocolPacket(std::move(pck)),
-        g_id(id),
-        g_timestamp(Client::getTimestamp_ms()),
-        g_fluxIndex(fluxIndex),
-        g_fluxCount(fluxCount)
-{}
-
-inline Timestamp FluxPacket::getTimeStamp() const
-{
-    return this->g_timestamp;
-}
-inline Identity const& FluxPacket::getIdentity() const
-{
-    return this->g_id;
-}
-
 //ServerSideNetUdp
 
 template<class TPacket>
@@ -115,12 +89,13 @@ void ServerSideNetUdp::threadReception()
 
                 //Skip the header for reading
                 pckReceive.skip(ProtocolPacket::HeaderSize);
-                auto fluxPacket = std::make_unique<FluxPacket>(std::move(pckReceive), idReceive);
+                auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), idReceive);
+                packet->setTimestamp(Client::getTimestamp_ms());
 
                 //Verify headerId
-                auto const header = fluxPacket->retrieveHeader().value();
-                if ((header & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
-                    (header & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+                auto const headerId = packet->retrieveFullHeaderId().value();
+                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                    (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
@@ -129,16 +104,15 @@ void ServerSideNetUdp::threadReception()
 
                 if (this->g_fluxes.empty())
                 {
-                    this->g_defaultFlux.pushPacket(std::move(fluxPacket));
+                    this->g_defaultFlux.pushPacket(std::move(packet));
                     continue;
                 }
 
                 //Try to push packet in a flux
                 for (std::size_t i = 0; i < this->g_fluxes.size(); ++i)
                 {
-                    pushingIndex = (pushingIndex + 1) % this->g_fluxes.size();
-                    fluxPacket->g_fluxIndex = pushingIndex;
-                    if (this->g_fluxes[pushingIndex]->pushPacket(std::move(fluxPacket)))
+                    pushingIndex = packet->bumpFluxIndex(this->g_fluxes.size());
+                    if (this->g_fluxes[pushingIndex]->pushPacket(std::move(packet)))
                     { //Packet is correctly pushed
                         break;
                     }
@@ -301,17 +275,18 @@ void ClientSideNetUdp::threadReception()
 
                 //Skip the header
                 pckReceive.skip(ProtocolPacket::HeaderSize);
-                auto fluxPacket = std::make_unique<FluxPacket>(std::move(pckReceive), this->g_clientIdentity);
+                auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), this->g_clientIdentity);
+                packet->setTimestamp(Client::getTimestamp_ms());
 
                 //Verify headerId
-                auto const header = fluxPacket->retrieveHeader().value();
-                if ((header & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
-                    (header & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+                auto const headerId = packet->retrieveFullHeaderId().value();
+                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                    (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
 
-                this->pushPacket(std::move(fluxPacket));
+                this->pushPacket(std::move(packet));
                 this->g_receptionNotifier.notify_all();
             }
         }

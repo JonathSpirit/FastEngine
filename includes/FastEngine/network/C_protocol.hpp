@@ -18,13 +18,12 @@
 #define _FGE_C_PROTOCOL_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+#include "FastEngine/network/C_identity.hpp"
 #include "FastEngine/network/C_packet.hpp"
 #include <memory>
 #include <optional>
 #include <queue>
 #include <vector>
-
-#define FGE_NET_HEADER_TYPE uint16_t
 
 #define FGE_NET_HEADERID_MAX 0x1FFE
 #define FGE_NET_HEADERID_START 1
@@ -34,6 +33,7 @@
 #define FGE_NET_HEADER_DO_NOT_REORDER_FLAG 0x4000
 #define FGE_NET_HEADER_LOCAL_REORDERED_FLAG 0x2000
 #define FGE_NET_HEADER_FLAGS_MASK 0xE000
+#define FGE_NET_HEADER_FLAGS_COUNT 3
 
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_PACKET_REORDERER_CACHE_MAX 5
@@ -41,55 +41,99 @@
 namespace fge::net
 {
 
+using Timestamp = uint16_t;
+
 /**
  * \class ProtocolPacket
  * \ingroup network
  * \brief A special inheritance of Packet with a predefined communication protocol
  *
- * This class is used to handle the communication between the server and the client.
+ * This class is used to handle the communication between the server and the client
+ * by storing a packet with its identity and timestamp.
+ * This also add some data used internally by the server in order to handle multiple received packets.
  */
 class ProtocolPacket : public Packet
 {
 public:
-    using Header = FGE_NET_HEADER_TYPE;
-    using Realm = uint8_t;
-    using CountId = uint16_t;
-    constexpr static std::size_t HeaderSize = sizeof(Header) + sizeof(Realm) + sizeof(CountId);
-    constexpr static std::size_t HeaderIdPosition = 0;
-    constexpr static std::size_t RealmPosition = sizeof(Header);
-    constexpr static std::size_t CountIdPosition = sizeof(Header) + sizeof(Realm);
+    using IdType = uint16_t;
+    using RealmType = uint8_t;
+    using CounterType = uint16_t;
 
-    inline ProtocolPacket(Header header, Realm realmId, CountId countId);
-    inline ProtocolPacket(ProtocolPacket const& r) = default;
-    inline ProtocolPacket(Packet const& r) :
-            Packet(r)
-    {}
-    inline ProtocolPacket(ProtocolPacket&& r) noexcept = default;
-    inline ProtocolPacket(Packet&& r) noexcept :
-            Packet(std::move(r))
-    {}
+    struct Header
+    {
+        IdType _id;
+        RealmType _realm;
+        CounterType _counter;
+    };
+
+    constexpr static std::size_t HeaderSize = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
+    constexpr static std::size_t IdPosition = 0;
+    constexpr static std::size_t RealmPosition = sizeof(IdType);
+    constexpr static std::size_t CounterPosition = sizeof(IdType) + sizeof(RealmType);
+
+    inline ProtocolPacket(Packet const& pck,
+                          Identity const& id,
+                          std::size_t fluxIndex = 0,
+                          std::size_t fluxLifetime = 0);
+    inline ProtocolPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxLifetime = 0);
+    inline ProtocolPacket(IdType header, RealmType realmId, CounterType countId);
+
+    inline ProtocolPacket(Packet const& r);
+    inline ProtocolPacket(Packet&& r) noexcept;
+
+    inline ProtocolPacket(ProtocolPacket const& r);
+    inline ProtocolPacket(ProtocolPacket&& r) noexcept;
+
     inline ~ProtocolPacket() override = default;
 
     [[nodiscard]] inline Packet& packet() noexcept { return *this; }
     [[nodiscard]] inline Packet const& packet() const noexcept { return *this; }
 
     [[nodiscard]] inline bool haveCorrectHeaderSize() const;
+    [[nodiscard]] inline std::optional<IdType> retrieveHeaderId() const;
+    [[nodiscard]] inline std::optional<IdType> retrieveFlags() const;
+    [[nodiscard]] inline std::optional<IdType> retrieveFullHeaderId() const;
+    [[nodiscard]] inline std::optional<RealmType> retrieveRealm() const;
+    [[nodiscard]] inline std::optional<CounterType> retrieveCounter() const;
     [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
-    [[nodiscard]] inline std::optional<Header> retrieveHeaderId() const;
-    [[nodiscard]] inline std::optional<Realm> retrieveRealm() const;
-    [[nodiscard]] inline std::optional<CountId> retrieveCountId() const;
 
-    inline void setHeader(Header header);
-    inline void setHeaderId(Header headerId);
-    inline void setHeaderFlags(Header headerFlags);
-    inline void addHeaderFlags(Header headerFlags);
-    inline void removeHeaderFlags(Header headerFlags);
-    inline void setRealm(Realm realmId);
-    inline void setCountId(CountId countId);
+    inline void setHeader(Header const& header);
+    inline void setHeaderId(IdType id);
+
+    inline void setFlags(IdType flags);
+    inline void addFlags(IdType flags);
+    inline void removeFlags(IdType flags);
+
+    inline void setRealm(RealmType realm);
+    inline void setCounter(CounterType counter);
+
+    inline void setTimestamp(Timestamp timestamp);
+    [[nodiscard]] inline Timestamp getTimeStamp() const;
+    [[nodiscard]] inline Identity const& getIdentity() const;
+
+    /**
+     * \brief Check if the flux lifetime is reached
+     *
+     * Increment the flux lifetime and return \b false if the lifetime is greater or equal to \p fluxSize.
+     * Otherwise, increment the flux index and return \b true.
+     * The flux index is incremented by 1 and modulo \p fluxSize.
+     *
+     * \param fluxSize The number of fluxes
+     * \return \b true if lifetime is not reached, \b false otherwise
+     */
+    [[nodiscard]] inline bool checkFluxLifetime(std::size_t fluxSize);
+    inline std::size_t getFluxIndex() const;
+    inline std::size_t bumpFluxIndex(std::size_t fluxSize);
+
+private:
+    Identity g_identity;
+    Timestamp g_timestamp;
+
+    std::size_t g_fluxIndex;
+    std::size_t g_fluxLifetime;
 };
 
-class FluxPacket;
-using FluxPacketPtr = std::unique_ptr<FluxPacket>;
+using ProtocolPacketPtr = std::unique_ptr<ProtocolPacket>;
 
 /**
  * \class PacketReorderer
@@ -120,21 +164,21 @@ public:
 
     void clear();
 
-    void push(FluxPacketPtr&& fluxPacket);
-    [[nodiscard]] static Stats checkStat(FluxPacketPtr const& fluxPacket,
-                                         ProtocolPacket::CountId currentCountId,
-                                         ProtocolPacket::Realm currentRealm);
+    void push(ProtocolPacketPtr&& packet);
+    [[nodiscard]] static Stats checkStat(ProtocolPacketPtr const& packet,
+                                         ProtocolPacket::CounterType currentCounter,
+                                         ProtocolPacket::RealmType currentRealm);
     [[nodiscard]] bool isForced() const;
-    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CountId currentCountId,
-                                                 ProtocolPacket::Realm currentRealm) const;
-    [[nodiscard]] FluxPacketPtr pop();
+    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CounterType currentCounter,
+                                                 ProtocolPacket::RealmType currentRealm) const;
+    [[nodiscard]] ProtocolPacketPtr pop();
 
     [[nodiscard]] bool isEmpty() const;
 
 private:
     struct FGE_API Data
     {
-        explicit Data(FluxPacketPtr&& fluxPacket);
+        explicit Data(ProtocolPacketPtr&& packet);
         Data(Data const& r) = delete;
         Data(Data&& r) noexcept;
         ~Data();
@@ -142,11 +186,12 @@ private:
         Data& operator=(Data const& r) = delete;
         Data& operator=(Data&& r) noexcept;
 
-        [[nodiscard]] Stats checkStat(ProtocolPacket::CountId currentCountId, ProtocolPacket::Realm currentRealm) const;
+        [[nodiscard]] Stats checkStat(ProtocolPacket::CounterType currentCounter,
+                                      ProtocolPacket::RealmType currentRealm) const;
 
-        FluxPacketPtr _fluxPacket;
-        ProtocolPacket::CountId _countId;
-        ProtocolPacket::Realm _realm;
+        ProtocolPacketPtr _packet;
+        ProtocolPacket::CounterType _counter;
+        ProtocolPacket::RealmType _realm;
 
         struct Compare
         {
@@ -154,7 +199,7 @@ private:
             {
                 if (l._realm == r._realm)
                 {
-                    return l._countId > r._countId;
+                    return l._counter > r._counter;
                 }
                 return l._realm > r._realm;
             }

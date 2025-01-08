@@ -76,8 +76,8 @@ Client::Client() :
         g_skey(FGE_NET_BAD_SKEY),
         g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
         g_currentRealm(FGE_NET_DEFAULT_REALM),
-        g_currentPacketCountId(0),
-        g_clientPacketCountId(0)
+        g_currentPacketCounter(0),
+        g_clientPacketCounter(0)
 {}
 Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
@@ -87,8 +87,8 @@ Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_skey(FGE_NET_BAD_SKEY),
         g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
         g_currentRealm(FGE_NET_DEFAULT_REALM),
-        g_currentPacketCountId(0),
-        g_clientPacketCountId(0)
+        g_currentPacketCounter(0),
+        g_clientPacketCounter(0)
 {}
 
 Skey Client::GenerateSkey()
@@ -200,13 +200,13 @@ void Client::clearPackets()
 void Client::pushPacket(TransmissionPacketPtr pck)
 {
     std::scoped_lock const lck(this->g_mutex);
-    auto const header = pck->packet().retrieveHeader().value();
-    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
+    auto const headerFlags = pck->packet().retrieveFlags().value();
+    if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
     {
 #ifdef FGE_DEF_SERVER
-        pck->packet().setCountId(this->advanceCurrentPacketCountId());
+        pck->packet().setCounter(this->advanceCurrentPacketCounter());
 #else
-        pck->packet().setCountId(this->advanceClientPacketCountId());
+        pck->packet().setCounter(this->advanceClientPacketCounter());
 #endif
 
         pck->packet().setRealm(this->getCurrentRealm());
@@ -231,7 +231,7 @@ bool Client::isPendingPacketsEmpty() const
     return this->g_pendingTransmitPackets.empty();
 }
 
-ProtocolPacket::Realm Client::getCurrentRealm() const
+ProtocolPacket::RealmType Client::getCurrentRealm() const
 {
     std::scoped_lock const lck(this->g_mutex);
     return this->g_currentRealm;
@@ -242,54 +242,54 @@ std::chrono::milliseconds Client::getLastRealmChangeElapsedTime() const
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
                                                                  this->g_lastRealmChangeTimePoint);
 }
-void Client::setCurrentRealm(ProtocolPacket::Realm realm)
+void Client::setCurrentRealm(ProtocolPacket::RealmType realm)
 {
     std::scoped_lock const lck(this->g_mutex);
     if (this->g_currentRealm != realm)
     {
-        this->g_currentPacketCountId = 0;
+        this->g_currentPacketCounter = 0;
         this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
         this->g_currentRealm = realm;
     }
 }
-ProtocolPacket::Realm Client::advanceCurrentRealm()
+ProtocolPacket::RealmType Client::advanceCurrentRealm()
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_currentPacketCountId = 0;
+    this->g_currentPacketCounter = 0;
     this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
     return ++this->g_currentRealm;
 }
 
-ProtocolPacket::CountId Client::getCurrentPacketCountId() const
+ProtocolPacket::CounterType Client::getCurrentPacketCounter() const
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_currentPacketCountId;
+    return this->g_currentPacketCounter;
 }
-ProtocolPacket::CountId Client::advanceCurrentPacketCountId()
+ProtocolPacket::CounterType Client::advanceCurrentPacketCounter()
 {
     std::scoped_lock const lck(this->g_mutex);
-    return ++this->g_currentPacketCountId;
+    return ++this->g_currentPacketCounter;
 }
-void Client::setCurrentPacketCountId(ProtocolPacket::CountId countId)
+void Client::setCurrentPacketCounter(ProtocolPacket::CounterType counter)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_currentPacketCountId = countId;
+    this->g_currentPacketCounter = counter;
 }
 
-ProtocolPacket::CountId Client::getClientPacketCountId() const
+ProtocolPacket::CounterType Client::getClientPacketCounter() const
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_clientPacketCountId;
+    return this->g_clientPacketCounter;
 }
-ProtocolPacket::CountId Client::advanceClientPacketCountId()
+ProtocolPacket::CounterType Client::advanceClientPacketCounter()
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_clientPacketCountId++;
+    return this->g_clientPacketCounter++;
 }
-void Client::setClientPacketCountId(ProtocolPacket::CountId countId)
+void Client::setClientPacketCounter(ProtocolPacket::CounterType countId)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_clientPacketCountId = countId;
+    this->g_clientPacketCounter = countId;
 }
 
 PacketReorderer& Client::getPacketReorderer()
@@ -369,7 +369,7 @@ void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
         this->g_syncStat &= ~HAVE_EXTERNAL_TIMESTAMP;
     }
 }
-void OneWayLatencyPlanner::unpack(FluxPacket* packet, Client& client)
+void OneWayLatencyPlanner::unpack(ProtocolPacket* packet, Client& client)
 {
     bool const finishedToSendLastPacket = !client.getCorrectorTimestamp().has_value();
 

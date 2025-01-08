@@ -287,14 +287,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Handling server packets
-        fge::net::FluxPacketPtr fluxPacket;
-        while (server.process(fluxPacket) == fge::net::FluxProcessResults::RETRIEVABLE)
+        fge::net::ProtocolPacketPtr packet;
+        while (server.process(packet) == fge::net::FluxProcessResults::RETRIEVABLE)
         {
             //Prepare a sending packet
             auto transmissionPacket = fge::net::TransmissionPacket::create();
 
             //Retrieve the packet header
-            switch (fluxPacket->retrieveHeaderId().value())
+            switch (packet->retrieveHeaderId().value())
             {
             case ls::LS_PROTOCOL_ALL_GOODBYE:
                 std::cout << "goodbye from server !" << std::endl;
@@ -312,12 +312,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
                 bool valid = false;
-                *fluxPacket >> valid;
+                *packet >> valid;
 
-                if (fluxPacket->isValid() && valid)
+                if (packet->isValid() && valid)
                 {
                     //Get latency
-                    server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
+                    server._client._latencyPlanner.unpack(packet.get(), server._client);
                     if (auto latency = server._client._latencyPlanner.getLatency())
                     {
                         server._client.setCTOSLatency_ms(latency.value());
@@ -356,7 +356,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 timerTimeout->restart();
 
                 //Get latency
-                server._client._latencyPlanner.unpack(fluxPacket.get(), server._client);
+                server._client._latencyPlanner.unpack(packet.get(), server._client);
                 if (auto latency = server._client._latencyPlanner.getLatency())
                 {
                     server._client.setCTOSLatency_ms(latency.value());
@@ -378,14 +378,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                   << "Update count: " << mainScene->getUpdateCount() << '\n'
                                   << "Lost packets: " << server._client.getLostPacketCount() << '\n'
                                   << "Realm: " << static_cast<unsigned int>(server._client.getCurrentRealm())
-                                  << ", CurrentCountId: " << server._client.getCurrentPacketCountId()
-                                  << ", ClientCountId: " << server._client.getClientPacketCountId();
+                                  << ", CurrentCounter: " << server._client.getCurrentPacketCounter()
+                                  << ", ClientCounter: " << server._client.getClientPacketCounter();
 
                 latencyText->setString(tiny_utf8::string(latencyTextStream.str()));
 
                 //And then unpack all modification made by the server scene
                 fge::Scene::UpdateCountRange updateRange{};
-                auto err = mainScene->unpackModification(*fluxPacket, updateRange);
+                auto err = mainScene->unpackModification(*packet, updateRange);
                 if (err)
                 {
                     server._client.advanceLostPacketCount();
@@ -398,7 +398,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 else
                 {
                     //And unpack all watched events
-                    err = mainScene->unpackWatchedEvent(*fluxPacket);
+                    err = mainScene->unpackWatchedEvent(*packet);
                     if (err)
                     {
                         server._client.advanceLostPacketCount();
@@ -408,7 +408,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             break;
             case ls::LS_PROTOCOL_S_UPDATE_ALL:
                 //Do a full scene update
-                mainScene->unpack(*fluxPacket);
+                mainScene->unpack(*packet);
 
                 std::cout << "received full scene update [" << mainScene->getUpdateCount() << "]" << std::endl;
                 break;
