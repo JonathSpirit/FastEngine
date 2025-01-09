@@ -24,6 +24,7 @@
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/network/C_protocol.hpp"
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <memory>
 #include <mutex>
@@ -36,6 +37,12 @@
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_LATENCY_PLANNER_MEAN 6
 #define FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD 15
+#define FGE_NET_STATUS_DEFAULT_TIMEOUT                                                                                 \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        5000                                                                                                           \
+    }
+#define FGE_NET_STATUS_DEFAULT_STATUS "none"
 
 namespace fge::net
 {
@@ -237,6 +244,44 @@ private:
     std::underlying_type_t<Stats> g_syncStat{0};
 };
 
+class FGE_API ClientStatus
+{
+public:
+    enum class NetworkStatus
+    {
+        CONNECTED,
+        DISCONNECTED,
+        TIMEOUT,
+        USER_HANDLED,
+
+        UNKNOWN
+    };
+
+    ClientStatus() = default;
+    explicit ClientStatus(std::string_view status, NetworkStatus networkStatus = NetworkStatus::USER_HANDLED);
+
+    [[nodiscard]] std::string const& getStatus() const;
+    [[nodiscard]] NetworkStatus getNetworkStatus() const;
+    [[nodiscard]] std::chrono::milliseconds getTimeout() const;
+    [[nodiscard]] std::chrono::milliseconds getRemainingTimeout() const;
+
+    void set(std::string_view status, NetworkStatus networkStatus);
+    void setStatus(std::string_view status);
+    void setNetworkStatus(NetworkStatus networkStatus);
+
+    void setTimeout(std::chrono::milliseconds timeout);
+    void resetTimeout();
+
+    [[nodiscard]] bool updateTimeout(std::chrono::milliseconds elapsedTime);
+    [[nodiscard]] bool isTimeout() const;
+
+private:
+    std::string g_status{FGE_NET_STATUS_DEFAULT_STATUS};
+    std::atomic<NetworkStatus> g_networkStatus{NetworkStatus::UNKNOWN};
+    std::chrono::milliseconds g_timeout{FGE_NET_STATUS_DEFAULT_TIMEOUT};
+    std::chrono::milliseconds g_currentTimeout{0};
+};
+
 /**
  * \class Client
  * \brief Class that represent the identity of a client
@@ -429,6 +474,9 @@ public:
     [[nodiscard]] uint32_t getLostPacketThreshold() const;
     [[nodiscard]] uint32_t getLostPacketCount() const;
 
+    [[nodiscard]] ClientStatus const& getStatus() const;
+    [[nodiscard]] ClientStatus& getStatus();
+
     CallbackHandler<Client&> _onThresholdLostPacket;
 
     Event _event;                         ///< Optional client-side event that can be synchronized with the server
@@ -454,6 +502,8 @@ private:
     PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
+
+    ClientStatus g_status;
 };
 
 /**

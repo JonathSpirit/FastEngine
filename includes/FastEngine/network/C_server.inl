@@ -69,7 +69,7 @@ void ServerSideNetUdp::threadReception()
 
     while (this->g_running)
     {
-        if (this->g_socket.select(true, 500) == Socket::Errors::ERR_NOERROR)
+        if (this->g_socket.select(true, FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS) == Socket::Errors::ERR_NOERROR)
         {
             if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == Socket::Errors::ERR_NOERROR)
             {
@@ -257,7 +257,7 @@ void ClientSideNetUdp::threadReception()
 
     while (this->g_running)
     {
-        if (this->g_socket.select(true, 500) == Socket::Errors::ERR_NOERROR)
+        if (this->g_socket.select(true, FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS) == Socket::Errors::ERR_NOERROR)
         {
             if (this->g_socket.receive(pckReceive) == Socket::Errors::ERR_NOERROR)
             {
@@ -286,8 +286,22 @@ void ClientSideNetUdp::threadReception()
                     continue;
                 }
 
+                //Check client status and reset timeout
+                if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
+                {
+                    this->_client.getStatus().resetTimeout();
+                }
+
                 this->pushPacket(std::move(packet));
                 this->g_receptionNotifier.notify_all();
+            }
+        }
+        else
+        {
+            if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
+            {
+                (void) this->_client.getStatus().updateTimeout(
+                        std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
             }
         }
     }

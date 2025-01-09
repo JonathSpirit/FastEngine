@@ -440,6 +440,16 @@ FluxProcessResults ClientSideNetUdp::process(ProtocolPacketPtr& packet)
     ///TODO: no lock ?
     packet.reset();
 
+    if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT &&
+        this->_client.getStatus().isTimeout())
+    {
+        this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
+        this->_onClientTimeout.call(*this);
+        this->_g_remainingPackets = 0;
+        this->clearPackets();
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
     if (this->_g_remainingPackets == 0)
     {
         this->_g_remainingPackets = this->getPacketsSize();

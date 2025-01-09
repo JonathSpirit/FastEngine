@@ -66,6 +66,76 @@ void TransmissionPacket::applyOptions()
     }
 }
 
+//ClientStatus
+
+ClientStatus::ClientStatus(std::string_view status, NetworkStatus networkStatus) :
+        g_status(status),
+        g_networkStatus(networkStatus),
+        g_timeout(FGE_NET_STATUS_DEFAULT_TIMEOUT),
+        g_currentTimeout(0)
+{}
+
+std::string const& ClientStatus::getStatus() const
+{
+    return this->g_status;
+}
+ClientStatus::NetworkStatus ClientStatus::getNetworkStatus() const
+{
+    return this->g_networkStatus;
+}
+std::chrono::milliseconds ClientStatus::getTimeout() const
+{
+    return this->g_timeout;
+}
+std::chrono::milliseconds ClientStatus::getRemainingTimeout() const
+{
+    return this->g_timeout - this->g_currentTimeout;
+}
+
+void ClientStatus::set(std::string_view status, NetworkStatus networkStatus)
+{
+    this->g_status = status;
+    this->g_networkStatus = networkStatus;
+}
+void ClientStatus::setStatus(std::string_view status)
+{
+    this->g_status = status;
+}
+void ClientStatus::setNetworkStatus(NetworkStatus networkStatus)
+{
+    this->g_networkStatus = networkStatus;
+}
+
+void ClientStatus::setTimeout(std::chrono::milliseconds timeout)
+{
+    this->g_timeout = timeout;
+    this->g_currentTimeout = std::chrono::milliseconds{0};
+}
+void ClientStatus::resetTimeout()
+{
+    this->g_currentTimeout = std::chrono::milliseconds{0};
+}
+
+bool ClientStatus::updateTimeout(std::chrono::milliseconds elapsedTime)
+{
+    if (this->g_timeout == std::chrono::milliseconds{0})
+    {
+        return false;
+    }
+
+    this->g_currentTimeout += elapsedTime;
+    return this->g_currentTimeout >= this->g_timeout;
+}
+
+bool ClientStatus::isTimeout() const
+{
+    if (this->g_timeout == std::chrono::milliseconds{0})
+    {
+        return false;
+    }
+    return this->g_currentTimeout >= this->g_timeout;
+}
+
 //Client
 
 Client::Client() :
@@ -334,6 +404,15 @@ uint32_t Client::getLostPacketCount() const
 {
     std::scoped_lock const lck(this->g_mutex);
     return this->g_lostPacketCount;
+}
+
+ClientStatus const& Client::getStatus() const
+{
+    return this->g_status;
+}
+ClientStatus& Client::getStatus()
+{
+    return this->g_status;
 }
 
 //OneWayLatencyPlanner

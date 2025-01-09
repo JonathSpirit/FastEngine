@@ -41,6 +41,8 @@
         2000                                                                                                           \
     }
 
+#define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
+
 namespace fge::net
 {
 
@@ -262,6 +264,8 @@ public:
     [[nodiscard]] FluxProcessResults process(ProtocolPacketPtr& packet);
 
     Client _client; //But it is the server :O
+
+    CallbackHandler<ClientSideNetUdp&> _onClientTimeout;
 
 private:
     template<class TPacket>

@@ -124,12 +124,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     //Timer
     fge::timer::Init();
     //Prepare a timer for timeout
-    fge::timer::TimerShared timerTimeout =
-            std::make_shared<fge::Timer>(LIFESIM_TIME_CONNECTION_TIMEOUT, "timeout", true);
-    fge::timer::Create(timerTimeout);
     fge::timer::TimerShared timerConnectionTimeout =
             std::make_shared<fge::Timer>(LIFESIM_TIME_CONNECTION_TIMEOUT, "connectionTimeout", true);
     fge::timer::Create(timerConnectionTimeout);
+
+    server._client.getStatus().setTimeout(LIFESIM_TIME_CONNECTION_TIMEOUT);
 
     //We must register all classes that we will use
     std::cout << "registering all classes ..." << std::endl;
@@ -230,6 +229,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         server.notifyTransmission();
     });
 
+    server._onClientTimeout.addLambda([&]([[maybe_unused]] fge::net::ClientSideNetUdp& client) {
+        std::cout << "connection lost ! (timeout)" << std::endl;
+
+        connectionValid = false;
+
+        server.stop();
+        mainScene->delAllObject(true);
+        createConnectionWindow();
+        server._client.getStatus().set(FGE_NET_STATUS_DEFAULT_STATUS,
+                                       fge::net::ClientStatus::NetworkStatus::DISCONNECTED);
+        server._client.getStatus().resetTimeout();
+    });
+
     //Begin loop
     bool running = true;
     while (running)
@@ -270,22 +282,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             fge::timer::Create(timerConnectionTimeout); ///TODO: timer system need a refactor
         }
 
-        //Check if the connection is lost
-        if (timerTimeout->goalReached())
-        {
-            std::cout << "connection lost !" << std::endl;
-
-            connectionValid = false;
-
-            server.stop();
-            mainScene->delAllObject(true);
-            createConnectionWindow();
-
-            timerTimeout->pause();
-            timerTimeout->restart();
-            fge::timer::Create(timerTimeout); ///TODO: timer system need a refactor
-        }
-
         //Handling server packets
         fge::net::ProtocolPacketPtr packet;
         while (server.process(packet) == fge::net::FluxProcessResults::RETRIEVABLE)
@@ -305,9 +301,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
                 timerConnectionTimeout->pause();
                 timerConnectionTimeout->restart();
-
-                timerTimeout->pause();
-                timerTimeout->restart();
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
@@ -339,9 +332,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     timerConnectionTimeout->pause();
                     timerConnectionTimeout->restart();
 
-                    timerTimeout->restart();
-                    timerTimeout->resume();
-
                     std::cout << "connected to server !" << std::endl;
                 }
                 else
@@ -353,8 +343,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             break;
             case ls::LS_PROTOCOL_S_UPDATE:
             {
-                timerTimeout->restart();
-
                 //Get latency
                 server._client._latencyPlanner.unpack(packet.get(), server._client);
                 if (auto latency = server._client._latencyPlanner.getLatency())
