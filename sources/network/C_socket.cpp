@@ -452,6 +452,24 @@ Socket::Errors Socket::setIpv6Only(bool mode)
     }
     return Errors::ERR_NOERROR;
 }
+Socket::Errors Socket::setDontFragment(bool mode)
+{
+#ifdef _WIN32
+    char const optval = mode ? 1 : 0;
+    if (setsockopt(this->g_socket, IPPROTO_IP, IP_DONTFRAGMENT, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+    return Errors::ERR_NOERROR;
+#else
+    char const optval = mode ? IP_PMTUDISC_DO : IP_PMTUDISC_DONT;
+    if (setsockopt(this->g_socket, IPPROTO_IP, IP_MTU_DISCOVER, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+    return Errors::ERR_NOERROR;
+#endif // _WIN32
+}
 
 Socket::Errors Socket::select(bool read, uint32_t timeoutms)
 {

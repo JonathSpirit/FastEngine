@@ -221,6 +221,19 @@ public:
      * \return Errors::ERR_NOERROR if successful, otherwise an error code
      */
     Errors setIpv6Only(bool mode);
+    /**
+     * \brief Set if the socket should append DF flag to the packet
+     *
+     * From MSDN: (IP_DONTFRAGMENT)
+     * Indicates that data should not be fragmented regardless of the local MTU.
+     * Valid only for message oriented protocols. Microsoft TCP/IP providers respect this option for UDP and ICMP.
+     *
+     * Note that on GNU/Linux, this option is IP_MTU_DISCOVER with IP_PMTUDISC_DO and IP_PMTUDISC_DONT flags.
+     *
+     * \param mode If the socket should append the DF flag
+     * \return Errors::ERR_NOERROR if successful, otherwise an error code
+     */
+    Errors setDontFragment(bool mode);
 
     /**
      * \brief Check the socket for readability or writability
