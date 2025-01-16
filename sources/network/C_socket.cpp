@@ -34,6 +34,7 @@
     #define _WIN32_WINNT _WIN32_WINNT_VISTA
 
     #include <winsock2.h>
+    #include <iphlpapi.h>
     #include <ws2tcpip.h>
 #else
     #include <arpa/inet.h>
@@ -526,6 +527,103 @@ void Socket::uninitSocket()
 #ifdef _WIN32
     WSACleanup();
 #endif // _WIN32
+}
+
+std::optional<uint16_t> Socket::retrieveCurrentAdapterMTU() const
+{
+    ULONG bufferSize = 0;
+
+    auto const family = this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6;
+    GetAdaptersAddresses(family, 0, nullptr, nullptr, &bufferSize);
+
+    std::unique_ptr<PIP_ADAPTER_ADDRESSES[]> const adapterAddresses =
+            std::make_unique<PIP_ADAPTER_ADDRESSES[]>(bufferSize);
+    PIP_ADAPTER_ADDRESSES adapterAddress = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapterAddresses.get());
+
+    auto const currentAddress = this->getLocalAddress();
+
+    if (GetAdaptersAddresses(family, 0, nullptr, adapterAddress, &bufferSize) == NO_ERROR)
+    {
+        for (PIP_ADAPTER_ADDRESSES adapter = adapterAddress; adapter != nullptr; adapter = adapter->Next)
+        {
+            IpAddress ip;
+            if (family == AF_INET)
+            {
+                sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(adapter->FirstUnicastAddress->Address.lpSockaddr);
+                ip.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+            }
+            else
+            {
+                sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(adapter->FirstUnicastAddress->Address.lpSockaddr);
+                IpAddress::Ipv6Data data;
+                std::memcpy(data.data(), addr6->sin6_addr.s6_addr, 16);
+                ip.setNetworkByteOrdered(data);
+            }
+
+            if (ip == currentAddress)
+            {
+                return std::clamp<uint16_t>(adapter->Mtu,
+                                            family == AF_INET ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU,
+                                            FGE_SOCKET_FULL_DATAGRAM_SIZE);
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
+{
+    std::vector<AdapterInfo> adapters;
+
+    auto const family =
+            type == IpAddress::Types::Ipv4 ? AF_INET : (type == IpAddress::Types::Ipv6 ? AF_INET6 : AF_UNSPEC);
+
+    ULONG bufferSize = 0;
+    GetAdaptersAddresses(family, 0, nullptr, nullptr, &bufferSize);
+
+    std::unique_ptr<PIP_ADAPTER_ADDRESSES[]> const adapterAddresses =
+            std::make_unique<PIP_ADAPTER_ADDRESSES[]>(bufferSize);
+    PIP_ADAPTER_ADDRESSES adapterAddress = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapterAddresses.get());
+
+    if (GetAdaptersAddresses(family, 0, nullptr, adapterAddress, &bufferSize) == NO_ERROR)
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+
+        for (PIP_ADAPTER_ADDRESSES adapter = adapterAddress; adapter != nullptr; adapter = adapter->Next)
+        {
+            AdapterInfo info;
+            info._name = converter.to_bytes(adapter->FriendlyName);
+            info._description = converter.to_bytes(adapter->Description);
+
+            for (auto* unicast = adapter->FirstUnicastAddress; unicast != nullptr; unicast = unicast->Next)
+            {
+                auto& data = info._data.emplace_back();
+                auto const addrFamily = unicast->Address.lpSockaddr->sa_family;
+
+                if (addrFamily == AF_INET)
+                {
+                    sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(unicast->Address.lpSockaddr);
+                    data._unicast.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+                }
+                else
+                {
+                    sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(unicast->Address.lpSockaddr);
+                    IpAddress::Ipv6Data ipv6Data;
+                    std::memcpy(ipv6Data.data(), addr6->sin6_addr.s6_addr, 16);
+                    data._unicast.setNetworkByteOrdered(ipv6Data);
+                }
+            }
+
+            info._mtu = std::clamp<uint16_t>(adapter->Mtu,
+                                             (adapter->Flags & IP_ADAPTER_IPV6_ENABLED) > 0 ? FGE_SOCKET_IPV6_MIN_MTU
+                                                                                            : FGE_SOCKET_IPV4_MIN_MTU,
+                                             FGE_SOCKET_FULL_DATAGRAM_SIZE);
+
+            adapters.push_back(info);
+        }
+    }
+
+    return adapters;
 }
 
 int Socket::getPlatformSpecifiedError()

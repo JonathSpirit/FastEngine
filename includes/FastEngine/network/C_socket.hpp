@@ -94,6 +94,19 @@ public:
         ERR_UNKNOWN = ERR_UNSUCCESS
     };
 
+    struct AdapterInfo
+    {
+        struct Data
+        {
+            IpAddress _unicast;
+        };
+
+        std::string _name;
+        std::string _description;
+        uint16_t _mtu;
+        std::vector<Data> _data;
+    };
+
     /**
      * \brief Get the type of the socket
      *
@@ -261,6 +274,30 @@ public:
      * \brief Shutdown the low-level socket library
      */
     static void uninitSocket();
+
+    /**
+     * \brief Retrieve the current adapter MTU
+     *
+     * From MSDN:
+     * This function get all the adapter addresses and compare the local address with the current local address in
+     * order to find the adapter that is currently used.
+     *
+     * From a connection-less socket, this function can only work if the socket is connected to a remote address or/and
+     * if I/O operations have been performed.
+     *
+     * \return The current adapter MTU or \b std::nullopt if an error occurred
+     */
+    [[nodiscard]] std::optional<uint16_t> retrieveCurrentAdapterMTU() const;
+
+    /**
+     * \brief Retrieve adapters information
+     *
+     * The information retrieved is the name, description, mtu and unicast addresses of the adapters.
+     *
+     * \param type The type of address to get, if None, all addresses will be returned
+     * \return A vector containing the adapters information or an empty vector
+     */
+    [[nodiscard]] static std::vector<AdapterInfo> getAdaptersInfo(IpAddress::Types type = IpAddress::Types::None);
 
     /**
      * \brief Get the last platform specific error code
