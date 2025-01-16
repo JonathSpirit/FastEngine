@@ -476,13 +476,13 @@ Socket::Errors Socket::select(bool read, uint32_t timeoutms)
 {
     // Setup the selector
     fd_set selector;
-#ifdef _win32
+#ifdef _WIN32
     selector.fd_count = 1;
     *selector.fd_array = this->g_socket;
 #else
     FD_ZERO(&selector);
     FD_SET(this->g_socket, &selector);
-#endif // _win32
+#endif // _WIN32
 
     // Setup the timeout
     timeval time{};
@@ -1165,13 +1165,13 @@ Socket::Errors SocketTcp::connect(IpAddress const& remoteAddress, Port remotePor
     {
         // Setup the selector
         fd_set selector;
-#ifdef _win32
+#ifdef _WIN32
         selector.fd_count = 1;
         *selector.fd_array = this->g_socket;
 #else
         FD_ZERO(&selector);
         FD_SET(this->g_socket, &selector);
-#endif // _win32
+#endif // _WIN32
 
         // Setup the timeout
         timeval time{};
