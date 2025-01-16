@@ -75,7 +75,7 @@ namespace ls
 
 enum ProtocolHeaders : fge::net::ProtocolPacket::IdType
 {
-    LS_PROTOCOL_ALL_PING = FGE_NET_HEADERID_START,
+    LS_PROTOCOL_ALL_PING = FGE_NET_CUSTOM_ID_START,
     /* check if the receiver is alive
     IN:
         -

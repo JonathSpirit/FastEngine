@@ -25,9 +25,15 @@
 #include <queue>
 #include <vector>
 
-#define FGE_NET_HEADERID_MAX 0x1FFE
-#define FGE_NET_HEADERID_START 1
-#define FGE_NET_BAD_HEADERID 0
+#define FGE_NET_ID_MAX 0x1FFE
+
+#define FGE_NET_INTERNAL_ID_MAX 1024
+#define FGE_NET_INTERNAL_ID_START 1
+
+#define FGE_NET_CUSTOM_ID_MAX FGE_NET_ID_MAX
+#define FGE_NET_CUSTOM_ID_START (FGE_NET_INTERNAL_ID_MAX + 1)
+
+#define FGE_NET_BAD_ID 0
 
 #define FGE_NET_HEADER_DO_NOT_DISCARD_FLAG 0x8000
 #define FGE_NET_HEADER_DO_NOT_REORDER_FLAG 0x4000
@@ -134,6 +140,14 @@ private:
 };
 
 using ProtocolPacketPtr = std::unique_ptr<ProtocolPacket>;
+
+enum InternalProtocolIds : ProtocolPacket::IdType
+{
+    NET_INTERNAL_ID_MTU_ASK = FGE_NET_INTERNAL_ID_START,
+    NET_INTERNAL_ID_MTU_ASK_RESPONSE,
+    NET_INTERNAL_ID_MTU_TEST,
+    NET_INTERNAL_ID_MTU_TEST_RESPONSE
+};
 
 /**
  * \class PacketReorderer

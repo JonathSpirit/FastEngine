@@ -16,9 +16,162 @@
 
 #include "FastEngine/network/C_server.hpp"
 #include "FastEngine/C_alloca.hpp"
+#include "FastEngine/manager/network_manager.hpp"
 
 namespace fge::net
 {
+
+//NetCommands
+
+NetCommandResults
+NetMTUCommand::transmit(TransmissionPacketPtr& buffPacket, SocketUdp const& socket, [[maybe_unused]] Client& client)
+{
+    switch (this->g_state)
+    {
+    case States::ASKING:
+        buffPacket = TransmissionPacket::create(NET_INTERNAL_ID_MTU_ASK);
+        buffPacket->doNotDiscard().doNotReorder();
+        this->g_state = States::WAITING_RESPONSE;
+        break;
+    case States::DISCOVER:
+    {
+        //Transmit the new target MTU
+        buffPacket = TransmissionPacket::create(NET_INTERNAL_ID_MTU_TEST);
+        auto const currentSize = buffPacket->doNotDiscard().doNotReorder().packet().getDataSize();
+
+        auto const extraHeader = (socket.getAddressType() == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_HEADER_SIZE
+                                                                                    : FGE_SOCKET_IPV6_HEADER_SIZE) +
+                                 FGE_SOCKET_UDP_HEADER_SIZE;
+
+        --this->g_tryCount;
+        if (this->g_tryCount == 0 && this->g_currentMTU == 0)
+        {
+            //Last try
+            this->g_targetMTU = socket.getAddressType() == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU
+                                                                                  : FGE_SOCKET_IPV6_MIN_MTU;
+        }
+        buffPacket->packet().append(this->g_targetMTU - currentSize - extraHeader);
+        this->g_state = States::WAITING;
+        break;
+    }
+    default:
+        break;
+    }
+
+    return NetCommandResults::WORKING;
+}
+NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet,
+                                         SocketUdp const& socket,
+                                         std::chrono::milliseconds deltaTime)
+{
+    switch (this->g_state)
+    {
+    case States::WAITING_RESPONSE:
+        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_ASK_RESPONSE)
+        {
+            //Extract the target MTU
+            uint16_t targetMTU;
+            if (rules::RValid<uint16_t>({packet->packet(), &targetMTU}).end() || !packet->endReached())
+            {
+                //Invalid packet
+                this->g_promise.set_value(0);
+                return NetCommandResults::FAILURE;
+            }
+
+            auto const socketType = socket.getAddressType();
+            auto const ourCurrentMTU = socket.retrieveCurrentAdapterMTU().value_or(FGE_SOCKET_FULL_DATAGRAM_SIZE);
+            if (targetMTU == 0)
+            {
+                //We have to figure it ourselves
+                this->g_maximumMTU = ourCurrentMTU;
+            }
+            else
+            {
+                this->g_maximumMTU = std::min(targetMTU, ourCurrentMTU);
+            }
+
+            this->g_currentMTU =
+                    socketType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU;
+            if (this->g_currentMTU == this->g_maximumMTU)
+            {
+                this->g_promise.set_value(this->g_currentMTU);
+                return NetCommandResults::SUCCESS;
+            }
+
+            //Compute a new target MTU
+            this->g_targetMTU = this->g_maximumMTU;
+
+            std::size_t const diff = this->g_maximumMTU - this->g_currentMTU;
+            if (diff < FGE_SERVER_MTU_MIN_INTERVAL)
+            {
+                this->g_tryCount = 0;
+            }
+            else
+            {
+                this->g_tryCount = FGE_SERVER_MTU_TRY_COUNT;
+                this->g_intervalMTU = diff / 2;
+            }
+
+            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            return NetCommandResults::WORKING;
+        }
+
+        this->g_receiveTimeout += deltaTime;
+        if (this->g_receiveTimeout >= FGE_SERVER_MTU_TIMEOUT_MS)
+        {
+            this->g_promise.set_value(0);
+            return NetCommandResults::FAILURE;
+        }
+        break;
+    case States::DISCOVER:
+    case States::WAITING:
+        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_TEST_RESPONSE)
+        {
+            this->g_currentMTU = this->g_targetMTU;
+
+            if (this->g_tryCount == 0 || this->g_currentMTU == this->g_maximumMTU)
+            {
+                this->g_promise.set_value(this->g_currentMTU);
+                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
+            }
+
+            this->g_targetMTU += this->g_intervalMTU;
+            this->g_intervalMTU = std::max<uint16_t>(FGE_SERVER_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
+            if (this->g_targetMTU > this->g_maximumMTU)
+            {
+                this->g_targetMTU = this->g_maximumMTU;
+                this->g_tryCount = 0;
+            }
+
+            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            break;
+        }
+
+        this->g_receiveTimeout += deltaTime;
+        if (this->g_receiveTimeout >= FGE_SERVER_MTU_TIMEOUT_MS)
+        {
+            if (this->g_tryCount == 0)
+            {
+                this->g_promise.set_value(this->g_currentMTU);
+                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
+            }
+
+            this->g_targetMTU -= this->g_intervalMTU;
+            this->g_intervalMTU = std::max<uint16_t>(FGE_SERVER_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
+
+            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            return NetCommandResults::WORKING;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return NetCommandResults::WORKING;
+}
 
 //ServerFluxUdp
 NetFluxUdp::~NetFluxUdp()
@@ -428,6 +581,22 @@ IpAddress::Types ClientSideNetUdp::getAddressType() const
 bool ClientSideNetUdp::isRunning() const
 {
     return this->g_running;
+}
+
+std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
+{
+    if (!this->g_running)
+    {
+        throw Exception("Cannot retrieve MTU without a running client");
+    }
+
+    auto command = std::make_unique<NetMTUCommand>();
+    auto future = command->get_future();
+
+    std::scoped_lock const lock(this->g_mutexCommands);
+    this->g_commands.push(std::move(command));
+
+    return future;
 }
 
 Identity const& ClientSideNetUdp::getClientIdentity() const

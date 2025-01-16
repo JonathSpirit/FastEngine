@@ -94,10 +94,30 @@ void ServerSideNetUdp::threadReception()
 
                 //Verify headerId
                 auto const headerId = packet->retrieveFullHeaderId().value();
-                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
                     (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
+                }
+
+                //Checking internal header ids
+                switch (headerId & ~FGE_NET_HEADER_FLAGS_MASK)
+                {
+                case NET_INTERNAL_ID_MTU_TEST:
+                {
+                    auto response = TransmissionPacket::create(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
+                    response->doNotDiscard().doNotReorder();
+                    this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
+                    continue;
+                }
+                case NET_INTERNAL_ID_MTU_ASK:
+                {
+                    auto response = TransmissionPacket::create(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
+                    response->doNotDiscard().doNotReorder().packet()
+                            << SocketUdp::retrieveAdapterMTUForDestination(idReceive._ip).value_or(0);
+                    this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
+                    continue;
+                }
                 }
 
                 //Realm and countId is verified by the flux who have the corresponding client
@@ -211,6 +231,10 @@ bool ClientSideNetUdp::start(Port bindPort,
     {
         this->g_socket.setIpv6Only(false);
     }
+    else
+    {
+        this->g_socket.setDontFragment(true);
+    }
 
     if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
     {
@@ -254,6 +278,7 @@ template<class TPacket>
 void ClientSideNetUdp::threadReception()
 {
     TPacket pckReceive;
+    auto lastTimePoint = std::chrono::steady_clock::now();
 
     while (this->g_running)
     {
@@ -280,16 +305,40 @@ void ClientSideNetUdp::threadReception()
 
                 //Verify headerId
                 auto const headerId = packet->retrieveFullHeaderId().value();
-                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_HEADERID ||
+                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
                     (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
                 }
 
+                auto const now = std::chrono::steady_clock::now();
+                auto const deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTimePoint);
+                lastTimePoint = now;
+
                 //Check client status and reset timeout
                 if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
                 {
                     this->_client.getStatus().resetTimeout();
+                }
+
+                //Checking commands
+                {
+                    std::scoped_lock const commandLock(this->g_mutexCommands);
+                    if (!this->g_commands.empty())
+                    {
+
+                        auto const result = this->g_commands.front()->receive(packet, this->g_socket, deltaTime);
+                        if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                        {
+                            this->g_commands.pop();
+                        }
+
+                        //Commands can drop the packet
+                        if (!packet)
+                        {
+                            continue;
+                        }
+                    }
                 }
 
                 this->pushPacket(std::move(packet));
@@ -298,6 +347,22 @@ void ClientSideNetUdp::threadReception()
         }
         else
         {
+            //Checking commands
+            {
+                std::scoped_lock const commandLock(this->g_mutexCommands);
+                if (!this->g_commands.empty())
+                {
+                    std::unique_ptr<ProtocolPacket> dummyPacket;
+                    auto const result = this->g_commands.front()->receive(
+                            dummyPacket, this->g_socket,
+                            std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
+                    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                    {
+                        this->g_commands.pop();
+                    }
+                }
+            }
+
             if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
             {
                 (void) this->_client.getStatus().updateTimeout(
@@ -315,26 +380,53 @@ void ClientSideNetUdp::threadTransmission()
     {
         this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
 
-        //Flux
-        if (!this->_client.isPendingPacketsEmpty())
+        //Checking commands
         {
-            if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
-            { //Ready to send !
-                auto transmissionPacket = this->_client.popPacket();
-
-                if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
-                { //Last verification of the packet
-                    continue;
+            std::scoped_lock const commandLock(this->g_mutexCommands);
+            if (!this->g_commands.empty())
+            {
+                TransmissionPacketPtr possiblePacket;
+                auto const result = this->g_commands.front()->transmit(possiblePacket, this->g_socket, this->_client);
+                if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                {
+                    this->g_commands.pop();
                 }
 
-                //Applying options
-                transmissionPacket->applyOptions(this->_client);
+                if (possiblePacket)
+                {
+                    //Applying options
+                    possiblePacket->applyOptions(this->_client);
 
-                //Sending the packet
-                TPacket packet = transmissionPacket->packet();
-                this->g_socket.send(packet);
-                this->_client.resetLastPacketTimePoint();
+                    //Sending the packet
+                    TPacket packet = possiblePacket->packet();
+                    this->g_socket.send(packet);
+                    continue;
+                }
             }
+        }
+
+        //Flux
+        if (this->_client.isPendingPacketsEmpty())
+        {
+            continue;
+        }
+
+        if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
+        { //Ready to send !
+            auto transmissionPacket = this->_client.popPacket();
+
+            if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
+            { //Last verification of the packet
+                continue;
+            }
+
+            //Applying options
+            transmissionPacket->applyOptions(this->_client);
+
+            //Sending the packet
+            TPacket packet = transmissionPacket->packet();
+            this->g_socket.send(packet);
+            this->_client.resetLastPacketTimePoint();
         }
     }
 }

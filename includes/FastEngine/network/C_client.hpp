@@ -95,7 +95,7 @@ public:
     };
 
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket>
-    create(ProtocolPacket::IdType headerId = FGE_NET_BAD_HEADERID);
+    create(ProtocolPacket::IdType headerId = FGE_NET_BAD_ID);
     [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
 
     TransmissionPacket(TransmissionPacket const& r) = delete;

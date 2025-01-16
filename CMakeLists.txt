@@ -419,8 +419,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE sources/private/spirv_reflect.cpp)
 
 #Linking library
 if(WIN32)
-    target_link_libraries(${FGE_LIB_NAME} PUBLIC user32 ws2_32 winmm)
-    target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC user32 ws2_32 winmm)
+    target_link_libraries(${FGE_LIB_NAME} PUBLIC user32 ws2_32 winmm iphlpapi)
+    target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC user32 ws2_32 winmm iphlpapi)
 endif()
 
 target_link_libraries(${FGE_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)

@@ -29,7 +29,27 @@
 #include <cstdint>
 #include <vector>
 
-#define FGE_SOCKET_MAXDATAGRAMSIZE 65507
+#define FGE_SOCKET_ETHERNET_MTU 1500
+#define FGE_SOCKET_IPV4_MIN_MTU 576
+#define FGE_SOCKET_IPV6_MIN_MTU 1280
+#define FGE_SOCKET_IPV4_HEADER_SIZE 20
+#define FGE_SOCKET_IPV6_HEADER_SIZE 40
+#define FGE_SOCKET_UDP_HEADER_SIZE 8
+
+#define FGE_SOCKET_FULL_DATAGRAM_SIZE (0xFFFF)
+#define FGE_SOCKET_IPV4_MAX_DATAGRAM_SIZE                                                                              \
+    (FGE_SOCKET_FULL_DATAGRAM_SIZE - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV6_MAX_DATAGRAM_SIZE                                                                              \
+    (FGE_SOCKET_FULL_DATAGRAM_SIZE - FGE_SOCKET_IPV6_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV4_MAX_DATAGRAM_MTU_SIZE                                                                          \
+    (FGE_SOCKET_IPV4_MIN_MTU - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV6_MAX_DATAGRAM_MTU_SIZE                                                                          \
+    (FGE_SOCKET_IPV6_MIN_MTU - FGE_SOCKET_IPV6_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV4_MAX_DATAGRAM_ETHMTU_SIZE                                                                       \
+    (FGE_SOCKET_ETHERNET_MTU - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV6_MAX_DATAGRAM_ETHMTU_SIZE                                                                       \
+    (FGE_SOCKET_ETHERNET_MTU - FGE_SOCKET_IPV6_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+
 #define FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE 2048
 
 namespace fge::net

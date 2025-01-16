@@ -25,6 +25,7 @@
 #include "FastEngine/network/C_packetLZ4.hpp"
 #include "FastEngine/network/C_protocol.hpp"
 #include <condition_variable>
+#include <future>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -42,6 +43,13 @@
     }
 
 #define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
+#define FGE_SERVER_MTU_TIMEOUT_MS                                                                                      \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        200                                                                                                            \
+    }
+#define FGE_SERVER_MTU_TRY_COUNT 12
+#define FGE_SERVER_MTU_MIN_INTERVAL 16
 
 namespace fge::net
 {
@@ -55,6 +63,62 @@ enum class FluxProcessResults
     BAD_REALM,
     BAD_REORDER,
     NOT_RETRIEVABLE
+};
+
+enum class NetCommandTypes
+{
+    DISCOVER_MTU
+};
+enum class NetCommandResults
+{
+    SUCCESS,
+    WORKING,
+    FAILURE
+};
+
+class NetCommand
+{
+public:
+    virtual ~NetCommand() = default;
+
+    [[nodiscard]] virtual NetCommandTypes getType() const = 0;
+    [[nodiscard]] virtual NetCommandResults
+    transmit(TransmissionPacketPtr& buffPacket, SocketUdp const& socket, Client& client) = 0;
+    [[nodiscard]] virtual NetCommandResults
+    receive(std::unique_ptr<ProtocolPacket>& packet, SocketUdp const& socket, std::chrono::milliseconds deltaTime) = 0;
+};
+
+class NetMTUCommand : public NetCommand
+{
+public:
+    ~NetMTUCommand() final = default;
+
+    [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::DISCOVER_MTU; }
+
+    [[nodiscard]] NetCommandResults
+    transmit(TransmissionPacketPtr& buffPacket, SocketUdp const& socket, Client& client) override;
+    [[nodiscard]] NetCommandResults receive(std::unique_ptr<ProtocolPacket>& packet,
+                                            SocketUdp const& socket,
+                                            std::chrono::milliseconds deltaTime) override;
+
+    [[nodiscard]] inline std::future<uint16_t> get_future() { return this->g_promise.get_future(); }
+
+private:
+    std::promise<uint16_t> g_promise;
+    uint16_t g_currentMTU{0};
+    uint16_t g_targetMTU{0};
+    uint16_t g_maximumMTU{0};
+    uint16_t g_intervalMTU{0};
+    std::size_t g_tryCount{0};
+    enum class States
+    {
+        ASKING,
+        WAITING_RESPONSE,
+
+        DISCOVER,
+        WAITING
+    } g_state{States::ASKING};
+    std::chrono::milliseconds g_receiveTimeout{0};
 };
 
 /**
@@ -252,6 +316,8 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
+    std::future<uint16_t> retrieveMTU();
+
     [[nodiscard]] IpAddress::Types getAddressType() const;
 
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
@@ -272,6 +338,9 @@ private:
     void threadReception();
     template<class TPacket>
     void threadTransmission();
+
+    std::recursive_mutex g_mutexCommands;
+    std::queue<std::unique_ptr<NetCommand>> g_commands;
 
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;

@@ -639,7 +639,7 @@ int Socket::getPlatformSpecifiedError()
 
 SocketUdp::SocketUdp(IpAddress::Types addressType) :
         Socket(Types::UDP, addressType),
-        g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
+        g_buffer(FGE_SOCKET_FULL_DATAGRAM_SIZE)
 {
     //Create UDP socket
     this->create();
@@ -652,7 +652,7 @@ SocketUdp::SocketUdp(IpAddress::Types addressType) :
 }
 SocketUdp::SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast) :
         Socket(Types::UDP, addressType),
-        g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
+        g_buffer(FGE_SOCKET_FULL_DATAGRAM_SIZE)
 {
     //Create UDP socket
     this->create();
@@ -768,7 +768,7 @@ Socket::Errors SocketUdp::sendTo(void const* data, std::size_t size, IpAddress c
     create();
 
     // Make sure that all the data will fit in one datagram
-    if (size > FGE_SOCKET_MAXDATAGRAMSIZE)
+    if (size > FGE_SOCKET_FULL_DATAGRAM_SIZE)
     {
         return Errors::ERR_INVALIDARGUMENT;
     }
@@ -929,7 +929,7 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
     create();
 
     // Make sure that all the data will fit in one datagram
-    if (packet.getDataSize() > FGE_SOCKET_MAXDATAGRAMSIZE)
+    if (packet.getDataSize() > FGE_SOCKET_FULL_DATAGRAM_SIZE)
     {
         return Errors::ERR_INVALIDARGUMENT;
     }
