@@ -158,6 +158,7 @@ bool IpAddress::set(char const* address, CheckHostname check)
         return false;
     }
 
+    //TODO: The hostname is resolved in not precised ip type (ipv4 or ipv6), user should choose the type
     addrinfo* result = nullptr;
 
     if (getaddrinfo(address, nullptr, nullptr, &result) == 0 && result != nullptr)
