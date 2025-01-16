@@ -984,6 +984,16 @@ Socket::Errors SocketUdp::receive(Packet& packet)
     return status;
 }
 
+std::optional<uint16_t> SocketUdp::retrieveAdapterMTUForDestination(IpAddress const& destination)
+{
+    //Create a temporary socket
+    SocketUdp tempSocket;
+    tempSocket.bind(FGE_ANYPORT,
+                    destination.getType() == IpAddress::Types::Ipv4 ? IpAddress::Ipv4Any : IpAddress::Ipv6Any);
+    tempSocket.connect(destination, FGE_ANYPORT);
+    return tempSocket.retrieveCurrentAdapterMTU();
+}
+
 SocketUdp& SocketUdp::operator=(SocketUdp&& r) noexcept
 {
     this->g_isBlocking = r.g_isBlocking;

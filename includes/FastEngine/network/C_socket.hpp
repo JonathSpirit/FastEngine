@@ -448,6 +448,16 @@ public:
      */
     Errors receive(Packet& packet);
 
+    /**
+     * \brief Helper to retrieve the MTU of the adapter used to reach the destination ip address
+     *
+     * This function will create a temporary socket, bind it to any port and connect it to the destination address.
+     *
+     * \param destination The destination address to reach
+     * \return The MTU of the adapter used to reach the destination address or \b std::nullopt if an error occurred
+     */
+    [[nodiscard]] static std::optional<uint16_t> retrieveAdapterMTUForDestination(IpAddress const& destination);
+
     SocketUdp& operator=(SocketUdp&& r) noexcept;
 
 private:
