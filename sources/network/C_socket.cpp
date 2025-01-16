@@ -43,6 +43,10 @@
     #include <netinet/tcp.h>
     #include <sys/socket.h>
     #include <unistd.h>
+
+    #include <ifaddrs.h>
+    #include <net/if.h>
+    #include <sys/ioctl.h>
 #endif // _WIN32
 
 #ifdef _WIN32
@@ -531,6 +535,7 @@ void Socket::uninitSocket()
 
 std::optional<uint16_t> Socket::retrieveCurrentAdapterMTU() const
 {
+#ifdef _WIN32
     ULONG bufferSize = 0;
 
     auto const family = this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6;
@@ -562,7 +567,7 @@ std::optional<uint16_t> Socket::retrieveCurrentAdapterMTU() const
 
             if (ip == currentAddress)
             {
-                return std::clamp<uint16_t>(adapter->Mtu,
+                return std::clamp<uint32_t>(adapter->Mtu,
                                             family == AF_INET ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU,
                                             FGE_SOCKET_FULL_DATAGRAM_SIZE);
             }
@@ -570,9 +575,78 @@ std::optional<uint16_t> Socket::retrieveCurrentAdapterMTU() const
     }
 
     return std::nullopt;
+#else
+    auto const currentAddress = this->getLocalAddress();
+    std::string interfaceName;
+
+    // Get the interface name associated with the current address
+    ifaddrs* ifaddr{nullptr};
+    if (getifaddrs(&ifaddr) != 0 || ifaddr == nullptr)
+    {
+        return std::nullopt;
+    }
+
+    auto const family = this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6;
+
+    for (ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
+    {
+        if (ifa->ifa_addr == nullptr)
+        {
+            continue;
+        }
+
+        if (family == ifa->ifa_addr->sa_family)
+        {
+            IpAddress ip;
+            if (family == AF_INET)
+            {
+                sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
+                ip.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+                if (currentAddress == ip)
+                {
+                    interfaceName = ifa->ifa_name;
+                    break;
+                }
+            }
+            else
+            {
+                sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
+                IpAddress::Ipv6Data data;
+                std::memcpy(data.data(), addr6->sin6_addr.s6_addr, 16);
+                ip.setNetworkByteOrdered(data);
+                if (currentAddress == ip)
+                {
+                    interfaceName = ifa->ifa_name;
+                    break;
+                }
+            }
+        }
+    }
+
+    freeifaddrs(ifaddr);
+
+    if (interfaceName.empty())
+    {
+        return std::nullopt;
+    }
+
+    // Get the MTU for the interface
+    ifreq ifr;
+    std::strncpy(ifr.ifr_name, interfaceName.c_str(), IFNAMSIZ - 1);
+    if (ioctl(this->g_socket, SIOCGIFMTU, &ifr) != 0)
+    {
+        return std::nullopt;
+    }
+
+    return std::clamp<uint32_t>(ifr.ifr_mtu,
+                                this->g_addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU
+                                                                              : FGE_SOCKET_IPV6_MIN_MTU,
+                                FGE_SOCKET_FULL_DATAGRAM_SIZE);
+#endif // _WIN32
 }
 std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
 {
+#ifdef _WIN32
     std::vector<AdapterInfo> adapters;
 
     auto const family =
@@ -614,7 +688,7 @@ std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
                 }
             }
 
-            info._mtu = std::clamp<uint16_t>(adapter->Mtu,
+            info._mtu = std::clamp<uint32_t>(adapter->Mtu,
                                              (adapter->Flags & IP_ADAPTER_IPV6_ENABLED) > 0 ? FGE_SOCKET_IPV6_MIN_MTU
                                                                                             : FGE_SOCKET_IPV4_MIN_MTU,
                                              FGE_SOCKET_FULL_DATAGRAM_SIZE);
@@ -624,6 +698,82 @@ std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
     }
 
     return adapters;
+#else
+    std::vector<AdapterInfo> adapters;
+
+    auto const family =
+            type == IpAddress::Types::Ipv4 ? AF_INET : (type == IpAddress::Types::Ipv6 ? AF_INET6 : AF_UNSPEC);
+
+    ifaddrs* ifaddr{nullptr};
+    if (getifaddrs(&ifaddr) != 0 || ifaddr == nullptr)
+    {
+        return adapters;
+    }
+
+    auto socket = ::socket(family == AF_UNSPEC ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    for (ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
+    {
+        if (ifa->ifa_addr == nullptr)
+        {
+            continue;
+        }
+
+        if (family == ifa->ifa_addr->sa_family || family == AF_UNSPEC)
+        {
+            IpAddress ip;
+            if (ifa->ifa_addr->sa_family == AF_INET)
+            {
+                sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
+                ip.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+            }
+            else
+            {
+                sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
+                IpAddress::Ipv6Data data;
+                std::memcpy(data.data(), addr6->sin6_addr.s6_addr, 16);
+                ip.setNetworkByteOrdered(data);
+            }
+
+            bool found = false;
+            for (auto& adapter: adapters)
+            {
+                if (adapter._name == ifa->ifa_name)
+                {
+                    adapter._data.emplace_back(ip);
+                    found = true;
+                }
+            }
+
+            if (found)
+            {
+                continue;
+            }
+
+            auto& data = adapters.emplace_back();
+            data._data.emplace_back(ip);
+            data._name = ifa->ifa_name;
+            data._description = ifa->ifa_name; //TODO: Get the description
+
+            ifreq ifr;
+            std::strncpy(ifr.ifr_name, ifa->ifa_name, IFNAMSIZ - 1);
+            if (ioctl(socket, SIOCGIFMTU, &ifr) != 0)
+            {
+                data._mtu = 0;
+                continue;
+            }
+
+            data._mtu = std::clamp<uint32_t>(ifr.ifr_mtu,
+                                             family == AF_INET ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU,
+                                             FGE_SOCKET_FULL_DATAGRAM_SIZE);
+        }
+    }
+
+    freeifaddrs(ifaddr);
+    ::close(socket);
+
+    return adapters;
+#endif // _WIN32
 }
 
 int Socket::getPlatformSpecifiedError()
