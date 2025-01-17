@@ -40,6 +40,7 @@
     #include <arpa/inet.h>
     #include <fcntl.h>
     #include <netinet/in.h>
+    #include <netinet/ip.h>
     #include <netinet/tcp.h>
     #include <sys/socket.h>
     #include <unistd.h>
@@ -740,7 +741,7 @@ std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
             {
                 if (adapter._name == ifa->ifa_name)
                 {
-                    adapter._data.emplace_back(ip);
+                    adapter._data.emplace_back()._unicast = ip;
                     found = true;
                 }
             }
