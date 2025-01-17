@@ -467,21 +467,23 @@ Socket::Errors Socket::setDontFragment(bool mode)
         return NormalizeError();
     }
     return Errors::ERR_NOERROR;
-    #elseifdef _FGE_MACOS
+#else
+    #ifdef _FGE_MACOS
     int const optval = mode ? 1 : 0;
     if (setsockopt(this->g_socket, IPPROTO_IP, IP_DF, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return NormalizeError();
     }
     return Errors::ERR_NOERROR;
-#else
+    #else
     char const optval = mode ? IP_PMTUDISC_DO : IP_PMTUDISC_DONT;
     if (setsockopt(this->g_socket, IPPROTO_IP, IP_MTU_DISCOVER, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
     {
         return NormalizeError();
     }
     return Errors::ERR_NOERROR;
-#endif // _WIN32
+    #endif // _FGE_MACOS
+#endif     // _WIN32
 }
 
 Socket::Errors Socket::select(bool read, uint32_t timeoutms)
