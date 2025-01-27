@@ -26,6 +26,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_matrix.hpp"
+#include "FastEngine/network/C_error.hpp"
 #include "tinyutf8.h"
 #include <cstdint>
 #include <forward_list>
@@ -40,27 +41,6 @@
 
 namespace fge::net
 {
-
-struct FGE_API Error
-{
-    enum class Types
-    {
-        ERR_NONE,
-        ERR_ALREADY_INVALID,
-        ERR_EXTRACT,
-        ERR_RULE,
-        ERR_TRANSMIT,
-
-        ERR_SCENE_OLD_PACKET
-    };
-
-    Types _type{Types::ERR_NONE};
-    std::size_t _readPos{0};
-    char const* _error{nullptr};
-    char const* _function{nullptr};
-
-    void dump(std::ostream& os) const;
-};
 
 class SocketTcp;
 class SocketUdp;
