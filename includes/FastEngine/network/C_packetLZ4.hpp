@@ -30,13 +30,12 @@
  * BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
  */
 
-#define FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
-#define FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
-#define FGE_PACKETLZ4_VERSION "1.9.4"
-
 #define FGE_NET_LZ4_EXTRA_BYTES 10
 #define FGE_NET_LZ4_DEFAULT_MAX_SIZE std::numeric_limits<uint16_t>::max()
+#define FGE_NET_LZ4_DEFAULT_PACKET_MAX_SIZE FGE_NET_LZ4_DEFAULT_MAX_SIZE
 #define FGE_NET_LZ4HC_DEFAULT_MAX_SIZE std::numeric_limits<uint16_t>::max()
+#define FGE_NET_LZ4HC_DEFAULT_PACKET_MAX_SIZE FGE_NET_LZ4HC_DEFAULT_MAX_SIZE
+#define FGE_NET_LZ4HC_DEFAULT_COMPRESSION_LEVEL 9
 #define FGE_NET_LZ4_VERSION "1.10.0"
 
 namespace fge::net
@@ -47,64 +46,78 @@ class FGE_API CompressorLZ4 : public Compressor
 public:
     using Compressor::Compressor;
 
-    [[nodiscard]] std::optional<Error> compress(std::span<uint8_t> rawData) override;
-    [[nodiscard]] std::optional<Error> uncompress(std::span<uint8_t> data) override;
+    [[nodiscard]] std::optional<Error> compress(std::span<uint8_t const> rawData) override;
+    [[nodiscard]] std::optional<Error> uncompress(std::span<uint8_t const> data) override;
 
     void setMaxUncompressedSize(uint32_t value);
     [[nodiscard]] uint32_t getMaxUncompressedSize() const;
 
 private:
-    std::atomic<uint32_t> g_maxUncompressedSize{FGE_NET_LZ4_DEFAULT_MAX_SIZE};
+    uint32_t g_maxUncompressedSize{FGE_NET_LZ4_DEFAULT_MAX_SIZE};
+};
+
+class FGE_API CompressorLZ4HC : public Compressor
+{
+public:
+    using Compressor::Compressor;
+
+    [[nodiscard]] std::optional<Error> compress(std::span<uint8_t const> rawData) override;
+    [[nodiscard]] std::optional<Error> uncompress(std::span<uint8_t const> data) override;
+
+    void setMaxUncompressedSize(uint32_t value);
+    [[nodiscard]] uint32_t getMaxUncompressedSize() const;
+
+    void setCompressionLevel(int value);
+    [[nodiscard]] int getCompressionLevel() const;
+
+private:
+    uint32_t g_maxUncompressedSize{FGE_NET_LZ4HC_DEFAULT_MAX_SIZE};
+    int g_compressionLevel{FGE_NET_LZ4HC_DEFAULT_COMPRESSION_LEVEL};
 };
 
 class FGE_API PacketLZ4 : public Packet
 {
 public:
-    PacketLZ4();
+    PacketLZ4() = default;
     PacketLZ4(PacketLZ4&& pck) noexcept;
     PacketLZ4(Packet&& pck) noexcept;
     PacketLZ4(PacketLZ4 const& pck);
     PacketLZ4(Packet const& pck);
     ~PacketLZ4() override = default;
 
-    static uint32_t _maxUncompressedReceivedSize;
+    [[nodiscard]] CompressorLZ4 const& getCompressor() const;
 
-    [[nodiscard]] std::size_t getLastCompressionSize() const;
+    static std::atomic_uint32_t gMaxUncompressedSize;
 
 protected:
     void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
     void onReceive(void* data, std::size_t dsize) override;
 
 private:
-    std::vector<char> g_buffer;
-    std::size_t g_lastCompressionSize;
+    CompressorLZ4 g_compressor;
 };
 
 class FGE_API PacketLZ4HC : public Packet
 {
 public:
-    PacketLZ4HC();
+    PacketLZ4HC() = default;
     PacketLZ4HC(PacketLZ4HC&& pck) noexcept;
     PacketLZ4HC(Packet&& pck) noexcept;
     PacketLZ4HC(PacketLZ4HC const& pck);
     PacketLZ4HC(Packet const& pck);
     ~PacketLZ4HC() override = default;
 
-    static uint32_t _maxUncompressedReceivedSize;
+    [[nodiscard]] CompressorLZ4HC const& getCompressor() const;
 
-    void setCompressionLevel(int value);
-    [[nodiscard]] int getCompressionLevel() const;
-
-    [[nodiscard]] std::size_t getLastCompressionSize() const;
+    static std::atomic_uint32_t gMaxUncompressedSize;
+    static std::atomic_int gCompressionLevel;
 
 protected:
     void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
     void onReceive(void* data, std::size_t dsize) override;
 
 private:
-    std::vector<char> g_buffer;
-    int g_compressionLevel;
-    std::size_t g_lastCompressionSize;
+    CompressorLZ4HC g_compressor;
 };
 
 } // namespace fge::net
