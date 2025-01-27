@@ -18,7 +18,10 @@
 #define _FGE_C_PACKETLZ4_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+#include "C_compressor.hpp"
 #include "C_packet.hpp"
+#include <atomic>
+#include <limits>
 
 /*
  * This file is using the library :
@@ -31,8 +34,28 @@
 #define FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
 #define FGE_PACKETLZ4_VERSION "1.9.4"
 
+#define FGE_NET_LZ4_EXTRA_BYTES 10
+#define FGE_NET_LZ4_DEFAULT_MAX_SIZE std::numeric_limits<uint16_t>::max()
+#define FGE_NET_LZ4HC_DEFAULT_MAX_SIZE std::numeric_limits<uint16_t>::max()
+#define FGE_NET_LZ4_VERSION "1.10.0"
+
 namespace fge::net
 {
+
+class FGE_API CompressorLZ4 : public Compressor
+{
+public:
+    using Compressor::Compressor;
+
+    [[nodiscard]] std::optional<Error> compress(std::span<uint8_t> rawData) override;
+    [[nodiscard]] std::optional<Error> uncompress(std::span<uint8_t> data) override;
+
+    void setMaxUncompressedSize(uint32_t value);
+    [[nodiscard]] uint32_t getMaxUncompressedSize() const;
+
+private:
+    std::atomic<uint32_t> g_maxUncompressedSize{FGE_NET_LZ4_DEFAULT_MAX_SIZE};
+};
 
 class FGE_API PacketLZ4 : public Packet
 {

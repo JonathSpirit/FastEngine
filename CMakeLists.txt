@@ -275,6 +275,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/network/C_client.cpp
+        sources/network/C_error.cpp
         sources/network/C_clientList.cpp
         sources/network/C_ipAddress.cpp
         sources/network/C_networkType.cpp
@@ -387,6 +388,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/network/C_client.cpp
+        sources/network/C_error.cpp
         sources/network/C_clientList.cpp
         sources/network/C_ipAddress.cpp
         sources/network/C_networkType.cpp

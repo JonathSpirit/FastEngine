@@ -23,6 +23,85 @@
 namespace fge::net
 {
 
+std::optional<Error> CompressorLZ4::compress(std::span<uint8_t> rawData)
+{
+    if (rawData.empty())
+    {
+        this->_g_buffer.clear();
+        return Error{Error::Types::ERR_DATA, 0, "input size is zero", __func__};
+    }
+
+    auto const dataDstSize = LZ4_compressBound(static_cast<int>(rawData.size()));
+
+    if (dataDstSize <= 0)
+    { //input size is incorrect (too large or negative)
+        this->_g_buffer.clear();
+        return Error{Error::Types::ERR_DATA, 0, "input size is too large, or bound error", __func__};
+    }
+
+    char const* dataSrc = reinterpret_cast<char const*>(rawData.data());
+
+    this->_g_buffer.resize(dataDstSize + sizeof(uint32_t));
+
+    auto const dataCompressedSize =
+            LZ4_compress_default(dataSrc, reinterpret_cast<char*>(this->_g_buffer.data()) + sizeof(uint32_t),
+                                 static_cast<int>(rawData.size()), dataDstSize);
+    if (dataCompressedSize <= 0)
+    {
+        this->_g_buffer.clear();
+        return Error{Error::Types::ERR_DATA, 0, "no enough buffer size or compression error", __func__};
+    }
+
+    this->_g_buffer.resize(dataCompressedSize + sizeof(uint32_t));
+    this->_g_lastCompressionSize = this->_g_buffer.size();
+    *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
+    return std::nullopt;
+}
+std::optional<Error> CompressorLZ4::uncompress(std::span<uint8_t> data)
+{
+    if (data.size() < 4)
+    {
+        this->_g_buffer.clear();
+        return Error{Error::Types::ERR_DATA, 0, "bad date size", __func__};
+    }
+
+    uint32_t const dataUncompressedSize = SwapHostNetEndian_32(*reinterpret_cast<uint32_t const*>(data.data()));
+
+    if (dataUncompressedSize > LZ4_MAX_INPUT_SIZE || dataUncompressedSize > this->g_maxUncompressedSize)
+    {
+        this->_g_buffer.clear();
+        return Error{Error::Types::ERR_DATA, 0, "data uncompressed size is too big", __func__};
+    }
+
+    char const* dataSrc = reinterpret_cast<char const*>(data.data());
+
+    this->_g_buffer.resize(dataUncompressedSize + FGE_NET_LZ4_EXTRA_BYTES);
+
+    auto const dataUncompressedFinalSize = LZ4_decompress_safe(
+            dataSrc + sizeof(uint32_t), reinterpret_cast<char*>(this->_g_buffer.data()),
+            static_cast<int>(data.size() - sizeof(uint32_t)), static_cast<int>(this->_g_buffer.size()));
+
+    if (dataUncompressedFinalSize <= 0)
+    {
+        this->_g_buffer.clear();
+        return Error{Error::Types::ERR_DATA, 0, "error during uncompress", __func__};
+    }
+
+    this->_g_buffer.resize(dataUncompressedFinalSize);
+    return std::nullopt;
+}
+
+void CompressorLZ4::setMaxUncompressedSize(uint32_t value)
+{
+    this->g_maxUncompressedSize = value;
+}
+uint32_t CompressorLZ4::getMaxUncompressedSize() const
+{
+    return this->g_maxUncompressedSize;
+}
+
+//PacketLZ4
+
 uint32_t PacketLZ4::_maxUncompressedReceivedSize = FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE;
 
 PacketLZ4::PacketLZ4() :
