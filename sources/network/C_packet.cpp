@@ -562,9 +562,15 @@ bool Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     }
     return true;
 }
-void Packet::onReceive(void* data, std::size_t size)
+void Packet::onReceive(std::span<uint8_t const> const& data)
 {
-    this->append(data, size);
+    if (data.data() == nullptr || data.empty())
+    {
+        this->invalidate();
+        return;
+    }
+
+    this->append(data.data(), data.size());
 }
 
 std::size_t Packet::_defaultReserveSize = FGE_PACKET_DEFAULT_RESERVESIZE;

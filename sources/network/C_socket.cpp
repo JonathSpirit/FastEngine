@@ -1127,13 +1127,13 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
 Socket::Errors SocketUdp::receiveFrom(Packet& packet, IpAddress& remoteAddress, Port& remotePort)
 {
     size_t received = 0;
-    Socket::Errors status =
+    Errors status =
             this->receiveFrom(this->g_buffer.data(), this->g_buffer.size(), received, remoteAddress, remotePort);
 
     packet.clear();
-    if ((status == Errors::ERR_NOERROR) && (received > 0))
+    if (status == Errors::ERR_NOERROR && received > 0)
     {
-        packet.onReceive(this->g_buffer.data(), received);
+        packet.onReceive({this->g_buffer.data(), received});
     }
     return status;
 }
@@ -1143,9 +1143,9 @@ Socket::Errors SocketUdp::receive(Packet& packet)
     Errors status = this->receive(this->g_buffer.data(), this->g_buffer.size(), received);
 
     packet.clear();
-    if ((status == Errors::ERR_NOERROR) && (received > 0))
+    if (status == Errors::ERR_NOERROR && received > 0)
     {
-        packet.onReceive(this->g_buffer.data(), received);
+        packet.onReceive({this->g_buffer.data(), received});
     }
     return status;
 }
@@ -1529,7 +1529,7 @@ Socket::Errors SocketTcp::receive(Packet& packet)
             if (this->g_wantedSize == this->g_receivedSize)
             { // Well we finished this pending packet
                 packet.clear();
-                packet.onReceive(this->g_buffer.data() + sizeof(uint32_t), this->g_wantedSize - sizeof(uint32_t));
+                packet.onReceive({this->g_buffer.data() + sizeof(uint32_t), this->g_wantedSize - sizeof(uint32_t)});
                 this->g_receivedSize = 0;
                 this->g_wantedSize = 0;
                 return Errors::ERR_DONE;

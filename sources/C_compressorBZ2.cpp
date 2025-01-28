@@ -22,7 +22,7 @@
 namespace fge
 {
 
-std::optional<Compressor::ErrorString> CompressorBZ2::compress(std::span<uint8_t const> rawData)
+std::optional<Compressor::ErrorString> CompressorBZ2::compress(std::span<uint8_t const> const& rawData)
 {
     if (rawData.empty())
     {
@@ -65,7 +65,7 @@ std::optional<Compressor::ErrorString> CompressorBZ2::compress(std::span<uint8_t
     *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = fge::SwapHostNetEndian_32(rawData.size());
     return std::nullopt;
 }
-std::optional<Compressor::ErrorString> CompressorBZ2::uncompress(std::span<uint8_t const> data)
+std::optional<Compressor::ErrorString> CompressorBZ2::uncompress(std::span<uint8_t const> const& data)
 {
     if (data.size() < 4)
     {

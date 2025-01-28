@@ -37,8 +37,8 @@ public:
 
     [[nodiscard]] inline std::size_t getLastCompressionSize() const { return this->_g_lastCompressionSize; }
 
-    [[nodiscard]] virtual std::optional<ErrorString> compress(std::span<uint8_t const> rawData) = 0;
-    [[nodiscard]] virtual std::optional<ErrorString> uncompress(std::span<uint8_t const> data) = 0;
+    [[nodiscard]] virtual std::optional<ErrorString> compress(std::span<uint8_t const> const& rawData) = 0;
+    [[nodiscard]] virtual std::optional<ErrorString> uncompress(std::span<uint8_t const> const& data) = 0;
 
     [[nodiscard]] inline std::vector<uint8_t> const& getBuffer() const { return this->_g_buffer; }
 

@@ -25,7 +25,7 @@ namespace fge
 
 //CompressorLZ4
 
-std::optional<CompressorLZ4::ErrorString> CompressorLZ4::compress(std::span<uint8_t const> rawData)
+std::optional<CompressorLZ4::ErrorString> CompressorLZ4::compress(std::span<uint8_t const> const& rawData)
 {
     if (rawData.empty())
     {
@@ -62,7 +62,7 @@ std::optional<CompressorLZ4::ErrorString> CompressorLZ4::compress(std::span<uint
     *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
     return std::nullopt;
 }
-std::optional<CompressorLZ4::ErrorString> CompressorLZ4::uncompress(std::span<uint8_t const> data)
+std::optional<CompressorLZ4::ErrorString> CompressorLZ4::uncompress(std::span<uint8_t const> const& data)
 {
     if (data.size() < 4)
     {
@@ -107,7 +107,7 @@ uint32_t CompressorLZ4::getMaxUncompressedSize() const
 
 //CompressorLZ4HC
 
-std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::compress(std::span<uint8_t const> rawData)
+std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::compress(std::span<uint8_t const> const& rawData)
 {
     if (rawData.empty())
     {
@@ -144,7 +144,7 @@ std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::compress(std::span<
     *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
     return std::nullopt;
 }
-std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::uncompress(std::span<uint8_t const> data)
+std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::uncompress(std::span<uint8_t const> const& data)
 {
     if (data.size() < 4)
     {

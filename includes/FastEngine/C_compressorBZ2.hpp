@@ -41,8 +41,8 @@ class FGE_API CompressorBZ2 : public Compressor
 public:
     using Compressor::Compressor;
 
-    [[nodiscard]] std::optional<ErrorString> compress(std::span<uint8_t const> rawData) override;
-    [[nodiscard]] std::optional<ErrorString> uncompress(std::span<uint8_t const> data) override;
+    [[nodiscard]] std::optional<ErrorString> compress(std::span<uint8_t const> const& rawData) override;
+    [[nodiscard]] std::optional<ErrorString> uncompress(std::span<uint8_t const> const& data) override;
 
     void setMaxUncompressedSize(uint32_t value);
     [[nodiscard]] uint32_t getMaxUncompressedSize() const;

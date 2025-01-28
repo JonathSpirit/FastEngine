@@ -59,16 +59,16 @@ bool PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     return true;
 }
 
-void PacketLZ4::onReceive(void* data, std::size_t dsize)
+void PacketLZ4::onReceive(std::span<uint8_t const> const& data)
 {
-    if (data == nullptr || dsize == 0)
+    if (data.data() == nullptr || data.empty())
     {
         this->invalidate();
         return;
     }
 
     this->g_compressor.setMaxUncompressedSize(gMaxUncompressedSize);
-    auto const err = this->g_compressor.uncompress(std::span(static_cast<uint8_t const*>(data), dsize));
+    auto const err = this->g_compressor.uncompress(data);
     if (err)
     {
         this->invalidate();
@@ -120,16 +120,16 @@ bool PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     return true;
 }
 
-void PacketLZ4HC::onReceive(void* data, std::size_t dsize)
+void PacketLZ4HC::onReceive(std::span<uint8_t const> const& data)
 {
-    if (data == nullptr || dsize == 0)
+    if (data.data() == nullptr || data.empty())
     {
         this->invalidate();
         return;
     }
 
     this->g_compressor.setMaxUncompressedSize(gMaxUncompressedSize);
-    auto const err = this->g_compressor.uncompress(std::span(static_cast<uint8_t const*>(data), dsize));
+    auto const err = this->g_compressor.uncompress(data);
     if (err)
     {
         this->invalidate();

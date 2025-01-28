@@ -31,6 +31,7 @@
 #include <cstdint>
 #include <forward_list>
 #include <list>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -195,7 +196,7 @@ public:
     static std::size_t _defaultReserveSize;
 
     [[nodiscard]] virtual bool onSend(std::vector<uint8_t>& buffer, std::size_t offset);
-    virtual void onReceive(void* data, std::size_t size);
+    virtual void onReceive(std::span<uint8_t const> const& data);
 
 protected:
     friend class SocketTcp;
