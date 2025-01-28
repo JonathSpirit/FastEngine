@@ -198,8 +198,6 @@ public:
     bool operator==(Packet const& right) const = delete;
     bool operator!=(Packet const& right) const = delete;
 
-    static std::size_t _defaultReserveSize;
-
     [[nodiscard]] virtual bool onSend(std::size_t offset);
     virtual void onReceive(std::span<uint8_t const> const& data);
 

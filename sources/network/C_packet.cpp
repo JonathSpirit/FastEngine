@@ -40,7 +40,7 @@ Packet::Packet() :
         g_readPos(0),
         g_valid(true)
 {
-    this->g_data.reserve(_defaultReserveSize);
+    this->g_data.reserve(FGE_PACKET_DEFAULT_RESERVESIZE);
 }
 
 Packet::Packet(Packet&& pck) noexcept :
@@ -586,7 +586,5 @@ void Packet::onReceive(std::span<uint8_t const> const& data)
 
     this->append(data.data(), data.size());
 }
-
-std::size_t Packet::_defaultReserveSize = FGE_PACKET_DEFAULT_RESERVESIZE;
 
 } // namespace fge::net
