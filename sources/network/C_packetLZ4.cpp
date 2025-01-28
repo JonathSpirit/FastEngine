@@ -45,7 +45,7 @@ CompressorLZ4 const& PacketLZ4::getCompressor() const
 
 bool PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
-    auto const err = this->g_compressor.compress(this->_g_data);
+    auto const err = this->g_compressor.compress({this->getData(), this->getDataSize()});
     if (err)
     {
         this->_g_lastDataValidity = false;
@@ -106,7 +106,7 @@ CompressorLZ4HC const& PacketLZ4HC::getCompressor() const
 bool PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     this->g_compressor.setCompressionLevel(gCompressionLevel);
-    auto const err = this->g_compressor.compress(this->_g_data);
+    auto const err = this->g_compressor.compress({this->getData(), this->getDataSize()});
     if (err)
     {
         this->_g_lastDataValidity = false;

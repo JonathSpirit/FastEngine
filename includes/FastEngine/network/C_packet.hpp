@@ -205,9 +205,10 @@ protected:
     std::vector<uint8_t> _g_lastData;
     bool _g_lastDataValidity;
 
-    std::vector<uint8_t> _g_data;
-    mutable std::size_t _g_readPos;
-    mutable bool _g_valid;
+private:
+    std::vector<uint8_t> g_data;
+    mutable std::size_t g_readPos;
+    mutable bool g_valid;
 };
 
 } // namespace fge::net

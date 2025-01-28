@@ -38,24 +38,24 @@ Packet::Packet() :
         _g_sendPos(0),
         _g_lastData(),
         _g_lastDataValidity(false),
-        _g_data(),
-        _g_readPos(0),
-        _g_valid(true)
+        g_data(),
+        g_readPos(0),
+        g_valid(true)
 {
-    this->_g_data.reserve(_defaultReserveSize);
+    this->g_data.reserve(_defaultReserveSize);
 }
 
 Packet::Packet(Packet&& pck) noexcept :
         _g_sendPos(pck._g_sendPos),
         _g_lastData(std::move(pck._g_lastData)),
         _g_lastDataValidity(pck._g_lastDataValidity),
-        _g_data(std::move(pck._g_data)),
-        _g_readPos(pck._g_readPos),
-        _g_valid(pck._g_valid)
+        g_data(std::move(pck.g_data)),
+        g_readPos(pck.g_readPos),
+        g_valid(pck.g_valid)
 {
     pck._g_lastDataValidity = false;
-    pck._g_valid = true;
-    pck._g_readPos = 0;
+    pck.g_valid = true;
+    pck.g_readPos = 0;
     pck._g_sendPos = 0;
 }
 
@@ -63,11 +63,11 @@ Packet::Packet(std::size_t reserveSize) :
         _g_sendPos(0),
         _g_lastData(),
         _g_lastDataValidity(false),
-        _g_data(),
-        _g_readPos(0),
-        _g_valid(true)
+        g_data(),
+        g_readPos(0),
+        g_valid(true)
 {
-    this->_g_data.reserve(reserveSize);
+    this->g_data.reserve(reserveSize);
 }
 
 void Packet::clear()
@@ -76,9 +76,9 @@ void Packet::clear()
     this->_g_lastData.clear();
     this->_g_lastDataValidity = false;
 
-    this->_g_data.clear();
-    this->_g_readPos = 0;
-    this->_g_valid = true;
+    this->g_data.clear();
+    this->g_readPos = 0;
+    this->g_valid = true;
 }
 void Packet::flush()
 {
@@ -88,15 +88,15 @@ void Packet::flush()
 }
 void Packet::reserve(std::size_t reserveSize)
 {
-    this->_g_data.reserve(reserveSize);
+    this->g_data.reserve(reserveSize);
 }
 
 Packet& Packet::append(std::size_t size)
 {
     if (size > 0)
     {
-        std::size_t startPos = this->_g_data.size();
-        this->_g_data.resize(startPos + size);
+        std::size_t startPos = this->g_data.size();
+        this->g_data.resize(startPos + size);
 
         this->_g_lastDataValidity = false;
     }
@@ -106,13 +106,13 @@ Packet& Packet::append(void const* data, std::size_t size)
 {
     if (data && (size > 0))
     {
-        std::size_t startPos = this->_g_data.size();
-        this->_g_data.resize(startPos + size);
+        std::size_t startPos = this->g_data.size();
+        this->g_data.resize(startPos + size);
 
         //Copy memory
         for (std::size_t i = 0; i < size; ++i)
         {
-            this->_g_data[startPos + i] = static_cast<uint8_t const*>(data)[i];
+            this->g_data[startPos + i] = static_cast<uint8_t const*>(data)[i];
         }
         this->_g_lastDataValidity = false;
     }
@@ -122,15 +122,15 @@ Packet& Packet::pack(void const* data, std::size_t size)
 {
     if (data && (size > 0))
     {
-        std::size_t startPos = this->_g_data.size();
-        this->_g_data.resize(startPos + size);
+        std::size_t startPos = this->g_data.size();
+        this->g_data.resize(startPos + size);
 
         if constexpr (std::endian::native == std::endian::big)
         {
             //Copy memory
             for (std::size_t i = 0; i < size; ++i)
             {
-                this->_g_data[startPos + i] = static_cast<uint8_t const*>(data)[i];
+                this->g_data[startPos + i] = static_cast<uint8_t const*>(data)[i];
             }
         }
         else
@@ -138,7 +138,7 @@ Packet& Packet::pack(void const* data, std::size_t size)
             //Copy memory
             for (std::size_t i = 0; i < size; ++i)
             {
-                this->_g_data[startPos + i] = static_cast<uint8_t const*>(data)[size - 1 - i];
+                this->g_data[startPos + i] = static_cast<uint8_t const*>(data)[size - 1 - i];
             }
         }
         this->_g_lastDataValidity = false;
@@ -148,12 +148,12 @@ Packet& Packet::pack(void const* data, std::size_t size)
 
 bool Packet::write(std::size_t pos, void const* data, std::size_t size)
 {
-    if (data && (size > 0) && (pos < this->_g_data.size()))
+    if (data && (size > 0) && (pos < this->g_data.size()))
     {
         //Copy memory
         for (std::size_t i = 0; i < size; ++i)
         {
-            this->_g_data[pos + i] = static_cast<uint8_t const*>(data)[i];
+            this->g_data[pos + i] = static_cast<uint8_t const*>(data)[i];
         }
         this->_g_lastDataValidity = false;
         return true;
@@ -162,14 +162,14 @@ bool Packet::write(std::size_t pos, void const* data, std::size_t size)
 }
 bool Packet::pack(std::size_t pos, void const* data, std::size_t size)
 {
-    if (data && (size > 0) && (pos < this->_g_data.size()))
+    if (data && (size > 0) && (pos < this->g_data.size()))
     {
         if constexpr (std::endian::native == std::endian::big)
         {
             //Copy memory
             for (std::size_t i = 0; i < size; ++i)
             {
-                this->_g_data[pos + i] = static_cast<uint8_t const*>(data)[i];
+                this->g_data[pos + i] = static_cast<uint8_t const*>(data)[i];
             }
         }
         else
@@ -177,7 +177,7 @@ bool Packet::pack(std::size_t pos, void const* data, std::size_t size)
             //Copy memory
             for (std::size_t i = 0; i < size; ++i)
             {
-                this->_g_data[pos + i] = static_cast<uint8_t const*>(data)[size - 1 - i];
+                this->g_data[pos + i] = static_cast<uint8_t const*>(data)[size - 1 - i];
             }
         }
         this->_g_lastDataValidity = false;
@@ -188,30 +188,30 @@ bool Packet::pack(std::size_t pos, void const* data, std::size_t size)
 
 Packet const& Packet::read(void* buff, std::size_t size) const
 {
-    if (buff && (size > 0) && (this->_g_readPos + size <= this->_g_data.size()))
+    if (buff && (size > 0) && (this->g_readPos + size <= this->g_data.size()))
     {
         //Copy to buff
         for (std::size_t i = 0; i < size; ++i)
         {
-            static_cast<uint8_t*>(buff)[i] = this->_g_data[this->_g_readPos + i];
+            static_cast<uint8_t*>(buff)[i] = this->g_data[this->g_readPos + i];
         }
-        this->_g_readPos += size;
-        this->_g_valid = true;
+        this->g_readPos += size;
+        this->g_valid = true;
         return *this;
     }
-    this->_g_valid = false;
+    this->g_valid = false;
     return *this;
 }
 Packet const& Packet::unpack(void* buff, std::size_t size) const
 {
-    if (buff && (size > 0) && (this->_g_readPos + size <= this->_g_data.size()))
+    if (buff && (size > 0) && (this->g_readPos + size <= this->g_data.size()))
     {
         if constexpr (std::endian::native == std::endian::big)
         {
             //Copy to buff
             for (std::size_t i = 0; i < size; ++i)
             {
-                static_cast<uint8_t*>(buff)[i] = this->_g_data[this->_g_readPos + i];
+                static_cast<uint8_t*>(buff)[i] = this->g_data[this->g_readPos + i];
             }
         }
         else
@@ -219,25 +219,25 @@ Packet const& Packet::unpack(void* buff, std::size_t size) const
             //Copy to buff
             for (std::size_t i = 0; i < size; ++i)
             {
-                static_cast<uint8_t*>(buff)[size - 1 - i] = this->_g_data[this->_g_readPos + i];
+                static_cast<uint8_t*>(buff)[size - 1 - i] = this->g_data[this->g_readPos + i];
             }
         }
-        this->_g_readPos += size;
-        this->_g_valid = true;
+        this->g_readPos += size;
+        this->g_valid = true;
         return *this;
     }
-    this->_g_valid = false;
+    this->g_valid = false;
     return *this;
 }
 
 bool Packet::read(std::size_t pos, void* buff, std::size_t size) const
 {
-    if (buff && (size > 0) && (pos + size <= this->_g_data.size()))
+    if (buff && (size > 0) && (pos + size <= this->g_data.size()))
     {
         //Copy to buff
         for (std::size_t i = 0; i < size; ++i)
         {
-            static_cast<uint8_t*>(buff)[i] = this->_g_data[pos + i];
+            static_cast<uint8_t*>(buff)[i] = this->g_data[pos + i];
         }
         return true;
     }
@@ -245,14 +245,14 @@ bool Packet::read(std::size_t pos, void* buff, std::size_t size) const
 }
 bool Packet::unpack(std::size_t pos, void* buff, std::size_t size) const
 {
-    if (buff && (size > 0) && (pos + size <= this->_g_data.size()))
+    if (buff && (size > 0) && (pos + size <= this->g_data.size()))
     {
         if constexpr (std::endian::native == std::endian::big)
         {
             //Copy to buff
             for (std::size_t i = 0; i < size; ++i)
             {
-                static_cast<uint8_t*>(buff)[i] = this->_g_data[pos + i];
+                static_cast<uint8_t*>(buff)[i] = this->g_data[pos + i];
             }
         }
         else
@@ -260,7 +260,7 @@ bool Packet::unpack(std::size_t pos, void* buff, std::size_t size) const
             //Copy to buff
             for (std::size_t i = 0; i < size; ++i)
             {
-                static_cast<uint8_t*>(buff)[size - 1 - i] = this->_g_data[pos + i];
+                static_cast<uint8_t*>(buff)[size - 1 - i] = this->g_data[pos + i];
             }
         }
         return true;
@@ -272,14 +272,14 @@ Packet& Packet::shrink(std::size_t size)
 {
     if (size > 0)
     {
-        if (size >= this->_g_data.size())
+        if (size >= this->g_data.size())
         {
-            this->_g_data.resize(0);
+            this->g_data.resize(0);
         }
         else
         {
-            std::size_t startPos = this->_g_data.size();
-            this->_g_data.resize(startPos - size);
+            std::size_t startPos = this->g_data.size();
+            this->g_data.resize(startPos - size);
         }
 
         this->_g_lastDataValidity = false;
@@ -288,85 +288,85 @@ Packet& Packet::shrink(std::size_t size)
 }
 bool Packet::erase(std::size_t pos, std::size_t size)
 {
-    if ((size > 0) && (pos + size <= this->_g_data.size()))
+    if ((size > 0) && (pos + size <= this->g_data.size()))
     {
-        this->_g_data.erase(this->_g_data.begin() + pos, this->_g_data.begin() + pos + size);
+        this->g_data.erase(this->g_data.begin() + pos, this->g_data.begin() + pos + size);
         this->_g_lastDataValidity = false;
     }
     return false;
 }
 Packet const& Packet::skip(std::size_t size) const
 {
-    if ((size > 0) && (this->_g_readPos + size <= this->_g_data.size()))
+    if ((size > 0) && (this->g_readPos + size <= this->g_data.size()))
     {
-        this->_g_readPos += size;
-        this->_g_valid = true;
+        this->g_readPos += size;
+        this->g_valid = true;
         return *this;
     }
-    this->_g_valid = false;
+    this->g_valid = false;
     return *this;
 }
 
 void Packet::setReadPos(std::size_t pos) const
 {
-    this->_g_readPos = (pos > this->_g_data.size()) ? this->_g_data.size() : pos;
+    this->g_readPos = (pos > this->g_data.size()) ? this->g_data.size() : pos;
 }
 std::size_t Packet::getReadPos() const
 {
-    return this->_g_readPos;
+    return this->g_readPos;
 }
 bool Packet::isExtractable(std::size_t size) const
 {
-    return (this->_g_readPos + size) <= this->_g_data.size();
+    return (this->g_readPos + size) <= this->g_data.size();
 }
 
 uint8_t const* Packet::getData(std::size_t pos) const
 {
-    return (pos < this->_g_data.size()) ? &this->_g_data[pos] : nullptr;
+    return (pos < this->g_data.size()) ? &this->g_data[pos] : nullptr;
 }
 uint8_t* Packet::getData(std::size_t pos)
 {
-    return (pos < this->_g_data.size()) ? &this->_g_data[pos] : nullptr;
+    return (pos < this->g_data.size()) ? &this->g_data[pos] : nullptr;
 }
 uint8_t const* Packet::getData() const
 {
-    return this->_g_data.data();
+    return this->g_data.data();
 }
 uint8_t* Packet::getData()
 {
-    return this->_g_data.data();
+    return this->g_data.data();
 }
 
 std::size_t Packet::getDataSize() const
 {
-    return this->_g_data.size();
+    return this->g_data.size();
 }
 uint32_t Packet::getLength() const
 {
     uint32_t result = 0;
-    this->unpack(this->_g_readPos, &result, sizeof(uint32_t));
+    this->unpack(this->g_readPos, &result, sizeof(uint32_t));
     return result;
 }
 
 void Packet::invalidate() const
 {
-    this->_g_valid = false;
+    this->g_valid = false;
 }
 void Packet::setValidity(bool validity) const
 {
-    this->_g_valid = validity;
+    this->g_valid = validity;
 }
 bool Packet::isValid() const
 {
-    return this->_g_valid;
+    return this->g_valid;
 }
 Packet::operator bool() const
 {
-    return this->_g_valid;
+    return this->g_valid;
 }
 bool Packet::endReached() const
 {
-    return this->_g_readPos >= this->_g_data.size();
+    return this->g_readPos >= this->g_data.size();
 }
 
 ///
@@ -433,14 +433,14 @@ Packet const& Packet::operator>>(char* data) const
 
     if (length > 0)
     {
-        if ((this->_g_readPos + length - 1) < this->_g_data.size())
+        if ((this->g_readPos + length - 1) < this->g_data.size())
         {
             this->read(data, sizeof(char) * length);
             data[length] = '\0';
         }
         else
         {
-            this->_g_valid = false;
+            this->g_valid = false;
         }
     }
     else
@@ -456,16 +456,16 @@ Packet const& Packet::operator>>(std::string& data) const
 
     if (length > 0)
     {
-        if ((this->_g_readPos + length - 1) < this->_g_data.size())
+        if ((this->g_readPos + length - 1) < this->g_data.size())
         {
             data.clear();
-            data.assign(reinterpret_cast<char const*>(&this->_g_data[this->_g_readPos]), length);
+            data.assign(reinterpret_cast<char const*>(&this->g_data[this->g_readPos]), length);
 
-            this->_g_readPos += length;
+            this->g_readPos += length;
         }
         else
         {
-            this->_g_valid = false;
+            this->g_valid = false;
         }
     }
     else
@@ -481,16 +481,16 @@ Packet const& Packet::operator>>(tiny_utf8::string& data) const
 
     if (length > 0)
     {
-        if ((this->_g_readPos + length - 1) < this->_g_data.size())
+        if ((this->g_readPos + length - 1) < this->g_data.size())
         {
             data.clear();
-            data.assign(reinterpret_cast<char const*>(&this->_g_data[this->_g_readPos]), length);
+            data.assign(reinterpret_cast<char const*>(&this->g_data[this->g_readPos]), length);
 
-            this->_g_readPos += length;
+            this->g_readPos += length;
         }
         else
         {
-            this->_g_valid = false;
+            this->g_valid = false;
         }
     }
     else
@@ -506,7 +506,7 @@ Packet const& Packet::operator>>(wchar_t* data) const
 
     if (length > 0)
     {
-        if ((this->_g_readPos + (length - 1) * sizeof(uint32_t)) < this->_g_data.size())
+        if ((this->g_readPos + (length - 1) * sizeof(uint32_t)) < this->g_data.size())
         {
             for (SizeType i = 0; i < length; ++i)
             {
@@ -518,7 +518,7 @@ Packet const& Packet::operator>>(wchar_t* data) const
         }
         else
         {
-            this->_g_valid = false;
+            this->g_valid = false;
         }
     }
     else
@@ -534,7 +534,7 @@ Packet const& Packet::operator>>(std::wstring& data) const
 
     if (length > 0)
     {
-        if ((this->_g_readPos + (length - 1) * sizeof(uint32_t)) < this->_g_data.size())
+        if ((this->g_readPos + (length - 1) * sizeof(uint32_t)) < this->g_data.size())
         {
             data.resize(length);
             for (SizeType i = 0; i < length; ++i)
@@ -546,7 +546,7 @@ Packet const& Packet::operator>>(std::wstring& data) const
         }
         else
         {
-            this->_g_valid = false;
+            this->g_valid = false;
         }
     }
     else
@@ -559,10 +559,10 @@ Packet const& Packet::operator>>(std::wstring& data) const
 bool Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     this->_g_lastDataValidity = true;
-    buffer.resize(this->_g_data.size() + offset);
-    for (std::size_t i = 0; i < this->_g_data.size(); ++i)
+    buffer.resize(this->g_data.size() + offset);
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
-        buffer[i + offset] = this->_g_data[i];
+        buffer[i + offset] = this->g_data[i];
     }
     return true;
 }
