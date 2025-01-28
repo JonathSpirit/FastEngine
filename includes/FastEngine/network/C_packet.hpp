@@ -97,6 +97,11 @@ public:
     [[nodiscard]] explicit operator bool() const;
     [[nodiscard]] bool endReached() const;
 
+    [[nodiscard]] std::vector<uint8_t> const& getTransmitCache() const;
+    [[nodiscard]] std::size_t getTransmitPos() const;
+    [[nodiscard]] bool isTransmitCacheValid() const;
+    void invalidateTransmitCache();
+
     inline Packet& operator<<(bool data);
 
     inline Packet& operator<<(int8_t data);
@@ -195,7 +200,7 @@ public:
 
     static std::size_t _defaultReserveSize;
 
-    [[nodiscard]] virtual bool onSend(std::vector<uint8_t>& buffer, std::size_t offset);
+    [[nodiscard]] virtual bool onSend(std::size_t offset);
     virtual void onReceive(std::span<uint8_t const> const& data);
 
 protected:

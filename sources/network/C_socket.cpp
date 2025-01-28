@@ -1068,7 +1068,7 @@ Socket::Errors SocketUdp::send(Packet& packet)
 
     if (!packet._g_transmitCacheValid)
     {
-        if (!packet.onSend(packet._g_transmitCache, 0))
+        if (!packet.onSend(0))
         {
             return Errors::ERR_INVALIDARGUMENT;
         }
@@ -1105,7 +1105,7 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
 
     if (!packet._g_transmitCacheValid)
     {
-        if (!packet.onSend(packet._g_transmitCache, 0))
+        if (!packet.onSend(0))
         {
             return Errors::ERR_INVALIDARGUMENT;
         }
@@ -1455,7 +1455,7 @@ Socket::Errors SocketTcp::send(Packet& packet)
 {
     if (!packet._g_transmitCacheValid)
     { // New packet that going to be sent
-        if (!packet.onSend(packet._g_transmitCache, sizeof(uint32_t)))
+        if (!packet.onSend(sizeof(uint32_t)))
         {
             return Errors::ERR_INVALIDARGUMENT;
         }

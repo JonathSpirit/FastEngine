@@ -43,7 +43,7 @@ CompressorLZ4 const& PacketLZ4::getCompressor() const
     return this->g_compressor;
 }
 
-bool PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+bool PacketLZ4::onSend(std::size_t offset)
 {
     auto const err = this->g_compressor.compress({this->getData(), this->getDataSize()});
     if (err)
@@ -52,8 +52,8 @@ bool PacketLZ4::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
         return false;
     }
 
-    buffer.resize(this->g_compressor.getLastCompressionSize() + offset);
-    std::memcpy(buffer.data() + offset, this->g_compressor.getBuffer().data(),
+    this->_g_transmitCache.resize(this->g_compressor.getLastCompressionSize() + offset);
+    std::memcpy(this->_g_transmitCache.data() + offset, this->g_compressor.getBuffer().data(),
                 this->g_compressor.getLastCompressionSize());
     this->_g_transmitCacheValid = true;
     return true;
@@ -103,7 +103,7 @@ CompressorLZ4HC const& PacketLZ4HC::getCompressor() const
     return this->g_compressor;
 }
 
-bool PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+bool PacketLZ4HC::onSend(std::size_t offset)
 {
     this->g_compressor.setCompressionLevel(gCompressionLevel);
     auto const err = this->g_compressor.compress({this->getData(), this->getDataSize()});
@@ -113,8 +113,8 @@ bool PacketLZ4HC::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
         return false;
     }
 
-    buffer.resize(this->g_compressor.getLastCompressionSize() + offset);
-    std::memcpy(buffer.data() + offset, this->g_compressor.getBuffer().data(),
+    this->_g_transmitCache.resize(this->g_compressor.getLastCompressionSize() + offset);
+    std::memcpy(this->_g_transmitCache.data() + offset, this->g_compressor.getBuffer().data(),
                 this->g_compressor.getLastCompressionSize());
     this->_g_transmitCacheValid = true;
     return true;

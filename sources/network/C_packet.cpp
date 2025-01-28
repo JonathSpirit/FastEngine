@@ -365,6 +365,23 @@ bool Packet::endReached() const
     return this->g_readPos >= this->g_data.size();
 }
 
+std::vector<uint8_t> const& Packet::getTransmitCache() const
+{
+    return this->_g_transmitCache;
+}
+std::size_t Packet::getTransmitPos() const
+{
+    return this->_g_transmitPos;
+}
+bool Packet::isTransmitCacheValid() const
+{
+    return this->_g_transmitCacheValid;
+}
+void Packet::invalidateTransmitCache()
+{
+    this->_g_transmitCacheValid = false;
+}
+
 ///
 
 Packet& Packet::operator<<(std::string_view const& data)
@@ -552,14 +569,11 @@ Packet const& Packet::operator>>(std::wstring& data) const
     return *this;
 }
 
-bool Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+bool Packet::onSend(std::size_t offset)
 {
     this->_g_transmitCacheValid = true;
-    buffer.resize(this->g_data.size() + offset);
-    for (std::size_t i = 0; i < this->g_data.size(); ++i)
-    {
-        buffer[i + offset] = this->g_data[i];
-    }
+    this->_g_transmitCache.resize(this->g_data.size() + offset);
+    std::memcpy(this->_g_transmitCache.data() + offset, this->g_data.data(), this->g_data.size());
     return true;
 }
 void Packet::onReceive(std::span<uint8_t const> const& data)

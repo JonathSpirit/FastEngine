@@ -43,7 +43,7 @@ public:
     static std::atomic_uint32_t gMaxUncompressedSize;
 
 protected:
-    bool onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
+    bool onSend(std::size_t offset) override;
     void onReceive(std::span<uint8_t const> const&) override;
 
 private:
@@ -66,7 +66,7 @@ public:
     static std::atomic_int gCompressionLevel;
 
 protected:
-    bool onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
+    bool onSend(std::size_t offset) override;
     void onReceive(std::span<uint8_t const> const&) override;
 
 private:
