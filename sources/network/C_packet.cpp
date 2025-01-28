@@ -556,7 +556,7 @@ Packet const& Packet::operator>>(std::wstring& data) const
     return *this;
 }
 
-void Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
+bool Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
     this->_g_lastDataValidity = true;
     buffer.resize(this->_g_data.size() + offset);
@@ -564,6 +564,7 @@ void Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
     {
         buffer[i + offset] = this->_g_data[i];
     }
+    return true;
 }
 void Packet::onReceive(void* data, std::size_t size)
 {

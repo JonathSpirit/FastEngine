@@ -194,7 +194,7 @@ public:
 
     static std::size_t _defaultReserveSize;
 
-    virtual void onSend(std::vector<uint8_t>& buffer, std::size_t offset);
+    [[nodiscard]] virtual bool onSend(std::vector<uint8_t>& buffer, std::size_t offset);
     virtual void onReceive(void* data, std::size_t size);
 
 protected:

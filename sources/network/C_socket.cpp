@@ -1068,7 +1068,10 @@ Socket::Errors SocketUdp::send(Packet& packet)
 
     if (!packet._g_lastDataValidity)
     {
-        packet.onSend(packet._g_lastData, 0);
+        if (!packet.onSend(packet._g_lastData, 0))
+        {
+            return Errors::ERR_INVALIDARGUMENT;
+        }
         packet._g_sendPos = 0;
     }
 
@@ -1102,7 +1105,10 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
 
     if (!packet._g_lastDataValidity)
     {
-        packet.onSend(packet._g_lastData, 0);
+        if (!packet.onSend(packet._g_lastData, 0))
+        {
+            return Errors::ERR_INVALIDARGUMENT;
+        }
         packet._g_sendPos = 0;
     }
 
@@ -1448,8 +1454,11 @@ Socket::Errors SocketTcp::receive(void* data, std::size_t size, std::size_t& rec
 Socket::Errors SocketTcp::send(Packet& packet)
 {
     if (!packet._g_lastDataValidity)
-    { // New packet that gonna be sent
-        packet.onSend(packet._g_lastData, sizeof(uint32_t));
+    { // New packet that going to be sent
+        if (!packet.onSend(packet._g_lastData, sizeof(uint32_t)))
+        {
+            return Errors::ERR_INVALIDARGUMENT;
+        }
         *reinterpret_cast<uint32_t*>(packet._g_lastData.data()) = fge::SwapHostNetEndian_32(packet._g_lastData.size());
         packet._g_sendPos = 0;
     }
