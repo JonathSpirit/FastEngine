@@ -246,6 +246,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/C_tilelayer.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
+        sources/C_compressorBZ2.cpp
+        sources/C_compressorLZ4.cpp
         sources/fge_endian.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
@@ -280,7 +282,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/network/C_ipAddress.cpp
         sources/network/C_networkType.cpp
         sources/network/C_packet.cpp
-        sources/network/C_packetBZ2.cpp
         sources/network/C_packetLZ4.cpp
         sources/network/C_server.cpp
         sources/network/C_socket.cpp
@@ -359,6 +360,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/C_tilelayer.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
+        sources/C_compressorBZ2.cpp
+        sources/C_compressorLZ4.cpp
         sources/fge_endian.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
@@ -393,7 +396,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/network/C_ipAddress.cpp
         sources/network/C_networkType.cpp
         sources/network/C_packet.cpp
-        sources/network/C_packetBZ2.cpp
         sources/network/C_packetLZ4.cpp
         sources/network/C_server.cpp
         sources/network/C_socket.cpp
