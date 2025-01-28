@@ -1066,17 +1066,17 @@ Socket::Errors SocketUdp::send(Packet& packet)
         return Errors::ERR_INVALIDARGUMENT;
     }
 
-    if (!packet._g_lastDataValidity)
+    if (!packet._g_transmitCacheValid)
     {
-        if (!packet.onSend(packet._g_lastData, 0))
+        if (!packet.onSend(packet._g_transmitCache, 0))
         {
             return Errors::ERR_INVALIDARGUMENT;
         }
-        packet._g_sendPos = 0;
+        packet._g_transmitPos = 0;
     }
 
-    int sent = ::send(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
-                      static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG);
+    int sent = ::send(this->g_socket, reinterpret_cast<char const*>(packet._g_transmitCache.data()),
+                      static_cast<int>(packet._g_transmitCache.size()), _FGE_SEND_RECV_FLAG);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -1103,18 +1103,18 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
     int addrSize = 0;
     auto* addr = CreateAddress(addr4, addr6, addrSize, remoteAddress, remotePort);
 
-    if (!packet._g_lastDataValidity)
+    if (!packet._g_transmitCacheValid)
     {
-        if (!packet.onSend(packet._g_lastData, 0))
+        if (!packet.onSend(packet._g_transmitCache, 0))
         {
             return Errors::ERR_INVALIDARGUMENT;
         }
-        packet._g_sendPos = 0;
+        packet._g_transmitPos = 0;
     }
 
     // Send the data (unlike TCP, all the data is always sent in one call)
-    int sent = sendto(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
-                      static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG, addr, addrSize);
+    int sent = sendto(this->g_socket, reinterpret_cast<char const*>(packet._g_transmitCache.data()),
+                      static_cast<int>(packet._g_transmitCache.size()), _FGE_SEND_RECV_FLAG, addr, addrSize);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -1453,29 +1453,30 @@ Socket::Errors SocketTcp::receive(void* data, std::size_t size, std::size_t& rec
 
 Socket::Errors SocketTcp::send(Packet& packet)
 {
-    if (!packet._g_lastDataValidity)
+    if (!packet._g_transmitCacheValid)
     { // New packet that going to be sent
-        if (!packet.onSend(packet._g_lastData, sizeof(uint32_t)))
+        if (!packet.onSend(packet._g_transmitCache, sizeof(uint32_t)))
         {
             return Errors::ERR_INVALIDARGUMENT;
         }
-        *reinterpret_cast<uint32_t*>(packet._g_lastData.data()) = fge::SwapHostNetEndian_32(packet._g_lastData.size());
-        packet._g_sendPos = 0;
+        *reinterpret_cast<uint32_t*>(packet._g_transmitCache.data()) =
+                fge::SwapHostNetEndian_32(packet._g_transmitCache.size());
+        packet._g_transmitPos = 0;
     }
 
     // Send the data block
     std::size_t sent;
-    Errors status = this->send(packet._g_lastData.data() + packet._g_sendPos,
-                               packet._g_lastData.size() - packet._g_sendPos, sent);
+    Errors status = this->send(packet._g_transmitCache.data() + packet._g_transmitPos,
+                               packet._g_transmitCache.size() - packet._g_transmitPos, sent);
 
     // In the case of a partial send, record the location to resume from
     if (status == Errors::ERR_PARTIAL)
     {
-        packet._g_sendPos += sent;
+        packet._g_transmitPos += sent;
     }
     else if (status == Errors::ERR_NOERROR)
     {
-        packet._g_sendPos = 0;
+        packet._g_transmitPos = 0;
     }
 
     return status;

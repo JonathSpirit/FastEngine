@@ -35,10 +35,8 @@ namespace fge::net
 //Packet
 
 Packet::Packet() :
-        _g_sendPos(0),
-        _g_lastData(),
-        _g_lastDataValidity(false),
-        g_data(),
+        _g_transmitPos(0),
+        _g_transmitCacheValid(false),
         g_readPos(0),
         g_valid(true)
 {
@@ -46,24 +44,22 @@ Packet::Packet() :
 }
 
 Packet::Packet(Packet&& pck) noexcept :
-        _g_sendPos(pck._g_sendPos),
-        _g_lastData(std::move(pck._g_lastData)),
-        _g_lastDataValidity(pck._g_lastDataValidity),
+        _g_transmitCache(std::move(pck._g_transmitCache)),
+        _g_transmitPos(pck._g_transmitPos),
+        _g_transmitCacheValid(pck._g_transmitCacheValid),
         g_data(std::move(pck.g_data)),
         g_readPos(pck.g_readPos),
         g_valid(pck.g_valid)
 {
-    pck._g_lastDataValidity = false;
+    pck._g_transmitCacheValid = false;
     pck.g_valid = true;
     pck.g_readPos = 0;
-    pck._g_sendPos = 0;
+    pck._g_transmitPos = 0;
 }
 
 Packet::Packet(std::size_t reserveSize) :
-        _g_sendPos(0),
-        _g_lastData(),
-        _g_lastDataValidity(false),
-        g_data(),
+        _g_transmitPos(0),
+        _g_transmitCacheValid(false),
         g_readPos(0),
         g_valid(true)
 {
@@ -72,9 +68,9 @@ Packet::Packet(std::size_t reserveSize) :
 
 void Packet::clear()
 {
-    this->_g_sendPos = 0;
-    this->_g_lastData.clear();
-    this->_g_lastDataValidity = false;
+    this->_g_transmitPos = 0;
+    this->_g_transmitCache.clear();
+    this->_g_transmitCacheValid = false;
 
     this->g_data.clear();
     this->g_readPos = 0;
@@ -82,9 +78,9 @@ void Packet::clear()
 }
 void Packet::flush()
 {
-    this->_g_sendPos = 0;
-    this->_g_lastData.clear();
-    this->_g_lastDataValidity = false;
+    this->_g_transmitPos = 0;
+    this->_g_transmitCache.clear();
+    this->_g_transmitCacheValid = false;
 }
 void Packet::reserve(std::size_t reserveSize)
 {
@@ -98,7 +94,7 @@ Packet& Packet::append(std::size_t size)
         std::size_t startPos = this->g_data.size();
         this->g_data.resize(startPos + size);
 
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
     }
     return *this;
 }
@@ -114,7 +110,7 @@ Packet& Packet::append(void const* data, std::size_t size)
         {
             this->g_data[startPos + i] = static_cast<uint8_t const*>(data)[i];
         }
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
     }
     return *this;
 }
@@ -141,7 +137,7 @@ Packet& Packet::pack(void const* data, std::size_t size)
                 this->g_data[startPos + i] = static_cast<uint8_t const*>(data)[size - 1 - i];
             }
         }
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
     }
     return *this;
 }
@@ -155,7 +151,7 @@ bool Packet::write(std::size_t pos, void const* data, std::size_t size)
         {
             this->g_data[pos + i] = static_cast<uint8_t const*>(data)[i];
         }
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
         return true;
     }
     return false;
@@ -180,7 +176,7 @@ bool Packet::pack(std::size_t pos, void const* data, std::size_t size)
                 this->g_data[pos + i] = static_cast<uint8_t const*>(data)[size - 1 - i];
             }
         }
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
         return true;
     }
     return false;
@@ -282,7 +278,7 @@ Packet& Packet::shrink(std::size_t size)
             this->g_data.resize(startPos - size);
         }
 
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
     }
     return *this;
 }
@@ -291,7 +287,7 @@ bool Packet::erase(std::size_t pos, std::size_t size)
     if ((size > 0) && (pos + size <= this->g_data.size()))
     {
         this->g_data.erase(this->g_data.begin() + pos, this->g_data.begin() + pos + size);
-        this->_g_lastDataValidity = false;
+        this->_g_transmitCacheValid = false;
     }
     return false;
 }
@@ -558,7 +554,7 @@ Packet const& Packet::operator>>(std::wstring& data) const
 
 bool Packet::onSend(std::vector<uint8_t>& buffer, std::size_t offset)
 {
-    this->_g_lastDataValidity = true;
+    this->_g_transmitCacheValid = true;
     buffer.resize(this->g_data.size() + offset);
     for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {

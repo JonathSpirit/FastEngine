@@ -201,9 +201,9 @@ protected:
     friend class SocketTcp;
     friend class SocketUdp;
 
-    std::size_t _g_sendPos;
-    std::vector<uint8_t> _g_lastData;
-    bool _g_lastDataValidity;
+    std::vector<uint8_t> _g_transmitCache;
+    std::size_t _g_transmitPos;
+    bool _g_transmitCacheValid;
 
 private:
     std::vector<uint8_t> g_data;
