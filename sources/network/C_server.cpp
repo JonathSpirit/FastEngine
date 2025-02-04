@@ -399,17 +399,37 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet,
     --this->_g_remainingPackets;
 
     //Verify if the client is known
-    refClient = this->_clients.get(packet->getIdentity());
+    auto* refClientData = this->_clients.getData(packet->getIdentity());
 
-    if (!refClient)
+    if (refClientData == nullptr)
     {
         if (allowUnknownClient)
         {
+            //Check if the packet is fragmented
+            if (packet->isFragmented())
+            { //We can't (disallow) process fragmented packets from unknown clients
+                return FluxProcessResults::NOT_RETRIEVABLE;
+            }
             return FluxProcessResults::RETRIEVABLE;
         }
 
         this->g_server->repushPacket(std::move(packet));
         return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    //Check if the packet is a fragment
+    if (packet->isFragmented())
+    {
+        auto const identity = packet->getIdentity();
+        auto const result = refClientData->_defragmentation.process(std::move(packet));
+        if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
+        {
+            packet = refClientData->_defragmentation.retrieve(result._id, identity);
+        }
+        else
+        {
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
     }
 
     auto const headerFlags = packet->retrieveFlags().value();
