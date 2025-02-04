@@ -41,14 +41,14 @@ void ClientList::sendToAll(TransmissionPacketPtr const& pck) const
     std::scoped_lock const lck(this->g_mutex);
     for (auto& it: this->g_data)
     {
-        it.second->pushPacket(pck);
+        it.second._client->pushPacket(pck);
     }
 }
 
 void ClientList::add(Identity const& id, ClientSharedPtr const& newClient)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_data[id] = newClient;
+    this->g_data.emplace(id, newClient);
     if (this->g_enableClientEventsFlag)
     {
         this->g_events.push_back({ClientListEvent::CLEVT_NEWCLIENT, id});
@@ -63,13 +63,10 @@ void ClientList::remove(Identity const& id)
         this->g_events.push_back({ClientListEvent::CLEVT_DELCLIENT, id});
     }
 }
-ClientList::ClientListData::iterator ClientList::remove(ClientListData::const_iterator itPos,
-                                                        std::unique_lock<std::recursive_mutex> const& lock)
+ClientList::DataList::iterator ClientList::remove(DataList::const_iterator itPos,
+                                                  AccessLock<std::recursive_mutex> const& lock)
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw fge::Exception("ClientList::remove : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     if (this->g_enableClientEventsFlag)
     {
         this->g_events.push_back({ClientListEvent::CLEVT_DELCLIENT, itPos->first});
@@ -83,7 +80,27 @@ ClientSharedPtr ClientList::get(Identity const& id) const
     auto it = this->g_data.find(id);
     if (it != this->g_data.end())
     {
-        return it->second;
+        return it->second._client;
+    }
+    return nullptr;
+}
+ClientList::Data const* ClientList::getData(Identity const& id) const
+{
+    std::scoped_lock const lck(this->g_mutex);
+    auto it = this->g_data.find(id);
+    if (it != this->g_data.end())
+    {
+        return &it->second;
+    }
+    return nullptr;
+}
+ClientList::Data* ClientList::getData(Identity const& id)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    auto it = this->g_data.find(id);
+    if (it != this->g_data.end())
+    {
+        return &it->second;
     }
     return nullptr;
 }
@@ -93,22 +110,22 @@ AccessLock<std::recursive_mutex> ClientList::acquireLock() const
     return AccessLock{this->g_mutex};
 }
 
-ClientList::ClientListData::iterator ClientList::begin(AccessLock<std::recursive_mutex> const& lock)
+ClientList::DataList::iterator ClientList::begin(AccessLock<std::recursive_mutex> const& lock)
 {
     lock.throwIfDifferent(this->g_mutex);
     return this->g_data.begin();
 }
-ClientList::ClientListData::const_iterator ClientList::begin(AccessLock<std::recursive_mutex> const& lock) const
+ClientList::DataList::const_iterator ClientList::begin(AccessLock<std::recursive_mutex> const& lock) const
 {
     lock.throwIfDifferent(this->g_mutex);
     return this->g_data.cbegin();
 }
-ClientList::ClientListData::iterator ClientList::end(AccessLock<std::recursive_mutex> const& lock)
+ClientList::DataList::iterator ClientList::end(AccessLock<std::recursive_mutex> const& lock)
 {
     lock.throwIfDifferent(this->g_mutex);
     return this->g_data.end();
 }
-ClientList::ClientListData::const_iterator ClientList::end(AccessLock<std::recursive_mutex> const& lock) const
+ClientList::DataList::const_iterator ClientList::end(AccessLock<std::recursive_mutex> const& lock) const
 {
     lock.throwIfDifferent(this->g_mutex);
     return this->g_data.cend();

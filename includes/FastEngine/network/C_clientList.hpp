@@ -58,8 +58,18 @@ struct ClientListEvent
 class FGE_API ClientList
 {
 public:
-    using ClientListData = std::unordered_map<Identity, ClientSharedPtr, IdentityHash>;
-    using ClientEventList = std::deque<ClientListEvent>;
+    struct Data
+    {
+        inline explicit Data(ClientSharedPtr client) :
+                _client(std::move(client))
+        {}
+
+        ClientSharedPtr _client;
+        PacketDefragmentation _defragmentation;
+    };
+
+    using DataList = std::unordered_map<Identity, Data, IdentityHash>;
+    using EventList = std::deque<ClientListEvent>;
 
     ClientList() = default;
     ~ClientList() = default;
@@ -109,8 +119,7 @@ public:
      * \param lock A unique lock bound to this mutex
      * \return The iterator after the erased element
      */
-    ClientListData::iterator remove(ClientListData::const_iterator itPos,
-                                    std::unique_lock<std::recursive_mutex> const& lock);
+    DataList::iterator remove(DataList::const_iterator itPos, AccessLock<std::recursive_mutex> const& lock);
 
     /**
      * \brief Get a client from the list
@@ -119,6 +128,8 @@ public:
      * \return The client if found, nullptr otherwise
      */
     ClientSharedPtr get(Identity const& id) const;
+    Data const* getData(Identity const& id) const;
+    Data* getData(Identity const& id);
 
     /**
      * \brief Acquire a unique lock, with the ClientList mutex
@@ -143,10 +154,10 @@ public:
      * \param lock A unique lock bound to this mutex
      * \return The begin iterator
      */
-    ClientListData::iterator begin(AccessLock<std::recursive_mutex> const& lock);
-    ClientListData::const_iterator begin(AccessLock<std::recursive_mutex> const& lock) const;
-    ClientListData::iterator end(AccessLock<std::recursive_mutex> const& lock);
-    ClientListData::const_iterator end(AccessLock<std::recursive_mutex> const& lock) const;
+    DataList::iterator begin(AccessLock<std::recursive_mutex> const& lock);
+    DataList::const_iterator begin(AccessLock<std::recursive_mutex> const& lock) const;
+    DataList::iterator end(AccessLock<std::recursive_mutex> const& lock);
+    DataList::const_iterator end(AccessLock<std::recursive_mutex> const& lock) const;
 
     /**
      * \brief Get the number of clients in the list
@@ -197,8 +208,8 @@ public:
     void clearClientEvent();
 
 private:
-    ClientListData g_data;
-    ClientEventList g_events;
+    DataList g_data;
+    EventList g_events;
     mutable std::recursive_mutex g_mutex;
     bool g_enableClientEventsFlag = false;
 };
