@@ -19,6 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_client.hpp"
+#include "C_protocol.hpp"
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -29,7 +30,7 @@ namespace fge::net
 
 class SocketUdp;
 
-using ClientSharedPtr = std::shared_ptr<fge::net::Client>;
+using ClientSharedPtr = std::shared_ptr<Client>;
 
 /**
  * \struct ClientListEvent
@@ -44,8 +45,8 @@ struct ClientListEvent
         CLEVT_NEWCLIENT
     };
 
-    fge::net::ClientListEvent::Events _event;
-    fge::net::Identity _id;
+    Events _event;
+    Identity _id;
 };
 
 /**
@@ -56,8 +57,8 @@ struct ClientListEvent
 class FGE_API ClientList
 {
 public:
-    using ClientListData = std::unordered_map<fge::net::Identity, fge::net::ClientSharedPtr, fge::net::IdentityHash>;
-    using ClientEventList = std::deque<fge::net::ClientListEvent>;
+    using ClientListData = std::unordered_map<Identity, ClientSharedPtr, IdentityHash>;
+    using ClientEventList = std::deque<ClientListEvent>;
 
     ClientList() = default;
     ~ClientList() = default;
@@ -68,21 +69,21 @@ public:
     void clear();
 
     /**
-     * \brief Directly send a packet to every clients in the list
+     * \brief Directly send a packet to every client in the list
      *
-     * This function sends the packet to every clients in the list without
+     * This function sends the packet to every client in the list without
      * passing through a network thread and checking the latency.
      *
      * \param socket The UDP socket to use to send the packet
      * \param pck The packet to send
      */
-    void sendToAll(fge::net::SocketUdp& socket, fge::net::Packet& pck);
+    void sendToAll(SocketUdp& socket, Packet& pck) const;
     /**
-     * \brief Push a packet to every clients in the list
+     * \brief Push a packet to every client in the list
      *
      * \param pck The packet to push
      */
-    void sendToAll(fge::net::TransmissionPacketPtr const& pck);
+    void sendToAll(TransmissionPacketPtr const& pck) const;
 
     /**
      * \brief Add a client to the list
@@ -90,13 +91,13 @@ public:
      * \param id The client's identity
      * \param newClient The client to add
      */
-    void add(fge::net::Identity const& id, fge::net::ClientSharedPtr const& newClient);
+    void add(Identity const& id, ClientSharedPtr const& newClient);
     /**
      * \brief Remove a client from the list
      *
      * \param id The client's identity
      */
-    void remove(fge::net::Identity const& id);
+    void remove(Identity const& id);
     /**
      * \brief Remove a client from the list
      *
@@ -107,8 +108,8 @@ public:
      * \param lock A unique lock bound to this mutex
      * \return The iterator after the erased element
      */
-    fge::net::ClientList::ClientListData::iterator remove(fge::net::ClientList::ClientListData::const_iterator itPos,
-                                                          std::unique_lock<std::recursive_mutex> const& lock);
+    ClientListData::iterator remove(ClientListData::const_iterator itPos,
+                                    std::unique_lock<std::recursive_mutex> const& lock);
 
     /**
      * \brief Get a client from the list
@@ -116,7 +117,7 @@ public:
      * \param id The client's identity
      * \return The client if found, nullptr otherwise
      */
-    fge::net::ClientSharedPtr get(fge::net::Identity const& id) const;
+    ClientSharedPtr get(Identity const& id) const;
 
     /**
      * \brief Acquire a unique lock, with the ClientList mutex
@@ -135,17 +136,16 @@ public:
      * You have to provide a valid reference to a unique lock acquire with
      * the method ClientList::acquireLock().
      * This method will throw if one of this is not respected :
-     * - The lock does not owned the associated mutex.
+     * - The lock does not own the associated mutex.
      * - The mutex pointer of the lock does not correspond to this ClientList mutex.
      *
      * \param lock A unique lock bound to this mutex
      * \return The begin iterator
      */
-    fge::net::ClientList::ClientListData::iterator begin(std::unique_lock<std::recursive_mutex> const& lock);
-    fge::net::ClientList::ClientListData::const_iterator
-    begin(std::unique_lock<std::recursive_mutex> const& lock) const;
-    fge::net::ClientList::ClientListData::iterator end(std::unique_lock<std::recursive_mutex> const& lock);
-    fge::net::ClientList::ClientListData::const_iterator end(std::unique_lock<std::recursive_mutex> const& lock) const;
+    ClientListData::iterator begin(std::unique_lock<std::recursive_mutex> const& lock);
+    ClientListData::const_iterator begin(std::unique_lock<std::recursive_mutex> const& lock) const;
+    ClientListData::iterator end(std::unique_lock<std::recursive_mutex> const& lock);
+    ClientListData::const_iterator end(std::unique_lock<std::recursive_mutex> const& lock) const;
 
     /**
      * \brief Get the number of clients in the list
@@ -174,13 +174,13 @@ public:
      *
      * \param evt A client event
      */
-    void pushClientEvent(fge::net::ClientListEvent const& evt);
+    void pushClientEvent(ClientListEvent const& evt);
     /**
      * \brief Get the client event with its index
      *
      * \return The client event
      */
-    fge::net::ClientListEvent const& getClientEvent(std::size_t index) const;
+    ClientListEvent const& getClientEvent(std::size_t index) const;
     /**
      * \brief Get the number of client events
      *
@@ -196,8 +196,8 @@ public:
     void clearClientEvent();
 
 private:
-    fge::net::ClientList::ClientListData g_data;
-    fge::net::ClientList::ClientEventList g_events;
+    ClientListData g_data;
+    ClientEventList g_events;
     mutable std::recursive_mutex g_mutex;
     bool g_enableClientEventsFlag = false;
 };
