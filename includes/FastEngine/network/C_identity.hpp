@@ -29,8 +29,8 @@ namespace fge::net
  */
 struct Identity
 {
-    IpAddress _ip;
-    Port _port;
+    IpAddress _ip{};
+    Port _port{FGE_ANYPORT};
 
     inline bool operator==(Identity const& right) const
     {
