@@ -137,6 +137,10 @@ inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeader() co
     }
     return std::nullopt;
 }
+inline bool ProtocolPacket::isFragmented() const
+{
+    return this->retrieveHeaderId().value_or(FGE_NET_BAD_ID) == NET_INTERNAL_FRAGMENTED_PACKET;
+}
 
 inline void ProtocolPacket::setHeader(Header const& header)
 {

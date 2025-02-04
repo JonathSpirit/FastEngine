@@ -104,6 +104,8 @@ public:
     [[nodiscard]] inline std::optional<CounterType> retrieveCounter() const;
     [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
 
+    [[nodiscard]] inline bool isFragmented() const;
+
     inline void setHeader(Header const& header);
     inline void setHeaderId(IdType id);
 
