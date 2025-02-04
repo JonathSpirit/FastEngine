@@ -26,9 +26,9 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <deque>
 #include <memory>
 #include <mutex>
-#include <queue>
 #include <vector>
 
 #define FGE_NET_BAD_SKEY 0
@@ -439,6 +439,7 @@ public:
      * \param pck The packet to send with eventual options
      */
     void pushPacket(TransmissionPacketPtr pck);
+    void pushForcedFrontPacket(TransmissionPacketPtr pck);
     /**
      * \brief Pop a packet from the queue
      *
@@ -489,7 +490,7 @@ private:
     Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
-    std::queue<TransmissionPacketPtr> g_pendingTransmitPackets;
+    std::deque<TransmissionPacketPtr> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
 
     Skey g_skey;

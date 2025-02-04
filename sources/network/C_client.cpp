@@ -261,11 +261,7 @@ Latency_ms Client::computeLatency_ms(Timestamp const& sentTimestamp, Timestamp c
 void Client::clearPackets()
 {
     std::scoped_lock const lck(this->g_mutex);
-
-    for (std::size_t i = 0; i < this->g_pendingTransmitPackets.size(); ++i)
-    {
-        this->g_pendingTransmitPackets.pop();
-    }
+    this->g_pendingTransmitPackets.clear();
 }
 void Client::pushPacket(TransmissionPacketPtr pck)
 {
@@ -281,7 +277,12 @@ void Client::pushPacket(TransmissionPacketPtr pck)
 
         pck->packet().setRealm(this->getCurrentRealm());
     }
-    this->g_pendingTransmitPackets.push(std::move(pck));
+    this->g_pendingTransmitPackets.push_back(std::move(pck));
+}
+void Client::pushForcedFrontPacket(TransmissionPacketPtr pck)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_pendingTransmitPackets.push_front(std::move(pck));
 }
 TransmissionPacketPtr Client::popPacket()
 {
@@ -292,7 +293,7 @@ TransmissionPacketPtr Client::popPacket()
         return nullptr;
     }
     auto packet = std::move(this->g_pendingTransmitPackets.front());
-    this->g_pendingTransmitPackets.pop();
+    this->g_pendingTransmitPackets.pop_front();
     return packet;
 }
 bool Client::isPendingPacketsEmpty() const
