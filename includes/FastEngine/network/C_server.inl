@@ -31,9 +31,8 @@ bool ServerSideNetUdp::start(Port bindPort, IpAddress const& bindIp, IpAddress::
     {
         this->g_running = true;
 
-        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception<TPacket>, this);
-        this->g_threadTransmission =
-                std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission<TPacket>, this);
+        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission, this);
 
         return true;
     }
@@ -51,166 +50,12 @@ bool ServerSideNetUdp::start(IpAddress::Types addressType)
     {
         this->g_running = true;
 
-        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception<TPacket>, this);
-        this->g_threadTransmission =
-                std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission<TPacket>, this);
+        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission, this);
 
         return true;
     }
     return false;
-}
-
-template<class TPacket>
-void ServerSideNetUdp::threadReception()
-{
-    Identity idReceive;
-    TPacket pckReceive;
-    std::size_t pushingIndex = 0;
-
-    while (this->g_running)
-    {
-        if (this->g_socket.select(true, FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS) == Socket::Errors::ERR_NOERROR)
-        {
-            if (this->g_socket.receiveFrom(pckReceive, idReceive._ip, idReceive._port) == Socket::Errors::ERR_NOERROR)
-            {
-#ifdef FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST
-                if (fge::_random.range(0, 1000) <= 10)
-                {
-                    continue;
-                }
-#endif
-
-                std::scoped_lock const lck(this->g_mutexServer);
-
-                if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
-                { //Bad header, packet is dismissed
-                    continue;
-                }
-
-                //Skip the header for reading
-                pckReceive.skip(ProtocolPacket::HeaderSize);
-                auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), idReceive);
-                packet->setTimestamp(Client::getTimestamp_ms());
-
-                //Verify headerId
-                auto const headerId = packet->retrieveFullHeaderId().value();
-                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
-                    (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
-                { //Bad headerId, packet is dismissed
-                    continue;
-                }
-
-                //Checking internal header ids
-                switch (headerId & ~FGE_NET_HEADER_FLAGS_MASK)
-                {
-                case NET_INTERNAL_ID_MTU_TEST:
-                {
-                    auto response = TransmissionPacket::create(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
-                    response->doNotDiscard().doNotReorder();
-                    this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
-                    continue;
-                }
-                case NET_INTERNAL_ID_MTU_ASK:
-                {
-                    auto response = TransmissionPacket::create(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
-                    response->doNotDiscard().doNotReorder().packet()
-                            << SocketUdp::retrieveAdapterMTUForDestination(idReceive._ip).value_or(0);
-                    this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
-                    continue;
-                }
-                }
-
-                //Realm and countId is verified by the flux who have the corresponding client
-
-                if (this->g_fluxes.empty())
-                {
-                    this->g_defaultFlux.pushPacket(std::move(packet));
-                    continue;
-                }
-
-                //Try to push packet in a flux
-                for (std::size_t i = 0; i < this->g_fluxes.size(); ++i)
-                {
-                    pushingIndex = packet->bumpFluxIndex(this->g_fluxes.size());
-                    if (this->g_fluxes[pushingIndex]->pushPacket(std::move(packet)))
-                    { //Packet is correctly pushed
-                        break;
-                    }
-                }
-                //If every flux is busy, the new packet is dismissed
-            }
-        }
-    }
-}
-template<class TPacket>
-void ServerSideNetUdp::threadTransmission()
-{
-    std::unique_lock lckServer(this->g_mutexServer);
-
-    while (this->g_running)
-    {
-        this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
-
-        //Checking fluxes
-        for (std::size_t i = 0; i < this->g_fluxes.size() + 1; ++i)
-        {
-            ClientList* clients{nullptr};
-            if (i == this->g_fluxes.size())
-            { //Doing the default flux
-                clients = &this->g_defaultFlux._clients;
-            }
-            else
-            {
-                clients = &this->g_fluxes[i]->_clients;
-            }
-
-            auto clientLock = clients->acquireLock();
-
-            for (auto itClient = clients->begin(clientLock); itClient != clients->end(clientLock); ++itClient)
-            {
-                if (itClient->second->isPendingPacketsEmpty())
-                {
-                    continue;
-                }
-
-                if (itClient->second->getLastPacketElapsedTime() < itClient->second->getSTOCLatency_ms())
-                {
-                    continue;
-                }
-
-                auto transmissionPacket = itClient->second->popPacket();
-
-                if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
-                { //Last verification of the packet
-                    continue;
-                }
-
-                //Applying options
-                transmissionPacket->applyOptions(*itClient->second);
-
-                //Sending the packet
-                TPacket packet(transmissionPacket->packet());
-                this->g_socket.sendTo(packet, itClient->first._ip, itClient->first._port);
-                itClient->second->resetLastPacketTimePoint();
-            }
-        }
-
-        //Checking isolated transmission queue
-        while (!this->g_transmissionQueue.empty())
-        {
-            auto data = std::move(this->g_transmissionQueue.front());
-            this->g_transmissionQueue.pop();
-
-            if (!data.first->packet() || !data.first->packet().haveCorrectHeaderSize())
-            { //Last verification of the packet
-                continue;
-            }
-
-            //Sending the packet
-            TPacket packet(data.first->packet());
-            this->g_socket.sendTo(packet, data.second._ip, data.second._port);
-        }
-    }
 }
 
 //ClientSideNetUdp

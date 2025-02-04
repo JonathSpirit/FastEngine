@@ -266,9 +266,7 @@ public:
     void sendTo(TransmissionPacketPtr& pck, Identity const& id);
 
 private:
-    template<class TPacket>
     void threadReception();
-    template<class TPacket>
     void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
