@@ -44,7 +44,7 @@ public:
 
 protected:
     bool onSend(std::size_t offset) override;
-    void onReceive(std::span<uint8_t const> const&) override;
+    void onReceive(std::span<uint8_t const> const& data) override;
 
 private:
     CompressorLZ4 g_compressor;
@@ -67,7 +67,7 @@ public:
 
 protected:
     bool onSend(std::size_t offset) override;
-    void onReceive(std::span<uint8_t const> const&) override;
+    void onReceive(std::span<uint8_t const> const& data) override;
 
 private:
     CompressorLZ4HC g_compressor;
