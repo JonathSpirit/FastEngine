@@ -196,7 +196,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock);)
             {
-                auto timeout = it->second->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
+                auto timeout =
+                        it->second._client->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
                 if (timeout >= LIFESIM_TIMEOUT_COUNT)
                 {
                     std::cout << "user : " << it->first._ip.toString().value_or("UNDEFINED")
@@ -211,7 +212,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
                 else
                 {
-                    it->second->_data[LIFESIM_CLIENTDATA_TIMEOUT].set(timeout);
+                    it->second._client->_data[LIFESIM_CLIENTDATA_TIMEOUT].set(timeout);
                     ++it;
                 }
             }
@@ -365,7 +366,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
                 //Make sure that the client is not busy with another packet
-                if (!it->second->isPendingPacketsEmpty())
+                if (!it->second._client->isPendingPacketsEmpty())
                 {
                     continue;
                 }
@@ -374,7 +375,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE);
 
                 //Pack data required by the LatencyPlanner in order to compute latency
-                it->second->_latencyPlanner.pack(transmissionPacket);
+                it->second._client->_latencyPlanner.pack(transmissionPacket);
 
                 //We can now push all scene modification by clients
                 mainScene.packModification(transmissionPacket->packet(), it->first);
@@ -382,7 +383,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 mainScene.packWatchedEvent(transmissionPacket->packet(), it->first);
 
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
-                it->second->pushPacket(std::move(transmissionPacket));
+                it->second._client->pushPacket(std::move(transmissionPacket));
 
                 //Notify the server that a packet as been pushed
                 server.notifyTransmission();
