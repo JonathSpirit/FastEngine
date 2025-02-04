@@ -146,7 +146,14 @@ enum InternalProtocolIds : ProtocolPacket::IdType
     NET_INTERNAL_ID_MTU_ASK = FGE_NET_INTERNAL_ID_START,
     NET_INTERNAL_ID_MTU_ASK_RESPONSE,
     NET_INTERNAL_ID_MTU_TEST,
-    NET_INTERNAL_ID_MTU_TEST_RESPONSE
+    NET_INTERNAL_ID_MTU_TEST_RESPONSE,
+
+    NET_INTERNAL_FRAGMENTED_PACKET
+};
+
+struct InternalFragmentedPacketData
+{
+    uint8_t _fragmentTotal;
 };
 
 /**

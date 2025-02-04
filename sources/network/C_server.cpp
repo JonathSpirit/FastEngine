@@ -21,6 +21,76 @@
 namespace fge::net
 {
 
+//PacketDefragmentation
+
+void PacketDefragmentation::clear()
+{
+    this->g_data.clear();
+}
+
+PacketDefragmentation::Result PacketDefragmentation::process(ProtocolPacketPtr&& packet)
+{
+    auto const id = packet->retrieveRealm().value();
+    auto const counter = packet->retrieveCounter().value();
+
+    for (auto itData = this->g_data.begin(); itData != this->g_data.end(); ++itData)
+    {
+        auto& data = *itData;
+        if (data._id != id)
+        {
+            continue;
+        }
+
+        auto const it = data._fragments.find(counter);
+        if (it != data._fragments.end())
+        {
+            //Already received, some duplicate, discarded
+            this->g_data.erase(itData);
+            return {Results::DISCARDED, id};
+        }
+
+        //Insert the new fragment
+        data._fragments[counter] = std::move(packet);
+
+        //Check if we have all the fragments
+        if (data._fragments.size() == data._total)
+        {
+            return {Results::RETRIEVABLE, id};
+        }
+        return {Results::WAITING, id};
+    }
+
+    //New fragment
+    InternalFragmentedPacketData fragmentedData{};
+    packet->packet().unpack(ProtocolPacket::HeaderSize, &fragmentedData, sizeof(fragmentedData));
+
+    this->g_data.emplace_back(id, fragmentedData._fragmentTotal)._fragments[counter] = std::move(packet);
+    ///TODO: remove the oldest data if the cache is full
+    return {Results::WAITING, id};
+}
+ProtocolPacketPtr PacketDefragmentation::retrieve(ProtocolPacket::RealmType id, Identity const& client)
+{
+    for (auto itData = this->g_data.begin(); itData != this->g_data.end(); ++itData)
+    {
+        if (itData->_id == id)
+        {
+            Packet unfragmentedPacket;
+
+            for (auto const& fragment: itData->_fragments | std::views::values)
+            {
+                unfragmentedPacket.append(fragment->packet().getData() + ProtocolPacket::HeaderSize +
+                                                  sizeof(InternalFragmentedPacketData),
+                                          fragment->packet().getDataSize() - ProtocolPacket::HeaderSize -
+                                                  sizeof(InternalFragmentedPacketData));
+            }
+
+            this->g_data.erase(itData);
+            return std::make_unique<ProtocolPacket>(std::move(unfragmentedPacket), client);
+        }
+    }
+    return nullptr;
+}
+
 //NetCommands
 
 NetCommandResults
@@ -536,8 +606,10 @@ ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
         g_socket(addressType),
-        g_running(false)
+        g_running(false),
+        g_mtu(0)
 {}
+
 ClientSideNetUdp::~ClientSideNetUdp()
 {
     this->stop();
@@ -689,6 +761,226 @@ std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 
     this->g_receptionNotifier.wait_for(lock, time_ms);
     return this->_g_packets.size();
+}
+
+void ClientSideNetUdp::threadReception()
+{
+    Packet pckReceive;
+    auto lastTimePoint = std::chrono::steady_clock::now();
+
+    while (this->g_running)
+    {
+        if (this->g_socket.select(true, FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS) == Socket::Errors::ERR_NOERROR)
+        {
+            if (this->g_socket.receive(pckReceive) != Socket::Errors::ERR_NOERROR)
+            {
+                continue;
+            }
+
+#ifdef FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST
+            if (fge::_random.range(0, 1000) <= 10)
+            {
+                continue;
+            }
+#endif
+
+            if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
+            { //Bad header, packet is dismissed
+                continue;
+            }
+
+            //Skip the header
+            pckReceive.skip(ProtocolPacket::HeaderSize);
+            auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), this->g_clientIdentity);
+            packet->setTimestamp(Client::getTimestamp_ms());
+
+            //Verify headerId
+            auto const headerId = packet->retrieveFullHeaderId().value();
+            if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
+                (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+            { //Bad headerId, packet is dismissed
+                continue;
+            }
+
+            auto const now = std::chrono::steady_clock::now();
+            auto const deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTimePoint);
+            lastTimePoint = now;
+
+            //Check client status and reset timeout
+            if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
+            {
+                this->_client.getStatus().resetTimeout();
+            }
+
+            //Check if the packet is a fragment
+            if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == NET_INTERNAL_FRAGMENTED_PACKET)
+            {
+                auto const result = this->g_defragmentation.process(std::move(packet));
+                if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
+                {
+                    packet = this->g_defragmentation.retrieve(result._id, this->g_clientIdentity);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            //Checking commands
+            {
+                std::scoped_lock const commandLock(this->g_mutexCommands);
+                if (!this->g_commands.empty())
+                {
+
+                    auto const result = this->g_commands.front()->receive(packet, this->g_socket, deltaTime);
+                    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                    {
+                        this->g_commands.pop();
+                    }
+
+                    //Commands can drop the packet
+                    if (!packet)
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            this->pushPacket(std::move(packet));
+            this->g_receptionNotifier.notify_all();
+        }
+        else
+        {
+            //Checking commands
+            {
+                std::scoped_lock const commandLock(this->g_mutexCommands);
+                if (!this->g_commands.empty())
+                {
+                    std::unique_ptr<ProtocolPacket> dummyPacket;
+                    auto const result = this->g_commands.front()->receive(
+                            dummyPacket, this->g_socket,
+                            std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
+                    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                    {
+                        this->g_commands.pop();
+                    }
+                }
+            }
+
+            if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
+            {
+                (void) this->_client.getStatus().updateTimeout(
+                        std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
+            }
+        }
+    }
+}
+void ClientSideNetUdp::threadTransmission()
+{
+    std::unique_lock lckServer(this->_g_mutexFlux);
+
+    while (this->g_running)
+    {
+        this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
+
+        //Checking commands
+        {
+            std::scoped_lock const commandLock(this->g_mutexCommands);
+            if (!this->g_commands.empty())
+            {
+                TransmissionPacketPtr possiblePacket;
+                auto const result = this->g_commands.front()->transmit(possiblePacket, this->g_socket, this->_client);
+                if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                {
+                    this->g_commands.pop();
+                }
+
+                if (possiblePacket)
+                {
+                    //Applying options
+                    possiblePacket->applyOptions(this->_client);
+
+                    //Sending the packet
+                    this->_client.pushPacket(std::move(possiblePacket));
+                    //TPacket packet = possiblePacket->packet();
+                    //this->g_socket.send(packet);
+                    //continue;
+                }
+            }
+        }
+
+        //Flux
+        if (this->_client.isPendingPacketsEmpty())
+        {
+            continue;
+        }
+
+        if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
+        { //Ready to send !
+            auto transmissionPacket = this->_client.popPacket();
+
+            //MTU check
+            auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
+            if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
+            {
+                //Packet is not fragmented, we have to check is size
+                if (this->g_mtu == 0)
+                { //We don't know the MTU yet
+                    goto mtu_check_skip;
+                }
+
+                if (transmissionPacket->packet().getDataSize() > this->g_mtu)
+                {
+                    //We have to fragment the packet
+                    auto currentPacket = std::move(transmissionPacket);
+                    auto const packetSize = currentPacket->packet().getDataSize();
+                    auto const maxFragmentSize =
+                            this->g_mtu - ProtocolPacket::HeaderSize - sizeof(InternalFragmentedPacketData);
+                    auto const fragmentCount =
+                            packetSize / maxFragmentSize + (packetSize % maxFragmentSize > 0 ? 1 : 0);
+
+                    auto const fragmentRealm = currentPacket->packet().retrieveCounter().value();
+
+                    InternalFragmentedPacketData fragmentData{};
+                    fragmentData._fragmentTotal = fragmentCount;
+
+                    for (std::size_t i = 0; i < fragmentCount; ++i)
+                    {
+                        auto fragmentedPacket = TransmissionPacket::create(NET_INTERNAL_FRAGMENTED_PACKET);
+                        fragmentedPacket->packet().setCounter(i);
+                        fragmentedPacket->packet().setRealm(fragmentRealm);
+
+                        fragmentedPacket->packet().pack(&fragmentData, sizeof(fragmentData));
+                        fragmentedPacket->packet().append(currentPacket->packet().getData() + i * maxFragmentSize,
+                                                          std::min(maxFragmentSize, packetSize - i * maxFragmentSize));
+
+                        if (i == 0)
+                        {
+                            transmissionPacket = std::move(fragmentedPacket);
+                        }
+                        else
+                        {
+                            this->_client.pushForcedFrontPacket(std::move(fragmentedPacket));
+                        }
+                    }
+                }
+            }
+        mtu_check_skip:
+
+            if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
+            { //Last verification of the packet
+                continue;
+            }
+
+            //Applying options
+            transmissionPacket->applyOptions(this->_client);
+
+            //Sending the packet
+            //TPacket packet = transmissionPacket->packet();
+            this->g_socket.send(transmissionPacket->packet());
+            this->_client.resetLastPacketTimePoint();
+        }
+    }
 }
 
 } // namespace fge::net
