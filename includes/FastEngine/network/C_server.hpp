@@ -120,44 +120,6 @@ private:
     std::chrono::milliseconds g_receiveTimeout{0};
 };
 
-class PacketDefragmentation
-{
-public:
-    PacketDefragmentation() = default;
-    ~PacketDefragmentation() = default;
-
-    enum class Results
-    {
-        RETRIEVABLE,
-        WAITING,
-        DISCARDED
-    };
-    struct Result
-    {
-        Results _result;
-        ProtocolPacket::RealmType _id;
-    };
-
-    void clear();
-
-    [[nodiscard]] Result process(ProtocolPacketPtr&& packet);
-    [[nodiscard]] ProtocolPacketPtr retrieve(ProtocolPacket::RealmType id, Identity const& client);
-
-private:
-    struct Data
-    {
-        Data(ProtocolPacket::RealmType id, ProtocolPacket::CounterType total) :
-                _id(id),
-                _total(total)
-        {}
-
-        ProtocolPacket::RealmType _id;
-        decltype(InternalFragmentedPacketData::_fragmentTotal) _total;
-        std::map<ProtocolPacket::CounterType, ProtocolPacketPtr> _fragments;
-    };
-    std::vector<Data> g_data;
-};
-
 /**
  * \class NetFluxUdp
  * \ingroup network

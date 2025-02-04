@@ -20,6 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/network/C_identity.hpp"
 #include "FastEngine/network/C_packet.hpp"
+#include <map>
 #include <memory>
 #include <optional>
 #include <queue>
@@ -154,6 +155,44 @@ enum InternalProtocolIds : ProtocolPacket::IdType
 struct InternalFragmentedPacketData
 {
     uint8_t _fragmentTotal;
+};
+
+class PacketDefragmentation
+{
+public:
+    PacketDefragmentation() = default;
+    ~PacketDefragmentation() = default;
+
+    enum class Results
+    {
+        RETRIEVABLE,
+        WAITING,
+        DISCARDED
+    };
+    struct Result
+    {
+        Results _result;
+        ProtocolPacket::RealmType _id;
+    };
+
+    void clear();
+
+    [[nodiscard]] Result process(ProtocolPacketPtr&& packet);
+    [[nodiscard]] ProtocolPacketPtr retrieve(ProtocolPacket::RealmType id, Identity const& client);
+
+private:
+    struct Data
+    {
+        Data(ProtocolPacket::RealmType id, ProtocolPacket::CounterType total) :
+                _id(id),
+                _total(total)
+        {}
+
+        ProtocolPacket::RealmType _id;
+        decltype(InternalFragmentedPacketData::_fragmentTotal) _total;
+        std::map<ProtocolPacket::CounterType, ProtocolPacketPtr> _fragments;
+    };
+    std::vector<Data> g_data;
 };
 
 /**
