@@ -20,6 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_client.hpp"
 #include "C_protocol.hpp"
+#include "FastEngine/C_accessLock.hpp"
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -128,7 +129,7 @@ public:
      *
      * \return A unique lock bound to this mutex
      */
-    std::unique_lock<std::recursive_mutex> acquireLock() const;
+    AccessLock<std::recursive_mutex> acquireLock() const;
 
     /**
      * \brief Get the begin iterator of the ClientList
@@ -142,10 +143,10 @@ public:
      * \param lock A unique lock bound to this mutex
      * \return The begin iterator
      */
-    ClientListData::iterator begin(std::unique_lock<std::recursive_mutex> const& lock);
-    ClientListData::const_iterator begin(std::unique_lock<std::recursive_mutex> const& lock) const;
-    ClientListData::iterator end(std::unique_lock<std::recursive_mutex> const& lock);
-    ClientListData::const_iterator end(std::unique_lock<std::recursive_mutex> const& lock) const;
+    ClientListData::iterator begin(AccessLock<std::recursive_mutex> const& lock);
+    ClientListData::const_iterator begin(AccessLock<std::recursive_mutex> const& lock) const;
+    ClientListData::iterator end(AccessLock<std::recursive_mutex> const& lock);
+    ClientListData::const_iterator end(AccessLock<std::recursive_mutex> const& lock) const;
 
     /**
      * \brief Get the number of clients in the list

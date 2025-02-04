@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/network/C_clientList.hpp"
-#include "FastEngine/fge_except.hpp"
 #include "FastEngine/network/C_socket.hpp"
 
 namespace fge::net
@@ -89,41 +88,29 @@ ClientSharedPtr ClientList::get(Identity const& id) const
     return nullptr;
 }
 
-std::unique_lock<std::recursive_mutex> ClientList::acquireLock() const
+AccessLock<std::recursive_mutex> ClientList::acquireLock() const
 {
-    return std::unique_lock(this->g_mutex);
+    return AccessLock{this->g_mutex};
 }
 
-ClientList::ClientListData::iterator ClientList::begin(std::unique_lock<std::recursive_mutex> const& lock)
+ClientList::ClientListData::iterator ClientList::begin(AccessLock<std::recursive_mutex> const& lock)
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     return this->g_data.begin();
 }
-ClientList::ClientListData::const_iterator ClientList::begin(std::unique_lock<std::recursive_mutex> const& lock) const
+ClientList::ClientListData::const_iterator ClientList::begin(AccessLock<std::recursive_mutex> const& lock) const
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     return this->g_data.cbegin();
 }
-ClientList::ClientListData::iterator ClientList::end(std::unique_lock<std::recursive_mutex> const& lock)
+ClientList::ClientListData::iterator ClientList::end(AccessLock<std::recursive_mutex> const& lock)
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     return this->g_data.end();
 }
-ClientList::ClientListData::const_iterator ClientList::end(std::unique_lock<std::recursive_mutex> const& lock) const
+ClientList::ClientListData::const_iterator ClientList::end(AccessLock<std::recursive_mutex> const& lock) const
 {
-    if (!lock.owns_lock() || lock.mutex() != &this->g_mutex)
-    {
-        throw fge::Exception("ClientList::begin : lock is not owned or not my mutex !");
-    }
+    lock.throwIfDifferent(this->g_mutex);
     return this->g_data.cend();
 }
 
