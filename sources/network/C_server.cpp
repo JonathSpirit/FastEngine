@@ -416,6 +416,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet,
         this->g_server->repushPacket(std::move(packet));
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
+    refClient = refClientData->_client;
 
     //Check if the packet is a fragment
     if (packet->isFragmented())
