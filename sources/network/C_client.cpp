@@ -24,6 +24,38 @@ namespace fge::net
 
 //TransmissionPacket
 
+std::vector<std::shared_ptr<TransmissionPacket>> TransmissionPacket::fragment(uint16_t mtu) const
+{
+    if (this->g_packet.getDataSize() < mtu)
+    {
+        return std::vector{const_cast<TransmissionPacket*>(this)->shared_from_this()};
+    }
+
+    //We have to fragment the packet
+    auto const packetSize = this->g_packet.getDataSize();
+    auto const maxFragmentSize = mtu - ProtocolPacket::HeaderSize - sizeof(InternalFragmentedPacketData);
+    auto const fragmentCount = packetSize / maxFragmentSize + (packetSize % maxFragmentSize > 0 ? 1 : 0);
+
+    auto const fragmentRealm = this->g_packet.retrieveCounter().value();
+
+    InternalFragmentedPacketData fragmentData{};
+    fragmentData._fragmentTotal = fragmentCount;
+
+    std::vector<std::shared_ptr<TransmissionPacket>> fragments(fragmentCount);
+    for (std::size_t i = 0; i < fragmentCount; ++i)
+    {
+        auto fragmentedPacket = std::shared_ptr<TransmissionPacket>{
+                new TransmissionPacket(NET_INTERNAL_FRAGMENTED_PACKET, fragmentRealm, i)};
+
+        fragmentedPacket->g_packet.pack(&fragmentData, sizeof(fragmentData));
+        fragmentedPacket->g_packet.append(this->g_packet.getData() + i * maxFragmentSize,
+                                          i == fragmentCount - 1 ? packetSize - i * maxFragmentSize : maxFragmentSize);
+
+        fragments[i] = std::move(fragmentedPacket);
+    }
+    return fragments;
+}
+
 void TransmissionPacket::applyOptions(Client const& client)
 {
     for (auto const& option: this->g_options)

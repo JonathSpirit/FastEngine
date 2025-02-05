@@ -69,7 +69,7 @@ class Client;
  * \warning When the packet is pushed via Client::pushPacket or ClientList::sendToAll, the user must not modify
  * the packet/options anymore causing undefined behavior.
  */
-class FGE_API TransmissionPacket
+class FGE_API TransmissionPacket : public std::enable_shared_from_this<TransmissionPacket>
 {
 public:
     /**
@@ -112,6 +112,8 @@ public:
 
     inline TransmissionPacket& doNotDiscard();
     inline TransmissionPacket& doNotReorder();
+
+    std::vector<std::shared_ptr<TransmissionPacket>> fragment(uint16_t mtu) const;
 
     /**
      * \brief Apply packet options to the packet
