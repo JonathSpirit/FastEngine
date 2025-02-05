@@ -20,7 +20,6 @@
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/network/C_identity.hpp"
 #include "FastEngine/network/C_packet.hpp"
-#include <map>
 #include <memory>
 #include <optional>
 #include <queue>
@@ -187,12 +186,13 @@ private:
     {
         Data(ProtocolPacket::RealmType id, ProtocolPacket::CounterType total) :
                 _id(id),
-                _total(total)
+                _count(1),
+                _fragments(total)
         {}
 
         ProtocolPacket::RealmType _id;
-        decltype(InternalFragmentedPacketData::_fragmentTotal) _total;
-        std::map<ProtocolPacket::CounterType, ProtocolPacketPtr> _fragments;
+        decltype(InternalFragmentedPacketData::_fragmentTotal) _count;
+        std::vector<ProtocolPacketPtr> _fragments;
     };
     std::vector<Data> g_data;
 };

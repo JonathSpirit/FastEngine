@@ -20,6 +20,90 @@
 namespace fge::net
 {
 
+//PacketDefragmentation
+
+void PacketDefragmentation::clear()
+{
+    this->g_data.clear();
+}
+
+PacketDefragmentation::Result PacketDefragmentation::process(ProtocolPacketPtr&& packet)
+{
+    auto const id = packet->retrieveRealm().value();
+    auto const counter = packet->retrieveCounter().value();
+
+    for (auto itData = this->g_data.begin(); itData != this->g_data.end(); ++itData)
+    {
+        auto& data = *itData;
+        if (data._id != id)
+        {
+            continue;
+        }
+
+        if (counter >= data._fragments.size())
+        {
+            //Invalid fragment counter, overflows the total
+            this->g_data.erase(itData);
+            return {Results::DISCARDED, id};
+        }
+
+        auto& fragment = data._fragments[counter];
+        if (fragment != nullptr)
+        {
+            //Already received, some duplicate, discarded
+            this->g_data.erase(itData);
+            return {Results::DISCARDED, id};
+        }
+
+        //Insert the new fragment
+        fragment = std::move(packet);
+        ++data._count;
+
+        //Check if we have all the fragments
+        if (data._fragments.size() == data._count)
+        {
+            return {Results::RETRIEVABLE, id};
+        }
+        return {Results::WAITING, id};
+    }
+
+    //New fragment
+    InternalFragmentedPacketData fragmentedData{};
+    packet->packet().unpack(ProtocolPacket::HeaderSize, &fragmentedData, sizeof(fragmentedData));
+
+    this->g_data.emplace_back(id, fragmentedData._fragmentTotal)._fragments[counter] = std::move(packet);
+    ///TODO: remove the oldest data if the cache is full
+    return {Results::WAITING, id};
+}
+ProtocolPacketPtr PacketDefragmentation::retrieve(ProtocolPacket::RealmType id, Identity const& client)
+{
+    for (auto itData = this->g_data.begin(); itData != this->g_data.end(); ++itData)
+    {
+        if (itData->_id == id)
+        {
+            Packet unfragmentedPacket;
+
+            for (auto const& fragment: itData->_fragments)
+            {
+                unfragmentedPacket.append(fragment->packet().getData() + ProtocolPacket::HeaderSize +
+                                                  sizeof(InternalFragmentedPacketData),
+                                          fragment->packet().getDataSize() - ProtocolPacket::HeaderSize -
+                                                  sizeof(InternalFragmentedPacketData));
+            }
+
+            unfragmentedPacket.skip(ProtocolPacket::HeaderSize);
+            auto unfragmentedPacketPtr = std::make_unique<ProtocolPacket>(std::move(unfragmentedPacket), client);
+            unfragmentedPacketPtr->setTimestamp(Client::getTimestamp_ms());
+
+            this->g_data.erase(itData);
+            return unfragmentedPacketPtr;
+        }
+    }
+    return nullptr;
+}
+
+//PacketReorderer
+
 void PacketReorderer::clear()
 {
     this->g_forceRetrieve = false;

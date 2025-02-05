@@ -318,8 +318,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             client->pushPacket(std::move(transmissionPacket));
 
                             //We will send a full scene update to the client too
-                            transmissionPacket = fge::net::TransmissionPacket::create();
-                            transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_S_UPDATE_ALL);
                             transmissionPacket->doNotDiscard();
                             mainScene.pack(transmissionPacket->packet(), packet->getIdentity());
 
