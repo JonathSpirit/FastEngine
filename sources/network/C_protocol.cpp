@@ -15,10 +15,86 @@
  */
 
 #include "FastEngine/network/C_protocol.hpp"
+#include "FastEngine/fge_except.hpp"
 #include "FastEngine/network/C_server.hpp"
 
 namespace fge::net
 {
+
+//ProtocolPacket
+
+void ProtocolPacket::applyOptions(Client const& client)
+{
+    for (auto const& option: this->g_options)
+    {
+        if (option._option == Options::UPDATE_TIMESTAMP)
+        {
+            Timestamp updatedTimestamp = Client::getTimestamp_ms();
+            this->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+        }
+        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
+        {
+            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
+            this->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+        }
+        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
+        {
+            Latency_ms correctorLatency = client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
+            this->pack(option._argument, &correctorLatency, sizeof(correctorLatency));
+        }
+    }
+}
+void ProtocolPacket::applyOptions()
+{
+    for (auto const& option: this->g_options)
+    {
+        if (option._option == Options::UPDATE_TIMESTAMP)
+        {
+            Timestamp updatedTimestamp = Client::getTimestamp_ms();
+            this->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+        }
+        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
+        {
+            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
+            this->pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
+        }
+        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
+        {
+            throw Exception("Cannot apply correction latency without a client");
+        }
+    }
+}
+
+std::vector<std::shared_ptr<ProtocolPacket>> ProtocolPacket::fragment(uint16_t mtu) const
+{
+    if (this->getDataSize() < mtu)
+    {
+        return std::vector{const_cast<ProtocolPacket*>(this)->shared_from_this()};
+    }
+
+    //We have to fragment the packet
+    auto const packetSize = this->getDataSize();
+    auto const maxFragmentSize = mtu - HeaderSize - sizeof(InternalFragmentedPacketData);
+    auto const fragmentCount = packetSize / maxFragmentSize + (packetSize % maxFragmentSize > 0 ? 1 : 0);
+
+    auto const fragmentRealm = this->retrieveCounter().value();
+
+    InternalFragmentedPacketData fragmentData{};
+    fragmentData._fragmentTotal = fragmentCount;
+
+    std::vector<std::shared_ptr<ProtocolPacket>> fragments(fragmentCount);
+    for (std::size_t i = 0; i < fragmentCount; ++i)
+    {
+        auto fragmentedPacket = std::make_shared<ProtocolPacket>(NET_INTERNAL_FRAGMENTED_PACKET, fragmentRealm, i);
+
+        fragmentedPacket->pack(&fragmentData, sizeof(fragmentData));
+        fragmentedPacket->append(this->getData() + i * maxFragmentSize,
+                                 i == fragmentCount - 1 ? packetSize - i * maxFragmentSize : maxFragmentSize);
+
+        fragments[i] = std::move(fragmentedPacket);
+    }
+    return fragments;
+}
 
 //PacketDefragmentation
 
@@ -27,7 +103,7 @@ void PacketDefragmentation::clear()
     this->g_data.clear();
 }
 
-PacketDefragmentation::Result PacketDefragmentation::process(ProtocolPacketPtr&& packet)
+PacketDefragmentation::Result PacketDefragmentation::process(ReceivedPacketPtr&& packet)
 {
     auto const id = packet->retrieveRealm().value();
     auto const counter = packet->retrieveCounter().value();
@@ -75,7 +151,7 @@ PacketDefragmentation::Result PacketDefragmentation::process(ProtocolPacketPtr&&
     ///TODO: remove the oldest data if the cache is full
     return {Results::WAITING, id};
 }
-ProtocolPacketPtr PacketDefragmentation::retrieve(ProtocolPacket::RealmType id, Identity const& client)
+ReceivedPacketPtr PacketDefragmentation::retrieve(ProtocolPacket::RealmType id, Identity const& client)
 {
     for (auto itData = this->g_data.begin(); itData != this->g_data.end(); ++itData)
     {
@@ -110,7 +186,7 @@ void PacketReorderer::clear()
     decltype(this->g_cache)().swap(this->g_cache);
 }
 
-void PacketReorderer::push(ProtocolPacketPtr&& packet)
+void PacketReorderer::push(ReceivedPacketPtr&& packet)
 {
     this->g_cache.emplace(std::move(packet));
     if (this->g_cache.size() >= FGE_NET_PACKET_REORDERER_CACHE_MAX)
@@ -121,7 +197,7 @@ void PacketReorderer::push(ProtocolPacketPtr&& packet)
         this->g_forceRetrieve = true;
     }
 }
-PacketReorderer::Stats PacketReorderer::checkStat(ProtocolPacketPtr const& packet,
+PacketReorderer::Stats PacketReorderer::checkStat(ReceivedPacketPtr const& packet,
                                                   ProtocolPacket::CounterType currentCounter,
                                                   ProtocolPacket::RealmType currentRealm)
 {
@@ -165,14 +241,14 @@ std::optional<PacketReorderer::Stats> PacketReorderer::checkStat(ProtocolPacket:
 
     return this->g_cache.top().checkStat(currentCounter, currentRealm);
 }
-ProtocolPacketPtr PacketReorderer::pop()
+ReceivedPacketPtr PacketReorderer::pop()
 {
     if (this->g_cache.empty())
     {
         return nullptr;
     }
 
-    auto packet = std::move(const_cast<ProtocolPacketPtr&>(this->g_cache.top()._packet));
+    auto packet = std::move(const_cast<ReceivedPacketPtr&>(this->g_cache.top()._packet));
     this->g_cache.pop();
 
     if (this->g_cache.empty())
@@ -188,7 +264,7 @@ bool PacketReorderer::isEmpty() const
     return this->g_cache.empty();
 }
 
-PacketReorderer::Data::Data(ProtocolPacketPtr&& packet) :
+PacketReorderer::Data::Data(ReceivedPacketPtr&& packet) :
         _packet(std::move(packet)),
         _counter(_packet->retrieveCounter().value()),
         _realm(_packet->retrieveRealm().value())

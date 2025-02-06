@@ -94,7 +94,7 @@ public:
      *
      * \param pck The packet to push
      */
-    void sendToAll(TransmissionPacketPtr const& pck) const;
+    void sendToAll(TransmitPacketPtr const& pck) const;
 
     /**
      * \brief Add a client to the list

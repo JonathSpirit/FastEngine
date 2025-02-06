@@ -203,7 +203,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     std::cout << "user : " << it->first._ip.toString().value_or("UNDEFINED")
                               << " disconnected (timeout) !" << std::endl;
 
-                    auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_ALL_GOODBYE);
+                    auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_ALL_GOODBYE);
 
                     transmissionPacket->packet() << "timeout";
                     server.sendTo(transmissionPacket, it->first);
@@ -220,17 +220,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Handling clients packets
         fge::net::ClientSharedPtr client;
-        fge::net::ProtocolPacketPtr packet;
+        fge::net::ReceivedPacketPtr packet;
         while (serverFlux->process(client, packet, true) == fge::net::FluxProcessResults::RETRIEVABLE)
         {
             //Prepare a sending packet
-            auto transmissionPacket = fge::net::TransmissionPacket::create();
+            auto transmissionPacket = fge::net::CreatePacket();
 
             //Retrieve the packet header
             switch (packet->retrieveHeaderId().value())
             {
             case ls::LS_PROTOCOL_ALL_PING:
-                transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_ALL_PONG);
+                transmissionPacket->setHeaderId(ls::LS_PROTOCOL_ALL_PONG);
 
                 if (client)
                 {
@@ -269,8 +269,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
-                transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
-                transmissionPacket->packet().addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+                transmissionPacket->setHeaderId(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+                transmissionPacket->addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 
                 if (client != nullptr)
                 {
@@ -318,7 +318,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             client->pushPacket(std::move(transmissionPacket));
 
                             //We will send a full scene update to the client too
-                            transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                            transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_S_UPDATE_ALL);
                             transmissionPacket->doNotDiscard();
                             mainScene.pack(transmissionPacket->packet(), packet->getIdentity());
 
@@ -337,7 +337,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             case ls::LS_PROTOCOL_C_ASK_FULL_UPDATE:
                 if (client)
                 {
-                    transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
+                    transmissionPacket->setHeaderId(ls::LS_PROTOCOL_S_UPDATE_ALL);
                     transmissionPacket->doNotDiscard();
                     mainScene.pack(transmissionPacket->packet(), packet->getIdentity());
                     client->advanceCurrentRealm();
@@ -370,8 +370,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     continue;
                 }
 
-                auto transmissionPacket = fge::net::TransmissionPacket::create();
-                transmissionPacket->packet().setHeaderId(ls::LS_PROTOCOL_S_UPDATE);
+                auto transmissionPacket = fge::net::CreatePacket();
+                transmissionPacket->setHeaderId(ls::LS_PROTOCOL_S_UPDATE);
 
                 //Pack data required by the LatencyPlanner in order to compute latency
                 it->second._client->_latencyPlanner.pack(transmissionPacket);

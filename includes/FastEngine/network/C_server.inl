@@ -104,9 +104,9 @@ bool ClientSideNetUdp::start(Port bindPort,
 }
 
 template<class TPacket>
-void ClientSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
+void ClientSideNetUdp::sendTo(TransmitPacketPtr& pck, Identity const& id)
 { ///TODO: have a transmission queue ?
-    if (!pck->packet() || !pck->packet().haveCorrectHeaderSize())
+    if (!pck->packet() || !pck->haveCorrectHeaderSize())
     { //Last verification of the packet
         return;
     }

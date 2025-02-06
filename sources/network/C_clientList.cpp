@@ -36,7 +36,7 @@ void ClientList::sendToAll(SocketUdp& socket, Packet& pck) const
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
 }
-void ClientList::sendToAll(TransmissionPacketPtr const& pck) const
+void ClientList::sendToAll(TransmitPacketPtr const& pck) const
 {
     std::scoped_lock const lck(this->g_mutex);
     for (auto& it: this->g_data)

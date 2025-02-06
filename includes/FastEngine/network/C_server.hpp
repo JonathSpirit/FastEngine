@@ -82,7 +82,7 @@ public:
 
     [[nodiscard]] virtual NetCommandTypes getType() const = 0;
     [[nodiscard]] virtual NetCommandResults
-    transmit(TransmissionPacketPtr& buffPacket, SocketUdp const& socket, Client& client) = 0;
+    transmit(TransmitPacketPtr& buffPacket, SocketUdp const& socket, Client& client) = 0;
     [[nodiscard]] virtual NetCommandResults
     receive(std::unique_ptr<ProtocolPacket>& packet, SocketUdp const& socket, std::chrono::milliseconds deltaTime) = 0;
 };
@@ -95,7 +95,7 @@ public:
     [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::DISCOVER_MTU; }
 
     [[nodiscard]] NetCommandResults
-    transmit(TransmissionPacketPtr& buffPacket, SocketUdp const& socket, Client& client) override;
+    transmit(TransmitPacketPtr& buffPacket, SocketUdp const& socket, Client& client) override;
     [[nodiscard]] NetCommandResults receive(std::unique_ptr<ProtocolPacket>& packet,
                                             SocketUdp const& socket,
                                             std::chrono::milliseconds deltaTime) override;
@@ -143,7 +143,7 @@ public:
     NetFluxUdp& operator=(NetFluxUdp&& r) noexcept = delete;
 
     void clearPackets();
-    [[nodiscard]] ProtocolPacketPtr popNextPacket();
+    [[nodiscard]] ReceivedPacketPtr popNextPacket();
 
     [[nodiscard]] std::size_t getPacketsSize() const;
     [[nodiscard]] bool isEmpty() const;
@@ -152,16 +152,16 @@ public:
     [[nodiscard]] std::size_t getMaxPackets() const;
 
 protected:
-    bool pushPacket(ProtocolPacketPtr&& fluxPck);
-    void forcePushPacket(ProtocolPacketPtr fluxPck);
-    void forcePushPacketFront(ProtocolPacketPtr fluxPck);
+    bool pushPacket(ReceivedPacketPtr&& fluxPck);
+    void forcePushPacket(ReceivedPacketPtr fluxPck);
+    void forcePushPacketFront(ReceivedPacketPtr fluxPck);
     [[nodiscard]] FluxProcessResults processReorder(Client& client,
-                                                    ProtocolPacketPtr& packet,
+                                                    ReceivedPacketPtr& packet,
                                                     ProtocolPacket::CounterType currentCounter,
                                                     bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
-    std::deque<ProtocolPacketPtr> _g_packets;
+    std::deque<ReceivedPacketPtr> _g_packets;
     std::size_t _g_remainingPackets{0};
 
 private:
@@ -180,14 +180,14 @@ public:
     ~ServerNetFluxUdp() override = default;
 
     [[nodiscard]] FluxProcessResults
-    process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet, bool allowUnknownClient);
+    process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient);
 
     ClientList _clients;
 
     fge::CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
 
 private:
-    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ProtocolPacketPtr const& packet);
+    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
 
     ServerSideNetUdp* g_server{nullptr};
 };
@@ -250,7 +250,7 @@ public:
     void closeFlux(NetFluxUdp* flux);
     void closeAllFlux();
 
-    void repushPacket(ProtocolPacketPtr&& packet);
+    void repushPacket(ReceivedPacketPtr&& packet);
 
     /**
      * \brief Notify the transmission thread
@@ -262,8 +262,8 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    void sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id);
-    void sendTo(TransmissionPacketPtr& pck, Identity const& id);
+    void sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id);
+    void sendTo(TransmitPacketPtr& pck, Identity const& id);
 
 private:
     void threadReception();
@@ -278,7 +278,7 @@ private:
 
     std::vector<std::unique_ptr<ServerNetFluxUdp>> g_fluxes;
     ServerNetFluxUdp g_defaultFlux;
-    std::queue<std::pair<TransmissionPacketPtr, Identity>> g_transmissionQueue;
+    std::queue<std::pair<TransmitPacketPtr, Identity>> g_transmissionQueue;
 
     SocketUdp g_socket;
     bool g_running;
@@ -322,9 +322,9 @@ public:
     [[nodiscard]] Identity const& getClientIdentity() const;
 
     template<class TPacket = Packet>
-    void sendTo(TransmissionPacketPtr& pck, Identity const& id);
+    void sendTo(TransmitPacketPtr& pck, Identity const& id);
 
-    [[nodiscard]] FluxProcessResults process(ProtocolPacketPtr& packet);
+    [[nodiscard]] FluxProcessResults process(ReceivedPacketPtr& packet);
 
     Client _client; //But it is the server :O
 

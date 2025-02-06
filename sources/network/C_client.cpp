@@ -22,82 +22,6 @@
 namespace fge::net
 {
 
-//TransmissionPacket
-
-std::vector<std::shared_ptr<TransmissionPacket>> TransmissionPacket::fragment(uint16_t mtu) const
-{
-    if (this->g_packet.getDataSize() < mtu)
-    {
-        return std::vector{const_cast<TransmissionPacket*>(this)->shared_from_this()};
-    }
-
-    //We have to fragment the packet
-    auto const packetSize = this->g_packet.getDataSize();
-    auto const maxFragmentSize = mtu - ProtocolPacket::HeaderSize - sizeof(InternalFragmentedPacketData);
-    auto const fragmentCount = packetSize / maxFragmentSize + (packetSize % maxFragmentSize > 0 ? 1 : 0);
-
-    auto const fragmentRealm = this->g_packet.retrieveCounter().value();
-
-    InternalFragmentedPacketData fragmentData{};
-    fragmentData._fragmentTotal = fragmentCount;
-
-    std::vector<std::shared_ptr<TransmissionPacket>> fragments(fragmentCount);
-    for (std::size_t i = 0; i < fragmentCount; ++i)
-    {
-        auto fragmentedPacket = std::shared_ptr<TransmissionPacket>{
-                new TransmissionPacket(NET_INTERNAL_FRAGMENTED_PACKET, fragmentRealm, i)};
-
-        fragmentedPacket->g_packet.pack(&fragmentData, sizeof(fragmentData));
-        fragmentedPacket->g_packet.append(this->g_packet.getData() + i * maxFragmentSize,
-                                          i == fragmentCount - 1 ? packetSize - i * maxFragmentSize : maxFragmentSize);
-
-        fragments[i] = std::move(fragmentedPacket);
-    }
-    return fragments;
-}
-
-void TransmissionPacket::applyOptions(Client const& client)
-{
-    for (auto const& option: this->g_options)
-    {
-        if (option._option == Options::UPDATE_TIMESTAMP)
-        {
-            Timestamp updatedTimestamp = Client::getTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
-        {
-            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
-        {
-            Latency_ms correctorLatency = client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
-            this->g_packet.pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-        }
-    }
-}
-void TransmissionPacket::applyOptions()
-{
-    for (auto const& option: this->g_options)
-    {
-        if (option._option == Options::UPDATE_TIMESTAMP)
-        {
-            Timestamp updatedTimestamp = Client::getTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
-        {
-            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
-        {
-            throw Exception("Cannot apply correction latency without a client");
-        }
-    }
-}
-
 //ClientStatus
 
 ClientStatus::ClientStatus(std::string_view status, NetworkStatus networkStatus) :
@@ -295,28 +219,28 @@ void Client::clearPackets()
     std::scoped_lock const lck(this->g_mutex);
     this->g_pendingTransmitPackets.clear();
 }
-void Client::pushPacket(TransmissionPacketPtr pck)
+void Client::pushPacket(TransmitPacketPtr pck)
 {
     std::scoped_lock const lck(this->g_mutex);
-    auto const headerFlags = pck->packet().retrieveFlags().value();
+    auto const headerFlags = pck->retrieveFlags().value();
     if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
     {
 #ifdef FGE_DEF_SERVER
-        pck->packet().setCounter(this->advanceCurrentPacketCounter());
+        pck->setCounter(this->advanceCurrentPacketCounter());
 #else
-        pck->packet().setCounter(this->advanceClientPacketCounter());
+        pck->setCounter(this->advanceClientPacketCounter());
 #endif
 
-        pck->packet().setRealm(this->getCurrentRealm());
+        pck->setRealm(this->getCurrentRealm());
     }
     this->g_pendingTransmitPackets.push_back(std::move(pck));
 }
-void Client::pushForcedFrontPacket(TransmissionPacketPtr pck)
+void Client::pushForcedFrontPacket(TransmitPacketPtr pck)
 {
     std::scoped_lock const lck(this->g_mutex);
     this->g_pendingTransmitPackets.push_front(std::move(pck));
 }
-TransmissionPacketPtr Client::popPacket()
+TransmitPacketPtr Client::popPacket()
 {
     std::scoped_lock const lck(this->g_mutex);
 
@@ -450,12 +374,12 @@ ClientStatus& Client::getStatus()
 
 //OneWayLatencyPlanner
 
-void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
+void OneWayLatencyPlanner::pack(TransmitPacketPtr& tPacket)
 {
     //Append timestamp
     auto const myTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(Timestamp));
-    tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
+    tPacket->options().emplace_back(ProtocolPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
 
     //Append latency corrector
     auto const myLatencyCorrectorPos = tPacket->packet().getDataSize();
@@ -468,7 +392,7 @@ void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
     //Append full timestamp
     std::size_t const myFullTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(FullTimestamp));
-    tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
+    tPacket->options().emplace_back(ProtocolPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
 
     //Pack sync stat
     tPacket->packet().pack(&this->g_syncStat, sizeof(this->g_syncStat));
@@ -477,7 +401,7 @@ void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
     if ((this->g_syncStat & HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
         tPacket->packet().pack(&this->g_externalStoredTimestamp, sizeof(this->g_externalStoredTimestamp));
-        tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
+        tPacket->options().emplace_back(ProtocolPacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
         this->g_syncStat &= ~HAVE_EXTERNAL_TIMESTAMP;
     }
 }

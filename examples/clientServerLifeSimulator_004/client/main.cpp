@@ -206,7 +206,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+            /*auto future = server.retrieveMTU();
+            future.wait();
+            std::cout << "MTU: " << future.get() << std::endl;*/
+
+            auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
             transmissionPacket->packet() << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
             //Ask the server thread to automatically update the timestamp just before sending it
@@ -223,7 +227,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     server._client._onThresholdLostPacket.addLambda([&]([[maybe_unused]] fge::net::Client& client) {
         //Here we consider that the scene is lost and we ask the server a full update
-        auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
+        auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_ASK_FULL_UPDATE);
         transmissionPacket->doNotDiscard();
         server._client.pushPacket(std::move(transmissionPacket));
         server.notifyTransmission();
@@ -258,7 +262,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         {
             clockUpdate.restart();
 
-            auto transmissionPacket = fge::net::TransmissionPacket::create(ls::LS_PROTOCOL_C_UPDATE);
+            auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_UPDATE);
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
             //The LatencyPlanner class will do all the work for that.
@@ -283,11 +287,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Handling server packets
-        fge::net::ProtocolPacketPtr packet;
+        fge::net::ReceivedPacketPtr packet;
         while (server.process(packet) == fge::net::FluxProcessResults::RETRIEVABLE)
         {
             //Prepare a sending packet
-            auto transmissionPacket = fge::net::TransmissionPacket::create();
+            auto transmissionPacket = fge::net::CreatePacket();
 
             //Retrieve the packet header
             switch (packet->retrieveHeaderId().value())

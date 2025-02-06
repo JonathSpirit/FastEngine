@@ -19,7 +19,6 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_identity.hpp"
-#include "C_packet.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/network/C_protocol.hpp"
@@ -29,7 +28,6 @@
 #include <deque>
 #include <memory>
 #include <mutex>
-#include <vector>
 
 #define FGE_NET_BAD_SKEY 0
 #define FGE_NET_DEFAULT_LATENCY 20
@@ -58,91 +56,6 @@ using FullTimestamp = uint64_t;      ///< An timestamp represent current time in
 using FullTimestampOffset = int64_t; ///< An timestamp offset
 using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
 
-class Client;
-
-/**
- * \struct TransmissionPacket
- * \brief A packet with configurable options to transmit via a network thread
- *
- * Options will be applied at the moment when the packet will be sent.
- *
- * \warning When the packet is pushed via Client::pushPacket or ClientList::sendToAll, the user must not modify
- * the packet/options anymore causing undefined behavior.
- */
-class FGE_API TransmissionPacket : public std::enable_shared_from_this<TransmissionPacket>
-{
-public:
-    /**
-     * \enum Options
-     * \brief Options to pass to the network thread when sending a packet
-     */
-    enum class Options
-    {
-        UPDATE_TIMESTAMP,         ///< The timestamp of the packet will be updated when sending
-        UPDATE_FULL_TIMESTAMP,    ///< The full timestamp of the packet will be updated when sending
-        UPDATE_CORRECTION_LATENCY ///< The latency of the packet will be updated with the corrector latency from the Client
-    };
-
-    struct Option
-    {
-        constexpr explicit Option(Options option, std::size_t argument = 0) :
-                _option(option),
-                _argument(argument)
-        {}
-
-        Options _option;       ///< The option to send the packet with
-        std::size_t _argument; ///< The option argument
-    };
-
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket>
-    create(ProtocolPacket::IdType headerId = FGE_NET_BAD_ID);
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
-
-    TransmissionPacket(TransmissionPacket const& r) = delete;
-    TransmissionPacket(TransmissionPacket&& r) noexcept = delete;
-    ~TransmissionPacket() = default;
-
-    TransmissionPacket& operator=(TransmissionPacket const& r) = delete;
-    TransmissionPacket& operator=(TransmissionPacket&& r) noexcept = delete;
-
-    [[nodiscard]] inline ProtocolPacket const& packet() const;
-    [[nodiscard]] inline ProtocolPacket& packet();
-    [[nodiscard]] inline std::vector<Option> const& options() const;
-    [[nodiscard]] inline std::vector<Option>& options();
-
-    inline TransmissionPacket& doNotDiscard();
-    inline TransmissionPacket& doNotReorder();
-
-    std::vector<std::shared_ptr<TransmissionPacket>> fragment(uint16_t mtu) const;
-
-    /**
-     * \brief Apply packet options to the packet
-     *
-     * \see Options
-     *
-     * \param client The client to apply the options
-     */
-    void applyOptions(Client const& client);
-    /**
-     * \brief Apply packet options to the packet
-     *
-     * Same as applyOptions(Client const& client) but without the client parameter.
-     * UPDATE_CORRECTION_LATENCY will throw.
-     */
-    void applyOptions();
-
-private:
-    inline explicit TransmissionPacket(ProtocolPacket::IdType headerId,
-                                       ProtocolPacket::RealmType realm,
-                                       ProtocolPacket::CounterType counter);
-    inline explicit TransmissionPacket(ProtocolPacket&& packet);
-
-    ProtocolPacket g_packet;
-    std::vector<Option> g_options;
-};
-
-using TransmissionPacketPtr = std::shared_ptr<TransmissionPacket>;
-
 /**
  * \struct OneWayLatencyPlanner
  * \brief A helper class that measure latency between client/server
@@ -166,9 +79,9 @@ public:
     /**
      * \brief Pack the required data by the planner to the client/server
      *
-     * \param tPacket A TransmissionPacket
+     * \param tPacket A ProtocolPacket
      */
-    void pack(TransmissionPacketPtr& tPacket);
+    void pack(TransmitPacketPtr& tPacket);
     /**
      * \brief Unpack the data received by another client/server planner
      *
@@ -428,7 +341,7 @@ public:
      */
     void clearPackets();
     /**
-     * \brief Add a TransmissionPacket to the queue
+     * \brief Add a Packet to the queue
      *
      * The packet will be sent when the network thread is ready to send it.
      * The network thread is ready to send a packet when the time interval between the last sent packet
@@ -440,14 +353,14 @@ public:
      *
      * \param pck The packet to send with eventual options
      */
-    void pushPacket(TransmissionPacketPtr pck);
-    void pushForcedFrontPacket(TransmissionPacketPtr pck);
+    void pushPacket(TransmitPacketPtr pck);
+    void pushForcedFrontPacket(TransmitPacketPtr pck);
     /**
      * \brief Pop a packet from the queue
      *
      * \return The popped packet or nullptr if the queue is empty
      */
-    TransmissionPacketPtr popPacket();
+    TransmitPacketPtr popPacket();
     /**
      * \brief Check if the packet queue is empty
      *
@@ -492,7 +405,7 @@ private:
     Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
-    std::deque<TransmissionPacketPtr> g_pendingTransmitPackets;
+    std::deque<TransmitPacketPtr> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
 
     Skey g_skey;
@@ -514,7 +427,5 @@ private:
  */
 
 } // namespace fge::net
-
-#include "C_client.inl"
 
 #endif // _FGE_C_CLIENT_HPP_INCLUDED

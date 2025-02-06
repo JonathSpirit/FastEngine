@@ -54,21 +54,27 @@ inline ProtocolPacket::ProtocolPacket(Packet&& r) noexcept :
 
 inline ProtocolPacket::ProtocolPacket(ProtocolPacket const& r) :
         Packet(r),
+        std::enable_shared_from_this<ProtocolPacket>(r),
 
         g_identity(r.g_identity),
         g_timestamp(r.g_timestamp),
 
         g_fluxIndex(r.g_fluxIndex),
-        g_fluxLifetime(r.g_fluxLifetime)
+        g_fluxLifetime(r.g_fluxLifetime),
+
+        g_options(r.g_options)
 {}
 inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
         Packet(std::move(r)),
+        std::enable_shared_from_this<ProtocolPacket>(std::move(r)),
 
         g_identity(r.g_identity),
         g_timestamp(r.g_timestamp),
 
         g_fluxIndex(r.g_fluxIndex),
-        g_fluxLifetime(r.g_fluxLifetime)
+        g_fluxLifetime(r.g_fluxLifetime),
+
+        g_options(std::move(r.g_options))
 {}
 
 inline bool ProtocolPacket::haveCorrectHeaderSize() const
@@ -142,7 +148,7 @@ inline bool ProtocolPacket::isFragmented() const
     return this->retrieveHeaderId().value_or(FGE_NET_BAD_ID) == NET_INTERNAL_FRAGMENTED_PACKET;
 }
 
-inline void ProtocolPacket::setHeader(Header const& header)
+inline ProtocolPacket& ProtocolPacket::setHeader(Header const& header)
 {
     if (!this->haveCorrectHeaderSize())
     {
@@ -152,8 +158,9 @@ inline void ProtocolPacket::setHeader(Header const& header)
     this->pack(IdPosition, &header._id, sizeof(IdType));
     this->pack(RealmPosition, &header._realm, sizeof(RealmType));
     this->pack(CounterPosition, &header._counter, sizeof(CounterType));
+    return *this;
 }
-inline void ProtocolPacket::setHeaderId(IdType id)
+inline ProtocolPacket& ProtocolPacket::setHeaderId(IdType id)
 {
     if (this->haveCorrectHeaderSize())
     {
@@ -162,9 +169,10 @@ inline void ProtocolPacket::setHeaderId(IdType id)
         id = (headerFlags & FGE_NET_HEADER_FLAGS_MASK) | (id & ~FGE_NET_HEADER_FLAGS_MASK);
         this->pack(IdPosition, &id, sizeof(IdType));
     }
+    return *this;
 }
 
-inline void ProtocolPacket::setFlags(IdType flags)
+inline ProtocolPacket& ProtocolPacket::setFlags(IdType flags)
 {
     if (this->haveCorrectHeaderSize())
     {
@@ -173,8 +181,9 @@ inline void ProtocolPacket::setFlags(IdType flags)
         headerId = (headerId & ~FGE_NET_HEADER_FLAGS_MASK) | (flags & FGE_NET_HEADER_FLAGS_MASK);
         this->pack(IdPosition, &headerId, sizeof(IdType));
     }
+    return *this;
 }
-inline void ProtocolPacket::addFlags(IdType flags)
+inline ProtocolPacket& ProtocolPacket::addFlags(IdType flags)
 {
     if (this->haveCorrectHeaderSize())
     {
@@ -183,8 +192,9 @@ inline void ProtocolPacket::addFlags(IdType flags)
         headerId |= flags & FGE_NET_HEADER_FLAGS_MASK;
         this->pack(IdPosition, &headerId, sizeof(IdType));
     }
+    return *this;
 }
-inline void ProtocolPacket::removeFlags(IdType flags)
+inline ProtocolPacket& ProtocolPacket::removeFlags(IdType flags)
 {
     if (this->haveCorrectHeaderSize())
     {
@@ -193,15 +203,26 @@ inline void ProtocolPacket::removeFlags(IdType flags)
         headerId &= ~flags & FGE_NET_HEADER_FLAGS_MASK;
         this->pack(IdPosition, &headerId, sizeof(IdType));
     }
+    return *this;
+}
+inline ProtocolPacket& ProtocolPacket::doNotDiscard()
+{
+    return this->addFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+}
+inline ProtocolPacket& ProtocolPacket::doNotReorder()
+{
+    return this->addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 }
 
-inline void ProtocolPacket::setRealm(RealmType realm)
+inline ProtocolPacket& ProtocolPacket::setRealm(RealmType realm)
 {
     this->pack(RealmPosition, &realm, sizeof(RealmType));
+    return *this;
 }
-inline void ProtocolPacket::setCounter(CounterType counter)
+inline ProtocolPacket& ProtocolPacket::setCounter(CounterType counter)
 {
     this->pack(CounterPosition, &counter, sizeof(CounterType));
+    return *this;
 }
 
 inline void ProtocolPacket::setTimestamp(Timestamp timestamp)
@@ -215,6 +236,15 @@ inline Timestamp ProtocolPacket::getTimeStamp() const
 inline Identity const& ProtocolPacket::getIdentity() const
 {
     return this->g_identity;
+}
+
+inline std::vector<ProtocolPacket::Option> const& ProtocolPacket::options() const
+{
+    return this->g_options;
+}
+inline std::vector<ProtocolPacket::Option>& ProtocolPacket::options()
+{
+    return this->g_options;
 }
 
 inline bool ProtocolPacket::checkFluxLifetime(std::size_t fluxSize)

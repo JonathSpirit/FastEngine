@@ -24,19 +24,19 @@ namespace fge::net
 //NetCommands
 
 NetCommandResults
-NetMTUCommand::transmit(TransmissionPacketPtr& buffPacket, SocketUdp const& socket, [[maybe_unused]] Client& client)
+NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, SocketUdp const& socket, [[maybe_unused]] Client& client)
 {
     switch (this->g_state)
     {
     case States::ASKING:
-        buffPacket = TransmissionPacket::create(NET_INTERNAL_ID_MTU_ASK);
+        buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_ASK);
         buffPacket->doNotDiscard().doNotReorder();
         this->g_state = States::WAITING_RESPONSE;
         break;
     case States::DISCOVER:
     {
         //Transmit the new target MTU
-        buffPacket = TransmissionPacket::create(NET_INTERNAL_ID_MTU_TEST);
+        buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_TEST);
         auto const currentSize = buffPacket->doNotDiscard().doNotReorder().packet().getDataSize();
 
         auto const extraHeader = (socket.getAddressType() == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_HEADER_SIZE
@@ -185,7 +185,7 @@ void NetFluxUdp::clearPackets()
     this->_g_packets.clear();
     this->_g_remainingPackets = 0;
 }
-bool NetFluxUdp::pushPacket(ProtocolPacketPtr&& fluxPck)
+bool NetFluxUdp::pushPacket(ReceivedPacketPtr&& fluxPck)
 {
     std::scoped_lock const lock(this->_g_mutexFlux);
     if (this->_g_packets.size() >= this->g_maxPackets)
@@ -195,19 +195,19 @@ bool NetFluxUdp::pushPacket(ProtocolPacketPtr&& fluxPck)
     this->_g_packets.push_back(std::move(fluxPck));
     return true;
 }
-void NetFluxUdp::forcePushPacket(ProtocolPacketPtr fluxPck)
+void NetFluxUdp::forcePushPacket(ReceivedPacketPtr fluxPck)
 {
     std::scoped_lock const lock(this->_g_mutexFlux);
     this->_g_packets.push_back(std::move(fluxPck));
 }
-void NetFluxUdp::forcePushPacketFront(ProtocolPacketPtr fluxPck)
+void NetFluxUdp::forcePushPacketFront(ReceivedPacketPtr fluxPck)
 {
     std::scoped_lock const lock(this->_g_mutexFlux);
     this->_g_packets.push_front(std::move(fluxPck));
 }
 
 FluxProcessResults NetFluxUdp::processReorder(Client& client,
-                                              ProtocolPacketPtr& packet,
+                                              ReceivedPacketPtr& packet,
                                               ProtocolPacket::CounterType currentCounter,
                                               bool ignoreRealm)
 {
@@ -242,8 +242,8 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
     packet->addFlags(FGE_NET_HEADER_LOCAL_REORDERED_FLAG);
 
     std::size_t containerInversedSize = 0;
-    auto* containerInversed = FGE_ALLOCA_T(ProtocolPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
-    FGE_PLACE_CONSTRUCT(ProtocolPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+    auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
+    FGE_PLACE_CONSTRUCT(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
 
     while (auto const stat = client.getPacketReorderer().checkStat(currentCounter, currentRealm))
     {
@@ -268,17 +268,17 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
         ++this->_g_remainingPackets;
     }
 
-    FGE_PLACE_DESTRUCT(ProtocolPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+    FGE_PLACE_DESTRUCT(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
 
     return FluxProcessResults::RETRIEVABLE;
 }
 
-ProtocolPacketPtr NetFluxUdp::popNextPacket()
+ReceivedPacketPtr NetFluxUdp::popNextPacket()
 {
     std::scoped_lock const lock(this->_g_mutexFlux);
     if (!this->_g_packets.empty())
     {
-        ProtocolPacketPtr tmpPck = std::move(this->_g_packets.front());
+        ReceivedPacketPtr tmpPck = std::move(this->_g_packets.front());
         this->_g_packets.pop_front();
         return tmpPck;
     }
@@ -308,7 +308,7 @@ std::size_t NetFluxUdp::getMaxPackets() const
 
 //ServerNetFluxUdp
 FluxProcessResults
-ServerNetFluxUdp::process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet, bool allowUnknownClient)
+ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient)
 {
     refClient.reset();
     packet.reset();
@@ -409,7 +409,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ProtocolPacketPtr& packet,
     return FluxProcessResults::RETRIEVABLE;
 }
 
-bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ProtocolPacketPtr const& packet)
+bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet)
 {
     auto const headerFlags = packet->retrieveFlags().value();
     auto const clientProvidedRealm = packet->retrieveRealm().value();
@@ -509,7 +509,7 @@ void ServerSideNetUdp::closeAllFlux()
     this->g_fluxes.clear();
 }
 
-void ServerSideNetUdp::repushPacket(ProtocolPacketPtr&& packet)
+void ServerSideNetUdp::repushPacket(ReceivedPacketPtr&& packet)
 {
     if (!packet->checkFluxLifetime(this->g_fluxes.size()))
     {
@@ -529,7 +529,7 @@ bool ServerSideNetUdp::isRunning() const
     return this->g_running;
 }
 
-void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id)
+void ServerSideNetUdp::sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id)
 {
     pck->applyOptions(client);
     pck->doNotReorder();
@@ -540,7 +540,7 @@ void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Client const& client, 
     }
     this->g_transmissionNotifier.notify_one();
 }
-void ServerSideNetUdp::sendTo(TransmissionPacketPtr& pck, Identity const& id)
+void ServerSideNetUdp::sendTo(TransmitPacketPtr& pck, Identity const& id)
 {
     pck->applyOptions();
     pck->doNotReorder();
@@ -596,14 +596,14 @@ void ServerSideNetUdp::threadReception()
                 {
                 case NET_INTERNAL_ID_MTU_TEST:
                 {
-                    auto response = TransmissionPacket::create(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
+                    auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
                     response->doNotDiscard().doNotReorder();
                     this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
                     continue;
                 }
                 case NET_INTERNAL_ID_MTU_ASK:
                 {
-                    auto response = TransmissionPacket::create(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
+                    auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
                     response->doNotDiscard().doNotReorder().packet()
                             << SocketUdp::retrieveAdapterMTUForDestination(idReceive._ip).value_or(0);
                     this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
@@ -672,7 +672,7 @@ void ServerSideNetUdp::threadTransmission()
                 auto transmissionPacket = itClient->second._client->popPacket();
 
                 //MTU check
-                auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
+                auto const headerId = transmissionPacket->retrieveHeaderId().value();
                 if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
                 {
                     //Packet is not fragmented, we have to check is size
@@ -696,7 +696,7 @@ void ServerSideNetUdp::threadTransmission()
                 }
                 //mtu_check_skip:
 
-                if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
+                if (!transmissionPacket->packet() || !transmissionPacket->haveCorrectHeaderSize())
                 { //Last verification of the packet
                     continue;
                 }
@@ -717,7 +717,7 @@ void ServerSideNetUdp::threadTransmission()
             auto data = std::move(this->g_transmissionQueue.front());
             this->g_transmissionQueue.pop();
 
-            if (!data.first->packet() || !data.first->packet().haveCorrectHeaderSize())
+            if (!data.first->packet() || !data.first->haveCorrectHeaderSize())
             { //Last verification of the packet
                 continue;
             }
@@ -804,7 +804,7 @@ Identity const& ClientSideNetUdp::getClientIdentity() const
     return this->g_clientIdentity;
 }
 
-FluxProcessResults ClientSideNetUdp::process(ProtocolPacketPtr& packet)
+FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
 {
     ///TODO: no lock ?
     packet.reset();
@@ -1016,7 +1016,7 @@ void ClientSideNetUdp::threadTransmission()
             std::scoped_lock const commandLock(this->g_mutexCommands);
             if (!this->g_commands.empty())
             {
-                TransmissionPacketPtr possiblePacket;
+                TransmitPacketPtr possiblePacket;
                 auto const result = this->g_commands.front()->transmit(possiblePacket, this->g_socket, this->_client);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
@@ -1048,7 +1048,7 @@ void ClientSideNetUdp::threadTransmission()
             auto transmissionPacket = this->_client.popPacket();
 
             //MTU check
-            auto const headerId = transmissionPacket->packet().retrieveHeaderId().value();
+            auto const headerId = transmissionPacket->retrieveHeaderId().value();
             if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
             {
                 //Packet is not fragmented, we have to check is size
@@ -1072,7 +1072,7 @@ void ClientSideNetUdp::threadTransmission()
             }
         mtu_check_skip:
 
-            if (!transmissionPacket->packet() || !transmissionPacket->packet().haveCorrectHeaderSize())
+            if (!transmissionPacket->packet() || !transmissionPacket->haveCorrectHeaderSize())
             { //Last verification of the packet
                 continue;
             }
