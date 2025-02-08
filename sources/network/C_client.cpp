@@ -372,6 +372,15 @@ ClientStatus& Client::getStatus()
     return this->g_status;
 }
 
+uint16_t Client::getMTU() const
+{
+    return this->g_mtu;
+}
+void Client::setMTU(uint16_t mtu)
+{
+    this->g_mtu = mtu;
+}
+
 //OneWayLatencyPlanner
 
 void OneWayLatencyPlanner::pack(TransmitPacketPtr& tPacket)

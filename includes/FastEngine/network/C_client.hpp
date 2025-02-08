@@ -393,6 +393,9 @@ public:
     [[nodiscard]] ClientStatus const& getStatus() const;
     [[nodiscard]] ClientStatus& getStatus();
 
+    [[nodiscard]] uint16_t getMTU() const;
+    void setMTU(uint16_t mtu);
+
     CallbackHandler<Client&> _onThresholdLostPacket;
 
     Event _event;                         ///< Optional client-side event that can be synchronized with the server
@@ -418,6 +421,8 @@ private:
     PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
+
+    uint16_t g_mtu{0};
 
     ClientStatus g_status;
 };

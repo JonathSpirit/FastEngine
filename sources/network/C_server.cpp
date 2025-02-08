@@ -675,13 +675,15 @@ void ServerSideNetUdp::threadTransmission()
                 auto const headerId = transmissionPacket->retrieveHeaderId().value();
                 if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
                 {
+                    auto const mtu = itClient->second._client->getMTU();
+
                     //Packet is not fragmented, we have to check is size
-                    /*if (this->g_mtu == 0) TODO
+                    if (mtu == 0)
                     { //We don't know the MTU yet
                         goto mtu_check_skip;
-                    }*/
+                    }
 
-                    auto fragments = transmissionPacket->fragment(64); //TODO
+                    auto fragments = transmissionPacket->fragment(mtu);
                     for (std::size_t iFragment = 0; iFragment < fragments.size(); ++iFragment)
                     {
                         if (iFragment == 0)
@@ -694,7 +696,7 @@ void ServerSideNetUdp::threadTransmission()
                         }
                     }
                 }
-                //mtu_check_skip:
+            mtu_check_skip:
 
                 if (!transmissionPacket->packet() || !transmissionPacket->haveCorrectHeaderSize())
                 { //Last verification of the packet
@@ -734,8 +736,7 @@ ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
         g_socket(addressType),
-        g_running(false),
-        g_mtu(0)
+        g_running(false)
 {}
 
 ClientSideNetUdp::~ClientSideNetUdp()
@@ -1052,12 +1053,12 @@ void ClientSideNetUdp::threadTransmission()
             if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
             {
                 //Packet is not fragmented, we have to check is size
-                if (this->g_mtu == 0)
+                if (this->_client.getMTU() == 0)
                 { //We don't know the MTU yet
                     goto mtu_check_skip;
                 }
 
-                auto fragments = transmissionPacket->fragment(this->g_mtu);
+                auto fragments = transmissionPacket->fragment(this->_client.getMTU());
                 for (std::size_t i = 0; i < fragments.size(); ++i)
                 {
                     if (i == 0)

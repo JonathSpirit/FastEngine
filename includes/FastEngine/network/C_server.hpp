@@ -348,8 +348,6 @@ private:
 
     Identity g_clientIdentity;
 
-    uint16_t g_mtu;
-
     PacketDefragmentation g_defragmentation;
 };
 
