@@ -30,14 +30,14 @@ NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, SocketUdp const& socket, 
     {
     case States::ASKING:
         buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_ASK);
-        buffPacket->doNotDiscard().doNotReorder();
+        buffPacket->doNotDiscard().doNotReorder().doNotFragment();
         this->g_state = States::WAITING_RESPONSE;
         break;
     case States::DISCOVER:
     {
         //Transmit the new target MTU
         buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_TEST);
-        auto const currentSize = buffPacket->doNotDiscard().doNotReorder().packet().getDataSize();
+        auto const currentSize = buffPacket->doNotDiscard().doNotReorder().doNotFragment().packet().getDataSize();
 
         auto const extraHeader = (socket.getAddressType() == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_HEADER_SIZE
                                                                                     : FGE_SOCKET_IPV6_HEADER_SIZE) +
@@ -672,8 +672,8 @@ void ServerSideNetUdp::threadTransmission()
                 auto transmissionPacket = itClient->second._client->popPacket();
 
                 //MTU check
-                auto const headerId = transmissionPacket->retrieveHeaderId().value();
-                if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
+                if (!transmissionPacket->isFragmented() &&
+                    !transmissionPacket->checkFlags(FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG))
                 {
                     auto const mtu = itClient->second._client->getMTU();
 
@@ -1049,8 +1049,8 @@ void ClientSideNetUdp::threadTransmission()
             auto transmissionPacket = this->_client.popPacket();
 
             //MTU check
-            auto const headerId = transmissionPacket->retrieveHeaderId().value();
-            if (headerId != NET_INTERNAL_FRAGMENTED_PACKET)
+            if (!transmissionPacket->isFragmented() &&
+                !transmissionPacket->checkFlags(FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG))
             {
                 //Packet is not fragmented, we have to check is size
                 if (this->_client.getMTU() == 0)

@@ -205,6 +205,16 @@ inline ProtocolPacket& ProtocolPacket::removeFlags(IdType flags)
     }
     return *this;
 }
+inline bool ProtocolPacket::checkFlags(IdType flags) const
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        IdType headerId;
+        this->unpack(IdPosition, &headerId, sizeof(IdType));
+        return (headerId & FGE_NET_HEADER_FLAGS_MASK) == flags;
+    }
+    return false;
+}
 inline ProtocolPacket& ProtocolPacket::doNotDiscard()
 {
     return this->addFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
@@ -212,6 +222,10 @@ inline ProtocolPacket& ProtocolPacket::doNotDiscard()
 inline ProtocolPacket& ProtocolPacket::doNotReorder()
 {
     return this->addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+}
+inline ProtocolPacket& ProtocolPacket::doNotFragment()
+{
+    return this->addFlags(FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG);
 }
 
 inline ProtocolPacket& ProtocolPacket::setRealm(RealmType realm)

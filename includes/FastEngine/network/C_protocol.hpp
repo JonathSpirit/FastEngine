@@ -25,7 +25,14 @@
 #include <queue>
 #include <vector>
 
-#define FGE_NET_ID_MAX 0x1FFE
+#define FGE_NET_HEADER_DO_NOT_DISCARD_FLAG 0x8000
+#define FGE_NET_HEADER_DO_NOT_REORDER_FLAG 0x4000
+#define FGE_NET_HEADER_LOCAL_REORDERED_FLAG 0x2000
+#define FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG 0x1000
+#define FGE_NET_HEADER_FLAGS_MASK 0xF000
+#define FGE_NET_HEADER_FLAGS_COUNT 4
+
+#define FGE_NET_ID_MAX ((~FGE_NET_HEADER_FLAGS_MASK) - 1)
 
 #define FGE_NET_INTERNAL_ID_MAX 1024
 #define FGE_NET_INTERNAL_ID_START 1
@@ -34,12 +41,6 @@
 #define FGE_NET_CUSTOM_ID_START (FGE_NET_INTERNAL_ID_MAX + 1)
 
 #define FGE_NET_BAD_ID 0
-
-#define FGE_NET_HEADER_DO_NOT_DISCARD_FLAG 0x8000
-#define FGE_NET_HEADER_DO_NOT_REORDER_FLAG 0x4000
-#define FGE_NET_HEADER_LOCAL_REORDERED_FLAG 0x2000
-#define FGE_NET_HEADER_FLAGS_MASK 0xE000
-#define FGE_NET_HEADER_FLAGS_COUNT 3
 
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_PACKET_REORDERER_CACHE_MAX 5
@@ -91,7 +92,7 @@ public:
     };
 
     using IdType = uint16_t;
-    using RealmType = uint8_t;
+    using RealmType = uint16_t;
     using CounterType = uint16_t;
 
     struct Header
@@ -140,8 +141,10 @@ public:
     inline ProtocolPacket& setFlags(IdType flags);
     inline ProtocolPacket& addFlags(IdType flags);
     inline ProtocolPacket& removeFlags(IdType flags);
+    [[nodiscard]] inline bool checkFlags(IdType flags) const;
     inline ProtocolPacket& doNotDiscard();
     inline ProtocolPacket& doNotReorder();
+    inline ProtocolPacket& doNotFragment();
 
     inline ProtocolPacket& setRealm(RealmType realm);
     inline ProtocolPacket& setCounter(CounterType counter);

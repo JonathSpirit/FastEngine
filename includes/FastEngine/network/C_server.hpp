@@ -313,7 +313,7 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    std::future<uint16_t> retrieveMTU();
+    [[nodiscard]] std::future<uint16_t> retrieveMTU();
 
     [[nodiscard]] IpAddress::Types getAddressType() const;
 
