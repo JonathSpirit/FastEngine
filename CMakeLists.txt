@@ -21,6 +21,9 @@ else()
     endif()
 endif()
 
+#Find the OpenSSL package
+find_package(OpenSSL REQUIRED)
+
 #Add a LZ4 fix for missing INTERFACE_INCLUDE_DIRECTORIES property
 get_target_property(VAR_PROPERTY_CHECK LZ4::lz4_static INTERFACE_INCLUDE_DIRECTORIES)
 
@@ -435,6 +438,7 @@ target_link_libraries(${FGE_LIB_NAME} PRIVATE fmt::fmt-header-only)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE Freetype::Freetype)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE re2::re2)
 target_link_libraries(${FGE_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC SDL2::SDL2 SDL2_image::SDL2_image)
@@ -444,6 +448,7 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE fmt::fmt-header-only)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE Freetype::Freetype)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE re2::re2)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 #Install
 include(GNUInstallDirs)
