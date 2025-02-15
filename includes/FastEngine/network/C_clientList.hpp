@@ -21,6 +21,7 @@
 #include "C_client.hpp"
 #include "C_protocol.hpp"
 #include "FastEngine/C_accessLock.hpp"
+#include "FastEngine/network/C_netCommand.hpp"
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -58,6 +59,8 @@ struct ClientListEvent
 class FGE_API ClientList
 {
 public:
+    using Commands = std::vector<std::unique_ptr<NetCommand>>;
+
     struct Data
     {
         inline explicit Data(ClientSharedPtr client) :
@@ -66,6 +69,7 @@ public:
 
         ClientSharedPtr _client;
         PacketDefragmentation _defragmentation;
+        Commands _commands;
     };
 
     using DataList = std::unordered_map<Identity, Data, IdentityHash>;

@@ -38,7 +38,12 @@
 #define FGE_NET_STATUS_DEFAULT_TIMEOUT                                                                                 \
     std::chrono::milliseconds                                                                                          \
     {                                                                                                                  \
-        5000                                                                                                           \
+        2000                                                                                                           \
+    }
+#define FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT                                                                       \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        6000                                                                                                           \
     }
 #define FGE_NET_STATUS_DEFAULT_STATUS "none"
 
@@ -164,12 +169,16 @@ class FGE_API ClientStatus
 public:
     enum class NetworkStatus
     {
+        UNKNOWN,
+
+        ACKNOWLEDGED,
+        MTU_DISCOVERED,
+        AUTHENTICATED,
         CONNECTED,
-        DISCONNECTED,
-        TIMEOUT,
         USER_HANDLED,
 
-        UNKNOWN
+        DISCONNECTED,
+        TIMEOUT,
     };
 
     ClientStatus() = default;
@@ -204,6 +213,13 @@ private:
 class FGE_API Client
 {
 public:
+    struct CryptInfo
+    {
+        void* _ssl{nullptr};
+        void* _rbio{nullptr};
+        void* _wbio{nullptr};
+    };
+
     Client();
     /**
      * \brief Constructor with default latencies
@@ -393,6 +409,9 @@ public:
     [[nodiscard]] ClientStatus const& getStatus() const;
     [[nodiscard]] ClientStatus& getStatus();
 
+    [[nodiscard]] CryptInfo const& getCryptInfo() const;
+    [[nodiscard]] CryptInfo& getCryptInfo();
+
     [[nodiscard]] uint16_t getMTU() const;
     void setMTU(uint16_t mtu);
 
@@ -425,6 +444,7 @@ private:
     uint16_t g_mtu{0};
 
     ClientStatus g_status;
+    CryptInfo g_cryptInfo;
 };
 
 /**

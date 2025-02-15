@@ -26,9 +26,7 @@ namespace fge::net
 
 ClientStatus::ClientStatus(std::string_view status, NetworkStatus networkStatus) :
         g_status(status),
-        g_networkStatus(networkStatus),
-        g_timeout(FGE_NET_STATUS_DEFAULT_TIMEOUT),
-        g_currentTimeout(0)
+        g_networkStatus(networkStatus)
 {}
 
 std::string const& ClientStatus::getStatus() const
@@ -370,6 +368,15 @@ ClientStatus const& Client::getStatus() const
 ClientStatus& Client::getStatus()
 {
     return this->g_status;
+}
+
+Client::CryptInfo const& Client::getCryptInfo() const
+{
+    return this->g_cryptInfo;
+}
+Client::CryptInfo& Client::getCryptInfo()
+{
+    return this->g_cryptInfo;
 }
 
 uint16_t Client::getMTU() const

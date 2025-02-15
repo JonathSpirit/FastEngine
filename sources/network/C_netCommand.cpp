@@ -1,0 +1,292 @@
+/*
+ * Copyright 2024 Guillaume Guillet
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "FastEngine/network/C_netCommand.hpp"
+#include "FastEngine/manager/network_manager.hpp"
+#include "FastEngine/network/C_socket.hpp"
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+
+namespace fge::net
+{
+
+//NetCommands
+
+NetCommandResults
+NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressType, [[maybe_unused]] Client& client)
+{
+    switch (this->g_state)
+    {
+    case States::ASKING:
+        buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_ASK);
+        buffPacket->doNotDiscard().doNotReorder().doNotFragment();
+        this->g_state = States::WAITING_RESPONSE;
+        break;
+    case States::DISCOVER:
+    {
+        //Transmit the new target MTU
+        buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_TEST);
+        auto const currentSize = buffPacket->doNotDiscard().doNotReorder().doNotFragment().packet().getDataSize();
+
+        auto const extraHeader =
+                (addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_HEADER_SIZE : FGE_SOCKET_IPV6_HEADER_SIZE) +
+                FGE_SOCKET_UDP_HEADER_SIZE;
+
+        --this->g_tryCount;
+        if (this->g_tryCount == 0 && this->g_currentMTU == 0)
+        {
+            //Last try
+            this->g_targetMTU =
+                    addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU;
+        }
+        buffPacket->packet().append(this->g_targetMTU - currentSize - extraHeader);
+        this->g_state = States::WAITING;
+        break;
+    }
+    default:
+        break;
+    }
+
+    return NetCommandResults::WORKING;
+}
+NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet,
+                                         IpAddress::Types addressType,
+                                         std::chrono::milliseconds deltaTime,
+                                         [[maybe_unused]] Client* client)
+{
+    switch (this->g_state)
+    {
+    case States::WAITING_RESPONSE:
+        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_ASK_RESPONSE)
+        {
+            //Extract the target MTU
+            uint16_t targetMTU;
+            if (rules::RValid<uint16_t>({packet->packet(), &targetMTU}).end() || !packet->endReached())
+            {
+                //Invalid packet
+                this->g_promise.set_value(0);
+                return NetCommandResults::FAILURE;
+            }
+
+            auto const ourCurrentMTU = static_cast<uint16_t>(FGE_SOCKET_FULL_DATAGRAM_SIZE);
+            //socket.retrieveCurrentAdapterMTU().value_or(FGE_SOCKET_FULL_DATAGRAM_SIZE); TODO
+            if (targetMTU == 0)
+            {
+                //We have to figure it ourselves
+                this->g_maximumMTU = ourCurrentMTU;
+            }
+            else
+            {
+                this->g_maximumMTU = std::min(targetMTU, ourCurrentMTU);
+            }
+
+            this->g_currentMTU =
+                    addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU;
+            if (this->g_currentMTU == this->g_maximumMTU)
+            {
+                this->g_promise.set_value(this->g_currentMTU);
+                return NetCommandResults::SUCCESS;
+            }
+
+            //Compute a new target MTU
+            this->g_targetMTU = this->g_maximumMTU;
+
+            std::size_t const diff = this->g_maximumMTU - this->g_currentMTU;
+            if (diff < FGE_NET_MTU_MIN_INTERVAL)
+            {
+                this->g_tryCount = 0;
+            }
+            else
+            {
+                this->g_tryCount = FGE_NET_MTU_TRY_COUNT;
+                this->g_intervalMTU = diff / 2;
+            }
+
+            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            return NetCommandResults::WORKING;
+        }
+
+        this->g_receiveTimeout += deltaTime;
+        if (this->g_receiveTimeout >= FGE_NET_MTU_TIMEOUT_MS)
+        {
+            this->g_promise.set_value(0);
+            return NetCommandResults::FAILURE;
+        }
+        break;
+    case States::DISCOVER:
+    case States::WAITING:
+        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_TEST_RESPONSE)
+        {
+            this->g_currentMTU = this->g_targetMTU;
+
+            if (this->g_tryCount == 0 || this->g_currentMTU == this->g_maximumMTU)
+            {
+                this->g_promise.set_value(this->g_currentMTU);
+                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
+            }
+
+            this->g_targetMTU += this->g_intervalMTU;
+            this->g_intervalMTU = std::max<uint16_t>(FGE_NET_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
+            if (this->g_targetMTU > this->g_maximumMTU)
+            {
+                this->g_targetMTU = this->g_maximumMTU;
+                this->g_tryCount = 0;
+            }
+
+            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            break;
+        }
+
+        this->g_receiveTimeout += deltaTime;
+        if (this->g_receiveTimeout >= FGE_NET_MTU_TIMEOUT_MS)
+        {
+            if (this->g_tryCount == 0)
+            {
+                this->g_promise.set_value(this->g_currentMTU);
+                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
+            }
+
+            this->g_targetMTU -= this->g_intervalMTU;
+            this->g_intervalMTU = std::max<uint16_t>(FGE_NET_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
+
+            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            return NetCommandResults::WORKING;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return NetCommandResults::WORKING;
+}
+
+NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
+                                              [[maybe_unused]] IpAddress::Types addressType,
+                                              Client& client)
+{
+    auto& info = client.getCryptInfo();
+
+    if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
+    {
+        return NetCommandResults::SUCCESS;
+    }
+
+    auto const result = SSL_do_handshake(static_cast<SSL*>(info._ssl));
+    if (result <= 0)
+    {
+        auto const err = SSL_get_error(static_cast<SSL*>(info._ssl), result);
+
+        if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE)
+        {
+            ERR_print_errors_fp(stderr);
+            return NetCommandResults::FAILURE;
+        }
+    }
+
+    // Check if OpenSSL has produced encrypted handshake data
+    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
+    if (pendingSize == 0)
+    {
+        return NetCommandResults::WORKING;
+    }
+
+    buffPacket = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
+
+    auto const packetStartDataPosition = buffPacket->doNotDiscard().getDataSize();
+    buffPacket->append(pendingSize);
+
+    auto const finalSize =
+            BIO_read(static_cast<BIO*>(info._wbio), buffPacket->getData() + packetStartDataPosition, pendingSize);
+    if (finalSize <= 0 || static_cast<std::size_t>(finalSize) != pendingSize)
+    {
+        return NetCommandResults::FAILURE;
+    }
+
+    return NetCommandResults::WORKING;
+
+#if 0
+    while (!SSL_is_init_finished(ssl)) {
+        ret = SSL_do_handshake(ssl);
+        if(ret <= 0) {
+            int err = SSL_get_error(ssl, ret);
+            if(err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
+                fprintf(stderr, "Handshake error: %d\n", err);
+                ERR_print_errors_fp(stderr);
+                exit(EXIT_FAILURE);
+            }
+        }
+        /* 4a. Check if OpenSSL has produced encrypted handshake data. */
+        int pending = BIO_ctrl_pending(wbio);
+        if(pending > 0) {
+            int outlen = BIO_read(wbio, netbuf, sizeof(netbuf));
+            if(outlen > 0) {
+                /* Send the encrypted data over UDP */
+                ret = sendto(sock, netbuf, outlen, 0,
+                             (struct sockaddr*)&server_addr, sizeof(server_addr));
+                if(ret < 0) {
+                    perror("sendto");
+                    // You might wish to retry or handle EAGAIN etc.
+                }
+            }
+        }
+        /* 4b. Try to receive UDP data from the network */
+        struct sockaddr_in from_addr;
+        socklen_t from_len = sizeof(from_addr);
+        ret = recvfrom(sock, netbuf, sizeof(netbuf), 0,
+                       (struct sockaddr*)&from_addr, &from_len);
+        if(ret > 0) {
+            // Write the received encrypted DTLS data into the input BIO.
+            BIO_write(rbio, netbuf, ret);
+        }
+        // Optionally sleep a short while to avoid a busy loop.
+        usleep(10000); // 10ms
+    }
+    printf("DTLS handshake completed!\n");
+#endif
+}
+
+NetCommandResults NetConnectCommand::receive(std::unique_ptr<ProtocolPacket>& packet,
+                                             [[maybe_unused]] IpAddress::Types addressType,
+                                             [[maybe_unused]] std::chrono::milliseconds deltaTime,
+                                             Client* client)
+{
+    if (client == nullptr)
+    {
+        return NetCommandResults::FAILURE;
+    }
+
+    auto& info = client->getCryptInfo();
+
+    if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
+    {
+        return NetCommandResults::SUCCESS;
+    }
+
+    if (!packet || packet->retrieveHeaderId() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
+    {
+        return NetCommandResults::WORKING;
+    }
+
+    auto const readPos = packet->getReadPos();
+    BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
+
+    return NetCommandResults::WORKING;
+}
+
+} // namespace fge::net

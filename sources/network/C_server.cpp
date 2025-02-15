@@ -17,161 +17,147 @@
 #include "FastEngine/network/C_server.hpp"
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/manager/network_manager.hpp"
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 namespace fge::net
 {
 
-//NetCommands
-
-NetCommandResults
-NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, SocketUdp const& socket, [[maybe_unused]] Client& client)
+namespace
 {
-    switch (this->g_state)
-    {
-    case States::ASKING:
-        buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_ASK);
-        buffPacket->doNotDiscard().doNotReorder().doNotFragment();
-        this->g_state = States::WAITING_RESPONSE;
-        break;
-    case States::DISCOVER:
-    {
-        //Transmit the new target MTU
-        buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_TEST);
-        auto const currentSize = buffPacket->doNotDiscard().doNotReorder().doNotFragment().packet().getDataSize();
 
-        auto const extraHeader = (socket.getAddressType() == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_HEADER_SIZE
-                                                                                    : FGE_SOCKET_IPV6_HEADER_SIZE) +
-                                 FGE_SOCKET_UDP_HEADER_SIZE;
-
-        --this->g_tryCount;
-        if (this->g_tryCount == 0 && this->g_currentMTU == 0)
-        {
-            //Last try
-            this->g_targetMTU = socket.getAddressType() == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU
-                                                                                  : FGE_SOCKET_IPV6_MIN_MTU;
-        }
-        buffPacket->packet().append(this->g_targetMTU - currentSize - extraHeader);
-        this->g_state = States::WAITING;
-        break;
-    }
-    default:
-        break;
-    }
-
-    return NetCommandResults::WORKING;
-}
-NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet,
-                                         SocketUdp const& socket,
-                                         std::chrono::milliseconds deltaTime)
+[[nodiscard]] bool CryptClientInit(SSL_CTX*& ctx)
 {
-    switch (this->g_state)
+    // Initialize OpenSSL DTLS context
+    SSL_library_init();
+    SSL_load_error_strings();
+
+    auto const* method = DTLS_client_method();
+    ctx = SSL_CTX_new(method);
+    if (ctx == nullptr)
     {
-    case States::WAITING_RESPONSE:
-        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_ASK_RESPONSE)
-        {
-            //Extract the target MTU
-            uint16_t targetMTU;
-            if (rules::RValid<uint16_t>({packet->packet(), &targetMTU}).end() || !packet->endReached())
-            {
-                //Invalid packet
-                this->g_promise.set_value(0);
-                return NetCommandResults::FAILURE;
-            }
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
+    //SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+    return true;
+}
+[[nodiscard]] bool CryptServerInit(SSL_CTX*& ctx)
+{
+    // Initialize OpenSSL DTLS context
+    SSL_library_init();
+    SSL_load_error_strings();
 
-            auto const socketType = socket.getAddressType();
-            auto const ourCurrentMTU = socket.retrieveCurrentAdapterMTU().value_or(FGE_SOCKET_FULL_DATAGRAM_SIZE);
-            if (targetMTU == 0)
-            {
-                //We have to figure it ourselves
-                this->g_maximumMTU = ourCurrentMTU;
-            }
-            else
-            {
-                this->g_maximumMTU = std::min(targetMTU, ourCurrentMTU);
-            }
+    auto const* method = DTLS_server_method();
+    ctx = SSL_CTX_new(method);
+    if (ctx == nullptr)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
+    //SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+    return true;
+}
+void CryptUninit(SSL_CTX*& ctx)
+{
+    if (ctx != nullptr)
+    {
+        SSL_CTX_free(ctx);
+        ctx = nullptr;
+    }
+}
 
-            this->g_currentMTU =
-                    socketType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU;
-            if (this->g_currentMTU == this->g_maximumMTU)
-            {
-                this->g_promise.set_value(this->g_currentMTU);
-                return NetCommandResults::SUCCESS;
-            }
+[[nodiscard]] bool CryptClientCreate(SSL_CTX* ctx, Client& client)
+{
+    // Create an SSL object and memory BIOs
+    SSL* ssl = SSL_new(ctx);
+    if (ssl == nullptr)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    client.getCryptInfo()._ssl = ssl;
 
-            //Compute a new target MTU
-            this->g_targetMTU = this->g_maximumMTU;
+    BIO* rbio = BIO_new(BIO_s_mem());
+    BIO* wbio = BIO_new(BIO_s_mem());
+    if (rbio == nullptr || wbio == nullptr)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    client.getCryptInfo()._rbio = rbio;
+    client.getCryptInfo()._wbio = wbio;
 
-            std::size_t const diff = this->g_maximumMTU - this->g_currentMTU;
-            if (diff < FGE_SERVER_MTU_MIN_INTERVAL)
-            {
-                this->g_tryCount = 0;
-            }
-            else
-            {
-                this->g_tryCount = FGE_SERVER_MTU_TRY_COUNT;
-                this->g_intervalMTU = diff / 2;
-            }
+    // Tell the memory BIOs to return -1 when no data is available
+    BIO_set_mem_eof_return(rbio, -1);
+    BIO_set_mem_eof_return(wbio, -1);
 
-            this->g_receiveTimeout = std::chrono::milliseconds::zero();
-            this->g_state = States::DISCOVER;
-            return NetCommandResults::WORKING;
-        }
+    // Attach the BIO pair to the SSL object (After this call, SSL owns the BIOs)
+    SSL_set_bio(ssl, rbio, wbio);
 
-        this->g_receiveTimeout += deltaTime;
-        if (this->g_receiveTimeout >= FGE_SERVER_MTU_TIMEOUT_MS)
-        {
-            this->g_promise.set_value(0);
-            return NetCommandResults::FAILURE;
-        }
-        break;
-    case States::DISCOVER:
-    case States::WAITING:
-        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_TEST_RESPONSE)
-        {
-            this->g_currentMTU = this->g_targetMTU;
+    // Set the SSL object to “connect” (client) state.
+    SSL_set_connect_state(ssl);
 
-            if (this->g_tryCount == 0 || this->g_currentMTU == this->g_maximumMTU)
-            {
-                this->g_promise.set_value(this->g_currentMTU);
-                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
-            }
+    // We handle the MTU
+    SSL_set_mtu(ssl, std::numeric_limits<uint16_t>::max());
 
-            this->g_targetMTU += this->g_intervalMTU;
-            this->g_intervalMTU = std::max<uint16_t>(FGE_SERVER_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
-            if (this->g_targetMTU > this->g_maximumMTU)
-            {
-                this->g_targetMTU = this->g_maximumMTU;
-                this->g_tryCount = 0;
-            }
+    return true;
+}
+[[nodiscard]] bool CryptServerCreate(SSL_CTX* ctx, Client& client)
+{
+    // Create an SSL object and memory BIOs
+    SSL* ssl = SSL_new(ctx);
+    if (ssl == nullptr)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    client.getCryptInfo()._ssl = ssl;
 
-            this->g_receiveTimeout = std::chrono::milliseconds::zero();
-            this->g_state = States::DISCOVER;
-            break;
-        }
+    BIO* rbio = BIO_new(BIO_s_mem());
+    BIO* wbio = BIO_new(BIO_s_mem());
+    if (rbio == nullptr || wbio == nullptr)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    client.getCryptInfo()._rbio = rbio;
+    client.getCryptInfo()._wbio = wbio;
 
-        this->g_receiveTimeout += deltaTime;
-        if (this->g_receiveTimeout >= FGE_SERVER_MTU_TIMEOUT_MS)
-        {
-            if (this->g_tryCount == 0)
-            {
-                this->g_promise.set_value(this->g_currentMTU);
-                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
-            }
+    // Tell the memory BIOs to return -1 when no data is available
+    BIO_set_mem_eof_return(rbio, -1);
+    BIO_set_mem_eof_return(wbio, -1);
 
-            this->g_targetMTU -= this->g_intervalMTU;
-            this->g_intervalMTU = std::max<uint16_t>(FGE_SERVER_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
+    // Attach the BIO pair to the SSL object (After this call, SSL owns the BIOs)
+    SSL_set_bio(ssl, rbio, wbio);
 
-            this->g_receiveTimeout = std::chrono::milliseconds::zero();
-            this->g_state = States::DISCOVER;
-            return NetCommandResults::WORKING;
-        }
-        break;
-    default:
-        break;
+    // Set the SSL object to “accept” (server) state.
+    SSL_set_accept_state(ssl);
+
+    // We handle the MTU
+    SSL_set_mtu(ssl, std::numeric_limits<uint16_t>::max());
+
+    return true;
+}
+void CryptClientDestroy(Client& client)
+{
+    auto& info = client.getCryptInfo();
+
+    if (info._ssl == nullptr)
+    {
+        return;
     }
 
-    return NetCommandResults::WORKING;
+    SSL_shutdown(static_cast<SSL*>(info._ssl));
+    SSL_free(static_cast<SSL*>(info._ssl));
+    info._ssl = nullptr;
+    info._rbio = nullptr;
+    info._wbio = nullptr;
 }
+
+} // namespace
 
 //ServerFluxUdp
 NetFluxUdp::~NetFluxUdp()
@@ -307,6 +293,56 @@ std::size_t NetFluxUdp::getMaxPackets() const
 }
 
 //ServerNetFluxUdp
+void ServerNetFluxUdp::processClients(std::chrono::milliseconds deltaTime)
+{
+    auto clientsLock = this->_clients.acquireLock();
+
+    for (auto it = this->_clients.begin(clientsLock); it != this->_clients.end(clientsLock);)
+    {
+        auto& client = it->second._client;
+
+        //Handle timeout
+        if (client->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::TIMEOUT)
+        {
+            continue;
+        }
+
+        if (client->getStatus().updateTimeout(deltaTime))
+        {
+            client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
+            //this->_onClientTimeout.call(*this); TODO
+            client->clearPackets();
+            this->clearPackets();
+            continue;
+        }
+
+        //Handle commands
+        auto& commands = it->second._commands;
+        if (!commands.empty())
+        {
+            TransmitPacketPtr possiblePacket;
+            auto const result = commands.front()->transmit(possiblePacket, this->g_server->getAddressType(), *client);
+            if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+            {
+                commands.erase(commands.begin());
+            }
+
+            if (possiblePacket)
+            {
+                //Applying options
+                possiblePacket->applyOptions(*client);
+
+                //Sending the packet
+                client->pushPacket(std::move(possiblePacket));
+                //TPacket packet = possiblePacket->packet();
+                //this->g_socket.send(packet); TODO
+                //continue;
+            }
+
+            //TODO: handle command timeout
+        }
+    }
+}
 FluxProcessResults
 ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient)
 {
@@ -340,13 +376,91 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             { //We can't (disallow) process fragmented packets from unknown clients
                 return FluxProcessResults::NOT_RETRIEVABLE;
             }
-            return FluxProcessResults::RETRIEVABLE;
+
+            //Check if the packet is a handshake
+            if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_FGE_HANDSHAKE)
+            {
+                using namespace fge::net::rules;
+                std::string handshakeString;
+                auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1,
+                                                                    {packet->packet(), &handshakeString}))
+                                         .end();
+                if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING)
+                {
+                    return FluxProcessResults::NOT_RETRIEVABLE;
+                }
+
+                //Handshake accepted, we create the client
+                refClient = std::make_shared<Client>();
+                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
+                refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                this->_clients.add(packet->getIdentity(), refClient);
+                //TODO: callback
+
+                //Respond to the handshake
+                auto responsePacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
+                responsePacket->doNotReorder().doNotFragment().doNotDiscard();
+                responsePacket->packet() << FGE_NET_HANDSHAKE_STRING;
+                refClient->pushPacket(std::move(responsePacket));
+                this->g_server->notifyTransmission();
+
+                return FluxProcessResults::INTERNALLY_HANDLED;
+            }
+
+            //We can't process packets further for unknown clients
+            return FluxProcessResults::NOT_RETRIEVABLE;
         }
 
         this->g_server->repushPacket(std::move(packet));
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
     refClient = refClientData->_client;
+
+    //Check if the client is in an acknowledged state
+    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::ACKNOWLEDGED)
+    {
+        //At this point, the client still need to do the MTU discovery
+        switch (packet->retrieveHeaderId().value())
+        {
+        case NET_INTERNAL_ID_MTU_TEST:
+        {
+            auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
+            response->doNotDiscard().doNotReorder();
+            refClient->pushPacket(std::move(response));
+            refClient->getStatus().resetTimeout();
+            break;
+        }
+        case NET_INTERNAL_ID_MTU_ASK:
+        {
+            auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
+            response->doNotDiscard().doNotReorder().packet()
+                    << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
+            refClient->pushPacket(std::move(response));
+            refClient->getStatus().resetTimeout();
+            break;
+        }
+        case NET_INTERNAL_ID_MTU_FINAL:
+        {
+            auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
+            response->doNotDiscard().doNotReorder().packet()
+                    << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
+            refClient->pushPacket(std::move(response));
+            refClient->getStatus().resetTimeout();
+            break;
+        }
+        default:
+            //Discard the packet and the client
+            //this->_clients.remove(packet->getIdentity());
+            //return FluxProcessResults::NOT_RETRIEVABLE;
+
+            this->checkCommands(refClient, refClientData->_commands, packet);
+            break;
+        }
+        //TODO: add a timeout for the MTU discovery
+
+
+        return FluxProcessResults::INTERNALLY_HANDLED;
+    }
 
     //Check if the packet is a fragment
     if (packet->isFragmented())
@@ -422,6 +536,22 @@ bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ReceivedPac
     }
     return true;
 }
+void ServerNetFluxUdp::checkCommands(ClientSharedPtr const& refClient,
+                                     ClientList::Commands& commands,
+                                     ReceivedPacketPtr& packet)
+{
+    if (commands.empty())
+    {
+        return;
+    }
+
+    auto const result = commands.front()->receive(packet, this->g_server->getAddressType(),
+                                                  std::chrono::milliseconds{10}, refClient.get());
+    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+    {
+        commands.erase(commands.begin());
+    }
+}
 
 //ServerUdp
 ServerSideNetUdp::ServerSideNetUdp(IpAddress::Types type) :
@@ -436,6 +566,55 @@ ServerSideNetUdp::~ServerSideNetUdp()
     this->stop();
 }
 
+bool ServerSideNetUdp::start(Port bindPort, IpAddress const& bindIp, IpAddress::Types addressType)
+{
+    if (this->g_running)
+    {
+        return false;
+    }
+
+    this->g_socket.setAddressType(addressType);
+    if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
+    {
+        if (!CryptServerInit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx)))
+        {
+            this->g_socket.close();
+            return false;
+        }
+
+        this->g_running = true;
+
+        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission, this);
+
+        return true;
+    }
+    return false;
+}
+bool ServerSideNetUdp::start(IpAddress::Types addressType)
+{
+    if (this->g_running)
+    {
+        return false;
+    }
+    this->g_socket.setAddressType(addressType);
+    if (this->g_socket.isValid())
+    {
+        if (!CryptServerInit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx)))
+        {
+            this->g_socket.close();
+            return false;
+        }
+
+        this->g_running = true;
+
+        this->g_threadReception = std::make_unique<std::thread>(&ServerSideNetUdp::threadReception, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ServerSideNetUdp::threadTransmission, this);
+
+        return true;
+    }
+    return false;
+}
 void ServerSideNetUdp::stop()
 {
     if (this->g_running)
@@ -458,6 +637,8 @@ void ServerSideNetUdp::stop()
         }
         this->g_defaultFlux.clearPackets();
         decltype(this->g_transmissionQueue)().swap(this->g_transmissionQueue);
+
+        CryptUninit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx));
     }
 }
 
@@ -736,7 +917,8 @@ ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
         g_socket(addressType),
-        g_running(false)
+        g_running(false),
+        g_crypt_ctx(nullptr)
 {}
 
 ClientSideNetUdp::~ClientSideNetUdp()
@@ -744,6 +926,59 @@ ClientSideNetUdp::~ClientSideNetUdp()
     this->stop();
 }
 
+bool ClientSideNetUdp::start(Port bindPort,
+                             IpAddress const& bindIp,
+                             Port connectRemotePort,
+                             IpAddress const& connectRemoteAddress,
+                             IpAddress::Types addressType)
+{
+    if (this->g_running)
+    {
+        return false;
+    }
+
+    this->g_socket.setAddressType(addressType);
+    if (addressType == IpAddress::Types::Ipv6)
+    {
+        this->g_socket.setIpv6Only(false);
+    }
+    else
+    {
+        this->g_socket.setDontFragment(true);
+    }
+
+    if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
+    {
+        if (this->g_socket.connect(connectRemoteAddress, connectRemotePort) != Socket::Errors::ERR_NOERROR)
+        {
+            this->g_socket.close();
+            return false;
+        }
+
+        if (!CryptClientInit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx)))
+        {
+            this->g_socket.close();
+            return false;
+        }
+        if (!CryptClientCreate(static_cast<SSL_CTX*>(this->g_crypt_ctx), this->_client))
+        {
+            this->g_socket.close();
+            return false;
+        }
+
+        this->g_clientIdentity._ip = connectRemoteAddress;
+        this->g_clientIdentity._port = connectRemotePort;
+
+        this->g_running = true;
+
+        this->g_threadReception = std::make_unique<std::thread>(&ClientSideNetUdp::threadReception, this);
+        this->g_threadTransmission = std::make_unique<std::thread>(&ClientSideNetUdp::threadTransmission, this);
+
+        return true;
+    }
+    this->g_socket.close();
+    return false;
+}
 void ClientSideNetUdp::stop()
 {
     if (this->g_running)
@@ -766,6 +1001,9 @@ void ClientSideNetUdp::stop()
         this->_client.setClientPacketCounter(0);
         this->_client.setCurrentRealm(FGE_NET_DEFAULT_REALM);
         this->_client.setCurrentPacketCounter(0);
+
+        CryptClientDestroy(this->_client);
+        CryptUninit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx));
     }
 }
 
@@ -792,6 +1030,21 @@ std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
     }
 
     auto command = std::make_unique<NetMTUCommand>();
+    auto future = command->get_future();
+
+    std::scoped_lock const lock(this->g_mutexCommands);
+    this->g_commands.push(std::move(command));
+
+    return future;
+}
+std::future<uint16_t> ClientSideNetUdp::connect()
+{
+    if (!this->g_running)
+    {
+        throw Exception("Cannot connect without a running client");
+    }
+
+    auto command = std::make_unique<NetConnectCommand>();
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
@@ -961,7 +1214,8 @@ void ClientSideNetUdp::threadReception()
                 if (!this->g_commands.empty())
                 {
 
-                    auto const result = this->g_commands.front()->receive(packet, this->g_socket, deltaTime);
+                    auto const result = this->g_commands.front()->receive(packet, this->g_socket.getAddressType(),
+                                                                          deltaTime, &this->_client);
                     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                     {
                         this->g_commands.pop();
@@ -987,8 +1241,8 @@ void ClientSideNetUdp::threadReception()
                 {
                     std::unique_ptr<ProtocolPacket> dummyPacket;
                     auto const result = this->g_commands.front()->receive(
-                            dummyPacket, this->g_socket,
-                            std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
+                            dummyPacket, this->g_socket.getAddressType(),
+                            std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS}, &this->_client);
                     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                     {
                         this->g_commands.pop();
@@ -1018,7 +1272,8 @@ void ClientSideNetUdp::threadTransmission()
             if (!this->g_commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
-                auto const result = this->g_commands.front()->transmit(possiblePacket, this->g_socket, this->_client);
+                auto const result = this->g_commands.front()->transmit(possiblePacket, this->g_socket.getAddressType(),
+                                                                       this->_client);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
                     this->g_commands.pop();
