@@ -17,6 +17,7 @@
 #include "FastEngine/network/C_server.hpp"
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/manager/network_manager.hpp"
+#include <iostream>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -293,7 +294,7 @@ std::size_t NetFluxUdp::getMaxPackets() const
 }
 
 //ServerNetFluxUdp
-void ServerNetFluxUdp::processClients(std::chrono::milliseconds deltaTime)
+void ServerNetFluxUdp::processClients()
 {
     auto clientsLock = this->_clients.acquireLock();
 
@@ -307,12 +308,15 @@ void ServerNetFluxUdp::processClients(std::chrono::milliseconds deltaTime)
             continue;
         }
 
-        if (client->getStatus().updateTimeout(deltaTime))
+        if (client->getStatus().isTimeout())
         {
             client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
-            //this->_onClientTimeout.call(*this); TODO
             client->clearPackets();
-            this->clearPackets();
+
+            auto tmpIdentity = it->first;
+            auto tmpClient = std::move(it->second._client);
+            it = this->_clients.remove(it, clientsLock);
+            this->_onClientTimeout.call(tmpClient, tmpIdentity);
             continue;
         }
 
@@ -324,7 +328,7 @@ void ServerNetFluxUdp::processClients(std::chrono::milliseconds deltaTime)
             auto const result = commands.front()->transmit(possiblePacket, this->g_server->getAddressType(), *client);
             if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
             {
-                commands.erase(commands.begin());
+                commands.pop_front();
             }
 
             if (possiblePacket)
@@ -341,11 +345,15 @@ void ServerNetFluxUdp::processClients(std::chrono::milliseconds deltaTime)
 
             //TODO: handle command timeout
         }
+
+        ++it;
     }
 }
 FluxProcessResults
 ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient)
 {
+    this->processClients();
+
     refClient.reset();
     packet.reset();
 
@@ -369,6 +377,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
     if (refClientData == nullptr)
     {
+        //Unknown client
+
         if (allowUnknownClient)
         {
             //Check if the packet is fragmented
@@ -380,22 +390,33 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             //Check if the packet is a handshake
             if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_FGE_HANDSHAKE)
             {
+                std::cout << "Handshake received" << std::endl;
+
                 using namespace fge::net::rules;
                 std::string handshakeString;
                 auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1,
                                                                     {packet->packet(), &handshakeString}))
                                          .end();
                 if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING)
-                {
+                { //TODO: endReached() check should be done in .end() method
+                    std::cout << "Handshake failed" << std::endl;
                     return FluxProcessResults::NOT_RETRIEVABLE;
                 }
 
+                std::cout << "Handshake accepted" << std::endl;
                 //Handshake accepted, we create the client
                 refClient = std::make_shared<Client>();
                 refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
                 refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
                 this->_clients.add(packet->getIdentity(), refClient);
                 //TODO: callback
+
+                //Add MTU command as this is required for the next state
+                auto* clientData = this->_clients.getData(packet->getIdentity());
+                auto command = std::make_unique<NetMTUCommand>(&clientData->_commands);
+                clientData->_mtuFuture = command->get_future();
+                //At this point commands should be empty
+                clientData->_commands.push_front(std::move(command));
 
                 //Respond to the handshake
                 auto responsePacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
@@ -428,37 +449,81 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             response->doNotDiscard().doNotReorder();
             refClient->pushPacket(std::move(response));
             refClient->getStatus().resetTimeout();
+            std::cout << "received MTU test" << std::endl;
             break;
         }
         case NET_INTERNAL_ID_MTU_ASK:
         {
             auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
-            response->doNotDiscard().doNotReorder().packet()
+            response->doNotDiscard().doNotReorder()
                     << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
             refClient->pushPacket(std::move(response));
             refClient->getStatus().resetTimeout();
+            std::cout << "received MTU ask" << std::endl;
             break;
         }
         case NET_INTERNAL_ID_MTU_FINAL:
-        {
-            auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
-            response->doNotDiscard().doNotReorder().packet()
-                    << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
-            refClient->pushPacket(std::move(response));
+            std::cout << "received MTU final" << std::endl;
+            refClient->_mtuFinalizedFlag = true;
             refClient->getStatus().resetTimeout();
+            //Client have finished the MTU discovery, but we have to check if the server have finished too
+            if (refClient->getMTU() != 0)
+            {
+                if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()), *refClient))
+                {
+                    std::cout << "CryptServerCreate failed" << std::endl;
+                    //Discard the packet and the client
+                    this->_clients.remove(packet->getIdentity());
+                    return FluxProcessResults::NOT_RETRIEVABLE;
+                }
+                //TODO: not connected now, we have to handle handshake
+                std::cout << "CryptServerCreate success, CONNECTED" << std::endl;
+                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
+                refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+            }
             break;
-        }
         default:
-            //Discard the packet and the client
-            //this->_clients.remove(packet->getIdentity());
-            //return FluxProcessResults::NOT_RETRIEVABLE;
+        {
+            auto const result = this->checkCommands(refClient, refClientData->_commands, packet);
+            if (result == NetCommandResults::FAILURE)
+            {
+                std::cout << "Command failed" << std::endl;
+                //Discard the packet and the client
+                this->_clients.remove(packet->getIdentity());
+                return FluxProcessResults::NOT_RETRIEVABLE;
+            }
 
-            this->checkCommands(refClient, refClientData->_commands, packet);
-            break;
+            if (result == NetCommandResults::SUCCESS)
+            {
+                std::cout << "Command success" << std::endl;
+                refClient->setMTU(refClientData->_mtuFuture.get());
+
+                auto response = CreatePacket(NET_INTERNAL_ID_MTU_FINAL);
+                response->doNotDiscard().doNotReorder();
+                refClient->pushPacket(std::move(response));
+                refClient->getStatus().resetTimeout();
+
+                //Server have finished the MTU discovery, but we have to check if the client have finished too
+                if (refClient->_mtuFinalizedFlag)
+                {
+                    std::cout << "mtu finalized" << std::endl;
+                    if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()), *refClient))
+                    {
+                        std::cout << "CryptServerCreate failed" << std::endl;
+                        //Discard the packet and the client
+                        this->_clients.remove(packet->getIdentity());
+                        return FluxProcessResults::NOT_RETRIEVABLE;
+                    }
+
+                    std::cout << "CryptServerCreate success, CONNECTED" << std::endl;
+                    refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
+                    refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                }
+            }
+        }
+        break;
         }
         //TODO: add a timeout for the MTU discovery
-
-
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
@@ -536,21 +601,21 @@ bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ReceivedPac
     }
     return true;
 }
-void ServerNetFluxUdp::checkCommands(ClientSharedPtr const& refClient,
-                                     ClientList::Commands& commands,
-                                     ReceivedPacketPtr& packet)
+NetCommandResults
+ServerNetFluxUdp::checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet)
 {
     if (commands.empty())
     {
-        return;
+        return NetCommandResults::FAILURE;
     }
 
     auto const result = commands.front()->receive(packet, this->g_server->getAddressType(),
-                                                  std::chrono::milliseconds{10}, refClient.get());
+                                                  refClient->getLastPacketElapsedTime(), refClient.get());
     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
     {
-        commands.erase(commands.begin());
+        commands.pop_front();
     }
+    return result;
 }
 
 //ServerUdp
@@ -733,6 +798,11 @@ void ServerSideNetUdp::sendTo(TransmitPacketPtr& pck, Identity const& id)
     this->g_transmissionNotifier.notify_one();
 }
 
+void* ServerSideNetUdp::getCryptContext() const
+{
+    return this->g_crypt_ctx;
+}
+
 void ServerSideNetUdp::threadReception()
 {
     Identity idReceive;
@@ -770,26 +840,6 @@ void ServerSideNetUdp::threadReception()
                     (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
                 { //Bad headerId, packet is dismissed
                     continue;
-                }
-
-                //Checking internal header ids
-                switch (headerId & ~FGE_NET_HEADER_FLAGS_MASK)
-                {
-                case NET_INTERNAL_ID_MTU_TEST:
-                {
-                    auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
-                    response->doNotDiscard().doNotReorder();
-                    this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
-                    continue;
-                }
-                case NET_INTERNAL_ID_MTU_ASK:
-                {
-                    auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
-                    response->doNotDiscard().doNotReorder().packet()
-                            << SocketUdp::retrieveAdapterMTUForDestination(idReceive._ip).value_or(0);
-                    this->g_transmissionQueue.emplace(std::move(response), packet->getIdentity());
-                    continue;
-                }
                 }
 
                 //Realm and countId is verified by the flux who have the corresponding client
@@ -844,8 +894,7 @@ void ServerSideNetUdp::threadTransmission()
                     continue;
                 }
 
-                if (itClient->second._client->getLastPacketElapsedTime() <
-                    itClient->second._client->getSTOCLatency_ms())
+                if (itClient->second._client->getLastPacketLatency() < itClient->second._client->getSTOCLatency_ms())
                 {
                     continue;
                 }
@@ -919,7 +968,9 @@ ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_socket(addressType),
         g_running(false),
         g_crypt_ctx(nullptr)
-{}
+{
+    this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+}
 
 ClientSideNetUdp::~ClientSideNetUdp()
 {
@@ -946,6 +997,8 @@ bool ClientSideNetUdp::start(Port bindPort,
     {
         this->g_socket.setDontFragment(true);
     }
+
+    this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
 
     if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
     {
@@ -1029,26 +1082,26 @@ std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
         throw Exception("Cannot retrieve MTU without a running client");
     }
 
-    auto command = std::make_unique<NetMTUCommand>();
+    auto command = std::make_unique<NetMTUCommand>(&this->g_commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_commands.push(std::move(command));
+    this->g_commands.push_back(std::move(command));
 
     return future;
 }
-std::future<uint16_t> ClientSideNetUdp::connect()
+std::future<bool> ClientSideNetUdp::connect()
 {
     if (!this->g_running)
     {
         throw Exception("Cannot connect without a running client");
     }
 
-    auto command = std::make_unique<NetConnectCommand>();
+    auto command = std::make_unique<NetConnectCommand>(&this->g_commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_commands.push(std::move(command));
+    this->g_commands.push_back(std::move(command));
 
     return future;
 }
@@ -1063,8 +1116,14 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     ///TODO: no lock ?
     packet.reset();
 
-    if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT &&
-        this->_client.getStatus().isTimeout())
+    auto const networkStatus = this->_client.getStatus().getNetworkStatus();
+    if (networkStatus == ClientStatus::NetworkStatus::TIMEOUT ||
+        networkStatus == ClientStatus::NetworkStatus::DISCONNECTED)
+    {
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    if (this->_client.getStatus().isTimeout())
     {
         this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
         this->_onClientTimeout.call(*this);
@@ -1189,9 +1248,42 @@ void ClientSideNetUdp::threadReception()
             lastTimePoint = now;
 
             //Check client status and reset timeout
-            if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
+            auto const networkStatus = this->_client.getStatus().getNetworkStatus();
+            if (networkStatus != ClientStatus::NetworkStatus::TIMEOUT)
             {
+                //TODO : check if we need to reset the timeout
                 this->_client.getStatus().resetTimeout();
+            }
+
+            //MTU handling
+            if (networkStatus == ClientStatus::NetworkStatus::ACKNOWLEDGED)
+            {
+                switch (headerId & ~FGE_NET_HEADER_FLAGS_MASK)
+                {
+                case NET_INTERNAL_ID_MTU_TEST:
+                {
+                    auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
+                    response->doNotDiscard().doNotReorder();
+                    this->_client.pushPacket(std::move(response));
+                    this->_client.getStatus().resetTimeout();
+                    std::cout << "received MTU test" << std::endl;
+                    continue;
+                }
+                case NET_INTERNAL_ID_MTU_ASK:
+                {
+                    auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
+                    response->doNotDiscard().doNotReorder() << this->g_socket.retrieveCurrentAdapterMTU().value_or(0);
+                    this->_client.pushPacket(std::move(response));
+                    this->_client.getStatus().resetTimeout();
+                    std::cout << "received MTU ask" << std::endl;
+                    continue;
+                }
+                case NET_INTERNAL_ID_MTU_FINAL:
+                    std::cout << "received MTU final" << std::endl;
+                    this->_client._mtuFinalizedFlag = true;
+                    this->_client.getStatus().resetTimeout();
+                    continue;
+                }
             }
 
             //Check if the packet is a fragment
@@ -1218,7 +1310,7 @@ void ClientSideNetUdp::threadReception()
                                                                           deltaTime, &this->_client);
                     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                     {
-                        this->g_commands.pop();
+                        this->g_commands.pop_front();
                     }
 
                     //Commands can drop the packet
@@ -1245,16 +1337,16 @@ void ClientSideNetUdp::threadReception()
                             std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS}, &this->_client);
                     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                     {
-                        this->g_commands.pop();
+                        this->g_commands.pop_front();
                     }
                 }
             }
 
-            if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
-            {
+            /*if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
+            { TODO
                 (void) this->_client.getStatus().updateTimeout(
                         std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
-            }
+            }*/
         }
     }
 }
@@ -1276,7 +1368,7 @@ void ClientSideNetUdp::threadTransmission()
                                                                        this->_client);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
-                    this->g_commands.pop();
+                    this->g_commands.pop_front();
                 }
 
                 if (possiblePacket)
@@ -1299,7 +1391,7 @@ void ClientSideNetUdp::threadTransmission()
             continue;
         }
 
-        if (this->_client.getLastPacketElapsedTime() >= this->_client.getCTOSLatency_ms())
+        if (this->_client.getLastPacketLatency() >= this->_client.getCTOSLatency_ms())
         { //Ready to send !
             auto transmissionPacket = this->_client.popPacket();
 

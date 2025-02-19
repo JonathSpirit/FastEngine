@@ -118,17 +118,19 @@ public:
     {}
     ~ServerNetFluxUdp() override = default;
 
-    void processClients(std::chrono::milliseconds deltaTime);
+    void processClients();
     [[nodiscard]] FluxProcessResults
     process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient);
 
     ClientList _clients;
 
-    fge::CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
+    CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
+    CallbackHandler<ClientSharedPtr, Identity> _onClientTimeout;
 
 private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
-    void checkCommands(ClientSharedPtr const& refClient, ClientList::Commands& commands, ReceivedPacketPtr& packet);
+    [[nodiscard]] NetCommandResults
+    checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet);
 
     ServerSideNetUdp* g_server{nullptr};
 };
@@ -204,6 +206,8 @@ public:
     void sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id);
     void sendTo(TransmitPacketPtr& pck, Identity const& id);
 
+    [[nodiscard]] void* getCryptContext() const;
+
 private:
     void threadReception();
     void threadTransmission();
@@ -254,7 +258,7 @@ public:
     [[nodiscard]] bool isRunning() const;
 
     [[nodiscard]] std::future<uint16_t> retrieveMTU();
-    [[nodiscard]] std::future<uint16_t> connect();
+    [[nodiscard]] std::future<bool> connect();
 
     [[nodiscard]] IpAddress::Types getAddressType() const;
 
@@ -276,7 +280,7 @@ private:
     void threadTransmission();
 
     std::recursive_mutex g_mutexCommands;
-    std::queue<std::unique_ptr<NetCommand>> g_commands;
+    CommandQueue g_commands;
 
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
