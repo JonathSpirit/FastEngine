@@ -59,8 +59,6 @@ struct ClientListEvent
 class FGE_API ClientList
 {
 public:
-    using Commands = std::vector<std::unique_ptr<NetCommand>>;
-
     struct Data
     {
         inline explicit Data(ClientSharedPtr client) :
@@ -69,7 +67,9 @@ public:
 
         ClientSharedPtr _client;
         PacketDefragmentation _defragmentation;
-        Commands _commands;
+        CommandQueue _commands;
+
+        std::future<uint16_t> _mtuFuture;
     };
 
     using DataList = std::unordered_map<Identity, Data, IdentityHash>;
