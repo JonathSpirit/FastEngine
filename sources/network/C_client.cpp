@@ -43,7 +43,9 @@ std::chrono::milliseconds ClientStatus::getTimeout() const
 }
 std::chrono::milliseconds ClientStatus::getRemainingTimeout() const
 {
-    return this->g_timeout - this->g_currentTimeout;
+    auto diff = std::chrono::steady_clock::now() - this->g_currentTimeout;
+    return diff >= this->g_timeout ? std::chrono::milliseconds(0)
+                                   : std::chrono::duration_cast<std::chrono::milliseconds>(this->g_timeout - diff);
 }
 
 void ClientStatus::set(std::string_view status, NetworkStatus networkStatus)
@@ -63,31 +65,19 @@ void ClientStatus::setNetworkStatus(NetworkStatus networkStatus)
 void ClientStatus::setTimeout(std::chrono::milliseconds timeout)
 {
     this->g_timeout = timeout;
-    this->g_currentTimeout = std::chrono::milliseconds{0};
+    this->g_currentTimeout = std::chrono::steady_clock::now();
 }
 void ClientStatus::resetTimeout()
 {
-    this->g_currentTimeout = std::chrono::milliseconds{0};
+    this->g_currentTimeout = std::chrono::steady_clock::now();
 }
-
-bool ClientStatus::updateTimeout(std::chrono::milliseconds elapsedTime)
-{
-    if (this->g_timeout == std::chrono::milliseconds{0})
-    {
-        return false;
-    }
-
-    this->g_currentTimeout += elapsedTime;
-    return this->g_currentTimeout >= this->g_timeout;
-}
-
 bool ClientStatus::isTimeout() const
 {
-    if (this->g_timeout == std::chrono::milliseconds{0})
+    if (std::chrono::steady_clock::now() - this->g_currentTimeout >= this->g_timeout)
     {
-        return false;
+        return true;
     }
-    return this->g_currentTimeout >= this->g_timeout;
+    return false;
 }
 
 //Client

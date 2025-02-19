@@ -195,15 +195,13 @@ public:
 
     void setTimeout(std::chrono::milliseconds timeout);
     void resetTimeout();
-
-    [[nodiscard]] bool updateTimeout(std::chrono::milliseconds elapsedTime);
     [[nodiscard]] bool isTimeout() const;
 
 private:
     std::string g_status{FGE_NET_STATUS_DEFAULT_STATUS};
     std::atomic<NetworkStatus> g_networkStatus{NetworkStatus::UNKNOWN};
     std::chrono::milliseconds g_timeout{FGE_NET_STATUS_DEFAULT_TIMEOUT};
-    std::chrono::milliseconds g_currentTimeout{0};
+    std::chrono::steady_clock::time_point g_currentTimeout{std::chrono::steady_clock::now()};
 };
 
 /**
