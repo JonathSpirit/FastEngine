@@ -326,7 +326,8 @@ public:
      *
      * \return The delta time in milliseconds
      */
-    Latency_ms getLastPacketElapsedTime() const;
+    [[nodiscard]] std::chrono::milliseconds getLastPacketElapsedTime() const;
+    [[nodiscard]] Latency_ms getLastPacketLatency() const;
 
     /**
      * \brief Get a modulated timestamp of the current time
@@ -418,6 +419,7 @@ public:
     Event _event;                         ///< Optional client-side event that can be synchronized with the server
     PropertyList _data;                   ///< Some user-defined client properties
     OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
+    bool _mtuFinalizedFlag{false};        ///< A flag that indicate if the MTU has been finalized from the remote side
 
 private:
     mutable std::optional<Timestamp> g_correctorTimestamp;

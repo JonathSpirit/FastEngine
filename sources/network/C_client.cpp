@@ -166,14 +166,21 @@ void Client::resetLastPacketTimePoint()
     std::scoped_lock const lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
-Latency_ms Client::getLastPacketElapsedTime() const
+std::chrono::milliseconds Client::getLastPacketElapsedTime() const
 {
     std::scoped_lock const lck(this->g_mutex);
 
-    std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
-    uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - this->g_lastPacketTimePoint).count();
-    return (t >= std::numeric_limits<Latency_ms>::max()) ? std::numeric_limits<Latency_ms>::max()
-                                                         : static_cast<Latency_ms>(t);
+    auto const now = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - this->g_lastPacketTimePoint);
+}
+Latency_ms Client::getLastPacketLatency() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+
+    auto const now = std::chrono::steady_clock::now();
+    auto const t = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->g_lastPacketTimePoint).count();
+    return t >= std::numeric_limits<Latency_ms>::max() ? std::numeric_limits<Latency_ms>::max()
+                                                       : static_cast<Latency_ms>(t);
 }
 
 Timestamp Client::getTimestamp_ms()
