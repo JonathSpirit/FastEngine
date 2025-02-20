@@ -42,6 +42,35 @@ namespace
     }
     SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
     //SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+
+    char const* cipher_list = "ECDHE-RSA-AES256-GCM-SHA384";
+    if (SSL_CTX_set_cipher_list(ctx, cipher_list) != 1)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // Load the certificate file
+    if (SSL_CTX_use_certificate_file(ctx, "openssltest/certificate2.pem", SSL_FILETYPE_PEM) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // Load the private key file
+    if (SSL_CTX_use_PrivateKey_file(ctx, "openssltest/client_key.pem", SSL_FILETYPE_PEM) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // Verify that the private key matches the certificate
+    if (!SSL_CTX_check_private_key(ctx))
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
     return true;
 }
 [[nodiscard]] bool CryptServerInit(SSL_CTX*& ctx)
@@ -59,6 +88,28 @@ namespace
     }
     SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
     //SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+
+    char const* cipher_list = "ECDHE-RSA-AES256-GCM-SHA384";
+    if (SSL_CTX_set_cipher_list(ctx, cipher_list) != 1)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // Load the certificate file
+    if (SSL_CTX_use_certificate_file(ctx, "openssltest/certificate.pem", SSL_FILETYPE_PEM) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // Load the private key file
+    if (SSL_CTX_use_PrivateKey_file(ctx, "openssltest/server_key.pem", SSL_FILETYPE_PEM) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
     return true;
 }
 void CryptUninit(SSL_CTX*& ctx)
@@ -476,9 +527,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                     this->_clients.remove(packet->getIdentity());
                     return FluxProcessResults::NOT_RETRIEVABLE;
                 }
-                //TODO: not connected now, we have to handle handshake
-                std::cout << "CryptServerCreate success, CONNECTED" << std::endl;
-                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
+                std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
+                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
                 refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
             }
             break;
@@ -515,8 +565,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                         return FluxProcessResults::NOT_RETRIEVABLE;
                     }
 
-                    std::cout << "CryptServerCreate success, CONNECTED" << std::endl;
-                    refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
+                    std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
+                    refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
                     refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
                 }
             }
@@ -540,6 +590,70 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         {
             return FluxProcessResults::NOT_RETRIEVABLE;
         }
+    }
+
+    //Check if the client is in an MTU discovered state
+    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
+    {
+        //Check if the packet is a crypt handshake
+        if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
+        {
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+
+        std::cout << "receiving crypt handshake" << std::endl;
+        auto& info = refClient->getCryptInfo();
+
+        if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
+        {
+            std::cout << "AUTHENTICATED" << std::endl;
+            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
+            refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+            return FluxProcessResults::INTERNALLY_HANDLED;
+        }
+
+        refClient->getStatus().resetTimeout();
+
+        auto const readPos = packet->getReadPos();
+        BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
+
+        auto const result = SSL_do_handshake(static_cast<SSL*>(info._ssl));
+        if (result <= 0)
+        {
+            auto const err = SSL_get_error(static_cast<SSL*>(info._ssl), result);
+
+            if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE)
+            {
+                ERR_print_errors_fp(stderr);
+                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+                return FluxProcessResults::NOT_RETRIEVABLE;
+            }
+        }
+
+        std::cout << "check for transmit crypt" << std::endl;
+        // Check if OpenSSL has produced encrypted handshake data
+        auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
+        if (pendingSize == 0)
+        {
+            std::cout << "NONE" << std::endl;
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+        std::cout << "transmitting crypt" << std::endl;
+        auto response = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
+        auto const packetStartDataPosition = response->doNotDiscard().getDataSize();
+        response->append(pendingSize);
+        auto const finalSize =
+                BIO_read(static_cast<BIO*>(info._wbio), response->getData() + packetStartDataPosition, pendingSize);
+        if (finalSize <= 0 || static_cast<std::size_t>(finalSize) != pendingSize)
+        {
+            std::cout << "failed crypt" << std::endl;
+            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+        refClient->pushPacket(std::move(response));
+        this->g_server->notifyTransmission();
+
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     auto const headerFlags = packet->retrieveFlags().value();
