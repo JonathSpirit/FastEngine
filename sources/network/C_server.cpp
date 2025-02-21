@@ -27,6 +27,75 @@ namespace fge::net
 namespace
 {
 
+bool CryptGenerateKeyAndCertificate(EVP_PKEY*& privateKey, X509*& certificate)
+{
+    // Generate RSA key using EVP_PKEY and EVP_PKEY_CTX
+    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+    if (ctx == nullptr)
+    {
+        std::cerr << "Failed to create EVP_PKEY_CTX" << std::endl;
+        return false;
+    }
+
+    if (EVP_PKEY_keygen_init(ctx) <= 0)
+    {
+        std::cerr << "Failed to initialize keygen context" << std::endl;
+        EVP_PKEY_CTX_free(ctx);
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0)
+    {
+        std::cerr << "Failed to set RSA key length" << std::endl;
+        EVP_PKEY_CTX_free(ctx);
+        return false;
+    }
+
+    if (EVP_PKEY_keygen(ctx, &privateKey) <= 0)
+    {
+        std::cerr << "Failed to generate RSA key" << std::endl;
+        EVP_PKEY_CTX_free(ctx);
+        return false;
+    }
+
+    EVP_PKEY_CTX_free(ctx);
+
+    // Generate X509 certificate
+    certificate = X509_new();
+    if (certificate == nullptr)
+    {
+        std::cerr << "Failed to create X509 certificate" << std::endl;
+        EVP_PKEY_free(privateKey);
+        return false;
+    }
+
+    X509_set_version(certificate, 2);
+    ASN1_INTEGER_set(X509_get_serialNumber(certificate), 1);
+    X509_gmtime_adj(X509_get_notBefore(certificate), 0);
+    //Validity only for a day
+    X509_gmtime_adj(X509_get_notAfter(certificate), 24 * 3600);
+    X509_set_pubkey(certificate, privateKey);
+
+    // Set certificate subject and issuer name
+    X509_NAME* name = X509_get_subject_name(certificate);
+    X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, reinterpret_cast<unsigned char const*>("CH"), -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC, reinterpret_cast<unsigned char const*>("FGE"), -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
+                               reinterpret_cast<unsigned char const*>("https://github.com/JonathSpirit/FastEngine.git"),
+                               -1, -1, 0);
+    X509_set_issuer_name(certificate, name);
+
+    // Sign the certificate with the key
+    if (X509_sign(certificate, privateKey, EVP_sha256()) == 0)
+    {
+        EVP_PKEY_free(privateKey);
+        X509_free(certificate);
+        return false;
+    }
+
+    return true;
+}
+
 [[nodiscard]] bool CryptClientInit(SSL_CTX*& ctx)
 {
     // Initialize OpenSSL DTLS context
@@ -50,22 +119,36 @@ namespace
         return false;
     }
 
+    EVP_PKEY* privateKey = nullptr;
+    X509* certificate = nullptr;
+    if (!CryptGenerateKeyAndCertificate(privateKey, certificate))
+    {
+        return false;
+    }
+
     // Load the certificate file
-    if (SSL_CTX_use_certificate_file(ctx, "openssltest/certificate2.pem", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate(ctx, certificate) <= 0)
     {
         ERR_print_errors_fp(stderr);
+        EVP_PKEY_free(privateKey);
+        X509_free(certificate);
         return false;
     }
 
     // Load the private key file
-    if (SSL_CTX_use_PrivateKey_file(ctx, "openssltest/client_key.pem", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey(ctx, privateKey) <= 0)
     {
         ERR_print_errors_fp(stderr);
+        EVP_PKEY_free(privateKey);
+        X509_free(certificate);
         return false;
     }
 
+    EVP_PKEY_free(privateKey);
+    X509_free(certificate);
+
     // Verify that the private key matches the certificate
-    if (!SSL_CTX_check_private_key(ctx))
+    if (SSL_CTX_check_private_key(ctx) <= 0)
     {
         ERR_print_errors_fp(stderr);
         return false;
@@ -96,15 +179,36 @@ namespace
         return false;
     }
 
+    EVP_PKEY* privateKey = nullptr;
+    X509* certificate = nullptr;
+    if (!CryptGenerateKeyAndCertificate(privateKey, certificate))
+    {
+        return false;
+    }
+
     // Load the certificate file
-    if (SSL_CTX_use_certificate_file(ctx, "openssltest/certificate.pem", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate(ctx, certificate) <= 0)
     {
         ERR_print_errors_fp(stderr);
+        EVP_PKEY_free(privateKey);
+        X509_free(certificate);
         return false;
     }
 
     // Load the private key file
-    if (SSL_CTX_use_PrivateKey_file(ctx, "openssltest/server_key.pem", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey(ctx, privateKey) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        EVP_PKEY_free(privateKey);
+        X509_free(certificate);
+        return false;
+    }
+
+    EVP_PKEY_free(privateKey);
+    X509_free(certificate);
+
+    // Verify that the private key matches the certificate
+    if (SSL_CTX_check_private_key(ctx) <= 0)
     {
         ERR_print_errors_fp(stderr);
         return false;
