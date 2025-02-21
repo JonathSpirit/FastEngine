@@ -198,9 +198,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             fge::net::IpAddress remoteIp{textInputBoxIp->getString().c_str()};
 
             //We try to connect to the server
-            if (!server.start<fge::net::PacketLZ4>(LIFESIM_CLIENT_PORT,
-                                                   fge::net::IpAddress::Any(server.getAddressType()),
-                                                   LIFESIM_SERVER_PORT, remoteIp))
+            if (!server.start(LIFESIM_CLIENT_PORT, fge::net::IpAddress::Any(server.getAddressType()),
+                              LIFESIM_SERVER_PORT, remoteIp))
             {
                 std::cout << "can't connect the server !" << std::endl;
                 return;

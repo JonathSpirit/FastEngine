@@ -80,7 +80,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Starting the server with an LZ4 compression
     std::cout << "starting the server on port " << LIFESIM_SERVER_PORT << " ..." << std::endl;
-    if (!server.start<fge::net::PacketLZ4>(LIFESIM_SERVER_PORT, fge::net::IpAddress::Any(server.getAddressType())))
+    if (!server.start(LIFESIM_SERVER_PORT, fge::net::IpAddress::Any(server.getAddressType())))
     {
         std::cout << "can't start the server on this port !" << std::endl;
         TERMINUS(-1);
