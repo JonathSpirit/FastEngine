@@ -480,9 +480,10 @@ void ServerNetFluxUdp::processClients()
         if (!commands.empty())
         {
             TransmitPacketPtr possiblePacket;
-            auto const result = commands.front()->transmit(possiblePacket, this->g_server->getAddressType(), *client);
+            auto result = commands.front()->transmit(possiblePacket, this->g_server->getAddressType(), *client);
             if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
             {
+                std::cout << (result == NetCommandResults::SUCCESS ? "SUCCESS" : "FAILURE") << std::endl;
                 commands.pop_front();
             }
 
@@ -498,6 +499,17 @@ void ServerNetFluxUdp::processClients()
                 //continue;
             }
 
+            auto const lastTime = client->getLastPacketElapsedTime();
+            if (lastTime >= std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS})
+            {
+                std::unique_ptr<ProtocolPacket> dummy;
+                result = commands.front()->receive(dummy, this->g_server->getAddressType(), lastTime, client.get());
+                if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+                {
+                    std::cout << (result == NetCommandResults::SUCCESS ? "SUCCESS" : "FAILURE") << std::endl;
+                    commands.pop_front();
+                }
+            }
             //TODO: handle command timeout
         }
 
@@ -708,14 +720,6 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         std::cout << "receiving crypt handshake" << std::endl;
         auto& info = refClient->getCryptInfo();
 
-        if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
-        {
-            std::cout << "AUTHENTICATED" << std::endl;
-            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
-            refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            return FluxProcessResults::INTERNALLY_HANDLED;
-        }
-
         refClient->getStatus().resetTimeout();
 
         auto const readPos = packet->getReadPos();
@@ -757,8 +761,18 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         refClient->pushPacket(std::move(response));
         this->g_server->notifyTransmission();
 
+        if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
+        {
+            std::cout << "AUTHENTICATED" << std::endl;
+            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
+            refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+            return FluxProcessResults::INTERNALLY_HANDLED;
+        }
+
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
+
+    std::cout << "processing packet" << std::endl;
 
     auto const headerFlags = packet->retrieveFlags().value();
 

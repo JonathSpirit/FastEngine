@@ -149,7 +149,7 @@ NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet
 
             if (this->g_tryCount == 0 || this->g_currentMTU == this->g_maximumMTU)
             {
-                std::cout << ((this->g_currentMTU == 0) ? "MTU: discovery failed" : "MTU: discovery ok") << std::endl;
+                std::cout << (this->g_currentMTU == 0 ? "MTU: discovery failed" : "MTU: discovery ok") << std::endl;
                 this->g_promise.set_value(this->g_currentMTU);
                 return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
             }
@@ -201,7 +201,7 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
     switch (this->g_state)
     {
     case States::TRANSMIT_FGE_HANDSHAKE:
-        std::cout << "transmiting handshake" << std::endl;
+        std::cout << "transmitting handshake" << std::endl;
         client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::UNKNOWN);
         client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
         client._mtuFinalizedFlag = false;
@@ -259,7 +259,7 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
 
         if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
         {
-            std::cout << "AUTHENTICATED" << std::endl;
+            std::cout << "TX AUTHENTICATED" << std::endl;
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
             this->g_promise.set_value(true);
@@ -291,7 +291,7 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
             return NetCommandResults::WORKING;
         }
 
-        std::cout << "transmiting crypt" << std::endl;
+        std::cout << "transmitting crypt" << std::endl;
         buffPacket = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
 
         auto const packetStartDataPosition = buffPacket->doNotDiscard().getDataSize();
@@ -403,7 +403,7 @@ NetCommandResults NetConnectCommand::receive(std::unique_ptr<ProtocolPacket>& pa
             return NetCommandResults::FAILURE;
         }
 
-        std::cout << "ACKNOWLEDGED" << std::endl;
+        std::cout << "RX ACKNOWLEDGED" << std::endl;
         client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
         client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
         this->g_timeout = std::chrono::milliseconds::zero();
