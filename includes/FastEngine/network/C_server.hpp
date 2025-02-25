@@ -133,6 +133,8 @@ private:
     checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet);
 
     ServerSideNetUdp* g_server{nullptr};
+    std::chrono::milliseconds g_commandsUpdateTick{0};
+    std::chrono::steady_clock::time_point g_lastCommandUpdateTimePoint{std::chrono::steady_clock::now()};
 };
 
 /**

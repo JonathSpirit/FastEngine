@@ -26,9 +26,13 @@ namespace fge::net
 
 //NetCommands
 
-NetCommandResults
-NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressType, [[maybe_unused]] Client& client)
+NetCommandResults NetMTUCommand::update(TransmitPacketPtr& buffPacket,
+                                        IpAddress::Types addressType,
+                                        [[maybe_unused]] Client& client,
+                                        std::chrono::milliseconds deltaTime)
 {
+    this->_g_timeout += deltaTime;
+
     switch (this->g_state)
     {
     case States::ASKING:
@@ -36,6 +40,14 @@ NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressT
         buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_ASK);
         buffPacket->doNotDiscard().doNotReorder().doNotFragment();
         this->g_state = States::WAITING_RESPONSE;
+        break;
+    case States::WAITING_RESPONSE:
+        if (this->_g_timeout >= FGE_NET_MTU_TIMEOUT_MS)
+        {
+            std::cout << "MTU: timeout" << std::endl;
+            this->g_promise.set_value(0);
+            return NetCommandResults::FAILURE;
+        }
         break;
     case States::DISCOVER:
     {
@@ -61,21 +73,40 @@ NetMTUCommand::transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressT
         this->g_state = States::WAITING;
         break;
     }
+    case States::WAITING:
+        if (this->_g_timeout >= FGE_NET_MTU_TIMEOUT_MS)
+        {
+            if (this->g_tryCount == 0)
+            {
+                std::cout << ((this->g_currentMTU == 0) ? "MTU: discovery failed" : "MTU: discovery ok") << std::endl;
+                this->g_promise.set_value(this->g_currentMTU);
+                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
+            }
+
+            std::cout << "MTU: packet timeout" << std::endl;
+
+            this->g_targetMTU -= this->g_intervalMTU;
+            this->g_intervalMTU = std::max<uint16_t>(FGE_NET_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
+
+            this->_g_timeout = std::chrono::milliseconds::zero();
+            this->g_state = States::DISCOVER;
+            return NetCommandResults::WORKING;
+        }
+        break;
     default:
         break;
     }
 
     return NetCommandResults::WORKING;
 }
-NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet,
-                                         IpAddress::Types addressType,
-                                         std::chrono::milliseconds deltaTime,
-                                         [[maybe_unused]] Client* client)
+NetCommandResults NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& packet,
+                                           IpAddress::Types addressType,
+                                           [[maybe_unused]] Client& client)
 {
     switch (this->g_state)
     {
     case States::WAITING_RESPONSE:
-        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_ASK_RESPONSE)
+        if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_ASK_RESPONSE)
         {
             //Extract the target MTU
             uint16_t targetMTU;
@@ -128,22 +159,14 @@ NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet
 
             std::cout << "MTU: currentMTU: " << this->g_currentMTU << std::endl;
 
-            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->_g_timeout = std::chrono::milliseconds::zero();
             this->g_state = States::DISCOVER;
             return NetCommandResults::WORKING;
-        }
-
-        this->g_receiveTimeout += deltaTime;
-        if (this->g_receiveTimeout >= FGE_NET_MTU_TIMEOUT_MS)
-        {
-            std::cout << "MTU: timeout" << std::endl;
-            this->g_promise.set_value(0);
-            return NetCommandResults::FAILURE;
         }
         break;
     case States::DISCOVER:
     case States::WAITING:
-        if (packet && packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_TEST_RESPONSE)
+        if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_TEST_RESPONSE)
         {
             this->g_currentMTU = this->g_targetMTU;
 
@@ -162,29 +185,9 @@ NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet
                 this->g_tryCount = 0;
             }
 
-            this->g_receiveTimeout = std::chrono::milliseconds::zero();
+            this->_g_timeout = std::chrono::milliseconds::zero();
             this->g_state = States::DISCOVER;
             break;
-        }
-
-        this->g_receiveTimeout += deltaTime;
-        if (this->g_receiveTimeout >= FGE_NET_MTU_TIMEOUT_MS)
-        {
-            if (this->g_tryCount == 0)
-            {
-                std::cout << ((this->g_currentMTU == 0) ? "MTU: discovery failed" : "MTU: discovery ok") << std::endl;
-                this->g_promise.set_value(this->g_currentMTU);
-                return this->g_currentMTU == 0 ? NetCommandResults::FAILURE : NetCommandResults::SUCCESS;
-            }
-
-            std::cout << "MTU: packet timeout" << std::endl;
-
-            this->g_targetMTU -= this->g_intervalMTU;
-            this->g_intervalMTU = std::max<uint16_t>(FGE_NET_MTU_MIN_INTERVAL, this->g_intervalMTU / 2);
-
-            this->g_receiveTimeout = std::chrono::milliseconds::zero();
-            this->g_state = States::DISCOVER;
-            return NetCommandResults::WORKING;
         }
         break;
     default:
@@ -194,10 +197,13 @@ NetCommandResults NetMTUCommand::receive(std::unique_ptr<ProtocolPacket>& packet
     return NetCommandResults::WORKING;
 }
 
-NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
-                                              [[maybe_unused]] IpAddress::Types addressType,
-                                              Client& client)
+NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
+                                            [[maybe_unused]] IpAddress::Types addressType,
+                                            Client& client,
+                                            std::chrono::milliseconds deltaTime)
 {
+    this->_g_timeout += deltaTime;
+
     switch (this->g_state)
     {
     case States::TRANSMIT_FGE_HANDSHAKE:
@@ -208,7 +214,17 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
 
         buffPacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
         buffPacket->doNotDiscard().doNotReorder().doNotFragment() << FGE_NET_HANDSHAKE_STRING;
+        this->_g_timeout = std::chrono::milliseconds::zero();
         this->g_state = States::WAITING_FGE_HANDSHAKE;
+        break;
+    case States::WAITING_FGE_HANDSHAKE:
+        if (this->_g_timeout >= FGE_NET_CONNECT_TIMEOUT_MS)
+        {
+            std::cout << "timeout" << std::endl;
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            this->g_promise.set_value(false);
+            return NetCommandResults::FAILURE;
+        }
         break;
     case States::DEALING_WITH_MTU:
         if (this->g_mtuTested)
@@ -229,6 +245,7 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
             buffPacket = CreatePacket(NET_INTERNAL_ID_MTU_FINAL);
             buffPacket->doNotDiscard().doNotReorder().doNotFragment();
 
+            this->_g_timeout = std::chrono::milliseconds::zero();
             this->g_state = States::WAITING_SERVER_FINAL_MTU;
         }
         else
@@ -239,6 +256,7 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
             auto command = std::make_unique<NetMTUCommand>(this->_g_commandQueue);
             this->g_mtuFuture = command->get_future();
             this->_g_commandQueue->push_front(std::move(command));
+            this->_g_timeout = std::chrono::milliseconds::zero();
         }
         break;
     case States::WAITING_SERVER_FINAL_MTU:
@@ -250,6 +268,7 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
         std::cout << "MTU finalized" << std::endl;
         client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
         client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+        this->_g_timeout = std::chrono::milliseconds::zero();
         this->g_state = States::CRYPT_HANDSHAKE;
     }
     break;
@@ -283,6 +302,8 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
 
         std::cout << "check for transmit crypt" << std::endl;
 
+        this->_g_timeout = std::chrono::milliseconds::zero();
+
         // Check if OpenSSL has produced encrypted handshake data
         auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
         if (pendingSize == 0)
@@ -311,80 +332,42 @@ NetCommandResults NetConnectCommand::transmit(TransmitPacketPtr& buffPacket,
         this->g_state = States::CRYPT_WAITING;
     }
     break;
+    case States::CRYPT_WAITING:
+        if (SSL_is_init_finished(static_cast<SSL*>(client.getCryptInfo()._ssl)) == 1)
+        {
+            std::cout << "AUTHENTICATED" << std::endl;
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
+            client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+            this->g_promise.set_value(true);
+            return NetCommandResults::SUCCESS;
+        }
+
+        if (this->_g_timeout >= FGE_NET_CONNECT_TIMEOUT_MS)
+        {
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            this->g_promise.set_value(false);
+            return NetCommandResults::FAILURE;
+        }
+        break;
     case States::CONNECTED:
         return NetCommandResults::SUCCESS;
     default:
-        return NetCommandResults::WORKING;
+        break;
     }
 
     return NetCommandResults::WORKING;
-
-
-#if 0
-    while (!SSL_is_init_finished(ssl)) {
-        ret = SSL_do_handshake(ssl);
-        if(ret <= 0) {
-            int err = SSL_get_error(ssl, ret);
-            if(err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
-                fprintf(stderr, "Handshake error: %d\n", err);
-                ERR_print_errors_fp(stderr);
-                exit(EXIT_FAILURE);
-            }
-        }
-        /* 4a. Check if OpenSSL has produced encrypted handshake data. */
-        int pending = BIO_ctrl_pending(wbio);
-        if(pending > 0) {
-            int outlen = BIO_read(wbio, netbuf, sizeof(netbuf));
-            if(outlen > 0) {
-                /* Send the encrypted data over UDP */
-                ret = sendto(sock, netbuf, outlen, 0,
-                             (struct sockaddr*)&server_addr, sizeof(server_addr));
-                if(ret < 0) {
-                    perror("sendto");
-                    // You might wish to retry or handle EAGAIN etc.
-                }
-            }
-        }
-        /* 4b. Try to receive UDP data from the network */
-        struct sockaddr_in from_addr;
-        socklen_t from_len = sizeof(from_addr);
-        ret = recvfrom(sock, netbuf, sizeof(netbuf), 0,
-                       (struct sockaddr*)&from_addr, &from_len);
-        if(ret > 0) {
-            // Write the received encrypted DTLS data into the input BIO.
-            BIO_write(rbio, netbuf, ret);
-        }
-        // Optionally sleep a short while to avoid a busy loop.
-        usleep(10000); // 10ms
-    }
-    printf("DTLS handshake completed!\n");
-#endif
 }
 
-NetCommandResults NetConnectCommand::receive(std::unique_ptr<ProtocolPacket>& packet,
-                                             [[maybe_unused]] IpAddress::Types addressType,
-                                             [[maybe_unused]] std::chrono::milliseconds deltaTime,
-                                             Client* client)
+NetCommandResults NetConnectCommand::onReceive(std::unique_ptr<ProtocolPacket>& packet,
+                                               [[maybe_unused]] IpAddress::Types addressType,
+                                               Client& client)
 {
-    if (client == nullptr)
-    {
-        return NetCommandResults::FAILURE;
-    }
-
     switch (this->g_state)
     {
     case States::WAITING_FGE_HANDSHAKE:
     {
-        if (!packet || packet->retrieveHeaderId().value() != NET_INTERNAL_ID_FGE_HANDSHAKE)
+        if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_FGE_HANDSHAKE)
         {
-            this->g_timeout += deltaTime;
-            if (this->g_timeout >= FGE_NET_CONNECT_TIMEOUT_MS)
-            {
-                client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
-                this->g_promise.set_value(false);
-                return NetCommandResults::FAILURE;
-            }
-
             return NetCommandResults::WORKING;
         }
 
@@ -404,41 +387,29 @@ NetCommandResults NetConnectCommand::receive(std::unique_ptr<ProtocolPacket>& pa
         }
 
         std::cout << "RX ACKNOWLEDGED" << std::endl;
-        client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
-        client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-        this->g_timeout = std::chrono::milliseconds::zero();
+        client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
+        client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+        this->_g_timeout = std::chrono::milliseconds::zero();
 
         this->g_state = States::DEALING_WITH_MTU;
     }
     break;
-    /*case States::CRYPT_HANDSHAKE:
-        break;*/
     case States::CRYPT_WAITING:
     {
-        auto& info = client->getCryptInfo();
-
-        if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
-        {
-            std::cout << "AUTHENTICATED" << std::endl;
-            client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
-            client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            this->g_promise.set_value(true);
-            return NetCommandResults::SUCCESS;
-        }
-
-        if (!packet || packet->retrieveHeaderId() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
+        if (packet->retrieveHeaderId() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
         {
             return NetCommandResults::WORKING;
         }
+
+        auto& info = client.getCryptInfo();
 
         auto const readPos = packet->getReadPos();
         BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
 
         std::cout << "Crypt: received some data" << std::endl;
 
-        this->g_timeout = std::chrono::milliseconds::zero();
+        this->_g_timeout = std::chrono::milliseconds::zero();
         this->g_state = States::CRYPT_HANDSHAKE;
-        return NetCommandResults::WORKING;
     }
     break;
     case States::CONNECTED:

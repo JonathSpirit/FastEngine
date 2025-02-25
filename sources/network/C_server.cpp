@@ -451,6 +451,11 @@ std::size_t NetFluxUdp::getMaxPackets() const
 //ServerNetFluxUdp
 void ServerNetFluxUdp::processClients()
 {
+    auto const now = std::chrono::steady_clock::now();
+    this->g_commandsUpdateTick +=
+            std::min(std::chrono::milliseconds{1},
+                     std::chrono::duration_cast<std::chrono::milliseconds>(now - this->g_lastCommandUpdateTimePoint));
+
     auto clientsLock = this->_clients.acquireLock();
 
     for (auto it = this->_clients.begin(clientsLock); it != this->_clients.end(clientsLock);)
@@ -476,44 +481,38 @@ void ServerNetFluxUdp::processClients()
         }
 
         //Handle commands
-        auto& commands = it->second._commands;
-        if (!commands.empty())
+        if (this->g_commandsUpdateTick >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
-            TransmitPacketPtr possiblePacket;
-            auto result = commands.front()->transmit(possiblePacket, this->g_server->getAddressType(), *client);
-            if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+            auto& commands = it->second._commands;
+            if (!commands.empty())
             {
-                std::cout << (result == NetCommandResults::SUCCESS ? "SUCCESS" : "FAILURE") << std::endl;
-                commands.pop_front();
-            }
-
-            if (possiblePacket)
-            {
-                //Applying options
-                possiblePacket->applyOptions(*client);
-
-                //Sending the packet
-                client->pushPacket(std::move(possiblePacket));
-                //TPacket packet = possiblePacket->packet();
-                //this->g_socket.send(packet); TODO
-                //continue;
-            }
-
-            auto const lastTime = client->getLastPacketElapsedTime();
-            if (lastTime >= std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS})
-            {
-                std::unique_ptr<ProtocolPacket> dummy;
-                result = commands.front()->receive(dummy, this->g_server->getAddressType(), lastTime, client.get());
+                TransmitPacketPtr possiblePacket;
+                auto result = commands.front()->update(possiblePacket, this->g_server->getAddressType(), *client,
+                                                       this->g_commandsUpdateTick);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
                     std::cout << (result == NetCommandResults::SUCCESS ? "SUCCESS" : "FAILURE") << std::endl;
                     commands.pop_front();
                 }
+
+                if (possiblePacket)
+                {
+                    //Applying options
+                    possiblePacket->applyOptions(*client);
+
+                    //Sending the packet
+                    client->pushPacket(std::move(possiblePacket));
+                }
             }
-            //TODO: handle command timeout
         }
 
         ++it;
+    }
+
+    if (this->g_commandsUpdateTick >= FGE_NET_CMD_UPDATE_TICK_MS)
+    {
+        this->g_lastCommandUpdateTimePoint = now;
+        this->g_commandsUpdateTick = std::chrono::milliseconds::zero();
     }
 }
 FluxProcessResults
@@ -841,8 +840,7 @@ ServerNetFluxUdp::checkCommands(ClientSharedPtr const& refClient, CommandQueue& 
         return NetCommandResults::FAILURE;
     }
 
-    auto const result = commands.front()->receive(packet, this->g_server->getAddressType(),
-                                                  refClient->getLastPacketElapsedTime(), refClient.get());
+    auto const result = commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
     {
         commands.pop_front();
@@ -1439,7 +1437,6 @@ std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 void ClientSideNetUdp::threadReception()
 {
     Packet pckReceive; //TODO
-    auto lastTimePoint = std::chrono::steady_clock::now();
 
     while (this->g_running)
     {
@@ -1474,10 +1471,6 @@ void ClientSideNetUdp::threadReception()
             { //Bad headerId, packet is dismissed
                 continue;
             }
-
-            auto const now = std::chrono::steady_clock::now();
-            auto const deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTimePoint);
-            lastTimePoint = now;
 
             //Check client status and reset timeout
             auto const networkStatus = this->_client.getStatus().getNetworkStatus();
@@ -1538,8 +1531,8 @@ void ClientSideNetUdp::threadReception()
                 if (!this->g_commands.empty())
                 {
 
-                    auto const result = this->g_commands.front()->receive(packet, this->g_socket.getAddressType(),
-                                                                          deltaTime, &this->_client);
+                    auto const result =
+                            this->g_commands.front()->onReceive(packet, this->g_socket.getAddressType(), this->_client);
                     if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                     {
                         this->g_commands.pop_front();
@@ -1556,48 +1549,35 @@ void ClientSideNetUdp::threadReception()
             this->pushPacket(std::move(packet));
             this->g_receptionNotifier.notify_all();
         }
-        else
-        {
-            //Checking commands
-            {
-                std::scoped_lock const commandLock(this->g_mutexCommands);
-                if (!this->g_commands.empty())
-                {
-                    std::unique_ptr<ProtocolPacket> dummyPacket;
-                    auto const result = this->g_commands.front()->receive(
-                            dummyPacket, this->g_socket.getAddressType(),
-                            std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS}, &this->_client);
-                    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
-                    {
-                        this->g_commands.pop_front();
-                    }
-                }
-            }
-
-            /*if (this->_client.getStatus().getNetworkStatus() != ClientStatus::NetworkStatus::TIMEOUT)
-            { TODO
-                (void) this->_client.getStatus().updateTimeout(
-                        std::chrono::milliseconds{FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS});
-            }*/
-        }
     }
 }
 void ClientSideNetUdp::threadTransmission()
 {
+    auto lastTimePoint = std::chrono::steady_clock::now();
+    std::chrono::milliseconds commandsTime{0};
+
     std::unique_lock lckServer(this->_g_mutexFlux);
 
     while (this->g_running)
     {
         this->g_transmissionNotifier.wait_for(lckServer, std::chrono::milliseconds(10));
 
+        auto const now = std::chrono::steady_clock::now();
+        auto const deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTimePoint);
+        lastTimePoint = now;
+
         //Checking commands
+        commandsTime += deltaTime;
+        if (commandsTime >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
+            commandsTime = std::chrono::milliseconds::zero();
+
             std::scoped_lock const commandLock(this->g_mutexCommands);
             if (!this->g_commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
-                auto const result = this->g_commands.front()->transmit(possiblePacket, this->g_socket.getAddressType(),
-                                                                       this->_client);
+                auto const result = this->g_commands.front()->update(possiblePacket, this->g_socket.getAddressType(),
+                                                                     this->_client, commandsTime);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
                     this->g_commands.pop_front();
@@ -1610,9 +1590,6 @@ void ClientSideNetUdp::threadTransmission()
 
                     //Sending the packet
                     this->_client.pushPacket(std::move(possiblePacket));
-                    //TPacket packet = possiblePacket->packet();
-                    //this->g_socket.send(packet); TODO
-                    //continue;
                 }
             }
         }

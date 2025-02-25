@@ -25,6 +25,12 @@
 #include <memory>
 #include <thread>
 
+#define FGE_NET_CMD_UPDATE_TICK_MS                                                                                     \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        30                                                                                                             \
+    }
+
 #define FGE_NET_MTU_TIMEOUT_MS                                                                                         \
     std::chrono::milliseconds                                                                                          \
     {                                                                                                                  \
@@ -66,15 +72,16 @@ public:
     virtual ~NetCommand() = default;
 
     [[nodiscard]] virtual NetCommandTypes getType() const = 0;
+    [[nodiscard]] virtual NetCommandResults update(TransmitPacketPtr& buffPacket,
+                                                   IpAddress::Types addressType,
+                                                   Client& client,
+                                                   std::chrono::milliseconds deltaTime) = 0;
     [[nodiscard]] virtual NetCommandResults
-    transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressType, Client& client) = 0;
-    [[nodiscard]] virtual NetCommandResults receive(std::unique_ptr<ProtocolPacket>& packet,
-                                                    IpAddress::Types addressType,
-                                                    std::chrono::milliseconds deltaTime,
-                                                    Client* client) = 0;
+    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) = 0;
 
 protected:
     CommandQueue* _g_commandQueue{nullptr};
+    std::chrono::milliseconds _g_timeout{0};
 };
 
 class FGE_API NetMTUCommand : public NetCommand
@@ -85,12 +92,12 @@ public:
 
     [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::DISCOVER_MTU; }
 
+    [[nodiscard]] NetCommandResults update(TransmitPacketPtr& buffPacket,
+                                           IpAddress::Types addressType,
+                                           Client& client,
+                                           std::chrono::milliseconds deltaTime) override;
     [[nodiscard]] NetCommandResults
-    transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressType, Client& client) override;
-    [[nodiscard]] NetCommandResults receive(std::unique_ptr<ProtocolPacket>& packet,
-                                            IpAddress::Types addressType,
-                                            std::chrono::milliseconds deltaTime,
-                                            Client* client) override;
+    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
 
     [[nodiscard]] inline std::future<uint16_t> get_future() { return this->g_promise.get_future(); }
 
@@ -109,7 +116,6 @@ private:
         DISCOVER,
         WAITING
     } g_state{States::ASKING};
-    std::chrono::milliseconds g_receiveTimeout{0};
 };
 
 class FGE_API NetConnectCommand : public NetCommand
@@ -120,12 +126,12 @@ public:
 
     [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT; }
 
+    [[nodiscard]] NetCommandResults update(TransmitPacketPtr& buffPacket,
+                                           IpAddress::Types addressType,
+                                           Client& client,
+                                           std::chrono::milliseconds deltaTime) override;
     [[nodiscard]] NetCommandResults
-    transmit(TransmitPacketPtr& buffPacket, IpAddress::Types addressType, Client& client) override;
-    [[nodiscard]] NetCommandResults receive(std::unique_ptr<ProtocolPacket>& packet,
-                                            IpAddress::Types addressType,
-                                            std::chrono::milliseconds deltaTime,
-                                            Client* client) override;
+    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
 
     [[nodiscard]] inline std::future<bool> get_future() { return this->g_promise.get_future(); }
 
@@ -146,7 +152,6 @@ private:
     } g_state{States::TRANSMIT_FGE_HANDSHAKE};
     bool g_mtuTested{false};
     std::future<uint16_t> g_mtuFuture;
-    std::chrono::milliseconds g_timeout{0};
 };
 
 } // namespace fge::net
