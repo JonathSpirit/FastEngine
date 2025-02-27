@@ -62,6 +62,8 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket const& r) :
         g_fluxIndex(r.g_fluxIndex),
         g_fluxLifetime(r.g_fluxLifetime),
 
+        g_markedForEncryption(r.g_markedForEncryption),
+
         g_options(r.g_options)
 {}
 inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
@@ -73,6 +75,8 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
 
         g_fluxIndex(r.g_fluxIndex),
         g_fluxLifetime(r.g_fluxLifetime),
+
+        g_markedForEncryption(r.g_markedForEncryption),
 
         g_options(std::move(r.g_options))
 {}
@@ -259,6 +263,15 @@ inline std::vector<ProtocolPacket::Option> const& ProtocolPacket::options() cons
 inline std::vector<ProtocolPacket::Option>& ProtocolPacket::options()
 {
     return this->g_options;
+}
+
+inline void ProtocolPacket::markForEncryption()
+{
+    this->g_markedForEncryption = true;
+}
+inline bool ProtocolPacket::isMarkedForEncryption() const
+{
+    return this->g_markedForEncryption;
 }
 
 inline bool ProtocolPacket::checkFluxLifetime(std::size_t fluxSize)

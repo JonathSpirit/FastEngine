@@ -158,6 +158,9 @@ public:
     [[nodiscard]] inline std::vector<Option> const& options() const;
     [[nodiscard]] inline std::vector<Option>& options();
 
+    inline void markForEncryption();
+    [[nodiscard]] inline bool isMarkedForEncryption() const;
+
     /**
      * \brief Apply packet options to the packet
      *
@@ -196,6 +199,8 @@ private:
 
     std::size_t g_fluxIndex{0};
     std::size_t g_fluxLifetime{0};
+
+    bool g_markedForEncryption{false};
 
     std::vector<Option> g_options;
 };

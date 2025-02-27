@@ -127,6 +127,12 @@ public:
     CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
     CallbackHandler<ClientSharedPtr, Identity> _onClientTimeout;
 
+    CallbackHandler<ClientSharedPtr const&, Identity> _onClientAcknowledged;
+    CallbackHandler<ClientSharedPtr const&, Identity> _onClientMTUDiscovered;
+    CallbackHandler<ClientSharedPtr const&, Identity> _onClientConnected;
+    CallbackHandler<ClientSharedPtr, Identity> _onClientDisconnected;
+    CallbackHandler<ClientSharedPtr, Identity> _onClientDropped;
+
 private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
     [[nodiscard]] NetCommandResults

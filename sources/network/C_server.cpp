@@ -591,6 +591,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                 refClient->pushPacket(std::move(responsePacket));
                 this->g_server->notifyTransmission();
 
+                this->_onClientAcknowledged.call(refClient, packet->getIdentity());
+
                 return FluxProcessResults::INTERNALLY_HANDLED;
             }
 
@@ -640,11 +642,13 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                     std::cout << "CryptServerCreate failed" << std::endl;
                     //Discard the packet and the client
                     this->_clients.remove(packet->getIdentity());
+                    this->_onClientDropped.call(refClient, packet->getIdentity());
                     return FluxProcessResults::NOT_RETRIEVABLE;
                 }
                 std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
                 refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
                 refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                this->_onClientMTUDiscovered.call(refClient, packet->getIdentity());
             }
             break;
         default:
@@ -655,6 +659,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                 std::cout << "Command failed" << std::endl;
                 //Discard the packet and the client
                 this->_clients.remove(packet->getIdentity());
+                this->_onClientDropped.call(refClient, packet->getIdentity());
                 return FluxProcessResults::NOT_RETRIEVABLE;
             }
 
@@ -677,12 +682,14 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                         std::cout << "CryptServerCreate failed" << std::endl;
                         //Discard the packet and the client
                         this->_clients.remove(packet->getIdentity());
+                        this->_onClientDropped.call(refClient, packet->getIdentity());
                         return FluxProcessResults::NOT_RETRIEVABLE;
                     }
 
                     std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
                     refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
                     refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                    this->_onClientMTUDiscovered.call(refClient, packet->getIdentity());
                 }
             }
         }
@@ -733,6 +740,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             {
                 ERR_print_errors_fp(stderr);
                 refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+                this->_clients.remove(packet->getIdentity());
+                this->_onClientDropped.call(refClient, packet->getIdentity());
                 return FluxProcessResults::NOT_RETRIEVABLE;
             }
         }
@@ -755,6 +764,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         {
             std::cout << "failed crypt" << std::endl;
             refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            this->_clients.remove(packet->getIdentity());
+            this->_onClientDropped.call(refClient, packet->getIdentity());
             return FluxProcessResults::NOT_RETRIEVABLE;
         }
         refClient->pushPacket(std::move(response));
@@ -762,9 +773,10 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
         if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
         {
-            std::cout << "AUTHENTICATED" << std::endl;
-            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
+            std::cout << "CONNECTED" << std::endl;
+            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+            this->_onClientConnected.call(refClient, packet->getIdentity());
             return FluxProcessResults::INTERNALLY_HANDLED;
         }
 
@@ -1166,6 +1178,24 @@ void ServerSideNetUdp::threadTransmission()
                 //Applying options
                 transmissionPacket->applyOptions(*itClient->second._client);
 
+                //Check if the packet must be encrypted
+                if (transmissionPacket->isMarkedForEncryption())
+                {
+                    auto& info = itClient->second._client->getCryptInfo();
+                    SSL_write(static_cast<SSL*>(info._ssl), transmissionPacket->getData(), transmissionPacket->getDataSize());
+                    std::cout << "SSL_write: " << transmissionPacket->getDataSize() << std::endl;
+                    transmissionPacket->clear();
+                    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
+                    std::cout << pendingSize << std::endl;
+                    if (pendingSize == 0)
+                    {
+                        continue;
+                    }
+                    transmissionPacket->append(pendingSize);
+                    BIO_read(static_cast<BIO*>(info._wbio), transmissionPacket->getData(),
+                             pendingSize);
+                }
+
                 //Sending the packet
                 //TPacket packet(transmissionPacket->packet()); TODO
                 this->g_socket.sendTo(transmissionPacket->packet(), itClient->first._ip, itClient->first._port);
@@ -1453,6 +1483,23 @@ void ClientSideNetUdp::threadReception()
                 continue;
             }
 #endif
+
+            //Decrypting the packet if needed
+            auto const status = this->_client.getStatus().getNetworkStatus();
+            if (status == ClientStatus::NetworkStatus::CONNECTED ||
+                status == ClientStatus::NetworkStatus::AUTHENTICATED)
+            {
+                auto& info = this->_client.getCryptInfo();
+
+                BIO_write(static_cast<BIO*>(info._rbio), pckReceive.getData(), pckReceive.getDataSize());
+
+                auto const result = SSL_read(static_cast<SSL*>(info._ssl), pckReceive.getData(), pckReceive.getDataSize());
+                if (result <= 0)
+                {
+                    continue;
+                }
+                pckReceive.shrink(pckReceive.getDataSize() - result);
+            }
 
             if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
             { //Bad header, packet is dismissed

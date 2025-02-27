@@ -278,8 +278,8 @@ NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
 
         if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
         {
-            std::cout << "TX AUTHENTICATED" << std::endl;
-            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
+            std::cout << "TX CONNECTED" << std::endl;
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
             this->g_promise.set_value(true);
             this->g_state = States::CONNECTED;
@@ -335,8 +335,8 @@ NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
     case States::CRYPT_WAITING:
         if (SSL_is_init_finished(static_cast<SSL*>(client.getCryptInfo()._ssl)) == 1)
         {
-            std::cout << "AUTHENTICATED" << std::endl;
-            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::AUTHENTICATED);
+            std::cout << "CONNECTED" << std::endl;
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
             this->g_promise.set_value(true);
             return NetCommandResults::SUCCESS;

@@ -228,6 +228,12 @@ void Client::pushPacket(TransmitPacketPtr pck)
 
         pck->setRealm(this->getCurrentRealm());
     }
+    auto const status = this->g_status.getNetworkStatus();
+    if (status == ClientStatus::NetworkStatus::CONNECTED ||
+        status == ClientStatus::NetworkStatus::AUTHENTICATED)
+    {
+        pck->markForEncryption();
+    }
     this->g_pendingTransmitPackets.push_back(std::move(pck));
 }
 void Client::pushForcedFrontPacket(TransmitPacketPtr pck)

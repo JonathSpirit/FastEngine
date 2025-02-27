@@ -173,8 +173,8 @@ public:
 
         ACKNOWLEDGED,
         MTU_DISCOVERED,
-        AUTHENTICATED,
         CONNECTED,
+        AUTHENTICATED,
         USER_HANDLED,
 
         DISCONNECTED,
