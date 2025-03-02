@@ -123,12 +123,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Timer
     fge::timer::Init();
-    //Prepare a timer for timeout
-    fge::timer::TimerShared timerConnectionTimeout =
-            std::make_shared<fge::Timer>(LIFESIM_TIME_CONNECTION_TIMEOUT, "connectionTimeout", true);
-    fge::timer::Create(timerConnectionTimeout);
 
-    server._client.getStatus().setTimeout(LIFESIM_TIME_CONNECTION_TIMEOUT);
+    std::future<bool> futureConnect;
+    bool isConnecting = false;
 
     //We must register all classes that we will use
     std::cout << "registering all classes ..." << std::endl;
@@ -190,8 +187,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Handle button pressing
         buttonValid->_onButtonPressed.addLambda([&, textInputBoxIp]([[maybe_unused]] fge::ObjButton* button) {
-            if (!timerConnectionTimeout->isPaused())
-            { //Timer is running, that means we are already trying to connect
+            if (isConnecting)
+            { //We are already trying to connect
                 return;
             }
 
@@ -205,20 +202,27 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 return;
             }
 
-            /*auto future = server.retrieveMTU();
-            future.wait();
-            std::cout << "MTU: " << future.get() << std::endl;*/
+            isConnecting = true;
+            futureConnect = server.connect();
+            futureConnect.wait(); //TODO: remove this wait
+            isConnecting = false;
+
+            if (!futureConnect.get())
+            {
+                server.stop();
+                std::cout << "can't connect to the server !" << std::endl;
+                return;
+            }
+
+            std::cout << "connection ok" << std::endl;
 
             auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
-            transmissionPacket->packet() << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
+            transmissionPacket->doNotDiscard().doNotReorder() << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
             //Ask the server thread to automatically update the timestamp just before sending it
             server._client._latencyPlanner.pack(transmissionPacket);
 
             server._client.pushPacket(std::move(transmissionPacket));
-
-            timerConnectionTimeout->restart();
-            timerConnectionTimeout->resume();
         });
     };
 
@@ -245,6 +249,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         server._client.getStatus().resetTimeout();
     });
 
+    auto const adapters = fge::net::Socket::getAdaptersInfo();
+    for (auto const& adapter: adapters)
+    {
+        std::cout << "adapter: " << adapter._name << ", description: " << adapter._description
+                  << ", mtu: " << adapter._mtu << std::endl;
+        for (auto const& ip: adapter._data)
+        {
+            std::cout << "\t" << ip._unicast.toString().value_or("error") << std::endl;
+        }
+    }
+
     //Begin loop
     bool running = true;
     while (running)
@@ -262,6 +277,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             clockUpdate.restart();
 
             auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_UPDATE);
+            transmissionPacket->doNotReorder().doNotDiscard();
 
             //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
             //The LatencyPlanner class will do all the work for that.
@@ -270,19 +286,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
 
         //Check if the connection is unsuccessful
-        if (timerConnectionTimeout->goalReached())
+        if (isConnecting && futureConnect.wait_for(std::chrono::milliseconds::zero()) == std::future_status::ready)
         {
-            std::cout << "no response (timeout) !" << std::endl;
+            if (!futureConnect.get())
+            {
+                std::cout << "no response (timeout) !" << std::endl;
 
-            connectionValid = false;
+                connectionValid = false;
 
-            server.stop();
-            mainScene->delAllObject(true);
-            createConnectionWindow();
+                server.stop();
+                mainScene->delAllObject(true);
+                createConnectionWindow();
 
-            timerConnectionTimeout->pause();
-            timerConnectionTimeout->restart();
-            fge::timer::Create(timerConnectionTimeout); ///TODO: timer system need a refactor
+                isConnecting = false;
+            }
         }
 
         //Handling server packets
@@ -301,9 +318,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 server.stop();
                 mainScene->delAllObject(true);
                 createConnectionWindow();
-
-                timerConnectionTimeout->pause();
-                timerConnectionTimeout->restart();
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:
             {
@@ -331,9 +345,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     }
                     connectionValid = true;
                     clockUpdate.restart();
-
-                    timerConnectionTimeout->pause();
-                    timerConnectionTimeout->restart();
 
                     std::cout << "connected to server !" << std::endl;
                 }

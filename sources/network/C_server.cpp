@@ -1182,18 +1182,16 @@ void ServerSideNetUdp::threadTransmission()
                 if (transmissionPacket->isMarkedForEncryption())
                 {
                     auto& info = itClient->second._client->getCryptInfo();
-                    SSL_write(static_cast<SSL*>(info._ssl), transmissionPacket->getData(), transmissionPacket->getDataSize());
-                    std::cout << "SSL_write: " << transmissionPacket->getDataSize() << std::endl;
+                    SSL_write(static_cast<SSL*>(info._ssl), transmissionPacket->getData(),
+                              transmissionPacket->getDataSize());
                     transmissionPacket->clear();
                     auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
-                    std::cout << pendingSize << std::endl;
                     if (pendingSize == 0)
                     {
                         continue;
                     }
                     transmissionPacket->append(pendingSize);
-                    BIO_read(static_cast<BIO*>(info._wbio), transmissionPacket->getData(),
-                             pendingSize);
+                    BIO_read(static_cast<BIO*>(info._wbio), transmissionPacket->getData(), pendingSize);
                 }
 
                 //Sending the packet
@@ -1493,7 +1491,8 @@ void ClientSideNetUdp::threadReception()
 
                 BIO_write(static_cast<BIO*>(info._rbio), pckReceive.getData(), pckReceive.getDataSize());
 
-                auto const result = SSL_read(static_cast<SSL*>(info._ssl), pckReceive.getData(), pckReceive.getDataSize());
+                auto const result =
+                        SSL_read(static_cast<SSL*>(info._ssl), pckReceive.getData(), pckReceive.getDataSize());
                 if (result <= 0)
                 {
                     continue;

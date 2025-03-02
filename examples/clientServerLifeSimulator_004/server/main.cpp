@@ -128,6 +128,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     //fge::Event is not used in this application, but required
     fge::Event event;
 
+    //Handling clients timeout
+    serverFlux->_onClientTimeout.addLambda([](fge::net::ClientSharedPtr client, fge::net::Identity id) {
+        std::cout << "user : " << id._ip.toString().value_or("UNDEFINED") << " disconnected (timeout) !" << std::endl;
+    });
+
+    //Handling clients connection
+    serverFlux->_onClientConnected.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity id) {
+        client->getStatus().setTimeout(LIFESIM_TIME_TIMEOUT);
+    });
+
     while (gRunning)
     {
         //Spawn some new foods
@@ -186,38 +196,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             }
         }
 
-        //Handling clients timeout
-        if (clockTimeout.reached(LIFESIM_TIME_TIMEOUT))
-        {
-            clockTimeout.restart();
-
-            //In order to iterate through all clients, we have to acquire a lock
-            auto clientsLock = clients.acquireLock();
-
-            for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock);)
-            {
-                auto timeout =
-                        it->second._client->_data[LIFESIM_CLIENTDATA_TIMEOUT].get<fge::PuintType>().value_or(0) + 1;
-                if (timeout >= LIFESIM_TIMEOUT_COUNT)
-                {
-                    std::cout << "user : " << it->first._ip.toString().value_or("UNDEFINED")
-                              << " disconnected (timeout) !" << std::endl;
-
-                    auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_ALL_GOODBYE);
-
-                    transmissionPacket->packet() << "timeout";
-                    server.sendTo(transmissionPacket, it->first);
-
-                    it = clients.remove(it, clientsLock);
-                }
-                else
-                {
-                    it->second._client->_data[LIFESIM_CLIENTDATA_TIMEOUT].set(timeout);
-                    ++it;
-                }
-            }
-        }
-
         //Handling clients packets
         fge::net::ClientSharedPtr client;
         fge::net::ReceivedPacketPtr packet;
@@ -259,8 +237,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         client->setCTOSLatency_ms(latency.value());
                     }
 
-                    //We reset the timeout count
-                    client->_data.setProperty(LIFESIM_CLIENTDATA_TIMEOUT, 0);
+                    //We reset the timeout
+                    client->getStatus().resetTimeout();
                 }
                 else
                 {
@@ -272,7 +250,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 transmissionPacket->setHeaderId(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
                 transmissionPacket->addFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 
-                if (client != nullptr)
+                if (client->getStatus().getNetworkStatus() == fge::net::ClientStatus::NetworkStatus::AUTHENTICATED)
                 {
                     //The client is already connected, so we just send "true"
                     transmissionPacket->packet() << true;
@@ -308,8 +286,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                       << " connected !" << std::endl;
 
                             //Create the new client with the packet identity
-                            client = std::make_shared<fge::net::Client>();
-                            clients.add(packet->getIdentity(), client);
+                            //client = std::make_shared<fge::net::Client>();
+                            //clients.add(packet->getIdentity(), client);
+                            client->getStatus().setNetworkStatus(fge::net::ClientStatus::NetworkStatus::AUTHENTICATED);
 
                             //Pack data required by the LatencyPlanner in order to compute latency
                             client->_latencyPlanner.pack(transmissionPacket);
@@ -364,11 +343,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto clientsLock = clients.acquireLock();
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
+                if (it->second._client->getStatus().getNetworkStatus() !=
+                    fge::net::ClientStatus::NetworkStatus::AUTHENTICATED)
+                {
+                    continue;
+                }
+
                 //Make sure that the client is not busy with another packet
                 if (!it->second._client->isPendingPacketsEmpty())
                 {
                     continue;
                 }
+
+                std::cout << "sending update to : " << it->first._ip.toString().value_or("UNDEFINED") << std::endl;
 
                 auto transmissionPacket = fge::net::CreatePacket();
                 transmissionPacket->setHeaderId(ls::LS_PROTOCOL_S_UPDATE);
