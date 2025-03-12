@@ -81,6 +81,22 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
         g_options(std::move(r.g_options))
 {}
 
+inline bool ProtocolPacket::haveCorrectHeader() const
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        IdType headerId;
+        this->unpack(IdPosition, &headerId, sizeof(IdType));
+
+        if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
+            (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+        {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
 inline bool ProtocolPacket::haveCorrectHeaderSize() const
 {
     return this->getDataSize() >= HeaderSize;
@@ -268,6 +284,10 @@ inline std::vector<ProtocolPacket::Option>& ProtocolPacket::options()
 inline void ProtocolPacket::markForEncryption()
 {
     this->g_markedForEncryption = true;
+}
+inline void ProtocolPacket::unmarkForEncryption()
+{
+    this->g_markedForEncryption = false;
 }
 inline bool ProtocolPacket::isMarkedForEncryption() const
 {

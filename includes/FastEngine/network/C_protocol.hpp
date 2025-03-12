@@ -127,6 +127,7 @@ public:
     [[nodiscard]] inline Packet& packet() noexcept { return *this; }
     [[nodiscard]] inline Packet const& packet() const noexcept { return *this; }
 
+    [[nodiscard]] inline bool haveCorrectHeader() const;
     [[nodiscard]] inline bool haveCorrectHeaderSize() const;
     [[nodiscard]] inline std::optional<IdType> retrieveHeaderId() const;
     [[nodiscard]] inline std::optional<IdType> retrieveFlags() const;
@@ -159,6 +160,7 @@ public:
     [[nodiscard]] inline std::vector<Option>& options();
 
     inline void markForEncryption();
+    inline void unmarkForEncryption();
     [[nodiscard]] inline bool isMarkedForEncryption() const;
 
     /**
