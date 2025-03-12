@@ -138,6 +138,12 @@ private:
     [[nodiscard]] NetCommandResults
     checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet);
 
+    [[nodiscard]] FluxProcessResults processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet);
+    [[nodiscard]] FluxProcessResults processAcknowledgedClient(ClientList::Data& refClientData,
+                                                               ReceivedPacketPtr& packet);
+    [[nodiscard]] FluxProcessResults processMTUDiscoveredClient(ClientList::Data& refClientData,
+                                                                ReceivedPacketPtr& packet);
+
     ServerSideNetUdp* g_server{nullptr};
     std::chrono::milliseconds g_commandsUpdateTick{0};
     std::chrono::steady_clock::time_point g_lastCommandUpdateTimePoint{std::chrono::steady_clock::now()};

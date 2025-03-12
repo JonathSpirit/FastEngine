@@ -313,6 +313,37 @@ void CryptClientDestroy(Client& client)
     info._wbio = nullptr;
 }
 
+[[nodiscard]] bool CryptEncrypt(Client& client, Packet& packet)
+{
+    auto& info = client.getCryptInfo();
+
+    SSL_write(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize());
+
+    packet.clear();
+    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
+    if (pendingSize == 0)
+    {
+        return false;
+    }
+    packet.append(pendingSize);
+    BIO_read(static_cast<BIO*>(info._wbio), packet.getData(), pendingSize);
+    return true;
+}
+[[nodiscard]] bool CryptDecrypt(Client& client, Packet& packet)
+{
+    auto& info = client.getCryptInfo();
+
+    BIO_write(static_cast<BIO*>(info._rbio), packet.getData(), packet.getDataSize());
+
+    auto const result = SSL_read(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize());
+    if (result <= 0)
+    {
+        return false;
+    }
+    packet.shrink(packet.getDataSize() - result);
+    return true;
+}
+
 } // namespace
 
 //ServerFluxUdp
@@ -542,62 +573,10 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     auto* refClientData = this->_clients.getData(packet->getIdentity());
 
     if (refClientData == nullptr)
-    {
-        //Unknown client
-
+    { //Unknown client
         if (allowUnknownClient)
         {
-            //Check if the packet is fragmented
-            if (packet->isFragmented())
-            { //We can't (disallow) process fragmented packets from unknown clients
-                return FluxProcessResults::NOT_RETRIEVABLE;
-            }
-
-            //Check if the packet is a handshake
-            if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_FGE_HANDSHAKE)
-            {
-                std::cout << "Handshake received" << std::endl;
-
-                using namespace fge::net::rules;
-                std::string handshakeString;
-                auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1,
-                                                                    {packet->packet(), &handshakeString}))
-                                         .end();
-                if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING)
-                { //TODO: endReached() check should be done in .end() method
-                    std::cout << "Handshake failed" << std::endl;
-                    return FluxProcessResults::NOT_RETRIEVABLE;
-                }
-
-                std::cout << "Handshake accepted" << std::endl;
-                //Handshake accepted, we create the client
-                refClient = std::make_shared<Client>();
-                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
-                refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-                this->_clients.add(packet->getIdentity(), refClient);
-                //TODO: callback
-
-                //Add MTU command as this is required for the next state
-                auto* clientData = this->_clients.getData(packet->getIdentity());
-                auto command = std::make_unique<NetMTUCommand>(&clientData->_commands);
-                clientData->_mtuFuture = command->get_future();
-                //At this point commands should be empty
-                clientData->_commands.push_front(std::move(command));
-
-                //Respond to the handshake
-                auto responsePacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
-                responsePacket->doNotReorder().doNotFragment().doNotDiscard();
-                responsePacket->packet() << FGE_NET_HANDSHAKE_STRING;
-                refClient->pushPacket(std::move(responsePacket));
-                this->g_server->notifyTransmission();
-
-                this->_onClientAcknowledged.call(refClient, packet->getIdentity());
-
-                return FluxProcessResults::INTERNALLY_HANDLED;
-            }
-
-            //We can't process packets further for unknown clients
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return this->processUnknownClient(refClient, packet);
         }
 
         this->g_server->repushPacket(std::move(packet));
@@ -608,95 +587,31 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     //Check if the client is in an acknowledged state
     if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::ACKNOWLEDGED)
     {
-        //At this point, the client still need to do the MTU discovery
-        switch (packet->retrieveHeaderId().value())
-        {
-        case NET_INTERNAL_ID_MTU_TEST:
-        {
-            auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
-            response->doNotDiscard().doNotReorder();
-            refClient->pushPacket(std::move(response));
-            refClient->getStatus().resetTimeout();
-            std::cout << "received MTU test" << std::endl;
-            break;
-        }
-        case NET_INTERNAL_ID_MTU_ASK:
-        {
-            auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
-            response->doNotDiscard().doNotReorder()
-                    << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
-            refClient->pushPacket(std::move(response));
-            refClient->getStatus().resetTimeout();
-            std::cout << "received MTU ask" << std::endl;
-            break;
-        }
-        case NET_INTERNAL_ID_MTU_FINAL:
-            std::cout << "received MTU final" << std::endl;
-            refClient->_mtuFinalizedFlag = true;
-            refClient->getStatus().resetTimeout();
-            //Client have finished the MTU discovery, but we have to check if the server have finished too
-            if (refClient->getMTU() != 0)
-            {
-                if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()), *refClient))
-                {
-                    std::cout << "CryptServerCreate failed" << std::endl;
-                    //Discard the packet and the client
-                    this->_clients.remove(packet->getIdentity());
-                    this->_onClientDropped.call(refClient, packet->getIdentity());
-                    return FluxProcessResults::NOT_RETRIEVABLE;
-                }
-                std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
-                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
-                refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-                this->_onClientMTUDiscovered.call(refClient, packet->getIdentity());
-            }
-            break;
-        default:
-        {
-            auto const result = this->checkCommands(refClient, refClientData->_commands, packet);
-            if (result == NetCommandResults::FAILURE)
-            {
-                std::cout << "Command failed" << std::endl;
-                //Discard the packet and the client
-                this->_clients.remove(packet->getIdentity());
-                this->_onClientDropped.call(refClient, packet->getIdentity());
-                return FluxProcessResults::NOT_RETRIEVABLE;
-            }
+        return this->processAcknowledgedClient(*refClientData, packet);
+    }
 
-            if (result == NetCommandResults::SUCCESS)
-            {
-                std::cout << "Command success" << std::endl;
-                refClient->setMTU(refClientData->_mtuFuture.get());
+    //Check if the client is in an MTU discovered state
+    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
+    {
+        return this->processMTUDiscoveredClient(*refClientData, packet);
+    }
 
-                auto response = CreatePacket(NET_INTERNAL_ID_MTU_FINAL);
-                response->doNotDiscard().doNotReorder();
-                refClient->pushPacket(std::move(response));
-                refClient->getStatus().resetTimeout();
+    std::cout << "processing packet" << std::endl;
 
-                //Server have finished the MTU discovery, but we have to check if the client have finished too
-                if (refClient->_mtuFinalizedFlag)
-                {
-                    std::cout << "mtu finalized" << std::endl;
-                    if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()), *refClient))
-                    {
-                        std::cout << "CryptServerCreate failed" << std::endl;
-                        //Discard the packet and the client
-                        this->_clients.remove(packet->getIdentity());
-                        this->_onClientDropped.call(refClient, packet->getIdentity());
-                        return FluxProcessResults::NOT_RETRIEVABLE;
-                    }
-
-                    std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
-                    refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
-                    refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-                    this->_onClientMTUDiscovered.call(refClient, packet->getIdentity());
-                }
-            }
+    if (packet->isMarkedForEncryption())
+    {
+        if (!CryptDecrypt(*refClient, *packet))
+        {
+            std::cout << "CryptDecrypt failed" << std::endl;
+            return FluxProcessResults::NOT_RETRIEVABLE;
         }
-        break;
+        packet->unmarkForEncryption();
+        if (!packet->haveCorrectHeader())
+        {
+            return FluxProcessResults::NOT_RETRIEVABLE;
         }
-        //TODO: add a timeout for the MTU discovery
-        return FluxProcessResults::INTERNALLY_HANDLED;
+        //Skip the header for reading
+        packet->skip(ProtocolPacket::HeaderSize);
     }
 
     //Check if the packet is a fragment
@@ -714,78 +629,14 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         }
     }
 
-    //Check if the client is in an MTU discovered state
-    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
-    {
-        //Check if the packet is a crypt handshake
-        if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
-        {
-            return FluxProcessResults::NOT_RETRIEVABLE;
-        }
-
-        std::cout << "receiving crypt handshake" << std::endl;
-        auto& info = refClient->getCryptInfo();
-
-        refClient->getStatus().resetTimeout();
-
-        auto const readPos = packet->getReadPos();
-        BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
-
-        auto const result = SSL_do_handshake(static_cast<SSL*>(info._ssl));
-        if (result <= 0)
-        {
-            auto const err = SSL_get_error(static_cast<SSL*>(info._ssl), result);
-
-            if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE)
-            {
-                ERR_print_errors_fp(stderr);
-                refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
-                this->_clients.remove(packet->getIdentity());
-                this->_onClientDropped.call(refClient, packet->getIdentity());
-                return FluxProcessResults::NOT_RETRIEVABLE;
-            }
-        }
-
-        std::cout << "check for transmit crypt" << std::endl;
-        // Check if OpenSSL has produced encrypted handshake data
-        auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
-        if (pendingSize == 0)
-        {
-            std::cout << "NONE" << std::endl;
-            return FluxProcessResults::NOT_RETRIEVABLE;
-        }
-        std::cout << "transmitting crypt" << std::endl;
-        auto response = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
-        auto const packetStartDataPosition = response->doNotDiscard().getDataSize();
-        response->append(pendingSize);
-        auto const finalSize =
-                BIO_read(static_cast<BIO*>(info._wbio), response->getData() + packetStartDataPosition, pendingSize);
-        if (finalSize <= 0 || static_cast<std::size_t>(finalSize) != pendingSize)
-        {
-            std::cout << "failed crypt" << std::endl;
-            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
-            this->_clients.remove(packet->getIdentity());
-            this->_onClientDropped.call(refClient, packet->getIdentity());
-            return FluxProcessResults::NOT_RETRIEVABLE;
-        }
-        refClient->pushPacket(std::move(response));
-        this->g_server->notifyTransmission();
-
-        if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
-        {
-            std::cout << "CONNECTED" << std::endl;
-            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
-            refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            this->_onClientConnected.call(refClient, packet->getIdentity());
-            return FluxProcessResults::INTERNALLY_HANDLED;
-        }
-
-        return FluxProcessResults::INTERNALLY_HANDLED;
-    }
-
-    std::cout << "processing packet" << std::endl;
-
+    //Verify headerId
+    auto const headerId = packet->retrieveHeaderId().value();
     auto const headerFlags = packet->retrieveFlags().value();
+
+    if (headerId == FGE_NET_BAD_ID || (headerFlags & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+    { //Bad headerId, packet is dismissed
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
 
     if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
     {
@@ -829,6 +680,261 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     refClient->setClientPacketCounter(countId);
 
     return FluxProcessResults::RETRIEVABLE;
+}
+
+FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet)
+{
+    if (!packet->haveCorrectHeader())
+    {
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+    //Skip the header for reading
+    packet->skip(ProtocolPacket::HeaderSize);
+
+    //Check if the packet is fragmented
+    if (packet->isFragmented())
+    { //We can't (disallow) process fragmented packets from unknown clients
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    //Check if the packet is a handshake
+    if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_FGE_HANDSHAKE)
+    {
+        std::cout << "Handshake received" << std::endl;
+
+        using namespace fge::net::rules;
+        std::string handshakeString;
+        auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1,
+                                                            {packet->packet(), &handshakeString}))
+                                 .end();
+        if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING)
+        { //TODO: endReached() check should be done in .end() method
+            std::cout << "Handshake failed" << std::endl;
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+
+        std::cout << "Handshake accepted" << std::endl;
+        //Handshake accepted, we create the client
+        refClient = std::make_shared<Client>();
+        refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
+        refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+        this->_clients.add(packet->getIdentity(), refClient);
+        //TODO: callback
+
+        //Add MTU command as this is required for the next state
+        auto* clientData = this->_clients.getData(packet->getIdentity());
+        auto command = std::make_unique<NetMTUCommand>(&clientData->_commands);
+        clientData->_mtuFuture = command->get_future();
+        //At this point commands should be empty
+        clientData->_commands.push_front(std::move(command));
+
+        //Respond to the handshake
+        auto responsePacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
+        responsePacket->doNotReorder().doNotFragment().doNotDiscard();
+        responsePacket->packet() << FGE_NET_HANDSHAKE_STRING;
+        refClient->pushPacket(std::move(responsePacket));
+        this->g_server->notifyTransmission();
+
+        this->_onClientAcknowledged.call(refClient, packet->getIdentity());
+
+        return FluxProcessResults::INTERNALLY_HANDLED;
+    }
+
+    //We can't process packets further for unknown clients
+    return FluxProcessResults::NOT_RETRIEVABLE;
+}
+FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data& refClientData,
+                                                               ReceivedPacketPtr& packet)
+{
+    if (!packet->haveCorrectHeader())
+    {
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+    //Skip the header for reading
+    packet->skip(ProtocolPacket::HeaderSize);
+
+    //At this point, the client still need to do the MTU discovery
+    switch (packet->retrieveHeaderId().value())
+    {
+    case NET_INTERNAL_ID_MTU_TEST:
+    {
+        auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
+        response->doNotDiscard().doNotReorder();
+        refClientData._client->pushPacket(std::move(response));
+        refClientData._client->getStatus().resetTimeout();
+        std::cout << "received MTU test" << std::endl;
+        break;
+    }
+    case NET_INTERNAL_ID_MTU_ASK:
+    {
+        auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
+        response->doNotDiscard().doNotReorder()
+                << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
+        refClientData._client->pushPacket(std::move(response));
+        refClientData._client->getStatus().resetTimeout();
+        std::cout << "received MTU ask" << std::endl;
+        break;
+    }
+    case NET_INTERNAL_ID_MTU_FINAL:
+        std::cout << "received MTU final" << std::endl;
+        refClientData._client->_mtuFinalizedFlag = true;
+        refClientData._client->getStatus().resetTimeout();
+        //Client have finished the MTU discovery, but we have to check if the server have finished too
+        if (refClientData._client->getMTU() != 0)
+        {
+            if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()), *refClientData._client))
+            {
+                std::cout << "CryptServerCreate failed" << std::endl;
+                //Discard the packet and the client
+                this->_clients.remove(packet->getIdentity());
+                this->_onClientDropped.call(refClientData._client, packet->getIdentity());
+                return FluxProcessResults::NOT_RETRIEVABLE;
+            }
+            std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
+            refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
+            refClientData._client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+            this->_onClientMTUDiscovered.call(refClientData._client, packet->getIdentity());
+        }
+        break;
+    default:
+    {
+        auto const result = this->checkCommands(refClientData._client, refClientData._commands, packet);
+        if (result == NetCommandResults::FAILURE)
+        {
+            std::cout << "Command failed" << std::endl;
+            //Discard the packet and the client
+            this->_clients.remove(packet->getIdentity());
+            this->_onClientDropped.call(refClientData._client, packet->getIdentity());
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+
+        if (result == NetCommandResults::SUCCESS)
+        {
+            std::cout << "Command success" << std::endl;
+            refClientData._client->setMTU(refClientData._mtuFuture.get());
+
+            auto response = CreatePacket(NET_INTERNAL_ID_MTU_FINAL);
+            response->doNotDiscard().doNotReorder();
+            refClientData._client->pushPacket(std::move(response));
+            refClientData._client->getStatus().resetTimeout();
+
+            //Server have finished the MTU discovery, but we have to check if the client have finished too
+            if (refClientData._client->_mtuFinalizedFlag)
+            {
+                std::cout << "mtu finalized" << std::endl;
+                if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()),
+                                       *refClientData._client))
+                {
+                    std::cout << "CryptServerCreate failed" << std::endl;
+                    //Discard the packet and the client
+                    this->_clients.remove(packet->getIdentity());
+                    this->_onClientDropped.call(refClientData._client, packet->getIdentity());
+                    return FluxProcessResults::NOT_RETRIEVABLE;
+                }
+
+                std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
+                refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
+                refClientData._client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                this->_onClientMTUDiscovered.call(refClientData._client, packet->getIdentity());
+            }
+        }
+    }
+    break;
+    }
+    //TODO: add a timeout for the MTU discovery
+    return FluxProcessResults::INTERNALLY_HANDLED;
+}
+FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data& refClientData,
+                                                                ReceivedPacketPtr& packet)
+{
+    if (!packet->haveCorrectHeader())
+    {
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+    //Skip the header for reading
+    packet->skip(ProtocolPacket::HeaderSize);
+
+    //Check if the packet is a fragment
+    if (packet->isFragmented())
+    {
+        auto const identity = packet->getIdentity();
+        auto const result = refClientData._defragmentation.process(std::move(packet));
+        if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
+        {
+            packet = refClientData._defragmentation.retrieve(result._id, identity);
+        }
+        else
+        {
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+    }
+
+    //Check if the packet is a crypt handshake
+    if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
+    {
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    auto& refClient = refClientData._client;
+
+    std::cout << "receiving crypt handshake" << std::endl;
+    auto& info = refClient->getCryptInfo();
+
+    refClient->getStatus().resetTimeout();
+
+    auto const readPos = packet->getReadPos();
+    BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
+
+    auto const result = SSL_do_handshake(static_cast<SSL*>(info._ssl));
+    if (result <= 0)
+    {
+        auto const err = SSL_get_error(static_cast<SSL*>(info._ssl), result);
+
+        if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE)
+        {
+            ERR_print_errors_fp(stderr);
+            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            this->_clients.remove(packet->getIdentity());
+            this->_onClientDropped.call(refClient, packet->getIdentity());
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
+    }
+
+    std::cout << "check for transmit crypt" << std::endl;
+    // Check if OpenSSL has produced encrypted handshake data
+    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
+    if (pendingSize == 0)
+    {
+        std::cout << "NONE" << std::endl;
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+    std::cout << "transmitting crypt" << std::endl;
+    auto response = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
+    auto const packetStartDataPosition = response->doNotDiscard().getDataSize();
+    response->append(pendingSize);
+    auto const finalSize =
+            BIO_read(static_cast<BIO*>(info._wbio), response->getData() + packetStartDataPosition, pendingSize);
+    if (finalSize <= 0 || static_cast<std::size_t>(finalSize) != pendingSize)
+    {
+        std::cout << "failed crypt" << std::endl;
+        refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+        this->_clients.remove(packet->getIdentity());
+        this->_onClientDropped.call(refClient, packet->getIdentity());
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+    refClient->pushPacket(std::move(response));
+    this->g_server->notifyTransmission();
+
+    if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
+    {
+        std::cout << "CONNECTED" << std::endl;
+        refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
+        refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+        this->_onClientConnected.call(refClient, packet->getIdentity());
+        return FluxProcessResults::INTERNALLY_HANDLED;
+    }
+
+    return FluxProcessResults::INTERNALLY_HANDLED;
 }
 
 bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet)
@@ -1066,25 +1172,25 @@ void ServerSideNetUdp::threadReception()
 
                 std::scoped_lock const lck(this->g_mutexServer);
 
-                if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
-                { //Bad header, packet is dismissed
-                    continue;
-                }
-
-                //Skip the header for reading
-                pckReceive.skip(ProtocolPacket::HeaderSize);
                 auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), idReceive);
                 packet->setTimestamp(Client::getTimestamp_ms());
+                packet->markForEncryption();
 
-                //Verify headerId
-                auto const headerId = packet->retrieveFullHeaderId().value();
-                if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
-                    (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
-                { //Bad headerId, packet is dismissed
-                    continue;
-                }
+                //At this point the packet is either an encrypted packet or a normal packet,
+                //we can't check this here as we don't know the client yet, and we will not
+                //check every flux for the corresponding client as this would be slow.
 
-                //Realm and countId is verified by the flux who have the corresponding client
+                //The corresponding flux will check:
+                // - if the packet is encrypted by looking at the client status
+                // - decrypt the packet if needed
+                // - check the header size
+                // - verify the headerId
+                //Realm and countId is also verified by the flux
+
+                //So this reception thread, unlike the client side, is only responsible for
+                //receiving the packet and pushing it to fluxes.
+                //This will extra charge the thread that will process the packets. Let's
+                //see in the future if this is a problem.
 
                 if (this->g_fluxes.empty())
                 {
@@ -1181,17 +1287,10 @@ void ServerSideNetUdp::threadTransmission()
                 //Check if the packet must be encrypted
                 if (transmissionPacket->isMarkedForEncryption())
                 {
-                    auto& info = itClient->second._client->getCryptInfo();
-                    SSL_write(static_cast<SSL*>(info._ssl), transmissionPacket->getData(),
-                              transmissionPacket->getDataSize());
-                    transmissionPacket->clear();
-                    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
-                    if (pendingSize == 0)
+                    if (!CryptEncrypt(*itClient->second._client, *transmissionPacket))
                     {
                         continue;
                     }
-                    transmissionPacket->append(pendingSize);
-                    BIO_read(static_cast<BIO*>(info._wbio), transmissionPacket->getData(), pendingSize);
                 }
 
                 //Sending the packet
@@ -1487,17 +1586,11 @@ void ClientSideNetUdp::threadReception()
             if (status == ClientStatus::NetworkStatus::CONNECTED ||
                 status == ClientStatus::NetworkStatus::AUTHENTICATED)
             {
-                auto& info = this->_client.getCryptInfo();
-
-                BIO_write(static_cast<BIO*>(info._rbio), pckReceive.getData(), pckReceive.getDataSize());
-
-                auto const result =
-                        SSL_read(static_cast<SSL*>(info._ssl), pckReceive.getData(), pckReceive.getDataSize());
-                if (result <= 0)
+                if (!CryptDecrypt(this->_client, pckReceive))
                 {
+                    std::cout << "CryptDecrypt failed" << std::endl;
                     continue;
                 }
-                pckReceive.shrink(pckReceive.getDataSize() - result);
             }
 
             if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
@@ -1631,10 +1724,7 @@ void ClientSideNetUdp::threadTransmission()
 
                 if (possiblePacket)
                 {
-                    //Applying options
-                    possiblePacket->applyOptions(this->_client);
-
-                    //Sending the packet
+                    //Pushing the packet to the client queue
                     this->_client.pushPacket(std::move(possiblePacket));
                 }
             }
@@ -1682,6 +1772,15 @@ void ClientSideNetUdp::threadTransmission()
 
             //Applying options
             transmissionPacket->applyOptions(this->_client);
+
+            //Check if the packet must be encrypted
+            if (transmissionPacket->isMarkedForEncryption())
+            {
+                if (!CryptEncrypt(this->_client, *transmissionPacket))
+                {
+                    continue;
+                }
+            }
 
             //Sending the packet
             //TPacket packet = transmissionPacket->packet(); TODO
