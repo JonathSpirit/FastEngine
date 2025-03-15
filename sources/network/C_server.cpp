@@ -110,7 +110,8 @@ bool CryptGenerateKeyAndCertificate(EVP_PKEY*& privateKey, X509*& certificate)
         return false;
     }
     SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
-    //SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+    SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+    SSL_CTX_set_options(ctx, SSL_OP_NO_RENEGOTIATION);
 
     char const* cipher_list = "ECDHE-RSA-AES256-GCM-SHA384";
     if (SSL_CTX_set_cipher_list(ctx, cipher_list) != 1)
@@ -170,7 +171,8 @@ bool CryptGenerateKeyAndCertificate(EVP_PKEY*& privateKey, X509*& certificate)
         return false;
     }
     SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
-    //SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+    SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+    SSL_CTX_set_options(ctx, SSL_OP_NO_RENEGOTIATION);
 
     char const* cipher_list = "ECDHE-RSA-AES256-GCM-SHA384";
     if (SSL_CTX_set_cipher_list(ctx, cipher_list) != 1)
@@ -258,6 +260,7 @@ void CryptUninit(SSL_CTX*& ctx)
 
     // We handle the MTU
     SSL_set_mtu(ssl, std::numeric_limits<uint16_t>::max());
+    DTLS_set_link_mtu(ssl, std::numeric_limits<uint16_t>::max());
 
     return true;
 }
@@ -294,6 +297,7 @@ void CryptUninit(SSL_CTX*& ctx)
 
     // We handle the MTU
     SSL_set_mtu(ssl, std::numeric_limits<uint16_t>::max());
+    DTLS_set_link_mtu(ssl, std::numeric_limits<uint16_t>::max());
 
     return true;
 }
@@ -590,30 +594,6 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         return this->processAcknowledgedClient(*refClientData, packet);
     }
 
-    //Check if the client is in an MTU discovered state
-    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
-    {
-        return this->processMTUDiscoveredClient(*refClientData, packet);
-    }
-
-    std::cout << "processing packet" << std::endl;
-
-    if (packet->isMarkedForEncryption())
-    {
-        if (!CryptDecrypt(*refClient, *packet))
-        {
-            std::cout << "CryptDecrypt failed" << std::endl;
-            return FluxProcessResults::NOT_RETRIEVABLE;
-        }
-        packet->unmarkForEncryption();
-        if (!packet->haveCorrectHeader())
-        {
-            return FluxProcessResults::NOT_RETRIEVABLE;
-        }
-        //Skip the header for reading
-        packet->skip(ProtocolPacket::HeaderSize);
-    }
-
     //Check if the packet is a fragment
     if (packet->isFragmented())
     {
@@ -628,6 +608,14 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             return FluxProcessResults::NOT_RETRIEVABLE;
         }
     }
+
+    //Check if the client is in an MTU discovered state
+    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
+    {
+        return this->processMTUDiscoveredClient(*refClientData, packet);
+    }
+
+    std::cout << "processing packet" << std::endl;
 
     //Verify headerId
     auto const headerId = packet->retrieveHeaderId().value();
@@ -684,13 +672,6 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
 FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet)
 {
-    if (!packet->haveCorrectHeader())
-    {
-        return FluxProcessResults::NOT_RETRIEVABLE;
-    }
-    //Skip the header for reading
-    packet->skip(ProtocolPacket::HeaderSize);
-
     //Check if the packet is fragmented
     if (packet->isFragmented())
     { //We can't (disallow) process fragmented packets from unknown clients
@@ -719,6 +700,7 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
         refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
         this->_clients.add(packet->getIdentity(), refClient);
+        this->g_server->notifyNewClient(packet->getIdentity(), refClient);
         //TODO: callback
 
         //Add MTU command as this is required for the next state
@@ -746,13 +728,6 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
 FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data& refClientData,
                                                                ReceivedPacketPtr& packet)
 {
-    if (!packet->haveCorrectHeader())
-    {
-        return FluxProcessResults::NOT_RETRIEVABLE;
-    }
-    //Skip the header for reading
-    packet->skip(ProtocolPacket::HeaderSize);
-
     //At this point, the client still need to do the MTU discovery
     switch (packet->retrieveHeaderId().value())
     {
@@ -847,13 +822,6 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
 FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data& refClientData,
                                                                 ReceivedPacketPtr& packet)
 {
-    if (!packet->haveCorrectHeader())
-    {
-        return FluxProcessResults::NOT_RETRIEVABLE;
-    }
-    //Skip the header for reading
-    packet->skip(ProtocolPacket::HeaderSize);
-
     //Check if the packet is a fragment
     if (packet->isFragmented())
     {
@@ -1123,6 +1091,12 @@ bool ServerSideNetUdp::isRunning() const
     return this->g_running;
 }
 
+void ServerSideNetUdp::notifyNewClient(Identity const& identity, ClientSharedPtr const& client)
+{
+    std::scoped_lock const lock(this->g_mutexServer);
+    this->g_clientsMap[identity] = client;
+}
+
 void ServerSideNetUdp::sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id)
 {
     pck->applyOptions(client);
@@ -1156,6 +1130,7 @@ void ServerSideNetUdp::threadReception()
     Identity idReceive;
     Packet pckReceive; //TODO
     std::size_t pushingIndex = 0;
+    auto gcClientsMap = std::chrono::steady_clock::now();
 
     while (this->g_running)
     {
@@ -1170,27 +1145,43 @@ void ServerSideNetUdp::threadReception()
                 }
 #endif
 
-                std::scoped_lock const lck(this->g_mutexServer);
-
                 auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), idReceive);
                 packet->setTimestamp(Client::getTimestamp_ms());
-                packet->markForEncryption();
 
-                //At this point the packet is either an encrypted packet or a normal packet,
-                //we can't check this here as we don't know the client yet, and we will not
-                //check every flux for the corresponding client as this would be slow.
+                std::scoped_lock const lck(this->g_mutexServer);
 
-                //The corresponding flux will check:
-                // - if the packet is encrypted by looking at the client status
-                // - decrypt the packet if needed
-                // - check the header size
-                // - verify the headerId
-                //Realm and countId is also verified by the flux
+                auto itClient = this->g_clientsMap.find(idReceive);
+                if (itClient != this->g_clientsMap.end())
+                {
+                    auto client = itClient->second.lock();
+                    if (!client)
+                    { //bad client
+                        this->g_clientsMap.erase(itClient);
+                    }
+                    else
+                    {
+                        //Check if the packet is encrypted
+                        auto const status = client->getStatus().getNetworkStatus();
+                        if (status == ClientStatus::NetworkStatus::CONNECTED ||
+                            status == ClientStatus::NetworkStatus::AUTHENTICATED)
+                        {
+                            if (!CryptDecrypt(*client, *packet))
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
 
-                //So this reception thread, unlike the client side, is only responsible for
-                //receiving the packet and pushing it to fluxes.
-                //This will extra charge the thread that will process the packets. Let's
-                //see in the future if this is a problem.
+                //Here we consider that the packet is not encrypted
+                if (!packet->haveCorrectHeader())
+                {
+                    continue;
+                }
+                //Skip the header for reading
+                packet->skip(ProtocolPacket::HeaderSize);
+
+                //Realm and countId is verified by the flux
 
                 if (this->g_fluxes.empty())
                 {
@@ -1208,6 +1199,24 @@ void ServerSideNetUdp::threadReception()
                     }
                 }
                 //If every flux is busy, the new packet is dismissed
+            }
+        }
+
+        //"Garbage collection" of the clients map
+        auto const now = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - gcClientsMap) >=
+            std::chrono::milliseconds{5000})
+        {
+            gcClientsMap = now;
+
+            for (auto it = this->g_clientsMap.begin(); it != this->g_clientsMap.end();)
+            {
+                if (it->second.expired())
+                {
+                    it = this->g_clientsMap.erase(it);
+                    continue;
+                }
+                ++it;
             }
         }
     }

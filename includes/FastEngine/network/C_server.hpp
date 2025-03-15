@@ -217,6 +217,8 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
+    void notifyNewClient(Identity const& identity, ClientSharedPtr const& client);
+
     void sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id);
     void sendTo(TransmitPacketPtr& pck, Identity const& id);
 
@@ -236,6 +238,8 @@ private:
     std::vector<std::unique_ptr<ServerNetFluxUdp>> g_fluxes;
     ServerNetFluxUdp g_defaultFlux;
     std::queue<std::pair<TransmitPacketPtr, Identity>> g_transmissionQueue;
+
+    std::unordered_map<Identity, std::weak_ptr<Client>, IdentityHash> g_clientsMap;
 
     SocketUdp g_socket;
     bool g_running;
