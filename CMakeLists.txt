@@ -308,6 +308,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/manager/timer_manager.cpp
         sources/manager/task_manager.cpp)
 
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE sources/private/fge_crypt.cpp)
+
 #######################
 
 target_sources(${FGE_LIB_NAME} PUBLIC FILE_SET publicHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PUBLIC})
@@ -425,6 +427,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/manager/task_manager.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE sources/private/spirv_reflect.cpp)
+target_sources(${FGE_LIB_NAME} PRIVATE sources/private/fge_crypt.cpp)
 
 #Linking library
 if(WIN32)

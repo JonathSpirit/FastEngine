@@ -17,338 +17,15 @@
 #include "FastEngine/network/C_server.hpp"
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/manager/network_manager.hpp"
+#include "private/fge_crypt.hpp"
 #include <iostream>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+using namespace fge::priv;
+
 namespace fge::net
 {
-
-namespace
-{
-
-bool CryptGenerateKeyAndCertificate(EVP_PKEY*& privateKey, X509*& certificate)
-{
-    // Generate RSA key using EVP_PKEY and EVP_PKEY_CTX
-    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
-    if (ctx == nullptr)
-    {
-        std::cerr << "Failed to create EVP_PKEY_CTX" << std::endl;
-        return false;
-    }
-
-    if (EVP_PKEY_keygen_init(ctx) <= 0)
-    {
-        std::cerr << "Failed to initialize keygen context" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        return false;
-    }
-
-    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0)
-    {
-        std::cerr << "Failed to set RSA key length" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        return false;
-    }
-
-    if (EVP_PKEY_keygen(ctx, &privateKey) <= 0)
-    {
-        std::cerr << "Failed to generate RSA key" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        return false;
-    }
-
-    EVP_PKEY_CTX_free(ctx);
-
-    // Generate X509 certificate
-    certificate = X509_new();
-    if (certificate == nullptr)
-    {
-        std::cerr << "Failed to create X509 certificate" << std::endl;
-        EVP_PKEY_free(privateKey);
-        return false;
-    }
-
-    X509_set_version(certificate, 2);
-    ASN1_INTEGER_set(X509_get_serialNumber(certificate), 1);
-    X509_gmtime_adj(X509_get_notBefore(certificate), 0);
-    //Validity only for a day
-    X509_gmtime_adj(X509_get_notAfter(certificate), 24 * 3600);
-    X509_set_pubkey(certificate, privateKey);
-
-    // Set certificate subject and issuer name
-    X509_NAME* name = X509_get_subject_name(certificate);
-    X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, reinterpret_cast<unsigned char const*>("CH"), -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC, reinterpret_cast<unsigned char const*>("FGE"), -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
-                               reinterpret_cast<unsigned char const*>("https://github.com/JonathSpirit/FastEngine.git"),
-                               -1, -1, 0);
-    X509_set_issuer_name(certificate, name);
-
-    // Sign the certificate with the key
-    if (X509_sign(certificate, privateKey, EVP_sha256()) == 0)
-    {
-        EVP_PKEY_free(privateKey);
-        X509_free(certificate);
-        return false;
-    }
-
-    return true;
-}
-
-[[nodiscard]] bool CryptClientInit(SSL_CTX*& ctx)
-{
-    // Initialize OpenSSL DTLS context
-    SSL_library_init();
-    SSL_load_error_strings();
-
-    auto const* method = DTLS_client_method();
-    ctx = SSL_CTX_new(method);
-    if (ctx == nullptr)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-    SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
-    SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
-    SSL_CTX_set_options(ctx, SSL_OP_NO_RENEGOTIATION);
-
-    char const* cipher_list = "ECDHE-RSA-AES256-GCM-SHA384";
-    if (SSL_CTX_set_cipher_list(ctx, cipher_list) != 1)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-
-    EVP_PKEY* privateKey = nullptr;
-    X509* certificate = nullptr;
-    if (!CryptGenerateKeyAndCertificate(privateKey, certificate))
-    {
-        return false;
-    }
-
-    // Load the certificate file
-    if (SSL_CTX_use_certificate(ctx, certificate) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        EVP_PKEY_free(privateKey);
-        X509_free(certificate);
-        return false;
-    }
-
-    // Load the private key file
-    if (SSL_CTX_use_PrivateKey(ctx, privateKey) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        EVP_PKEY_free(privateKey);
-        X509_free(certificate);
-        return false;
-    }
-
-    EVP_PKEY_free(privateKey);
-    X509_free(certificate);
-
-    // Verify that the private key matches the certificate
-    if (SSL_CTX_check_private_key(ctx) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-
-    return true;
-}
-[[nodiscard]] bool CryptServerInit(SSL_CTX*& ctx)
-{
-    // Initialize OpenSSL DTLS context
-    SSL_library_init();
-    SSL_load_error_strings();
-
-    auto const* method = DTLS_server_method();
-    ctx = SSL_CTX_new(method);
-    if (ctx == nullptr)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-    SSL_CTX_set_options(ctx, SSL_OP_NO_QUERY_MTU);
-    SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
-    SSL_CTX_set_options(ctx, SSL_OP_NO_RENEGOTIATION);
-
-    char const* cipher_list = "ECDHE-RSA-AES256-GCM-SHA384";
-    if (SSL_CTX_set_cipher_list(ctx, cipher_list) != 1)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-
-    EVP_PKEY* privateKey = nullptr;
-    X509* certificate = nullptr;
-    if (!CryptGenerateKeyAndCertificate(privateKey, certificate))
-    {
-        return false;
-    }
-
-    // Load the certificate file
-    if (SSL_CTX_use_certificate(ctx, certificate) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        EVP_PKEY_free(privateKey);
-        X509_free(certificate);
-        return false;
-    }
-
-    // Load the private key file
-    if (SSL_CTX_use_PrivateKey(ctx, privateKey) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        EVP_PKEY_free(privateKey);
-        X509_free(certificate);
-        return false;
-    }
-
-    EVP_PKEY_free(privateKey);
-    X509_free(certificate);
-
-    // Verify that the private key matches the certificate
-    if (SSL_CTX_check_private_key(ctx) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-
-    return true;
-}
-void CryptUninit(SSL_CTX*& ctx)
-{
-    if (ctx != nullptr)
-    {
-        SSL_CTX_free(ctx);
-        ctx = nullptr;
-    }
-}
-
-[[nodiscard]] bool CryptClientCreate(SSL_CTX* ctx, Client& client)
-{
-    // Create an SSL object and memory BIOs
-    SSL* ssl = SSL_new(ctx);
-    if (ssl == nullptr)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-    client.getCryptInfo()._ssl = ssl;
-
-    BIO* rbio = BIO_new(BIO_s_mem());
-    BIO* wbio = BIO_new(BIO_s_mem());
-    if (rbio == nullptr || wbio == nullptr)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-    client.getCryptInfo()._rbio = rbio;
-    client.getCryptInfo()._wbio = wbio;
-
-    // Tell the memory BIOs to return -1 when no data is available
-    BIO_set_mem_eof_return(rbio, -1);
-    BIO_set_mem_eof_return(wbio, -1);
-
-    // Attach the BIO pair to the SSL object (After this call, SSL owns the BIOs)
-    SSL_set_bio(ssl, rbio, wbio);
-
-    // Set the SSL object to “connect” (client) state.
-    SSL_set_connect_state(ssl);
-
-    // We handle the MTU
-    SSL_set_mtu(ssl, std::numeric_limits<uint16_t>::max());
-    DTLS_set_link_mtu(ssl, std::numeric_limits<uint16_t>::max());
-
-    return true;
-}
-[[nodiscard]] bool CryptServerCreate(SSL_CTX* ctx, Client& client)
-{
-    // Create an SSL object and memory BIOs
-    SSL* ssl = SSL_new(ctx);
-    if (ssl == nullptr)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-    client.getCryptInfo()._ssl = ssl;
-
-    BIO* rbio = BIO_new(BIO_s_mem());
-    BIO* wbio = BIO_new(BIO_s_mem());
-    if (rbio == nullptr || wbio == nullptr)
-    {
-        ERR_print_errors_fp(stderr);
-        return false;
-    }
-    client.getCryptInfo()._rbio = rbio;
-    client.getCryptInfo()._wbio = wbio;
-
-    // Tell the memory BIOs to return -1 when no data is available
-    BIO_set_mem_eof_return(rbio, -1);
-    BIO_set_mem_eof_return(wbio, -1);
-
-    // Attach the BIO pair to the SSL object (After this call, SSL owns the BIOs)
-    SSL_set_bio(ssl, rbio, wbio);
-
-    // Set the SSL object to “accept” (server) state.
-    SSL_set_accept_state(ssl);
-
-    // We handle the MTU
-    SSL_set_mtu(ssl, std::numeric_limits<uint16_t>::max());
-    DTLS_set_link_mtu(ssl, std::numeric_limits<uint16_t>::max());
-
-    return true;
-}
-void CryptClientDestroy(Client& client)
-{
-    auto& info = client.getCryptInfo();
-
-    if (info._ssl == nullptr)
-    {
-        return;
-    }
-
-    SSL_shutdown(static_cast<SSL*>(info._ssl));
-    SSL_free(static_cast<SSL*>(info._ssl));
-    info._ssl = nullptr;
-    info._rbio = nullptr;
-    info._wbio = nullptr;
-}
-
-[[nodiscard]] bool CryptEncrypt(Client& client, Packet& packet)
-{
-    auto& info = client.getCryptInfo();
-
-    SSL_write(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize());
-
-    packet.clear();
-    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
-    if (pendingSize == 0)
-    {
-        return false;
-    }
-    packet.append(pendingSize);
-    BIO_read(static_cast<BIO*>(info._wbio), packet.getData(), pendingSize);
-    return true;
-}
-[[nodiscard]] bool CryptDecrypt(Client& client, Packet& packet)
-{
-    auto& info = client.getCryptInfo();
-
-    BIO_write(static_cast<BIO*>(info._rbio), packet.getData(), packet.getDataSize());
-
-    auto const result = SSL_read(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize());
-    if (result <= 0)
-    {
-        return false;
-    }
-    packet.shrink(packet.getDataSize() - result);
-    return true;
-}
-
-} // namespace
 
 //ServerFluxUdp
 NetFluxUdp::~NetFluxUdp()
@@ -957,7 +634,7 @@ bool ServerSideNetUdp::start(Port bindPort, IpAddress const& bindIp, IpAddress::
     this->g_socket.setAddressType(addressType);
     if (this->g_socket.bind(bindPort, bindIp) == Socket::Errors::ERR_NOERROR)
     {
-        if (!CryptServerInit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx)))
+        if (!CryptServerInit(this->g_crypt_ctx))
         {
             this->g_socket.close();
             return false;
@@ -981,7 +658,7 @@ bool ServerSideNetUdp::start(IpAddress::Types addressType)
     this->g_socket.setAddressType(addressType);
     if (this->g_socket.isValid())
     {
-        if (!CryptServerInit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx)))
+        if (!CryptServerInit(this->g_crypt_ctx))
         {
             this->g_socket.close();
             return false;
@@ -1019,7 +696,7 @@ void ServerSideNetUdp::stop()
         this->g_defaultFlux.clearPackets();
         decltype(this->g_transmissionQueue)().swap(this->g_transmissionQueue);
 
-        CryptUninit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx));
+        CryptUninit(this->g_crypt_ctx);
     }
 }
 
@@ -1374,7 +1051,7 @@ bool ClientSideNetUdp::start(Port bindPort,
             return false;
         }
 
-        if (!CryptClientInit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx)))
+        if (!CryptClientInit(this->g_crypt_ctx))
         {
             this->g_socket.close();
             return false;
@@ -1422,7 +1099,7 @@ void ClientSideNetUdp::stop()
         this->_client.setCurrentPacketCounter(0);
 
         CryptClientDestroy(this->_client);
-        CryptUninit(reinterpret_cast<std::add_lvalue_reference_t<SSL_CTX*>>(this->g_crypt_ctx));
+        CryptUninit(this->g_crypt_ctx);
     }
 }
 
