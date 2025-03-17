@@ -229,6 +229,8 @@ void CryptUninit(void*& ctx)
 
 bool CryptClientCreate(void* ctx, net::Client& client)
 {
+    CryptClientDestroy(client);
+
     // Create an SSL object and memory BIOs
     SSL* ssl = SSL_new(static_cast<SSL_CTX*>(ctx));
     if (ssl == nullptr)
@@ -266,6 +268,8 @@ bool CryptClientCreate(void* ctx, net::Client& client)
 }
 bool CryptServerCreate(void* ctx, net::Client& client)
 {
+    CryptClientDestroy(client);
+
     // Create an SSL object and memory BIOs
     SSL* ssl = SSL_new(static_cast<SSL_CTX*>(ctx));
     if (ssl == nullptr)

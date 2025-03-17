@@ -219,6 +219,7 @@ public:
     };
 
     Client();
+    ~Client();
     /**
      * \brief Constructor with default latencies
      *

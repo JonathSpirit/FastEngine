@@ -17,6 +17,7 @@
 #include "FastEngine/network/C_client.hpp"
 #include "FastEngine/C_random.hpp"
 #include "FastEngine/network/C_server.hpp"
+#include "private/fge_crypt.hpp"
 #include <limits>
 
 namespace fge::net
@@ -93,6 +94,10 @@ Client::Client() :
         g_currentPacketCounter(0),
         g_clientPacketCounter(0)
 {}
+Client::~Client()
+{
+    priv::CryptClientDestroy(*this);
+}
 Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
         g_CTOSLatency_ms(CTOSLatency),
