@@ -30,6 +30,11 @@ ClientStatus::ClientStatus(std::string_view status, NetworkStatus networkStatus)
         g_networkStatus(networkStatus)
 {}
 
+bool ClientStatus::isInEncryptedState() const
+{
+    return this->g_networkStatus == NetworkStatus::AUTHENTICATED || this->g_networkStatus == NetworkStatus::CONNECTED;
+}
+
 std::string const& ClientStatus::getStatus() const
 {
     return this->g_status;

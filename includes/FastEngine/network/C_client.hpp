@@ -175,14 +175,15 @@ public:
         MTU_DISCOVERED,
         CONNECTED,
         AUTHENTICATED,
-        USER_HANDLED,
 
         DISCONNECTED,
         TIMEOUT,
     };
 
     ClientStatus() = default;
-    explicit ClientStatus(std::string_view status, NetworkStatus networkStatus = NetworkStatus::USER_HANDLED);
+    explicit ClientStatus(std::string_view status, NetworkStatus networkStatus = NetworkStatus::UNKNOWN);
+
+    [[nodiscard]] bool isInEncryptedState() const;
 
     [[nodiscard]] std::string const& getStatus() const;
     [[nodiscard]] NetworkStatus getNetworkStatus() const;
