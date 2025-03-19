@@ -93,7 +93,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
     }
 
     packet = client.getPacketReorderer().pop();
-    packet->addFlags(FGE_NET_HEADER_LOCAL_REORDERED_FLAG);
+    packet->markAsReordered();
 
     std::size_t containerInversedSize = 0;
     auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
@@ -108,8 +108,8 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
 
         auto reorderedPacket = client.getPacketReorderer().pop();
 
-        //Add the LOCAL_REORDERED_FLAG to the header
-        reorderedPacket->addFlags(FGE_NET_HEADER_LOCAL_REORDERED_FLAG);
+        //Mark them as reordered
+        reorderedPacket->markAsReordered();
 
         //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
         containerInversed[containerInversedSize++] = std::move(reorderedPacket);
@@ -284,6 +284,11 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         {
             return FluxProcessResults::NOT_RETRIEVABLE;
         }
+
+        if (!packet->haveCorrectHeader())
+        {
+            return FluxProcessResults::NOT_RETRIEVABLE;
+        }
     }
 
     //Check if the client is in an MTU discovered state
@@ -294,21 +299,13 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
     std::cout << "processing packet" << std::endl;
 
-    //Verify headerId
-    auto const headerId = packet->retrieveHeaderId().value();
     auto const headerFlags = packet->retrieveFlags().value();
-
-    if (headerId == FGE_NET_BAD_ID || (headerFlags & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
-    { //Bad headerId, packet is dismissed
-        return FluxProcessResults::NOT_RETRIEVABLE;
-    }
-
     if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
     {
         return FluxProcessResults::RETRIEVABLE;
     }
 
-    if ((headerFlags & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) == 0)
+    if (!packet->isMarkedAsReordered())
     {
         auto reorderResult = this->processReorder(*refClient, packet, refClient->getClientPacketCounter(), true);
         if (reorderResult != FluxProcessResults::RETRIEVABLE)
@@ -434,7 +431,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
         //Client have finished the MTU discovery, but we have to check if the server have finished too
         if (refClientData._client->getMTU() != 0)
         {
-            if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()), *refClientData._client))
+            if (!CryptServerCreate(this->g_server->getCryptContext(), *refClientData._client))
             {
                 std::cout << "CryptServerCreate failed" << std::endl;
                 //Discard the packet and the client
@@ -474,8 +471,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
             if (refClientData._client->_mtuFinalizedFlag)
             {
                 std::cout << "mtu finalized" << std::endl;
-                if (!CryptServerCreate(static_cast<SSL_CTX*>(this->g_server->getCryptContext()),
-                                       *refClientData._client))
+                if (!CryptServerCreate(this->g_server->getCryptContext(), *refClientData._client))
                 {
                     std::cout << "CryptServerCreate failed" << std::endl;
                     //Discard the packet and the client
@@ -838,9 +834,7 @@ void ServerSideNetUdp::threadReception()
                     else
                     {
                         //Check if the packet is encrypted
-                        auto const status = client->getStatus().getNetworkStatus();
-                        if (status == ClientStatus::NetworkStatus::CONNECTED ||
-                            status == ClientStatus::NetworkStatus::AUTHENTICATED)
+                        if (client->getStatus().isInEncryptedState())
                         {
                             if (!CryptDecrypt(*client, *packet))
                             {
@@ -1056,7 +1050,7 @@ bool ClientSideNetUdp::start(Port bindPort,
             this->g_socket.close();
             return false;
         }
-        if (!CryptClientCreate(static_cast<SSL_CTX*>(this->g_crypt_ctx), this->_client))
+        if (!CryptClientCreate(this->g_crypt_ctx, this->_client))
         {
             this->g_socket.close();
             return false;
@@ -1197,7 +1191,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         return FluxProcessResults::RETRIEVABLE;
     }
 
-    if ((headerFlags & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) == 0)
+    if (!packet->isMarkedAsReordered())
     {
         auto reorderResult =
                 this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
@@ -1268,9 +1262,7 @@ void ClientSideNetUdp::threadReception()
 #endif
 
             //Decrypting the packet if needed
-            auto const status = this->_client.getStatus().getNetworkStatus();
-            if (status == ClientStatus::NetworkStatus::CONNECTED ||
-                status == ClientStatus::NetworkStatus::AUTHENTICATED)
+            if (this->_client.getStatus().isInEncryptedState())
             {
                 if (!CryptDecrypt(this->_client, pckReceive))
                 {
@@ -1290,9 +1282,7 @@ void ClientSideNetUdp::threadReception()
             packet->setTimestamp(Client::getTimestamp_ms());
 
             //Verify headerId
-            auto const headerId = packet->retrieveFullHeaderId().value();
-            if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
-                (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+            if (!packet->haveCorrectHeader())
             { //Bad headerId, packet is dismissed
                 continue;
             }
@@ -1304,6 +1294,8 @@ void ClientSideNetUdp::threadReception()
                 //TODO : check if we need to reset the timeout
                 this->_client.getStatus().resetTimeout();
             }
+
+            auto const headerId = packet->retrieveFullHeaderId().value();
 
             //MTU handling
             if (networkStatus == ClientStatus::NetworkStatus::ACKNOWLEDGED)
@@ -1395,8 +1387,6 @@ void ClientSideNetUdp::threadTransmission()
         commandsTime += deltaTime;
         if (commandsTime >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
-            commandsTime = std::chrono::milliseconds::zero();
-
             std::scoped_lock const commandLock(this->g_mutexCommands);
             if (!this->g_commands.empty())
             {
@@ -1414,6 +1404,8 @@ void ClientSideNetUdp::threadTransmission()
                     this->_client.pushPacket(std::move(possiblePacket));
                 }
             }
+
+            commandsTime = std::chrono::milliseconds::zero();
         }
 
         //Flux

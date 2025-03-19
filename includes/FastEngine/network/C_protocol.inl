@@ -23,7 +23,6 @@ inline ProtocolPacket::ProtocolPacket(Packet const& pck,
         Packet(pck),
 
         g_identity(id),
-        g_timestamp(0),
 
         g_fluxIndex(fluxIndex),
         g_fluxLifetime(fluxLifetime)
@@ -35,7 +34,6 @@ inline ProtocolPacket::ProtocolPacket(Packet&& pck,
         Packet(std::move(pck)),
 
         g_identity(id),
-        g_timestamp(0),
 
         g_fluxIndex(fluxIndex),
         g_fluxLifetime(fluxLifetime)
@@ -63,6 +61,7 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket const& r) :
         g_fluxLifetime(r.g_fluxLifetime),
 
         g_markedForEncryption(r.g_markedForEncryption),
+        g_markedAsReordered(r.g_markedAsReordered),
 
         g_options(r.g_options)
 {}
@@ -77,6 +76,7 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
         g_fluxLifetime(r.g_fluxLifetime),
 
         g_markedForEncryption(r.g_markedForEncryption),
+        g_markedAsReordered(r.g_markedAsReordered),
 
         g_options(std::move(r.g_options))
 {}
@@ -88,8 +88,7 @@ inline bool ProtocolPacket::haveCorrectHeader() const
         IdType headerId;
         this->unpack(IdPosition, &headerId, sizeof(IdType));
 
-        if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID ||
-            (headerId & FGE_NET_HEADER_LOCAL_REORDERED_FLAG) > 0)
+        if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == FGE_NET_BAD_ID)
         {
             return false;
         }
@@ -292,6 +291,19 @@ inline void ProtocolPacket::unmarkForEncryption()
 inline bool ProtocolPacket::isMarkedForEncryption() const
 {
     return this->g_markedForEncryption;
+}
+
+inline void ProtocolPacket::markAsReordered()
+{
+    this->g_markedAsReordered = true;
+}
+inline void ProtocolPacket::unmarkAsReordered()
+{
+    this->g_markedAsReordered = false;
+}
+inline bool ProtocolPacket::isMarkedAsReordered() const
+{
+    return this->g_markedAsReordered;
 }
 
 inline bool ProtocolPacket::checkFluxLifetime(std::size_t fluxSize)

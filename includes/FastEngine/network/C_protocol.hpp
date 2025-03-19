@@ -27,7 +27,7 @@
 
 #define FGE_NET_HEADER_DO_NOT_DISCARD_FLAG 0x8000
 #define FGE_NET_HEADER_DO_NOT_REORDER_FLAG 0x4000
-#define FGE_NET_HEADER_LOCAL_REORDERED_FLAG 0x2000
+#define FGE_NET_HEADER_COMPRESSED_FLAG 0x2000
 #define FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG 0x1000
 #define FGE_NET_HEADER_FLAGS_MASK 0xF000
 #define FGE_NET_HEADER_FLAGS_COUNT 4
@@ -163,6 +163,10 @@ public:
     inline void unmarkForEncryption();
     [[nodiscard]] inline bool isMarkedForEncryption() const;
 
+    inline void markAsReordered();
+    inline void unmarkAsReordered();
+    [[nodiscard]] inline bool isMarkedAsReordered() const;
+
     /**
      * \brief Apply packet options to the packet
      *
@@ -203,6 +207,7 @@ private:
     std::size_t g_fluxLifetime{0};
 
     bool g_markedForEncryption{false};
+    bool g_markedAsReordered{false};
 
     std::vector<Option> g_options;
 };
