@@ -801,9 +801,11 @@ void* ServerSideNetUdp::getCryptContext() const
 void ServerSideNetUdp::threadReception()
 {
     Identity idReceive;
-    Packet pckReceive; //TODO
+    Packet pckReceive;
     std::size_t pushingIndex = 0;
     auto gcClientsMap = std::chrono::steady_clock::now();
+
+    CompressorLZ4 compressor;
 
     while (this->g_running)
     {
@@ -852,6 +854,12 @@ void ServerSideNetUdp::threadReception()
                 //Skip the header for reading
                 packet->skip(ProtocolPacket::HeaderSize);
 
+                //Decompress the packet if needed
+                if (!packet->decompress(compressor))
+                {
+                    continue;
+                }
+
                 //Realm and countId is verified by the flux
 
                 if (this->g_fluxes.empty())
@@ -895,6 +903,7 @@ void ServerSideNetUdp::threadReception()
 void ServerSideNetUdp::threadTransmission()
 {
     std::unique_lock lckServer(this->g_mutexServer);
+    CompressorLZ4 compressor;
 
     while (this->g_running)
     {
@@ -929,6 +938,20 @@ void ServerSideNetUdp::threadTransmission()
 
                 auto transmissionPacket = itClient->second._client->popPacket();
 
+                //Compression and applying options
+                if (!transmissionPacket->isFragmented())
+                {
+                    transmissionPacket->applyOptions(*itClient->second._client);
+                    if (!transmissionPacket->compress(compressor))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    transmissionPacket->applyOptions(*itClient->second._client);
+                }
+
                 //MTU check
                 if (!transmissionPacket->isFragmented() &&
                     !transmissionPacket->checkFlags(FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG))
@@ -961,9 +984,6 @@ void ServerSideNetUdp::threadTransmission()
                     continue;
                 }
 
-                //Applying options
-                transmissionPacket->applyOptions(*itClient->second._client);
-
                 //Check if the packet must be encrypted
                 if (transmissionPacket->isMarkedForEncryption())
                 {
@@ -974,7 +994,6 @@ void ServerSideNetUdp::threadTransmission()
                 }
 
                 //Sending the packet
-                //TPacket packet(transmissionPacket->packet()); TODO
                 this->g_socket.sendTo(transmissionPacket->packet(), itClient->first._ip, itClient->first._port);
                 itClient->second._client->resetLastPacketTimePoint();
             }
@@ -1243,7 +1262,8 @@ std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 
 void ClientSideNetUdp::threadReception()
 {
-    Packet pckReceive; //TODO
+    Packet pckReceive;
+    CompressorLZ4 compressor;
 
     while (this->g_running)
     {
@@ -1271,19 +1291,21 @@ void ClientSideNetUdp::threadReception()
                 }
             }
 
-            if (pckReceive.getDataSize() < ProtocolPacket::HeaderSize)
-            { //Bad header, packet is dismissed
-                continue;
-            }
-
-            //Skip the header
-            pckReceive.skip(ProtocolPacket::HeaderSize);
             auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), this->g_clientIdentity);
             packet->setTimestamp(Client::getTimestamp_ms());
 
-            //Verify headerId
+            //Here we consider that the packet is not encrypted
             if (!packet->haveCorrectHeader())
-            { //Bad headerId, packet is dismissed
+            {
+                continue;
+            }
+            //Skip the header for reading
+            packet->skip(ProtocolPacket::HeaderSize);
+
+            //Decompress the packet if needed
+            if (!packet->decompress(compressor))
+            {
+                std::cout << "decompress failed" << std::endl;
                 continue;
             }
 
@@ -1461,7 +1483,6 @@ void ClientSideNetUdp::threadTransmission()
             }
 
             //Sending the packet
-            //TPacket packet = transmissionPacket->packet(); TODO
             this->g_socket.send(transmissionPacket->packet());
             this->_client.resetLastPacketTimePoint();
         }
