@@ -47,6 +47,13 @@
 
 #define FGE_NET_HANDSHAKE_STRING "FGE:HANDSHAKE:AZCgMVg4d4Sl2xYvZcqXqljIOqSrKX6H"
 
+namespace fge
+{
+
+class Compressor;
+
+} // namespace fge
+
 namespace fge::net
 {
 
@@ -158,6 +165,9 @@ public:
 
     [[nodiscard]] inline std::vector<Option> const& options() const;
     [[nodiscard]] inline std::vector<Option>& options();
+
+    [[nodiscard]] bool compress(Compressor& compressor);
+    [[nodiscard]] bool decompress(Compressor& compressor);
 
     inline void markForEncryption();
     inline void unmarkForEncryption();

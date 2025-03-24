@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/network/C_protocol.hpp"
+#include "FastEngine/C_compressor.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/network/C_server.hpp"
 
@@ -22,6 +23,67 @@ namespace fge::net
 {
 
 //ProtocolPacket
+
+bool ProtocolPacket::compress(Compressor& compressor)
+{
+    if (!this->haveCorrectHeaderSize())
+    {
+        return false;
+    }
+
+    if (this->checkFlags(FGE_NET_HEADER_COMPRESSED_FLAG))
+    {
+        return true; //Already compressed
+    }
+
+    auto const payloadSize = this->getDataSize() - HeaderSize;
+    if (payloadSize == 0)
+    {
+        return true; //Nothing to compress
+    }
+
+    if (compressor.compress({this->getData() + HeaderSize, payloadSize}))
+    {
+        return false; //Compression failed
+    }
+
+    this->shrink(payloadSize);
+    this->append(compressor.getBuffer().data(), compressor.getBuffer().size());
+
+    this->addFlags(FGE_NET_HEADER_COMPRESSED_FLAG);
+
+    return true;
+}
+bool ProtocolPacket::decompress(Compressor& compressor)
+{
+    if (!this->haveCorrectHeaderSize())
+    {
+        return false;
+    }
+
+    if (!this->checkFlags(FGE_NET_HEADER_COMPRESSED_FLAG))
+    {
+        return true; //Already decompressed
+    }
+
+    auto const payloadSize = this->getDataSize() - HeaderSize;
+    if (payloadSize == 0)
+    {
+        return false; //Abnormal size
+    }
+
+    if (compressor.uncompress({this->getData() + HeaderSize, payloadSize}))
+    {
+        return false; //Decompression failed
+    }
+
+    this->shrink(payloadSize);
+    this->append(compressor.getBuffer().data(), compressor.getBuffer().size());
+
+    this->removeFlags(FGE_NET_HEADER_COMPRESSED_FLAG);
+
+    return true;
+}
 
 void ProtocolPacket::applyOptions(Client const& client)
 {
