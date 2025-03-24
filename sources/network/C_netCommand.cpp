@@ -377,12 +377,16 @@ NetCommandResults NetConnectCommand::onReceive(std::unique_ptr<ProtocolPacket>& 
         if (rules::RValid<std::string>({packet->packet(), &handshake}).end() || !packet->endReached())
         {
             std::cout << "handshake failed" << std::endl;
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            this->g_promise.set_value(false);
             return NetCommandResults::FAILURE;
         }
 
         if (handshake != FGE_NET_HANDSHAKE_STRING)
         {
             std::cout << "handshake failed" << std::endl;
+            client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+            this->g_promise.set_value(false);
             return NetCommandResults::FAILURE;
         }
 
