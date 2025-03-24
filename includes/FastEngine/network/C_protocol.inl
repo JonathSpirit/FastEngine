@@ -219,7 +219,7 @@ inline ProtocolPacket& ProtocolPacket::removeFlags(IdType flags)
     {
         IdType headerId;
         this->unpack(IdPosition, &headerId, sizeof(IdType));
-        headerId &= ~flags & FGE_NET_HEADER_FLAGS_MASK;
+        headerId &= ~(flags & FGE_NET_HEADER_FLAGS_MASK);
         this->pack(IdPosition, &headerId, sizeof(IdType));
     }
     return *this;
@@ -230,7 +230,7 @@ inline bool ProtocolPacket::checkFlags(IdType flags) const
     {
         IdType headerId;
         this->unpack(IdPosition, &headerId, sizeof(IdType));
-        return (headerId & FGE_NET_HEADER_FLAGS_MASK) == flags;
+        return ((headerId & FGE_NET_HEADER_FLAGS_MASK) & (flags & FGE_NET_HEADER_FLAGS_MASK)) > 0;
     }
     return false;
 }
