@@ -57,9 +57,10 @@ std::optional<CompressorLZ4::ErrorString> CompressorLZ4::compress(std::span<uint
         return ErrorString{"no enough buffer size or compression error"};
     }
 
+    *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
+
     this->_g_buffer.resize(dataCompressedSize + sizeof(uint32_t));
     this->_g_lastCompressionSize = this->_g_buffer.size();
-    *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
     return std::nullopt;
 }
 std::optional<CompressorLZ4::ErrorString> CompressorLZ4::uncompress(std::span<uint8_t const> const& data)
@@ -139,9 +140,10 @@ std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::compress(std::span<
         return ErrorString{"no enough buffer size or compression error"};
     }
 
+    *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
+
     this->_g_buffer.resize(dataCompressedSize + sizeof(uint32_t));
     this->_g_lastCompressionSize = this->_g_buffer.size();
-    *reinterpret_cast<uint32_t*>(this->_g_buffer.data()) = SwapHostNetEndian_32(rawData.size());
     return std::nullopt;
 }
 std::optional<CompressorLZ4HC::ErrorString> CompressorLZ4HC::uncompress(std::span<uint8_t const> const& data)
