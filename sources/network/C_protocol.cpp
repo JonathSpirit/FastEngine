@@ -147,7 +147,7 @@ std::vector<std::shared_ptr<ProtocolPacket>> ProtocolPacket::fragment(uint16_t m
     std::vector<std::shared_ptr<ProtocolPacket>> fragments(fragmentCount);
     for (std::size_t i = 0; i < fragmentCount; ++i)
     {
-        auto fragmentedPacket = std::make_shared<ProtocolPacket>(NET_INTERNAL_FRAGMENTED_PACKET, fragmentRealm, i);
+        auto fragmentedPacket = std::make_shared<ProtocolPacket>(NET_INTERNAL_ID_FRAGMENTED_PACKET, fragmentRealm, i);
 
         fragmentedPacket->pack(&fragmentData, sizeof(fragmentData));
         fragmentedPacket->append(this->getData() + i * maxFragmentSize,
