@@ -20,7 +20,6 @@
 #include "FastEngine/network/C_protocol.hpp"
 
 #define LIFESIM_VERSION 1
-#define LIFESIM_CLIENT_PORT 42047
 #define LIFESIM_SERVER_PORT 42048
 #define LIFESIM_CONNECTION_TEXT1 "Hello"
 #define LIFESIM_CONNECTION_TEXT2 "_IWANTTOCONNECT_42//%"
