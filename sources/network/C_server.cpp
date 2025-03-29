@@ -1044,6 +1044,8 @@ bool ClientSideNetUdp::start(Port bindPort,
         return false;
     }
 
+    this->resetReturnPacket();
+
     this->g_socket.setAddressType(addressType);
     if (addressType == IpAddress::Types::Ipv6)
     {
@@ -1247,6 +1249,88 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     return FluxProcessResults::RETRIEVABLE;
 }
 
+void ClientSideNetUdp::resetReturnPacket()
+{
+    this->g_returnPacket = CreatePacket(NET_INTERNAL_ID_RETURN_PACKET);
+    this->g_returnPacket->append(sizeof(this->g_returnPacketEventCount));
+
+    this->g_returnPacketEventCount = 0;
+    this->g_isAskingFullUpdate = false;
+    this->g_returnPacketEventStarted = false;
+}
+
+TransmitPacketPtr& ClientSideNetUdp::startReturnEvent(uint16_t event)
+{
+    if (this->g_returnPacketEventStarted)
+    {
+        throw Exception("Cannot start a new return event without ending the previous one");
+    }
+    this->g_returnPacketEventStarted = true;
+    ++this->g_returnPacketEventCount;
+    *this->g_returnPacket << event;
+    this->g_returnPacketStartPosition = this->g_returnPacket->getDataSize();
+    this->g_returnPacket->append(sizeof(uint16_t));
+    return this->g_returnPacket;
+}
+
+TransmitPacketPtr&
+ClientSideNetUdp::startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid)
+{
+    this->startReturnEvent(REVT_OBJECT);
+    *this->g_returnPacket << commandIndex << parentSid << targetSid;
+    return this->g_returnPacket;
+}
+
+void ClientSideNetUdp::endReturnEvent()
+{
+    if (!this->g_returnPacketEventStarted)
+    {
+        throw Exception("Cannot end a return event without starting one");
+    }
+    this->g_returnPacketEventStarted = false;
+
+    //Rewrite event data size
+    uint16_t eventSize = this->g_returnPacket->getDataSize() - this->g_returnPacketStartPosition - sizeof(uint16_t);
+    this->g_returnPacket->pack(this->g_returnPacketStartPosition, &eventSize, sizeof(uint16_t));
+}
+
+void ClientSideNetUdp::simpleReturnEvent(uint16_t id)
+{
+    this->startReturnEvent(REVT_SIMPLE);
+    *this->g_returnPacket << id;
+    this->endReturnEvent();
+}
+
+void ClientSideNetUdp::askFullUpdateReturnEvent()
+{
+    if (this->g_isAskingFullUpdate)
+    {
+        return;
+    }
+    this->g_isAskingFullUpdate = true;
+    this->startReturnEvent(REVT_ASK_FULL_UPDATE);
+    this->endReturnEvent();
+}
+
+TransmitPacketPtr ClientSideNetUdp::prepareAndRetrieveReturnPacket()
+{
+    if (this->g_returnPacketEventStarted)
+    {
+        throw Exception("Cannot retrieve a return packet without ending the current command");
+    }
+
+    auto returnPacket = std::move(this->g_returnPacket);
+
+    //Rewrite events count
+    returnPacket->packet().pack(ProtocolPacket::HeaderSize, &this->g_returnPacketEventCount,
+                                sizeof(this->g_returnPacketEventCount));
+
+    //Prepare the new returnPacket
+    this->resetReturnPacket();
+
+    return returnPacket;
+}
+
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 {
     std::unique_lock lock(this->_g_mutexFlux);
@@ -1351,7 +1435,7 @@ void ClientSideNetUdp::threadReception()
             }
 
             //Check if the packet is a fragment
-            if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == NET_INTERNAL_FRAGMENTED_PACKET)
+            if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == NET_INTERNAL_ID_FRAGMENTED_PACKET)
             {
                 auto const result = this->g_defragmentation.process(std::move(packet));
                 if (result._result == PacketDefragmentation::Results::RETRIEVABLE)

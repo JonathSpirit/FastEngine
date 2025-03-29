@@ -44,6 +44,11 @@
 
 #define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
 
+namespace fge
+{
+using ObjectSid = uint32_t;
+} // namespace fge
+
 namespace fge::net
 {
 
@@ -289,6 +294,24 @@ public:
 
     [[nodiscard]] FluxProcessResults process(ReceivedPacketPtr& packet);
 
+    enum ReturnEvents
+    {
+        REVT_SIMPLE = 1,
+        REVT_OBJECT,
+        REVT_ASK_FULL_UPDATE,
+        REVT_CUSTOM
+    };
+
+    void resetReturnPacket();
+    TransmitPacketPtr& startReturnEvent(uint16_t event);
+    TransmitPacketPtr& startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid);
+    void endReturnEvent();
+
+    void simpleReturnEvent(uint16_t id);
+    void askFullUpdateReturnEvent();
+
+    [[nodiscard]] TransmitPacketPtr prepareAndRetrieveReturnPacket();
+
     Client _client; //But it is the server :O
 
     CallbackHandler<ClientSideNetUdp&> _onClientTimeout;
@@ -312,6 +335,12 @@ private:
     Identity g_clientIdentity;
 
     PacketDefragmentation g_defragmentation;
+
+    TransmitPacketPtr g_returnPacket;
+    bool g_returnPacketEventStarted;
+    std::size_t g_returnPacketStartPosition;
+    bool g_isAskingFullUpdate;
+    uint16_t g_returnPacketEventCount;
 
     void* g_crypt_ctx;
 };
