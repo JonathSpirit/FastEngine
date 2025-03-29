@@ -939,7 +939,7 @@ void ServerSideNetUdp::threadTransmission()
                 auto transmissionPacket = itClient->second._client->popPacket();
 
                 //Compression and applying options
-                if (!transmissionPacket->isFragmented())
+                if (!transmissionPacket->isFragmented() && itClient->second._client->getStatus().isInEncryptedState())
                 {
                     transmissionPacket->applyOptions(*itClient->second._client);
                     if (!transmissionPacket->compress(compressor))
@@ -1394,6 +1394,7 @@ void ClientSideNetUdp::threadTransmission()
 {
     auto lastTimePoint = std::chrono::steady_clock::now();
     std::chrono::milliseconds commandsTime{0};
+    CompressorLZ4 compressor;
 
     std::unique_lock lckServer(this->_g_mutexFlux);
 
@@ -1440,6 +1441,20 @@ void ClientSideNetUdp::threadTransmission()
         { //Ready to send !
             auto transmissionPacket = this->_client.popPacket();
 
+            //Compression and applying options
+            if (!transmissionPacket->isFragmented() && this->_client.getStatus().isInEncryptedState())
+            {
+                transmissionPacket->applyOptions(this->_client);
+                if (!transmissionPacket->compress(compressor))
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                transmissionPacket->applyOptions(this->_client);
+            }
+
             //MTU check
             if (!transmissionPacket->isFragmented() &&
                 !transmissionPacket->checkFlags(FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG))
@@ -1469,9 +1484,6 @@ void ClientSideNetUdp::threadTransmission()
             { //Last verification of the packet
                 continue;
             }
-
-            //Applying options
-            transmissionPacket->applyOptions(this->_client);
 
             //Check if the packet must be encrypted
             if (transmissionPacket->isMarkedForEncryption())
