@@ -143,7 +143,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     }
 
     //Clock
-    fge::Clock clockUpdate;
     fge::Clock deltaTime;
 
     //Create a latency text
@@ -216,6 +215,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             std::cout << "connection ok" << std::endl;
 
+            server.enableReturnPacket(true);
+
             auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
             transmissionPacket->doNotDiscard().doNotReorder() << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
 
@@ -269,20 +270,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         if (event.isEventType(SDL_QUIT))
         {
             running = false;
-        }
-
-        //Send an update packet to the server
-        if (clockUpdate.reached(LIFESIM_TIME_CLIENT_UPDATE) && connectionValid)
-        {
-            clockUpdate.restart();
-
-            auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_UPDATE);
-            transmissionPacket->doNotReorder().doNotDiscard();
-
-            //The packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
-            //The LatencyPlanner class will do all the work for that.
-            server._client._latencyPlanner.pack(transmissionPacket);
-            server._client.pushPacket(std::move(transmissionPacket));
         }
 
         //Check if the connection is unsuccessful
@@ -344,7 +331,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                         mainScene->delObject(windowObject->getSid());
                     }
                     connectionValid = true;
-                    clockUpdate.restart();
 
                     std::cout << "connected to server !" << std::endl;
                 }

@@ -122,20 +122,28 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     //Prepare some clocks
     fge::Clock clockNewFood;
     fge::Clock clockWorldUpdate;
-    fge::Clock clockTimeout;
     fge::Clock deltaTime;
 
     //fge::Event is not used in this application, but required
     fge::Event event;
 
     //Handling clients timeout
-    serverFlux->_onClientTimeout.addLambda([](fge::net::ClientSharedPtr client, fge::net::Identity id) {
+    serverFlux->_onClientTimeout.addLambda([](fge::net::ClientSharedPtr client, fge::net::Identity const& id) {
         std::cout << "user : " << id._ip.toString().value_or("UNDEFINED") << " disconnected (timeout) !" << std::endl;
     });
 
     //Handling clients connection
-    serverFlux->_onClientConnected.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity id) {
+    serverFlux->_onClientConnected.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity const& id) {
         client->getStatus().setTimeout(LIFESIM_TIME_TIMEOUT);
+    });
+
+    //Handling clients return packet
+    serverFlux->_onClientReturnPacket.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity id,
+                                                   fge::net::ReceivedPacketPtr const& packet) {
+        std::cout << "received update from : " << packet->getIdentity().toString() << std::endl;
+
+        //We reset the timeout
+        client->getStatus().resetTimeout();
     });
 
     while (gRunning)
@@ -218,31 +226,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 else
                 {
                     server.sendTo(transmissionPacket, packet->getIdentity());
-                }
-                break;
-            case ls::LS_PROTOCOL_C_UPDATE:
-                if (client)
-                {
-                    std::cout << "received update from : " << packet->getIdentity()._ip.toString().value_or("UNDEFINED")
-                              << std::endl;
-
-                    //We compute the latency with the LatencyPlanner help class
-                    client->_latencyPlanner.unpack(packet.get(), *client);
-                    if (auto latency = client->_latencyPlanner.getLatency())
-                    {
-                        client->setSTOCLatency_ms(latency.value());
-                    }
-                    if (auto latency = client->_latencyPlanner.getOtherSideLatency())
-                    {
-                        client->setCTOSLatency_ms(latency.value());
-                    }
-
-                    //We reset the timeout
-                    client->getStatus().resetTimeout();
-                }
-                else
-                {
-                    std::cout << "received update from someone" << std::endl;
                 }
                 break;
             case ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME:

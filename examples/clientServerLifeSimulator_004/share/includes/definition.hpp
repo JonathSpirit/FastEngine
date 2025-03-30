@@ -56,11 +56,6 @@
 
 #define LIFESIM_VIDEOMODE sf::VideoMode(1600, 900)
 #define LIFESIM_FRAMERATE 60
-#define LIFESIM_TIME_CLIENT_UPDATE                                                                                     \
-    std::chrono::milliseconds                                                                                          \
-    {                                                                                                                  \
-        1000                                                                                                           \
-    }
 
 namespace ls
 {
@@ -86,13 +81,6 @@ enum ProtocolHeaders : fge::net::ProtocolPacket::IdType
     /*
     IN:
         string REASON
-    OUT:
-        -
-    */
-    LS_PROTOCOL_C_UPDATE,
-    /*
-    IN:
-        LatencyPlanner LATENCY_PLANNER_DATA
     OUT:
         -
     */
