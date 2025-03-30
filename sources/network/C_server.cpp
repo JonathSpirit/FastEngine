@@ -341,6 +341,105 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     auto const countId = packet->retrieveCounter().value();
     refClient->setClientPacketCounter(countId);
 
+    //Check if the packet is a return packet, and if so, handle it
+    if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_RETURN_PACKET)
+    {
+        this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
+
+        //TODO: verify the eventSize variable
+        //TODO: make fge::net::rules more friendly to use
+
+        constexpr char const* const func = __func__;
+
+        using namespace fge::net::rules;
+        auto const err = RValid<uint16_t>({packet->packet()})
+                                 .and_for_each([&](auto const& chain, [[maybe_unused]] auto& index) {
+            ReturnEvents event;
+            chain.packet() >> event;
+            if (!chain.packet().isValid())
+            {
+                return chain.end(Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad event", func});
+            }
+
+            uint16_t eventSize = 0;
+            chain.packet() >> eventSize;
+            if (!chain.packet().isValid())
+            {
+                return chain.end(
+                        Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad event size", func});
+            }
+
+            switch (event)
+            {
+            case ReturnEvents::REVT_SIMPLE:
+            {
+                uint16_t id;
+                chain.packet() >> id;
+                if (!chain.packet().isValid() || eventSize != sizeof(uint16_t))
+                {
+                    return chain.end(
+                            Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id / size", func});
+                }
+
+                this->_onClientSimpleReturnEvent.call(refClient, packet->getIdentity(), id);
+            }
+            break;
+            case ReturnEvents::REVT_OBJECT:
+            {
+                uint16_t commandIndex;
+                ObjectSid parentSid, targetSid;
+                chain.packet() >> commandIndex >> parentSid >> targetSid;
+                if (!chain.packet().isValid())
+                {
+                    return chain.end(Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id", func});
+                }
+
+                this->_onClientObjectReturnEvent.call(refClient, packet->getIdentity(), commandIndex, parentSid,
+                                                      targetSid, packet);
+            }
+            break;
+            case ReturnEvents::REVT_ASK_FULL_UPDATE:
+                if (!chain.packet().isValid() || eventSize != 0)
+                {
+                    return chain.end(
+                            Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id / size", func});
+                }
+
+                this->_onClientAskFullUpdate.call(refClient, packet->getIdentity());
+                break;
+            case ReturnEvents::REVT_CUSTOM:
+                if (!chain.packet().isValid())
+                {
+                    return chain.end(Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id", func});
+                }
+
+                this->_onClientReturnEvent.call(refClient, packet->getIdentity(), packet);
+                break;
+            }
+
+            return chain.end(std::nullopt);
+        }).end();
+
+        if (err)
+        {
+            std::cout << "Return packet error" << std::endl;
+        }
+
+        //TODO: be sure that we are on the correct read position on the packet
+        //We unpack and compute the latency with the LatencyPlanner helper class
+        refClient->_latencyPlanner.unpack(packet.get(), *refClient);
+        if (auto latency = refClient->_latencyPlanner.getLatency())
+        {
+            refClient->setSTOCLatency_ms(latency.value());
+        }
+        if (auto latency = refClient->_latencyPlanner.getOtherSideLatency())
+        {
+            refClient->setCTOSLatency_ms(latency.value());
+        }
+
+        return FluxProcessResults::INTERNALLY_HANDLED;
+    }
+
     return FluxProcessResults::RETRIEVABLE;
 }
 
@@ -348,7 +447,8 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
 {
     //Check if the packet is fragmented
     if (packet->isFragmented())
-    { //We can't (disallow) process fragmented packets from unknown clients
+    {
+        //We can't (disallow) process fragmented packets from unknown clients
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
@@ -999,7 +1099,7 @@ void ServerSideNetUdp::threadTransmission()
             }
         }
 
-        //Checking isolated transmission queue
+        //Checking isolated transmission queue TODO: maybe remove all that
         while (!this->g_transmissionQueue.empty())
         {
             auto data = std::move(this->g_transmissionQueue.front());
@@ -1011,7 +1111,6 @@ void ServerSideNetUdp::threadTransmission()
             }
 
             //Sending the packet
-            //TPacket packet(data.first->packet()); TODO
             this->g_socket.sendTo(data.first->packet(), data.second._ip, data.second._port);
         }
     }
@@ -1019,11 +1118,7 @@ void ServerSideNetUdp::threadTransmission()
 
 //ServerClientSideUdp
 ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
-        g_threadReception(nullptr),
-        g_threadTransmission(nullptr),
-        g_socket(addressType),
-        g_running(false),
-        g_crypt_ctx(nullptr)
+        g_socket(addressType)
 {
     this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
 }
@@ -1181,6 +1276,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
+    //Checking timeout
     if (this->_client.getStatus().isTimeout())
     {
         this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
@@ -1188,6 +1284,17 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         this->_g_remainingPackets = 0;
         this->clearPackets();
         return FluxProcessResults::NOT_RETRIEVABLE;
+    }
+
+    //Checking return packet
+    if (this->isReturnPacketEnabled())
+    {
+        auto const now = std::chrono::steady_clock::now();
+        if (now - this->g_returnPacketTimePoint >= std::chrono::milliseconds(FGE_SERVER_DEFAULT_RETURN_PACKET_DELAY_MS))
+        {
+            this->g_returnPacketTimePoint = now;
+            this->_client.pushPacket(this->prepareAndRetrieveReturnPacket());
+        }
     }
 
     if (this->_g_remainingPackets == 0)
@@ -1257,9 +1364,10 @@ void ClientSideNetUdp::resetReturnPacket()
     this->g_returnPacketEventCount = 0;
     this->g_isAskingFullUpdate = false;
     this->g_returnPacketEventStarted = false;
+    this->g_returnPacketTimePoint = std::chrono::steady_clock::now();
 }
 
-TransmitPacketPtr& ClientSideNetUdp::startReturnEvent(uint16_t event)
+TransmitPacketPtr& ClientSideNetUdp::startReturnEvent(ReturnEvents event)
 {
     if (this->g_returnPacketEventStarted)
     {
@@ -1276,7 +1384,7 @@ TransmitPacketPtr& ClientSideNetUdp::startReturnEvent(uint16_t event)
 TransmitPacketPtr&
 ClientSideNetUdp::startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid)
 {
-    this->startReturnEvent(REVT_OBJECT);
+    this->startReturnEvent(ReturnEvents::REVT_OBJECT);
     *this->g_returnPacket << commandIndex << parentSid << targetSid;
     return this->g_returnPacket;
 }
@@ -1296,7 +1404,7 @@ void ClientSideNetUdp::endReturnEvent()
 
 void ClientSideNetUdp::simpleReturnEvent(uint16_t id)
 {
-    this->startReturnEvent(REVT_SIMPLE);
+    this->startReturnEvent(ReturnEvents::REVT_SIMPLE);
     *this->g_returnPacket << id;
     this->endReturnEvent();
 }
@@ -1308,8 +1416,21 @@ void ClientSideNetUdp::askFullUpdateReturnEvent()
         return;
     }
     this->g_isAskingFullUpdate = true;
-    this->startReturnEvent(REVT_ASK_FULL_UPDATE);
+    this->startReturnEvent(ReturnEvents::REVT_ASK_FULL_UPDATE);
     this->endReturnEvent();
+}
+
+void ClientSideNetUdp::enableReturnPacket(bool enable)
+{
+    this->g_returnPacketEnabled = enable;
+    if (enable)
+    {
+        this->resetReturnPacket();
+    }
+}
+bool ClientSideNetUdp::isReturnPacketEnabled() const
+{
+    return this->g_returnPacketEnabled;
 }
 
 TransmitPacketPtr ClientSideNetUdp::prepareAndRetrieveReturnPacket()
@@ -1324,6 +1445,10 @@ TransmitPacketPtr ClientSideNetUdp::prepareAndRetrieveReturnPacket()
     //Rewrite events count
     returnPacket->packet().pack(ProtocolPacket::HeaderSize, &this->g_returnPacketEventCount,
                                 sizeof(this->g_returnPacketEventCount));
+
+    //After return events, the packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
+    //The LatencyPlanner class will do all the work for that.
+    this->_client._latencyPlanner.pack(returnPacket);
 
     //Prepare the new returnPacket
     this->resetReturnPacket();

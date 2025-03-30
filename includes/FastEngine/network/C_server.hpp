@@ -44,6 +44,8 @@
 
 #define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
 
+#define FGE_SERVER_DEFAULT_RETURN_PACKET_DELAY_MS 500
+
 namespace fge
 {
 using ObjectSid = uint32_t;
@@ -62,6 +64,14 @@ enum class FluxProcessResults
     BAD_REORDER,
     NOT_RETRIEVABLE,
     INTERNALLY_HANDLED
+};
+
+enum class ReturnEvents
+{
+    REVT_SIMPLE,
+    REVT_OBJECT,
+    REVT_ASK_FULL_UPDATE,
+    REVT_CUSTOM
 };
 
 /**
@@ -130,13 +140,20 @@ public:
     ClientList _clients;
 
     CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
-    CallbackHandler<ClientSharedPtr, Identity> _onClientTimeout;
+    CallbackHandler<ClientSharedPtr, Identity const&> _onClientTimeout;
 
-    CallbackHandler<ClientSharedPtr const&, Identity> _onClientAcknowledged;
-    CallbackHandler<ClientSharedPtr const&, Identity> _onClientMTUDiscovered;
-    CallbackHandler<ClientSharedPtr const&, Identity> _onClientConnected;
-    CallbackHandler<ClientSharedPtr, Identity> _onClientDisconnected;
-    CallbackHandler<ClientSharedPtr, Identity> _onClientDropped;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAcknowledged;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientMTUDiscovered;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientConnected;
+    CallbackHandler<ClientSharedPtr, Identity const&> _onClientDisconnected;
+    CallbackHandler<ClientSharedPtr, Identity const&> _onClientDropped;
+
+    CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnPacket;
+    CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnEvent;
+    CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
+    CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t, ObjectSid, ObjectSid, ReceivedPacketPtr const&>
+            _onClientObjectReturnEvent;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAskFullUpdate;
 
 private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
@@ -294,21 +311,16 @@ public:
 
     [[nodiscard]] FluxProcessResults process(ReceivedPacketPtr& packet);
 
-    enum ReturnEvents
-    {
-        REVT_SIMPLE = 1,
-        REVT_OBJECT,
-        REVT_ASK_FULL_UPDATE,
-        REVT_CUSTOM
-    };
-
     void resetReturnPacket();
-    TransmitPacketPtr& startReturnEvent(uint16_t event);
+    TransmitPacketPtr& startReturnEvent(ReturnEvents event);
     TransmitPacketPtr& startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid);
     void endReturnEvent();
 
     void simpleReturnEvent(uint16_t id);
     void askFullUpdateReturnEvent();
+
+    void enableReturnPacket(bool enable);
+    [[nodiscard]] bool isReturnPacketEnabled() const;
 
     [[nodiscard]] TransmitPacketPtr prepareAndRetrieveReturnPacket();
 
@@ -330,19 +342,21 @@ private:
     std::condition_variable g_receptionNotifier;
 
     SocketUdp g_socket;
-    bool g_running;
+    bool g_running{false};
 
     Identity g_clientIdentity;
 
     PacketDefragmentation g_defragmentation;
 
+    bool g_returnPacketEnabled{false};
     TransmitPacketPtr g_returnPacket;
-    bool g_returnPacketEventStarted;
-    std::size_t g_returnPacketStartPosition;
-    bool g_isAskingFullUpdate;
-    uint16_t g_returnPacketEventCount;
+    bool g_returnPacketEventStarted{false};
+    std::size_t g_returnPacketStartPosition{0};
+    bool g_isAskingFullUpdate{false};
+    uint16_t g_returnPacketEventCount{0};
+    std::chrono::steady_clock::time_point g_returnPacketTimePoint;
 
-    void* g_crypt_ctx;
+    void* g_crypt_ctx{nullptr};
 };
 
 } // namespace fge::net
