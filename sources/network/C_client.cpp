@@ -94,10 +94,7 @@ Client::Client() :
         g_STOCLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
         g_skey(FGE_NET_BAD_SKEY),
-        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
-        g_currentRealm(FGE_NET_DEFAULT_REALM),
-        g_currentPacketCounter(0),
-        g_clientPacketCounter(0)
+        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
 Client::~Client()
 {
@@ -109,10 +106,7 @@ Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_STOCLatency_ms(STOCLatency),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
         g_skey(FGE_NET_BAD_SKEY),
-        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
-        g_currentRealm(FGE_NET_DEFAULT_REALM),
-        g_currentPacketCounter(0),
-        g_clientPacketCounter(0)
+        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
 
 Skey Client::GenerateSkey()
@@ -227,17 +221,22 @@ void Client::clearPackets()
 void Client::pushPacket(TransmitPacketPtr pck)
 {
     std::scoped_lock const lck(this->g_mutex);
-    auto const headerFlags = pck->retrieveFlags().value();
-    if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
-    {
+
 #ifdef FGE_DEF_SERVER
-        pck->setCounter(this->advanceCurrentPacketCounter());
+    pck->setCounter(this->advanceCurrentPacketCounter());
 #else
-        pck->setCounter(this->advanceClientPacketCounter());
+    pck->setCounter(this->advanceClientPacketCounter());
 #endif
 
-        pck->setRealm(this->getCurrentRealm());
+    pck->setRealm(this->getCurrentRealm());
+
+    pck->setLastReorderedPacketCounter(this->getLastReorderedPacketCounter());
+
+    if (!pck->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
+    {
+        this->resetLastReorderedPacketCounter();
     }
+
     if (this->g_status.isInEncryptedState())
     {
         pck->markForEncryption();
@@ -310,6 +309,9 @@ void Client::setCurrentPacketCounter(ProtocolPacket::CounterType counter)
 {
     std::scoped_lock const lck(this->g_mutex);
     this->g_currentPacketCounter = counter;
+#ifdef FGE_DEF_SERVER
+    this->g_lastReorderedPacketCounter = counter;
+#endif
 }
 
 ProtocolPacket::CounterType Client::getClientPacketCounter() const
@@ -326,6 +328,24 @@ void Client::setClientPacketCounter(ProtocolPacket::CounterType countId)
 {
     std::scoped_lock const lck(this->g_mutex);
     this->g_clientPacketCounter = countId;
+#ifndef FGE_DEF_SERVER
+    this->g_lastReorderedPacketCounter = countId;
+#endif
+}
+
+void Client::resetLastReorderedPacketCounter()
+{
+    std::scoped_lock const lck(this->g_mutex);
+#ifdef FGE_DEF_SERVER
+    this->g_lastReorderedPacketCounter = this->g_currentPacketCounter;
+#else
+    this->g_lastReorderedPacketCounter = this->g_clientPacketCounter;
+#endif
+}
+ProtocolPacket::CounterType Client::getLastReorderedPacketCounter() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+    return this->g_lastReorderedPacketCounter;
 }
 
 PacketReorderer& Client::getPacketReorderer()

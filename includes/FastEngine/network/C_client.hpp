@@ -397,6 +397,8 @@ public:
     [[nodiscard]] ProtocolPacket::CounterType getClientPacketCounter() const;
     ProtocolPacket::CounterType advanceClientPacketCounter();
     void setClientPacketCounter(ProtocolPacket::CounterType counter);
+    void resetLastReorderedPacketCounter();
+    [[nodiscard]] ProtocolPacket::CounterType getLastReorderedPacketCounter() const;
 
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
@@ -435,9 +437,10 @@ private:
     Skey g_skey;
 
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
-    ProtocolPacket::RealmType g_currentRealm;
-    ProtocolPacket::CounterType g_currentPacketCounter;
-    ProtocolPacket::CounterType g_clientPacketCounter;
+    ProtocolPacket::RealmType g_currentRealm{FGE_NET_DEFAULT_REALM};
+    ProtocolPacket::CounterType g_currentPacketCounter{0};
+    ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
+    ProtocolPacket::CounterType g_clientPacketCounter{0};
 
     PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};

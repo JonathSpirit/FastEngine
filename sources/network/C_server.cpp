@@ -65,7 +65,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
                                               ProtocolPacket::CounterType currentCounter,
                                               bool ignoreRealm)
 {
-    auto const currentRealm = ignoreRealm ? packet->retrieveRealm().value() : client.getCurrentRealm();
+    auto currentRealm = ignoreRealm ? packet->retrieveRealm().value() : client.getCurrentRealm();
 
     if (client.getPacketReorderer().isEmpty())
     {
@@ -93,7 +93,9 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
     }
 
     packet = client.getPacketReorderer().pop();
-    packet->markAsReordered();
+    packet->markAsLocallyReordered();
+    currentCounter = packet->retrieveCounter().value();
+    currentRealm = packet->retrieveRealm().value();
 
     std::size_t containerInversedSize = 0;
     auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
@@ -109,7 +111,10 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
         auto reorderedPacket = client.getPacketReorderer().pop();
 
         //Mark them as reordered
-        reorderedPacket->markAsReordered();
+        reorderedPacket->markAsLocallyReordered();
+
+        currentCounter = reorderedPacket->retrieveCounter().value();
+        currentRealm = reorderedPacket->retrieveRealm().value();
 
         //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
         containerInversed[containerInversedSize++] = std::move(reorderedPacket);
@@ -299,13 +304,12 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
     std::cout << "processing packet" << std::endl;
 
-    auto const headerFlags = packet->retrieveFlags().value();
-    if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
+    if (packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
     {
         return FluxProcessResults::RETRIEVABLE;
     }
 
-    if (!packet->isMarkedAsReordered())
+    if (!packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult = this->processReorder(*refClient, packet, refClient->getClientPacketCounter(), true);
         if (reorderResult != FluxProcessResults::RETRIEVABLE)
@@ -323,7 +327,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     auto const stat =
             PacketReorderer::checkStat(packet, refClient->getClientPacketCounter(), refClient->getCurrentRealm());
 
-    if ((headerFlags & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) == 0)
+    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG))
     {
         if (stat == PacketReorderer::Stats::OLD_COUNTER)
         {
@@ -595,21 +599,6 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
 FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data& refClientData,
                                                                 ReceivedPacketPtr& packet)
 {
-    //Check if the packet is a fragment
-    if (packet->isFragmented())
-    {
-        auto const identity = packet->getIdentity();
-        auto const result = refClientData._defragmentation.process(std::move(packet));
-        if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
-        {
-            packet = refClientData._defragmentation.retrieve(result._id, identity);
-        }
-        else
-        {
-            return FluxProcessResults::NOT_RETRIEVABLE;
-        }
-    }
-
     //Check if the packet is a crypt handshake
     if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
     {
@@ -671,6 +660,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
         std::cout << "CONNECTED" << std::endl;
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
         refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+        refClient->setClientPacketCounter(0);
         this->_onClientConnected.call(refClient, packet->getIdentity());
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
@@ -1312,14 +1302,12 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     }
     --this->_g_remainingPackets;
 
-    auto const headerFlags = packet->retrieveFlags().value();
-
-    if ((headerFlags & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) > 0)
+    if (packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
     {
         return FluxProcessResults::RETRIEVABLE;
     }
 
-    if (!packet->isMarkedAsReordered())
+    if (!packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult =
                 this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
@@ -1332,7 +1320,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     auto const stat = PacketReorderer::checkStat(packet, this->_client.getCurrentPacketCounter(),
                                                  this->_client.getCurrentRealm());
 
-    if ((headerFlags & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) == 0)
+    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG))
     {
         if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)
         {

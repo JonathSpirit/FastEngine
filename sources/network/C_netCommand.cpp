@@ -281,6 +281,7 @@ NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
             std::cout << "TX CONNECTED" << std::endl;
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+            client.setClientPacketCounter(0);
             this->g_promise.set_value(true);
             this->g_state = States::CONNECTED;
             return NetCommandResults::SUCCESS;
@@ -338,6 +339,7 @@ NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
             std::cout << "CONNECTED" << std::endl;
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
+            client.setClientPacketCounter(0);
             this->g_promise.set_value(true);
             return NetCommandResults::SUCCESS;
         }

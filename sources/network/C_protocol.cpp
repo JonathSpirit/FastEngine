@@ -263,7 +263,11 @@ PacketReorderer::Stats PacketReorderer::checkStat(ReceivedPacketPtr const& packe
                                                   ProtocolPacket::CounterType currentCounter,
                                                   ProtocolPacket::RealmType currentRealm)
 {
-    auto const counter = packet->retrieveCounter().value();
+    auto const lastCounter = packet->retrieveLastCounter().value();
+    auto counter = packet->retrieveCounter().value();
+
+    counter = (counter == lastCounter) ? counter : (lastCounter + 1);
+
     auto const realm = packet->retrieveRealm().value();
 
     if (realm < currentRealm && currentRealm + 1 != 0)
@@ -329,11 +333,13 @@ bool PacketReorderer::isEmpty() const
 PacketReorderer::Data::Data(ReceivedPacketPtr&& packet) :
         _packet(std::move(packet)),
         _counter(_packet->retrieveCounter().value()),
+        _lastCounter(_packet->retrieveLastCounter().value()),
         _realm(_packet->retrieveRealm().value())
 {}
 PacketReorderer::Data::Data(Data&& r) noexcept :
         _packet(std::move(r._packet)),
         _counter(r._counter),
+        _lastCounter(r._lastCounter),
         _realm(r._realm)
 {}
 PacketReorderer::Data::~Data() = default;
@@ -342,6 +348,7 @@ PacketReorderer::Data& PacketReorderer::Data::operator=(Data&& r) noexcept
 {
     this->_packet = std::move(r._packet);
     this->_counter = r._counter;
+    this->_lastCounter = r._lastCounter;
     this->_realm = r._realm;
     return *this;
 }
@@ -354,17 +361,17 @@ PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterT
         return Stats::OLD_REALM;
     }
 
-    if (currentRealm != this->_realm && this->_counter != 0)
+    if (currentRealm != this->_realm && this->_lastCounter != 0)
     { //Different realm, we can switch to the new realm only if the counter is 0 (first packet of the new realm)
         return Stats::WAITING_NEXT_REALM;
     }
 
-    if (this->_counter == currentCounter + 1)
+    if (this->_lastCounter == currentCounter + 1)
     { //Same realm, we can switch to the next counter
         return Stats::RETRIEVABLE;
     }
 
-    if (this->_counter < currentCounter)
+    if (this->_lastCounter < currentCounter)
     { //We are missing a packet
         return Stats::OLD_COUNTER;
     }

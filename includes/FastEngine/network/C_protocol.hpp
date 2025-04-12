@@ -109,19 +109,24 @@ public:
         IdType _id;
         RealmType _realm;
         CounterType _counter;
+        CounterType _lastCounter;
     };
 
-    constexpr static std::size_t HeaderSize = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
+    constexpr static std::size_t HeaderSize = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType) * 2;
     constexpr static std::size_t IdPosition = 0;
     constexpr static std::size_t RealmPosition = sizeof(IdType);
     constexpr static std::size_t CounterPosition = sizeof(IdType) + sizeof(RealmType);
+    constexpr static std::size_t LastCounterPosition = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
 
     inline ProtocolPacket(Packet const& pck,
                           Identity const& id,
                           std::size_t fluxIndex = 0,
                           std::size_t fluxLifetime = 0);
     inline ProtocolPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxLifetime = 0);
-    inline ProtocolPacket(IdType header, RealmType realmId = FGE_NET_DEFAULT_REALM, CounterType countId = 0);
+    inline ProtocolPacket(IdType header,
+                          RealmType realmId = FGE_NET_DEFAULT_REALM,
+                          CounterType countId = 0,
+                          CounterType lastCountId = 0);
 
     inline ProtocolPacket(Packet const& r);
     inline ProtocolPacket(Packet&& r) noexcept;
@@ -141,6 +146,7 @@ public:
     [[nodiscard]] inline std::optional<IdType> retrieveFullHeaderId() const;
     [[nodiscard]] inline std::optional<RealmType> retrieveRealm() const;
     [[nodiscard]] inline std::optional<CounterType> retrieveCounter() const;
+    [[nodiscard]] inline std::optional<CounterType> retrieveLastCounter() const;
     [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
 
     [[nodiscard]] inline bool isFragmented() const;
@@ -158,6 +164,7 @@ public:
 
     inline ProtocolPacket& setRealm(RealmType realm);
     inline ProtocolPacket& setCounter(CounterType counter);
+    inline ProtocolPacket& setLastReorderedPacketCounter(CounterType counter);
 
     inline void setTimestamp(Timestamp timestamp);
     [[nodiscard]] inline Timestamp getTimeStamp() const;
@@ -173,9 +180,9 @@ public:
     inline void unmarkForEncryption();
     [[nodiscard]] inline bool isMarkedForEncryption() const;
 
-    inline void markAsReordered();
-    inline void unmarkAsReordered();
-    [[nodiscard]] inline bool isMarkedAsReordered() const;
+    inline void markAsLocallyReordered();
+    inline void unmarkAsLocallyReordered();
+    [[nodiscard]] inline bool isMarkedAsLocallyReordered() const;
 
     /**
      * \brief Apply packet options to the packet
@@ -217,7 +224,7 @@ private:
     std::size_t g_fluxLifetime{0};
 
     bool g_markedForEncryption{false};
-    bool g_markedAsReordered{false};
+    bool g_markedAsLocallyReordered{false};
 
     std::vector<Option> g_options;
 };
@@ -352,6 +359,7 @@ private:
 
         ReceivedPacketPtr _packet;
         ProtocolPacket::CounterType _counter;
+        ProtocolPacket::CounterType _lastCounter;
         ProtocolPacket::RealmType _realm;
 
         struct Compare

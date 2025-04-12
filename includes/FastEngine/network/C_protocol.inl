@@ -38,9 +38,9 @@ inline ProtocolPacket::ProtocolPacket(Packet&& pck,
         g_fluxIndex(fluxIndex),
         g_fluxLifetime(fluxLifetime)
 {}
-inline ProtocolPacket::ProtocolPacket(IdType header, RealmType realmId, CounterType countId)
+inline ProtocolPacket::ProtocolPacket(IdType header, RealmType realmId, CounterType countId, CounterType lastCountId)
 {
-    this->operator<<(header) << realmId << countId;
+    this->operator<<(header) << realmId << countId << lastCountId;
 }
 
 inline ProtocolPacket::ProtocolPacket(Packet const& r) :
@@ -61,7 +61,7 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket const& r) :
         g_fluxLifetime(r.g_fluxLifetime),
 
         g_markedForEncryption(r.g_markedForEncryption),
-        g_markedAsReordered(r.g_markedAsReordered),
+        g_markedAsLocallyReordered(r.g_markedAsLocallyReordered),
 
         g_options(r.g_options)
 {}
@@ -76,7 +76,7 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
         g_fluxLifetime(r.g_fluxLifetime),
 
         g_markedForEncryption(r.g_markedForEncryption),
-        g_markedAsReordered(r.g_markedAsReordered),
+        g_markedAsLocallyReordered(r.g_markedAsLocallyReordered),
 
         g_options(std::move(r.g_options))
 {}
@@ -150,6 +150,16 @@ inline std::optional<ProtocolPacket::CounterType> ProtocolPacket::retrieveCounte
     }
     return std::nullopt;
 }
+inline std::optional<ProtocolPacket::CounterType> ProtocolPacket::retrieveLastCounter() const
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        CounterType counter;
+        this->unpack(LastCounterPosition, &counter, sizeof(CounterType));
+        return counter;
+    }
+    return std::nullopt;
+}
 inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeader() const
 {
     if (this->haveCorrectHeaderSize())
@@ -158,6 +168,7 @@ inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeader() co
         this->unpack(IdPosition, &header._id, sizeof(IdType));
         this->unpack(RealmPosition, &header._realm, sizeof(RealmType));
         this->unpack(CounterPosition, &header._counter, sizeof(CounterType));
+        this->unpack(LastCounterPosition, &header._lastCounter, sizeof(CounterType));
         return header;
     }
     return std::nullopt;
@@ -177,6 +188,7 @@ inline ProtocolPacket& ProtocolPacket::setHeader(Header const& header)
     this->pack(IdPosition, &header._id, sizeof(IdType));
     this->pack(RealmPosition, &header._realm, sizeof(RealmType));
     this->pack(CounterPosition, &header._counter, sizeof(CounterType));
+    this->pack(LastCounterPosition, &header._lastCounter, sizeof(CounterType));
     return *this;
 }
 inline ProtocolPacket& ProtocolPacket::setHeaderId(IdType id)
@@ -257,6 +269,11 @@ inline ProtocolPacket& ProtocolPacket::setCounter(CounterType counter)
     this->pack(CounterPosition, &counter, sizeof(CounterType));
     return *this;
 }
+inline ProtocolPacket& ProtocolPacket::setLastReorderedPacketCounter(CounterType counter)
+{
+    this->pack(LastCounterPosition, &counter, sizeof(CounterType));
+    return *this;
+}
 
 inline void ProtocolPacket::setTimestamp(Timestamp timestamp)
 {
@@ -293,17 +310,17 @@ inline bool ProtocolPacket::isMarkedForEncryption() const
     return this->g_markedForEncryption;
 }
 
-inline void ProtocolPacket::markAsReordered()
+inline void ProtocolPacket::markAsLocallyReordered()
 {
-    this->g_markedAsReordered = true;
+    this->g_markedAsLocallyReordered = true;
 }
-inline void ProtocolPacket::unmarkAsReordered()
+inline void ProtocolPacket::unmarkAsLocallyReordered()
 {
-    this->g_markedAsReordered = false;
+    this->g_markedAsLocallyReordered = false;
 }
-inline bool ProtocolPacket::isMarkedAsReordered() const
+inline bool ProtocolPacket::isMarkedAsLocallyReordered() const
 {
-    return this->g_markedAsReordered;
+    return this->g_markedAsLocallyReordered;
 }
 
 inline bool ProtocolPacket::checkFluxLifetime(std::size_t fluxSize)
