@@ -1163,8 +1163,15 @@ void Scene::pack(fge::net::Packet& pck)
 }
 void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
 {
-    this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(id),
-                                   std::forward_as_tuple(this->g_updateCount));
+    auto result = this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(id),
+                                                 std::forward_as_tuple(this->g_updateCount));
+    if (!result.second)
+    {
+        result.first->second._lastUpdateCount = this->g_updateCount;
+        std::queue<SceneNetEvent>().swap(result.first->second._networkEvents);
+        this->forceUncheckClient(id);
+    }
+
     this->pack(pck);
 }
 std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
