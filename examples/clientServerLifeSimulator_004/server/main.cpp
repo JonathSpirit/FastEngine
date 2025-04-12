@@ -129,7 +129,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     //Handling clients timeout
     serverFlux->_onClientTimeout.addLambda([](fge::net::ClientSharedPtr client, fge::net::Identity const& id) {
-        std::cout << "user : " << id._ip.toString().value_or("UNDEFINED") << " disconnected (timeout) !" << std::endl;
+        std::cout << "user : " << id.toString() << " disconnected (timeout) !" << std::endl;
     });
 
     //Handling clients connection
@@ -265,8 +265,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             transmissionPacket->packet() << true;
                             transmissionPacket->doNotReorder();
 
-                            std::cout << "new user : " << packet->getIdentity()._ip.toString().value_or("UNDEFINED")
-                                      << " connected !" << std::endl;
+                            std::cout << "new user : " << packet->getIdentity().toString() << " connected !"
+                                      << std::endl;
 
                             //Create the new client with the packet identity
                             //client = std::make_shared<fge::net::Client>();
@@ -283,6 +283,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_S_UPDATE_ALL);
                             transmissionPacket->doNotDiscard();
                             mainScene.pack(transmissionPacket->packet(), packet->getIdentity());
+
+                            std::cout << "transmitting full update with scene update : " << mainScene.getUpdateCount()
+                                      << std::endl;
 
                             client->pushPacket(std::move(transmissionPacket));
                         }
@@ -337,8 +340,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 {
                     continue;
                 }
-
-                std::cout << "sending update to : " << it->first._ip.toString().value_or("UNDEFINED") << std::endl;
 
                 auto transmissionPacket = fge::net::CreatePacket();
                 transmissionPacket->setHeaderId(ls::LS_PROTOCOL_S_UPDATE);

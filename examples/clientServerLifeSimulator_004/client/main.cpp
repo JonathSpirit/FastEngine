@@ -390,6 +390,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     if (err)
                     {
                         server._client.advanceLostPacketCount();
+                        err->dump(std::cout);
+                        std::cout << "\tclient[" << mainScene->getUpdateCount() << "] "
+                                  << "server[" << updateRange._last << " -> " << updateRange._now << "]\n"
+                                  << std::endl;
                     }
                 }
             }
