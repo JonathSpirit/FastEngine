@@ -153,8 +153,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                                "waiting for server", "default", fge::Vector2f{}, 15);
     latencyText->setFillColor(fge::Color::Black);
 
-    bool connectionValid = false;
-
     //Lambda that create a GUI window for connection
     auto createConnectionWindow = [&]() {
         //First check if the window already exists
@@ -203,27 +201,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
             isConnecting = true;
             futureConnect = server.connect();
-            futureConnect.wait(); //TODO: remove this wait
-            isConnecting = false;
-
-            if (!futureConnect.get())
-            {
-                server.stop();
-                std::cout << "can't connect to the server !" << std::endl;
-                return;
-            }
-
-            std::cout << "connection ok" << std::endl;
-
-            server.enableReturnPacket(true);
-
-            auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
-            transmissionPacket->doNotDiscard().doNotReorder() << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
-
-            //Ask the server thread to automatically update the timestamp just before sending it
-            server._client._latencyPlanner.pack(transmissionPacket);
-
-            server._client.pushPacket(std::move(transmissionPacket));
         });
     };
 
@@ -239,8 +216,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     server._onClientTimeout.addLambda([&]([[maybe_unused]] fge::net::ClientSideNetUdp& client) {
         std::cout << "connection lost ! (timeout)" << std::endl;
-
-        connectionValid = false;
 
         server.stop();
         mainScene->delAllObject(true);
@@ -275,17 +250,30 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         //Check if the connection is unsuccessful
         if (isConnecting && futureConnect.wait_for(std::chrono::milliseconds::zero()) == std::future_status::ready)
         {
+            isConnecting = false;
+
             if (!futureConnect.get())
             {
-                std::cout << "no response (timeout) !" << std::endl;
-
-                connectionValid = false;
+                std::cout << "can't connect to the server !" << std::endl;
 
                 server.stop();
                 mainScene->delAllObject(true);
                 createConnectionWindow();
+            }
+            else
+            {
+                std::cout << "connection ok" << std::endl;
 
-                isConnecting = false;
+                server.enableReturnPacket(true);
+
+                auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
+                transmissionPacket->doNotDiscard().doNotReorder()
+                        << LIFESIM_CONNECTION_TEXT1 << LIFESIM_CONNECTION_TEXT2;
+
+                //Ask the server thread to automatically update the timestamp just before sending it
+                server._client._latencyPlanner.pack(transmissionPacket);
+
+                server._client.pushPacket(std::move(transmissionPacket));
             }
         }
 
@@ -330,8 +318,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                     {
                         mainScene->delObject(windowObject->getSid());
                     }
-                    connectionValid = true;
-
                     std::cout << "connected to server !" << std::endl;
                 }
                 else
