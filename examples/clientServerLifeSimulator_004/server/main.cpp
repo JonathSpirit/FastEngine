@@ -131,6 +131,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     serverFlux->_onClientTimeout.addLambda([](fge::net::ClientSharedPtr client, fge::net::Identity const& id) {
         std::cout << "user : " << id.toString() << " disconnected (timeout) !" << std::endl;
     });
+    serverFlux->_onClientDisconnected.addLambda([](fge::net::ClientSharedPtr client, fge::net::Identity const& id) {
+        std::cout << "user : " << id.toString() << " disconnected !" << std::endl;
+    });
 
     //Handling clients connection
     serverFlux->_onClientConnected.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity const& id) {

@@ -45,13 +45,20 @@
         1000                                                                                                           \
     }
 
+#define FGE_NET_DISCONNECT_TIMEOUT_MS                                                                                  \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        1000                                                                                                           \
+    }
+
 namespace fge::net
 {
 
 enum class NetCommandTypes
 {
     DISCOVER_MTU,
-    CONNECT
+    CONNECT,
+    DISCONNECT
 };
 enum class NetCommandResults
 {
@@ -152,6 +159,28 @@ private:
     } g_state{States::TRANSMIT_FGE_HANDSHAKE};
     bool g_mtuTested{false};
     std::future<uint16_t> g_mtuFuture;
+};
+
+class FGE_API NetDisconnectCommand : public NetCommand
+{
+public:
+    using NetCommand::NetCommand;
+    ~NetDisconnectCommand() final = default;
+
+    [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT; }
+
+    [[nodiscard]] NetCommandResults update(TransmitPacketPtr& buffPacket,
+                                           IpAddress::Types addressType,
+                                           Client& client,
+                                           std::chrono::milliseconds deltaTime) override;
+    [[nodiscard]] NetCommandResults
+    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
+
+    [[nodiscard]] inline std::future<void> get_future() { return this->g_promise.get_future(); }
+
+private:
+    std::promise<void> g_promise;
+    bool g_transmitted{false};
 };
 
 } // namespace fge::net

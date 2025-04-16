@@ -427,4 +427,42 @@ NetCommandResults NetConnectCommand::onReceive(std::unique_ptr<ProtocolPacket>& 
     return NetCommandResults::WORKING;
 }
 
+NetCommandResults NetDisconnectCommand::update(TransmitPacketPtr& buffPacket,
+                                               [[maybe_unused]] IpAddress::Types addressType,
+                                               Client& client,
+                                               [[maybe_unused]] std::chrono::milliseconds deltaTime)
+{
+    if (client.getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::DISCONNECTED)
+    {
+        this->g_promise.set_value();
+        return NetCommandResults::SUCCESS;
+    }
+
+    if (this->g_transmitted)
+    {
+        this->_g_timeout += deltaTime;
+        if (this->_g_timeout < FGE_NET_DISCONNECT_TIMEOUT_MS)
+        {
+            return NetCommandResults::WORKING;
+        }
+        this->g_promise.set_value();
+        return NetCommandResults::FAILURE;
+    }
+
+    client.clearPackets();
+
+    buffPacket = CreatePacket(NET_INTERNAL_ID_DISCONNECT);
+    buffPacket->doNotDiscard().doNotReorder().doNotFragment();
+    this->g_transmitted = true;
+
+    return NetCommandResults::SUCCESS;
+}
+
+NetCommandResults NetDisconnectCommand::onReceive([[maybe_unused]] std::unique_ptr<ProtocolPacket>& packet,
+                                                  [[maybe_unused]] IpAddress::Types addressType,
+                                                  [[maybe_unused]] Client& client)
+{
+    return NetCommandResults::WORKING;
+}
+
 } // namespace fge::net

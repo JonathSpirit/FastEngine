@@ -302,14 +302,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         return this->processMTUDiscoveredClient(*refClientData, packet);
     }
 
-    std::cout << "processing packet" << std::endl;
-
-    if (packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
-    {
-        return FluxProcessResults::RETRIEVABLE;
-    }
-
-    if (!packet->isMarkedAsLocallyReordered())
+    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG) && !packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult = this->processReorder(*refClient, packet, refClient->getClientPacketCounter(), true);
         if (reorderResult != FluxProcessResults::RETRIEVABLE)
@@ -441,6 +434,16 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             refClient->setCTOSLatency_ms(latency.value());
         }
 
+        return FluxProcessResults::INTERNALLY_HANDLED;
+    }
+
+    //Check for a disconnected client
+    if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
+    {
+        refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+        refClient->clearPackets();
+        this->_clients.remove(packet->getIdentity());
+        this->_onClientDisconnected.call(refClient, packet->getIdentity());
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
@@ -1179,6 +1182,8 @@ void ClientSideNetUdp::stop()
 {
     if (this->g_running)
     {
+        this->disconnect().wait();
+
         this->g_running = false;
 
         this->g_threadReception->join();
@@ -1248,6 +1253,23 @@ std::future<bool> ClientSideNetUdp::connect()
 
     return future;
 }
+std::future<void> ClientSideNetUdp::disconnect()
+{
+    if (!this->g_running)
+    {
+        throw Exception("Cannot disconnect without a running client");
+    }
+
+    this->enableReturnPacket(false);
+
+    auto command = std::make_unique<NetDisconnectCommand>(&this->g_commands);
+    auto future = command->get_future();
+
+    std::scoped_lock const lock(this->g_mutexCommands);
+    this->g_commands.push_back(std::move(command));
+
+    return future;
+}
 
 Identity const& ClientSideNetUdp::getClientIdentity() const
 {
@@ -1302,12 +1324,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     }
     --this->_g_remainingPackets;
 
-    if (packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
-    {
-        return FluxProcessResults::RETRIEVABLE;
-    }
-
-    if (!packet->isMarkedAsLocallyReordered())
+    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG) && !packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult =
                 this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
@@ -1680,6 +1697,14 @@ void ClientSideNetUdp::threadTransmission()
             if (!transmissionPacket->packet() || !transmissionPacket->haveCorrectHeaderSize())
             { //Last verification of the packet
                 continue;
+            }
+
+            //Check if the packet is a disconnection packet
+            if (transmissionPacket->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
+            {
+                this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+                this->_client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                this->_client.clearPackets();
             }
 
             //Check if the packet must be encrypted

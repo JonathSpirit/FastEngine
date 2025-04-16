@@ -415,6 +415,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
     }
 
+    server.stop();
+
     fge::vulkan::GetActiveContext().waitIdle();
 
     fge::vulkan::GetActiveContext()._garbageCollector.enable(false);

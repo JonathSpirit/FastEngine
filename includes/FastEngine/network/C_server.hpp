@@ -299,6 +299,7 @@ public:
 
     [[nodiscard]] std::future<uint16_t> retrieveMTU();
     [[nodiscard]] std::future<bool> connect();
+    [[nodiscard]] std::future<void> disconnect();
 
     [[nodiscard]] IpAddress::Types getAddressType() const;
 

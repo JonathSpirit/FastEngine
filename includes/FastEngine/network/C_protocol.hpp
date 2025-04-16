@@ -256,7 +256,9 @@ enum InternalProtocolIds : ProtocolPacket::IdType
     NET_INTERNAL_ID_FGE_HANDSHAKE,
     NET_INTERNAL_ID_CRYPT_HANDSHAKE,
 
-    NET_INTERNAL_ID_RETURN_PACKET
+    NET_INTERNAL_ID_RETURN_PACKET,
+
+    NET_INTERNAL_ID_DISCONNECT
 };
 
 struct InternalFragmentedPacketData
