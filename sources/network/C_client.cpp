@@ -15,7 +15,6 @@
  */
 
 #include "FastEngine/network/C_client.hpp"
-#include "FastEngine/C_random.hpp"
 #include "FastEngine/network/C_server.hpp"
 #include "private/fge_crypt.hpp"
 #include <limits>
@@ -93,7 +92,6 @@ Client::Client() :
         g_CTOSLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_STOCLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
-        g_skey(FGE_NET_BAD_SKEY),
         g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
 Client::~Client()
@@ -105,22 +103,8 @@ Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_CTOSLatency_ms(CTOSLatency),
         g_STOCLatency_ms(STOCLatency),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
-        g_skey(FGE_NET_BAD_SKEY),
         g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
-
-Skey Client::GenerateSkey()
-{
-    return _random.range<Skey>(1, std::numeric_limits<Skey>::max());
-}
-void Client::setSkey(Skey key)
-{
-    this->g_skey = key;
-}
-Skey Client::getSkey() const
-{
-    return this->g_skey;
-}
 
 void Client::setCTOSLatency_ms(Latency_ms latency)
 {

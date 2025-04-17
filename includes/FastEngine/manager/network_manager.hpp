@@ -53,22 +53,6 @@ FGE_API uint32_t GetSceneChecksum(fge::Scene& scene);
 FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, std::string const& file);
 
 /**
- * \brief Shortcut function that will extract and compare the provided skey
- *
- * \param pck The Packet
- * \param skey An skey that will be compared
- * \return \b true if the skey is the same and the packet is valid, \b false otherwise
- */
-inline bool CheckSkey(fge::net::Packet& pck, fge::net::Skey skey);
-/**
- * \brief Shortcut function that will extract the skey
- *
- * \param pck The Packet
- * \return The extracted skey
- */
-inline fge::net::Skey GetSkey(fge::net::Packet& pck);
-
-/**
  * @}
  */
 

@@ -29,7 +29,6 @@
 #include <memory>
 #include <mutex>
 
-#define FGE_NET_BAD_SKEY 0
 #define FGE_NET_DEFAULT_LATENCY 20
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
@@ -53,8 +52,6 @@ namespace fge::net
 /** \addtogroup network
  * @{
  */
-
-using Skey = uint32_t; ///< The session key can be used to identify a client when connecting to a server.
 
 using Timestamp = uint16_t;          ///< An timestamp represent modulated current time in milliseconds
 using FullTimestamp = uint64_t;      ///< An timestamp represent current time in milliseconds
@@ -228,25 +225,6 @@ public:
      * \param STOCLatency The "Server To Client" latency
      */
     explicit Client(Latency_ms CTOSLatency, Latency_ms STOCLatency);
-
-    /**
-     * \brief Generate a new random session key
-     *
-     * \return The generated session key
-     */
-    static Skey GenerateSkey();
-    /**
-     * \brief Set the session key for this client
-     *
-     * \param key The session key
-     */
-    void setSkey(Skey key);
-    /**
-     * \brief Get the session key for this client
-     *
-     * \return The session key
-     */
-    Skey getSkey() const;
 
     /**
      * \brief Set the "Client To Server" latency
@@ -433,8 +411,6 @@ private:
 
     std::deque<TransmitPacketPtr> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
-
-    Skey g_skey;
 
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
     ProtocolPacket::RealmType g_currentRealm{FGE_NET_DEFAULT_REALM};

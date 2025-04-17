@@ -17,25 +17,6 @@
 namespace fge::net
 {
 
-bool CheckSkey(fge::net::Packet& pck, fge::net::Skey skey)
-{
-    fge::net::Skey buff;
-    if (pck >> buff)
-    {
-        return buff == skey;
-    }
-    return false;
-}
-fge::net::Skey GetSkey(fge::net::Packet& pck)
-{
-    fge::net::Skey buff;
-    if (pck >> buff)
-    {
-        return buff;
-    }
-    return FGE_NET_BAD_SKEY;
-}
-
 namespace rules
 {
 
