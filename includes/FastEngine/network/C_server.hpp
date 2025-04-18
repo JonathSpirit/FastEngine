@@ -137,6 +137,8 @@ public:
     [[nodiscard]] FluxProcessResults
     process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient);
 
+    void disconnectAllClients(std::chrono::milliseconds delay = std::chrono::milliseconds(0)) const;
+
     ClientList _clients;
 
     CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
@@ -333,6 +335,7 @@ public:
     Client _client; //But it is the server :O
 
     CallbackHandler<ClientSideNetUdp&> _onClientTimeout;
+    CallbackHandler<ClientSideNetUdp&> _onClientDisconnected;
 
 private:
     void threadReception();

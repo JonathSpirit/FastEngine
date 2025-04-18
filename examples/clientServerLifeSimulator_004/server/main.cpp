@@ -367,6 +367,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         fge::Sleep(std::chrono::milliseconds(LIFESIM_SERVER_TICK));
     }
 
+    std::cout << "disconnecting clients" << std::endl;
+    serverFlux->disconnectAllClients(std::chrono::milliseconds(2000));
+
     std::cout << "shutdown ..." << std::endl;
     server.stop();
 

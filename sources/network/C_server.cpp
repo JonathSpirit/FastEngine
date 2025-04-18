@@ -179,12 +179,22 @@ void ServerNetFluxUdp::processClients()
     {
         auto& client = it->second._client;
 
-        //Handle timeout
-        if (client->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::TIMEOUT)
+        //Handle bad clients
+        auto const status = client->getStatus().getNetworkStatus();
+        if (status == ClientStatus::NetworkStatus::DISCONNECTED)
         {
+            auto tmpIdentity = it->first;
+            auto tmpClient = std::move(it->second._client);
+            it = this->_clients.remove(it, clientsLock);
+            this->_onClientDisconnected.call(tmpClient, tmpIdentity);
             continue;
         }
 
+        //Handle timeout
+        if (status == ClientStatus::NetworkStatus::TIMEOUT)
+        {
+            continue;
+        }
         if (client->getStatus().isTimeout())
         {
             client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
@@ -231,6 +241,12 @@ void ServerNetFluxUdp::processClients()
         this->g_lastCommandUpdateTimePoint = now;
         this->g_commandsUpdateTick = std::chrono::milliseconds::zero();
     }
+}
+
+void ServerNetFluxUdp::disconnectAllClients(std::chrono::milliseconds delay) const
+{
+    this->_clients.sendToAll(CreateDisconnectPacket());
+    std::this_thread::sleep_for(delay);
 }
 
 FluxProcessResults
@@ -1035,22 +1051,24 @@ void ServerSideNetUdp::threadTransmission()
 
             for (auto itClient = clients->begin(clientLock); itClient != clients->end(clientLock); ++itClient)
             {
-                if (itClient->second._client->isPendingPacketsEmpty())
+                auto& client = itClient->second._client;
+
+                if (client->isPendingPacketsEmpty())
                 {
                     continue;
                 }
 
-                if (itClient->second._client->getLastPacketLatency() < itClient->second._client->getSTOCLatency_ms())
+                if (client->getLastPacketLatency() < client->getSTOCLatency_ms())
                 {
                     continue;
                 }
 
-                auto transmissionPacket = itClient->second._client->popPacket();
+                auto transmissionPacket = client->popPacket();
 
                 //Compression and applying options
-                if (!transmissionPacket->isFragmented() && itClient->second._client->getStatus().isInEncryptedState())
+                if (!transmissionPacket->isFragmented() && client->getStatus().isInEncryptedState())
                 {
-                    transmissionPacket->applyOptions(*itClient->second._client);
+                    transmissionPacket->applyOptions(*client);
                     if (!transmissionPacket->compress(compressor))
                     {
                         continue;
@@ -1058,14 +1076,14 @@ void ServerSideNetUdp::threadTransmission()
                 }
                 else
                 {
-                    transmissionPacket->applyOptions(*itClient->second._client);
+                    transmissionPacket->applyOptions(*client);
                 }
 
                 //MTU check
                 if (!transmissionPacket->isFragmented() &&
                     !transmissionPacket->checkFlags(FGE_NET_HEADER_DO_NOT_FRAGMENT_FLAG))
                 {
-                    auto const mtu = itClient->second._client->getMTU();
+                    auto const mtu = client->getMTU();
 
                     //Packet is not fragmented, we have to check is size
                     if (mtu == 0)
@@ -1082,7 +1100,7 @@ void ServerSideNetUdp::threadTransmission()
                         }
                         else
                         {
-                            itClient->second._client->pushForcedFrontPacket(std::move(fragments[iFragment]));
+                            client->pushForcedFrontPacket(std::move(fragments[iFragment]));
                         }
                     }
                 }
@@ -1093,10 +1111,18 @@ void ServerSideNetUdp::threadTransmission()
                     continue;
                 }
 
+                //Check if the packet is a disconnection packet
+                if (transmissionPacket->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
+                {
+                    client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+                    client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+                    client->clearPackets();
+                }
+
                 //Check if the packet must be encrypted
                 if (transmissionPacket->isMarkedForEncryption())
                 {
-                    if (!CryptEncrypt(*itClient->second._client, *transmissionPacket))
+                    if (!CryptEncrypt(*client, *transmissionPacket))
                     {
                         continue;
                     }
@@ -1104,7 +1130,7 @@ void ServerSideNetUdp::threadTransmission()
 
                 //Sending the packet
                 this->g_socket.sendTo(transmissionPacket->packet(), itClient->first._ip, itClient->first._port);
-                itClient->second._client->resetLastPacketTimePoint();
+                client->resetLastPacketTimePoint();
             }
         }
 
@@ -1309,9 +1335,9 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (this->_client.getStatus().isTimeout())
     {
         this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
-        this->_onClientTimeout.call(*this);
         this->_g_remainingPackets = 0;
         this->clearPackets();
+        this->_onClientTimeout.call(*this);
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
@@ -1362,6 +1388,15 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
             --this->_g_remainingPackets;
             return FluxProcessResults::NOT_RETRIEVABLE;
         }
+    }
+
+    if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
+    {
+        this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+        this->_g_remainingPackets = 0;
+        this->clearPackets();
+        this->_onClientDisconnected.call(*this);
+        return FluxProcessResults::NOT_RETRIEVABLE;
     }
 
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)

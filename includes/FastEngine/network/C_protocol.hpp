@@ -237,7 +237,6 @@ template<class... Args>
 {
     return std::make_shared<ProtocolPacket>(std::forward<Args>(args)...);
 }
-template<class... Args>
 [[nodiscard]] inline TransmitPacketPtr CreatePacket()
 {
     return std::make_shared<ProtocolPacket>(FGE_NET_BAD_ID);
@@ -260,6 +259,13 @@ enum InternalProtocolIds : ProtocolPacket::IdType
 
     NET_INTERNAL_ID_DISCONNECT
 };
+
+[[nodiscard]] inline TransmitPacketPtr CreateDisconnectPacket()
+{
+    auto packet = std::make_shared<ProtocolPacket>(NET_INTERNAL_ID_DISCONNECT);
+    packet->doNotDiscard().doNotReorder();
+    return packet;
+}
 
 struct InternalFragmentedPacketData
 {

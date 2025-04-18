@@ -224,6 +224,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                        fge::net::ClientStatus::NetworkStatus::DISCONNECTED);
         server._client.getStatus().resetTimeout();
     });
+    server._onClientDisconnected.addLambda([&]([[maybe_unused]] fge::net::ClientSideNetUdp& client) {
+        std::cout << "connection lost ! (disconnected from server)" << std::endl;
+
+        server.stop();
+        mainScene->delAllObject(true);
+        createConnectionWindow();
+        server._client.getStatus().set(FGE_NET_STATUS_DEFAULT_STATUS,
+                                       fge::net::ClientStatus::NetworkStatus::DISCONNECTED);
+        server._client.getStatus().resetTimeout();
+    });
 
     auto const adapters = fge::net::Socket::getAdaptersInfo();
     for (auto const& adapter: adapters)
