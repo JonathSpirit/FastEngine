@@ -51,6 +51,8 @@
         1000                                                                                                           \
     }
 
+#define FGE_NET_MAX_VERSIONING_STRING_SIZE 32
+
 namespace fge::net
 {
 
@@ -131,6 +133,9 @@ public:
     using NetCommand::NetCommand;
     ~NetConnectCommand() final = default;
 
+    void setVersioningString(std::string_view versioningString);
+    [[nodiscard]] std::string const& getVersioningString() const;
+
     [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT; }
 
     [[nodiscard]] NetCommandResults update(TransmitPacketPtr& buffPacket,
@@ -159,6 +164,7 @@ private:
     } g_state{States::TRANSMIT_FGE_HANDSHAKE};
     bool g_mtuTested{false};
     std::future<uint16_t> g_mtuFuture;
+    std::string g_versioningString;
 };
 
 class FGE_API NetDisconnectCommand : public NetCommand

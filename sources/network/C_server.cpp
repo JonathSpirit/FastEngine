@@ -232,6 +232,7 @@ void ServerNetFluxUdp::processClients()
         this->g_commandsUpdateTick = std::chrono::milliseconds::zero();
     }
 }
+
 FluxProcessResults
 ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient)
 {
@@ -466,10 +467,15 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
 
         using namespace fge::net::rules;
         std::string handshakeString;
+        std::string versioningString;
         auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1,
                                                             {packet->packet(), &handshakeString}))
-                                 .end();
-        if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING)
+                                 .and_then([&](auto& chain) {
+            return RValid(RSizeRange<std::string>(0, FGE_NET_MAX_VERSIONING_STRING_SIZE,
+                                                  chain.template newChain<std::string>(&versioningString)));
+        }).end();
+        if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING ||
+            versioningString != this->g_server->getVersioningString())
         { //TODO: endReached() check should be done in .end() method
             std::cout << "Handshake failed" << std::endl;
             return FluxProcessResults::NOT_RETRIEVABLE;
@@ -711,6 +717,16 @@ ServerSideNetUdp::ServerSideNetUdp(IpAddress::Types type) :
 ServerSideNetUdp::~ServerSideNetUdp()
 {
     this->stop();
+}
+
+void ServerSideNetUdp::setVersioningString(std::string_view versioningString)
+{
+    std::scoped_lock const lock{this->g_mutexServer};
+    this->g_versioningString = versioningString;
+}
+std::string const& ServerSideNetUdp::getVersioningString() const
+{
+    return this->g_versioningString;
 }
 
 bool ServerSideNetUdp::start(Port bindPort, IpAddress const& bindIp, IpAddress::Types addressType)
@@ -1238,7 +1254,7 @@ std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
 
     return future;
 }
-std::future<bool> ClientSideNetUdp::connect()
+std::future<bool> ClientSideNetUdp::connect(std::string_view versioningString)
 {
     if (!this->g_running)
     {
@@ -1247,6 +1263,7 @@ std::future<bool> ClientSideNetUdp::connect()
 
     auto command = std::make_unique<NetConnectCommand>(&this->g_commands);
     auto future = command->get_future();
+    command->setVersioningString(versioningString);
 
     std::scoped_lock const lock(this->g_mutexCommands);
     this->g_commands.push_back(std::move(command));

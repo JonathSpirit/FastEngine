@@ -197,6 +197,20 @@ NetCommandResults NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& pack
     return NetCommandResults::WORKING;
 }
 
+void NetConnectCommand::setVersioningString(std::string_view versioningString)
+{
+    if (versioningString.size() > FGE_NET_MAX_VERSIONING_STRING_SIZE)
+    {
+        throw Exception("Versioning string too long");
+    }
+
+    this->g_versioningString = versioningString;
+}
+std::string const& NetConnectCommand::getVersioningString() const
+{
+    return this->g_versioningString;
+}
+
 NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
                                             [[maybe_unused]] IpAddress::Types addressType,
                                             Client& client,
@@ -213,7 +227,8 @@ NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
         client._mtuFinalizedFlag = false;
 
         buffPacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
-        buffPacket->doNotDiscard().doNotReorder().doNotFragment() << FGE_NET_HANDSHAKE_STRING;
+        buffPacket->doNotDiscard().doNotReorder().doNotFragment()
+                << FGE_NET_HANDSHAKE_STRING << this->g_versioningString;
         this->_g_timeout = std::chrono::milliseconds::zero();
         this->g_state = States::WAITING_FGE_HANDSHAKE;
         break;

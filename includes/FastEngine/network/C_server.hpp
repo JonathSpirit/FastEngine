@@ -195,6 +195,9 @@ public:
     ServerSideNetUdp& operator=(ServerSideNetUdp const& r) = delete;
     ServerSideNetUdp& operator=(ServerSideNetUdp&& r) noexcept = delete;
 
+    void setVersioningString(std::string_view versioningString);
+    [[nodiscard]] std::string const& getVersioningString() const;
+
     [[nodiscard]] bool
     start(Port bindPort, IpAddress const& bindIp, IpAddress::Types addressType = IpAddress::Types::None);
     [[nodiscard]] bool start(IpAddress::Types addressType = IpAddress::Types::None);
@@ -267,6 +270,8 @@ private:
     bool g_running;
 
     void* g_crypt_ctx;
+
+    std::string g_versioningString;
 };
 
 /**
@@ -298,7 +303,7 @@ public:
     [[nodiscard]] bool isRunning() const;
 
     [[nodiscard]] std::future<uint16_t> retrieveMTU();
-    [[nodiscard]] std::future<bool> connect();
+    [[nodiscard]] std::future<bool> connect(std::string_view versioningString = std::string_view{});
     [[nodiscard]] std::future<void> disconnect();
 
     [[nodiscard]] IpAddress::Types getAddressType() const;
