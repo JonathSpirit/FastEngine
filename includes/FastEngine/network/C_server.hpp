@@ -337,6 +337,8 @@ public:
     CallbackHandler<ClientSideNetUdp&> _onClientTimeout;
     CallbackHandler<ClientSideNetUdp&> _onClientDisconnected;
 
+    CallbackHandler<ClientSideNetUdp&, TransmitPacketPtr&> _onTransmitReturnPacket;
+
 private:
     void threadReception();
     void threadTransmission();

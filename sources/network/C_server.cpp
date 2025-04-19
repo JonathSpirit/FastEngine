@@ -358,8 +358,6 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     //Check if the packet is a return packet, and if so, handle it
     if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_RETURN_PACKET)
     {
-        this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
-
         //TODO: verify the eventSize variable
         //TODO: make fge::net::rules more friendly to use
 
@@ -450,6 +448,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         {
             refClient->setCTOSLatency_ms(latency.value());
         }
+
+        this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
 
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
@@ -1348,7 +1348,9 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         if (now - this->g_returnPacketTimePoint >= std::chrono::milliseconds(FGE_SERVER_DEFAULT_RETURN_PACKET_DELAY_MS))
         {
             this->g_returnPacketTimePoint = now;
-            this->_client.pushPacket(this->prepareAndRetrieveReturnPacket());
+            auto returnPacket = this->prepareAndRetrieveReturnPacket();
+            this->_onTransmitReturnPacket.call(*this, returnPacket);
+            this->_client.pushPacket(std::move(returnPacket));
         }
     }
 
