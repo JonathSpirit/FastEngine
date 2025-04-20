@@ -108,9 +108,11 @@ NetCommandResults NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& pack
     case States::WAITING_RESPONSE:
         if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_ASK_RESPONSE)
         {
+            std::unique_ptr packetOwned{std::move(packet)};
+
             //Extract the target MTU
             uint16_t targetMTU;
-            if (rules::RValid<uint16_t>({packet->packet(), &targetMTU}).end() || !packet->endReached())
+            if (rules::RValid<uint16_t>({packetOwned->packet(), &targetMTU}).end() || !packetOwned->endReached())
             {
                 //Invalid packet
                 std::cout << "MTU: Invalid packet" << std::endl;
@@ -168,6 +170,8 @@ NetCommandResults NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& pack
     case States::WAITING:
         if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_MTU_TEST_RESPONSE)
         {
+            packet.reset();
+
             this->g_currentMTU = this->g_targetMTU;
 
             if (this->g_tryCount == 0 || this->g_currentMTU == this->g_maximumMTU)
@@ -187,7 +191,6 @@ NetCommandResults NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& pack
 
             this->_g_timeout = std::chrono::milliseconds::zero();
             this->g_state = States::DISCOVER;
-            break;
         }
         break;
     default:
@@ -396,10 +399,12 @@ NetCommandResults NetConnectCommand::onReceive(std::unique_ptr<ProtocolPacket>& 
             return NetCommandResults::WORKING;
         }
 
+        std::unique_ptr packetOwned{std::move(packet)};
+
         std::cout << "receiving handshake response" << std::endl;
 
         std::string handshake;
-        if (rules::RValid<std::string>({packet->packet(), &handshake}).end() || !packet->endReached())
+        if (rules::RValid<std::string>({packetOwned->packet(), &handshake}).end() || !packetOwned->endReached())
         {
             std::cout << "handshake failed" << std::endl;
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
@@ -430,10 +435,13 @@ NetCommandResults NetConnectCommand::onReceive(std::unique_ptr<ProtocolPacket>& 
             return NetCommandResults::WORKING;
         }
 
+        std::unique_ptr packetOwned{std::move(packet)};
+
         auto& info = client.getCryptInfo();
 
-        auto const readPos = packet->getReadPos();
-        BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
+        auto const readPos = packetOwned->getReadPos();
+        BIO_write(static_cast<BIO*>(info._rbio), packetOwned->getData() + readPos,
+                  packetOwned->getDataSize() - readPos);
 
         std::cout << "Crypt: received some data" << std::endl;
 

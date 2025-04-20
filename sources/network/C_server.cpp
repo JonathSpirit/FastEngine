@@ -215,7 +215,7 @@ void ServerNetFluxUdp::processClients()
 
         //Handle commands
         if (this->g_commandsUpdateTick >= FGE_NET_CMD_UPDATE_TICK_MS)
-        {
+        { //TODO: move it to the transmit thread ?
             auto& commands = it->second._commands;
             if (!commands.empty())
             {
