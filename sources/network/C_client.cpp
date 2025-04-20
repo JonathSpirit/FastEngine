@@ -33,6 +33,19 @@ bool ClientStatus::isInEncryptedState() const
 {
     return this->g_networkStatus == NetworkStatus::AUTHENTICATED || this->g_networkStatus == NetworkStatus::CONNECTED;
 }
+bool ClientStatus::isDisconnected() const
+{
+    return this->g_networkStatus == NetworkStatus::DISCONNECTED || this->g_networkStatus == NetworkStatus::TIMEOUT;
+}
+bool ClientStatus::isConnected() const
+{
+    return this->g_networkStatus == NetworkStatus::CONNECTED || this->g_networkStatus == NetworkStatus::AUTHENTICATED;
+}
+bool ClientStatus::isConnecting() const
+{
+    return this->g_networkStatus == NetworkStatus::ACKNOWLEDGED ||
+           this->g_networkStatus == NetworkStatus::MTU_DISCOVERED;
+}
 
 std::string const& ClientStatus::getStatus() const
 {
@@ -204,6 +217,11 @@ void Client::clearPackets()
 }
 void Client::pushPacket(TransmitPacketPtr pck)
 {
+    if (this->g_status.isDisconnected())
+    {
+        return;
+    }
+
     std::scoped_lock const lck(this->g_mutex);
 
 #ifdef FGE_DEF_SERVER
@@ -248,6 +266,16 @@ bool Client::isPendingPacketsEmpty() const
 {
     std::scoped_lock const lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
+}
+void Client::disconnect(bool pushDisconnectPacket)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_status.setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+    this->g_status.setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+    if (pushDisconnectPacket)
+    {
+        this->pushPacket(CreateDisconnectPacket());
+    }
 }
 
 ProtocolPacket::RealmType Client::getCurrentRealm() const

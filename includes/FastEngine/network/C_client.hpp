@@ -181,6 +181,9 @@ public:
     explicit ClientStatus(std::string_view status, NetworkStatus networkStatus = NetworkStatus::UNKNOWN);
 
     [[nodiscard]] bool isInEncryptedState() const;
+    [[nodiscard]] bool isDisconnected() const;
+    [[nodiscard]] bool isConnected() const;
+    [[nodiscard]] bool isConnecting() const;
 
     [[nodiscard]] std::string const& getStatus() const;
     [[nodiscard]] NetworkStatus getNetworkStatus() const;
@@ -362,6 +365,8 @@ public:
      * \return True if the queue is empty, false otherwise
      */
     bool isPendingPacketsEmpty() const;
+
+    void disconnect(bool pushDisconnectPacket = true);
 
     [[nodiscard]] ProtocolPacket::RealmType getCurrentRealm() const;
     [[nodiscard]] std::chrono::milliseconds getLastRealmChangeElapsedTime() const;
