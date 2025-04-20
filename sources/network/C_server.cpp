@@ -170,7 +170,7 @@ void ServerNetFluxUdp::processClients()
 {
     auto const now = std::chrono::steady_clock::now();
     this->g_commandsUpdateTick +=
-            std::min(std::chrono::milliseconds{1},
+            std::max(std::chrono::milliseconds{1},
                      std::chrono::duration_cast<std::chrono::milliseconds>(now - this->g_lastCommandUpdateTimePoint));
 
     auto clientsLock = this->_clients.acquireLock();
@@ -180,9 +180,15 @@ void ServerNetFluxUdp::processClients()
         auto& client = it->second._client;
 
         //Handle bad clients
-        auto const status = client->getStatus().getNetworkStatus();
-        if (status == ClientStatus::NetworkStatus::DISCONNECTED)
+        auto const& status = client->getStatus();
+        if (status.getNetworkStatus() == ClientStatus::NetworkStatus::DISCONNECTED)
         {
+            //Remove the client only if all pending packets are sent
+            if (!client->isPendingPacketsEmpty())
+            {
+                continue;
+            }
+
             auto tmpIdentity = it->first;
             auto tmpClient = std::move(it->second._client);
             it = this->_clients.remove(it, clientsLock);
@@ -191,7 +197,7 @@ void ServerNetFluxUdp::processClients()
         }
 
         //Handle timeout
-        if (status == ClientStatus::NetworkStatus::TIMEOUT)
+        if (status.getNetworkStatus() == ClientStatus::NetworkStatus::TIMEOUT)
         {
             continue;
         }
@@ -224,10 +230,7 @@ void ServerNetFluxUdp::processClients()
 
                 if (possiblePacket)
                 {
-                    //Applying options
-                    possiblePacket->applyOptions(*client);
-
-                    //Sending the packet
+                    //Pushing the packet
                     client->pushPacket(std::move(possiblePacket));
                 }
             }
@@ -286,9 +289,16 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         return FluxProcessResults::NOT_RETRIEVABLE;
     }
     refClient = refClientData->_client;
+    auto const& status = refClient->getStatus();
+
+    //Ignore packets if the client is disconnected
+    if (status.isDisconnected())
+    {
+        return FluxProcessResults::NOT_RETRIEVABLE;
+    }
 
     //Check if the client is in an acknowledged state
-    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::ACKNOWLEDGED)
+    if (status.getNetworkStatus() == ClientStatus::NetworkStatus::ACKNOWLEDGED)
     {
         return this->processAcknowledgedClient(*refClientData, packet);
     }
@@ -314,7 +324,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     }
 
     //Check if the client is in an MTU discovered state
-    if (refClient->getStatus().getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
+    if (status.getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
     {
         return this->processMTUDiscoveredClient(*refClientData, packet);
     }
@@ -504,7 +514,6 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
         this->_clients.add(packet->getIdentity(), refClient);
         this->g_server->notifyNewClient(packet->getIdentity(), refClient);
-        //TODO: callback
 
         //Add MTU command as this is required for the next state
         auto* clientData = this->_clients.getData(packet->getIdentity());
@@ -1111,14 +1120,6 @@ void ServerSideNetUdp::threadTransmission()
                     continue;
                 }
 
-                //Check if the packet is a disconnection packet
-                if (transmissionPacket->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
-                {
-                    client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
-                    client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-                    client->clearPackets();
-                }
-
                 //Check if the packet must be encrypted
                 if (transmissionPacket->isMarkedForEncryption())
                 {
@@ -1675,7 +1676,7 @@ void ClientSideNetUdp::threadTransmission()
         lastTimePoint = now;
 
         //Checking commands
-        commandsTime += deltaTime;
+        commandsTime += std::max(std::chrono::milliseconds{1}, deltaTime);
         if (commandsTime >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
             std::scoped_lock const commandLock(this->g_mutexCommands);
