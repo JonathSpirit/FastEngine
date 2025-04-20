@@ -278,6 +278,14 @@ NetCommandResults NetConnectCommand::update(TransmitPacketPtr& buffPacket,
     {
         if (!client._mtuFinalizedFlag)
         {
+            if (this->_g_timeout >= FGE_NET_CONNECT_TIMEOUT_MS)
+            {
+                std::cout << "timeout" << std::endl;
+                client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+                this->g_promise.set_value(false);
+                return NetCommandResults::FAILURE;
+            }
+
             return NetCommandResults::WORKING;
         }
         std::cout << "MTU finalized" << std::endl;
