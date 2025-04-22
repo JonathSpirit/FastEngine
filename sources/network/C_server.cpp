@@ -1346,7 +1346,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (this->isReturnPacketEnabled())
     {
         auto const now = std::chrono::steady_clock::now();
-        if (now - this->g_returnPacketTimePoint >= std::chrono::milliseconds(FGE_SERVER_DEFAULT_RETURN_PACKET_DELAY_MS))
+        if (now - this->g_returnPacketTimePoint >= this->g_returnPacketRate)
         {
             this->g_returnPacketTimePoint = now;
             auto returnPacket = this->prepareAndRetrieveReturnPacket();
@@ -1480,6 +1480,14 @@ void ClientSideNetUdp::askFullUpdateReturnEvent()
     this->endReturnEvent();
 }
 
+void ClientSideNetUdp::setReturnPacketRate(std::chrono::milliseconds rate)
+{
+    this->g_returnPacketRate = rate;
+}
+std::chrono::milliseconds ClientSideNetUdp::getReturnPacketRate() const
+{
+    return this->g_returnPacketRate;
+}
 void ClientSideNetUdp::enableReturnPacket(bool enable)
 {
     this->g_returnPacketEnabled = enable;

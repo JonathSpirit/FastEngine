@@ -44,7 +44,7 @@
 
 #define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
 
-#define FGE_SERVER_DEFAULT_RETURN_PACKET_DELAY_MS 500
+#define FGE_SERVER_DEFAULT_RETURN_PACKET_RATE_MS 500
 
 namespace fge
 {
@@ -327,6 +327,8 @@ public:
     void simpleReturnEvent(uint16_t id);
     void askFullUpdateReturnEvent();
 
+    void setReturnPacketRate(std::chrono::milliseconds rate);
+    [[nodiscard]] std::chrono::milliseconds getReturnPacketRate() const;
     void enableReturnPacket(bool enable);
     [[nodiscard]] bool isReturnPacketEnabled() const;
 
@@ -360,6 +362,7 @@ private:
     PacketDefragmentation g_defragmentation;
 
     bool g_returnPacketEnabled{false};
+    std::chrono::milliseconds g_returnPacketRate{FGE_SERVER_DEFAULT_RETURN_PACKET_RATE_MS};
     TransmitPacketPtr g_returnPacket;
     bool g_returnPacketEventStarted{false};
     std::size_t g_returnPacketStartPosition{0};
