@@ -1301,7 +1301,10 @@ std::future<void> ClientSideNetUdp::disconnect()
 {
     if (!this->g_running)
     {
-        throw Exception("Cannot disconnect without a running client");
+        std::promise<void> promise;
+        auto future = promise.get_future();
+        promise.set_value();
+        return future;
     }
 
     this->enableReturnPacket(false);
