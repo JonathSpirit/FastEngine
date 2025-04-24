@@ -186,6 +186,7 @@ void ServerNetFluxUdp::processClients()
             //Remove the client only if all pending packets are sent
             if (!client->isPendingPacketsEmpty())
             {
+                ++it;
                 continue;
             }
 
@@ -199,6 +200,7 @@ void ServerNetFluxUdp::processClients()
         //Handle timeout
         if (status.getNetworkStatus() == ClientStatus::NetworkStatus::TIMEOUT)
         {
+            ++it;
             continue;
         }
         if (client->getStatus().isTimeout())
