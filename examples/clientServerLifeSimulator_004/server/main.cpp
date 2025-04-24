@@ -210,8 +210,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         //Handling clients packets
         fge::net::ClientSharedPtr client;
         fge::net::ReceivedPacketPtr packet;
-        while (serverFlux->process(client, packet, true) == fge::net::FluxProcessResults::RETRIEVABLE)
-        {
+        fge::net::FluxProcessResults processResult;
+        do {
+            processResult = serverFlux->process(client, packet, true);
+            if (processResult != fge::net::FluxProcessResults::USER_RETRIEVABLE)
+            {
+                continue;
+            }
+
             //Prepare a sending packet
             auto transmissionPacket = fge::net::CreatePacket();
 
@@ -316,7 +322,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             default:
                 break;
             }
-        }
+        } while (processResult != fge::net::FluxProcessResults::NONE_AVAILABLE);
 
         //Scene update
         mainScene.update(event, std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime.restart()));

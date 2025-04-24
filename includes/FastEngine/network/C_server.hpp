@@ -59,11 +59,12 @@ class ClientSideNetUdp;
 
 enum class FluxProcessResults
 {
-    RETRIEVABLE,
-    BAD_REALM,
-    BAD_REORDER,
-    NOT_RETRIEVABLE,
-    INTERNALLY_HANDLED
+    USER_RETRIEVABLE,
+
+    INTERNALLY_HANDLED,
+    INTERNALLY_DISCARDED,
+
+    NONE_AVAILABLE
 };
 
 enum class ReturnEvents

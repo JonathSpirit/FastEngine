@@ -34,7 +34,7 @@
 #define FGE_NET_MTU_TIMEOUT_MS                                                                                         \
     std::chrono::milliseconds                                                                                          \
     {                                                                                                                  \
-        500                                                                                                            \
+        400                                                                                                            \
     }
 #define FGE_NET_MTU_TRY_COUNT 12
 #define FGE_NET_MTU_MIN_INTERVAL 16

@@ -73,11 +73,11 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
 
         if (stat == PacketReorderer::Stats::RETRIEVABLE)
         {
-            return FluxProcessResults::RETRIEVABLE;
+            return FluxProcessResults::USER_RETRIEVABLE;
         }
 
         client.getPacketReorderer().push(std::move(packet));
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     //We push the packet in the reorderer
@@ -89,7 +89,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
     auto const stat = client.getPacketReorderer().checkStat(currentCounter, currentRealm).value();
     if (!forced && stat != PacketReorderer::Stats::RETRIEVABLE)
     {
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     packet = client.getPacketReorderer().pop();
@@ -129,7 +129,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
 
     FGE_PLACE_DESTRUCT(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
 
-    return FluxProcessResults::RETRIEVABLE;
+    return FluxProcessResults::USER_RETRIEVABLE;
 }
 
 ReceivedPacketPtr NetFluxUdp::popNextPacket()
@@ -265,7 +265,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     if (this->_g_remainingPackets == 0)
     {
         this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
 
     //Popping the next packet
@@ -273,7 +273,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     if (!packet)
     {
         this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
     --this->_g_remainingPackets;
 
@@ -288,7 +288,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         }
 
         this->g_server->repushPacket(std::move(packet));
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
     refClient = refClientData->_client;
     auto const& status = refClient->getStatus();
@@ -296,7 +296,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     //Ignore packets if the client is disconnected
     if (status.isDisconnected())
     {
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
     //Check if the client is in an acknowledged state
@@ -316,12 +316,12 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         }
         else
         {
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_HANDLED;
         }
 
         if (!packet->haveCorrectHeader())
         {
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_DISCARDED;
         }
     }
 
@@ -334,7 +334,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG) && !packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult = this->processReorder(*refClient, packet, refClient->getClientPacketCounter(), true);
-        if (reorderResult != FluxProcessResults::RETRIEVABLE)
+        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
         {
             return reorderResult;
         }
@@ -343,7 +343,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     //Verify the realm
     if (!this->verifyRealm(refClient, packet))
     {
-        return FluxProcessResults::BAD_REALM;
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
     auto const stat =
@@ -354,8 +354,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         if (stat == PacketReorderer::Stats::OLD_COUNTER)
         {
             refClient->advanceLostPacketCount();
-            --this->_g_remainingPackets;
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_DISCARDED;
         }
     }
 
@@ -476,7 +475,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
-    return FluxProcessResults::RETRIEVABLE;
+    return FluxProcessResults::USER_RETRIEVABLE;
 }
 
 FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet)
@@ -485,7 +484,7 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
     if (packet->isFragmented())
     {
         //We can't (disallow) process fragmented packets from unknown clients
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
     //Check if the packet is a handshake
@@ -506,7 +505,7 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
             versioningString != this->g_server->getVersioningString())
         { //TODO: endReached() check should be done in .end() method
             std::cout << "Handshake failed" << std::endl;
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_DISCARDED;
         }
 
         std::cout << "Handshake accepted" << std::endl;
@@ -537,7 +536,7 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
     }
 
     //We can't process packets further for unknown clients
-    return FluxProcessResults::NOT_RETRIEVABLE;
+    return FluxProcessResults::INTERNALLY_DISCARDED;
 }
 FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data& refClientData,
                                                                ReceivedPacketPtr& packet)
@@ -577,7 +576,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
                 //Discard the packet and the client
                 this->_clients.remove(packet->getIdentity());
                 this->_onClientDropped.call(refClientData._client, packet->getIdentity());
-                return FluxProcessResults::NOT_RETRIEVABLE;
+                return FluxProcessResults::INTERNALLY_DISCARDED;
             }
             std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
             refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
@@ -594,7 +593,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
             //Discard the packet and the client
             this->_clients.remove(packet->getIdentity());
             this->_onClientDropped.call(refClientData._client, packet->getIdentity());
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_DISCARDED;
         }
 
         if (result == NetCommandResults::SUCCESS)
@@ -617,7 +616,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
                     //Discard the packet and the client
                     this->_clients.remove(packet->getIdentity());
                     this->_onClientDropped.call(refClientData._client, packet->getIdentity());
-                    return FluxProcessResults::NOT_RETRIEVABLE;
+                    return FluxProcessResults::INTERNALLY_DISCARDED;
                 }
 
                 std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
@@ -638,7 +637,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
     //Check if the packet is a crypt handshake
     if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
     {
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
     auto& refClient = refClientData._client;
@@ -662,7 +661,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
             refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
             this->_clients.remove(packet->getIdentity());
             this->_onClientDropped.call(refClient, packet->getIdentity());
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_DISCARDED;
         }
     }
 
@@ -672,7 +671,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
     if (pendingSize == 0)
     {
         std::cout << "NONE" << std::endl;
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
     std::cout << "transmitting crypt" << std::endl;
     auto response = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
@@ -686,7 +685,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
         this->_clients.remove(packet->getIdentity());
         this->_onClientDropped.call(refClient, packet->getIdentity());
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
     refClient->pushPacket(std::move(response));
     this->g_server->notifyTransmission();
@@ -1330,11 +1329,10 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     ///TODO: no lock ?
     packet.reset();
 
-    auto const networkStatus = this->_client.getStatus().getNetworkStatus();
-    if (networkStatus == ClientStatus::NetworkStatus::TIMEOUT ||
-        networkStatus == ClientStatus::NetworkStatus::DISCONNECTED)
+    if (this->_client.getStatus().isDisconnected())
     {
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        this->_g_remainingPackets = 0;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
 
     //Checking timeout
@@ -1344,7 +1342,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         this->_g_remainingPackets = 0;
         this->clearPackets();
         this->_onClientTimeout.call(*this);
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
 
     //Checking return packet
@@ -1363,7 +1361,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (this->_g_remainingPackets == 0)
     {
         this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
 
     //Popping the next packet
@@ -1371,7 +1369,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (!packet)
     {
         this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
     --this->_g_remainingPackets;
 
@@ -1379,7 +1377,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     {
         auto reorderResult =
                 this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
-        if (reorderResult != FluxProcessResults::RETRIEVABLE)
+        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
         {
             return reorderResult;
         }
@@ -1393,8 +1391,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)
         {
             this->_client.advanceLostPacketCount();
-            --this->_g_remainingPackets;
-            return FluxProcessResults::NOT_RETRIEVABLE;
+            return FluxProcessResults::INTERNALLY_DISCARDED;
         }
     }
 
@@ -1404,7 +1401,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         this->_g_remainingPackets = 0;
         this->clearPackets();
         this->_onClientDisconnected.call(*this);
-        return FluxProcessResults::NOT_RETRIEVABLE;
+        return FluxProcessResults::NONE_AVAILABLE;
     }
 
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
@@ -1418,7 +1415,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     this->_client.setCurrentPacketCounter(serverCountId);
     this->_client.setCurrentRealm(serverRealm);
 
-    return FluxProcessResults::RETRIEVABLE;
+    return FluxProcessResults::USER_RETRIEVABLE;
 }
 
 void ClientSideNetUdp::resetReturnPacket()

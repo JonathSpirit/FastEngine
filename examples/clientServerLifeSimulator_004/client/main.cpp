@@ -289,8 +289,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Handling server packets
         fge::net::ReceivedPacketPtr packet;
-        while (server.process(packet) == fge::net::FluxProcessResults::RETRIEVABLE)
-        {
+        fge::net::FluxProcessResults processResult;
+        do {
+            processResult = server.process(packet);
+            if (processResult != fge::net::FluxProcessResults::USER_RETRIEVABLE)
+            {
+                continue;
+            }
+
             //Prepare a sending packet
             auto transmissionPacket = fge::net::CreatePacket();
 
@@ -403,7 +409,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             default:
                 break;
             }
-        }
+        } while (processResult != fge::net::FluxProcessResults::NONE_AVAILABLE);
 
         //Update scene
         mainScene->update(renderWindow, event,
