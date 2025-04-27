@@ -251,19 +251,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 else
                 { //The potential client is not connected
 
+                    using namespace fge::net::rules;
+
                     //We extract 2 "really super secret" strings for validating the connection
                     std::string connectionText1;
                     std::string connectionText2;
 
                     //Before extracting a string from the packet, we must be sure that the string
                     //will have a valid size range.
-                    fge::net::rules::RValid(
-                            fge::net::rules::RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1,
-                                                                         {packet->packet(), &connectionText1}))
+                    RValid(RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT1) - 1, packet->packet(),
+                                                       &connectionText1))
                             .and_then([&](auto& chain) {
-                        return fge::net::rules::RValid(fge::net::rules::RSizeMustEqual<std::string>(
-                                sizeof(LIFESIM_CONNECTION_TEXT2) - 1,
-                                chain.template newChain<std::string>(&connectionText2)));
+                        return RValid(RSizeMustEqual<std::string>(sizeof(LIFESIM_CONNECTION_TEXT2) - 1, chain,
+                                                                  &connectionText2));
                     })
                             .and_then([&](auto& chain) {
                         //At this point, every extraction as been successful, so we can continue

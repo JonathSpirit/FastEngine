@@ -19,9 +19,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_scene.hpp"
-#include "FastEngine/network/C_client.hpp"
 #include "FastEngine/network/C_packet.hpp"
-#include "FastEngine/object/C_object.hpp"
 #include <optional>
 #include <variant>
 
@@ -50,7 +48,7 @@ FGE_API uint32_t GetSceneChecksum(fge::Scene& scene);
  * \param file The file path that will contain the data
  * \return \b true if no error, \b false otherwise
  */
-FGE_API bool WritePacketDataToFile(fge::net::Packet& pck, std::string const& file);
+FGE_API bool WritePacketDataToFile(Packet& pck, std::string const& file);
 
 /**
  * @}
@@ -75,8 +73,8 @@ template<class TValue>
 class ChainedArguments
 {
 public:
-    constexpr ChainedArguments(fge::net::Packet const& pck, TValue* existingValue = nullptr);
-    constexpr ChainedArguments(fge::net::Packet const& pck, Error&& err, TValue* existingValue = nullptr);
+    constexpr ChainedArguments(Packet const& pck, TValue* existingValue = nullptr);
+    constexpr ChainedArguments(Packet const& pck, Error&& err, TValue* existingValue = nullptr);
     constexpr ChainedArguments(ChainedArguments const& r) = default;
     constexpr ChainedArguments(ChainedArguments&& r) noexcept = default;
 
@@ -100,7 +98,8 @@ public:
     template<class TPeek>
     [[nodiscard]] constexpr std::optional<TPeek> peek();
 
-    [[nodiscard]] constexpr fge::net::Packet const& packet() const;
+    [[nodiscard]] constexpr operator Packet const&() const;
+    [[nodiscard]] constexpr Packet const& packet() const;
     [[nodiscard]] constexpr TValue const& value() const;
     [[nodiscard]] constexpr TValue& value();
 
@@ -162,7 +161,7 @@ public:
     template<class TInvokable>
     [[nodiscard]] constexpr ChainedArguments<TValue>& and_for_each(TInvokable&& f);
     /**
-     * \brief Chain up some code after a unsuccessful extraction
+     * \brief Chain up some code after an unsuccessful extraction
      *
      * This must be the last method called in the chain as this
      * return an optional error.
@@ -180,21 +179,29 @@ public:
      */
     [[nodiscard]] constexpr std::optional<Error> end();
     /**
-     * \brief End the chain without returning an error
+     * \brief End the chain by doing a last validity check on the packet
      *
-     * This is useful when you want to skip in a and_for_each loop.
+     * Also verify the endReached() method on the packet.
      *
-     * \param nullopt A nullopt_t
-     * \return An optional error (construct with nullopt)
+     * \return An optional error
      */
-    [[nodiscard]] constexpr std::optional<Error> end(std::nullopt_t nullopt) const;
+    [[nodiscard]] constexpr std::optional<Error> final();
     /**
-     * \brief End the chain by returning a custom error$
+     * \brief Helper to "continue" in a and_for_each() loop without returning an error
      *
-     * \param err The error
-     * \return An optional error (construct with err)
+     * This should be used only inside a and_for_each() loop.
+     *
+     * \return An optional error (construct with std::nullopt)
      */
-    [[nodiscard]] constexpr std::optional<Error> end(Error&& err) const;
+    [[nodiscard]] constexpr std::optional<Error> skip() const;
+    /**
+     * \brief Helper to "break" in a and_for_each() loop with a custom error
+     *
+     * \param error The error message
+     * \param function The function name
+     * \return An error built with the provided message
+     */
+    [[nodiscard]] constexpr std::optional<Error> stop(char const* error, char const* function) const;
 
     /**
      * \brief Apply the extracted value to the provided reference
@@ -218,30 +225,6 @@ public:
     constexpr ChainedArguments<TValue>& apply(TInvokable&& f);
 
     /**
-     * \brief Create a new chain with a different value type
-     *
-     * The packet and the error will be copied/moved to the new chain.
-     *
-     * \tparam TNewValue The type of the new value
-     * \param existingValue An optional existing value
-     * \return A new ChainedArguments with a different value type
-     */
-    template<class TNewValue>
-    constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr);
-    /**
-     * \brief Create a new chain with a different value type
-     *
-     * This const version is generally used in a and_for_each loop.
-     * The error isn't forwarded to the new chain.
-     *
-     * \tparam TNewValue The type of the new value
-     * \param existingValue An optional existing value
-     * \return A new ChainedArguments with a different value type
-     */
-    template<class TNewValue>
-    constexpr ChainedArguments<TNewValue> newChain(TNewValue* existingValue = nullptr) const;
-
-    /**
      * \brief Set the error
      *
      * \param err The error
@@ -255,11 +238,12 @@ public:
      * \return A reference to the same ChainedArguments
      */
     constexpr ChainedArguments<TValue>& invalidate(Error&& err);
+    constexpr ChainedArguments<TValue>& invalidate(char const* error, char const* function);
 
 private:
     using Value = std::variant<TValue, TValue*>;
 
-    fge::net::Packet const* g_pck;
+    Packet const* g_pck;
     Value g_value;
     Error g_error;
 };
@@ -289,6 +273,12 @@ enum class ROutputs : bool
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue>
+RRange(TValue const& min, TValue const& max, Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RRange<TValue, TOutput>(min, max, ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Valid rule, check if the value is correctly extracted
@@ -299,6 +289,11 @@ constexpr ChainedArguments<TValue> RRange(TValue const& min, TValue const& max, 
  */
 template<class TValue>
 constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args);
+template<class TValue>
+constexpr ChainedArguments<TValue> RValid(Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RValid<TValue>(ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Must equal rule, check if the value is equal to the provided one
@@ -311,6 +306,11 @@ constexpr ChainedArguments<TValue> RValid(ChainedArguments<TValue>&& args);
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RMustEqual<TValue, TOutput>(a, ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Strict less rule, check if the value is strictly lesser than the provided one
@@ -323,6 +323,11 @@ constexpr ChainedArguments<TValue> RMustEqual(TValue const& a, ChainedArguments<
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RStrictLess(TValue less, Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RStrictLess<TValue, TOutput>(less, ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Less rule, check if the value is lesser than the provided one
@@ -335,11 +340,16 @@ constexpr ChainedArguments<TValue> RStrictLess(TValue less, ChainedArguments<TVa
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RLess(TValue less, Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RLess<TValue, TOutput>(less, ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Size range rule, check if the size is in the min/max range
  *
- * This function will peek the current fge::net::SizeType at read pos.
+ * This function will peek the current SizeType at read pos.
  * It is useful to apply rules on the size of something (string, container, ...) before
  * extracting it.
  *
@@ -354,6 +364,12 @@ constexpr ChainedArguments<TValue> RLess(TValue less, ChainedArguments<TValue>&&
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RSizeRange(SizeType min, SizeType max, ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue>
+RSizeRange(SizeType min, SizeType max, Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RSizeRange<TValue, TOutput>(min, max, ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Size must equal rule, check if the size is equal to the provided one
@@ -367,7 +383,12 @@ constexpr ChainedArguments<TValue> RSizeRange(SizeType min, SizeType max, Chaine
  * \return The chained argument
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
-constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args);
+constexpr ChainedArguments<TValue> RSizeMustEqual(SizeType a, ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RSizeMustEqual(SizeType a, Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RSizeMustEqual<TValue, TOutput>(a, ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * \brief Check if the extracted string is a valid UTF8 string
@@ -382,6 +403,11 @@ constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedA
  */
 template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RMustValidUtf8(ChainedArguments<TValue>&& args);
+template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
+constexpr ChainedArguments<TValue> RMustValidUtf8(Packet const& pck, TValue* existingValue = nullptr)
+{
+    return RMustValidUtf8<TValue, TOutput>(ChainedArguments<TValue>{pck, existingValue});
+}
 
 /**
  * @}

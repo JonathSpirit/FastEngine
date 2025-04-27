@@ -1177,17 +1177,17 @@ void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
 std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
 {
     constexpr char const* const func = __func__;
-    fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
-    fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
-    fge::ObjectSid buffSid{FGE_SCENE_BAD_SID};
+    reg::ClassId buffClass{FGE_REG_BADCLASSID};
+    ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
+    ObjectSid buffSid{FGE_SCENE_BAD_SID};
 
     using namespace fge::net::rules;
 
     //update count
-    return RValid<decltype(this->g_updateCount)>({pck, &this->g_updateCount})
+    return RValid(pck, &this->g_updateCount)
             .and_then([&](auto& chain) {
         //scene name
-        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain.newChain(&this->g_name)));
+        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain, &this->g_name));
     })
             .and_then([&](auto& chain) {
         //scene data
@@ -1204,26 +1204,25 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
             .and_then([&](auto& chain) {
         //object size
         this->delAllObject(true);
-        return RValid(chain.template newChain<fge::net::SizeType>());
+        return RValid<net::SizeType>(chain);
     })
             .and_for_each([&](auto& chain, [[maybe_unused]] auto& i) {
         //SID
         pck >> buffSid;
         if (buffSid == FGE_SCENE_BAD_SID)
         {
-            return chain.end(std::nullopt);
+            return chain.skip();
         }
         //CLASS
         pck >> buffClass;
         if (buffClass == FGE_REG_BADCLASSID)
         {
-            return chain.end(
-                    net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "received bad class ID", func});
+            return chain.stop("received bad class ID", func);
         }
         //PLAN
         pck >> buffPlan;
         //TYPE
-        return RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+        return RStrictLess<std::underlying_type_t<ObjectType>>(ObjectType::TYPE_MAX_, pck)
                 .and_then([&](auto& chain) {
             fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
             if (buffObject)
@@ -1233,8 +1232,7 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
             }
             else
             {
-                return chain.invalidate(
-                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID", func});
+                return chain.invalidate("unknown class ID", func);
             }
 
             return chain;
@@ -1358,21 +1356,19 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet const&
     this->g_updateCount = range._now;
 
     //scene name
-    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, {pck, &this->g_name}))
+    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, pck, &this->g_name))
             .and_then([&](auto& chain) {
         //scene data
-        return RLess<fge::net::SizeType>(this->_netList.size(), chain.template newChain<fge::net::SizeType>());
+        return RLess<fge::net::SizeType>(this->_netList.size(), chain);
     })
             .and_for_each([&](auto& chain, [[maybe_unused]] auto& i) {
-        return RValid(chain.template newChain<fge::net::SizeType>())
+        return RValid<fge::net::SizeType>(chain)
                 .and_then([&](auto& chain) {
             this->_netList[chain.value()]->applyData(pck);
             return chain;
         }).end();
     })
-            .and_then([&](auto& chain) {
-        return RValid<fge::net::SizeType>(chain.template newChain<fge::net::SizeType>());
-    })
+            .and_then([&](auto& chain) { return RValid<fge::net::SizeType>(chain); })
             .and_for_each([&](auto& chain, [[maybe_unused]] auto& i) {
         fge::reg::ClassId buffClass{FGE_REG_BADCLASSID};
         fge::ObjectPlan buffPlan{FGE_SCENE_PLAN_DEFAULT};
@@ -1386,7 +1382,7 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet const&
         //PLAN
         pck >> buffPlan;
         //TYPE
-        auto err = RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, pck)
+        auto err = RStrictLess<std::underlying_type_t<fge::ObjectType>>(fge::ObjectType::TYPE_MAX_, chain)
                            .apply(buffType)
                            .end();
 
@@ -1402,17 +1398,16 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet const&
                                          static_cast<fge::ObjectType>(buffType));
             if (!buffObject)
             {
-                return chain.end(
-                        net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID / SID", func});
+                return chain.stop("unknown class ID / SID", func);
             }
         }
 
         //MODIF COUNT/OBJECT DATA
         auto& objectNetList = buffObject->g_object->_netList;
 
-        return RLess<fge::net::SizeType>(objectNetList.size(), pck)
+        return RLess<fge::net::SizeType>(objectNetList.size(), chain)
                 .and_for_each([&](auto& chain, [[maybe_unused]] auto& i) {
-            return RLess<fge::net::SizeType>(objectNetList.size(), chain.template newChain<fge::net::SizeType>())
+            return RLess<fge::net::SizeType>(objectNetList.size(), chain)
                     .and_then([&](auto& chain) {
                 objectNetList[chain.value()]->applyData(pck);
                 return chain;
@@ -1458,8 +1453,7 @@ std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet const&
 
     return RValid<fge::net::SizeType>(pck)
             .and_for_each([&](auto& chain, [[maybe_unused]] auto& i) {
-        return RMustEqual<fge::ObjectSid, ROutputs::R_INVERTED>(FGE_SCENE_BAD_SID,
-                                                                chain.template newChain<fge::ObjectSid>())
+        return RMustEqual<fge::ObjectSid, ROutputs::R_INVERTED>(FGE_SCENE_BAD_SID, chain)
                 .and_then([&](auto& chain) {
             auto object = this->getObject(chain.value());
             if (object)
@@ -1473,8 +1467,7 @@ std::optional<fge::net::Error> Scene::unpackNeededUpdate(fge::net::Packet const&
                 pck.skip(uselessDataSize * sizeof(fge::net::SizeType));
                 if (!pck.isValid())
                 {
-                    return chain.invalidate(
-                            net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unattended data size", func});
+                    return chain.invalidate("unattended data size", func);
                 }
             }
 

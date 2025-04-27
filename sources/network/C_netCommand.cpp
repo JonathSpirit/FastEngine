@@ -16,6 +16,7 @@
 
 #include "FastEngine/network/C_netCommand.hpp"
 #include "FastEngine/manager/network_manager.hpp"
+#include "FastEngine/network/C_client.hpp"
 #include "FastEngine/network/C_socket.hpp"
 #include <iostream>
 #include <openssl/err.h>

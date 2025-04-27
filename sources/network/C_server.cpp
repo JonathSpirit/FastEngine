@@ -381,15 +381,14 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             chain.packet() >> event;
             if (!chain.packet().isValid())
             {
-                return chain.end(Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad event", func});
+                return chain.stop("received bad event", func);
             }
 
             uint16_t eventSize = 0;
             chain.packet() >> eventSize;
             if (!chain.packet().isValid())
             {
-                return chain.end(
-                        Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad event size", func});
+                return chain.stop("received bad event size", func);
             }
 
             switch (event)
@@ -400,8 +399,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                 chain.packet() >> id;
                 if (!chain.packet().isValid() || eventSize != sizeof(uint16_t))
                 {
-                    return chain.end(
-                            Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id / size", func});
+                    return chain.stop("received bad id / size", func);
                 }
 
                 this->_onClientSimpleReturnEvent.call(refClient, packet->getIdentity(), id);
@@ -414,7 +412,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
                 chain.packet() >> commandIndex >> parentSid >> targetSid;
                 if (!chain.packet().isValid())
                 {
-                    return chain.end(Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id", func});
+                    return chain.stop("received bad id", func);
                 }
 
                 this->_onClientObjectReturnEvent.call(refClient, packet->getIdentity(), commandIndex, parentSid,
@@ -424,8 +422,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             case ReturnEvents::REVT_ASK_FULL_UPDATE:
                 if (!chain.packet().isValid() || eventSize != 0)
                 {
-                    return chain.end(
-                            Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id / size", func});
+                    return chain.stop("received bad id / size", func);
                 }
 
                 this->_onClientAskFullUpdate.call(refClient, packet->getIdentity());
@@ -433,14 +430,14 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             case ReturnEvents::REVT_CUSTOM:
                 if (!chain.packet().isValid())
                 {
-                    return chain.end(Error{Error::Types::ERR_EXTRACT, packet->getReadPos(), "received bad id", func});
+                    return chain.stop("received bad id", func);
                 }
 
                 this->_onClientReturnEvent.call(refClient, packet->getIdentity(), packet);
                 break;
             }
 
-            return chain.end(std::nullopt);
+            return chain.skip();
         }).end();
 
         if (err)
@@ -495,15 +492,14 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         using namespace fge::net::rules;
         std::string handshakeString;
         std::string versioningString;
-        auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1,
-                                                            {packet->packet(), &handshakeString}))
+        auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1, packet->packet(),
+                                                            &handshakeString))
                                  .and_then([&](auto& chain) {
-            return RValid(RSizeRange<std::string>(0, FGE_NET_MAX_VERSIONING_STRING_SIZE,
-                                                  chain.template newChain<std::string>(&versioningString)));
-        }).end();
-        if (err || !packet->endReached() || handshakeString != FGE_NET_HANDSHAKE_STRING ||
+            return RValid(RSizeRange<std::string>(0, FGE_NET_MAX_VERSIONING_STRING_SIZE, chain, &versioningString));
+        }).final();
+        if (err || handshakeString != FGE_NET_HANDSHAKE_STRING ||
             versioningString != this->g_server->getVersioningString())
-        { //TODO: endReached() check should be done in .end() method
+        {
             std::cout << "Handshake failed" << std::endl;
             return FluxProcessResults::INTERNALLY_DISCARDED;
         }
