@@ -18,7 +18,7 @@
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "private/fge_crypt.hpp"
-#include <iostream>
+#include "private/fge_debug.hpp"
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -226,7 +226,7 @@ void ServerNetFluxUdp::processClients()
                                                        this->g_commandsUpdateTick);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
-                    std::cout << (result == NetCommandResults::SUCCESS ? "SUCCESS" : "FAILURE") << std::endl;
+                    FGE_DEBUG_PRINT(result == NetCommandResults::SUCCESS ? "SUCCESS" : "FAILURE");
                     commands.pop_front();
                 }
 
@@ -442,7 +442,7 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
         if (err)
         {
-            std::cout << "Return packet error" << std::endl;
+            FGE_DEBUG_PRINT("Return packet error");
         }
 
         //TODO: be sure that we are on the correct read position on the packet
@@ -487,7 +487,7 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
     //Check if the packet is a handshake
     if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_FGE_HANDSHAKE)
     {
-        std::cout << "Handshake received" << std::endl;
+        FGE_DEBUG_PRINT("Handshake received");
 
         using namespace fge::net::rules;
         std::string handshakeString;
@@ -499,11 +499,11 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         if (err || handshakeString != FGE_NET_HANDSHAKE_STRING ||
             versioningString != this->g_server->getVersioningString())
         {
-            std::cout << "Handshake failed" << std::endl;
+            FGE_DEBUG_PRINT("Handshake failed");
             return FluxProcessResults::INTERNALLY_DISCARDED;
         }
 
-        std::cout << "Handshake accepted" << std::endl;
+        FGE_DEBUG_PRINT("Handshake accepted");
         //Handshake accepted, we create the client
         refClient = std::make_shared<Client>();
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
@@ -545,7 +545,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
         response->doNotDiscard().doNotReorder();
         refClientData._client->pushPacket(std::move(response));
         refClientData._client->getStatus().resetTimeout();
-        std::cout << "received MTU test" << std::endl;
+        FGE_DEBUG_PRINT("received MTU test");
         break;
     }
     case NET_INTERNAL_ID_MTU_ASK:
@@ -555,11 +555,11 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
                 << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
         refClientData._client->pushPacket(std::move(response));
         refClientData._client->getStatus().resetTimeout();
-        std::cout << "received MTU ask" << std::endl;
+        FGE_DEBUG_PRINT("received MTU ask");
         break;
     }
     case NET_INTERNAL_ID_MTU_FINAL:
-        std::cout << "received MTU final" << std::endl;
+        FGE_DEBUG_PRINT("received MTU final");
         refClientData._client->_mtuFinalizedFlag = true;
         refClientData._client->getStatus().resetTimeout();
         //Client have finished the MTU discovery, but we have to check if the server have finished too
@@ -567,13 +567,13 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
         {
             if (!CryptServerCreate(this->g_server->getCryptContext(), *refClientData._client))
             {
-                std::cout << "CryptServerCreate failed" << std::endl;
+                FGE_DEBUG_PRINT("CryptServerCreate failed");
                 //Discard the packet and the client
                 this->_clients.remove(packet->getIdentity());
                 this->_onClientDropped.call(refClientData._client, packet->getIdentity());
                 return FluxProcessResults::INTERNALLY_DISCARDED;
             }
-            std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
+            FGE_DEBUG_PRINT("CryptServerCreate success, starting crypt exchange");
             refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
             refClientData._client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
             this->_onClientMTUDiscovered.call(refClientData._client, packet->getIdentity());
@@ -584,7 +584,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
         auto const result = this->checkCommands(refClientData._client, refClientData._commands, packet);
         if (result == NetCommandResults::FAILURE)
         {
-            std::cout << "Command failed" << std::endl;
+            FGE_DEBUG_PRINT("Command failed");
             //Discard the packet and the client
             this->_clients.remove(packet->getIdentity());
             this->_onClientDropped.call(refClientData._client, packet->getIdentity());
@@ -593,7 +593,7 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
 
         if (result == NetCommandResults::SUCCESS)
         {
-            std::cout << "Command success" << std::endl;
+            FGE_DEBUG_PRINT("Command success");
             refClientData._client->setMTU(refClientData._mtuFuture.get());
 
             auto response = CreatePacket(NET_INTERNAL_ID_MTU_FINAL);
@@ -604,17 +604,17 @@ FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data&
             //Server have finished the MTU discovery, but we have to check if the client have finished too
             if (refClientData._client->_mtuFinalizedFlag)
             {
-                std::cout << "mtu finalized" << std::endl;
+                FGE_DEBUG_PRINT("mtu finalized");
                 if (!CryptServerCreate(this->g_server->getCryptContext(), *refClientData._client))
                 {
-                    std::cout << "CryptServerCreate failed" << std::endl;
+                    FGE_DEBUG_PRINT("CryptServerCreate failed");
                     //Discard the packet and the client
                     this->_clients.remove(packet->getIdentity());
                     this->_onClientDropped.call(refClientData._client, packet->getIdentity());
                     return FluxProcessResults::INTERNALLY_DISCARDED;
                 }
 
-                std::cout << "CryptServerCreate success, starting crypt exchange" << std::endl;
+                FGE_DEBUG_PRINT("CryptServerCreate success, starting crypt exchange");
                 refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
                 refClientData._client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
                 this->_onClientMTUDiscovered.call(refClientData._client, packet->getIdentity());
@@ -637,7 +637,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
 
     auto& refClient = refClientData._client;
 
-    std::cout << "receiving crypt handshake" << std::endl;
+    FGE_DEBUG_PRINT("receiving crypt handshake");
     auto& info = refClient->getCryptInfo();
 
     refClient->getStatus().resetTimeout();
@@ -660,15 +660,15 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
         }
     }
 
-    std::cout << "check for transmit crypt" << std::endl;
+    FGE_DEBUG_PRINT("check for transmit crypt");
     // Check if OpenSSL has produced encrypted handshake data
     auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
     if (pendingSize == 0)
     {
-        std::cout << "NONE" << std::endl;
+        FGE_DEBUG_PRINT("no crypt handshake to transmit");
         return FluxProcessResults::INTERNALLY_DISCARDED;
     }
-    std::cout << "transmitting crypt" << std::endl;
+    FGE_DEBUG_PRINT("transmitting crypt");
     auto response = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
     auto const packetStartDataPosition = response->doNotDiscard().getDataSize();
     response->append(pendingSize);
@@ -676,7 +676,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
             BIO_read(static_cast<BIO*>(info._wbio), response->getData() + packetStartDataPosition, pendingSize);
     if (finalSize <= 0 || static_cast<std::size_t>(finalSize) != pendingSize)
     {
-        std::cout << "failed crypt" << std::endl;
+        FGE_DEBUG_PRINT("failed crypt");
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
         this->_clients.remove(packet->getIdentity());
         this->_onClientDropped.call(refClient, packet->getIdentity());
@@ -687,7 +687,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
 
     if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
     {
-        std::cout << "CONNECTED" << std::endl;
+        FGE_DEBUG_PRINT("CONNECTED");
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
         refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
         refClient->setClientPacketCounter(0);
@@ -1560,7 +1560,7 @@ void ClientSideNetUdp::threadReception()
             {
                 if (!CryptDecrypt(this->_client, pckReceive))
                 {
-                    std::cout << "CryptDecrypt failed" << std::endl;
+                    FGE_DEBUG_PRINT("CryptDecrypt failed");
                     continue;
                 }
             }
@@ -1579,7 +1579,7 @@ void ClientSideNetUdp::threadReception()
             //Decompress the packet if needed
             if (!packet->decompress(compressor))
             {
-                std::cout << "decompress failed" << std::endl;
+                FGE_DEBUG_PRINT("decompress failed");
                 continue;
             }
 
@@ -1604,7 +1604,7 @@ void ClientSideNetUdp::threadReception()
                     response->doNotDiscard().doNotReorder();
                     this->_client.pushPacket(std::move(response));
                     this->_client.getStatus().resetTimeout();
-                    std::cout << "received MTU test" << std::endl;
+                    FGE_DEBUG_PRINT("received MTU test");
                     continue;
                 }
                 case NET_INTERNAL_ID_MTU_ASK:
@@ -1613,11 +1613,11 @@ void ClientSideNetUdp::threadReception()
                     response->doNotDiscard().doNotReorder() << this->g_socket.retrieveCurrentAdapterMTU().value_or(0);
                     this->_client.pushPacket(std::move(response));
                     this->_client.getStatus().resetTimeout();
-                    std::cout << "received MTU ask" << std::endl;
+                    FGE_DEBUG_PRINT("received MTU ask");
                     continue;
                 }
                 case NET_INTERNAL_ID_MTU_FINAL:
-                    std::cout << "received MTU final" << std::endl;
+                    FGE_DEBUG_PRINT("received MTU final");
                     this->_client._mtuFinalizedFlag = true;
                     this->_client.getStatus().resetTimeout();
                     continue;
