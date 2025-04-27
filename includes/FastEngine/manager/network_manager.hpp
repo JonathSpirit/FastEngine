@@ -370,6 +370,12 @@ RSizeRange(SizeType min, SizeType max, Packet const& pck, TValue* existingValue 
 {
     return RSizeRange<TValue, TOutput>(min, max, ChainedArguments<TValue>{pck, existingValue});
 }
+template<class TString>
+constexpr ChainedArguments<TString>
+RStringRange(SizeType min, SizeType max, Packet const& pck, TString* existingValue = nullptr)
+{
+    return RValid(RSizeRange<TString, ROutputs::R_NORMAL>(min, max, ChainedArguments<TString>{pck, existingValue}));
+}
 
 /**
  * \brief Size must equal rule, check if the size is equal to the provided one
@@ -388,6 +394,11 @@ template<class TValue, ROutputs TOutput = ROutputs::R_NORMAL>
 constexpr ChainedArguments<TValue> RSizeMustEqual(SizeType a, Packet const& pck, TValue* existingValue = nullptr)
 {
     return RSizeMustEqual<TValue, TOutput>(a, ChainedArguments<TValue>{pck, existingValue});
+}
+template<class TString>
+constexpr ChainedArguments<TString> RStringMustEqual(SizeType a, Packet const& pck, TString* existingValue = nullptr)
+{
+    return RValid(RSizeMustEqual<TString, ROutputs::R_NORMAL>(a, ChainedArguments<TString>{pck, existingValue}));
 }
 
 /**

@@ -1187,7 +1187,7 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
     return RValid(pck, &this->g_updateCount)
             .and_then([&](auto& chain) {
         //scene name
-        return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, chain, &this->g_name));
+        return RStringRange(0, FGE_SCENE_LIMIT_NAMESIZE, chain, &this->g_name);
     })
             .and_then([&](auto& chain) {
         //scene data
@@ -1356,7 +1356,7 @@ std::optional<fge::net::Error> Scene::unpackModification(fge::net::Packet const&
     this->g_updateCount = range._now;
 
     //scene name
-    return RValid(RSizeRange<std::string>(0, FGE_SCENE_LIMIT_NAMESIZE, pck, &this->g_name))
+    return RStringRange(0, FGE_SCENE_LIMIT_NAMESIZE, pck, &this->g_name)
             .and_then([&](auto& chain) {
         //scene data
         return RLess<fge::net::SizeType>(this->_netList.size(), chain);

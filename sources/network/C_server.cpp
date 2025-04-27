@@ -492,10 +492,9 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         using namespace fge::net::rules;
         std::string handshakeString;
         std::string versioningString;
-        auto const err = RValid(RSizeMustEqual<std::string>(sizeof(FGE_NET_HANDSHAKE_STRING) - 1, packet->packet(),
-                                                            &handshakeString))
+        auto const err = RStringMustEqual(sizeof(FGE_NET_HANDSHAKE_STRING) - 1, packet->packet(), &handshakeString)
                                  .and_then([&](auto& chain) {
-            return RValid(RSizeRange<std::string>(0, FGE_NET_MAX_VERSIONING_STRING_SIZE, chain, &versioningString));
+            return RStringRange(0, FGE_NET_MAX_VERSIONING_STRING_SIZE, chain, &versioningString);
         }).final();
         if (err || handshakeString != FGE_NET_HANDSHAKE_STRING ||
             versioningString != this->g_server->getVersioningString())
