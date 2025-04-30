@@ -45,6 +45,9 @@
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_PACKET_REORDERER_CACHE_MAX 5
 
+#define FGE_NET_PACKET_CACHE_MAX 100
+#define FGE_NET_PACKET_CACHE_MIN_LATENCY_MS 10
+
 #define FGE_NET_HANDSHAKE_STRING "FGE:HANDSHAKE:AZCgMVg4d4Sl2xYvZcqXqljIOqSrKX6H"
 
 namespace fge
@@ -184,6 +187,10 @@ public:
     inline void unmarkAsLocallyReordered();
     [[nodiscard]] inline bool isMarkedAsLocallyReordered() const;
 
+    inline void markAsCached();
+    inline void unmarkAsCached();
+    [[nodiscard]] inline bool isMarkedAsCached() const;
+
     /**
      * \brief Apply packet options to the packet
      *
@@ -225,6 +232,7 @@ private:
 
     bool g_markedForEncryption{false};
     bool g_markedAsLocallyReordered{false};
+    bool g_markedAsCached{false};
 
     std::vector<Option> g_options;
 };
@@ -385,6 +393,61 @@ private:
 
     std::priority_queue<Data, std::vector<Data>, Data::Compare> g_cache;
     bool g_forceRetrieve{false};
+};
+
+class FGE_API PacketCache
+{
+public:
+    struct Label
+    {
+        ProtocolPacket::CounterType _counter{0};
+        ProtocolPacket::RealmType _realm{0};
+
+        [[nodiscard]] constexpr bool operator==(Label const& r) const
+        {
+            return this->_counter == r._counter && this->_realm == r._realm;
+        }
+    };
+
+    PacketCache() = default;
+    PacketCache(PacketCache const& r) = delete;
+    PacketCache(PacketCache&& r) noexcept = default;
+    ~PacketCache() = default;
+
+    PacketCache& operator=(PacketCache const& r) = delete;
+    PacketCache& operator=(PacketCache&& r) noexcept = default;
+
+    void clear();
+    [[nodiscard]] bool isEmpty() const;
+
+    //Transmit
+    void push(TransmitPacketPtr const& packet);
+
+    //Receive
+    void acknowledgeReception(std::span<Label> labels);
+
+    //Check for unacknowledged packet
+    [[nodiscard]] bool check(std::chrono::steady_clock::time_point const& timePoint,
+                             std::chrono::milliseconds clientDelay);
+    [[nodiscard]] TransmitPacketPtr pop();
+
+private:
+    struct Data
+    {
+        Data() = default;
+        explicit Data(TransmitPacketPtr const& packet);
+
+        Data& operator=(TransmitPacketPtr const& packet);
+
+        TransmitPacketPtr _packet;
+        Label _label;
+        std::chrono::steady_clock::time_point _time{};
+    };
+
+    //Circular buffer
+    std::vector<Data> g_cache{FGE_NET_PACKET_CACHE_MAX};
+    std::size_t g_start{0};
+    std::size_t g_end{0};
 };
 
 } // namespace fge::net

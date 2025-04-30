@@ -46,6 +46,12 @@
     }
 #define FGE_NET_STATUS_DEFAULT_STATUS "none"
 
+#define FGE_NET_DEFAULT_RETURN_PACKET_RATE                                                                             \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        500                                                                                                            \
+    }
+
 namespace fge::net
 {
 
@@ -386,6 +392,12 @@ public:
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
 
+    [[nodiscard]] PacketCache& getPacketCache();
+    [[nodiscard]] PacketCache const& getPacketCache() const;
+    void acknowledgeReception(ReceivedPacketPtr const& packet);
+    [[nodiscard]] std::vector<PacketCache::Label> const& getAcknowledgedList() const;
+    void clearAcknowledgedList();
+
     void clearLostPacketCount();
     uint32_t advanceLostPacketCount();
     void setLostPacketThreshold(uint32_t threshold);
@@ -400,6 +412,9 @@ public:
 
     [[nodiscard]] uint16_t getMTU() const;
     void setMTU(uint16_t mtu);
+
+    void setPacketReturnRate(std::chrono::milliseconds rate);
+    [[nodiscard]] std::chrono::milliseconds getPacketReturnRate() const;
 
     CallbackHandler<Client&> _onThresholdLostPacket;
 
@@ -423,9 +438,13 @@ private:
     ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
     ProtocolPacket::CounterType g_clientPacketCounter{0};
 
+    std::vector<PacketCache::Label> g_acknowledgedPackets;
+    PacketCache g_packetCache;
     PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
+
+    std::chrono::milliseconds g_returnPacketRate{FGE_NET_DEFAULT_RETURN_PACKET_RATE};
 
     uint16_t g_mtu{0};
 

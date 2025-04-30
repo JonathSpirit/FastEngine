@@ -297,6 +297,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 continue;
             }
 
+            server._client.acknowledgeReception(packet);
+
             //Prepare a sending packet
             auto transmissionPacket = fge::net::CreatePacket();
 

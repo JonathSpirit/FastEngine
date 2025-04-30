@@ -380,4 +380,130 @@ PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterT
     return Stats::WAITING_NEXT_COUNTER;
 }
 
+//PacketCache
+
+void PacketCache::clear()
+{
+    this->g_cache.clear();
+    this->g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
+    this->g_start = 0;
+    this->g_end = 0;
+}
+
+bool PacketCache::isEmpty() const
+{
+    return this->g_start == this->g_end;
+}
+
+void PacketCache::push(TransmitPacketPtr const& packet)
+{
+    auto const next = (this->g_end + 1) % FGE_NET_PACKET_CACHE_MAX;
+
+    if (next == this->g_start)
+    {
+        //Cache is full, we need to replace the oldest packet
+        this->g_cache[this->g_start] = std::make_shared<ProtocolPacket>(*packet);
+        //TODO: I don't love the idea of copying the packets and I don't love the idea of having shared_ptr packets
+        this->g_cache[this->g_start]._packet->markAsCached();
+        this->g_start = (this->g_start + 1) % FGE_NET_PACKET_CACHE_MAX;
+        this->g_end = next;
+        return;
+    }
+
+    this->g_cache[next] = std::make_shared<ProtocolPacket>(*packet);
+    this->g_cache[next]._packet->markAsCached();
+    this->g_end = next;
+}
+
+void PacketCache::acknowledgeReception(std::span<Label> labels)
+{
+    if (this->isEmpty())
+    {
+        return;
+    }
+
+    for (auto const& label: labels)
+    {
+        auto start = this->g_start;
+
+        do {
+            auto& data = this->g_cache[start];
+            if (!data._packet)
+            { //Already acknowledged
+                start = (start + 1) % FGE_NET_PACKET_CACHE_MAX;
+                continue;
+            }
+
+            if (data._label == label)
+            {                           //We found the packet
+                data._packet = nullptr; //We acknowledge the packet by setting it to nullptr
+                break;
+            }
+        } while (start != this->g_end);
+    }
+}
+
+bool PacketCache::check(std::chrono::steady_clock::time_point const& timePoint, std::chrono::milliseconds clientDelay)
+{
+    if (this->isEmpty())
+    {
+        return false;
+    }
+
+    if (clientDelay.count() < FGE_NET_PACKET_CACHE_MIN_LATENCY_MS)
+    {
+        clientDelay = std::chrono::milliseconds(FGE_NET_PACKET_CACHE_MIN_LATENCY_MS);
+    }
+
+    auto start = this->g_start;
+    do {
+        auto& data = this->g_cache[start];
+        if (!data._packet)
+        { //Packet is acknowledged, let's remove it
+            start = (start + 1) % FGE_NET_PACKET_CACHE_MAX;
+            this->g_start = start;
+            continue;
+        }
+
+        if (timePoint - data._time >= clientDelay)
+        { //Packet has expired, advise the code to resend it
+            return true;
+        }
+        return false;
+    } while (start != this->g_end);
+
+    //If we are here, it means that every packet that was in the cache has been acknowledged, so it's good
+    return false;
+}
+
+TransmitPacketPtr PacketCache::pop()
+{
+    if (this->isEmpty())
+    {
+        return nullptr;
+    }
+
+    //check() must be called before pop(), so we can remove index verification
+    //else it will be undefined behavior
+
+    auto const start = this->g_start;
+    this->g_start = (this->g_start + 1) % FGE_NET_PACKET_CACHE_MAX;
+    return std::move(this->g_cache[start]._packet);
+}
+
+PacketCache::Data::Data(TransmitPacketPtr const& packet) :
+        _packet(packet),
+        _label(packet->retrieveCounter().value(), packet->retrieveRealm().value()),
+        _time(std::chrono::steady_clock::now())
+{}
+
+PacketCache::Data& PacketCache::Data::operator=(TransmitPacketPtr const& packet)
+{
+    this->_packet = packet;
+    this->_label._counter = packet->retrieveCounter().value();
+    this->_label._realm = packet->retrieveRealm().value();
+    this->_time = std::chrono::steady_clock::now();
+    return *this;
+}
+
 } // namespace fge::net

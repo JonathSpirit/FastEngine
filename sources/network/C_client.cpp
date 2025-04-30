@@ -369,6 +369,29 @@ PacketReorderer const& Client::getPacketReorderer() const
     return this->g_packetReorderer;
 }
 
+PacketCache& Client::getPacketCache()
+{
+    return this->g_packetCache;
+}
+PacketCache const& Client::getPacketCache() const
+{
+    return this->g_packetCache;
+}
+void Client::acknowledgeReception(ReceivedPacketPtr const& packet)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_acknowledgedPackets.push_back({packet->retrieveCounter().value(), packet->retrieveRealm().value()});
+}
+std::vector<PacketCache::Label> const& Client::getAcknowledgedList() const
+{
+    return this->g_acknowledgedPackets;
+}
+void Client::clearAcknowledgedList()
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_acknowledgedPackets.clear();
+}
+
 void Client::clearLostPacketCount()
 {
     std::scoped_lock const lck(this->g_mutex);
@@ -429,6 +452,17 @@ uint16_t Client::getMTU() const
 void Client::setMTU(uint16_t mtu)
 {
     this->g_mtu = mtu;
+}
+
+void Client::setPacketReturnRate(std::chrono::milliseconds rate)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_returnPacketRate = rate;
+}
+std::chrono::milliseconds Client::getPacketReturnRate() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+    return this->g_returnPacketRate;
 }
 
 //OneWayLatencyPlanner

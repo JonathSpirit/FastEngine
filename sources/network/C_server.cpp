@@ -457,6 +457,24 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             refClient->setCTOSLatency_ms(latency.value());
         }
 
+        //Extract acknowledged packets
+        static std::vector<PacketCache::Label> acknowledgedPackets;
+        SizeType acknowledgedPacketsSize = 0;
+        packet->packet() >> acknowledgedPacketsSize;
+        acknowledgedPackets.resize(acknowledgedPacketsSize);
+        for (SizeType i = 0; i < acknowledgedPacketsSize; ++i)
+        {
+            PacketCache::Label label;
+            packet->packet() >> label._counter >> label._realm;
+            if (!packet->isValid())
+            {
+                return FluxProcessResults::INTERNALLY_DISCARDED;
+            }
+            acknowledgedPackets[i] = label;
+        }
+        refClient->getPacketCache().acknowledgeReception(acknowledgedPackets);
+        FGE_DEBUG_PRINT("Acknowledged packets: {}", acknowledgedPacketsSize);
+
         this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
 
         return FluxProcessResults::INTERNALLY_HANDLED;
@@ -1034,6 +1052,7 @@ void ServerSideNetUdp::threadTransmission()
 {
     std::unique_lock lckServer(this->g_mutexServer);
     CompressorLZ4 compressor;
+    std::chrono::steady_clock::time_point timePoint;
 
     while (this->g_running)
     {
@@ -1052,11 +1071,23 @@ void ServerSideNetUdp::threadTransmission()
                 clients = &this->g_fluxes[i]->_clients;
             }
 
+            timePoint = std::chrono::steady_clock::now();
             auto clientLock = clients->acquireLock();
 
             for (auto itClient = clients->begin(clientLock); itClient != clients->end(clientLock); ++itClient)
             {
                 auto& client = itClient->second._client;
+
+                //check cache
+                auto const clientLatency =
+                        client->getPacketReturnRate() * 1.5f +
+                        std::chrono::milliseconds(client->_latencyPlanner.getRoundTripTime().value_or(1));
+                while (client->getPacketCache().check(
+                        timePoint, std::chrono::duration_cast<std::chrono::milliseconds>(clientLatency)))
+                {
+                    FGE_DEBUG_PRINT("re-transmit packet as client didn't acknowledge it");
+                    client->pushForcedFrontPacket(client->getPacketCache().pop());
+                }
 
                 if (client->isPendingPacketsEmpty())
                 {
@@ -1070,18 +1101,22 @@ void ServerSideNetUdp::threadTransmission()
 
                 auto transmissionPacket = client->popPacket();
 
-                //Compression and applying options
-                if (!transmissionPacket->isFragmented() && client->getStatus().isInEncryptedState())
+                if (!transmissionPacket->isMarkedAsCached())
                 {
-                    transmissionPacket->applyOptions(*client);
-                    if (!transmissionPacket->compress(compressor))
+                    //Compression and applying options
+                    if (!transmissionPacket->isFragmented() && client->getStatus().isInEncryptedState())
                     {
-                        continue;
+                        transmissionPacket->applyOptions(*client);
+                        if (!transmissionPacket->compress(compressor))
+                        {
+                            continue;
+                        }
+                        client->getPacketCache().push(transmissionPacket);
                     }
-                }
-                else
-                {
-                    transmissionPacket->applyOptions(*client);
+                    else
+                    {
+                        transmissionPacket->applyOptions(*client);
+                    }
                 }
 
                 //MTU check
@@ -1344,7 +1379,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (this->isReturnPacketEnabled())
     {
         auto const now = std::chrono::steady_clock::now();
-        if (now - this->g_returnPacketTimePoint >= this->g_returnPacketRate)
+        if (now - this->g_returnPacketTimePoint >= this->_client.getPacketReturnRate())
         {
             this->g_returnPacketTimePoint = now;
             auto returnPacket = this->prepareAndRetrieveReturnPacket();
@@ -1477,14 +1512,6 @@ void ClientSideNetUdp::askFullUpdateReturnEvent()
     this->endReturnEvent();
 }
 
-void ClientSideNetUdp::setReturnPacketRate(std::chrono::milliseconds rate)
-{
-    this->g_returnPacketRate = rate;
-}
-std::chrono::milliseconds ClientSideNetUdp::getReturnPacketRate() const
-{
-    return this->g_returnPacketRate;
-}
 void ClientSideNetUdp::enableReturnPacket(bool enable)
 {
     this->g_returnPacketEnabled = enable;
@@ -1514,6 +1541,16 @@ TransmitPacketPtr ClientSideNetUdp::prepareAndRetrieveReturnPacket()
     //After return events, the packet is mostly composed of timestamp and latency information to limit bandwidth of packets.
     //The LatencyPlanner class will do all the work for that.
     this->_client._latencyPlanner.pack(returnPacket);
+
+    //Pack acknowledged packets
+    auto const& acknowledgedPackets = this->_client.getAcknowledgedList();
+    SizeType const size = acknowledgedPackets.size();
+    returnPacket->packet() << size;
+    for (auto const& acknowledgedPacket: acknowledgedPackets)
+    {
+        returnPacket->packet() << acknowledgedPacket._counter << acknowledgedPacket._realm;
+    }
+    this->_client.clearAcknowledgedList();
 
     //Prepare the new returnPacket
     this->resetReturnPacket();

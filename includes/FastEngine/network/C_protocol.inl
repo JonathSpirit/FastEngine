@@ -62,6 +62,7 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket const& r) :
 
         g_markedForEncryption(r.g_markedForEncryption),
         g_markedAsLocallyReordered(r.g_markedAsLocallyReordered),
+        g_markedAsCached(r.g_markedAsCached),
 
         g_options(r.g_options)
 {}
@@ -77,6 +78,7 @@ inline ProtocolPacket::ProtocolPacket(ProtocolPacket&& r) noexcept :
 
         g_markedForEncryption(r.g_markedForEncryption),
         g_markedAsLocallyReordered(r.g_markedAsLocallyReordered),
+        g_markedAsCached(r.g_markedAsCached),
 
         g_options(std::move(r.g_options))
 {}
@@ -321,6 +323,19 @@ inline void ProtocolPacket::unmarkAsLocallyReordered()
 inline bool ProtocolPacket::isMarkedAsLocallyReordered() const
 {
     return this->g_markedAsLocallyReordered;
+}
+
+inline void ProtocolPacket::markAsCached()
+{
+    this->g_markedAsCached = true;
+}
+inline void ProtocolPacket::unmarkAsCached()
+{
+    this->g_markedAsCached = false;
+}
+inline bool ProtocolPacket::isMarkedAsCached() const
+{
+    return this->g_markedAsCached;
 }
 
 inline bool ProtocolPacket::checkFluxLifetime(std::size_t fluxSize)
