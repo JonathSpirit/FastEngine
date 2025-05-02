@@ -67,6 +67,9 @@ private:
     TMutex* g_mutex;
 };
 
+template<class TData, class TMutex>
+using DataLockPair = std::pair<TData, AccessLock<TMutex>>;
+
 } // namespace fge
 
 #endif // _FGE_C_ACCESSLOCK_HPP_INCLUDED
