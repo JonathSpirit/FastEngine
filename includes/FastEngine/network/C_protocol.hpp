@@ -400,6 +400,11 @@ class FGE_API PacketCache
 public:
     struct Label
     {
+        constexpr Label(ProtocolPacket::CounterType counter, ProtocolPacket::RealmType realm) :
+                _counter(counter),
+                _realm(realm)
+        {}
+
         ProtocolPacket::CounterType _counter{0};
         ProtocolPacket::RealmType _realm{0};
 
