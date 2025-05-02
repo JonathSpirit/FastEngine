@@ -73,6 +73,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
 
         if (stat == PacketReorderer::Stats::RETRIEVABLE)
         {
+            packet->markAsLocallyReordered();
             return FluxProcessResults::USER_RETRIEVABLE;
         }
 
@@ -331,7 +332,25 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         return this->processMTUDiscoveredClient(*refClientData, packet);
     }
 
-    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG) && !packet->isMarkedAsLocallyReordered())
+    auto const stat =
+            PacketReorderer::checkStat(packet, refClient->getClientPacketCounter(), refClient->getCurrentRealm());
+
+    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG))
+    {
+        if (stat == PacketReorderer::Stats::OLD_COUNTER)
+        {
+            auto const packetCounter = packet->retrieveCounter().value();
+            auto const packetRealm = packet->retrieveRealm().value();
+            auto const currentCounter = refClient->getClientPacketCounter();
+            FGE_DEBUG_PRINT("Packet is old, discarding it packetCounter: {}, packetRealm: {}, currentCounter: {}",
+                            packetCounter, packetRealm, currentCounter);
+            refClient->advanceLostPacketCount();
+            return FluxProcessResults::INTERNALLY_DISCARDED;
+        }
+    }
+
+    bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+    if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult = this->processReorder(*refClient, packet, refClient->getClientPacketCounter(), true);
         if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
@@ -343,28 +362,25 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     //Verify the realm
     if (!this->verifyRealm(refClient, packet))
     {
+        FGE_DEBUG_PRINT("Packet bad realm, discarding it");
         return FluxProcessResults::INTERNALLY_DISCARDED;
-    }
-
-    auto const stat =
-            PacketReorderer::checkStat(packet, refClient->getClientPacketCounter(), refClient->getCurrentRealm());
-
-    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG))
-    {
-        if (stat == PacketReorderer::Stats::OLD_COUNTER)
-        {
-            refClient->advanceLostPacketCount();
-            return FluxProcessResults::INTERNALLY_DISCARDED;
-        }
     }
 
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
+        auto const packetCounter = packet->retrieveCounter().value();
+        auto const packetRealm = packet->retrieveRealm().value();
+        auto const currentCounter = refClient->getClientPacketCounter();
+        FGE_DEBUG_PRINT("We lose a packet packetCounter: {}, packetRealm: {}, currentCounter: {}", packetCounter,
+                        packetRealm, currentCounter);
         refClient->advanceLostPacketCount(); //We are missing a packet
     }
 
-    auto const countId = packet->retrieveCounter().value();
-    refClient->setClientPacketCounter(countId);
+    if (!doNotReorder)
+    {
+        auto const countId = packet->retrieveCounter().value();
+        refClient->setClientPacketCounter(countId);
+    }
 
     //Check if the packet is a return packet, and if so, handle it
     if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_RETURN_PACKET)
@@ -468,12 +484,16 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
             packet->packet() >> label._counter >> label._realm;
             if (!packet->isValid())
             {
+                FGE_DEBUG_PRINT("received bad label");
                 return FluxProcessResults::INTERNALLY_DISCARDED;
             }
             acknowledgedPackets[i] = label;
         }
-        refClient->getPacketCache().acknowledgeReception(acknowledgedPackets);
-        FGE_DEBUG_PRINT("Acknowledged packets: {}", acknowledgedPacketsSize);
+
+        {
+            auto const packetCache = refClient->getPacketCache();
+            packetCache.first->acknowledgeReception(acknowledgedPackets);
+        }
 
         this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
 
@@ -709,6 +729,7 @@ FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
         refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
         refClient->setClientPacketCounter(0);
+        refClient->setCurrentPacketCounter(0);
         this->_onClientConnected.call(refClient, packet->getIdentity());
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
@@ -1079,14 +1100,19 @@ void ServerSideNetUdp::threadTransmission()
                 auto& client = itClient->second._client;
 
                 //check cache
-                auto const clientLatency =
-                        client->getPacketReturnRate() * 1.5f +
-                        std::chrono::milliseconds(client->_latencyPlanner.getRoundTripTime().value_or(1));
-                while (client->getPacketCache().check(
-                        timePoint, std::chrono::duration_cast<std::chrono::milliseconds>(clientLatency)))
                 {
-                    FGE_DEBUG_PRINT("re-transmit packet as client didn't acknowledge it");
-                    client->pushForcedFrontPacket(client->getPacketCache().pop());
+                    auto const packetCache = client->getPacketCache();
+
+                    auto const clientLatency =
+                            client->getPacketReturnRate() * 1.5f +
+                            std::chrono::milliseconds(client->_latencyPlanner.getRoundTripTime().value_or(1));
+
+                    while (packetCache.first->check(
+                            timePoint, std::chrono::duration_cast<std::chrono::milliseconds>(clientLatency)))
+                    {
+                        FGE_DEBUG_PRINT("re-transmit packet as client didn't acknowledge it");
+                        client->pushForcedFrontPacket(packetCache.first->pop());
+                    }
                 }
 
                 if (client->isPendingPacketsEmpty())
@@ -1111,7 +1137,8 @@ void ServerSideNetUdp::threadTransmission()
                         {
                             continue;
                         }
-                        client->getPacketCache().push(transmissionPacket);
+                        auto const packetCache = client->getPacketCache();
+                        packetCache.first->push(transmissionPacket);
                     }
                     else
                     {
@@ -1403,14 +1430,9 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     }
     --this->_g_remainingPackets;
 
-    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG) && !packet->isMarkedAsLocallyReordered())
+    if (!packet->isMarkedAsLocallyReordered())
     {
-        auto reorderResult =
-                this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
-        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
-        {
-            return reorderResult;
-        }
+        this->_client.acknowledgeReception(packet);
     }
 
     auto const stat = PacketReorderer::checkStat(packet, this->_client.getCurrentPacketCounter(),
@@ -1420,8 +1442,24 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     {
         if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)
         {
+            auto const packetCounter = packet->retrieveCounter().value();
+            auto const packetRealm = packet->retrieveRealm().value();
+            auto const currentCounter = this->_client.getCurrentPacketCounter();
+            FGE_DEBUG_PRINT("Packet is old, discarding it packetCounter: {}, packetRealm: {}, currentCounter: {}",
+                            packetCounter, packetRealm, currentCounter);
             this->_client.advanceLostPacketCount();
             return FluxProcessResults::INTERNALLY_DISCARDED;
+        }
+    }
+
+    bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+    if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
+    {
+        auto reorderResult =
+                this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
+        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
+        {
+            return reorderResult;
         }
     }
 
@@ -1436,13 +1474,20 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
 
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
+        auto const packetCounter = packet->retrieveCounter().value();
+        auto const packetRealm = packet->retrieveRealm().value();
+        auto const currentCounter = this->_client.getCurrentPacketCounter();
+        FGE_DEBUG_PRINT("We lose a packet packetCounter: {}, packetRealm: {}, currentCounter: {}", packetCounter,
+                        packetRealm, currentCounter);
         this->_client.advanceLostPacketCount(); //We are missing a packet
     }
 
+    if (!doNotReorder)
+    {
+        auto const serverCountId = packet->retrieveCounter().value();
+        this->_client.setCurrentPacketCounter(serverCountId);
+    }
     auto const serverRealm = packet->retrieveRealm().value();
-    auto const serverCountId = packet->retrieveCounter().value();
-
-    this->_client.setCurrentPacketCounter(serverCountId);
     this->_client.setCurrentRealm(serverRealm);
 
     return FluxProcessResults::USER_RETRIEVABLE;
