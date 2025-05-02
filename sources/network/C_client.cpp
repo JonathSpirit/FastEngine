@@ -369,13 +369,13 @@ PacketReorderer const& Client::getPacketReorderer() const
     return this->g_packetReorderer;
 }
 
-PacketCache& Client::getPacketCache()
+DataLockPair<PacketCache*, std::recursive_mutex> Client::getPacketCache()
 {
-    return this->g_packetCache;
+    return DataLockPair<PacketCache*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
 }
-PacketCache const& Client::getPacketCache() const
+DataLockPair<PacketCache const*, std::recursive_mutex> Client::getPacketCache() const
 {
-    return this->g_packetCache;
+    return DataLockPair<PacketCache const*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
 }
 void Client::acknowledgeReception(ReceivedPacketPtr const& packet)
 {

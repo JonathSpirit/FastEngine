@@ -392,8 +392,8 @@ public:
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
 
-    [[nodiscard]] PacketCache& getPacketCache();
-    [[nodiscard]] PacketCache const& getPacketCache() const;
+    [[nodiscard]] DataLockPair<PacketCache*, std::recursive_mutex> getPacketCache();
+    [[nodiscard]] DataLockPair<PacketCache const*, std::recursive_mutex> getPacketCache() const;
     void acknowledgeReception(ReceivedPacketPtr const& packet);
     [[nodiscard]] std::vector<PacketCache::Label> const& getAcknowledgedList() const;
     void clearAcknowledgedList();
