@@ -339,9 +339,11 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     {
         if (stat == PacketReorderer::Stats::OLD_COUNTER)
         {
+#ifdef FGE_DEF_DEBUG
             auto const packetCounter = packet->retrieveCounter().value();
             auto const packetRealm = packet->retrieveRealm().value();
             auto const currentCounter = refClient->getClientPacketCounter();
+#endif
             FGE_DEBUG_PRINT("Packet is old, discarding it packetCounter: {}, packetRealm: {}, currentCounter: {}",
                             packetCounter, packetRealm, currentCounter);
             refClient->advanceLostPacketCount();
@@ -368,9 +370,11 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
+#ifdef FGE_DEF_DEBUG
         auto const packetCounter = packet->retrieveCounter().value();
         auto const packetRealm = packet->retrieveRealm().value();
         auto const currentCounter = refClient->getClientPacketCounter();
+#endif
         FGE_DEBUG_PRINT("We lose a packet packetCounter: {}, packetRealm: {}, currentCounter: {}", packetCounter,
                         packetRealm, currentCounter);
         refClient->advanceLostPacketCount(); //We are missing a packet
@@ -1442,9 +1446,11 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     {
         if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)
         {
+#ifdef FGE_DEF_DEBUG
             auto const packetCounter = packet->retrieveCounter().value();
             auto const packetRealm = packet->retrieveRealm().value();
             auto const currentCounter = this->_client.getCurrentPacketCounter();
+#endif
             FGE_DEBUG_PRINT("Packet is old, discarding it packetCounter: {}, packetRealm: {}, currentCounter: {}",
                             packetCounter, packetRealm, currentCounter);
             this->_client.advanceLostPacketCount();
@@ -1474,9 +1480,11 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
 
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
+#ifdef FGE_DEF_DEBUG
         auto const packetCounter = packet->retrieveCounter().value();
         auto const packetRealm = packet->retrieveRealm().value();
         auto const currentCounter = this->_client.getCurrentPacketCounter();
+#endif
         FGE_DEBUG_PRINT("We lose a packet packetCounter: {}, packetRealm: {}, currentCounter: {}", packetCounter,
                         packetRealm, currentCounter);
         this->_client.advanceLostPacketCount(); //We are missing a packet
