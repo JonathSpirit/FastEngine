@@ -128,11 +128,13 @@ void ProtocolPacket::applyOptions()
     }
 }
 
-std::vector<std::shared_ptr<ProtocolPacket>> ProtocolPacket::fragment(uint16_t mtu) const
+std::vector<std::unique_ptr<ProtocolPacket>> ProtocolPacket::fragment(uint16_t mtu) const
 {
     if (this->getDataSize() < mtu)
     {
-        return std::vector{const_cast<ProtocolPacket*>(this)->shared_from_this()};
+        std::vector<std::unique_ptr<ProtocolPacket>> fragments(1);
+        fragments.back() = std::make_unique<ProtocolPacket>(*this);
+        return fragments;
     }
 
     //We have to fragment the packet
@@ -145,10 +147,10 @@ std::vector<std::shared_ptr<ProtocolPacket>> ProtocolPacket::fragment(uint16_t m
     InternalFragmentedPacketData fragmentData{};
     fragmentData._fragmentTotal = fragmentCount;
 
-    std::vector<std::shared_ptr<ProtocolPacket>> fragments(fragmentCount);
+    std::vector<std::unique_ptr<ProtocolPacket>> fragments(fragmentCount);
     for (std::size_t i = 0; i < fragmentCount; ++i)
     {
-        auto fragmentedPacket = std::make_shared<ProtocolPacket>(NET_INTERNAL_ID_FRAGMENTED_PACKET, fragmentRealm, i);
+        auto fragmentedPacket = std::make_unique<ProtocolPacket>(NET_INTERNAL_ID_FRAGMENTED_PACKET, fragmentRealm, i);
 
         fragmentedPacket->pack(&fragmentData, sizeof(fragmentData));
         fragmentedPacket->append(this->getData() + i * maxFragmentSize,
@@ -425,15 +427,14 @@ void PacketCache::push(TransmitPacketPtr const& packet)
         //Cache is full, we need to replace the oldest packet
         FGE_DEBUG_PRINT("PacketCache: Cache is full, replacing the oldest packet {}",
                         this->g_cache[this->g_start]._label._counter);
-        this->g_cache[this->g_start] = std::make_shared<ProtocolPacket>(*packet);
-        //TODO: I don't love the idea of copying the packets and I don't love the idea of having shared_ptr packets
+        this->g_cache[this->g_start] = std::make_unique<ProtocolPacket>(*packet);
         this->g_cache[this->g_start]._packet->markAsCached();
         this->g_start = (this->g_start + 1) % FGE_NET_PACKET_CACHE_MAX;
         this->g_end = next;
         return;
     }
 
-    this->g_cache[next] = std::make_shared<ProtocolPacket>(*packet);
+    this->g_cache[next] = std::make_unique<ProtocolPacket>(*packet);
     this->g_cache[next]._packet->markAsCached();
     this->g_end = next;
 }
@@ -516,17 +517,17 @@ TransmitPacketPtr PacketCache::pop()
     return std::move(this->g_cache[start]._packet);
 }
 
-PacketCache::Data::Data(TransmitPacketPtr const& packet) :
-        _packet(packet),
-        _label(packet->retrieveCounter().value(), packet->retrieveRealm().value()),
+PacketCache::Data::Data(TransmitPacketPtr&& packet) :
+        _packet(std::move(packet)),
+        _label(this->_packet->retrieveCounter().value(), this->_packet->retrieveRealm().value()),
         _time(std::chrono::steady_clock::now())
 {}
 
-PacketCache::Data& PacketCache::Data::operator=(TransmitPacketPtr const& packet)
+PacketCache::Data& PacketCache::Data::operator=(TransmitPacketPtr&& packet)
 {
-    this->_packet = packet;
-    this->_label._counter = packet->retrieveCounter().value();
-    this->_label._realm = packet->retrieveRealm().value();
+    this->_packet = std::move(packet);
+    this->_label._counter = this->_packet->retrieveCounter().value();
+    this->_label._realm = this->_packet->retrieveRealm().value();
     this->_time = std::chrono::steady_clock::now();
     return *this;
 }

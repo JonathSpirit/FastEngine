@@ -41,7 +41,7 @@ void ClientList::sendToAll(TransmitPacketPtr const& pck) const
     std::scoped_lock const lck(this->g_mutex);
     for (auto& it: this->g_data)
     {
-        it.second._client->pushPacket(pck);
+        it.second._client->pushPacket(std::make_unique<ProtocolPacket>(*pck));
     }
 }
 

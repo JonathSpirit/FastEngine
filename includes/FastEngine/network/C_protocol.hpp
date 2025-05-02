@@ -224,7 +224,7 @@ public:
     inline std::size_t getFluxIndex() const;
     inline std::size_t bumpFluxIndex(std::size_t fluxSize);
 
-    [[nodiscard]] std::vector<std::shared_ptr<ProtocolPacket>> fragment(uint16_t mtu) const;
+    [[nodiscard]] std::vector<std::unique_ptr<ProtocolPacket>> fragment(uint16_t mtu) const;
 
 private:
     Identity g_identity{};
@@ -240,17 +240,17 @@ private:
     std::vector<Option> g_options;
 };
 
-using TransmitPacketPtr = std::shared_ptr<ProtocolPacket>;
+using TransmitPacketPtr = std::unique_ptr<ProtocolPacket>;
 using ReceivedPacketPtr = std::unique_ptr<ProtocolPacket>;
 
 template<class... Args>
 [[nodiscard]] inline TransmitPacketPtr CreatePacket(Args&&... args)
 {
-    return std::make_shared<ProtocolPacket>(std::forward<Args>(args)...);
+    return std::make_unique<ProtocolPacket>(std::forward<Args>(args)...);
 }
 [[nodiscard]] inline TransmitPacketPtr CreatePacket()
 {
-    return std::make_shared<ProtocolPacket>(FGE_NET_BAD_ID);
+    return std::make_unique<ProtocolPacket>(FGE_NET_BAD_ID);
 }
 
 enum InternalProtocolIds : ProtocolPacket::IdType
@@ -273,7 +273,7 @@ enum InternalProtocolIds : ProtocolPacket::IdType
 
 [[nodiscard]] inline TransmitPacketPtr CreateDisconnectPacket()
 {
-    auto packet = std::make_shared<ProtocolPacket>(NET_INTERNAL_ID_DISCONNECT);
+    auto packet = std::make_unique<ProtocolPacket>(NET_INTERNAL_ID_DISCONNECT);
     packet->doNotDiscard().doNotReorder();
     return packet;
 }
@@ -448,9 +448,9 @@ private:
     struct Data
     {
         Data() = default;
-        explicit Data(TransmitPacketPtr const& packet);
+        explicit Data(TransmitPacketPtr&& packet);
 
-        Data& operator=(TransmitPacketPtr const& packet);
+        Data& operator=(TransmitPacketPtr&& packet);
 
         TransmitPacketPtr _packet;
         Label _label;
