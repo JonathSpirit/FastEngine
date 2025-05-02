@@ -43,7 +43,7 @@
 #define FGE_NET_BAD_ID 0
 
 #define FGE_NET_DEFAULT_REALM 0
-#define FGE_NET_PACKET_REORDERER_CACHE_MAX 5
+#define FGE_NET_PACKET_REORDERER_CACHE_MAX 200 //TODO: compute this value with the return packet rate and the tick rate
 
 #define FGE_NET_PACKET_CACHE_MAX 100
 #define FGE_NET_PACKET_CACHE_MIN_LATENCY_MS 10

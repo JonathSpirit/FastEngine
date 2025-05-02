@@ -18,6 +18,7 @@
 #include "FastEngine/C_compressor.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/network/C_server.hpp"
+#include "private/fge_debug.hpp"
 
 namespace fge::net
 {
@@ -257,6 +258,7 @@ void PacketReorderer::push(ReceivedPacketPtr&& packet)
         //as the cache is full, the waiting packet is considered lost
         //and we can move on. (if he is still missing)
         this->g_forceRetrieve = true;
+        FGE_DEBUG_PRINT("PacketReorderer: Cache is full, we can't wait anymore for the correct packet to arrive");
     }
 }
 PacketReorderer::Stats PacketReorderer::checkStat(ReceivedPacketPtr const& packet,
@@ -356,26 +358,35 @@ PacketReorderer::Data& PacketReorderer::Data::operator=(Data&& r) noexcept
 PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterType currentCounter,
                                                         ProtocolPacket::RealmType currentRealm) const
 {
+    FGE_DEBUG_PRINT("PacketReorderer: currentCounter {}, currentRealm {}, packetCounter {}->{}, packetRealm {}",
+                    currentCounter, currentRealm, this->_lastCounter, this->_counter, this->_realm);
+
     if (this->_realm < currentRealm && currentRealm + 1 != 0)
     {
+        FGE_DEBUG_PRINT("\tPacketReorderer: Old realm");
         return Stats::OLD_REALM;
     }
 
-    if (currentRealm != this->_realm && this->_lastCounter != 0)
+    if (currentRealm != this->_realm && this->_counter != 0)
     { //Different realm, we can switch to the new realm only if the counter is 0 (first packet of the new realm)
+        FGE_DEBUG_PRINT("\tPacketReorderer: Different realm, we can switch to the new realm only if the counter is 0 "
+                        "(first packet of the new realm)");
         return Stats::WAITING_NEXT_REALM;
     }
 
-    if (this->_lastCounter == currentCounter + 1)
+    if (this->_lastCounter == currentCounter)
     { //Same realm, we can switch to the next counter
+        FGE_DEBUG_PRINT("\tPacketReorderer: Same realm, correct counter, retrievable");
         return Stats::RETRIEVABLE;
     }
 
     if (this->_lastCounter < currentCounter)
     { //We are missing a packet
+        FGE_DEBUG_PRINT("\tPacketReorderer: We are missing a packet");
         return Stats::OLD_COUNTER;
     }
 
+    FGE_DEBUG_PRINT("\tPacketReorderer: We can't switch to the next counter, we wait for the correct packet to arrive");
     //We can't switch to the next counter, we wait for the correct packet to arrive
     return Stats::WAITING_NEXT_COUNTER;
 }
@@ -402,6 +413,8 @@ void PacketCache::push(TransmitPacketPtr const& packet)
     if (next == this->g_start)
     {
         //Cache is full, we need to replace the oldest packet
+        FGE_DEBUG_PRINT("PacketCache: Cache is full, replacing the oldest packet {}",
+                        this->g_cache[this->g_start]._label._counter);
         this->g_cache[this->g_start] = std::make_shared<ProtocolPacket>(*packet);
         //TODO: I don't love the idea of copying the packets and I don't love the idea of having shared_ptr packets
         this->g_cache[this->g_start]._packet->markAsCached();
@@ -424,13 +437,14 @@ void PacketCache::acknowledgeReception(std::span<Label> labels)
 
     for (auto const& label: labels)
     {
-        auto start = this->g_start;
+        auto index = this->g_start;
 
         do {
-            auto& data = this->g_cache[start];
+            auto& data = this->g_cache[index];
+            index = (index + 1) % FGE_NET_PACKET_CACHE_MAX;
+
             if (!data._packet)
             { //Already acknowledged
-                start = (start + 1) % FGE_NET_PACKET_CACHE_MAX;
                 continue;
             }
 
@@ -439,7 +453,7 @@ void PacketCache::acknowledgeReception(std::span<Label> labels)
                 data._packet = nullptr; //We acknowledge the packet by setting it to nullptr
                 break;
             }
-        } while (start != this->g_end);
+        } while (index != this->g_end);
     }
 }
 
@@ -455,13 +469,14 @@ bool PacketCache::check(std::chrono::steady_clock::time_point const& timePoint, 
         clientDelay = std::chrono::milliseconds(FGE_NET_PACKET_CACHE_MIN_LATENCY_MS);
     }
 
-    auto start = this->g_start;
+    auto index = this->g_start;
     do {
-        auto& data = this->g_cache[start];
+        auto& data = this->g_cache[index];
+        index = (index + 1) % FGE_NET_PACKET_CACHE_MAX;
+
         if (!data._packet)
         { //Packet is acknowledged, let's remove it
-            start = (start + 1) % FGE_NET_PACKET_CACHE_MAX;
-            this->g_start = start;
+            this->g_start = index;
             continue;
         }
 
@@ -470,7 +485,7 @@ bool PacketCache::check(std::chrono::steady_clock::time_point const& timePoint, 
             return true;
         }
         return false;
-    } while (start != this->g_end);
+    } while (index != this->g_end);
 
     //If we are here, it means that every packet that was in the cache has been acknowledged, so it's good
     return false;
