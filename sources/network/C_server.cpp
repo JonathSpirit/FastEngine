@@ -98,9 +98,10 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
     currentCounter = packet->retrieveCounter().value();
     currentRealm = packet->retrieveRealm().value();
 
+    auto const packerReordererMaxSize = client.getPacketReorderer().getMaximumSize();
     std::size_t containerInversedSize = 0;
-    auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX);
-    FGE_PLACE_CONSTRUCT(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+    auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, packerReordererMaxSize);
+    FGE_PLACE_CONSTRUCT(ReceivedPacketPtr, packerReordererMaxSize, containerInversed);
 
     while (auto const stat = client.getPacketReorderer().checkStat(currentCounter, currentRealm))
     {
@@ -128,7 +129,7 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
         ++this->_g_remainingPackets;
     }
 
-    FGE_PLACE_DESTRUCT(ReceivedPacketPtr, FGE_NET_PACKET_REORDERER_CACHE_MAX, containerInversed);
+    FGE_PLACE_DESTRUCT(ReceivedPacketPtr, packerReordererMaxSize, containerInversed);
 
     return FluxProcessResults::USER_RETRIEVABLE;
 }
@@ -1108,7 +1109,7 @@ void ServerSideNetUdp::threadTransmission()
                     auto const packetCache = client->getPacketCache();
 
                     auto const clientLatency =
-                            client->getPacketReturnRate() * 1.5f +
+                            client->getPacketReturnRate() * FGE_NET_PACKET_CACHE_DELAY_FACTOR +
                             std::chrono::milliseconds(client->_latencyPlanner.getRoundTripTime().value_or(1));
 
                     while (packetCache.first->check(
@@ -1628,6 +1629,7 @@ void ClientSideNetUdp::threadReception()
 {
     Packet pckReceive;
     CompressorLZ4 compressor;
+    bool flag = false;
 
     while (this->g_running)
     {
@@ -1657,6 +1659,29 @@ void ClientSideNetUdp::threadReception()
 
             auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), this->g_clientIdentity);
             packet->setTimestamp(Client::getTimestamp_ms());
+
+            int Size;
+            auto const* keys = SDL_GetKeyboardState(&Size);
+            if (keys[SDL_SCANCODE_R])
+            {
+                if (!flag)
+                {
+                    flag = true;
+#ifdef FGE_DEF_DEBUG
+                    auto const counter = packet->retrieveCounter().value();
+                    auto const realm = packet->retrieveRealm().value();
+#endif
+                    FGE_DEBUG_PRINT("Removing the packet : {} realm {}", counter, realm);
+                    continue;
+                }
+            }
+            else
+            {
+                if (flag)
+                {
+                    flag = false;
+                }
+            }
 
             //Here we consider that the packet is not encrypted
             if (!packet->haveCorrectHeader())

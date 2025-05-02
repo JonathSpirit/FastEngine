@@ -42,11 +42,14 @@
 
 #define FGE_NET_BAD_ID 0
 
-#define FGE_NET_DEFAULT_REALM 0
-#define FGE_NET_PACKET_REORDERER_CACHE_MAX 200 //TODO: compute this value with the return packet rate and the tick rate
-
+#define FGE_NET_PACKET_CACHE_DELAY_FACTOR 1.2f
 #define FGE_NET_PACKET_CACHE_MAX 100
 #define FGE_NET_PACKET_CACHE_MIN_LATENCY_MS 10
+
+#define FGE_NET_DEFAULT_REALM 0
+#define FGE_NET_DEFAULT_PACKET_REORDERER_CACHE_SIZE 5
+#define FGE_NET_PACKET_REORDERER_CACHE_COMPUTE(_clientReturnRate, _serverTickRate)                                     \
+    (((_clientReturnRate) * FGE_NET_PACKET_CACHE_DELAY_FACTOR / (_serverTickRate) + 1) * 2)
 
 #define FGE_NET_HANDSHAKE_STRING "FGE:HANDSHAKE:AZCgMVg4d4Sl2xYvZcqXqljIOqSrKX6H"
 
@@ -359,6 +362,9 @@ public:
 
     [[nodiscard]] bool isEmpty() const;
 
+    void setMaximumSize(std::size_t size);
+    [[nodiscard]] std::size_t getMaximumSize() const;
+
 private:
     struct FGE_API Data
     {
@@ -392,6 +398,7 @@ private:
     };
 
     std::priority_queue<Data, std::vector<Data>, Data::Compare> g_cache;
+    std::size_t g_cacheSize{FGE_NET_DEFAULT_PACKET_REORDERER_CACHE_SIZE};
     bool g_forceRetrieve{false};
 };
 

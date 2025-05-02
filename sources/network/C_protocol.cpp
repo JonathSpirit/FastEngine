@@ -252,7 +252,7 @@ void PacketReorderer::clear()
 void PacketReorderer::push(ReceivedPacketPtr&& packet)
 {
     this->g_cache.emplace(std::move(packet));
-    if (this->g_cache.size() >= FGE_NET_PACKET_REORDERER_CACHE_MAX)
+    if (this->g_cache.size() >= this->g_cacheSize)
     {
         //We can't wait anymore for the correct packet to arrive
         //as the cache is full, the waiting packet is considered lost
@@ -330,6 +330,16 @@ ReceivedPacketPtr PacketReorderer::pop()
 bool PacketReorderer::isEmpty() const
 {
     return this->g_cache.empty();
+}
+
+void PacketReorderer::setMaximumSize(std::size_t size)
+{
+    this->g_cacheSize = size;
+    this->clear();
+}
+std::size_t PacketReorderer::getMaximumSize() const
+{
+    return this->g_cacheSize;
 }
 
 PacketReorderer::Data::Data(ReceivedPacketPtr&& packet) :

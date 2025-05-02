@@ -275,6 +275,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 std::cout << "connection ok" << std::endl;
 
                 server.enableReturnPacket(true);
+                server._client.getPacketReorderer().setMaximumSize(FGE_NET_PACKET_REORDERER_CACHE_COMPUTE(
+                        FGE_NET_DEFAULT_RETURN_PACKET_RATE.count(), LIFESIM_SERVER_TICK));
 
                 auto transmissionPacket = fge::net::CreatePacket(ls::LS_PROTOCOL_C_PLEASE_CONNECT_ME);
                 transmissionPacket->doNotDiscard().doNotReorder()
