@@ -1629,7 +1629,6 @@ void ClientSideNetUdp::threadReception()
 {
     Packet pckReceive;
     CompressorLZ4 compressor;
-    bool flag = false;
 
     while (this->g_running)
     {
@@ -1660,29 +1659,6 @@ void ClientSideNetUdp::threadReception()
             auto packet = std::make_unique<ProtocolPacket>(std::move(pckReceive), this->g_clientIdentity);
             packet->setTimestamp(Client::getTimestamp_ms());
 
-            int Size;
-            auto const* keys = SDL_GetKeyboardState(&Size);
-            if (keys[SDL_SCANCODE_R])
-            {
-                if (!flag)
-                {
-                    flag = true;
-#ifdef FGE_DEF_DEBUG
-                    auto const counter = packet->retrieveCounter().value();
-                    auto const realm = packet->retrieveRealm().value();
-#endif
-                    FGE_DEBUG_PRINT("Removing the packet : {} realm {}", counter, realm);
-                    continue;
-                }
-            }
-            else
-            {
-                if (flag)
-                {
-                    flag = false;
-                }
-            }
-
             //Here we consider that the packet is not encrypted
             if (!packet->haveCorrectHeader())
             {
@@ -1690,6 +1666,20 @@ void ClientSideNetUdp::threadReception()
             }
             //Skip the header for reading
             packet->skip(ProtocolPacket::HeaderSize);
+
+            //Check if the packet is a fragment
+            if (packet->isFragmented())
+            {
+                auto const result = this->g_defragmentation.process(std::move(packet));
+                if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
+                {
+                    packet = this->g_defragmentation.retrieve(result._id, this->g_clientIdentity);
+                }
+                else
+                {
+                    continue;
+                }
+            }
 
             //Decompress the packet if needed
             if (!packet->decompress(compressor))
@@ -1735,20 +1725,6 @@ void ClientSideNetUdp::threadReception()
                     FGE_DEBUG_PRINT("received MTU final");
                     this->_client._mtuFinalizedFlag = true;
                     this->_client.getStatus().resetTimeout();
-                    continue;
-                }
-            }
-
-            //Check if the packet is a fragment
-            if ((headerId & ~FGE_NET_HEADER_FLAGS_MASK) == NET_INTERNAL_ID_FRAGMENTED_PACKET)
-            {
-                auto const result = this->g_defragmentation.process(std::move(packet));
-                if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
-                {
-                    packet = this->g_defragmentation.retrieve(result._id, this->g_clientIdentity);
-                }
-                else
-                {
                     continue;
                 }
             }

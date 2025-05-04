@@ -156,6 +156,12 @@ std::vector<std::unique_ptr<ProtocolPacket>> ProtocolPacket::fragment(uint16_t m
         fragmentedPacket->append(this->getData() + i * maxFragmentSize,
                                  i == fragmentCount - 1 ? packetSize - i * maxFragmentSize : maxFragmentSize);
 
+        fragmentedPacket->doNotFragment().doNotReorder();
+        if (this->isMarkedForEncryption())
+        {
+            fragmentedPacket->markForEncryption();
+        }
+
         fragments[i] = std::move(fragmentedPacket);
     }
     return fragments;
