@@ -92,7 +92,7 @@ NetCommandResults NetMTUCommand::internalUpdate(TransmitPacketPtr& buffPacket,
                 (addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_HEADER_SIZE : FGE_SOCKET_IPV6_HEADER_SIZE) +
                 FGE_SOCKET_UDP_HEADER_SIZE;
 
-        FGE_DEBUG_PRINT("MTU: discover: current packet size: {}", currentSize);
+        FGE_DEBUG_PRINT("MTU: discover: current try count: {}", this->g_tryCount);
 
         --this->g_tryCount;
         if (this->g_tryCount == 0 && this->g_currentMTU == 0)
@@ -102,7 +102,13 @@ NetCommandResults NetMTUCommand::internalUpdate(TransmitPacketPtr& buffPacket,
             this->g_targetMTU =
                     addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU;
         }
-        buffPacket->packet().append(this->g_targetMTU - currentSize - extraHeader);
+        buffPacket->append(this->g_targetMTU - currentSize - extraHeader);
+
+#ifdef FGE_DEF_DEBUG
+        auto const packetSize = buffPacket->getDataSize();
+#endif
+        FGE_DEBUG_PRINT("MTU: discover: current packet size: {}", packetSize);
+
         this->resetTimeout();
         client.getStatus().resetTimeout();
         this->g_state = States::WAITING;
@@ -163,18 +169,26 @@ NetCommandResults NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& pack
             //Compute a new target MTU
             this->g_targetMTU = this->g_maximumMTU;
 
-            std::size_t const diff = this->g_maximumMTU - this->g_currentMTU;
-            if (diff < FGE_NET_MTU_MIN_INTERVAL)
-            {
-                this->g_tryCount = 0;
+            if (this->g_maximumMTU < this->g_currentMTU)
+            { //Handle the case where the max MTU is smaller than standard IPV4/IPV6 min MTU
+                this->g_tryCount = 1;
+                this->g_currentMTU = this->g_maximumMTU;
             }
             else
             {
-                this->g_tryCount = FGE_NET_MTU_TRY_COUNT;
-                this->g_intervalMTU = diff / 2;
+                std::size_t const diff = this->g_maximumMTU - this->g_currentMTU;
+                if (diff < FGE_NET_MTU_MIN_INTERVAL)
+                {
+                    this->g_tryCount = 1;
+                }
+                else
+                {
+                    this->g_tryCount = FGE_NET_MTU_TRY_COUNT;
+                    this->g_intervalMTU = diff / 2;
+                }
             }
 
-            FGE_DEBUG_PRINT("MTU: currentMTU: {}", this->g_currentMTU);
+            FGE_DEBUG_PRINT("MTU: currentMTU: {}, interval: {}", this->g_currentMTU, this->g_intervalMTU);
 
             this->resetTimeout();
             this->g_state = States::DISCOVER;
