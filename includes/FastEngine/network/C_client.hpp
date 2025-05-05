@@ -19,23 +19,38 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_identity.hpp"
-#include "C_packet.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/network/C_protocol.hpp"
 #include <array>
+#include <atomic>
 #include <chrono>
+#include <deque>
 #include <memory>
 #include <mutex>
-#include <queue>
-#include <vector>
 
-#define FGE_NET_BAD_SKEY 0
 #define FGE_NET_DEFAULT_LATENCY 20
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_LATENCY_PLANNER_MEAN 6
 #define FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD 15
+#define FGE_NET_STATUS_DEFAULT_TIMEOUT                                                                                 \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        2000                                                                                                           \
+    }
+#define FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT                                                                       \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        6000                                                                                                           \
+    }
+#define FGE_NET_STATUS_DEFAULT_STATUS "none"
+
+#define FGE_NET_DEFAULT_RETURN_PACKET_RATE                                                                             \
+    std::chrono::milliseconds                                                                                          \
+    {                                                                                                                  \
+        500                                                                                                            \
+    }
 
 namespace fge::net
 {
@@ -44,96 +59,10 @@ namespace fge::net
  * @{
  */
 
-using Skey = uint32_t; ///< The session key can be used to identify a client when connecting to a server.
-
 using Timestamp = uint16_t;          ///< An timestamp represent modulated current time in milliseconds
 using FullTimestamp = uint64_t;      ///< An timestamp represent current time in milliseconds
 using FullTimestampOffset = int64_t; ///< An timestamp offset
 using Latency_ms = uint16_t; ///< An latency represent the latency of the client->server / server->client connection
-
-class FluxPacket;
-class Client;
-
-/**
- * \struct TransmissionPacket
- * \brief A packet with configurable options to transmit via a network thread
- *
- * Options will be applied at the moment when the packet will be sent.
- *
- * \warning When the packet is pushed via Client::pushPacket or ClientList::sendToAll, the user must not modify
- * the packet/options anymore causing undefined behavior.
- */
-class FGE_API TransmissionPacket
-{
-public:
-    /**
-     * \enum Options
-     * \brief Options to pass to the network thread when sending a packet
-     */
-    enum class Options
-    {
-        UPDATE_TIMESTAMP,         ///< The timestamp of the packet will be updated when sending
-        UPDATE_FULL_TIMESTAMP,    ///< The full timestamp of the packet will be updated when sending
-        UPDATE_CORRECTION_LATENCY ///< The latency of the packet will be updated with the corrector latency from the Client
-    };
-
-    struct Option
-    {
-        constexpr explicit Option(Options option, std::size_t argument = 0) :
-                _option(option),
-                _argument(argument)
-        {}
-
-        Options _option;       ///< The option to send the packet with
-        std::size_t _argument; ///< The option argument
-    };
-
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket>
-    create(ProtocolPacket::Header header = FGE_NET_BAD_HEADERID);
-    [[nodiscard]] static inline std::shared_ptr<TransmissionPacket> create(Packet&& packet);
-
-    TransmissionPacket(TransmissionPacket const& r) = delete;
-    TransmissionPacket(TransmissionPacket&& r) noexcept = delete;
-    ~TransmissionPacket() = default;
-
-    TransmissionPacket& operator=(TransmissionPacket const& r) = delete;
-    TransmissionPacket& operator=(TransmissionPacket&& r) noexcept = delete;
-
-    [[nodiscard]] inline ProtocolPacket const& packet() const;
-    [[nodiscard]] inline ProtocolPacket& packet();
-    [[nodiscard]] inline std::vector<Option> const& options() const;
-    [[nodiscard]] inline std::vector<Option>& options();
-
-    inline TransmissionPacket& doNotDiscard();
-    inline TransmissionPacket& doNotReorder();
-
-    /**
-     * \brief Apply packet options to the packet
-     *
-     * \see Options
-     *
-     * \param client The client to apply the options
-     */
-    void applyOptions(Client const& client);
-    /**
-     * \brief Apply packet options to the packet
-     *
-     * Same as applyOptions(Client const& client) but without the client parameter.
-     * UPDATE_CORRECTION_LATENCY will throw.
-     */
-    void applyOptions();
-
-private:
-    inline explicit TransmissionPacket(ProtocolPacket::Header header,
-                                       ProtocolPacket::Realm realmId,
-                                       ProtocolPacket::CountId countId);
-    inline explicit TransmissionPacket(ProtocolPacket&& packet);
-
-    ProtocolPacket g_packet;
-    std::vector<Option> g_options;
-};
-
-using TransmissionPacketPtr = std::shared_ptr<TransmissionPacket>;
 
 /**
  * \struct OneWayLatencyPlanner
@@ -158,16 +87,16 @@ public:
     /**
      * \brief Pack the required data by the planner to the client/server
      *
-     * \param tPacket A TransmissionPacket
+     * \param tPacket A ProtocolPacket
      */
-    void pack(TransmissionPacketPtr& tPacket);
+    void pack(TransmitPacketPtr& tPacket);
     /**
      * \brief Unpack the data received by another client/server planner
      *
      * \param packet A received packet
      * \param client A client
      */
-    void unpack(FluxPacket* packet, Client& client);
+    void unpack(ProtocolPacket* packet, Client& client);
 
     /**
      * \brief Retrieve the clock offset
@@ -238,6 +167,50 @@ private:
     std::underlying_type_t<Stats> g_syncStat{0};
 };
 
+class FGE_API ClientStatus
+{
+public:
+    enum class NetworkStatus
+    {
+        UNKNOWN,
+
+        ACKNOWLEDGED,
+        MTU_DISCOVERED,
+        CONNECTED,
+        AUTHENTICATED,
+
+        DISCONNECTED,
+        TIMEOUT,
+    };
+
+    ClientStatus() = default;
+    explicit ClientStatus(std::string_view status, NetworkStatus networkStatus = NetworkStatus::UNKNOWN);
+
+    [[nodiscard]] bool isInEncryptedState() const;
+    [[nodiscard]] bool isDisconnected() const;
+    [[nodiscard]] bool isConnected() const;
+    [[nodiscard]] bool isConnecting() const;
+
+    [[nodiscard]] std::string const& getStatus() const;
+    [[nodiscard]] NetworkStatus getNetworkStatus() const;
+    [[nodiscard]] std::chrono::milliseconds getTimeout() const;
+    [[nodiscard]] std::chrono::milliseconds getRemainingTimeout() const;
+
+    void set(std::string_view status, NetworkStatus networkStatus);
+    void setStatus(std::string_view status);
+    void setNetworkStatus(NetworkStatus networkStatus);
+
+    void setTimeout(std::chrono::milliseconds timeout);
+    void resetTimeout();
+    [[nodiscard]] bool isTimeout() const;
+
+private:
+    std::string g_status{FGE_NET_STATUS_DEFAULT_STATUS};
+    std::atomic<NetworkStatus> g_networkStatus{NetworkStatus::UNKNOWN};
+    std::chrono::milliseconds g_timeout{FGE_NET_STATUS_DEFAULT_TIMEOUT};
+    std::chrono::steady_clock::time_point g_currentTimeout{std::chrono::steady_clock::now()};
+};
+
 /**
  * \class Client
  * \brief Class that represent the identity of a client
@@ -245,7 +218,15 @@ private:
 class FGE_API Client
 {
 public:
+    struct CryptInfo
+    {
+        void* _ssl{nullptr};
+        void* _rbio{nullptr};
+        void* _wbio{nullptr};
+    };
+
     Client();
+    ~Client();
     /**
      * \brief Constructor with default latencies
      *
@@ -253,25 +234,6 @@ public:
      * \param STOCLatency The "Server To Client" latency
      */
     explicit Client(Latency_ms CTOSLatency, Latency_ms STOCLatency);
-
-    /**
-     * \brief Generate a new random session key
-     *
-     * \return The generated session key
-     */
-    static Skey GenerateSkey();
-    /**
-     * \brief Set the session key for this client
-     *
-     * \param key The session key
-     */
-    void setSkey(Skey key);
-    /**
-     * \brief Get the session key for this client
-     *
-     * \return The session key
-     */
-    Skey getSkey() const;
 
     /**
      * \brief Set the "Client To Server" latency
@@ -353,7 +315,8 @@ public:
      *
      * \return The delta time in milliseconds
      */
-    Latency_ms getLastPacketElapsedTime() const;
+    [[nodiscard]] std::chrono::milliseconds getLastPacketElapsedTime() const;
+    [[nodiscard]] Latency_ms getLastPacketLatency() const;
 
     /**
      * \brief Get a modulated timestamp of the current time
@@ -382,7 +345,7 @@ public:
      */
     void clearPackets();
     /**
-     * \brief Add a TransmissionPacket to the queue
+     * \brief Add a Packet to the queue
      *
      * The packet will be sent when the network thread is ready to send it.
      * The network thread is ready to send a packet when the time interval between the last sent packet
@@ -394,13 +357,14 @@ public:
      *
      * \param pck The packet to send with eventual options
      */
-    void pushPacket(TransmissionPacketPtr pck);
+    void pushPacket(TransmitPacketPtr pck);
+    void pushForcedFrontPacket(TransmitPacketPtr pck);
     /**
      * \brief Pop a packet from the queue
      *
      * \return The popped packet or nullptr if the queue is empty
      */
-    TransmissionPacketPtr popPacket();
+    TransmitPacketPtr popPacket();
     /**
      * \brief Check if the packet queue is empty
      *
@@ -408,21 +372,31 @@ public:
      */
     bool isPendingPacketsEmpty() const;
 
-    [[nodiscard]] ProtocolPacket::Realm getCurrentRealm() const;
+    void disconnect(bool pushDisconnectPacket = true);
+
+    [[nodiscard]] ProtocolPacket::RealmType getCurrentRealm() const;
     [[nodiscard]] std::chrono::milliseconds getLastRealmChangeElapsedTime() const;
-    void setCurrentRealm(ProtocolPacket::Realm realm);
-    ProtocolPacket::Realm advanceCurrentRealm();
+    void setCurrentRealm(ProtocolPacket::RealmType realm);
+    ProtocolPacket::RealmType advanceCurrentRealm();
 
-    [[nodiscard]] ProtocolPacket::CountId getCurrentPacketCountId() const;
-    ProtocolPacket::CountId advanceCurrentPacketCountId();
-    void setCurrentPacketCountId(ProtocolPacket::CountId countId);
+    [[nodiscard]] ProtocolPacket::CounterType getCurrentPacketCounter() const;
+    ProtocolPacket::CounterType advanceCurrentPacketCounter();
+    void setCurrentPacketCounter(ProtocolPacket::CounterType counter);
 
-    [[nodiscard]] ProtocolPacket::CountId getClientPacketCountId() const;
-    ProtocolPacket::CountId advanceClientPacketCountId();
-    void setClientPacketCountId(ProtocolPacket::CountId countId);
+    [[nodiscard]] ProtocolPacket::CounterType getClientPacketCounter() const;
+    ProtocolPacket::CounterType advanceClientPacketCounter();
+    void setClientPacketCounter(ProtocolPacket::CounterType counter);
+    void resetLastReorderedPacketCounter();
+    [[nodiscard]] ProtocolPacket::CounterType getLastReorderedPacketCounter() const;
 
     [[nodiscard]] PacketReorderer& getPacketReorderer();
     [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
+
+    [[nodiscard]] DataLockPair<PacketCache*, std::recursive_mutex> getPacketCache();
+    [[nodiscard]] DataLockPair<PacketCache const*, std::recursive_mutex> getPacketCache() const;
+    void acknowledgeReception(ReceivedPacketPtr const& packet);
+    [[nodiscard]] std::vector<PacketCache::Label> const& getAcknowledgedList() const;
+    void clearAcknowledgedList();
 
     void clearLostPacketCount();
     uint32_t advanceLostPacketCount();
@@ -430,11 +404,24 @@ public:
     [[nodiscard]] uint32_t getLostPacketThreshold() const;
     [[nodiscard]] uint32_t getLostPacketCount() const;
 
+    [[nodiscard]] ClientStatus const& getStatus() const;
+    [[nodiscard]] ClientStatus& getStatus();
+
+    [[nodiscard]] CryptInfo const& getCryptInfo() const;
+    [[nodiscard]] CryptInfo& getCryptInfo();
+
+    [[nodiscard]] uint16_t getMTU() const;
+    void setMTU(uint16_t mtu);
+
+    void setPacketReturnRate(std::chrono::milliseconds rate);
+    [[nodiscard]] std::chrono::milliseconds getPacketReturnRate() const;
+
     CallbackHandler<Client&> _onThresholdLostPacket;
 
     Event _event;                         ///< Optional client-side event that can be synchronized with the server
     PropertyList _data;                   ///< Some user-defined client properties
     OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
+    bool _mtuFinalizedFlag{false};        ///< A flag that indicate if the MTU has been finalized from the remote side
 
 private:
     mutable std::optional<Timestamp> g_correctorTimestamp;
@@ -442,19 +429,27 @@ private:
     Latency_ms g_STOCLatency_ms;
     std::chrono::steady_clock::time_point g_lastPacketTimePoint;
 
-    std::queue<TransmissionPacketPtr> g_pendingTransmitPackets;
+    std::deque<TransmitPacketPtr> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
 
-    Skey g_skey;
-
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
-    ProtocolPacket::Realm g_currentRealm;
-    ProtocolPacket::CountId g_currentPacketCountId;
-    ProtocolPacket::CountId g_clientPacketCountId;
+    ProtocolPacket::RealmType g_currentRealm{FGE_NET_DEFAULT_REALM};
+    ProtocolPacket::CounterType g_currentPacketCounter{0};
+    ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
+    ProtocolPacket::CounterType g_clientPacketCounter{0};
 
+    std::vector<PacketCache::Label> g_acknowledgedPackets;
+    PacketCache g_packetCache;
     PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
+
+    std::chrono::milliseconds g_returnPacketRate{FGE_NET_DEFAULT_RETURN_PACKET_RATE};
+
+    uint16_t g_mtu{0};
+
+    ClientStatus g_status;
+    CryptInfo g_cryptInfo;
 };
 
 /**
@@ -462,7 +457,5 @@ private:
  */
 
 } // namespace fge::net
-
-#include "C_client.inl"
 
 #endif // _FGE_C_CLIENT_HPP_INCLUDED

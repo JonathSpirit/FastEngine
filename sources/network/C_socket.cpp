@@ -34,14 +34,20 @@
     #define _WIN32_WINNT _WIN32_WINNT_VISTA
 
     #include <winsock2.h>
+    #include <iphlpapi.h>
     #include <ws2tcpip.h>
 #else
     #include <arpa/inet.h>
     #include <fcntl.h>
     #include <netinet/in.h>
+    #include <netinet/ip.h>
     #include <netinet/tcp.h>
     #include <sys/socket.h>
     #include <unistd.h>
+
+    #include <ifaddrs.h>
+    #include <net/if.h>
+    #include <sys/ioctl.h>
 #endif // _WIN32
 
 #ifdef _WIN32
@@ -452,18 +458,45 @@ Socket::Errors Socket::setIpv6Only(bool mode)
     }
     return Errors::ERR_NOERROR;
 }
+Socket::Errors Socket::setDontFragment(bool mode)
+{
+#ifdef _WIN32
+    char const optval = mode ? 1 : 0;
+    if (setsockopt(this->g_socket, IPPROTO_IP, IP_DONTFRAGMENT, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+    return Errors::ERR_NOERROR;
+#else
+    #ifdef _FGE_MACOS
+    int const optval = mode ? 1 : 0;
+    if (setsockopt(this->g_socket, IPPROTO_IP, IP_DF, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+    return Errors::ERR_NOERROR;
+    #else
+    char const optval = mode ? IP_PMTUDISC_DO : IP_PMTUDISC_DONT;
+    if (setsockopt(this->g_socket, IPPROTO_IP, IP_MTU_DISCOVER, &optval, sizeof(optval)) == _FGE_SOCKET_ERROR)
+    {
+        return NormalizeError();
+    }
+    return Errors::ERR_NOERROR;
+    #endif // _FGE_MACOS
+#endif     // _WIN32
+}
 
 Socket::Errors Socket::select(bool read, uint32_t timeoutms)
 {
     // Setup the selector
     fd_set selector;
-#ifdef _win32
+#ifdef _WIN32
     selector.fd_count = 1;
     *selector.fd_array = this->g_socket;
 #else
     FD_ZERO(&selector);
     FD_SET(this->g_socket, &selector);
-#endif // _win32
+#endif // _WIN32
 
     // Setup the timeout
     timeval time{};
@@ -510,6 +543,249 @@ void Socket::uninitSocket()
 #endif // _WIN32
 }
 
+std::optional<uint16_t> Socket::retrieveCurrentAdapterMTU() const
+{
+#ifdef _WIN32
+    ULONG bufferSize = 0;
+
+    auto const family = this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6;
+    GetAdaptersAddresses(family, 0, nullptr, nullptr, &bufferSize);
+
+    std::unique_ptr<PIP_ADAPTER_ADDRESSES[]> const adapterAddresses =
+            std::make_unique<PIP_ADAPTER_ADDRESSES[]>(bufferSize);
+    PIP_ADAPTER_ADDRESSES adapterAddress = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapterAddresses.get());
+
+    auto const currentAddress = this->getLocalAddress();
+
+    if (GetAdaptersAddresses(family, 0, nullptr, adapterAddress, &bufferSize) == NO_ERROR)
+    {
+        for (PIP_ADAPTER_ADDRESSES adapter = adapterAddress; adapter != nullptr; adapter = adapter->Next)
+        {
+            IpAddress ip;
+            if (family == AF_INET)
+            {
+                sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(adapter->FirstUnicastAddress->Address.lpSockaddr);
+                ip.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+            }
+            else
+            {
+                sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(adapter->FirstUnicastAddress->Address.lpSockaddr);
+                IpAddress::Ipv6Data data;
+                std::memcpy(data.data(), addr6->sin6_addr.s6_addr, 16);
+                ip.setNetworkByteOrdered(data);
+            }
+
+            if (ip == currentAddress)
+            {
+                return std::clamp<uint32_t>(adapter->Mtu,
+                                            family == AF_INET ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU,
+                                            FGE_SOCKET_FULL_DATAGRAM_SIZE);
+            }
+        }
+    }
+
+    return std::nullopt;
+#else
+    auto const currentAddress = this->getLocalAddress();
+    std::string interfaceName;
+
+    // Get the interface name associated with the current address
+    ifaddrs* ifaddr{nullptr};
+    if (getifaddrs(&ifaddr) != 0 || ifaddr == nullptr)
+    {
+        return std::nullopt;
+    }
+
+    auto const family = this->g_addressType == IpAddress::Types::Ipv4 ? AF_INET : AF_INET6;
+
+    for (ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
+    {
+        if (ifa->ifa_addr == nullptr)
+        {
+            continue;
+        }
+
+        if (family == ifa->ifa_addr->sa_family)
+        {
+            IpAddress ip;
+            if (family == AF_INET)
+            {
+                sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
+                ip.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+                if (currentAddress == ip)
+                {
+                    interfaceName = ifa->ifa_name;
+                    break;
+                }
+            }
+            else
+            {
+                sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
+                IpAddress::Ipv6Data data;
+                std::memcpy(data.data(), addr6->sin6_addr.s6_addr, 16);
+                ip.setNetworkByteOrdered(data);
+                if (currentAddress == ip)
+                {
+                    interfaceName = ifa->ifa_name;
+                    break;
+                }
+            }
+        }
+    }
+
+    freeifaddrs(ifaddr);
+
+    if (interfaceName.empty())
+    {
+        return std::nullopt;
+    }
+
+    // Get the MTU for the interface
+    ifreq ifr;
+    std::strncpy(ifr.ifr_name, interfaceName.c_str(), IFNAMSIZ - 1);
+    if (ioctl(this->g_socket, SIOCGIFMTU, &ifr) != 0)
+    {
+        return std::nullopt;
+    }
+
+    return std::clamp<uint32_t>(ifr.ifr_mtu,
+                                this->g_addressType == IpAddress::Types::Ipv4 ? FGE_SOCKET_IPV4_MIN_MTU
+                                                                              : FGE_SOCKET_IPV6_MIN_MTU,
+                                FGE_SOCKET_FULL_DATAGRAM_SIZE);
+#endif // _WIN32
+}
+std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
+{
+#ifdef _WIN32
+    std::vector<AdapterInfo> adapters;
+
+    auto const family =
+            type == IpAddress::Types::Ipv4 ? AF_INET : (type == IpAddress::Types::Ipv6 ? AF_INET6 : AF_UNSPEC);
+
+    ULONG bufferSize = 0;
+    GetAdaptersAddresses(family, 0, nullptr, nullptr, &bufferSize);
+
+    std::unique_ptr<PIP_ADAPTER_ADDRESSES[]> const adapterAddresses =
+            std::make_unique<PIP_ADAPTER_ADDRESSES[]>(bufferSize);
+    PIP_ADAPTER_ADDRESSES adapterAddress = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapterAddresses.get());
+
+    if (GetAdaptersAddresses(family, 0, nullptr, adapterAddress, &bufferSize) == NO_ERROR)
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+
+        for (PIP_ADAPTER_ADDRESSES adapter = adapterAddress; adapter != nullptr; adapter = adapter->Next)
+        {
+            AdapterInfo info;
+            info._name = converter.to_bytes(adapter->FriendlyName);
+            info._description = converter.to_bytes(adapter->Description);
+
+            for (auto* unicast = adapter->FirstUnicastAddress; unicast != nullptr; unicast = unicast->Next)
+            {
+                auto& data = info._data.emplace_back();
+                auto const addrFamily = unicast->Address.lpSockaddr->sa_family;
+
+                if (addrFamily == AF_INET)
+                {
+                    sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(unicast->Address.lpSockaddr);
+                    data._unicast.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+                }
+                else
+                {
+                    sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(unicast->Address.lpSockaddr);
+                    IpAddress::Ipv6Data ipv6Data;
+                    std::memcpy(ipv6Data.data(), addr6->sin6_addr.s6_addr, 16);
+                    data._unicast.setNetworkByteOrdered(ipv6Data);
+                }
+            }
+
+            info._mtu = std::clamp<uint32_t>(adapter->Mtu,
+                                             (adapter->Flags & IP_ADAPTER_IPV6_ENABLED) > 0 ? FGE_SOCKET_IPV6_MIN_MTU
+                                                                                            : FGE_SOCKET_IPV4_MIN_MTU,
+                                             FGE_SOCKET_FULL_DATAGRAM_SIZE);
+
+            adapters.push_back(info);
+        }
+    }
+
+    return adapters;
+#else
+    std::vector<AdapterInfo> adapters;
+
+    auto const family =
+            type == IpAddress::Types::Ipv4 ? AF_INET : (type == IpAddress::Types::Ipv6 ? AF_INET6 : AF_UNSPEC);
+
+    ifaddrs* ifaddr{nullptr};
+    if (getifaddrs(&ifaddr) != 0 || ifaddr == nullptr)
+    {
+        return adapters;
+    }
+
+    auto socket = ::socket(family == AF_UNSPEC ? AF_INET6 : AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    for (ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
+    {
+        if (ifa->ifa_addr == nullptr)
+        {
+            continue;
+        }
+
+        if (family == ifa->ifa_addr->sa_family || family == AF_UNSPEC)
+        {
+            IpAddress ip;
+            if (ifa->ifa_addr->sa_family == AF_INET)
+            {
+                sockaddr_in* addr4 = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
+                ip.setNetworkByteOrdered(addr4->sin_addr.s_addr);
+            }
+            else
+            {
+                sockaddr_in6* addr6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
+                IpAddress::Ipv6Data data;
+                std::memcpy(data.data(), addr6->sin6_addr.s6_addr, 16);
+                ip.setNetworkByteOrdered(data);
+            }
+
+            bool found = false;
+            for (auto& adapter: adapters)
+            {
+                if (adapter._name == ifa->ifa_name)
+                {
+                    adapter._data.emplace_back()._unicast = ip;
+                    found = true;
+                }
+            }
+
+            if (found)
+            {
+                continue;
+            }
+
+            auto& data = adapters.emplace_back();
+            data._data.emplace_back()._unicast = ip;
+            data._name = ifa->ifa_name;
+            data._description = ifa->ifa_name; //TODO: Get the description
+
+            ifreq ifr;
+            std::strncpy(ifr.ifr_name, ifa->ifa_name, IFNAMSIZ - 1);
+            if (ioctl(socket, SIOCGIFMTU, &ifr) != 0)
+            {
+                data._mtu = 0;
+                continue;
+            }
+
+            data._mtu = std::clamp<uint32_t>(ifr.ifr_mtu,
+                                             family == AF_INET ? FGE_SOCKET_IPV4_MIN_MTU : FGE_SOCKET_IPV6_MIN_MTU,
+                                             FGE_SOCKET_FULL_DATAGRAM_SIZE);
+        }
+    }
+
+    freeifaddrs(ifaddr);
+    ::close(socket);
+
+    return adapters;
+#endif // _WIN32
+}
+
 int Socket::getPlatformSpecifiedError()
 {
 #ifdef _WIN32
@@ -523,7 +799,7 @@ int Socket::getPlatformSpecifiedError()
 
 SocketUdp::SocketUdp(IpAddress::Types addressType) :
         Socket(Types::UDP, addressType),
-        g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
+        g_buffer(FGE_SOCKET_FULL_DATAGRAM_SIZE)
 {
     //Create UDP socket
     this->create();
@@ -536,7 +812,7 @@ SocketUdp::SocketUdp(IpAddress::Types addressType) :
 }
 SocketUdp::SocketUdp(IpAddress::Types addressType, bool blocking, bool broadcast) :
         Socket(Types::UDP, addressType),
-        g_buffer(FGE_SOCKET_MAXDATAGRAMSIZE)
+        g_buffer(FGE_SOCKET_FULL_DATAGRAM_SIZE)
 {
     //Create UDP socket
     this->create();
@@ -652,7 +928,7 @@ Socket::Errors SocketUdp::sendTo(void const* data, std::size_t size, IpAddress c
     create();
 
     // Make sure that all the data will fit in one datagram
-    if (size > FGE_SOCKET_MAXDATAGRAMSIZE)
+    if (size > FGE_SOCKET_FULL_DATAGRAM_SIZE)
     {
         return Errors::ERR_INVALIDARGUMENT;
     }
@@ -790,14 +1066,17 @@ Socket::Errors SocketUdp::send(Packet& packet)
         return Errors::ERR_INVALIDARGUMENT;
     }
 
-    if (!packet._g_lastDataValidity)
+    if (!packet._g_transmitCacheValid)
     {
-        packet.onSend(packet._g_lastData, 0);
-        packet._g_sendPos = 0;
+        if (!packet.onSend(0))
+        {
+            return Errors::ERR_INVALIDARGUMENT;
+        }
+        packet._g_transmitPos = 0;
     }
 
-    int sent = ::send(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
-                      static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG);
+    int sent = ::send(this->g_socket, reinterpret_cast<char const*>(packet._g_transmitCache.data()),
+                      static_cast<int>(packet._g_transmitCache.size()), _FGE_SEND_RECV_FLAG);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -813,7 +1092,7 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
     create();
 
     // Make sure that all the data will fit in one datagram
-    if (packet.getDataSize() > FGE_SOCKET_MAXDATAGRAMSIZE)
+    if (packet.getDataSize() > FGE_SOCKET_FULL_DATAGRAM_SIZE)
     {
         return Errors::ERR_INVALIDARGUMENT;
     }
@@ -824,15 +1103,18 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
     int addrSize = 0;
     auto* addr = CreateAddress(addr4, addr6, addrSize, remoteAddress, remotePort);
 
-    if (!packet._g_lastDataValidity)
+    if (!packet._g_transmitCacheValid)
     {
-        packet.onSend(packet._g_lastData, 0);
-        packet._g_sendPos = 0;
+        if (!packet.onSend(0))
+        {
+            return Errors::ERR_INVALIDARGUMENT;
+        }
+        packet._g_transmitPos = 0;
     }
 
     // Send the data (unlike TCP, all the data is always sent in one call)
-    int sent = sendto(this->g_socket, reinterpret_cast<char const*>(packet._g_lastData.data()),
-                      static_cast<int>(packet._g_lastData.size()), _FGE_SEND_RECV_FLAG, addr, addrSize);
+    int sent = sendto(this->g_socket, reinterpret_cast<char const*>(packet._g_transmitCache.data()),
+                      static_cast<int>(packet._g_transmitCache.size()), _FGE_SEND_RECV_FLAG, addr, addrSize);
 
     // Check for errors
     if (sent == _FGE_SOCKET_ERROR)
@@ -845,13 +1127,13 @@ Socket::Errors SocketUdp::sendTo(Packet& packet, IpAddress const& remoteAddress,
 Socket::Errors SocketUdp::receiveFrom(Packet& packet, IpAddress& remoteAddress, Port& remotePort)
 {
     size_t received = 0;
-    Socket::Errors status =
+    Errors status =
             this->receiveFrom(this->g_buffer.data(), this->g_buffer.size(), received, remoteAddress, remotePort);
 
     packet.clear();
-    if ((status == Errors::ERR_NOERROR) && (received > 0))
+    if (status == Errors::ERR_NOERROR && received > 0)
     {
-        packet.onReceive(this->g_buffer.data(), received);
+        packet.onReceive({this->g_buffer.data(), received});
     }
     return status;
 }
@@ -861,11 +1143,21 @@ Socket::Errors SocketUdp::receive(Packet& packet)
     Errors status = this->receive(this->g_buffer.data(), this->g_buffer.size(), received);
 
     packet.clear();
-    if ((status == Errors::ERR_NOERROR) && (received > 0))
+    if (status == Errors::ERR_NOERROR && received > 0)
     {
-        packet.onReceive(this->g_buffer.data(), received);
+        packet.onReceive({this->g_buffer.data(), received});
     }
     return status;
+}
+
+std::optional<uint16_t> SocketUdp::retrieveAdapterMTUForDestination(IpAddress const& destination)
+{
+    //Create a temporary socket
+    SocketUdp tempSocket;
+    tempSocket.bind(FGE_ANYPORT,
+                    destination.getType() == IpAddress::Types::Ipv4 ? IpAddress::Ipv4Any : IpAddress::Ipv6Any);
+    tempSocket.connect(destination, FGE_ANYPORT);
+    return tempSocket.retrieveCurrentAdapterMTU();
 }
 
 SocketUdp& SocketUdp::operator=(SocketUdp&& r) noexcept
@@ -1039,13 +1331,13 @@ Socket::Errors SocketTcp::connect(IpAddress const& remoteAddress, Port remotePor
     {
         // Setup the selector
         fd_set selector;
-#ifdef _win32
+#ifdef _WIN32
         selector.fd_count = 1;
         *selector.fd_array = this->g_socket;
 #else
         FD_ZERO(&selector);
         FD_SET(this->g_socket, &selector);
-#endif // _win32
+#endif // _WIN32
 
         // Setup the timeout
         timeval time{};
@@ -1161,26 +1453,30 @@ Socket::Errors SocketTcp::receive(void* data, std::size_t size, std::size_t& rec
 
 Socket::Errors SocketTcp::send(Packet& packet)
 {
-    if (!packet._g_lastDataValidity)
-    { // New packet that gonna be sent
-        packet.onSend(packet._g_lastData, sizeof(uint32_t));
-        *reinterpret_cast<uint32_t*>(packet._g_lastData.data()) = fge::SwapHostNetEndian_32(packet._g_lastData.size());
-        packet._g_sendPos = 0;
+    if (!packet._g_transmitCacheValid)
+    { // New packet that going to be sent
+        if (!packet.onSend(sizeof(uint32_t)))
+        {
+            return Errors::ERR_INVALIDARGUMENT;
+        }
+        *reinterpret_cast<uint32_t*>(packet._g_transmitCache.data()) =
+                fge::SwapHostNetEndian_32(packet._g_transmitCache.size());
+        packet._g_transmitPos = 0;
     }
 
     // Send the data block
     std::size_t sent;
-    Errors status = this->send(packet._g_lastData.data() + packet._g_sendPos,
-                               packet._g_lastData.size() - packet._g_sendPos, sent);
+    Errors status = this->send(packet._g_transmitCache.data() + packet._g_transmitPos,
+                               packet._g_transmitCache.size() - packet._g_transmitPos, sent);
 
     // In the case of a partial send, record the location to resume from
     if (status == Errors::ERR_PARTIAL)
     {
-        packet._g_sendPos += sent;
+        packet._g_transmitPos += sent;
     }
     else if (status == Errors::ERR_NOERROR)
     {
-        packet._g_sendPos = 0;
+        packet._g_transmitPos = 0;
     }
 
     return status;
@@ -1233,7 +1529,7 @@ Socket::Errors SocketTcp::receive(Packet& packet)
             if (this->g_wantedSize == this->g_receivedSize)
             { // Well we finished this pending packet
                 packet.clear();
-                packet.onReceive(this->g_buffer.data() + sizeof(uint32_t), this->g_wantedSize - sizeof(uint32_t));
+                packet.onReceive({this->g_buffer.data() + sizeof(uint32_t), this->g_wantedSize - sizeof(uint32_t)});
                 this->g_receivedSize = 0;
                 this->g_wantedSize = 0;
                 return Errors::ERR_DONE;

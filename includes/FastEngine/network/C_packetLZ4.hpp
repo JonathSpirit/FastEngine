@@ -19,17 +19,11 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_packet.hpp"
+#include "FastEngine/C_compressorLZ4.hpp"
+#include <atomic>
 
-/*
- * This file is using the library :
- * LZ4 - Fast LZ compression algorithm
- * Copyright (C) 2011-present, Yann Collet.
- * BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
- */
-
-#define FGE_PACKETLZ4_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
-#define FGE_PACKETLZ4HC_DEFAULT_MAXUNCOMPRESSEDRECEIVEDSIZE 65536
-#define FGE_PACKETLZ4_VERSION "1.9.4"
+#define FGE_NET_LZ4HC_DEFAULT_PACKET_MAX_SIZE FGE_COMPRESSOR_LZ4HC_DEFAULT_MAX_SIZE
+#define FGE_NET_LZ4_DEFAULT_PACKET_MAX_SIZE FGE_COMPRESSOR_LZ4_DEFAULT_MAX_SIZE
 
 namespace fge::net
 {
@@ -37,51 +31,46 @@ namespace fge::net
 class FGE_API PacketLZ4 : public Packet
 {
 public:
-    PacketLZ4();
+    PacketLZ4() = default;
     PacketLZ4(PacketLZ4&& pck) noexcept;
     PacketLZ4(Packet&& pck) noexcept;
     PacketLZ4(PacketLZ4 const& pck);
     PacketLZ4(Packet const& pck);
     ~PacketLZ4() override = default;
 
-    static uint32_t _maxUncompressedReceivedSize;
+    [[nodiscard]] CompressorLZ4 const& getCompressor() const;
 
-    [[nodiscard]] std::size_t getLastCompressionSize() const;
+    static std::atomic_uint32_t gMaxUncompressedSize;
 
 protected:
-    void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
-    void onReceive(void* data, std::size_t dsize) override;
+    bool onSend(std::size_t offset) override;
+    void onReceive(std::span<uint8_t const> const& data) override;
 
 private:
-    std::vector<char> g_buffer;
-    std::size_t g_lastCompressionSize;
+    CompressorLZ4 g_compressor;
 };
 
 class FGE_API PacketLZ4HC : public Packet
 {
 public:
-    PacketLZ4HC();
+    PacketLZ4HC() = default;
     PacketLZ4HC(PacketLZ4HC&& pck) noexcept;
     PacketLZ4HC(Packet&& pck) noexcept;
     PacketLZ4HC(PacketLZ4HC const& pck);
     PacketLZ4HC(Packet const& pck);
     ~PacketLZ4HC() override = default;
 
-    static uint32_t _maxUncompressedReceivedSize;
+    [[nodiscard]] CompressorLZ4HC const& getCompressor() const;
 
-    void setCompressionLevel(int value);
-    [[nodiscard]] int getCompressionLevel() const;
-
-    [[nodiscard]] std::size_t getLastCompressionSize() const;
+    static std::atomic_uint32_t gMaxUncompressedSize;
+    static std::atomic_int gCompressionLevel;
 
 protected:
-    void onSend(std::vector<uint8_t>& buffer, std::size_t offset) override;
-    void onReceive(void* data, std::size_t dsize) override;
+    bool onSend(std::size_t offset) override;
+    void onReceive(std::span<uint8_t const> const& data) override;
 
 private:
-    std::vector<char> g_buffer;
-    int g_compressionLevel;
-    std::size_t g_lastCompressionSize;
+    CompressorLZ4HC g_compressor;
 };
 
 } // namespace fge::net

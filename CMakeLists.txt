@@ -21,6 +21,9 @@ else()
     endif()
 endif()
 
+#Find the OpenSSL package
+find_package(OpenSSL REQUIRED)
+
 #Add a LZ4 fix for missing INTERFACE_INCLUDE_DIRECTORIES property
 get_target_property(VAR_PROPERTY_CHECK LZ4::lz4_static INTERFACE_INCLUDE_DIRECTORIES)
 
@@ -246,6 +249,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/C_tilelayer.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
+        sources/C_compressorBZ2.cpp
+        sources/C_compressorLZ4.cpp
         sources/fge_endian.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
@@ -275,14 +280,15 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/network/C_client.cpp
+        sources/network/C_error.cpp
         sources/network/C_clientList.cpp
         sources/network/C_ipAddress.cpp
         sources/network/C_networkType.cpp
         sources/network/C_packet.cpp
-        sources/network/C_packetBZ2.cpp
         sources/network/C_packetLZ4.cpp
         sources/network/C_server.cpp
         sources/network/C_socket.cpp
+        sources/network/C_netCommand.cpp
         sources/network/C_protocol.cpp)
 
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
@@ -301,6 +307,8 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/manager/shader_manager.cpp
         sources/manager/timer_manager.cpp
         sources/manager/task_manager.cpp)
+
+target_sources(${FGE_SERVER_LIB_NAME} PRIVATE sources/private/fge_crypt.cpp)
 
 #######################
 
@@ -358,6 +366,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/C_tilelayer.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
+        sources/C_compressorBZ2.cpp
+        sources/C_compressorLZ4.cpp
         sources/fge_endian.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
@@ -387,14 +397,15 @@ target_sources(${FGE_LIB_NAME} PRIVATE
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/network/C_client.cpp
+        sources/network/C_error.cpp
         sources/network/C_clientList.cpp
         sources/network/C_ipAddress.cpp
         sources/network/C_networkType.cpp
         sources/network/C_packet.cpp
-        sources/network/C_packetBZ2.cpp
         sources/network/C_packetLZ4.cpp
         sources/network/C_server.cpp
         sources/network/C_socket.cpp
+        sources/network/C_netCommand.cpp
         sources/network/C_protocol.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
@@ -416,11 +427,12 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/manager/task_manager.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE sources/private/spirv_reflect.cpp)
+target_sources(${FGE_LIB_NAME} PRIVATE sources/private/fge_crypt.cpp)
 
 #Linking library
 if(WIN32)
-    target_link_libraries(${FGE_LIB_NAME} PUBLIC user32 ws2_32 winmm)
-    target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC user32 ws2_32 winmm)
+    target_link_libraries(${FGE_LIB_NAME} PUBLIC user32 ws2_32 winmm iphlpapi)
+    target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC user32 ws2_32 winmm iphlpapi)
 endif()
 
 target_link_libraries(${FGE_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
@@ -431,6 +443,7 @@ target_link_libraries(${FGE_LIB_NAME} PRIVATE fmt::fmt-header-only)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE Freetype::Freetype)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE re2::re2)
 target_link_libraries(${FGE_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
+target_link_libraries(${FGE_LIB_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC SDL2::SDL2 SDL2_image::SDL2_image)
@@ -440,6 +453,7 @@ target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE fmt::fmt-header-only)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE Freetype::Freetype)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE re2::re2)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_headers GPUOpen::VulkanMemoryAllocator Vulkan::Headers)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 #Install
 include(GNUInstallDirs)

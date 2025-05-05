@@ -20,11 +20,12 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_socket.hpp"
 #include "FastEngine/network/C_clientList.hpp"
+#include "FastEngine/network/C_netCommand.hpp"
 #include "FastEngine/network/C_packet.hpp"
-#include "FastEngine/network/C_packetBZ2.hpp"
 #include "FastEngine/network/C_packetLZ4.hpp"
 #include "FastEngine/network/C_protocol.hpp"
 #include <condition_variable>
+#include <future>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -41,49 +42,35 @@
         2000                                                                                                           \
     }
 
+#define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
+
+namespace fge
+{
+using ObjectSid = uint32_t;
+} // namespace fge
+
 namespace fge::net
 {
 
 class ServerSideNetUdp;
 class ClientSideNetUdp;
 
-/**
- * \class FluxPacket
- * \ingroup network
- * \brief A received packet from a network flux
- *
- * This class is used to store a packet with its identity and timestamp.
- * This also add some data used internally by the server in order to handle multiple received packets.
- */
-class FluxPacket : public ProtocolPacket
-{
-public:
-    inline FluxPacket(Packet const& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxCount = 0);
-    inline FluxPacket(Packet&& pck, Identity const& id, std::size_t fluxIndex = 0, std::size_t fluxCount = 0);
-
-    ~FluxPacket() override = default;
-
-    [[nodiscard]] inline Timestamp getTimeStamp() const;
-    [[nodiscard]] inline Identity const& getIdentity() const;
-
-private:
-    friend class ServerSideNetUdp;
-    friend class ClientSideNetUdp;
-
-    Identity g_id;
-    Timestamp g_timestamp;
-
-    std::size_t g_fluxIndex;
-    std::size_t g_fluxCount;
-};
-using FluxPacketPtr = std::unique_ptr<FluxPacket>;
-
 enum class FluxProcessResults
 {
-    RETRIEVABLE,
-    BAD_REALM,
-    BAD_REORDER,
-    NOT_RETRIEVABLE
+    USER_RETRIEVABLE,
+
+    INTERNALLY_HANDLED,
+    INTERNALLY_DISCARDED,
+
+    NONE_AVAILABLE
+};
+
+enum class ReturnEvents
+{
+    REVT_SIMPLE,
+    REVT_OBJECT,
+    REVT_ASK_FULL_UPDATE,
+    REVT_CUSTOM
 };
 
 /**
@@ -109,7 +96,7 @@ public:
     NetFluxUdp& operator=(NetFluxUdp&& r) noexcept = delete;
 
     void clearPackets();
-    [[nodiscard]] FluxPacketPtr popNextPacket();
+    [[nodiscard]] ReceivedPacketPtr popNextPacket();
 
     [[nodiscard]] std::size_t getPacketsSize() const;
     [[nodiscard]] bool isEmpty() const;
@@ -118,16 +105,16 @@ public:
     [[nodiscard]] std::size_t getMaxPackets() const;
 
 protected:
-    bool pushPacket(FluxPacketPtr&& fluxPck);
-    void forcePushPacket(FluxPacketPtr fluxPck);
-    void forcePushPacketFront(FluxPacketPtr fluxPck);
+    bool pushPacket(ReceivedPacketPtr&& fluxPck);
+    void forcePushPacket(ReceivedPacketPtr fluxPck);
+    void forcePushPacketFront(ReceivedPacketPtr fluxPck);
     [[nodiscard]] FluxProcessResults processReorder(Client& client,
-                                                    FluxPacketPtr& refFluxPacket,
-                                                    ProtocolPacket::CountId currentCountId,
+                                                    ReceivedPacketPtr& packet,
+                                                    ProtocolPacket::CounterType currentCounter,
                                                     bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
-    std::deque<FluxPacketPtr> _g_packets;
+    std::deque<ReceivedPacketPtr> _g_packets;
     std::size_t _g_remainingPackets{0};
 
 private:
@@ -145,17 +132,44 @@ public:
     {}
     ~ServerNetFluxUdp() override = default;
 
+    void processClients();
     [[nodiscard]] FluxProcessResults
-    process(ClientSharedPtr& refClient, FluxPacketPtr& refFluxPacket, bool allowUnknownClient);
+    process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient);
+
+    void disconnectAllClients(std::chrono::milliseconds delay = std::chrono::milliseconds(0)) const;
 
     ClientList _clients;
 
-    fge::CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
+    CallbackHandler<ClientSharedPtr const&> _onClientBadRealm;
+    CallbackHandler<ClientSharedPtr, Identity const&> _onClientTimeout;
+
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAcknowledged;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientMTUDiscovered;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientConnected;
+    CallbackHandler<ClientSharedPtr, Identity const&> _onClientDisconnected;
+    CallbackHandler<ClientSharedPtr, Identity const&> _onClientDropped;
+
+    CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnPacket;
+    CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnEvent;
+    CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
+    CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t, ObjectSid, ObjectSid, ReceivedPacketPtr const&>
+            _onClientObjectReturnEvent;
+    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAskFullUpdate;
 
 private:
-    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, FluxPacketPtr const& refFluxPacket);
+    [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
+    [[nodiscard]] NetCommandResults
+    checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet);
+
+    [[nodiscard]] FluxProcessResults processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet);
+    [[nodiscard]] FluxProcessResults processAcknowledgedClient(ClientList::Data& refClientData,
+                                                               ReceivedPacketPtr& packet);
+    [[nodiscard]] FluxProcessResults processMTUDiscoveredClient(ClientList::Data& refClientData,
+                                                                ReceivedPacketPtr& packet);
 
     ServerSideNetUdp* g_server{nullptr};
+    std::chrono::milliseconds g_commandsUpdateTick{0};
+    std::chrono::steady_clock::time_point g_lastCommandUpdateTimePoint{std::chrono::steady_clock::now()};
 };
 
 /**
@@ -182,10 +196,11 @@ public:
     ServerSideNetUdp& operator=(ServerSideNetUdp const& r) = delete;
     ServerSideNetUdp& operator=(ServerSideNetUdp&& r) noexcept = delete;
 
-    template<class TPacket = Packet>
+    void setVersioningString(std::string_view versioningString);
+    [[nodiscard]] std::string const& getVersioningString() const;
+
     [[nodiscard]] bool
     start(Port bindPort, IpAddress const& bindIp, IpAddress::Types addressType = IpAddress::Types::None);
-    template<class TPacket = Packet>
     [[nodiscard]] bool start(IpAddress::Types addressType = IpAddress::Types::None);
     void stop();
 
@@ -216,7 +231,7 @@ public:
     void closeFlux(NetFluxUdp* flux);
     void closeAllFlux();
 
-    void repushPacket(FluxPacketPtr&& fluxPck);
+    void repushPacket(ReceivedPacketPtr&& packet);
 
     /**
      * \brief Notify the transmission thread
@@ -228,13 +243,15 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    void sendTo(TransmissionPacketPtr& pck, Client const& client, Identity const& id);
-    void sendTo(TransmissionPacketPtr& pck, Identity const& id);
+    void notifyNewClient(Identity const& identity, ClientSharedPtr const& client);
+
+    void sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id);
+    void sendTo(TransmitPacketPtr& pck, Identity const& id);
+
+    [[nodiscard]] void* getCryptContext() const;
 
 private:
-    template<class TPacket>
     void threadReception();
-    template<class TPacket>
     void threadTransmission();
 
     std::unique_ptr<std::thread> g_threadReception;
@@ -246,10 +263,16 @@ private:
 
     std::vector<std::unique_ptr<ServerNetFluxUdp>> g_fluxes;
     ServerNetFluxUdp g_defaultFlux;
-    std::queue<std::pair<TransmissionPacketPtr, Identity>> g_transmissionQueue;
+    std::queue<std::pair<TransmitPacketPtr, Identity>> g_transmissionQueue;
+
+    std::unordered_map<Identity, std::weak_ptr<Client>, IdentityHash> g_clientsMap;
 
     SocketUdp g_socket;
     bool g_running;
+
+    void* g_crypt_ctx;
+
+    std::string g_versioningString;
 };
 
 /**
@@ -270,7 +293,6 @@ public:
     ClientSideNetUdp& operator=(ClientSideNetUdp const& r) = delete;
     ClientSideNetUdp& operator=(ClientSideNetUdp&& r) noexcept = delete;
 
-    template<class TPacket = Packet>
     [[nodiscard]] bool start(Port bindPort,
                              IpAddress const& bindIp,
                              Port connectRemotePort,
@@ -281,6 +303,10 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
+    [[nodiscard]] std::future<uint16_t> retrieveMTU();
+    [[nodiscard]] std::future<bool> connect(std::string_view versioningString = std::string_view{});
+    [[nodiscard]] std::future<void> disconnect();
+
     [[nodiscard]] IpAddress::Types getAddressType() const;
 
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
@@ -288,17 +314,36 @@ public:
     [[nodiscard]] Identity const& getClientIdentity() const;
 
     template<class TPacket = Packet>
-    void sendTo(TransmissionPacketPtr& pck, Identity const& id);
+    void sendTo(TransmitPacketPtr& pck, Identity const& id);
 
-    [[nodiscard]] FluxProcessResults process(FluxPacketPtr& refFluxPacket);
+    [[nodiscard]] FluxProcessResults process(ReceivedPacketPtr& packet);
+
+    void resetReturnPacket();
+    TransmitPacketPtr& startReturnEvent(ReturnEvents event);
+    TransmitPacketPtr& startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid);
+    void endReturnEvent();
+
+    void simpleReturnEvent(uint16_t id);
+    void askFullUpdateReturnEvent();
+
+    void enableReturnPacket(bool enable);
+    [[nodiscard]] bool isReturnPacketEnabled() const;
+
+    [[nodiscard]] TransmitPacketPtr prepareAndRetrieveReturnPacket();
 
     Client _client; //But it is the server :O
 
+    CallbackHandler<ClientSideNetUdp&> _onClientTimeout;
+    CallbackHandler<ClientSideNetUdp&> _onClientDisconnected;
+
+    CallbackHandler<ClientSideNetUdp&, TransmitPacketPtr&> _onTransmitReturnPacket;
+
 private:
-    template<class TPacket>
     void threadReception();
-    template<class TPacket>
     void threadTransmission();
+
+    std::recursive_mutex g_mutexCommands;
+    CommandQueue g_commands;
 
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
@@ -307,9 +352,21 @@ private:
     std::condition_variable g_receptionNotifier;
 
     SocketUdp g_socket;
-    bool g_running;
+    bool g_running{false};
 
     Identity g_clientIdentity;
+
+    PacketDefragmentation g_defragmentation;
+
+    bool g_returnPacketEnabled{false};
+    TransmitPacketPtr g_returnPacket;
+    bool g_returnPacketEventStarted{false};
+    std::size_t g_returnPacketStartPosition{0};
+    bool g_isAskingFullUpdate{false};
+    uint16_t g_returnPacketEventCount{0};
+    std::chrono::steady_clock::time_point g_returnPacketTimePoint;
+
+    void* g_crypt_ctx{nullptr};
 };
 
 } // namespace fge::net

@@ -5,6 +5,7 @@
 /x32/
 /msvc/
 /clang/
+/wsl/
 /build*/
 
 /.idea/

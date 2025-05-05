@@ -17,30 +17,10 @@
 namespace fge::net
 {
 
-bool CheckSkey(fge::net::Packet& pck, fge::net::Skey skey)
-{
-    fge::net::Skey buff;
-    if (pck >> buff)
-    {
-        return buff == skey;
-    }
-    return false;
-}
-fge::net::Skey GetSkey(fge::net::Packet& pck)
-{
-    fge::net::Skey buff;
-    if (pck >> buff)
-    {
-        return buff;
-    }
-    return FGE_NET_BAD_SKEY;
-}
-
 namespace rules
 {
-
 template<class TValue>
-constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck, TValue* existingValue) :
+constexpr ChainedArguments<TValue>::ChainedArguments(Packet const& pck, TValue* existingValue) :
         g_pck(&pck),
         g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
         g_error(pck.isValid() ? Error{}
@@ -48,7 +28,7 @@ constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck
                                       __func__})
 {}
 template<class TValue>
-constexpr ChainedArguments<TValue>::ChainedArguments(fge::net::Packet const& pck, Error&& err, TValue* existingValue) :
+constexpr ChainedArguments<TValue>::ChainedArguments(Packet const& pck, Error&& err, TValue* existingValue) :
         g_pck(&pck),
         g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
         g_error(std::move(err))
@@ -88,7 +68,12 @@ constexpr std::optional<TPeek> ChainedArguments<TValue>::peek()
 }
 
 template<class TValue>
-constexpr fge::net::Packet const& ChainedArguments<TValue>::packet() const
+constexpr ChainedArguments<TValue>::operator Packet const&() const
+{
+    return *this->g_pck;
+}
+template<class TValue>
+constexpr Packet const& ChainedArguments<TValue>::packet() const
 {
     return *this->g_pck;
 }
@@ -126,7 +111,7 @@ ChainedArguments<TValue>::and_for_each(TIndex iStart, TIndex iEnd, TIndex iIncre
         return *this;
     }
 
-    for (iStart; iStart != iEnd; iStart += iIncrement)
+    for (; iStart != iEnd; iStart += iIncrement)
     {
         std::optional<Error> err =
                 std::invoke(std::forward<TInvokable>(f), const_cast<ChainedArguments<TValue> const&>(*this), iStart);
@@ -205,14 +190,20 @@ constexpr std::optional<Error> ChainedArguments<TValue>::end()
     return this->g_pck->isValid() ? std::nullopt : std::optional<Error>{std::move(this->g_error)};
 }
 template<class TValue>
-constexpr std::optional<Error> ChainedArguments<TValue>::end(std::nullopt_t nullopt) const
+constexpr std::optional<Error> ChainedArguments<TValue>::final()
 {
-    return std::optional<Error>{nullopt};
+    return this->g_pck->isValid() && this->g_pck->endReached() ? std::nullopt
+                                                               : std::optional<Error>{std::move(this->g_error)};
 }
 template<class TValue>
-constexpr std::optional<Error> ChainedArguments<TValue>::end(Error&& err) const
+constexpr std::optional<Error> ChainedArguments<TValue>::skip() const
 {
-    return std::optional<Error>{std::move(err)};
+    return std::nullopt;
+}
+template<class TValue>
+constexpr std::optional<Error> ChainedArguments<TValue>::stop(char const* error, char const* function) const
+{
+    return Error{Error::Types::ERR_EXTRACT, this->g_pck->getReadPos(), error, function};
 }
 
 template<class TValue>
@@ -247,19 +238,6 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::apply(TInvokable&&
 }
 
 template<class TValue>
-template<class TNewValue>
-constexpr ChainedArguments<TNewValue> ChainedArguments<TValue>::newChain(TNewValue* existingValue)
-{
-    return ChainedArguments<TNewValue>{*this->g_pck, std::move(this->g_error), existingValue};
-}
-template<class TValue>
-template<class TNewValue>
-constexpr ChainedArguments<TNewValue> ChainedArguments<TValue>::newChain(TNewValue* existingValue) const
-{
-    return ChainedArguments<TNewValue>{*this->g_pck, existingValue};
-}
-
-template<class TValue>
 constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::setError(Error&& err)
 {
     this->g_error = std::move(err);
@@ -270,6 +248,13 @@ constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::invalidate(Error&&
 {
     this->g_pck->invalidate();
     this->g_error = std::move(err);
+    return *this;
+}
+template<class TValue>
+constexpr ChainedArguments<TValue>& ChainedArguments<TValue>::invalidate(char const* error, char const* function)
+{
+    this->g_pck->invalidate();
+    this->g_error = Error{Error::Types::ERR_EXTRACT, this->g_pck->getReadPos(), error, function};
     return *this;
 }
 
@@ -360,7 +345,7 @@ constexpr ChainedArguments<TValue> RSizeRange(SizeType min, SizeType max, Chaine
 {
     if (args.packet().isValid())
     {
-        auto size = args.template peek<fge::net::SizeType>();
+        auto size = args.template peek<SizeType>();
         if (size)
         {
             if (!((size >= min && size <= max) ^ static_cast<bool>(TOutput)))
@@ -373,11 +358,11 @@ constexpr ChainedArguments<TValue> RSizeRange(SizeType min, SizeType max, Chaine
 }
 
 template<class TValue, ROutputs TOutput>
-constexpr ChainedArguments<TValue> RSizeMustEqual(fge::net::SizeType a, ChainedArguments<TValue>&& args)
+constexpr ChainedArguments<TValue> RSizeMustEqual(SizeType a, ChainedArguments<TValue>&& args)
 {
     if (args.packet().isValid())
     {
-        auto size = args.template peek<fge::net::SizeType>();
+        auto size = args.template peek<SizeType>();
         if (size)
         {
             if (!((size == a) ^ static_cast<bool>(TOutput)))

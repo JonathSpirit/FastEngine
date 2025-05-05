@@ -29,7 +29,27 @@
 #include <cstdint>
 #include <vector>
 
-#define FGE_SOCKET_MAXDATAGRAMSIZE 65507
+#define FGE_SOCKET_ETHERNET_MTU 1500
+#define FGE_SOCKET_IPV4_MIN_MTU 576
+#define FGE_SOCKET_IPV6_MIN_MTU 1280
+#define FGE_SOCKET_IPV4_HEADER_SIZE 20
+#define FGE_SOCKET_IPV6_HEADER_SIZE 40
+#define FGE_SOCKET_UDP_HEADER_SIZE 8
+
+#define FGE_SOCKET_FULL_DATAGRAM_SIZE (0xFFFF)
+#define FGE_SOCKET_IPV4_MAX_DATAGRAM_SIZE                                                                              \
+    (FGE_SOCKET_FULL_DATAGRAM_SIZE - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV6_MAX_DATAGRAM_SIZE                                                                              \
+    (FGE_SOCKET_FULL_DATAGRAM_SIZE - FGE_SOCKET_IPV6_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV4_MAX_DATAGRAM_MTU_SIZE                                                                          \
+    (FGE_SOCKET_IPV4_MIN_MTU - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV6_MAX_DATAGRAM_MTU_SIZE                                                                          \
+    (FGE_SOCKET_IPV6_MIN_MTU - FGE_SOCKET_IPV6_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV4_MAX_DATAGRAM_ETHMTU_SIZE                                                                       \
+    (FGE_SOCKET_ETHERNET_MTU - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+#define FGE_SOCKET_IPV6_MAX_DATAGRAM_ETHMTU_SIZE                                                                       \
+    (FGE_SOCKET_ETHERNET_MTU - FGE_SOCKET_IPV6_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
+
 #define FGE_SOCKET_TCP_DEFAULT_BUFFERSIZE 2048
 
 namespace fge::net
@@ -92,6 +112,19 @@ public:
 
         ERR_UNSUCCESS = 10,
         ERR_UNKNOWN = ERR_UNSUCCESS
+    };
+
+    struct AdapterInfo
+    {
+        struct Data
+        {
+            IpAddress _unicast;
+        };
+
+        std::string _name;
+        std::string _description;
+        uint16_t _mtu;
+        std::vector<Data> _data;
     };
 
     /**
@@ -221,6 +254,19 @@ public:
      * \return Errors::ERR_NOERROR if successful, otherwise an error code
      */
     Errors setIpv6Only(bool mode);
+    /**
+     * \brief Set if the socket should append DF flag to the packet
+     *
+     * From MSDN: (IP_DONTFRAGMENT)
+     * Indicates that data should not be fragmented regardless of the local MTU.
+     * Valid only for message oriented protocols. Microsoft TCP/IP providers respect this option for UDP and ICMP.
+     *
+     * Note that on GNU/Linux, this option is IP_MTU_DISCOVER with IP_PMTUDISC_DO and IP_PMTUDISC_DONT flags.
+     *
+     * \param mode If the socket should append the DF flag
+     * \return Errors::ERR_NOERROR if successful, otherwise an error code
+     */
+    Errors setDontFragment(bool mode);
 
     /**
      * \brief Check the socket for readability or writability
@@ -248,6 +294,30 @@ public:
      * \brief Shutdown the low-level socket library
      */
     static void uninitSocket();
+
+    /**
+     * \brief Retrieve the current adapter MTU
+     *
+     * From MSDN:
+     * This function get all the adapter addresses and compare the local address with the current local address in
+     * order to find the adapter that is currently used.
+     *
+     * From a connection-less socket, this function can only work if the socket is connected to a remote address or/and
+     * if I/O operations have been performed.
+     *
+     * \return The current adapter MTU or \b std::nullopt if an error occurred
+     */
+    [[nodiscard]] std::optional<uint16_t> retrieveCurrentAdapterMTU() const;
+
+    /**
+     * \brief Retrieve adapters information
+     *
+     * The information retrieved is the name, description, mtu and unicast addresses of the adapters.
+     *
+     * \param type The type of address to get, if None, all addresses will be returned
+     * \return A vector containing the adapters information or an empty vector
+     */
+    [[nodiscard]] static std::vector<AdapterInfo> getAdaptersInfo(IpAddress::Types type = IpAddress::Types::None);
 
     /**
      * \brief Get the last platform specific error code
@@ -397,6 +467,16 @@ public:
      * \return Error::ERR_NOERROR if successful, otherwise an error code
      */
     Errors receive(Packet& packet);
+
+    /**
+     * \brief Helper to retrieve the MTU of the adapter used to reach the destination ip address
+     *
+     * This function will create a temporary socket, bind it to any port and connect it to the destination address.
+     *
+     * \param destination The destination address to reach
+     * \return The MTU of the adapter used to reach the destination address or \b std::nullopt if an error occurred
+     */
+    [[nodiscard]] static std::optional<uint16_t> retrieveAdapterMTUForDestination(IpAddress const& destination);
 
     SocketUdp& operator=(SocketUdp&& r) noexcept;
 

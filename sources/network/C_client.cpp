@@ -15,55 +15,87 @@
  */
 
 #include "FastEngine/network/C_client.hpp"
-#include "FastEngine/C_random.hpp"
 #include "FastEngine/network/C_server.hpp"
+#include "private/fge_crypt.hpp"
 #include <limits>
 
 namespace fge::net
 {
 
-//TransmissionPacket
+//ClientStatus
 
-void TransmissionPacket::applyOptions(Client const& client)
+ClientStatus::ClientStatus(std::string_view status, NetworkStatus networkStatus) :
+        g_status(status),
+        g_networkStatus(networkStatus)
+{}
+
+bool ClientStatus::isInEncryptedState() const
 {
-    for (auto const& option: this->g_options)
-    {
-        if (option._option == Options::UPDATE_TIMESTAMP)
-        {
-            Timestamp updatedTimestamp = Client::getTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
-        {
-            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
-        {
-            Latency_ms correctorLatency = client.getCorrectorLatency().value_or(FGE_NET_BAD_LATENCY);
-            this->g_packet.pack(option._argument, &correctorLatency, sizeof(correctorLatency));
-        }
-    }
+    return this->g_networkStatus == NetworkStatus::AUTHENTICATED || this->g_networkStatus == NetworkStatus::CONNECTED;
 }
-void TransmissionPacket::applyOptions()
+bool ClientStatus::isDisconnected() const
 {
-    for (auto const& option: this->g_options)
+    return this->g_networkStatus == NetworkStatus::DISCONNECTED || this->g_networkStatus == NetworkStatus::TIMEOUT;
+}
+bool ClientStatus::isConnected() const
+{
+    return this->g_networkStatus == NetworkStatus::CONNECTED || this->g_networkStatus == NetworkStatus::AUTHENTICATED;
+}
+bool ClientStatus::isConnecting() const
+{
+    return this->g_networkStatus == NetworkStatus::ACKNOWLEDGED ||
+           this->g_networkStatus == NetworkStatus::MTU_DISCOVERED;
+}
+
+std::string const& ClientStatus::getStatus() const
+{
+    return this->g_status;
+}
+ClientStatus::NetworkStatus ClientStatus::getNetworkStatus() const
+{
+    return this->g_networkStatus;
+}
+std::chrono::milliseconds ClientStatus::getTimeout() const
+{
+    return this->g_timeout;
+}
+std::chrono::milliseconds ClientStatus::getRemainingTimeout() const
+{
+    auto diff = std::chrono::steady_clock::now() - this->g_currentTimeout;
+    return diff >= this->g_timeout ? std::chrono::milliseconds(0)
+                                   : std::chrono::duration_cast<std::chrono::milliseconds>(this->g_timeout - diff);
+}
+
+void ClientStatus::set(std::string_view status, NetworkStatus networkStatus)
+{
+    this->g_status = status;
+    this->g_networkStatus = networkStatus;
+}
+void ClientStatus::setStatus(std::string_view status)
+{
+    this->g_status = status;
+}
+void ClientStatus::setNetworkStatus(NetworkStatus networkStatus)
+{
+    this->g_networkStatus = networkStatus;
+}
+
+void ClientStatus::setTimeout(std::chrono::milliseconds timeout)
+{
+    this->g_timeout = timeout;
+    this->g_currentTimeout = std::chrono::steady_clock::now();
+}
+void ClientStatus::resetTimeout()
+{
+    this->g_currentTimeout = std::chrono::steady_clock::now();
+}
+bool ClientStatus::isTimeout() const
+{
+    if (std::chrono::steady_clock::now() - this->g_currentTimeout >= this->g_timeout)
     {
-        if (option._option == Options::UPDATE_TIMESTAMP)
-        {
-            Timestamp updatedTimestamp = Client::getTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_FULL_TIMESTAMP)
-        {
-            FullTimestamp updatedTimestamp = Client::getFullTimestamp_ms();
-            this->g_packet.pack(option._argument, &updatedTimestamp, sizeof(updatedTimestamp));
-        }
-        else if (option._option == Options::UPDATE_CORRECTION_LATENCY)
-        {
-            throw Exception("Cannot apply correction latency without a client");
-        }
+        return true;
     }
+    return false;
 }
 
 //Client
@@ -73,36 +105,19 @@ Client::Client() :
         g_CTOSLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_STOCLatency_ms(FGE_NET_DEFAULT_LATENCY),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
-        g_skey(FGE_NET_BAD_SKEY),
-        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
-        g_currentRealm(FGE_NET_DEFAULT_REALM),
-        g_currentPacketCountId(0),
-        g_clientPacketCountId(0)
+        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
+Client::~Client()
+{
+    priv::CryptClientDestroy(*this);
+}
 Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
         g_CTOSLatency_ms(CTOSLatency),
         g_STOCLatency_ms(STOCLatency),
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
-        g_skey(FGE_NET_BAD_SKEY),
-        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now()),
-        g_currentRealm(FGE_NET_DEFAULT_REALM),
-        g_currentPacketCountId(0),
-        g_clientPacketCountId(0)
+        g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
-
-Skey Client::GenerateSkey()
-{
-    return _random.range<Skey>(1, std::numeric_limits<Skey>::max());
-}
-void Client::setSkey(Skey key)
-{
-    this->g_skey = key;
-}
-Skey Client::getSkey() const
-{
-    return this->g_skey;
-}
 
 void Client::setCTOSLatency_ms(Latency_ms latency)
 {
@@ -152,14 +167,21 @@ void Client::resetLastPacketTimePoint()
     std::scoped_lock const lck(this->g_mutex);
     this->g_lastPacketTimePoint = std::chrono::steady_clock::now();
 }
-Latency_ms Client::getLastPacketElapsedTime() const
+std::chrono::milliseconds Client::getLastPacketElapsedTime() const
 {
     std::scoped_lock const lck(this->g_mutex);
 
-    std::chrono::steady_clock::time_point timeNow = std::chrono::steady_clock::now();
-    uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - this->g_lastPacketTimePoint).count();
-    return (t >= std::numeric_limits<Latency_ms>::max()) ? std::numeric_limits<Latency_ms>::max()
-                                                         : static_cast<Latency_ms>(t);
+    auto const now = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - this->g_lastPacketTimePoint);
+}
+Latency_ms Client::getLastPacketLatency() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+
+    auto const now = std::chrono::steady_clock::now();
+    auto const t = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->g_lastPacketTimePoint).count();
+    return t >= std::numeric_limits<Latency_ms>::max() ? std::numeric_limits<Latency_ms>::max()
+                                                       : static_cast<Latency_ms>(t);
 }
 
 Timestamp Client::getTimestamp_ms()
@@ -191,29 +213,44 @@ Latency_ms Client::computeLatency_ms(Timestamp const& sentTimestamp, Timestamp c
 void Client::clearPackets()
 {
     std::scoped_lock const lck(this->g_mutex);
-
-    for (std::size_t i = 0; i < this->g_pendingTransmitPackets.size(); ++i)
-    {
-        this->g_pendingTransmitPackets.pop();
-    }
+    this->g_pendingTransmitPackets.clear();
 }
-void Client::pushPacket(TransmissionPacketPtr pck)
+void Client::pushPacket(TransmitPacketPtr pck)
 {
-    std::scoped_lock const lck(this->g_mutex);
-    auto const header = pck->packet().retrieveHeader().value();
-    if ((header & FGE_NET_HEADER_DO_NOT_REORDER_FLAG) == 0)
+    if (this->g_status.isDisconnected())
     {
+        return;
+    }
+
+    std::scoped_lock const lck(this->g_mutex);
+
 #ifdef FGE_DEF_SERVER
-        pck->packet().setCountId(this->advanceCurrentPacketCountId());
+    pck->setCounter(this->advanceCurrentPacketCounter());
 #else
-        pck->packet().setCountId(this->advanceClientPacketCountId());
+    pck->setCounter(this->advanceClientPacketCounter());
 #endif
 
-        pck->packet().setRealm(this->getCurrentRealm());
+    pck->setRealm(this->getCurrentRealm());
+
+    pck->setLastReorderedPacketCounter(this->getLastReorderedPacketCounter());
+
+    if (!pck->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
+    {
+        this->resetLastReorderedPacketCounter();
     }
-    this->g_pendingTransmitPackets.push(std::move(pck));
+
+    if (this->g_status.isInEncryptedState())
+    {
+        pck->markForEncryption();
+    }
+    this->g_pendingTransmitPackets.push_back(std::move(pck));
 }
-TransmissionPacketPtr Client::popPacket()
+void Client::pushForcedFrontPacket(TransmitPacketPtr pck)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_pendingTransmitPackets.push_front(std::move(pck));
+}
+TransmitPacketPtr Client::popPacket()
 {
     std::scoped_lock const lck(this->g_mutex);
 
@@ -222,7 +259,7 @@ TransmissionPacketPtr Client::popPacket()
         return nullptr;
     }
     auto packet = std::move(this->g_pendingTransmitPackets.front());
-    this->g_pendingTransmitPackets.pop();
+    this->g_pendingTransmitPackets.pop_front();
     return packet;
 }
 bool Client::isPendingPacketsEmpty() const
@@ -230,8 +267,18 @@ bool Client::isPendingPacketsEmpty() const
     std::scoped_lock const lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
 }
+void Client::disconnect(bool pushDisconnectPacket)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_status.setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+    this->g_status.setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
+    if (pushDisconnectPacket)
+    {
+        this->pushPacket(CreateDisconnectPacket());
+    }
+}
 
-ProtocolPacket::Realm Client::getCurrentRealm() const
+ProtocolPacket::RealmType Client::getCurrentRealm() const
 {
     std::scoped_lock const lck(this->g_mutex);
     return this->g_currentRealm;
@@ -242,54 +289,75 @@ std::chrono::milliseconds Client::getLastRealmChangeElapsedTime() const
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() -
                                                                  this->g_lastRealmChangeTimePoint);
 }
-void Client::setCurrentRealm(ProtocolPacket::Realm realm)
+void Client::setCurrentRealm(ProtocolPacket::RealmType realm)
 {
     std::scoped_lock const lck(this->g_mutex);
     if (this->g_currentRealm != realm)
     {
-        this->g_currentPacketCountId = 0;
+        this->g_currentPacketCounter = 0;
         this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
         this->g_currentRealm = realm;
     }
 }
-ProtocolPacket::Realm Client::advanceCurrentRealm()
+ProtocolPacket::RealmType Client::advanceCurrentRealm()
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_currentPacketCountId = 0;
+    this->g_currentPacketCounter = 0;
     this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
     return ++this->g_currentRealm;
 }
 
-ProtocolPacket::CountId Client::getCurrentPacketCountId() const
+ProtocolPacket::CounterType Client::getCurrentPacketCounter() const
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_currentPacketCountId;
+    return this->g_currentPacketCounter;
 }
-ProtocolPacket::CountId Client::advanceCurrentPacketCountId()
+ProtocolPacket::CounterType Client::advanceCurrentPacketCounter()
 {
     std::scoped_lock const lck(this->g_mutex);
-    return ++this->g_currentPacketCountId;
+    return ++this->g_currentPacketCounter;
 }
-void Client::setCurrentPacketCountId(ProtocolPacket::CountId countId)
+void Client::setCurrentPacketCounter(ProtocolPacket::CounterType counter)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_currentPacketCountId = countId;
+    this->g_currentPacketCounter = counter;
+#ifdef FGE_DEF_SERVER
+    this->g_lastReorderedPacketCounter = counter;
+#endif
 }
 
-ProtocolPacket::CountId Client::getClientPacketCountId() const
+ProtocolPacket::CounterType Client::getClientPacketCounter() const
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_clientPacketCountId;
+    return this->g_clientPacketCounter;
 }
-ProtocolPacket::CountId Client::advanceClientPacketCountId()
+ProtocolPacket::CounterType Client::advanceClientPacketCounter()
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_clientPacketCountId++;
+    return this->g_clientPacketCounter++;
 }
-void Client::setClientPacketCountId(ProtocolPacket::CountId countId)
+void Client::setClientPacketCounter(ProtocolPacket::CounterType countId)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_clientPacketCountId = countId;
+    this->g_clientPacketCounter = countId;
+#ifndef FGE_DEF_SERVER
+    this->g_lastReorderedPacketCounter = countId;
+#endif
+}
+
+void Client::resetLastReorderedPacketCounter()
+{
+    std::scoped_lock const lck(this->g_mutex);
+#ifdef FGE_DEF_SERVER
+    this->g_lastReorderedPacketCounter = this->g_currentPacketCounter;
+#else
+    this->g_lastReorderedPacketCounter = this->g_clientPacketCounter;
+#endif
+}
+ProtocolPacket::CounterType Client::getLastReorderedPacketCounter() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+    return this->g_lastReorderedPacketCounter;
 }
 
 PacketReorderer& Client::getPacketReorderer()
@@ -299,6 +367,29 @@ PacketReorderer& Client::getPacketReorderer()
 PacketReorderer const& Client::getPacketReorderer() const
 {
     return this->g_packetReorderer;
+}
+
+DataLockPair<PacketCache*, std::recursive_mutex> Client::getPacketCache()
+{
+    return DataLockPair<PacketCache*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
+}
+DataLockPair<PacketCache const*, std::recursive_mutex> Client::getPacketCache() const
+{
+    return DataLockPair<PacketCache const*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
+}
+void Client::acknowledgeReception(ReceivedPacketPtr const& packet)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_acknowledgedPackets.push_back({packet->retrieveCounter().value(), packet->retrieveRealm().value()});
+}
+std::vector<PacketCache::Label> const& Client::getAcknowledgedList() const
+{
+    return this->g_acknowledgedPackets;
+}
+void Client::clearAcknowledgedList()
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_acknowledgedPackets.clear();
 }
 
 void Client::clearLostPacketCount()
@@ -336,14 +427,52 @@ uint32_t Client::getLostPacketCount() const
     return this->g_lostPacketCount;
 }
 
+ClientStatus const& Client::getStatus() const
+{
+    return this->g_status;
+}
+ClientStatus& Client::getStatus()
+{
+    return this->g_status;
+}
+
+Client::CryptInfo const& Client::getCryptInfo() const
+{
+    return this->g_cryptInfo;
+}
+Client::CryptInfo& Client::getCryptInfo()
+{
+    return this->g_cryptInfo;
+}
+
+uint16_t Client::getMTU() const
+{
+    return this->g_mtu;
+}
+void Client::setMTU(uint16_t mtu)
+{
+    this->g_mtu = mtu;
+}
+
+void Client::setPacketReturnRate(std::chrono::milliseconds rate)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_returnPacketRate = rate;
+}
+std::chrono::milliseconds Client::getPacketReturnRate() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+    return this->g_returnPacketRate;
+}
+
 //OneWayLatencyPlanner
 
-void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
+void OneWayLatencyPlanner::pack(TransmitPacketPtr& tPacket)
 {
     //Append timestamp
     auto const myTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(Timestamp));
-    tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
+    tPacket->options().emplace_back(ProtocolPacket::Options::UPDATE_TIMESTAMP, myTimestampPos);
 
     //Append latency corrector
     auto const myLatencyCorrectorPos = tPacket->packet().getDataSize();
@@ -356,7 +485,7 @@ void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
     //Append full timestamp
     std::size_t const myFullTimestampPos = tPacket->packet().getDataSize();
     tPacket->packet().append(sizeof(FullTimestamp));
-    tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
+    tPacket->options().emplace_back(ProtocolPacket::Options::UPDATE_FULL_TIMESTAMP, myFullTimestampPos);
 
     //Pack sync stat
     tPacket->packet().pack(&this->g_syncStat, sizeof(this->g_syncStat));
@@ -365,11 +494,11 @@ void OneWayLatencyPlanner::pack(TransmissionPacketPtr& tPacket)
     if ((this->g_syncStat & HAVE_EXTERNAL_TIMESTAMP) > 0)
     {
         tPacket->packet().pack(&this->g_externalStoredTimestamp, sizeof(this->g_externalStoredTimestamp));
-        tPacket->options().emplace_back(TransmissionPacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
+        tPacket->options().emplace_back(ProtocolPacket::Options::UPDATE_CORRECTION_LATENCY, myLatencyCorrectorPos);
         this->g_syncStat &= ~HAVE_EXTERNAL_TIMESTAMP;
     }
 }
-void OneWayLatencyPlanner::unpack(FluxPacket* packet, Client& client)
+void OneWayLatencyPlanner::unpack(ProtocolPacket* packet, Client& client)
 {
     bool const finishedToSendLastPacket = !client.getCorrectorTimestamp().has_value();
 

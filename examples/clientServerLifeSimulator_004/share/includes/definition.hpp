@@ -20,7 +20,6 @@
 #include "FastEngine/network/C_protocol.hpp"
 
 #define LIFESIM_VERSION 1
-#define LIFESIM_CLIENT_PORT 42047
 #define LIFESIM_SERVER_PORT 42048
 #define LIFESIM_CONNECTION_TEXT1 "Hello"
 #define LIFESIM_CONNECTION_TEXT2 "_IWANTTOCONNECT_42//%"
@@ -48,34 +47,22 @@
         20000                                                                                                          \
     }
 
-#define LIFESIM_CLIENTDATA_TIMEOUT "timeout"
 #define LIFESIM_SERVER_TICK 20
 #define LIFESIM_TIME_TIMEOUT                                                                                           \
     std::chrono::milliseconds                                                                                          \
     {                                                                                                                  \
-        100                                                                                                            \
+        3000                                                                                                           \
     }
-#define LIFESIM_TIMEOUT_COUNT 30
 
 #define LIFESIM_VIDEOMODE sf::VideoMode(1600, 900)
 #define LIFESIM_FRAMERATE 60
-#define LIFESIM_TIME_CONNECTION_TIMEOUT                                                                                \
-    std::chrono::milliseconds                                                                                          \
-    {                                                                                                                  \
-        3000                                                                                                           \
-    }
-#define LIFESIM_TIME_CLIENT_UPDATE                                                                                     \
-    std::chrono::milliseconds                                                                                          \
-    {                                                                                                                  \
-        1000                                                                                                           \
-    }
 
 namespace ls
 {
 
-enum ProtocolHeaders : fge::net::ProtocolPacket::Header
+enum ProtocolHeaders : fge::net::ProtocolPacket::IdType
 {
-    LS_PROTOCOL_ALL_PING = FGE_NET_HEADERID_START,
+    LS_PROTOCOL_ALL_PING = FGE_NET_CUSTOM_ID_START,
     /* check if the receiver is alive
     IN:
         -
@@ -94,13 +81,6 @@ enum ProtocolHeaders : fge::net::ProtocolPacket::Header
     /*
     IN:
         string REASON
-    OUT:
-        -
-    */
-    LS_PROTOCOL_C_UPDATE,
-    /*
-    IN:
-        LatencyPlanner LATENCY_PLANNER_DATA
     OUT:
         -
     */

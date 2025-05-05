@@ -54,10 +54,13 @@ bool WriteOnSendPacketDataToFile(fge::net::Packet& pck, std::string const& file)
         return false;
     }
 
-    std::vector<uint8_t> buffer;
-    pck.onSend(buffer, 0);
+    if (!pck.onSend(0))
+    {
+        theFile.close();
+        return false;
+    }
 
-    theFile.write(reinterpret_cast<char*>(buffer.data()), buffer.size());
+    theFile.write(reinterpret_cast<char const*>(pck.getTransmitCache().data()), pck.getTransmitCache().size());
     theFile.close();
     return true;
 }

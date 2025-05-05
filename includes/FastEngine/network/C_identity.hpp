@@ -29,12 +29,17 @@ namespace fge::net
  */
 struct Identity
 {
-    IpAddress _ip;
-    Port _port;
+    IpAddress _ip{};
+    Port _port{FGE_ANYPORT};
 
-    inline bool operator==(Identity const& right) const
+    [[nodiscard]] inline bool operator==(Identity const& right) const
     {
         return (this->_ip == right._ip) && (this->_port == right._port);
+    }
+
+    [[nodiscard]] inline std::string toString() const
+    {
+        return this->_ip.toString().value_or("UNDEFINED") + ":" + std::to_string(this->_port);
     }
 };
 
