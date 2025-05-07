@@ -116,14 +116,14 @@ AddCmakeDependency(freetype
 
 AddCmakeDependency(SDL2
         https://github.com/libsdl-org/SDL.git
-        release-2.30.9
+        release-2.32.6
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
 
 AddCmakeDependency(SDL2_image
         https://github.com/libsdl-org/SDL_image.git
-        release-2.8.2
+        release-2.8.8
         ON
         "-DSDL2IMAGE_SAMPLES=OFF -DSDL2IMAGE_DEPS_SHARED=OFF -DSDL2IMAGE_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL2"
         "")
@@ -131,7 +131,7 @@ add_dependencies(SDL2_image SDL2)
 
 AddCmakeDependency(SDL2_mixer
         https://github.com/libsdl-org/SDL_mixer.git
-        release-2.8.0
+        release-2.8.1
         ON
         "-DSDL2MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL2"
         "")
