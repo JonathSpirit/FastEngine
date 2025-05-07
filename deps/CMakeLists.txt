@@ -139,7 +139,7 @@ add_dependencies(SDL2_mixer SDL2)
 
 AddCmakeDependency(glm
         https://github.com/g-truc/glm.git
-        45008b225e28eb700fa0f7d3ff69b7c1db94fadf
+        2d4c4b4dd31fde06cfffad7915c2b3006402322f
         OFF
         "-DGLM_BUILD_LIBRARY=OFF -DGLM_BUILD_TESTS=OFF"
         "")
