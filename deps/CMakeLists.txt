@@ -88,7 +88,7 @@ AddPatchedDependency(bzip2
 
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
-        11.0.2
+        11.2.0
         OFF
         "-DFMT_TEST=OFF"
         "")
