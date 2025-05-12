@@ -306,8 +306,7 @@ public:
 
         DRAW_DEFAULT = DRAW_IF_ON_TARGET
     };
-    fge::Object::DrawModes _drawMode{
-            fge::Object::DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
+    DrawModes _drawMode{DrawModes::DRAW_DEFAULT}; ///< Tell a scene when this object should be drawn
 
     enum class CallbackContextModes : uint8_t
     {
@@ -316,9 +315,23 @@ public:
 
         CONTEXT_DEFAULT = CONTEXT_AUTO
     };
-    fge::Object::CallbackContextModes _callbackContextMode{
-            fge::Object::CallbackContextModes::
-                    CONTEXT_DEFAULT}; ///< Tell a scene how the callbackRegister must be called
+    CallbackContextModes _callbackContextMode{
+            CallbackContextModes::CONTEXT_DEFAULT}; ///< Tell a scene how the callbackRegister must be called
+
+    enum class NetSyncModes : uint8_t
+    {
+        NO_SYNC,
+        FULL_SYNC,
+        DELTA_SYNC,
+
+#ifdef FGE_DEF_SERVER
+        NETSYNC_DEFAULT = FULL_SYNC
+#else
+        NETSYNC_DEFAULT = NO_SYNC
+#endif //FGE_DEF_SERVER
+    };
+    NetSyncModes _netSyncMode{NetSyncModes::NETSYNC_DEFAULT}; ///< Tell a scene how the object must be synchronised
+    net::Identity _netOwner{};                                ///< The owner of the object
 
     //Child objects
 

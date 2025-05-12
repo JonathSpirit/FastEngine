@@ -1125,7 +1125,7 @@ void Scene::signalObject(fge::ObjectSid sid, int8_t signal)
     }
 }
 
-void Scene::pack(fge::net::Packet& pck)
+void Scene::pack(fge::net::Packet& pck) const
 {
     //update count
     pck << this->g_updateCount;
@@ -1140,26 +1140,34 @@ void Scene::pack(fge::net::Packet& pck)
     }
 
     //object size
-    pck << static_cast<fge::net::SizeType>(this->g_objects.size());
+    net::SizeType objectSize = 0;
+    std::size_t const objectSizePos = pck.getDataSize();
+    pck.pack(&objectSize, sizeof(objectSize)); //Will be rewritten
     for (auto const& data: this->g_objects)
     {
-        if (data->g_type == fge::ObjectType::TYPE_GUI)
+        if (data->g_type == ObjectType::TYPE_GUI)
         { //Ignore GUI
-            pck << static_cast<fge::ObjectSid>(FGE_SCENE_BAD_SID);
+            continue;
+        }
+
+        if (data->g_object->_netSyncMode != Object::NetSyncModes::FULL_SYNC)
+        {
             continue;
         }
 
         //SID
         pck << data->g_sid;
         //CLASS
-        pck << fge::reg::GetClassId(data->g_object->getClassName());
+        pck << reg::GetClassId(data->g_object->getClassName());
         //PLAN
         pck << data->g_plan;
         //TYPE
-        pck << static_cast<std::underlying_type<fge::ObjectType>::type>(data->g_type);
+        pck << data->g_type;
 
         data->g_object->pack(pck);
+        ++objectSize;
     }
+    pck.pack(objectSizePos, &objectSize, sizeof(objectSize)); //Rewriting size
 }
 void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
 {
@@ -1259,7 +1267,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     //scene data
     fge::net::SizeType countSceneDataModification = 0;
 
-    std::size_t rewritePos = pck.getDataSize();
+    std::size_t const rewritePos = pck.getDataSize();
     pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewritten
 
     for (std::size_t i = 0; i < this->_netList.size(); ++i)
@@ -1279,17 +1287,23 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     //object size
     fge::net::SizeType countObject = 0;
 
-    std::size_t countObjectPos = pck.getDataSize();
+    std::size_t const countObjectPos = pck.getDataSize();
     pck.pack(&countObject, sizeof(countObject)); //Will be rewritten
 
     std::size_t dataPos = pck.getDataSize();
-    constexpr std::size_t const reservedSize =
-            sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-            sizeof(std::underlying_type<fge::ObjectType>::type) + sizeof(fge::net::SizeType);
+    constexpr std::size_t reservedSize = sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
+                                         sizeof(std::underlying_type<fge::ObjectType>::type) +
+                                         sizeof(fge::net::SizeType);
     pck.append(reservedSize);
 
     for (auto const& data: this->g_objects)
     {
+        if (data->g_object->_netSyncMode != Object::NetSyncModes::FULL_SYNC &&
+            data->g_object->_netSyncMode != Object::NetSyncModes::DELTA_SYNC)
+        {
+            continue;
+        }
+
         //MODIF COUNT/OBJECT DATA
         fge::net::SizeType countModification = 0;
         for (std::size_t i = 0; i < data->getObject()->_netList.size(); ++i)
@@ -1304,6 +1318,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
                 ++countModification;
             }
         }
+
         if (countModification > 0)
         {
             //SID

@@ -993,7 +993,7 @@ public:
      */
     fge::ObjectDataShared getFirstObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const;
     /**
-     * \brief Get the first Object with a local position position.
+     * \brief Get the first Object with a local position.
      *
      * \see getAllObj_FromLocalPosition
      *
@@ -1084,7 +1084,7 @@ public:
      *
      * \param pck The network packet
      */
-    void pack(fge::net::Packet& pck);
+    void pack(fge::net::Packet& pck) const;
     /**
      * \brief Pack all the Scene data in a Packet for a net::Client.
      *
