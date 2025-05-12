@@ -175,7 +175,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             for (auto it = mainScene.begin(); it != mainScene.end();)
             {
                 //Avoid cast on non-CustomObject by only looking for object type
-                if ((*it)->getType() == fge::ObjectType::TYPE_OBJECT)
+                if ((*it)->getType() == fge::ObjectTypes::OBJECT)
                 {
                     auto* object = (*it)->getObject<ls::CustomObject>();
                     if (object->worldTick())
