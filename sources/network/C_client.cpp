@@ -46,6 +46,10 @@ bool ClientStatus::isConnecting() const
     return this->g_networkStatus == NetworkStatus::ACKNOWLEDGED ||
            this->g_networkStatus == NetworkStatus::MTU_DISCOVERED;
 }
+bool ClientStatus::isAuthenticated() const
+{
+    return this->g_networkStatus == NetworkStatus::AUTHENTICATED;
+}
 
 std::string const& ClientStatus::getStatus() const
 {

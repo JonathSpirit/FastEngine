@@ -190,6 +190,7 @@ public:
     [[nodiscard]] bool isDisconnected() const;
     [[nodiscard]] bool isConnected() const;
     [[nodiscard]] bool isConnecting() const;
+    [[nodiscard]] bool isAuthenticated() const;
 
     [[nodiscard]] std::string const& getStatus() const;
     [[nodiscard]] NetworkStatus getNetworkStatus() const;
