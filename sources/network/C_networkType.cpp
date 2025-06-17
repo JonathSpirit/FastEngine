@@ -22,93 +22,191 @@
 namespace fge::net
 {
 
-///NetworkTypeBase
+//PerClientSyncContext
 
-bool NetworkTypeBase::clientsCheckup(fge::net::ClientList const& clients, bool force)
+void PerClientSyncContext::setModificationFlag()
+{
+    for (auto& pair: this->g_syncTable)
+    {
+        pair.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+        this->applyClientData(pair.second._data);
+    }
+}
+bool PerClientSyncContext::setModificationFlag(Identity const& client)
+{
+    auto it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        it->second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+        this->applyClientData(it->second._data);
+        return true;
+    }
+    return false;
+}
+bool PerClientSyncContext::clearModificationFlag(Identity const& client)
+{
+    auto it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        it->second._config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        return true;
+    }
+    return false;
+}
+bool PerClientSyncContext::isModified(Identity const& client) const
+{
+    auto const it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        return (it->second._config & CLIENTCONFIG_MODIFIED_FLAG) > 0;
+    }
+    return false;
+}
+
+void PerClientSyncContext::setRequireExplicitUpdateFlag(Identity const& client)
+{
+    auto it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        it->second._config |= CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG;
+    }
+}
+bool PerClientSyncContext::isRequiringExplicitUpdate(Identity const& client) const
+{
+    auto const it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        return (it->second._config & CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG) > 0;
+    }
+    return false;
+}
+
+PerClientData& PerClientSyncContext::newClient(Identity const& client, PerClientConfigs_t config)
+{
+    auto [it, alreadyInserted] = this->g_syncTable.emplace(client, config);
+
+    if (alreadyInserted)
+    {
+        return it->second; //Client already exists, return its data
+    }
+
+    this->createClientData(it->second._data);
+    return it->second;
+}
+void PerClientSyncContext::delClient(Identity const& client)
+{
+    auto it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        this->g_syncTable.erase(it);
+    }
+}
+
+bool PerClientSyncContext::hasClient(Identity const& client) const
+{
+    return this->g_syncTable.contains(client);
+}
+
+PerClientData const* PerClientSyncContext::getClientData(Identity const& client) const
+{
+    auto const it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        return &it->second;
+    }
+    return nullptr;
+}
+PerClientData* PerClientSyncContext::getClientData(Identity const& client)
+{
+    auto it = this->g_syncTable.find(client);
+    if (it != this->g_syncTable.end())
+    {
+        return &it->second;
+    }
+    return nullptr;
+}
+
+PerClientSyncContext::SyncTable::const_iterator PerClientSyncContext::begin() const
+{
+    return this->g_syncTable.begin();
+}
+PerClientSyncContext::SyncTable::iterator PerClientSyncContext::begin()
+{
+    return this->g_syncTable.begin();
+}
+PerClientSyncContext::SyncTable::const_iterator PerClientSyncContext::end() const
+{
+    return this->g_syncTable.end();
+}
+PerClientSyncContext::SyncTable::iterator PerClientSyncContext::end()
+{
+    return this->g_syncTable.end();
+}
+
+void PerClientSyncContext::clear()
+{
+    this->g_syncTable.clear();
+}
+void PerClientSyncContext::clientsCheckup(ClientList const& clients, bool force, PerClientConfigs_t config)
 {
     if (force)
-    { //Clear and redo the table by ClientList
-        for (auto& it: this->_g_tableId)
-        {
-            this->destroyClientCustomData(it.second._customData);
-        }
-        this->_g_tableId.clear();
-        this->_g_tableId.reserve(clients.getSize());
+    { //Clear and redo the table by looking all the clients in the ClientList
+        this->g_syncTable.clear();
 
         auto lock = clients.acquireLock();
         for (auto it = clients.begin(lock); it != clients.end(lock); ++it)
         {
-            this->createClientCustomData(
-                    this->_g_tableId.emplace(it->first, PerClientConfig{}).first->second._customData);
+            this->createClientData(this->newClient(it->first, config)._data);
         }
-    }
-    else
-    { //Remove/add extra clients by ClientList events
-        for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
-        {
-            auto const& evt = clients.getClientEvent(i);
-            if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
-            {
-                auto it = this->_g_tableId.find(evt._id);
-                if (it != this->_g_tableId.end())
-                {
-                    this->destroyClientCustomData(it->second._customData);
-                    this->_g_tableId.erase(it);
-                }
-            }
-            else
-            {
-                this->createClientCustomData(
-                        this->_g_tableId.emplace(evt._id, PerClientConfig{}).first->second._customData);
-            }
-        }
+        return;
     }
 
-    //Apply modification flag to clients
-    bool buff = this->check();
-    if (buff)
+    //Remove/add extra clients by ClientList events
+    for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
     {
-        for (auto& it: this->_g_tableId)
+        auto const& evt = clients.getClientEvent(i);
+
+        if (evt._event == ClientListEvent::CLEVT_DELCLIENT)
         {
-            it.second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
-            this->applyClientCustomData(it.second._customData);
+            this->delClient(evt._id);
         }
+        else
+        {
+            this->createClientData(this->newClient(evt._id, config)._data);
+        }
+    }
+}
+
+//NetworkTypeBase
+
+bool NetworkTypeBase::clientsCheckup(ClientList const& clients, bool force)
+{
+    PerClientSyncContext::clientsCheckup(clients, force);
+
+    //Apply modification flag to clients
+    bool const checkResult = this->check();
+    if (checkResult)
+    {
+        this->setModificationFlag();
         this->forceUncheck();
     }
-    return buff;
+    return checkResult;
 }
-bool NetworkTypeBase::checkClient(fge::net::Identity const& id) const
+bool NetworkTypeBase::checkClient(Identity const& id) const
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.cend())
-    {
-        return (it->second._config & fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG) > 0;
-    }
-    return false;
+    return this->isModified(id);
 }
-void NetworkTypeBase::forceCheckClient(fge::net::Identity const& id)
+void NetworkTypeBase::forceCheckClient(Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
-    {
-        it->second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
-    }
+    this->setModificationFlag(id);
 }
-void NetworkTypeBase::forceUncheckClient(fge::net::Identity const& id)
+void NetworkTypeBase::forceUncheckClient(Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
-    {
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
-    }
+    this->clearModificationFlag(id);
 }
-void NetworkTypeBase::requireExplicitUpdateClient(fge::net::Identity const& id)
+void NetworkTypeBase::requireExplicitUpdateClient(Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
-    {
-        it->second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG;
-    }
+    this->setRequireExplicitUpdateFlag(id);
 }
 
 bool NetworkTypeBase::isForced() const
@@ -167,7 +265,7 @@ void const* NetworkTypeScene::getSource() const
     return this->g_typeSource;
 }
 
-bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
+bool NetworkTypeScene::applyData(Packet const& pck)
 {
     Scene::UpdateCountRange updateRange{};
     auto err = this->g_typeSource->unpackModification(pck, updateRange);
@@ -181,31 +279,31 @@ bool NetworkTypeScene::applyData(fge::net::Packet const& pck)
     this->_onApplied.call();
     return true;
 }
-void NetworkTypeScene::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeScene::packData(Packet& pck, Identity const& id)
 {
     this->g_typeSource->packModification(pck, id);
     this->g_typeSource->packWatchedEvent(pck, id);
 }
-void NetworkTypeScene::packData(fge::net::Packet& pck)
+void NetworkTypeScene::packData(Packet& pck)
 {
     this->g_typeSource->pack(pck);
 }
 
-bool NetworkTypeScene::clientsCheckup(fge::net::ClientList const& clients, bool force)
+bool NetworkTypeScene::clientsCheckup(ClientList const& clients, bool force)
 {
     this->g_typeSource->clientsCheckup(clients, force);
     return true;
 }
 
-bool NetworkTypeScene::checkClient([[maybe_unused]] fge::net::Identity const& id) const
+bool NetworkTypeScene::checkClient([[maybe_unused]] Identity const& id) const
 {
     return true;
 }
-void NetworkTypeScene::forceCheckClient(fge::net::Identity const& id)
+void NetworkTypeScene::forceCheckClient(Identity const& id)
 {
     this->g_typeSource->forceCheckClient(id);
 }
-void NetworkTypeScene::forceUncheckClient(fge::net::Identity const& id)
+void NetworkTypeScene::forceUncheckClient(Identity const& id)
 {
     this->g_typeSource->forceUncheckClient(id);
 }
@@ -230,12 +328,12 @@ void const* NetworkTypeSmoothVec2Float::getSource() const
     return nullptr;
 }
 
-bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet const& pck)
+bool NetworkTypeSmoothVec2Float::applyData(Packet const& pck)
 {
     if (pck >> this->g_typeCopy)
     {
-        fge::Vector2f source = this->g_typeSource._getter();
-        float error = std::abs(this->g_typeCopy.x - source.x) + std::abs(this->g_typeCopy.y - source.y);
+        fge::Vector2f const source = this->g_typeSource._getter();
+        float const error = std::abs(this->g_typeCopy.x - source.x) + std::abs(this->g_typeCopy.y - source.y);
         if (error >= this->g_errorRange)
         { //Too much error
             this->g_typeSource._setter(this->g_typeCopy);
@@ -250,16 +348,14 @@ bool NetworkTypeSmoothVec2Float::applyData(fge::net::Packet const& pck)
     }
     return false;
 }
-void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeSmoothVec2Float::packData(Packet& pck, Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    if (this->clearModificationFlag(id))
     {
         pck << this->g_typeSource._getter();
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
-void NetworkTypeSmoothVec2Float::packData(fge::net::Packet& pck)
+void NetworkTypeSmoothVec2Float::packData(Packet& pck)
 {
     pck << this->g_typeSource._getter();
 }
@@ -304,7 +400,7 @@ void const* NetworkTypeSmoothFloat::getSource() const
     return nullptr;
 }
 
-bool NetworkTypeSmoothFloat::applyData(fge::net::Packet const& pck)
+bool NetworkTypeSmoothFloat::applyData(Packet const& pck)
 {
     if (pck >> this->g_typeCopy)
     {
@@ -323,16 +419,14 @@ bool NetworkTypeSmoothFloat::applyData(fge::net::Packet const& pck)
     }
     return false;
 }
-void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeSmoothFloat::packData(Packet& pck, Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    if (this->clearModificationFlag(id))
     {
         pck << this->g_typeSource._getter();
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
-void NetworkTypeSmoothFloat::packData(fge::net::Packet& pck)
+void NetworkTypeSmoothFloat::packData(Packet& pck)
 {
     pck << this->g_typeSource._getter();
 }
@@ -376,7 +470,7 @@ void const* NetworkTypeTag::getSource() const
     return this->g_typeSource;
 }
 
-bool NetworkTypeTag::applyData(fge::net::Packet const& pck)
+bool NetworkTypeTag::applyData(Packet const& pck)
 {
     bool flag;
     pck >> flag;
@@ -395,11 +489,11 @@ bool NetworkTypeTag::applyData(fge::net::Packet const& pck)
     this->_onApplied.call();
     return true;
 }
-void NetworkTypeTag::packData(fge::net::Packet& pck, [[maybe_unused]] fge::net::Identity const& id)
+void NetworkTypeTag::packData(Packet& pck, [[maybe_unused]] Identity const& id)
 {
     pck << this->g_typeSource->check(this->g_tag);
 }
-void NetworkTypeTag::packData(fge::net::Packet& pck)
+void NetworkTypeTag::packData(Packet& pck)
 {
     pck << this->g_typeSource->check(this->g_tag);
 }
@@ -418,24 +512,24 @@ void NetworkTypeHandler::clear()
     this->g_data.clear();
 }
 
-fge::net::NetworkTypeBase* NetworkTypeHandler::push(std::unique_ptr<fge::net::NetworkTypeBase>&& newNet)
+NetworkTypeBase* NetworkTypeHandler::push(std::unique_ptr<NetworkTypeBase>&& newNet)
 {
     return this->g_data.emplace_back(std::move(newNet)).get();
 }
 
-std::size_t NetworkTypeHandler::packNeededUpdate(fge::net::Packet& pck) const
+std::size_t NetworkTypeHandler::packNeededUpdate(Packet& pck) const
 {
     auto const rewritePos = pck.getDataSize();
-    pck.append(sizeof(fge::net::SizeType)); //Will be rewrited
+    pck.append(sizeof(SizeType)); //Will be rewritten
 
-    fge::net::SizeType count{0};
-    for (std::size_t i = 0; i < this->g_data.size(); ++i)
+    SizeType count{0};
+    for (SizeType i = 0; i < this->g_data.size(); ++i)
     {
         auto* net = this->g_data[i].get();
 
         if (net->isNeedingExplicitUpdate())
         {
-            pck << static_cast<fge::net::SizeType>(i);
+            pck << i;
             ++count;
             net->clearExplicitUpdateFlag();
             net->clearWaitingUpdateFlag();
@@ -445,25 +539,25 @@ std::size_t NetworkTypeHandler::packNeededUpdate(fge::net::Packet& pck) const
         auto const lastUpdateTime = std::chrono::steady_clock::now().time_since_epoch() - net->getLastUpdateTime();
         if (net->isWaitingUpdate() && lastUpdateTime >= FGE_NET_WAITING_UPDATE_DELAY)
         {
-            pck << static_cast<fge::net::SizeType>(i);
+            pck << i;
             ++count;
             net->clearWaitingUpdateFlag();
         }
     }
 
-    pck.pack(rewritePos, &count, sizeof(fge::net::SizeType));
+    pck.pack(rewritePos, &count, sizeof(SizeType));
 
     return count;
 }
-void NetworkTypeHandler::unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id) const
+void NetworkTypeHandler::unpackNeededUpdate(Packet const& pck, Identity const& id) const
 {
     ///TODO : need safe data extraction with net rules
-    fge::net::SizeType count{0};
+    SizeType count{0};
     pck >> count;
 
-    for (fge::net::SizeType i = 0; i < count; ++i)
+    for (SizeType i = 0; i < count; ++i)
     {
-        fge::net::SizeType dataIndex{std::numeric_limits<fge::net::SizeType>::max()};
+        SizeType dataIndex{std::numeric_limits<SizeType>::max()};
         pck >> dataIndex;
 
         if (dataIndex < this->g_data.size())
@@ -479,21 +573,21 @@ void NetworkTypeHandler::unpackNeededUpdate(fge::net::Packet const& pck, fge::ne
     }
 }
 
-void NetworkTypeHandler::clientsCheckup(fge::net::ClientList const& clients, bool force) const
+void NetworkTypeHandler::clientsCheckup(ClientList const& clients, bool force) const
 {
     for (auto const& netType: this->g_data)
     {
         netType->clientsCheckup(clients, force);
     }
 }
-void NetworkTypeHandler::forceCheckClient(fge::net::Identity const& id) const
+void NetworkTypeHandler::forceCheckClient(Identity const& id) const
 {
     for (auto const& netType: this->g_data)
     {
         netType->forceCheckClient(id);
     }
 }
-void NetworkTypeHandler::forceUncheckClient(fge::net::Identity const& id) const
+void NetworkTypeHandler::forceUncheckClient(Identity const& id) const
 {
     for (auto const& netType: this->g_data)
     {
