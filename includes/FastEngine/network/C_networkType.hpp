@@ -23,6 +23,7 @@
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_dataAccessor.hpp"
 #include "FastEngine/C_propertyList.hpp"
+#include <deque>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -58,7 +59,7 @@ struct PerClientData
     {}
 
     PerClientConfigs_t _config{CLIENTCONFIG_DEFAULT};
-    std::shared_ptr<std::nullptr_t> _data{nullptr};
+    std::shared_ptr<void> _data{nullptr};
 };
 
 class ClientList;
@@ -101,8 +102,8 @@ public:
     [[nodiscard]] SyncTable::iterator end();
 
 protected:
-    virtual void createClientData([[maybe_unused]] std::shared_ptr<std::nullptr_t>& ptr) const {}
-    virtual void applyClientData([[maybe_unused]] std::shared_ptr<std::nullptr_t>& ptr) const {}
+    virtual void createClientData([[maybe_unused]] std::shared_ptr<void>& ptr) const {}
+    virtual void applyClientData([[maybe_unused]] std::shared_ptr<void>& ptr) const {}
 
 private:
     SyncTable g_syncTable; ///< Table of clients and their sync data
@@ -612,15 +613,12 @@ public:
     void forceUncheck() override;
 
 private:
-    void createClientData(std::shared_ptr<std::nullptr_t>& ptr) const override;
-    void applyClientData(std::shared_ptr<std::nullptr_t>& ptr) const override;
+    void createClientData(std::shared_ptr<void>& ptr) const override;
+    void applyClientData(std::shared_ptr<void>& ptr) const override;
 
     struct DataDeleter
     {
-        inline void operator()(std::nullptr_t* ptr) const
-        {
-            delete static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
-        }
+        inline void operator()(void* ptr) const { delete static_cast<typename RecordedVector<T>::EventQueue*>(ptr); }
     };
 
     enum class PackTypes : uint8_t
@@ -630,6 +628,52 @@ private:
     };
 
     RecordedVector<T>* g_typeSource;
+};
+
+/**
+ * \class NetworkTypeEvents
+ * \ingroup network
+ * \brief The network type for an event queue
+ */
+template<class TEnum, class TData = void>
+class NetworkTypeEvents : public NetworkTypeBase
+{
+public:
+    using Event = std::conditional_t<std::is_void_v<TData>, TEnum, std::pair<TEnum, TData>>;
+
+    NetworkTypeEvents() = default;
+    ~NetworkTypeEvents() override = default;
+
+    void const* getSource() const override;
+
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
+
+    void forceCheckClient(Identity const& id) override;
+    void forceUncheckClient(Identity const& id) override;
+
+    bool check() const override;
+    void forceCheck() override;
+    void forceUncheck() override;
+
+    void pushEvent(Event const& event);
+    void pushEventIgnore(Event const& event, Identity const& ignoreId);
+
+    fge::CallbackHandler<Event> _onEvent; ///< Callback called when an event is received
+
+private:
+    void createClientData(std::shared_ptr<void>& ptr) const override;
+    void applyClientData(std::shared_ptr<void>& ptr) const override;
+
+    using EventQueue = std::deque<Event>;
+
+    struct DataDeleter
+    {
+        inline void operator()(void* ptr) const { delete static_cast<EventQueue*>(ptr); }
+    };
+
+    bool g_modified{false}; ///< Flag to know if a new event has been added
 };
 
 /**

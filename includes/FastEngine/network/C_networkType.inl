@@ -469,7 +469,7 @@ inline Packet const& operator>>(Packet const& pck, RecordedEvent& event)
     return pck >> event._type >> event._index;
 }
 
-///NetworkTypeVector
+//NetworkTypeVector
 
 template<class T>
 NetworkTypeVector<T>::NetworkTypeVector(RecordedVector<T>* source) :
@@ -647,13 +647,13 @@ void NetworkTypeVector<T>::forceUncheck()
 }
 
 template<class T>
-void NetworkTypeVector<T>::createClientData(std::shared_ptr<std::nullptr_t>& ptr) const
+void NetworkTypeVector<T>::createClientData(std::shared_ptr<void>& ptr) const
 {
-    ptr = std::shared_ptr<std::nullptr_t>(new typename RecordedVector<T>::EventQueue(),
-                                          typename RecordedVector<T>::DataDeleter());
+    ptr = std::shared_ptr<void>(new typename RecordedVector<T>::EventQueue(),
+                                typename RecordedVector<T>::DataDeleter());
 }
 template<class T>
-void NetworkTypeVector<T>::applyClientData(std::shared_ptr<std::nullptr_t>& ptr) const
+void NetworkTypeVector<T>::applyClientData(std::shared_ptr<void>& ptr) const
 {
     auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
 
@@ -669,5 +669,155 @@ void NetworkTypeVector<T>::applyClientData(std::shared_ptr<std::nullptr_t>& ptr)
     }
 }
 
+//NetworkTypeEvents
+
+template<class TEnum, class TData>
+void const* NetworkTypeEvents<TEnum, TData>::getSource() const
+{
+    return nullptr; //This type does not have a source, it is a collection of events
+}
+
+template<class TEnum, class TData>
+bool NetworkTypeEvents<TEnum, TData>::applyData(Packet const& pck)
+{
+    SizeType eventCount{0};
+    pck >> eventCount;
+
+    if (eventCount == 0)
+    {
+        return true; //Nothing to apply
+    }
+
+    for (SizeType i = 0; i < eventCount; ++i)
+    {
+        TEnum eventType{};
+        pck >> eventType;
+        if constexpr (std::is_void_v<TData>)
+        {
+            this->_onEvent.call(eventType);
+        }
+        else
+        {
+            TData eventData{};
+            pck >> eventData;
+            this->_onEvent.call(std::make_pair(eventType, std::move(eventData)));
+        }
+    }
+
+    this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
+    this->_onApplied.call();
+    return true;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::packData(Packet& pck, Identity const& id)
+{
+    auto* clientData = this->getClientData(id);
+
+    if (clientData == nullptr)
+    {
+        return;
+    }
+
+    auto* events = static_cast<EventQueue*>(clientData->_data.get());
+
+    pck << static_cast<SizeType>(events->size());
+
+    for (auto const& event: *events)
+    {
+        if constexpr (std::is_void_v<TData>)
+        {
+            pck << event;
+        }
+        else
+        {
+            pck << event.first << event.second;
+        }
+    }
+    events->clear();
+
+    clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::packData([[maybe_unused]] Packet& pck)
+{
+    //This type does not have a source, it is a collection of events
+    //So we do not pack anything here
+}
+
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceCheckClient(Identity const& id)
+{
+    auto* clientData = this->getClientData(id);
+    if (clientData != nullptr)
+    {
+        clientData->_config |= CLIENTCONFIG_MODIFIED_FLAG;
+    }
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceUncheckClient(Identity const& id)
+{
+    auto* clientData = this->getClientData(id);
+    if (clientData != nullptr)
+    {
+        clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        auto* events = static_cast<EventQueue*>(clientData->_data.get());
+        events->clear();
+    }
+}
+
+template<class TEnum, class TData>
+bool NetworkTypeEvents<TEnum, TData>::check() const
+{
+    return this->g_modified || this->_g_force;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceCheck()
+{
+    this->_g_force = true;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceUncheck()
+{
+    this->_g_force = false;
+    this->g_modified = false;
+}
+
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::pushEvent(Event const& event)
+{
+    this->g_modified = true;
+    for (auto& client: *this)
+    {
+        auto* events = static_cast<EventQueue*>(client.second._data.get());
+        events->push_back(event);
+        client.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+    }
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::pushEventIgnore(Event const& event, Identity const& ignoreId)
+{
+    this->g_modified = true;
+    for (auto& client: *this)
+    {
+        if (client.first == ignoreId)
+        {
+            continue; //Skip the ignored client
+        }
+
+        auto* events = static_cast<EventQueue*>(client.second._data.get());
+        events->push_back(event);
+        client.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+    }
+}
+
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::createClientData(std::shared_ptr<void>& ptr) const
+{
+    ptr = std::shared_ptr<void>(new EventQueue(), NetworkTypeEvents::DataDeleter());
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::applyClientData([[maybe_unused]] std::shared_ptr<void>& ptr) const
+{}
 
 } // namespace fge::net
