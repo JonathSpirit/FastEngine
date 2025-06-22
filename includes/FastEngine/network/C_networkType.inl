@@ -31,7 +31,7 @@ void const* NetworkType<T>::getSource() const
     return &this->g_typeSource;
 }
 template<class T>
-bool NetworkType<T>::applyData(fge::net::Packet const& pck)
+bool NetworkType<T>::applyData(Packet const& pck)
 {
     if (pck >> this->g_typeCopy)
     {
@@ -44,17 +44,15 @@ bool NetworkType<T>::applyData(fge::net::Packet const& pck)
     return false;
 }
 template<class T>
-void NetworkType<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkType<T>::packData(Packet& pck, Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    if (this->clearModificationFlag(id))
     {
         pck << this->g_typeSource._getter();
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
-void NetworkType<T>::packData(fge::net::Packet& pck)
+void NetworkType<T>::packData(Packet& pck)
 {
     pck << this->g_typeSource._getter();
 }
@@ -91,7 +89,7 @@ void const* NetworkTypeProperty<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypeProperty<T>::applyData(fge::net::Packet const& pck)
+bool NetworkTypeProperty<T>::applyData(Packet const& pck)
 {
     pck >> this->g_typeSource->template setType<T>();
 
@@ -101,18 +99,15 @@ bool NetworkTypeProperty<T>::applyData(fge::net::Packet const& pck)
     return true;
 }
 template<class T>
-void NetworkTypeProperty<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeProperty<T>::packData(Packet& pck, Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    if (this->clearModificationFlag(id))
     {
         pck << this->g_typeSource->template setType<T>();
-
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
-void NetworkTypeProperty<T>::packData(fge::net::Packet& pck)
+void NetworkTypeProperty<T>::packData(Packet& pck)
 {
     pck << this->g_typeSource->template setType<T>();
 }
@@ -150,7 +145,7 @@ void const* NetworkTypePropertyList<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypePropertyList<T>::applyData(fge::net::Packet const& pck)
+bool NetworkTypePropertyList<T>::applyData(Packet const& pck)
 {
     fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
 
@@ -162,20 +157,16 @@ bool NetworkTypePropertyList<T>::applyData(fge::net::Packet const& pck)
     return false;
 }
 template<class T>
-void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypePropertyList<T>::packData(Packet& pck, Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    if (this->clearModificationFlag(id))
     {
         fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
-
         pck << property.setType<T>();
-
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
-void NetworkTypePropertyList<T>::packData(fge::net::Packet& pck)
+void NetworkTypePropertyList<T>::packData(Packet& pck)
 {
     fge::Property& property = this->g_typeSource->getProperty(this->g_vname);
 
@@ -218,7 +209,7 @@ void const* NetworkTypeManual<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypeManual<T>::applyData(fge::net::Packet const& pck)
+bool NetworkTypeManual<T>::applyData(Packet const& pck)
 {
     if (pck >> *this->g_typeSource)
     {
@@ -230,17 +221,15 @@ bool NetworkTypeManual<T>::applyData(fge::net::Packet const& pck)
     return false;
 }
 template<class T>
-void NetworkTypeManual<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeManual<T>::packData(Packet& pck, Identity const& id)
 {
-    fge::net::NetworkPerClientModificationTable::iterator it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    if (this->clearModificationFlag(id))
     {
         pck << *this->g_typeSource;
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
     }
 }
 template<class T>
-void NetworkTypeManual<T>::packData(fge::net::Packet& pck)
+void NetworkTypeManual<T>::packData(Packet& pck)
 {
     pck << *this->g_typeSource;
 }
@@ -480,20 +469,12 @@ inline Packet const& operator>>(Packet const& pck, RecordedEvent& event)
     return pck >> event._type >> event._index;
 }
 
-///NetworkTypeVector
+//NetworkTypeVector
 
 template<class T>
 NetworkTypeVector<T>::NetworkTypeVector(RecordedVector<T>* source) :
         g_typeSource(source)
 {}
-template<class T>
-NetworkTypeVector<T>::~NetworkTypeVector()
-{
-    for (auto& it: this->_g_tableId)
-    {
-        this->destroyClientCustomData(it.second._customData);
-    }
-}
 
 template<class T>
 void const* NetworkTypeVector<T>::getSource() const
@@ -502,7 +483,7 @@ void const* NetworkTypeVector<T>::getSource() const
 }
 
 template<class T>
-bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
+bool NetworkTypeVector<T>::applyData(Packet const& pck)
 {
     PackTypes packType;
     pck >> packType;
@@ -568,75 +549,78 @@ bool NetworkTypeVector<T>::applyData(fge::net::Packet const& pck)
     return true;
 }
 template<class T>
-void NetworkTypeVector<T>::packData(fge::net::Packet& pck, fge::net::Identity const& id)
+void NetworkTypeVector<T>::packData(Packet& pck, Identity const& id)
 {
-    auto itId = this->_g_tableId.find(id);
-    if (itId != this->_g_tableId.end())
+    auto* clientData = this->getClientData(id);
+
+    if (clientData == nullptr)
     {
-        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(itId->second._customData);
-
-        if (events->empty())
-        { //Events queue is empty but the modified flag is set, that means we have to send the full vector
-            pck << PackTypes::FULL;
-            pck << *this->g_typeSource;
-        }
-        else
-        {
-            pck << PackTypes::PARTIAL;
-            pck << static_cast<SizeType>(events->size());
-            for (auto itEvent = events->begin(); itEvent != events->end(); ++itEvent)
-            {
-                pck << *itEvent;
-                if (itEvent->_type == RecordedEventTypes::ADD || itEvent->_type == RecordedEventTypes::MODIFY)
-                {
-                    //We have to pack the data but the index do not represent the current state of the vector.
-                    //So we have to reverse read the events (history) to get the correct index.
-                    auto finalIndex = itEvent->_index;
-                    for (auto itReverse = events->rbegin(); &(*itReverse) != &(*itEvent); ++itReverse)
-                    {
-                        if (itReverse->_type == RecordedEventTypes::ADD && itReverse->_index <= finalIndex)
-                        {
-                            ++finalIndex;
-                        }
-                        else if (itReverse->_type == RecordedEventTypes::REMOVE && itReverse->_index < finalIndex)
-                        {
-                            --finalIndex;
-                        }
-                    }
-                    pck << this->g_typeSource->at(finalIndex);
-                }
-            }
-            events->clear();
-        }
-
-        itId->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
+        return;
     }
+
+    auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data.get());
+
+    if (events->empty())
+    { //Events queue is empty but the modified flag is set, that means we have to send the full vector
+        pck << PackTypes::FULL;
+        pck << *this->g_typeSource;
+    }
+    else
+    {
+        pck << PackTypes::PARTIAL;
+        pck << static_cast<SizeType>(events->size());
+        for (auto itEvent = events->begin(); itEvent != events->end(); ++itEvent)
+        {
+            pck << *itEvent;
+            if (itEvent->_type == RecordedEventTypes::ADD || itEvent->_type == RecordedEventTypes::MODIFY)
+            {
+                //We have to pack the data but the index do not represent the current state of the vector.
+                //So we have to reverse read the events (history) to get the correct index.
+                auto finalIndex = itEvent->_index;
+                for (auto itReverse = events->rbegin(); &(*itReverse) != &(*itEvent); ++itReverse)
+                {
+                    if (itReverse->_type == RecordedEventTypes::ADD && itReverse->_index <= finalIndex)
+                    {
+                        ++finalIndex;
+                    }
+                    else if (itReverse->_type == RecordedEventTypes::REMOVE && itReverse->_index < finalIndex)
+                    {
+                        --finalIndex;
+                    }
+                }
+                pck << this->g_typeSource->at(finalIndex);
+            }
+        }
+        events->clear();
+    }
+
+    clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
 }
 template<class T>
-void NetworkTypeVector<T>::packData(fge::net::Packet& pck)
+void NetworkTypeVector<T>::packData(Packet& pck)
 {
     pck << PackTypes::FULL << *this->g_typeSource;
 }
 
 template<class T>
-void NetworkTypeVector<T>::forceCheckClient(fge::net::Identity const& id)
+void NetworkTypeVector<T>::forceCheckClient(Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    auto* clientData = this->getClientData(id);
+    if (clientData != nullptr)
     {
-        it->second._config |= fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
-        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(it->second._customData);
+        clientData->_config |= CLIENTCONFIG_MODIFIED_FLAG;
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data);
         events->clear();
     }
 }
 template<class T>
-void NetworkTypeVector<T>::forceUncheckClient(fge::net::Identity const& id)
+void NetworkTypeVector<T>::forceUncheckClient(Identity const& id)
 {
-    auto it = this->_g_tableId.find(id);
-    if (it != this->_g_tableId.end())
+    auto* clientData = this->getClientData(id);
+    if (clientData != nullptr)
     {
-        it->second._config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
-        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(it->second._customData);
+        clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data);
         events->clear();
     }
 }
@@ -663,29 +647,177 @@ void NetworkTypeVector<T>::forceUncheck()
 }
 
 template<class T>
-void NetworkTypeVector<T>::createClientCustomData(void*& ptr) const
+void NetworkTypeVector<T>::createClientData(std::shared_ptr<void>& ptr) const
 {
-    ptr = new typename RecordedVector<T>::EventQueue();
+    ptr = std::shared_ptr<void>(new typename RecordedVector<T>::EventQueue(),
+                                typename RecordedVector<T>::DataDeleter());
 }
 template<class T>
-void NetworkTypeVector<T>::destroyClientCustomData(void*& ptr) const
-{
-    delete static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
-}
-template<class T>
-void NetworkTypeVector<T>::applyClientCustomData(void*& ptr) const
+void NetworkTypeVector<T>::applyClientData(std::shared_ptr<void>& ptr) const
 {
     auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
-    bool clearFirst = this->g_typeSource->getEventQueue().front()._type == RecordedEventTypes::REMOVE_ALL;
+
+    bool const clearFirst = this->g_typeSource->getEventQueue().front()._type == RecordedEventTypes::REMOVE_ALL;
     if (clearFirst)
     {
         events->clear();
     }
+
     for (auto const& event: this->g_typeSource->getEventQueue())
     {
         events->push_back(event);
     }
 }
 
+//NetworkTypeEvents
+
+template<class TEnum, class TData>
+void const* NetworkTypeEvents<TEnum, TData>::getSource() const
+{
+    return nullptr; //This type does not have a source, it is a collection of events
+}
+
+template<class TEnum, class TData>
+bool NetworkTypeEvents<TEnum, TData>::applyData(Packet const& pck)
+{
+    SizeType eventCount{0};
+    pck >> eventCount;
+
+    if (eventCount == 0)
+    {
+        return true; //Nothing to apply
+    }
+
+    for (SizeType i = 0; i < eventCount; ++i)
+    {
+        TEnum eventType{};
+        pck >> eventType;
+        if constexpr (std::is_void_v<TData>)
+        {
+            this->_onEvent.call(eventType);
+        }
+        else
+        {
+            TData eventData{};
+            pck >> eventData;
+            this->_onEvent.call(std::make_pair(eventType, std::move(eventData)));
+        }
+    }
+
+    this->setLastUpdateTime();
+    this->clearWaitingUpdateFlag();
+    this->_onApplied.call();
+    return true;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::packData(Packet& pck, Identity const& id)
+{
+    auto* clientData = this->getClientData(id);
+
+    if (clientData == nullptr)
+    {
+        return;
+    }
+
+    auto* events = static_cast<EventQueue*>(clientData->_data.get());
+
+    pck << static_cast<SizeType>(events->size());
+
+    for (auto const& event: *events)
+    {
+        if constexpr (std::is_void_v<TData>)
+        {
+            pck << event;
+        }
+        else
+        {
+            pck << event.first << event.second;
+        }
+    }
+    events->clear();
+
+    clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::packData([[maybe_unused]] Packet& pck)
+{
+    //This type does not have a source, it is a collection of events
+    //So we do not pack anything here
+}
+
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceCheckClient(Identity const& id)
+{
+    auto* clientData = this->getClientData(id);
+    if (clientData != nullptr)
+    {
+        clientData->_config |= CLIENTCONFIG_MODIFIED_FLAG;
+    }
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceUncheckClient(Identity const& id)
+{
+    auto* clientData = this->getClientData(id);
+    if (clientData != nullptr)
+    {
+        clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        auto* events = static_cast<EventQueue*>(clientData->_data.get());
+        events->clear();
+    }
+}
+
+template<class TEnum, class TData>
+bool NetworkTypeEvents<TEnum, TData>::check() const
+{
+    return this->g_modified || this->_g_force;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceCheck()
+{
+    this->_g_force = true;
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::forceUncheck()
+{
+    this->_g_force = false;
+    this->g_modified = false;
+}
+
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::pushEvent(Event const& event)
+{
+    this->g_modified = true;
+    for (auto& client: *this)
+    {
+        auto* events = static_cast<EventQueue*>(client.second._data.get());
+        events->push_back(event);
+        client.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+    }
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::pushEventIgnore(Event const& event, Identity const& ignoreId)
+{
+    this->g_modified = true;
+    for (auto& client: *this)
+    {
+        if (client.first == ignoreId)
+        {
+            continue; //Skip the ignored client
+        }
+
+        auto* events = static_cast<EventQueue*>(client.second._data.get());
+        events->push_back(event);
+        client.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+    }
+}
+
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::createClientData(std::shared_ptr<void>& ptr) const
+{
+    ptr = std::shared_ptr<void>(new EventQueue(), NetworkTypeEvents::DataDeleter());
+}
+template<class TEnum, class TData>
+void NetworkTypeEvents<TEnum, TData>::applyClientData([[maybe_unused]] std::shared_ptr<void>& ptr) const
+{}
 
 } // namespace fge::net

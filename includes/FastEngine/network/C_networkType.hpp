@@ -23,6 +23,7 @@
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_dataAccessor.hpp"
 #include "FastEngine/C_propertyList.hpp"
+#include <deque>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -39,22 +40,74 @@ class TagList;
 namespace net
 {
 
-enum PerClientConfigs : uint8_t
+enum PerClientConfigs : uint32_t
 {
-    CLIENTCONFIG_MODIFIED_FLAG = 1 << 0,               ///< The value has been modified and must be updated
-    CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG = 1 << 1 ///< The client require an explicit update
-};
+    CLIENTCONFIG_MODIFIED_FLAG = 1 << 0,                ///< The value has been modified and must be updated
+    CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG = 1 << 1, ///< The client require an explicit update
 
-struct PerClientConfig
+    CLIENTCONFIG_CUSTOM_FLAG_START = 1 << 2, ///< Custom flags start here
+
+    CLIENTCONFIG_DEFAULT = 0
+};
+using PerClientConfigs_t = std::underlying_type_t<PerClientConfigs>;
+
+struct PerClientData
 {
-    std::underlying_type_t<PerClientConfigs> _config{0};
-    void* _customData{nullptr};
-};
+    inline constexpr PerClientData() = default;
+    inline explicit constexpr PerClientData(PerClientConfigs_t config) :
+            _config(config)
+    {}
 
-using NetworkPerClientModificationTable =
-        std::unordered_map<fge::net::Identity, fge::net::PerClientConfig, fge::net::IdentityHash>;
+    PerClientConfigs_t _config{CLIENTCONFIG_DEFAULT};
+    std::shared_ptr<void> _data{nullptr};
+};
 
 class ClientList;
+
+class FGE_API PerClientSyncContext
+{
+public:
+    using SyncTable = std::unordered_map<Identity, PerClientData, IdentityHash>;
+
+    PerClientSyncContext() = default;
+    PerClientSyncContext(PerClientSyncContext const&) = delete;
+    PerClientSyncContext(PerClientSyncContext&&) noexcept = default;
+    virtual ~PerClientSyncContext() = default;
+
+    PerClientSyncContext& operator=(PerClientSyncContext const&) = delete;
+    PerClientSyncContext& operator=(PerClientSyncContext&&) noexcept = default;
+
+    void clear();
+    void clientsCheckup(ClientList const& clients, bool force, PerClientConfigs_t config = CLIENTCONFIG_DEFAULT);
+
+    void setModificationFlag();
+    bool setModificationFlag(Identity const& client);
+    bool clearModificationFlag(Identity const& client);
+    [[nodiscard]] bool isModified(Identity const& client) const;
+
+    void setRequireExplicitUpdateFlag(Identity const& client);
+    [[nodiscard]] bool isRequiringExplicitUpdate(Identity const& client) const;
+
+    PerClientData& newClient(Identity const& client, PerClientConfigs_t config = CLIENTCONFIG_DEFAULT);
+    void delClient(Identity const& client);
+
+    [[nodiscard]] bool hasClient(Identity const& client) const;
+
+    [[nodiscard]] PerClientData const* getClientData(Identity const& client) const;
+    [[nodiscard]] PerClientData* getClientData(Identity const& client);
+
+    [[nodiscard]] SyncTable::const_iterator begin() const;
+    [[nodiscard]] SyncTable::iterator begin();
+    [[nodiscard]] SyncTable::const_iterator end() const;
+    [[nodiscard]] SyncTable::iterator end();
+
+protected:
+    virtual void createClientData([[maybe_unused]] std::shared_ptr<void>& ptr) const {}
+    virtual void applyClientData([[maybe_unused]] std::shared_ptr<void>& ptr) const {}
+
+private:
+    SyncTable g_syncTable; ///< Table of clients and their sync data
+};
 
 /**
  * \class NetworkTypeBase
@@ -66,13 +119,13 @@ class ClientList;
  * The general idea is to provide a pointer of a variable to a NetworkType class.
  * A clone of the variable type is made internally to be compared with the original one for change detection.
  */
-class FGE_API NetworkTypeBase
+class FGE_API NetworkTypeBase : protected PerClientSyncContext
 {
 protected:
     NetworkTypeBase() = default;
 
 public:
-    virtual ~NetworkTypeBase() = default;
+    ~NetworkTypeBase() override = default;
 
     /**
      * \brief Get the source pointer that have been used to create this network type
@@ -87,20 +140,20 @@ public:
      * \param pck The packet containing the data
      * \return \b true if the data has been applied, \b false otherwise
      */
-    virtual bool applyData(fge::net::Packet const& pck) = 0;
+    virtual bool applyData(Packet const& pck) = 0;
     /**
      * \brief Pack the data into a packet and reset the modification flag of the identity
      *
      * \param pck The packet to pack the data into
      * \param id The identity of the client to pack the data for
      */
-    virtual void packData(fge::net::Packet& pck, fge::net::Identity const& id) = 0;
+    virtual void packData(Packet& pck, Identity const& id) = 0;
     /**
      * \brief Pack the data without any client identity
      *
      * \param pck The packet to pack the data into
      */
-    virtual void packData(fge::net::Packet& pck) = 0;
+    virtual void packData(Packet& pck) = 0;
 
     /**
      * \brief Do a clients checkup with the specified client list
@@ -114,7 +167,7 @@ public:
      * \param force \b true to force the checkup from the complete list of clients
      * \return \b true if there was a change in the value, \b false otherwise
      */
-    virtual bool clientsCheckup(fge::net::ClientList const& clients, bool force);
+    virtual bool clientsCheckup(ClientList const& clients, bool force);
 
     /**
      * \brief Check if the modification flag is set for the specified client identity
@@ -122,19 +175,19 @@ public:
      * \param id The client identity to check
      * \return \b true if the modification flag is set, \b false otherwise
      */
-    virtual bool checkClient(fge::net::Identity const& id) const;
+    virtual bool checkClient(Identity const& id) const;
     /**
      * \brief Force the modification flag to be set for the specified client identity
      *
      * \param id The client identity to force the modification flag for
      */
-    virtual void forceCheckClient(fge::net::Identity const& id);
+    virtual void forceCheckClient(Identity const& id);
     /**
      * \brief Reset the modification flag for the specified client identity
      *
      * \param id The client identity to reset the modification flag for
      */
-    virtual void forceUncheckClient(fge::net::Identity const& id);
+    virtual void forceUncheckClient(Identity const& id);
     /**
      * \brief Ask for an explicit update of the value for the specified client identity
      *
@@ -142,7 +195,7 @@ public:
      *
      * \param id The client identity to ask for an explicit update
      */
-    virtual void requireExplicitUpdateClient(fge::net::Identity const& id);
+    virtual void requireExplicitUpdateClient(Identity const& id);
 
     /**
      * \brief Check if the value have been modified
@@ -195,11 +248,6 @@ public:
     fge::CallbackHandler<> _onApplied;
 
 protected:
-    virtual void createClientCustomData([[maybe_unused]] void*& ptr) const {}
-    virtual void destroyClientCustomData([[maybe_unused]] void*& ptr) const {}
-    virtual void applyClientCustomData([[maybe_unused]] void*& ptr) const {}
-
-    fge::net::NetworkPerClientModificationTable _g_tableId;
     bool _g_needExplicitUpdate{false};
     bool _g_waitingUpdate{false};
     bool _g_force{false};
@@ -222,9 +270,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -248,15 +296,15 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
-    bool clientsCheckup(fge::net::ClientList const& clients, bool force) override;
+    bool clientsCheckup(ClientList const& clients, bool force) override;
 
-    bool checkClient(fge::net::Identity const& id) const override;
-    void forceCheckClient(fge::net::Identity const& id) override;
-    void forceUncheckClient(fge::net::Identity const& id) override;
+    bool checkClient(Identity const& id) const override;
+    void forceCheckClient(Identity const& id) override;
+    void forceUncheckClient(Identity const& id) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -279,9 +327,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -306,9 +354,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -336,9 +384,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -370,9 +418,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -398,9 +446,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -429,9 +477,9 @@ public:
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
     bool check() const override;
     void forceCheck() override;
@@ -549,25 +597,29 @@ class NetworkTypeVector : public NetworkTypeBase
 {
 public:
     NetworkTypeVector(RecordedVector<T>* source);
-    ~NetworkTypeVector() override;
+    ~NetworkTypeVector() override = default;
 
     void const* getSource() const override;
 
-    bool applyData(fge::net::Packet const& pck) override;
-    void packData(fge::net::Packet& pck, fge::net::Identity const& id) override;
-    void packData(fge::net::Packet& pck) override;
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
 
-    void forceCheckClient(fge::net::Identity const& id) override;
-    void forceUncheckClient(fge::net::Identity const& id) override;
+    void forceCheckClient(Identity const& id) override;
+    void forceUncheckClient(Identity const& id) override;
 
     bool check() const override;
     void forceCheck() override;
     void forceUncheck() override;
 
 private:
-    void createClientCustomData(void*& ptr) const override;
-    void destroyClientCustomData(void*& ptr) const override;
-    void applyClientCustomData(void*& ptr) const override;
+    void createClientData(std::shared_ptr<void>& ptr) const override;
+    void applyClientData(std::shared_ptr<void>& ptr) const override;
+
+    struct DataDeleter
+    {
+        inline void operator()(void* ptr) const { delete static_cast<typename RecordedVector<T>::EventQueue*>(ptr); }
+    };
 
     enum class PackTypes : uint8_t
     {
@@ -576,6 +628,52 @@ private:
     };
 
     RecordedVector<T>* g_typeSource;
+};
+
+/**
+ * \class NetworkTypeEvents
+ * \ingroup network
+ * \brief The network type for an event queue
+ */
+template<class TEnum, class TData = void>
+class NetworkTypeEvents : public NetworkTypeBase
+{
+public:
+    using Event = std::conditional_t<std::is_void_v<TData>, TEnum, std::pair<TEnum, TData>>;
+
+    NetworkTypeEvents() = default;
+    ~NetworkTypeEvents() override = default;
+
+    void const* getSource() const override;
+
+    bool applyData(Packet const& pck) override;
+    void packData(Packet& pck, Identity const& id) override;
+    void packData(Packet& pck) override;
+
+    void forceCheckClient(Identity const& id) override;
+    void forceUncheckClient(Identity const& id) override;
+
+    bool check() const override;
+    void forceCheck() override;
+    void forceUncheck() override;
+
+    void pushEvent(Event const& event);
+    void pushEventIgnore(Event const& event, Identity const& ignoreId);
+
+    fge::CallbackHandler<Event> _onEvent; ///< Callback called when an event is received
+
+private:
+    void createClientData(std::shared_ptr<void>& ptr) const override;
+    void applyClientData(std::shared_ptr<void>& ptr) const override;
+
+    using EventQueue = std::deque<Event>;
+
+    struct DataDeleter
+    {
+        inline void operator()(void* ptr) const { delete static_cast<EventQueue*>(ptr); }
+    };
+
+    bool g_modified{false}; ///< Flag to know if a new event has been added
 };
 
 /**
@@ -598,42 +696,39 @@ public:
 
     void clear();
 
-    void clientsCheckup(fge::net::ClientList const& clients, bool force = false) const;
-    void forceCheckClient(fge::net::Identity const& id) const;
-    void forceUncheckClient(fge::net::Identity const& id) const;
+    void clientsCheckup(ClientList const& clients, bool force = false) const;
+    void forceCheckClient(Identity const& id) const;
+    void forceUncheckClient(Identity const& id) const;
 
-    fge::net::NetworkTypeBase* push(std::unique_ptr<fge::net::NetworkTypeBase>&& newNet);
+    NetworkTypeBase* push(std::unique_ptr<NetworkTypeBase>&& newNet);
     template<class T, class... TArgs>
     T* push(TArgs&&... args)
     {
-        static_assert(std::is_base_of_v<fge::net::NetworkTypeBase, T>, "T must inherit from fge::net::NetworkTypeBase");
+        static_assert(std::is_base_of_v<NetworkTypeBase, T>, "T must inherit from NetworkTypeBase");
         return static_cast<T*>(this->push(std::make_unique<T>(std::forward<TArgs>(args)...)));
     }
     template<class T, class... TArgs>
-    fge::net::NetworkType<T>* pushTrivial(TArgs&&... args)
+    NetworkType<T>* pushTrivial(TArgs&&... args)
     {
-        return static_cast<fge::net::NetworkType<T>*>(this->push(
-                std::make_unique<fge::net::NetworkType<T>>(fge::DataAccessor<T>{std::forward<TArgs>(args)...})));
+        return static_cast<NetworkType<T>*>(
+                this->push(std::make_unique<NetworkType<T>>(fge::DataAccessor<T>{std::forward<TArgs>(args)...})));
     }
 
-    std::size_t packNeededUpdate(fge::net::Packet& pck) const;
-    void unpackNeededUpdate(fge::net::Packet const& pck, fge::net::Identity const& id) const;
+    std::size_t packNeededUpdate(Packet& pck) const;
+    void unpackNeededUpdate(Packet const& pck, Identity const& id) const;
 
     [[nodiscard]] inline std::size_t size() const { return this->g_data.size(); }
-    [[nodiscard]] inline fge::net::NetworkTypeBase* get(std::size_t index) const { return this->g_data[index].get(); }
+    [[nodiscard]] inline NetworkTypeBase* get(std::size_t index) const { return this->g_data[index].get(); }
     template<class T>
     [[nodiscard]] inline T* get(std::size_t index) const
     {
-        static_assert(std::is_base_of_v<fge::net::NetworkTypeBase, T>, "T must inherit from fge::net::NetworkTypeBase");
+        static_assert(std::is_base_of_v<NetworkTypeBase, T>, "T must inherit from NetworkTypeBase");
         return static_cast<T*>(this->g_data[index].get());
     }
-    [[nodiscard]] inline fge::net::NetworkTypeBase* operator[](std::size_t index) const
-    {
-        return this->g_data[index].get();
-    }
+    [[nodiscard]] inline NetworkTypeBase* operator[](std::size_t index) const { return this->g_data[index].get(); }
 
 private:
-    std::vector<std::unique_ptr<fge::net::NetworkTypeBase>> g_data;
+    std::vector<std::unique_ptr<NetworkTypeBase>> g_data;
 };
 
 } // namespace net
