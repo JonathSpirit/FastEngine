@@ -111,33 +111,35 @@ struct SceneNetEvent
 };
 
 /**
- * \enum ObjectType
+ * \enum ObjectTypes
  * \ingroup objectControl
  * \brief Represent different Object type
  */
-enum ObjectType : uint8_t
+enum class ObjectTypes : uint8_t
 {
-    TYPE_NULL = 0,
+    INVALID = 0,
 
-    TYPE_OBJECT,
-    TYPE_DECAY,
-    TYPE_GUI,
+    OBJECT,
+    DECAY,
+    GUI,
 
-    TYPE_MAX_
+    _MAX_
 };
+using ObjectTypes_t = std::underlying_type_t<ObjectTypes>;
 
 static_assert(sizeof(fge::ObjectSid) == sizeof(uint32_t), "fge::ObjectSid must be the same size as uint32_t");
-static_assert(ObjectType::TYPE_MAX_ <= 4, "Too many ObjectTypes, DefaultSIDRanges must change");
+static_assert(static_cast<ObjectTypes_t>(ObjectTypes::_MAX_) <= 4,
+              "Too many ObjectTypes, DefaultSIDRanges must change");
 enum class DefaultSIDRanges : ObjectSid
 {
     MASK_SIZE = 2,
     MASK_POS = 30,
     MASK = ObjectSid{0x3} << MASK_POS,
 
-    POS_NULL = ObjectSid{ObjectType::TYPE_NULL} << MASK_POS,
-    POS_OBJECT = ObjectSid{ObjectType::TYPE_OBJECT} << MASK_POS,
-    POS_DECAY = ObjectSid{ObjectType::TYPE_DECAY} << MASK_POS,
-    POS_GUI = ObjectSid{ObjectType::TYPE_GUI} << MASK_POS
+    POS_NULL = ObjectSid{static_cast<ObjectTypes_t>(ObjectTypes::INVALID)} << MASK_POS,
+    POS_OBJECT = ObjectSid{static_cast<ObjectTypes_t>(ObjectTypes::OBJECT)} << MASK_POS,
+    POS_DECAY = ObjectSid{static_cast<ObjectTypes_t>(ObjectTypes::DECAY)} << MASK_POS,
+    POS_GUI = ObjectSid{static_cast<ObjectTypes_t>(ObjectTypes::GUI)} << MASK_POS
 };
 using DefaultSIDRanges_t = std::underlying_type_t<DefaultSIDRanges>;
 
@@ -164,7 +166,7 @@ public:
             g_object(nullptr),
             g_sid(FGE_SCENE_BAD_SID),
             g_plan(FGE_SCENE_PLAN_DEFAULT),
-            g_type(fge::ObjectType::TYPE_NULL),
+            g_type(fge::ObjectTypes::INVALID),
 
             g_planDepth(FGE_SCENE_BAD_PLANDEPTH),
             g_requireForceClientsCheckup(true)
@@ -173,7 +175,7 @@ public:
                       fge::ObjectPtr&& newObj,
                       fge::ObjectSid newSid = FGE_SCENE_BAD_SID,
                       fge::ObjectPlan newPlan = FGE_SCENE_PLAN_DEFAULT,
-                      fge::ObjectType newType = fge::ObjectType::TYPE_OBJECT) :
+                      fge::ObjectTypes newType = fge::ObjectTypes::OBJECT) :
             g_boundScene(boundScene),
 
             g_object(std::move(newObj)),
@@ -248,7 +250,7 @@ public:
      *
      * \return The type of the Object.
      */
-    [[nodiscard]] inline fge::ObjectType getType() const { return this->g_type; }
+    [[nodiscard]] inline fge::ObjectTypes getType() const { return this->g_type; }
 
     /**
      * \brief Set the plan depth of the Object.
@@ -358,7 +360,7 @@ private:
     fge::ObjectPtr g_object;
     fge::ObjectSid g_sid;
     fge::ObjectPlan g_plan;
-    fge::ObjectType g_type;
+    fge::ObjectTypes g_type;
 
     //Dynamic data (not saved, local only)
     mutable fge::ObjectPlanDepth g_planDepth;
@@ -596,7 +598,7 @@ public:
     {
         fge::ObjectPlan _plan{FGE_SCENE_PLAN_DEFAULT};
         fge::ObjectSid _sid{FGE_SCENE_BAD_SID};
-        fge::ObjectType _type{fge::ObjectType::TYPE_OBJECT};
+        fge::ObjectTypes _type{fge::ObjectTypes::OBJECT};
         bool _silent{false};
     };
 
@@ -624,7 +626,7 @@ public:
     fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject,
                                     fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT,
                                     fge::ObjectSid sid = FGE_SCENE_BAD_SID,
-                                    fge::ObjectType type = fge::ObjectType::TYPE_OBJECT,
+                                    fge::ObjectTypes type = fge::ObjectTypes::OBJECT,
                                     bool silent = false);
 
     template<class TObject, class... TArgs>
@@ -993,7 +995,7 @@ public:
      */
     fge::ObjectDataShared getFirstObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const;
     /**
-     * \brief Get the first Object with a local position position.
+     * \brief Get the first Object with a local position.
      *
      * \see getAllObj_FromLocalPosition
      *
@@ -1064,7 +1066,7 @@ public:
      * \param type The type of the Object
      * \return The SID generated
      */
-    virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid, fge::ObjectType type) const;
+    virtual fge::ObjectSid generateSid(fge::ObjectSid wanted_sid, fge::ObjectTypes type) const;
 
     // Network
     /**
@@ -1084,7 +1086,7 @@ public:
      *
      * \param pck The network packet
      */
-    void pack(fge::net::Packet& pck);
+    void pack(fge::net::Packet& pck) const;
     /**
      * \brief Pack all the Scene data in a Packet for a net::Client.
      *
@@ -1133,8 +1135,10 @@ public:
      *
      * \param pck The network packet
      * \param range The UpdateCountRange from the server
+     * \param ignoreUpdateCount If \b true, the Scene will not check the server update count range
      */
-    std::optional<fge::net::Error> unpackModification(fge::net::Packet const& pck, UpdateCountRange& range);
+    std::optional<fge::net::Error>
+    unpackModification(fge::net::Packet const& pck, UpdateCountRange& range, bool ignoreUpdateCount = false);
 
     /**
      * \brief Pack object that need an explicit update from the server.

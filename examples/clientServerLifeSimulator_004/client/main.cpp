@@ -149,7 +149,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::ostringstream latencyTextStream;
 
     auto* latencyText =
-            mainScene->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI},
+            mainScene->newObject<fge::ObjText>({FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectTypes::GUI},
                                                "waiting for server", "default", fge::Vector2f{}, 15);
     latencyText->setFillColor(fge::Color::Black);
 
@@ -163,7 +163,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
         //Creating window
         auto* window = mainScene->newObject<fge::ObjWindow>(
-                {FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectType::TYPE_GUI});
+                {FGE_SCENE_PLAN_HIGH_TOP, FGE_SCENE_BAD_SID, fge::ObjectTypes::GUI});
         window->setTextureClose("close");
         window->setTextureMinimize("minimize");
         window->setTextureResize("resize");
