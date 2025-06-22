@@ -79,7 +79,7 @@
 	// #pragma clang diagnostic ignored "-Wmaybe-uninitialized" // Clang is missing it. See https://bugs.llvm.org/show_bug.cgi?id=24979
 #elif defined(__GNUC__)
 	#pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #elif defined(_MSC_VER)
 	#pragma warning(push)
 	#pragma warning(disable:4701) // Maybe unitialized
@@ -1160,7 +1160,10 @@ namespace tiny_utf8
 		{
 			std::memcpy( t_sso.data , str , LITLEN );
 			if( str[LITLEN-1] ){
-				t_sso.data[LITLEN] = '\0';
+				// Note that writing to t_sso.data[SSO::size] is perfectly fine. For strings
+				// with length SSO::size, the data_len = 0 acts as a terminating '\0' character.
+				data_type *buffer = t_sso.data;
+				buffer[LITLEN] = '\0';
 				set_sso_data_len( LITLEN );
 			}
 			else
@@ -1210,18 +1213,18 @@ namespace tiny_utf8
 			noexcept(TINY_UTF8_NOEXCEPT)
 			: basic_string( str.data() , str.size() , alloc , tiny_utf8_detail::read_bytes_tag() )
 		{}
-        /**
+		/**
 		 * Constructor taking an std::string_view
-		 *
+		 * 
 		 * @note	Creates an Instance of type basic_string copying the string data from the supplied std::basic_string_view
 		 * @param	str		The string object from which the data will be copied (interpreted as UTF-8)
 		 * @param	alloc	(Optional) The allocator instance to use
 		 */
-        template<typename C>
-        inline basic_string( std::basic_string_view<data_type, C> str , const allocator_type& alloc = allocator_type() )
-                noexcept(TINY_UTF8_NOEXCEPT)
-                : basic_string( str.data() , str.size() , alloc , tiny_utf8_detail::read_bytes_tag() )
-        {}
+		template<typename C>
+		inline basic_string( std::basic_string_view<data_type, C> str , const allocator_type& alloc = allocator_type() )
+			noexcept(TINY_UTF8_NOEXCEPT)
+			: basic_string( str.data() , str.size() , alloc , tiny_utf8_detail::read_bytes_tag() )
+		{}
 		/**
 		 * Constructor taking an std::string
 		 * 
@@ -2065,8 +2068,9 @@ namespace tiny_utf8
 		 * @param	pos		The iterator pointing to the position being erased
 		 * @return	A reference to this basic_string, which now has the codepoint erased
 		 */
-		inline basic_string& erase( raw_iterator pos ) noexcept(TINY_UTF8_NOEXCEPT) {
-			return raw_erase( pos.get_raw_index() , get_index_bytes( pos.get_raw_index() ) );
+		inline raw_iterator erase( raw_iterator pos ) noexcept(TINY_UTF8_NOEXCEPT) {
+			raw_erase( pos.get_raw_index() , get_index_bytes( pos.get_raw_index() ) );
+			return pos;
 		}
 		/**
 		 * Erases the codepoints inside the supplied range
@@ -2075,12 +2079,22 @@ namespace tiny_utf8
 		 * @param	last	An iterator pointing to the codepoint behind the last codepoint to be erased
 		 * @return	A reference to this basic_string, which now has the codepoints erased
 		 */
-		inline basic_string& erase( raw_iterator first , raw_iterator last ) noexcept(TINY_UTF8_NOEXCEPT) {
-			return raw_erase( first.get_raw_index() , last.get_raw_index() - first.get_raw_index() );
+		inline raw_iterator erase( raw_iterator first , raw_iterator last ) noexcept(TINY_UTF8_NOEXCEPT) {
+			raw_erase( first.get_raw_index() , last.get_raw_index() - first.get_raw_index() );
+			return first;
 		}
-		inline basic_string& erase( raw_iterator first , iterator last ) noexcept(TINY_UTF8_NOEXCEPT) { return erase( first , (raw_iterator)last ); }
-		inline basic_string& erase( iterator first , raw_iterator last ) noexcept(TINY_UTF8_NOEXCEPT) { return erase( (raw_iterator)first , last ); }
-		inline basic_string& erase( iterator first , iterator last ) noexcept(TINY_UTF8_NOEXCEPT) { return erase( (raw_iterator)first , (raw_iterator)last ); }
+		inline raw_iterator erase( raw_iterator first , iterator last ) noexcept(TINY_UTF8_NOEXCEPT) {
+			erase( first , (raw_iterator)last );
+			return first;
+		}
+		inline iterator erase( iterator first , raw_iterator last ) noexcept(TINY_UTF8_NOEXCEPT) {
+			erase( (raw_iterator)first , last );
+			return first;
+		}
+		inline iterator erase( iterator first , iterator last ) noexcept(TINY_UTF8_NOEXCEPT) {
+			erase( (raw_iterator)first , (raw_iterator)last );
+			return first;
+		}
 		/**
 		 * Erases a portion of this string
 		 * 
@@ -2705,15 +2719,16 @@ namespace tiny_utf8
 		 * @return	UTF-8 formatted data, wrapped inside an std::string
 		 */
 		inline std::basic_string<data_type> cpp_str( bool prepend_bom = false ) const noexcept(TINY_UTF8_NOEXCEPT) { return prepend_bom ? cpp_str_bom() : std::basic_string<DataType>( c_str() , size() ); }
-
-        /**
+		
+		
+		/**
 		 * Get the raw data contained in this basic_string wrapped by an std::string_view
-		 *
+		 * 
 		 * @note	Returns the UTF-8 formatted content of this basic_string
 		 * @return	UTF-8 formatted data, wrapped inside an std::string_view
 		 */
-        inline std::basic_string_view<data_type> cpp_str_view() const noexcept(TINY_UTF8_NOEXCEPT) { return std::basic_string_view<DataType>( c_str() , size() ); }
-    };
+		inline std::basic_string_view<data_type> cpp_str_view() const noexcept(TINY_UTF8_NOEXCEPT) { return std::basic_string_view<DataType>( c_str() , size() ); }
+	};
 } // Namespace 'tiny_utf8'
 
 
@@ -2745,7 +2760,7 @@ template<typename V, typename D, typename A>
 std::istream& operator>>( std::istream& stream , tiny_utf8::basic_string<V, D, A>& str ) noexcept(TINY_UTF8_NOEXCEPT) {
 	std::string tmp;
 	stream >> tmp;
-	str = std::move(tmp);
+	str = move(tmp);
 	return stream;
 }
 
