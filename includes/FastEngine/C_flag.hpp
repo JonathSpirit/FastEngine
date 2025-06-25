@@ -89,6 +89,60 @@ private:
     bool g_flag;
 };
 
+/**
+ * \class EnumFlags
+ * \ingroup utility
+ * \brief A class to handle "flags" for an enum type
+ *
+ * This class allows you to manage a set of flags for an enum type, where each flag is represented by a value of the enum.
+ * It provides methods to set, unset, toggle flags, check if a flag is set, and retrieve the current flags.
+ *
+ * \tparam EnumType The enum type for which flags are managed.
+ */
+template<typename EnumType>
+class EnumFlags
+{
+    static_assert(std::is_enum_v<EnumType>, "EnumFlags can only be used with enum types");
+
+public:
+    using Type = std::underlying_type_t<EnumType>;
+
+    constexpr EnumFlags(Type value = Type{0}) :
+            g_flags(static_cast<Type>(value))
+    {}
+
+    EnumFlags& set(Type flag)
+    {
+        this->g_flags |= static_cast<Type>(flag);
+        return *this;
+    }
+    EnumFlags& unset(Type flag)
+    {
+        this->g_flags &= ~static_cast<Type>(flag);
+        return *this;
+    }
+    EnumFlags& toggle(Type flag)
+    {
+        this->g_flags ^= static_cast<Type>(flag);
+        return *this;
+    }
+
+    [[nodiscard]] constexpr bool has(Type flag) const { return (this->g_flags & static_cast<Type>(flag)) == flag; }
+
+    [[nodiscard]] constexpr Type get() const { return this->g_flags; }
+    constexpr EnumFlags& operator=(Type value)
+    {
+        this->g_flags = value;
+        return *this;
+    }
+
+private:
+    Type g_flags;
+};
+
+template<typename EnumType>
+using EnumFlags_t = fge::EnumFlags<EnumType>::Type;
+
 } // namespace fge
 
 #endif // _FGE_C_FLAG_HPP_INCLUDED
