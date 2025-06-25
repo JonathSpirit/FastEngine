@@ -22,6 +22,7 @@
 #include "C_packet.hpp"
 #include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_dataAccessor.hpp"
+#include "FastEngine/C_flag.hpp"
 #include "FastEngine/C_propertyList.hpp"
 #include <deque>
 #include <memory>
@@ -49,16 +50,15 @@ enum PerClientConfigs : uint32_t
 
     CLIENTCONFIG_DEFAULT = 0
 };
-using PerClientConfigs_t = std::underlying_type_t<PerClientConfigs>;
 
 struct PerClientData
 {
     inline constexpr PerClientData() = default;
-    inline explicit constexpr PerClientData(PerClientConfigs_t config) :
+    inline explicit constexpr PerClientData(fge::EnumFlags_t<PerClientConfigs> config) :
             _config(config)
     {}
 
-    PerClientConfigs_t _config{CLIENTCONFIG_DEFAULT};
+    fge::EnumFlags<PerClientConfigs> _config{CLIENTCONFIG_DEFAULT};
     std::shared_ptr<void> _data{nullptr};
 };
 
@@ -78,7 +78,9 @@ public:
     PerClientSyncContext& operator=(PerClientSyncContext&&) noexcept = default;
 
     void clear();
-    void clientsCheckup(ClientList const& clients, bool force, PerClientConfigs_t config = CLIENTCONFIG_DEFAULT);
+    void clientsCheckup(ClientList const& clients,
+                        bool force,
+                        fge::EnumFlags_t<PerClientConfigs> config = CLIENTCONFIG_DEFAULT);
 
     void setModificationFlag();
     bool setModificationFlag(Identity const& client);
@@ -88,7 +90,7 @@ public:
     void setRequireExplicitUpdateFlag(Identity const& client);
     [[nodiscard]] bool isRequiringExplicitUpdate(Identity const& client) const;
 
-    PerClientData& newClient(Identity const& client, PerClientConfigs_t config = CLIENTCONFIG_DEFAULT);
+    PerClientData& newClient(Identity const& client, fge::EnumFlags_t<PerClientConfigs> config = CLIENTCONFIG_DEFAULT);
     void delClient(Identity const& client);
 
     [[nodiscard]] bool hasClient(Identity const& client) const;

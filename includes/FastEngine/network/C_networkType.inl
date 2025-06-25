@@ -594,7 +594,7 @@ void NetworkTypeVector<T>::packData(Packet& pck, Identity const& id)
         events->clear();
     }
 
-    clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+    clientData->_config.unset(CLIENTCONFIG_MODIFIED_FLAG);
 }
 template<class T>
 void NetworkTypeVector<T>::packData(Packet& pck)
@@ -608,7 +608,7 @@ void NetworkTypeVector<T>::forceCheckClient(Identity const& id)
     auto* clientData = this->getClientData(id);
     if (clientData != nullptr)
     {
-        clientData->_config |= CLIENTCONFIG_MODIFIED_FLAG;
+        clientData->_config.set(CLIENTCONFIG_MODIFIED_FLAG);
         auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data);
         events->clear();
     }
@@ -619,7 +619,7 @@ void NetworkTypeVector<T>::forceUncheckClient(Identity const& id)
     auto* clientData = this->getClientData(id);
     if (clientData != nullptr)
     {
-        clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        clientData->_config.unset(CLIENTCONFIG_MODIFIED_FLAG);
         auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data);
         events->clear();
     }
@@ -736,7 +736,7 @@ void NetworkTypeEvents<TEnum, TData>::packData(Packet& pck, Identity const& id)
     }
     events->clear();
 
-    clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+    clientData->_config.unset(CLIENTCONFIG_MODIFIED_FLAG);
 }
 template<class TEnum, class TData>
 void NetworkTypeEvents<TEnum, TData>::packData([[maybe_unused]] Packet& pck)
@@ -751,7 +751,7 @@ void NetworkTypeEvents<TEnum, TData>::forceCheckClient(Identity const& id)
     auto* clientData = this->getClientData(id);
     if (clientData != nullptr)
     {
-        clientData->_config |= CLIENTCONFIG_MODIFIED_FLAG;
+        clientData->_config.set(CLIENTCONFIG_MODIFIED_FLAG);
     }
 }
 template<class TEnum, class TData>
@@ -760,7 +760,7 @@ void NetworkTypeEvents<TEnum, TData>::forceUncheckClient(Identity const& id)
     auto* clientData = this->getClientData(id);
     if (clientData != nullptr)
     {
-        clientData->_config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        clientData->_config.unset(CLIENTCONFIG_MODIFIED_FLAG);
         auto* events = static_cast<EventQueue*>(clientData->_data.get());
         events->clear();
     }
@@ -791,7 +791,7 @@ void NetworkTypeEvents<TEnum, TData>::pushEvent(Event const& event)
     {
         auto* events = static_cast<EventQueue*>(client.second._data.get());
         events->push_back(event);
-        client.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+        client.second._config.set(CLIENTCONFIG_MODIFIED_FLAG);
     }
 }
 template<class TEnum, class TData>
@@ -807,7 +807,7 @@ void NetworkTypeEvents<TEnum, TData>::pushEventIgnore(Event const& event, Identi
 
         auto* events = static_cast<EventQueue*>(client.second._data.get());
         events->push_back(event);
-        client.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+        client.second._config.set(CLIENTCONFIG_MODIFIED_FLAG);
     }
 }
 

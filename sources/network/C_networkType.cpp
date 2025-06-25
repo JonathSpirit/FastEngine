@@ -28,7 +28,7 @@ void PerClientSyncContext::setModificationFlag()
 {
     for (auto& pair: this->g_syncTable)
     {
-        pair.second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+        pair.second._config.set(CLIENTCONFIG_MODIFIED_FLAG);
         this->applyClientData(pair.second._data);
     }
 }
@@ -37,7 +37,7 @@ bool PerClientSyncContext::setModificationFlag(Identity const& client)
     auto it = this->g_syncTable.find(client);
     if (it != this->g_syncTable.end())
     {
-        it->second._config |= CLIENTCONFIG_MODIFIED_FLAG;
+        it->second._config.set(CLIENTCONFIG_MODIFIED_FLAG);
         this->applyClientData(it->second._data);
         return true;
     }
@@ -48,7 +48,7 @@ bool PerClientSyncContext::clearModificationFlag(Identity const& client)
     auto it = this->g_syncTable.find(client);
     if (it != this->g_syncTable.end())
     {
-        it->second._config &= ~CLIENTCONFIG_MODIFIED_FLAG;
+        it->second._config.unset(CLIENTCONFIG_MODIFIED_FLAG);
         return true;
     }
     return false;
@@ -58,7 +58,7 @@ bool PerClientSyncContext::isModified(Identity const& client) const
     auto const it = this->g_syncTable.find(client);
     if (it != this->g_syncTable.end())
     {
-        return (it->second._config & CLIENTCONFIG_MODIFIED_FLAG) > 0;
+        return it->second._config.has(CLIENTCONFIG_MODIFIED_FLAG);
     }
     return false;
 }
@@ -68,7 +68,7 @@ void PerClientSyncContext::setRequireExplicitUpdateFlag(Identity const& client)
     auto it = this->g_syncTable.find(client);
     if (it != this->g_syncTable.end())
     {
-        it->second._config |= CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG;
+        it->second._config.set(CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG);
     }
 }
 bool PerClientSyncContext::isRequiringExplicitUpdate(Identity const& client) const
@@ -76,12 +76,12 @@ bool PerClientSyncContext::isRequiringExplicitUpdate(Identity const& client) con
     auto const it = this->g_syncTable.find(client);
     if (it != this->g_syncTable.end())
     {
-        return (it->second._config & CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG) > 0;
+        return it->second._config.has(CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG);
     }
     return false;
 }
 
-PerClientData& PerClientSyncContext::newClient(Identity const& client, PerClientConfigs_t config)
+PerClientData& PerClientSyncContext::newClient(Identity const& client, fge::EnumFlags_t<PerClientConfigs> config)
 {
     auto [it, alreadyInserted] = this->g_syncTable.emplace(client, config);
 
@@ -147,7 +147,9 @@ void PerClientSyncContext::clear()
 {
     this->g_syncTable.clear();
 }
-void PerClientSyncContext::clientsCheckup(ClientList const& clients, bool force, PerClientConfigs_t config)
+void PerClientSyncContext::clientsCheckup(ClientList const& clients,
+                                          bool force,
+                                          fge::EnumFlags_t<PerClientConfigs> config)
 {
     if (force)
     { //Clear and redo the table by looking all the clients in the ClientList

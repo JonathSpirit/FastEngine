@@ -89,7 +89,7 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const&
         return;
     }
 
-    if (clientData->_config & fge::net::PerClientConfigs::CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG)
+    if (clientData->_config.has(fge::net::PerClientConfigs::CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG))
     { //The client need an explicit update
         auto const& tasks = this->g_tasksSource->getTasks();
 
@@ -102,15 +102,15 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const&
             task->pack(pck);
         }
 
-        clientData->_config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG;
-        clientData->_config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
+        clientData->_config.unset(fge::net::PerClientConfigs::CLIENTCONFIG_REQUIRE_EXPLICIT_UPDATE_FLAG);
+        clientData->_config.unset(fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG);
     }
     else
     {
         pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
                 fge::NetworkTypeTasks::SyncType::SYNC_CHECKSUM);
         pck << this->g_tasksSource->getChecksum();
-        clientData->_config &= ~fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG;
+        clientData->_config.unset(fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG);
     }
 }
 void NetworkTypeTasks::packData(fge::net::Packet& pck)
