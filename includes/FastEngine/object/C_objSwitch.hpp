@@ -70,7 +70,7 @@ private:
     bool g_statMouseOn = false;
     bool g_statActive = false;
 
-    fge::Flag g_flag = false;
+    fge::BooleanFlag g_flag = false;
 };
 
 } // namespace fge

@@ -21,28 +21,29 @@ namespace fge
 {
 
 /**
- * \class Flag
+ * \class BooleanFlag
  * \ingroup utility
- * \brief A class to handle flags
+ * \brief A class to handle a boolean flag
  *
- * A flag will be set to \b true only once, and wait for the input to be \b false before being set again.
+ * A flag becomes \b true only once when the input is held \b true and then waits for the input to return to \b false
+ * before being set again.
  */
-class Flag
+class BooleanFlag
 {
 public:
-    inline Flag(bool defaultValue = false) :
+    constexpr BooleanFlag(bool defaultValue = false) :
             g_flag(defaultValue)
     {}
 
     /**
      * \brief Check the input and return the flag value
      *
-     * This function will only return \b true once, and wait for the input to be \b false before being set again.
+     * This function will only return \b true once, and wait for the input to return \b false before being set again.
      *
      * \param input The boolean input to check
      * \return The flag value
      */
-    inline bool check(bool input)
+    constexpr bool check(bool input)
     {
         if (!this->g_flag)
         {
@@ -61,13 +62,13 @@ public:
      *
      * \param value The boolean value to set
      */
-    inline void set(bool value) { this->g_flag = value; }
+    constexpr void set(bool value) { this->g_flag = value; }
     /**
      * \brief Get the flag value
      *
      * \return The flag value
      */
-    [[nodiscard]] inline bool get() const { return this->g_flag; }
+    [[nodiscard]] constexpr bool get() const { return this->g_flag; }
 
     /**
      * \brief Manually set the flag value operator
@@ -75,14 +76,14 @@ public:
      * \param value The boolean value to set
      * \return The flag value
      */
-    inline bool operator=(bool value) { return this->g_flag = value; }
+    constexpr bool operator=(bool value) { return this->g_flag = value; }
 
     /**
      * \brief Get the flag value operator
      *
      * \return The flag value
      */
-    inline operator bool() const { return this->g_flag; }
+    constexpr operator bool() const { return this->g_flag; }
 
 private:
     bool g_flag;
