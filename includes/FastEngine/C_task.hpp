@@ -66,7 +66,7 @@ class TaskHandler;
 class FGE_API NetworkTypeTasks : public fge::net::NetworkTypeBase
 {
 public:
-    enum SyncType : uint8_t
+    enum class SyncType : uint8_t
     {
         SYNC_CHECKSUM,
         SYNC_FULL

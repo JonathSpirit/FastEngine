@@ -33,13 +33,13 @@ void const* NetworkTypeTasks::getSource() const
 
 bool NetworkTypeTasks::applyData(fge::net::Packet const& pck)
 {
-    std::underlying_type<NetworkTypeTasks::SyncType>::type syncType;
+    SyncType syncType;
 
     if (pck >> syncType)
     {
-        switch (static_cast<NetworkTypeTasks::SyncType>(syncType))
+        switch (syncType)
         {
-        case NetworkTypeTasks::SYNC_CHECKSUM:
+        case SyncType::SYNC_CHECKSUM:
         {
             fge::TasksChecksum checksum{0};
             pck >> checksum;
@@ -50,7 +50,7 @@ bool NetworkTypeTasks::applyData(fge::net::Packet const& pck)
             }
         }
         break;
-        case NetworkTypeTasks::SYNC_FULL:
+        case SyncType::SYNC_FULL:
         {
             fge::net::SizeType size{0};
             pck >> size;
@@ -93,8 +93,7 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const&
     { //The client need an explicit update
         auto const& tasks = this->g_tasksSource->getTasks();
 
-        pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
-                fge::NetworkTypeTasks::SyncType::SYNC_FULL);
+        pck << SyncType::SYNC_FULL;
         pck << static_cast<fge::net::SizeType>(tasks.size());
         for (auto const& task: tasks)
         {
@@ -107,8 +106,7 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck, fge::net::Identity const&
     }
     else
     {
-        pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
-                fge::NetworkTypeTasks::SyncType::SYNC_CHECKSUM);
+        pck << SyncType::SYNC_CHECKSUM;
         pck << this->g_tasksSource->getChecksum();
         clientData->_config.unset(fge::net::PerClientConfigs::CLIENTCONFIG_MODIFIED_FLAG);
     }
@@ -117,8 +115,7 @@ void NetworkTypeTasks::packData(fge::net::Packet& pck)
 {
     auto const& tasks = this->g_tasksSource->getTasks();
 
-    pck << static_cast<std::underlying_type<NetworkTypeTasks::SyncType>::type>(
-            fge::NetworkTypeTasks::SyncType::SYNC_FULL);
+    pck << SyncType::SYNC_FULL;
     pck << static_cast<fge::net::SizeType>(tasks.size());
     for (auto const& task: tasks)
     {
