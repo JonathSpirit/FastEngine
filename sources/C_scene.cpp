@@ -1269,16 +1269,19 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     std::size_t const rewritePos = pck.getDataSize();
     pck.pack(&countSceneDataModification, sizeof(countSceneDataModification)); //Will be rewritten
 
-    for (std::size_t i = 0; i < this->_netList.size(); ++i)
+    if (!this->_netList.isIgnored(id))
     {
-        fge::net::NetworkTypeBase* netType = this->_netList[i];
-
-        if (netType->checkClient(id))
+        for (std::size_t i = 0; i < this->_netList.size(); ++i)
         {
-            pck << static_cast<fge::net::SizeType>(i);
-            netType->packData(pck, id);
+            fge::net::NetworkTypeBase* netType = this->_netList[i];
 
-            ++countSceneDataModification;
+            if (netType->checkClient(id))
+            {
+                pck << static_cast<fge::net::SizeType>(i);
+                netType->packData(pck, id);
+
+                ++countSceneDataModification;
+            }
         }
     }
     pck.pack(rewritePos, &countSceneDataModification, sizeof(countSceneDataModification)); //Rewriting size
@@ -1291,7 +1294,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
 
     std::size_t dataPos = pck.getDataSize();
     constexpr std::size_t reservedSize = sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-                                         sizeof(std::underlying_type<fge::ObjectTypes>::type) +
+                                         sizeof(std::underlying_type_t<fge::ObjectTypes>) +
                                          sizeof(fge::net::SizeType);
     pck.append(reservedSize);
 
@@ -1299,6 +1302,11 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
     {
         if (data->g_object->_netSyncMode != Object::NetSyncModes::FULL_SYNC &&
             data->g_object->_netSyncMode != Object::NetSyncModes::DELTA_SYNC)
+        {
+            continue;
+        }
+
+        if (data->g_object->_netList.isIgnored(id))
         {
             continue;
         }

@@ -729,8 +729,13 @@ public:
     }
     [[nodiscard]] inline NetworkTypeBase* operator[](std::size_t index) const { return this->g_data[index].get(); }
 
+    void ignoreClient(Identity const& id);
+    void unignoreClient(Identity const& id);
+    [[nodiscard]] bool isIgnored(Identity const& id) const;
+
 private:
     std::vector<std::unique_ptr<NetworkTypeBase>> g_data;
+    std::unordered_set<Identity, IdentityHash> g_ignoredClients; ///< Set of clients that are ignored for the update
 };
 
 } // namespace net

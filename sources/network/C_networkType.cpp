@@ -597,4 +597,17 @@ void NetworkTypeHandler::forceUncheckClient(Identity const& id) const
     }
 }
 
+void NetworkTypeHandler::ignoreClient(Identity const& id)
+{
+    this->g_ignoredClients.insert(id);
+}
+void NetworkTypeHandler::unignoreClient(Identity const& id)
+{
+    this->g_ignoredClients.erase(id);
+}
+bool NetworkTypeHandler::isIgnored(Identity const& id) const
+{
+    return this->g_ignoredClients.contains(id);
+}
+
 } // namespace fge::net
