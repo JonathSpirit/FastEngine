@@ -1078,21 +1078,13 @@ public:
     void signalObject(fge::ObjectSid sid, int8_t signal);
 
     /**
-     * \brief Pack all the Scene data in a Packet.
-     *
-     * This function is useful to do a full Scene synchronisation in a network from a server.
-     *
-     * \warning The maximum Object that can be packed is fge::net::SizeType.
-     *
-     * \param pck The network packet
-     */
-    void pack(fge::net::Packet& pck) const;
-    /**
      * \brief Pack all the Scene data in a Packet for a net::Client.
      *
      * This function is useful to do a full Scene synchronisation in a network from a server.
      * By providing a net::Identity, the function will initialise/reset some internal sync stats
      * like update count.
+     *
+     * \b id can be invalid, in this case the Scene will just pack the Scene data without worrying about the client.
      *
      * \param pck The network packet
      * \param id The Identity of the client

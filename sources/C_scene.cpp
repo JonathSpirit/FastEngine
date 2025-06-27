@@ -1125,8 +1125,20 @@ void Scene::signalObject(fge::ObjectSid sid, int8_t signal)
     }
 }
 
-void Scene::pack(fge::net::Packet& pck) const
+void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
 {
+    if (id._ip.getType() != net::IpAddress::Types::None && id._port != FGE_ANYPORT && id._port != 0)
+    {
+        auto result = this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(id),
+                                                     std::forward_as_tuple(this->g_updateCount));
+        if (!result.second)
+        {
+            result.first->second._lastUpdateCount = this->g_updateCount;
+            std::queue<SceneNetEvent>().swap(result.first->second._networkEvents);
+            this->forceUncheckClient(id);
+        }
+    }
+
     //update count
     pck << this->g_updateCount;
 
@@ -1134,6 +1146,7 @@ void Scene::pack(fge::net::Packet& pck) const
     pck << this->g_name;
 
     //scene data
+    //TODO: can't ignore for now the scene net list, if client is inside the ignored list
     for (std::size_t i = 0; i < this->_netList.size(); ++i)
     {
         this->_netList[i]->packData(pck);
@@ -1155,6 +1168,11 @@ void Scene::pack(fge::net::Packet& pck) const
             continue;
         }
 
+        if (data->g_object->_netList.isIgnored(id))
+        {
+            continue; //Object is ignored for this client
+        }
+
         //SID
         pck << data->g_sid;
         //CLASS
@@ -1168,19 +1186,6 @@ void Scene::pack(fge::net::Packet& pck) const
         ++objectSize;
     }
     pck.pack(objectSizePos, &objectSize, sizeof(objectSize)); //Rewriting size
-}
-void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
-{
-    auto result = this->g_perClientSyncs.emplace(std::piecewise_construct, std::forward_as_tuple(id),
-                                                 std::forward_as_tuple(this->g_updateCount));
-    if (!result.second)
-    {
-        result.first->second._lastUpdateCount = this->g_updateCount;
-        std::queue<SceneNetEvent>().swap(result.first->second._networkEvents);
-        this->forceUncheckClient(id);
-    }
-
-    this->pack(pck);
 }
 std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
 {
@@ -1294,8 +1299,7 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
 
     std::size_t dataPos = pck.getDataSize();
     constexpr std::size_t reservedSize = sizeof(fge::ObjectSid) + sizeof(fge::reg::ClassId) + sizeof(fge::ObjectPlan) +
-                                         sizeof(std::underlying_type_t<fge::ObjectTypes>) +
-                                         sizeof(fge::net::SizeType);
+                                         sizeof(std::underlying_type_t<fge::ObjectTypes>) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
 
     for (auto const& data: this->g_objects)
