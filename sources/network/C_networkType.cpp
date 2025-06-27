@@ -288,7 +288,7 @@ void NetworkTypeScene::packData(Packet& pck, Identity const& id)
 }
 void NetworkTypeScene::packData(Packet& pck)
 {
-    this->g_typeSource->pack(pck);
+    this->g_typeSource->pack(pck, {});
 }
 
 bool NetworkTypeScene::clientsCheckup(ClientList const& clients, bool force)
@@ -608,6 +608,10 @@ void NetworkTypeHandler::unignoreClient(Identity const& id)
 bool NetworkTypeHandler::isIgnored(Identity const& id) const
 {
     return this->g_ignoredClients.contains(id);
+}
+void NetworkTypeHandler::clearIgnoredClients()
+{
+    this->g_ignoredClients.clear();
 }
 
 } // namespace fge::net

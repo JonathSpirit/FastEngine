@@ -732,6 +732,7 @@ public:
     void ignoreClient(Identity const& id);
     void unignoreClient(Identity const& id);
     [[nodiscard]] bool isIgnored(Identity const& id) const;
+    void clearIgnoredClients();
 
 private:
     std::vector<std::unique_ptr<NetworkTypeBase>> g_data;
