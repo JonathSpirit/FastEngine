@@ -1107,13 +1107,12 @@ public:
     /**
      * \brief Unpack all the received data of a serverside Scene.
      *
-     * This function delete every actual Object in the Scene except GUI Object.
-     *
      * \see pack
      *
      * \param pck The network packet
+     * \param clearObjects If \b true, the Scene will clear every Object (except GUI ones) before unpacking
      */
-    std::optional<fge::net::Error> unpack(fge::net::Packet const& pck);
+    std::optional<fge::net::Error> unpack(fge::net::Packet const& pck, bool clearObjects = true);
     /**
      * \brief Pack all modification in a net::Packet for a net::Client.
      *

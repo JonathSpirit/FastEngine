@@ -1189,7 +1189,7 @@ void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
     }
     pck.pack(objectSizePos, &objectSize, sizeof(objectSize)); //Rewriting size
 }
-std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
+std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck, bool clearObjects)
 {
     constexpr char const* const func = __func__;
     reg::ClassId buffClass{FGE_REG_BADCLASSID};
@@ -1217,8 +1217,11 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
         return chain;
     })
             .and_then([&](auto& chain) {
+        if (clearObjects)
+        {
+            this->delAllObject(true);
+        }
         //object size
-        this->delAllObject(true);
         return RValid<net::SizeType>(chain);
     })
             .and_for_each([&](auto& chain, [[maybe_unused]] auto& i) {
@@ -1239,17 +1242,19 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
         //TYPE
         return RStrictLess<ObjectTypes>(ObjectTypes::_MAX_, pck)
                 .and_then([&](auto& chain) {
-            fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
-            if (buffObject)
+            auto buffObject = this->getObject(buffSid);
+            if (!buffObject || fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
             {
-                auto objectData = this->newObject(std::move(buffObject), buffPlan, buffSid, chain.value(), false,
-                                                  OBJ_CONTEXT_NETWORK);
-                objectData->g_object->unpack(pck);
+                this->delObject(buffSid);
+                buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
+                                             chain.value(), false, OBJ_CONTEXT_NETWORK);
+                if (!buffObject)
+                {
+                    return chain.invalidate("unknown class ID / SID", func);
+                }
             }
-            else
-            {
-                return chain.invalidate("unknown class ID", func);
-            }
+
+            buffObject->g_object->unpack(pck);
 
             return chain;
         }).end();
@@ -1425,8 +1430,9 @@ Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& range, 
         }
 
         auto buffObject = this->getObject(buffSid);
-        if (!buffObject)
+        if (!buffObject || fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
         {
+            this->delObject(buffSid); //TODO: maybe avoid destroy it and change just the SID ? (same in unpack())
             buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
                                          buffType, false, OBJ_CONTEXT_NETWORK);
             if (!buffObject)
