@@ -742,7 +742,7 @@ template<class TEnum, class TData>
 void NetworkTypeEvents<TEnum, TData>::packData([[maybe_unused]] Packet& pck)
 {
     //This type does not have a source, it is a collection of events
-    //So we do not pack anything here
+    pck << SizeType{0};
 }
 
 template<class TEnum, class TData>
