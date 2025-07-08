@@ -143,6 +143,14 @@ enum class DefaultSIDRanges : ObjectSid
 };
 using DefaultSIDRanges_t = std::underlying_type_t<DefaultSIDRanges>;
 
+enum ObjectContextFlags : uint32_t
+{
+    OBJ_CONTEXT_NETWORK = 1 << 0, ///< The object is coming from the network
+
+    OBJ_CONTEXT_NONE = 0,
+    OBJ_CONTEXT_DEFAULT = OBJ_CONTEXT_NONE
+};
+
 /**
  * \class ObjectData
  * \ingroup objectControl
@@ -315,6 +323,8 @@ public:
         return this->g_object->getClassName() == className;
     }
 
+    [[nodiscard]] inline fge::EnumFlags<ObjectContextFlags>& getContextFlags() const { return this->g_contextFlags; }
+
     /**
      * \brief Comparison with another SID
      *
@@ -365,6 +375,7 @@ private:
     //Dynamic data (not saved, local only)
     mutable fge::ObjectPlanDepth g_planDepth;
     mutable fge::ObjectDataWeak g_parent;
+    mutable fge::EnumFlags<ObjectContextFlags> g_contextFlags; //TODO: make it uneditable ?
 
     bool g_requireForceClientsCheckup;
 
@@ -600,6 +611,7 @@ public:
         fge::ObjectSid _sid{FGE_SCENE_BAD_SID};
         fge::ObjectTypes _type{fge::ObjectTypes::OBJECT};
         bool _silent{false};
+        fge::EnumFlags<ObjectContextFlags> _contextFlags{OBJ_CONTEXT_DEFAULT};
     };
 
     /**
@@ -621,20 +633,22 @@ public:
      * \param sid The wanted SID
      * \param type The type of the new Object
      * \param silent If \b true, the Scene will not call the Object::first or Object::callbackRegister methods
+     * \param contextFlags The context flags of the new Object
      * \return A shared pointer of the ObjectData
      */
     fge::ObjectDataShared newObject(fge::ObjectPtr&& newObject,
                                     fge::ObjectPlan plan = FGE_SCENE_PLAN_DEFAULT,
                                     fge::ObjectSid sid = FGE_SCENE_BAD_SID,
                                     fge::ObjectTypes type = fge::ObjectTypes::OBJECT,
-                                    bool silent = false);
+                                    bool silent = false,
+                                    fge::EnumFlags<ObjectContextFlags> contextFlags = OBJ_CONTEXT_DEFAULT);
 
     template<class TObject, class... TArgs>
     inline TObject* newObject(NewObjectParameters const& parameters, TArgs&&... args)
     {
         static_assert(std::is_base_of_v<fge::Object, TObject>, "TObject must be a child of fge::Object");
         auto object = this->newObject(std::make_unique<TObject>(std::forward<TArgs>(args)...), parameters._plan,
-                                      parameters._sid, parameters._type, parameters._silent);
+                                      parameters._sid, parameters._type, parameters._silent, parameters._contextFlags);
         return object ? object->template getObject<TObject>() : nullptr;
     }
     template<class TObject, class... TArgs>

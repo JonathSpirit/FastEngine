@@ -432,7 +432,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
                                        fge::ObjectPlan plan,
                                        fge::ObjectSid sid,
                                        fge::ObjectTypes type,
-                                       bool silent)
+                                       bool silent,
+                                       fge::EnumFlags<ObjectContextFlags> contextFlags)
 {
     if (newObject == nullptr)
     {
@@ -453,6 +454,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
     it = this->g_objects.insert(
             it, std::make_shared<fge::ObjectData>(this, std::move(newObject), generatedSid, plan, type));
     (*it)->g_object->_myObjectData = *it;
+    (*it)->g_contextFlags = contextFlags;
     if (!this->g_objectsHashMap.newObject(generatedSid, it))
     {
         //Something went wrong, we can do a re-map
@@ -1240,7 +1242,9 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck)
             fge::ObjectPtr buffObject{fge::reg::GetNewClassOf(buffClass)};
             if (buffObject)
             {
-                this->newObject(std::move(buffObject), buffPlan, buffSid, chain.value())->g_object->unpack(pck);
+                auto objectData = this->newObject(std::move(buffObject), buffPlan, buffSid, chain.value(), false,
+                                                  OBJ_CONTEXT_NETWORK);
+                objectData->g_object->unpack(pck);
             }
             else
             {
@@ -1424,7 +1428,7 @@ Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& range, 
         if (!buffObject)
         {
             buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
-                                         static_cast<fge::ObjectTypes>(buffType));
+                                         buffType, false, OBJ_CONTEXT_NETWORK);
             if (!buffObject)
             {
                 return chain.stop("unknown class ID / SID", func);
@@ -1739,7 +1743,8 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const&
                     return chain.invalidate(
                             net::Error{net::Error::Types::ERR_EXTRACT, pck.getReadPos(), "unknown class ID", func});
                 }
-                this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, buffType)->g_object->unpack(pck);
+                this->newObject(FGE_NEWOBJECT_PTR(newObj), buffPlan, buffSid, buffType, false, OBJ_CONTEXT_NETWORK)
+                        ->g_object->unpack(pck);
             }
             break;
             case SceneNetEvent::Events::OBJECT_SIGNALED:
