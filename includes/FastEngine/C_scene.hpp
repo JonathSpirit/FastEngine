@@ -1108,7 +1108,7 @@ public:
     /**
      * \brief Unpack all the received data of a serverside Scene.
      *
-     * \see pack
+     * \see pack unpackModification
      *
      * \param pck The network packet
      * \param clearObjects If \b true, the Scene will clear every Object (except GUI ones) before unpacking
@@ -1120,7 +1120,7 @@ public:
      * The scene check for variable modification, the new value is then packed in the network net::Packet, with some
      * basic Object information like the SID.
      *
-     * This allow a partial synchronisation between multiple clients and a server. A partial sync is here
+     * This allows a partial synchronisation between multiple clients and a server. A partial sync is here
      * to avoid re-sending over and over the same or a bit modified full Scene data. If you have a lots of Object,
      * this can be helpful for Packet size and bandwidth.
      *
@@ -1136,6 +1136,11 @@ public:
      * \brief Unpack all modification of received data packet from a server.
      *
      * This function only extract Scene partial data, for full Scene sync please see pack and unpack.
+     *
+     * When unpacking, if the updated object is already in the Scene without the fge::OBJ_CONTEXT_NETWORK context flag,
+     * it will change it's SID before creating a new object.
+     *
+     * If the object class id do not match, the Object is destroyed and a new one is created.
      *
      * \see packModification
      *

@@ -1253,15 +1253,33 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck, bool c
         return RStrictLess<ObjectTypes>(ObjectTypes::_MAX_, pck)
                 .and_then([&](auto& chain) {
             auto buffObject = this->getObject(buffSid);
-            if (!buffObject || fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
-            {
-                this->delObject(buffSid);
+            if (buffObject)
+            { //Object already exist
+                if (buffObject->g_contextFlags.has(OBJ_CONTEXT_NETWORK))
+                {
+                    if (fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
+                    { //Class changed
+                        this->delObject(buffSid);
+                        buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan,
+                                                     buffSid, chain.value(), false, OBJ_CONTEXT_NETWORK);
+                    }
+                }
+                else
+                { //The existing object is a client side object, we are going to change it's sid to avoid conflicts
+                    this->setObjectSid(buffSid, FGE_SCENE_BAD_SID);
+                    buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
+                                                 chain.value(), false, OBJ_CONTEXT_NETWORK);
+                }
+            }
+            else
+            { //Object does not exist
                 buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
                                              chain.value(), false, OBJ_CONTEXT_NETWORK);
-                if (!buffObject)
-                {
-                    return chain.invalidate("unknown class ID / SID", func);
-                }
+            }
+
+            if (!buffObject)
+            {
+                return chain.invalidate("unknown class ID / SID", func);
             }
 
             buffObject->g_object->unpack(pck);
@@ -1440,15 +1458,33 @@ Scene::unpackModification(fge::net::Packet const& pck, UpdateCountRange& range, 
         }
 
         auto buffObject = this->getObject(buffSid);
-        if (!buffObject || fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
-        {
-            this->delObject(buffSid); //TODO: maybe avoid destroy it and change just the SID ? (same in unpack())
+        if (buffObject)
+        { //Object already exist
+            if (buffObject->g_contextFlags.has(OBJ_CONTEXT_NETWORK))
+            {
+                if (fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
+                { //Class changed
+                    this->delObject(buffSid);
+                    buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
+                                                 buffType, false, OBJ_CONTEXT_NETWORK);
+                }
+            }
+            else
+            { //The existing object is a client side object, we are going to change it's sid to avoid conflicts
+                this->setObjectSid(buffSid, FGE_SCENE_BAD_SID);
+                buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
+                                             buffType, false, OBJ_CONTEXT_NETWORK);
+            }
+        }
+        else
+        { //Object does not exist
             buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
                                          buffType, false, OBJ_CONTEXT_NETWORK);
-            if (!buffObject)
-            {
-                return chain.stop("unknown class ID / SID", func);
-            }
+        }
+
+        if (!buffObject)
+        {
+            return chain.stop("unknown class ID / SID", func);
         }
 
         //MODIF COUNT/OBJECT DATA
