@@ -663,22 +663,32 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
 
 bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
 {
-    if (newSid == FGE_SCENE_BAD_SID || sid == FGE_SCENE_BAD_SID)
+    if (sid == FGE_SCENE_BAD_SID)
     {
         return false;
     }
+
     if (sid == newSid)
     {
         return true;
     }
 
-    if (this->g_objectsHashMap.find(newSid))
+    auto const objectIt = this->g_objectsHashMap.find(sid);
+    if (!objectIt)
     {
         return false;
     }
+    auto object = *objectIt.value();
 
-    auto objectIt = this->g_objectsHashMap.find(sid);
-    if (!objectIt)
+    if (newSid == FGE_SCENE_BAD_SID)
+    { //Request a new random SID
+        newSid = this->generateSid(FGE_SCENE_BAD_SID, object->g_type);
+        if (newSid == FGE_SCENE_BAD_SID)
+        {
+            return false;
+        }
+    }
+    else if (this->g_objectsHashMap.find(newSid))
     {
         return false;
     }
@@ -689,7 +699,7 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
         this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, newSid});
     }
 
-    objectIt.value()->get()->g_sid = newSid;
+    object->g_sid = newSid;
     if (!this->g_objectsHashMap.newSid(sid, newSid))
     {
         //Something went wrong, we can do a re-map
