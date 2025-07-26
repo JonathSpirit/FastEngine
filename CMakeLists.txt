@@ -247,6 +247,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/C_tagList.cpp
         sources/C_tileset.cpp
         sources/C_tilelayer.cpp
+        sources/C_tilemap.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
         sources/C_compressorBZ2.cpp
@@ -267,7 +268,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/object/C_objSwitch.cpp
         sources/object/C_objText.cpp
         sources/object/C_objTextinputbox.cpp
-        sources/object/C_objTilemap.cpp
+        sources/object/C_objTilelayer.cpp
         sources/object/C_objWindow.cpp
         sources/object/C_objTextList.cpp
         sources/object/C_objSlider.cpp
@@ -364,6 +365,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/C_tagList.cpp
         sources/C_tileset.cpp
         sources/C_tilelayer.cpp
+        sources/C_tilemap.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
         sources/C_compressorBZ2.cpp
@@ -384,7 +386,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/object/C_objSwitch.cpp
         sources/object/C_objText.cpp
         sources/object/C_objTextinputbox.cpp
-        sources/object/C_objTilemap.cpp
+        sources/object/C_objTilelayer.cpp
         sources/object/C_objWindow.cpp
         sources/object/C_objTextList.cpp
         sources/object/C_objSlider.cpp

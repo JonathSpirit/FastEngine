@@ -23,7 +23,7 @@
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objCircleShape.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include "FastEngine/object/C_objTilemap.hpp"
+#include "FastEngine/object/C_objTilelayer.hpp"
 #include "SDL.h"
 #include <iostream>
 
@@ -54,13 +54,13 @@ public:
 
     void setWorldSize(fge::Vector2i const& worldSize) { this->g_pathGenerator.setWorldSize(worldSize); }
     void setTileSize(fge::Vector2i const& tileSize) { this->g_tileSize = tileSize; }
-    void setObstacle(fge::ObjTileMap* tileMap)
+    void setObstacle(fge::TileMap* tileMap)
     {
         //Clear the collisions list
         this->g_pathGenerator.clearCollisions();
 
         //Get the front tile layer
-        auto tileLayer = tileMap->getTileLayers().front()->as<fge::TileLayer>();
+        auto tileLayer = tileMap->_layers.front()->as<fge::TileLayer>();
 
         //For every tiles
         for (std::size_t x = 0; x < tileLayer->getTiles().getSizeX(); ++x)
@@ -198,22 +198,22 @@ public:
         explainText->setFillColor(fge::Color::Black);
 
         //Create a tileMap object
-        auto* tileMap = this->newObject<fge::ObjTileMap>({FGE_SCENE_PLAN_BACK});
-
-        //Make sure it's always drawn
-        tileMap->_drawMode = fge::Object::DrawModes::DRAW_ALWAYS_DRAWN;
+        auto tileMap = fge::TileMap::create();
 
         //Load the tileMap from a "tiled" json
-        tileMap->loadFromFile("resources/tilemaps/tilemap_basic_1.json", false);
+        tileMap->loadFromFile("resources/tilemaps/tilemap_basic_1.json");
+
+        //Create tileLayer objects
+        tileMap->generateObjects(*this, FGE_SCENE_PLAN_BACK);
 
         //Get the tileMap size
-        auto tileMapSize = tileMap->getTileLayers().front()->as<fge::TileLayer>()->getTiles().getSize();
+        auto tileMapSize = tileMap->_layers.front()->as<fge::TileLayer>()->getTiles().getSize();
 
         //Create a pathfinder object
         auto* pathFinder = this->newObject<PathFinder>({FGE_SCENE_PLAN_TOP});
-        pathFinder->setWorldSize(static_cast<fge::Vector2i>(tileMapSize));
+        pathFinder->setWorldSize(tileMapSize);
         pathFinder->setTileSize({32, 32});
-        pathFinder->setObstacle(tileMap);
+        pathFinder->setObstacle(tileMap.get());
 
         //Create event callback for moving the view
         event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {

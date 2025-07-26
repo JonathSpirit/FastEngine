@@ -14,51 +14,23 @@
  * limitations under the License.
  */
 
-#include "FastEngine/object/C_objTilemap.hpp"
+#include "FastEngine/C_tilemap.hpp"
 #include "FastEngine/extra/extra_function.hpp"
+#include "FastEngine/object/C_objTilelayer.hpp"
 
 namespace fge
 {
 
-#ifndef FGE_DEF_SERVER
-FGE_OBJ_DRAW_BODY(ObjTileMap)
+void TileMap::clear()
 {
-    auto copyStates = states.copy();
-    copyStates._resTransform.set(target.requestGlobalTransform(*this, states._resTransform));
-    for (std::size_t i = 0; i < this->g_layers.size(); ++i)
-    {
-        this->g_layers[i]->draw(target, copyStates);
-    }
-}
-#endif
-
-void ObjTileMap::clear()
-{
-    this->g_tileSets.clear();
-    this->g_layers.clear();
+    this->_tileSets.clear();
+    this->_layers.clear();
+    this->_generatedObjects.clear();
 }
 
-TileSetList& ObjTileMap::getTileSets()
+TileMap::TileLayerList::value_type* TileMap::findLayerName(std::string_view name)
 {
-    return this->g_tileSets;
-}
-TileSetList const& ObjTileMap::getTileSets() const
-{
-    return this->g_tileSets;
-}
-
-TileLayerList& ObjTileMap::getTileLayers()
-{
-    return this->g_layers;
-}
-TileLayerList const& ObjTileMap::getTileLayers() const
-{
-    return this->g_layers;
-}
-
-TileLayerList::value_type* ObjTileMap::findLayerName(std::string_view name)
-{
-    for (auto& layer: this->g_layers)
+    for (auto& layer: this->_layers)
     {
         if (layer->getName() == name)
         {
@@ -67,9 +39,9 @@ TileLayerList::value_type* ObjTileMap::findLayerName(std::string_view name)
     }
     return nullptr;
 }
-TileLayerList::value_type const* ObjTileMap::findLayerName(std::string_view name) const
+TileMap::TileLayerList::value_type const* TileMap::findLayerName(std::string_view name) const
 {
-    for (auto const& layer: this->g_layers)
+    for (auto const& layer: this->_layers)
     {
         if (layer->getName() == name)
         {
@@ -79,7 +51,23 @@ TileLayerList::value_type const* ObjTileMap::findLayerName(std::string_view name
     return nullptr;
 }
 
-void ObjTileMap::save(nlohmann::json& jsonObject)
+bool TileMap::loadFromFile(std::filesystem::path const& path)
+{
+    nlohmann::json inputJson;
+    if (!LoadJsonFromFile(path, inputJson))
+    {
+        return false;
+    }
+
+    if (!inputJson.is_object() || inputJson.size() == 0)
+    {
+        return false;
+    }
+
+    this->load(inputJson, path);
+    return true;
+}
+void TileMap::save(nlohmann::json& jsonObject) const
 {
     jsonObject = nlohmann::json{{"infinite", false},
                                 {"orientation", "orthogonal"},
@@ -91,7 +79,7 @@ void ObjTileMap::save(nlohmann::json& jsonObject)
     auto& tileSetsArray = jsonObject["tilesets"];
     tileSetsArray = nlohmann::json::array();
 
-    for (auto& tileSet: this->g_tileSets)
+    for (auto const& tileSet: this->_tileSets)
     {
         auto& obj = tileSetsArray.emplace_back(nlohmann::json::object());
         obj = *tileSet;
@@ -100,14 +88,16 @@ void ObjTileMap::save(nlohmann::json& jsonObject)
     auto& layersArray = jsonObject["layers"];
     layersArray = nlohmann::json::array();
 
-    for (auto& layer: this->g_layers)
+    for (auto const& layer: this->_layers)
     {
         auto& obj = layersArray.emplace_back(nlohmann::json::object());
         layer->save(obj);
     }
 }
-void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
+void TileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath)
 {
+    this->clear();
+
     auto const& tileSetsArray = jsonObject.at("tilesets");
     if (tileSetsArray.is_array())
     {
@@ -124,13 +114,13 @@ void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& f
 
                 auto newTileSet = std::make_shared<TileSet>();
                 externJson.get_to(*newTileSet);
-                this->g_tileSets.emplace_back(std::move(newTileSet));
+                this->_tileSets.emplace_back(std::move(newTileSet));
             }
             else
             {
                 auto newTileSet = std::make_shared<TileSet>();
                 tileSet.get_to(*newTileSet);
-                this->g_tileSets.emplace_back(std::move(newTileSet));
+                this->_tileSets.emplace_back(std::move(newTileSet));
             }
         }
     }
@@ -143,41 +133,56 @@ void ObjTileMap::load(nlohmann::json& jsonObject, std::filesystem::path const& f
             auto newLayer = BaseLayer::loadLayer(layer, filePath);
             if (newLayer)
             {
-                this->g_layers.push_back(std::move(newLayer));
-                if (this->g_layers.back()->getType() == BaseLayer::Types::TILE_LAYER)
+                this->_layers.push_back(std::move(newLayer));
+                if (this->_layers.back()->getType() == BaseLayer::Types::TILE_LAYER)
                 {
-                    this->g_layers.back()->as<TileLayer>()->refreshTextures(this->g_tileSets);
+                    this->_layers.back()->as<TileLayer>()->refreshTextures(this->_tileSets);
                 }
             }
         }
     }
 }
-
-void ObjTileMap::pack(fge::net::Packet& pck)
+void TileMap::generateObjects(fge::Scene& scene, fge::ObjectPlan basePlan)
 {
-    fge::Object::pack(pck);
-}
-void ObjTileMap::unpack(fge::net::Packet const& pck)
-{
-    fge::Object::unpack(pck);
-}
-
-char const* ObjTileMap::getClassName() const
-{
-    return FGE_OBJTILEMAP_CLASSNAME;
-}
-char const* ObjTileMap::getReadableClassName() const
-{
-    return "tileMap";
+    this->_generatedObjects.clear();
+    auto plan = basePlan;
+    for (auto const& layer: this->_layers)
+    {
+        if (layer->getType() == BaseLayer::Types::TILE_LAYER)
+        {
+            auto* objLayer = scene.newObject<ObjTileLayer>({plan}, this->shared_from_this(),
+                                                           std::static_pointer_cast<TileLayer>(layer));
+            objLayer->setLayerName(layer->getName());
+            this->_generatedObjects.emplace_back(objLayer->_myObjectData);
+            plan += FGE_TILEMAP_PLAN_STEP;
+        }
+    }
 }
 
-fge::RectFloat ObjTileMap::getGlobalBounds() const
+ObjectDataShared TileMap::retrieveGeneratedTilelayerObject(std::string_view layerName) const
 {
-    return this->getTransform() * this->getLocalBounds();
-}
-fge::RectFloat ObjTileMap::getLocalBounds() const
-{
-    return {{0.f, 0.f}, {1.f, 1.f}};
+    for (auto const& objData: this->_generatedObjects)
+    {
+        if (objData.expired())
+        {
+            continue;
+        }
+
+        auto objLayerData = objData.lock();
+        if (std::strcmp(objLayerData->getObject()->getClassName(), FGE_OBJTILELAYER_CLASSNAME) != 0)
+        {
+            continue;
+        }
+
+        auto* objLayer = objLayerData->getObject<ObjTileLayer>();
+        if (objLayer->getLayerName() != layerName)
+        {
+            continue;
+        }
+
+        return objLayerData;
+    }
+    return nullptr;
 }
 
 } // namespace fge
