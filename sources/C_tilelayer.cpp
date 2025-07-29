@@ -91,9 +91,9 @@ std::shared_ptr<BaseLayer> BaseLayer::loadLayer(nlohmann::json const& jsonObject
 //TileLayer::Tile
 
 TileLayer::Tile::Tile() :
-        g_vertexBuffer(fge::vulkan::GetActiveContext())
+        g_vertexBuffer(vulkan::GetActiveContext())
 {
-    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, fge::vulkan::BufferTypes::DEVICE);
+    this->g_vertexBuffer.create(4, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, vulkan::BufferTypes::DEVICE);
 }
 
 void TileLayer::Tile::setGid(GlobalTileId gid)
@@ -106,77 +106,74 @@ GlobalTileId TileLayer::Tile::getGid() const
     return this->g_gid;
 }
 
-void TileLayer::Tile::setPosition(fge::Vector2f const& position)
+void TileLayer::Tile::setPosition(Vector2f const& position)
 {
     this->g_position = position;
     this->updatePositions();
 }
-fge::Vector2f const& TileLayer::Tile::getPosition() const
+Vector2f const& TileLayer::Tile::getPosition() const
 {
     return this->g_position;
 }
 
-void TileLayer::Tile::setColor(fge::Color const& color)
+void TileLayer::Tile::setColor(Color const& color)
 {
     for (std::size_t i = 0; i < 4; ++i)
     {
         this->g_vertexBuffer.getVertices()[i]._color = color;
     }
 }
-fge::Color TileLayer::Tile::getColor() const
+Color TileLayer::Tile::getColor() const
 {
-    return fge::Color(this->g_vertexBuffer.getVertices()[0]._color);
+    return Color(this->g_vertexBuffer.getVertices()[0]._color);
 }
 
-void TileLayer::Tile::setTileSet(std::shared_ptr<fge::TileSet> tileSet)
+void TileLayer::Tile::setTileSet(std::shared_ptr<TileSet> const& tileSet)
 {
     this->g_tileSet = std::move(tileSet);
     this->updatePositions();
     this->updateTexCoords();
 }
-std::shared_ptr<fge::TileSet> const& TileLayer::Tile::getTileSet() const
+std::shared_ptr<TileSet> TileLayer::Tile::getTileSet() const
 {
-    return this->g_tileSet;
+    return this->g_tileSet.lock();
 }
 TileData const* TileLayer::Tile::getTileData() const
 {
-    if (this->g_tileSet)
+    if (auto const tileset = this->g_tileSet.lock())
     {
-        return this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
+        return tileset->getTile(tileset->getLocalId(this->g_gid));
     }
     return nullptr;
 }
 
 void TileLayer::Tile::updatePositions()
 {
-    if (this->g_tileSet)
+    if (auto const tileset = this->g_tileSet.lock())
     {
-        auto size = static_cast<fge::Vector2f>(this->g_tileSet->getTileSize());
+        auto const size = static_cast<Vector2f>(tileset->getTileSize());
 
-        this->g_vertexBuffer.getVertices()[0]._position = fge::Vector2f(this->g_position.x, this->g_position.y);
-        this->g_vertexBuffer.getVertices()[1]._position =
-                fge::Vector2f(this->g_position.x, this->g_position.y + size.y);
-        this->g_vertexBuffer.getVertices()[2]._position =
-                fge::Vector2f(this->g_position.x + size.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[0]._position = Vector2f(this->g_position.x, this->g_position.y);
+        this->g_vertexBuffer.getVertices()[1]._position = Vector2f(this->g_position.x, this->g_position.y + size.y);
+        this->g_vertexBuffer.getVertices()[2]._position = Vector2f(this->g_position.x + size.x, this->g_position.y);
         this->g_vertexBuffer.getVertices()[3]._position =
-                fge::Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
+                Vector2f(this->g_position.x + size.x, this->g_position.y + size.y);
     }
 }
 
 void TileLayer::Tile::updateTexCoords()
 {
-    if (this->g_tileSet)
+    if (auto const tileset = this->g_tileSet.lock())
     {
-        auto const* tile = this->g_tileSet->getTile(this->g_tileSet->getLocalId(this->g_gid));
+        auto const* tile = tileset->getTile(tileset->getLocalId(this->g_gid));
         if (tile != nullptr)
         {
-            auto const rect = this->g_tileSet->getTexture().getSharedData()->normalizeTextureRect(tile->_rect);
+            auto const rect = tileset->getTexture().getSharedData()->normalizeTextureRect(tile->_rect);
 
-            this->g_vertexBuffer.getVertices()[0]._texCoords = fge::Vector2f(rect._x, rect._y);
-            this->g_vertexBuffer.getVertices()[1]._texCoords = fge::Vector2f(rect._x, rect._y + rect._height);
-            this->g_vertexBuffer.getVertices()[2]._texCoords = fge::Vector2f(rect._x + rect._width, rect._y);
-            this->g_vertexBuffer.getVertices()[3]._texCoords =
-                    fge::Vector2f(rect._x + rect._width, rect._y + rect._height);
+            this->g_vertexBuffer.getVertices()[0]._texCoords = Vector2f(rect._x, rect._y);
+            this->g_vertexBuffer.getVertices()[1]._texCoords = Vector2f(rect._x, rect._y + rect._height);
+            this->g_vertexBuffer.getVertices()[2]._texCoords = Vector2f(rect._x + rect._width, rect._y);
+            this->g_vertexBuffer.getVertices()[3]._texCoords = Vector2f(rect._x + rect._width, rect._y + rect._height);
         }
     }
 }
@@ -192,9 +189,9 @@ void TileLayer::draw(fge::RenderTarget& target, fge::RenderStates const& states)
 
     for (auto const& tile: this->g_tiles)
     {
-        if (tile.g_tileSet)
+        if (auto const tileset = tile.g_tileSet.lock())
         {
-            statesCopy._resTextures.set(tile.g_tileSet->getTexture().retrieve(), 1);
+            statesCopy._resTextures.set(tileset->getTexture().retrieve(), 1);
             statesCopy._vertexBuffer = &tile.g_vertexBuffer;
             target.draw(statesCopy);
         }
@@ -223,10 +220,10 @@ void TileLayer::setGid(fge::Vector2size position, std::span<std::shared_ptr<Tile
     {
         tile->g_gid = gid;
         tile->g_tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, gid);
-        if (tile->g_tileSet)
+        if (auto const tileset = tile->g_tileSet.lock())
         {
-            tile->g_position = {static_cast<float>(tile->g_tileSet->getTileSize().x * position.x),
-                                static_cast<float>(tile->g_tileSet->getTileSize().y * position.y)};
+            tile->g_position = {static_cast<float>(tileset->getTileSize().x * position.x),
+                                static_cast<float>(tileset->getTileSize().y * position.y)};
         }
         tile->updatePositions();
         tile->updateTexCoords();
@@ -281,10 +278,10 @@ void TileLayer::refreshTextures(std::span<std::shared_ptr<TileSet>> tileSets)
             auto& tile = this->g_tiles[ix][iy];
 
             tile.g_tileSet = TileLayer::retrieveAssociatedTileSet(tileSets, tile.g_gid);
-            if (tile.g_tileSet)
+            if (auto const tileset = tile.g_tileSet.lock())
             {
-                tile.g_position = {static_cast<float>(tile.g_tileSet->getTileSize().x * ix),
-                                   static_cast<float>(tile.g_tileSet->getTileSize().y * iy)};
+                tile.g_position = {static_cast<float>(tileset->getTileSize().x * ix),
+                                   static_cast<float>(tileset->getTileSize().y * iy)};
             }
             tile.updatePositions();
             tile.updateTexCoords();
@@ -313,9 +310,9 @@ fge::RectFloat TileLayer::getLocalBounds() const
     fge::RectFloat bounds{FGE_NUMERIC_LIMITS_VECTOR_MAX(fge::Vector2f), FGE_NUMERIC_LIMITS_VECTOR_MIN(fge::Vector2f)};
     for (auto const& tile: this->g_tiles)
     {
-        if (tile.g_tileSet && tile.g_gid != 0)
+        if (!tile.g_tileSet.expired() && tile.g_gid != 0)
         {
-            auto const size = static_cast<fge::Vector2f>(tile.g_tileSet->getTileSize());
+            auto const size = static_cast<fge::Vector2f>(tile.g_tileSet.lock()->getTileSize());
             auto const& position = tile.getPosition();
 
             bounds._x = std::min(bounds._x, position.x);

@@ -145,26 +145,26 @@ public:
          *
          * \param position The local position of the tile
          */
-        void setPosition(fge::Vector2f const& position);
+        void setPosition(Vector2f const& position);
         /**
          * \brief Get the local position of the tile
          *
          * \return The local position of the tile
          */
-        [[nodiscard]] fge::Vector2f const& getPosition() const;
+        [[nodiscard]] Vector2f const& getPosition() const;
 
         /**
          * \brief Set the color of the tile
          *
          * \param color The color of the tile
          */
-        void setColor(fge::Color const& color);
+        void setColor(Color const& color);
         /**
          * \brief Get the color of the tile
          *
          * \return The color of the tile
          */
-        [[nodiscard]] fge::Color getColor() const;
+        [[nodiscard]] Color getColor() const;
 
         /**
          * \brief Set the associated tileset pointer
@@ -173,13 +173,13 @@ public:
          *
          * \param tileSet The associated tileset pointer
          */
-        void setTileSet(std::shared_ptr<fge::TileSet> tileSet);
+        void setTileSet(std::shared_ptr<TileSet> const& tileSet);
         /**
          * \brief Get the associated tileset pointer
          *
          * \return The associated tileset pointer
          */
-        [[nodiscard]] std::shared_ptr<fge::TileSet> const& getTileSet() const;
+        [[nodiscard]] std::shared_ptr<TileSet> getTileSet() const;
 
         [[nodiscard]] TileData const* getTileData() const;
 
@@ -188,9 +188,9 @@ public:
         void updateTexCoords();
 
         GlobalTileId g_gid{0};
-        std::shared_ptr<fge::TileSet> g_tileSet;
-        fge::vulkan::VertexBuffer g_vertexBuffer;
-        fge::Vector2f g_position;
+        std::weak_ptr<TileSet> g_tileSet;
+        vulkan::VertexBuffer g_vertexBuffer;
+        Vector2f g_position;
 
         friend TileLayer;
     };
