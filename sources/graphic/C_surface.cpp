@@ -275,6 +275,51 @@ void Surface::stretch(int width, int height)
     SDL_FreeSurface(this->g_surface);
     this->g_surface = stretchedSurface;
 }
+void Surface::shear(float angle, ShearBaseSides side)
+{
+    if (this->g_surface == nullptr)
+    {
+        return;
+    }
+
+    angle = glm::radians(angle);
+
+    //Compute the new width after shear
+    int const deltaWidth = static_cast<int>(std::tan(std::abs(angle)) * static_cast<float>(this->g_surface->h));
+
+    Surface shearedSurface(deltaWidth + this->g_surface->w, this->g_surface->h, Color::Transparent);
+    if (shearedSurface.get() == nullptr)
+    {
+        return;
+    }
+
+    // Apply shear transformation
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        int offset{};
+        if (side == ShearBaseSides::Top)
+        {
+            offset = static_cast<int>(static_cast<float>(h) * std::tan(angle));
+        }
+        else
+        {
+            offset = static_cast<int>(static_cast<float>(this->g_surface->h - h) * std::tan(angle));
+        }
+        if (angle < 0.0f)
+        {
+            offset += deltaWidth;
+        }
+
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            auto pixel = this->getPixel(w, h).value();
+            shearedSurface.setPixel(w + offset, h, pixel);
+        }
+    }
+
+    *this = std::move(shearedSurface);
+}
+
 bool Surface::blitSurface(Surface const& src, std::optional<SDL_Rect> const& srcRect, std::optional<SDL_Rect>& dstRect)
 {
     if (this->g_surface == nullptr)

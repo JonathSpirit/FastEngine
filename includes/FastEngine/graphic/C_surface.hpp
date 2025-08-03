@@ -109,6 +109,13 @@ public:
     void flipVertically();
 
     void stretch(int width, int height);
+    enum class ShearBaseSides
+    {
+        Top,
+        Bottom
+    };
+    void shear(float angle, ShearBaseSides side);
+
     /**
      * \brief Blit a surface on this surface
      *
