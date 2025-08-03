@@ -108,6 +108,7 @@ public:
     void flipHorizontally();
     void flipVertically();
 
+    void stretch(int width, int height);
     /**
      * \brief Blit a surface on this surface
      *

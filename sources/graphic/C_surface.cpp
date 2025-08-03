@@ -254,6 +254,27 @@ void Surface::flipVertically()
     }
 }
 
+void Surface::stretch(int width, int height)
+{
+    if (this->g_surface == nullptr || width <= 0 || height <= 0)
+    {
+        return;
+    }
+
+    SDL_Surface* stretchedSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
+    if (stretchedSurface == nullptr)
+    {
+        return;
+    }
+
+    SDL_Rect srcRect{0, 0, this->g_surface->w, this->g_surface->h};
+    SDL_Rect dstRect{0, 0, width, height};
+
+    SDL_BlitScaled(this->g_surface, &srcRect, stretchedSurface, &dstRect);
+
+    SDL_FreeSurface(this->g_surface);
+    this->g_surface = stretchedSurface;
+}
 bool Surface::blitSurface(Surface const& src, std::optional<SDL_Rect> const& srcRect, std::optional<SDL_Rect>& dstRect)
 {
     if (this->g_surface == nullptr)
