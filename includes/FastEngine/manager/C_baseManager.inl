@@ -130,6 +130,38 @@ void BaseManager<TData, TDataBlock>::unloadAll()
     }
     this->g_data.clear();
 }
+
+template<class TData, class TDataBlock>
+bool BaseManager<TData, TDataBlock>::duplicate(std::string_view name, std::string_view newName)
+{
+    std::scoped_lock const lck(this->g_mutex);
+
+    if (newName.empty() || this->g_data.contains(newName))
+    {
+        return false;
+    }
+
+    auto it = this->g_data.find(name);
+    if (it == this->g_data.end())
+    {
+        return false;
+    }
+
+    if (!it->second->_valid)
+    { //Can't duplicate an invalid resource
+        return false;
+    }
+
+    auto newBlock = std::make_shared<TDataBlock>();
+    if (!it->second->duplicate(*newBlock) || !newBlock->_valid)
+    {
+        return false;
+    }
+
+    this->g_data.emplace(newName, std::move(newBlock));
+    return true;
+}
+
 template<class TData, class TDataBlock>
 bool BaseManager<TData, TDataBlock>::push(std::string_view name, DataBlockPointer block)
 {

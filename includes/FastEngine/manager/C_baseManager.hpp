@@ -45,6 +45,21 @@ struct BaseDataBlock
 
     inline virtual void unload() {}
 
+    [[nodiscard]] inline virtual bool duplicate(BaseDataBlock& block) const
+    {
+        if constexpr (std::is_copy_constructible_v<TData>)
+        {
+            block._ptr = std::make_shared<TData>(*this->_ptr);
+            block._valid = this->_valid;
+            block._path = this->_path;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     DataPointer _ptr;
     bool _valid{false};
     std::filesystem::path _path;
@@ -146,6 +161,8 @@ public:
     [[nodiscard]] bool contains(std::string_view name) const;
     bool unload(std::string_view name);
     void unloadAll();
+
+    bool duplicate(std::string_view name, std::string_view newName);
 
     /**
      * \brief Add a user handled resource

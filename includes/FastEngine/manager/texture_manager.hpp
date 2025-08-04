@@ -33,9 +33,25 @@
 namespace fge::texture
 {
 
-struct DataBlock : manager::BaseDataBlock<TextureType>
+struct DataBlock final : manager::BaseDataBlock<TextureType>
 {
     inline void unload() override { this->_group.clear(); }
+
+    [[nodiscard]] inline virtual bool duplicate(BaseDataBlock& block) const override
+    {
+        auto& castedBlock = dynamic_cast<DataBlock&>(block);
+        if (!BaseDataBlock::duplicate(castedBlock))
+        {
+            return false;
+        }
+        castedBlock._group.clear();
+        for (auto& group: this->_group)
+        {
+            castedBlock._group.emplace_back(std::make_shared<TextureType>(*group));
+        }
+        castedBlock._group = this->_group;
+        return true;
+    }
 
     std::vector<DataPointer> _group;
 };
