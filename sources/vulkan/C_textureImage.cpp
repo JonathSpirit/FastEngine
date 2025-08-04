@@ -135,12 +135,6 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 {
     this->destroy();
 
-    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
-    {
-        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
-                 1;
-    }
-
     ++this->g_modificationCount;
 
     if (size.x == 0 || size.y == 0)
@@ -150,10 +144,16 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 
     auto& context = this->getContext();
 
-    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(size.x) * size.y * 4;
-
     this->g_textureSize = size;
     this->g_textureBytesPerPixel = 4;
+
+    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(size.x) * size.y * this->g_textureBytesPerPixel;
+
+    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
+    {
+        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
+                 1;
+    }
     this->g_mipLevels = levels;
 
     auto const stagingBufferInfo = *context.createBuffer(
@@ -207,12 +207,6 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 {
     this->destroy();
 
-    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
-    {
-        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
-                 1;
-    }
-
     ++this->g_modificationCount;
 
     if (surface == nullptr)
@@ -222,10 +216,16 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 
     auto& context = this->getContext();
 
-    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
-
     this->g_textureSize = {surface->w, surface->h};
     this->g_textureBytesPerPixel = surface->format->BytesPerPixel;
+
+    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * this->g_textureBytesPerPixel;
+
+    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
+    {
+        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
+                 1;
+    }
     this->g_mipLevels = levels;
 
     auto const stagingBufferInfo = *context.createBuffer(
