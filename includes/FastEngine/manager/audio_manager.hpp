@@ -32,7 +32,7 @@ struct MixerChunkDeleter
     inline void operator()(Mix_Chunk* chunk) const { Mix_FreeChunk(chunk); }
 };
 
-struct DataBlock : manager::BaseDataBlock<Mix_Chunk>
+struct DataBlock final : manager::BaseDataBlock<Mix_Chunk>
 {};
 
 /**
@@ -42,7 +42,7 @@ struct DataBlock : manager::BaseDataBlock<Mix_Chunk>
  *
  * \see TextureManager
  */
-class FGE_API AudioManager : public manager::BaseManager<Mix_Chunk, DataBlock>
+class FGE_API AudioManager final : public manager::BaseManager<Mix_Chunk, DataBlock>
 {
 public:
     using BaseManager::BaseManager;

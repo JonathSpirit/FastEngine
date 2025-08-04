@@ -82,7 +82,7 @@ struct AnimationData
     std::filesystem::path _tilesetPath; ///< The tileset texture path, only useful if the type is ANIM_TYPE_TILESET
 };
 
-struct DataBlock : manager::BaseDataBlock<AnimationData>
+struct DataBlock final : manager::BaseDataBlock<AnimationData>
 {};
 
 /**
@@ -92,7 +92,7 @@ struct DataBlock : manager::BaseDataBlock<AnimationData>
  *
  * \see TextureManager
  */
-class FGE_API AnimationManager : public manager::BaseManager<AnimationData, DataBlock>
+class FGE_API AnimationManager final : public manager::BaseManager<AnimationData, DataBlock>
 {
 public:
     using BaseManager::BaseManager;

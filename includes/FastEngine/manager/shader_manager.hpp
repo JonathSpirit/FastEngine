@@ -30,7 +30,7 @@
 namespace fge::shader
 {
 
-struct DataBlock : manager::BaseDataBlock<vulkan::Shader>
+struct DataBlock final : manager::BaseDataBlock<vulkan::Shader>
 {};
 
 enum class ShaderInputTypes
@@ -47,7 +47,7 @@ enum class ShaderInputTypes
  *
  * \see TextureManager
  */
-class FGE_API ShaderManager : public manager::BaseManager<vulkan::Shader, DataBlock>
+class FGE_API ShaderManager final : public manager::BaseManager<vulkan::Shader, DataBlock>
 {
 public:
     using BaseManager::BaseManager;

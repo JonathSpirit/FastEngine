@@ -65,7 +65,7 @@ struct DataBlock final : manager::BaseDataBlock<TextureType>
  * On initialization, a bad texture is created.
  * This texture is used when a texture is not found in order to always return a "valid" texture.
  */
-class FGE_API TextureManager : public manager::BaseManager<TextureType, DataBlock>
+class FGE_API TextureManager final : public manager::BaseManager<TextureType, DataBlock>
 {
 public:
     using BaseManager::BaseManager;

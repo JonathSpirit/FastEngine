@@ -27,7 +27,7 @@
 namespace fge::font
 {
 
-struct DataBlock : manager::BaseDataBlock<FreeTypeFont>
+struct DataBlock final : manager::BaseDataBlock<FreeTypeFont>
 {};
 
 /**
@@ -37,7 +37,7 @@ struct DataBlock : manager::BaseDataBlock<FreeTypeFont>
  *
  * \see TextureManager
  */
-class FGE_API FontManager : public manager::BaseManager<FreeTypeFont, DataBlock>
+class FGE_API FontManager final : public manager::BaseManager<FreeTypeFont, DataBlock>
 {
 public:
     using BaseManager::BaseManager;
