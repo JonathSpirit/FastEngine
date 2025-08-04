@@ -34,7 +34,7 @@ class FGE_API TextureImage : public ContextAware
 {
 public:
     explicit TextureImage(Context const& context);
-    TextureImage(TextureImage const& r) = delete;
+    TextureImage(TextureImage const& r);
     TextureImage(TextureImage&& r) noexcept;
     ~TextureImage() override;
 
@@ -43,6 +43,7 @@ public:
 
     bool create(glm::vec<2, int> const& size, uint32_t levels = 1);
     bool create(SDL_Surface* surface, uint32_t levels = 1);
+    bool create(TextureImage const& texture, uint32_t levels = FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
     void destroy() final;
 
     [[nodiscard]] SDL_Surface* copyToSurface() const;

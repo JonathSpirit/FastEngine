@@ -39,6 +39,22 @@ TextureImage::TextureImage(Context const& context) :
         g_mipLevels(0),
         g_modificationCount(0)
 {}
+TextureImage::TextureImage(TextureImage const& r) :
+        ContextAware(r),
+        g_textureImageView(VK_NULL_HANDLE),
+        g_textureSampler(VK_NULL_HANDLE),
+
+        g_textureSize(r.g_textureSize),
+        g_textureBytesPerPixel(r.g_textureBytesPerPixel),
+
+        g_filter(r.g_filter),
+        g_normalizedCoordinates(r.g_normalizedCoordinates),
+
+        g_mipLevels(r.g_mipLevels),
+        g_modificationCount(r.g_modificationCount)
+{
+    this->create(r, r.g_mipLevels);
+}
 TextureImage::TextureImage(TextureImage&& r) noexcept :
         ContextAware(static_cast<ContextAware&&>(r)),
         g_imageInfo(r.g_imageInfo),
@@ -257,6 +273,81 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
+bool TextureImage::create(TextureImage const& texture, uint32_t levels)
+{
+    this->verifyContext(texture);
+    this->destroy();
+
+    ++this->g_modificationCount;
+
+    if (texture.getSize().x == 0 || texture.getSize().y == 0) ///TODO Texture valid
+    {
+        return false;
+    }
+
+    auto& context = this->getContext();
+
+    this->g_textureSize = texture.g_textureSize;
+    this->g_textureBytesPerPixel = 4; ///TODO: don't hardcode
+
+    if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
+    {
+        if (texture.g_mipLevels == 0)
+        {
+            levels = static_cast<uint32_t>(
+                             std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
+                     1;
+        }
+        else
+        {
+            levels = texture.g_mipLevels;
+        }
+    }
+    this->g_mipLevels = levels;
+
+    this->g_imageInfo = *context.createImage(this->g_textureSize.x, this->g_textureSize.y,
+                                             FGE_VULKAN_TEXTUREIMAGE_FORMAT, VK_IMAGE_TILING_OPTIMAL, this->g_mipLevels,
+                                             VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                                     VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                             0, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    auto commandBuffer =
+            context.beginCommands(Context::SubmitTypes::DIRECT_WAIT_EXECUTION, CommandBuffer::RenderPassScopes::OUTSIDE,
+                                  CommandBuffer::SUPPORTED_QUEUE_GRAPHICS);
+
+    commandBuffer.transitionImageLayout(this->g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        this->g_mipLevels);
+    commandBuffer.transitionImageLayout(texture.g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                        texture.g_mipLevels);
+
+    commandBuffer.copyImageToImage(texture.g_imageInfo._image, this->g_imageInfo._image,
+                                   static_cast<uint32_t>(this->g_textureSize.x),
+                                   static_cast<uint32_t>(this->g_textureSize.y));
+
+    commandBuffer.transitionImageLayout(this->g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        this->g_mipLevels);
+    commandBuffer.transitionImageLayout(texture.g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT,
+                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                        texture.g_mipLevels);
+
+    context.submitCommands(std::move(commandBuffer));
+
+    this->g_textureImageView = context.getLogicalDevice().createImageView(
+            this->g_imageInfo._image, FGE_VULKAN_TEXTUREIMAGE_FORMAT, this->g_mipLevels);
+
+    this->createTextureSampler(0.0f, 0.0f, static_cast<float>(this->g_mipLevels));
+
+    this->g_textureDescriptorSet =
+            context.getTextureDescriptorPool().allocateDescriptorSet(context.getTextureLayout().getLayout()).value();
+
+    DescriptorSet::Descriptor const descriptor(*this, FGE_VULKAN_TEXTURE_BINDING);
+    this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
+    return true;
+}
+
 void TextureImage::destroy()
 {
     if (this->g_imageInfo.valid())
