@@ -2760,7 +2760,7 @@ template<typename V, typename D, typename A>
 std::istream& operator>>( std::istream& stream , tiny_utf8::basic_string<V, D, A>& str ) noexcept(TINY_UTF8_NOEXCEPT) {
 	std::string tmp;
 	stream >> tmp;
-	str = move(tmp);
+	str = std::move(tmp);
 	return stream;
 }
 
