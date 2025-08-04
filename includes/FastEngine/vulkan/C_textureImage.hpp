@@ -45,6 +45,7 @@ public:
     bool create(SDL_Surface* surface, uint32_t levels = 1);
     bool create(TextureImage const& texture, uint32_t levels = FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO);
     void destroy() final;
+    [[nodiscard]] bool isCreated() const;
 
     [[nodiscard]] SDL_Surface* copyToSurface() const;
 

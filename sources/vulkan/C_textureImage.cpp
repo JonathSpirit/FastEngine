@@ -280,7 +280,7 @@ bool TextureImage::create(TextureImage const& texture, uint32_t levels)
 
     ++this->g_modificationCount;
 
-    if (texture.getSize().x == 0 || texture.getSize().y == 0) ///TODO Texture valid
+    if (texture.getSize().x == 0 || texture.getSize().y == 0 || !texture.isCreated())
     {
         return false;
     }
@@ -347,10 +347,9 @@ bool TextureImage::create(TextureImage const& texture, uint32_t levels)
     this->g_textureDescriptorSet.updateDescriptorSet(&descriptor, 1);
     return true;
 }
-
 void TextureImage::destroy()
 {
-    if (this->g_imageInfo.valid())
+    if (this->isCreated())
     {
         this->g_textureDescriptorSet.destroy();
 
@@ -373,10 +372,14 @@ void TextureImage::destroy()
         this->g_modificationCount = 0;
     }
 }
+bool TextureImage::isCreated() const
+{
+    return this->g_imageInfo.valid();
+}
 
 SDL_Surface* TextureImage::copyToSurface() const
 {
-    if (!this->g_imageInfo.valid())
+    if (!this->isCreated())
     {
         return nullptr;
     }
@@ -426,7 +429,7 @@ SDL_Surface* TextureImage::copyToSurface() const
 
 void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
 {
-    if (surface == nullptr)
+    if (surface == nullptr || !this->isCreated())
     {
         return;
     }
@@ -471,7 +474,7 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
 }
 void TextureImage::update(TextureImage const& textureImage, glm::vec<2, int> const& offset)
 {
-    if (textureImage.g_imageInfo._image == VK_NULL_HANDLE)
+    if (!textureImage.isCreated() || !this->isCreated())
     {
         return;
     }
@@ -517,7 +520,8 @@ void TextureImage::update(void* buffer,
     {
         return;
     }
-    if ((size.x + offset.x > this->g_textureSize.x) || (size.y + offset.y > this->g_textureSize.y))
+    if (!this->isCreated() || (size.x + offset.x > this->g_textureSize.x) ||
+        (size.y + offset.y > this->g_textureSize.y))
     {
         return;
     }
@@ -558,7 +562,7 @@ void TextureImage::update(void* buffer,
 }
 
 void TextureImage::generateMipmaps(uint32_t levels)
-{
+{ ///TODO: Redo the method without using copyToSurface()
     if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
     {
         levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
