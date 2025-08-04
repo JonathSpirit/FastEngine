@@ -148,8 +148,7 @@ bool TextureImage::create(glm::vec<2, int> const& size, uint32_t levels)
 
     if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
     {
-        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
-                 1;
+        levels = computeMipLevels(this->g_textureSize);
     }
     this->g_mipLevels = levels;
 
@@ -219,8 +218,7 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
 
     if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
     {
-        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
-                 1;
+        levels = computeMipLevels(this->g_textureSize);
     }
     this->g_mipLevels = levels;
 
@@ -289,9 +287,7 @@ bool TextureImage::create(TextureImage const& texture, uint32_t levels)
     {
         if (texture.g_mipLevels == 0)
         {
-            levels = static_cast<uint32_t>(
-                             std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
-                     1;
+            levels = computeMipLevels(this->g_textureSize);
         }
         else
         {
@@ -559,8 +555,7 @@ void TextureImage::generateMipmaps(uint32_t levels)
 { ///TODO: Redo the method without using copyToSurface()
     if (levels == FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO)
     {
-        levels = static_cast<uint32_t>(std::floor(std::log2(std::max(this->g_textureSize.x, this->g_textureSize.y)))) +
-                 1;
+        levels = computeMipLevels(this->g_textureSize);
     }
 
     if (levels != this->g_mipLevels || (levels == 1 && this->g_mipLevels > 1))
@@ -768,6 +763,11 @@ fge::RectFloat TextureImage::normalizeTextureRect(fge::RectInt const& rect) cons
 uint32_t TextureImage::getModificationCount() const
 {
     return this->g_modificationCount;
+}
+
+uint32_t TextureImage::computeMipLevels(glm::vec<2, int> size)
+{
+    return static_cast<uint32_t>(std::floor(std::log2(std::max(size.x, size.y)))) + 1;
 }
 
 void TextureImage::createTextureSampler(float mipLodBias, float mipLodMin, float mipLodMax)

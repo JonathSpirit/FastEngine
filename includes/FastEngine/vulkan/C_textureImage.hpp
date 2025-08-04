@@ -82,6 +82,8 @@ public:
 
     [[nodiscard]] uint32_t getModificationCount() const;
 
+    [[nodiscard]] static uint32_t computeMipLevels(glm::vec<2, int> size);
+
 private:
     void createTextureSampler(float mipLodBias, float mipLodMin, float mipLodMax);
 
