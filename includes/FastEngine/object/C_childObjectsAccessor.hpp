@@ -94,6 +94,26 @@ private:
     fge::Object* g_owner{nullptr};
 };
 
+template<class TObject>
+class DeclareChild
+{
+public:
+    constexpr DeclareChild(fge::Object* owner, std::size_t insertionIndex = std::numeric_limits<std::size_t>::max()) :
+            g_object(owner)
+    {
+        this->g_object._children.addExistingObject(&this->g_object, insertionIndex);
+    }
+
+    [[nodiscard]] constexpr TObject* operator->() { return &this->g_object; }
+    [[nodiscard]] constexpr TObject const* operator->() const { return &this->g_object; }
+
+    [[nodiscard]] constexpr TObject& get() { return this->g_object; }
+    [[nodiscard]] constexpr TObject const& get() const { return this->g_object; }
+
+private:
+    TObject g_object;
+};
+
 } // namespace fge
 
 #endif // _FGE_C_CHILDOBJECTSACCESSOR_HPP_INCLUDED
