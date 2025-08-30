@@ -145,7 +145,8 @@ using DefaultSIDRanges_t = std::underlying_type_t<DefaultSIDRanges>;
 
 enum ObjectContextFlags : uint32_t
 {
-    OBJ_CONTEXT_NETWORK = 1 << 0, ///< The object is coming from the network
+    OBJ_CONTEXT_NETWORK = 1 << 0,  ///< The object is coming from the network
+    OBJ_CONTEXT_DETACHED = 1 << 1, ///< The object is a detached child to another object
 
     OBJ_CONTEXT_NONE = 0,
     OBJ_CONTEXT_DEFAULT = OBJ_CONTEXT_NONE
@@ -380,6 +381,7 @@ private:
     bool g_requireForceClientsCheckup;
 
     friend class fge::Scene;
+    friend class fge::ChildObjectsAccessor;
 };
 
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
@@ -480,7 +482,7 @@ public:
     explicit Scene(std::string sceneName);
     Scene(Scene const& r);
     Scene(Scene&& r) noexcept = delete; //TODO: implement move constructor
-    virtual ~Scene() = default;
+    virtual ~Scene();
 
     Scene& operator=(Scene const& r);
     Scene& operator=(Scene&& r) noexcept = delete; //TODO: implement move operator

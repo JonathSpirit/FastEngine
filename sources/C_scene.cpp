@@ -188,6 +188,10 @@ Scene::Scene(Scene const& r) :
 
     this->g_updatedObjectIterator = this->g_objects.end();
 }
+Scene::~Scene()
+{
+    this->clear();
+}
 
 Scene& Scene::operator=(Scene const& r)
 {
