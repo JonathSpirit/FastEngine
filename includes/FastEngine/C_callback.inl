@@ -102,7 +102,7 @@ void CallbackHandler<Types...>::clear()
     this->detachAll();
     for (auto& callee: this->g_callees)
     {
-        callee._f = nullptr;
+        callee._markedForDeletion = true;
     }
 }
 
@@ -116,10 +116,14 @@ fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback
     //Search for a "mark for deletion" callee and replace it with the new one
     for (auto& callee: this->g_callees)
     {
-        if (callee._f == nullptr)
+        if (callee._markedForDeletion)
         {
+            //TODO: _markedForDeletion has been added in order to avoid undefined behavior when a callback remove itself
+            // while being called. But here we do the same mistake, we replace a callee that could be called at the same time.
+            // We need a better solution.
             callee._f = std::move(callback);
             callee._subscriber = subscriber;
+            callee._markedForDeletion = false;
             return callee._f.get();
         }
     }
@@ -161,7 +165,7 @@ void CallbackHandler<Types...>::delPtr(void* ptr)
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     for (auto& callee: this->g_callees)
     {
-        if (callee._f == nullptr)
+        if (callee._markedForDeletion)
         {
             continue;
         }
@@ -169,7 +173,7 @@ void CallbackHandler<Types...>::delPtr(void* ptr)
         if (callee._f->check(ptr))
         {
             this->detachOnce(callee._subscriber);
-            callee._f = nullptr;
+            callee._markedForDeletion = true;
         }
     }
 }
@@ -179,7 +183,7 @@ void CallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     for (auto& callee: this->g_callees)
     {
-        if (callee._f == nullptr)
+        if (callee._markedForDeletion)
         {
             continue;
         }
@@ -188,10 +192,10 @@ void CallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
         {
             if (this->detachOnce(callee._subscriber) == 0)
             { //At this point, all subscribers are detached so we can end the loop
-                callee._f = nullptr;
+                callee._markedForDeletion = true;
                 break;
             }
-            callee._f = nullptr;
+            callee._markedForDeletion = true;
         }
     }
 }
@@ -201,7 +205,7 @@ void CallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     for (auto& callee: this->g_callees)
     {
-        if (callee._f == nullptr)
+        if (callee._markedForDeletion)
         {
             continue;
         }
@@ -209,7 +213,7 @@ void CallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
         if (callee._f.get() == callback)
         {
             this->detachOnce(callee._subscriber);
-            this->g_callees._f = nullptr;
+            this->g_callees._markedForDeletion = true;
         }
     }
 }
@@ -222,7 +226,7 @@ void CallbackHandler<Types...>::call(Types... args)
     std::size_t eraseCount = 0;
     for (std::size_t i = 0; i < this->g_callees.size(); ++i)
     {
-        if (this->g_callees[i]._f == nullptr)
+        if (this->g_callees[i]._markedForDeletion)
         {
             ++eraseCount;
             continue;
@@ -238,8 +242,8 @@ void CallbackHandler<Types...>::call(Types... args)
         this->g_callees[i]._f->call(std::forward<Types>(args)...);
 
         //While calling, the callee can remove itself or others
-        //Every erased callee is replaced by nullptr (mark for deletion)
-        //In order to avoid calling somthing that is not valid anymore
+        //Every erased callee is flagged (mark for deletion)
+        //In order to avoid calling something that is not valid anymore
     }
 }
 
@@ -263,14 +267,14 @@ void CallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     for (auto& callee: this->g_callees)
     {
-        if (callee._f == nullptr)
+        if (callee._markedForDeletion)
         {
             continue;
         }
 
         if (callee._subscriber == subscriber)
         {
-            callee._f = nullptr;
+            callee._markedForDeletion = true;
         }
     }
 }
