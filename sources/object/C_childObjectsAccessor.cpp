@@ -126,6 +126,8 @@ fge::ObjectDataShared ChildObjectsAccessor::addNewObject(fge::ObjectPtr&& newObj
         it->_objPtr->first(*linkedScene);
     }
 
+    this->g_detachedObjects.emplace_back(it->_objData);
+
     return it->_objData;
 }
 
@@ -154,7 +156,7 @@ fge::ObjectDataShared ChildObjectsAccessor::addExistingDetachedObject(fge::Objec
             DataContext::NotHandledObjectDeleter{}};
 
     detachedData->setParent(owner);
-    detachedData->g_contextFlags = OBJ_CONTEXT_DETACHED;
+    detachedData->g_contextFlags.set(OBJ_CONTEXT_DETACHED);
 
     this->g_detachedObjects.emplace_back(detachedData);
 
@@ -179,7 +181,7 @@ fge::ObjectDataShared ChildObjectsAccessor::addNewDetachedObject(fge::ObjectPtr&
             std::make_shared<fge::ObjectData>(linkedScene, std::move(newObject), FGE_SCENE_BAD_SID, newPlan);
 
     detachedData->setParent(owner);
-    detachedData->g_contextFlags = OBJ_CONTEXT_DETACHED;
+    detachedData->g_contextFlags.set(OBJ_CONTEXT_DETACHED);
 
     this->g_detachedObjects.emplace_back(detachedData);
 
@@ -209,7 +211,7 @@ bool ChildObjectsAccessor::detachObject(std::size_t index, fge::ObjectPlan newPl
     this->g_data.erase(this->g_data.begin() + static_cast<std::vector<DataContext>::difference_type>(index));
 
     dataObject->g_sid = FGE_SCENE_BAD_SID; // Can't have the same SID as the parent as it's now detached
-    dataObject->g_contextFlags = OBJ_CONTEXT_DETACHED;
+    dataObject->g_contextFlags.set(OBJ_CONTEXT_DETACHED);
     dataObject->g_plan = newPlan;
 
     linkedScene->newObject(dataObject, true);
