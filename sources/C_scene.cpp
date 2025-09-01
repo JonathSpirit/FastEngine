@@ -357,6 +357,17 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
         {
             object->_children.draw(target, states);
         }
+
+        if ((*objectIt)->g_contextFlags.has(ObjectContextFlags::OBJ_CONTEXT_DETACHED) &&
+            !(*objectIt)->g_parent.expired())
+        {
+            auto const parent = (*objectIt)->g_parent.lock();
+            auto copyStates = states.copy();
+            copyStates._resTransform.set(target.requestGlobalTransform(*parent->g_object, states._resTransform));
+            object->draw(target, copyStates);
+            continue;
+        }
+
         object->draw(target, states);
     }
 
