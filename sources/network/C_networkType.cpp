@@ -525,13 +525,13 @@ std::size_t NetworkTypeHandler::packNeededUpdate(Packet& pck) const
     pck.append(sizeof(SizeType)); //Will be rewritten
 
     SizeType count{0};
-    for (SizeType i = 0; i < this->g_data.size(); ++i)
+    for (std::size_t i = 0; i < this->g_data.size(); ++i)
     {
         auto* net = this->g_data[i].get();
 
         if (net->isNeedingExplicitUpdate())
         {
-            pck << i;
+            pck << static_cast<SizeType>(i);
             ++count;
             net->clearExplicitUpdateFlag();
             net->clearWaitingUpdateFlag();
@@ -541,7 +541,7 @@ std::size_t NetworkTypeHandler::packNeededUpdate(Packet& pck) const
         auto const lastUpdateTime = std::chrono::steady_clock::now().time_since_epoch() - net->getLastUpdateTime();
         if (net->isWaitingUpdate() && lastUpdateTime >= FGE_NET_WAITING_UPDATE_DELAY)
         {
-            pck << i;
+            pck << static_cast<SizeType>(i);
             ++count;
             net->clearWaitingUpdateFlag();
         }
