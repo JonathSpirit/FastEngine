@@ -188,6 +188,10 @@ Scene::Scene(Scene const& r) :
 
     this->g_updatedObjectIterator = this->g_objects.end();
 }
+Scene::~Scene()
+{
+    this->clear();
+}
 
 Scene& Scene::operator=(Scene const& r)
 {
@@ -353,6 +357,17 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
         {
             object->_children.draw(target, states);
         }
+
+        if ((*objectIt)->g_contextFlags.has(ObjectContextFlags::OBJ_CONTEXT_DETACHED) &&
+            !(*objectIt)->g_parent.expired())
+        {
+            auto const parent = (*objectIt)->g_parent.lock();
+            auto copyStates = states.copy();
+            copyStates._resTransform.set(target.requestGlobalTransform(*parent->g_object, states._resTransform));
+            object->draw(target, copyStates);
+            continue;
+        }
+
         object->draw(target, states);
     }
 
@@ -435,52 +450,9 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
                                        bool silent,
                                        fge::EnumFlags<ObjectContextFlags> contextFlags)
 {
-    if (newObject == nullptr)
-    {
-        return nullptr;
-    }
-    fge::ObjectSid generatedSid = this->generateSid(sid, type);
-    if (generatedSid == FGE_SCENE_BAD_SID)
-    {
-        return nullptr;
-    }
-    if (this->g_enableNetworkEventsFlag)
-    {
-        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, generatedSid});
-    }
-
-    auto it = this->hash_getInsertionIteratorFromPlanDataMap(plan);
-
-    it = this->g_objects.insert(
-            it, std::make_shared<fge::ObjectData>(this, std::move(newObject), generatedSid, plan, type));
-    (*it)->g_object->_myObjectData = *it;
-    (*it)->g_contextFlags = contextFlags;
-    if (!this->g_objectsHashMap.newObject(generatedSid, it))
-    {
-        //Something went wrong, we can do a re-map
-        this->g_objectsHashMap.reMap(this->g_objects);
-    }
-    this->hash_updatePlanDataMap(plan, it, false);
-
-    if (this->g_updatedObjectIterator != this->g_objects.end() && (*it)->g_parent.expired())
-    { //An object is created inside another object and orphan, make it parent
-        (*it)->g_parent = *this->g_updatedObjectIterator;
-    }
-    if (!silent)
-    {
-        (*it)->g_object->first(*this);
-    }
-
-    if ((*it)->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
-        this->g_callbackContext._event != nullptr && !silent)
-    {
-        (*it)->g_object->callbackRegister(*this->g_callbackContext._event, this->g_callbackContext._guiElementHandler);
-    }
-
-    this->_onObjectAdded.call(*this, *it);
-    this->_onPlanUpdate.call(*this, plan);
-
-    return *it;
+    auto newObjectData = std::make_shared<fge::ObjectData>(this, std::move(newObject), sid, plan, type);
+    newObjectData->g_contextFlags = contextFlags;
+    return this->newObject(std::move(newObjectData), silent);
 }
 fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, bool silent)
 {
@@ -514,6 +486,12 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
     }
     if (!silent)
     {
+        //make sure every created children have the correct owner ObjectData
+        for (std::size_t i = 0; i < objectData->g_object->_children.getSize(); ++i)
+        {
+            objectData->g_object->_children.getSharedPtr(i)->setParent(objectData);
+        }
+
         objectData->g_object->first(*this);
     }
 

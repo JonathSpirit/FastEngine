@@ -37,6 +37,7 @@ class ObjectData;
 using ObjectPtr = std::unique_ptr<fge::Object>;
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
+using ObjectPlan = uint16_t;
 
 class FGE_API ChildObjectsAccessor
 {
@@ -44,16 +45,23 @@ public:
     explicit ChildObjectsAccessor(fge::Object* owner);
     ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor const& r) {}
     ChildObjectsAccessor([[maybe_unused]] ChildObjectsAccessor&& r) noexcept {}
+    ~ChildObjectsAccessor();
 
     ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor const& r) { return *this; }
     ChildObjectsAccessor& operator=([[maybe_unused]] ChildObjectsAccessor&& r) noexcept { return *this; }
 
     void clear();
+    void clearDetachedObjects();
 
     fge::ObjectDataShared addExistingObject(fge::Object* object,
                                             std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
     fge::ObjectDataShared addNewObject(fge::ObjectPtr&& newObject,
                                        std::size_t insertionIndex = std::numeric_limits<std::size_t>::max());
+
+    fge::ObjectDataShared addExistingDetachedObject(fge::Object* object, fge::ObjectPlan newPlan) const;
+    fge::ObjectDataShared addNewDetachedObject(fge::ObjectPtr&& newObject, fge::ObjectPlan newPlan) const;
+
+    bool detachObject(std::size_t index, fge::ObjectPlan newPlan);
 
     [[nodiscard]] std::size_t getSize() const;
     [[nodiscard]] fge::Object const* get(std::size_t index) const;
@@ -89,9 +97,39 @@ private:
         fge::ObjectDataShared _objData;
     };
 
+    void cleanupDetachedObjects() const;
+
+    mutable std::vector<fge::ObjectDataWeak> g_detachedObjects;
     std::vector<DataContext> g_data;
     mutable std::size_t g_actualIteratedIndex{std::numeric_limits<std::size_t>::max()};
     fge::Object* g_owner{nullptr};
+};
+
+template<class TObject>
+class DeclareChild
+{
+public:
+    template<class TOwner, class... TArgs>
+    constexpr DeclareChild(TOwner* owner, TArgs&&... args) :
+            g_object(std::forward<TArgs>(args)...)
+    {
+        owner->_children.addExistingObject(&this->g_object);
+    }
+
+    [[nodiscard]] constexpr TObject* operator->() { return &this->g_object; }
+    [[nodiscard]] constexpr TObject const* operator->() const { return &this->g_object; }
+
+    [[nodiscard]] constexpr TObject& get() { return this->g_object; }
+    [[nodiscard]] constexpr TObject const& get() const { return this->g_object; }
+
+    template<class TOwner>
+    inline bool detach(TOwner* owner, fge::ObjectPlan newPlan)
+    {
+        return owner->_children.detachObject(owner->_children.getIndex(&this->g_object), newPlan);
+    }
+
+private:
+    TObject g_object;
 };
 
 } // namespace fge

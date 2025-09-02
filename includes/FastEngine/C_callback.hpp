@@ -342,6 +342,7 @@ private:
 
         CalleePtr _f;
         fge::Subscriber* _subscriber = nullptr;
+        bool _markedForDeletion = false;
     };
     using CalleeList = std::vector<CalleeData>;
 

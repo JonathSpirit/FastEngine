@@ -1220,6 +1220,7 @@ ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
         g_socket(addressType)
 {
     this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
+    this->resetReturnPacket();
 }
 
 ClientSideNetUdp::~ClientSideNetUdp()
