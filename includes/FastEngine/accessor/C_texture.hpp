@@ -44,6 +44,7 @@ public:
      * \return The texture size
      */
     [[nodiscard]] fge::Vector2u getTextureSize() const;
+    [[nodiscard]] fge::RectInt getTextureRect() const;
 
     /**
      * \brief Retrieve a sub-texture inside this texture group

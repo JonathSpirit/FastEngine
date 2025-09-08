@@ -23,6 +23,11 @@ fge::Vector2u Texture::getTextureSize() const
 {
     return this->retrieve()->getSize();
 }
+fge::RectInt Texture::getTextureRect() const
+{
+    auto const* texture = this->retrieve();
+    return fge::RectInt({0, 0}, {texture->getSize().x, texture->getSize().y});
+}
 
 Texture::SharedType::element_type* Texture::retrieveGroup(std::size_t index)
 {
