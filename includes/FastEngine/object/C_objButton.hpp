@@ -32,7 +32,7 @@ class FGE_API ObjButton : public fge::Object, public fge::Subscriber, public fge
 public:
     ObjButton();
     ObjButton(fge::Texture textureOn, fge::Texture textureOff, fge::Vector2f const& pos = fge::Vector2f());
-    explicit ObjButton(fge::Texture const& texture, fge::Vector2f const& pos = fge::Vector2f());
+    explicit ObjButton(fge::Texture texture, fge::Vector2f const& pos = fge::Vector2f());
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjButton)
 
@@ -40,8 +40,12 @@ public:
 
     fge::Texture const& getTextureOn() const;
     fge::Texture const& getTextureOff() const;
-    void setTextureOn(fge::Texture const& textureOn);
-    void setTextureOff(fge::Texture const& textureOff);
+    void setTexture(fge::Texture const& texture, bool resetRect = false);
+    void setTextureOn(fge::Texture const& textureOn, bool resetRect = false);
+    void setTextureOff(fge::Texture const& textureOff, bool resetRect = false);
+    void setTextureRect(fge::RectInt const& rectangle);
+    void setTextureOnRect(fge::RectInt const& rectangle);
+    void setTextureOffRect(fge::RectInt const& rectangle);
 
     void setColor(fge::Color const& color);
 
@@ -77,6 +81,8 @@ private:
 
     fge::Texture g_textureOn;
     fge::Texture g_textureOff;
+    fge::RectInt g_textureRectOn;
+    fge::RectInt g_textureRectOff;
 
     fge::Color g_color;
 

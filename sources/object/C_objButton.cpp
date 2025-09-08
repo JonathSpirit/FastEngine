@@ -25,22 +25,22 @@ ObjButton::ObjButton() :
         g_color(fge::Color::White)
 {
     this->setActiveStat(false);
+    this->setTextureRect(fge::RectInt({0, 0}, {FGE_TEXTURE_BAD_W, FGE_TEXTURE_BAD_H}));
 }
 ObjButton::ObjButton(fge::Texture textureOn, fge::Texture textureOff, fge::Vector2f const& pos) :
-        g_textureOn(std::move(textureOn)),
-        g_textureOff(std::move(textureOff)),
         g_color(fge::Color::White)
 {
     this->setPosition(pos);
     this->setActiveStat(false);
+    this->setTextureOff(std::move(textureOff));
+    this->setTextureOn(std::move(textureOn));
 }
-ObjButton::ObjButton(fge::Texture const& texture, fge::Vector2f const& pos) :
-        g_textureOn(texture),
-        g_textureOff(texture),
+ObjButton::ObjButton(fge::Texture texture, fge::Vector2f const& pos) :
         g_color(fge::Color::White)
 {
     this->setPosition(pos);
     this->setActiveStat(false);
+    this->setTexture(std::move(texture));
 }
 
 fge::Texture const& ObjButton::getTextureOn() const
@@ -51,20 +51,69 @@ fge::Texture const& ObjButton::getTextureOff() const
 {
     return this->g_textureOff;
 }
-void ObjButton::setTextureOn(fge::Texture const& textureOn)
+
+void ObjButton::setTexture(fge::Texture const& texture, bool resetRect)
 {
-    this->g_textureOn = textureOn;
+    this->setTextureOn(texture, resetRect);
+    this->setTextureOff(texture, resetRect);
+}
+void ObjButton::setTextureOn(fge::Texture const& textureOn, bool resetRect)
+{
+    // Recompute the texture area if requested, or if there was no valid texture & rect before
+    if (resetRect || !this->g_textureOn.valid())
+    {
+        this->g_textureOn = textureOn;
+        this->setTextureOnRect(textureOn.getTextureRect());
+    }
+    else
+    {
+        this->g_textureOn = textureOn;
+    }
+
     if (this->g_statActive)
     {
         this->g_sprite.setTexture(this->g_textureOn);
+        this->g_sprite.setTextureRect(this->g_textureRectOn);
     }
 }
-void ObjButton::setTextureOff(fge::Texture const& textureOff)
+void ObjButton::setTextureOff(fge::Texture const& textureOff, bool resetRect)
 {
-    this->g_textureOff = textureOff;
+    // Recompute the texture area if requested, or if there was no valid texture & rect before
+    if (resetRect || !this->g_textureOff.valid())
+    {
+        this->g_textureOff = textureOff;
+        this->setTextureOffRect(textureOff.getTextureRect());
+    }
+    else
+    {
+        this->g_textureOff = textureOff;
+    }
+
     if (!this->g_statActive)
     {
         this->g_sprite.setTexture(this->g_textureOff);
+        this->g_sprite.setTextureRect(this->g_textureRectOff);
+    }
+}
+void ObjButton::setTextureRect(fge::RectInt const& rectangle)
+{
+    this->setTextureOnRect(rectangle);
+    this->setTextureOffRect(rectangle);
+}
+void ObjButton::setTextureOnRect(fge::RectInt const& rectangle)
+{
+    this->g_textureRectOn = rectangle;
+    if (this->g_statActive)
+    {
+        this->g_sprite.setTextureRect(this->g_textureRectOn);
+    }
+}
+void ObjButton::setTextureOffRect(fge::RectInt const& rectangle)
+{
+    this->g_textureRectOff = rectangle;
+    if (!this->g_statActive)
+    {
+        this->g_sprite.setTextureRect(this->g_textureRectOff);
     }
 }
 
@@ -76,7 +125,16 @@ void ObjButton::setColor(fge::Color const& color)
 void ObjButton::setActiveStat(bool active)
 {
     this->g_statActive = active;
-    this->g_sprite.setTexture(this->g_statActive ? this->g_textureOn : this->g_textureOff);
+    if (active)
+    {
+        this->g_sprite.setTexture(this->g_textureOn);
+        this->g_sprite.setTextureRect(this->g_textureRectOn);
+    }
+    else
+    {
+        this->g_sprite.setTexture(this->g_textureOff);
+        this->g_sprite.setTextureRect(this->g_textureRectOff);
+    }
 }
 bool ObjButton::getActiveStat() const
 {
@@ -194,7 +252,12 @@ void ObjButton::onGuiVerify([[maybe_unused]] fge::Event const& evt,
 
         auto scrollRect = transform * this->getLocalBounds();
 
-        auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
+        std::shared_ptr<fge::View> customView;
+        if (auto const objectData = this->_myObjectData.lock())
+        {
+            customView = objectData->getScene()->getCustomView();
+        }
+
         fge::Vector2f mousePosition;
         if (customView)
         {
