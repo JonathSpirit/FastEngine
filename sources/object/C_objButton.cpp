@@ -63,17 +63,20 @@ void ObjButton::setTextureOn(fge::Texture const& textureOn, bool resetRect)
     if (resetRect || !this->g_textureOn.valid())
     {
         this->g_textureOn = textureOn;
+        if (this->g_statActive)
+        {
+            this->g_sprite.setTexture(this->g_textureOn);
+        }
         this->setTextureOnRect(textureOn.getTextureRect());
     }
     else
     {
         this->g_textureOn = textureOn;
-    }
-
-    if (this->g_statActive)
-    {
-        this->g_sprite.setTexture(this->g_textureOn);
-        this->g_sprite.setTextureRect(this->g_textureRectOn);
+        if (this->g_statActive)
+        {
+            this->g_sprite.setTexture(this->g_textureOn);
+            this->g_sprite.setTextureRect(this->g_textureRectOn);
+        }
     }
 }
 void ObjButton::setTextureOff(fge::Texture const& textureOff, bool resetRect)
@@ -82,17 +85,20 @@ void ObjButton::setTextureOff(fge::Texture const& textureOff, bool resetRect)
     if (resetRect || !this->g_textureOff.valid())
     {
         this->g_textureOff = textureOff;
+        if (!this->g_statActive)
+        {
+            this->g_sprite.setTexture(this->g_textureOff);
+        }
         this->setTextureOffRect(textureOff.getTextureRect());
     }
     else
     {
         this->g_textureOff = textureOff;
-    }
-
-    if (!this->g_statActive)
-    {
-        this->g_sprite.setTexture(this->g_textureOff);
-        this->g_sprite.setTextureRect(this->g_textureRectOff);
+        if (!this->g_statActive)
+        {
+            this->g_sprite.setTexture(this->g_textureOff);
+            this->g_sprite.setTextureRect(this->g_textureRectOff);
+        }
     }
 }
 void ObjButton::setTextureRect(fge::RectInt const& rectangle)
