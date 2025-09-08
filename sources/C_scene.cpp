@@ -486,13 +486,8 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
     }
     if (!silent)
     {
-        //make sure every created children have the correct owner ObjectData
-        for (std::size_t i = 0; i < objectData->g_object->_children.getSize(); ++i)
-        {
-            objectData->g_object->_children.getSharedPtr(i)->setParent(objectData);
-        }
-
         objectData->g_object->first(*this);
+        objectData->g_object->_children.sceneUpdate(*this);
     }
 
     if (objectData->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&

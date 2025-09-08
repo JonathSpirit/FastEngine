@@ -252,6 +252,17 @@ void ChildObjectsAccessor::remove(std::size_t first, std::size_t last)
     }
 }
 
+void ChildObjectsAccessor::sceneUpdate(fge::Scene& scene)
+{
+    //Make sure every created children have the correct owner ObjectData and scene
+    auto owner = this->g_owner->_myObjectData.lock();
+    for (auto& data: this->g_data)
+    {
+        data._objData->setParent(owner);
+        data._objData->g_boundScene = &scene;
+    }
+}
+
 #ifdef FGE_DEF_SERVER
 void ChildObjectsAccessor::update(fge::Event& event, fge::DeltaTime const& deltaTime, fge::Scene& scene)
 {

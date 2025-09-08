@@ -71,6 +71,8 @@ public:
     void remove(std::size_t index);
     void remove(std::size_t first, std::size_t last);
 
+    void sceneUpdate(fge::Scene& scene);
+
 #ifdef FGE_DEF_SERVER
     void update(fge::Event& event, fge::DeltaTime const& deltaTime, fge::Scene& scene);
 #else
