@@ -95,9 +95,9 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
  * \brief The Object class is the base class for all objects in the engine.
  */
 #ifdef FGE_DEF_SERVER
-class FGE_API Object : public fge::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Transformable, public fge::Anchor, public fge::OwnView
 #else
-class FGE_API Object : public fge::Drawable, public fge::Transformable, public fge::Anchor
+class FGE_API Object : public fge::Drawable, public fge::Transformable, public fge::Anchor, public fge::OwnView
 #endif //FGE_DEF_SERVER
 {
 public:

@@ -26,16 +26,19 @@ namespace fge
 
 Object::Object() :
         fge::Anchor(this),
+        fge::OwnView(),
         _children(this)
 {}
 Object::Object(Object const& r) :
         fge::Transformable(r),
         fge::Anchor(this, r),
+        fge::OwnView(r),
         _children(this)
 {}
 Object::Object(Object&& r) noexcept :
         fge::Transformable(std::move(r)),
         fge::Anchor(this, r),
+        fge::OwnView(r),
         _children(this)
 {}
 

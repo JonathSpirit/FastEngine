@@ -252,23 +252,9 @@ void ObjButton::onGuiVerify([[maybe_unused]] fge::Event const& evt,
 
         auto scrollRect = transform * this->getLocalBounds();
 
-        std::shared_ptr<fge::View> customView;
-        if (auto const objectData = this->_myObjectData.lock())
-        {
-            customView = objectData->getScene()->getCustomView();
-        }
-
-        fge::Vector2f mousePosition;
-        if (customView)
-        {
-            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition,
-                                                                                                 *customView);
-        }
-        else
-        {
-            mousePosition =
-                    context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
-        }
+        auto const& view = this->requestView(context._handler->getRenderTarget(), this->_myObjectData);
+        fge::Vector2f mousePosition =
+                context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition, view);
 
         if (scrollRect.contains(mousePosition))
         {

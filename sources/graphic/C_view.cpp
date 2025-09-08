@@ -16,11 +16,14 @@
 
 #include "FastEngine/graphic/C_view.hpp"
 
+#include "FastEngine/C_scene.hpp"
 #include "FastEngine/extra/extra_function.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace fge
 {
+
+//View
 
 View::View() :
         g_center(0.0f, 0.0f),
@@ -180,6 +183,150 @@ glm::mat4 const& View::getInverseProjection() const
     }
 
     return this->g_inverseProjection;
+}
+
+//OwnView
+
+OwnView::OwnView(OwnView const& r) :
+        g_ownView(r.g_ownView ? std::make_shared<View>(*r.g_ownView) : nullptr),
+        g_overrideParents(r.g_overrideParents)
+{}
+
+OwnView& OwnView::operator=(OwnView const& r)
+{
+    this->g_ownView = r.g_ownView ? std::make_shared<View>(*r.g_ownView) : nullptr;
+    this->g_overrideParents = r.g_overrideParents;
+    return *this;
+}
+
+View& OwnView::createOwnView()
+{
+    if (!this->g_ownView)
+    {
+        this->g_ownView = std::make_shared<View>();
+    }
+    return *this->g_ownView;
+}
+void OwnView::removeOwnView()
+{
+    this->g_ownView.reset();
+}
+bool OwnView::hasOwnView() const
+{
+    return this->g_ownView != nullptr;
+}
+std::shared_ptr<View> const& OwnView::getOwnView() const
+{
+    return this->g_ownView;
+}
+void OwnView::setOwnView(std::shared_ptr<View> view)
+{
+    this->g_ownView = std::move(view);
+}
+
+void OwnView::ownViewOverrideParent(bool enable)
+{
+    this->g_overrideParents = enable;
+}
+bool OwnView::isOwnViewOverridingParent() const
+{
+    return this->g_overrideParents;
+}
+void OwnView::ownViewExplicitlySetDefaultView(bool enable)
+{
+    this->g_explicitDefaultView = enable;
+}
+bool OwnView::isOwnViewUsingExplicitDefaultView() const
+{
+    return this->g_explicitDefaultView;
+}
+
+View const& OwnView::requestView(View const& source, fge::ObjectDataWeak object) const
+{
+    if (this->hasOwnView())
+    {
+        return *this->g_ownView;
+    }
+
+    if (this->isOwnViewOverridingParent())
+    {
+        return source;
+    }
+
+    if (auto objectData = object.lock())
+    {
+        if (objectData->getScene()->hasOwnView())
+        {
+            return *objectData->getScene()->getOwnView();
+        }
+    }
+
+    return source;
+}
+View const& OwnView::requestView(View const& source, OwnView const& parent) const
+{
+    if (this->hasOwnView())
+    {
+        return *this->g_ownView;
+    }
+
+    if (this->isOwnViewOverridingParent() || !parent.hasOwnView())
+    {
+        return source;
+    }
+    return *parent.getOwnView();
+}
+View const& OwnView::requestView(View const& source) const
+{
+    if (this->hasOwnView())
+    {
+        return *this->g_ownView;
+    }
+    return source;
+}
+
+View const& OwnView::requestView(fge::RenderTarget const& source, fge::ObjectDataWeak object) const
+{
+    if (this->hasOwnView())
+    {
+        return *this->g_ownView;
+    }
+
+    if (this->isOwnViewOverridingParent())
+    {
+        return this->g_explicitDefaultView ? source.getDefaultView() : source.getView();
+    }
+
+    if (auto objectData = object.lock())
+    {
+        if (objectData->getScene()->hasOwnView())
+        {
+            return *objectData->getScene()->getOwnView();
+        }
+    }
+
+    return this->g_explicitDefaultView ? source.getDefaultView() : source.getView();
+}
+View const& OwnView::requestView(fge::RenderTarget const& source, OwnView const& parent) const
+{
+    if (this->hasOwnView())
+    {
+        return *this->g_ownView;
+    }
+
+    if (this->isOwnViewOverridingParent() || !parent.hasOwnView())
+    {
+        return this->g_explicitDefaultView ? source.getDefaultView() : source.getView();
+    }
+    return *parent.getOwnView();
+}
+View const& OwnView::requestView(fge::RenderTarget const& source) const
+{
+    if (this->hasOwnView())
+    {
+        return *this->g_ownView;
+    }
+    return this->g_explicitDefaultView ? source.getDefaultView() : source.getView();
 }
 
 } // namespace fge

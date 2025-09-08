@@ -126,8 +126,8 @@ void ObjWindow::first(fge::Scene& scene)
 
     this->_windowScene._properties.setProperty(FGE_OBJWINDOW_SCENE_PARENT_PROPERTY, this);
     this->_windowScene.setLinkedRenderTarget(scene.getLinkedRenderTarget());
-    this->_windowView.reset(new fge::View{});
-    this->_windowScene.setCustomView(this->_windowView);
+    this->_windowView = std::make_shared<fge::View>();
+    this->_windowScene.setOwnView(this->_windowView);
 
     //Call "first" on pre-existent objects (copied from another scene)
     auto myObjectData = this->_myObjectData.lock();

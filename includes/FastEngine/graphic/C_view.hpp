@@ -28,9 +28,15 @@
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/vulkan/C_viewport.hpp"
+#include <memory>
 
 namespace fge
 {
+
+class ObjectData;
+class RenderTarget;
+
+using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 
 /**
  * \class View
@@ -144,6 +150,42 @@ private:
     mutable bool g_projectionUpdated;
     mutable bool g_invTransformUpdated;
     mutable bool g_invProjectionUpdated;
+};
+
+class FGE_API OwnView
+{
+public:
+    OwnView() = default;
+    OwnView(OwnView const& r);
+    OwnView(OwnView&& r) noexcept = default;
+    virtual ~OwnView() = default;
+
+    OwnView& operator=(OwnView const& r);
+    OwnView& operator=(OwnView&& r) noexcept = default;
+
+    View& createOwnView();
+    void removeOwnView();
+    [[nodiscard]] bool hasOwnView() const;
+    [[nodiscard]] std::shared_ptr<View> const& getOwnView() const;
+    void setOwnView(std::shared_ptr<View> view);
+
+    void ownViewOverrideParent(bool enable);
+    [[nodiscard]] bool isOwnViewOverridingParent() const;
+    void ownViewExplicitlySetDefaultView(bool enable);
+    [[nodiscard]] bool isOwnViewUsingExplicitDefaultView() const;
+
+    [[nodiscard]] View const& requestView(View const& source, fge::ObjectDataWeak object) const;
+    [[nodiscard]] View const& requestView(View const& source, OwnView const& parent) const;
+    [[nodiscard]] View const& requestView(View const& source) const;
+
+    [[nodiscard]] View const& requestView(fge::RenderTarget const& source, fge::ObjectDataWeak object) const;
+    [[nodiscard]] View const& requestView(fge::RenderTarget const& source, OwnView const& parent) const;
+    [[nodiscard]] View const& requestView(fge::RenderTarget const& source) const;
+
+private:
+    std::shared_ptr<View> g_ownView{nullptr};
+    bool g_overrideParents{false};
+    bool g_explicitDefaultView{false};
 };
 
 } // namespace fge

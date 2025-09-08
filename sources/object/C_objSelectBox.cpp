@@ -328,17 +328,9 @@ void ObjSelectBox::onGuiMouseMotion([[maybe_unused]] fge::Event const& evt,
         return;
     }
 
-    auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
-    fge::Vector2f mousePosition;
-    if (customView)
-    {
-        mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition,
-                                                                                             *customView);
-    }
-    else
-    {
-        mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
-    }
+    auto const& view = this->requestView(context._handler->getRenderTarget(), this->_myObjectData);
+    fge::Vector2f mousePosition =
+            context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition, view);
 
     auto transform = this->getParentsTransform() * this->getTransform();
 
@@ -391,18 +383,9 @@ void ObjSelectBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
 
         auto boxRect = transform * this->getLocalBounds();
 
-        auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
-        fge::Vector2f mousePosition;
-        if (customView)
-        {
-            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition,
-                                                                                                 *customView);
-        }
-        else
-        {
-            mousePosition =
-                    context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
-        }
+        auto const& view = this->requestView(context._handler->getRenderTarget(), this->_myObjectData);
+        fge::Vector2f mousePosition =
+                context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition, view);
 
         if (boxRect.contains(mousePosition))
         {

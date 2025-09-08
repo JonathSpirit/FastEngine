@@ -259,18 +259,9 @@ void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
 
         auto scrollRect = transform * this->g_scrollBaseRect.getGlobalBounds();
 
-        auto customView = this->_myObjectData.lock()->getScene()->getCustomView();
-        fge::Vector2f mousePosition;
-        if (customView)
-        {
-            mousePosition = context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition,
-                                                                                                 *customView);
-        }
-        else
-        {
-            mousePosition =
-                    context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition);
-        }
+        auto const& view = this->requestView(context._handler->getRenderTarget(), this->_myObjectData);
+        fge::Vector2f mousePosition =
+                context._handler->getRenderTarget().mapFramebufferCoordsToWorldSpace(context._mousePosition, view);
 
         if (scrollRect.contains(mousePosition))
         {

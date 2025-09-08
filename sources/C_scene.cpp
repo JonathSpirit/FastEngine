@@ -133,7 +133,6 @@ Scene::Scene() :
         g_perClientSyncs(),
         g_enableNetworkEventsFlag(false),
 
-        g_customView(),
         g_linkedRenderTarget(nullptr),
 
         g_updateCount(0),
@@ -150,7 +149,6 @@ Scene::Scene(std::string sceneName) :
         g_perClientSyncs(),
         g_enableNetworkEventsFlag(false),
 
-        g_customView(),
         g_linkedRenderTarget(nullptr),
 
         g_updateCount(0),
@@ -162,6 +160,7 @@ Scene::Scene(std::string sceneName) :
     this->g_updatedObjectIterator = this->g_objects.end();
 }
 Scene::Scene(Scene const& r) :
+        OwnView(r),
         _netList(),
         _properties(r._properties),
 
@@ -170,7 +169,6 @@ Scene::Scene(Scene const& r) :
         g_perClientSyncs(),
         g_enableNetworkEventsFlag(r.g_enableNetworkEventsFlag),
 
-        g_customView(r.g_customView),
         g_linkedRenderTarget(r.g_linkedRenderTarget),
 
         g_updateCount(r.g_updateCount),
@@ -204,7 +202,6 @@ Scene& Scene::operator=(Scene const& r)
     this->g_perClientSyncs.clear();
     this->g_enableNetworkEventsFlag = r.g_enableNetworkEventsFlag;
 
-    this->g_customView = r.g_customView;
     this->g_linkedRenderTarget = r.g_linkedRenderTarget;
 
     this->g_updateCount = r.g_updateCount;
@@ -305,14 +302,10 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
 
     fge::RectFloat const screenBounds = fge::GetScreenRect(target);
 
-    fge::View const backupView = target.getView();
-    if (this->g_customView)
-    {
-        target.setView(*this->g_customView);
-    }
-
     fge::ObjectPlanDepth depthCount = 0;
     auto planDataMapIt = this->g_planDataMap.begin();
+
+    fge::View const backupView = target.getView();
 
     for (auto objectIt = this->g_objects.begin(); objectIt != this->g_objects.end(); ++objectIt)
     {
@@ -328,7 +321,7 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
 
         (*objectIt)->g_planDepth = depthCount++;
 
-        fge::Object* object = (*objectIt)->g_object.get();
+        fge::Object const* object = (*objectIt)->g_object.get();
 
         if (object->_drawMode == fge::Object::DrawModes::DRAW_ALWAYS_HIDDEN)
         {
@@ -352,6 +345,9 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
                 continue;
             }
         }
+
+        //setting up the view
+        target.setView(object->requestView(target, *this));
 
         if ((object->_childrenControlFlags & Object::ChildrenControlFlags::CHILDREN_AUTO_DRAW) > 0)
         {
@@ -871,17 +867,13 @@ std::size_t Scene::getAllObj_ByLocalPosition(fge::Vector2i const& pos,
                                              fge::RenderTarget const& target,
                                              fge::ObjectContainer& buff) const
 {
-    return this->getAllObj_ByPosition(
-            target.mapFramebufferCoordsToWorldSpace(pos, this->g_customView ? *this->g_customView : target.getView()),
-            buff);
+    return this->getAllObj_ByPosition(target.mapFramebufferCoordsToWorldSpace(pos, this->requestView(target)), buff);
 }
 std::size_t Scene::getAllObj_ByLocalZone(fge::RectInt const& zone,
                                          fge::RenderTarget const& target,
                                          fge::ObjectContainer& buff) const
 {
-    return this->getAllObj_ByZone(
-            target.mapFramebufferRectToWorldSpace(zone, this->g_customView ? *this->g_customView : target.getView()),
-            buff);
+    return this->getAllObj_ByZone(target.mapFramebufferRectToWorldSpace(zone, this->requestView(target)), buff);
 }
 std::size_t Scene::getAllObj_FromLocalPosition(fge::Vector2i const& pos,
                                                fge::RenderTarget const& target,
@@ -890,8 +882,8 @@ std::size_t Scene::getAllObj_FromLocalPosition(fge::Vector2i const& pos,
     std::size_t objCount = 0;
     for (auto const& data: this->g_objects)
     {
-        auto objBounds = target.mapViewRectToFramebufferSpace(
-                data->g_object->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds =
+                target.mapViewRectToFramebufferSpace(data->g_object->getGlobalBounds(), this->requestView(target));
         if (objBounds.contains(pos))
         {
             ++objCount;
@@ -907,8 +899,8 @@ std::size_t Scene::getAllObj_FromLocalZone(fge::RectInt const& zone,
     std::size_t objCount = 0;
     for (auto const& data: this->g_objects)
     {
-        auto objBounds = target.mapViewRectToFramebufferSpace(
-                data->g_object->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds =
+                target.mapViewRectToFramebufferSpace(data->g_object->getGlobalBounds(), this->requestView(target));
         if (objBounds.findIntersection(zone))
         {
             ++objCount;
@@ -977,13 +969,11 @@ fge::ObjectDataShared Scene::getFirstObj_ByZone(fge::RectFloat const& zone) cons
 fge::ObjectDataShared Scene::getFirstObj_ByLocalPosition(fge::Vector2i const& pos,
                                                          fge::RenderTarget const& target) const
 {
-    return this->getFirstObj_ByPosition(
-            target.mapFramebufferCoordsToWorldSpace(pos, this->g_customView ? *this->g_customView : target.getView()));
+    return this->getFirstObj_ByPosition(target.mapFramebufferCoordsToWorldSpace(pos, this->requestView(target)));
 }
 fge::ObjectDataShared Scene::getFirstObj_ByLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const
 {
-    return this->getFirstObj_ByZone(
-            target.mapFramebufferRectToWorldSpace(zone, this->g_customView ? *this->g_customView : target.getView()));
+    return this->getFirstObj_ByZone(target.mapFramebufferRectToWorldSpace(zone, this->requestView(target)));
 }
 fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& pos,
                                                            fge::RenderTarget const& target) const
@@ -991,8 +981,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& 
     for (auto const& data: this->g_objects)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
-        auto objBounds = target.mapViewRectToFramebufferSpace(
-                buffObj->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds = target.mapViewRectToFramebufferSpace(buffObj->getGlobalBounds(), this->requestView(target));
         if (objBounds.contains(pos))
         {
             return data;
@@ -1005,8 +994,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(fge::RectInt const& zone,
     for (auto const& data: this->g_objects)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
-        auto objBounds = target.mapViewRectToFramebufferSpace(
-                buffObj->getGlobalBounds(), this->g_customView ? *this->g_customView : target.getView());
+        auto objBounds = target.mapViewRectToFramebufferSpace(buffObj->getGlobalBounds(), this->requestView(target));
         if (objBounds.findIntersection(zone))
         {
             return data;
@@ -1792,20 +1780,6 @@ std::optional<fge::net::Error> Scene::unpackWatchedEvent(fge::net::Packet const&
     }).end();
 }
 
-/** Custom view **/
-void Scene::setCustomView(std::shared_ptr<fge::View> customView)
-{
-    this->g_customView = std::move(customView);
-}
-std::shared_ptr<fge::View> const& Scene::getCustomView() const
-{
-    return this->g_customView;
-}
-void Scene::delCustomView()
-{
-    this->g_customView.reset();
-}
-
 /** Linked renderTarget **/
 void Scene::setLinkedRenderTarget(fge::RenderTarget* target)
 {
@@ -1822,9 +1796,9 @@ fge::RenderTarget* Scene::getLinkedRenderTarget()
 
 fge::View const* Scene::getRelatedView() const
 {
-    if (this->g_customView != nullptr)
+    if (auto ownView = this->getOwnView())
     {
-        return this->g_customView.get();
+        return ownView.get();
     }
     if (this->g_linkedRenderTarget != nullptr)
     {

@@ -461,7 +461,7 @@ private:
  *
  * \see ObjectData
  */
-class FGE_API Scene : public fge::CommandHandler
+class FGE_API Scene : public fge::CommandHandler, public fge::OwnView
 {
 public:
     using NetworkEventQueue = std::queue<fge::SceneNetEvent>;
@@ -1280,30 +1280,6 @@ public:
     // Operator
     inline fge::ObjectDataShared operator[](fge::ObjectSid sid) const { return this->getObject(sid); }
 
-    // Custom view
-    /**
-     * \brief Set a custom shared view.
-     *
-     * This is useful if you need to draw a Scene in another place in the screen.
-     *
-     * \param customView The shared pointer of a view
-     */
-    void setCustomView(std::shared_ptr<fge::View> customView);
-    /**
-     * \brief Get the custom shared view if there is one.
-     *
-     * \see setCustomView
-     *
-     * \return The shared point of the view
-     */
-    std::shared_ptr<fge::View> const& getCustomView() const;
-    /**
-     * \brief Remove the actual custom view.
-     *
-     * \see setCustomView
-     */
-    void delCustomView();
-
     // Linked renderTarget
     /**
      * \brief Link a RenderTarget to the Scene.
@@ -1499,7 +1475,7 @@ private:
     PerClientSyncMap g_perClientSyncs;
     bool g_enableNetworkEventsFlag;
 
-    std::shared_ptr<fge::View> g_customView;
+    //std::shared_ptr<fge::View> g_customView;
     fge::RenderTarget* g_linkedRenderTarget;
 
     uint16_t g_updateCount;
