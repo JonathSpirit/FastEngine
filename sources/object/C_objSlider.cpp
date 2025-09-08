@@ -164,7 +164,7 @@ void ObjSlider::refreshSize(fge::Vector2f const& targetSize)
     auto rectSize = this->g_size.getSize(this->getPosition(), targetSize);
 
     this->g_scrollRect.setSize({rectSize.x, 30.0f});
-    this->g_scrollBaseRect.setSize({rectSize.x, rectSize.y});
+    this->g_scrollBaseRect.setSize({rectSize.x, std::max(this->g_scrollRect.getSize().y, rectSize.y)});
     this->g_scrollRect.setPosition({0.0f, this->g_scrollPositionY});
     this->g_scrollBaseRect.setPosition({0.0f, 0.0f});
 
