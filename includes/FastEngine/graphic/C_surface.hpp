@@ -151,6 +151,30 @@ public:
      */
     bool addBorder(int borderSize, fge::Color const& color);
 
+    enum class AngleDirections
+    {
+        Clockwise,
+        CounterClockwise
+    };
+
+    void addCircle(int x, int y, unsigned int radius, fge::Color const& color);
+    void addUnfilledCircle(int x,
+                           int y,
+                           float startAngle,
+                           float endAngle,
+                           unsigned int radius,
+                           AngleDirections direction,
+                           fge::Color const& color);
+    void addHollowCircle(int x, int y, unsigned int startRadius, unsigned int endRadius, fge::Color const& color);
+    void addUnfilledHollowCircle(int x,
+                                 int y,
+                                 float startAngle,
+                                 float endAngle,
+                                 unsigned int startRadius,
+                                 unsigned int endRadius,
+                                 AngleDirections direction,
+                                 fge::Color const& color);
+
     /**
      * \brief Set a new surface
      *

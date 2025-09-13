@@ -16,6 +16,7 @@
 
 #include "FastEngine/graphic/C_surface.hpp"
 #include "SDL_image.h"
+#include "glm/ext/scalar_constants.hpp"
 
 namespace fge
 {
@@ -364,6 +365,163 @@ bool Surface::addBorder(int borderSize, fge::Color const& color)
     SDL_FreeSurface(this->g_surface);
     this->g_surface = transparentBorderSurface;
     return true;
+}
+
+void Surface::addCircle(int x, int y, unsigned int radius, fge::Color const& color)
+{
+    if (this->g_surface == nullptr || radius == 0)
+    {
+        return;
+    }
+
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            if (std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y))) <=
+                static_cast<float>(radius))
+            {
+                this->setPixel(w, h, color);
+            }
+        }
+    }
+}
+
+void Surface::addUnfilledCircle(int x,
+                                int y,
+                                float startAngle,
+                                float endAngle,
+                                unsigned int radius,
+                                AngleDirections direction,
+                                fge::Color const& color)
+{
+    if (this->g_surface == nullptr || radius == 0)
+    {
+        return;
+    }
+
+    // Normalize angles
+    startAngle = startAngle > 360.0f ? std::fmod(startAngle, 360.0f) : startAngle;
+    endAngle = endAngle > 360.0f ? std::fmod(endAngle, 360.0f) : endAngle;
+    if (startAngle < 0.0f)
+    {
+        startAngle += 360.0f;
+    }
+    if (endAngle < 0.0f)
+    {
+        endAngle += 360.0f;
+    }
+    if (endAngle < startAngle)
+    {
+        endAngle += 360.0f;
+    }
+    if (startAngle == endAngle)
+    {
+        return;
+    }
+
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            float angle = std::atan2f(static_cast<float>(h - y), static_cast<float>(w - x)) * 180.0f / glm::pi<float>();
+            if (angle < 0.0f)
+            {
+                angle += 360.0f;
+            }
+            if (direction == AngleDirections::CounterClockwise)
+            {
+                angle = 360.0f - angle;
+            }
+
+            if (std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y))) <=
+                        static_cast<float>(radius) &&
+                angle >= startAngle && angle <= endAngle)
+            {
+                this->setPixel(w, h, color);
+            }
+        }
+    }
+}
+
+void Surface::addHollowCircle(int x, int y, unsigned int startRadius, unsigned int endRadius, fge::Color const& color)
+{
+    if (this->g_surface == nullptr || startRadius == 0 || endRadius == 0 || endRadius <= startRadius)
+    {
+        return;
+    }
+
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            auto const distance =
+                    std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y)));
+            if (distance >= static_cast<float>(startRadius) && distance <= static_cast<float>(endRadius))
+            {
+                this->setPixel(w, h, color);
+            }
+        }
+    }
+}
+
+void Surface::addUnfilledHollowCircle(int x,
+                                      int y,
+                                      float startAngle,
+                                      float endAngle,
+                                      unsigned int startRadius,
+                                      unsigned int endRadius,
+                                      AngleDirections direction,
+                                      fge::Color const& color)
+{
+    if (this->g_surface == nullptr || startRadius == 0 || endRadius == 0 || endRadius <= startRadius)
+    {
+        return;
+    }
+
+    // Normalize angles
+    startAngle = startAngle > 360.0f ? std::fmod(startAngle, 360.0f) : startAngle;
+    endAngle = endAngle > 360.0f ? std::fmod(endAngle, 360.0f) : endAngle;
+    if (startAngle < 0.0f)
+    {
+        startAngle += 360.0f;
+    }
+    if (endAngle < 0.0f)
+    {
+        endAngle += 360.0f;
+    }
+    if (endAngle < startAngle)
+    {
+        endAngle += 360.0f;
+    }
+    if (startAngle == endAngle)
+    {
+        return;
+    }
+
+    for (int h = 0; h < this->g_surface->h; ++h)
+    {
+        for (int w = 0; w < this->g_surface->w; ++w)
+        {
+            float angle = std::atan2f(static_cast<float>(h - y), static_cast<float>(w - x)) * 180.0f / glm::pi<float>();
+            if (angle < 0.0f)
+            {
+                angle += 360.0f;
+            }
+            if (direction == AngleDirections::CounterClockwise)
+            {
+                angle = 360.0f - angle;
+            }
+
+            auto const distance =
+                    std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y)));
+            if (distance >= static_cast<float>(startRadius) && distance <= static_cast<float>(endRadius) &&
+                angle >= startAngle && angle <= endAngle)
+            {
+                this->setPixel(w, h, color);
+            }
+        }
+    }
 }
 
 void Surface::set(SDL_Surface* surface)
