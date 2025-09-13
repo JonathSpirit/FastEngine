@@ -261,6 +261,17 @@ void ChildObjectsAccessor::sceneUpdate(fge::Scene& scene)
         data._objData->setParent(owner);
         data._objData->g_boundScene = &scene;
     }
+
+    //Same for detached objects
+    this->cleanupDetachedObjects();
+    for (auto& weakData: this->g_detachedObjects)
+    {
+        if (auto data = weakData.lock())
+        {
+            data->setParent(owner);
+            data->g_boundScene = &scene;
+        }
+    }
 }
 
 #ifdef FGE_DEF_SERVER
