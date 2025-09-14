@@ -191,9 +191,6 @@ target_compile_definitions(${FGE_SERVER_LIB_NAME} PUBLIC FGE_DEF_SERVER)
 target_include_directories(${FGE_LIB_NAME} PRIVATE "includes")
 target_include_directories(${FGE_SERVER_LIB_NAME} PRIVATE "includes")
 
-target_include_directories(${FGE_LIB_NAME} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories(${FGE_SERVER_LIB_NAME} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
 #Source files
 target_sources(${FGE_SERVER_LIB_NAME} PUBLIC FILE_SET publicHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PUBLIC})
 target_sources(${FGE_SERVER_LIB_NAME} PRIVATE FILE_SET privateHeaders TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/includes FILES ${FGE_INCLUDES_PRIVATE})
@@ -503,6 +500,9 @@ install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME})
+
+target_include_directories(${FGE_LIB_NAME} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories(${FGE_SERVER_LIB_NAME} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 #Custom target for executables that copy compiled DLLs and symlink the resources folder
 if (MSVC)
