@@ -116,7 +116,7 @@ AddCmakeDependency(freetype
 
 AddCmakeDependency(SDL2
         https://github.com/libsdl-org/SDL.git
-        release-2.32.6
+        release-2.32.10
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
