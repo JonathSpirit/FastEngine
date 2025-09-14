@@ -108,7 +108,7 @@ AddCmakeDependency(re2
         "")
 
 AddCmakeDependency(freetype
-        https://gitlab.freedesktop.org/freetype/freetype.git
+        https://github.com/freetype/freetype.git
         VER-2-13-3
         OFF
         "-DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
