@@ -379,7 +379,7 @@ void Surface::addCircle(int x, int y, unsigned int radius, fge::Color const& col
     {
         for (int w = 0; w < this->g_surface->w; ++w)
         {
-            if (std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y))) <=
+            if (std::sqrt(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y))) <=
                 static_cast<float>(radius))
             {
                 this->setPixel(w, h, color);
@@ -425,7 +425,7 @@ void Surface::addUnfilledCircle(int x,
     {
         for (int w = 0; w < this->g_surface->w; ++w)
         {
-            float angle = std::atan2f(static_cast<float>(h - y), static_cast<float>(w - x)) * 180.0f / glm::pi<float>();
+            float angle = std::atan2(static_cast<float>(h - y), static_cast<float>(w - x)) * 180.0f / glm::pi<float>();
             if (angle < 0.0f)
             {
                 angle += 360.0f;
@@ -435,7 +435,7 @@ void Surface::addUnfilledCircle(int x,
                 angle = 360.0f - angle;
             }
 
-            if (std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y))) <=
+            if (std::sqrt(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y))) <=
                         static_cast<float>(radius) &&
                 angle >= startAngle && angle <= endAngle)
             {
@@ -457,7 +457,7 @@ void Surface::addHollowCircle(int x, int y, unsigned int startRadius, unsigned i
         for (int w = 0; w < this->g_surface->w; ++w)
         {
             auto const distance =
-                    std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y)));
+                    std::sqrt(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y)));
             if (distance >= static_cast<float>(startRadius) && distance <= static_cast<float>(endRadius))
             {
                 this->setPixel(w, h, color);
@@ -504,7 +504,7 @@ void Surface::addUnfilledHollowCircle(int x,
     {
         for (int w = 0; w < this->g_surface->w; ++w)
         {
-            float angle = std::atan2f(static_cast<float>(h - y), static_cast<float>(w - x)) * 180.0f / glm::pi<float>();
+            float angle = std::atan2(static_cast<float>(h - y), static_cast<float>(w - x)) * 180.0f / glm::pi<float>();
             if (angle < 0.0f)
             {
                 angle += 360.0f;
@@ -515,7 +515,7 @@ void Surface::addUnfilledHollowCircle(int x,
             }
 
             auto const distance =
-                    std::sqrtf(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y)));
+                    std::sqrt(static_cast<float>((w - x) * (w - x)) + static_cast<float>((h - y) * (h - y)));
             if (distance >= static_cast<float>(startRadius) && distance <= static_cast<float>(endRadius) &&
                 angle >= startAngle && angle <= endAngle)
             {
