@@ -17,6 +17,7 @@
 #include "FastEngine/graphic/C_surface.hpp"
 #include "SDL_image.h"
 #include "glm/ext/scalar_constants.hpp"
+#include <cmath>
 
 namespace fge
 {
