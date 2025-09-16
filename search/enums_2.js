@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['objecttype_0',['ObjectType',['../d5/df9/group__objectControl.html#ga6d371b22ba3b898839c934bd4501c284',1,'fge']]],
-  ['options_1',['Options',['../d6/d78/classfge_1_1net_1_1TransmissionPacket.html#a797d94d3dfacd9ea1903f90764e8d1b3',1,'fge::net::TransmissionPacket']]]
+  ['objecttypes_0',['ObjectTypes',['../d5/df9/group__objectControl.html#ga49dd6a69f7e002a0c1bcda23cc82467f',1,'fge']]],
+  ['options_1',['Options',['../d4/d7e/classfge_1_1net_1_1ProtocolPacket.html#a9cb42d92e5855494a1986e94b59f64ec',1,'fge::net::ProtocolPacket']]]
 ];

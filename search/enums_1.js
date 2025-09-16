@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['error_0',['Error',['../dd/d1d/classfge_1_1net_1_1Socket.html#aee4fe7684ab42bfac0a803fd24b0857f',1,'fge::net::Socket']]]
+  ['errors_0',['Errors',['../dd/d1d/classfge_1_1net_1_1Socket.html#a26526878cec76f1bf06fb80260c68e53',1,'fge::net::Socket']]]
 ];
