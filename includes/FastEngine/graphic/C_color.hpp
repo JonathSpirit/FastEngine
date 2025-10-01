@@ -34,70 +34,73 @@ namespace fge
 class Color
 {
 public:
-    Color() noexcept :
+    constexpr Color() noexcept :
             _r(0),
             _g(0),
             _b(0),
             _a(255)
     {}
-    explicit Color(SDL_Color const& sdlColor) noexcept :
+    constexpr explicit Color(SDL_Color const& sdlColor) noexcept :
             _r(sdlColor.r),
             _g(sdlColor.g),
             _b(sdlColor.b),
             _a(sdlColor.a)
     {}
-    explicit Color(VkClearColorValue const& clearColorValue) noexcept :
+    constexpr explicit Color(VkClearColorValue const& clearColorValue) noexcept :
             _r(static_cast<uint8_t>(clearColorValue.float32[0] * 255.0f)),
             _g(static_cast<uint8_t>(clearColorValue.float32[1] * 255.0f)),
             _b(static_cast<uint8_t>(clearColorValue.float32[2] * 255.0f)),
             _a(static_cast<uint8_t>(clearColorValue.float32[3] * 255.0f))
     {}
-    explicit Color(glm::vec4 const& vec4) noexcept :
+    constexpr explicit Color(glm::vec4 const& vec4) noexcept :
             _r(static_cast<uint8_t>(vec4.r * 255.0f)),
             _g(static_cast<uint8_t>(vec4.g * 255.0f)),
             _b(static_cast<uint8_t>(vec4.b * 255.0f)),
             _a(static_cast<uint8_t>(vec4.a * 255.0f))
     {}
-    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept :
+    constexpr Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept :
             _r(red),
             _g(green),
             _b(blue),
             _a(alpha)
     {}
-    explicit Color(uint32_t color) noexcept :
+    constexpr explicit Color(uint32_t color) noexcept :
             _r(static_cast<uint8_t>((color & 0xFF000000) >> 24)),
             _g(static_cast<uint8_t>((color & 0x00FF0000) >> 16)),
             _b(static_cast<uint8_t>((color & 0x0000FF00) >> 8)),
             _a(static_cast<uint8_t>(color & 0x000000FF))
     {}
 
-    operator SDL_Color() const { return SDL_Color{.r = this->_r, .g = this->_g, .b = this->_b, .a = this->_a}; }
-    operator VkClearColorValue() const
+    constexpr operator SDL_Color() const
+    {
+        return SDL_Color{.r = this->_r, .g = this->_g, .b = this->_b, .a = this->_a};
+    }
+    constexpr operator VkClearColorValue() const
     {
         return {{static_cast<float>(this->_r) / 255.0f, static_cast<float>(this->_g) / 255.0f,
                  static_cast<float>(this->_b) / 255.0f, static_cast<float>(this->_a) / 255.0f}};
     }
-    operator glm::vec4() const
+    constexpr operator glm::vec4() const
     {
         return {static_cast<float>(this->_r) / 255.0f, static_cast<float>(this->_g) / 255.0f,
                 static_cast<float>(this->_b) / 255.0f, static_cast<float>(this->_a) / 255.0f};
     }
-    operator glm::uvec4() const { return {this->_r, this->_g, this->_b, this->_a}; }
-    operator uint32_t() const { return this->toInteger(); }
+    constexpr operator glm::uvec4() const { return {this->_r, this->_g, this->_b, this->_a}; }
+    constexpr operator uint32_t() const { return this->toInteger(); }
 
-    [[nodiscard]] uint32_t toInteger() const
+    [[nodiscard]] constexpr uint32_t toInteger() const
     {
         return (static_cast<uint32_t>(this->_r) << 24) | (static_cast<uint32_t>(this->_g) << 16) |
                (static_cast<uint32_t>(this->_b) << 8) | static_cast<uint32_t>(this->_a);
     }
 
-    bool operator==(Color const& right) const
+    constexpr bool operator==(Color const& right) const
     {
         return this->_r == right._r && this->_g == right._g && this->_b == right._b && this->_a == right._a;
     }
-    bool operator!=(Color const& right) const { return !this->operator==(right); }
+    constexpr bool operator!=(Color const& right) const { return !this->operator==(right); }
 
-    Color operator+(Color const& right) const
+    constexpr Color operator+(Color const& right) const
     {
         uint16_t const red = static_cast<uint16_t>(this->_r) + right._r;
         uint16_t const green = static_cast<uint16_t>(this->_g) + right._g;
@@ -108,7 +111,7 @@ public:
                 blue > 255 ? uint8_t(255) : static_cast<uint8_t>(blue),
                 alpha > 255 ? uint8_t(255) : static_cast<uint8_t>(alpha)};
     }
-    Color operator-(Color const& right) const
+    constexpr Color operator-(Color const& right) const
     {
         auto const red = static_cast<int16_t>(this->_r - right._r);
         auto const green = static_cast<int16_t>(this->_g - right._g);
@@ -118,7 +121,7 @@ public:
                 blue < 0 ? uint8_t(0) : static_cast<uint8_t>(blue),
                 alpha < 0 ? uint8_t(0) : static_cast<uint8_t>(alpha)};
     }
-    Color operator*(Color const& right) const
+    constexpr Color operator*(Color const& right) const
     {
         uint16_t const red = static_cast<uint16_t>(this->_r) * right._r;
         uint16_t const green = static_cast<uint16_t>(this->_g) * right._g;
@@ -128,9 +131,9 @@ public:
                 static_cast<uint8_t>(alpha / 255)};
     }
 
-    Color& operator+=(Color const& right) { return this->operator=(this->operator+(right)); }
-    Color& operator-=(Color const& right) { return this->operator=(this->operator-(right)); }
-    Color& operator*=(Color const& right) { return this->operator=(this->operator*(right)); }
+    constexpr Color& operator+=(Color const& right) { return this->operator=(this->operator+(right)); }
+    constexpr Color& operator-=(Color const& right) { return this->operator=(this->operator-(right)); }
+    constexpr Color& operator*=(Color const& right) { return this->operator=(this->operator*(right)); }
 
     uint8_t _r;
     uint8_t _g;
