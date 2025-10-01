@@ -31,7 +31,7 @@ jobs:
       with:
         msystem: ${{matrix.sys}}
         update: true
-        install: curl git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
+        install: curl git mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make mingw-w64-${{matrix.env}}-openssl
     
     - name: Downloading cmake
       run: |
