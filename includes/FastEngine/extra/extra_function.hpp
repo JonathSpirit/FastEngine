@@ -158,12 +158,6 @@ template<typename T>
 template<typename T>
 [[nodiscard]] fge::Rect<T> ToRect(fge::Vector2<T> const* pos, std::size_t size);
 
-///Color
-[[nodiscard]] inline fge::Color SetAlpha(fge::Color color, uint8_t alpha);
-[[nodiscard]] inline fge::Color SetRed(fge::Color color, uint8_t red);
-[[nodiscard]] inline fge::Color SetGreen(fge::Color color, uint8_t green);
-[[nodiscard]] inline fge::Color SetBlue(fge::Color color, uint8_t blue);
-
 ///Reach
 [[nodiscard]] FGE_API fge::Vector2f
 ReachVector(fge::Vector2f const& position, fge::Vector2f const& target, float speed, float deltaTime);

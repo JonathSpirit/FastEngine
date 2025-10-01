@@ -135,6 +135,31 @@ public:
     constexpr Color& operator-=(Color const& right) { return this->operator=(this->operator-(right)); }
     constexpr Color& operator*=(Color const& right) { return this->operator=(this->operator*(right)); }
 
+    [[nodiscard]] constexpr Color setAlpha(uint8_t alpha) const
+    {
+        Color copy = *this;
+        copy._a = alpha;
+        return copy;
+    }
+    [[nodiscard]] constexpr Color setRed(uint8_t red) const
+    {
+        Color copy = *this;
+        copy._r = red;
+        return copy;
+    }
+    [[nodiscard]] constexpr Color setGreen(uint8_t green) const
+    {
+        Color copy = *this;
+        copy._g = green;
+        return copy;
+    }
+    [[nodiscard]] constexpr Color setBlue(uint8_t blue) const
+    {
+        Color copy = *this;
+        copy._b = blue;
+        return copy;
+    }
+
     uint8_t _r;
     uint8_t _g;
     uint8_t _b;

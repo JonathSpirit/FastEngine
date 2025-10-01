@@ -270,28 +270,6 @@ inline constexpr fge::Vector2f MapSquareToCircleCoords(fge::Vector2f const& squa
                          squareCoords.y * std::sqrt(1.0f - 0.5f * squareCoords.x * squareCoords.x)};
 }
 
-///Color
-inline fge::Color SetAlpha(fge::Color color, uint8_t alpha)
-{
-    color._a = alpha;
-    return color;
-}
-inline fge::Color SetRed(fge::Color color, uint8_t red)
-{
-    color._r = red;
-    return color;
-}
-inline fge::Color SetGreen(fge::Color color, uint8_t green)
-{
-    color._g = green;
-    return color;
-}
-inline fge::Color SetBlue(fge::Color color, uint8_t blue)
-{
-    color._b = blue;
-    return color;
-}
-
 ///Time
 template<class T>
 float DurationToSecondFloat(T duration)
