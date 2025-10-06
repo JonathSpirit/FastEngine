@@ -609,7 +609,7 @@ void NetworkTypeVector<T>::forceCheckClient(Identity const& id)
     if (clientData != nullptr)
     {
         clientData->_config.set(CLIENTCONFIG_MODIFIED_FLAG);
-        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data);
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data.get());
         events->clear();
     }
 }
@@ -620,7 +620,7 @@ void NetworkTypeVector<T>::forceUncheckClient(Identity const& id)
     if (clientData != nullptr)
     {
         clientData->_config.unset(CLIENTCONFIG_MODIFIED_FLAG);
-        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data);
+        auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(clientData->_data.get());
         events->clear();
     }
 }
@@ -650,12 +650,12 @@ template<class T>
 void NetworkTypeVector<T>::createClientData(std::shared_ptr<void>& ptr) const
 {
     ptr = std::shared_ptr<void>(new typename RecordedVector<T>::EventQueue(),
-                                typename RecordedVector<T>::DataDeleter());
+                                typename NetworkTypeVector<T>::DataDeleter());
 }
 template<class T>
 void NetworkTypeVector<T>::applyClientData(std::shared_ptr<void>& ptr) const
 {
-    auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(ptr);
+    auto* events = static_cast<typename RecordedVector<T>::EventQueue*>(ptr.get());
 
     bool const clearFirst = this->g_typeSource->getEventQueue().front()._type == RecordedEventTypes::REMOVE_ALL;
     if (clearFirst)
