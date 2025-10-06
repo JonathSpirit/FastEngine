@@ -17,6 +17,8 @@
 #ifndef _FGE_C_FLAG_HPP_INCLUDED
 #define _FGE_C_FLAG_HPP_INCLUDED
 
+#include <type_traits>
+
 namespace fge
 {
 
