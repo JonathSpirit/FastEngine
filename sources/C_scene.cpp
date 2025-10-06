@@ -433,6 +433,13 @@ void Scene::updateAllPlanDepth()
 
 void Scene::clear()
 {
+    //Clear all callbacks
+    this->_onDelayedUpdate.clear();
+    this->_onDraw.clear();
+    this->_onObjectAdded.clear();
+    this->_onObjectRemoved.clear();
+    this->_onPlanUpdate.clear();
+
     this->delAllObject(false);
     this->_properties.delAllProperties();
     this->_netList.clear();
