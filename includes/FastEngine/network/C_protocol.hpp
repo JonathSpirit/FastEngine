@@ -287,7 +287,12 @@ class PacketDefragmentation
 {
 public:
     PacketDefragmentation() = default;
+    PacketDefragmentation(PacketDefragmentation const& r) = delete;
+    PacketDefragmentation(PacketDefragmentation&& r) noexcept = default;
     ~PacketDefragmentation() = default;
+
+    PacketDefragmentation& operator=(PacketDefragmentation const& r) = delete;
+    PacketDefragmentation& operator=(PacketDefragmentation&& r) noexcept = default;
 
     enum class Results
     {
