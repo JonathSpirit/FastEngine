@@ -22,6 +22,7 @@
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/network/C_protocol.hpp"
+#include "FastEngine/network/C_session.hpp"
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -411,6 +412,9 @@ public:
     [[nodiscard]] CryptInfo const& getCryptInfo() const;
     [[nodiscard]] CryptInfo& getCryptInfo();
 
+    [[nodiscard]] SessionManager const& getSessionManager() const;
+    [[nodiscard]] SessionManager& getSessionManager();
+
     [[nodiscard]] uint16_t getMTU() const;
     void setMTU(uint16_t mtu);
 
@@ -432,6 +436,8 @@ private:
 
     std::deque<TransmitPacketPtr> g_pendingTransmitPackets;
     mutable std::recursive_mutex g_mutex;
+
+    SessionManager g_sessionManager;
 
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
     ProtocolPacket::RealmType g_currentRealm{FGE_NET_DEFAULT_REALM};

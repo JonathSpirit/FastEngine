@@ -449,6 +449,15 @@ Client::CryptInfo& Client::getCryptInfo()
     return this->g_cryptInfo;
 }
 
+SessionManager const& Client::getSessionManager() const
+{
+    return this->g_sessionManager;
+}
+SessionManager& Client::getSessionManager()
+{
+    return this->g_sessionManager;
+}
+
 uint16_t Client::getMTU() const
 {
     return this->g_mtu;
