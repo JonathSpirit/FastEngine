@@ -287,6 +287,7 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/network/C_server.cpp
         sources/network/C_netServer.cpp
         sources/network/C_netClient.cpp
+        sources/network/C_session.cpp
         sources/network/C_socket.cpp
         sources/network/C_netCommand.cpp
         sources/network/C_protocol.cpp)
@@ -407,6 +408,7 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/network/C_server.cpp
         sources/network/C_netServer.cpp
         sources/network/C_netClient.cpp
+        sources/network/C_session.cpp
         sources/network/C_socket.cpp
         sources/network/C_netCommand.cpp
         sources/network/C_protocol.cpp)

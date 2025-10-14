@@ -20,11 +20,14 @@
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/network/C_protocol.hpp"
 #include <chrono>
+#include <mutex>
 
 #define FGE_NET_DEFAULT_SESSION 0
 
 namespace fge::net
 {
+
+using MTU = uint16_t;
 
 class FGE_API Session
 {
@@ -39,15 +42,39 @@ public:
         DELETING
     };
 
-    ProtocolPacket::RealmType advanceRealm();
-    void resetPacketCounters();
-    void resetRealm();
+    explicit Session(Id session);
+    Session(Session const& r) = delete;
+    Session(Session&& r) noexcept;
+    ~Session() = default;
 
+    Session& operator=(Session const& r) = delete;
+    Session& operator=(Session&& r) noexcept = delete;
+
+    //Normal workflow
+    ProtocolPacket::RealmType advanceRealm();
+
+
+    //Need reconfiguration (or not, in some cases)
+    void resetPacketCounter();
+    void resetRealm();
+    void setMTU(MTU mtu);
+    void forceMTU(bool force);
+
+    [[nodiscard]] MTU getMTU() const;
+    [[nodiscard]] bool isMTUForced() const;
+
+    //Reception handling
     void pushPacket(ReceivedPacketPtr&& pck);
     ReceivedPacketPtr popPacket();
+
+    [[nodiscard]] States getCurrentState() const;
     
 private:
-    mutable std::recursive_mutex g_mutex;
+    void forceState(States state);
+
+    friend class SessionManager;
+
+    mutable std::mutex g_mutex;
 
     std::chrono::steady_clock::time_point g_lastReceivedPacketTimePoint;
     std::chrono::steady_clock::time_point g_lastRealmTimePoint;
@@ -64,7 +91,8 @@ private:
     States g_state{States::UNINITIALIZED};
     Id g_id{FGE_NET_DEFAULT_SESSION};
 
-    uint16_t g_mtu{0};
+    MTU g_mtu{0};
+    bool g_forceMTU{false};
     bool g_enableCache{false};
     bool g_enableReorderer{false};
     bool g_enableDefragmentation{false};
@@ -73,6 +101,9 @@ private:
 class FGE_API SessionManager
 {
 public:
+    SessionManager();
+    ~SessionManager() = default;
+
     void updateSessions(std::chrono::milliseconds deltaTime);
     Session& createSession();
     void deleteSession(Session::Id id);
@@ -80,7 +111,7 @@ public:
     void clearSessions();
     [[nodiscard]] std::size_t getSessionCount() const;
 
-    void handePacketReception(ReceivedPacketPtr&& packet);
+    void handlePacketReception(ReceivedPacketPtr&& packet);
 
     /**
      * \brief Clear the packet queue
