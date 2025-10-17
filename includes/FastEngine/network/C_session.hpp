@@ -29,6 +29,8 @@ namespace fge::net
 
 using MTU = uint16_t;
 
+class SessionManager;
+
 class FGE_API Session
 {
 public:
@@ -50,9 +52,10 @@ public:
     Session& operator=(Session const& r) = delete;
     Session& operator=(Session&& r) noexcept = delete;
 
+    void updateSession(SessionManager& manager, std::chrono::milliseconds deltaTime);
+
     //Normal workflow
     ProtocolPacket::RealmType advanceRealm();
-
 
     //Need reconfiguration (or not, in some cases)
     void resetPacketCounter();
@@ -88,6 +91,15 @@ private:
     PacketReorderer g_packetReorderer;
     PacketDefragmentation g_packetDefragmentation;
 
+    enum class ComStates
+    {
+        NONE,
+        NEED_ACK
+    };
+
+    std::chrono::milliseconds g_tryTimeout{0};
+    unsigned int g_tryCount{0};
+    ComStates g_comState{ComStates::NONE};
     States g_state{States::UNINITIALIZED};
     Id g_id{FGE_NET_DEFAULT_SESSION};
 

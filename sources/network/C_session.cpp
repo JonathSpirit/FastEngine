@@ -46,6 +46,30 @@ Session::Session(Session&& r) noexcept :
         g_enableDefragmentation(r.g_enableDefragmentation)
 {}
 
+void Session::updateSession(SessionManager& manager, std::chrono::milliseconds deltaTime)
+{
+    std::scoped_lock const lck(this->g_mutex);
+
+    switch (this->g_state)
+    {
+    case States::UNINITIALIZED:
+        switch (this->g_comState)
+        {
+        case ComStates::NONE:
+            break;
+        case ComStates::NEED_ACK:
+            break;
+        }
+        break;
+    case States::INITIALIZED:
+        break;
+    case States::RECONFIGURING:
+        break;
+    case States::DELETING:
+        break;
+    }
+}
+
 ProtocolPacket::RealmType Session::advanceRealm()
 {
     std::scoped_lock const lck(this->g_mutex);
