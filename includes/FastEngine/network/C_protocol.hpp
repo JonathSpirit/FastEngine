@@ -261,6 +261,14 @@ enum InternalProtocolIds : ProtocolPacket::IdType
     NET_INTERNAL_ID_MTU_TEST_RESPONSE,
     NET_INTERNAL_ID_MTU_FINAL,
 
+    /*
+     * Declare a new session.
+     * Server only
+     * Payload:
+     * - uint8_t SessionId
+     */
+    NET_INTERNAL_ID_SESSION_CREATE,
+
     NET_INTERNAL_ID_FRAGMENTED_PACKET,
 
     NET_INTERNAL_ID_FGE_HANDSHAKE,

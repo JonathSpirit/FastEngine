@@ -23,6 +23,7 @@
 #include <mutex>
 
 #define FGE_NET_DEFAULT_SESSION 0
+#define FGE_NET_SESSION_ACK_TIMEOUT_MS 500
 
 namespace fge::net
 {
@@ -113,6 +114,8 @@ private:
 class FGE_API SessionManager
 {
 public:
+    using TransmitQueue = std::deque<TransmitPacketPtr>;
+
     SessionManager();
     ~SessionManager() = default;
 
@@ -157,11 +160,16 @@ public:
      */
     bool isPendingPacketsEmpty() const;
 
+    [[nodiscard]] AccessLock<std::mutex> acquireLock() const;
+    [[nodiscard]] TransmitQueue::const_iterator begin(AccessLock<std::mutex> const& lock) const;
+    [[nodiscard]] TransmitQueue::const_iterator end(AccessLock<std::mutex> const& lock) const;
+    TransmitQueue::const_iterator erase(AccessLock<std::mutex> const& lock, TransmitQueue::const_iterator it);
+
 private:
-    mutable std::recursive_mutex g_mutex;
+    mutable std::mutex g_mutex;
 
     std::vector<Session> g_sessions;
-    std::deque<TransmitPacketPtr> g_pendingTransmitPackets;
+    TransmitQueue g_pendingTransmitPackets;
 };
 
 } // namespace fge::net

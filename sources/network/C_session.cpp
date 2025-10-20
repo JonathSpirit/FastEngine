@@ -50,14 +50,29 @@ void Session::updateSession(SessionManager& manager, std::chrono::milliseconds d
 {
     std::scoped_lock const lck(this->g_mutex);
 
+    TransmitPacketPtr packet;
+
     switch (this->g_state)
     {
     case States::UNINITIALIZED:
         switch (this->g_comState)
         {
         case ComStates::NONE:
+            packet = CreatePacket(NET_INTERNAL_ID_SESSION_CREATE);
+            packet->doNotDiscard()
+                << this->g_id
+                << this->g_mtu
+                << this->g_forceMTU
+                << this->g_enableCache
+                << this->g_enableReorderer
+                << this->g_enableDefragmentation;
+            manager.pushPacket(std::move(packet));
+            this->g_tryCount += 1;
+            this->g_tryTimeout = std::chrono::milliseconds::zero();
+            this->g_comState = ComStates::NEED_ACK;
             break;
         case ComStates::NEED_ACK:
+
             break;
         }
         break;
@@ -207,5 +222,30 @@ TransmitPacketPtr SessionManager::popPacket() {}
 
 bool SessionManager::isPendingPacketsEmpty() const {}
 
+AccessLock<std::mutex> SessionManager::acquireLock() const
+{
+    return AccessLock(this->g_mutex);
+}
+
+std::deque<std::unique_ptr<ProtocolPacket>>::const_iterator SessionManager::begin(
+        AccessLock<std::mutex> const& lock) const
+{
+    lock.throwIfDifferent(this->g_mutex);
+    return this->g_pendingTransmitPackets.begin();
+}
+
+std::deque<std::unique_ptr<ProtocolPacket>>::const_iterator SessionManager::end(
+        AccessLock<std::mutex> const& lock) const
+{
+    lock.throwIfDifferent(this->g_mutex);
+    return this->g_pendingTransmitPackets.end();
+}
+
+std::deque<std::unique_ptr<ProtocolPacket>>::const_iterator SessionManager::erase(AccessLock<std::mutex> const& lock,
+        TransmitQueue::const_iterator it)
+{
+    lock.throwIfDifferent(this->g_mutex);
+    return this->g_pendingTransmitPackets.erase(it);
+}
 
 } // namespace fge::net
