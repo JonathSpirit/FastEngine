@@ -22,8 +22,8 @@
 #include <chrono>
 #include <mutex>
 
-#define FGE_NET_DEFAULT_SESSION 0
 #define FGE_NET_SESSION_ACK_TIMEOUT_MS 500
+#define FGE_NET_SESSION_ACK_MAX_TRY 4
 
 namespace fge::net
 {
@@ -43,6 +43,13 @@ public:
         INITIALIZED,
         RECONFIGURING,
         DELETING
+    };
+
+    enum class Directions
+    {
+        HOST_TO_PEER,
+        PEER_TO_HOST,
+        BOTH
     };
 
     explicit Session(Id session);
@@ -68,7 +75,7 @@ public:
     [[nodiscard]] bool isMTUForced() const;
 
     //Reception handling
-    void pushPacket(ReceivedPacketPtr&& pck);
+    void pushPacket(SessionManager& manager, ReceivedPacketPtr&& pck);
     ReceivedPacketPtr popPacket();
 
     [[nodiscard]] States getCurrentState() const;
@@ -86,6 +93,9 @@ private:
     ProtocolPacket::RealmType g_serverRealm{FGE_NET_DEFAULT_REALM};
     ProtocolPacket::CounterType g_serverPacketCounter{0};
     ProtocolPacket::CounterType g_clientPacketCounter{0};
+    ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
+
+    Directions g_direction{Directions::BOTH};
 
     PacketCache g_packetCache;
     std::vector<PacketCache::Label> g_acknowledgedPackets;
@@ -115,6 +125,20 @@ class FGE_API SessionManager
 {
 public:
     using TransmitQueue = std::deque<TransmitPacketPtr>;
+
+    enum class ErrorTypes
+    {
+        E_INFO,
+        E_ERROR,
+        E_FATAL
+    };
+    enum class ErrorWeights
+    {
+        EW_UNEXPECTED_PACKET,
+        EW_UNEXPECTED_DATA,
+        EW_MALFORMED_PACKET,
+        EW_DELETED_SESSION
+    };
 
     SessionManager();
     ~SessionManager() = default;
@@ -164,6 +188,8 @@ public:
     [[nodiscard]] TransmitQueue::const_iterator begin(AccessLock<std::mutex> const& lock) const;
     [[nodiscard]] TransmitQueue::const_iterator end(AccessLock<std::mutex> const& lock) const;
     TransmitQueue::const_iterator erase(AccessLock<std::mutex> const& lock, TransmitQueue::const_iterator it);
+
+    void reportError(ErrorTypes type, ErrorWeights weight);
 
 private:
     mutable std::mutex g_mutex;

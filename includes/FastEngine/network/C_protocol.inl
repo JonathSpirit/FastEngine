@@ -40,7 +40,7 @@ inline ProtocolPacket::ProtocolPacket(Packet&& pck,
 {}
 inline ProtocolPacket::ProtocolPacket(IdType header, RealmType realmId, CounterType countId, CounterType lastCountId)
 {
-    this->operator<<(header) << realmId << countId << lastCountId;
+    this->operator<<(header) << realmId << countId << lastCountId << SessionId{FGE_NET_DEFAULT_SESSION};
 }
 
 inline ProtocolPacket::ProtocolPacket(Packet const& r) :
@@ -162,6 +162,16 @@ inline std::optional<ProtocolPacket::CounterType> ProtocolPacket::retrieveLastCo
     }
     return std::nullopt;
 }
+inline std::optional<ProtocolPacket::SessionId> ProtocolPacket::retrieveSessionId() const
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        SessionId sessionId;
+        this->unpack(SessionIdPosition, &sessionId, sizeof(SessionId));
+        return sessionId;
+    }
+    return std::nullopt;
+}
 inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeader() const
 {
     if (this->haveCorrectHeaderSize())
@@ -201,6 +211,15 @@ inline ProtocolPacket& ProtocolPacket::setHeaderId(IdType id)
         this->unpack(IdPosition, &headerFlags, sizeof(IdType));
         id = (headerFlags & FGE_NET_HEADER_FLAGS_MASK) | (id & ~FGE_NET_HEADER_FLAGS_MASK);
         this->pack(IdPosition, &id, sizeof(IdType));
+    }
+    return *this;
+}
+
+inline ProtocolPacket& ProtocolPacket::setSessionId(SessionId sessionId)
+{
+    if (this->haveCorrectHeaderSize())
+    {
+        this->pack(SessionIdPosition, &sessionId, sizeof(SessionId));
     }
     return *this;
 }

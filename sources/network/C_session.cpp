@@ -59,7 +59,7 @@ void Session::updateSession(SessionManager& manager, std::chrono::milliseconds d
         {
         case ComStates::NONE:
             packet = CreatePacket(NET_INTERNAL_ID_SESSION_CREATE);
-            packet->doNotDiscard()
+            packet->doNotDiscard().doNotReorder()
                 << this->g_id
                 << this->g_mtu
                 << this->g_forceMTU
@@ -72,7 +72,20 @@ void Session::updateSession(SessionManager& manager, std::chrono::milliseconds d
             this->g_comState = ComStates::NEED_ACK;
             break;
         case ComStates::NEED_ACK:
-
+            if (this->g_tryTimeout >= std::chrono::milliseconds{FGE_NET_SESSION_ACK_TIMEOUT_MS})
+            {
+                if (this->g_tryCount >= FGE_NET_SESSION_ACK_MAX_TRY)
+                {
+                    //Failed to create session
+                    this->g_state = States::DELETING;
+                    break;
+                }
+                this->g_comState = ComStates::NONE;
+            }
+            else
+            {
+                this->g_tryTimeout += deltaTime;
+            }
             break;
         }
         break;
@@ -155,9 +168,56 @@ bool Session::isMTUForced() const
     return this->g_forceMTU;
 }
 
-void Session::pushPacket(ReceivedPacketPtr&& pck)
+void Session::pushPacket(SessionManager& manager, ReceivedPacketPtr&& pck)
 {
+    std::scoped_lock const lck(this->g_mutex);
 
+    if (this->g_comState == ComStates::NEED_ACK)
+    {
+        bool const canGoFurther = this->g_state != States::UNINITIALIZED;
+
+        if (pck->retrieveHeaderId().value() != NET_INTERNAL_ID_SESSION_ACK)
+        {
+            if (!canGoFurther)
+            {
+                manager.reportError(SessionManager::ErrorTypes::E_ERROR,
+                    SessionManager::ErrorWeights::EW_UNEXPECTED_PACKET);
+                return;
+            }
+        }
+        else
+        {
+            ProtocolPacket::IdType receivedSessionId;
+            *pck >> receivedSessionId;
+
+            if (!pck->isValid() || !pck->endReached())
+            {
+                manager.reportError(SessionManager::ErrorTypes::E_ERROR,
+                    SessionManager::ErrorWeights::EW_UNEXPECTED_PACKET);
+                return;
+            }
+
+            if (receivedSessionId != this->g_id)
+            {
+                manager.reportError(SessionManager::ErrorTypes::E_ERROR,
+                    SessionManager::ErrorWeights::EW_UNEXPECTED_DATA);
+                return;
+            }
+
+            if (this->g_state == States::DELETING)
+            {
+                manager.reportError(SessionManager::ErrorTypes::E_INFO,
+                    SessionManager::ErrorWeights::EW_DELETED_SESSION);
+                manager.deleteSession(this->g_id);
+                return;
+            }
+
+            this->g_state = States::INITIALIZED;
+            this->g_comState = ComStates::NONE;
+        }
+    }
+
+    
 }
 ReceivedPacketPtr Session::popPacket()
 {

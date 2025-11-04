@@ -46,6 +46,7 @@
 #define FGE_NET_PACKET_CACHE_MAX 100
 #define FGE_NET_PACKET_CACHE_MIN_LATENCY_MS 10
 
+#define FGE_NET_DEFAULT_SESSION 0
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_DEFAULT_PACKET_REORDERER_CACHE_SIZE 5
 #define FGE_NET_PACKET_REORDERER_CACHE_COMPUTE(_clientReturnRate, _serverTickRate)                                     \
@@ -109,6 +110,7 @@ public:
     using IdType = uint16_t;
     using RealmType = uint16_t;
     using CounterType = uint16_t;
+    using SessionId = uint8_t;
 
     struct Header
     {
@@ -116,13 +118,15 @@ public:
         RealmType _realm;
         CounterType _counter;
         CounterType _lastCounter;
+        SessionId _sessionId;
     };
 
-    constexpr static std::size_t HeaderSize = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType) * 2;
+    constexpr static std::size_t HeaderSize = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType) * 2 + sizeof(SessionId);
     constexpr static std::size_t IdPosition = 0;
     constexpr static std::size_t RealmPosition = sizeof(IdType);
-    constexpr static std::size_t CounterPosition = sizeof(IdType) + sizeof(RealmType);
-    constexpr static std::size_t LastCounterPosition = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
+    constexpr static std::size_t CounterPosition = RealmPosition + sizeof(RealmType);
+    constexpr static std::size_t LastCounterPosition = CounterPosition + sizeof(CounterType);
+    constexpr static std::size_t SessionIdPosition = LastCounterPosition + sizeof(CounterType);
 
     inline ProtocolPacket(Packet const& pck,
                           Identity const& id,
@@ -153,12 +157,14 @@ public:
     [[nodiscard]] inline std::optional<RealmType> retrieveRealm() const;
     [[nodiscard]] inline std::optional<CounterType> retrieveCounter() const;
     [[nodiscard]] inline std::optional<CounterType> retrieveLastCounter() const;
+    [[nodiscard]] inline std::optional<SessionId> retrieveSessionId() const;
     [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
 
     [[nodiscard]] inline bool isFragmented() const;
 
     inline ProtocolPacket& setHeader(Header const& header);
     inline ProtocolPacket& setHeaderId(IdType id);
+    inline ProtocolPacket& setSessionId(SessionId sessionId);
 
     inline ProtocolPacket& setFlags(IdType flags);
     inline ProtocolPacket& addFlags(IdType flags);
@@ -266,8 +272,40 @@ enum InternalProtocolIds : ProtocolPacket::IdType
      * Server only
      * Payload:
      * - uint8_t SessionId
+     * - uint16_t MTU
+     * - bool forceMTU
+     * - bool enableCache
+     * - bool enableReorderer
+     * - bool enableDefragmentation
      */
     NET_INTERNAL_ID_SESSION_CREATE,
+    /*
+     * Delete a session.
+     * Server only
+     * Payload:
+     * - uint8_t SessionId
+     */
+    NET_INTERNAL_ID_SESSION_DELETE,
+    /*
+     * Reconfigure an existing session.
+     * Server only
+     * Payload:
+     * - uint8_t SessionId
+     * - uint16_t MTU
+     * - bool forceMTU
+     * - bool enableCache
+     * - bool enableReorderer
+     * - bool enableDefragmentation
+     */
+    NET_INTERNAL_ID_SESSION_RECONFIGURE,
+    /*
+     * Acknowledge the session creation/reconfiguration/deletion.
+     * Client only
+     * Payload:
+     * - uint8_t SessionId
+     */
+    NET_INTERNAL_ID_SESSION_ACK,
+
 
     NET_INTERNAL_ID_FRAGMENTED_PACKET,
 
