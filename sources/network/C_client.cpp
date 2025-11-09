@@ -102,6 +102,13 @@ bool ClientStatus::isTimeout() const
     return false;
 }
 
+//CryptInfo
+
+CryptInfo::~CryptInfo()
+{
+    priv::CryptClientDestroy(*this);
+}
+
 //Client
 
 Client::Client() :
@@ -111,10 +118,7 @@ Client::Client() :
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
         g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
-Client::~Client()
-{
-    priv::CryptClientDestroy(*this);
-}
+Client::~Client() = default;
 Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
         g_CTOSLatency_ms(CTOSLatency),
@@ -440,11 +444,11 @@ ClientStatus& Client::getStatus()
     return this->g_status;
 }
 
-Client::CryptInfo const& Client::getCryptInfo() const
+CryptInfo const& Client::getCryptInfo() const
 {
     return this->g_cryptInfo;
 }
-Client::CryptInfo& Client::getCryptInfo()
+CryptInfo& Client::getCryptInfo()
 {
     return this->g_cryptInfo;
 }

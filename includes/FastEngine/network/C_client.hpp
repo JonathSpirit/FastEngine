@@ -212,6 +212,15 @@ private:
     std::chrono::steady_clock::time_point g_currentTimeout{std::chrono::steady_clock::now()};
 };
 
+struct FGE_API CryptInfo
+{
+    ~CryptInfo();
+
+    void* _ssl{nullptr};
+    void* _rbio{nullptr};
+    void* _wbio{nullptr};
+};
+
 /**
  * \class Client
  * \brief Class that represent the identity of a client
@@ -219,13 +228,6 @@ private:
 class FGE_API Client
 {
 public:
-    struct CryptInfo
-    {
-        void* _ssl{nullptr};
-        void* _rbio{nullptr};
-        void* _wbio{nullptr};
-    };
-
     Client();
     ~Client();
     /**

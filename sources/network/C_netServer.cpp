@@ -30,7 +30,7 @@ namespace fge::net
 ServerSideNetUdp::ServerSideNetUdp(IpAddress::Types type) :
         g_threadReception(nullptr),
         g_threadTransmission(nullptr),
-        g_defaultFlux(*this),
+        g_defaultFlux(*this, true),
         g_socket(type),
         g_running(false)
 {}
@@ -129,7 +129,7 @@ ServerNetFluxUdp* ServerSideNetUdp::newFlux()
 {
     std::scoped_lock const lock(this->g_mutexServer);
 
-    this->g_fluxes.push_back(std::make_unique<ServerNetFluxUdp>(*this));
+    this->g_fluxes.push_back(std::make_unique<ServerNetFluxUdp>(*this, false));
     return this->g_fluxes.back().get();
 }
 ServerNetFluxUdp* ServerSideNetUdp::getFlux(std::size_t index)
@@ -193,10 +193,20 @@ bool ServerSideNetUdp::isRunning() const
     return this->g_running;
 }
 
-void ServerSideNetUdp::notifyNewClient(Identity const& identity, ClientSharedPtr const& client)
+[[nodiscard]] bool ServerSideNetUdp::announceNewClient(Identity const& identity, ClientSharedPtr const& client)
 {
     std::scoped_lock const lock(this->g_mutexServer);
-    this->g_clientsMap[identity] = client;
+
+    auto result = this->g_clientsMap.emplace(identity, client);
+    if (!result.second)
+    {
+        if (!result.first->second.expired())
+        {
+            return result.first->second.lock() == client;
+        }
+        result.first->second = client;
+    }
+    return true;
 }
 
 void ServerSideNetUdp::sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id)
@@ -313,7 +323,7 @@ void ServerSideNetUdp::threadReception()
         //"Garbage collection" of the clients map
         auto const now = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - gcClientsMap) >=
-            std::chrono::milliseconds{5000})
+            std::chrono::milliseconds{FGE_SERVER_CLIENTS_MAP_GC_DELAY_MS})
         {
             gcClientsMap = now;
 

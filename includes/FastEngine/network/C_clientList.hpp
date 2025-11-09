@@ -68,8 +68,6 @@ public:
         ClientSharedPtr _client;
         PacketDefragmentation _defragmentation;
         CommandQueue _commands;
-
-        std::future<uint16_t> _mtuFuture;
     };
 
     using DataList = std::unordered_map<Identity, Data, IdentityHash>;

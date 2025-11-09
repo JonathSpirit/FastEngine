@@ -28,6 +28,7 @@ namespace fge::net
 
 //ClientSideNetUdp
 ClientSideNetUdp::ClientSideNetUdp(IpAddress::Types addressType) :
+        NetFluxUdp(false),
         g_socket(addressType)
 {
     this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
@@ -77,7 +78,7 @@ bool ClientSideNetUdp::start(Port bindPort,
             this->g_socket.close();
             return false;
         }
-        if (!CryptClientCreate(this->g_crypt_ctx, this->_client))
+        if (!CryptClientCreate(this->g_crypt_ctx, this->_client.getCryptInfo()))
         {
             this->g_socket.close();
             return false;
@@ -121,7 +122,7 @@ void ClientSideNetUdp::stop()
         this->_client.setCurrentRealm(FGE_NET_DEFAULT_REALM);
         this->_client.setCurrentPacketCounter(0);
 
-        CryptClientDestroy(this->_client);
+        CryptClientDestroy(this->_client.getCryptInfo());
         CryptUninit(this->g_crypt_ctx);
     }
 }

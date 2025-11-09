@@ -18,7 +18,13 @@
 #define _FGE_FGE_CRYPT_HPP_INCLUDED
 
 #include "FastEngine/network/C_client.hpp"
-#include "FastEngine/network/C_packet.hpp"
+
+namespace fge::net
+{
+
+class Packet;
+
+} // namespace fge::net
 
 namespace fge::priv
 {
@@ -27,9 +33,9 @@ namespace fge::priv
 [[nodiscard]] bool CryptServerInit(void*& ctx);
 void CryptUninit(void*& ctx);
 
-[[nodiscard]] bool CryptClientCreate(void* ctx, net::Client& client);
-[[nodiscard]] bool CryptServerCreate(void* ctx, net::Client& client);
-void CryptClientDestroy(net::Client& client);
+[[nodiscard]] bool CryptClientCreate(void* ctx, net::CryptInfo& client);
+[[nodiscard]] bool CryptServerCreate(void* ctx, net::CryptInfo& client);
+void CryptClientDestroy(net::CryptInfo& client);
 
 [[nodiscard]] bool CryptEncrypt(net::Client& client, net::Packet& packet);
 [[nodiscard]] bool CryptDecrypt(net::Client& client, net::Packet& packet);

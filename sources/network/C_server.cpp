@@ -28,6 +28,9 @@ namespace fge::net
 {
 
 //ServerFluxUdp
+NetFluxUdp::NetFluxUdp(bool defaultFlux) :
+        g_isDefaultFlux(defaultFlux)
+{}
 NetFluxUdp::~NetFluxUdp()
 {
     this->clearPackets();
@@ -167,7 +170,17 @@ std::size_t NetFluxUdp::getMaxPackets() const
     return this->g_maxPackets;
 }
 
+bool NetFluxUdp::isDefaultFlux() const
+{
+    return this->g_isDefaultFlux;
+}
+
 //ServerNetFluxUdp
+ServerNetFluxUdp::ServerNetFluxUdp(ServerSideNetUdp& server, bool defaultFlux) :
+        NetFluxUdp(defaultFlux),
+        g_server(&server)
+{}
+
 void ServerNetFluxUdp::processClients()
 {
     auto const now = std::chrono::steady_clock::now();
@@ -256,8 +269,7 @@ void ServerNetFluxUdp::disconnectAllClients(std::chrono::milliseconds delay) con
     std::this_thread::sleep_for(delay);
 }
 
-FluxProcessResults
-ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient)
+FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet)
 {
     this->processClients();
 
@@ -284,8 +296,8 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
 
     if (refClientData == nullptr)
     { //Unknown client
-        if (allowUnknownClient)
-        {
+        if (this->isDefaultFlux())
+        { //Only allow unknown clients on the default flux
             return this->processUnknownClient(refClient, packet);
         }
 
@@ -301,10 +313,31 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
         return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
+    //Checking commands
+    {
+        auto& commands = refClientData->_commands;
+        if (!commands.empty())
+        {
+            auto const result = commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
+            if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
+            {
+                commands.pop_front();
+            }
+
+            //Commands can drop the packet
+            if (!packet)
+            {
+                return FluxProcessResults::INTERNALLY_HANDLED;
+            }
+        }
+    }
+
     //Check if the client is in an acknowledged state
     if (status.getNetworkStatus() == ClientStatus::NetworkStatus::ACKNOWLEDGED)
     {
-        return this->processAcknowledgedClient(*refClientData, packet);
+        //We can't allow an unknown packet at this point
+        //TODO: error handler class
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
     //Check if the packet is a fragment
@@ -330,7 +363,9 @@ ServerNetFluxUdp::process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet,
     //Check if the client is in an MTU discovered state
     if (status.getNetworkStatus() == ClientStatus::NetworkStatus::MTU_DISCOVERED)
     {
-        return this->processMTUDiscoveredClient(*refClientData, packet);
+        //We can't allow an unknown packet at this point
+        //TODO: error handler class
+        return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
     auto const stat =
@@ -551,15 +586,20 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         refClient = std::make_shared<Client>();
         refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::ACKNOWLEDGED);
         refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-        this->_clients.add(packet->getIdentity(), refClient);
-        this->g_server->notifyNewClient(packet->getIdentity(), refClient);
 
-        //Add MTU command as this is required for the next state
-        auto* clientData = this->_clients.getData(packet->getIdentity());
-        auto command = std::make_unique<NetMTUCommand>(&clientData->_commands);
-        clientData->_mtuFuture = command->get_future();
-        //At this point commands should be empty
-        clientData->_commands.push_front(std::move(command));
+        //Create crypt context
+        if (!CryptServerCreate(this->g_server->getCryptContext(), refClient->getCryptInfo()))
+        {
+            FGE_DEBUG_PRINT("CryptServerCreate failed");
+            return FluxProcessResults::INTERNALLY_DISCARDED;
+        }
+
+        if (!this->g_server->announceNewClient(packet->getIdentity(), refClient))
+        {
+            FGE_DEBUG_PRINT("announceNewClient failed, identity in use");
+            return FluxProcessResults::INTERNALLY_DISCARDED;
+        }
+        this->_clients.add(packet->getIdentity(), refClient);
 
         //Respond to the handshake
         auto responsePacket = CreatePacket(NET_INTERNAL_ID_FGE_HANDSHAKE);
@@ -570,176 +610,17 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
 
         this->_onClientAcknowledged.call(refClient, packet->getIdentity());
 
+        //Add connect handler command as this is required for establishing the connection
+        auto* clientData = this->_clients.getData(packet->getIdentity());
+        auto command = std::make_unique<NetConnectHandlerCommand>(&clientData->_commands);
+        //At this point commands should be empty
+        clientData->_commands.push_front(std::move(command));
+
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     //We can't process packets further for unknown clients
     return FluxProcessResults::INTERNALLY_DISCARDED;
-}
-FluxProcessResults ServerNetFluxUdp::processAcknowledgedClient(ClientList::Data& refClientData,
-                                                               ReceivedPacketPtr& packet)
-{
-    //At this point, the client still need to do the MTU discovery
-    switch (packet->retrieveHeaderId().value())
-    {
-    case NET_INTERNAL_ID_MTU_TEST:
-    {
-        auto response = CreatePacket(NET_INTERNAL_ID_MTU_TEST_RESPONSE);
-        response->doNotDiscard().doNotReorder();
-        refClientData._client->pushPacket(std::move(response));
-        refClientData._client->getStatus().resetTimeout();
-        FGE_DEBUG_PRINT("received MTU test");
-        break;
-    }
-    case NET_INTERNAL_ID_MTU_ASK:
-    {
-        auto response = CreatePacket(NET_INTERNAL_ID_MTU_ASK_RESPONSE);
-        response->doNotDiscard().doNotReorder()
-                << SocketUdp::retrieveAdapterMTUForDestination(packet->getIdentity()._ip).value_or(0);
-        refClientData._client->pushPacket(std::move(response));
-        refClientData._client->getStatus().resetTimeout();
-        FGE_DEBUG_PRINT("received MTU ask");
-        break;
-    }
-    case NET_INTERNAL_ID_MTU_FINAL:
-        FGE_DEBUG_PRINT("received MTU final");
-        refClientData._client->_mtuFinalizedFlag = true;
-        refClientData._client->getStatus().resetTimeout();
-        //Client have finished the MTU discovery, but we have to check if the server have finished too
-        if (refClientData._client->getMTU() != 0)
-        {
-            if (!CryptServerCreate(this->g_server->getCryptContext(), *refClientData._client))
-            {
-                FGE_DEBUG_PRINT("CryptServerCreate failed");
-                //Discard the packet and the client
-                this->_clients.remove(packet->getIdentity());
-                this->_onClientDropped.call(refClientData._client, packet->getIdentity());
-                return FluxProcessResults::INTERNALLY_DISCARDED;
-            }
-            FGE_DEBUG_PRINT("CryptServerCreate success, starting crypt exchange");
-            refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
-            refClientData._client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-            this->_onClientMTUDiscovered.call(refClientData._client, packet->getIdentity());
-        }
-        break;
-    default:
-    {
-        auto const result = this->checkCommands(refClientData._client, refClientData._commands, packet);
-        if (result == NetCommandResults::FAILURE)
-        {
-            FGE_DEBUG_PRINT("Command failed");
-            //Discard the packet and the client
-            this->_clients.remove(packet->getIdentity());
-            this->_onClientDropped.call(refClientData._client, packet->getIdentity());
-            return FluxProcessResults::INTERNALLY_DISCARDED;
-        }
-
-        if (result == NetCommandResults::SUCCESS)
-        {
-            FGE_DEBUG_PRINT("Command success");
-            refClientData._client->setMTU(refClientData._mtuFuture.get());
-
-            auto response = CreatePacket(NET_INTERNAL_ID_MTU_FINAL);
-            response->doNotDiscard().doNotReorder();
-            refClientData._client->pushPacket(std::move(response));
-            refClientData._client->getStatus().resetTimeout();
-
-            //Server have finished the MTU discovery, but we have to check if the client have finished too
-            if (refClientData._client->_mtuFinalizedFlag)
-            {
-                FGE_DEBUG_PRINT("mtu finalized");
-                if (!CryptServerCreate(this->g_server->getCryptContext(), *refClientData._client))
-                {
-                    FGE_DEBUG_PRINT("CryptServerCreate failed");
-                    //Discard the packet and the client
-                    this->_clients.remove(packet->getIdentity());
-                    this->_onClientDropped.call(refClientData._client, packet->getIdentity());
-                    return FluxProcessResults::INTERNALLY_DISCARDED;
-                }
-
-                FGE_DEBUG_PRINT("CryptServerCreate success, starting crypt exchange");
-                refClientData._client->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::MTU_DISCOVERED);
-                refClientData._client->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_TIMEOUT);
-                this->_onClientMTUDiscovered.call(refClientData._client, packet->getIdentity());
-            }
-        }
-    }
-    break;
-    }
-    //TODO: add a timeout for the MTU discovery
-    return FluxProcessResults::INTERNALLY_HANDLED;
-}
-FluxProcessResults ServerNetFluxUdp::processMTUDiscoveredClient(ClientList::Data& refClientData,
-                                                                ReceivedPacketPtr& packet)
-{
-    //Check if the packet is a crypt handshake
-    if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_CRYPT_HANDSHAKE)
-    {
-        return FluxProcessResults::INTERNALLY_DISCARDED;
-    }
-
-    auto& refClient = refClientData._client;
-
-    FGE_DEBUG_PRINT("receiving crypt handshake");
-    auto& info = refClient->getCryptInfo();
-
-    refClient->getStatus().resetTimeout();
-
-    auto const readPos = packet->getReadPos();
-    BIO_write(static_cast<BIO*>(info._rbio), packet->getData() + readPos, packet->getDataSize() - readPos);
-
-    auto const result = SSL_do_handshake(static_cast<SSL*>(info._ssl));
-    if (result <= 0)
-    {
-        auto const err = SSL_get_error(static_cast<SSL*>(info._ssl), result);
-
-        if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE)
-        {
-            ERR_print_errors_fp(stderr);
-            refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
-            this->_clients.remove(packet->getIdentity());
-            this->_onClientDropped.call(refClient, packet->getIdentity());
-            return FluxProcessResults::INTERNALLY_DISCARDED;
-        }
-    }
-
-    FGE_DEBUG_PRINT("check for transmit crypt");
-    // Check if OpenSSL has produced encrypted handshake data
-    auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
-    if (pendingSize == 0)
-    {
-        FGE_DEBUG_PRINT("no crypt handshake to transmit");
-        return FluxProcessResults::INTERNALLY_DISCARDED;
-    }
-    FGE_DEBUG_PRINT("transmitting crypt");
-    auto response = CreatePacket(NET_INTERNAL_ID_CRYPT_HANDSHAKE);
-    auto const packetStartDataPosition = response->doNotDiscard().getDataSize();
-    response->append(pendingSize);
-    auto const finalSize =
-            BIO_read(static_cast<BIO*>(info._wbio), response->getData() + packetStartDataPosition, pendingSize);
-    if (finalSize <= 0 || static_cast<std::size_t>(finalSize) != pendingSize)
-    {
-        FGE_DEBUG_PRINT("failed crypt");
-        refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::DISCONNECTED);
-        this->_clients.remove(packet->getIdentity());
-        this->_onClientDropped.call(refClient, packet->getIdentity());
-        return FluxProcessResults::INTERNALLY_DISCARDED;
-    }
-    refClient->pushPacket(std::move(response));
-    this->g_server->notifyTransmission();
-
-    if (SSL_is_init_finished(static_cast<SSL*>(info._ssl)) == 1)
-    {
-        FGE_DEBUG_PRINT("CONNECTED");
-        refClient->getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
-        refClient->getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-        refClient->setClientPacketCounter(0);
-        refClient->setCurrentPacketCounter(0);
-        this->_onClientConnected.call(refClient, packet->getIdentity());
-        return FluxProcessResults::INTERNALLY_HANDLED;
-    }
-
-    return FluxProcessResults::INTERNALLY_HANDLED;
 }
 
 bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet)

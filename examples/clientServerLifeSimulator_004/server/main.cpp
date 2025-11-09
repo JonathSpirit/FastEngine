@@ -212,7 +212,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         fge::net::ReceivedPacketPtr packet;
         fge::net::FluxProcessResults processResult;
         do {
-            processResult = serverFlux->process(client, packet, true);
+            processResult = serverFlux->process(client, packet);
             if (processResult != fge::net::FluxProcessResults::USER_RETRIEVABLE)
             {
                 continue;

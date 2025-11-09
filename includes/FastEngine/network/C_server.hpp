@@ -43,6 +43,7 @@
     }
 
 #define FGE_SERVER_PACKET_RECEPTION_TIMEOUT_MS 250
+#define FGE_SERVER_CLIENTS_MAP_GC_DELAY_MS 5000
 
 namespace fge
 {
@@ -87,7 +88,7 @@ enum class ReturnEvents
 class FGE_API NetFluxUdp
 {
 public:
-    NetFluxUdp() = default;
+    NetFluxUdp(bool defaultFlux);
     NetFluxUdp(NetFluxUdp const& r) = delete;
     NetFluxUdp(NetFluxUdp&& r) noexcept = delete;
     virtual ~NetFluxUdp();
@@ -104,6 +105,8 @@ public:
     void setMaxPackets(std::size_t n);
     [[nodiscard]] std::size_t getMaxPackets() const;
 
+    [[nodiscard]] bool isDefaultFlux() const;
+
 protected:
     bool pushPacket(ReceivedPacketPtr&& fluxPck);
     void forcePushPacket(ReceivedPacketPtr fluxPck);
@@ -119,6 +122,7 @@ protected:
 
 private:
     std::size_t g_maxPackets = FGE_SERVER_DEFAULT_MAXPACKET;
+    bool g_isDefaultFlux{false};
 
     friend class ServerSideNetUdp;
 };
@@ -126,15 +130,11 @@ private:
 class FGE_API ServerNetFluxUdp : public NetFluxUdp
 {
 public:
-    explicit ServerNetFluxUdp(ServerSideNetUdp& server) :
-            NetFluxUdp(),
-            g_server(&server)
-    {}
+    ServerNetFluxUdp(ServerSideNetUdp& server, bool defaultFlux);
     ~ServerNetFluxUdp() override = default;
 
     void processClients();
-    [[nodiscard]] FluxProcessResults
-    process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet, bool allowUnknownClient);
+    [[nodiscard]] FluxProcessResults process(ClientSharedPtr& refClient, ReceivedPacketPtr& packet);
 
     void disconnectAllClients(std::chrono::milliseconds delay = std::chrono::milliseconds(0)) const;
 
@@ -162,12 +162,8 @@ private:
     checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet);
 
     [[nodiscard]] FluxProcessResults processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet);
-    [[nodiscard]] FluxProcessResults processAcknowledgedClient(ClientList::Data& refClientData,
-                                                               ReceivedPacketPtr& packet);
-    [[nodiscard]] FluxProcessResults processMTUDiscoveredClient(ClientList::Data& refClientData,
-                                                                ReceivedPacketPtr& packet);
 
-    ServerSideNetUdp* g_server{nullptr};
+    ServerSideNetUdp* const g_server{nullptr};
     std::chrono::milliseconds g_commandsUpdateTick{0};
     std::chrono::steady_clock::time_point g_lastCommandUpdateTimePoint{std::chrono::steady_clock::now()};
 };
@@ -243,7 +239,7 @@ public:
     void notifyTransmission();
     [[nodiscard]] bool isRunning() const;
 
-    void notifyNewClient(Identity const& identity, ClientSharedPtr const& client);
+    [[nodiscard]] bool announceNewClient(Identity const& identity, ClientSharedPtr const& client);
 
     void sendTo(TransmitPacketPtr& pck, Client const& client, Identity const& id);
     void sendTo(TransmitPacketPtr& pck, Identity const& id);
