@@ -237,6 +237,7 @@ void ServerNetFluxUdp::processClients()
             if (!commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
+                auto const type = commands.front()->getType();
                 auto result = commands.front()->update(possiblePacket, this->g_server->getAddressType(), *client,
                                                        this->g_commandsUpdateTick);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
@@ -249,6 +250,11 @@ void ServerNetFluxUdp::processClients()
                 {
                     //Pushing the packet
                     client->pushPacket(std::move(possiblePacket));
+                }
+
+                if (result == NetCommandResults::SUCCESS && type == NetCommandTypes::CONNECT_HANDLER)
+                {
+                    this->_onClientConnected.call(client, it->first);
                 }
             }
         }
@@ -318,11 +324,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
         auto& commands = refClientData->_commands;
         if (!commands.empty())
         {
-            auto const result = commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
-            if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
-            {
-                commands.pop_front();
-            }
+            commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
 
             //Commands can drop the packet
             if (!packet)
@@ -635,21 +637,6 @@ bool ServerNetFluxUdp::verifyRealm(ClientSharedPtr const& refClient, ReceivedPac
         return (headerFlags & FGE_NET_HEADER_DO_NOT_DISCARD_FLAG) > 0;
     }
     return true;
-}
-NetCommandResults
-ServerNetFluxUdp::checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet)
-{
-    if (commands.empty())
-    {
-        return NetCommandResults::FAILURE;
-    }
-
-    auto const result = commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
-    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
-    {
-        commands.pop_front();
-    }
-    return result;
 }
 
 } // namespace fge::net

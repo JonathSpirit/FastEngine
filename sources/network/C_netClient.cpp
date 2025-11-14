@@ -547,13 +547,7 @@ void ClientSideNetUdp::threadReception()
                 std::scoped_lock const commandLock(this->g_mutexCommands);
                 if (!this->g_commands.empty())
                 {
-
-                    auto const result =
-                            this->g_commands.front()->onReceive(packet, this->g_socket.getAddressType(), this->_client);
-                    if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
-                    {
-                        this->g_commands.pop_front();
-                    }
+                    this->g_commands.front()->onReceive(packet, this->g_socket.getAddressType(), this->_client);
 
                     //Commands can drop the packet
                     if (!packet)

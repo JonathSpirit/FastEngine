@@ -144,7 +144,6 @@ public:
     CallbackHandler<ClientSharedPtr, Identity const&> _onClientTimeout;
 
     CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAcknowledged;
-    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientMTUDiscovered;
     CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientConnected;
     CallbackHandler<ClientSharedPtr, Identity const&> _onClientDisconnected;
     CallbackHandler<ClientSharedPtr, Identity const&> _onClientDropped;
@@ -158,8 +157,6 @@ public:
 
 private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
-    [[nodiscard]] NetCommandResults
-    checkCommands(ClientSharedPtr const& refClient, CommandQueue& commands, ReceivedPacketPtr& packet);
 
     [[nodiscard]] FluxProcessResults processUnknownClient(ClientSharedPtr& refClient, ReceivedPacketPtr& packet);
 

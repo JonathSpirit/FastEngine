@@ -138,6 +138,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     //Handling clients connection
     serverFlux->_onClientConnected.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity const& id) {
         client->getStatus().setTimeout(LIFESIM_TIME_TIMEOUT);
+        std::cout << "New user connected and now trying to authenticate : " << id.toString() << std::endl;
     });
 
     //Handling clients return packet
@@ -274,12 +275,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                             transmissionPacket->packet() << true;
                             transmissionPacket->doNotReorder();
 
-                            std::cout << "new user : " << packet->getIdentity().toString() << " connected !"
+                            std::cout << "new user : " << packet->getIdentity().toString() << " authenticated !"
                                       << std::endl;
 
-                            //Create the new client with the packet identity
-                            //client = std::make_shared<fge::net::Client>();
-                            //clients.add(packet->getIdentity(), client);
+                            //Authenticate the new client
                             client->getStatus().setNetworkStatus(fge::net::ClientStatus::NetworkStatus::AUTHENTICATED);
 
                             //Pack data required by the LatencyPlanner in order to compute latency

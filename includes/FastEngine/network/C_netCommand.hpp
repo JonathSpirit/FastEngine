@@ -66,7 +66,8 @@ enum class NetCommandTypes
 {
     DISCOVER_MTU,
     CONNECT,
-    DISCONNECT
+    DISCONNECT,
+    CONNECT_HANDLER
 };
 enum class NetCommandResults
 {
@@ -91,23 +92,26 @@ public:
                                            IpAddress::Types addressType,
                                            Client& client,
                                            std::chrono::milliseconds deltaTime);
-    [[nodiscard]] virtual NetCommandResults
-    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) = 0;
+    virtual void onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) = 0;
 
     [[nodiscard]] virtual std::chrono::milliseconds getTimeoutTarget() const;
 
 protected:
-    [[nodiscard]] virtual NetCommandResults internalUpdate(TransmitPacketPtr& buffPacket,
-                                                           IpAddress::Types addressType,
-                                                           Client& client,
-                                                           std::chrono::milliseconds deltaTime) = 0;
+    virtual void internalUpdate(TransmitPacketPtr& buffPacket,
+                                IpAddress::Types addressType,
+                                Client& client,
+                                std::chrono::milliseconds deltaTime) = 0;
     [[nodiscard]] virtual NetCommandResults timeout(Client& client);
     void resetTimeout();
+
+    void markAsFailed();
+    void markAsSucceeded();
 
     CommandQueue* _g_commandQueue{nullptr};
 
 private:
     std::chrono::milliseconds g_timeout{0};
+    NetCommandResults g_currentResultState{NetCommandResults::WORKING};
 };
 
 class FGE_API NetMTUCommand final : public NetCommand
@@ -118,12 +122,11 @@ public:
 
     [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::DISCOVER_MTU; }
 
-    [[nodiscard]] NetCommandResults internalUpdate(TransmitPacketPtr& buffPacket,
-                                                   IpAddress::Types addressType,
-                                                   Client& client,
-                                                   std::chrono::milliseconds deltaTime) override;
-    [[nodiscard]] NetCommandResults
-    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
+    void internalUpdate(TransmitPacketPtr& buffPacket,
+                        IpAddress::Types addressType,
+                        Client& client,
+                        std::chrono::milliseconds deltaTime) override;
+    void onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
 
     [[nodiscard]] inline std::future<uint16_t> get_future() { return this->g_promise.get_future(); }
 
@@ -159,12 +162,11 @@ public:
 
     [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT; }
 
-    [[nodiscard]] NetCommandResults internalUpdate(TransmitPacketPtr& buffPacket,
-                                                   IpAddress::Types addressType,
-                                                   Client& client,
-                                                   std::chrono::milliseconds deltaTime) override;
-    [[nodiscard]] NetCommandResults
-    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
+    void internalUpdate(TransmitPacketPtr& buffPacket,
+                        IpAddress::Types addressType,
+                        Client& client,
+                        std::chrono::milliseconds deltaTime) override;
+    void onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
 
     [[nodiscard]] inline std::future<bool> get_future() { return this->g_promise.get_future(); }
 
@@ -201,14 +203,13 @@ public:
     using NetCommand::NetCommand;
     ~NetConnectHandlerCommand() override = default;
 
-    [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT; }
+    [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT_HANDLER; }
 
-    [[nodiscard]] NetCommandResults internalUpdate(TransmitPacketPtr& buffPacket,
-                                                   IpAddress::Types addressType,
-                                                   Client& client,
-                                                   std::chrono::milliseconds deltaTime) override;
-    [[nodiscard]] NetCommandResults
-    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
+    void internalUpdate(TransmitPacketPtr& buffPacket,
+                        IpAddress::Types addressType,
+                        Client& client,
+                        std::chrono::milliseconds deltaTime) override;
+    void onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
 
     [[nodiscard]] inline std::future<bool> get_future() { return this->g_promise.get_future(); }
 
@@ -244,14 +245,13 @@ public:
     using NetCommand::NetCommand;
     ~NetDisconnectCommand() override = default;
 
-    [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::CONNECT; }
+    [[nodiscard]] NetCommandTypes getType() const override { return NetCommandTypes::DISCONNECT; }
 
-    [[nodiscard]] NetCommandResults internalUpdate(TransmitPacketPtr& buffPacket,
-                                                   IpAddress::Types addressType,
-                                                   Client& client,
-                                                   std::chrono::milliseconds deltaTime) override;
-    [[nodiscard]] NetCommandResults
-    onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
+    void internalUpdate(TransmitPacketPtr& buffPacket,
+                        IpAddress::Types addressType,
+                        Client& client,
+                        std::chrono::milliseconds deltaTime) override;
+    void onReceive(std::unique_ptr<ProtocolPacket>& packet, IpAddress::Types addressType, Client& client) override;
 
     [[nodiscard]] inline std::future<void> get_future() { return this->g_promise.get_future(); }
 
