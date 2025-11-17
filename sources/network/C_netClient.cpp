@@ -149,11 +149,11 @@ std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
         throw Exception("Cannot retrieve MTU without a running client");
     }
 
-    auto command = std::make_unique<NetMTUCommand>(&this->g_commands);
+    auto command = std::make_unique<NetMTUCommand>(&this->g_clientContext._commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_commands.push_back(std::move(command));
+    this->g_clientContext._commands.push_back(std::move(command));
 
     return future;
 }
@@ -164,12 +164,12 @@ std::future<bool> ClientSideNetUdp::connect(std::string_view versioningString)
         throw Exception("Cannot connect without a running client");
     }
 
-    auto command = std::make_unique<NetConnectCommand>(&this->g_commands);
+    auto command = std::make_unique<NetConnectCommand>(&this->g_clientContext._commands);
     auto future = command->get_future();
     command->setVersioningString(versioningString);
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_commands.push_back(std::move(command));
+    this->g_clientContext._commands.push_back(std::move(command));
 
     return future;
 }
@@ -185,11 +185,11 @@ std::future<void> ClientSideNetUdp::disconnect()
 
     this->enableReturnPacket(false);
 
-    auto command = std::make_unique<NetDisconnectCommand>(&this->g_commands);
+    auto command = std::make_unique<NetDisconnectCommand>(&this->g_clientContext._commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_commands.push_back(std::move(command));
+    this->g_clientContext._commands.push_back(std::move(command));
 
     return future;
 }
@@ -197,6 +197,14 @@ std::future<void> ClientSideNetUdp::disconnect()
 Identity const& ClientSideNetUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
+}
+ClientContext const& ClientSideNetUdp::getClientContext() const
+{
+    return this->g_clientContext;
+}
+ClientContext& ClientSideNetUdp::getClientContext()
+{
+    return this->g_clientContext;
 }
 
 FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
@@ -276,7 +284,8 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult =
-                this->processReorder(this->_client, packet, this->_client.getCurrentPacketCounter(), false);
+                this->processReorder(this->g_clientContext._reorderer, packet, this->_client.getCurrentPacketCounter(),
+                                     this->_client.getCurrentRealm(), false);
         if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
         {
             return reorderResult;
@@ -483,10 +492,10 @@ void ClientSideNetUdp::threadReception()
             //Check if the packet is a fragment
             if (packet->isFragmented())
             {
-                auto const result = this->g_defragmentation.process(std::move(packet));
+                auto const result = this->g_clientContext._defragmentation.process(std::move(packet));
                 if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
                 {
-                    packet = this->g_defragmentation.retrieve(result._id, this->g_clientIdentity);
+                    packet = this->g_clientContext._defragmentation.retrieve(result._id, this->g_clientIdentity);
                 }
                 else
                 {
@@ -545,9 +554,10 @@ void ClientSideNetUdp::threadReception()
             //Checking commands
             {
                 std::scoped_lock const commandLock(this->g_mutexCommands);
-                if (!this->g_commands.empty())
+                if (!this->g_clientContext._commands.empty())
                 {
-                    this->g_commands.front()->onReceive(packet, this->g_socket.getAddressType(), this->_client);
+                    this->g_clientContext._commands.front()->onReceive(packet, this->g_socket.getAddressType(),
+                                                                       this->_client);
 
                     //Commands can drop the packet
                     if (!packet)
@@ -583,14 +593,14 @@ void ClientSideNetUdp::threadTransmission()
         if (commandsTime >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
             std::scoped_lock const commandLock(this->g_mutexCommands);
-            if (!this->g_commands.empty())
+            if (!this->g_clientContext._commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
-                auto const result = this->g_commands.front()->update(possiblePacket, this->g_socket.getAddressType(),
-                                                                     this->_client, commandsTime);
+                auto const result = this->g_clientContext._commands.front()->update(
+                        possiblePacket, this->g_socket.getAddressType(), this->_client, commandsTime);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
-                    this->g_commands.pop_front();
+                    this->g_clientContext._commands.pop_front();
                 }
 
                 if (possiblePacket)

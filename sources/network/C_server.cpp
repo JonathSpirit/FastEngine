@@ -63,14 +63,15 @@ void NetFluxUdp::forcePushPacketFront(ReceivedPacketPtr fluxPck)
     this->_g_packets.push_front(std::move(fluxPck));
 }
 
-FluxProcessResults NetFluxUdp::processReorder(Client& client,
+FluxProcessResults NetFluxUdp::processReorder(PacketReorderer& reorderer,
                                               ReceivedPacketPtr& packet,
                                               ProtocolPacket::CounterType currentCounter,
+                                              ProtocolPacket::RealmType clientRealm,
                                               bool ignoreRealm)
 {
-    auto currentRealm = ignoreRealm ? packet->retrieveRealm().value() : client.getCurrentRealm();
+    auto currentRealm = ignoreRealm ? packet->retrieveRealm().value() : clientRealm;
 
-    if (client.getPacketReorderer().isEmpty())
+    if (reorderer.isEmpty())
     {
         auto const stat = PacketReorderer::checkStat(packet, currentCounter, currentRealm);
 
@@ -80,40 +81,40 @@ FluxProcessResults NetFluxUdp::processReorder(Client& client,
             return FluxProcessResults::USER_RETRIEVABLE;
         }
 
-        client.getPacketReorderer().push(std::move(packet));
+        reorderer.push(std::move(packet));
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     //We push the packet in the reorderer
-    client.getPacketReorderer().push(std::move(packet));
+    reorderer.push(std::move(packet));
 
     //At this point we are sure that the reorderer contains at least 2 packets
 
-    bool forced = client.getPacketReorderer().isForced();
-    auto const stat = client.getPacketReorderer().checkStat(currentCounter, currentRealm).value();
+    bool forced = reorderer.isForced();
+    auto const stat = reorderer.checkStat(currentCounter, currentRealm).value();
     if (!forced && stat != PacketReorderer::Stats::RETRIEVABLE)
     {
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
-    packet = client.getPacketReorderer().pop();
+    packet = reorderer.pop();
     packet->markAsLocallyReordered();
     currentCounter = packet->retrieveCounter().value();
     currentRealm = packet->retrieveRealm().value();
 
-    auto const packerReordererMaxSize = client.getPacketReorderer().getMaximumSize();
+    auto const packerReordererMaxSize = reorderer.getMaximumSize();
     std::size_t containerInversedSize = 0;
     auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, packerReordererMaxSize);
     FGE_PLACE_CONSTRUCT(ReceivedPacketPtr, packerReordererMaxSize, containerInversed);
 
-    while (auto const stat = client.getPacketReorderer().checkStat(currentCounter, currentRealm))
+    while (auto const stat = reorderer.checkStat(currentCounter, currentRealm))
     {
         if (!(stat == PacketReorderer::Stats::RETRIEVABLE || forced))
         {
             break;
         }
 
-        auto reorderedPacket = client.getPacketReorderer().pop();
+        auto reorderedPacket = reorderer.pop();
 
         //Mark them as reordered
         reorderedPacket->markAsLocallyReordered();
@@ -233,7 +234,7 @@ void ServerNetFluxUdp::processClients()
         //Handle commands
         if (this->g_commandsUpdateTick >= FGE_NET_CMD_UPDATE_TICK_MS)
         { //TODO: move it to the transmit thread ?
-            auto& commands = it->second._commands;
+            auto& commands = it->second._context._commands;
             if (!commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
@@ -321,7 +322,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
 
     //Checking commands
     {
-        auto& commands = refClientData->_commands;
+        auto& commands = refClientData->_context._commands;
         if (!commands.empty())
         {
             commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
@@ -346,10 +347,10 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     if (packet->isFragmented())
     {
         auto const identity = packet->getIdentity();
-        auto const result = refClientData->_defragmentation.process(std::move(packet));
+        auto const result = refClientData->_context._defragmentation.process(std::move(packet));
         if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
         {
-            packet = refClientData->_defragmentation.retrieve(result._id, identity);
+            packet = refClientData->_context._defragmentation.retrieve(result._id, identity);
         }
         else
         {
@@ -392,7 +393,9 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
     if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
     {
-        auto reorderResult = this->processReorder(*refClient, packet, refClient->getClientPacketCounter(), true);
+        auto reorderResult =
+                this->processReorder(refClientData->_context._reorderer, packet, refClient->getClientPacketCounter(),
+                                     refClient->getCurrentRealm(), true);
         if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
         {
             return reorderResult;
@@ -532,10 +535,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
             acknowledgedPackets[i] = label;
         }
 
-        {
-            auto const packetCache = refClient->getPacketCache();
-            packetCache.first->acknowledgeReception(acknowledgedPackets);
-        }
+        refClientData->_context._cache.acknowledgeReception(acknowledgedPackets);
 
         this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
 
@@ -614,9 +614,9 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
 
         //Add connect handler command as this is required for establishing the connection
         auto* clientData = this->_clients.getData(packet->getIdentity());
-        auto command = std::make_unique<NetConnectHandlerCommand>(&clientData->_commands);
+        auto command = std::make_unique<NetConnectHandlerCommand>(&clientData->_context._commands);
         //At this point commands should be empty
-        clientData->_commands.push_front(std::move(command));
+        clientData->_context._commands.push_front(std::move(command));
 
         return FluxProcessResults::INTERNALLY_HANDLED;
     }

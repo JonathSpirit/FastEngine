@@ -368,27 +368,10 @@ ProtocolPacket::CounterType Client::getLastReorderedPacketCounter() const
     return this->g_lastReorderedPacketCounter;
 }
 
-PacketReorderer& Client::getPacketReorderer()
-{
-    return this->g_packetReorderer;
-}
-PacketReorderer const& Client::getPacketReorderer() const
-{
-    return this->g_packetReorderer;
-}
-
-DataLockPair<PacketCache*, std::recursive_mutex> Client::getPacketCache()
-{
-    return DataLockPair<PacketCache*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
-}
-DataLockPair<PacketCache const*, std::recursive_mutex> Client::getPacketCache() const
-{
-    return DataLockPair<PacketCache const*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
-}
 void Client::acknowledgeReception(ReceivedPacketPtr const& packet)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_acknowledgedPackets.push_back({packet->retrieveCounter().value(), packet->retrieveRealm().value()});
+    this->g_acknowledgedPackets.emplace_back(packet->retrieveCounter().value(), packet->retrieveRealm().value());
 }
 std::vector<PacketCache::Label> const& Client::getAcknowledgedList() const
 {

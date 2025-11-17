@@ -392,11 +392,6 @@ public:
     void resetLastReorderedPacketCounter();
     [[nodiscard]] ProtocolPacket::CounterType getLastReorderedPacketCounter() const;
 
-    [[nodiscard]] PacketReorderer& getPacketReorderer();
-    [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
-
-    [[nodiscard]] DataLockPair<PacketCache*, std::recursive_mutex> getPacketCache();
-    [[nodiscard]] DataLockPair<PacketCache const*, std::recursive_mutex> getPacketCache() const;
     void acknowledgeReception(ReceivedPacketPtr const& packet);
     [[nodiscard]] std::vector<PacketCache::Label> const& getAcknowledgedList() const;
     void clearAcknowledgedList();
@@ -442,8 +437,6 @@ private:
     ProtocolPacket::CounterType g_clientPacketCounter{0};
 
     std::vector<PacketCache::Label> g_acknowledgedPackets;
-    PacketCache g_packetCache;
-    PacketReorderer g_packetReorderer;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
 

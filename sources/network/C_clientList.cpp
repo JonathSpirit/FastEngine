@@ -51,7 +51,7 @@ void ClientList::add(Identity const& id, ClientSharedPtr const& newClient)
     this->g_data.emplace(id, newClient);
     if (this->g_enableClientEventsFlag)
     {
-        this->g_events.push_back({ClientListEvent::CLEVT_NEWCLIENT, id});
+        this->g_events.emplace_back(Event::Types::EVT_NEWCLIENT, id);
     }
 }
 void ClientList::remove(Identity const& id)
@@ -60,7 +60,7 @@ void ClientList::remove(Identity const& id)
     this->g_data.erase(id);
     if (this->g_enableClientEventsFlag)
     {
-        this->g_events.push_back({ClientListEvent::CLEVT_DELCLIENT, id});
+        this->g_events.emplace_back(Event::Types::EVT_DELCLIENT, id);
     }
 }
 ClientList::DataList::iterator ClientList::remove(DataList::const_iterator itPos,
@@ -69,7 +69,7 @@ ClientList::DataList::iterator ClientList::remove(DataList::const_iterator itPos
     lock.throwIfDifferent(this->g_mutex);
     if (this->g_enableClientEventsFlag)
     {
-        this->g_events.push_back({ClientListEvent::CLEVT_DELCLIENT, itPos->first});
+        this->g_events.emplace_back(Event::Types::EVT_DELCLIENT, itPos->first);
     }
     return this->g_data.erase(itPos);
 }
@@ -147,13 +147,13 @@ bool ClientList::isWatchingEvent() const
     return this->g_enableClientEventsFlag;
 }
 
-void ClientList::pushClientEvent(ClientListEvent const& evt)
+void ClientList::pushClientEvent(Event const& evt)
 {
     std::scoped_lock const lck(this->g_mutex);
     this->g_events.push_back(evt);
 }
 
-ClientListEvent const& ClientList::getClientEvent(std::size_t index) const
+ClientList::Event const& ClientList::getClientEvent(std::size_t index) const
 {
     std::scoped_lock const lck(this->g_mutex);
     return this->g_events[index];

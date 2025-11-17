@@ -111,9 +111,10 @@ protected:
     bool pushPacket(ReceivedPacketPtr&& fluxPck);
     void forcePushPacket(ReceivedPacketPtr fluxPck);
     void forcePushPacketFront(ReceivedPacketPtr fluxPck);
-    [[nodiscard]] FluxProcessResults processReorder(Client& client,
+    [[nodiscard]] FluxProcessResults processReorder(PacketReorderer& reorderer,
                                                     ReceivedPacketPtr& packet,
                                                     ProtocolPacket::CounterType currentCounter,
+                                                    ProtocolPacket::RealmType clientRealm,
                                                     bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
@@ -305,6 +306,8 @@ public:
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
     [[nodiscard]] Identity const& getClientIdentity() const;
+    [[nodiscard]] ClientContext const& getClientContext() const;
+    [[nodiscard]] ClientContext& getClientContext();
 
     template<class TPacket = Packet>
     void sendTo(TransmitPacketPtr& pck, Identity const& id);
@@ -335,9 +338,6 @@ private:
     void threadReception();
     void threadTransmission();
 
-    std::recursive_mutex g_mutexCommands;
-    CommandQueue g_commands;
-
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;
 
@@ -349,7 +349,8 @@ private:
 
     Identity g_clientIdentity;
 
-    PacketDefragmentation g_defragmentation;
+    std::recursive_mutex g_mutexCommands;
+    ClientContext g_clientContext;
 
     bool g_returnPacketEnabled{false};
     TransmitPacketPtr g_returnPacket;

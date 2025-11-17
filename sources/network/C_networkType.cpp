@@ -168,7 +168,7 @@ void PerClientSyncContext::clientsCheckup(ClientList const& clients,
     {
         auto const& evt = clients.getClientEvent(i);
 
-        if (evt._event == ClientListEvent::CLEVT_DELCLIENT)
+        if (evt._event == ClientList::Event::Types::EVT_DELCLIENT)
         {
             this->delClient(evt._id);
         }
