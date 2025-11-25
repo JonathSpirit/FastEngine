@@ -423,9 +423,22 @@ bool PacketCache::isEmpty() const
 {
     return this->g_start == this->g_end;
 }
+bool PacketCache::isEnabled() const
+{
+    return this->g_enable;
+}
+void PacketCache::enable(bool enable)
+{
+    this->g_enable = enable;
+}
 
 void PacketCache::push(TransmitPacketPtr const& packet)
 {
+    if (!this->g_enable)
+    {
+        return;
+    }
+
     auto const next = (this->g_end + 1) % FGE_NET_PACKET_CACHE_MAX;
 
     if (next == this->g_start)
