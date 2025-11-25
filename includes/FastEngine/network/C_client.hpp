@@ -28,6 +28,7 @@
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <unordered_set>
 
 #define FGE_NET_DEFAULT_LATENCY 20
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
@@ -393,7 +394,7 @@ public:
     [[nodiscard]] ProtocolPacket::CounterType getLastReorderedPacketCounter() const;
 
     void acknowledgeReception(ReceivedPacketPtr const& packet);
-    [[nodiscard]] std::vector<PacketCache::Label> const& getAcknowledgedList() const;
+    [[nodiscard]] std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> const& getAcknowledgedList() const;
     void clearAcknowledgedList();
 
     void clearLostPacketCount();
@@ -436,7 +437,7 @@ private:
     ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
     ProtocolPacket::CounterType g_clientPacketCounter{0};
 
-    std::vector<PacketCache::Label> g_acknowledgedPackets;
+    std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> g_acknowledgedPackets;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
 

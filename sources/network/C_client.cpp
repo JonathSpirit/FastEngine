@@ -371,9 +371,9 @@ ProtocolPacket::CounterType Client::getLastReorderedPacketCounter() const
 void Client::acknowledgeReception(ReceivedPacketPtr const& packet)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_acknowledgedPackets.emplace_back(packet->retrieveCounter().value(), packet->retrieveRealm().value());
+    this->g_acknowledgedPackets.emplace(packet->retrieveCounter().value(), packet->retrieveRealm().value());
 }
-std::vector<PacketCache::Label> const& Client::getAcknowledgedList() const
+std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> const& Client::getAcknowledgedList() const
 {
     return this->g_acknowledgedPackets;
 }
