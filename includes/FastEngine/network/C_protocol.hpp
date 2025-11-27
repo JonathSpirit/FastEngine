@@ -440,11 +440,11 @@ public:
 
     PacketCache() = default;
     PacketCache(PacketCache const& r) = delete;
-    PacketCache(PacketCache&& r) noexcept = default;
+    PacketCache(PacketCache&& r) noexcept;
     ~PacketCache() = default;
 
     PacketCache& operator=(PacketCache const& r) = delete;
-    PacketCache& operator=(PacketCache&& r) noexcept = default;
+    PacketCache& operator=(PacketCache&& r) noexcept;
 
     void clear();
     [[nodiscard]] bool isEmpty() const;
@@ -475,10 +475,13 @@ private:
         std::chrono::steady_clock::time_point _time{};
     };
 
+    mutable std::mutex g_mutex;
+
     //Circular buffer
     std::vector<Data> g_cache{FGE_NET_PACKET_CACHE_MAX};
     std::size_t g_start{0};
     std::size_t g_end{0};
+
     bool g_enable{false};
 };
 
