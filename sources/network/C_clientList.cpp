@@ -45,6 +45,27 @@ void ClientList::sendToAll(TransmitPacketPtr const& pck) const
     }
 }
 
+bool ClientList::moveTo(ClientList& targetList, Identity const& id)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    auto it = this->g_data.find(id);
+    if (it == this->g_data.end())
+    {
+        return false;
+    }
+
+    std::scoped_lock const lckTarget(targetList.g_mutex);
+    auto itTarget = targetList.g_data.find(id);
+    if (itTarget != targetList.g_data.end())
+    {
+        return false;
+    }
+
+    targetList.g_data.emplace(id, std::move(it->second));
+    this->g_data.erase(it);
+    return true;
+}
+
 void ClientList::add(Identity const& id, ClientSharedPtr const& newClient)
 {
     std::scoped_lock const lck(this->g_mutex);

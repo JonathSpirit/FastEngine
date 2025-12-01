@@ -111,6 +111,7 @@ public:
      */
     void sendToAll(TransmitPacketPtr const& pck) const;
 
+    bool moveTo(ClientList& targetList, Identity const& id);
     /**
      * \brief Add a client to the list
      *
