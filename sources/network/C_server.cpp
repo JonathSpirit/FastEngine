@@ -255,6 +255,7 @@ void ServerNetFluxUdp::processClients()
 
                 if (result == NetCommandResults::SUCCESS && type == NetCommandTypes::CONNECT_HANDLER)
                 {
+                    it->second._context._cache.enable(true); //User can opt to disable cache inside the callback
                     this->_onClientConnected.call(client, it->first);
                 }
             }

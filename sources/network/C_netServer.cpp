@@ -399,18 +399,17 @@ void ServerSideNetUdp::threadTransmission()
                 if (!transmissionPacket->isMarkedAsCached())
                 {
                     //Compression and applying options
-                    if (!transmissionPacket->isFragmented() && client->getStatus().isInEncryptedState())
+                    transmissionPacket->applyOptions(*client);
+                    if (!transmissionPacket->isFragmented())
                     {
-                        transmissionPacket->applyOptions(*client);
-                        if (!transmissionPacket->compress(compressor))
+                        if (client->getStatus().isInEncryptedState())
                         {
-                            continue;
+                            if (!transmissionPacket->compress(compressor))
+                            {
+                                continue;
+                            }
                         }
                         clientData._context._cache.push(transmissionPacket);
-                    }
-                    else
-                    {
-                        transmissionPacket->applyOptions(*client);
                     }
                 }
 
