@@ -320,7 +320,7 @@ public:
     void endReturnEvent();
 
     void simpleReturnEvent(uint16_t id);
-    void askFullUpdateReturnEvent();
+    bool askFullUpdateReturnEvent();
 
     void enableReturnPacket(bool enable);
     [[nodiscard]] bool isReturnPacketEnabled() const;

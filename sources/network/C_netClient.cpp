@@ -377,15 +377,16 @@ void ClientSideNetUdp::simpleReturnEvent(uint16_t id)
     this->endReturnEvent();
 }
 
-void ClientSideNetUdp::askFullUpdateReturnEvent()
+bool ClientSideNetUdp::askFullUpdateReturnEvent()
 {
     if (this->g_isAskingFullUpdate)
     {
-        return;
+        return false;
     }
     this->g_isAskingFullUpdate = true;
     this->startReturnEvent(ReturnEvents::REVT_ASK_FULL_UPDATE);
     this->endReturnEvent();
+    return true;
 }
 
 void ClientSideNetUdp::enableReturnPacket(bool enable)
