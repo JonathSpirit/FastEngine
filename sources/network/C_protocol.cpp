@@ -422,7 +422,10 @@ PacketCache::PacketCache(PacketCache&& r) noexcept :
     this->g_end = r.g_end;
     this->g_enable = r.g_enable;
 
-    r.clear();
+    r.g_cache.clear();
+    r.g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
+    r.g_start = 0;
+    r.g_end = 0;
 }
 
 PacketCache& PacketCache::operator=(PacketCache&& r) noexcept
@@ -437,7 +440,10 @@ PacketCache& PacketCache::operator=(PacketCache&& r) noexcept
         this->g_end = r.g_end;
         this->g_enable = r.g_enable;
 
-        r.clear();
+        r.g_cache.clear();
+        r.g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
+        r.g_start = 0;
+        r.g_end = 0;
     }
     return *this;
 }
