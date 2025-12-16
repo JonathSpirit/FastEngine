@@ -34,21 +34,12 @@ class SocketUdp;
 
 using ClientSharedPtr = std::shared_ptr<Client>;
 
-/**
- * \struct ClientListEvent
- * \ingroup network
- * \brief Represents an event on the client list (client added, client removed, ...)
- */
-struct ClientListEvent
+struct ClientContext
 {
-    enum Events : uint8_t
-    {
-        CLEVT_DELCLIENT = 0,
-        CLEVT_NEWCLIENT
-    };
-
-    Events _event;
-    Identity _id;
+    PacketDefragmentation _defragmentation;
+    PacketCache _cache;
+    PacketReorderer _reorderer;
+    CommandQueue _commands;
 };
 
 /**
@@ -66,14 +57,34 @@ public:
         {}
 
         ClientSharedPtr _client;
-        PacketDefragmentation _defragmentation;
-        CommandQueue _commands;
+        ClientContext _context;
+    };
 
-        std::future<uint16_t> _mtuFuture;
+    /**
+     * \struct Event
+     * \ingroup network
+     * \brief Represents an event on the client list (client added, client removed, ...)
+     */
+    struct Event
+    {
+        enum class Types : uint8_t
+        {
+            EVT_DELCLIENT = 0,
+            EVT_NEWCLIENT
+        };
+        using Types_t = std::underlying_type_t<Types>;
+
+        inline Event(Types eventType, Identity const& clientId) :
+                _event(eventType),
+                _id(clientId)
+        {}
+
+        Types _event;
+        Identity _id;
     };
 
     using DataList = std::unordered_map<Identity, Data, IdentityHash>;
-    using EventList = std::deque<ClientListEvent>;
+    using EventList = std::deque<Event>;
 
     ClientList() = default;
     ~ClientList() = default;
@@ -100,6 +111,7 @@ public:
      */
     void sendToAll(TransmitPacketPtr const& pck) const;
 
+    bool moveTo(ClientList& targetList, Identity const& id);
     /**
      * \brief Add a client to the list
      *
@@ -190,13 +202,13 @@ public:
      *
      * \param evt A client event
      */
-    void pushClientEvent(ClientListEvent const& evt);
+    void pushClientEvent(Event const& evt);
     /**
      * \brief Get the client event with its index
      *
      * \return The client event
      */
-    ClientListEvent const& getClientEvent(std::size_t index) const;
+    Event const& getClientEvent(std::size_t index) const;
     /**
      * \brief Get the number of client events
      *

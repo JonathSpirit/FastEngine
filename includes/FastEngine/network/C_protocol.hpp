@@ -287,7 +287,12 @@ class PacketDefragmentation
 {
 public:
     PacketDefragmentation() = default;
+    PacketDefragmentation(PacketDefragmentation const& r) = delete;
+    PacketDefragmentation(PacketDefragmentation&& r) noexcept = default;
     ~PacketDefragmentation() = default;
+
+    PacketDefragmentation& operator=(PacketDefragmentation const& r) = delete;
+    PacketDefragmentation& operator=(PacketDefragmentation&& r) noexcept = default;
 
     enum class Results
     {
@@ -420,18 +425,31 @@ public:
         {
             return this->_counter == r._counter && this->_realm == r._realm;
         }
+
+        struct Hash
+        {
+            [[nodiscard]] inline std::size_t operator()(Label const& label) const
+            {
+                static_assert(sizeof(label._counter) == sizeof(label._realm) && sizeof(label._counter) == 2,
+                              "ProtocolPacket::CounterType and ProtocolPacket::RealmType must be 16 bits");
+                return std::hash<std::size_t>()(static_cast<std::size_t>(label._counter) << 16 |
+                                                static_cast<std::size_t>(label._realm));
+            }
+        };
     };
 
     PacketCache() = default;
     PacketCache(PacketCache const& r) = delete;
-    PacketCache(PacketCache&& r) noexcept = default;
+    PacketCache(PacketCache&& r) noexcept;
     ~PacketCache() = default;
 
     PacketCache& operator=(PacketCache const& r) = delete;
-    PacketCache& operator=(PacketCache&& r) noexcept = default;
+    PacketCache& operator=(PacketCache&& r) noexcept;
 
     void clear();
     [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] bool isEnabled() const;
+    void enable(bool enable);
 
     //Transmit
     void push(TransmitPacketPtr const& packet);
@@ -457,10 +475,14 @@ private:
         std::chrono::steady_clock::time_point _time{};
     };
 
+    mutable std::mutex g_mutex;
+
     //Circular buffer
     std::vector<Data> g_cache{FGE_NET_PACKET_CACHE_MAX};
     std::size_t g_start{0};
     std::size_t g_end{0};
+
+    bool g_enable{false};
 };
 
 } // namespace fge::net

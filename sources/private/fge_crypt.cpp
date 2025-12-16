@@ -15,6 +15,7 @@
  */
 
 #include "private/fge_crypt.hpp"
+#include "FastEngine/network/C_packet.hpp"
 #include <iostream>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -227,7 +228,7 @@ void CryptUninit(void*& ctx)
     }
 }
 
-bool CryptClientCreate(void* ctx, net::Client& client)
+bool CryptClientCreate(void* ctx, net::CryptInfo& client)
 {
     CryptClientDestroy(client);
 
@@ -238,7 +239,7 @@ bool CryptClientCreate(void* ctx, net::Client& client)
         ERR_print_errors_fp(stderr);
         return false;
     }
-    client.getCryptInfo()._ssl = ssl;
+    client._ssl = ssl;
 
     BIO* rbio = BIO_new(BIO_s_mem());
     BIO* wbio = BIO_new(BIO_s_mem());
@@ -247,8 +248,8 @@ bool CryptClientCreate(void* ctx, net::Client& client)
         ERR_print_errors_fp(stderr);
         return false;
     }
-    client.getCryptInfo()._rbio = rbio;
-    client.getCryptInfo()._wbio = wbio;
+    client._rbio = rbio;
+    client._wbio = wbio;
 
     // Tell the memory BIOs to return -1 when no data is available
     BIO_set_mem_eof_return(rbio, -1);
@@ -266,7 +267,7 @@ bool CryptClientCreate(void* ctx, net::Client& client)
 
     return true;
 }
-bool CryptServerCreate(void* ctx, net::Client& client)
+bool CryptServerCreate(void* ctx, net::CryptInfo& client)
 {
     CryptClientDestroy(client);
 
@@ -277,7 +278,7 @@ bool CryptServerCreate(void* ctx, net::Client& client)
         ERR_print_errors_fp(stderr);
         return false;
     }
-    client.getCryptInfo()._ssl = ssl;
+    client._ssl = ssl;
 
     BIO* rbio = BIO_new(BIO_s_mem());
     BIO* wbio = BIO_new(BIO_s_mem());
@@ -286,8 +287,8 @@ bool CryptServerCreate(void* ctx, net::Client& client)
         ERR_print_errors_fp(stderr);
         return false;
     }
-    client.getCryptInfo()._rbio = rbio;
-    client.getCryptInfo()._wbio = wbio;
+    client._rbio = rbio;
+    client._wbio = wbio;
 
     // Tell the memory BIOs to return -1 when no data is available
     BIO_set_mem_eof_return(rbio, -1);
@@ -305,20 +306,18 @@ bool CryptServerCreate(void* ctx, net::Client& client)
 
     return true;
 }
-void CryptClientDestroy(net::Client& client)
+void CryptClientDestroy(net::CryptInfo& client)
 {
-    auto& info = client.getCryptInfo();
-
-    if (info._ssl == nullptr)
+    if (client._ssl == nullptr)
     {
         return;
     }
 
-    SSL_shutdown(static_cast<SSL*>(info._ssl));
-    SSL_free(static_cast<SSL*>(info._ssl));
-    info._ssl = nullptr;
-    info._rbio = nullptr;
-    info._wbio = nullptr;
+    SSL_shutdown(static_cast<SSL*>(client._ssl));
+    SSL_free(static_cast<SSL*>(client._ssl));
+    client._ssl = nullptr;
+    client._rbio = nullptr;
+    client._wbio = nullptr;
 }
 
 bool CryptEncrypt(net::Client& client, net::Packet& packet)

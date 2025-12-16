@@ -28,6 +28,7 @@
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <unordered_set>
 
 #define FGE_NET_DEFAULT_LATENCY 20
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
@@ -212,6 +213,15 @@ private:
     std::chrono::steady_clock::time_point g_currentTimeout{std::chrono::steady_clock::now()};
 };
 
+struct FGE_API CryptInfo
+{
+    ~CryptInfo();
+
+    void* _ssl{nullptr};
+    void* _rbio{nullptr};
+    void* _wbio{nullptr};
+};
+
 /**
  * \class Client
  * \brief Class that represent the identity of a client
@@ -219,13 +229,6 @@ private:
 class FGE_API Client
 {
 public:
-    struct CryptInfo
-    {
-        void* _ssl{nullptr};
-        void* _rbio{nullptr};
-        void* _wbio{nullptr};
-    };
-
     Client();
     ~Client();
     /**
@@ -390,13 +393,8 @@ public:
     void resetLastReorderedPacketCounter();
     [[nodiscard]] ProtocolPacket::CounterType getLastReorderedPacketCounter() const;
 
-    [[nodiscard]] PacketReorderer& getPacketReorderer();
-    [[nodiscard]] PacketReorderer const& getPacketReorderer() const;
-
-    [[nodiscard]] DataLockPair<PacketCache*, std::recursive_mutex> getPacketCache();
-    [[nodiscard]] DataLockPair<PacketCache const*, std::recursive_mutex> getPacketCache() const;
     void acknowledgeReception(ReceivedPacketPtr const& packet);
-    [[nodiscard]] std::vector<PacketCache::Label> const& getAcknowledgedList() const;
+    [[nodiscard]] std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> const& getAcknowledgedList() const;
     void clearAcknowledgedList();
 
     void clearLostPacketCount();
@@ -439,9 +437,7 @@ private:
     ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
     ProtocolPacket::CounterType g_clientPacketCounter{0};
 
-    std::vector<PacketCache::Label> g_acknowledgedPackets;
-    PacketCache g_packetCache;
-    PacketReorderer g_packetReorderer;
+    std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> g_acknowledgedPackets;
     uint32_t g_lostPacketCount{0};
     uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
 

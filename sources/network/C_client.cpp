@@ -102,6 +102,13 @@ bool ClientStatus::isTimeout() const
     return false;
 }
 
+//CryptInfo
+
+CryptInfo::~CryptInfo()
+{
+    priv::CryptClientDestroy(*this);
+}
+
 //Client
 
 Client::Client() :
@@ -111,10 +118,7 @@ Client::Client() :
         g_lastPacketTimePoint(std::chrono::steady_clock::now()),
         g_lastRealmChangeTimePoint(std::chrono::steady_clock::now())
 {}
-Client::~Client()
-{
-    priv::CryptClientDestroy(*this);
-}
+Client::~Client() = default;
 Client::Client(Latency_ms CTOSLatency, Latency_ms STOCLatency) :
         g_correctorTimestamp(std::nullopt),
         g_CTOSLatency_ms(CTOSLatency),
@@ -364,29 +368,12 @@ ProtocolPacket::CounterType Client::getLastReorderedPacketCounter() const
     return this->g_lastReorderedPacketCounter;
 }
 
-PacketReorderer& Client::getPacketReorderer()
-{
-    return this->g_packetReorderer;
-}
-PacketReorderer const& Client::getPacketReorderer() const
-{
-    return this->g_packetReorderer;
-}
-
-DataLockPair<PacketCache*, std::recursive_mutex> Client::getPacketCache()
-{
-    return DataLockPair<PacketCache*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
-}
-DataLockPair<PacketCache const*, std::recursive_mutex> Client::getPacketCache() const
-{
-    return DataLockPair<PacketCache const*, std::recursive_mutex>(&this->g_packetCache, this->g_mutex);
-}
 void Client::acknowledgeReception(ReceivedPacketPtr const& packet)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_acknowledgedPackets.push_back({packet->retrieveCounter().value(), packet->retrieveRealm().value()});
+    this->g_acknowledgedPackets.emplace(packet->retrieveCounter().value(), packet->retrieveRealm().value());
 }
-std::vector<PacketCache::Label> const& Client::getAcknowledgedList() const
+std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> const& Client::getAcknowledgedList() const
 {
     return this->g_acknowledgedPackets;
 }
@@ -440,11 +427,11 @@ ClientStatus& Client::getStatus()
     return this->g_status;
 }
 
-Client::CryptInfo const& Client::getCryptInfo() const
+CryptInfo const& Client::getCryptInfo() const
 {
     return this->g_cryptInfo;
 }
-Client::CryptInfo& Client::getCryptInfo()
+CryptInfo& Client::getCryptInfo()
 {
     return this->g_cryptInfo;
 }

@@ -1579,7 +1579,7 @@ void Scene::clientsCheckup(fge::net::ClientList const& clients, bool force)
         for (std::size_t i = 0; i < clients.getClientEventSize(); ++i)
         {
             auto const& evt = clients.getClientEvent(i);
-            if (evt._event == fge::net::ClientListEvent::CLEVT_DELCLIENT)
+            if (evt._event == fge::net::ClientList::Event::Types::EVT_DELCLIENT)
             {
                 this->g_perClientSyncs.erase(evt._id);
             }

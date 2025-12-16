@@ -411,8 +411,46 @@ PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterT
 
 //PacketCache
 
+PacketCache::PacketCache(PacketCache&& r) noexcept :
+        PacketCache()
+{
+    std::scoped_lock const lockThis(this->g_mutex);
+    std::scoped_lock const lockR(r.g_mutex);
+
+    this->g_cache = std::move(r.g_cache);
+    this->g_start = r.g_start;
+    this->g_end = r.g_end;
+    this->g_enable = r.g_enable;
+
+    r.g_cache.clear();
+    r.g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
+    r.g_start = 0;
+    r.g_end = 0;
+}
+
+PacketCache& PacketCache::operator=(PacketCache&& r) noexcept
+{
+    if (this != &r)
+    {
+        std::scoped_lock const lockThis(this->g_mutex);
+        std::scoped_lock const lockR(r.g_mutex);
+
+        this->g_cache = std::move(r.g_cache);
+        this->g_start = r.g_start;
+        this->g_end = r.g_end;
+        this->g_enable = r.g_enable;
+
+        r.g_cache.clear();
+        r.g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
+        r.g_start = 0;
+        r.g_end = 0;
+    }
+    return *this;
+}
+
 void PacketCache::clear()
 {
+    std::scoped_lock const lock(this->g_mutex);
     this->g_cache.clear();
     this->g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
     this->g_start = 0;
@@ -421,11 +459,28 @@ void PacketCache::clear()
 
 bool PacketCache::isEmpty() const
 {
+    std::scoped_lock const lock(this->g_mutex);
     return this->g_start == this->g_end;
+}
+bool PacketCache::isEnabled() const
+{
+    std::scoped_lock const lock(this->g_mutex);
+    return this->g_enable;
+}
+void PacketCache::enable(bool enable)
+{
+    std::scoped_lock const lock(this->g_mutex);
+    this->g_enable = enable;
 }
 
 void PacketCache::push(TransmitPacketPtr const& packet)
 {
+    std::scoped_lock const lock(this->g_mutex);
+    if (!this->g_enable)
+    {
+        return;
+    }
+
     auto const next = (this->g_end + 1) % FGE_NET_PACKET_CACHE_MAX;
 
     if (next == this->g_start)
@@ -451,6 +506,8 @@ void PacketCache::acknowledgeReception(std::span<Label> labels)
     {
         return;
     }
+
+    std::scoped_lock const lock(this->g_mutex);
 
     for (auto const& label: labels)
     {
@@ -480,6 +537,8 @@ bool PacketCache::check(std::chrono::steady_clock::time_point const& timePoint, 
     {
         return false;
     }
+
+    std::scoped_lock const lock(this->g_mutex);
 
     if (clientDelay.count() < FGE_NET_PACKET_CACHE_MIN_LATENCY_MS)
     {
@@ -514,6 +573,8 @@ TransmitPacketPtr PacketCache::pop()
     {
         return nullptr;
     }
+
+    std::scoped_lock const lock(this->g_mutex);
 
     //check() must be called before pop(), so we can remove index verification
     //else it will be undefined behavior
