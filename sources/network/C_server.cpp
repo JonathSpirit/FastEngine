@@ -27,6 +27,130 @@ using namespace fge::priv;
 namespace fge::net
 {
 
+//ReturnPacketHandler
+std::optional<Error> ReturnPacketHandler::handleReturnPacket(ClientSharedPtr const& refClient,
+                                                             ClientContext& clientContext,
+                                                             ReceivedPacketPtr& packet) const
+{
+    //Check if the packet is a return packet, and if so, handle it
+    if (packet->retrieveHeaderId().value() != NET_INTERNAL_ID_RETURN_PACKET)
+    {
+        return std::nullopt;
+    }
+
+    //TODO: verify the eventSize variable
+    //TODO: make fge::net::rules more friendly to use
+
+    constexpr char const* const func = __func__;
+
+    using namespace fge::net::rules;
+    auto const err = RValid<uint16_t>({packet->packet()})
+                             .and_for_each([&](auto const& chain, [[maybe_unused]] auto& index) {
+        ReturnEvents event;
+        chain.packet() >> event;
+        if (!chain.packet().isValid())
+        {
+            return chain.stop("received bad event", func);
+        }
+
+        uint16_t eventSize = 0;
+        chain.packet() >> eventSize;
+        if (!chain.packet().isValid())
+        {
+            return chain.stop("received bad event size", func);
+        }
+
+        switch (event)
+        {
+        case ReturnEvents::REVT_SIMPLE:
+        {
+            uint16_t id;
+            chain.packet() >> id;
+            if (!chain.packet().isValid() || eventSize != sizeof(uint16_t))
+            {
+                return chain.stop("received bad id / size", func);
+            }
+
+            this->_onClientSimpleReturnEvent.call(refClient, packet->getIdentity(), id);
+        }
+        break;
+        case ReturnEvents::REVT_OBJECT:
+        {
+            uint16_t commandIndex;
+            ObjectSid parentSid, targetSid;
+            chain.packet() >> commandIndex >> parentSid >> targetSid;
+            if (!chain.packet().isValid())
+            {
+                return chain.stop("received bad id", func);
+            }
+
+            this->_onClientObjectReturnEvent.call(refClient, packet->getIdentity(), commandIndex, parentSid, targetSid,
+                                                  packet);
+        }
+        break;
+        case ReturnEvents::REVT_ASK_FULL_UPDATE:
+            if (!chain.packet().isValid() || eventSize != 0)
+            {
+                return chain.stop("received bad id / size", func);
+            }
+
+            this->_onClientAskFullUpdate.call(refClient, packet->getIdentity());
+            break;
+        case ReturnEvents::REVT_CUSTOM:
+            if (!chain.packet().isValid())
+            {
+                return chain.stop("received bad id", func);
+            }
+
+            this->_onClientReturnEvent.call(refClient, packet->getIdentity(), packet);
+            break;
+        }
+
+        return chain.skip();
+    }).end();
+
+    if (err)
+    {
+        FGE_DEBUG_PRINT("Return packet error");
+    }
+
+    //TODO: be sure that we are on the correct read position on the packet
+    //We unpack and compute the latency with the LatencyPlanner helper class
+    refClient->_latencyPlanner.unpack(packet.get(), *refClient);
+    if (auto latency = refClient->_latencyPlanner.getLatency())
+    {
+        refClient->setSTOCLatency_ms(latency.value());
+    }
+    if (auto latency = refClient->_latencyPlanner.getOtherSideLatency())
+    {
+        refClient->setCTOSLatency_ms(latency.value());
+    }
+
+    //Extract acknowledged packets
+    static std::vector<PacketCache::Label> acknowledgedPackets;
+    SizeType acknowledgedPacketsSize = 0;
+    packet->packet() >> acknowledgedPacketsSize;
+    acknowledgedPackets.resize(acknowledgedPacketsSize);
+    for (SizeType i = 0; i < acknowledgedPacketsSize; ++i)
+    {
+        PacketCache::Label label;
+        packet->packet() >> label._counter >> label._realm;
+        if (!packet->isValid())
+        {
+            FGE_DEBUG_PRINT("received bad label");
+            return Error(Error::Types::ERR_DATA, packet->getReadPos(), "received bad acknowledged label data", func);
+        }
+        acknowledgedPackets[i] = label;
+    }
+
+    clientContext._cache.acknowledgeReception(acknowledgedPackets);
+
+    this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
+
+    packet.reset();
+    return err;
+}
+
 //ServerFluxUdp
 NetFluxUdp::NetFluxUdp(bool defaultFlux) :
         g_isDefaultFlux(defaultFlux)
@@ -429,117 +553,8 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     }
 
     //Check if the packet is a return packet, and if so, handle it
-    if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_RETURN_PACKET)
+    if (this->handleReturnPacket(refClient, refClientData->_context, packet).has_value() || packet == nullptr)
     {
-        //TODO: verify the eventSize variable
-        //TODO: make fge::net::rules more friendly to use
-
-        constexpr char const* const func = __func__;
-
-        using namespace fge::net::rules;
-        auto const err = RValid<uint16_t>({packet->packet()})
-                                 .and_for_each([&](auto const& chain, [[maybe_unused]] auto& index) {
-            ReturnEvents event;
-            chain.packet() >> event;
-            if (!chain.packet().isValid())
-            {
-                return chain.stop("received bad event", func);
-            }
-
-            uint16_t eventSize = 0;
-            chain.packet() >> eventSize;
-            if (!chain.packet().isValid())
-            {
-                return chain.stop("received bad event size", func);
-            }
-
-            switch (event)
-            {
-            case ReturnEvents::REVT_SIMPLE:
-            {
-                uint16_t id;
-                chain.packet() >> id;
-                if (!chain.packet().isValid() || eventSize != sizeof(uint16_t))
-                {
-                    return chain.stop("received bad id / size", func);
-                }
-
-                this->_onClientSimpleReturnEvent.call(refClient, packet->getIdentity(), id);
-            }
-            break;
-            case ReturnEvents::REVT_OBJECT:
-            {
-                uint16_t commandIndex;
-                ObjectSid parentSid, targetSid;
-                chain.packet() >> commandIndex >> parentSid >> targetSid;
-                if (!chain.packet().isValid())
-                {
-                    return chain.stop("received bad id", func);
-                }
-
-                this->_onClientObjectReturnEvent.call(refClient, packet->getIdentity(), commandIndex, parentSid,
-                                                      targetSid, packet);
-            }
-            break;
-            case ReturnEvents::REVT_ASK_FULL_UPDATE:
-                if (!chain.packet().isValid() || eventSize != 0)
-                {
-                    return chain.stop("received bad id / size", func);
-                }
-
-                this->_onClientAskFullUpdate.call(refClient, packet->getIdentity());
-                break;
-            case ReturnEvents::REVT_CUSTOM:
-                if (!chain.packet().isValid())
-                {
-                    return chain.stop("received bad id", func);
-                }
-
-                this->_onClientReturnEvent.call(refClient, packet->getIdentity(), packet);
-                break;
-            }
-
-            return chain.skip();
-        }).end();
-
-        if (err)
-        {
-            FGE_DEBUG_PRINT("Return packet error");
-        }
-
-        //TODO: be sure that we are on the correct read position on the packet
-        //We unpack and compute the latency with the LatencyPlanner helper class
-        refClient->_latencyPlanner.unpack(packet.get(), *refClient);
-        if (auto latency = refClient->_latencyPlanner.getLatency())
-        {
-            refClient->setSTOCLatency_ms(latency.value());
-        }
-        if (auto latency = refClient->_latencyPlanner.getOtherSideLatency())
-        {
-            refClient->setCTOSLatency_ms(latency.value());
-        }
-
-        //Extract acknowledged packets
-        static std::vector<PacketCache::Label> acknowledgedPackets;
-        SizeType acknowledgedPacketsSize = 0;
-        packet->packet() >> acknowledgedPacketsSize;
-        acknowledgedPackets.resize(acknowledgedPacketsSize);
-        for (SizeType i = 0; i < acknowledgedPacketsSize; ++i)
-        {
-            PacketCache::Label label;
-            packet->packet() >> label._counter >> label._realm;
-            if (!packet->isValid())
-            {
-                FGE_DEBUG_PRINT("received bad label");
-                return FluxProcessResults::INTERNALLY_DISCARDED;
-            }
-            acknowledgedPackets[i] = label;
-        }
-
-        refClientData->_context._cache.acknowledgeReception(acknowledgedPackets);
-
-        this->_onClientReturnPacket.call(refClient, packet->getIdentity(), packet);
-
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
 

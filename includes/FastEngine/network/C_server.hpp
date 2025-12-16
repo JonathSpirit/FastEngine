@@ -74,6 +74,28 @@ enum class ReturnEvents
     REVT_CUSTOM
 };
 
+class FGE_API ReturnPacketHandler
+{
+public:
+    ReturnPacketHandler() = default;
+    virtual ~ReturnPacketHandler() = default;
+
+    [[nodiscard]] std::optional<Error>
+    handleReturnPacket(ClientSharedPtr const& refClient, ClientContext& clientContext, ReceivedPacketPtr& packet) const;
+
+    mutable CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnPacket;
+    mutable CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnEvent;
+    mutable CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
+    mutable CallbackHandler<ClientSharedPtr const&,
+                            Identity const&,
+                            uint16_t,
+                            ObjectSid,
+                            ObjectSid,
+                            ReceivedPacketPtr const&>
+            _onClientObjectReturnEvent;
+    mutable CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAskFullUpdate;
+};
+
 /**
  * \class NetFluxUdp
  * \ingroup network
@@ -128,7 +150,7 @@ private:
     friend class ServerSideNetUdp;
 };
 
-class FGE_API ServerNetFluxUdp : public NetFluxUdp
+class FGE_API ServerNetFluxUdp : public NetFluxUdp, public ReturnPacketHandler
 {
 public:
     ServerNetFluxUdp(ServerSideNetUdp& server, bool defaultFlux);
@@ -148,13 +170,6 @@ public:
     CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientConnected;
     CallbackHandler<ClientSharedPtr, Identity const&> _onClientDisconnected;
     CallbackHandler<ClientSharedPtr, Identity const&> _onClientDropped;
-
-    CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnPacket;
-    CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnEvent;
-    CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
-    CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t, ObjectSid, ObjectSid, ReceivedPacketPtr const&>
-            _onClientObjectReturnEvent;
-    CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAskFullUpdate;
 
 private:
     [[nodiscard]] bool verifyRealm(ClientSharedPtr const& refClient, ReceivedPacketPtr const& packet);
@@ -326,6 +341,7 @@ public:
     [[nodiscard]] bool isReturnPacketEnabled() const;
 
     [[nodiscard]] TransmitPacketPtr prepareAndRetrieveReturnPacket();
+    [[nodiscard]] std::optional<Error> loopbackReturnPacket(ReturnPacketHandler const& handler);
 
     Client _client; //But it is the server :O
 

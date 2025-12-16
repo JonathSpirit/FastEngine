@@ -434,6 +434,17 @@ TransmitPacketPtr ClientSideNetUdp::prepareAndRetrieveReturnPacket()
 
     return returnPacket;
 }
+std::optional<Error> ClientSideNetUdp::loopbackReturnPacket(ReturnPacketHandler const& handler)
+{
+    TransmitPacketPtr transmitReturnPacket = this->prepareAndRetrieveReturnPacket();
+    ReceivedPacketPtr returnPacket =
+            std::make_unique<ProtocolPacket>(std::move(*transmitReturnPacket), this->g_clientIdentity);
+    returnPacket->setReadPos(ProtocolPacket::HeaderSize);
+
+    ClientSharedPtr const clientPtr = std::shared_ptr<Client>(&this->_client, [](Client*) {});
+
+    return handler.handleReturnPacket(clientPtr, this->g_clientContext, returnPacket);
+}
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
 {
