@@ -7,9 +7,6 @@
 /includes/FastEngine/fge_version.hpp
 /build*/
 
-.idea/deployment.xml
-.idea/encodings.xml
-.idea/other.xml
-.idea/vcs.xml
+.idea/
 
 cmake.lock

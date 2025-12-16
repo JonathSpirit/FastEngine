@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All" type="CompoundRunConfigurationType">
-    <toRun name="FastEngine32" targetId="CMakeBuildProfile:Release32" type="CMakeRunConfiguration" />
-    <toRun name="FastEngine32_d" targetId="CMakeBuildProfile:Debug32" type="CMakeRunConfiguration" />
-    <toRun name="FastEngine64" targetId="CMakeBuildProfile:Release64" type="CMakeRunConfiguration" />
-    <toRun name="FastEngine64_d" targetId="CMakeBuildProfile:Debug64" type="CMakeRunConfiguration" />
-    <method v="2" />
-  </configuration>
-</component>
