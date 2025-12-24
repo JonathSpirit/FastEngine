@@ -39,6 +39,7 @@ public:
         std::optional<uint32_t> _computeFamily;
         std::optional<uint32_t> _transferFamily;
         std::optional<uint32_t> _presentFamily;
+        bool _isPresentFamilyDifferent{false};
     };
     struct SwapChainSupportDetails
     {
@@ -80,7 +81,7 @@ public:
      * \param surface The associated surface
      * \return The score of the device
      */
-    [[nodiscard]] unsigned int rateDeviceSuitability(VkSurfaceKHR surface) const;
+    [[nodiscard]] uint32_t rateDeviceSuitability(VkSurfaceKHR surface) const;
     /**
      * \brief Retrieve the QueueFamilyIndices
      *

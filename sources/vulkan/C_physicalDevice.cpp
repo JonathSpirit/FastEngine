@@ -80,7 +80,7 @@ void PhysicalDevice::updateDeviceExtensionSupport()
     this->g_extensionSupport = requiredExtensions.empty();
 }
 
-unsigned int PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
+uint32_t PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
 {
     if (this->g_device == VK_NULL_HANDLE)
     {
@@ -92,12 +92,16 @@ unsigned int PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
     vkGetPhysicalDeviceProperties(this->g_device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(this->g_device, &deviceFeatures);
 
-    unsigned int score = 0;
+    uint32_t score = 0;
 
     // Discrete GPUs have a significant performance advantage
     if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
     {
         score += 1000;
+    }
+    else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
+    {
+        score += 200;
     }
 
     // Maximum possible size of textures affects graphics quality
@@ -117,6 +121,18 @@ unsigned int PhysicalDevice::rateDeviceSuitability(VkSurfaceKHR surface) const
     if (!indices._presentFamily.has_value() && surface != VK_NULL_HANDLE)
     { //Allow no present family if no surface
         return 0;
+    }
+    if (indices._transferFamily.has_value())
+    {
+        score += 100;
+    }
+    if (indices._computeFamily.has_value())
+    {
+        score += 100;
+    }
+    if (indices._isPresentFamilyDifferent)
+    {
+        score += 200;
     }
 
     if (!this->checkDeviceExtensionSupport())
@@ -167,7 +183,9 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
                     indices._graphicsFamily = iQueueFamily;
                 }
             }
-            else if (!indices._presentFamily.has_value() && surface != VK_NULL_HANDLE)
+
+            if ((!indices._presentFamily.has_value() || indices._presentFamily == indices._graphicsFamily) &&
+                surface != VK_NULL_HANDLE)
             {
                 if (queueFamily.queueFlags > VK_QUEUE_PROTECTED_BIT)
                 {
@@ -179,6 +197,9 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(VkSurfaceKH
                 if (presentSupport == VK_TRUE)
                 {
                     indices._presentFamily = iQueueFamily;
+                    indices._isPresentFamilyDifferent = indices._graphicsFamily.has_value()
+                                                                ? (indices._graphicsFamily.value() != iQueueFamily)
+                                                                : true;
                 }
             }
 
