@@ -136,12 +136,11 @@ set(CMAKE_RELEASE_POSTFIX "${FGE_ARCH}")
 add_library(${FGE_LIB_NAME} SHARED)
 add_library(${FGE_SERVER_LIB_NAME} SHARED)
 
+#TODO: still relevant ?
 if(WIN32)
     add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
 elseif(APPLE)
     add_compile_definitions(VK_USE_PLATFORM_MACOS_MVK)
-else()
-    add_compile_definitions(VK_USE_PLATFORM_XLIB_KHR)
 endif()
 
 add_compile_definitions(VMA_VULKAN_VERSION=1001000) #VulkanMemoryAllocator
