@@ -337,8 +337,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto clientsLock = clients.acquireLock();
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
-                if (it->second->getStatus().getNetworkStatus() !=
-                    fge::net::ClientStatus::NetworkStatus::AUTHENTICATED)
+                if (it->second->getStatus().getNetworkStatus() != fge::net::ClientStatus::NetworkStatus::AUTHENTICATED)
                 {
                     continue;
                 }

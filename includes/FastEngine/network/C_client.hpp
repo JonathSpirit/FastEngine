@@ -21,8 +21,8 @@
 #include "C_identity.hpp"
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_propertyList.hpp"
-#include "FastEngine/network/C_protocol.hpp"
 #include "FastEngine/network/C_netCommand.hpp"
+#include "FastEngine/network/C_protocol.hpp"
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -429,8 +429,8 @@ public:
     Event _event;                         ///< Optional client-side event that can be synchronized with the server
     PropertyList _data;                   ///< Some user-defined client properties
     OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
-    ClientContext _context;               ///< The client context containing utility classes for server/client networking
-    bool _mtuFinalizedFlag{false};        ///< A flag that indicate if the MTU has been finalized from the remote side
+    ClientContext _context;        ///< The client context containing utility classes for server/client networking
+    bool _mtuFinalizedFlag{false}; ///< A flag that indicate if the MTU has been finalized from the remote side
 
 private:
     mutable std::optional<Timestamp> g_correctorTimestamp;
