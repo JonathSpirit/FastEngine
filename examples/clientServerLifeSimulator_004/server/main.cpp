@@ -337,14 +337,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             auto clientsLock = clients.acquireLock();
             for (auto it = clients.begin(clientsLock); it != clients.end(clientsLock); ++it)
             {
-                if (it->second._client->getStatus().getNetworkStatus() !=
+                if (it->second->getStatus().getNetworkStatus() !=
                     fge::net::ClientStatus::NetworkStatus::AUTHENTICATED)
                 {
                     continue;
                 }
 
                 //Make sure that the client is not busy with another packet
-                if (!it->second._client->isPendingPacketsEmpty())
+                if (!it->second->isPendingPacketsEmpty())
                 {
                     continue;
                 }
@@ -353,7 +353,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 transmissionPacket->setHeaderId(ls::LS_PROTOCOL_S_UPDATE);
 
                 //Pack data required by the LatencyPlanner in order to compute latency
-                it->second._client->_latencyPlanner.pack(transmissionPacket);
+                it->second->_latencyPlanner.pack(transmissionPacket);
 
                 //We can now push all scene modification by clients
                 mainScene.packModification(transmissionPacket->packet(), it->first);
@@ -361,7 +361,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 mainScene.packWatchedEvent(transmissionPacket->packet(), it->first);
 
                 //We send the packet to the client with the QUEUE_PACKET_OPTION_UPDATE_TIMESTAMP option for the server thread
-                it->second._client->pushPacket(std::move(transmissionPacket));
+                it->second->pushPacket(std::move(transmissionPacket));
 
                 //Notify the server that a packet as been pushed
                 server.notifyTransmission();

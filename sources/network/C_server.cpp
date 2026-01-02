@@ -317,7 +317,7 @@ void ServerNetFluxUdp::processClients()
 
     for (auto it = this->_clients.begin(clientsLock); it != this->_clients.end(clientsLock);)
     {
-        auto& client = it->second._client;
+        auto& client = it->second;
 
         //Handle bad clients
         auto const& status = client->getStatus();
@@ -331,7 +331,7 @@ void ServerNetFluxUdp::processClients()
             }
 
             auto tmpIdentity = it->first;
-            auto tmpClient = std::move(it->second._client);
+            auto tmpClient = std::move(it->second);
             it = this->_clients.remove(it, clientsLock);
             this->_onClientDisconnected.call(tmpClient, tmpIdentity);
             continue;
@@ -349,7 +349,7 @@ void ServerNetFluxUdp::processClients()
             client->clearPackets();
 
             auto tmpIdentity = it->first;
-            auto tmpClient = std::move(it->second._client);
+            auto tmpClient = std::move(it->second);
             it = this->_clients.remove(it, clientsLock);
             this->_onClientTimeout.call(tmpClient, tmpIdentity);
             continue;
@@ -358,7 +358,7 @@ void ServerNetFluxUdp::processClients()
         //Handle commands
         if (this->g_commandsUpdateTick >= FGE_NET_CMD_UPDATE_TICK_MS)
         { //TODO: move it to the transmit thread ?
-            auto& commands = it->second._context._commands;
+            auto& commands = it->second->_context._commands;
             if (!commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
@@ -379,7 +379,7 @@ void ServerNetFluxUdp::processClients()
 
                 if (result == NetCommandResults::SUCCESS && type == NetCommandTypes::CONNECT_HANDLER)
                 {
-                    it->second._context._cache.enable(true); //User can opt to disable cache inside the callback
+                    it->second->_context._cache.enable(true); //User can opt to disable cache inside the callback
                     this->_onClientConnected.call(client, it->first);
                 }
             }
@@ -424,9 +424,9 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     --this->_g_remainingPackets;
 
     //Verify if the client is known
-    auto* refClientData = this->_clients.getData(packet->getIdentity());
+    refClient = this->_clients.get(packet->getIdentity());
 
-    if (refClientData == nullptr)
+    if (refClient == nullptr)
     { //Unknown client
         if (this->isDefaultFlux())
         { //Only allow unknown clients on the default flux
@@ -436,7 +436,6 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
         this->g_server->repushPacket(std::move(packet));
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
-    refClient = refClientData->_client;
     auto const& status = refClient->getStatus();
 
     //Ignore packets if the client is disconnected
@@ -447,7 +446,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
 
     //Checking commands
     {
-        auto& commands = refClientData->_context._commands;
+        auto& commands = refClient->_context._commands;
         if (!commands.empty())
         {
             commands.front()->onReceive(packet, this->g_server->getAddressType(), *refClient);
@@ -472,10 +471,10 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     if (packet->isFragmented())
     {
         auto const identity = packet->getIdentity();
-        auto const result = refClientData->_context._defragmentation.process(std::move(packet));
+        auto const result = refClient->_context._defragmentation.process(std::move(packet));
         if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
         {
-            packet = refClientData->_context._defragmentation.retrieve(result._id, identity);
+            packet = refClient->_context._defragmentation.retrieve(result._id, identity);
         }
         else
         {
@@ -519,7 +518,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
     {
         auto reorderResult =
-                this->processReorder(refClientData->_context._reorderer, packet, refClient->getClientPacketCounter(),
+                this->processReorder(refClient->_context._reorderer, packet, refClient->getClientPacketCounter(),
                                      refClient->getCurrentRealm(), true);
         if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
         {
@@ -553,7 +552,7 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     }
 
     //Check if the packet is a return packet, and if so, handle it
-    if (this->handleReturnPacket(refClient, refClientData->_context, packet).has_value() || packet == nullptr)
+    if (this->handleReturnPacket(refClient, refClient->_context, packet).has_value() || packet == nullptr)
     {
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
@@ -629,10 +628,9 @@ FluxProcessResults ServerNetFluxUdp::processUnknownClient(ClientSharedPtr& refCl
         this->_onClientAcknowledged.call(refClient, packet->getIdentity());
 
         //Add connect handler command as this is required for establishing the connection
-        auto* clientData = this->_clients.getData(packet->getIdentity());
-        auto command = std::make_unique<NetConnectHandlerCommand>(&clientData->_context._commands);
+        auto command = std::make_unique<NetConnectHandlerCommand>(&refClient->_context._commands);
         //At this point commands should be empty
-        clientData->_context._commands.push_front(std::move(command));
+        refClient->_context._commands.push_front(std::move(command));
 
         return FluxProcessResults::INTERNALLY_HANDLED;
     }

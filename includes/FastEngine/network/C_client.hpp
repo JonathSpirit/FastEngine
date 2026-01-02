@@ -22,6 +22,7 @@
 #include "FastEngine/C_event.hpp"
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/network/C_protocol.hpp"
+#include "FastEngine/network/C_netCommand.hpp"
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -166,6 +167,14 @@ private:
 
     Timestamp g_externalStoredTimestamp{0};
     std::underlying_type_t<Stats> g_syncStat{0};
+};
+
+struct ClientContext
+{
+    PacketDefragmentation _defragmentation;
+    PacketCache _cache;
+    PacketReorderer _reorderer;
+    CommandQueue _commands;
 };
 
 class FGE_API ClientStatus
@@ -420,6 +429,7 @@ public:
     Event _event;                         ///< Optional client-side event that can be synchronized with the server
     PropertyList _data;                   ///< Some user-defined client properties
     OneWayLatencyPlanner _latencyPlanner; ///< A latency planner that will help latency calculation
+    ClientContext _context;               ///< The client context containing utility classes for server/client networking
     bool _mtuFinalizedFlag{false};        ///< A flag that indicate if the MTU has been finalized from the remote side
 
 private:

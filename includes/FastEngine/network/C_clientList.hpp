@@ -21,7 +21,6 @@
 #include "C_client.hpp"
 #include "C_protocol.hpp"
 #include "FastEngine/C_accessLock.hpp"
-#include "FastEngine/network/C_netCommand.hpp"
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -34,14 +33,6 @@ class SocketUdp;
 
 using ClientSharedPtr = std::shared_ptr<Client>;
 
-struct ClientContext
-{
-    PacketDefragmentation _defragmentation;
-    PacketCache _cache;
-    PacketReorderer _reorderer;
-    CommandQueue _commands;
-};
-
 /**
  * \class ClientList
  * \ingroup network
@@ -50,16 +41,6 @@ struct ClientContext
 class FGE_API ClientList
 {
 public:
-    struct Data
-    {
-        inline explicit Data(ClientSharedPtr client) :
-                _client(std::move(client))
-        {}
-
-        ClientSharedPtr _client;
-        ClientContext _context;
-    };
-
     /**
      * \struct Event
      * \ingroup network
@@ -83,7 +64,7 @@ public:
         Identity _id;
     };
 
-    using DataList = std::unordered_map<Identity, Data, IdentityHash>;
+    using DataList = std::unordered_map<Identity, ClientSharedPtr, IdentityHash>;
     using EventList = std::deque<Event>;
 
     ClientList() = default;
@@ -144,8 +125,6 @@ public:
      * \return The client if found, nullptr otherwise
      */
     ClientSharedPtr get(Identity const& id) const;
-    Data const* getData(Identity const& id) const;
-    Data* getData(Identity const& id);
 
     /**
      * \brief Acquire a unique lock, with the ClientList mutex

@@ -41,7 +41,7 @@ void ClientList::sendToAll(TransmitPacketPtr const& pck) const
     std::scoped_lock const lck(this->g_mutex);
     for (auto& it: this->g_data)
     {
-        it.second._client->pushPacket(std::make_unique<ProtocolPacket>(*pck));
+        it.second->pushPacket(std::make_unique<ProtocolPacket>(*pck));
     }
 }
 
@@ -101,27 +101,7 @@ ClientSharedPtr ClientList::get(Identity const& id) const
     auto it = this->g_data.find(id);
     if (it != this->g_data.end())
     {
-        return it->second._client;
-    }
-    return nullptr;
-}
-ClientList::Data const* ClientList::getData(Identity const& id) const
-{
-    std::scoped_lock const lck(this->g_mutex);
-    auto it = this->g_data.find(id);
-    if (it != this->g_data.end())
-    {
-        return &it->second;
-    }
-    return nullptr;
-}
-ClientList::Data* ClientList::getData(Identity const& id)
-{
-    std::scoped_lock const lck(this->g_mutex);
-    auto it = this->g_data.find(id);
-    if (it != this->g_data.end())
-    {
-        return &it->second;
+        return it->second;
     }
     return nullptr;
 }
