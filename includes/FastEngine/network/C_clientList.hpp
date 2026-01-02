@@ -68,7 +68,12 @@ public:
     using EventList = std::deque<Event>;
 
     ClientList() = default;
+    ClientList(ClientList const& r);
+    ClientList(ClientList&& r) noexcept;
     ~ClientList() = default;
+
+    ClientList& operator=(ClientList const& r);
+    ClientList& operator=(ClientList&& r) noexcept;
 
     /**
      * \brief Clear the client list and the event list

@@ -20,7 +20,50 @@
 namespace fge::net
 {
 
-///ClientList
+ClientList::ClientList(ClientList const& r)
+{
+    auto const rLock = r.acquireLock();
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_data = r.g_data;
+    this->g_events = r.g_events;
+    this->g_enableClientEventsFlag = r.g_enableClientEventsFlag;
+}
+
+ClientList::ClientList(ClientList&& r) noexcept
+{
+    auto const rLock = r.acquireLock();
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_data = std::move(r.g_data);
+    this->g_events = std::move(r.g_events);
+    this->g_enableClientEventsFlag = r.g_enableClientEventsFlag;
+}
+
+ClientList& ClientList::operator=(ClientList const& r)
+{
+    if (this != &r)
+    {
+        auto const rLock = r.acquireLock();
+        std::scoped_lock const lck(this->g_mutex);
+        this->g_data = r.g_data;
+        this->g_events = r.g_events;
+        this->g_enableClientEventsFlag = r.g_enableClientEventsFlag;
+    }
+    return *this;
+}
+
+ClientList& ClientList::operator=(ClientList&& r) noexcept
+{
+    if (this != &r)
+    {
+        auto const rLock = r.acquireLock();
+        std::scoped_lock const lck(this->g_mutex);
+        this->g_data = std::move(r.g_data);
+        this->g_events = std::move(r.g_events);
+        this->g_enableClientEventsFlag = r.g_enableClientEventsFlag;
+    }
+    return *this;
+}
+
 void ClientList::clear()
 {
     std::scoped_lock const lck(this->g_mutex);
@@ -31,7 +74,7 @@ void ClientList::clear()
 void ClientList::sendToAll(SocketUdp& socket, Packet& pck) const
 {
     std::scoped_lock const lck(this->g_mutex);
-    for (auto& it: this->g_data)
+    for (auto const& it: this->g_data)
     {
         socket.sendTo(pck, it.first._ip, it.first._port);
     }
@@ -39,7 +82,7 @@ void ClientList::sendToAll(SocketUdp& socket, Packet& pck) const
 void ClientList::sendToAll(TransmitPacketPtr const& pck) const
 {
     std::scoped_lock const lck(this->g_mutex);
-    for (auto& it: this->g_data)
+    for (auto const& it: this->g_data)
     {
         it.second->pushPacket(std::make_unique<ProtocolPacket>(*pck));
     }
