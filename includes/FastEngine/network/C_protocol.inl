@@ -152,12 +152,12 @@ inline std::optional<ProtocolPacket::CounterType> ProtocolPacket::retrieveCounte
     }
     return std::nullopt;
 }
-inline std::optional<ProtocolPacket::CounterType> ProtocolPacket::retrieveLastCounter() const
+inline std::optional<ProtocolPacket::CounterType> ProtocolPacket::retrieveReorderedCounter() const
 {
     if (this->haveCorrectHeaderSize())
     {
         CounterType counter;
-        this->unpack(LastCounterPosition, &counter, sizeof(CounterType));
+        this->unpack(ReorderedCounterPosition, &counter, sizeof(CounterType));
         return counter;
     }
     return std::nullopt;
@@ -170,7 +170,7 @@ inline std::optional<ProtocolPacket::Header> ProtocolPacket::retrieveHeader() co
         this->unpack(IdPosition, &header._id, sizeof(IdType));
         this->unpack(RealmPosition, &header._realm, sizeof(RealmType));
         this->unpack(CounterPosition, &header._counter, sizeof(CounterType));
-        this->unpack(LastCounterPosition, &header._lastCounter, sizeof(CounterType));
+        this->unpack(ReorderedCounterPosition, &header._lastCounter, sizeof(CounterType));
         return header;
     }
     return std::nullopt;
@@ -190,7 +190,7 @@ inline ProtocolPacket& ProtocolPacket::setHeader(Header const& header)
     this->pack(IdPosition, &header._id, sizeof(IdType));
     this->pack(RealmPosition, &header._realm, sizeof(RealmType));
     this->pack(CounterPosition, &header._counter, sizeof(CounterType));
-    this->pack(LastCounterPosition, &header._lastCounter, sizeof(CounterType));
+    this->pack(ReorderedCounterPosition, &header._lastCounter, sizeof(CounterType));
     return *this;
 }
 inline ProtocolPacket& ProtocolPacket::setHeaderId(IdType id)
@@ -271,9 +271,9 @@ inline ProtocolPacket& ProtocolPacket::setCounter(CounterType counter)
     this->pack(CounterPosition, &counter, sizeof(CounterType));
     return *this;
 }
-inline ProtocolPacket& ProtocolPacket::setLastReorderedPacketCounter(CounterType counter)
+inline ProtocolPacket& ProtocolPacket::setReorderedCounter(CounterType counter)
 {
-    this->pack(LastCounterPosition, &counter, sizeof(CounterType));
+    this->pack(ReorderedCounterPosition, &counter, sizeof(CounterType));
     return *this;
 }
 

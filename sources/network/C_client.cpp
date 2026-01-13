@@ -19,6 +19,8 @@
 #include "private/fge_crypt.hpp"
 #include <limits>
 
+#include "private/fge_debug.hpp"
+
 namespace fge::net
 {
 
@@ -225,6 +227,12 @@ void Client::clearPackets()
 }
 void Client::pushPacket(TransmitPacketPtr pck)
 {
+    if (pck == nullptr)
+    {
+        FGE_DEBUG_PRINT("Client::pushPacket tried to push a nullptr packet");
+        return;
+    }
+
     if (this->g_status.isDisconnected())
     {
         return;
@@ -232,19 +240,12 @@ void Client::pushPacket(TransmitPacketPtr pck)
 
     std::scoped_lock const lck(this->g_mutex);
 
-#ifdef FGE_DEF_SERVER
-    pck->setCounter(this->advanceCurrentPacketCounter());
-#else
-    pck->setCounter(this->advanceClientPacketCounter());
-#endif
-
     pck->setRealm(this->getCurrentRealm());
-
-    pck->setLastReorderedPacketCounter(this->getLastReorderedPacketCounter());
+    pck->setCounter(this->advancePacketCounter(Targets::HOST));
 
     if (!pck->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
     {
-        this->resetLastReorderedPacketCounter();
+        pck->setReorderedCounter(this->advanceReorderedPacketCounter(Targets::HOST));
     }
 
     if (this->g_status.isInEncryptedState())
@@ -255,6 +256,12 @@ void Client::pushPacket(TransmitPacketPtr pck)
 }
 void Client::pushForcedFrontPacket(TransmitPacketPtr pck)
 {
+    if (pck == nullptr)
+    {
+        FGE_DEBUG_PRINT("Client::pushForcedFrontPacket tried to push a nullptr packet");
+        return;
+    }
+
     std::scoped_lock const lck(this->g_mutex);
     this->g_pendingTransmitPackets.push_front(std::move(pck));
 }
@@ -302,7 +309,8 @@ void Client::setCurrentRealm(ProtocolPacket::RealmType realm)
     std::scoped_lock const lck(this->g_mutex);
     if (this->g_currentRealm != realm)
     {
-        this->g_currentPacketCounter = 0;
+        this->g_hostPacketCounter = 0;
+        this->g_peerPacketCounter = 0;
         this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
         this->g_currentRealm = realm;
     }
@@ -310,62 +318,77 @@ void Client::setCurrentRealm(ProtocolPacket::RealmType realm)
 ProtocolPacket::RealmType Client::advanceCurrentRealm()
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_currentPacketCounter = 0;
+    this->g_hostPacketCounter = 0;
+    this->g_peerPacketCounter = 0;
     this->g_lastRealmChangeTimePoint = std::chrono::steady_clock::now();
     return ++this->g_currentRealm;
 }
 
-ProtocolPacket::CounterType Client::getCurrentPacketCounter() const
+ProtocolPacket::CounterType Client::getPacketCounter(Targets target) const
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_currentPacketCounter;
+    if (target == Targets::HOST)
+    {
+        return this->g_hostPacketCounter;
+    }
+    return this->g_peerPacketCounter;
 }
-ProtocolPacket::CounterType Client::advanceCurrentPacketCounter()
+ProtocolPacket::CounterType Client::advancePacketCounter(Targets target)
 {
     std::scoped_lock const lck(this->g_mutex);
-    return ++this->g_currentPacketCounter;
+    if (target == Targets::HOST)
+    {
+        return ++this->g_hostPacketCounter;
+    }
+    return ++this->g_peerPacketCounter;
 }
-void Client::setCurrentPacketCounter(ProtocolPacket::CounterType counter)
+void Client::setPacketCounter(Targets target, ProtocolPacket::CounterType count)
 {
     std::scoped_lock const lck(this->g_mutex);
-    this->g_currentPacketCounter = counter;
-#ifdef FGE_DEF_SERVER
-    this->g_lastReorderedPacketCounter = counter;
-#endif
-}
-
-ProtocolPacket::CounterType Client::getClientPacketCounter() const
-{
-    std::scoped_lock const lck(this->g_mutex);
-    return this->g_clientPacketCounter;
-}
-ProtocolPacket::CounterType Client::advanceClientPacketCounter()
-{
-    std::scoped_lock const lck(this->g_mutex);
-    return this->g_clientPacketCounter++;
-}
-void Client::setClientPacketCounter(ProtocolPacket::CounterType countId)
-{
-    std::scoped_lock const lck(this->g_mutex);
-    this->g_clientPacketCounter = countId;
-#ifndef FGE_DEF_SERVER
-    this->g_lastReorderedPacketCounter = countId;
-#endif
+    if (target == Targets::HOST)
+    {
+        this->g_hostPacketCounter = count;
+        return;
+    }
+    this->g_peerPacketCounter = count;
 }
 
-void Client::resetLastReorderedPacketCounter()
+ProtocolPacket::CounterType Client::getReorderedPacketCounter(Targets target) const
 {
     std::scoped_lock const lck(this->g_mutex);
-#ifdef FGE_DEF_SERVER
-    this->g_lastReorderedPacketCounter = this->g_currentPacketCounter;
-#else
-    this->g_lastReorderedPacketCounter = this->g_clientPacketCounter;
-#endif
+    if (target == Targets::HOST)
+    {
+        return this->g_hostReorderedPacketCounter;
+    }
+    return this->g_peerReorderedPacketCounter;
 }
-ProtocolPacket::CounterType Client::getLastReorderedPacketCounter() const
+ProtocolPacket::CounterType Client::advanceReorderedPacketCounter(Targets target)
 {
     std::scoped_lock const lck(this->g_mutex);
-    return this->g_lastReorderedPacketCounter;
+    if (target == Targets::HOST)
+    {
+        return ++this->g_hostReorderedPacketCounter;
+    }
+    return ++this->g_peerReorderedPacketCounter;
+}
+void Client::setReorderedPacketCounter(Targets target, ProtocolPacket::CounterType count)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    if (target == Targets::HOST)
+    {
+        this->g_hostReorderedPacketCounter = count;
+        return;
+    }
+    this->g_peerReorderedPacketCounter = count;
+}
+
+void Client::resetAllCounters()
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_hostPacketCounter = 0;
+    this->g_peerPacketCounter = 0;
+    this->g_hostReorderedPacketCounter = 0;
+    this->g_peerReorderedPacketCounter = 0;
 }
 
 void Client::acknowledgeReception(ReceivedPacketPtr const& packet)

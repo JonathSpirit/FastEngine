@@ -135,8 +135,9 @@ protected:
     void forcePushPacketFront(ReceivedPacketPtr fluxPck);
     [[nodiscard]] FluxProcessResults processReorder(PacketReorderer& reorderer,
                                                     ReceivedPacketPtr& packet,
-                                                    ProtocolPacket::CounterType currentCounter,
-                                                    ProtocolPacket::RealmType clientRealm,
+                                                    ProtocolPacket::CounterType peerCounter,
+                                                    ProtocolPacket::CounterType peerReorderedCounter,
+                                                    ProtocolPacket::RealmType realm,
                                                     bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;

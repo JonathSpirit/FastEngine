@@ -122,7 +122,7 @@ public:
     constexpr static std::size_t IdPosition = 0;
     constexpr static std::size_t RealmPosition = sizeof(IdType);
     constexpr static std::size_t CounterPosition = sizeof(IdType) + sizeof(RealmType);
-    constexpr static std::size_t LastCounterPosition = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
+    constexpr static std::size_t ReorderedCounterPosition = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
 
     inline ProtocolPacket(Packet const& pck,
                           Identity const& id,
@@ -152,7 +152,7 @@ public:
     [[nodiscard]] inline std::optional<IdType> retrieveFullHeaderId() const;
     [[nodiscard]] inline std::optional<RealmType> retrieveRealm() const;
     [[nodiscard]] inline std::optional<CounterType> retrieveCounter() const;
-    [[nodiscard]] inline std::optional<CounterType> retrieveLastCounter() const;
+    [[nodiscard]] inline std::optional<CounterType> retrieveReorderedCounter() const;
     [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
 
     [[nodiscard]] inline bool isFragmented() const;
@@ -170,7 +170,7 @@ public:
 
     inline ProtocolPacket& setRealm(RealmType realm);
     inline ProtocolPacket& setCounter(CounterType counter);
-    inline ProtocolPacket& setLastReorderedPacketCounter(CounterType counter);
+    inline ProtocolPacket& setReorderedCounter(CounterType counter);
 
     inline void setTimestamp(Timestamp timestamp);
     [[nodiscard]] inline Timestamp getTimeStamp() const;
@@ -358,11 +358,13 @@ public:
 
     void push(ReceivedPacketPtr&& packet);
     [[nodiscard]] static Stats checkStat(ReceivedPacketPtr const& packet,
-                                         ProtocolPacket::CounterType currentCounter,
-                                         ProtocolPacket::RealmType currentRealm);
+                                         ProtocolPacket::CounterType peerCounter,
+                                         ProtocolPacket::CounterType peerReorderedCounter,
+                                         ProtocolPacket::RealmType peerRealm);
     [[nodiscard]] bool isForced() const;
-    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CounterType currentCounter,
-                                                 ProtocolPacket::RealmType currentRealm) const;
+    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CounterType peerCounter,
+                                                 ProtocolPacket::CounterType peerReorderedCounter,
+                                                 ProtocolPacket::RealmType peerRealm) const;
     [[nodiscard]] ReceivedPacketPtr pop();
 
     [[nodiscard]] bool isEmpty() const;
@@ -381,12 +383,13 @@ private:
         Data& operator=(Data const& r) = delete;
         Data& operator=(Data&& r) noexcept;
 
-        [[nodiscard]] Stats checkStat(ProtocolPacket::CounterType currentCounter,
-                                      ProtocolPacket::RealmType currentRealm) const;
+        [[nodiscard]] Stats checkStat(ProtocolPacket::CounterType peerCounter,
+                                      ProtocolPacket::CounterType peerReorderedCounter,
+                                      ProtocolPacket::RealmType peerRealm) const;
 
         ReceivedPacketPtr _packet;
         ProtocolPacket::CounterType _counter;
-        ProtocolPacket::CounterType _lastCounter;
+        ProtocolPacket::CounterType _reorderedCounter;
         ProtocolPacket::RealmType _realm;
 
         struct Compare

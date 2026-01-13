@@ -369,9 +369,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                                   << '\n'
                                   << "Update count: " << mainScene->getUpdateCount() << '\n'
                                   << "Lost packets: " << server._client.getLostPacketCount() << '\n'
-                                  << "Realm: " << static_cast<unsigned int>(server._client.getCurrentRealm())
-                                  << ", CurrentCounter: " << server._client.getCurrentPacketCounter()
-                                  << ", ClientCounter: " << server._client.getClientPacketCounter();
+                                  << "Realm: " << static_cast<unsigned int>(server._client.getCurrentRealm()) << '\n'
+                                  << "Peer counter: "
+                                  << server._client.getPacketCounter(fge::net::Client::Targets::PEER)
+                                  << ", Peer reorderedCounter: "
+                                  << server._client.getReorderedPacketCounter(fge::net::Client::Targets::PEER) << '\n'
+                                  << "Host counter: "
+                                  << server._client.getPacketCounter(fge::net::Client::Targets::HOST)
+                                  << ", Host reorderedCounter: "
+                                  << server._client.getReorderedPacketCounter(fge::net::Client::Targets::HOST);
 
                 latencyText->setString(tiny_utf8::string(latencyTextStream.str()));
 

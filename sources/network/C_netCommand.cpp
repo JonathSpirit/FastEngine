@@ -372,8 +372,7 @@ void NetConnectCommand::internalUpdate(TransmitPacketPtr& buffPacket,
             FGE_DEBUG_PRINT("TX CONNECTED");
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            client.setClientPacketCounter(0);
-            client.setCurrentPacketCounter(0);
+            client.resetAllCounters();
             this->g_promise.set_value(true);
             this->g_state = States::CONNECTED;
             this->markAsSucceeded();
@@ -434,8 +433,7 @@ void NetConnectCommand::internalUpdate(TransmitPacketPtr& buffPacket,
             FGE_DEBUG_PRINT("CONNECTED");
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            client.setClientPacketCounter(0);
-            client.setCurrentPacketCounter(0);
+            client.resetAllCounters();
             this->g_promise.set_value(true);
             this->markAsSucceeded();
         }
@@ -599,8 +597,7 @@ void NetConnectHandlerCommand::internalUpdate(TransmitPacketPtr& buffPacket,
             FGE_DEBUG_PRINT("TX CONNECTED");
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            client.setClientPacketCounter(0);
-            client.setCurrentPacketCounter(0);
+            client.resetAllCounters();
             this->g_promise.set_value(true);
             this->g_state = States::CONNECTED;
             this->markAsSucceeded();
@@ -661,9 +658,9 @@ void NetConnectHandlerCommand::internalUpdate(TransmitPacketPtr& buffPacket,
             FGE_DEBUG_PRINT("CONNECTED");
             client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::CONNECTED);
             client.getStatus().setTimeout(FGE_NET_STATUS_DEFAULT_CONNECTED_TIMEOUT);
-            client.setClientPacketCounter(0);
-            client.setCurrentPacketCounter(0);
+            client.resetAllCounters();
             this->g_promise.set_value(true);
+            this->g_state = States::CONNECTED;
             this->markAsSucceeded();
         }
         break;
