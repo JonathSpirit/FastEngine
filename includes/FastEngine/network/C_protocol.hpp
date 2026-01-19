@@ -42,14 +42,17 @@
 
 #define FGE_NET_BAD_ID 0
 
-#define FGE_NET_PACKET_CACHE_DELAY_FACTOR 1.2f
+#define FGE_NET_PACKET_CACHE_DELAY_FACTOR 2.2f
 #define FGE_NET_PACKET_CACHE_MAX 100
 #define FGE_NET_PACKET_CACHE_MIN_LATENCY_MS 10
 
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_DEFAULT_PACKET_REORDERER_CACHE_SIZE 5
 #define FGE_NET_PACKET_REORDERER_CACHE_COMPUTE(_clientReturnRate, _serverTickRate)                                     \
-    (((_clientReturnRate) * FGE_NET_PACKET_CACHE_DELAY_FACTOR / (_serverTickRate) + 1) * 2)
+    ((static_cast<unsigned>(static_cast<float>(_clientReturnRate) * FGE_NET_PACKET_CACHE_DELAY_FACTOR /                \
+                            static_cast<float>(_serverTickRate)) +                                                     \
+      1) *                                                                                                             \
+     2)
 
 #define FGE_NET_HANDSHAKE_STRING "FGE:HANDSHAKE:AZCgMVg4d4Sl2xYvZcqXqljIOqSrKX6H"
 
@@ -398,7 +401,7 @@ private:
             {
                 if (l._realm == r._realm)
                 {
-                    return l._counter > r._counter;
+                    return l._reorderedCounter > r._reorderedCounter;
                 }
                 return l._realm > r._realm;
             }

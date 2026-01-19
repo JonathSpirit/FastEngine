@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "FastEngine/C_compressorLZ4.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/network/C_server.hpp"
 #include "private/fge_crypt.hpp"
@@ -378,8 +379,16 @@ void ServerSideNetUdp::threadTransmission()
                     while (client->_context._cache.check(
                             timePoint, std::chrono::duration_cast<std::chrono::milliseconds>(clientLatency)))
                     {
-                        FGE_DEBUG_PRINT("re-transmit packet as client didn't acknowledge it");
+#ifdef FGE_DEF_DEBUG
+                        auto packet = client->_context._cache.pop();
+                        auto const counter = packet->retrieveCounter().value();
+                        auto const reorderedCounter = packet->retrieveReorderedCounter().value();
+                        FGE_DEBUG_PRINT("re-transmit packet [{}/{}] as client didn't acknowledge it", counter,
+                                        reorderedCounter);
+                        client->pushForcedFrontPacket(std::move(packet));
+#else
                         client->pushForcedFrontPacket(client->_context._cache.pop());
+#endif
                     }
                 }
 

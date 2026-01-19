@@ -559,12 +559,15 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
         refClient->advanceLostPacketCount(); //We are missing a packet
     }
 
-    auto const peerRealm = packet->retrieveRealm().value();
-    refClient->setCurrentRealm(peerRealm);
-    auto const peerCounter = packet->retrieveCounter().value();
-    refClient->setPacketCounter(Client::Targets::PEER, peerCounter);
-    auto const peerReorderedCounter = packet->retrieveReorderedCounter().value();
-    refClient->setReorderedPacketCounter(Client::Targets::PEER, peerReorderedCounter);
+    if (stat != PacketReorderer::Stats::OLD_REALM && stat != PacketReorderer::Stats::OLD_COUNTER)
+    {
+        auto const peerRealm = packet->retrieveRealm().value();
+        refClient->setCurrentRealm(peerRealm);
+        auto const peerCounter = packet->retrieveCounter().value();
+        refClient->setPacketCounter(Client::Targets::PEER, peerCounter);
+        auto const peerReorderedCounter = packet->retrieveReorderedCounter().value();
+        refClient->setReorderedPacketCounter(Client::Targets::PEER, peerReorderedCounter);
+    }
 
     //Check if the packet is a return packet, and if so, handle it
     if (this->handleReturnPacket(refClient, refClient->_context, packet).has_value() || packet == nullptr)

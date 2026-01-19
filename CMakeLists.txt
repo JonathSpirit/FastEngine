@@ -101,6 +101,7 @@ option(FGE_BUILD_TESTS "Build tests" ON)
 
 option(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST "enable/disable random packet lost for server" OFF)
 option(FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST "enable/disable random packet lost for client" OFF)
+option(FGE_ENABLE_PACKET_DEBUG_VERBOSE "enable/disable verbose packet debug printing" OFF)
 
 #Check if Doxygen is installed
 if (FGE_BUILD_DOC)
@@ -181,6 +182,14 @@ if (${FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST})
     target_compile_definitions(${FGE_LIB_NAME} PUBLIC FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST)
     if (NOT ${FGE_DEBUG})
         message(WARNING "FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST is enabled, but FGE_DEBUG is disabled")
+    endif()
+endif()
+
+if (${FGE_ENABLE_PACKET_DEBUG_VERBOSE})
+    target_compile_definitions(${FGE_LIB_NAME} PUBLIC FGE_ENABLE_PACKET_DEBUG_VERBOSE)
+    target_compile_definitions(${FGE_SERVER_LIB_NAME} PUBLIC FGE_ENABLE_PACKET_DEBUG_VERBOSE)
+    if (NOT ${FGE_DEBUG})
+        message(WARNING "FGE_ENABLE_PACKET_DEBUG_VERBOSE is enabled, but FGE_DEBUG is disabled")
     endif()
 endif()
 

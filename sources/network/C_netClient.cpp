@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "FastEngine/C_compressorLZ4.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/network/C_server.hpp"
 #include "private/fge_crypt.hpp"
@@ -206,7 +207,7 @@ ClientContext& ClientSideNetUdp::getClientContext()
     return this->g_clientContext;
 }
 
-FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
+FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet, EnumFlags<ProcessOptions> options)
 {
     packet.reset();
 
@@ -216,46 +217,74 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         return FluxProcessResults::NONE_AVAILABLE;
     }
 
-    //Checking timeout
-    if (this->_client.getStatus().isTimeout())
+    if (options.has(OPTION_ONE_SHOT))
     {
-        this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
-        this->_g_remainingPackets = 0;
-        this->clearPackets();
-        this->_onClientTimeout.call(*this);
-        return FluxProcessResults::NONE_AVAILABLE;
+        options.set(OPTION_NO_TIMEOUT);
     }
 
-    //Checking return packet
-    if (this->isReturnPacketEnabled())
+    //Checking timeout
+    if (!options.has(OPTION_NO_TIMEOUT))
     {
-        auto const now = std::chrono::steady_clock::now();
-        if (now - this->g_returnPacketTimePoint >= this->_client.getPacketReturnRate())
+        if (this->_client.getStatus().isTimeout())
         {
-            this->g_returnPacketTimePoint = now;
-            auto returnPacket = this->prepareAndRetrieveReturnPacket();
-            this->_onTransmitReturnPacket.call(*this, returnPacket);
-            this->_client.pushPacket(std::move(returnPacket));
+            this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
+            this->_g_remainingPackets = 0;
+            this->clearPackets();
+            this->_onClientTimeout.call(*this);
+            return FluxProcessResults::NONE_AVAILABLE;
         }
     }
 
-    if (this->_g_remainingPackets == 0)
+    //Checking return packet
+    if (!options.has(OPTION_ONE_SHOT))
     {
-        this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NONE_AVAILABLE;
+        if (this->isReturnPacketEnabled())
+        {
+            auto const now = std::chrono::steady_clock::now();
+            if (now - this->g_returnPacketTimePoint >= this->_client.getPacketReturnRate())
+            {
+                this->g_returnPacketTimePoint = now;
+                auto returnPacket = this->prepareAndRetrieveReturnPacket();
+                this->_onTransmitReturnPacket.call(*this, returnPacket);
+                this->_client.pushPacket(std::move(returnPacket));
+            }
+        }
+
+        if (this->_g_remainingPackets == 0)
+        {
+            this->_g_remainingPackets = this->getPacketsSize();
+            return FluxProcessResults::NONE_AVAILABLE;
+        }
+
+        //Popping the next packet
+        packet = this->popNextPacket();
+        if (!packet)
+        {
+            this->_g_remainingPackets = this->getPacketsSize();
+            return FluxProcessResults::NONE_AVAILABLE;
+        }
+        --this->_g_remainingPackets;
+    }
+    else
+    {
+        packet = this->popNextPacket();
+        if (!packet)
+        {
+            return FluxProcessResults::NONE_AVAILABLE;
+        }
     }
 
-    //Popping the next packet
-    packet = this->popNextPacket();
-    if (!packet)
-    {
-        this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NONE_AVAILABLE;
-    }
-    --this->_g_remainingPackets;
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    auto const counter = packet->retrieveCounter().value();
+    auto const reorderedCounter = packet->retrieveReorderedCounter().value();
+    FGE_DEBUG_PRINT("Checking packet [{}/{}]", counter, reorderedCounter);
+#endif
 
     if (!packet->isMarkedAsLocallyReordered())
     {
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        FGE_DEBUG_PRINT("Acknowledging reception of packet [{}/{}]", counter, reorderedCounter);
+#endif
         this->_client.acknowledgeReception(packet);
     }
 
@@ -265,6 +294,10 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
 
     bool const doNotDiscard = packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
     bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    FGE_DEBUG_PRINT("Packet is doNotDiscard {} and doNotReorder {}", doNotDiscard, doNotReorder);
+#endif
 
     if (!doNotDiscard)
     {
@@ -287,13 +320,22 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
 
     if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
     {
-        auto reorderResult = this->processReorder(
-                this->g_clientContext._reorderer, packet, this->_client.getPacketCounter(Client::Targets::PEER),
-                this->_client.getReorderedPacketCounter(Client::Targets::PEER), this->_client.getCurrentRealm(), false);
-
-        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
+        if (!(doNotDiscard &&
+              (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)))
         {
-            return reorderResult;
+            auto reorderResult = this->processReorder(this->g_clientContext._reorderer, packet,
+                                                      this->_client.getPacketCounter(Client::Targets::PEER),
+                                                      this->_client.getReorderedPacketCounter(Client::Targets::PEER),
+                                                      this->_client.getCurrentRealm(), false);
+
+            if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
+            {
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+                auto const re = static_cast<int>(reorderResult);
+                FGE_DEBUG_PRINT("Packet goes into the reorderer, result: {}", re);
+#endif
+                return reorderResult;
+            }
         }
     }
 
@@ -321,12 +363,25 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         this->_client.advanceLostPacketCount(); //We are missing a packet
     }
 
-    auto const peerRealm = packet->retrieveRealm().value();
-    this->_client.setCurrentRealm(peerRealm);
-    auto const peerCounter = packet->retrieveCounter().value();
-    this->_client.setPacketCounter(Client::Targets::PEER, peerCounter);
-    auto const peerReorderedCounter = packet->retrieveReorderedCounter().value();
-    this->_client.setReorderedPacketCounter(Client::Targets::PEER, peerReorderedCounter);
+    if (stat != PacketReorderer::Stats::OLD_REALM && stat != PacketReorderer::Stats::OLD_COUNTER)
+    {
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        auto const wasRealm = this->_client.getCurrentRealm();
+        auto const wasCounter = this->_client.getPacketCounter(Client::Targets::PEER);
+        auto const wasReorderedCounter = this->_client.getReorderedPacketCounter(Client::Targets::PEER);
+        FGE_DEBUG_PRINT("Was : realm {}, counter {}, reorderedCounter {}", wasRealm, wasCounter, wasReorderedCounter);
+#endif
+        auto const peerRealm = packet->retrieveRealm().value();
+        this->_client.setCurrentRealm(peerRealm);
+        auto const peerCounter = packet->retrieveCounter().value();
+        this->_client.setPacketCounter(Client::Targets::PEER, peerCounter);
+        auto const peerReorderedCounter = packet->retrieveReorderedCounter().value();
+        this->_client.setReorderedPacketCounter(Client::Targets::PEER, peerReorderedCounter);
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        FGE_DEBUG_PRINT("Updating peer state to realm {}, counter {}, reorderedCounter {}", peerRealm, peerCounter,
+                        peerReorderedCounter);
+#endif
+    }
 
     return FluxProcessResults::USER_RETRIEVABLE;
 }
