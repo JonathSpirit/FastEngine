@@ -265,6 +265,11 @@ void Client::pushForcedFrontPacket(TransmitPacketPtr pck)
     std::scoped_lock const lck(this->g_mutex);
     this->g_pendingTransmitPackets.push_front(std::move(pck));
 }
+bool Client::isReadyToAcceptMorePendingPackets() const
+{
+    std::scoped_lock const lck(this->g_mutex);
+    return this->g_allowMorePackets && this->g_pendingTransmitPackets.empty();
+}
 TransmitPacketPtr Client::popPacket()
 {
     std::scoped_lock const lck(this->g_mutex);
@@ -282,6 +287,12 @@ bool Client::isPendingPacketsEmpty() const
     std::scoped_lock const lck(this->g_mutex);
     return this->g_pendingTransmitPackets.empty();
 }
+void Client::allowMorePendingPackets(bool allow)
+{
+    std::scoped_lock const lck(this->g_mutex);
+    this->g_allowMorePackets = allow;
+}
+
 void Client::disconnect(bool pushDisconnectPacket)
 {
     std::scoped_lock const lck(this->g_mutex);

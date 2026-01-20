@@ -444,7 +444,7 @@ public:
         };
     };
 
-    PacketCache() = default;
+    PacketCache();
     PacketCache(PacketCache const& r) = delete;
     PacketCache(PacketCache&& r) noexcept;
     ~PacketCache() = default;
@@ -455,6 +455,7 @@ public:
     void clear();
     [[nodiscard]] bool isEmpty() const;
     [[nodiscard]] bool isEnabled() const;
+    [[nodiscard]] bool isAlarmed() const;
     void enable(bool enable);
 
     //Transmit
@@ -464,9 +465,7 @@ public:
     void acknowledgeReception(std::span<Label> labels);
 
     //Check for unacknowledged packet
-    [[nodiscard]] bool check(std::chrono::steady_clock::time_point const& timePoint,
-                             std::chrono::milliseconds clientDelay);
-    [[nodiscard]] TransmitPacketPtr pop();
+    bool update(std::chrono::steady_clock::time_point const& timePoint, Client& client);
 
 private:
     struct Data
@@ -479,15 +478,14 @@ private:
         TransmitPacketPtr _packet;
         Label _label;
         std::chrono::steady_clock::time_point _time{};
+        unsigned int _tryCount{0};
     };
 
     mutable std::mutex g_mutex;
 
-    //Circular buffer
-    std::vector<Data> g_cache{FGE_NET_PACKET_CACHE_MAX};
-    std::size_t g_start{0};
-    std::size_t g_end{0};
+    std::vector<Data> g_cache;
 
+    bool g_alarm{false};
     bool g_enable{false};
 };
 

@@ -371,26 +371,7 @@ void ServerSideNetUdp::threadTransmission()
                 auto& client = itClient->second;
 
                 //check cache
-                {
-                    auto const clientLatency =
-                            client->getPacketReturnRate() * FGE_NET_PACKET_CACHE_DELAY_FACTOR +
-                            std::chrono::milliseconds(client->_latencyPlanner.getRoundTripTime().value_or(1));
-
-                    while (client->_context._cache.check(
-                            timePoint, std::chrono::duration_cast<std::chrono::milliseconds>(clientLatency)))
-                    {
-#ifdef FGE_DEF_DEBUG
-                        auto packet = client->_context._cache.pop();
-                        auto const counter = packet->retrieveCounter().value();
-                        auto const reorderedCounter = packet->retrieveReorderedCounter().value();
-                        FGE_DEBUG_PRINT("re-transmit packet [{}/{}] as client didn't acknowledge it", counter,
-                                        reorderedCounter);
-                        client->pushForcedFrontPacket(std::move(packet));
-#else
-                        client->pushForcedFrontPacket(client->_context._cache.pop());
-#endif
-                    }
-                }
+                client->_context._cache.update(timePoint, *client);
 
                 if (client->isPendingPacketsEmpty())
                 {

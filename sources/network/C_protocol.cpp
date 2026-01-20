@@ -440,6 +440,10 @@ PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterT
 
 //PacketCache
 
+PacketCache::PacketCache()
+{
+    this->g_cache.reserve(FGE_NET_PACKET_CACHE_MAX);
+}
 PacketCache::PacketCache(PacketCache&& r) noexcept :
         PacketCache()
 {
@@ -447,14 +451,12 @@ PacketCache::PacketCache(PacketCache&& r) noexcept :
     std::scoped_lock const lockR(r.g_mutex);
 
     this->g_cache = std::move(r.g_cache);
-    this->g_start = r.g_start;
-    this->g_end = r.g_end;
+    this->g_alarm = r.g_enable;
     this->g_enable = r.g_enable;
 
     r.g_cache.clear();
-    r.g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
-    r.g_start = 0;
-    r.g_end = 0;
+    r.g_cache.reserve(FGE_NET_PACKET_CACHE_MAX);
+    r.g_alarm = false;
 }
 
 PacketCache& PacketCache::operator=(PacketCache&& r) noexcept
@@ -465,14 +467,12 @@ PacketCache& PacketCache::operator=(PacketCache&& r) noexcept
         std::scoped_lock const lockR(r.g_mutex);
 
         this->g_cache = std::move(r.g_cache);
-        this->g_start = r.g_start;
-        this->g_end = r.g_end;
+        this->g_alarm = r.g_enable;
         this->g_enable = r.g_enable;
 
         r.g_cache.clear();
-        r.g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
-        r.g_start = 0;
-        r.g_end = 0;
+        r.g_cache.reserve(FGE_NET_PACKET_CACHE_MAX);
+        r.g_alarm = false;
     }
     return *this;
 }
@@ -481,20 +481,24 @@ void PacketCache::clear()
 {
     std::scoped_lock const lock(this->g_mutex);
     this->g_cache.clear();
-    this->g_cache.resize(FGE_NET_PACKET_CACHE_MAX);
-    this->g_start = 0;
-    this->g_end = 0;
+    this->g_cache.reserve(FGE_NET_PACKET_CACHE_MAX);
+    this->g_alarm = false;
 }
 
 bool PacketCache::isEmpty() const
 {
     std::scoped_lock const lock(this->g_mutex);
-    return this->g_start == this->g_end;
+    return this->g_cache.empty();
 }
 bool PacketCache::isEnabled() const
 {
     std::scoped_lock const lock(this->g_mutex);
     return this->g_enable;
+}
+bool PacketCache::isAlarmed() const
+{
+    std::scoped_lock const lock(this->g_mutex);
+    return this->g_alarm;
 }
 void PacketCache::enable(bool enable)
 {
@@ -510,107 +514,105 @@ void PacketCache::push(TransmitPacketPtr const& packet)
         return;
     }
 
-    auto const next = (this->g_end + 1) % FGE_NET_PACKET_CACHE_MAX;
-
-    if (next == this->g_start)
+    this->g_cache.emplace_back(std::make_unique<ProtocolPacket>(*packet))._packet->markAsCached();
+    if (this->g_cache.size() >= FGE_NET_PACKET_CACHE_MAX)
     {
-        //Cache is full, we need to replace the oldest packet
-        FGE_DEBUG_PRINT("PacketCache: Cache is full, replacing the oldest packet {}",
-                        this->g_cache[this->g_start]._label._counter);
-        this->g_cache[this->g_start] = std::make_unique<ProtocolPacket>(*packet);
-        this->g_cache[this->g_start]._packet->markAsCached();
-        this->g_start = (this->g_start + 1) % FGE_NET_PACKET_CACHE_MAX;
-        this->g_end = next;
-        return;
+        FGE_DEBUG_PRINT("PacketCache: Cache reached maximum size");
+        this->g_alarm = true;
     }
-
-    this->g_cache[next] = std::make_unique<ProtocolPacket>(*packet);
-    this->g_cache[next]._packet->markAsCached();
-    this->g_end = next;
 }
 
 void PacketCache::acknowledgeReception(std::span<Label> labels)
 {
-    if (this->isEmpty())
+    std::scoped_lock const lock(this->g_mutex);
+
+    if (this->g_cache.empty())
     {
+        this->g_alarm = false;
         return;
     }
 
-    std::scoped_lock const lock(this->g_mutex);
-
     for (auto const& label: labels)
     {
-        auto index = this->g_start;
-
-        do {
-            auto& data = this->g_cache[index];
-            index = (index + 1) % FGE_NET_PACKET_CACHE_MAX;
-
-            if (!data._packet)
-            { //Already acknowledged
-                continue;
-            }
-
-            if (data._label == label)
-            {                           //We found the packet
-                data._packet = nullptr; //We acknowledge the packet by setting it to nullptr
+        for (auto it = this->g_cache.begin(); it != this->g_cache.end(); ++it)
+        {
+            if (it->_label == label)
+            {
+                this->g_cache.erase(it);
                 break;
             }
-        } while (index != this->g_end);
+        }
+    }
+
+    if (this->g_cache.empty())
+    {
+        this->g_alarm = false;
     }
 }
 
-bool PacketCache::check(std::chrono::steady_clock::time_point const& timePoint, std::chrono::milliseconds clientDelay)
+bool PacketCache::update(std::chrono::steady_clock::time_point const& timePoint, Client& client)
 {
-    if (this->isEmpty())
+    std::scoped_lock const lock(this->g_mutex);
+
+    if (this->g_cache.empty())
     {
+        client.allowMorePendingPackets(!this->g_alarm);
         return false;
     }
 
-    std::scoped_lock const lock(this->g_mutex);
+    auto clientDelay =
+            std::chrono::milliseconds(static_cast<std::chrono::milliseconds::rep>(
+                    static_cast<float>(client.getPacketReturnRate().count()) * FGE_NET_PACKET_CACHE_DELAY_FACTOR)) +
+            std::chrono::milliseconds(client._latencyPlanner.getRoundTripTime().value_or(1));
 
     if (clientDelay.count() < FGE_NET_PACKET_CACHE_MIN_LATENCY_MS)
     {
         clientDelay = std::chrono::milliseconds(FGE_NET_PACKET_CACHE_MIN_LATENCY_MS);
     }
 
-    auto index = this->g_start;
-    do {
-        auto& data = this->g_cache[index];
-        index = (index + 1) % FGE_NET_PACKET_CACHE_MAX;
-
-        if (!data._packet)
-        { //Packet is acknowledged, let's remove it
-            this->g_start = index;
-            continue;
-        }
-
-        if (timePoint - data._time >= clientDelay)
-        { //Packet has expired, advise the code to resend it
-            return true;
-        }
-        return false;
-    } while (index != this->g_end);
-
-    //If we are here, it means that every packet that was in the cache has been acknowledged, so it's good
-    return false;
-}
-
-TransmitPacketPtr PacketCache::pop()
-{
-    if (this->isEmpty())
+    bool needSetAlarm = false;
+    for (auto it = this->g_cache.begin(); it != this->g_cache.end();)
     {
-        return nullptr;
+        if (timePoint - it->_time >= clientDelay)
+        { //Packet has expired, advise the code to resend it
+            if (it->_tryCount++ == 3)
+            { //We loose this packet
+#ifdef FGE_DEF_DEBUG
+                auto const counter = it->_packet->retrieveCounter().value();
+                auto const reorderedCounter = it->_packet->retrieveReorderedCounter().value();
+                FGE_DEBUG_PRINT("PacketCache: Packet [{}/{}] lost after all tries", counter, reorderedCounter);
+#endif
+                it = this->g_cache.erase(it);
+                client.advanceLostPacketCount();
+                continue;
+            }
+
+            it->_time = timePoint;
+
+#ifdef FGE_DEF_DEBUG
+            auto const counter = it->_packet->retrieveCounter().value();
+            auto const reorderedCounter = it->_packet->retrieveReorderedCounter().value();
+            FGE_DEBUG_PRINT("re-transmit packet [{}/{}] try {}, as client didn't acknowledge it", counter,
+                            reorderedCounter, it->_tryCount);
+#endif
+
+            client.pushPacket(std::make_unique<ProtocolPacket>(*it->_packet));
+
+            needSetAlarm = true;
+        }
+        else if (it->_tryCount > 0)
+        {
+            //We are in a current retransmission, set the alarm again
+            needSetAlarm = true;
+        }
+
+        ++it;
     }
 
-    std::scoped_lock const lock(this->g_mutex);
+    client.allowMorePendingPackets(!needSetAlarm);
+    this->g_alarm = needSetAlarm;
 
-    //check() must be called before pop(), so we can remove index verification
-    //else it will be undefined behavior
-
-    auto const start = this->g_start;
-    this->g_start = (this->g_start + 1) % FGE_NET_PACKET_CACHE_MAX;
-    return std::move(this->g_cache[start]._packet);
+    return needSetAlarm;
 }
 
 PacketCache::Data::Data(TransmitPacketPtr&& packet) :

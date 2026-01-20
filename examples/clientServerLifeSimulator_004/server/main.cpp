@@ -343,7 +343,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
                 }
 
                 //Make sure that the client is not busy with another packet
-                if (!it->second->isPendingPacketsEmpty())
+                if (!it->second->isReadyToAcceptMorePendingPackets())
                 {
                     continue;
                 }

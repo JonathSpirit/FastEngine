@@ -379,6 +379,7 @@ public:
      */
     void pushPacket(TransmitPacketPtr pck);
     void pushForcedFrontPacket(TransmitPacketPtr pck);
+    [[nodiscard]] bool isReadyToAcceptMorePendingPackets() const;
     /**
      * \brief Pop a packet from the queue
      *
@@ -391,6 +392,7 @@ public:
      * \return True if the queue is empty, false otherwise
      */
     bool isPendingPacketsEmpty() const;
+    void allowMorePendingPackets(bool allow);
 
     void disconnect(bool pushDisconnectPacket = true);
 
@@ -466,6 +468,8 @@ private:
 
     ClientStatus g_status;
     CryptInfo g_cryptInfo;
+
+    bool g_allowMorePackets{true};
 };
 
 /**
